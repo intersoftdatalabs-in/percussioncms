@@ -39,6 +39,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -67,12 +69,13 @@ class ApplicationFileAdaptorTest {
     PSApplicationSummary sum = mock(PSApplicationSummary.class);
     when(sum.getId()).thenReturn(42);
     when(sum.getName()).thenReturn("sys_resources");
+    when(sum.getAppRoot()).thenReturn("sys_resources");
 
     adaptor =
         new ApplicationFileAdaptor(
             tok -> new PSApplicationSummary[] {sum}, fileStore, () -> true, () -> token);
 
-    when(fileStore.listFiles(eq("sys_resources")))
+    when(fileStore.listFiles(eq("sys_resources"), any()))
         .thenReturn(
             List.of(
                     new File("ApplicationFiles" + File.separator + "a.css"),
@@ -285,7 +288,7 @@ class ApplicationFileAdaptorTest {
 
   @Test
   void list_emptyIteratorIsEmptyListNotNull() throws Exception {
-    when(fileStore.listFiles(eq("sys_resources")))
+    when(fileStore.listFiles(eq("sys_resources"), any()))
         .thenReturn(
             new Iterator<>() {
               @Override
@@ -301,5 +304,168 @@ class ApplicationFileAdaptorTest {
     List<ApplicationFileSummary> out = adaptor.listFiles("sys_resources");
     assertNotNull(out);
     assertTrue(out.isEmpty());
+  }
+
+  @Test
+  void createFolder_writesAllowListedPath() throws Exception {
+    when(fileStore.exists(any(), any(File.class))).thenReturn(false);
+    ApplicationFileSummary out = adaptor.createFolder("sys_resources", "ApplicationFiles/qa-dir");
+    assertNotNull(out);
+    assertEquals("ApplicationFiles/qa-dir", out.getPath());
+    assertTrue(Boolean.TRUE.equals(out.getDirectory()));
+    verify(fileStore).mkdir(eq("sys_resources"), any(File.class), eq(token));
+  }
+
+  @Test
+  void createFolder_pathTraversalIs400AndDoesNotWrite() throws Exception {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.createFolder("sys_resources", "../escape"));
+    assertEquals(ApplicationFileAdaptor.INVALID_PATH, ex.getMessage());
+    verify(fileStore, never()).mkdir(any(), any(), any());
+  }
+
+  @Test
+  void createFolder_unknownAppIsNull() throws Exception {
+    assertNull(adaptor.createFolder("no_such_app", "ApplicationFiles/qa-dir"));
+    verify(fileStore, never()).mkdir(any(), any(), any());
+  }
+
+  @Test
+  void createFolder_nonAdminIs403() throws Exception {
+    adaptor =
+        new ApplicationFileAdaptor(
+            tok -> {
+              PSApplicationSummary sum = mock(PSApplicationSummary.class);
+              when(sum.getName()).thenReturn("sys_resources");
+              when(sum.getId()).thenReturn(42);
+              when(sum.getAppRoot()).thenReturn("sys_resources");
+              return new PSApplicationSummary[] {sum};
+            },
+            fileStore,
+            () -> false,
+            () -> token);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.createFolder("sys_resources", "ApplicationFiles/qa-dir"));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(fileStore, never()).mkdir(any(), any(), any());
+  }
+
+  @Test
+  void createFolder_existingFileIs409() throws Exception {
+    when(fileStore.exists(any(), any(File.class))).thenReturn(true);
+    when(fileStore.isDirectory(any(), any(), any(File.class))).thenReturn(false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.createFolder("sys_resources", "ApplicationFiles/a.css"));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(fileStore, never()).mkdir(any(), any(), any());
+  }
+
+  @Test
+  void deletePath_deletesAllowListedPath() throws Exception {
+    when(fileStore.delete(eq("sys_resources"), any(), any(File.class), eq(token))).thenReturn(true);
+    assertEquals(Boolean.TRUE, adaptor.deletePath("sys_resources", "ApplicationFiles/a.css"));
+    verify(fileStore).delete(eq("sys_resources"), any(), any(File.class), eq(token));
+  }
+
+  @Test
+  void deletePath_unknownIsNull() throws Exception {
+    when(fileStore.delete(eq("sys_resources"), any(), any(File.class), eq(token))).thenReturn(false);
+    assertNull(adaptor.deletePath("sys_resources", "ApplicationFiles/missing.txt"));
+  }
+
+  @Test
+  void deletePath_unsafeIs400() throws Exception {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.deletePath("sys_resources", "/etc/passwd"));
+    assertEquals(ApplicationFileAdaptor.INVALID_PATH, ex.getMessage());
+    verify(fileStore, never()).delete(any(), any(), any(), any());
+  }
+
+  @Test
+  void movePath_renamesAllowListedPath() throws Exception {
+    when(fileStore.rename(eq("sys_resources"), any(), any(File.class), any(File.class), eq(token)))
+        .thenReturn(true);
+    when(fileStore.isDirectory(any(), any(), any(File.class))).thenReturn(false);
+    ApplicationFileSummary out =
+        adaptor.movePath(
+            "sys_resources", "ApplicationFiles/a.css", "ApplicationFiles/renamed.css");
+    assertNotNull(out);
+    assertEquals("ApplicationFiles/renamed.css", out.getPath());
+  }
+
+  @Test
+  void movePath_samePathIs400() {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                adaptor.movePath(
+                    "sys_resources", "ApplicationFiles/a.css", "ApplicationFiles/a.css"));
+    assertEquals(ApplicationFileAdaptor.SOURCE_IS_DESTINATION, ex.getMessage());
+  }
+
+  @Test
+  void movePath_nestedFolderIs400() throws Exception {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                adaptor.movePath(
+                    "sys_resources", "ApplicationFiles/dir", "ApplicationFiles/dir/child"));
+    assertEquals(ApplicationFileAdaptor.NESTED_MOVE, ex.getMessage());
+    verify(fileStore, never()).rename(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void movePath_unsafeToIs400() throws Exception {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.movePath("sys_resources", "ApplicationFiles/a.css", "../escape.css"));
+    assertEquals(ApplicationFileAdaptor.INVALID_PATH, ex.getMessage());
+    verify(fileStore, never()).rename(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void nioRelativePath_resolvesSegmentsPortably() {
+    Path p = ApplicationFileAdaptor.nioRelativePath("ApplicationFiles/css/site.css");
+    assertEquals("site.css", p.getFileName().toString());
+    assertEquals(3, p.getNameCount());
+  }
+
+  @Test
+  void isNestedDestination_detectsDescendant() {
+    assertTrue(
+        ApplicationFileAdaptor.isNestedDestination("ApplicationFiles/dir", "ApplicationFiles/dir/x"));
+    assertFalse(
+        ApplicationFileAdaptor.isNestedDestination("ApplicationFiles/dir", "ApplicationFiles/dir2"));
+  }
+
+  @Test
+  void requireSafeRelativePath_rejectsTraversal() {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> ApplicationFileAdaptor.requireSafeRelativePath("a/../b"));
+    assertEquals(ApplicationFileAdaptor.INVALID_PATH, ex.getMessage());
+  }
+
+  @Test
+  void deleteRecursively_removesTreeUnderTempDir() throws Exception {
+    Path root = Files.createTempDirectory("appfile-qa");
+    Path child = root.resolve("sub").resolve("f.txt");
+    Files.createDirectories(child.getParent());
+    Files.writeString(child, "x");
+    assertTrue(Files.exists(child));
+    ApplicationFileAdaptor.deleteRecursively(root);
+    assertFalse(Files.exists(root));
   }
 }

@@ -812,6 +812,9 @@ vi.mock("../../../main/ts/api/developer/applicationFilesApi", () => ({
     designGaps: [],
   }),
   updateApplicationFile: vi.fn(),
+  createApplicationFolder: vi.fn(),
+  deleteApplicationPath: vi.fn(),
+  moveApplicationPath: vi.fn(),
   APPLICATION_FILE_DESIGN_GAPS: [],
 }));
 

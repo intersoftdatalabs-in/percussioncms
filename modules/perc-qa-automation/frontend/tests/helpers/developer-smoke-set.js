@@ -248,6 +248,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "SY-05 SPA application CMS/resource file write H2 (#4289 / parent #1690)",
   },
   {
+    id: "application-files-folders",
+    file: "developer-application-files-folders.spec.js",
+    title: "Admin can create, rename, and delete a folder under an application",
+    status: "green",
+    notes: "SY-05 SPA application file folder CUD/rename H2 (#4544 / parent #1690)",
+  },
+  {
     id: "problems-panel",
     file: "developer-problems-panel.spec.js",
     title: "Admin sees a problem row and can navigate to source",

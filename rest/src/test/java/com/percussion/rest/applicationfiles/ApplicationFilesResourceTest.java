@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -201,5 +202,131 @@ public class ApplicationFilesResourceTest {
         ApplicationFilesResource.mapWriteFailure(new IllegalArgumentException("bad"));
     assertEquals(400, ex.getResponse().getStatus());
     assertEquals("bad", ex.getMessage());
+  }
+
+  @Test
+  public void createFolderDelegates() {
+    ApplicationFileSummary created = new ApplicationFileSummary();
+    created.setPath("ApplicationFiles/newdir");
+    created.setDirectory(true);
+    when(adaptor.createFolder(eq("sys_resources"), eq("ApplicationFiles/newdir")))
+        .thenReturn(created);
+
+    ApplicationFileSummary out = resource.createFolder("sys_resources", "ApplicationFiles/newdir");
+    assertEquals("ApplicationFiles/newdir", out.getPath());
+    verify(adaptor).createFolder("sys_resources", "ApplicationFiles/newdir");
+  }
+
+  @Test
+  public void createFolderBlankPathIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createFolder("sys_resources", "  "));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(ApplicationFilesResource.PATH_REQUIRED, ex.getMessage());
+    verify(adaptor, never()).createFolder(eq("sys_resources"), eq("  "));
+  }
+
+  @Test
+  public void createFolderUnsafeFromAdaptorIs400() {
+    when(adaptor.createFolder(eq("sys_resources"), eq("../escape")))
+        .thenThrow(new IllegalArgumentException("Invalid path"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createFolder("sys_resources", "../escape"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("Invalid path", ex.getMessage());
+  }
+
+  @Test
+  public void createFolderUnknownAppIs404() {
+    when(adaptor.createFolder(eq("missing"), eq("ApplicationFiles/x"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createFolder("missing", "ApplicationFiles/x"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals(ApplicationFilesResource.APP_NOT_FOUND, ex.getMessage());
+  }
+
+  @Test
+  public void createFolderRethrowsAdaptor403() {
+    WebApplicationException mapped = new WebApplicationException("Admin role required", 403);
+    when(adaptor.createFolder(eq("sys_resources"), eq("ApplicationFiles/x"))).thenThrow(mapped);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createFolder("sys_resources", "ApplicationFiles/x"));
+    assertSame(mapped, ex);
+  }
+
+  @Test
+  public void deletePathDelegates204() {
+    when(adaptor.deletePath(eq("sys_resources"), eq("ApplicationFiles/a.txt"))).thenReturn(true);
+    Response out = resource.deletePath("sys_resources", "ApplicationFiles/a.txt");
+    assertEquals(204, out.getStatus());
+    verify(adaptor).deletePath("sys_resources", "ApplicationFiles/a.txt");
+  }
+
+  @Test
+  public void deletePathUnknownIs404() {
+    when(adaptor.deletePath(eq("sys_resources"), eq("nope.txt"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deletePath("sys_resources", "nope.txt"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals(ApplicationFilesResource.FILE_NOT_FOUND, ex.getMessage());
+  }
+
+  @Test
+  public void deletePathBlankIs400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deletePath("sys_resources", ""));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).deletePath(eq("sys_resources"), eq(""));
+  }
+
+  @Test
+  public void movePathDelegates() {
+    ApplicationFileMove body = new ApplicationFileMove();
+    body.setFromPath("ApplicationFiles/a.txt");
+    body.setToPath("ApplicationFiles/b.txt");
+    ApplicationFileSummary moved = new ApplicationFileSummary();
+    moved.setPath("ApplicationFiles/b.txt");
+    when(adaptor.movePath(
+            eq("sys_resources"), eq("ApplicationFiles/a.txt"), eq("ApplicationFiles/b.txt")))
+        .thenReturn(moved);
+
+    ApplicationFileSummary out = resource.movePath("sys_resources", body);
+    assertEquals("ApplicationFiles/b.txt", out.getPath());
+  }
+
+  @Test
+  public void movePathNullBodyIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.movePath("sys_resources", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).movePath(eq("sys_resources"), isNull(), isNull());
+  }
+
+  @Test
+  public void movePathMissingToIs400() {
+    ApplicationFileMove body = new ApplicationFileMove();
+    body.setFromPath("ApplicationFiles/a.txt");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.movePath("sys_resources", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(ApplicationFilesResource.TO_PATH_REQUIRED, ex.getMessage());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnCreateFolder() {
+    ApplicationFilesResource bare = new ApplicationFilesResource();
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> bare.createFolder("any", "ApplicationFiles/x"));
+    assertEquals(503, ex.getResponse().getStatus());
   }
 }

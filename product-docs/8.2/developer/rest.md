@@ -2793,9 +2793,11 @@ writes those server configuration keys — only files under a resolved XML appli
 | Arbitrary FS write | Rejected (catalog app + path-safe relative only) | Rejected (enum allow-list only) |
 
 Admin **write** updates UTF-8 text for a relative path under a catalog application. Path traversal,
-absolute paths, and unknown applications are **404** (no arbitrary filesystem write). Design
-**locking**, **binary** round-trip, and **folder create/delete/rename** remain design gaps.
-**Developer → Application Files** SPA chrome browses and saves against this API
+absolute paths, and unknown applications on GET/PUT are **404** (no arbitrary filesystem write).
+Admin **folder create**, **delete**, and **rename/move** use the same relative keys; traversal is
+**400**, unknown app/path is **404**, and non-Admin is **403**. Design **locking** and **binary**
+round-trip remain design gaps.
+**Developer → Application Files** SPA chrome browses, saves, and manages folders against this API
 ([Developer Application Files](id:admin-developer-application-files)). Integrators may also call
 the endpoints directly.
 
@@ -2804,6 +2806,9 @@ the endpoints directly.
 | `GET` | `/services/applicationfiles/{app}` | List relative file paths under a catalog application (no file body) |
 | `GET` | `/services/applicationfiles/{app}/content?path=` | Load one relative file including `content` when available |
 | `PUT` | `/services/applicationfiles/{app}/content?path=` | **Admin.** Replace UTF-8 text for a relative path under that application |
+| `POST` | `/services/applicationfiles/{app}/folders?path=` | **Admin.** Create a relative folder |
+| `DELETE` | `/services/applicationfiles/{app}/content?path=` | **Admin.** Delete a relative file or folder (recursive) |
+| `POST` | `/services/applicationfiles/{app}/move` | **Admin.** Rename or move a relative file or folder |
 
 JSON objects use the `ApplicationFile` / `ApplicationFileSummary` wire type (`applicationName`,
 `path`, `name`, optional `directory`, optional `content` / `mimeType` / `characterEncoding` /
@@ -2822,12 +2827,20 @@ the query `path` selects the file. Unknown or unsafe app/path values are **404**
 save. Missing body or missing `content` is **400**. Non-Admin is **403**. On success the response
 is the updated detail (same shape as GET), including reloaded `content`.
 
+Folder create (`POST …/folders?path=`), delete (`DELETE …/content?path=`), and rename/move
+(`POST …/move` with `{ "ApplicationFileMove": { "fromPath", "toPath" } }`) require Admin.
+Traversal, absolute, drive, UNC, and NUL paths are **400** (`Invalid path`). Unknown application
+or missing source is **404**. A destination that already exists, or creating a folder where a
+file already lives, is **409**. Moving a folder into itself is **400**.
+
 | Status | Typical meaning |
 |--------|-----------------|
-| `200` | List / get / update success |
-| `400` | Missing body, missing `content`, or invalid input |
+| `200` | List / get / update / folder create / move success |
+| `204` | Delete success |
+| `400` | Missing body, missing `content`/`path`, or unsafe path on folder/delete/move |
 | `403` | Caller is not Admin |
-| `404` | Unknown application, unsafe path, or missing file |
+| `404` | Unknown application, unsafe GET/PUT path, or missing file |
+| `409` | Destination exists (move) or a non-folder occupies the create path |
 | `500` | Object-store I/O failure |
 | `503` | Application file adaptor not configured |
 

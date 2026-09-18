@@ -5,27 +5,39 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as client from "../../../../main/ts/api/client";
 import {
+  APPLICATION_FILE_MOVE_ROOT,
   APPLICATION_FILE_ROOT,
+  createApplicationFolder,
+  deleteApplicationPath,
   getApplicationFileDetail,
+  joinApplicationFilePath,
   listApplicationFiles,
+  moveApplicationPath,
   updateApplicationFile,
   unwrapApplicationFile,
   wrapApplicationFileForWire,
+  wrapApplicationFileMoveForWire,
 } from "../../../../main/ts/api/developer/applicationFilesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
 vi.mock("../../../../main/ts/api/client", () => ({
   get: vi.fn(),
   put: vi.fn(),
+  post: vi.fn(),
+  del: vi.fn(),
 }));
 
 const get = client.get as ReturnType<typeof vi.fn>;
 const put = client.put as ReturnType<typeof vi.fn>;
+const post = client.post as ReturnType<typeof vi.fn>;
+const del = client.del as ReturnType<typeof vi.fn>;
 
 describe("applicationFilesApi", () => {
   beforeEach(() => {
     get.mockReset();
     put.mockReset();
+    post.mockReset();
+    del.mockReset();
   });
 
   it("wrapApplicationFileForWire uses ApplicationFile root for UNWRAP_ROOT_VALUE", () => {
@@ -102,5 +114,58 @@ describe("applicationFilesApi", () => {
       }),
     ).rejects.toThrow(/content is required/i);
     expect(put).not.toHaveBeenCalled();
+  });
+
+  it("joinApplicationFilePath uses REST separators and rejects traversal", () => {
+    expect(joinApplicationFilePath("ApplicationFiles", "qa-dir")).toBe(
+      "ApplicationFiles/qa-dir",
+    );
+    expect(joinApplicationFilePath("", "root-dir")).toBe("root-dir");
+    expect(() => joinApplicationFilePath("ApplicationFiles", "../x")).toThrow(/segment/i);
+  });
+
+  it("createApplicationFolder POSTs folders?path=", async () => {
+    post.mockResolvedValue({
+      ApplicationFile: { path: "ApplicationFiles/qa-dir", directory: true },
+    });
+    const created = await createApplicationFolder("sys_resources", "ApplicationFiles/qa-dir");
+    expect(created.path).toBe("ApplicationFiles/qa-dir");
+    expect(post.mock.calls[0][0]).toBe(
+      `${PATHS.APPLICATION_FILES}/sys_resources/folders?path=ApplicationFiles%2Fqa-dir`,
+    );
+    expect(post.mock.calls[0][1]).toEqual({});
+  });
+
+  it("deleteApplicationPath DELETEs content?path=", async () => {
+    del.mockResolvedValue(undefined);
+    await deleteApplicationPath("sys_resources", "ApplicationFiles/qa-dir");
+    expect(del.mock.calls[0][0]).toBe(
+      `${PATHS.APPLICATION_FILES}/sys_resources/content?path=ApplicationFiles%2Fqa-dir`,
+    );
+  });
+
+  it("moveApplicationPath POSTs wrapped from/to", async () => {
+    post.mockResolvedValue({
+      ApplicationFile: { path: "ApplicationFiles/b.txt" },
+    });
+    const moved = await moveApplicationPath(
+      "sys_resources",
+      "ApplicationFiles/a.txt",
+      "ApplicationFiles/b.txt",
+    );
+    expect(moved.path).toBe("ApplicationFiles/b.txt");
+    expect(APPLICATION_FILE_MOVE_ROOT).toBe("ApplicationFileMove");
+    expect(post.mock.calls[0][0]).toBe(`${PATHS.APPLICATION_FILES}/sys_resources/move`);
+    expect(post.mock.calls[0][1]).toEqual(
+      wrapApplicationFileMoveForWire({
+        fromPath: "ApplicationFiles/a.txt",
+        toPath: "ApplicationFiles/b.txt",
+      }),
+    );
+  });
+
+  it("createApplicationFolder rejects blank path", async () => {
+    await expect(createApplicationFolder("sys_resources", "  ")).rejects.toThrow(/path is required/i);
+    expect(post).not.toHaveBeenCalled();
   });
 });

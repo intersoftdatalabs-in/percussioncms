@@ -25,7 +25,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -43,15 +45,23 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * <p>Distinct from {@code /serverconfigs} (SY-02 fixed server configuration allow-list). Paths are
  * relative under a catalog application root; traversal and absolute paths are rejected. Admin PUT
- * updates UTF-8 file bodies. SPA editor chrome is a later slice.
+ * updates UTF-8 file bodies. Admin folder create/delete and rename/move use the same path-safe
+ * keys (traversal is 400; unknown app/path is 404; non-Admin is 403).
  */
 @PSSiteManageBean(value = "restApplicationFilesResource")
 @Path("/applicationfiles")
 @XmlRootElement
 @Tag(
     name = "Application Files",
-    description = "XML application CMS/resource files (path-safe list/get/put)")
+    description = "XML application CMS/resource files (path-safe list/get/put/folder/move)")
 public class ApplicationFilesResource {
+
+  static final String PATH_REQUIRED = "path is required";
+  static final String FROM_PATH_REQUIRED = "fromPath is required";
+  static final String TO_PATH_REQUIRED = "toPath is required";
+  static final String BODY_REQUIRED = "body is required";
+  static final String FILE_NOT_FOUND = "Application file not found";
+  static final String APP_NOT_FOUND = "Application not found";
 
   private final IApplicationFileAdaptor adaptor;
 
@@ -149,8 +159,8 @@ public class ApplicationFilesResource {
           "Admin. Replaces UTF-8 text content for a relative path under a catalog application"
               + " root. Query path is not taken from the body path field for persistence. Absolute"
               + " paths, parent traversal, and unknown apps are 404 — no arbitrary filesystem"
-              + " write. Distinct from PUT /serverconfigs/{name} (SY-02). Locking / binary"
-              + " round-trip / create-folder remain design gaps.",
+              + " write. Distinct from PUT /serverconfigs/{name} (SY-02). Locking and binary"
+              + " round-trip remain design gaps.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -171,13 +181,134 @@ public class ApplicationFilesResource {
         throw new IllegalArgumentException("body is required");
       }
       if (path == null || path.isBlank()) {
-        throw new IllegalArgumentException("path is required");
+        throw new IllegalArgumentException(PATH_REQUIRED);
       }
       ApplicationFileSummary updated = requireAdaptor().putFile(app, path, body);
       if (updated == null) {
-        throw new WebApplicationException("Application file not found", 404);
+        throw new WebApplicationException(FILE_NOT_FOUND, 404);
       }
       return updated;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @POST
+  @Path("/{app}/folders")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Create an application CMS/resource folder",
+      description =
+          "Admin. Creates a relative folder under a catalog application root. Query path uses /"
+              + " separators. Absolute paths, parent traversal, and NUL/drive/UNC forms are 400."
+              + " Unknown applications are 404. Non-Admin is 403.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created or already present",
+            content = @Content(schema = @Schema(implementation = ApplicationFileSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Missing or unsafe path"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found / not allow-listed"),
+        @ApiResponse(responseCode = "409", description = "A non-folder already exists at that path"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ApplicationFileSummary createFolder(
+      @PathParam("app") String app, @QueryParam("path") String path) {
+    try {
+      if (path == null || path.isBlank()) {
+        throw new IllegalArgumentException(PATH_REQUIRED);
+      }
+      ApplicationFileSummary created = requireAdaptor().createFolder(app, path);
+      if (created == null) {
+        throw new WebApplicationException(APP_NOT_FOUND, 404);
+      }
+      return created;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @DELETE
+  @Path("/{app}/content")
+  @Operation(
+      summary = "Delete an application CMS/resource file or folder",
+      description =
+          "Admin. Deletes a relative file or recursively deletes a folder under a catalog"
+              + " application root. Query path uses / separators. Absolute paths, parent"
+              + " traversal, and NUL/drive/UNC forms are 400. Unknown applications or paths are"
+              + " 404. Non-Admin is 403.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(responseCode = "400", description = "Missing or unsafe path"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application or path not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response deletePath(@PathParam("app") String app, @QueryParam("path") String path) {
+    try {
+      if (path == null || path.isBlank()) {
+        throw new IllegalArgumentException(PATH_REQUIRED);
+      }
+      Boolean deleted = requireAdaptor().deletePath(app, path);
+      if (deleted == null || !deleted) {
+        throw new WebApplicationException(FILE_NOT_FOUND, 404);
+      }
+      return Response.noContent().build();
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @POST
+  @Path("/{app}/move")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Rename or move an application CMS/resource file or folder",
+      description =
+          "Admin. Renames or moves a relative path under a catalog application root. Body"
+              + " fromPath/toPath use / separators. Absolute paths, parent traversal, and"
+              + " NUL/drive/UNC forms are 400. Unknown applications or source paths are 404."
+              + " Non-Admin is 403.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Moved",
+            content = @Content(schema = @Schema(implementation = ApplicationFileSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Missing body/paths or unsafe path"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application or source path not found"),
+        @ApiResponse(responseCode = "409", description = "Destination already exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ApplicationFileSummary movePath(
+      @PathParam("app") String app, ApplicationFileMove body) {
+    try {
+      if (body == null) {
+        throw new IllegalArgumentException(BODY_REQUIRED);
+      }
+      if (body.getFromPath() == null || body.getFromPath().isBlank()) {
+        throw new IllegalArgumentException(FROM_PATH_REQUIRED);
+      }
+      if (body.getToPath() == null || body.getToPath().isBlank()) {
+        throw new IllegalArgumentException(TO_PATH_REQUIRED);
+      }
+      ApplicationFileSummary moved =
+          requireAdaptor().movePath(app, body.getFromPath(), body.getToPath());
+      if (moved == null) {
+        throw new WebApplicationException(FILE_NOT_FOUND, 404);
+      }
+      return moved;
     } catch (RuntimeException e) {
       throw mapWriteFailure(e);
     } catch (Exception e) {

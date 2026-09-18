@@ -11,7 +11,10 @@ import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as appFilesApi from "../../../main/ts/api/developer/applicationFilesApi";
 import * as pipelinesApi from "../../../main/ts/api/developer/pipelinesApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
-import { ApplicationFilesPanel } from "../../../main/ts/developer/ApplicationFilesPanel";
+import {
+  ApplicationFilesPanel,
+  isSafeApplicationFileApiPath,
+} from "../../../main/ts/developer/ApplicationFilesPanel";
 
 function renderAdmin(ui: React.ReactElement) {
   return render(
@@ -29,6 +32,9 @@ vi.mock("../../../main/ts/api/developer/applicationFilesApi", () => ({
   listApplicationFiles: vi.fn(),
   getApplicationFileDetail: vi.fn(),
   updateApplicationFile: vi.fn(),
+  createApplicationFolder: vi.fn(),
+  deleteApplicationPath: vi.fn(),
+  moveApplicationPath: vi.fn(),
   APPLICATION_FILE_DESIGN_GAPS: ["gap-lock"],
 }));
 
@@ -38,6 +44,19 @@ const getApplicationFileDetail = appFilesApi.getApplicationFileDetail as ReturnT
   typeof vi.fn
 >;
 const updateApplicationFile = appFilesApi.updateApplicationFile as ReturnType<typeof vi.fn>;
+const createApplicationFolder = appFilesApi.createApplicationFolder as ReturnType<typeof vi.fn>;
+const deleteApplicationPath = appFilesApi.deleteApplicationPath as ReturnType<typeof vi.fn>;
+const moveApplicationPath = appFilesApi.moveApplicationPath as ReturnType<typeof vi.fn>;
+
+describe("isSafeApplicationFileApiPath", () => {
+  it("accepts relative API paths and rejects traversal", () => {
+    expect(isSafeApplicationFileApiPath("ApplicationFiles/qa-dir")).toBe(true);
+    expect(isSafeApplicationFileApiPath("../escape")).toBe(false);
+    expect(isSafeApplicationFileApiPath("/abs")).toBe(false);
+    expect(isSafeApplicationFileApiPath("C:/Windows")).toBe(false);
+    expect(isSafeApplicationFileApiPath("")).toBe(false);
+  });
+});
 
 describe("ApplicationFilesPanel", () => {
   beforeEach(() => {
@@ -48,6 +67,9 @@ describe("ApplicationFilesPanel", () => {
     listApplicationFiles.mockReset();
     getApplicationFileDetail.mockReset();
     updateApplicationFile.mockReset();
+    createApplicationFolder.mockReset();
+    deleteApplicationPath.mockReset();
+    moveApplicationPath.mockReset();
   });
 
   it("lists apps, files, opens editor, and saves content", async () => {
@@ -146,5 +168,86 @@ describe("ApplicationFilesPanel", () => {
     expect(screen.getByTestId("developer-appfile-apps-error").textContent).toBe(
       `${DEV_MSG.APPFILE_APPS_ERROR} (500)`,
     );
+  });
+
+  it("Admin can create, rename, and delete a folder then refresh", async () => {
+    listApplications.mockResolvedValue([
+      { name: "sys_resources", description: "Resources", appRoot: "sys_resources" },
+    ]);
+    listApplicationFiles
+      .mockResolvedValueOnce([
+        { path: "ApplicationFiles", name: "ApplicationFiles", directory: true },
+      ])
+      .mockResolvedValueOnce([
+        { path: "ApplicationFiles", name: "ApplicationFiles", directory: true },
+        { path: "ApplicationFiles/qa-dir", name: "qa-dir", directory: true },
+      ])
+      .mockResolvedValueOnce([
+        { path: "ApplicationFiles", name: "ApplicationFiles", directory: true },
+        { path: "ApplicationFiles/qa-renamed", name: "qa-renamed", directory: true },
+      ])
+      .mockResolvedValueOnce([
+        { path: "ApplicationFiles", name: "ApplicationFiles", directory: true },
+      ]);
+    createApplicationFolder.mockResolvedValue({
+      path: "ApplicationFiles/qa-dir",
+      directory: true,
+    });
+    moveApplicationPath.mockResolvedValue({
+      path: "ApplicationFiles/qa-renamed",
+      directory: true,
+    });
+    deleteApplicationPath.mockResolvedValue(undefined);
+
+    renderAdmin(<ApplicationFilesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-apps-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-appfile-app-open"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-create-folder")).toBeTruthy();
+    });
+
+    fireEvent.change(screen.getByTestId("developer-appfile-folder-path"), {
+      target: { value: "ApplicationFiles/qa-dir" },
+    });
+    fireEvent.click(screen.getByTestId("developer-appfile-create-folder"));
+    await waitFor(() => {
+      expect(createApplicationFolder).toHaveBeenCalledWith(
+        "sys_resources",
+        "ApplicationFiles/qa-dir",
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-files-notice").textContent).toBe(
+        DEV_MSG.APPFILE_FOLDER_CREATED,
+      );
+    });
+
+    const renameBtn = screen.getByLabelText("Rename ApplicationFiles/qa-dir");
+    fireEvent.click(renameBtn);
+    fireEvent.change(screen.getByTestId("developer-appfile-rename-path"), {
+      target: { value: "ApplicationFiles/qa-renamed" },
+    });
+    fireEvent.click(screen.getByTestId("developer-appfile-rename-save"));
+    await waitFor(() => {
+      expect(moveApplicationPath).toHaveBeenCalledWith(
+        "sys_resources",
+        "ApplicationFiles/qa-dir",
+        "ApplicationFiles/qa-renamed",
+      );
+    });
+
+    fireEvent.click(screen.getByLabelText("Delete ApplicationFiles/qa-renamed"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-catalog-confirm-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(deleteApplicationPath).toHaveBeenCalledWith(
+        "sys_resources",
+        "ApplicationFiles/qa-renamed",
+      );
+    });
   });
 });
