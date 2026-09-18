@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | Active — Phase 1 assemblers in progress |
+| **Status** | Phase 5 docs complete — Phases 0–4 closed; shim-removal residual [#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852) open (blocked until M1–M3 + G1–G6) |
 | **Created** | 2026-08-09 |
 | **Type** | Product architecture (multi-phase) |
 | **GitHub epic** | [#2626](https://github.com/intersoftdatalabs-in/percussioncms/issues/2626) (all children **p2**) |
@@ -39,12 +39,12 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 
 | Phase | Issue | Goal | Status |
 |-------|-------|------|--------|
-| **0** | #2627 | Inventory, ADRs, contracts | PR #2625 |
-| **1** | #2628 | HTML-first + Markdown assemblers | In progress |
-| **2** | #2629 | Unified slots + `slot_layout` / `slot_styles` | Blocked by #2628 |
-| **3** | #2630 | Widget/Page/Gadget XML → package model | Blocked by #2629 |
-| **4** | #2631 | Design SPA consolidation | Blocked by #2630 |
-| **5** | #2632 | Deprecation cleanup / help | Blocked by #2630 |
+| **0** | #2627 | Inventory, ADRs, contracts | Done (PR #2625 merged) |
+| **1** | #2628 | HTML-first + Markdown assemblers | Done (PR #2634 merged; CLOSED) |
+| **2** | #2629 | Unified slots + `slot_layout` / `slot_styles` | Done (PRs #2692 / #2718 / #2719 merged; CLOSED) |
+| **3** | #2630 | Widget/Page/Gadget XML → package model | Done (PR #3957 merged; M1 PASS — 0 product Package Widget XML; CLOSED) |
+| **4** | #2631 | Design SPA consolidation | Done (PRs #2826 / #3315 / #3601 merged; CLOSED) |
+| **5** | #2632 | Deprecation cleanup / help | Docs done (PRs #2845 / #2851 / #2853 / #4437 / #4442 / #4445 merged); code residual #2852 open, blocked until M1–M3 + G1–G6 |
 
 ## Documents in this folder
 
@@ -66,6 +66,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 | [parity-notes.md](./parity-notes.md) | Region vs slot, pageAssembler vs velocity, etc. |
 | [region-slot-mapping.md](./region-slot-mapping.md) | Phase 2 residual: region↔slot composition + CssPref upgrade (#2690) |
 | [binding-modules.md](./binding-modules.md) | `$sys` / `$rx` / `$perc` + assembler picker guide |
+| Product operator help (Phase 5 #2632 slices #4433–#4435) | `product-docs/8.2/admin/design-templates.md` (assembler picker: HTML-first / Markdown / Velocity), `product-docs/8.2/admin/xsl-legacy-assembler.md` (XSL support statement + migration cookbook), `product-docs/8.2/admin/definition-xml-dual-run.md` (convert → deploy modern cookbook; shim kept) |
 
 ## Code anchors
 
@@ -95,5 +96,7 @@ All **48** product widget definitions use `Code type=jexl` and `Content type=vel
 ## Immediate next work
 
 1. **Start here for implementers:** [implementer-guide.md](./implementer-guide.md) (Phase 5 docs #2833).
-2. Land remaining Phase 3 packaging residuals under #2630 (product off definition XML).
-3. Phase 5 siblings: XSL cookbook (#2834), Design SPA help surfaces (#2835); shim removal when dual-run exit metrics allow (#2632).
+2. **Operators:** product help is live — [Design templates](../../../../product-docs/8.2/admin/design-templates.md) (assembler picker), [XSL and legacyAssembler support](../../../../product-docs/8.2/admin/xsl-legacy-assembler.md), [Convert definition XML (dual-run)](../../../../product-docs/8.2/admin/definition-xml-dual-run.md).
+3. **Do not start** shim / dual-run deletion ([#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852)) until [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) shows M1–M3 + G1–G6 all PASS (or waived with evidence).
+
+Epic: [#2626](https://github.com/intersoftdatalabs-in/percussioncms/issues/2626) · Phase 3: [#2630](https://github.com/intersoftdatalabs-in/percussioncms/issues/2630) · Phase 5: [#2632](https://github.com/intersoftdatalabs-in/percussioncms/issues/2632).
