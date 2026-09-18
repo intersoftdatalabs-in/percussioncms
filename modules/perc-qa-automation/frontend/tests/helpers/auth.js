@@ -1,8 +1,10 @@
 const fs = require("fs");
 const path = require("path");
+const { execFileSync } = require("child_process");
 const {
   resolveCmsBaseUrl,
   resolveRolePassword,
+  parseGeneratedPasswordsText,
   hasQaModeUrlEnv,
   DEV_FALLBACK_URL,
 } = require("./resolve-cms-env");
@@ -205,9 +207,52 @@ if (!DTS_URL && DTS_INSTALL_PATH) {
 }
 
 let passwords = {};
+let qaCellPasswords = {};
+
+/**
+ * Load H2 QA cell {@code var/config/generated/passwords} (Editor/Contributor
+ * are distinct from Admin). Prefers {@code QA_GENERATED_PASSWORDS_TEXT} (tests)
+ * then {@code docker exec} into {@code QA_CMS_CONTAINER} (default
+ * perc-matrix-cms-h2). Never logs secret values.
+ *
+ * @returns {Record<string, string>}
+ */
+function loadQaCellPasswords() {
+  const fromEnv = parseGeneratedPasswordsText(
+    process.env.QA_GENERATED_PASSWORDS_TEXT,
+  );
+  if (Object.keys(fromEnv).length > 0) {
+    return fromEnv;
+  }
+  const container =
+    process.env.QA_CMS_CONTAINER ||
+    process.env.QA_CONTAINER ||
+    "perc-matrix-cms-h2";
+  const pwdPath =
+    process.env.QA_GENERATED_PASSWORDS_PATH ||
+    "/opt/Percussion/var/config/generated/passwords";
+  try {
+    const text = execFileSync("docker", ["exec", container, "cat", pwdPath], {
+      encoding: "utf8",
+      timeout: 15_000,
+      windowsHide: true,
+    });
+    return parseGeneratedPasswordsText(text);
+  } catch (e) {
+    console.log(
+      `QA cell generated passwords not loaded (${e.message || e}); set EDITOR_PASSWORD / CONTRIBUTOR_PASSWORD or QA_GENERATED_PASSWORDS_TEXT.`,
+    );
+    return {};
+  }
+}
+
+if (hasQaModeUrlEnv(process.env)) {
+  qaCellPasswords = loadQaCellPasswords();
+}
 
 // Host-install password discovery is opt-in for human dev mode only.
-// QA mode supplies ADMIN_PASSWORD (etc.) via env from qa-up / docker exec.
+// QA mode supplies ADMIN_PASSWORD via env from qa-up; Editor/Contributor
+// come from the cell generated-passwords file when docker is available (#4585).
 if (INSTALL_PATH) {
   const missingPasswords = users.some(
     (user) => !process.env[`${user.toUpperCase()}_PASSWORD`],
@@ -233,12 +278,23 @@ if (INSTALL_PATH) {
   }
 }
 
-const adminResolved = resolveRolePassword("Admin", process.env, passwords);
-const editorResolved = resolveRolePassword("Editor", process.env, passwords);
+const adminResolved = resolveRolePassword(
+  "Admin",
+  process.env,
+  passwords,
+  qaCellPasswords,
+);
+const editorResolved = resolveRolePassword(
+  "Editor",
+  process.env,
+  passwords,
+  qaCellPasswords,
+);
 const contributorResolved = resolveRolePassword(
   "Contributor",
   process.env,
   passwords,
+  qaCellPasswords,
 );
 
 const ADMIN_PASSWORD = adminResolved.password;

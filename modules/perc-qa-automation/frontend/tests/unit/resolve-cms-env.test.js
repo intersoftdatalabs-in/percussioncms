@@ -13,6 +13,7 @@ const assert = require("node:assert/strict");
 const {
   resolveCmsBaseUrl,
   resolveRolePassword,
+  parseGeneratedPasswordsText,
   hasQaModeUrlEnv,
   DEV_FALLBACK_URL,
   QA_PREFERRED_FALLBACK_URL,
@@ -166,6 +167,45 @@ describe("resolveRolePassword", () => {
       }).password,
       "c",
     );
+  });
+
+  it("prefers QA cell Editor password over stale EDITOR_PASSWORD env (#4585)", () => {
+    const r = resolveRolePassword(
+      "Editor",
+      { TEST_CMS_URL: "http://127.0.0.1:14002", EDITOR_PASSWORD: "stale-demo" },
+      {},
+      { Editor: "cell-editor-secret" },
+    );
+    assert.equal(r.password, "cell-editor-secret");
+    assert.equal(r.source, "qa-cell");
+  });
+
+  it("keeps ADMIN_PASSWORD env over QA cell for Admin", () => {
+    const r = resolveRolePassword(
+      "Admin",
+      { TEST_CMS_URL: "http://127.0.0.1:1", ADMIN_PASSWORD: "from-env" },
+      {},
+      { Admin: "from-cell" },
+    );
+    assert.equal(r.password, "from-env");
+    assert.equal(r.source, "ADMIN_PASSWORD");
+  });
+});
+
+describe("parseGeneratedPasswordsText", () => {
+  it("parses User=value lines and ignores blanks/comments", () => {
+    const map = parseGeneratedPasswordsText(
+      "# comment\nAdmin=admin-pw\nEditor=editor-pw\n\nContributor=c-pw\n",
+    );
+    assert.equal(map.Admin, "admin-pw");
+    assert.equal(map.Editor, "editor-pw");
+    assert.equal(map.Contributor, "c-pw");
+  });
+
+  it("normalizes CRLF from Windows-hosted docker exec", () => {
+    const map = parseGeneratedPasswordsText("Editor=e\r\nAdmin=a\r\n");
+    assert.equal(map.Editor, "e");
+    assert.equal(map.Admin, "a");
   });
 });
 
