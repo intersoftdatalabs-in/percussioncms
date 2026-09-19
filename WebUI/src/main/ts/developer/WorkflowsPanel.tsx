@@ -5,19 +5,34 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { listWorkflows } from "../api/developer/workflowsApi";
 import type { WorkflowDef } from "../api/developer/types";
+import type { WorkflowCreateResult } from "../api/developer/workflowsApi";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
-import { mutedCell, openButtonStyle } from "./catalogStyles";
+import { catalogColors, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { WorkflowCreatePanel } from "./WorkflowCreatePanel";
 import { WorkflowDetailPanel } from "./WorkflowDetailPanel";
 
 /**
- * P0.17 — workflow catalog browse (SY-04) via existing workflowmanagement API.
+ * P0.17 — workflow catalog browse (SY-04) via existing workflowmanagement API,
+ * plus slice 21 catalog create (POST /services/workflows).
  */
 export function WorkflowsPanel(): React.ReactElement {
   const [items, setItems] = useState<WorkflowDef[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | "new" | null>(null);
+
+  function reload(): void {
+    setError(null);
+    listWorkflows()
+      .then((list) => {
+        setItems(list);
+      })
+      .catch((e: unknown) => {
+        setError(panelErrMsg(e, DEV_MSG.WF_ERROR));
+        // Leave items null so error ≠ empty catalog (and retry can show loading).
+      });
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -35,6 +50,12 @@ export function WorkflowsPanel(): React.ReactElement {
     };
   }, []);
 
+  function handleCreated(created: WorkflowCreateResult): void {
+    const name = (created.workflowName || "").trim();
+    reload();
+    setSelected(name ? name : null);
+  }
+
   const sorted = useMemo(() => {
     if (!items) return [];
     return [...items]
@@ -45,6 +66,12 @@ export function WorkflowsPanel(): React.ReactElement {
         }),
       );
   }, [items]);
+
+  if (selected === "new") {
+    return (
+      <WorkflowCreatePanel onBack={() => setSelected(null)} onCreated={handleCreated} />
+    );
+  }
 
   if (selected) {
     return <WorkflowDetailPanel name={selected} onBack={() => setSelected(null)} />;
@@ -63,7 +90,33 @@ export function WorkflowsPanel(): React.ReactElement {
 
   return (
     <div data-testid="developer-wf-panel">
-      <CatalogHint>{DEV_MSG.WF_HINT}</CatalogHint>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "12px",
+          gap: "12px",
+          flexWrap: "wrap",
+        }}
+      >
+        <CatalogHint>{DEV_MSG.WF_HINT}</CatalogHint>
+        <button
+          type="button"
+          data-testid="developer-wf-new"
+          onClick={() => setSelected("new")}
+          style={{
+            padding: "8px 14px",
+            background: catalogColors.accent,
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          {DEV_MSG.WF_NEW}
+        </button>
+      </div>
       <SimpleCatalogTable
         tableTestId="developer-wf-table"
         rowTestId="developer-wf-row"

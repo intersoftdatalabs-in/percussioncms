@@ -19,6 +19,8 @@ package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.rest.workflows.IWorkflowsAdaptor;
+import com.percussion.rest.workflows.WorkflowCreate;
+import com.percussion.rest.workflows.WorkflowSummary;
 import java.net.URI;
 import java.util.List;
 import org.springframework.context.annotation.Lazy;
@@ -41,5 +43,14 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
   public List<NamedObjectRef> setAllowedContentTypes(
       URI baseUri, String idOrName, List<NamedObjectRef> allowedContentTypes) {
     return allowedContentTypes != null ? allowedContentTypes : List.of();
+  }
+
+  @Override
+  public WorkflowSummary createWorkflow(URI baseUri, WorkflowCreate body) {
+    WorkflowSummary summary = new WorkflowSummary();
+    summary.setWorkflowName(body != null && body.getName() != null ? body.getName().trim() : "");
+    summary.setWorkflowDescription(body != null ? body.getDescription() : null);
+    summary.setDefaultWorkflow(false);
+    return summary;
   }
 }

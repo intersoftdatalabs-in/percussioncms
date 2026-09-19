@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { get, put } from "../client";
+import { get, post, put } from "../client";
 import { asJsonRecord } from "../jsonList";
 import { PATHS } from "../paths";
 import type { NamedObjectRef, WorkflowDef } from "./types";
@@ -11,7 +11,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
   "Full workflow graph design is not exposed in the Developer catalog",
-  "Workflow create / update / delete is not supported from this Developer surface",
+  "Workflow update / delete is not supported from this Developer surface",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -272,4 +272,136 @@ export async function setWorkflowAllowedContentTypes(
     wrapWorkflowContentTypesForWire(body),
   );
   return unwrapNamedObjectRefList(payload);
+}
+
+/**
+ * Writable fields for {@code POST /services/workflows} (slice 21 create).
+ * Name is required; unique (case-insensitive); letters, digits, underscore,
+ * hyphen, space; max 50 chars. States, transitions, and roles come from the
+ * product base-workflow template; full graph design stays outside this surface.
+ */
+export type WorkflowCreateBody = {
+  name: string;
+  description?: string;
+};
+
+/** Created-workflow summary from {@code POST /services/workflows}. */
+export type WorkflowCreateResult = {
+  workflowName: string;
+  workflowDescription?: string;
+  defaultWorkflow?: boolean;
+};
+
+/** Workflow-admin name rules mirrored from the stepped editor (create path). */
+export const WORKFLOW_NAME_PATTERN = /^[\s\w-]+$/;
+
+/** Max workflow name length enforced by the stepped workflow editor. */
+export const WORKFLOW_NAME_MAX_LENGTH = 50;
+
+/** Trim; empty when missing. */
+export function normalizeWorkflowName(name: string | undefined | null): string {
+  if (name == null) {
+    return "";
+  }
+  return name.trim();
+}
+
+/**
+ * True when the name is a legal REST create key: non-blank, max 50 chars, no
+ * wildcards, and only workflow-admin name characters.
+ */
+export function isValidWorkflowName(name: string | undefined | null): boolean {
+  const n = normalizeWorkflowName(name);
+  if (!n) {
+    return false;
+  }
+  if (n.length > WORKFLOW_NAME_MAX_LENGTH) {
+    return false;
+  }
+  if (n.includes("*") || n.includes("%")) {
+    return false;
+  }
+  return WORKFLOW_NAME_PATTERN.test(n);
+}
+
+/** Create Save is enabled when the workflow name is valid. Description is optional. */
+export function isWorkflowCreateReady(opts: { name: string }): boolean {
+  return isValidWorkflowName(opts.name);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code WorkflowCreate}. */
+export const WORKFLOW_CREATE_ROOT = "WorkflowCreate";
+
+/**
+ * Build the wire JSON body for WorkflowsResource POST under
+ * {@link WORKFLOW_CREATE_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapWorkflowCreateForWire(
+  body: WorkflowCreateBody,
+): Record<string, WorkflowCreateBody> {
+  return { [WORKFLOW_CREATE_ROOT]: body };
+}
+
+/** Envelope keys for a single create response (flat body or Jackson WRAP_ROOT). */
+const SUMMARY_WRAPPER_KEYS = ["WorkflowSummary", "workflowSummary", "Workflow"] as const;
+
+/**
+ * Parse {@code POST /services/workflows} responses. Accepts a flat summary
+ * body or a Jackson root-wrapped envelope. Throws when the workflow name is
+ * missing so the UI surfaces an error instead of a silent no-op.
+ */
+export function parseWorkflowSummary(payload: unknown): WorkflowCreateResult {
+  if (payload == null) {
+    throw new Error("Workflow create returned an empty response");
+  }
+  const records: Record<string, unknown>[] = [];
+  if (Array.isArray(payload)) {
+    if (payload.length === 0) {
+      throw new Error("Workflow create returned an empty response");
+    }
+    const first = asJsonRecord(payload[0]);
+    if (first) {
+      records.push(first);
+    }
+  } else {
+    const obj = asJsonRecord(payload);
+    if (!obj) {
+      throw new Error("Workflow create returned an unexpected response");
+    }
+    records.push(obj);
+    for (const key of SUMMARY_WRAPPER_KEYS) {
+      const nested = asJsonRecord(obj[key]);
+      if (nested) {
+        records.push(nested);
+      }
+    }
+  }
+  for (const rec of records) {
+    const name = rec.workflowName;
+    if (typeof name === "string" && name.trim()) {
+      return {
+        workflowName: name.trim(),
+        workflowDescription:
+          typeof rec.workflowDescription === "string" ? rec.workflowDescription : undefined,
+        defaultWorkflow:
+          typeof rec.defaultWorkflow === "boolean" ? rec.defaultWorkflow : undefined,
+      };
+    }
+  }
+  throw new Error("Workflow create response missing workflowName");
+}
+
+/**
+ * POST /services/workflows — Admin. Creates and persists a workflow (base
+ * template states/transitions/roles; description stored when given).
+ * Duplicate name is 409; blank/too-long/invalid name is 400; non-Admin is 403.
+ */
+export async function createWorkflow(
+  body: WorkflowCreateBody,
+): Promise<WorkflowCreateResult> {
+  const payload = await post<unknown>(
+    PATHS.WORKFLOWS_ASSOC,
+    wrapWorkflowCreateForWire(body),
+  );
+  return parseWorkflowSummary(payload);
 }
