@@ -197,6 +197,7 @@ describe("SiteWorkspace full publish (issue #936)", () => {
       expect(screen.getByText("FTP-Prod")).toBeTruthy();
     });
 
+    vi.spyOn(window, "confirm").mockReturnValue(true);
     const incrementalButton = screen.getByTestId("publish-incremental-confirm");
     fireEvent.click(incrementalButton);
 

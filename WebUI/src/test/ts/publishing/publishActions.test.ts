@@ -17,6 +17,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  extractPublishJobId,
   mapPublishError,
   mapPublishResponse,
   startPublishState,
@@ -27,6 +28,19 @@ describe("publish action state machine", () => {
   it("starts and succeeds", () => {
     expect(startPublishState()).toBe("starting");
     expect(successPublishState()).toBe("success");
+  });
+
+  it("extracts jobid from SitePublishResponse", () => {
+    expect(
+      extractPublishJobId({
+        SitePublishResponse: { status: "Edition completed", jobid: 999 },
+      }),
+    ).toBe("999");
+    expect(extractPublishJobId({ status: "Queuing content", jobid: "12" })).toBe(
+      "12",
+    );
+    expect(extractPublishJobId({ status: "BADCONFIG" })).toBeNull();
+    expect(extractPublishJobId(null)).toBeNull();
   });
 
   it("maps FORBIDDEN from status 403", () => {
