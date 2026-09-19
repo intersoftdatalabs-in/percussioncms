@@ -163,6 +163,8 @@ python docker/scripts/perc-devctl.py qa-up
 #    (Failed startup of context / BeanCurrentlyInCreationException) even when
 #    Jetty HTTP still answers (#2462 / #2423). Do not treat port-up alone as ready.
 python docker/scripts/perc-devctl.py qa-health
+# Host port: env QA_CMS_HOST_PORT / CMS_HOST_PORT, else docker port perc-matrix-cms-h2,
+# else last docker/logs/qa-up-*.log, else preferred 9993 when free (#4597).
 # optional: --timeout-seconds 120  --interval-seconds 5
 # DETAIL:rhythmyx_context_failed → cell unusable; inspect docker logs; do not run Playwright
 #
