@@ -143,9 +143,14 @@ public class PSSitePublishServiceWebAdapter {
         | IPSItemWorkflowService.PSItemWorkflowServiceException
         | IPSItemService.PSItemServiceException
         | PSNotFoundException e) {
+      if (isMalformedItemId(e)) {
+        throw invalidItemId();
+      }
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e.getMessage());
+    } catch (IllegalArgumentException e) {
+      throw invalidItemId();
     }
   }
 
@@ -168,9 +173,14 @@ public class PSSitePublishServiceWebAdapter {
         | IPSItemWorkflowService.PSItemWorkflowServiceException
         | IPSItemService.PSItemServiceException
         | PSNotFoundException e) {
+      if (isMalformedItemId(e)) {
+        throw invalidItemId();
+      }
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e.getMessage());
+    } catch (IllegalArgumentException e) {
+      throw invalidItemId();
     }
   }
 
@@ -193,9 +203,14 @@ public class PSSitePublishServiceWebAdapter {
         | IPSItemWorkflowService.PSItemWorkflowServiceException
         | IPSItemService.PSItemServiceException
         | PSNotFoundException e) {
+      if (isMalformedItemId(e)) {
+        throw invalidItemId();
+      }
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e.getMessage());
+    } catch (IllegalArgumentException e) {
+      throw invalidItemId();
     }
   }
 
@@ -218,7 +233,12 @@ public class PSSitePublishServiceWebAdapter {
         | IPSItemWorkflowService.PSItemWorkflowServiceException
         | IPSItemService.PSItemServiceException
         | PSNotFoundException e) {
+      if (isMalformedItemId(e)) {
+        throw invalidItemId();
+      }
       throw new WebApplicationException(e.getMessage());
+    } catch (IllegalArgumentException e) {
+      throw invalidItemId();
     }
   }
 
@@ -239,6 +259,9 @@ public class PSSitePublishServiceWebAdapter {
       return Response.ok(new PSPublishingActionList(sitePublishService.getPublishingActions(id)))
           .build();
     } catch (PSNotFoundException e) {
+      if (isMalformedItemId(e)) {
+        throw invalidItemId();
+      }
       // Return (not throw) so the shared runtime exception mapper keeps the
       // 404 status instead of flattening it to 500 (#4581). Do not echo the
       // path-param id into the entity (reflected XSS).
@@ -246,7 +269,12 @@ public class PSSitePublishServiceWebAdapter {
           .entity("Item not found")
           .build();
     } catch (PSDataServiceException e) {
+      if (isMalformedItemId(e)) {
+        throw invalidItemId();
+      }
       throw new WebApplicationException(e);
+    } catch (IllegalArgumentException e) {
+      throw invalidItemId();
     }
   }
 
@@ -338,7 +366,12 @@ public class PSSitePublishServiceWebAdapter {
         | IPSItemWorkflowService.PSItemWorkflowServiceException
         | IPSItemService.PSItemServiceException
         | PSNotFoundException e) {
+      if (isMalformedItemId(e)) {
+        throw invalidItemId();
+      }
       throw new WebApplicationException(e.getMessage());
+    } catch (IllegalArgumentException e) {
+      throw invalidItemId();
     }
   }
 
@@ -361,7 +394,12 @@ public class PSSitePublishServiceWebAdapter {
         | IPSItemWorkflowService.PSItemWorkflowServiceException
         | IPSItemService.PSItemServiceException
         | PSNotFoundException e) {
+      if (isMalformedItemId(e)) {
+        throw invalidItemId();
+      }
       throw new WebApplicationException(e.getMessage());
+    } catch (IllegalArgumentException e) {
+      throw invalidItemId();
     }
   }
 
@@ -384,7 +422,12 @@ public class PSSitePublishServiceWebAdapter {
         | IPSItemWorkflowService.PSItemWorkflowServiceException
         | IPSItemService.PSItemServiceException
         | PSNotFoundException e) {
+      if (isMalformedItemId(e)) {
+        throw invalidItemId();
+      }
       throw new WebApplicationException(e.getMessage());
+    } catch (IllegalArgumentException e) {
+      throw invalidItemId();
     }
   }
 
@@ -407,7 +450,12 @@ public class PSSitePublishServiceWebAdapter {
         | IPSItemWorkflowService.PSItemWorkflowServiceException
         | IPSItemService.PSItemServiceException
         | PSNotFoundException e) {
+      if (isMalformedItemId(e)) {
+        throw invalidItemId();
+      }
       throw new WebApplicationException(e.getMessage());
+    } catch (IllegalArgumentException e) {
+      throw invalidItemId();
     }
   }
 
@@ -531,4 +579,34 @@ public class PSSitePublishServiceWebAdapter {
 
   /** The site publish service. Initialized in constructor, never <code>null</code> after that. */
   private IPSSitePublishService sitePublishService;
+
+  /**
+   * True when the failure was caused by a malformed (non-GUID) item id. Guid parsing fails with
+   * {@link NumberFormatException}, often wrapped in a checked data-service exception by the time it
+   * reaches this adapter. Malformed ids are client errors, not server errors (#4598).
+   *
+   * @param failure the failure to inspect, may be <code>null</code>.
+   * @return <code>true</code> when a {@link NumberFormatException} is in the cause chain.
+   */
+  static boolean isMalformedItemId(Throwable failure) {
+    for (Throwable t = failure; t != null; t = t.getCause()) {
+      if (t instanceof NumberFormatException) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Client-error signal for a malformed item id. Thrown (not returned) because these endpoints
+   * return entity types, not {@code Response}; the bus {@code runtimeExceptionMapper} maps {@link
+   * IllegalArgumentException} to 400 (a thrown {@code WebApplicationException} would flatten to 500
+   * on this bus).
+   *
+   * @return never <code>null</code>.
+   */
+  static IllegalArgumentException invalidItemId() {
+    // Fixed message: never echo the raw path-param id (reflected XSS, cf. #4596).
+    return new IllegalArgumentException("Invalid item id");
+  }
 }
