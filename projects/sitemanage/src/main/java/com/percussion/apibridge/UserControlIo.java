@@ -39,4 +39,10 @@ interface UserControlIo {
 
   /** Existing user control file, or {@code null} if none. */
   Path findUserControlFile(String name);
+
+  /**
+   * Packaged system control stylesheet that contains {@code name}, or {@code null}. Read-only —
+   * never write this path.
+   */
+  Path findSystemControlFile(String name);
 }

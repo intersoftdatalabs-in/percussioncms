@@ -20,7 +20,8 @@ public interface IControlAdaptor {
 
   /**
    * Resolve by control name (case-insensitive). Null if missing or unsafe key. User-control
-   * detail includes persisted {@code xslSource}; list rows omit it.
+   * detail includes persisted {@code xslSource}; system-control detail may include a
+   * read-only ControlMeta snippet. List rows omit {@code xslSource}.
    */
   ControlDef findControlByName(String name);
 

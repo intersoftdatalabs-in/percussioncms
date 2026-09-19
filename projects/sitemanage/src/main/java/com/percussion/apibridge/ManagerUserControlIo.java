@@ -63,4 +63,21 @@ final class ManagerUserControlIo implements UserControlIo {
     File file = PSCustomControlManager.getInstance().getControlFile(name);
     return file != null ? file.toPath() : null;
   }
+
+  @Override
+  public Path findSystemControlFile(String name) {
+    if (name == null || name.isBlank()) {
+      return null;
+    }
+    try {
+      List<File> files = PSSystemControlManager.getInstance().getControlFiles();
+      if (files == null || files.isEmpty()) {
+        return null;
+      }
+      File file = files.get(0);
+      return file != null ? file.toPath() : null;
+    } catch (IllegalStateException e) {
+      return null;
+    }
+  }
 }
