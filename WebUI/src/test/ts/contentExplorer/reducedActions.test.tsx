@@ -317,6 +317,43 @@ describe("ReducedActions", () => {
     expect(posted).not.toHaveProperty("sourcePath");
   });
 
+  it("Copy opens destination picker then POSTs on confirm (#4600)", async () => {
+    const { handlers, calls } = makeHandlers();
+    render(
+      <ReducedActions
+        item={FOLDER}
+        folder={null}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-copy"));
+    expect(screen.getByTestId("explorer-copy-dest-picker")).toBeInTheDocument();
+    const input = screen.getByTestId("explorer-copy-dest-input");
+    fireEvent.change(input, { target: { value: "/Assets/Dst" } });
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
+    await waitFor(() => expect(calls.onCopy).toHaveLength(1));
+    expect(calls.onCopy[0]).toEqual({ item: FOLDER, targetPath: "/Assets/Dst" });
+  });
+
+  it("Copy picker cancel does not copy", async () => {
+    const { handlers, calls } = makeHandlers();
+    render(
+      <ReducedActions
+        item={FOLDER}
+        folder={null}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-copy"));
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-cancel"));
+    await waitFor(() =>
+      expect(screen.queryByTestId("explorer-copy-dest-picker")).toBeNull(),
+    );
+    expect(calls.onCopy).toHaveLength(0);
+  });
+
   it("default onCopy POSTs copy/folder for folders and copy/item for assets (#3656)", async () => {
     const handlers = defaultReducedActionHandlers();
     const urls: string[] = [];

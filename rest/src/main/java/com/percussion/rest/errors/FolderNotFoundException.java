@@ -36,6 +36,6 @@ public class FolderNotFoundException extends RestExceptionBase {
 
   public FolderNotFoundException(Throwable cause) {
     // always set the folder not found code; attach cause via super (not initCause)
-    super(RestErrorCode.FOLDER_NOT_FOUND, null, null, null, null, cause);
+    super(RestErrorCode.FOLDER_NOT_FOUND, null, null, null, jakarta.ws.rs.core.Response.Status.NOT_FOUND, cause);
   }
 }

@@ -50,6 +50,10 @@ export const EXPLORER_MSG = {
   ACTION_RENAME: "perc.ui.explorer@Rename",
   ACTION_MOVE: "perc.ui.explorer@Move",
   ACTION_COPY: "perc.ui.explorer@Copy",
+  COPY_DEST_TITLE: "perc.ui.explorer@Copy to folder",
+  COPY_DEST_LABEL: "perc.ui.explorer@Destination folder path",
+  ACTION_COPY_NOT_FOUND:
+    "perc.ui.explorer@The selected item or destination folder was not found",
   ACTION_DELETE: "perc.ui.explorer@Delete",
   CONFIRM_DELETE_TITLE: "perc.ui.explorer@Delete Confirmation",
   CONFIRM_DELETE_BODY:

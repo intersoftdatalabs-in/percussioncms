@@ -24,6 +24,7 @@ import com.percussion.rest.Status;
 import com.percussion.rest.errors.BackendException;
 import com.percussion.rest.errors.FolderNotFoundException;
 import com.percussion.rest.errors.LocationMismatchException;
+import com.percussion.rest.errors.NotAuthorizedException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
@@ -427,7 +428,8 @@ public class FoldersResource {
               + " should include the full path to the item and folder, for example"
               + " /Sites/MySite/MyFolder/MyPage",
       responses = {
-        @ApiResponse(responseCode = "404", description = "Item not found"),
+        @ApiResponse(responseCode = "404", description = "Item or destination folder not found"),
+        @ApiResponse(responseCode = "403", description = "Not authorized to copy"),
         @ApiResponse(
             responseCode = "200",
             description = "Copied OK",
@@ -439,6 +441,12 @@ public class FoldersResource {
       folderAdaptor.copyFolderItem(
           uriInfo.getBaseUri(), request.getItemPath(), request.getTargetFolderPath());
       return new Status(200, "Copied OK");
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (NotFoundException nfe) {
+      return new Status(404, "Not Found");
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
