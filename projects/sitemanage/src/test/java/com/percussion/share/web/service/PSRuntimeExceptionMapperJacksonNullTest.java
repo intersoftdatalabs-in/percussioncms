@@ -49,6 +49,15 @@ class PSRuntimeExceptionMapperJacksonNullTest {
   }
 
   @Test
+  void numberFormatIsBadRequest() throws Exception {
+    // Guid parsing fails with NumberFormatException for malformed item ids (#4598);
+    // it is an IllegalArgumentException, so the bus yields 400, not 500.
+    assertEquals(
+        Response.Status.BAD_REQUEST,
+        statusOf(new NumberFormatException("For input string: \"nope\"")));
+  }
+
+  @Test
   void jacksonCauseIsBadRequest() throws Exception {
     RuntimeException wrap = new RuntimeException("wrap", new JacksonException("bad json") {});
     assertEquals(Response.Status.BAD_REQUEST, statusOf(wrap));
