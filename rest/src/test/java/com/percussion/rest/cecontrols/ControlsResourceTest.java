@@ -72,6 +72,19 @@ public class ControlsResourceTest {
   }
 
   @Test
+  public void getControlReturnsSystemReadOnlyXslSnippet() {
+    ControlDef c = new ControlDef();
+    c.setName("sys_EditBox");
+    c.setScope("system");
+    c.setXslSource("<psxctl:ControlMeta name=\"sys_EditBox\"/>");
+    when(adaptor.findControlByName(eq("sys_EditBox"))).thenReturn(c);
+    ControlDef out = resource.getControl("sys_EditBox");
+    assertEquals("system", out.getScope());
+    assertEquals("<psxctl:ControlMeta name=\"sys_EditBox\"/>", out.getXslSource());
+    verify(adaptor, never()).saveControl(any(), any());
+  }
+
+  @Test
   public void getControlRoundTripsUserXslSource() {
     ControlDef c = new ControlDef();
     c.setName("myUserControl");

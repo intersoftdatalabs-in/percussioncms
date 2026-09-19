@@ -95,6 +95,7 @@ public class ControlAdaptor implements IControlAdaptor {
     for (ControlDef c : loadCatalog(true)) {
       if (c != null && key.equalsIgnoreCase(c.getName())) {
         attachUserXslSource(c);
+        attachSystemXslSource(c);
         return c;
       }
     }
@@ -297,6 +298,70 @@ public class ControlAdaptor implements IControlAdaptor {
     } catch (IOException e) {
       log.debug("Unable to read user control XSL {}: {}", def.getName(), e.getMessage());
     }
+  }
+
+  /**
+   * Detail GET may include a read-only {@code xslSource} snippet for packaged system controls
+   * (ControlMeta fragment). Never writes the packaged file.
+   */
+  private void attachSystemXslSource(ControlDef def) {
+    if (def == null || def.getName() == null || !"system".equalsIgnoreCase(def.getScope())) {
+      return;
+    }
+    if (def.getXslSource() != null && !def.getXslSource().isBlank()) {
+      return;
+    }
+    Path file = io.findSystemControlFile(def.getName());
+    if (file == null || !Files.isRegularFile(file)) {
+      return;
+    }
+    try {
+      String raw = Files.readString(file, StandardCharsets.UTF_8);
+      String snippet = extractNamedControlMeta(raw, def.getName());
+      if (snippet != null && !snippet.isBlank()) {
+        def.setXslSource(snippet);
+      }
+    } catch (IOException e) {
+      log.debug("Unable to read system control XSL {}: {}", def.getName(), e.getMessage());
+    }
+  }
+
+  /**
+   * Extract one {@code psxctl:ControlMeta} (or unprefixed) element by {@code name} without
+   * parsing the packaged DTD. Returns {@code null} when the name is not present.
+   */
+  static String extractNamedControlMeta(String xml, String name) {
+    if (xml == null || name == null || name.isBlank()) {
+      return null;
+    }
+    String marker = "name=\"" + name + "\"";
+    int nameAt = xml.indexOf(marker);
+    if (nameAt < 0) {
+      return null;
+    }
+    int start = xml.lastIndexOf("<psxctl:ControlMeta", nameAt);
+    if (start < 0) {
+      start = xml.lastIndexOf("<ControlMeta", nameAt);
+    }
+    if (start < 0 || start > nameAt) {
+      return null;
+    }
+    String closePrefixed = "</psxctl:ControlMeta>";
+    String closePlain = "</ControlMeta>";
+    int endPrefixed = xml.indexOf(closePrefixed, nameAt);
+    int endPlain = xml.indexOf(closePlain, nameAt);
+    int end;
+    int closeLen;
+    if (endPrefixed >= 0 && (endPlain < 0 || endPrefixed < endPlain)) {
+      end = endPrefixed;
+      closeLen = closePrefixed.length();
+    } else if (endPlain >= 0) {
+      end = endPlain;
+      closeLen = closePlain.length();
+    } else {
+      return null;
+    }
+    return xml.substring(start, end + closeLen);
   }
 
   private Path findContainedUserFile(String name) {
