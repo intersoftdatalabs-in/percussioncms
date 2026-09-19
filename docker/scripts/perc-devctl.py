@@ -97,6 +97,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -161,6 +162,8 @@ QA_CMS_PRODUCT = "cms"
 QA_CMS_DB = "h2"
 QA_CMS_CELL_ID = f"{QA_CMS_PRODUCT}-{QA_CMS_DB}"
 QA_CMS_CONTAINER = f"perc-matrix-{QA_CMS_CELL_ID}"
+# In-container Jetty HTTP for the CMS matrix cell (host publish may differ).
+QA_CMS_CONTAINER_PORT = 9992
 # Same default as docker/scripts/hot-deploy-rhythmyx-war-jars.py --dest.
 QA_WAR_JARS_DEST = "/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib"
 # Probe URL path for ``qa-health`` (#2482). The matrix-recommended primary
@@ -241,6 +244,136 @@ def resolve_qa_cms_host_port() -> int:
         "CMS_HOST_PORT",
         preferred=PREFERRED_QA_CMS_HOST_PORT,
     )
+
+
+# docker port / inspect lines: "9992/tcp -> 0.0.0.0:46239" or "0.0.0.0:46239"
+_DOCKER_PORT_HOST_RE = re.compile(
+    r"(?:^|\s)(?:\[::\]|0\.0\.0\.0|\*)?:(\d+)\s*$",
+    re.MULTILINE,
+)
+_QA_UP_LOG_PORT_RE = re.compile(
+    r"(?:QA_CMS_HOST_PORT|CMS_HOST_PORT|host publish)\s*[=:]?\s*(\d+)",
+    re.IGNORECASE,
+)
+
+
+def parse_docker_port_host_port(text: str) -> Optional[int]:
+    """Parse host TCP port from ``docker port`` / inspect publish text.
+
+    Accepts lines such as ``9992/tcp -> 0.0.0.0:46239`` or ``0.0.0.0:46239``.
+    Returns the last plausible host port, or ``None``.
+    """
+    if not text:
+        return None
+    last: Optional[int] = None
+    for raw in text.replace("\r\n", "\n").split("\n"):
+        line = raw.strip()
+        if not line or "udp" in line.lower():
+            continue
+        # Prefer "-> host:port" mapping when present.
+        if "->" in line:
+            line = line.split("->", 1)[1].strip()
+        m = _DOCKER_PORT_HOST_RE.search(line)
+        if not m:
+            m = re.search(r":(\d+)\s*$", line)
+        if m:
+            try:
+                port = int(m.group(1))
+            except ValueError:
+                continue
+            if 1 <= port <= 65535:
+                last = port
+    return last
+
+
+def published_qa_cms_host_port(
+    container: str = QA_CMS_CONTAINER,
+    *,
+    container_port: int = QA_CMS_CONTAINER_PORT,
+) -> Optional[int]:
+    """Host port currently published for the running H2 QA CMS cell (#4597).
+
+    Reads ``docker port <container> <container_port>/tcp``. Returns ``None``
+    when docker is missing, the cell is down, or output is unparseable.
+    """
+    if not container:
+        return None
+    completed = subprocess.run(
+        [
+            "docker",
+            "port",
+            container,
+            f"{int(container_port)}/tcp",
+        ],
+        shell=False,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        return None
+    return parse_docker_port_host_port(completed.stdout or "")
+
+
+def parse_qa_up_log_host_port(text: str) -> Optional[int]:
+    """Parse host publish port from a ``qa-up`` log body (#4597)."""
+    if not text:
+        return None
+    last: Optional[int] = None
+    for m in _QA_UP_LOG_PORT_RE.finditer(text):
+        try:
+            port = int(m.group(1))
+        except ValueError:
+            continue
+        if 1 <= port <= 65535:
+            last = port
+    return last
+
+
+def latest_qa_up_log_host_port(repo_root: Path) -> Optional[int]:
+    """Host port from the newest ``docker/logs/qa-up-*.log``, if any."""
+    log_dir = repo_root / "docker" / "logs"
+    if not log_dir.is_dir():
+        return None
+    candidates = sorted(log_dir.glob("qa-up-*.log"))
+    if not candidates:
+        return None
+    try:
+        text = candidates[-1].read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    return parse_qa_up_log_host_port(text)
+
+
+def resolve_qa_health_host_port(repo_root: Path) -> tuple[int, str]:
+    """Host port for ``qa-health`` (running cell, not a fresh freeport) (#4597).
+
+    Order:
+
+    1. ``QA_CMS_HOST_PORT`` / ``CMS_HOST_PORT`` env (explicit operator override)
+    2. ``docker port`` on :data:`QA_CMS_CONTAINER`
+    3. Newest ``qa-up-*.log`` host publish line
+    4. :func:`resolve_qa_cms_host_port` (preferred-when-free / freeport)
+
+    Returns ``(port, source)`` where source is ``env``, ``docker``, ``qa-up-log``,
+    or ``preferred``.
+    """
+    for key in ("QA_CMS_HOST_PORT", "CMS_HOST_PORT"):
+        raw = os.environ.get(key, "").strip()
+        if raw:
+            try:
+                port = int(raw)
+            except ValueError:
+                continue
+            if 1 <= port <= 65535:
+                return port, "env"
+    published = published_qa_cms_host_port()
+    if published is not None:
+        return published, "docker"
+    logged = latest_qa_up_log_host_port(repo_root)
+    if logged is not None:
+        return logged, "qa-up-log"
+    return resolve_qa_cms_host_port(), "preferred"
 
 
 def qa_cms_base_url(port: int) -> str:
@@ -570,7 +703,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "qa-health",
         help=(
             "Poll QA CMS health URL until ready or timeout "
-            "(default: freeport/env-resolved QA CMS probe URL)."
+            "(default: running cell published port, then env, then preferred)."
         ),
     )
     pqh.add_argument(
@@ -589,8 +722,9 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--url",
         default=None,
         help=(
-            "Probe URL (default: from QA_CMS_HOST_PORT / CMS_HOST_PORT env, "
-            f"preferred {PREFERRED_QA_CMS_HOST_PORT} when free, else freeport)."
+            "Probe URL (default: QA_CMS_HOST_PORT / CMS_HOST_PORT env, else "
+            "docker port on perc-matrix-cms-h2, else last qa-up log, else "
+            f"preferred {PREFERRED_QA_CMS_HOST_PORT} when free)."
         ),
     )
     pqh.add_argument("--dry-run", action="store_true")
@@ -1960,7 +2094,7 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     log_dir = _log_dir(repo_root)
     timeout = int(args.timeout_seconds)
     interval = int(args.interval_seconds)
-    host_port = resolve_qa_cms_host_port()
+    host_port, port_source = resolve_qa_health_host_port(repo_root)
     url = args.url or qa_cms_probe_url(host_port)
     container = QA_CMS_CONTAINER
     max_checks = max(1, timeout // interval) if interval > 0 else 1
@@ -1979,6 +2113,8 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
             f.write(
                 f"DRY-RUN: qa-health max_checks={max_checks} interval={interval}\n"
                 f"url={url}\n"
+                f"host_port={host_port}\n"
+                f"port_source={port_source}\n"
                 f"container={container}\n"
                 f"log_scan=rhythmyx_context_fail_markers+server_log_errors\n"
                 f"docker_health=inspect Health.Status\n"
@@ -2080,6 +2216,18 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
                 "login fails, scan docker logs and jetty/base/logs/server.log; "
                 "also check docker inspect Health.Status on the QA cell\n"
             )
+        published_now = published_qa_cms_host_port(container)
+        if (
+            last_code == 0
+            and published_now is not None
+            and published_now != host_port
+        ):
+            f.write(
+                f"hint: probe port {host_port} (source={port_source}) has no HTTP "
+                f"but {container} publishes {published_now}. Re-run with "
+                f"QA_CMS_HOST_PORT={published_now} or qa-health --url "
+                f"{qa_cms_probe_url(published_now)} (#4597).\n"
+            )
     if final_detail and DETAIL_SERVER_LOG_ERRORS in final_detail:
         print(
             f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_SERVER_LOG_ERRORS} "
@@ -2093,10 +2241,21 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
             f"URL:{url} CONTAINER:{container} LOG:{log_file}"
         )
     else:
+        published_now = published_qa_cms_host_port(container)
+        mismatch = ""
+        if (
+            last_code == 0
+            and published_now is not None
+            and published_now != host_port
+        ):
+            mismatch = (
+                f" HINT:cell_publishes:{published_now} "
+                f"(probe_source={port_source} preferred_or_env={host_port})"
+            )
         print(
             f"RESULT:FAIL STEP:qa-health DETAIL:timeout after {timeout}s "
             f"(last_http={last_code} health={last_health}) URL:{url} "
-            f"CONTAINER:{container} LOG:{log_file}"
+            f"CONTAINER:{container}{mismatch} LOG:{log_file}"
         )
     return EXIT_SUBPROCESS_FAILED
 

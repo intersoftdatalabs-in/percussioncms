@@ -916,6 +916,12 @@ class TestQaHealthRealMode(unittest.TestCase):
         )
         self._slog.start()
         self.addCleanup(self._slog.stop)
+        # Isolated from a live perc-matrix-cms-h2 publish (#4597).
+        self._pub = unittest.mock.patch.object(
+            pdc, "published_qa_cms_host_port", return_value=None
+        )
+        self._pub.start()
+        self.addCleanup(self._pub.stop)
 
     def test_qa_health_success_on_first_check(self):
         with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
@@ -966,6 +972,61 @@ class TestQaHealthRealMode(unittest.TestCase):
         self.assertIn("health=starting", out)
         self.assertIn("LOG:", out)
         self.assertNotIn("LOG:\n", out)
+
+    def test_qa_health_timeout_hints_when_cell_publishes_elsewhere(self):
+        """#4597: preferred/env probe dead but cell publishes another host port."""
+        os.environ["QA_CMS_HOST_PORT"] = "9993"
+        self.addCleanup(lambda: os.environ.pop("QA_CMS_HOST_PORT", None))
+        with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_health") as mock_health, \
+             unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
+             unittest.mock.patch.object(
+                 pdc, "published_qa_cms_host_port", return_value=46239
+             ), \
+             unittest.mock.patch.object(pdc.time, "sleep"):
+            mock_curl.return_value = 0
+            mock_health.return_value = "healthy"
+            mock_logs.return_value = ""
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "qa-health",
+                    "--timeout-seconds", "5",
+                    "--interval-seconds", "5",
+                ])
+            out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("HINT:cell_publishes:46239", out)
+        self.assertIn("127.0.0.1:9993", out)
+
+    def test_qa_health_probes_published_port_not_preferred(self):
+        """#4597: bare qa-health follows docker publish, not a new preferred bind."""
+        with unittest.mock.patch.object(pdc, "_curl_status") as mock_curl, \
+             unittest.mock.patch.object(pdc, "_docker_health") as mock_health, \
+             unittest.mock.patch.object(pdc, "_docker_logs_tail") as mock_logs, \
+             unittest.mock.patch.object(
+                 pdc, "published_qa_cms_host_port", return_value=46239
+             ), \
+             unittest.mock.patch.object(pdc.time, "sleep"):
+            mock_curl.return_value = 200
+            mock_health.return_value = "healthy"
+            mock_logs.return_value = "INFO [Server] Started @1ms\n"
+            import io
+            from contextlib import redirect_stdout
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc.main([
+                    "--repo-root", str(self.repo_root),
+                    "qa-health",
+                    "--timeout-seconds", "10",
+                ])
+            out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("127.0.0.1:46239", out)
+        self.assertNotIn("127.0.0.1:9993/", out)
 
     def test_qa_health_fails_when_http_ok_but_context_failed(self):
         """#2462: Jetty HTTP ready + dead Rhythmyx context must FAIL (not OK)."""
@@ -1229,6 +1290,65 @@ class TestFreeportAndUrlWiring(unittest.TestCase):
             )
         finally:
             os.environ.pop(pdc.QA_CMS_PROBE_PATH_ENV, None)
+
+    def test_parse_docker_port_host_port_ipv4_and_ipv6(self):
+        """#4597 — docker port text yields the published host TCP port."""
+        self.assertEqual(
+            pdc.parse_docker_port_host_port("9992/tcp -> 0.0.0.0:46239\n"),
+            46239,
+        )
+        self.assertEqual(
+            pdc.parse_docker_port_host_port("9992/tcp -> [::]:46239\n"),
+            46239,
+        )
+        self.assertIsNone(pdc.parse_docker_port_host_port(""))
+        self.assertIsNone(pdc.parse_docker_port_host_port("9992/udp -> 0.0.0.0:1\n"))
+
+    def test_parse_qa_up_log_host_port(self):
+        text = (
+            "host publish 46239\n"
+            "QA_CMS_HOST_PORT=46239\n"
+            "probe http://127.0.0.1:46239/Rhythmyx/login\n"
+        )
+        self.assertEqual(pdc.parse_qa_up_log_host_port(text), 46239)
+
+    def test_resolve_qa_health_prefers_docker_over_preferred(self):
+        """qa-health must not re-resolve preferred :9993 when the cell is elsewhere."""
+        repo = Path(tempfile.mkdtemp())
+        self.addCleanup(lambda: __import__("shutil").rmtree(repo, ignore_errors=True))
+        with unittest.mock.patch.object(
+            pdc, "published_qa_cms_host_port", return_value=46239
+        ):
+            port, source = pdc.resolve_qa_health_host_port(repo)
+        self.assertEqual(port, 46239)
+        self.assertEqual(source, "docker")
+
+    def test_resolve_qa_health_env_wins_over_docker(self):
+        os.environ["QA_CMS_HOST_PORT"] = "18001"
+        repo = Path(".")
+        with unittest.mock.patch.object(
+            pdc, "published_qa_cms_host_port", return_value=46239
+        ):
+            port, source = pdc.resolve_qa_health_host_port(repo)
+        self.assertEqual(port, 18001)
+        self.assertEqual(source, "env")
+
+    def test_resolve_qa_health_uses_qa_up_log_when_no_docker(self):
+        td = tempfile.TemporaryDirectory()
+        self.addCleanup(td.cleanup)
+        repo = Path(td.name)
+        log_dir = repo / "docker" / "logs"
+        log_dir.mkdir(parents=True)
+        (log_dir / "qa-up-20260919-013659.log").write_text(
+            "host publish 46239\nQA_CMS_HOST_PORT=46239\n",
+            encoding="utf-8",
+        )
+        with unittest.mock.patch.object(
+            pdc, "published_qa_cms_host_port", return_value=None
+        ):
+            port, source = pdc.resolve_qa_health_host_port(repo)
+        self.assertEqual(port, 46239)
+        self.assertEqual(source, "qa-up-log")
 
     def test_ensure_qa_cms_host_port_pins_env(self):
         os.environ["QA_CMS_HOST_PORT"] = "17777"
