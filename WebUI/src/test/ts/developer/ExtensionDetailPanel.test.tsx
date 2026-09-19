@@ -92,13 +92,17 @@ describe("ExtensionDetailPanel", () => {
       expect(screen.getByTestId("developer-ex-detail-title")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-ex-detail-title").textContent).toContain("sys_add");
-    expect(screen.getByTestId("developer-ex-params-table")).toBeTruthy();
+    expect(screen.getByTestId("developer-ex-rtparam-row-0")).toBeTruthy();
+    expect(
+      (screen.getByTestId("developer-ex-rtparam-name-0") as HTMLInputElement).value,
+    ).toBe("htmlParams");
+    expect(screen.getByTestId("developer-ex-rtparam-add")).toBeTruthy();
     expect(getExtensionDetailMock).toHaveBeenCalledWith("sys_add");
     fireEvent.click(screen.getByTestId("developer-ex-back"));
     expect(onBack).toHaveBeenCalled();
   });
 
-  it("shows empty params section when detail has none", async () => {
+  it("shows empty runtime params editor when detail has none", async () => {
     getExtensionDetailMock.mockResolvedValue({
       ...sampleUserDetail,
       runtimeParameters: [],
@@ -107,8 +111,10 @@ describe("ExtensionDetailPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ex-params-empty")).toBeTruthy();
     });
-    expect(screen.getByTestId("developer-ex-params-empty").textContent).toBe(DEV_MSG.EX_NONE);
-    expect(screen.queryByTestId("developer-ex-params-table")).toBeNull();
+    expect(screen.getByTestId("developer-ex-params-empty").textContent).toBe(
+      DEV_MSG.EX_RTPARAM_EMPTY,
+    );
+    expect(screen.queryByTestId("developer-ex-rtparam-row-0")).toBeNull();
   });
 
   it("disables Save and Delete for system extensions", async () => {
@@ -218,6 +224,74 @@ describe("ExtensionDetailPanel", () => {
           }),
         },
       }),
+    );
+  });
+
+  it("adds a runtime parameter and includes it on save", async () => {
+    getExtensionDetailMock.mockResolvedValue(sampleUserDetail);
+    saveExtensionMock.mockResolvedValue({
+      ...sampleUserDetail,
+      runtimeParameters: [
+        { name: "htmlParams", dataType: "java.util.Map", description: "params" },
+      ],
+    });
+    const onSaved = vi.fn();
+    render(
+      <ExtensionDetailPanel idOrName="my_user_ext" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ex-rtparam-add")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ex-rtparam-add"));
+    fireEvent.change(screen.getByTestId("developer-ex-rtparam-name-0"), {
+      target: { value: "htmlParams" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ex-rtparam-type-0"), {
+      target: { value: "java.util.Map" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ex-rtparam-desc-0"), {
+      target: { value: "params" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ex-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(saveExtensionMock).toHaveBeenCalledWith(
+      "my_user_ext",
+      expect.objectContaining({
+        runtimeParameters: [
+          { name: "htmlParams", dataType: "java.util.Map", description: "params" },
+        ],
+      }),
+    );
+  });
+
+  it("removes a runtime parameter and saves an empty list to clear", async () => {
+    getExtensionDetailMock.mockResolvedValue({
+      ...sampleUserDetail,
+      runtimeParameters: [{ name: "htmlParams", dataType: "java.util.Map" }],
+    });
+    saveExtensionMock.mockResolvedValue({ ...sampleUserDetail, runtimeParameters: [] });
+    const onSaved = vi.fn();
+    render(
+      <ExtensionDetailPanel idOrName="my_user_ext" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ex-rtparam-row-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ex-rtparam-remove-0"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ex-params-empty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ex-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(saveExtensionMock).toHaveBeenCalledWith(
+      "my_user_ext",
+      // Panel passes the row list; wrapExtensionForWire maps [] to the blank-name
+      // clear sentinel (covered in extensionsApi.test.ts).
+      expect.objectContaining({ runtimeParameters: [] }),
     );
   });
 

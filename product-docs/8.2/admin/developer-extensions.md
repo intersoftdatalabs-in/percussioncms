@@ -22,9 +22,8 @@ deleted here. Save and Delete stay **disabled** on those rows; a mutate or
 delete attempt against REST is **409**.
 
 This chrome uses the fields already on the REST `Extension` wire DTO (name,
-handler, interfaces, `initParameters.className`, deprecated, and the **method
-map**). Full Workbench parameter-dialog parity beyond those fields is a later
-slice.
+handler, interfaces, `initParameters.className`, deprecated, the **method
+map**, and the **runtime parameter list**).
 
 ## Product path — create, save, delete
 
@@ -47,7 +46,13 @@ slice.
    fields. Removing every method and **Save** **clears** the map. Blank method
    names are dropped client-side; a REST payload with a blank or duplicate
    method name is **400**. System and handler-owned rows stay read-only.
-7. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
+7. Under **Runtime parameters**, **Add runtime parameter**. Enter a **name**,
+   optional **type** (defaults to `java.lang.String`), and description.
+   **Save** writes the list; GET then Save round-trips those fields. Removing
+   every parameter and **Save** **clears** the list. Blank names are dropped
+   client-side. On REST, `runtimeParameters` omitted keeps the current list;
+   `[]` clears. System and handler-owned rows stay read-only.
+8. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    The catalog returns with a green **Extension deleted** notice. Delete of a
    missing extension is **404**. Delete of a **system** or **handler-owned**
    extension is blocked in the UI and would be **409** on REST.
@@ -56,7 +61,6 @@ slice.
 
 - Name and handler are immutable after create.
 - System and handler-owned extensions cannot be updated or deleted here.
-- Workbench parameter dialog parity beyond the wire DTO is not in this chrome.
 
 ## REST
 
@@ -67,7 +71,7 @@ The chrome calls:
 | List | `GET /services/extensions/catalog` |
 | Load | `GET /services/extensions/catalog/item?key=` |
 | Create | `POST /services/extensions` (`extensionName` + interfaces; Java needs `className`) |
-| Save | `PUT /services/extensions/catalog/item?key=` (mutable fields including `methods[]`; identity not renamed). `methods` omitted keeps the current list; `[]` clears. |
+| Save | `PUT /services/extensions/catalog/item?key=` (mutable fields including `methods[]` and `runtimeParameters[]`; identity not renamed). `methods` omitted keeps the current list; a blank-name entry clears (JAXB drops empty arrays). `runtimeParameters` omitted keeps the current list; a blank-name entry clears. |
 | Delete | `DELETE /services/extensions/catalog/item?key=` (`204` on success) |
 
 JSON bodies wrap under an `Extension` root. Detail and write keys use a **query**

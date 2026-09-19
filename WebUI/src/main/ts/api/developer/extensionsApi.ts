@@ -17,6 +17,7 @@
 import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
 import { normalizeMethods } from "./extensionMethods";
+import { runtimeParamsToRows } from "./extensionRuntimeParams";
 import type { ExtensionDef, ExtensionMethodDef } from "./types";
 
 /** Jackson/JAXB root for Extension wire payloads. */
@@ -34,13 +35,11 @@ export const EXTENSION_CLASSNAME_PARAM = "className";
 /** Handler name for handler-owned (immutable) extensions. */
 export const EXTENSION_HANDLER_NAME = "ExtensionHandler";
 
-/** Remaining honesty gaps after SY-01 SPA write and method-map edit ship. */
-export const EXTENSION_DESIGN_GAPS: string[] = [
-  "Workbench parameter dialog parity beyond fields on the wire DTO",
-];
+/** Closed: SY-01 SPA write, method-map edit (#4543), runtime params (#4607). */
+export const EXTENSION_DESIGN_GAPS: string[] = [];
 
 const STALE_WRITE_GAP =
-  /extension\s+(install|remove|create|update|delete|register)|parameter and method edit|extension method map editing/i;
+  /extension\s+(install|remove|create|update|delete|register)|parameter and method edit|extension method map editing|parameter dialog parity|parameter-dialog parity/i;
 
 export type ExtensionWriteBody = {
   extensionName: string;
@@ -241,7 +240,7 @@ export function toJacksonStringMapWire(
 export function wrapExtensionForWire(
   body: ExtensionWriteBody,
 ): Record<string, unknown> {
-  const { initParameters, methods, ...rest } = body;
+  const { initParameters, methods, runtimeParameters, ...rest } = body;
   const wire: Record<string, unknown> = { ...rest };
   const mapped = toJacksonStringMapWire(initParameters);
   if (mapped) {
@@ -251,6 +250,13 @@ export function wrapExtensionForWire(
     const list = Array.isArray(methods) ? methods : Object.values(methods);
     // JAXB drops empty arrays; a blank-name row is skipped server-side and clears.
     wire.methods = list.length > 0 ? list : [{ name: "" }];
+  }
+  if (runtimeParameters !== undefined) {
+    const list = Array.isArray(runtimeParameters)
+      ? runtimeParameters
+      : Object.values(runtimeParameters);
+    // Same JAXB empty-array drop as methods: blank-name rows clear server-side.
+    wire.runtimeParameters = list.length > 0 ? list : [{ name: "" }];
   }
   return { [EXTENSION_ROOT]: wire };
 }
@@ -272,6 +278,7 @@ function withGaps(ext: ExtensionDef): ExtensionDef {
     ),
     ...(initParameters ? { initParameters } : {}),
     methods,
+    runtimeParameters: runtimeParamsToRows(ext.runtimeParameters),
     designGaps: fromServer.length > 0 ? fromServer : EXTENSION_DESIGN_GAPS,
   };
 }

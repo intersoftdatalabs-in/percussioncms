@@ -42,15 +42,23 @@ import {
   methodsToRows,
   rowsToMethods,
 } from "../api/developer/extensionMethods";
-import type { ExtensionDef, ExtensionMethodDef } from "../api/developer/types";
+import {
+  emptyRuntimeParam,
+  rowsToRuntimeParams,
+  runtimeParamsFingerprint,
+  runtimeParamsToRows,
+} from "../api/developer/extensionRuntimeParams";
+import type {
+  ExtensionDef,
+  ExtensionMethodDef,
+  ExtensionMethodParam,
+} from "../api/developer/types";
 import {
   catalogColors,
   backButton,
   errorAlert,
   metaGrid,
   monoCell,
-  tableHeaderRow,
-  tableRow,
 } from "./catalogStyles";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
@@ -90,6 +98,7 @@ export function ExtensionDetailPanel({
   const [interfacesText, setInterfacesText] = useState("");
   const [className, setClassName] = useState("");
   const [methodRows, setMethodRows] = useState<ExtensionMethodDef[]>([]);
+  const [paramRows, setParamRows] = useState<ExtensionMethodParam[]>([]);
   const [deprecated, setDeprecated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -116,6 +125,7 @@ export function ExtensionDetailPanel({
         setInterfacesText(formatExtensionInterfaces(d.supportedInterfaces));
         setClassName(extensionClassName(d.initParameters));
         setMethodRows(methodsToRows(d.methods));
+        setParamRows(runtimeParamsToRows(d.runtimeParameters));
         setDeprecated(Boolean(d.deprecated));
         setLoading(false);
       })
@@ -138,6 +148,9 @@ export function ExtensionDetailPanel({
   const loadedClassName = extensionClassName(detail?.initParameters);
   const loadedDeprecated = Boolean(detail?.deprecated);
   const loadedMethodsFp = methodsFingerprint(methodsToRows(detail?.methods));
+  const loadedParamsFp = runtimeParamsFingerprint(
+    runtimeParamsToRows(detail?.runtimeParameters),
+  );
   // Compare normalized forms so server trim / Jackson map round-trips do not mark dirty on load.
   const dirty =
     isNew ||
@@ -146,7 +159,8 @@ export function ExtensionDetailPanel({
     formatExtensionInterfaces(interfaces) !== loadedInterfaces ||
     className.trim() !== loadedClassName.trim() ||
     deprecated !== loadedDeprecated ||
-    methodsFingerprint(methodRows) !== loadedMethodsFp;
+    methodsFingerprint(methodRows) !== loadedMethodsFp ||
+    runtimeParamsFingerprint(paramRows) !== loadedParamsFp;
   const canSave =
     !busy &&
     dirty &&
@@ -205,11 +219,20 @@ export function ExtensionDetailPanel({
     );
   }
 
+  function updateRuntimeParam(index: number, patch: Partial<ExtensionMethodParam>): void {
+    setParamRows((rows) => rows.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+  }
+
+  function removeRuntimeParam(index: number): void {
+    setParamRows((rows) => rows.filter((_, i) => i !== index));
+  }
+
   /**
    * PUT writes the full initParameters map (round-trip from GET). Only className,
-   * deprecated, interfaces, and restoreRequestParamsOnError are user-editable in
-   * this chrome; other keys are preserved verbatim so out-of-band Workbench keys
-   * are not silently dropped. REST buildDef iterates the map as-is.
+   * deprecated, interfaces, restoreRequestParamsOnError, the method map, and the
+   * runtime parameter list are user-editable in this chrome; other keys are
+   * preserved verbatim so out-of-band Workbench keys are not silently dropped.
+   * REST buildDef iterates the map as-is.
    */
   function writeBody(): ExtensionWriteBody {
     const initParameters: Record<string, string> = {
@@ -230,7 +253,7 @@ export function ExtensionDetailPanel({
       deprecated,
       restoreRequestParamsOnError: Boolean(detail?.restoreRequestParamsOnError),
       version: detail?.version,
-      runtimeParameters: detail?.runtimeParameters,
+      runtimeParameters: rowsToRuntimeParams(paramRows),
       methods: rowsToMethods(methodRows),
     };
     return body;
@@ -280,6 +303,7 @@ export function ExtensionDetailPanel({
       setInterfacesText(formatExtensionInterfaces(saved.supportedInterfaces));
       setClassName(extensionClassName(saved.initParameters));
       setMethodRows(methodsToRows(saved.methods));
+      setParamRows(runtimeParamsToRows(saved.runtimeParameters));
       setDeprecated(Boolean(saved.deprecated));
       setNotice(DEV_MSG.EX_SAVED);
       onSaved?.(saved);
@@ -333,14 +357,10 @@ export function ExtensionDetailPanel({
     ? DEV_MSG.EX_NEW
     : detail?.extensionName || idOrName || DEV_MSG.EX_EDIT;
 
-  const params =
-    detail != null && Array.isArray(detail.runtimeParameters) ? detail.runtimeParameters : [];
   const gapList =
     detail != null && detail.designGaps && detail.designGaps.length > 0
       ? withoutStaleExtensionWriteGap(detail.designGaps)
-      : EXTENSION_DESIGN_GAPS.length > 0
-        ? EXTENSION_DESIGN_GAPS
-        : [DEV_MSG.EX_GAP_WORKBENCH];
+      : [...EXTENSION_DESIGN_GAPS];
 
   return (
     <div data-testid="developer-ex-detail">
@@ -688,50 +708,94 @@ export function ExtensionDetailPanel({
             </button>
           </section>
 
-          {detail ? (
-            <>
-              <section data-testid="developer-ex-params">
-                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.EX_PARAMS}</h3>
-                {params.length === 0 ? (
-                  <p style={{ color: catalogColors.empty }} data-testid="developer-ex-params-empty">
-                    {DEV_MSG.EX_NONE}
-                  </p>
-                ) : (
-                  <div style={{ overflowX: "auto" }}>
-                    <table
-                      data-testid="developer-ex-params-table"
-                      style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
-                    >
-                      <thead>
-                        <tr style={tableHeaderRow}>
-                          <th style={{ padding: "8px" }}>{DEV_MSG.EX_COL_PARAM}</th>
-                          <th style={{ padding: "8px" }}>{DEV_MSG.EX_COL_TYPE}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {params.map((p, i) => (
-                          <tr key={`${p.name ?? "p"}-${i}`} style={tableRow}>
-                            <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                              {p.name || "—"}
-                            </td>
-                            <td style={{ padding: "8px" }}>{p.dataType || "—"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </section>
+          <section data-testid="developer-ex-params" style={{ marginBottom: "16px" }}>
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.EX_PARAMS}</h3>
+            <p style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+              {DEV_MSG.EX_RTPARAM_HINT}
+            </p>
+            {paramRows.length === 0 ? (
+              <p style={{ color: catalogColors.empty }} data-testid="developer-ex-params-empty">
+                {DEV_MSG.EX_RTPARAM_EMPTY}
+              </p>
+            ) : (
+              paramRows.map((row, i) => (
+                <div
+                  key={`rtparam-${i}`}
+                  data-testid={`developer-ex-rtparam-row-${i}`}
+                  style={{ display: "flex", gap: "8px", marginBottom: "4px", flexWrap: "wrap" }}
+                >
+                  <input
+                    data-testid={`developer-ex-rtparam-name-${i}`}
+                    aria-label={DEV_MSG.EX_RTPARAM_NAME}
+                    style={{ ...inputStyle, fontFamily: "monospace", flex: "1 1 8rem" }}
+                    value={row.name ?? ""}
+                    disabled={readOnly}
+                    onChange={(e) => updateRuntimeParam(i, { name: e.target.value })}
+                    autoComplete="off"
+                  />
+                  <input
+                    data-testid={`developer-ex-rtparam-type-${i}`}
+                    aria-label={DEV_MSG.EX_RTPARAM_TYPE}
+                    style={{ ...inputStyle, fontFamily: "monospace", flex: "1 1 8rem" }}
+                    value={row.dataType ?? ""}
+                    disabled={readOnly}
+                    onChange={(e) => updateRuntimeParam(i, { dataType: e.target.value })}
+                    autoComplete="off"
+                  />
+                  <input
+                    data-testid={`developer-ex-rtparam-desc-${i}`}
+                    aria-label={DEV_MSG.EX_RTPARAM_DESC}
+                    style={{ ...inputStyle, flex: "2 1 12rem" }}
+                    value={row.description ?? ""}
+                    disabled={readOnly}
+                    onChange={(e) => updateRuntimeParam(i, { description: e.target.value })}
+                    autoComplete="off"
+                  />
+                  <button
+                    type="button"
+                    data-testid={`developer-ex-rtparam-remove-${i}`}
+                    disabled={readOnly}
+                    onClick={() => removeRuntimeParam(i)}
+                    style={{
+                      padding: "8px",
+                      border: `1px solid ${catalogColors.softBorder}`,
+                      borderRadius: "4px",
+                      background: "transparent",
+                      cursor: readOnly ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {DEV_MSG.EX_RTPARAM_REMOVE}
+                  </button>
+                </div>
+              ))
+            )}
+            <button
+              type="button"
+              data-testid="developer-ex-rtparam-add"
+              disabled={readOnly}
+              onClick={() => setParamRows((rows) => [...rows, emptyRuntimeParam()])}
+              style={{
+                padding: "8px 16px",
+                background: readOnly ? catalogColors.disabled : catalogColors.accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: readOnly ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.EX_RTPARAM_ADD}
+            </button>
+          </section>
 
-              <section style={{ marginTop: "16px" }} data-testid="developer-ex-gaps">
-                <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.EX_GAPS}</h3>
-                <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
-                  {gapList.map((g) => (
-                    <li key={g}>{g}</li>
-                  ))}
-                </ul>
-              </section>
-            </>
+          {detail && gapList.length > 0 ? (
+            <section style={{ marginTop: "16px" }} data-testid="developer-ex-gaps">
+              <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.EX_GAPS}</h3>
+              <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                {gapList.map((g) => (
+                  <li key={g}>{g}</li>
+                ))}
+              </ul>
+            </section>
           ) : null}
         </>
       ) : null}
