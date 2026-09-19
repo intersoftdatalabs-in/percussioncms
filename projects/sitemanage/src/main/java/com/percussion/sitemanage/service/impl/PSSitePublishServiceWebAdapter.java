@@ -240,9 +240,10 @@ public class PSSitePublishServiceWebAdapter {
           .build();
     } catch (PSNotFoundException e) {
       // Return (not throw) so the shared runtime exception mapper keeps the
-      // 404 status instead of flattening it to 500 (#4581).
+      // 404 status instead of flattening it to 500 (#4581). Do not echo the
+      // path-param id into the entity (reflected XSS).
       return Response.status(Response.Status.NOT_FOUND)
-          .entity("Item not found for id: " + id)
+          .entity("Item not found")
           .build();
     } catch (PSDataServiceException e) {
       throw new WebApplicationException(e);

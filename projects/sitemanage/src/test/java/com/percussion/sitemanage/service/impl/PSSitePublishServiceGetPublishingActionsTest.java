@@ -18,6 +18,7 @@
 package com.percussion.sitemanage.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -104,6 +105,23 @@ class PSSitePublishServiceGetPublishingActionsTest {
         new PSSitePublishServiceWebAdapter(publishService);
     Response response = adapter.getPublishingActions("nope");
     assertEquals(404, response.getStatus());
+    assertEquals("Item not found", response.getEntity());
+  }
+
+  @Test
+  void adapter404EntityDoesNotEchoPathParam() throws Exception {
+    IPSSitePublishService publishService = mock(IPSSitePublishService.class);
+    when(publishService.getPublishingActions(anyString()))
+        .thenThrow(new PSNotFoundException("missing"));
+    PSSitePublishServiceWebAdapter adapter =
+        new PSSitePublishServiceWebAdapter(publishService);
+    String injected = "<script>alert(1)</script>";
+    Response response = adapter.getPublishingActions(injected);
+    assertEquals(404, response.getStatus());
+    Object entity = response.getEntity();
+    assertTrue(entity instanceof String);
+    assertFalse(((String) entity).contains(injected));
+    assertFalse(((String) entity).contains("<script>"));
   }
 
   @Test
