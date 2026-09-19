@@ -200,7 +200,7 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 3. Enter the item id (content GUID such as `16777215-101-9`), choose **Page** or **Asset**, and choose **Review publish now**.
 4. Confirm **Publish this item now?** then **Publish Now**. The site workspace job list refreshes after a successful start.
 
-**Empty and error states:** Blank or invalid item id is not a publish. HTTP **403** (non-Admin or locked/forbidden item) and HTTP **400** (validation) are shown in the panel — they are **not** treated as success. HTTP **404** (unknown id) shows **Item not found**. HTTP 200 with application-level `FORBIDDEN` or `BADCONFIG` is also a failure (same as Explorer). Stage / unstage and the publishing-actions menu are separate slices.
+**Empty and error states:** Blank or invalid item id is not a publish. HTTP **403** (non-Admin or locked/forbidden item) and HTTP **400** (validation) are shown in the panel — they are **not** treated as success. HTTP **404** (unknown id) shows **Item not found**. HTTP 200 with application-level `FORBIDDEN` or `BADCONFIG` is also a failure (same as Explorer). Stage / unstage have their own panels; the **Available publishing actions** menu above them jumps to each panel for the same item.
 
 **Deep links:**
 
@@ -240,6 +240,18 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 
 - `spa.jsp?entry=publish&section=sites&siteId={siteId}&itemId={id}&action={stage|unstage}`
 - Path form: `/cm/app/publish/sites?siteId={siteId}&itemId={id}&action={stage|unstage}`
+
+## Available publishing actions menu (Publishing site workspace)
+
+From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Available publishing actions** menu calls the existing sitemanage endpoint (`GET /services/sitemanage/publish/publishingActions/{id}`) and renders one button per server row — **Publish**, **Schedule...**, **Remove from Site**, **Stage**, **Remove from Staging**. It replaces the classic jQuery `PercItemPublisherService` get-publishing-actions menu for this shell; it adds no new REST and reuses the publish-now, schedule, takedown, and stage panels below it.
+
+1. Sign in as an **Admin** (or an operator with publish rights on the item).
+2. Open **Publish → Sites** and select a site (or deep-link `section=sites` with `siteId` and `itemId`).
+3. Enter the item id (or follow the deep-linked one) and choose **Load actions**.
+4. Rows the server marks unavailable render **disabled** — they cannot be clicked. Unknown action names are skipped.
+5. Choose an enabled action to jump to its panel (publish now, schedule, takedown, stage) for the same item.
+
+**Empty and error states:** Blank or invalid item id is not a lookup. HTTP **403** (non-Admin / no publish rights) shows **Publish Forbidden** — it is **not** treated as success. HTTP **404** (unknown id) shows **Item not found**. An item with no applicable actions shows **No publishing actions for this item**.
 
 ## Failure modes to watch
 

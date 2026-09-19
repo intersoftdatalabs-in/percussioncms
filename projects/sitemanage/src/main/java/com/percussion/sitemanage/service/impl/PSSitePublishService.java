@@ -584,6 +584,9 @@ public class PSSitePublishService implements IPSSitePublishService {
       throws PSDataServiceException, PSNotFoundException {
     List<PSPublishingAction> pubActions = new ArrayList<>();
     IPSItemSummary sum = itemSummaryService.find(id);
+    if (sum == null) {
+      throw new PSNotFoundException("Item not found for id: " + id);
+    }
 
     if ((sum.isPage() || sum.isResource())) {
       PSPublishingAction tdActionPublishProps =

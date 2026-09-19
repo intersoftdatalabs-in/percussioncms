@@ -268,6 +268,12 @@ export const MSG = {
   PUBLISH_STAGE_CONFIRM_UNSTAGE: "perc.ui.publish.modern@Remove this item from staging?",
   PUBLISH_STAGE_SUCCESS_STAGE: "perc.ui.publish.modern@Item staged.",
   PUBLISH_STAGE_SUCCESS_UNSTAGE: "perc.ui.publish.modern@Item removed from staging.",
+  PUBLISH_ACTIONS: "perc.ui.publish.modern@Available publishing actions",
+  PUBLISH_ACTIONS_HINT:
+    "perc.ui.publish.modern@Server-driven actions for the selected page or asset. Unavailable actions are disabled.",
+  PUBLISH_ACTIONS_LOAD: "perc.ui.publish.modern@Load actions",
+  PUBLISH_ACTIONS_EMPTY: "perc.ui.publish.modern@No publishing actions for this item",
+  PUBLISH_ACTIONS_UNAVAILABLE: "perc.ui.publish.modern@Action not available",
   // SPA top navigation (shell chrome)
   NAV_HOME: "perc.ui.navMenu.home@Home",
   NAV_DASHBOARD: "perc.ui.navMenu.dashboard@Dashboard",

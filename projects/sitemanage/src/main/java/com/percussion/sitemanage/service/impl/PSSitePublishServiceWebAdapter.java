@@ -55,6 +55,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -232,11 +233,18 @@ public class PSSitePublishServiceWebAdapter {
   @GET
   @Path("/publishingActions/{id}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public PSPublishingActionList getPublishingActions(@PathParam("id") String id) {
+  public Response getPublishingActions(@PathParam("id") String id) {
     try {
       if (StringUtils.isBlank(id)) throw new IllegalArgumentException("id may not be blank");
-      return new PSPublishingActionList(sitePublishService.getPublishingActions(id));
-    } catch (PSDataServiceException | PSNotFoundException e) {
+      return Response.ok(new PSPublishingActionList(sitePublishService.getPublishingActions(id)))
+          .build();
+    } catch (PSNotFoundException e) {
+      // Return (not throw) so the shared runtime exception mapper keeps the
+      // 404 status instead of flattening it to 500 (#4581).
+      return Response.status(Response.Status.NOT_FOUND)
+          .entity("Item not found for id: " + id)
+          .build();
+    } catch (PSDataServiceException e) {
       throw new WebApplicationException(e);
     }
   }
