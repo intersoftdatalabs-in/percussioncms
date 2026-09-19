@@ -92,7 +92,7 @@ describe("ExtensionsPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-ex-detail")).toBeTruthy();
     });
-    expect(screen.getByTestId("developer-ex-params-table")).toBeTruthy();
+    expect(screen.getByTestId("developer-ex-rtparam-row-0")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-ex-back"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-ex-table")).toBeTruthy();

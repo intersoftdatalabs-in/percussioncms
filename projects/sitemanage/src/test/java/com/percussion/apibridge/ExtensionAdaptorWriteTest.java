@@ -347,6 +347,71 @@ class ExtensionAdaptorWriteTest {
   }
 
   @Test
+  void register_persistsRuntimeParametersRoundTrip() {
+    Extension body = userBody("my_user_ext");
+    body.setRuntimeParameters(List.of(runtimeParam("htmlParams", "java.util.Map", "params")));
+
+    Extension created = adaptor.registerExtension(BASE, body);
+    Extension fetched = adaptor.findExtensionByKey(BASE, created.getFqn());
+
+    assertNotNull(fetched.getRuntimeParameters());
+    assertEquals(1, fetched.getRuntimeParameters().size());
+    assertEquals("htmlParams", fetched.getRuntimeParameters().get(0).getName());
+    assertEquals("java.util.Map", fetched.getRuntimeParameters().get(0).getDataType());
+    assertEquals("params", fetched.getRuntimeParameters().get(0).getDescription());
+  }
+
+  @Test
+  void update_replacesAndClearsRuntimeParameters() {
+    Extension body = userBody("my_user_ext");
+    body.setRuntimeParameters(List.of(runtimeParam("oldParam", "java.lang.String", "old")));
+    adaptor.registerExtension(BASE, body);
+
+    Extension replace = userBody("my_user_ext");
+    replace.setRuntimeParameters(List.of(runtimeParam("htmlParams", "java.util.Map", "params")));
+    Extension updated = adaptor.updateExtension(BASE, "my_user_ext", replace);
+    assertEquals(1, updated.getRuntimeParameters().size());
+    assertEquals("htmlParams", updated.getRuntimeParameters().get(0).getName());
+
+    Extension omit = userBody("my_user_ext");
+    omit.setRuntimeParameters(null);
+    Extension kept = adaptor.updateExtension(BASE, "my_user_ext", omit);
+    assertEquals(1, kept.getRuntimeParameters().size());
+    assertEquals("htmlParams", kept.getRuntimeParameters().get(0).getName());
+
+    Extension clear = userBody("my_user_ext");
+    clear.setRuntimeParameters(List.of());
+    Extension cleared = adaptor.updateExtension(BASE, "my_user_ext", clear);
+    assertTrue(
+        cleared.getRuntimeParameters() == null || cleared.getRuntimeParameters().isEmpty());
+  }
+
+  @Test
+  void update_systemRuntimeParametersIs409() throws Exception {
+    seedSystemExtension();
+    Extension body = userBody("sys_add");
+    body.setRuntimeParameters(List.of(runtimeParam("htmlParams", "java.util.Map", "")));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.updateExtension(BASE, "sys_add", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void update_blankRuntimeParamNameClears() {
+    // Wire clear path: JAXB drops empty arrays, so the SPA sends [{name:""}].
+    Extension body = userBody("my_user_ext");
+    body.setRuntimeParameters(List.of(runtimeParam("htmlParams", "java.util.Map", "params")));
+    adaptor.registerExtension(BASE, body);
+
+    Extension clear = userBody("my_user_ext");
+    clear.setRuntimeParameters(List.of(runtimeParam(" ", null, null)));
+    Extension cleared = adaptor.updateExtension(BASE, "my_user_ext", clear);
+    assertTrue(
+        cleared.getRuntimeParameters() == null || cleared.getRuntimeParameters().isEmpty());
+  }
+
+  @Test
   void delete_removesUserExtension() {
     adaptor.registerExtension(BASE, userBody("my_user_ext"));
     assertTrue(adaptor.deleteExtension(BASE, "my_user_ext"));
@@ -471,5 +536,13 @@ class ExtensionAdaptorWriteTest {
     m.setReturnType(returnType);
     m.setDescription(description);
     return m;
+  }
+
+  private static ExtensionParameter runtimeParam(String name, String dataType, String description) {
+    ExtensionParameter p = new ExtensionParameter();
+    p.setName(name);
+    p.setDataType(dataType);
+    p.setDescription(description);
+    return p;
   }
 }

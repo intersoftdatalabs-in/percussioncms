@@ -212,21 +212,23 @@ describe("extension wire wrap", () => {
     });
   });
 
-  it("filters a stale REST write gap on GET detail", () => {
+  it("filters stale REST write gaps on GET detail (design gaps closed)", () => {
     expect(
       withoutStaleExtensionWriteGap([
         "Extension install / remove not supported via this API",
         "Workbench parameter dialog parity beyond fields on the wire DTO",
       ]),
-    ).toEqual(["Workbench parameter dialog parity beyond fields on the wire DTO"]);
+    ).toEqual([]);
     expect(EXTENSION_DESIGN_GAPS.some((g) => /install/i.test(g))).toBe(false);
     expect(
       withoutStaleExtensionWriteGap([
         "Extension method map editing not supported via this chrome",
         "Workbench parameter dialog parity beyond fields on the wire DTO",
       ]),
-    ).toEqual(["Workbench parameter dialog parity beyond fields on the wire DTO"]);
+    ).toEqual([]);
     expect(EXTENSION_DESIGN_GAPS.some((g) => /method map/i.test(g))).toBe(false);
+    expect(EXTENSION_DESIGN_GAPS.some((g) => /parameter dialog/i.test(g))).toBe(false);
+    expect(EXTENSION_DESIGN_GAPS).toEqual([]);
   });
 
   it("wraps method map as a JSON array", () => {
@@ -272,6 +274,35 @@ describe("extension wire wrap", () => {
       }),
     );
   });
+
+  it("sends runtime parameters through and a blank-name row to clear", () => {
+    expect(
+      wrapExtensionForWire({
+        extensionName: "my_user_ext",
+        supportedInterfaces: ["com.percussion.extension.IPSUdfProcessor"],
+        runtimeParameters: [
+          { name: "htmlParams", dataType: "java.util.Map", description: "params" },
+        ],
+      }).Extension,
+    ).toEqual(
+      expect.objectContaining({
+        runtimeParameters: [
+          { name: "htmlParams", dataType: "java.util.Map", description: "params" },
+        ],
+      }),
+    );
+    expect(
+      wrapExtensionForWire({
+        extensionName: "my_user_ext",
+        supportedInterfaces: ["com.percussion.extension.IPSUdfProcessor"],
+        runtimeParameters: [],
+      }).Extension,
+    ).toEqual(
+      expect.objectContaining({
+        runtimeParameters: [{ name: "" }],
+      }),
+    );
+  });
 });
 
 describe("extensionsApi write paths", () => {
@@ -299,15 +330,23 @@ describe("extensionsApi write paths", () => {
     );
     const list = await listExtensions();
     expect(list[0].extensionName).toBe("sys_add");
-    expect(list[0].designGaps?.length).toBeGreaterThan(0);
+    expect(list[0].designGaps).toEqual([]);
 
     fetchMock.mockResolvedValueOnce(
       jsonResponse({
-        Extension: { extensionName: "sys_add", fqn: "Java/global/percussion/sys_add" },
+        Extension: {
+          extensionName: "sys_add",
+          fqn: "Java/global/percussion/sys_add",
+          runtimeParameters: { name: "htmlParams", dataType: "java.util.Map" },
+        },
       }),
     );
     const detail = await getExtensionDetail("sys_add");
     expect(detail.fqn).toBe("Java/global/percussion/sys_add");
+    // JAXB single-object runtimeParameters normalizes to one row.
+    expect(detail.runtimeParameters).toEqual([
+      { name: "htmlParams", dataType: "java.util.Map", description: "" },
+    ]);
     expect(String(fetchMock.mock.calls[1][0])).toContain(`${PATHS.EXTENSIONS}/item?key=`);
   });
 

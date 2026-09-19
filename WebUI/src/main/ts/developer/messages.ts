@@ -1601,7 +1601,7 @@ export const DEV_MSG_KEYS = {
   EX_EMPTY: "perc.ui.developer@No extensions returned.",
   EX_ERROR: "perc.ui.developer@Could not load extensions.",
   EX_HINT:
-    "perc.ui.developer@Create, save, or delete user extensions (Java identifier name, at least one interface, className for Java). Admins can edit the method map. System and handler-owned extensions are read-only.",
+    "perc.ui.developer@Create, save, or delete user extensions (Java identifier name, at least one interface, className for Java). Admins can edit the method map and runtime parameters. System and handler-owned extensions are read-only.",
   EX_COL_NAME: "perc.ui.developer@Name",
   EX_COL_HANDLER: "perc.ui.developer@Handler",
   EX_COL_CONTEXT: "perc.ui.developer@Context",
@@ -1632,6 +1632,15 @@ export const DEV_MSG_KEYS = {
   EX_METHOD_PARAM_ADD: "perc.ui.developer@Add parameter",
   EX_METHOD_PARAM_REMOVE: "perc.ui.developer@Remove parameter",
   EX_METHOD_EMPTY: "perc.ui.developer@No methods. Add a method or save to clear the map.",
+  EX_RTPARAM_HINT:
+    "perc.ui.developer@Add, update, or clear runtime parameters. Save writes the list; GET then Save round-trips name, type, and description. An empty list clears.",
+  EX_RTPARAM_ADD: "perc.ui.developer@Add runtime parameter",
+  EX_RTPARAM_REMOVE: "perc.ui.developer@Remove runtime parameter",
+  EX_RTPARAM_NAME: "perc.ui.developer@Runtime parameter name",
+  EX_RTPARAM_TYPE: "perc.ui.developer@Runtime parameter type",
+  EX_RTPARAM_DESC: "perc.ui.developer@Runtime parameter description",
+  EX_RTPARAM_EMPTY:
+    "perc.ui.developer@No runtime parameters. Add one or save to clear the list.",
   EX_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   EX_GAP_METHODS: "perc.ui.developer@Extension method map editing not supported via this chrome",
   EX_GAP_WORKBENCH:
