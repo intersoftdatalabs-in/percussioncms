@@ -17,6 +17,7 @@
 
 import { get, put } from "../api/client";
 import { PATHS } from "../api/paths";
+import type { EditorCheckoutUserInfo } from "./editorCheckout";
 
 export interface ItemEditorField {
   name: string;
@@ -88,8 +89,25 @@ export async function saveItemEditorFields(
   return unwrapFields(res);
 }
 
-export async function checkoutEditorItem(itemId: string): Promise<void> {
-  await get(`${PATHS.ITEM_WORKFLOW_CHECKOUT}${encodeURIComponent(itemId)}`);
+function unwrapUserInfo(payload: unknown): EditorCheckoutUserInfo {
+  const root = asRecord(payload);
+  const body =
+    asRecord(root?.ItemUserInfo ?? root?.itemUserInfo) ?? root ?? {};
+  return {
+    itemName: String(body.itemName ?? body.ItemName ?? ""),
+    checkOutUser: String(body.checkOutUser ?? body.CheckOutUser ?? ""),
+    currentUser: String(body.currentUser ?? body.CurrentUser ?? ""),
+    assignmentType: String(body.assignmentType ?? body.AssignmentType ?? ""),
+  };
+}
+
+export async function checkoutEditorItem(
+  itemId: string,
+): Promise<EditorCheckoutUserInfo> {
+  const res = await get<unknown>(
+    `${PATHS.ITEM_WORKFLOW_CHECKOUT}${encodeURIComponent(itemId)}`,
+  );
+  return unwrapUserInfo(res);
 }
 
 export async function checkinEditorItem(itemId: string): Promise<void> {

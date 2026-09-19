@@ -198,7 +198,7 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
       }
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(e.getMessage());
+      throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
     } catch (RuntimeException e) {
       if (isUndeterminedGuidType(e)) {
         log.warn("checkIn skipping id {} with undetermined GUID type: {}", id, e.getMessage());
@@ -258,7 +258,11 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
       contentWs.checkinItems(idMapper.getGuids(ids), null, ignoreRevisionCheck);
       return new PSNoContent("checkIn");
     } catch (PSErrorsException e) {
-      var ex = (PSErrorException) e.getErrors().get(ids.get(0));
+      Object errObj = e.getErrors() == null ? null : e.getErrors().get(ids.get(0));
+      String errMsg =
+          errObj instanceof PSErrorException pe
+              ? pe.getErrorMessage()
+              : String.valueOf(e.getMessage() == null ? "check-in conflict" : e.getMessage());
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new PSItemWorkflowServiceException(
@@ -267,8 +271,8 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
               + "id= "
               + id
               + " , Error: "
-              + ex.getErrorMessage(),
-          ex);
+              + errMsg,
+          e);
     }
   }
 
@@ -588,7 +592,7 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
     } catch (PSItemWorkflowServiceException | PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw new WebApplicationException(e.getMessage());
+      throw new WebApplicationException(e.getMessage(), Response.Status.FORBIDDEN);
     }
   }
 

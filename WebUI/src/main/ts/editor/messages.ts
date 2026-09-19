@@ -39,6 +39,17 @@ export const EDITOR_MSG = {
   REQUIRED_CHECKIN:
     "perc.ui.editor@Fill in the required fields before checking in.",
   CHECKIN: "perc.ui.editor@Check In",
+  CHECKOUT_ACTION: "perc.ui.editor@Check Out",
+  CHECKOUT_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to check out this item.",
+  CHECKOUT_CONFLICT:
+    "perc.ui.editor@This item is checked out to another user.",
+  CHECKIN_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to check in this item.",
+  CHECKIN_CONFLICT:
+    "perc.ui.editor@This item is not checked out to you.",
+  CHECKOUT_FAILED: "perc.ui.editor@Could not check out this item.",
+  CHECKIN_FAILED: "perc.ui.editor@Could not check in this item.",
   CLOSE: "perc.ui.editor@Close",
   EMPTY: "perc.ui.editor@This content type has no editable text fields.",
   LOCKED: "perc.ui.editor@This item is checked out to another user.",

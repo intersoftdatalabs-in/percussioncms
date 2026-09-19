@@ -56,6 +56,12 @@ import {
   type EditorCopyKind,
 } from "./editorCopy";
 import {
+  canUseEditorCheckoutActions,
+  editorLockErrorReason,
+  isCheckedOutToSelf,
+  type EditorCheckoutUserInfo,
+} from "./editorCheckout";
+import {
   canPreviewFromEditor,
   editorDraftIsDirty,
   previewEditorItem,
@@ -102,7 +108,7 @@ export interface EditorHostProps {
     itemId: string,
     payload: ItemEditorFields,
   ) => Promise<ItemEditorFields>;
-  checkout?: (itemId: string) => Promise<void>;
+  checkout?: (itemId: string) => Promise<EditorCheckoutUserInfo | void>;
   checkin?: (itemId: string) => Promise<void>;
   loadType?: (typeName: string) => Promise<{
     fields?: ContentTypeFieldSummary[];
@@ -333,6 +339,12 @@ export function EditorHost({
   const [copyBusy, setCopyBusy] = useState(false);
   const [copyErrorKey, setCopyErrorKey] = useState<string | null>(null);
   const [copyErrorDetail, setCopyErrorDetail] = useState("");
+  const [sessionUser, setSessionUser] = useState("");
+  const [lockUser, setLockUser] = useState("");
+  const [lockBusy, setLockBusy] = useState(false);
+  const [lockErrorKey, setLockErrorKey] = useState<string | null>(null);
+  const [lockErrorDetail, setLockErrorDetail] = useState("");
+  const [checkoutOk, setCheckoutOk] = useState(false);
 
   useEffect(() => {
     document.title = message(EDITOR_MSG.TITLE);
@@ -347,16 +359,49 @@ export function EditorHost({
     setLoading(true);
     setErrorKey(null);
     setErrorDetail("");
+    setLockErrorKey(null);
+    setLockErrorDetail("");
+    setCheckoutOk(false);
     void (async () => {
       try {
-        if (!readOnly) {
-          await checkout(itemId);
-        }
         const fields = await loadFields(itemId);
         if (cancelled) {
           return;
         }
         setPayload(fields);
+        setLockUser(fields.checkoutUser ?? "");
+        if (!readOnly) {
+          try {
+            const info = await checkout(itemId);
+            if (!cancelled) {
+              setCheckoutOk(true);
+              if (info) {
+                const nextLock = (info.checkOutUser ?? "").trim();
+                const nextSession = (info.currentUser ?? "").trim();
+                if (nextLock) {
+                  setLockUser(nextLock);
+                }
+                if (nextSession) {
+                  setSessionUser(nextSession);
+                }
+              }
+            }
+          } catch (err) {
+            if (!cancelled) {
+              const reason = editorLockErrorReason(err);
+              setLockErrorKey(
+                reason === "forbidden"
+                  ? EDITOR_MSG.CHECKOUT_FORBIDDEN
+                  : reason === "conflict"
+                    ? EDITOR_MSG.CHECKOUT_CONFLICT
+                    : EDITOR_MSG.CHECKOUT_FAILED,
+              );
+              setLockErrorDetail(
+                formatApiError(err, message(EDITOR_MSG.CHECKOUT_FAILED)),
+              );
+            }
+          }
+        }
         setDraft(
           Object.fromEntries(
             fields.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
@@ -735,6 +780,59 @@ export function EditorHost({
     }
   }
 
+  function lockErrorKeyFor(
+    reason: ReturnType<typeof editorLockErrorReason>,
+    kind: "in" | "out",
+  ): string {
+    if (reason === "forbidden") {
+      return kind === "in" ? EDITOR_MSG.CHECKIN_FORBIDDEN : EDITOR_MSG.CHECKOUT_FORBIDDEN;
+    }
+    if (reason === "conflict") {
+      return kind === "in" ? EDITOR_MSG.CHECKIN_CONFLICT : EDITOR_MSG.CHECKOUT_CONFLICT;
+    }
+    return kind === "in" ? EDITOR_MSG.CHECKIN_FAILED : EDITOR_MSG.CHECKOUT_FAILED;
+  }
+
+  async function handleCheckout(): Promise<void> {
+    if (contentId == null || !canUseEditorCheckoutActions(mode)) {
+      return;
+    }
+    setLockBusy(true);
+    setLockErrorKey(null);
+    setLockErrorDetail("");
+    try {
+      const info = await checkout(String(contentId));
+      setCheckoutOk(true);
+      const nextLock = (info?.checkOutUser ?? "").trim();
+      const nextSession = (info?.currentUser ?? "").trim();
+      if (nextLock) {
+        setLockUser(nextLock);
+      }
+      if (nextSession) {
+        setSessionUser(nextSession);
+      }
+      if (
+        !isCheckedOutToSelf(
+          nextLock || lockUser,
+          nextSession || sessionUser,
+          payload?.checkoutUser,
+          true,
+        )
+      ) {
+        setLockErrorKey(EDITOR_MSG.CHECKOUT_CONFLICT);
+      }
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = editorLockErrorReason(err);
+      setLockErrorKey(lockErrorKeyFor(reason, "out"));
+      setLockErrorDetail(formatApiError(err, message(lockErrorKeyFor(reason, "out"))));
+    } finally {
+      setLockBusy(false);
+    }
+  }
+
   async function handleCheckin(): Promise<void> {
     if (contentId == null) {
       return;
@@ -746,8 +844,12 @@ export function EditorHost({
       setSaveErrorDetail("");
       return;
     }
+    setLockBusy(true);
+    setLockErrorKey(null);
+    setLockErrorDetail("");
     try {
       await checkin(String(contentId));
+      setLockUser("");
       if (typeof window !== "undefined") {
         window.close();
       }
@@ -755,12 +857,23 @@ export function EditorHost({
       if (isSessionRedirectError(err)) {
         return;
       }
-      setSaveErrorDetail(formatApiError(err, message(EDITOR_MSG.SAVE_FAILED)));
-      setSaveErrorKey(EDITOR_MSG.SAVE_FAILED);
+      const reason = editorLockErrorReason(err);
+      setLockErrorKey(lockErrorKeyFor(reason, "in"));
+      setLockErrorDetail(formatApiError(err, message(lockErrorKeyFor(reason, "in"))));
+    } finally {
+      setLockBusy(false);
     }
   }
 
-  const canEdit = !readOnly && !promote;
+  const heldBySelf = isCheckedOutToSelf(
+    lockUser,
+    sessionUser,
+    payload?.checkoutUser,
+    checkoutOk,
+  );
+  const canEdit = !readOnly && !promote && heldBySelf;
+  const showCheckoutAction =
+    canUseEditorCheckoutActions(mode) && contentId != null && !heldBySelf;
   const publishKind = resolveEditorPublishKind(payload?.contentType, {
     id: contentId != null ? String(contentId) : "",
     allowedTemplateCount,
@@ -784,9 +897,9 @@ export function EditorHost({
             {message(EDITOR_MSG.TYPE_LABEL)} {payload.contentType}
           </span>
         ) : null}
-        {payload?.checkoutUser ? (
+        {(lockUser || payload?.checkoutUser) ? (
           <span className={styles.meta} data-testid="editor-checkout-user">
-            {message(EDITOR_MSG.CHECKOUT)} {payload.checkoutUser}
+            {message(EDITOR_MSG.CHECKOUT)} {lockUser || payload?.checkoutUser}
           </span>
         ) : null}
         <div className={styles.actions}>
@@ -850,11 +963,23 @@ export function EditorHost({
               {message(EDITOR_MSG.PROMOTABLE_VERSION)}
             </button>
           ) : null}
+          {showCheckoutAction ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-checkout"
+              disabled={lockBusy || loading || payload == null}
+              onClick={() => void handleCheckout()}
+            >
+              {message(EDITOR_MSG.CHECKOUT_ACTION)}
+            </button>
+          ) : null}
           {canEdit ? (
             <button
               type="button"
               className={styles.button}
               data-testid="editor-checkin"
+              disabled={lockBusy || loading || payload == null}
               onClick={() => void handleCheckin()}
             >
               {message(EDITOR_MSG.CHECKIN)}
@@ -939,6 +1064,21 @@ export function EditorHost({
                 {copyErrorDetail ? ` ${copyErrorDetail}` : ""}
               </div>
             ) : null}
+            {lockErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-lock-error"
+              >
+                {message(lockErrorKey)}
+                {lockErrorDetail ? ` ${lockErrorDetail}` : ""}
+              </div>
+            ) : null}
+            {!canEdit && !readOnly && !promote && payload != null ? (
+              <div className={styles.status} data-testid="editor-locked">
+                {message(EDITOR_MSG.LOCKED)}
+              </div>
+            ) : null}
             {canEdit ? (
               <EditorWorkflowPanel
                 stateName={workflowState}
@@ -986,7 +1126,7 @@ export function EditorHost({
                     <EditorFieldControl
                       row={row}
                       itemId={String(contentId)}
-                      locked={readOnly || row.readOnly}
+                      locked={readOnly || !canEdit || row.readOnly}
                       invalid={Boolean(fieldErrors[row.name])}
                       onChange={setField}
                       onFile={setFile}
