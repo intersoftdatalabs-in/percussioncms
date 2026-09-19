@@ -344,7 +344,7 @@ export async function persistOverlayEdits(options: {
     itemId: string,
     payload: ItemEditorFields,
   ) => Promise<ItemEditorFields>;
-  checkout?: (itemId: string) => Promise<void>;
+  checkout?: (itemId: string) => Promise<unknown>;
 }): Promise<ItemEditorFields> {
   const groups = groupOverlayEdits(options.edits);
   if (groups.size === 0) {

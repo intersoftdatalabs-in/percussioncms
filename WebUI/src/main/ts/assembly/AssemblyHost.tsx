@@ -117,7 +117,7 @@ export interface AssemblyHostProps {
     itemId: string,
     payload: ItemEditorFields,
   ) => Promise<ItemEditorFields>;
-  checkout?: (itemId: string) => Promise<void>;
+  checkout?: (itemId: string) => Promise<unknown>;
   loadType?: (typeName: string) => Promise<{ fields?: ContentTypeFieldSummary[] }>;
   getPreviewDocument?: (frame: HTMLIFrameElement | null) => Document | null;
   /** Test seam: open the React editor host after create. */
