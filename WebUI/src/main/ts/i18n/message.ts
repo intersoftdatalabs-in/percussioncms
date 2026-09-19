@@ -176,6 +176,9 @@ export const MSG = {
   PUBLISH_FULL: "perc.ui.publish.title@Full",
   PUBLISH_STOP: "perc.ui.publish.title@Stop",
   PUBLISH_INCREMENTAL: "perc.ui.publish.modern@Incremental",
+  PUBLISH_CONFIRM_INCREMENTAL:
+    "perc.ui.publish.modern@Confirm Incremental Publish",
+  PUBLISH_JOB_STARTED: "perc.ui.publish.modern@Publish Job Started",
   PUBLISH_BACK: "perc.ui.publish.modern@Back",
   PUBLISH_EMPTY_SITES: "perc.ui.publish.modern@No Sites",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",

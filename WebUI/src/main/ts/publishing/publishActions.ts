@@ -160,6 +160,22 @@ export function mapPublishResponse(
   };
 }
 
+/**
+ * Job id from a site publish response ({@code jobid}), if present.
+ */
+export function extractPublishJobId(data: unknown): string | null {
+  const parsed = readPublishResponse(data);
+  if (!parsed) {
+    return null;
+  }
+  const raw = parsed.jobid;
+  if (raw == null || raw === "") {
+    return null;
+  }
+  const id = String(raw).trim();
+  return id === "" ? null : id;
+}
+
 export function startPublishState(): PublishActionState {
   return "starting";
 }
