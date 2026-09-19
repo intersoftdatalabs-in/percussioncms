@@ -36,6 +36,7 @@ import {
 import { fetchCurrentJobsForSite } from "../../api/publishing/statusApi";
 import { message, MSG } from "../../i18n/message";
 import { ItemPublishNowPanel } from "../components/ItemPublishNowPanel";
+import { ItemPublishingActionsMenu } from "../components/ItemPublishingActionsMenu";
 import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
 import { ItemStagePanel } from "../components/ItemStagePanel";
 import { ItemTakedownPanel } from "../components/ItemTakedownPanel";
@@ -442,6 +443,10 @@ export function SiteWorkspace({
         <h2 style={{ margin: 0, fontSize: "1.1rem" }}>{siteName}</h2>
       </div>
 
+      <ItemPublishingActionsMenu
+        itemId={itemId}
+        onItemIdChange={onItemIdChange}
+      />
       <ItemScheduleDatesPanel
         itemId={itemId}
         onItemIdChange={onItemIdChange}
