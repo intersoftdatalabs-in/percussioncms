@@ -16,11 +16,17 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  createWorkflow,
   getWorkflowAllowedContentTypes,
+  isValidWorkflowName,
+  isWorkflowCreateReady,
+  normalizeWorkflowName,
   parseWorkflowDetail,
   parseWorkflowList,
+  parseWorkflowSummary,
   setWorkflowAllowedContentTypes,
   wrapWorkflowContentTypesForWire,
+  wrapWorkflowCreateForWire,
 } from "../../../../main/ts/api/developer/workflowsApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -259,5 +265,91 @@ describe("workflow allowed content types API (SY-06)", () => {
         allowedContentTypes: [{ name: "percImage" }],
       },
     });
+  });
+});
+
+describe("workflow name validation (slice 21 create)", () => {
+  it("trims and accepts workflow-admin characters", () => {
+    expect(normalizeWorkflowName("  Nightly QA-1_2 ")).toBe("Nightly QA-1_2");
+    expect(isValidWorkflowName("Nightly QA-1_2")).toBe(true);
+    expect(isWorkflowCreateReady({ name: "Nightly QA" })).toBe(true);
+  });
+
+  it("rejects blank, wildcard, too-long, and illegal names", () => {
+    expect(isValidWorkflowName("  ")).toBe(false);
+    expect(isValidWorkflowName(null)).toBe(false);
+    expect(isValidWorkflowName("Bad*Name")).toBe(false);
+    expect(isValidWorkflowName("Bad%Name")).toBe(false);
+    expect(isValidWorkflowName("N".repeat(51))).toBe(false);
+    expect(isValidWorkflowName("Bad/Name!")).toBe(false);
+    expect(isWorkflowCreateReady({ name: "bad name?" })).toBe(false);
+  });
+});
+
+describe("parseWorkflowSummary (slice 21 create)", () => {
+  it("parses a flat summary body", () => {
+    expect(
+      parseWorkflowSummary({ workflowName: "Nightly QA", defaultWorkflow: false }),
+    ).toEqual({
+      workflowName: "Nightly QA",
+      workflowDescription: undefined,
+      defaultWorkflow: false,
+    });
+  });
+
+  it("unwraps Jackson WorkflowSummary root", () => {
+    expect(
+      parseWorkflowSummary({
+        WorkflowSummary: {
+          workflowName: "Nightly QA",
+          workflowDescription: "QA",
+          defaultWorkflow: false,
+        },
+      }),
+    ).toEqual({
+      workflowName: "Nightly QA",
+      workflowDescription: "QA",
+      defaultWorkflow: false,
+    });
+  });
+
+  it("throws when the name is missing", () => {
+    expect(() => parseWorkflowSummary({})).toThrow(/workflowName/);
+    expect(() => parseWorkflowSummary(null)).toThrow(/empty response/);
+  });
+});
+
+describe("workflow create API (slice 21)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("POSTs WorkflowCreate wrap and parses the summary", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ workflowName: "Nightly QA", defaultWorkflow: false }),
+    );
+    const created = await createWorkflow({ name: "Nightly QA" });
+    expect(created.workflowName).toBe("Nightly QA");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(PATHS.WORKFLOWS_ASSOC);
+    expect(JSON.parse(String(init.body))).toEqual(
+      wrapWorkflowCreateForWire({ name: "Nightly QA" }),
+    );
   });
 });

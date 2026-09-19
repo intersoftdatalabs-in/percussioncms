@@ -215,4 +215,78 @@ public class WorkflowsResourceTest {
             () -> resource.setAllowedContentTypes("Simple Workflow", body));
     assertEquals(409, ex.getResponse().getStatus());
   }
+
+  private static WorkflowCreate createBody(String name) {
+    WorkflowCreate body = new WorkflowCreate();
+    body.setName(name);
+    return body;
+  }
+
+  private static WorkflowSummary createdSummary(String name) {
+    WorkflowSummary summary = new WorkflowSummary();
+    summary.setWorkflowName(name);
+    summary.setWorkflowDescription("");
+    summary.setDefaultWorkflow(false);
+    return summary;
+  }
+
+  @Test
+  public void createWorkflowSuccess() {
+    when(adaptor.createWorkflow(any(), any())).thenReturn(createdSummary("Nightly QA"));
+    WorkflowSummary out = resource.createWorkflow(createBody("Nightly QA"));
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor).createWorkflow(any(), any());
+    verify(mockLog, never()).error(any(String.class), any(), any(), any());
+  }
+
+  @Test
+  public void createWorkflowRequiresBody() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createWorkflow(null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).createWorkflow(any(), any());
+  }
+
+  @Test
+  public void createWorkflowInvalidNameIs400() {
+    when(adaptor.createWorkflow(any(), any()))
+        .thenThrow(new IllegalArgumentException("Workflow name is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createWorkflow(createBody("  ")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createWorkflowDuplicateIs409() {
+    when(adaptor.createWorkflow(any(), any()))
+        .thenThrow(new WebApplicationException("Workflow already exists: Simple Workflow", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createWorkflow(createBody("Simple Workflow")));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createWorkflowForbidden() {
+    when(adaptor.createWorkflow(any(), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createWorkflow(createBody("Nightly QA")));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturns503OnCreate() {
+    WorkflowsResource bare = new WorkflowsResource();
+    UriInfo uriInfo = mock(UriInfo.class);
+    when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
+    bare.setUriInfo(uriInfo);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> bare.createWorkflow(createBody("Nightly QA")));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
 }

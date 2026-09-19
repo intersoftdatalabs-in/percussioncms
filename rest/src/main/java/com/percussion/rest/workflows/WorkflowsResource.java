@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -196,6 +197,57 @@ public class WorkflowsResource {
     } catch (Exception e) {
       log.error(
           "Failed to replace workflow allowed content types ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @POST
+  @Path("/")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Create a workflow",
+      description =
+          "Slice 21 Admin. Creates and persists a stepped workflow via"
+              + " IPSSteppedWorkflowService.createWorkflow (same backend the workflow-admin"
+              + " editor uses). Name is required, must be unique (case-insensitive), and must"
+              + " match workflow-admin rules (letters, digits, underscore, hyphen, space; max 50"
+              + " chars). Optional description is stored on the new workflow. States,"
+              + " transitions, and roles come from the product base-workflow template. Returns"
+              + " the new WorkflowSummary (GET workflowmanagement metadata then lists it)."
+              + " Jackson root wrap is WorkflowCreate. Full graph design stays outside this"
+              + " surface.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created and saved",
+            content = @Content(schema = @Schema(implementation = WorkflowSummary.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid name (blank, too long, or invalid characters)"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "A workflow with that name already exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowSummary createWorkflow(WorkflowCreate body) {
+    if (body == null) {
+      throw new WebApplicationException("Workflow name is required", 400);
+    }
+    try {
+      return requireAdaptor().createWorkflow(uriInfo.getBaseUri(), body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to create workflow ({}): {}",
           e.getClass().getName(),
           e.getMessage(),
           e);

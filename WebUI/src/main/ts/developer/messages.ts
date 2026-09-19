@@ -1789,11 +1789,24 @@ export const DEV_MSG_KEYS = {
   WF_CT_SAVE_SUCCESS: "perc.ui.developer@Allowed content types saved.",
   WF_CT_SAVE_ERROR: "perc.ui.developer@Could not save allowed content types.",
   WF_CT_DUP: "perc.ui.developer@That content type is already in the list.",
+  WF_NEW: "perc.ui.developer@New workflow",
+  WF_FORM_NAME: "perc.ui.developer@Name",
+  WF_NAME_HINT:
+    "perc.ui.developer@Letters, digits, underscore, hyphen, and space; max 50 characters.",
+  WF_FORM_DESCRIPTION: "perc.ui.developer@Description",
+  WF_CREATE_SAVE: "perc.ui.developer@Create workflow",
+  WF_CANCEL: "perc.ui.developer@Cancel",
+  WF_CREATED: "perc.ui.developer@Workflow created.",
+  WF_CREATE_ERROR: "perc.ui.developer@Could not create workflow.",
+  WF_DUPLICATE: "perc.ui.developer@A workflow with this name already exists.",
+  WF_INVALID_NAME:
+    "perc.ui.developer@Workflow name is invalid (blank, too long, or invalid characters).",
+  WF_FORBIDDEN: "perc.ui.developer@Admin role is required.",
   WF_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   WF_GAP_GRAPH:
     "perc.ui.developer@Full workflow graph design is not exposed in the Developer catalog",
   WF_GAP_WRITE:
-    "perc.ui.developer@Workflow create / update / delete is not supported from this Developer surface",
+    "perc.ui.developer@Workflow update / delete is not supported from this Developer surface",
   WF_GAP_CT:
     "perc.ui.developer@Content type workflow association can also be edited on the content type detail panel",
   CFG_LOADING: "perc.ui.developer@Loading server configs...",

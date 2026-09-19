@@ -48,4 +48,18 @@ public interface IWorkflowsAdaptor {
    */
   List<NamedObjectRef> setAllowedContentTypes(
       URI baseUri, String idOrName, List<NamedObjectRef> allowedContentTypes);
+
+  /**
+   * Create a stepped workflow (Admin, slice 21 Developer workflow create).
+   *
+   * <p>Name is required, unique (case-insensitive), and must match workflow-admin rules. States,
+   * transitions, and roles come from the product base-workflow template; the optional description
+   * is stored on the new workflow.
+   *
+   * @param body create body, never {@code null}
+   * @return the created workflow summary, never {@code null}
+   * @throws IllegalArgumentException when the name is blank, too long, or has invalid characters
+   * @throws jakarta.ws.rs.WebApplicationException with 409 when a workflow with that name exists
+   */
+  WorkflowSummary createWorkflow(URI baseUri, WorkflowCreate body);
 }

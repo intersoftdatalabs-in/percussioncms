@@ -21,6 +21,8 @@ import com.percussion.rest.Guid;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.rest.workflows.IWorkflowsAdaptor;
 import com.percussion.rest.workflows.WorkflowContentTypesDesignLockException;
+import com.percussion.rest.workflows.WorkflowCreate;
+import com.percussion.rest.workflows.WorkflowSummary;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentmgr.IPSContentMgr;
@@ -41,6 +43,8 @@ import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
+import com.percussion.workflow.data.PSUiWorkflow;
+import com.percussion.workflow.service.IPSSteppedWorkflowService;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
@@ -75,6 +79,9 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
 
   static final String ADMIN_REQUIRED = "Admin role required to read or write workflow associations";
 
+  /** Max workflow name length enforced by the stepped workflow editor. */
+  static final int WORKFLOW_NAME_MAX_LENGTH = 50;
+
   private final IPSContentDesignWs designWs;
   private final IPSWorkflowService workflowService;
   private final IPSContentMgr contentMgr;
@@ -82,6 +89,14 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
 
   @Autowired(required = false)
   private IPSUserService userService;
+
+  /**
+   * Stepped editor service (same backend the workflow-admin editor uses for create). Field-injected
+   * optional so unit tests can install a mock via the 5-arg constructor; production Spring always
+   * provides the {@code steppedWorkflowService} bean in the Rhythmyx webapp.
+   */
+  @Autowired(required = false)
+  private IPSSteppedWorkflowService steppedWorkflowService;
 
   public WorkflowsAdaptor() {
     this(
@@ -97,10 +112,21 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
       IPSWorkflowService workflowService,
       IPSContentMgr contentMgr,
       BooleanSupplier adminChecker) {
+    this(designWs, workflowService, contentMgr, adminChecker, null);
+  }
+
+  /** Package-visible for unit tests covering create. {@code null} stepped service fails create. */
+  WorkflowsAdaptor(
+      IPSContentDesignWs designWs,
+      IPSWorkflowService workflowService,
+      IPSContentMgr contentMgr,
+      BooleanSupplier adminChecker,
+      IPSSteppedWorkflowService steppedWorkflowService) {
     this.designWs = designWs;
     this.workflowService = workflowService;
     this.contentMgr = contentMgr;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
+    this.steppedWorkflowService = steppedWorkflowService;
   }
 
   @Override
@@ -141,6 +167,138 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
       removeWorkflowAssociation(ctUuid, wfGuid);
     }
     return listAssociatedContentTypes(wfGuid);
+  }
+
+  @Override
+  public WorkflowSummary createWorkflow(URI baseUri, WorkflowCreate body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    String name = validateWorkflowCreateName(body);
+    IPSSteppedWorkflowService stepped = requireSteppedService();
+    requireWorkflowNameUnique(stepped, name);
+    PSUiWorkflow created = saveNewWorkflow(stepped, name, body);
+    return toWorkflowSummary(created, body);
+  }
+
+  private static String validateWorkflowCreateName(WorkflowCreate body) {
+    if (body == null) {
+      throw new IllegalArgumentException("Workflow name is required");
+    }
+    String name = body.getName() != null ? body.getName().trim() : "";
+    if (name.isEmpty()) {
+      throw new IllegalArgumentException("Workflow name is required");
+    }
+    if (name.contains("*") || name.contains("%")) {
+      throw new IllegalArgumentException("Workflow name must not contain wildcards: " + name);
+    }
+    if (name.length() > WORKFLOW_NAME_MAX_LENGTH) {
+      throw new IllegalArgumentException(
+          "Workflow name cannot have more than " + WORKFLOW_NAME_MAX_LENGTH + " characters");
+    }
+    if (!name.matches("[\\s\\w-]+")) {
+      throw new IllegalArgumentException(
+          "Invalid character in workflow name. Characters allowed are: a-z, 0-9, -, _ and"
+              + " [space].");
+    }
+    return name;
+  }
+
+  private IPSSteppedWorkflowService requireSteppedService() {
+    if (steppedWorkflowService == null) {
+      throw new IllegalStateException("Stepped workflow service not configured");
+    }
+    return steppedWorkflowService;
+  }
+
+  /**
+   * Case-insensitive uniqueness against the stepped catalog (same rule the workflow-admin editor
+   * enforces). Duplicate names are 409 so clients can surface "already exists".
+   */
+  private static void requireWorkflowNameUnique(IPSSteppedWorkflowService stepped, String name) {
+    List<String> existing = listWorkflowNames(stepped);
+    for (String other : existing) {
+      if (other != null && other.equalsIgnoreCase(name)) {
+        throw new WebApplicationException("Workflow already exists: " + name, 409);
+      }
+    }
+  }
+
+  private static List<String> listWorkflowNames(IPSSteppedWorkflowService stepped) {
+    List<String> out = new ArrayList<>();
+    try {
+      com.percussion.share.data.PSEnumVals list = stepped.getWorkflowList();
+      if (list != null && list.getEntries() != null) {
+        for (com.percussion.share.data.PSEnumVals.EnumVal entry : list.getEntries()) {
+          if (entry != null && entry.getValue() != null) {
+            out.add(entry.getValue());
+          }
+        }
+      }
+    } catch (IPSSteppedWorkflowService.PSWorkflowEditorServiceException e) {
+      // Empty system catalog ("No workflows in the system") means no collision.
+      log.debug("Workflow list unavailable for uniqueness check: {}", e.getMessage());
+    }
+    return out;
+  }
+
+  private PSUiWorkflow saveNewWorkflow(
+      IPSSteppedWorkflowService stepped, String name, WorkflowCreate body) {
+    PSUiWorkflow uiWorkflow = new PSUiWorkflow();
+    uiWorkflow.setWorkflowName(name);
+    uiWorkflow.setWorkflowDescription(
+        body.getDescription() != null ? body.getDescription().trim() : "");
+    uiWorkflow.setStagingRoleNames("");
+    uiWorkflow.setDefaultWorkflow(false);
+    try {
+      PSUiWorkflow created = stepped.createWorkflow(name, uiWorkflow);
+      applyDescription(name, uiWorkflow.getWorkflowDescription());
+      return created;
+    } catch (IPSSteppedWorkflowService.PSWorkflowEditorServiceException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "";
+      if (msg.contains("already exists")) {
+        // Create/create-step race: catalog check passed but persist collided.
+        throw new WebApplicationException("Workflow already exists: " + name, 409);
+      }
+      throw new IllegalArgumentException(msg.isEmpty() ? "Invalid workflow: " + name : msg, e);
+    }
+  }
+
+  /**
+   * The stepped editor builds new workflows from the base template and does not persist {@code
+   * PSUiWorkflow} descriptions, so the create path stores a non-blank description with a follow-up
+   * save (same {@code IPSWorkflowService#saveWorkflow} the editor uses for renames).
+   */
+  private void applyDescription(String name, String description) {
+    if (description == null || description.isBlank()) {
+      return;
+    }
+    List<PSWorkflow> found = workflowService.findWorkflowsByName(name);
+    if (found == null) {
+      return;
+    }
+    for (PSWorkflow wf : found) {
+      if (wf != null && name.equalsIgnoreCase(wf.getName())) {
+        wf.setDescription(description);
+        workflowService.saveWorkflow(wf);
+        return;
+      }
+    }
+  }
+
+  private static WorkflowSummary toWorkflowSummary(PSUiWorkflow created, WorkflowCreate body) {
+    if (created == null) {
+      throw new IllegalStateException("Stepped workflow create returned empty");
+    }
+    WorkflowSummary summary = new WorkflowSummary();
+    summary.setWorkflowName(created.getWorkflowName());
+    String requested = body != null && body.getDescription() != null
+        ? body.getDescription().trim()
+        : "";
+    // The editor result carries the template description; prefer the stored request value.
+    summary.setWorkflowDescription(
+        !requested.isEmpty() ? requested : created.getWorkflowDescription());
+    summary.setDefaultWorkflow(created.isDefaultWorkflow());
+    return summary;
   }
 
   private List<NamedObjectRef> listAssociatedContentTypes(IPSGuid wfGuid) {
