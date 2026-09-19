@@ -1489,11 +1489,20 @@ public class FolderAdaptor implements IFolderAdaptor {
           log.warn("copy/item NewCopy insert completed with rollback-only TX (#3667)", e);
         }
       }
-    } catch (PSErrorResultsException | PSPathNotFoundServiceException | PSDataServiceException e) {
+    } catch (NotAuthorizedException e) {
+      throw e;
+    } catch (FolderNotFoundException e) {
+      throw e;
+    } catch (PSPathNotFoundServiceException | PSNotFoundException e) {
+      throw new FolderNotFoundException(e);
+    } catch (PSErrorResultsException | PSDataServiceException e) {
       throw new BackendException(e);
     } catch (
         Exception e) { // TODO: Figure out what is throwing a generic exception and fix so it throws
       // something named.
+      if (e instanceof NotAuthorizedException nae) {
+        throw nae;
+      }
       throw new BackendException(e);
     }
   }

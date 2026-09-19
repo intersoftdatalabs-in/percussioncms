@@ -18,6 +18,7 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -33,6 +34,9 @@ import com.percussion.pagemanagement.dao.IPSPageDaoHelper;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pathmanagement.service.IPSPathService;
+import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
+import com.percussion.rest.errors.FolderNotFoundException;
+import com.percussion.rest.errors.NotAuthorizedException;
 import com.percussion.recent.service.rest.IPSRecentService;
 import com.percussion.redirect.service.IPSRedirectService;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
@@ -175,5 +179,22 @@ class FolderAdaptorCopyFolderItemTest {
 
     verify(contentService)
         .newCopies(anyList(), anyList(), eq(PSRelationshipConfig.TYPE_NEW_COPY), eq(false));
+  }
+
+  @Test
+  void copyFolderItemThrowsNotAuthorizedWhenUserIsNotAdmin() {
+    when(userService.isAdminUser("admin1")).thenReturn(false);
+    assertThrows(
+        NotAuthorizedException.class,
+        () -> adaptor.copyFolderItem(base, "/Assets/src/item", "/Assets/dst"));
+  }
+
+  @Test
+  void copyFolderItemMapsMissingSourceToFolderNotFound() throws Exception {
+    when(folderHelper.findItem("//Folders/$System$/Assets/missing/item"))
+        .thenThrow(new PSPathNotFoundServiceException("missing"));
+    assertThrows(
+        FolderNotFoundException.class,
+        () -> adaptor.copyFolderItem(base, "/Assets/missing/item", "/Assets/dst"));
   }
 }

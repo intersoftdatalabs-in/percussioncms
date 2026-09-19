@@ -100,9 +100,7 @@ describe("ContentExplorerShell copy folder (#3647)", {
         loadMenuActions={async () => []}
         loadWorkflowMenuActions={async () => null}
         listViews={async () => []}
-        actionHandlers={{
-          prompt: () => "/Assets",
-        }}
+        actionHandlers={{}}
       />,
     );
 
@@ -119,6 +117,9 @@ describe("ContentExplorerShell copy folder (#3647)", {
     );
     expect(copyBtn).toBeEnabled();
     fireEvent.click(copyBtn);
+    const destInput = await screen.findByTestId("explorer-copy-dest-input");
+    fireEvent.change(destInput, { target: { value: "/Assets" } });
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
 
     await waitFor(
       () => {

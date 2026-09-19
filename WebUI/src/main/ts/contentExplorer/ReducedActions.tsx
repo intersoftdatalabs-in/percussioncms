@@ -30,6 +30,8 @@
 
 import React, { useCallback, useState } from "react";
 import { formatApiError } from "../api/client";
+import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
+import { formatCopyItemError } from "./copyItemErrors";
 // Dual-run router (#3074): pathmanagement when flag off; RX folders REST under
 // /Folders and /Sites when perc.explorer.rxFolderMutations is on.
 import {
@@ -111,6 +113,7 @@ export function ReducedActions({
   onError,
 }: ReducedActionsProps): React.ReactElement {
   const [pending, setPending] = useState<ReducedActionKey | null>(null);
+  const [copyPickerItem, setCopyPickerItem] = useState<PSPathItem | null>(null);
 
   const isItemFolder = isFolder(item);
   const itemWrite = canWrite(item) || canAdmin(item);
@@ -124,7 +127,10 @@ export function ReducedActions({
       } catch (err) {
         // handleResponse throws plain ApiError objects — use formatApiError
         // so shells never surface "[object Object]".
-        const msg = formatApiError(err, message(EXPLORER_MSG.ERROR_GENERIC));
+        const msg =
+          key === "copy"
+            ? formatCopyItemError(err)
+            : formatApiError(err, message(EXPLORER_MSG.ERROR_GENERIC));
         onError?.(msg);
       } finally {
         setPending(null);
@@ -176,11 +182,8 @@ export function ReducedActions({
 
   const handleCopy = useCallback(() => {
     if (!item) return;
-    const prompt = handlers.prompt ?? defaultPrompt;
-    const target = prompt("Target folder path", item.folderPath ?? "/");
-    if (!target) return;
-    void runItemAction("copy", () => handlers.onCopy(item, target));
-  }, [handlers, item, runItemAction]);
+    setCopyPickerItem(item);
+  }, [item]);
 
   const handleDelete = useCallback(() => {
     if (!item) return;
@@ -272,6 +275,17 @@ export function ReducedActions({
       >
         {message(EXPLORER_MSG.ACTION_DELETE)}
       </button>
+      {copyPickerItem ? (
+        <CopyDestinationPickerDialog
+          defaultPath={copyPickerItem.folderPath ?? "/"}
+          onPick={(target) => {
+            const source = copyPickerItem;
+            setCopyPickerItem(null);
+            void runItemAction("copy", () => handlers.onCopy(source, target));
+          }}
+          onCancel={() => setCopyPickerItem(null)}
+        />
+      ) : null}
     </div>
   );
 }

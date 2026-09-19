@@ -35,7 +35,7 @@ class FolderNotFoundExceptionTest {
     FolderNotFoundException ex = new FolderNotFoundException();
 
     assertEquals(RestErrorCode.FOLDER_NOT_FOUND, ex.getErrorCode());
-    assertEquals(Status.INTERNAL_SERVER_ERROR, ex.getStatus());
+    assertEquals(Status.NOT_FOUND, ex.getStatus());
     assertNull(ex.getCause());
   }
 
