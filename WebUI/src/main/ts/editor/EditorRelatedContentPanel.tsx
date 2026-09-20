@@ -44,7 +44,7 @@ export interface EditorRelatedContentPanelProps {
 
 export function EditorRelatedContentPanel({
   itemId,
-  loadCanvas = (ownerId) => fetchSlotCanvas(ownerId),
+  loadCanvas = fetchSlotCanvas,
   loadLocal = fetchLocal,
 }: EditorRelatedContentPanelProps): React.ReactElement {
   const [rows, setRows] = useState<RelatedContentRow[]>([]);
