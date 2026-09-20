@@ -28,6 +28,8 @@ import type {
   ContentTypeFieldSummary,
   KeywordSummary,
 } from "../api/developer/types";
+import type { PSLocalDependencySummary } from "../api/contentExplorer/relationship";
+import type { SlotCanvas } from "../api/contentExplorer/slotRelationshipApi";
 import type { ItemEditorBinaryMeta } from "./itemBinaryApi";
 import {
   createNewCopy,
@@ -99,6 +101,7 @@ import {
 import { uploadItemEditorBinary } from "./itemBinaryApi";
 import styles from "./EditorHost.module.css";
 import { normalizeEditorMode, type EditorHostMode } from "./editorHostUrl";
+import { EditorRelatedContentPanel } from "./EditorRelatedContentPanel";
 import { EditorWorkflowPanel } from "./EditorWorkflowPanel";
 import { EDITOR_MSG } from "./messages";
 import { CommunityFieldWidget } from "./widgets/CommunityFieldWidget";
@@ -165,6 +168,10 @@ export interface EditorHostProps {
   restoreRevision?: (itemId: string, revId: number) => Promise<void>;
   /** Test seam: confirm restore (defaults to {@code window.confirm}). */
   confirmRestore?: (body: string) => boolean;
+  /** Test seam: slot-relationships canvas for related content browse. */
+  loadRelatedCanvas?: (ownerId: number) => Promise<SlotCanvas>;
+  /** Test seam: local/inline related items. */
+  loadRelatedLocal?: (itemId: string) => Promise<PSLocalDependencySummary>;
 }
 
 function badgeKey(mode: EditorHostMode): string {
@@ -318,6 +325,8 @@ export function EditorHost({
   loadRevisions = fetchItemRevisions,
   restoreRevision = restoreItemRevision,
   confirmRestore,
+  loadRelatedCanvas,
+  loadRelatedLocal,
 }: EditorHostProps = {}): React.ReactElement {
   const [params, setSearchParams] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
@@ -1321,6 +1330,13 @@ export function EditorHost({
                   </button>
                 </div>
               </div>
+            ) : null}
+            {contentId != null && payload != null ? (
+              <EditorRelatedContentPanel
+                itemId={String(contentId)}
+                loadCanvas={loadRelatedCanvas}
+                loadLocal={loadRelatedLocal}
+              />
             ) : null}
             {canEdit ? (
               <EditorWorkflowPanel

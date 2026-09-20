@@ -122,4 +122,10 @@ export const EDITOR_MSG = {
   RESTORE_REVISION_LABEL: "perc.ui.editor@Revision",
   RESTORE_OPEN: "perc.ui.editor@Show revisions",
   RESTORE_HIDE: "perc.ui.editor@Hide revisions",
+  RELATED_TITLE: "perc.ui.editor@Related content",
+  RELATED_LOADING: "perc.ui.editor@Loading related content…",
+  RELATED_EMPTY: "perc.ui.editor@No related content for this item.",
+  RELATED_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to list related content for this item.",
+  RELATED_FAILED: "perc.ui.editor@Could not load related content.",
 };

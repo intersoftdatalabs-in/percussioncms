@@ -230,6 +230,14 @@ failure: the host shows the server warning and does not treat the job as started
 **View** and **Promote** stay read-only (no Publish now). Templates and other
 non-page/non-asset types stay unavailable. Does not open the demand-publish servlet.
 
+The host also lists **Related content** for the open item (browse only). Slot
+relationships come from `GET /services/assembly/slot-relationships/canvas?ownerId=`
+and inline / local dependents from
+`GET /Rhythmyx/rest/content-explorer/relationships/{itemId}/local`. An empty
+list is shown as **No related content for this item.** HTTP **403** is an
+explicit **not allowed** message — not a blank panel. This increment does not
+add or rearrange slots (Active Assembly) and does not check the item in.
+
 **Preview** is available in **View** and **Edit** for the already-open **page**
 or **asset** so authors do not need to bounce to Explorer solely to preview.
 It uses the same assembled preview as Explorer **Preview**: pages open Page
