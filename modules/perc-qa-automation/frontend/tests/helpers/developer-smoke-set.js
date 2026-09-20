@@ -201,6 +201,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "UI-07 SPA view create/delete (#4085 / parent #1690)",
   },
   {
+    id: "view-inbox-family",
+    file: "developer-view-inbox-family.spec.js",
+    title: "Inbox-family rows are protected in the catalog and editor",
+    status: "green",
+    notes: "UI-07 Inbox-family / packaged sys_cxViews blocked mutate (#4625 / parent #1690)",
+  },
+  {
     id: "catalog-system-def",
     file: "developer-catalog-smoke.spec.js",
     title: "system-def: catalog loads without API error",

@@ -188,7 +188,11 @@ export function ViewDetailPanel({
   const loadedUrl = detail?.url || "";
   const loadedDf = detail?.displayFormatId || "";
   const customUrl = isCustomViewType(type) || Boolean(detail?.customView);
-  const protectedWrite = isProtectedViewWrite(detail);
+  const protectedWrite = isProtectedViewWrite({
+    name: isNew ? name : detail?.name || name,
+    url: customUrl ? url : detail?.url || url,
+    customView: customUrl,
+  });
   const dirty =
     isNew ||
     normalizeViewName(name) !== loadedName ||

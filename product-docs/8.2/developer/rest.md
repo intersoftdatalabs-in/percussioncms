@@ -1821,8 +1821,10 @@ description / type / display format, edits **field criteria** on
 user/standard views, and creates/updates **user** custom URL views (`url` +
 `customView`) from the same SPA editor — see
 [Developer Views](id:admin-developer-views). Admin REST persists the same
-shapes. Inbox-family and packaged `sys_cxViews` catalog keys cannot be mutated
-from that catalog. Execute is **not** invoked when creating, updating, or
+shapes. Inbox-family and packaged `sys_cxViews` catalog keys **and** URLs that
+target packaged pages (`inbox`, `outbox`, `recent`, `session`,
+`checkedoutbyme`, `duplicatefolderpaths`) cannot be mutated from that catalog
+(`409`). Execute is **not** invoked when creating, updating, or
 deleting a view. Create is durable: `GET /services/views` lists the new name
 after POST.
 
@@ -1992,7 +1994,9 @@ Example create body (user custom URL view):
 - Keys may be the view **name**, numeric **id**, or GUID string (including untyped GUID).
 - Admin write is POST/PUT/DELETE on this resource and from **Developer → Views**
   (create / save / delete). Inbox-family and packaged `sys_cxViews` views cannot
-  be updated or deleted (`409`). User custom URL views persist `url` / `customView`.
+  be updated or deleted (`409`). A create or save whose `url` points at a
+  packaged Inbox-family page is also **409**. User custom URL views persist
+  `url` / `customView`.
 - Admin write is durable on H2 and other supported databases: after POST, GET
   list includes the name. A POST that cannot be cataloged is not **200**.
 - **Developer → Views** chrome can create and delete standard views. Inbox-family

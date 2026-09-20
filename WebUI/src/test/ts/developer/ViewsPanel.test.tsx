@@ -77,6 +77,7 @@ describe("ViewsPanel", () => {
     });
     expect(screen.getByTestId("developer-vw-table").textContent).toContain("My View");
     expect(screen.getByTestId("developer-vw-new")).toBeTruthy();
+    expect(screen.getByTestId("developer-vw-writable-badge")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-vw-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-detail")).toBeTruthy();
@@ -88,6 +89,19 @@ describe("ViewsPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-vw-table")).toBeTruthy();
     });
+  });
+
+  it("marks Inbox-family catalog rows as protected", async () => {
+    listMock.mockResolvedValue([
+      { name: "Inbox", label: "Inbox", customView: true, url: "../sys_cxViews/inbox.xml" },
+      { name: "MyView", label: "Mine", standardView: true },
+    ]);
+    render(<ViewsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-vw-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-vw-protected-badge").textContent).toContain("Protected");
+    expect(screen.getByTestId("developer-vw-writable-badge")).toBeTruthy();
   });
 
   it("upsertViewRow adds a created name and keeps existing rows", () => {

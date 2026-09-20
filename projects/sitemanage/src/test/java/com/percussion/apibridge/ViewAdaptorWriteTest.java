@@ -596,6 +596,59 @@ class ViewAdaptorWriteTest {
     assertTrue(ViewAdaptor.isPackagedCxViewName("Outbox "));
     assertTrue(ViewAdaptor.isPackagedCxViewName("checked out by me"));
     assertFalse(ViewAdaptor.isPackagedCxViewName("MyCustom"));
+    assertTrue(ViewAdaptor.isPackagedCxViewUrl("../sys_cxViews/inbox.xml"));
+    assertTrue(ViewAdaptor.isPackagedCxViewUrl("sys_cxViews/Outbox.xml"));
+    assertTrue(ViewAdaptor.isPackagedCxViewUrl("../sys_cxViews/checkedoutbyme.xml"));
+    assertFalse(ViewAdaptor.isPackagedCxViewUrl("../sys_cxViews/myapp.xml"));
+    assertFalse(ViewAdaptor.isPackagedCxViewUrl("../myApp/page.xml"));
+  }
+
+  @Test
+  void create_packagedInboxName_is409() {
+    ViewDef body = new ViewDef();
+    body.setName("Inbox");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.createView(body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().toLowerCase().contains("inbox"));
+  }
+
+  @Test
+  void create_packagedCxViewUrl_is409() {
+    ViewDef body = new ViewDef();
+    body.setName("MyHijack");
+    body.setCustomView(true);
+    body.setUrl("../sys_cxViews/inbox.xml");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.createView(body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).createViews(anyList(), any(), any());
+  }
+
+  @Test
+  void update_existingPackagedUrl_is409() throws Exception {
+    PSSearch hijack = stubView("MyHijack", true);
+    when(hijack.getUrl()).thenReturn("../sys_cxViews/recent.xml");
+    stubCatalogLoad(hijack);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.saveView("MyHijack", new ViewDef()));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).saveViews(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_bodyPackagedUrl_is409() throws Exception {
+    PSSearch user = stubView("MyCustom", true);
+    when(user.getUrl()).thenReturn("../sys_cxViews/myapp.xml");
+    stubCatalogLoad(user);
+    ViewDef body = new ViewDef();
+    body.setUrl("../sys_cxViews/inbox.xml");
+    body.setCustomView(true);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.saveView("MyCustom", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).saveViews(anyList(), anyBoolean(), any(), any());
   }
 
   @Test

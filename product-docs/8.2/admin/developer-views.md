@@ -19,8 +19,11 @@ across views **and** searches (case-insensitive), and must not contain
 spaces, wildcards (`*` / `%`), or path characters. Name cannot be renamed
 after create. Searches stay on **Developer → Searches**. Inbox-family and
 other packaged `sys_cxViews` catalog keys (Inbox, Outbox, Recent, Session,
-Checked Out By Me, Duplicate Folder Paths) are listed but **cannot** be
-updated, deleted, or field-edited from this catalog.
+Checked Out By Me, Duplicate Folder Paths) are listed with a **Protected**
+badge and **cannot** be updated, deleted, or field-edited from this catalog.
+A new custom URL that points at a packaged Inbox-family page
+(`../sys_cxViews/inbox.xml` and peers) is blocked the same way (REST **409**;
+Save stays disabled).
 
 The field picker uses the same CX system-field catalog as **Developer →
 Display Formats** columns. Packaged custom-URL views in the `sys_cxViews`
@@ -105,7 +108,8 @@ User custom URL execute from this chrome requires Admin.
   chrome; field criteria are not used on those rows. **Execute** runs the
   stored URL through the path-safe classic application resource.
 - Inbox-family and packaged `sys_cxViews` views cannot be updated, deleted, or
-  field-edited here.
+  field-edited here. Creating or saving a user view whose URL is a packaged
+  Inbox-family page is **409** and the editor shows the protected hint.
 
 ## REST
 

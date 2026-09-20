@@ -41,7 +41,8 @@ public interface IViewAdaptor {
   /**
    * Admin. Create and persist a CX view ({@code createViews} then {@code saveViews}). Standard
    * (field-criteria) views omit {@code url}. User custom URL views require {@code url} (type
-   * {@code CustomView} or {@code customView=true}).
+   * {@code CustomView} or {@code customView=true}). Packaged Inbox-family names and {@code
+   * sys_cxViews} page URLs are conflict (not created).
    *
    * @param body required; {@code name} is the unique catalog key
    * @return the persisted view
@@ -51,7 +52,8 @@ public interface IViewAdaptor {
   /**
    * Admin. Update and persist a CX view by name or GUID ({@code loadViews} lock, {@code
    * saveViews} release). Does not steal another user's lock. Inbox-family and packaged {@code
-   * sys_cxViews} catalog keys are not mutated. User custom URL views may update {@code url}.
+   * sys_cxViews} catalog keys and packaged Inbox-family URLs are not mutated. User custom URL
+   * views may update a non-packaged {@code url}.
    *
    * @param idOrName catalog key (same rules as {@link #findViewByKey})
    * @param body required writable fields (label, description, type, displayFormat, url)

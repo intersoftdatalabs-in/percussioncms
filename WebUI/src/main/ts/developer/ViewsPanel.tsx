@@ -16,7 +16,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { listViews } from "../api/developer/viewsApi";
+import { isProtectedViewWrite, listViews } from "../api/developer/viewsApi";
 import { resolveViewObjectGuid } from "../api/displayFormatGuid";
 import type { ViewDef } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
@@ -187,6 +187,7 @@ export function ViewsPanel(): React.ReactElement {
             DEV_MSG.VW_COL_NAME,
             DEV_MSG.VW_COL_LABEL,
             DEV_MSG.VW_COL_KIND,
+            DEV_MSG.VW_COL_WRITE,
             DEV_MSG.VW_COL_FIELDS,
             DEV_MSG.VW_COL_DESCRIPTION,
           ]}
@@ -199,6 +200,7 @@ export function ViewsPanel(): React.ReactElement {
               : v.standardView
                 ? DEV_MSG.VW_KIND_STANDARD
                 : v.type || "—";
+            const packaged = isProtectedViewWrite(v);
             return {
               key: resolveViewObjectGuid(v) || v.name || `vw-${index}`,
               onClick: interactive ? () => openView(v) : undefined,
@@ -225,6 +227,20 @@ export function ViewsPanel(): React.ReactElement {
                 ),
                 v.label || "",
                 kind,
+                packaged ? (
+                  <span
+                    key="w"
+                    data-testid="developer-vw-protected-badge"
+                    data-vw-protected={v.name || openKey}
+                    style={mutedCell}
+                  >
+                    {DEV_MSG.VW_WRITE_PROTECTED}
+                  </span>
+                ) : (
+                  <span key="w" data-testid="developer-vw-writable-badge" style={mutedCell}>
+                    {DEV_MSG.VW_WRITE_USER}
+                  </span>
+                ),
                 fieldCount,
                 <span key="d" style={mutedCell}>
                   {v.description || ""}
