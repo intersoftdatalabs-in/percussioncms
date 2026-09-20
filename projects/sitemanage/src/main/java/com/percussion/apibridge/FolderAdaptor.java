@@ -1470,6 +1470,9 @@ public class FolderAdaptor implements IFolderAdaptor {
       PSDataItemSummary sourceItem =
           (PSDataItemSummary) this.folderHelper.findItem(correctedItemPath);
 
+      // Destination must exist; missing dest maps to 404 like missing source (#4626).
+      this.folderHelper.findFolder(correctedTargetPath);
+
       // If it is a page, treat it special
       if (sourceItem.isPage()) {
         pageService.copy(sourceItem.getId(), correctedTargetPath, true);

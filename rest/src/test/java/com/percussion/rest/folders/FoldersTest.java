@@ -162,7 +162,20 @@ public class FoldersTest {
     doThrow(new FolderNotFoundException())
         .when(adaptor)
         .copyFolderItem(any(), anyString(), anyString());
-    assertThrows(FolderNotFoundException.class, () -> resource.copyFolderItem(req));
+    FolderNotFoundException thrown =
+        assertThrows(FolderNotFoundException.class, () -> resource.copyFolderItem(req));
+    assertEquals(jakarta.ws.rs.core.Response.Status.NOT_FOUND, thrown.getStatus());
+  }
+
+  @Test
+  void copyFolderItem_rethrowsJaxrsNotFound() throws Exception {
+    CopyFolderItemRequest req = new CopyFolderItemRequest();
+    req.setItemPath("/Assets/src/item");
+    req.setTargetFolderPath("/Assets/missing-dst");
+    doThrow(new jakarta.ws.rs.NotFoundException("dest"))
+        .when(adaptor)
+        .copyFolderItem(any(), anyString(), anyString());
+    assertThrows(jakarta.ws.rs.NotFoundException.class, () -> resource.copyFolderItem(req));
   }
 
   @Test
