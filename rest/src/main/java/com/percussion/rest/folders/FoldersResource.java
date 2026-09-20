@@ -47,6 +47,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.UnsupportedEncodingException;
@@ -505,6 +506,53 @@ public class FoldersResource {
     } catch (NotFoundException nfe) {
       return new Status(404, "Not Found");
     } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /**
+   * Renames a selected page, file, or asset. Folder rename remains {@code POST
+   * /rename/{folderPath}/{name}} and pathmanagement {@code renameFolder}.
+   */
+  @POST
+  @Path("/rename/item")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Rename a non-folder item (page, file, or asset)",
+      description =
+          "Renames the item at itemPath. Folder selections are HTTP 409 — use folder rename."
+              + " Finder paths such as /Assets/… are accepted.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Renamed OK",
+            content = @Content(schema = @Schema(implementation = Status.class))),
+        @ApiResponse(responseCode = "400", description = "Missing itemPath or newName"),
+        @ApiResponse(responseCode = "403", description = "Not authorized to rename"),
+        @ApiResponse(responseCode = "404", description = "Item not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Folder selected, name in use, or item locked")
+      })
+  public Status renameFolderItem(RenameFolderItemRequest request) {
+    try {
+      if (request == null
+          || StringUtils.isBlank(request.getItemPath())
+          || StringUtils.isBlank(request.getNewName())) {
+        throw new WebApplicationException(
+            "itemPath and newName are required", Response.Status.BAD_REQUEST);
+      }
+      folderAdaptor.renameFolderItem(
+          uriInfo.getBaseUri(), request.getItemPath().trim(), request.getNewName().trim());
+      return new Status(200, "Renamed OK");
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e);

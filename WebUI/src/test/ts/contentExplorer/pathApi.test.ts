@@ -38,6 +38,7 @@ import {
   isNumericDisplayFormatId,
   paginatedFolder,
   renameFolder,
+  renameFolderItem,
   saveFolderProperties,
   unwrapFolderProperties,
   unwrapPrincipalList,
@@ -717,6 +718,31 @@ describe("moveItem / copyFolder wire envelopes (#3362)", () => {
       },
     });
     expect(posted).not.toHaveProperty("sourcePath");
+  });
+
+  it("renameFolderItem POSTs RenameFolderItemRequest to /folders/rename/item (#4636)", async () => {
+    let url = "";
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      url = typeof input === "string" ? input : (input as Request).url;
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await renameFolderItem({
+      itemPath: "/Assets/qa4636_src",
+      newName: "qa4636_new",
+    });
+    expect(url).toContain("/folders/rename/item");
+    expect(url).not.toContain("/pathmanagement/path/renameFolder");
+    expect(posted).toEqual({
+      RenameFolderItemRequest: {
+        itemPath: "/Assets/qa4636_src",
+        newName: "qa4636_new",
+      },
+    });
   });
 });
 

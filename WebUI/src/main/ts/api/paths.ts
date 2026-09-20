@@ -424,6 +424,10 @@ export const PATHS = {
   get FOLDERS_MOVE_ITEM() {
     return `${REST_ROOT}/folders/move/item`;
   },
+  /** Public REST item rename ({@code FoldersResource#renameFolderItem}). */
+  get FOLDERS_RENAME_ITEM() {
+    return `${REST_ROOT}/folders/rename/item`;
+  },
   /**
    * Recycle a non-folder item ({@code DELETE FoldersResource#deleteFolderItem}).
    */

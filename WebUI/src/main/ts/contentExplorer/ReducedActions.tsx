@@ -35,6 +35,7 @@ import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
 import { formatCopyItemError } from "./copyItemErrors";
 import { formatDeleteItemError } from "./deleteItemErrors";
 import { formatMoveItemError } from "./moveItemErrors";
+import { formatRenameItemError } from "./renameItemErrors";
 // Dual-run router (#3074): pathmanagement when flag off; RX folders REST under
 // /Folders and /Sites when perc.explorer.rxFolderMutations is on.
 import {
@@ -46,6 +47,7 @@ import {
   moveFolder,
   moveFolderItem,
   renameFolder,
+  renameFolderItem,
 } from "../api/contentExplorer/folderMutations";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
@@ -139,6 +141,8 @@ export function ReducedActions({
             ? formatMoveItemError(err)
             : key === "delete"
             ? formatDeleteItemError(err)
+            : key === "rename"
+            ? formatRenameItemError(err)
             : formatApiError(err, message(EXPLORER_MSG.ERROR_GENERIC));
         onError?.(msg);
       } finally {
@@ -345,7 +349,11 @@ export function defaultReducedActionHandlers(): ReducedActionHandlers {
       await addNewFolder(parent.path, name);
     },
     onRename: async (item, newName) => {
-      await renameFolder({ path: item.path, newName });
+      if (isFolder(item)) {
+        await renameFolder({ path: item.path, newName });
+        return;
+      }
+      await renameFolderItem({ itemPath: item.path, newName });
     },
     onMove: async (item, targetPath) => {
       const body = { sourcePath: item.path, targetPath };

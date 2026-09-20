@@ -47,7 +47,9 @@ public class FoldersTest {
 
   @BeforeEach
   void init() {
-    when(uriInfo.getBaseUri()).thenReturn(UriBuilder.fromUri("http://localhost/api").build());
+    org.mockito.Mockito.lenient()
+        .when(uriInfo.getBaseUri())
+        .thenReturn(UriBuilder.fromUri("http://localhost/api").build());
     resource.setUriInfo(uriInfo);
   }
 
@@ -94,6 +96,45 @@ public class FoldersTest {
     Status result = resource.moveFolder(req);
     assertEquals("Moved OK", result.getMessage());
     verify(adaptor).moveFolderItem(uriInfo.getBaseUri(), "/a/b", "/a/c");
+  }
+
+  @Test
+  void renameFolderItem_callsAdaptor() throws Exception {
+    RenameFolderItemRequest req =
+        new RenameFolderItemRequest("/Assets/src/item", "new-name");
+    Status result = resource.renameFolderItem(req);
+    assertEquals("Renamed OK", result.getMessage());
+    verify(adaptor).renameFolderItem(uriInfo.getBaseUri(), "/Assets/src/item", "new-name");
+  }
+
+  @Test
+  void renameFolderItem_mapsNotAuthorizedToForbidden() throws Exception {
+    RenameFolderItemRequest req =
+        new RenameFolderItemRequest("/Assets/src/item", "new-name");
+    doThrow(new NotAuthorizedException())
+        .when(adaptor)
+        .renameFolderItem(any(), anyString(), anyString());
+    NotAuthorizedException thrown =
+        assertThrows(NotAuthorizedException.class, () -> resource.renameFolderItem(req));
+    assertEquals(jakarta.ws.rs.core.Response.Status.FORBIDDEN, thrown.getStatus());
+  }
+
+  @Test
+  void renameFolderItem_mapsFolderNotFound() throws Exception {
+    RenameFolderItemRequest req =
+        new RenameFolderItemRequest("/Assets/missing", "new-name");
+    doThrow(new FolderNotFoundException())
+        .when(adaptor)
+        .renameFolderItem(any(), anyString(), anyString());
+    assertThrows(FolderNotFoundException.class, () -> resource.renameFolderItem(req));
+  }
+
+  @Test
+  void renameFolderItem_rejectsBlankName() {
+    RenameFolderItemRequest req = new RenameFolderItemRequest("/Assets/src/item", "  ");
+    WebApplicationException thrown =
+        assertThrows(WebApplicationException.class, () -> resource.renameFolderItem(req));
+    assertEquals(jakarta.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode(), thrown.getResponse().getStatus());
   }
 
   @Test

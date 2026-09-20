@@ -311,6 +311,38 @@ describe("ReducedActions", () => {
     expect(String(onError.mock.calls[0]?.[0])).toMatch(/500|denied/);
   });
 
+  it("default onRename POSTs to /folders/rename/item for assets (#4636)", async () => {
+    const handlers = defaultReducedActionHandlers();
+    const asset: PSPathItem = {
+      id: "a-4636",
+      path: "/Assets/qa4636_src",
+      name: "qa4636_src",
+      type: "percSimpleTextAsset",
+      category: "ASSET",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    let url = "";
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      url = typeof input === "string" ? input : (input as Request).url;
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(JSON.stringify({ message: "Renamed OK" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await handlers.onRename(asset, "qa4636_new");
+    expect(url).toContain("/rest/folders/rename/item");
+    expect(url).not.toContain("/pathmanagement/path/renameFolder");
+    expect(posted).toEqual({
+      RenameFolderItemRequest: {
+        itemPath: "/Assets/qa4636_src",
+        newName: "qa4636_new",
+      },
+    });
+  });
+
   it("default onMove POSTs to /folders/move/folder for folders (#4601)", async () => {
     const handlers = defaultReducedActionHandlers();
     let url = "";

@@ -48,6 +48,10 @@ export const EXPLORER_MSG = {
   PREVIEW_OPEN_ERROR: "perc.ui.explorer@Could not open preview",
   ACTION_CREATE_FOLDER: "perc.ui.explorer@Create Folder",
   ACTION_RENAME: "perc.ui.explorer@Rename",
+  ACTION_RENAME_NOT_FOUND:
+    "perc.ui.explorer@The selected item was not found",
+  ACTION_RENAME_CONFLICT:
+    "perc.ui.explorer@Could not rename the item (name in use, locked, or not an item)",
   ACTION_MOVE: "perc.ui.explorer@Move",
   MOVE_DEST_TITLE: "perc.ui.explorer@Move to folder",
   MOVE_DEST_LABEL: "perc.ui.explorer@Destination folder path",

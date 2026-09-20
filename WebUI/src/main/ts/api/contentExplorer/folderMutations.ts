@@ -43,6 +43,7 @@ import {
   moveFolderItem as pathMoveFolderItem,
   moveItem as pathMoveItem,
   renameFolder as pathRenameFolder,
+  renameFolderItem as pathRenameFolderItem,
   type DeleteFolderOptions,
 } from "./pathApi";
 import {
@@ -122,6 +123,18 @@ export async function renameFolder(
     return rxFolderToPathItem(saved);
   }
   return pathRenameFolder(body);
+}
+
+/**
+ * Rename a non-folder item via {@code FoldersResource#renameFolderItem}.
+ * Folder rename stays on {@link renameFolder}.
+ */
+export async function renameFolderItem(body: {
+  itemPath?: string;
+  path?: string;
+  newName: string;
+}): Promise<void> {
+  await pathRenameFolderItem(body);
 }
 
 /**
