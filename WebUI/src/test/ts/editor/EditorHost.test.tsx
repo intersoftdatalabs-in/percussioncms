@@ -153,9 +153,16 @@ describe("EditorHost", () => {
     expect(screen.queryByTestId("perc-spa-app")).toBeNull();
   });
 
-  it("shows the editor error when checkout fails instead of crashing", async () => {
-    const checkout = vi.fn().mockRejectedValue(new Error("CONTENTSTATUS lock"));
-    const loadFields = vi.fn();
+  it("loads fields view-only when checkout fails and maps the lock error", async () => {
+    const checkout = vi.fn().mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "checked out" },
+    });
+    const loadFields = vi.fn().mockResolvedValue({
+      ...fields,
+      checkoutUser: "editor",
+    });
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
@@ -167,15 +174,56 @@ describe("EditorHost", () => {
       </MemoryRouter>,
     );
     await waitFor(() => {
-      expect(screen.getByTestId("editor-error")).toBeTruthy();
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
     });
-    expect(screen.getByTestId("editor-error").textContent).toMatch(
-      /Could not load this item for editing/i,
+    expect(loadFields).toHaveBeenCalledWith("42");
+    expect(screen.getByTestId("editor-lock-error").textContent).toMatch(
+      /checked out to another user/i,
     );
-    expect(screen.getByTestId("editor-error").textContent).toMatch(/CONTENTSTATUS lock/);
-    expect(screen.getByTestId("editor-host")).toBeTruthy();
-    expect(screen.queryByTestId("editor-form")).toBeNull();
-    expect(loadFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-locked")).toBeTruthy();
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+    expect(screen.getByTestId("editor-checkout")).toBeTruthy();
+    expect(screen.getByTestId("editor-field-displaytitle")).toHaveProperty("readOnly", true);
+  });
+
+  it("maps 403 on check-in and does not treat it as success", async () => {
+    const checkout = vi.fn().mockResolvedValue({
+      checkOutUser: "admin",
+      currentUser: "admin",
+    });
+    const checkin = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
+    const loadFields = vi.fn().mockResolvedValue(fields);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                checkin={checkin}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-checkin")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-checkin"));
+    await waitFor(() => {
+      expect(checkin).toHaveBeenCalledWith("42");
+    });
+    expect(screen.getByTestId("editor-lock-error").textContent).toMatch(
+      /not allowed to check in/i,
+    );
   });
 });
 
