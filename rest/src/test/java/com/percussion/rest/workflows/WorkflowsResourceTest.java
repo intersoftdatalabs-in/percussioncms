@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -285,8 +286,169 @@ public class WorkflowsResourceTest {
     when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
     bare.setUriInfo(uriInfo);
     WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.createWorkflow(createBody("Nightly QA")));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  private static WorkflowUpdate updateBody(String name, String description) {
+    WorkflowUpdate body = new WorkflowUpdate();
+    body.setName(name);
+    body.setDescription(description);
+    return body;
+  }
+
+  @Test
+  public void updateWorkflowSuccess() {
+    when(adaptor.updateWorkflow(any(), eq("Simple Workflow"), any()))
+        .thenReturn(createdSummary("Simple Workflow"));
+    WorkflowSummary out = resource.updateWorkflow("Simple Workflow", updateBody("Simple Workflow", "Edited"));
+    assertEquals("Simple Workflow", out.getWorkflowName());
+    verify(adaptor).updateWorkflow(any(), eq("Simple Workflow"), any());
+    verify(mockLog, never()).error(any(String.class), any(), any(), any());
+  }
+
+  @Test
+  public void updateWorkflowRequiresBody() {
+    WebApplicationException ex =
         assertThrows(
-            WebApplicationException.class, () -> bare.createWorkflow(createBody("Nightly QA")));
+            WebApplicationException.class,
+            () -> resource.updateWorkflow("Simple Workflow", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).updateWorkflow(any(), any(String.class), any());
+  }
+
+  @Test
+  public void updateWorkflowInvalidNameIs400() {
+    when(adaptor.updateWorkflow(any(), any(String.class), any()))
+        .thenThrow(new IllegalArgumentException("Workflow update body name is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateWorkflow("Simple Workflow", updateBody("Other", "Edited")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateWorkflowNotFoundIs404() {
+    when(adaptor.updateWorkflow(any(), eq("missing"), any()))
+        .thenThrow(new WebApplicationException("Workflow not found: missing", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateWorkflow("missing", updateBody("missing", "Edited")));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateWorkflowForbidden() {
+    when(adaptor.updateWorkflow(any(), any(String.class), any()))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateWorkflow("Simple Workflow", updateBody("Simple Workflow", "Edited")));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateWorkflowWrapsUnexpectedAs500() {
+    // mapMutationFailure maps RuntimeException to 500 without logging
+    // (the create/update/delete handlers log only non-Runtime failures).
+    IllegalStateException boom = new IllegalStateException("cms down");
+    when(adaptor.updateWorkflow(any(), any(String.class), any())).thenThrow(boom);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateWorkflow("Simple Workflow", updateBody("Simple Workflow", "Edited")));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void missingAdaptorReturns503OnUpdate() {
+    WorkflowsResource bare = new WorkflowsResource();
+    UriInfo uriInfo = mock(UriInfo.class);
+    when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
+    bare.setUriInfo(uriInfo);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> bare.updateWorkflow("Simple Workflow", updateBody("Simple Workflow", "Edited")));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteWorkflowSuccess() {
+    resource.deleteWorkflow("Simple Workflow");
+    verify(adaptor).deleteWorkflow(any(), eq("Simple Workflow"));
+    verify(mockLog, never()).error(any(String.class), any(), any(), any());
+  }
+
+  @Test
+  public void deleteWorkflowNotFoundIs404() {
+    doThrow(new WebApplicationException("Workflow not found: missing", 404))
+        .when(adaptor)
+        .deleteWorkflow(any(), eq("missing"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteWorkflow("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteWorkflowConflictIs409() {
+    doThrow(new WebApplicationException("Workflow is a system workflow", 409))
+        .when(adaptor)
+        .deleteWorkflow(any(), eq("LocalContent"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteWorkflow("LocalContent"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteWorkflowForbidden() {
+    doThrow(new WebApplicationException("Admin role required", 403))
+        .when(adaptor)
+        .deleteWorkflow(any(), any(String.class));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteWorkflow("Simple Workflow"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteWorkflowInvalidIdOrNameIs400() {
+    doThrow(new IllegalArgumentException("idOrName must not contain wildcards"))
+        .when(adaptor)
+        .deleteWorkflow(any(), any(String.class));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteWorkflow("wild*card"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteWorkflowWrapsUnexpectedAs500() {
+    // mapMutationFailure maps RuntimeException to 500 without logging
+    // (the create/update/delete handlers log only non-Runtime failures).
+    IllegalStateException boom = new IllegalStateException("cms down");
+    doThrow(boom).when(adaptor).deleteWorkflow(any(), any(String.class));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteWorkflow("Simple Workflow"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void missingAdaptorReturns503OnDelete() {
+    WorkflowsResource bare = new WorkflowsResource();
+    UriInfo uriInfo = mock(UriInfo.class);
+    when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
+    bare.setUriInfo(uriInfo);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.deleteWorkflow("Simple Workflow"));
     assertEquals(503, ex.getResponse().getStatus());
   }
 }

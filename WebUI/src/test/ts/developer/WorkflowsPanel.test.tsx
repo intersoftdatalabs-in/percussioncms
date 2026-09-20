@@ -15,9 +15,10 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   getWorkflowDetail: vi.fn(),
   getWorkflowAllowedContentTypes: vi.fn().mockResolvedValue([]),
   setWorkflowAllowedContentTypes: vi.fn(),
+  updateWorkflow: vi.fn(),
+  deleteWorkflow: vi.fn(),
   WORKFLOW_DESIGN_GAPS: [
     "Full workflow graph design is not exposed in the Developer catalog",
-    "Workflow create / update / delete is not supported from this Developer surface",
   ],
 }));
 

@@ -17,6 +17,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createWorkflow,
+  deleteWorkflow,
   getWorkflowAllowedContentTypes,
   isValidWorkflowName,
   isWorkflowCreateReady,
@@ -25,8 +26,10 @@ import {
   parseWorkflowList,
   parseWorkflowSummary,
   setWorkflowAllowedContentTypes,
+  updateWorkflow,
   wrapWorkflowContentTypesForWire,
   wrapWorkflowCreateForWire,
+  wrapWorkflowUpdateForWire,
 } from "../../../../main/ts/api/developer/workflowsApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -351,5 +354,124 @@ describe("workflow create API (slice 21)", () => {
     expect(JSON.parse(String(init.body))).toEqual(
       wrapWorkflowCreateForWire({ name: "Nightly QA" }),
     );
+  });
+});
+
+describe("workflow update API (slice 21 update)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("wraps under WorkflowUpdate and includes description when provided", () => {
+    expect(
+      wrapWorkflowUpdateForWire({
+        name: "Nightly QA",
+        description: "Edited by surface spec",
+      }),
+    ).toEqual({
+      WorkflowUpdate: {
+        name: "Nightly QA",
+        description: "Edited by surface spec",
+      },
+    });
+  });
+
+  it("wraps under WorkflowUpdate with no description key", () => {
+    expect(wrapWorkflowUpdateForWire({ name: "Nightly QA" })).toEqual({
+      WorkflowUpdate: { name: "Nightly QA" },
+    });
+  });
+
+  it("PUTs WorkflowUpdate wrap to /workflows/{name} and parses the summary", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        workflowName: "Nightly QA",
+        workflowDescription: "Edited",
+        defaultWorkflow: false,
+      }),
+    );
+    const updated = await updateWorkflow("Nightly QA", {
+      name: "Nightly QA",
+      description: "Edited",
+    });
+    expect(updated.workflowName).toBe("Nightly QA");
+    expect(updated.workflowDescription).toBe("Edited");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      `${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Nightly QA")}`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      WorkflowUpdate: { name: "Nightly QA", description: "Edited" },
+    });
+  });
+
+  it("URL-encodes the workflow idOrName", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ workflowName: "My WF", defaultWorkflow: false }),
+    );
+    await updateWorkflow("My WF", { name: "My WF" });
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain(encodeURIComponent("My WF"));
+  });
+});
+
+describe("workflow delete API (slice 21 delete)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("DELETEs /workflows/{name} and returns void on 204", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(null, { status: 204 }),
+    );
+    await expect(deleteWorkflow("Nightly QA")).resolves.toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      `${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Nightly QA")}`,
+    );
+  });
+
+  it("URL-encodes the workflow idOrName", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(null, { status: 204 }),
+    );
+    await deleteWorkflow("My WF");
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain(encodeURIComponent("My WF"));
+  });
+
+  it("propagates the 409 conflict when the workflow still owns content items", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({ error: "workflow still has associated items" }),
+        { status: 409, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    await expect(deleteWorkflow("In Use")).rejects.toMatchObject({ status: 409 });
   });
 });

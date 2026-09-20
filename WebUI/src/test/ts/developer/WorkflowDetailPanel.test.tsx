@@ -15,11 +15,12 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   listWorkflows: vi.fn(),
   getWorkflowAllowedContentTypes: vi.fn(),
   setWorkflowAllowedContentTypes: vi.fn(),
+  updateWorkflow: vi.fn(),
+  deleteWorkflow: vi.fn(),
   wrapWorkflowContentTypesForWire: vi.fn((body) => ({ WorkflowContentTypes: body })),
   WORKFLOW_CONTENT_TYPES_ROOT: "WorkflowContentTypes",
   WORKFLOW_DESIGN_GAPS: [
     "Full workflow graph design is not exposed in the Developer catalog",
-    "Workflow create / update / delete is not supported from this Developer surface",
   ],
 }));
 
@@ -28,6 +29,8 @@ const getWorkflowAllowedContentTypes =
   workflowsApi.getWorkflowAllowedContentTypes as ReturnType<typeof vi.fn>;
 const setWorkflowAllowedContentTypes =
   workflowsApi.setWorkflowAllowedContentTypes as ReturnType<typeof vi.fn>;
+const updateWorkflowMock = workflowsApi.updateWorkflow as ReturnType<typeof vi.fn>;
+const deleteWorkflowMock = workflowsApi.deleteWorkflow as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   workflowName: "Simple Workflow",
@@ -57,6 +60,8 @@ describe("WorkflowDetailPanel", () => {
     getWorkflowDetail.mockReset();
     getWorkflowAllowedContentTypes.mockReset();
     setWorkflowAllowedContentTypes.mockReset();
+    updateWorkflowMock.mockReset();
+    deleteWorkflowMock.mockReset();
     getWorkflowAllowedContentTypes.mockResolvedValue([{ name: "percPage", label: "Page" }]);
     setWorkflowAllowedContentTypes.mockImplementation(async (_id, body) => body.allowedContentTypes);
   });
@@ -268,6 +273,151 @@ describe("WorkflowDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-wf-ct-notice").getAttribute("aria-live")).toBe(
       "polite",
+    );
+  });
+
+  it("keeps the description save disabled until the draft differs", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-description-save")).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("developer-wf-description-input").getAttribute("value") ??
+        (screen.getByTestId("developer-wf-description-input") as HTMLInputElement).value,
+    ).toBe("Default");
+    expect(screen.getByTestId("developer-wf-description-save")).toBeDisabled();
+
+    fireEvent.change(screen.getByTestId("developer-wf-description-input"), {
+      target: { value: "Edited" },
+    });
+    expect(screen.getByTestId("developer-wf-description-save")).not.toBeDisabled();
+  });
+
+  it("saves description via PUT and resets the dirty flag on success", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    updateWorkflowMock.mockResolvedValue({
+      workflowName: "Simple Workflow",
+      workflowDescription: "Edited",
+      defaultWorkflow: true,
+    });
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-description-save")).toBeTruthy();
+    });
+
+    fireEvent.change(screen.getByTestId("developer-wf-description-input"), {
+      target: { value: "Edited" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-description-save"));
+
+    await waitFor(() => {
+      expect(updateWorkflowMock).toHaveBeenCalledWith("Simple Workflow", {
+        name: "Simple Workflow",
+        description: "Edited",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-description-notice")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-description-notice").textContent).toBe(
+      DEV_MSG.WF_DETAIL_SAVED,
+    );
+    expect(screen.getByTestId("developer-wf-description-save")).toBeDisabled();
+  });
+
+  it("surfaces update 409 errors as name mismatch", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    updateWorkflowMock.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: null,
+    });
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-description-input")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-description-input"), {
+      target: { value: "Edited" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-description-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-description-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-description-error").textContent).toContain(
+      DEV_MSG.WF_DETAIL_NAME_MISMATCH,
+    );
+  });
+
+  it("opens the delete confirm dialog, cancels, and does not delete", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    const onDeleted = vi.fn();
+    render(
+      <WorkflowDetailPanel
+        name="Simple Workflow"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-delete")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("developer-wf-delete"));
+    expect(screen.getByTestId("developer-catalog-confirm-dialog")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
+    expect(deleteWorkflowMock).not.toHaveBeenCalled();
+    expect(onDeleted).not.toHaveBeenCalled();
+  });
+
+  it("confirms the delete dialog and calls onDeleted on success", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    deleteWorkflowMock.mockResolvedValue(undefined);
+    const onDeleted = vi.fn();
+    render(
+      <WorkflowDetailPanel
+        name="Simple Workflow"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-delete")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("developer-wf-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+
+    await waitFor(() => {
+      expect(deleteWorkflowMock).toHaveBeenCalledWith("Simple Workflow");
+    });
+    await waitFor(() => {
+      expect(onDeleted).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("surfaces a 409 delete error message about items-in-use", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    deleteWorkflowMock.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      message: "Workflow still has associated items",
+      body: null,
+    });
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-delete")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("developer-wf-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-delete-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-delete-error").textContent).toContain(
+      DEV_MSG.WF_DETAIL_DELETE_HAS_ITEMS,
     );
   });
 });

@@ -62,4 +62,34 @@ public interface IWorkflowsAdaptor {
    * @throws jakarta.ws.rs.WebApplicationException with 409 when a workflow with that name exists
    */
   WorkflowSummary createWorkflow(URI baseUri, WorkflowCreate body);
+
+  /**
+   * Update a stepped workflow's description (Admin, slice 21 Developer workflow update).
+   *
+   * <p>The name is immutable from this surface; renaming and step/transitions/roles editing stay
+   * on the workflow-admin editor. A {@code null} or missing description is treated as no-op; a
+   * non-null description (including the empty string) is stored on the matching workflow.
+   *
+   * @param idOrName workflow name, numeric uuid, or guid string; must resolve
+   * @param body update body, never {@code null}; {@code name} must match {@code idOrName}
+   * @return the updated {@link WorkflowSummary}, never {@code null}
+   * @throws IllegalArgumentException when {@code idOrName} or {@code body} is invalid
+   * @throws jakarta.ws.rs.WebApplicationException with 404 when the workflow is not found
+   */
+  WorkflowSummary updateWorkflow(URI baseUri, String idOrName, WorkflowUpdate body);
+
+  /**
+   * Delete a stepped workflow (Admin, slice 21 Developer workflow delete).
+   *
+   * <p>Delegates to the stepped-workflow editor (acquires and releases the workflow design lock).
+   * System workflows cannot be deleted; workflows that still own content items return a
+   * conflict.
+   *
+   * @param idOrName workflow name, numeric uuid, or guid string; must resolve
+   * @throws IllegalArgumentException when {@code idOrName} is invalid
+   * @throws jakarta.ws.rs.WebApplicationException with 404 when the workflow is not found
+   * @throws jakarta.ws.rs.WebApplicationException with 409 when items still belong to the
+   *     workflow or the workflow is a system workflow
+   */
+  void deleteWorkflow(URI baseUri, String idOrName);
 }

@@ -21,8 +21,8 @@ Extension points, REST, assemblers, Virtual Sites, and building Percussion CMS 8
 
 Operators using **Developer → Content types** lock/save chrome: [Developer Content Types](id:admin-developer-content-types).
 
-Operators using **Developer → Workflows** allowed content types chrome:
-[Developer Workflows](id:admin-developer-workflows).
+Operators using **Developer → Workflows** allowed content types, create / update /
+delete chrome: [Developer Workflows](id:admin-developer-workflows).
 
 Operators using **Developer → Locales** create/save/delete chrome and the
 auto-translation set editor: [Developer Locales](id:admin-developer-locales).
@@ -84,8 +84,8 @@ application CMS/resource files; distinct from Server Configs):
 
 Destructive **Delete** on Developer catalog editors (Searches, Views, Display
 Formats, Item Filters, Locales, Slots, Communities, Shared Fields, Keywords,
-System definition fields, Content Types, Action Menus, CE Controls, and
-Application Files) uses an
+System definition fields, Content Types, Action Menus, CE Controls,
+Workflows, and Application Files) uses an
 **in-app confirm dialog**, not the browser `window.confirm` prompt. The dialog is a
 modal with a title, message, **Cancel**, and **Delete**. Screen readers can
 announce it; Escape cancels when the delete is not in progress.
