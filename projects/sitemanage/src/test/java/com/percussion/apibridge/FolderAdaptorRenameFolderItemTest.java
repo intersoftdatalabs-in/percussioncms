@@ -31,8 +31,8 @@ import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.pagemanagement.assembler.IPSRenderAssemblyBridge;
 import com.percussion.pagemanagement.dao.IPSPageDao;
 import com.percussion.pagemanagement.dao.IPSPageDaoHelper;
-import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.service.IPSPageService;
+import com.percussion.rest.errors.BackendException;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pathmanagement.service.IPSPathService;
 import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
@@ -147,16 +147,46 @@ class FolderAdaptorRenameFolderItemTest {
     pageSummary.setId("1-202-1");
     pageSummary.setType("percPage");
     when(folderHelper.findItem("//Sites/Demo/Home")).thenReturn(pageSummary);
-    PSPage page = new PSPage();
-    page.setId("1-202-1");
-    page.setName("Home");
-    when(pageService.find("1-202-1")).thenReturn(page);
-    when(pageService.save(page)).thenReturn(page);
+    PSLegacyGuid guid = new PSLegacyGuid(202, 1);
+    when(idMapper.getGuid("1-202-1")).thenReturn(guid);
+    PSItemStatus status = mock(PSItemStatus.class);
+    when(contentService.prepareForEdit(guid)).thenReturn(status);
+    PSCoreItem core = mock(PSCoreItem.class);
+    when(contentService.loadItems(anyList(), eq(true), eq(false), eq(false), eq(false)))
+        .thenReturn(Collections.singletonList(core));
+    when(contentService.getIdByPath("//Sites/Demo")).thenReturn(guid);
+    when(contentService.saveItems(anyList(), eq(false), eq(true), eq(guid)))
+        .thenReturn(List.of(guid));
 
     adaptor.renameFolderItem(base, "/Sites/Demo/Home", "Home2");
 
-    assertEquals("Home2", page.getName());
-    verify(pageService).save(page);
+    verify(core).setTextField("sys_title", "Home2");
+    verify(contentService).saveItems(anyList(), eq(false), eq(true), eq(guid));
+    verify(contentService).releaseFromEdit(status, false);
+  }
+
+  @Test
+  void renameFolderItemDoesNotTreatRollbackAsSuccess() throws Exception {
+    PSDataItemSummary source = new PSDataItemSummary();
+    source.setId("1-101-7");
+    source.setType("percSimpleTextAsset");
+    when(folderHelper.findItem("//Folders/$System$/Assets/src/item")).thenReturn(source);
+    PSLegacyGuid guid = new PSLegacyGuid(101, 1);
+    when(idMapper.getGuid("1-101-7")).thenReturn(guid);
+    PSItemStatus status = mock(PSItemStatus.class);
+    when(contentService.prepareForEdit(guid)).thenReturn(status);
+    PSCoreItem core = mock(PSCoreItem.class);
+    when(contentService.loadItems(anyList(), eq(true), eq(false), eq(false), eq(false)))
+        .thenReturn(Collections.singletonList(core));
+    when(contentService.getIdByPath("//Folders/$System$/Assets/src")).thenReturn(guid);
+    when(contentService.saveItems(anyList(), eq(false), eq(true), eq(guid)))
+        .thenThrow(
+            new org.springframework.transaction.UnexpectedRollbackException("rollback-only"));
+
+    assertThrows(
+        BackendException.class,
+        () -> adaptor.renameFolderItem(base, "/Assets/src/item", "qa-renamed"));
+    verify(contentService).releaseFromEdit(status, false);
   }
 
   @Test

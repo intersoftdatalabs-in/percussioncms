@@ -1687,63 +1687,10 @@ public class FolderAdaptor implements IFolderAdaptor {
             "Use folder rename for folders", Response.Status.CONFLICT);
       }
 
-      if (sourceItem.isPage()) {
-        PSPage page = pageService.find(sourceItem.getId());
-        if (page == null) {
-          throw new FolderNotFoundException();
-        }
-        page.setName(wanted);
-        pageService.save(page);
-        return;
-      }
-
-      if (assetService != null) {
-        PSAsset asset = assetService.load(sourceItem.getId());
-        if (asset == null) {
-          throw new FolderNotFoundException();
-        }
-        asset.setName(wanted);
-        java.util.Map<String, Object> fields = asset.getFields();
-        if (fields == null) {
-          fields = new java.util.HashMap<>();
-        }
-        fields.put("sys_title", wanted);
-        asset.setFields(fields);
-        assetService.save(asset);
-        return;
-      }
-
-      IPSGuid guid = idMapper.getGuid(sourceItem.getId());
-      PSItemStatus status = null;
-      try {
-        status = prepareForEdit(guid, false);
-      } catch (BackendException e) {
-        log.debug("rename/item prepareForEdit: {}", e.getMessage());
-      }
-      try {
-        List<PSCoreItem> items =
-            contentService.loadItems(Collections.singletonList(guid), true, false, false, false);
-        if (items == null || items.isEmpty() || items.get(0) == null) {
-          throw new FolderNotFoundException();
-        }
-        PSCoreItem core = items.get(0);
-        core.setTextField("sys_title", wanted);
-        core.setTextField("filename", wanted);
-        IPSGuid folderId = null;
-        String parent = StringUtils.substringBeforeLast(correctedItemPath, "/");
-        if (StringUtils.isNotBlank(parent)) {
-          folderId = contentService.getIdByPath(parent);
-        }
-        contentService.saveItems(Collections.singletonList(core), false, true, folderId);
-      } finally {
-        if (status != null) {
-          try {
-            releaseFromEdit(status);
-          } catch (Exception e) {
-            log.warn("rename/item releaseFromEdit failed", e);
-          }
-        }
-      }
+      // Listing name is sys_title. pageService/assetService save can mark the
+      // wrapping TX rollback-only while still returning HTTP 200 — Explorer then
+      // refreshes and still shows the old name (#4636 erlang-fix).
+      persistItemDisplayName(sourceItem, wanted, correctedItemPath, sourceItem.isPage());
     } catch (WebApplicationException e) {
       throw e;
     } catch (PSValidationException e) {
@@ -1763,9 +1710,8 @@ public class FolderAdaptor implements IFolderAdaptor {
       if (e instanceof WebApplicationException wae) {
         throw wae;
       }
-      if (e instanceof org.springframework.transaction.UnexpectedRollbackException) {
-        log.warn("rename/item completed with rollback-only TX (#4636)", e);
-        return;
+      if (e instanceof BackendException be) {
+        throw be;
       }
       String msg = PSExceptionUtils.getMessageForLog(e);
       if (msg != null
@@ -1775,6 +1721,43 @@ public class FolderAdaptor implements IFolderAdaptor {
         throw new WebApplicationException(msg, Response.Status.CONFLICT);
       }
       throw new BackendException(e);
+    }
+  }
+
+  /**
+   * Checkout, set {@code sys_title} (listing title), save, check in. Does not
+   * treat rollback-only as success.
+   */
+  private void persistItemDisplayName(
+      PSDataItemSummary sourceItem, String wanted, String correctedItemPath, boolean isPage)
+      throws BackendException, FolderNotFoundException, PSErrorResultsException {
+    IPSGuid guid = idMapper.getGuid(sourceItem.getId());
+    PSItemStatus status = prepareForEdit(guid, isPage);
+    try {
+      List<PSCoreItem> items =
+          contentService.loadItems(Collections.singletonList(guid), true, false, false, false);
+      if (items == null || items.isEmpty() || items.get(0) == null) {
+        throw new FolderNotFoundException();
+      }
+      PSCoreItem core = items.get(0);
+      core.setTextField("sys_title", wanted);
+      core.setTextField("filename", wanted);
+      IPSGuid folderId = null;
+      String parent = StringUtils.substringBeforeLast(correctedItemPath, "/");
+      if (StringUtils.isNotBlank(parent)) {
+        folderId = contentService.getIdByPath(parent);
+      }
+      contentService.saveItems(Collections.singletonList(core), false, true, folderId);
+    } catch (org.springframework.transaction.UnexpectedRollbackException e) {
+      throw new BackendException("rename/item save rolled back", e);
+    } finally {
+      if (status != null) {
+        try {
+          releaseFromEdit(status);
+        } catch (Exception e) {
+          log.warn("rename/item releaseFromEdit failed", e);
+        }
+      }
     }
   }
 }
