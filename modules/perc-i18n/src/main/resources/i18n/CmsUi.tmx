@@ -25899,6 +25899,38 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
       <tuv xml:lang="zh-cn"><seg>增量式</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>增量式</seg></tuv>
     <tuv xml:lang="ru"><seg>Инкрементальный</seg></tuv><tuv xml:lang="he"><seg>מצטבר</seg></tuv><tuv xml:lang="uk"><seg>Інкрементний</seg></tuv><tuv xml:lang="lou"><seg>Incremental</seg></tuv><tuv xml:lang="pl"><seg>Przyrostowe</seg></tuv><tuv xml:lang="tr"><seg>Artımlı</seg></tuv><tuv xml:lang="nb"><seg>Inkrementell</seg></tuv><tuv xml:lang="sv"><seg>Inkrementell</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Confirm Incremental Publish">
+      <tuv xml:lang="en-us"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="ar"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="bn"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="de"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="es"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="fr"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="hi"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="it"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="ja-jp"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="nl"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="pt"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="te"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="zh-cn"><seg>Confirm Incremental Publish</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>Confirm Incremental Publish</seg></tuv>
+    <tuv xml:lang="ru"><seg>Confirm Incremental Publish</seg></tuv><tuv xml:lang="he"><seg>Confirm Incremental Publish</seg></tuv><tuv xml:lang="uk"><seg>Confirm Incremental Publish</seg></tuv><tuv xml:lang="lou"><seg>Confirm Incremental Publish</seg></tuv><tuv xml:lang="pl"><seg>Confirm Incremental Publish</seg></tuv><tuv xml:lang="tr"><seg>Confirm Incremental Publish</seg></tuv><tuv xml:lang="nb"><seg>Confirm Incremental Publish</seg></tuv><tuv xml:lang="sv"><seg>Confirm Incremental Publish</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Publish Job Started">
+      <tuv xml:lang="en-us"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="ar"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="bn"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="de"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="es"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="fr"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="hi"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="it"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="ja-jp"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="nl"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="pt"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="te"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="zh-cn"><seg>Publish Job Started</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>Publish Job Started</seg></tuv>
+    <tuv xml:lang="ru"><seg>Publish Job Started</seg></tuv><tuv xml:lang="he"><seg>Publish Job Started</seg></tuv><tuv xml:lang="uk"><seg>Publish Job Started</seg></tuv><tuv xml:lang="lou"><seg>Publish Job Started</seg></tuv><tuv xml:lang="pl"><seg>Publish Job Started</seg></tuv><tuv xml:lang="tr"><seg>Publish Job Started</seg></tuv><tuv xml:lang="nb"><seg>Publish Job Started</seg></tuv><tuv xml:lang="sv"><seg>Publish Job Started</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@No Sites">
       <tuv xml:lang="en-us"><seg>No sites are available for publishing.</seg></tuv>
       <tuv xml:lang="ar"><seg>لا توجد مواقع متاحة للنشر.</seg></tuv>
