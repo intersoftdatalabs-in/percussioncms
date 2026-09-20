@@ -166,7 +166,7 @@ export function EditorRelatedContentPanel({
               data-testid="editor-related-row"
               data-related-kind={row.kind}
             >
-              <span className={styles.meta}>{row.slotLabel}</span>
+              <span className={styles.relatedSlot}>{row.slotLabel}</span>
               <span data-testid="editor-related-item-id">{row.itemId}</span>
             </li>
           ))}

@@ -76,6 +76,72 @@ const CANVAS = {
   },
 };
 
+async function stubEditorApis(page, { canvasBody, canvasStatus, localBody, localStatus }) {
+  await page.route("**/itemmanagement/item/fields/**", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(FIELDS),
+      });
+      return;
+    }
+    await route.continue();
+  });
+  await page.route("**/itemmanagement/workflow/checkOut/**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ checkOutUser: "admin", currentUser: "admin" }),
+    });
+  });
+  await page.route("**/itemmanagement/workflow/getTransitions/**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ stateName: "Draft", transitionTriggers: [] }),
+    });
+  });
+  await page.route("**/services/contenttypes/**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(TYPE),
+    });
+  });
+  await page.route("**/assembly/slot-relationships/canvas**", async (route) => {
+    await route.fulfill({
+      status: canvasStatus ?? 200,
+      contentType: "application/json",
+      body:
+        canvasStatus === 403
+          ? "Forbidden"
+          : JSON.stringify(canvasBody ?? CANVAS),
+    });
+  });
+  await page.route("**/content-explorer/relationships/**/local", async (route) => {
+    await route.fulfill({
+      status: localStatus ?? 200,
+      contentType: "application/json",
+      body:
+        localStatus === 403
+          ? "Forbidden"
+          : JSON.stringify(localBody ?? { count: 0, links: [] }),
+    });
+  });
+}
+
+async function assertConsoleClean(page, pageErrors, consoleErrors) {
+  expect(pageErrors, pageErrors.join("\n")).toEqual([]);
+  const relatedConsole = consoleErrors.filter(
+    (t) => !/Failed to load resource/i.test(t) && !/403/i.test(t),
+  );
+  expect(relatedConsole, relatedConsole.join("\n")).toEqual([]);
+  await expectNoSeriousA11yViolations(page, {
+    scope: '[data-testid="editor-host"]',
+  });
+}
+
 test.describe("EditorHost related content list", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(45_000);
@@ -83,7 +149,7 @@ test.describe("EditorHost related content list", () => {
   });
 
   test(
-    "lists related slot items and empty/403 states",
+    "lists related slot items",
     { tag: ["@explorer-content-editor", "@editor"] },
     async ({ page }) => {
       const pageErrors = [];
@@ -94,54 +160,7 @@ test.describe("EditorHost related content list", () => {
           consoleErrors.push(msg.text());
         }
       });
-
-      await page.route("**/itemmanagement/item/fields/**", async (route) => {
-        if (route.request().method() === "GET") {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify(FIELDS),
-          });
-          return;
-        }
-        await route.continue();
-      });
-      await page.route("**/itemmanagement/workflow/checkOut/**", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({ checkOutUser: "admin", currentUser: "admin" }),
-        });
-      });
-      await page.route("**/itemmanagement/workflow/getTransitions/**", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({ stateName: "Draft", transitionTriggers: [] }),
-        });
-      });
-      await page.route("**/services/contenttypes/**", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify(TYPE),
-        });
-      });
-      await page.route("**/assembly/slot-relationships/canvas**", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify(CANVAS),
-        });
-      });
-      await page.route("**/content-explorer/relationships/**/local", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({ count: 0, links: [] }),
-        });
-      });
-
+      await stubEditorApis(page, {});
       await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"), {
         waitUntil: "domcontentloaded",
       });
@@ -152,43 +171,59 @@ test.describe("EditorHost related content list", () => {
       await expect(page.locator('[data-testid="editor-related-item-id"]')).toHaveText(
         "55",
       );
+      await assertConsoleClean(page, pageErrors, consoleErrors);
+    },
+  );
 
-      await page.route("**/assembly/slot-relationships/canvas**", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({
-            SlotCanvas: { ownerId: 42, templateId: null, slots: [] },
-          }),
-        });
+  test(
+    "shows empty related content",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      const consoleErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
       });
-      await page.reload({ waitUntil: "domcontentloaded" });
+      await stubEditorApis(page, {
+        canvasBody: { SlotCanvas: { ownerId: 42, templateId: null, slots: [] } },
+        localBody: { count: 0, links: [] },
+      });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"), {
+        waitUntil: "domcontentloaded",
+      });
       await expect(page.locator('[data-testid="editor-related-empty"]')).toBeVisible({
         timeout: 20_000,
       });
+      await assertConsoleClean(page, pageErrors, consoleErrors);
+    },
+  );
 
-      await page.route("**/assembly/slot-relationships/canvas**", async (route) => {
-        await route.fulfill({ status: 403, body: "Forbidden" });
+  test(
+    "shows forbidden when related APIs return 403",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      const consoleErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
       });
-      await page.route("**/content-explorer/relationships/**/local", async (route) => {
-        await route.fulfill({ status: 403, body: "Forbidden" });
+      await stubEditorApis(page, { canvasStatus: 403, localStatus: 403 });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"), {
+        waitUntil: "domcontentloaded",
       });
-      await page.reload({ waitUntil: "domcontentloaded" });
       await expect(page.locator('[data-testid="editor-related-error"]')).toBeVisible({
         timeout: 20_000,
       });
       await expect(page.locator('[data-testid="editor-related-error"]')).toContainText(
         /not allowed/i,
       );
-
-      expect(pageErrors, pageErrors.join("\n")).toEqual([]);
-      const relatedConsole = consoleErrors.filter(
-        (t) => !/Failed to load resource/i.test(t) && !/403/i.test(t),
-      );
-      expect(relatedConsole, relatedConsole.join("\n")).toEqual([]);
-      await expectNoSeriousA11yViolations(page, {
-        scope: '[data-testid="editor-host"]',
-      });
+      await assertConsoleClean(page, pageErrors, consoleErrors);
     },
   );
 });

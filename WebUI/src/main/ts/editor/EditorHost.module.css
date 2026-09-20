@@ -86,7 +86,12 @@
   display: flex;
   gap: 12px;
   padding: 4px 0;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+.relatedSlot {
+  color: #334155;
 }
 
 .stage {
