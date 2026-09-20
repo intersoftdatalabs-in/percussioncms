@@ -31,8 +31,45 @@ const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const {
   publishingProductUrl,
   isIncrementalPublishUrl,
+  isPubServersListUrl,
+  isIncrementalPreviewUrl,
+  isIncrementalConfirmMessage,
+  mockPublishServer,
+  mockIncrementalPublishResponse,
   isKnownPublishConsoleNoise,
 } = require("./helpers/publishing-incremental-site");
+
+async function stubPublishWorkspaceApis(page, { onIncrementalPublish } = {}) {
+  await page.route("**/publishmanagement/servers/**", async (route) => {
+    const req = route.request();
+    if (req.method() === "GET" && isPubServersListUrl(req.url())) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ PubServer: [mockPublishServer()] }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+  await page.route("**/sitemanage/publish/incremental/**", async (route) => {
+    const req = route.request();
+    const url = req.url();
+    if (isIncrementalPreviewUrl(url) && req.method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ items: [], totalCount: 0 }),
+      });
+      return;
+    }
+    if (isIncrementalPublishUrl(url) && onIncrementalPublish) {
+      await onIncrementalPublish(route);
+      return;
+    }
+    await route.continue();
+  });
+}
 
 const TAGS = ["@publishing-incremental-site", "@publish", "@smoke"];
 
@@ -57,19 +94,14 @@ test.describe("PublishingShell incremental site publish (#4614)", () => {
       }
     });
 
-    await page.route("**/sitemanage/publish/incremental/publish/**", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          SitePublishResponse: {
-            status: "Queuing content",
-            delivered: "0",
-            failures: "0",
-            jobid: 4614,
-          },
-        }),
-      });
+    await stubPublishWorkspaceApis(page, {
+      onIncrementalPublish: async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(mockIncrementalPublishResponse()),
+        });
+      },
     });
 
     await page.goto(publishingProductUrl(BASE_URL), {
@@ -88,22 +120,21 @@ test.describe("PublishingShell incremental site publish (#4614)", () => {
     await expect(page.getByTestId("publish-site-workspace")).toBeVisible();
 
     const incremental = page.getByTestId("publish-incremental-confirm");
-    const enabled = await incremental.isEnabled();
-    if (!enabled) {
-      test.info().annotations.push({
-        type: "note",
-        description: "No publish server selected; incremental stays disabled",
-      });
-      expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
-      return;
-    }
+    await expect(incremental).toBeEnabled({ timeout: 15000 });
 
-    page.once("dialog", (dialog) => dialog.accept());
+    page.once("dialog", (dialog) => {
+      expect(isIncrementalConfirmMessage(dialog.message())).toBeTruthy();
+      void dialog.accept();
+    });
     await incremental.click();
 
-    await expect(page.getByText(/Publish Job Started/i)).toBeVisible({
-      timeout: 15000,
-    });
+    await expect(page.getByTestId("publish-action-message")).toContainText(
+      /Publish Job Started/i,
+      { timeout: 15000 },
+    );
+    await expect(page.getByTestId("publish-action-message")).toContainText(
+      "4614",
+    );
     await expect(page.getByTestId("publish-site-jobs")).toBeVisible();
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });
@@ -112,11 +143,15 @@ test.describe("PublishingShell incremental site publish (#4614)", () => {
     page,
   }) => {
     let incrementalHits = 0;
-    await page.route("**/sitemanage/publish/incremental/publish/**", async (route) => {
-      if (isIncrementalPublishUrl(route.request().url())) {
+    await stubPublishWorkspaceApis(page, {
+      onIncrementalPublish: async (route) => {
         incrementalHits += 1;
-      }
-      await route.continue();
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(mockIncrementalPublishResponse()),
+        });
+      },
     });
 
     await page.goto(publishingProductUrl(BASE_URL), {
@@ -129,12 +164,13 @@ test.describe("PublishingShell incremental site publish (#4614)", () => {
     await expect(siteCard).toBeVisible({ timeout: 30000 });
     await siteCard.click();
     const incremental = page.getByTestId("publish-incremental-confirm");
-    if (!(await incremental.isEnabled())) {
-      return;
-    }
-    page.once("dialog", (dialog) => dialog.dismiss());
+    await expect(incremental).toBeEnabled({ timeout: 15000 });
+    page.once("dialog", (dialog) => {
+      expect(isIncrementalConfirmMessage(dialog.message())).toBeTruthy();
+      void dialog.dismiss();
+    });
     await incremental.click();
-    await expect(page.getByText(/Publish Job Started/i)).toHaveCount(0);
+    await expect(page.getByTestId("publish-action-message")).toHaveCount(0);
     expect(incrementalHits).toBe(0);
   });
 });

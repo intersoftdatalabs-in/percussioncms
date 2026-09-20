@@ -22,6 +22,11 @@ const assert = require("node:assert/strict");
 const {
   publishingProductUrl,
   isIncrementalPublishUrl,
+  isPubServersListUrl,
+  isIncrementalPreviewUrl,
+  isIncrementalConfirmMessage,
+  mockPublishServer,
+  mockIncrementalPublishResponse,
   isKnownPublishConsoleNoise,
 } = require("../helpers/publishing-incremental-site");
 
@@ -41,6 +46,56 @@ describe("publishing-incremental-site helpers (#4614)", () => {
       true,
     );
     assert.equal(isIncrementalPublishUrl("/sitemanage/pubstatus/logs"), false);
+  });
+
+  it("matches publish-server list URLs", () => {
+    assert.equal(
+      isPubServersListUrl("/Rhythmyx/services/publishmanagement/servers/42"),
+      true,
+    );
+    assert.equal(
+      isPubServersListUrl(
+        "/Rhythmyx/services/publishmanagement/servers/42/4614",
+      ),
+      false,
+    );
+  });
+
+  it("matches incremental preview URLs", () => {
+    assert.equal(
+      isIncrementalPreviewUrl(
+        "/Rhythmyx/services/sitemanage/publish/incremental/content/MySite/FTP",
+      ),
+      true,
+    );
+    assert.equal(
+      isIncrementalPreviewUrl(
+        "/Rhythmyx/services/sitemanage/publish/incremental/relatedcontent/MySite/FTP",
+      ),
+      true,
+    );
+    assert.equal(
+      isIncrementalPreviewUrl(
+        "/Rhythmyx/services/sitemanage/publish/incremental/publish/MySite/FTP",
+      ),
+      false,
+    );
+  });
+
+  it("recognizes incremental confirm copy", () => {
+    assert.equal(
+      isIncrementalConfirmMessage("Confirm Incremental Publish"),
+      true,
+    );
+    assert.equal(isIncrementalConfirmMessage("Stop this job?"), false);
+  });
+
+  it("builds mock server and incremental job payloads", () => {
+    assert.equal(mockPublishServer().serverName, "FTP-Prod");
+    assert.equal(
+      mockIncrementalPublishResponse().SitePublishResponse.jobid,
+      4614,
+    );
   });
 
   it("filters known console noise", () => {

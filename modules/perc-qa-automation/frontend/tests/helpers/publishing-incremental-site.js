@@ -27,6 +27,44 @@ function isIncrementalPublishUrl(url) {
   return /\/sitemanage\/publish\/incremental\/publish\//i.test(raw);
 }
 
+function isPubServersListUrl(url) {
+  const raw = String(url || "");
+  return /\/publishmanagement\/servers\/[^/?#]+\/?(\?|$)/i.test(raw);
+}
+
+function isIncrementalPreviewUrl(url) {
+  const raw = String(url || "");
+  return /\/sitemanage\/publish\/incremental\/(content|relatedcontent)\//i.test(
+    raw,
+  );
+}
+
+function isIncrementalConfirmMessage(text) {
+  const t = String(text || "");
+  return /confirm incremental publish/i.test(t);
+}
+
+function mockPublishServer() {
+  return {
+    serverId: 4614,
+    serverName: "FTP-Prod",
+    name: "FTP-Prod",
+    siteId: 42,
+    serverType: "PRODUCTION",
+  };
+}
+
+function mockIncrementalPublishResponse() {
+  return {
+    SitePublishResponse: {
+      status: "Queuing content",
+      delivered: "0",
+      failures: "0",
+      jobid: 4614,
+    },
+  };
+}
+
 function isKnownPublishConsoleNoise(text) {
   const t = String(text || "");
   return /Download the React DevTools/i.test(t);
@@ -35,5 +73,10 @@ function isKnownPublishConsoleNoise(text) {
 module.exports = {
   publishingProductUrl,
   isIncrementalPublishUrl,
+  isPubServersListUrl,
+  isIncrementalPreviewUrl,
+  isIncrementalConfirmMessage,
+  mockPublishServer,
+  mockIncrementalPublishResponse,
   isKnownPublishConsoleNoise,
 };

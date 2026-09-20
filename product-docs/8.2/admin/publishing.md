@@ -31,7 +31,7 @@ channels (static files, FTP, database, custom locations).
 
 ### Incremental site publish (Publishing shell)
 
-From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then choose **Incremental**. Confirm the dialog. The shell calls the incremental site publish API (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), optionally with related-item approval after **Incremental preview**. Success shows a job id and refreshes the site **Status** list (active jobs). Application-level `FORBIDDEN` / `BADCONFIG` responses are failures in the workspace error region, not success. Full site publish remains a separate **Full** action.
+From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then choose **Incremental**. Confirm the dialog (**Confirm Incremental Publish**). The shell calls the incremental site publish API (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), optionally with related-item approval after **Incremental preview**. Success shows **Publish Job Started** plus the job id and refreshes the site **Status** list (active jobs). Dismissing confirm does not start a job. Application-level `FORBIDDEN` / `BADCONFIG` responses are failures in the workspace error region, not success. Full site publish remains a separate **Full** action.
 
 ### Cancel or stop an in-flight publish job
 
