@@ -22,6 +22,7 @@ import {
   deleteItem,
   moveItem,
   renameFolder,
+  renameFolderItem,
 } from "../../../main/ts/api/contentExplorer/folderMutations";
 import { setRxFolderMutationsFlagOverride } from "../../../main/ts/api/contentExplorer/rxFolderMutationsFlag";
 import { mockFetch } from "./setup";
@@ -354,6 +355,32 @@ describe("folderMutations dual-run routing (#3074)", () => {
       RenameFolderItem: { path: "/Assets/Old/", name: "Renamed" },
     });
     expect(item.name).toBe("Renamed");
+  });
+
+  it("renameFolderItem POSTs /folders/rename/item, not pathmanagement renameFolder (#4636)", async () => {
+    setRxFolderMutationsFlagOverride(false);
+    let last = "";
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      last = typeof input === "string" ? input : (input as Request).url;
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(JSON.stringify({ message: "Renamed OK" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await renameFolderItem({
+      itemPath: "/Assets/qa4636_src",
+      newName: "qa4636_new",
+    });
+    expect(last).toContain("/folders/rename/item");
+    expect(last).not.toContain("/pathmanagement/path/renameFolder");
+    expect(posted).toEqual({
+      RenameFolderItemRequest: {
+        itemPath: "/Assets/qa4636_src",
+        newName: "qa4636_new",
+      },
+    });
   });
 
   it("flag off: deleteItem uses pathmanagement deleteFolder", async () => {

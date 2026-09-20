@@ -25,11 +25,14 @@ import static org.apache.commons.lang3.Validate.notNull;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSCloningOptions;
 import com.percussion.cms.objectstore.PSComponentSummary;
+import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.fastforward.managednav.PSNavException;
+import com.percussion.assetmanagement.data.PSAsset;
+import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.itemmanagement.service.IPSItemService;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pagemanagement.assembler.IPSRenderAssemblyBridge;
@@ -97,9 +100,11 @@ import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.content.IPSContentWs;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -152,6 +157,9 @@ public class FolderAdaptor implements IFolderAdaptor {
   @Autowired private IPSRenderAssemblyBridge asmBridge;
 
   @Autowired private IPSItemService itemService;
+
+  @Autowired(required = false)
+  private IPSAssetService assetService;
 
   /** Logger for this service. */
   public static final Logger log = LogManager.getLogger(FolderAdaptor.class);
@@ -1646,6 +1654,126 @@ public class FolderAdaptor implements IFolderAdaptor {
     } catch (WebApplicationException e) {
       throw e;
     } catch (PSDataServiceException e) {
+      throw new BackendException(e);
+    }
+  }
+
+  @Override
+  public void renameFolderItem(URI baseURI, String itemPath, String newName)
+      throws BackendException {
+    try {
+      checkAPIPermission();
+
+      String wanted = StringUtils.trimToEmpty(newName);
+      if (StringUtils.isBlank(wanted)) {
+        throw new WebApplicationException("newName is required", Response.Status.BAD_REQUEST);
+      }
+
+      String correctedItemPath =
+          PSPathUtils.fixSiteFolderPath(
+              siteDataService, PSPathUtils.toRepositoryPath(itemPath));
+
+      PSDataItemSummary sourceItem;
+      try {
+        sourceItem = (PSDataItemSummary) this.folderHelper.findItem(correctedItemPath);
+      } catch (PSPathNotFoundServiceException | PSNotFoundException e) {
+        throw new FolderNotFoundException(e);
+      }
+      if (sourceItem == null) {
+        throw new FolderNotFoundException();
+      }
+      if (sourceItem.isFolder()) {
+        throw new WebApplicationException(
+            "Use folder rename for folders", Response.Status.CONFLICT);
+      }
+
+      if (sourceItem.isPage()) {
+        PSPage page = pageService.find(sourceItem.getId());
+        if (page == null) {
+          throw new FolderNotFoundException();
+        }
+        page.setName(wanted);
+        pageService.save(page);
+        return;
+      }
+
+      if (assetService != null) {
+        PSAsset asset = assetService.load(sourceItem.getId());
+        if (asset == null) {
+          throw new FolderNotFoundException();
+        }
+        asset.setName(wanted);
+        java.util.Map<String, Object> fields = asset.getFields();
+        if (fields == null) {
+          fields = new java.util.HashMap<>();
+        }
+        fields.put("sys_title", wanted);
+        asset.setFields(fields);
+        assetService.save(asset);
+        return;
+      }
+
+      IPSGuid guid = idMapper.getGuid(sourceItem.getId());
+      PSItemStatus status = null;
+      try {
+        status = prepareForEdit(guid, false);
+      } catch (BackendException e) {
+        log.debug("rename/item prepareForEdit: {}", e.getMessage());
+      }
+      try {
+        List<PSCoreItem> items =
+            contentService.loadItems(Collections.singletonList(guid), true, false, false, false);
+        if (items == null || items.isEmpty() || items.get(0) == null) {
+          throw new FolderNotFoundException();
+        }
+        PSCoreItem core = items.get(0);
+        core.setTextField("sys_title", wanted);
+        core.setTextField("filename", wanted);
+        IPSGuid folderId = null;
+        String parent = StringUtils.substringBeforeLast(correctedItemPath, "/");
+        if (StringUtils.isNotBlank(parent)) {
+          folderId = contentService.getIdByPath(parent);
+        }
+        contentService.saveItems(Collections.singletonList(core), false, true, folderId);
+      } finally {
+        if (status != null) {
+          try {
+            releaseFromEdit(status);
+          } catch (Exception e) {
+            log.warn("rename/item releaseFromEdit failed", e);
+          }
+        }
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(
+          e.getLocalizedMessage(), Response.Status.CONFLICT);
+    } catch (PSPathNotFoundServiceException e) {
+      throw new FolderNotFoundException(e);
+    } catch (PSDataServiceException e) {
+      throw new BackendException(e);
+    } catch (Exception e) {
+      if (e instanceof NotAuthorizedException nae) {
+        throw nae;
+      }
+      if (e instanceof FolderNotFoundException fnf) {
+        throw fnf;
+      }
+      if (e instanceof WebApplicationException wae) {
+        throw wae;
+      }
+      if (e instanceof org.springframework.transaction.UnexpectedRollbackException) {
+        log.warn("rename/item completed with rollback-only TX (#4636)", e);
+        return;
+      }
+      String msg = PSExceptionUtils.getMessageForLog(e);
+      if (msg != null
+          && (msg.contains("already exists")
+              || msg.contains("must be unique")
+              || msg.contains("locked"))) {
+        throw new WebApplicationException(msg, Response.Status.CONFLICT);
+      }
       throw new BackendException(e);
     }
   }

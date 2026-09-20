@@ -54,6 +54,7 @@ import com.percussion.rest.itemfilter.ItemFilter;
 import com.percussion.rest.itemfilter.ItemFilterRuleDefinition;
 import com.percussion.rest.itemfilter.ItemFilterRuleDefinitionParam;
 import com.percussion.rest.folders.CopyFolderItemRequest;
+import com.percussion.rest.folders.RenameFolderItemRequest;
 import com.percussion.rest.folders.Folder;
 import com.percussion.rest.folders.SectionInfo;
 import com.percussion.rest.folders.SectionLinkRef;
@@ -777,6 +778,25 @@ class JacksonContextResolverOptionalTest {
     CopyFolderItemRequest roundTrip = reqMapper.readValue(json, CopyFolderItemRequest.class);
     assertEquals("/Sites/A/dest", roundTrip.getTargetFolderPath(), json);
     assertEquals("/Sites/A/src/page.html", roundTrip.getItemPath(), json);
+  }
+
+  @Test
+  void renameFolderItemRequest_serializesPathsNotOptionalBeans() {
+    RenameFolderItemRequest req =
+        new RenameFolderItemRequest("/Assets/src/item", "qa-renamed");
+
+    ObjectMapper reqMapper =
+        new JacksonContextResolver().getContext(RenameFolderItemRequest.class);
+    String json = reqMapper.writeValueAsString(req);
+    assertTrue(json.contains("\"itemPath\""), json);
+    assertTrue(json.contains("/Assets/src/item"), json);
+    assertTrue(json.contains("\"newName\""), json);
+    assertTrue(json.contains("qa-renamed"), json);
+    assertNoOptionalBeanKeys(json);
+
+    RenameFolderItemRequest roundTrip = reqMapper.readValue(json, RenameFolderItemRequest.class);
+    assertEquals("/Assets/src/item", roundTrip.getItemPath(), json);
+    assertEquals("qa-renamed", roundTrip.getNewName(), json);
   }
 
   @Test

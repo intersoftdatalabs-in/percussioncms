@@ -107,4 +107,9 @@ public class FolderTestAdaptor implements IFolderAdaptor {
   public void deleteFolderItem(URI baseURI, String itemPath) {
     // No-op for test adaptor
   }
+
+  @Override
+  public void renameFolderItem(URI baseURI, String itemPath, String newName) {
+    // No-op for test adaptor
+  }
 }

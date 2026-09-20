@@ -113,6 +113,13 @@ export interface PSRenameFolderItem {
   newName: string;
 }
 
+/** Client request for {@code POST /rest/folders/rename/item}. */
+export interface PSRenameItemRequest {
+  itemPath?: string;
+  path?: string;
+  newName: string;
+}
+
 /**
  * Client request for {@code POST …/pathmanagement/path/moveItem}.
  *

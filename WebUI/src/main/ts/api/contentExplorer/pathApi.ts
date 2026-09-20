@@ -419,6 +419,58 @@ export async function moveFolderItem(body: PSMoveFolderItem): Promise<void> {
   await post<void>(PATHS.FOLDERS_MOVE_ITEM, wrapMoveFolderItem(body));
 }
 
+export const RENAME_FOLDER_ITEM_REQUEST_ROOT = "RenameFolderItemRequest";
+
+export type RenameFolderItemRequestEnvelope = {
+  RenameFolderItemRequest: { itemPath: string; newName: string };
+};
+
+export function wrapRenameFolderItemRequest(
+  request: { itemPath?: string; path?: string; newName?: string } | RenameFolderItemRequestEnvelope,
+): RenameFolderItemRequestEnvelope {
+  const rec = asRecord(request);
+  if (rec != null) {
+    const nested = rec[RENAME_FOLDER_ITEM_REQUEST_ROOT];
+    if (asRecord(nested) != null) {
+      const n = nested as { itemPath?: string; path?: string; newName?: string };
+      const itemPath = String(n.itemPath ?? n.path ?? "").trim();
+      const newName = String(n.newName ?? "").trim();
+      if (!itemPath) {
+        throw new Error("renameFolderItem requires itemPath");
+      }
+      if (!newName) {
+        throw new Error("renameFolderItem requires newName");
+      }
+      return { RenameFolderItemRequest: { itemPath, newName } };
+    }
+  }
+  const itemPath = String(
+    (request as { itemPath?: string; path?: string }).itemPath ??
+      (request as { path?: string }).path ??
+      "",
+  ).trim();
+  const newName = String((request as { newName?: string }).newName ?? "").trim();
+  if (!itemPath) {
+    throw new Error("renameFolderItem requires itemPath");
+  }
+  if (!newName) {
+    throw new Error("renameFolderItem requires newName");
+  }
+  return { RenameFolderItemRequest: { itemPath, newName } };
+}
+
+/**
+ * Rename a non-folder item via {@code POST /folders/rename/item}.
+ * Folders stay on {@link renameFolder}.
+ */
+export async function renameFolderItem(body: {
+  itemPath?: string;
+  path?: string;
+  newName: string;
+}): Promise<void> {
+  await post<void>(PATHS.FOLDERS_RENAME_ITEM, wrapRenameFolderItemRequest(body));
+}
+
 /**
  * Jackson / JAXB root for sitemanage {@code PSDeleteFolderCriteria}
  * ({@code @XmlRootElement(name = "DeleteFolderCriteria")}).

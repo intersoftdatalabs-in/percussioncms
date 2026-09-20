@@ -59,4 +59,10 @@ public interface IFolderAdaptor {
 
   /** Deletes a folder item. */
   void deleteFolderItem(URI baseURI, String itemPath) throws BackendException;
+
+  /**
+   * Renames a non-folder item (page, file, or asset). Folder rename stays on {@link
+   * #renameFolder}.
+   */
+  void renameFolderItem(URI baseURI, String itemPath, String newName) throws BackendException;
 }
