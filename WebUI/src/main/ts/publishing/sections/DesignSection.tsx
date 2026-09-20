@@ -191,6 +191,7 @@ export function DesignSection(): React.ReactElement {
             </label>
             <button
               type="button"
+              data-testid="design-add-edition"
               style={buttonStyle}
               onClick={() => setEditionEdit("new")}
             >

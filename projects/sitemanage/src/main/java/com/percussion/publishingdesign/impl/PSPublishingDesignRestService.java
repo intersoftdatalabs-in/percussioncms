@@ -47,7 +47,10 @@ import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -63,8 +66,10 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
 /**
@@ -79,10 +84,16 @@ import org.springframework.context.annotation.Lazy;
 public class PSPublishingDesignRestService {
   private static final Logger log = LogManager.getLogger(PSPublishingDesignRestService.class);
 
+  static final String DESIGN_WRITE_FORBIDDEN =
+      "Admin or Designer role required to save a publish edition";
+  static final String EDITION_NAME_CONFLICT = "Edition name already exists";
+
   private final IPSPublisherService publisherService;
   private final IPSGuidManager guidManager;
   private final IPSSiteManager siteManager;
   private final PSPublishingRuntimeSupport runtimeSupport;
+  private IPSUserService userService;
+  private BooleanSupplier designWriteAllowed;
 
   public PSPublishingDesignRestService() {
     this(
@@ -114,6 +125,16 @@ public class PSPublishingDesignRestService {
   public PSPublishingDesignRestService(
       IPSPublisherService publisherService, IPSGuidManager guidManager) {
     this(publisherService, guidManager, null, null);
+  }
+
+  @Autowired(required = false)
+  public void setUserService(IPSUserService userService) {
+    this.userService = userService;
+  }
+
+  /** Test hook: when set, overrides Admin/Designer check (403). */
+  void setDesignWriteAllowed(BooleanSupplier designWriteAllowed) {
+    this.designWriteAllowed = designWriteAllowed;
   }
 
   // ---- Editions ----
@@ -164,10 +185,12 @@ public class PSPublishingDesignRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSEditionSummary createEdition(PSEditionSummary body) {
+    requireDesignWrite();
     if (body == null || isBlank(body.getName()) || isBlank(body.getSiteId())) {
       throw badRequest("name and siteId are required");
     }
     try {
+      requireUniqueEditionName(body.getName().trim(), null);
       IPSEdition edition = publisherService.createEdition();
       applyEditionFields(edition, body, true);
       publisherService.saveEdition(edition);
@@ -185,12 +208,16 @@ public class PSPublishingDesignRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSEditionSummary updateEdition(
       @PathParam("editionId") String editionId, PSEditionSummary body) {
+    requireDesignWrite();
     requireNonBlank(editionId, "editionId");
     if (body == null) {
       throw badRequest("body is required");
     }
     try {
       IPSEdition edition = publisherService.loadEditionModifiable(toEditionGuid(editionId));
+      if (!isBlank(body.getName())) {
+        requireUniqueEditionName(body.getName().trim(), editionId);
+      }
       applyEditionFields(edition, body, false);
       publisherService.saveEdition(edition);
       String siteId =
@@ -1239,8 +1266,59 @@ public class PSPublishingDesignRestService {
     return value == null || value.isBlank();
   }
 
+  private void requireDesignWrite() {
+    boolean allowed;
+    try {
+      if (designWriteAllowed != null) {
+        allowed = designWriteAllowed.getAsBoolean();
+      } else if (userService != null) {
+        allowed = currentUserMayWriteDesign();
+      } else {
+        allowed = false;
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.debug("Design write check failed: {}", e.getMessage());
+      throw new WebApplicationException(DESIGN_WRITE_FORBIDDEN, Response.Status.FORBIDDEN);
+    }
+    if (!allowed) {
+      throw new WebApplicationException(DESIGN_WRITE_FORBIDDEN, Response.Status.FORBIDDEN);
+    }
+  }
+
+  private boolean currentUserMayWriteDesign() {
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || isBlank(current.getName())) {
+        return false;
+      }
+      String name = current.getName();
+      return userService.isAdminUser(name) || userService.isDesignUser(name);
+    } catch (PSDataServiceException e) {
+      log.debug("Unable to resolve current user for edition save: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  private void requireUniqueEditionName(String name, String currentEditionId) {
+    IPSEdition existing = publisherService.findEditionByName(name);
+    if (existing == null || existing.getGUID() == null) {
+      return;
+    }
+    String existingId = String.valueOf(existing.getGUID().getUUID());
+    if (currentEditionId != null && currentEditionId.equals(existingId)) {
+      return;
+    }
+    throw conflict(EDITION_NAME_CONFLICT);
+  }
+
   private static WebApplicationException badRequest(String msg) {
     return new WebApplicationException(msg, Response.Status.BAD_REQUEST);
+  }
+
+  private static WebApplicationException conflict(String msg) {
+    return new WebApplicationException(msg, Response.Status.CONFLICT);
   }
 
   private static WebApplicationException notFound(String msg) {

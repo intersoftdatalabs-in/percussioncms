@@ -56,6 +56,7 @@ class PSPublishingDesignRestServiceTest {
   @BeforeEach
   void setUp() {
     service = new PSPublishingDesignRestService(publisherService, guidManager);
+    service.setDesignWriteAllowed(() -> true);
   }
 
   @Test
@@ -144,6 +145,51 @@ class PSPublishingDesignRestServiceTest {
     assertEquals("NewEd", created.getName());
     assertEquals("11", created.getEditionId());
     org.mockito.Mockito.verify(publisherService).saveEdition(edition);
+  }
+
+  @Test
+  void createEdition_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+    PSEditionSummary body = new PSEditionSummary();
+    body.setName("NewEd");
+    body.setSiteId("42");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.createEdition(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void createEdition_duplicateName_409() {
+    IPSEdition existing = mock(IPSEdition.class);
+    when(existing.getGUID()).thenReturn(editionGuid);
+    when(editionGuid.getUUID()).thenReturn(7);
+    when(publisherService.findEditionByName("DupEd")).thenReturn(existing);
+
+    PSEditionSummary body = new PSEditionSummary();
+    body.setName("DupEd");
+    body.setSiteId("42");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.createEdition(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void updateEdition_duplicateName_409() throws Exception {
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    IPSEdition loaded = mock(IPSEdition.class);
+    when(publisherService.loadEditionModifiable(editionGuid)).thenReturn(loaded);
+
+    IPSGuid otherGuid = mock(IPSGuid.class);
+    IPSEdition existing = mock(IPSEdition.class);
+    when(existing.getGUID()).thenReturn(otherGuid);
+    when(otherGuid.getUUID()).thenReturn(99);
+    when(publisherService.findEditionByName("Taken")).thenReturn(existing);
+
+    PSEditionSummary body = new PSEditionSummary();
+    body.setName("Taken");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateEdition("11", body));
+    assertEquals(409, ex.getResponse().getStatus());
   }
 
   @Test

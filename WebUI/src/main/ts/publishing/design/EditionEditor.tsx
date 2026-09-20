@@ -31,6 +31,7 @@ import {
   type EditionSummary,
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
+import { mapEditionSaveError } from "../editionSaveErrors";
 import {
   buttonStyle,
   errorStyle,
@@ -128,7 +129,7 @@ export function EditionEditor({
       }
       onSaved();
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapEditionSaveError(e));
     } finally {
       setSaving(false);
     }
@@ -340,6 +341,7 @@ export function EditionEditor({
       <div style={toolbarStyle}>
         <button
           type="button"
+          data-testid="edition-save"
           style={primaryButtonStyle}
           disabled={saving}
           onClick={() => void handleSave()}

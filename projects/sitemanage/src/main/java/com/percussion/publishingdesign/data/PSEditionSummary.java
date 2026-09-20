@@ -16,10 +16,12 @@
  */
 package com.percussion.publishingdesign.data;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 /** JSON/XML view of a publishing edition for the design façade. */
 @XmlRootElement(name = "edition")
+@JsonRootName("edition")
 public class PSEditionSummary {
   private String editionId;
   private String name;
