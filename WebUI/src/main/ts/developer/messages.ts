@@ -1814,6 +1814,24 @@ export const DEV_MSG_KEYS = {
   WF_INVALID_NAME:
     "perc.ui.developer@Workflow name is invalid (blank, too long, or invalid characters).",
   WF_FORBIDDEN: "perc.ui.developer@Admin role is required.",
+  WF_DETAIL_DESCRIPTION_EDIT_LABEL: "perc.ui.developer@Description",
+  WF_DETAIL_DESCRIPTION_HINT:
+    "perc.ui.developer@Edit the workflow description. Save writes immediately.",
+  WF_DETAIL_SAVE: "perc.ui.developer@Save",
+  WF_DETAIL_SAVING: "perc.ui.developer@Saving...",
+  WF_DETAIL_SAVED: "perc.ui.developer@Workflow description saved.",
+  WF_DETAIL_SAVE_ERROR: "perc.ui.developer@Could not save workflow description.",
+  WF_DETAIL_DELETE: "perc.ui.developer@Delete workflow",
+  WF_DETAIL_DELETE_CONFIRM:
+    "perc.ui.developer@Delete this workflow? This cannot be undone.",
+  WF_DETAIL_DELETED: "perc.ui.developer@Workflow deleted.",
+  WF_DETAIL_DELETE_ERROR: "perc.ui.developer@Could not delete workflow.",
+  WF_DETAIL_DELETE_SYSTEM:
+    "perc.ui.developer@System workflows cannot be deleted.",
+  WF_DETAIL_DELETE_HAS_ITEMS:
+    "perc.ui.developer@Workflow is in use by content items and was not deleted.",
+  WF_DETAIL_NAME_MISMATCH:
+    "perc.ui.developer@Workflow name on the update body does not match the path idOrName.",
   WF_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   WF_GAP_GRAPH:
     "perc.ui.developer@Full workflow graph design is not exposed in the Developer catalog",

@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -248,6 +249,91 @@ public class WorkflowsResource {
     } catch (Exception e) {
       log.error(
           "Failed to create workflow ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Update a workflow's description",
+      description =
+          "Slice 21 Admin. Updates the description of an existing stepped workflow (full graph"
+              + " design and renaming stay outside this surface). The body's `name` must match"
+              + " the path idOrName. A non-null description (including the empty string) replaces"
+              + " the stored value; a missing/null description leaves the stored value untouched."
+              + " Jackson root wrap is WorkflowUpdate.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated",
+            content = @Content(schema = @Schema(implementation = WorkflowSummary.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing body, mismatched name, or invalid idOrName"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Workflow not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowSummary updateWorkflow(
+      @PathParam("idOrName") String idOrName, WorkflowUpdate body) {
+    if (body == null) {
+      throw new WebApplicationException("Workflow update body is required", 400);
+    }
+    try {
+      return requireAdaptor().updateWorkflow(uriInfo.getBaseUri(), idOrName, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to update workflow ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @DELETE
+  @Path("/{idOrName}")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Delete a workflow",
+      description =
+          "Slice 21 Admin. Deletes a stepped workflow via IPSSteppedWorkflowService.deleteWorkflow"
+              + " (same backend the workflow-admin editor uses). System workflows and workflows"
+              + " that still own content items return 409; a missing workflow returns 404.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing or invalid idOrName (blank, wildcards)"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Workflow not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Workflow is a system workflow or still owns content items"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public void deleteWorkflow(@PathParam("idOrName") String idOrName) {
+    try {
+      requireAdaptor().deleteWorkflow(uriInfo.getBaseUri(), idOrName);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to delete workflow ({}): {}",
           e.getClass().getName(),
           e.getMessage(),
           e);

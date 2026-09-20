@@ -21,6 +21,7 @@ import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.rest.workflows.IWorkflowsAdaptor;
 import com.percussion.rest.workflows.WorkflowCreate;
 import com.percussion.rest.workflows.WorkflowSummary;
+import com.percussion.rest.workflows.WorkflowUpdate;
 import java.net.URI;
 import java.util.List;
 import org.springframework.context.annotation.Lazy;
@@ -52,5 +53,19 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
     summary.setWorkflowDescription(body != null ? body.getDescription() : null);
     summary.setDefaultWorkflow(false);
     return summary;
+  }
+
+  @Override
+  public WorkflowSummary updateWorkflow(URI baseUri, String idOrName, WorkflowUpdate body) {
+    WorkflowSummary summary = new WorkflowSummary();
+    summary.setWorkflowName(idOrName != null ? idOrName.trim() : "");
+    summary.setWorkflowDescription(body != null ? body.getDescription() : null);
+    summary.setDefaultWorkflow(false);
+    return summary;
+  }
+
+  @Override
+  public void deleteWorkflow(URI baseUri, String idOrName) {
+    // No-op stub; CXF Spring context tests only assert bean wiring, not delete behavior.
   }
 }

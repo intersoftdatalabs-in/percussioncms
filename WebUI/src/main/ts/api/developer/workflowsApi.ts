@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { get, post, put } from "../client";
+import { get, post, put, del } from "../client";
 import { asJsonRecord } from "../jsonList";
 import { PATHS } from "../paths";
 import type { NamedObjectRef, WorkflowDef } from "./types";
@@ -11,7 +11,6 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
   "Full workflow graph design is not exposed in the Developer catalog",
-  "Workflow update / delete is not supported from this Developer surface",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -404,4 +403,58 @@ export async function createWorkflow(
     wrapWorkflowCreateForWire(body),
   );
   return parseWorkflowSummary(payload);
+}
+
+/** Writable fields for {@code PUT /services/workflows/{idOrName}} (slice 21 update). */
+export type WorkflowUpdateBody = {
+  /** Workflow name echoed from the path (must match). */
+  name: string;
+  /**
+   * Replacement description. {@code undefined} is treated as no-op on the wire
+   * (server treats a missing field as "leave unchanged"); empty string clears
+   * the description.
+   */
+  description?: string;
+};
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code WorkflowUpdate}. */
+export const WORKFLOW_UPDATE_ROOT = "WorkflowUpdate";
+
+/**
+ * Build the wire JSON body for WorkflowsResource PUT under
+ * {@link WORKFLOW_UPDATE_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapWorkflowUpdateForWire(
+  body: WorkflowUpdateBody,
+): Record<string, WorkflowUpdateBody> {
+  return { [WORKFLOW_UPDATE_ROOT]: body };
+}
+
+/**
+ * PUT /services/workflows/{idOrName} — Admin. Updates the description on an
+ * existing workflow. Body {@code name} must match the path idOrName. The wire
+ * body is wrapped under {@link WORKFLOW_UPDATE_ROOT}. Server returns the new
+ * {@link WorkflowSummary}. 404 when the workflow is not found; 400 when the
+ * body's name does not match the path or idOrName is invalid.
+ */
+export async function updateWorkflow(
+  idOrName: string,
+  body: WorkflowUpdateBody,
+): Promise<WorkflowCreateResult> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}`,
+    wrapWorkflowUpdateForWire(body),
+  );
+  return parseWorkflowSummary(payload);
+}
+
+/**
+ * DELETE /services/workflows/{idOrName} — Admin. Deletes the workflow via the
+ * stepped-workflow editor. 404 when not found; 409 when the workflow is a
+ * system workflow or still owns content items. Returns void on success.
+ */
+export async function deleteWorkflow(idOrName: string): Promise<void> {
+  const key = encodeURIComponent(idOrName);
+  await del<void>(`${PATHS.WORKFLOWS_ASSOC}/${key}`);
 }

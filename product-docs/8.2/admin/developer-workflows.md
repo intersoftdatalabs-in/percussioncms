@@ -1,7 +1,7 @@
 ---
 id: admin-developer-workflows
 title: Developer Workflows
-description: Browse workflow definitions and edit allowed content types from Developer Workflows chrome
+description: Browse workflow definitions, create / update / delete workflows, and edit allowed content types from Developer Workflows chrome
 version: "8.2"
 order: 46
 tags: [admin, developer, workflows]
@@ -11,11 +11,12 @@ tags: [admin, developer, workflows]
 
 **Developer → Workflows** lists stepped workflow definitions (name, default flag,
 description, staging roles, and steps). Open a row to inspect steps and to edit
-**Allowed content types** for that workflow (SY-06). Admins can also **create**
-a named workflow from the catalog; the new row opens and lists on the catalog.
+**Allowed content types** for that workflow (SY-06). Admins can also **create**,
+**edit** the description, and **delete** a workflow from the catalog. The new row
+opens and lists on the catalog.
 
-Full workflow graph design and workflow update / delete stay outside
-this chrome.
+Full workflow graph design (states, transitions, roles) and workflow renaming
+stay outside this chrome.
 
 ## Product path — create a workflow (slice 21)
 
@@ -30,6 +31,35 @@ this chrome.
    uses). The catalog refreshes and the new workflow opens.
 6. Errors such as duplicate names (`409`), invalid names (`400`), or
    non-Admin callers (`403`) appear in the section alert.
+
+## Product path — edit a workflow description (slice 21)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows**, or deep-link
+   `spa.jsp?entry=developer&section=workflows`.
+3. Open a workflow row.
+4. Under **Description**, change the text. The **Save** button enables once
+   the description diverges from the stored value.
+5. Click **Save**. The new description is persisted immediately and the
+   field becomes read-only again until the next edit.
+6. Errors such as mismatched names on the update body (`400`), missing
+   workflow (`404`), or non-Admin callers (`403`) appear in the section
+   alert.
+
+Renaming, step / transitions / roles editing, and full graph design stay
+on the workflow-admin editor — this chrome updates only the description.
+
+## Product path — delete a workflow (slice 21)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows**, or deep-link
+   `spa.jsp?entry=developer&section=workflows`.
+3. Open a workflow row.
+4. Click **Delete workflow**.
+5. Confirm in the in-app dialog. The catalog refreshes and the row is removed.
+6. Errors such as system-workflow deletes (`409`), workflows that still own
+   content items (`409`), missing workflows (`404`), or non-Admin callers
+   (`403`) appear in the section alert.
 
 ## Product path — allowed content types (SY-06)
 
@@ -60,13 +90,14 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 
 ## Limits
 
-- Workflow update / delete and full graph design are not in this chrome.
+- Workflow rename and full graph design (states, transitions, roles) are
+  not in this chrome; they stay on the workflow-admin editor.
 - Object ACL is not available on workflow detail (no workflow GUID in this
   release).
 - Association save requires Admin and the SY-06 REST surface
   (`/services/workflows/{idOrName}/allowedContentTypes`).
-- Create requires Admin and the slice 21 REST surface
-  (`POST /services/workflows`).
+- Create / update / delete require Admin and the slice 21 REST surface
+  (`/services/workflows`).
 
 ## REST
 
@@ -75,6 +106,8 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | List metadata | `GET /services/workflowmanagement/workflows/metadata` |
 | Load detail | `GET /services/workflowmanagement/workflows/{name}` |
 | Create workflow | `POST /services/workflows` (`WorkflowCreate` wrap; Admin; duplicate `409`) |
+| Update description | `PUT /services/workflows/{idOrName}` (`WorkflowUpdate` wrap; Admin; name must match; missing workflow `404`) |
+| Delete workflow | `DELETE /services/workflows/{idOrName}` (Admin; system workflows and item owners return `409`) |
 | List allowed content types | `GET /services/workflows/{idOrName}/allowedContentTypes` |
 | Replace allowed content types | `PUT /services/workflows/{idOrName}/allowedContentTypes` (`WorkflowContentTypes` wrap) |
 

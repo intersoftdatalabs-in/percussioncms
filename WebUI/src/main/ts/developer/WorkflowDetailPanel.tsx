@@ -2,12 +2,16 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { isApiError } from "../api/client";
 import { isValidContentTypeName } from "../api/developer/contentTypesApi";
 import {
+  deleteWorkflow,
   getWorkflowAllowedContentTypes,
   getWorkflowDetail,
   setWorkflowAllowedContentTypes,
+  updateWorkflow,
+  type WorkflowCreateResult,
 } from "../api/developer/workflowsApi";
 import type { NamedObjectRef, WorkflowDef } from "../api/developer/types";
 import {
@@ -19,6 +23,7 @@ import {
   tableHeaderRow,
   tableRow,
 } from "./catalogStyles";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import {
   cloneNamedObjectRefs,
   namedObjectRefsEqual,
@@ -64,9 +69,11 @@ function isAllowedContentTypeInput(raw: string): boolean {
 export function WorkflowDetailPanel({
   name,
   onBack,
+  onDeleted,
 }: {
   name: string;
   onBack: () => void;
+  onDeleted?: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<WorkflowDef | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -79,6 +86,16 @@ export function WorkflowDetailPanel({
   const [newCtName, setNewCtName] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [descriptionDraft, setDescriptionDraft] = useState("");
+  const [baselineDescription, setBaselineDescription] = useState("");
+  const [descriptionDirty, setDescriptionDirty] = useState(false);
+  const [descriptionBusy, setDescriptionBusy] = useState(false);
+  const [descriptionError, setDescriptionError] = useState<string | null>(null);
+  const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const inflight = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -90,10 +107,22 @@ export function WorkflowDetailPanel({
     setBaselineContentTypes([]);
     setCtError(null);
     setCtLoading(true);
+    setDescriptionDraft("");
+    setBaselineDescription("");
+    setDescriptionDirty(false);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    setConfirmDeleteOpen(false);
+    setDeleteError(null);
 
     getWorkflowDetail(name)
       .then((d) => {
-        if (!cancelled) setDetail(d);
+        if (cancelled) return;
+        setDetail(d);
+        const description = d.workflowDescription ?? "";
+        setDescriptionDraft(description);
+        setBaselineDescription(description);
+        setDescriptionDirty(false);
       })
       .catch((err: unknown) => {
         if (!cancelled) setError(panelErrMsg(err, DEV_MSG.WF_DETAIL_ERROR));
@@ -209,6 +238,121 @@ export function WorkflowDetailPanel({
     }
   };
 
+  function handleDescriptionChange(next: string): void {
+    setDescriptionDraft(next);
+    setDescriptionDirty(next !== baselineDescription);
+    if (descriptionError) {
+      setDescriptionError(null);
+    }
+    if (descriptionNotice) {
+      setDescriptionNotice(null);
+    }
+  }
+
+  function descriptionSaveErrorFallback(err: unknown): string {
+    if (isApiError(err)) {
+      if (err.status === 400) {
+        return DEV_MSG.WF_DETAIL_NAME_MISMATCH;
+      }
+      if (err.status === 404) {
+        return DEV_MSG.WF_DETAIL_ERROR;
+      }
+      if (err.status === 403) {
+        return DEV_MSG.WF_FORBIDDEN;
+      }
+    }
+    return DEV_MSG.WF_DETAIL_SAVE_ERROR;
+  }
+
+  async function handleDescriptionSave(): Promise<void> {
+    if (!descriptionDirty || descriptionBusy || inflight.current) {
+      return;
+    }
+    const targetName = (detail?.workflowName || name).trim();
+    if (!targetName) {
+      setDescriptionError(DEV_MSG.WF_DETAIL_NAME_MISMATCH);
+      return;
+    }
+    inflight.current = true;
+    setDescriptionBusy(true);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    try {
+      const updated: WorkflowCreateResult = await updateWorkflow(targetName, {
+        name: targetName,
+        description: descriptionDraft,
+      });
+      const next = updated.workflowDescription ?? "";
+      setDetail((prev) =>
+        prev == null
+          ? prev
+          : ({
+              ...prev,
+              workflowName: updated.workflowName || prev.workflowName,
+              workflowDescription: next,
+            } as WorkflowDef),
+      );
+      setDescriptionDraft(next);
+      setBaselineDescription(next);
+      setDescriptionDirty(false);
+      setDescriptionNotice(DEV_MSG.WF_DETAIL_SAVED);
+    } catch (err: unknown) {
+      setDescriptionError(
+        panelErrMsg(err, descriptionSaveErrorFallback(err)),
+      );
+    } finally {
+      inflight.current = false;
+      setDescriptionBusy(false);
+    }
+  }
+
+  function descriptionDeleteErrorFallback(err: unknown): string {
+    if (isApiError(err)) {
+      if (err.status === 404) {
+        return DEV_MSG.WF_DETAIL_ERROR;
+      }
+      if (err.status === 403) {
+        return DEV_MSG.WF_FORBIDDEN;
+      }
+      if (err.status === 409) {
+        const raw = typeof err.body === "string" ? err.body : "";
+        const msg = (raw || err.statusText || "").toLowerCase();
+        if (msg.includes("system")) {
+          return DEV_MSG.WF_DETAIL_DELETE_SYSTEM;
+        }
+        return DEV_MSG.WF_DETAIL_DELETE_HAS_ITEMS;
+      }
+    }
+    return DEV_MSG.WF_DETAIL_DELETE_ERROR;
+  }
+
+  function requestDelete(): void {
+    if (inflight.current || deleteBusy) {
+      return;
+    }
+    setDeleteError(null);
+    setConfirmDeleteOpen(true);
+  }
+
+  async function handleDelete(): Promise<void> {
+    if (inflight.current || deleteBusy) {
+      return;
+    }
+    inflight.current = true;
+    setDeleteBusy(true);
+    setConfirmDeleteOpen(false);
+    setDeleteError(null);
+    try {
+      await deleteWorkflow(name);
+      onDeleted?.();
+    } catch (err: unknown) {
+      setDeleteError(panelErrMsg(err, descriptionDeleteErrorFallback(err)));
+    } finally {
+      inflight.current = false;
+      setDeleteBusy(false);
+    }
+  }
+
   return (
     <div data-testid="developer-wf-detail">
       <button
@@ -250,6 +394,111 @@ export function WorkflowDetailPanel({
               <dd style={{ margin: 0 }}>{detail.stagingRoleNames || "—"}</dd>
             </dl>
           </header>
+
+          <section
+            style={{ marginBottom: "16px" }}
+            data-testid="developer-wf-description-editor"
+          >
+            <h3 style={{ fontSize: "1rem", margin: "0 0 4px" }}>
+              {DEV_MSG.WF_DETAIL_DESCRIPTION_EDIT_LABEL}
+            </h3>
+            <p
+              style={{
+                color: catalogColors.muted,
+                fontSize: "0.9rem",
+                margin: "0 0 8px",
+              }}
+            >
+              {DEV_MSG.WF_DETAIL_DESCRIPTION_HINT}
+            </p>
+            {descriptionError ? (
+              <div
+                role="alert"
+                data-testid="developer-wf-description-error"
+                style={{ ...errorAlert, marginBottom: "8px" }}
+              >
+                {descriptionError}
+              </div>
+            ) : null}
+            {descriptionNotice ? (
+              <div
+                role="status"
+                aria-live="polite"
+                data-testid="developer-wf-description-notice"
+                style={{
+                  color: catalogColors.accent,
+                  marginBottom: "8px",
+                }}
+              >
+                {descriptionNotice}
+              </div>
+            ) : null}
+            <input
+              id="wf-description-edit"
+              data-testid="developer-wf-description-input"
+              style={inputStyle}
+              value={descriptionDraft}
+              disabled={descriptionBusy}
+              onChange={(e) => handleDescriptionChange(e.target.value)}
+              aria-label={DEV_MSG.WF_DETAIL_DESCRIPTION_EDIT_LABEL}
+            />
+            <div style={{ marginTop: "8px" }}>
+              <button
+                type="button"
+                data-testid="developer-wf-description-save"
+                disabled={!descriptionDirty || descriptionBusy}
+                onClick={() => void handleDescriptionSave()}
+                style={{
+                  ...primaryBtnStyle,
+                  background:
+                    !descriptionDirty || descriptionBusy
+                      ? catalogColors.disabled
+                      : catalogColors.accent,
+                  cursor:
+                    !descriptionDirty || descriptionBusy ? "not-allowed" : "pointer",
+                }}
+              >
+                {descriptionBusy ? DEV_MSG.WF_DETAIL_SAVING : DEV_MSG.WF_DETAIL_SAVE}
+              </button>
+            </div>
+          </section>
+
+          {deleteError ? (
+            <div
+              role="alert"
+              data-testid="developer-wf-delete-error"
+              style={{ ...errorAlert, marginBottom: "12px" }}
+            >
+              {deleteError}
+            </div>
+          ) : null}
+          <div style={{ marginBottom: "16px" }}>
+            <button
+              type="button"
+              data-testid="developer-wf-delete"
+              aria-label={DEV_MSG.WF_DETAIL_DELETE}
+              disabled={deleteBusy}
+              onClick={requestDelete}
+              style={{
+                padding: "8px 16px",
+                background: "#c53030",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: deleteBusy ? "wait" : "pointer",
+              }}
+            >
+              {DEV_MSG.WF_DETAIL_DELETE}
+            </button>
+          </div>
+
+          <CatalogConfirmDialog
+            open={confirmDeleteOpen}
+            busy={deleteBusy}
+            message={DEV_MSG.WF_DETAIL_DELETE_CONFIRM}
+            onCancel={() => setConfirmDeleteOpen(false)}
+            onConfirm={() => void handleDelete()}
+          />
 
           <section data-testid="developer-wf-steps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.WF_STEPS}</h3>
@@ -458,7 +707,7 @@ export function WorkflowDetailPanel({
             <ul style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
               {(detail.designGaps && detail.designGaps.length
                 ? detail.designGaps
-                : [DEV_MSG.WF_GAP_GRAPH, DEV_MSG.WF_GAP_WRITE]
+                : [DEV_MSG.WF_GAP_GRAPH]
               ).map((g, i) => (
                 <li key={`${g}-${i}`}>{g}</li>
               ))}

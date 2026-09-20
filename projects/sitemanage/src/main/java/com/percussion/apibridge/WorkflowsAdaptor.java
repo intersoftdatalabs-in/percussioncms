@@ -23,6 +23,7 @@ import com.percussion.rest.workflows.IWorkflowsAdaptor;
 import com.percussion.rest.workflows.WorkflowContentTypesDesignLockException;
 import com.percussion.rest.workflows.WorkflowCreate;
 import com.percussion.rest.workflows.WorkflowSummary;
+import com.percussion.rest.workflows.WorkflowUpdate;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentmgr.IPSContentMgr;
@@ -180,6 +181,65 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     return toWorkflowSummary(created, body);
   }
 
+  @Override
+  public WorkflowSummary updateWorkflow(URI baseUri, String idOrName, WorkflowUpdate body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("Workflow update body is required");
+    }
+    String requestedName = body.getName() != null ? body.getName().trim() : "";
+    if (requestedName.isEmpty()) {
+      throw new IllegalArgumentException("Workflow update body name is required");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    String resolvedName = workflow.getName();
+    if (!requestedName.equalsIgnoreCase(resolvedName)) {
+      throw new IllegalArgumentException(
+          "Workflow update body name does not match path idOrName: "
+              + requestedName
+              + " != "
+              + resolvedName);
+    }
+    applyDescriptionAllowClear(resolvedName, body.getDescription());
+    PSUiWorkflow refreshed = lookupUiWorkflow(resolvedName);
+    return toWorkflowSummary(refreshed, resolvedName, body.getDescription());
+  }
+
+  @Override
+  public void deleteWorkflow(URI baseUri, String idOrName) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (idOrName == null || idOrName.trim().isEmpty()) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    IPSSteppedWorkflowService stepped = requireSteppedService();
+    try {
+      stepped.deleteWorkflow(idOrName.trim());
+    } catch (IPSSteppedWorkflowService.PSWorkflowEditorServiceException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "";
+      if (msg.toLowerCase().contains("system workflow")) {
+        throw new WebApplicationException(
+            msg.isEmpty() ? "Workflow is a system workflow" : msg, 409);
+      }
+      if (msg.toLowerCase().contains("contains associated items")
+          || msg.toLowerCase().contains("still have items")) {
+        throw new WebApplicationException(
+            msg.isEmpty() ? "Workflow still has associated items" : msg, 409);
+      }
+      if (msg.toLowerCase().contains("can't find the workflow")
+          || msg.toLowerCase().contains("invalid workflow")) {
+        throw new WebApplicationException(
+            msg.isEmpty() ? "Workflow not found: " + idOrName : msg, 404);
+      }
+      throw new WebApplicationException(
+          msg.isEmpty() ? "Could not delete workflow" : msg, 500);
+    }
+  }
+
   private static String validateWorkflowCreateName(WorkflowCreate body) {
     if (body == null) {
       throw new IllegalArgumentException("Workflow name is required");
@@ -266,7 +326,8 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
   /**
    * The stepped editor builds new workflows from the base template and does not persist {@code
    * PSUiWorkflow} descriptions, so the create path stores a non-blank description with a follow-up
-   * save (same {@code IPSWorkflowService#saveWorkflow} the editor uses for renames).
+   * save (same {@code IPSWorkflowService#saveWorkflow} the editor uses for renames). Blank or
+   * null descriptions are a no-op on the create path.
    */
   private void applyDescription(String name, String description) {
     if (description == null || description.isBlank()) {
@@ -283,6 +344,55 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
         return;
       }
     }
+  }
+
+  /**
+   * Update path: always persist {@code description} when non-null so callers can clear the
+   * description by sending the empty string. A null {@code description} is a no-op.
+   */
+  private void applyDescriptionAllowClear(String name, String description) {
+    if (description == null) {
+      return;
+    }
+    List<PSWorkflow> found = workflowService.findWorkflowsByName(name);
+    if (found == null) {
+      return;
+    }
+    for (PSWorkflow wf : found) {
+      if (wf != null && name.equalsIgnoreCase(wf.getName())) {
+        wf.setDescription(description);
+        workflowService.saveWorkflow(wf);
+        return;
+      }
+    }
+  }
+
+  /** Look up the stepped {@code PSUiWorkflow} for a stored workflow (may be {@code null}). */
+  private PSUiWorkflow lookupUiWorkflow(String name) {
+    IPSSteppedWorkflowService stepped = requireSteppedService();
+    try {
+      return stepped.getWorkflow(name);
+    } catch (IPSSteppedWorkflowService.PSWorkflowEditorServiceException e) {
+      log.debug("Could not load PSUiWorkflow for {}: {}", name, e.getMessage());
+      return null;
+    }
+  }
+
+  /** Build a summary from a {@link PSUiWorkflow} and a requested description (post-update). */
+  private static WorkflowSummary toWorkflowSummary(
+      PSUiWorkflow ui, String name, String requestedDescription) {
+    WorkflowSummary summary = new WorkflowSummary();
+    summary.setWorkflowName(name);
+    String requested = requestedDescription != null ? requestedDescription.trim() : "";
+    if (ui != null) {
+      summary.setWorkflowDescription(
+          !requested.isEmpty() ? requested : ui.getWorkflowDescription());
+      summary.setDefaultWorkflow(ui.isDefaultWorkflow());
+    } else {
+      summary.setWorkflowDescription(requested);
+      summary.setDefaultWorkflow(false);
+    }
+    return summary;
   }
 
   private static WorkflowSummary toWorkflowSummary(PSUiWorkflow created, WorkflowCreate body) {

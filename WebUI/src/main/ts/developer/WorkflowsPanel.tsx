@@ -56,6 +56,11 @@ export function WorkflowsPanel(): React.ReactElement {
     setSelected(name ? name : null);
   }
 
+  function handleDeleted(): void {
+    setSelected(null);
+    reload();
+  }
+
   const sorted = useMemo(() => {
     if (!items) return [];
     return [...items]
@@ -74,7 +79,13 @@ export function WorkflowsPanel(): React.ReactElement {
   }
 
   if (selected) {
-    return <WorkflowDetailPanel name={selected} onBack={() => setSelected(null)} />;
+    return (
+      <WorkflowDetailPanel
+        name={selected}
+        onBack={() => setSelected(null)}
+        onDeleted={handleDeleted}
+      />
+    );
   }
 
   if (error)
