@@ -20,6 +20,7 @@ import {
   buildLogRequest,
   DEFAULT_LOG_DAYS,
   DEFAULT_LOG_MAXCOUNT,
+  filterLogEntries,
   LOG_DAYS_OPTIONS,
   LOG_MAXCOUNT_OPTIONS,
 } from "@/publishing/logsFilter";
@@ -67,6 +68,47 @@ describe("logs filter request builder (OPS-22)", () => {
     const req = buildLogRequest({ showOnlyFailures: true, days: 3 });
     expect(req.showOnlyFailures).toBe(true);
     expect(req.days).toBe(3);
+  });
+});
+
+describe("logs table search and status filter", () => {
+  const rows = [
+    {
+      jobId: 1,
+      siteName: "FastForward",
+      serverName: "prod",
+      status: "Completed",
+    },
+    {
+      jobId: 2,
+      siteName: "Marketing",
+      serverName: "stage",
+      status: "Failed",
+    },
+    {
+      jobId: 3,
+      siteName: "FastForward",
+      pubServerName: "ftp",
+      status: "Success",
+    },
+  ];
+
+  it("filters by free-text across site, server, job, and status", () => {
+    expect(filterLogEntries(rows, { query: "market" })).toHaveLength(1);
+    expect(filterLogEntries(rows, { query: "ftp" })[0].jobId).toBe(3);
+    expect(filterLogEntries(rows, { query: "1" })).toHaveLength(1);
+    expect(filterLogEntries(rows, { query: "" })).toHaveLength(3);
+  });
+
+  it("filters by status including combined with query", () => {
+    expect(filterLogEntries(rows, { status: "failed" })).toHaveLength(1);
+    expect(filterLogEntries(rows, { status: "success" })).toHaveLength(2);
+    expect(
+      filterLogEntries(rows, { status: "success", query: "Fast" }),
+    ).toHaveLength(2);
+    expect(
+      filterLogEntries(rows, { status: "failed", query: "Fast" }),
+    ).toHaveLength(0);
   });
 });
 

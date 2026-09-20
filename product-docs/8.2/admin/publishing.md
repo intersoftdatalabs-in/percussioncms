@@ -33,6 +33,16 @@ channels (static files, FTP, database, custom locations).
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then choose **Incremental**. Confirm the dialog. The shell calls the incremental site publish API (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), optionally with related-item approval after **Incremental preview**. Success shows a job id and refreshes the site **Status** list (active jobs). Application-level `FORBIDDEN` / `BADCONFIG` responses are failures in the workspace error region, not success. Full site publish remains a separate **Full** action.
 
+### Search and filter publish logs
+
+From **Publish** (`spa.jsp?entry=publish&section=logs`), the **Logs** section lists historical
+publish jobs. Choose a **site**, optional **server id**, **days** window, and **max count**, then
+click **Logs** to load rows (`POST …/sitemanage/pubstatus/logs`). Use **Status** (All / Failed /
+Success) and **Search** to filter the loaded table by site, server, job id, or status without
+another round trip. **Failures only (server)** sets `showOnlyFailures` on the logs request so the
+server returns failed jobs only. Open **details** on a row for item-level log lines (those details
+have their own text filter).
+
 ### Cancel or stop an in-flight publish job
 
 From **Publish** → **Status**, or from a site workspace **Status** list, **Stop** is shown only for jobs whose status is running (not completed, failed, or already stopping). Confirm the dialog. The shell posts `POST …/publishmanagement/servers/stopPublishing/{jobId}`. Dismissing the confirm does not call the server. Jobs that are not running have no Stop control.
