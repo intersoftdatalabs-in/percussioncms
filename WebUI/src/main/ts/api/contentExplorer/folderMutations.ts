@@ -37,6 +37,7 @@ import {
   addNewFolder as pathAddNewFolder,
   copyFolder as pathCopyFolder,
   copyFolderItem as pathCopyFolderItem,
+  deleteFolderItem as pathDeleteFolderItem,
   deleteItem as pathDeleteItem,
   moveFolder as pathMoveFolder,
   moveFolderItem as pathMoveFolderItem,
@@ -220,6 +221,14 @@ export async function deleteItem(
     }
   }
   await pathDeleteItem(path, options);
+}
+
+/**
+ * Recycle a non-folder item via public REST {@code DELETE /folders/item/…}.
+ * Dual-run RX folder delete does not apply to pages/assets.
+ */
+export async function deleteFolderItem(itemPath: string): Promise<void> {
+  await pathDeleteFolderItem(itemPath);
 }
 
 /** Re-export flag helpers for call sites / tests. */

@@ -425,6 +425,12 @@ export const PATHS = {
     return `${REST_ROOT}/folders/move/item`;
   },
   /**
+   * Recycle a non-folder item ({@code DELETE FoldersResource#deleteFolderItem}).
+   */
+  get FOLDERS_DELETE_ITEM() {
+    return `${REST_ROOT}/folders/item`;
+  },
+  /**
    * Folder recycle/delete ({@code POST} {@code PSDeleteFolderCriteria}).
    * Classic Finder uses this resource; there is no {@code /path/delete/{path}}.
    */

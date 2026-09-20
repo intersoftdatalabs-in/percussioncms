@@ -45,7 +45,7 @@
  * DTOs in {@code projects/sitemanage/src/main/java/}.</p>
  */
 
-import { get, post, type ApiError } from "../client";
+import { del, get, post, type ApiError } from "../client";
 import { PATHS } from "../paths";
 import { normalizeListedPathItem } from "./pathItemId";
 import type {
@@ -485,6 +485,25 @@ export async function deleteItem(
     PATHS.PATH_DELETE_FOLDER,
     wrapDeleteFolderCriteria(path, options),
   );
+}
+
+/**
+ * Recycle a page/file/asset via {@code DELETE /rest/folders/item/{path}}.
+ */
+export function foldersDeleteItemUrl(itemPath: string): string {
+  const trimmed = String(itemPath ?? "")
+    .trim()
+    .replace(/^\/+/, "");
+  const encoded = trimmed
+    .split("/")
+    .filter(Boolean)
+    .map((seg) => encodeURIComponent(seg))
+    .join("/");
+  return `${PATHS.FOLDERS_DELETE_ITEM}/${encoded}`;
+}
+
+export async function deleteFolderItem(itemPath: string): Promise<void> {
+  await del<unknown>(foldersDeleteItemUrl(itemPath));
 }
 
 /**

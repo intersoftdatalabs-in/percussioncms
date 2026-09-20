@@ -166,6 +166,45 @@ public class FoldersTest {
   }
 
   @Test
+  void deleteFolderItem_successReturnsOk() throws Exception {
+    Status result = resource.deleteFolderItem("/Assets/src/item");
+    assertEquals(200, result.getStatusCode());
+    assertEquals("Ok", result.getMessage());
+    verify(adaptor).deleteFolderItem(uriInfo.getBaseUri(), "/Assets/src/item");
+  }
+
+  @Test
+  void deleteFolderItem_mapsNotAuthorizedToForbidden() throws Exception {
+    doThrow(new NotAuthorizedException())
+        .when(adaptor)
+        .deleteFolderItem(any(), anyString());
+    NotAuthorizedException thrown =
+        assertThrows(
+            NotAuthorizedException.class, () -> resource.deleteFolderItem("/Assets/src/item"));
+    assertEquals(jakarta.ws.rs.core.Response.Status.FORBIDDEN, thrown.getStatus());
+  }
+
+  @Test
+  void deleteFolderItem_mapsFolderNotFound() throws Exception {
+    doThrow(new FolderNotFoundException())
+        .when(adaptor)
+        .deleteFolderItem(any(), anyString());
+    assertThrows(
+        FolderNotFoundException.class, () -> resource.deleteFolderItem("/Assets/missing"));
+  }
+
+  @Test
+  void deleteFolderItem_mapsConflict() throws Exception {
+    doThrow(new WebApplicationException(jakarta.ws.rs.core.Response.Status.CONFLICT))
+        .when(adaptor)
+        .deleteFolderItem(any(), anyString());
+    WebApplicationException thrown =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteFolderItem("/Assets/src/item"));
+    assertEquals(409, thrown.getResponse().getStatus());
+  }
+
+  @Test
   void renameFolder_backendExceptionWrapped() throws Exception {
     when(adaptor.renameFolder(any(), anyString(), anyString(), anyString(), anyString()))
         .thenThrow(new BackendException("fail", new Exception("cause")));

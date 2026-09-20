@@ -33,6 +33,7 @@ import { formatApiError } from "../api/client";
 import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
 import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
 import { formatCopyItemError } from "./copyItemErrors";
+import { formatDeleteItemError } from "./deleteItemErrors";
 import { formatMoveItemError } from "./moveItemErrors";
 // Dual-run router (#3074): pathmanagement when flag off; RX folders REST under
 // /Folders and /Sites when perc.explorer.rxFolderMutations is on.
@@ -40,6 +41,7 @@ import {
   addNewFolder,
   copyFolder,
   copyFolderItem,
+  deleteFolderItem,
   deleteItem,
   moveFolder,
   moveFolderItem,
@@ -119,7 +121,6 @@ export function ReducedActions({
   const [copyPickerItem, setCopyPickerItem] = useState<PSPathItem | null>(null);
   const [movePickerItem, setMovePickerItem] = useState<PSPathItem | null>(null);
 
-  const isItemFolder = isFolder(item);
   const itemWrite = canWrite(item) || canAdmin(item);
   const folderWrite = canWrite(folder) || canAdmin(folder);
 
@@ -136,6 +137,8 @@ export function ReducedActions({
             ? formatCopyItemError(err)
             : key === "move"
             ? formatMoveItemError(err)
+            : key === "delete"
+            ? formatDeleteItemError(err)
             : formatApiError(err, message(EXPLORER_MSG.ERROR_GENERIC));
         onError?.(msg);
       } finally {
@@ -271,8 +274,8 @@ export function ReducedActions({
       </button>
       <button
         type="button"
-        style={actionButtonStyle(!item || !itemWrite || !isItemFolder || isBusy)}
-        disabled={!item || !itemWrite || !isItemFolder || isBusy}
+        style={actionButtonStyle(!item || !itemWrite || isBusy)}
+        disabled={!item || !itemWrite || isBusy}
         onClick={handleDelete}
         data-testid="action-delete"
       >
@@ -366,7 +369,11 @@ export function defaultReducedActionHandlers(): ReducedActionHandlers {
       }
     },
     onDelete: async (item) => {
-      await deleteItem(item.path, { guid: item.id });
+      if (isFolder(item)) {
+        await deleteItem(item.path, { guid: item.id });
+        return;
+      }
+      await deleteFolderItem(item.path);
     },
   };
 }

@@ -61,6 +61,10 @@ export const EXPLORER_MSG = {
   ACTION_COPY_NOT_FOUND:
     "perc.ui.explorer@The selected item or destination folder was not found",
   ACTION_DELETE: "perc.ui.explorer@Delete",
+  ACTION_DELETE_NOT_FOUND:
+    "perc.ui.explorer@The selected item was not found",
+  ACTION_DELETE_CONFLICT:
+    "perc.ui.explorer@Could not delete the item (in use, locked, or not a recyclable item)",
   CONFIRM_DELETE_TITLE: "perc.ui.explorer@Delete Confirmation",
   CONFIRM_DELETE_BODY:
     "perc.ui.explorer@Are you sure you want to delete this item?",

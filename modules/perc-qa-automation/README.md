@@ -234,6 +234,31 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `explorer-create-folder` (product-route Create Folder). Parent #3102.
 
+### Explorer Delete selected item on product route (#4602 / parent #4530)
+
+H2 operator proof that **Delete** on `spa.jsp?entry=explorer` recycles a
+disposable page/asset (`qa4602_*`) via public REST
+`DELETE /rest/folders/item/{path}` (HTTP 200) with confirm, then the name
+leaves the detail list. View-only users cannot delete. **No skip** when
+`/Assets` exists.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-delete-item.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-delete-item.js`, `tests/unit/explorer-delete-item.test.js` |
+| Tags | `@explorer-delete-item` `@explorer` `@item` `@smoke` |
+| Soft skip | None when `/Assets` exists; missing parent is a hard fail |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-delete-item.spec.js
+```
+
+Peer: `explorer-delete-folder` (folder recycle). Parent #4530.
+
 ### Explorer RX folder mutations flag-on no-skip (#3654 / parent #3102)
 
 H2 operator proof that **Create / Rename / Delete** on

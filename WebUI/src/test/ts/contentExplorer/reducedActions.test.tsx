@@ -177,7 +177,7 @@ describe("ReducedActions", () => {
     expect(calls.onPreview).toHaveLength(1);
   });
 
-  it("enables delete only on writable folders", () => {
+  it("enables delete on writable folders and items, not view-only (#4602)", () => {
     const { handlers } = makeHandlers();
     const { rerender } = render(
       <ReducedActions
@@ -191,6 +191,24 @@ describe("ReducedActions", () => {
     rerender(
       <ReducedActions
         item={FOLDER}
+        folder={null}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    expect(screen.getByTestId("action-delete")).toBeEnabled();
+    const asset: PSPathItem = {
+      id: "a-4602",
+      path: "/Assets/qa4602",
+      name: "qa4602",
+      type: "percSimpleTextAsset",
+      category: "ASSET",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    rerender(
+      <ReducedActions
+        item={asset}
         folder={null}
         handlers={handlers}
         onError={() => undefined}
@@ -317,6 +335,34 @@ describe("ReducedActions", () => {
       },
     });
     expect(posted).not.toHaveProperty("sourcePath");
+  });
+
+  it("default onDelete DELETEs /folders/item for assets (#4602)", async () => {
+    const handlers = defaultReducedActionHandlers();
+    const asset: PSPathItem = {
+      id: "a-4602",
+      path: "/Assets/qa4602_src",
+      name: "qa4602_src",
+      type: "percSimpleTextAsset",
+      category: "ASSET",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    let url = "";
+    let method = "";
+    mockFetch(async (input, init) => {
+      url = typeof input === "string" ? input : (input as Request).url;
+      method = String((init as RequestInit)?.method ?? "GET");
+      return new Response(JSON.stringify({ message: "Ok" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await handlers.onDelete(asset);
+    expect(method.toUpperCase()).toBe("DELETE");
+    expect(url).toContain("/rest/folders/item/Assets/qa4602_src");
+    expect(url).not.toContain("/path/deleteFolder");
+    expect(url).not.toContain("/content-explorer/folders");
   });
 
   it("default onMove POSTs to /folders/move/item for assets (#4601)", async () => {
