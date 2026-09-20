@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { fetchSites } from "../../api/home/homeApi";
 import {
   fetchLogDetails,
@@ -28,8 +28,10 @@ import {
   buildLogRequest,
   DEFAULT_LOG_DAYS,
   DEFAULT_LOG_MAXCOUNT,
+  filterLogEntries,
   LOG_DAYS_OPTIONS,
   LOG_MAXCOUNT_OPTIONS,
+  type LogStatusFilter,
 } from "../logsFilter";
 import {
   buttonStyle,
@@ -79,6 +81,9 @@ export function LogsSection({
   const [pubServerId, setPubServerId] = useState("");
   const [days, setDays] = useState(DEFAULT_LOG_DAYS);
   const [maxcount, setMaxcount] = useState(DEFAULT_LOG_MAXCOUNT);
+  const [showOnlyFailures, setShowOnlyFailures] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<LogStatusFilter>("all");
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     fetchSites()
@@ -105,6 +110,7 @@ export function LogsSection({
         pubServerId: pubServerId || undefined,
         days,
         maxcount,
+        showOnlyFailures,
       });
       const list = await fetchPublishingLogs(request);
       setLogs(list);
@@ -114,6 +120,11 @@ export function LogsSection({
       setLoading(false);
     }
   }
+
+  const visibleLogs = useMemo(
+    () => filterLogEntries(logs, { query, status: statusFilter }),
+    [logs, query, statusFilter],
+  );
 
   function toggle(id: string): void {
     setSelected((prev) => {
@@ -232,10 +243,54 @@ export function LogsSection({
             ))}
           </select>
         </div>
+        <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 140 }}>
+          <label htmlFor="logs-status">Status</label>
+          <select
+            id="logs-status"
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as LogStatusFilter)
+            }
+            data-testid="logs-filter-status"
+          >
+            <option value="all">All</option>
+            <option value="failed">Failed</option>
+            <option value="success">Success</option>
+          </select>
+        </div>
+        <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 220 }}>
+          <label htmlFor="logs-query">Search</label>
+          <input
+            id="logs-query"
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Site, server, job, status"
+            data-testid="logs-filter-query"
+          />
+        </div>
+        <label
+          htmlFor="logs-failures-only"
+          style={{ ...formRowStyle, marginBottom: 0, maxWidth: 180 }}
+        >
+          <input
+            id="logs-failures-only"
+            type="checkbox"
+            checked={showOnlyFailures}
+            onChange={(e) => setShowOnlyFailures(e.target.checked)}
+            data-testid="logs-filter-failures"
+          />{" "}
+          Failures only (server)
+        </label>
       </div>
 
       <div style={toolbarStyle}>
-        <button type="button" style={buttonStyle} onClick={() => void load()}>
+        <button
+          type="button"
+          style={buttonStyle}
+          onClick={() => void load()}
+          data-testid="logs-filter-apply"
+        >
           {message(MSG.PUBLISH_SECTION_LOGS)}
         </button>
         <button
@@ -254,12 +309,14 @@ export function LogsSection({
           {error}
         </p>
       )}
-      {!loading && logs.length === 0 && (
-        <p style={emptyStyle}>{message(MSG.PUBLISH_EMPTY_LOGS)}</p>
+      {!loading && visibleLogs.length === 0 && (
+        <p style={emptyStyle} data-testid="publish-logs-empty">
+          {message(MSG.PUBLISH_EMPTY_LOGS)}
+        </p>
       )}
 
-      {logs.length > 0 && (
-        <table style={tableStyle}>
+      {visibleLogs.length > 0 && (
+        <table style={tableStyle} data-testid="publish-logs-table">
           <thead>
             <tr>
               <th style={thStyle} />
@@ -270,10 +327,13 @@ export function LogsSection({
             </tr>
           </thead>
           <tbody>
-            {logs.map((log) => {
+            {visibleLogs.map((log) => {
               const id = String(log.jobId ?? "");
               return (
-                <tr key={id || log.siteName}>
+                <tr
+                  key={id || log.siteName}
+                  data-testid={id ? `publish-log-row-${id}` : "publish-log-row"}
+                >
                   <td style={tdStyle}>
                     <input
                       type="checkbox"

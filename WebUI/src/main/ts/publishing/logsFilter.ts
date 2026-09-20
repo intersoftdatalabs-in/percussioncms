@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import type { SitePublishLogRequest } from "./types";
+import type { PublishingLogEntry, SitePublishLogRequest } from "./types";
 
 /** Minuet date-range options (publishLogTemplates.jsp). */
 export const LOG_DAYS_OPTIONS = [3, 5, 10] as const;
@@ -73,4 +73,60 @@ export function buildLogRequest(input: LogsFilterInput): SitePublishLogRequest {
   }
 
   return req;
+}
+
+/** Client-side status filter on loaded log rows (in addition to showOnlyFailures). */
+export type LogStatusFilter = "all" | "failed" | "success";
+
+export function isFailedLogStatus(status: string | undefined | null): boolean {
+  const s = String(status ?? "").trim().toLowerCase();
+  return s.includes("fail") || s.includes("error") || s === "aborted";
+}
+
+export function isSuccessLogStatus(status: string | undefined | null): boolean {
+  const s = String(status ?? "").trim().toLowerCase();
+  return s.includes("success") || s.includes("complete") || s === "ok";
+}
+
+export function matchesLogStatus(
+  status: string | undefined | null,
+  filter: LogStatusFilter,
+): boolean {
+  if (filter === "all") {
+    return true;
+  }
+  if (filter === "failed") {
+    return isFailedLogStatus(status);
+  }
+  return isSuccessLogStatus(status);
+}
+
+/**
+ * Client-side search/filter for the Logs table (site, server, status, job id, text).
+ */
+export function filterLogEntries(
+  logs: PublishingLogEntry[],
+  input: { query?: string; status?: LogStatusFilter } = {},
+): PublishingLogEntry[] {
+  const status = input.status ?? "all";
+  const q = String(input.query ?? "").trim().toLowerCase();
+  return logs.filter((log) => {
+    if (!matchesLogStatus(log.status, status)) {
+      return false;
+    }
+    if (!q) {
+      return true;
+    }
+    const hay = [
+      log.jobId,
+      log.siteName,
+      log.serverName,
+      log.pubServerName,
+      log.status,
+      log.startDate,
+    ]
+      .map((x) => String(x ?? "").toLowerCase())
+      .join(" ");
+    return hay.includes(q);
+  });
 }
