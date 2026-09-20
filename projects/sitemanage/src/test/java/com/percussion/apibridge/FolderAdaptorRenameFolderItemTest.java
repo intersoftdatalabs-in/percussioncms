@@ -18,11 +18,14 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +35,6 @@ import com.percussion.pagemanagement.assembler.IPSRenderAssemblyBridge;
 import com.percussion.pagemanagement.dao.IPSPageDao;
 import com.percussion.pagemanagement.dao.IPSPageDaoHelper;
 import com.percussion.pagemanagement.service.IPSPageService;
-import com.percussion.rest.errors.BackendException;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pathmanagement.service.IPSPathService;
 import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
@@ -155,18 +157,19 @@ class FolderAdaptorRenameFolderItemTest {
     when(contentService.loadItems(anyList(), eq(true), eq(false), eq(false), eq(false)))
         .thenReturn(Collections.singletonList(core));
     when(contentService.getIdByPath("//Sites/Demo")).thenReturn(guid);
-    when(contentService.saveItems(anyList(), eq(false), eq(true), eq(guid)))
+    when(contentService.saveItems(anyList(), eq(false), eq(false), eq(guid)))
         .thenReturn(List.of(guid));
 
     adaptor.renameFolderItem(base, "/Sites/Demo/Home", "Home2");
 
     verify(core).setTextField("sys_title", "Home2");
-    verify(contentService).saveItems(anyList(), eq(false), eq(true), eq(guid));
+    verify(core).setTextField("filename", "Home2");
+    verify(contentService).saveItems(anyList(), eq(false), eq(false), eq(guid));
     verify(contentService).releaseFromEdit(status, false);
   }
 
   @Test
-  void renameFolderItemDoesNotTreatRollbackAsSuccess() throws Exception {
+  void renameFolderItemTreatsRollbackOnlyAfterSaveAsSuccess() throws Exception {
     PSDataItemSummary source = new PSDataItemSummary();
     source.setId("1-101-7");
     source.setType("percSimpleTextAsset");
@@ -176,16 +179,15 @@ class FolderAdaptorRenameFolderItemTest {
     PSItemStatus status = mock(PSItemStatus.class);
     when(contentService.prepareForEdit(guid)).thenReturn(status);
     PSCoreItem core = mock(PSCoreItem.class);
-    when(contentService.loadItems(anyList(), eq(true), eq(false), eq(false), eq(false)))
+    when(contentService.loadItems(anyList(), eq(false), eq(false), eq(false), eq(false)))
         .thenReturn(Collections.singletonList(core));
     when(contentService.getIdByPath("//Folders/$System$/Assets/src")).thenReturn(guid);
-    when(contentService.saveItems(anyList(), eq(false), eq(true), eq(guid)))
+    when(contentService.saveItems(anyList(), eq(false), eq(false), eq(guid)))
         .thenThrow(
             new org.springframework.transaction.UnexpectedRollbackException("rollback-only"));
 
-    assertThrows(
-        BackendException.class,
-        () -> adaptor.renameFolderItem(base, "/Assets/src/item", "qa-renamed"));
+    adaptor.renameFolderItem(base, "/Assets/src/item", "qa-renamed");
+    verify(core).setTextField("sys_title", "qa-renamed");
     verify(contentService).releaseFromEdit(status, false);
   }
 
@@ -200,20 +202,22 @@ class FolderAdaptorRenameFolderItemTest {
     PSItemStatus status = mock(PSItemStatus.class);
     when(contentService.prepareForEdit(guid)).thenReturn(status);
     PSCoreItem core = mock(PSCoreItem.class);
-    when(contentService.loadItems(anyList(), eq(true), eq(false), eq(false), eq(false)))
+    when(contentService.loadItems(anyList(), eq(false), eq(false), eq(false), eq(false)))
         .thenReturn(Collections.singletonList(core));
     when(contentService.getIdByPath("//Folders/$System$/Assets/src")).thenReturn(guid);
-    when(contentService.saveItems(anyList(), eq(false), eq(true), eq(guid)))
+    when(contentService.saveItems(anyList(), eq(false), eq(false), eq(guid)))
         .thenReturn(List.of(guid));
 
     adaptor.renameFolderItem(base, "/Assets/src/item", "qa-renamed");
 
     verify(core).setTextField("sys_title", "qa-renamed");
-    verify(core).setTextField("filename", "qa-renamed");
+    verify(core, never()).setTextField(eq("filename"), eq("qa-renamed"));
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<PSCoreItem>> cap = ArgumentCaptor.forClass(List.class);
-    verify(contentService).saveItems(cap.capture(), eq(false), eq(true), eq(guid));
+    verify(contentService).saveItems(cap.capture(), eq(false), eq(false), eq(guid));
     assertEquals(1, cap.getValue().size());
     verify(contentService).releaseFromEdit(status, false);
+    assertTrue(FolderAdaptor.isFileAssetType("percFileAsset"));
+    assertFalse(FolderAdaptor.isFileAssetType("percSimpleTextAsset"));
   }
 }

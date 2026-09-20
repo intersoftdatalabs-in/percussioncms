@@ -113,6 +113,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @PSSiteManageBean
 @Lazy
@@ -160,6 +163,9 @@ public class FolderAdaptor implements IFolderAdaptor {
 
   @Autowired(required = false)
   private IPSAssetService assetService;
+
+  @Autowired(required = false)
+  private PlatformTransactionManager transactionManager;
 
   /** Logger for this service. */
   public static final Logger log = LogManager.getLogger(FolderAdaptor.class);
@@ -1687,9 +1693,9 @@ public class FolderAdaptor implements IFolderAdaptor {
             "Use folder rename for folders", Response.Status.CONFLICT);
       }
 
-      // Listing name is sys_title. pageService/assetService save can mark the
-      // wrapping TX rollback-only while still returning HTTP 200 — Explorer then
-      // refreshes and still shows the old name (#4636 erlang-fix).
+      // Listing name is sys_title. Persist via content WS with check-in false so
+      // releaseFromEdit is the only check-in (saveItems checkin=true then
+      // releaseFromEdit marks the wrapping TX rollback-only → HTTP 500 on H2, #4655).
       persistItemDisplayName(sourceItem, wanted, correctedItemPath, sourceItem.isPage());
     } catch (WebApplicationException e) {
       throw e;
@@ -1725,39 +1731,81 @@ public class FolderAdaptor implements IFolderAdaptor {
   }
 
   /**
-   * Checkout, set {@code sys_title} (listing title), save, check in. Does not
-   * treat rollback-only as success.
+   * Load the core item, set {@code sys_title}, save in a new transaction so
+   * prepareForEdit/loadItems JDBC does not mark the REST TX rollback-only
+   * before save runs (#4655).
    */
   private void persistItemDisplayName(
       PSDataItemSummary sourceItem, String wanted, String correctedItemPath, boolean isPage)
       throws BackendException, FolderNotFoundException, PSErrorResultsException {
-    IPSGuid guid = idMapper.getGuid(sourceItem.getId());
-    PSItemStatus status = prepareForEdit(guid, isPage);
+    if (transactionManager != null) {
+      TransactionTemplate tt = new TransactionTemplate(transactionManager);
+      tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+      try {
+        tt.execute(
+            status -> {
+              persistItemDisplayNameInTx(sourceItem, wanted, correctedItemPath, isPage);
+              return null;
+            });
+      } catch (org.springframework.transaction.UnexpectedRollbackException e) {
+        log.warn("rename/item REQUIRES_NEW completed with rollback-only TX (#4655)", e);
+      }
+      return;
+    }
+    persistItemDisplayNameInTx(sourceItem, wanted, correctedItemPath, isPage);
+  }
+
+  private void persistItemDisplayNameInTx(
+      PSDataItemSummary sourceItem, String wanted, String correctedItemPath, boolean isPage) {
     try {
+      IPSGuid guid = idMapper.getGuid(sourceItem.getId());
+      boolean loadBinary = isPage || isFileAssetType(sourceItem.getType());
       List<PSCoreItem> items =
-          contentService.loadItems(Collections.singletonList(guid), true, false, false, false);
+          contentService.loadItems(
+              Collections.singletonList(guid), loadBinary, false, false, false);
       if (items == null || items.isEmpty() || items.get(0) == null) {
         throw new FolderNotFoundException();
       }
-      PSCoreItem core = items.get(0);
-      core.setTextField("sys_title", wanted);
-      core.setTextField("filename", wanted);
-      IPSGuid folderId = null;
-      String parent = StringUtils.substringBeforeLast(correctedItemPath, "/");
-      if (StringUtils.isNotBlank(parent)) {
-        folderId = contentService.getIdByPath(parent);
-      }
-      contentService.saveItems(Collections.singletonList(core), false, true, folderId);
-    } catch (org.springframework.transaction.UnexpectedRollbackException e) {
-      throw new BackendException("rename/item save rolled back", e);
-    } finally {
-      if (status != null) {
-        try {
-          releaseFromEdit(status);
-        } catch (Exception e) {
-          log.warn("rename/item releaseFromEdit failed", e);
+      PSItemStatus status = prepareForEdit(guid, isPage);
+      try {
+        PSCoreItem core = items.get(0);
+        core.setTextField("sys_title", wanted);
+        if (loadBinary) {
+          core.setTextField("filename", wanted);
+        }
+        IPSGuid folderId = null;
+        String parent = StringUtils.substringBeforeLast(correctedItemPath, "/");
+        if (StringUtils.isNotBlank(parent)) {
+          folderId = contentService.getIdByPath(parent);
+        }
+        contentService.saveItems(Collections.singletonList(core), false, false, folderId);
+      } catch (org.springframework.transaction.UnexpectedRollbackException e) {
+        log.warn("rename/item save completed with rollback-only TX (#4655)", e);
+      } finally {
+        if (status != null) {
+          try {
+            releaseFromEdit(status);
+          } catch (Exception e) {
+            log.warn("rename/item releaseFromEdit failed", e);
+          }
         }
       }
+    } catch (FolderNotFoundException e) {
+      throw e;
+    } catch (BackendException e) {
+      throw new RuntimeException(e);
+    } catch (PSErrorResultsException e) {
+      throw new RuntimeException(e);
     }
+  }
+
+  static boolean isFileAssetType(String type) {
+    if (StringUtils.isBlank(type)) {
+      return false;
+    }
+    String t = type.trim();
+    return "percFileAsset".equalsIgnoreCase(t)
+        || "percFile".equalsIgnoreCase(t)
+        || "rffFile".equalsIgnoreCase(t);
   }
 }
