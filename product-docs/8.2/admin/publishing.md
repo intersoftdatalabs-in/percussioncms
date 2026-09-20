@@ -33,6 +33,18 @@ channels (static files, FTP, database, custom locations).
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then choose **Incremental**. Confirm the dialog (**Confirm Incremental Publish**). The shell calls the incremental site publish API (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), optionally with related-item approval after **Incremental preview**. Success shows **Publish Job Started** plus the job id and refreshes the site **Status** list (active jobs). Dismissing confirm does not start a job. Application-level `FORBIDDEN` / `BADCONFIG` responses are failures in the workspace error region, not success. Full site publish remains a separate **Full** action.
 
+### Save a publish edition (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
+Pick a site and **Add edition** (or open an existing edition). Enter a **name** (required),
+optional comment and priority (1–5), then **Save**. The shell posts
+`POST …/sitemanage/publishingdesign/editions` (create) or
+`PUT …/sitemanage/publishingdesign/editions/{editionId}` (update).
+
+HTTP **403** (not Admin or Designer) and **409** (edition name already exists) are shown in the
+edition editor error region — not as a successful save. Content-list association, copy, and
+Runtime start/stop are separate Design/Runtime actions.
+
 ### Search and filter publish logs
 
 From **Publish** (`spa.jsp?entry=publish&section=logs`), the **Logs** section lists historical

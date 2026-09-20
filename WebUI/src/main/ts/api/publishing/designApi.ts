@@ -121,20 +121,38 @@ export async function getEdition(
   )) as EditionSummary;
 }
 
+function unwrapEdition(data: unknown): EditionSummary {
+  if (data && typeof data === "object" && "edition" in (data as object)) {
+    return (data as { edition: EditionSummary }).edition;
+  }
+  return data as EditionSummary;
+}
+
+/** JAXB/Jackson root wrap expected by sitemanage {@code PSEditionSummary}. */
+function wrapEdition(body: EditionSummary): { edition: EditionSummary } {
+  return { edition: body };
+}
+
+/** POST create. HTTP 403 non-Admin/Designer; 409 duplicate name. */
 export async function createEdition(
   body: EditionSummary,
 ): Promise<EditionSummary> {
-  return (await post<unknown>(`${designRoot()}/editions`, body)) as EditionSummary;
+  return unwrapEdition(
+    await post<unknown>(`${designRoot()}/editions`, wrapEdition(body)),
+  );
 }
 
+/** PUT update. HTTP 403 non-Admin/Designer; 409 duplicate name. */
 export async function updateEdition(
   editionId: string | number,
   body: EditionSummary,
 ): Promise<EditionSummary> {
-  return (await put<unknown>(
-    `${designRoot()}/editions/${encodeURIComponent(String(editionId))}`,
-    body,
-  )) as EditionSummary;
+  return unwrapEdition(
+    await put<unknown>(
+      `${designRoot()}/editions/${encodeURIComponent(String(editionId))}`,
+      wrapEdition(body),
+    ),
+  );
 }
 
 export async function deleteEdition(editionId: string | number): Promise<void> {

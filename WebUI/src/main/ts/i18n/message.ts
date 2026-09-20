@@ -189,6 +189,8 @@ export const MSG = {
   PUBLISH_LOADING: "perc.ui.home.modern@Loading",
   PUBLISH_ERROR: "perc.ui.home.modern@Error",
   PUBLISH_FORBIDDEN: "perc.ui.publish.modern@Publish Forbidden",
+  PUBLISH_EDITION_NAME_CONFLICT:
+    "perc.ui.publish.modern@Edition name already exists",
   PUBLISH_BADCONFIG: "perc.ui.publish.modern@Bad Server Configuration",
   PUBLISH_SUCCESS: "perc.ui.publish.title@Publish Request",
   PUBLISH_SELECT_SERVER: "perc.ui.publish.title@Server",
