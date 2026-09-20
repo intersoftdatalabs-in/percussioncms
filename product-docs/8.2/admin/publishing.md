@@ -33,6 +33,10 @@ channels (static files, FTP, database, custom locations).
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then choose **Incremental**. Confirm the dialog. The shell calls the incremental site publish API (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), optionally with related-item approval after **Incremental preview**. Success shows a job id and refreshes the site **Status** list (active jobs). Application-level `FORBIDDEN` / `BADCONFIG` responses are failures in the workspace error region, not success. Full site publish remains a separate **Full** action.
 
+### Cancel or stop an in-flight publish job
+
+From **Publish** → **Status**, or from a site workspace **Status** list, **Stop** is shown only for jobs whose status is running (not completed, failed, or already stopping). Confirm the dialog. The shell posts `POST …/publishmanagement/servers/stopPublishing/{jobId}`. Dismissing the confirm does not call the server. Jobs that are not running have no Stop control.
+
 ### Item Publish Now and Take Down (Content Explorer)
 
 From **Content Explorer** (`spa.jsp?entry=explorer`), select a **page** or **asset** (not a folder). **Publish Now** demand-publishes the item; **Take Down** unpublishes it from its site. **Schedule** sets or clears item publish and removal dates (`GET …/getitemdates/{id}`, `POST …/setitemdates`). **Publishing History** shows item-level publish/takedown rows (`GET …/item/pubhistory/{id}`). Publish Now, Take Down, Stage, and Schedule confirm first. Application-level `FORBIDDEN` / `BADCONFIG` / `INVALID` responses are failures (the Server actions error region), not success. HTTP **404** / **403** on publishing history are errors in the history dialog, not empty success. See [Content Explorer](id:admin-content-explorer) for the exact URLs, linked-page confirm, schedule fields, and history dialog. Stage from Explorer is a separate action.

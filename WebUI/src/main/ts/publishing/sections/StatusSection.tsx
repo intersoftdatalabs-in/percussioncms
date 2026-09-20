@@ -19,6 +19,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { stopPublishing } from "../../api/publishing/serversApi";
 import { fetchCurrentJobs } from "../../api/publishing/statusApi";
 import { message, MSG } from "../../i18n/message";
+import { isJobStoppable } from "../jobStop";
 import { formatProgressLabel } from "../progressUtils";
 import {
   buttonStyle,
@@ -89,9 +90,15 @@ export function StatusSection({
     setSort((prev) => nextSortState(prev, key));
   }
 
-  async function onStop(jobId: string | number): Promise<void> {
+  async function onStop(job: PublishingJob): Promise<void> {
+    if (!isJobStoppable(job)) {
+      return;
+    }
+    if (!window.confirm(message(MSG.PUBLISH_CONFIRM_STOP))) {
+      return;
+    }
     try {
-      await stopPublishing(jobId);
+      await stopPublishing(job.jobId as string | number);
       load();
     } catch {
       setError(message(MSG.PUBLISH_ERROR));
@@ -155,11 +162,7 @@ export function StatusSection({
           <tbody>
             {sortedJobs.map((job) => {
               const id = job.jobId ?? "";
-              const stoppable =
-                !job.isStopping &&
-                String(job.status ?? "")
-                  .toLowerCase()
-                  .includes("run");
+              const stoppable = isJobStoppable(job);
               return (
                 <tr key={String(id || job.siteName)}>
                   <td style={tdStyle}>{job.siteName ?? "—"}</td>
@@ -168,11 +171,12 @@ export function StatusSection({
                     {formatProgressLabel(job.completedItems, job.totalItems)}
                   </td>
                   <td style={tdStyle}>
-                    {stoppable && id !== "" ? (
+                    {stoppable ? (
                       <button
                         type="button"
                         style={buttonStyle}
-                        onClick={() => void onStop(id)}
+                        data-testid={`publish-stop-job-${String(id)}`}
+                        onClick={() => void onStop(job)}
                       >
                         {message(MSG.PUBLISH_STOP)}
                       </button>

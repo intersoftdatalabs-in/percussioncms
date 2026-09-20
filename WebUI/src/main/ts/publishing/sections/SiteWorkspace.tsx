@@ -54,6 +54,7 @@ import {
   extractQueueItems,
   isQueueEmpty,
 } from "../incrementalQueue";
+import { isJobStoppable } from "../jobStop";
 import {
   extractPublishJobId,
   mapPublishError,
@@ -396,9 +397,15 @@ export function SiteWorkspace({
     }
   }
 
-  async function onStop(jobId: string | number): Promise<void> {
+  async function onStop(job: PublishingJob): Promise<void> {
+    if (!isJobStoppable(job)) {
+      return;
+    }
+    if (!window.confirm(message(MSG.PUBLISH_CONFIRM_STOP))) {
+      return;
+    }
     try {
-      await stopPublishing(jobId);
+      await stopPublishing(job.jobId as string | number);
       refreshJobs();
     } catch {
       setActionMessage(message(MSG.PUBLISH_ERROR));
@@ -608,20 +615,17 @@ export function SiteWorkspace({
           <ul>
             {jobs.map((job) => {
               const id = job.jobId ?? "";
-              const stoppable =
-                !job.isStopping &&
-                String(job.status ?? "")
-                  .toLowerCase()
-                  .includes("run");
+              const stoppable = isJobStoppable(job);
               return (
                 <li key={String(id)} data-testid={`publish-job-${String(id)}`}>
                   {job.status} {job.serverName ?? ""}{" "}
                   {id !== "" ? `job ${id}` : ""}{" "}
-                  {stoppable && id !== "" && (
+                  {stoppable && (
                     <button
                       type="button"
                       style={buttonStyle}
-                      onClick={() => void onStop(id)}
+                      data-testid={`publish-stop-job-${String(id)}`}
+                      onClick={() => void onStop(job)}
                     >
                       {message(MSG.PUBLISH_STOP)}
                     </button>

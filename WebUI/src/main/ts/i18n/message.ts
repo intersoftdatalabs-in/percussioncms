@@ -175,6 +175,7 @@ export const MSG = {
   PUBLISH_LIST: "perc.ui.publish.title@List",
   PUBLISH_FULL: "perc.ui.publish.title@Full",
   PUBLISH_STOP: "perc.ui.publish.title@Stop",
+  PUBLISH_CONFIRM_STOP: "perc.ui.publish.modern@Confirm Stop Publish Job",
   PUBLISH_INCREMENTAL: "perc.ui.publish.modern@Incremental",
   PUBLISH_CONFIRM_INCREMENTAL:
     "perc.ui.publish.modern@Confirm Incremental Publish",
