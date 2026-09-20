@@ -47,14 +47,10 @@ function isRestoreRevisionUrl(url) {
   );
 }
 
-function isEditorFieldsUrl(url) {
-  return /\/services\/itemmanagement\/item\/fields\//.test(String(url || ""));
-}
-
 module.exports = {
   TEST_IDS,
   editorSpaUrl,
   isRevisionsUrl,
   isRestoreRevisionUrl,
-  isEditorFieldsUrl,
 };
+

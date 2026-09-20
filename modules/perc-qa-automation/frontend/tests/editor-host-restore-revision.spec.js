@@ -163,10 +163,7 @@ async function stubEditorApisWithRevisions(
   let fieldsCount = 0;
   await page.route("**/services/itemmanagement/item/fields/**", (route) => {
     fieldsCount += 1;
-    const body =
-      fieldsCount === 1 && restoreStatus >= 400
-        ? ITEM_FIELDS
-        : refreshFieldsBody;
+    const body = fieldsCount === 1 ? ITEM_FIELDS : refreshFieldsBody;
     return route.fulfill({
       status: 200,
       contentType: "application/json",

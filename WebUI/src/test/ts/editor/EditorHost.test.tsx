@@ -406,6 +406,8 @@ describe("EditorHost", () => {
     expect(screen.getByTestId("editor-restore-error").textContent).toMatch(
       /was not found/i,
     );
+    expect(loadFields).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("editor-restore-done")).toBeNull();
   });
 
   it("does not show the restore toggle in view or promote modes", async () => {

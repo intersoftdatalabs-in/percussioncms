@@ -1004,8 +1004,9 @@ export function EditorHost({
         return;
       }
       const reason = editorRevisionErrorReason(err);
-      setRestoreErrorKey(restoreErrorKeyFor(reason));
-      setRestoreErrorDetail(formatApiError(err, message(restoreErrorKeyFor(reason))));
+      const errorKey = restoreErrorKeyFor(reason);
+      setRestoreErrorKey(errorKey);
+      setRestoreErrorDetail(formatApiError(err, message(errorKey)));
     } finally {
       setRestoreBusy(false);
     }
