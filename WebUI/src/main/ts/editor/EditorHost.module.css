@@ -76,6 +76,19 @@
   color: #fff;
 }
 
+.relatedList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.relatedItem {
+  display: flex;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid #334155;
+}
+
 .stage {
   flex: 1 1 auto;
   min-height: 0;

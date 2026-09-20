@@ -452,6 +452,127 @@ describe("EditorHost", () => {
     });
     expect(screen.queryByTestId("editor-restore-toggle")).toBeNull();
   });
+
+  it("lists related slot and inline content", async () => {
+    const checkout = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi.fn().mockResolvedValue(fields);
+    const loadRelatedCanvas = vi.fn().mockResolvedValue({
+      ownerId: 42,
+      templateId: null,
+      slots: [
+        {
+          slotId: 1,
+          name: "content",
+          label: "Content",
+          items: [
+            {
+              relationshipId: 9,
+              ownerId: 42,
+              dependentId: 55,
+              slotId: 1,
+              templateId: 2,
+              sortRank: 0,
+            },
+          ],
+        },
+      ],
+    });
+    const loadRelatedLocal = vi.fn().mockResolvedValue({
+      count: 1,
+      links: [{ type: "local", targetId: "88" }],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+                loadRelatedCanvas={loadRelatedCanvas}
+                loadRelatedLocal={loadRelatedLocal}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-list")).toBeTruthy();
+    });
+    expect(screen.getAllByTestId("editor-related-row")).toHaveLength(2);
+    expect(screen.queryByTestId("editor-related-empty")).toBeNull();
+  });
+
+  it("shows empty related content when there are no links", async () => {
+    const checkout = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi.fn().mockResolvedValue(fields);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+                loadRelatedCanvas={async () => ({
+                  ownerId: 42,
+                  templateId: null,
+                  slots: [],
+                })}
+                loadRelatedLocal={async () => ({ count: 0, links: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-related-empty").textContent).toMatch(
+      /No related content/i,
+    );
+  });
+
+  it("shows forbidden when related APIs return 403", async () => {
+    const checkout = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi.fn().mockResolvedValue(fields);
+    const forbidden = { status: 403, statusText: "Forbidden", body: {} };
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+                loadRelatedCanvas={async () => {
+                  throw forbidden;
+                }}
+                loadRelatedLocal={async () => {
+                  throw forbidden;
+                }}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-related-error").textContent).toMatch(
+      /not allowed to list related content/i,
+    );
+    expect(screen.queryByTestId("editor-related-empty")).toBeNull();
+  });
 });
 
 describe("fieldValueAsString", () => {
@@ -1441,6 +1562,15 @@ describe("EditorHost new copy / promotable version (#4570)", () => {
     vi.restoreAllMocks();
   });
 
+  const emptyRelated = {
+    loadRelatedCanvas: async () => ({
+      ownerId: 42,
+      templateId: null,
+      slots: [],
+    }),
+    loadRelatedLocal: async () => ({ count: 0, links: [] }),
+  };
+
   function titleType() {
     return {
       fields: [{ name: "sys_title", label: "Title", readOnly: false }],
@@ -1467,6 +1597,7 @@ describe("EditorHost new copy / promotable version (#4570)", () => {
                 copyItem={copyItem}
                 copyPromotable={copyPromotable}
                 confirmCopy={() => true}
+                {...emptyRelated}
               />
             }
           />
@@ -1504,6 +1635,7 @@ describe("EditorHost new copy / promotable version (#4570)", () => {
                 loadType={async () => titleType()}
                 copyPromotable={copyPromotable}
                 confirmCopy={() => true}
+                {...emptyRelated}
               />
             }
           />
@@ -1536,6 +1668,7 @@ describe("EditorHost new copy / promotable version (#4570)", () => {
                 loadType={async () => titleType()}
                 copyItem={copyItem}
                 confirmCopy={() => false}
+                {...emptyRelated}
               />
             }
           />
@@ -1569,6 +1702,7 @@ describe("EditorHost new copy / promotable version (#4570)", () => {
                 loadType={async () => titleType()}
                 copyItem={copyItem}
                 confirmCopy={() => true}
+                {...emptyRelated}
               />
             }
           />
@@ -1605,6 +1739,7 @@ describe("EditorHost new copy / promotable version (#4570)", () => {
                 loadType={async () => titleType()}
                 copyItem={copyItem}
                 confirmCopy={() => true}
+                {...emptyRelated}
               />
             }
           />
