@@ -173,7 +173,8 @@ public class ViewResource {
               + " (case-insensitive), and must not contain whitespace or wildcards. Optional"
               + " label, description, type (View default), and displayFormatId are applied"
               + " before save. Type CustomView (or customView=true) requires url. Duplicate name"
-              + " is 409. Blank/invalid url is 400. Searches are not created here (use"
+              + " is 409. Packaged Inbox-family names or sys_cxViews page URLs are 409."
+              + " Blank/invalid url is 400. Searches are not created here (use"
               + " /services/searches). Execute is not invoked on write.",
       responses = {
         @ApiResponse(
@@ -184,7 +185,10 @@ public class ViewResource {
         @ApiResponse(
             responseCode = "403",
             description = "Admin role required, or request has no session/user"),
-        @ApiResponse(responseCode = "409", description = "A view with that name already exists"),
+        @ApiResponse(
+            responseCode = "409",
+            description =
+                "Duplicate name, or Inbox-family / packaged sys_cxViews name or URL"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
@@ -219,7 +223,8 @@ public class ViewResource {
               + " Unknown field names are 400. User custom URL views may update url (blank url"
               + " is 400). Loads with a design lock (overrideLock=false) and releases on save."
               + " Unknown id is 404. Lock/dependency conflict is 409. Inbox-family and packaged"
-              + " sys_cxViews views are 409 (not mutated). Searches are not saved here. Execute"
+              + " sys_cxViews views (name or packaged page URL) are 409 (not mutated). Searches"
+              + " are not saved here. Execute"
               + " is not invoked on write.",
       responses = {
         @ApiResponse(

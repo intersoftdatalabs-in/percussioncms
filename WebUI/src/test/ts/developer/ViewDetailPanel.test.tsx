@@ -725,6 +725,22 @@ describe("ViewDetailPanel", () => {
     expect(deleteView).not.toHaveBeenCalled();
   });
 
+  it("does not create a view that targets a packaged sys_cxViews URL", () => {
+    render(<ViewDetailPanel idOrName={null} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-vw-name"), {
+      target: { value: "MyHijack" },
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-type"), {
+      target: { value: "CustomView" },
+    });
+    fireEvent.change(screen.getByTestId("developer-vw-url"), {
+      target: { value: "../sys_cxViews/inbox.xml" },
+    });
+    expect(screen.getByTestId("developer-vw-protected-hint")).toBeTruthy();
+    expect((screen.getByTestId("developer-vw-save") as HTMLButtonElement).disabled).toBe(true);
+    expect(createView).not.toHaveBeenCalled();
+  });
+
   it("after create, retries field PUT by name when GUID is 404", async () => {
     createView.mockResolvedValue({
       name: "MyView",

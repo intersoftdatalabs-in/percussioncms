@@ -27,6 +27,7 @@ import {
   isCustomViewType,
   isInboxViewName,
   isPackagedCxViewName,
+  isPackagedCxViewUrl,
   isProtectedViewWrite,
   isValidViewName,
   isValidViewUrl,
@@ -194,6 +195,16 @@ describe("protected view write", () => {
         url: "../sys_cxViews/myapp.xml",
       }),
     ).toBe(false);
+    expect(isPackagedCxViewUrl("../sys_cxViews/inbox.xml")).toBe(true);
+    expect(isPackagedCxViewUrl("sys_cxViews/Outbox.xml")).toBe(true);
+    expect(isPackagedCxViewUrl("../sys_cxViews/myapp.xml")).toBe(false);
+    expect(
+      isProtectedViewWrite({
+        name: "MyHijack",
+        customView: true,
+        url: "../sys_cxViews/inbox.xml",
+      }),
+    ).toBe(true);
   });
 });
 

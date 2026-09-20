@@ -228,6 +228,10 @@ public class ViewAdaptor implements IViewAdaptor {
       throw new IllegalArgumentException("body is required");
     }
     String name = requireValidName(body.getName());
+    if (isPackagedCxViewName(name)
+        || (isCustomUrlWrite(body) && isPackagedCxViewUrl(body.getUrl()))) {
+      throw new WebApplicationException(PROTECTED_VIEW_WRITE, 409);
+    }
     assertNameUnique(name);
     if (isCustomUrlWrite(body)) {
       requireValidCustomViewUrl(body.getUrl());
@@ -293,6 +297,9 @@ public class ViewAdaptor implements IViewAdaptor {
       return null;
     }
     rejectProtectedViewWrite(existing);
+    if (isPackagedCxViewUrl(body.getUrl())) {
+      throw new WebApplicationException(PROTECTED_VIEW_WRITE, 409);
+    }
     rejectBlankCustomUrlOnSave(existing, body);
     IPSGuid id = safeGuid(existing);
     if (id == null) {
@@ -1452,6 +1459,37 @@ public class ViewAdaptor implements IViewAdaptor {
     return PACKAGED_CX_VIEW_NAMES.contains(key);
   }
 
+  /**
+   * True when {@code url} targets a packaged Inbox-family {@code sys_cxViews} page
+   * ({@code inbox}, {@code outbox}, {@code recent}, {@code session}, {@code
+   * checkedoutbyme}, {@code duplicatefolderpaths}). User custom URLs under other
+   * {@code sys_cxViews} pages stay writable.
+   */
+  static boolean isPackagedCxViewUrl(String url) {
+    if (StringUtils.isBlank(url)) {
+      return false;
+    }
+    String rest = url.trim().replace('\\', '/').toLowerCase(Locale.ROOT);
+    if (rest.startsWith("../")) {
+      rest = rest.substring(3);
+    }
+    if (rest.startsWith("./")) {
+      rest = rest.substring(2);
+    }
+    if (!rest.startsWith("sys_cxviews/")) {
+      return false;
+    }
+    String page = rest.substring("sys_cxviews/".length());
+    if (page.endsWith(".xml")) {
+      page = page.substring(0, page.length() - 4);
+    }
+    if (page.isEmpty() || page.contains("/") || page.contains("..")) {
+      return false;
+    }
+    page = page.replace("_", "");
+    return SUPPORTED_CX_VIEW_PAGES.contains(page);
+  }
+
   private static void rejectBlankCustomUrlOnSave(PSSearch existing, ViewDef body) {
     boolean converting = existing != null && !existing.isCustomView() && isCustomUrlWrite(body);
     if (converting) {
@@ -1474,7 +1512,7 @@ public class ViewAdaptor implements IViewAdaptor {
     if (existing == null) {
       return;
     }
-    if (isPackagedCxViewName(existing.getName())) {
+    if (isPackagedCxViewName(existing.getName()) || isPackagedCxViewUrl(existing.getUrl())) {
       throw new WebApplicationException(PROTECTED_VIEW_WRITE, 409);
     }
   }

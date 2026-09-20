@@ -277,16 +277,52 @@ export function isPackagedCxViewName(name: string | undefined | null): boolean {
   return PACKAGED_CX_VIEW_NAMES.has(key);
 }
 
+/** Packaged {@code sys_cxViews} page names (REST {@code SUPPORTED_CX_VIEW_PAGES}). */
+const PACKAGED_CX_VIEW_PAGES = new Set([
+  "inbox",
+  "outbox",
+  "recent",
+  "session",
+  "checkedoutbyme",
+  "duplicatefolderpaths",
+]);
+
+/**
+ * True when {@code url} targets a packaged Inbox-family {@code sys_cxViews}
+ * page. Other {@code sys_cxViews} application pages stay writable.
+ */
+export function isPackagedCxViewUrl(url: string | undefined | null): boolean {
+  let rest = normalizeViewUrl(url).replace(/\\/g, "/").toLowerCase();
+  if (!rest) return false;
+  if (rest.startsWith("../")) {
+    rest = rest.slice(3);
+  }
+  if (rest.startsWith("./")) {
+    rest = rest.slice(2);
+  }
+  if (!rest.startsWith("sys_cxviews/")) {
+    return false;
+  }
+  let page = rest.slice("sys_cxviews/".length);
+  if (page.endsWith(".xml")) {
+    page = page.slice(0, -4);
+  }
+  if (!page || page.includes("/") || page.includes("..")) {
+    return false;
+  }
+  return PACKAGED_CX_VIEW_PAGES.has(page.replace(/_/g, ""));
+}
+
 /**
  * Inbox-family / packaged {@code sys_cxViews} views are not mutated from this
  * catalog. User-created custom URL views ({@code customView} with a non-packaged
- * name) remain writable.
+ * name and URL) remain writable.
  */
 export function isProtectedViewWrite(
   view: Pick<ViewDef, "name" | "customView" | "url"> | null | undefined,
 ): boolean {
   if (view == null) return false;
-  return isPackagedCxViewName(view.name);
+  return isPackagedCxViewName(view.name) || isPackagedCxViewUrl(view.url);
 }
 
 /** Wire JSON for POST/PUT — a flat body fails JAXB root unwrap. */
