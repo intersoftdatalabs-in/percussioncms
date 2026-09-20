@@ -62,6 +62,19 @@ import {
   type EditorCheckoutUserInfo,
 } from "./editorCheckout";
 import {
+  fetchItemRevisions,
+  restoreItemRevision,
+  type ItemRevision,
+  type ItemRevisionsSummary,
+} from "../api/contentExplorer/itemRevisionsApi";
+import {
+  canRestoreFromEditor,
+  editorRevisionErrorReason,
+  parseRevisionId,
+  restoreRevisionConfirmBody,
+  summarizeRevisionRow,
+} from "./editorRevisions";
+import {
   canPreviewFromEditor,
   editorDraftIsDirty,
   previewEditorItem,
@@ -146,6 +159,12 @@ export interface EditorHostProps {
   copyPromotable?: (itemId: string) => Promise<ItemCopyResult>;
   /** Test seam: confirm new copy / promotable (defaults to {@code window.confirm}). */
   confirmCopy?: (body: string) => boolean;
+  /** Test seam: itemmanagement {@code revisions/{id}}. */
+  loadRevisions?: (itemId: string) => Promise<ItemRevisionsSummary>;
+  /** Test seam: itemmanagement {@code restoreRevision/{guid}}. */
+  restoreRevision?: (itemId: string, revId: number) => Promise<void>;
+  /** Test seam: confirm restore (defaults to {@code window.confirm}). */
+  confirmRestore?: (body: string) => boolean;
 }
 
 function badgeKey(mode: EditorHostMode): string {
@@ -296,6 +315,9 @@ export function EditorHost({
   copyItem = createNewCopy,
   copyPromotable = createPromotableVersion,
   confirmCopy,
+  loadRevisions = fetchItemRevisions,
+  restoreRevision = restoreItemRevision,
+  confirmRestore,
 }: EditorHostProps = {}): React.ReactElement {
   const [params, setSearchParams] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
@@ -345,6 +367,17 @@ export function EditorHost({
   const [lockErrorKey, setLockErrorKey] = useState<string | null>(null);
   const [lockErrorDetail, setLockErrorDetail] = useState("");
   const [checkoutOk, setCheckoutOk] = useState(false);
+  const [restoreBusy, setRestoreBusy] = useState(false);
+  const [restoreOpen, setRestoreOpen] = useState(false);
+  const [restoreRevisions, setRestoreRevisions] = useState<ItemRevision[]>([]);
+  const [restoreSelected, setRestoreSelected] = useState<number | "">("");
+  const [restoreRestorable, setRestoreRestorable] = useState(false);
+  const [restoreErrorKey, setRestoreErrorKey] = useState<string | null>(null);
+  const [restoreErrorDetail, setRestoreErrorDetail] = useState("");
+  const [restoreLoadErrorKey, setRestoreLoadErrorKey] = useState<string | null>(
+    null,
+  );
+  const [restoreDone, setRestoreDone] = useState(false);
 
   useEffect(() => {
     document.title = message(EDITOR_MSG.TITLE);
@@ -865,6 +898,120 @@ export function EditorHost({
     }
   }
 
+  function restoreErrorKeyFor(
+    reason: ReturnType<typeof editorRevisionErrorReason>,
+  ): string {
+    if (reason === "forbidden") {
+      return EDITOR_MSG.RESTORE_FORBIDDEN;
+    }
+    if (reason === "not_found") {
+      return EDITOR_MSG.RESTORE_NOT_FOUND;
+    }
+    return EDITOR_MSG.RESTORE_FAILED;
+  }
+
+  async function handleRestoreOpen(): Promise<void> {
+    if (contentId == null || !canRestoreFromEditor(mode)) {
+      return;
+    }
+    setRestoreOpen((prev) => !prev);
+    setRestoreLoadErrorKey(null);
+    setRestoreErrorKey(null);
+    setRestoreErrorDetail("");
+    setRestoreDone(false);
+    if (restoreOpen) {
+      return;
+    }
+    setRestoreBusy(true);
+    try {
+      const summary = await loadRevisions(String(contentId));
+      if (summary.revisions.length > 0) {
+        setRestoreRevisions(summary.revisions);
+        setRestoreRestorable(summary.restorable);
+        setRestoreSelected(summary.revisions[0].revId);
+      } else {
+        setRestoreRevisions([]);
+        setRestoreRestorable(false);
+        setRestoreSelected("");
+      }
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setRestoreLoadErrorKey(EDITOR_MSG.RESTORE_LOAD_FAILED);
+      setRestoreRevisions([]);
+      setRestoreRestorable(false);
+      setRestoreSelected("");
+    } finally {
+      setRestoreBusy(false);
+    }
+  }
+
+  async function handleRestoreConfirm(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    if (!canRestoreFromEditor(mode)) {
+      setRestoreErrorKey(EDITOR_MSG.RESTORE_UNAVAILABLE);
+      setRestoreErrorDetail("");
+      return;
+    }
+    const revId = parseRevisionId(restoreSelected);
+    if (revId == null || !restoreRestorable) {
+      setRestoreErrorKey(EDITOR_MSG.RESTORE_FAILED);
+      setRestoreErrorDetail("");
+      return;
+    }
+    const selectedRev = restoreRevisions.find((rev) => rev.revId === revId);
+    if (!selectedRev) {
+      setRestoreErrorKey(EDITOR_MSG.RESTORE_FAILED);
+      setRestoreErrorDetail("");
+      return;
+    }
+    const confirmFn =
+      confirmRestore ??
+      ((body: string) =>
+        typeof window !== "undefined" ? window.confirm(body) : false);
+    const body = restoreRevisionConfirmBody(
+      summarizeRevisionRow(selectedRev),
+      payload?.name ?? "",
+    );
+    if (!confirmFn(`${message(EDITOR_MSG.RESTORE_CONFIRM)} ${body}`)) {
+      return;
+    }
+    setRestoreBusy(true);
+    setRestoreErrorKey(null);
+    setRestoreErrorDetail("");
+    setRestoreDone(false);
+    try {
+      const itemId = String(contentId);
+      await restoreRevision(itemId, revId);
+      const refreshed = await loadFields(itemId);
+      setPayload(refreshed);
+      setDraft(
+        Object.fromEntries(
+          refreshed.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
+        ),
+      );
+      setPendingFiles({});
+      setFieldErrors({});
+      setSaveErrorKey(null);
+      setSaveErrorDetail("");
+      setRestoreDone(true);
+      setRestoreOpen(false);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = editorRevisionErrorReason(err);
+      const errorKey = restoreErrorKeyFor(reason);
+      setRestoreErrorKey(errorKey);
+      setRestoreErrorDetail(formatApiError(err, message(errorKey)));
+    } finally {
+      setRestoreBusy(false);
+    }
+  }
+
   const heldBySelf = isCheckedOutToSelf(
     lockUser,
     sessionUser,
@@ -881,6 +1028,7 @@ export function EditorHost({
   const showPublish = canPublishFromEditor(mode, publishKind);
   const showPreview = canPreviewFromEditor(mode, publishKind);
   const showCopy = canCopyFromEditor(mode) && contentId != null;
+  const showRestore = canRestoreFromEditor(mode) && contentId != null;
 
   return (
     <div className={styles.root} data-testid="editor-host">
@@ -996,6 +1144,19 @@ export function EditorHost({
               {message(previewBusy ? EDITOR_MSG.PREVIEWING : EDITOR_MSG.PREVIEW)}
             </button>
           ) : null}
+          {showRestore ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-restore-toggle"
+              disabled={restoreBusy || loading || payload == null}
+              onClick={() => void handleRestoreOpen()}
+            >
+              {message(
+                restoreOpen ? EDITOR_MSG.RESTORE_HIDE : EDITOR_MSG.RESTORE_OPEN,
+              )}
+            </button>
+          ) : null}
           <button
             type="button"
             className={styles.button}
@@ -1077,6 +1238,88 @@ export function EditorHost({
             {!canEdit && !readOnly && !promote && payload != null ? (
               <div className={styles.status} data-testid="editor-locked">
                 {message(EDITOR_MSG.LOCKED)}
+              </div>
+            ) : null}
+            {restoreDone ? (
+              <div
+                className={styles.status}
+                role="status"
+                data-testid="editor-restore-done"
+              >
+                {message(EDITOR_MSG.RESTORED)}
+              </div>
+            ) : null}
+            {showRestore && restoreOpen ? (
+              <div className={styles.form} data-testid="editor-restore-panel">
+                {restoreLoadErrorKey ? (
+                  <div
+                    className={styles.status}
+                    role="alert"
+                    data-testid="editor-restore-load-error"
+                  >
+                    {message(restoreLoadErrorKey)}
+                  </div>
+                ) : null}
+                {restoreErrorKey ? (
+                  <div
+                    className={styles.status}
+                    role="alert"
+                    data-testid="editor-restore-error"
+                  >
+                    {message(restoreErrorKey)}
+                    {restoreErrorDetail ? ` ${restoreErrorDetail}` : ""}
+                  </div>
+                ) : null}
+                {restoreRevisions.length === 0 && !restoreLoadErrorKey ? (
+                  <div
+                    className={styles.status}
+                    data-testid="editor-restore-empty"
+                  >
+                    {message(EDITOR_MSG.RESTORE_NONE)}
+                  </div>
+                ) : (
+                  <label className={styles.field}>
+                    <span className={styles.label}>
+                      {message(EDITOR_MSG.RESTORE_REVISION_LABEL)}
+                    </span>
+                    <select
+                      className={styles.input}
+                      data-testid="editor-restore-select"
+                      value={restoreSelected === "" ? "" : String(restoreSelected)}
+                      onChange={(e) =>
+                        setRestoreSelected(
+                          e.target.value ? Number(e.target.value) : "",
+                        )
+                      }
+                    >
+                      {restoreRevisions.map((rev) => (
+                        <option key={rev.revId} value={rev.revId}>
+                          {summarizeRevisionRow(rev, `#${rev.revId}`)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+                <div className={styles.actions}>
+                  <button
+                    type="button"
+                    className={`${styles.button} ${styles.buttonPrimary}`}
+                    data-testid="editor-restore-confirm"
+                    disabled={
+                      restoreBusy ||
+                      restoreRevisions.length === 0 ||
+                      !restoreRestorable ||
+                      parseRevisionId(restoreSelected) == null
+                    }
+                    onClick={() => void handleRestoreConfirm()}
+                  >
+                    {message(
+                      restoreBusy
+                        ? EDITOR_MSG.RESTORING
+                        : EDITOR_MSG.RESTORE_PRIOR_REVISION,
+                    )}
+                  </button>
+                </div>
               </div>
             ) : null}
             {canEdit ? (

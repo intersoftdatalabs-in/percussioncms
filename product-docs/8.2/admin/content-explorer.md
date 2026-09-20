@@ -136,6 +136,7 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | **Audit Trail** | Same Revisions panel, audit-trail tab. |
 | **New Copy** | Confirm, then create a copy in the current folder. |
 | **Promotable Version** | Confirm, then create a promotable version in the current folder. |
+| **Restore Prior Revision** (inside the editor host) | Open the open item in the React editor (`spa.jsp?entry=editor`) and click **Show revisions** in the header. Pick a revision and **Restore prior revision** to confirm; the host calls `GET /services/itemmanagement/item/restoreRevision/{revisionGuid}` and refreshes fields from `GET /services/itemmanagement/item/fields/{id}`. HTTP **403** (not allowed to restore) and **404** (item or revision not found) are errors in the panel — they are not treated as success. Edit mode only. View / Promote modes hide the toggle. |
 | **Flush Cache** (Refresh Item) | Confirms, then flushes **all** assembler pages (not only the selected item). |
 | **Nav Reset** | Same goal as classic Nav Reset. On 8.2 this is typically a no-op once managed navigation is loaded (FastForward 6.0+ variants unused). |
 | **Publish Now** | Select a **page** or **asset** row in the list first (clicking only **Sites** or another folder is not enough). The toolbar and the item context menu hide Publish Now until a page or asset is selected. Explorer then confirms and demand-publishes (`GET /services/sitemanage/publish/page/{id}` or `/resource/{id}`). Other types stay unavailable. Does not open the demand-publish servlet page. HTTP 200 with application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is a failure (same as classic Finder) — the **Server actions** error region shows the server warning (for example licensing / Publication stopped) and the list does not refresh as if published. Folder-only selection does not publish. |
@@ -194,7 +195,15 @@ Save, **Check Out**, and **Check In** stay on itemmanagement
 When the item is **not** checked out to you, the host is **view-only** (fields
 read-only; Save and Check In hidden). Use **Check Out** to take the lock. HTTP
 **403** (not allowed) and **409** (checked out to someone else) are shown as
-errors — they are not treated as success. **Required** fields (content-type
+errors — they are not treated as success. Use **Show revisions** to open the
+restore-prior-revision panel: the host lists revisions plus workflow comments
+(`GET /services/itemmanagement/item/revisions/{id}`). Pick a revision and
+**Restore prior revision** to call
+`GET /services/itemmanagement/item/restoreRevision/{revisionGuid}`; the editor
+**reloads fields** from `GET /services/itemmanagement/item/fields/{id}` after
+a successful restore. HTTP **403** (not allowed to restore) and **404** (item
+or revision not found) are errors in the panel — they are not treated as
+success. The restore panel is shown in **Edit** mode only.  **Required** fields (content-type
 `required` flag or occurrence `required` / `oneOrMore` from
 `GET /services/contenttypes/{type}`) show a marker on the field row. Saving with
 an empty required field keeps the form on screen and shows an inline error on
