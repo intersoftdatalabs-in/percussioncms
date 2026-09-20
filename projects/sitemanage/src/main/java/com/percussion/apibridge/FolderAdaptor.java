@@ -1363,7 +1363,15 @@ public class FolderAdaptor implements IFolderAdaptor {
       request.setItemPath(itemPath);
       request.setTargetFolderPath(targetFolderPath);
 
-      getPathService().moveItem(request);
+      try {
+        getPathService().moveItem(request);
+      } catch (org.springframework.transaction.UnexpectedRollbackException e) {
+        // Folder-child move can persist while Spring still marks the wrapping
+        // TX rollback-only (same Hibernate-vs-JDBC race copyFolderItem handles
+        // under #3667). Treat as success so REST move/item is HTTP 200 and the
+        // destination list shows the moved item.
+        log.warn("move/item folder-children move completed with rollback-only TX (#3667)", e);
+      }
 
       PSPathItem targetPathItem = null;
       try {

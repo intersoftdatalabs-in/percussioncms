@@ -49,6 +49,12 @@ export const EXPLORER_MSG = {
   ACTION_CREATE_FOLDER: "perc.ui.explorer@Create Folder",
   ACTION_RENAME: "perc.ui.explorer@Rename",
   ACTION_MOVE: "perc.ui.explorer@Move",
+  MOVE_DEST_TITLE: "perc.ui.explorer@Move to folder",
+  MOVE_DEST_LABEL: "perc.ui.explorer@Destination folder path",
+  ACTION_MOVE_NOT_FOUND:
+    "perc.ui.explorer@The selected item or destination folder was not found",
+  ACTION_MOVE_CONFLICT:
+    "perc.ui.explorer@Could not move the item to that folder (destination conflict)",
   ACTION_COPY: "perc.ui.explorer@Copy",
   COPY_DEST_TITLE: "perc.ui.explorer@Copy to folder",
   COPY_DEST_LABEL: "perc.ui.explorer@Destination folder path",

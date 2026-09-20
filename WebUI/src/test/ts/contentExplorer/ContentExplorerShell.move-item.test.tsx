@@ -22,7 +22,7 @@ import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapConte
 import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { renderA11yGate } from "./a11y";
-import { EXPLORER_SHELL_TEST_TIMEOUT, mockFetch } from "./setup";
+import { mockFetch } from "./setup";
 
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
@@ -40,53 +40,57 @@ function renderShell(ui: ReactElement) {
   );
 }
 
-const SOURCE = {
-  id: "f-3655-src",
-  path: "/Assets/qa3655_src",
-  name: "qa3655_src",
+const SOURCE_ITEM = {
+  id: "a-4601-src",
+  path: "/Assets/qa4601_src/qa4601itm",
+  name: "qa4601itm",
+  type: "percSimpleTextAsset",
+  category: "ASSET",
+  accessLevel: "WRITE" as const,
+  folderPath: "/Assets/qa4601_src",
+  leaf: true,
+};
+
+const MOVED_ITEM = {
+  ...SOURCE_ITEM,
+  path: "/Assets/qa4601_dst/qa4601itm",
+  folderPath: "/Assets/qa4601_dst",
+};
+
+const DEST_FOLDER = {
+  id: "f-4601-dst",
+  path: "/Assets/qa4601_dst",
+  name: "qa4601_dst",
   type: "folder",
   accessLevel: "WRITE" as const,
   folderPath: "/Assets",
 };
 
-const DEST = {
-  id: "f-3655-dst",
-  path: "/Assets/qa3655_dst",
-  name: "qa3655_dst",
+const SRC_FOLDER = {
+  id: "f-4601-src",
+  path: "/Assets/qa4601_src",
+  name: "qa4601_src",
   type: "folder",
   accessLevel: "WRITE" as const,
   folderPath: "/Assets",
 };
 
-const MOVED = {
-  ...SOURCE,
-  path: "/Assets/qa3655_dst/qa3655_src",
-  folderPath: "/Assets/qa3655_dst",
-};
-
-describe("ContentExplorerShell move folder (#3655 / #4601)", {
-  timeout: EXPLORER_SHELL_TEST_TIMEOUT,
-}, () => {
-  it("POSTs moveFolder via REST picker then opens dest and refreshes list and tree (#4601)", async () => {
+describe("ContentExplorerShell move item (#4601)", () => {
+  it("POSTs move/item for a selected asset and refreshes the dest list", async () => {
     let moved = false;
     const moveUrls: string[] = [];
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
-      if (url.includes("/rest/folders/move/folder")) {
-        moved = true;
+      if (url.includes("/rest/folders/move/")) {
         moveUrls.push(url);
+        moved = true;
         return new Response(JSON.stringify({ message: "Moved OK" }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
         });
       }
-      const pathOnly = url.split("?")[0];
-      const isDestList = /qa3655_dst/.test(pathOnly);
-      const kids = moved
-        ? isDestList
-          ? [MOVED]
-          : [DEST]
-        : [SOURCE, DEST];
+      const destList = url.includes("qa4601_dst") || url.includes("paginatedFolder");
+      const kids = moved && destList ? [MOVED_ITEM] : [SOURCE_ITEM, DEST_FOLDER, SRC_FOLDER];
       if (url.includes("paginatedFolder") || url.includes("/folder/")) {
         return new Response(
           JSON.stringify({
@@ -108,57 +112,31 @@ describe("ContentExplorerShell move folder (#3655 / #4601)", {
 
     const { container } = renderShell(
       <ContentExplorerShell
-        initialPath="/Assets"
+        initialPath="/Assets/qa4601_src"
         loadDisplayFormats={async () => []}
         loadMenuActions={async () => []}
         loadWorkflowMenuActions={async () => null}
         listViews={async () => []}
+        actionHandlers={{}}
       />,
     );
 
-    const sourceRow = await screen.findByTestId(
-      "detail-row-f-3655-src",
-      {},
-      { timeout: 8_000 },
-    );
+    const sourceRow = await screen.findByTestId("detail-row-a-4601-src");
     fireEvent.click(sourceRow);
-    const moveBtn = await screen.findByTestId(
-      "action-move",
-      {},
-      { timeout: 8_000 },
-    );
+    const moveBtn = await screen.findByTestId("action-move");
     expect(moveBtn).toBeEnabled();
     fireEvent.click(moveBtn);
-
     const destInput = await screen.findByTestId("explorer-move-dest-input");
-    fireEvent.change(destInput, { target: { value: "/Assets/qa3655_dst" } });
+    fireEvent.change(destInput, { target: { value: "/Assets/qa4601_dst" } });
     fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
 
-    await waitFor(
-      () => {
-        expect(moved).toBe(true);
-        expect(moveUrls.some((u) => u.includes("/rest/folders/move/folder"))).toBe(
-          true,
-        );
-        expect(screen.getByTestId("detail-row-f-3655-src")).toBeInTheDocument();
-        expect(screen.getByText("qa3655_src")).toBeInTheDocument();
-      },
-      { timeout: 8_000 },
-    );
-    await waitFor(
-      () => {
-        expect(screen.getByTestId("tree-node-/Assets/qa3655_dst")).toBeInTheDocument();
-      },
-      { timeout: 8_000 },
-    );
-    expect(
-      screen.queryByTestId("tree-node-/Assets/qa3655_src"),
-    ).not.toBeInTheDocument();
-    const nav = screen.getByTestId("explorer-nav");
-    expect(Number(nav.getAttribute("data-folder-tree-epoch"))).toBeGreaterThan(
-      0,
-    );
-    expect(Number(nav.getAttribute("data-list-epoch"))).toBeGreaterThan(0);
+    await waitFor(() => {
+      expect(moved).toBe(true);
+      expect(moveUrls.some((u) => u.includes("/rest/folders/move/item"))).toBe(true);
+      expect(moveUrls.some((u) => u.includes("/rest/folders/move/folder"))).toBe(
+        false,
+      );
+    });
     await renderA11yGate(container);
   });
 });

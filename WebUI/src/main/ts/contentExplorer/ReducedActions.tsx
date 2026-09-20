@@ -31,7 +31,9 @@
 import React, { useCallback, useState } from "react";
 import { formatApiError } from "../api/client";
 import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
+import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
 import { formatCopyItemError } from "./copyItemErrors";
+import { formatMoveItemError } from "./moveItemErrors";
 // Dual-run router (#3074): pathmanagement when flag off; RX folders REST under
 // /Folders and /Sites when perc.explorer.rxFolderMutations is on.
 import {
@@ -39,7 +41,8 @@ import {
   copyFolder,
   copyFolderItem,
   deleteItem,
-  moveItem,
+  moveFolder,
+  moveFolderItem,
   renameFolder,
 } from "../api/contentExplorer/folderMutations";
 import type { PSPathItem } from "../api/contentExplorer/types";
@@ -114,6 +117,7 @@ export function ReducedActions({
 }: ReducedActionsProps): React.ReactElement {
   const [pending, setPending] = useState<ReducedActionKey | null>(null);
   const [copyPickerItem, setCopyPickerItem] = useState<PSPathItem | null>(null);
+  const [movePickerItem, setMovePickerItem] = useState<PSPathItem | null>(null);
 
   const isItemFolder = isFolder(item);
   const itemWrite = canWrite(item) || canAdmin(item);
@@ -130,6 +134,8 @@ export function ReducedActions({
         const msg =
           key === "copy"
             ? formatCopyItemError(err)
+            : key === "move"
+            ? formatMoveItemError(err)
             : formatApiError(err, message(EXPLORER_MSG.ERROR_GENERIC));
         onError?.(msg);
       } finally {
@@ -174,11 +180,8 @@ export function ReducedActions({
 
   const handleMove = useCallback(() => {
     if (!item) return;
-    const prompt = handlers.prompt ?? defaultPrompt;
-    const target = prompt("Target folder path", item.folderPath ?? "/");
-    if (!target) return;
-    void runItemAction("move", () => handlers.onMove(item, target));
-  }, [handlers, item, runItemAction]);
+    setMovePickerItem(item);
+  }, [item]);
 
   const handleCopy = useCallback(() => {
     if (!item) return;
@@ -286,6 +289,17 @@ export function ReducedActions({
           onCancel={() => setCopyPickerItem(null)}
         />
       ) : null}
+      {movePickerItem ? (
+        <MoveDestinationPickerDialog
+          defaultPath={movePickerItem.folderPath ?? "/"}
+          onPick={(target) => {
+            const source = movePickerItem;
+            setMovePickerItem(null);
+            void runItemAction("move", () => handlers.onMove(source, target));
+          }}
+          onCancel={() => setMovePickerItem(null)}
+        />
+      ) : null}
     </div>
   );
 }
@@ -331,7 +345,15 @@ export function defaultReducedActionHandlers(): ReducedActionHandlers {
       await renameFolder({ path: item.path, newName });
     },
     onMove: async (item, targetPath) => {
-      await moveItem({ sourcePath: item.path, targetPath });
+      const body = { sourcePath: item.path, targetPath };
+      // Folders: POST /folders/move/folder. Pages/files/assets:
+      // POST /folders/move/item — both endpoints surface 403/404/409
+      // instead of wrapping the failure as 500 (#4601).
+      if (isFolder(item)) {
+        await moveFolder(body);
+      } else {
+        await moveFolderItem(body);
+      }
     },
     onCopy: async (item, targetPath) => {
       const body = { sourcePath: item.path, targetPath };

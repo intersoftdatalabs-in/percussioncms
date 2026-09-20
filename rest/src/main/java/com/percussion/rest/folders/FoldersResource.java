@@ -360,7 +360,13 @@ public class FoldersResource {
               + " include the full path to the item and folder, for example"
               + " /Sites/MySite/MyFolder/MyPage",
       responses = {
-        @ApiResponse(responseCode = "404", description = "Item not found"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Item or destination folder not found"),
+        @ApiResponse(responseCode = "403", description = "Not authorized to move"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Move conflicts with the destination (locked, name in use, etc.)"),
         @ApiResponse(
             responseCode = "200",
             description = "Moved OK",
@@ -371,6 +377,10 @@ public class FoldersResource {
       folderAdaptor.moveFolderItem(
           uriInfo.getBaseUri(), moveRequest.getItemPath(), moveRequest.getTargetFolderPath());
       return new Status("Moved OK");
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -394,7 +404,13 @@ public class FoldersResource {
               + " should include the full path to the source Folder and Target folder, for example"
               + " /Sites/MySite/MyFolder/MySubFolder",
       responses = {
-        @ApiResponse(responseCode = "404", description = "Item not found"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Source folder or destination folder not found"),
+        @ApiResponse(responseCode = "403", description = "Not authorized to move"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Move conflicts with the destination (locked, name in use, etc.)"),
         @ApiResponse(
             responseCode = "200",
             description = "Moved OK",
@@ -405,6 +421,10 @@ public class FoldersResource {
       folderAdaptor.moveFolderItem(
           uriInfo.getBaseUri(), moveRequest.getItemPath(), moveRequest.getTargetFolderPath());
       return new Status("Moved OK");
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));

@@ -398,6 +398,28 @@ export async function copyFolderItem(body: PSCopyRequest): Promise<void> {
 }
 
 /**
+ * Move a folder via public REST {@code POST /folders/move/folder}
+ * ({@code FoldersResource#moveFolder}). Distinct from
+ * {@code POST /folders/move/item} (#4601) — callers must route a folder
+ * to {@link moveFolder} and a page / file / asset to {@link moveFolderItem}.
+ */
+export async function moveFolder(body: PSMoveFolderItem): Promise<void> {
+  await post<void>(PATHS.FOLDERS_MOVE_FOLDER, wrapMoveFolderItem(body));
+}
+
+/**
+ * Move a non-folder item via {@code POST /folders/move/item}
+ * ({@code FoldersResource#moveFolderItem}). 404 (source or destination
+ * missing), 403 (not Admin), and 409 (destination conflict) are surfaced
+ * by the REST layer as the matching HTTP statuses so Explorer can show
+ * the correct error toast instead of treating the move as success
+ * (#4601).
+ */
+export async function moveFolderItem(body: PSMoveFolderItem): Promise<void> {
+  await post<void>(PATHS.FOLDERS_MOVE_ITEM, wrapMoveFolderItem(body));
+}
+
+/**
  * Jackson / JAXB root for sitemanage {@code PSDeleteFolderCriteria}
  * ({@code @XmlRootElement(name = "DeleteFolderCriteria")}).
  * {@code PSPathService#deleteFolderService} has no {@code /path/delete/{path}}

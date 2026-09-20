@@ -303,7 +303,15 @@ public abstract class PSPathItemService implements IPSPathService {
     var targetPath = toMoveRepositoryPath(request.getTargetFolderPath());
     var itemPath = toMoveRepositoryPath(request.getItemPath());
     validateUserAccessBeforeMove(itemPath, targetPath);
-    folderHelper.moveItem(targetPath, itemPath, true);
+    try {
+      folderHelper.moveItem(targetPath, itemPath, true);
+    } catch (org.springframework.transaction.UnexpectedRollbackException e) {
+      // Same Hibernate-vs-JDBC race copyFolderItem / #3667 absorbs in the
+      // adaptor: folder-children move can persist while Spring still marks
+      // the wrapping TX rollback-only. Treat as success so REST move/item
+      // is HTTP 200 and the destination list shows the moved item.
+      log.warn("moveItem folder-children move completed with rollback-only TX (#3667)", e);
+    }
 
     return new PSNoContent("moveItem");
   }

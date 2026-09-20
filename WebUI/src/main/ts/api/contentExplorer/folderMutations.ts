@@ -38,6 +38,8 @@ import {
   copyFolder as pathCopyFolder,
   copyFolderItem as pathCopyFolderItem,
   deleteItem as pathDeleteItem,
+  moveFolder as pathMoveFolder,
+  moveFolderItem as pathMoveFolderItem,
   moveItem as pathMoveItem,
   renameFolder as pathRenameFolder,
   type DeleteFolderOptions,
@@ -136,6 +138,24 @@ export async function copyFolder(body: PSCopyRequest): Promise<void> {
  */
 export async function copyFolderItem(body: PSCopyRequest): Promise<void> {
   await pathCopyFolderItem(body);
+}
+
+/**
+ * Move a folder via {@code FoldersResource#moveFolder}. Not pathmanagement
+ * {@code moveItem} (REST surfaces 403/404/409; pathmanagement wraps as
+ * 500 — the Explorer toast would lose the failure type, #4601).
+ */
+export async function moveFolder(body: PSMoveFolderItem): Promise<void> {
+  await pathMoveFolder(body);
+}
+
+/**
+ * Move a non-folder item via {@code FoldersResource#moveFolderItem}.
+ * Calling {@link moveFolder} for a page/file/asset throws; keep endpoints
+ * distinct (#4601).
+ */
+export async function moveFolderItem(body: PSMoveFolderItem): Promise<void> {
+  await pathMoveFolderItem(body);
 }
 
 /**

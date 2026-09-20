@@ -69,11 +69,51 @@ public class FoldersTest {
   }
 
   @Test
+  void moveFolderItem_mapsNotAuthorizedToForbidden() throws Exception {
+    MoveFolderItem req = new MoveFolderItem("/Assets/src/item", "/Assets/dst");
+    doThrow(new NotAuthorizedException())
+        .when(adaptor)
+        .moveFolderItem(any(), anyString(), anyString());
+    NotAuthorizedException thrown =
+        assertThrows(NotAuthorizedException.class, () -> resource.moveFolderItem(req));
+    assertEquals(jakarta.ws.rs.core.Response.Status.FORBIDDEN, thrown.getStatus());
+  }
+
+  @Test
+  void moveFolderItem_mapsFolderNotFound() throws Exception {
+    MoveFolderItem req = new MoveFolderItem("/Assets/missing", "/Assets/dst");
+    doThrow(new FolderNotFoundException())
+        .when(adaptor)
+        .moveFolderItem(any(), anyString(), anyString());
+    assertThrows(FolderNotFoundException.class, () -> resource.moveFolderItem(req));
+  }
+
+  @Test
   void moveFolder_callsAdaptor() throws Exception {
     MoveFolderItem req = new MoveFolderItem("/a/b", "/a/c");
     Status result = resource.moveFolder(req);
     assertEquals("Moved OK", result.getMessage());
     verify(adaptor).moveFolderItem(uriInfo.getBaseUri(), "/a/b", "/a/c");
+  }
+
+  @Test
+  void moveFolder_mapsNotAuthorizedToForbidden() throws Exception {
+    MoveFolderItem req = new MoveFolderItem("/Assets/src/folder", "/Assets/dst");
+    doThrow(new NotAuthorizedException())
+        .when(adaptor)
+        .moveFolderItem(any(), anyString(), anyString());
+    NotAuthorizedException thrown =
+        assertThrows(NotAuthorizedException.class, () -> resource.moveFolder(req));
+    assertEquals(jakarta.ws.rs.core.Response.Status.FORBIDDEN, thrown.getStatus());
+  }
+
+  @Test
+  void moveFolder_mapsFolderNotFound() throws Exception {
+    MoveFolderItem req = new MoveFolderItem("/Assets/missing/folder", "/Assets/dst");
+    doThrow(new FolderNotFoundException())
+        .when(adaptor)
+        .moveFolderItem(any(), anyString(), anyString());
+    assertThrows(FolderNotFoundException.class, () -> resource.moveFolder(req));
   }
 
   @Test
