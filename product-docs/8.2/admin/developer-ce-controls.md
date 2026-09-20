@@ -21,8 +21,11 @@ wildcards (`*` / `%`). Name cannot be renamed after create.
 targets a system control is **409** (packaged files are not mutated).
 
 `GET /services/cecontrols/{name}` **round-trips** `xslSource` for **user**
-controls. Create and save may include `xslSource`; when omitted the server
-writes (or regenerates) a default user-control stylesheet from the metadata.
+controls. **System** control detail may include a **read-only** ControlMeta
+snippet extracted from the packaged stylesheet (the chrome shows it in a
+read-only editor; PUT/DELETE stay **409**). Create and save may include
+`xslSource`; when omitted the server writes (or regenerates) a default
+user-control stylesheet from the metadata.
 
 ## Product path — create
 
@@ -53,9 +56,9 @@ writes (or regenerates) a default user-control stylesheet from the metadata.
 3. Click **Delete user control**. Confirm in the in-app dialog (not the
    browser `window.confirm` prompt). A successful delete is **204**; a following
    GET is **404** and the catalog no longer lists the row.
-4. Open a **system** row to view parameters (and read-only source when the
-   API returns it). The detail is read-only; there is no create, save, or
-   delete chrome on a system control.
+4. Open a **system** row to view parameters and a **read-only XSL / ControlMeta
+   snippet** when the API returns it. The detail is read-only; there is no
+   create, save, or delete chrome on a system control.
 
 ## Limits
 

@@ -326,6 +326,36 @@ class ControlAdaptorWriteTest {
   }
 
   @Test
+  void find_systemControl_attachesReadOnlyControlMetaSnippet() throws IOException {
+    io.system.add(controlMeta("sys_EditBox"));
+    Path packaged = tempDir.resolve("sys_Templates.xsl");
+    Files.writeString(
+        packaged,
+        "<wrapper><psxctl:ControlMeta name=\"sys_EditBox\" dimension=\"single\">"
+            + "<psxctl:Description>edit box</psxctl:Description>"
+            + "</psxctl:ControlMeta>"
+            + "<psxctl:ControlMeta name=\"sys_Other\">x</psxctl:ControlMeta></wrapper>",
+        java.nio.charset.StandardCharsets.UTF_8);
+    io.systemFile = packaged;
+
+    ControlDef fetched = adaptor.findControlByName("sys_EditBox");
+    assertNotNull(fetched);
+    assertEquals("system", fetched.getScope());
+    assertNotNull(fetched.getXslSource());
+    assertTrue(fetched.getXslSource().contains("name=\"sys_EditBox\""));
+    assertTrue(fetched.getXslSource().contains("edit box"));
+    assertFalse(fetched.getXslSource().contains("sys_Other"));
+    assertFalse(Files.exists(io.dir.resolve("sys_EditBox.xsl")));
+  }
+
+  @Test
+  void extractNamedControlMeta_returnsNullWhenMissing() {
+    assertNull(ControlAdaptor.extractNamedControlMeta("<root/>", "sys_EditBox"));
+    assertNull(ControlAdaptor.extractNamedControlMeta(null, "sys_EditBox"));
+    assertNull(ControlAdaptor.extractNamedControlMeta("<psxctl:ControlMeta name=\"x\"/>", ""));
+  }
+
+  @Test
   void designGaps_keepSystemHonesty_dropXslEditorGap() {
     assertEquals(1, ControlAdaptor.DESIGN_GAPS.size());
     assertEquals("System controls are read-only packaged defaults", ControlAdaptor.DESIGN_GAPS.get(0));
@@ -337,6 +367,7 @@ class ControlAdaptorWriteTest {
   static final class TestUserControlIo implements UserControlIo {
     final Path dir;
     final List<PSControlMeta> system = new ArrayList<>();
+    Path systemFile;
     int importsWritten;
 
     TestUserControlIo(Path dir) {
@@ -384,6 +415,11 @@ class ControlAdaptorWriteTest {
     public Path findUserControlFile(String name) {
       Path file = dir.resolve(name + ".xsl");
       return Files.isRegularFile(file) ? file : null;
+    }
+
+    @Override
+    public Path findSystemControlFile(String name) {
+      return systemFile;
     }
   }
 
