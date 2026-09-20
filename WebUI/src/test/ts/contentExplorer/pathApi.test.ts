@@ -20,7 +20,9 @@ import {
   copyFolder,
   copyFolderItem,
   COPY_FOLDER_ITEM_REQUEST_ROOT,
+  deleteFolderItem,
   deleteItem,
+  foldersDeleteItemUrl,
   wrapDeleteFolderCriteria,
   folderDeleteGuid,
   encodePath,
@@ -362,6 +364,14 @@ describe("pathmanagement URL shape (no double-slash)", () => {
         guid: "1-101-1",
       },
     });
+  });
+
+  it("deleteFolderItem DELETEs public REST folders/item path (#4602)", async () => {
+    const cap = mockJson({ Status: { statusCode: 200, message: "Ok" } });
+    await deleteFolderItem("/Assets/src/qa4602itm");
+    expect(cap.lastUrl()).toContain("/rest/folders/item/Assets/src/qa4602itm");
+    expect(cap.lastUrl()).not.toContain("/path/deleteFolder");
+    expect(foldersDeleteItemUrl("/Assets/a b")).toContain("a%20b");
   });
 
   it("wrapDeleteFolderCriteria always sends guid string (never null)", () => {

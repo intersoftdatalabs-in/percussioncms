@@ -254,7 +254,11 @@ public class FoldersResource {
               + " http://localhost:9992/Rhythmyx/rest/folders/item/MySite/FolderA/FolderB/MyFolder/myitem.html"
               + " .",
       responses = {
-        @ApiResponse(responseCode = "404", description = "Folder not found"),
+        @ApiResponse(responseCode = "404", description = "Item not found"),
+        @ApiResponse(responseCode = "403", description = "Not authorized to delete"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Delete conflicts (folder selected, in use, or locked)"),
         @ApiResponse(responseCode = "500", description = "Error"),
         @ApiResponse(
             responseCode = "200",
@@ -262,17 +266,16 @@ public class FoldersResource {
             content = @Content(schema = @Schema(implementation = Status.class)))
       })
   public Status deleteFolderItem(@PathParam(value = "itempath") String itempath) {
-    Status ret = new Status(500, "Error");
-
     try {
       itempath = java.net.URLDecoder.decode(itempath, "UTF-8");
-
       folderAdaptor.deleteFolderItem(uriInfo.getBaseUri(), itempath);
-
-      ret.setMessage("Ok");
-      ret.setStatusCode(200);
-
-      return ret;
+      return new Status(200, "Ok");
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (NotFoundException nfe) {
+      throw nfe;
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (BackendException | UnsupportedEncodingException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -360,7 +363,13 @@ public class FoldersResource {
               + " include the full path to the item and folder, for example"
               + " /Sites/MySite/MyFolder/MyPage",
       responses = {
-        @ApiResponse(responseCode = "404", description = "Item not found"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Item or destination folder not found"),
+        @ApiResponse(responseCode = "403", description = "Not authorized to move"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Move conflicts with the destination (locked, name in use, etc.)"),
         @ApiResponse(
             responseCode = "200",
             description = "Moved OK",
@@ -371,6 +380,10 @@ public class FoldersResource {
       folderAdaptor.moveFolderItem(
           uriInfo.getBaseUri(), moveRequest.getItemPath(), moveRequest.getTargetFolderPath());
       return new Status("Moved OK");
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -394,7 +407,13 @@ public class FoldersResource {
               + " should include the full path to the source Folder and Target folder, for example"
               + " /Sites/MySite/MyFolder/MySubFolder",
       responses = {
-        @ApiResponse(responseCode = "404", description = "Item not found"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Source folder or destination folder not found"),
+        @ApiResponse(responseCode = "403", description = "Not authorized to move"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Move conflicts with the destination (locked, name in use, etc.)"),
         @ApiResponse(
             responseCode = "200",
             description = "Moved OK",
@@ -405,6 +424,10 @@ public class FoldersResource {
       folderAdaptor.moveFolderItem(
           uriInfo.getBaseUri(), moveRequest.getItemPath(), moveRequest.getTargetFolderPath());
       return new Status("Moved OK");
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (BackendException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));

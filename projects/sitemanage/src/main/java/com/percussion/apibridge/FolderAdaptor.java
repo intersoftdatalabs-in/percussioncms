@@ -96,6 +96,7 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.content.IPSContentWs;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1363,7 +1364,15 @@ public class FolderAdaptor implements IFolderAdaptor {
       request.setItemPath(itemPath);
       request.setTargetFolderPath(targetFolderPath);
 
-      getPathService().moveItem(request);
+      try {
+        getPathService().moveItem(request);
+      } catch (org.springframework.transaction.UnexpectedRollbackException e) {
+        // Folder-child move can persist while Spring still marks the wrapping
+        // TX rollback-only (same Hibernate-vs-JDBC race copyFolderItem handles
+        // under #3667). Treat as success so REST move/item is HTTP 200 and the
+        // destination list shows the moved item.
+        log.warn("move/item folder-children move completed with rollback-only TX (#3667)", e);
+      }
 
       PSPathItem targetPathItem = null;
       try {
@@ -1577,21 +1586,62 @@ public class FolderAdaptor implements IFolderAdaptor {
     try {
       checkAPIPermission();
 
-      PSPathItem ps = null;
+      PSPathItem ps;
       try {
         ps = pathService.find(itemPath);
+      } catch (PSPathNotFoundServiceException e) {
+        throw new FolderNotFoundException();
       } catch (Exception e) {
-        throw new NotFoundException(itemPath + " Not Found");
+        throw new FolderNotFoundException();
       }
 
       if (ps == null) {
-        throw new NotFoundException(itemPath + " Not Found");
+        throw new FolderNotFoundException();
       }
 
-      ArrayList<IPSGuid> guids = new ArrayList<>();
-      guids.add(idMapper.getGuid(ps.getId()));
+      if (ps.isFolder()) {
+        throw new WebApplicationException(
+            "Use folder delete for folders", jakarta.ws.rs.core.Response.Status.CONFLICT);
+      }
 
-      this.contentService.deleteItems(guids);
+      String parent = null;
+      try {
+        List<String> fps = folderHelper.findPaths(ps.getId());
+        if (fps != null && !fps.isEmpty()) {
+          parent = fps.get(0);
+        }
+      } catch (Exception ignored) {
+        // Fall back to path item folder path.
+      }
+      if (StringUtils.isBlank(parent)) {
+        parent = ps.getFolderPath();
+      }
+      if (StringUtils.isBlank(parent)) {
+        parent = PSPathUtils.getFolderPath(StringUtils.defaultString(ps.getPath()));
+      }
+      if (StringUtils.isBlank(parent)) {
+        throw new FolderNotFoundException();
+      }
+      if (!parent.startsWith("//")) {
+        parent = "/" + StringUtils.stripStart(parent, "/");
+        if (!parent.startsWith("//")) {
+          parent = "/" + parent;
+        }
+      }
+
+      try {
+        folderHelper.removeItem(parent, ps.getId(), false);
+      } catch (org.springframework.transaction.UnexpectedRollbackException e) {
+        log.warn("delete/item recycle completed with rollback-only TX (#3667)", e);
+      } catch (Exception e) {
+        log.error(PSExceptionUtils.getMessageForLog(e));
+        throw new WebApplicationException(
+            e.getMessage(), jakarta.ws.rs.core.Response.Status.CONFLICT);
+      }
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (PSDataServiceException e) {
       throw new BackendException(e);
     }

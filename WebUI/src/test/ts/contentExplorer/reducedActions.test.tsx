@@ -177,7 +177,7 @@ describe("ReducedActions", () => {
     expect(calls.onPreview).toHaveLength(1);
   });
 
-  it("enables delete only on writable folders", () => {
+  it("enables delete on writable folders and items, not view-only (#4602)", () => {
     const { handlers } = makeHandlers();
     const { rerender } = render(
       <ReducedActions
@@ -191,6 +191,24 @@ describe("ReducedActions", () => {
     rerender(
       <ReducedActions
         item={FOLDER}
+        folder={null}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    expect(screen.getByTestId("action-delete")).toBeEnabled();
+    const asset: PSPathItem = {
+      id: "a-4602",
+      path: "/Assets/qa4602",
+      name: "qa4602",
+      type: "percSimpleTextAsset",
+      category: "ASSET",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    rerender(
+      <ReducedActions
+        item={asset}
         folder={null}
         handlers={handlers}
         onError={() => undefined}
@@ -293,28 +311,128 @@ describe("ReducedActions", () => {
     expect(String(onError.mock.calls[0]?.[0])).toMatch(/500|denied/);
   });
 
-  it("default onMove POSTs MoveFolderItem wrap to pathmanagement moveItem (#3655)", async () => {
+  it("default onMove POSTs to /folders/move/folder for folders (#4601)", async () => {
     const handlers = defaultReducedActionHandlers();
     let url = "";
     let posted: unknown;
     mockFetch(async (input, init) => {
       url = typeof input === "string" ? input : (input as Request).url;
       posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
-      return new Response(JSON.stringify({ NoContent: { operation: "moveItem" } }), {
+      return new Response(JSON.stringify({ message: "Moved OK" }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
     });
-    await handlers.onMove(FOLDER, "/Sites/Dst");
-    expect(url).toContain("/pathmanagement/path/moveItem");
+    await handlers.onMove(FOLDER, "/Assets/Dst");
+    expect(url).toContain("/rest/folders/move/folder");
+    expect(url).not.toContain("/rest/folders/move/item");
+    expect(url).not.toContain("/pathmanagement/path/moveItem");
     expect(url).not.toContain("/content-explorer/folders");
     expect(posted).toEqual({
       MoveFolderItem: {
         itemPath: "/Sites/Foo",
-        targetFolderPath: "/Sites/Dst",
+        targetFolderPath: "/Assets/Dst",
       },
     });
     expect(posted).not.toHaveProperty("sourcePath");
+  });
+
+  it("default onDelete DELETEs /folders/item for assets (#4602)", async () => {
+    const handlers = defaultReducedActionHandlers();
+    const asset: PSPathItem = {
+      id: "a-4602",
+      path: "/Assets/qa4602_src",
+      name: "qa4602_src",
+      type: "percSimpleTextAsset",
+      category: "ASSET",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    let url = "";
+    let method = "";
+    mockFetch(async (input, init) => {
+      url = typeof input === "string" ? input : (input as Request).url;
+      method = String((init as RequestInit)?.method ?? "GET");
+      return new Response(JSON.stringify({ message: "Ok" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await handlers.onDelete(asset);
+    expect(method.toUpperCase()).toBe("DELETE");
+    expect(url).toContain("/rest/folders/item/Assets/qa4602_src");
+    expect(url).not.toContain("/path/deleteFolder");
+    expect(url).not.toContain("/content-explorer/folders");
+  });
+
+  it("default onMove POSTs to /folders/move/item for assets (#4601)", async () => {
+    const handlers = defaultReducedActionHandlers();
+    const asset: PSPathItem = {
+      id: "a-4601",
+      path: "/Assets/qa4601_src",
+      name: "qa4601_src",
+      type: "percSimpleTextAsset",
+      category: "ASSET",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    let url = "";
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      url = typeof input === "string" ? input : (input as Request).url;
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(JSON.stringify({ message: "Moved OK" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await handlers.onMove(asset, "/Assets/Dst");
+    expect(url).toContain("/rest/folders/move/item");
+    expect(url).not.toContain("/rest/folders/move/folder");
+    expect(url).not.toContain("/pathmanagement/path/moveItem");
+    expect(posted).toEqual({
+      MoveFolderItem: {
+        itemPath: "/Assets/qa4601_src",
+        targetFolderPath: "/Assets/Dst",
+      },
+    });
+  });
+
+  it("Move opens destination picker then POSTs on confirm (#4601)", async () => {
+    const { handlers, calls } = makeHandlers();
+    render(
+      <ReducedActions
+        item={FOLDER}
+        folder={null}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-move"));
+    expect(screen.getByTestId("explorer-move-dest-picker")).toBeInTheDocument();
+    const input = screen.getByTestId("explorer-move-dest-input");
+    fireEvent.change(input, { target: { value: "/Assets/Dst" } });
+    fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
+    await waitFor(() => expect(calls.onMove).toHaveLength(1));
+    expect(calls.onMove[0]).toEqual({ item: FOLDER, targetPath: "/Assets/Dst" });
+  });
+
+  it("Move picker cancel does not move", async () => {
+    const { handlers, calls } = makeHandlers();
+    render(
+      <ReducedActions
+        item={FOLDER}
+        folder={null}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-move"));
+    fireEvent.click(screen.getByTestId("explorer-move-dest-cancel"));
+    await waitFor(() =>
+      expect(screen.queryByTestId("explorer-move-dest-picker")).toBeNull(),
+    );
+    expect(calls.onMove).toHaveLength(0);
   });
 
   it("Copy opens destination picker then POSTs on confirm (#4600)", async () => {

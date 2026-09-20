@@ -89,13 +89,34 @@ function hasRxFolderMutationsQuery(url) {
 }
 
 /**
- * Pathmanagement moveItem.
+ * Pathmanagement moveItem — Move must not POST this after slice 8 (#4601)
+ * (REST `/rest/folders/move/folder` is the new default).
  *
  * @param {string | null | undefined} url
  * @returns {boolean}
  */
 function isPathmanagementMoveItemUrl(url) {
   return /\/pathmanagement\/path\/moveItem(?:\?|$)/i.test(String(url || ""));
+}
+
+/**
+ * Public REST folder move ({@code FoldersResource#moveFolder}).
+ *
+ * @param {string | null | undefined} url
+ * @returns {boolean}
+ */
+function isFoldersMoveFolderUrl(url) {
+  return /\/rest\/folders\/move\/folder(?:\?|$)/i.test(String(url || ""));
+}
+
+/**
+ * Public REST item move ({@code FoldersResource#moveFolderItem}).
+ *
+ * @param {string | null | undefined} url
+ * @returns {boolean}
+ */
+function isFoldersMoveItemUrl(url) {
+  return /\/rest\/folders\/move\/item(?:\?|$)/i.test(String(url || ""));
 }
 
 /**
@@ -275,6 +296,8 @@ module.exports = {
   assetsFolderUrl,
   hasRxFolderMutationsQuery,
   isPathmanagementMoveItemUrl,
+  isFoldersMoveFolderUrl,
+  isFoldersMoveItemUrl,
   isRxContentExplorerFoldersUrl,
   isFoldersCopyFolderUrl,
   isMoveFolderSuccessStatus,

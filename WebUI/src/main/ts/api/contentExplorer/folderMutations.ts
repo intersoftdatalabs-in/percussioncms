@@ -37,7 +37,10 @@ import {
   addNewFolder as pathAddNewFolder,
   copyFolder as pathCopyFolder,
   copyFolderItem as pathCopyFolderItem,
+  deleteFolderItem as pathDeleteFolderItem,
   deleteItem as pathDeleteItem,
+  moveFolder as pathMoveFolder,
+  moveFolderItem as pathMoveFolderItem,
   moveItem as pathMoveItem,
   renameFolder as pathRenameFolder,
   type DeleteFolderOptions,
@@ -139,6 +142,24 @@ export async function copyFolderItem(body: PSCopyRequest): Promise<void> {
 }
 
 /**
+ * Move a folder via {@code FoldersResource#moveFolder}. Not pathmanagement
+ * {@code moveItem} (REST surfaces 403/404/409; pathmanagement wraps as
+ * 500 — the Explorer toast would lose the failure type, #4601).
+ */
+export async function moveFolder(body: PSMoveFolderItem): Promise<void> {
+  await pathMoveFolder(body);
+}
+
+/**
+ * Move a non-folder item via {@code FoldersResource#moveFolderItem}.
+ * Calling {@link moveFolder} for a page/file/asset throws; keep endpoints
+ * distinct (#4601).
+ */
+export async function moveFolderItem(body: PSMoveFolderItem): Promise<void> {
+  await pathMoveFolderItem(body);
+}
+
+/**
  * Move an item. Dual-run for moves under RX roots. A client-only
  * {@code copy:true} flag (never posted) still routes to {@link copyFolder}
  * so older call sites do not silently move.
@@ -200,6 +221,14 @@ export async function deleteItem(
     }
   }
   await pathDeleteItem(path, options);
+}
+
+/**
+ * Recycle a non-folder item via public REST {@code DELETE /folders/item/…}.
+ * Dual-run RX folder delete does not apply to pages/assets.
+ */
+export async function deleteFolderItem(itemPath: string): Promise<void> {
+  await pathDeleteFolderItem(itemPath);
 }
 
 /** Re-export flag helpers for call sites / tests. */

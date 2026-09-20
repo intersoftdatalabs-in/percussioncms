@@ -16,21 +16,24 @@
  */
 
 /**
- * Playwright surface: #3655 / parent #3102 — Explorer Move selected folder
- * on the product route ({@code spa.jsp?entry=explorer}) without
+ * Playwright surface: #3655 / #4601 / parent #3102 — Explorer Move selected
+ * folder on the product route ({@code spa.jsp?entry=explorer}) without
  * {@code rxFolderMutations=1}.
  *
  * <p>Coverage:</p>
  * <ul>
  *   <li>REST: Sites or Assets parent exists on H2 (no skip)</li>
- *   <li>UI: ReducedActions Move → {@code POST pathmanagement/path/moveItem} HTTP 200</li>
+ *   <li>UI: ReducedActions Move → {@code POST /rest/folders/move/folder} HTTP 200
+ *       (was {@code pathmanagement/path/moveItem} before slice 8; now REST so the
+ *       UI receives 403/404/409 instead of a wrapped 500, #4601)</li>
  *   <li>UI: folder gone from source list/tree; visible under dest without View → Refresh</li>
  *   <li>Must not POST content-explorer/folders (flag off)</li>
  *   <li>Must not POST rest/folders/copy/folder (move is not copy)</li>
+ *   <li>Must not POST pathmanagement/path/moveItem (legacy sitemanage move — superseded by REST)</li>
  * </ul>
  *
  * <p>Out of scope: rxFolderMutations=1, item copy, rename/delete tree-refresh
- * residuals (#3652 / #3653).</p>
+ * residuals (#3652 / #3653), item Move (sibling #4601 spec).</p>
  *
  * <p><strong>No soft-skip</strong> when a Sites/Assets parent exists.
  * Do not claim gap-matrix Present from this surface.</p>
@@ -60,6 +63,8 @@ const {
   isPathmanagementMoveItemUrl,
   isRxContentExplorerFoldersUrl,
   isFoldersCopyFolderUrl,
+  isFoldersMoveFolderUrl,
+  isFoldersMoveItemUrl,
   isMoveFolderSuccessStatus,
   uniqueMoveFolderName,
   isMoveFolderItemEnvelope,
@@ -85,7 +90,7 @@ async function getStatus(request, url) {
   return res.status();
 }
 
-test.describe("Explorer Move Folder on product route (#3655 / #3102)", () => {
+test.describe("Explorer Move Folder on product route (#3655 / #4601 / #3102)", () => {
   test(
     "REST: Sites or Assets parent exists (no skip)",
     { tag: TAGS },
@@ -122,6 +127,8 @@ test.describe("Explorer Move Folder on product route (#3655 / #3102)", () => {
         if (
           (isPathmanagementMoveItemUrl(url) ||
             isFoldersCopyFolderUrl(url) ||
+            isFoldersMoveFolderUrl(url) ||
+            isFoldersMoveItemUrl(url) ||
             isRxContentExplorerFoldersUrl(url)) &&
           req.method() !== "OPTIONS"
         ) {
@@ -130,8 +137,8 @@ test.describe("Explorer Move Folder on product route (#3655 / #3102)", () => {
       });
 
       const stamp = Date.now();
-      const sourceName = uniqueMoveFolderName("qa3655src", stamp);
-      const destName = uniqueMoveFolderName("qa3655dst", stamp);
+      const sourceName = uniqueMoveFolderName("qa4601src", stamp);
+      const destName = uniqueMoveFolderName("qa4601dst", stamp);
       /** @type {{ path?: string, name?: string, guid?: string } | null} */
       let sourceFolder = null;
       /** @type {{ path?: string, name?: string, guid?: string } | null} */
@@ -165,8 +172,8 @@ test.describe("Explorer Move Folder on product route (#3655 / #3102)", () => {
           { parentPath, name: sourceName },
         );
         expect(
-          String(sourceFolder.name || sourceName).startsWith("qa3655"),
-          `source folder must be this test's qa3655* name, got ${sourceFolder.name}`,
+          String(sourceFolder.name || sourceName).startsWith("qa4601"),
+          `source folder must be this test's qa4601* name, got ${sourceFolder.name}`,
         ).toBe(true);
 
         await loginAsAdmin(page);
@@ -220,22 +227,23 @@ test.describe("Explorer Move Folder on product route (#3655 / #3102)", () => {
         const destPath = useAssets
           ? `/Assets/${destName}`
           : String(destFolder.path || `/${parentPath}/${destName}`);
-        page.once("dialog", async (dialog) => {
-          await dialog.accept(destPath);
-        });
 
         const moveRespPromise = page.waitForResponse(
           (res) =>
-            isPathmanagementMoveItemUrl(res.url()) &&
+            isFoldersMoveFolderUrl(res.url()) &&
             res.request().method() !== "OPTIONS",
           { timeout: 30_000 },
         );
 
         await moveBtn.click();
+        const destInput = page.locator('[data-testid="explorer-move-dest-input"]');
+        await expect(destInput).toBeVisible({ timeout: 10_000 });
+        await destInput.fill(destPath);
+        await page.locator('[data-testid="explorer-move-dest-ok"]').click();
         const moveResp = await moveRespPromise;
         expect(
           isMoveFolderSuccessStatus(moveResp.status()),
-          `moveItem expected 200, got ${moveResp.status()} ${moveResp.url()}`,
+          `move/folder expected 200, got ${moveResp.status()} ${moveResp.url()}`,
         ).toBe(true);
         const moveBody = moveResp.request().postDataJSON();
         expect(
@@ -256,6 +264,22 @@ test.describe("Explorer Move Folder on product route (#3655 / #3102)", () => {
         expect(
           copyHits,
           `Move must not POST copy/folder: ${JSON.stringify(copyHits)}`,
+        ).toEqual([]);
+
+        const pathmanagementHits = mutations.filter((m) =>
+          isPathmanagementMoveItemUrl(m.url),
+        );
+        expect(
+          pathmanagementHits,
+          `Move must not POST pathmanagement/path/moveItem (#4601 REST contract): ${JSON.stringify(pathmanagementHits)}`,
+        ).toEqual([]);
+
+        const itemMoveHits = mutations.filter((m) =>
+          isFoldersMoveItemUrl(m.url),
+        );
+        expect(
+          itemMoveHits,
+          `folder Move must not POST move/item: ${JSON.stringify(itemMoveHits)}`,
         ).toEqual([]);
 
         const tree = page.locator(`[data-testid="${MOVE_TEST_IDS.tree}"]`);

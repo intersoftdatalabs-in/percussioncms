@@ -416,6 +416,20 @@ export const PATHS = {
   get FOLDERS_COPY_ITEM() {
     return `${REST_ROOT}/folders/copy/item`;
   },
+  /** Public REST folder move ({@code FoldersResource#moveFolder}). */
+  get FOLDERS_MOVE_FOLDER() {
+    return `${REST_ROOT}/folders/move/folder`;
+  },
+  /** Public REST item move ({@code FoldersResource#moveFolderItem}). */
+  get FOLDERS_MOVE_ITEM() {
+    return `${REST_ROOT}/folders/move/item`;
+  },
+  /**
+   * Recycle a non-folder item ({@code DELETE FoldersResource#deleteFolderItem}).
+   */
+  get FOLDERS_DELETE_ITEM() {
+    return `${REST_ROOT}/folders/item`;
+  },
   /**
    * Folder recycle/delete ({@code POST} {@code PSDeleteFolderCriteria}).
    * Classic Finder uses this resource; there is no {@code /path/delete/{path}}.
