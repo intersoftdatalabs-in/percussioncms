@@ -96,12 +96,13 @@ export async function deleteServer(
   );
 }
 
-/** Request stop for a running publish job. */
+/** Request stop for a running publish job (POST …/servers/stopPublishing/{jobId}). */
 export async function stopPublishing(
   jobId: string | number,
 ): Promise<unknown> {
-  return get(
+  return post(
     `${PATHS.PUB_SERVERS}stopPublishing/${encodeURIComponent(String(jobId))}`,
+    {},
   );
 }
 
