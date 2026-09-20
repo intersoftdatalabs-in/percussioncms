@@ -225,6 +225,231 @@ describe("EditorHost", () => {
       /not allowed to check in/i,
     );
   });
+
+  it("restore toggle loads revisions, restore revives fields, and 403 is not success", async () => {
+    const checkout = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi
+      .fn()
+      .mockResolvedValueOnce(fields)
+      .mockResolvedValueOnce({
+        ...fields,
+        fields: [
+          { name: "sys_title", value: "Home (restored)" },
+          { name: "displaytitle", value: "Restored welcome" },
+        ],
+      });
+    const loadRevisions = vi.fn().mockResolvedValue({
+      restorable: true,
+      revisions: [
+        {
+          revId: 5,
+          status: "Quick Edit",
+          lastModifier: "admin",
+          lastModifiedDate: "2026-04-12",
+        },
+      ],
+      comments: [],
+    });
+    const restoreRevision = vi.fn().mockResolvedValue(undefined);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+                loadRevisions={loadRevisions}
+                restoreRevision={restoreRevision}
+                confirmRestore={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-restore-toggle"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-restore-panel")).toBeTruthy();
+    });
+    expect(loadRevisions).toHaveBeenCalledWith("42");
+    expect(screen.getByTestId("editor-restore-select")).toBeTruthy();
+    fireEvent.change(screen.getByTestId("editor-restore-select"), {
+      target: { value: "5" },
+    });
+    fireEvent.click(screen.getByTestId("editor-restore-confirm"));
+    await waitFor(() => {
+      expect(restoreRevision).toHaveBeenCalledWith("42", 5);
+    });
+    expect(loadFields).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-restore-done")).toBeTruthy();
+    });
+    const titleField = screen.getByTestId(
+      "editor-field-sys_title",
+    ) as HTMLInputElement;
+    expect(titleField.value).toBe("Home (restored)");
+  });
+
+  it("restore shows forbidden copy when REST returns 403 and does not refresh fields", async () => {
+    const checkout = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi.fn().mockResolvedValue(fields);
+    const loadRevisions = vi.fn().mockResolvedValue({
+      restorable: true,
+      revisions: [
+        {
+          revId: 3,
+          status: "Live",
+          lastModifier: "admin",
+          lastModifiedDate: "2026-04-10",
+        },
+      ],
+      comments: [],
+    });
+    const restoreRevision = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "not allowed" },
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+                loadRevisions={loadRevisions}
+                restoreRevision={restoreRevision}
+                confirmRestore={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-restore-toggle"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-restore-panel")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-restore-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-restore-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-restore-error").textContent).toMatch(
+      /not allowed to restore/i,
+    );
+    expect(loadFields).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("editor-restore-done")).toBeNull();
+  });
+
+  it("restore maps 404 to the not-found copy and shows it in the panel", async () => {
+    const checkout = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi.fn().mockResolvedValue(fields);
+    const loadRevisions = vi.fn().mockResolvedValue({
+      restorable: true,
+      revisions: [
+        {
+          revId: 9,
+          status: "Live",
+          lastModifier: "admin",
+          lastModifiedDate: "2026-04-10",
+        },
+      ],
+      comments: [],
+    });
+    const restoreRevision = vi.fn().mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "no such revision" },
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+                loadRevisions={loadRevisions}
+                restoreRevision={restoreRevision}
+                confirmRestore={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-restore-toggle"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-restore-panel")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-restore-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-restore-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-restore-error").textContent).toMatch(
+      /was not found/i,
+    );
+  });
+
+  it("does not show the restore toggle in view or promote modes", async () => {
+    const loadFields = vi.fn().mockResolvedValue(fields);
+    const viewRender = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-restore-toggle")).toBeNull();
+    viewRender.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=promote"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-promote-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-restore-toggle")).toBeNull();
+  });
 });
 
 describe("fieldValueAsString", () => {

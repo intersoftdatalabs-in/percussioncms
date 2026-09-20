@@ -103,4 +103,23 @@ export const EDITOR_MSG = {
   COPY_FORBIDDEN: "perc.ui.editor@You are not allowed to copy this item.",
   COPY_NOT_FOUND: "perc.ui.editor@This item was not found.",
   COPY_UNAVAILABLE: "perc.ui.editor@Copy is only available while editing an item.",
+  RESTORE_PRIOR_REVISION: "perc.ui.editor@Restore prior revision",
+  RESTORING: "perc.ui.editor@Restoring…",
+  RESTORE_CONFIRM:
+    "perc.ui.editor@Restore the selected revision as the current version? Unsaved edits will be lost.",
+  RESTORE_FAILED: "perc.ui.editor@Could not restore the prior revision.",
+  RESTORE_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to restore a revision of this item.",
+  RESTORE_NOT_FOUND:
+    "perc.ui.editor@This item or revision was not found.",
+  RESTORE_UNAVAILABLE:
+    "perc.ui.editor@Restoring a prior revision is only available while editing an item.",
+  RESTORE_NONE:
+    "perc.ui.editor@No prior revisions are available to restore.",
+  RESTORE_LOAD_FAILED:
+    "perc.ui.editor@Could not load the revisions for this item.",
+  RESTORED: "perc.ui.editor@Prior revision restored.",
+  RESTORE_REVISION_LABEL: "perc.ui.editor@Revision",
+  RESTORE_OPEN: "perc.ui.editor@Show revisions",
+  RESTORE_HIDE: "perc.ui.editor@Hide revisions",
 };

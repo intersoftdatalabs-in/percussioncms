@@ -745,9 +745,17 @@ public class PSItemService implements IPSItemService {
       }
 
       return new PSNoContent("Item with id " + id + " has been restored.");
-    } catch (PSValidationException
-        | PSItemServiceException
-        | PSNotFoundException
+    } catch (PSNotFoundException e) {
+      log.error("Restore Revision 404. Error: {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(PSExceptionUtils.getMessageForLog(e),
+          Response.Status.NOT_FOUND);
+    } catch (PSValidationException e) {
+      log.error("Restore Revision 403. Error: {}", PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(PSExceptionUtils.getMessageForLog(e),
+          Response.Status.FORBIDDEN);
+    } catch (PSItemServiceException
         | IPSWidgetAssetRelationshipService.PSWidgetAssetRelationshipServiceException e) {
       log.error("Restore Revision Failed. Error: {}", PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
