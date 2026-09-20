@@ -55,6 +55,7 @@ import {
   isQueueEmpty,
 } from "../incrementalQueue";
 import {
+  extractPublishJobId,
   mapPublishError,
   mapPublishResponse,
   startPublishState,
@@ -353,6 +354,9 @@ export function SiteWorkspace({
       setActionState("error");
       return;
     }
+    if (!window.confirm(message(MSG.PUBLISH_CONFIRM_INCREMENTAL))) {
+      return;
+    }
     setActionState(startPublishState());
     setActionMessage(null);
     try {
@@ -374,7 +378,12 @@ export function SiteWorkspace({
         return;
       }
       setActionState(successPublishState());
-      setActionMessage(message(MSG.PUBLISH_SUCCESS));
+      const jobId = extractPublishJobId(result);
+      setActionMessage(
+        jobId
+          ? `${message(MSG.PUBLISH_JOB_STARTED)} ${jobId}`
+          : message(MSG.PUBLISH_SUCCESS),
+      );
       setPreviewLoaded(false);
       setRelatedPreview([]);
       setQueuePreview([]);
@@ -499,6 +508,7 @@ export function SiteWorkspace({
           style={buttonStyle}
           disabled={!selectedServerName || actionState === "starting"}
           onClick={() => void loadIncrementalPreview()}
+          data-testid="publish-incremental-preview-btn"
         >
           {message(MSG.PUBLISH_INCREMENTAL)} preview
         </button>
@@ -518,6 +528,7 @@ export function SiteWorkspace({
         <p
           style={actionState === "success" ? emptyStyle : errorStyle}
           role={actionState === "success" ? "status" : "alert"}
+          data-testid="publish-action-message"
         >
           {actionMessage}
         </p>
@@ -589,7 +600,7 @@ export function SiteWorkspace({
         </div>
       )}
 
-      <div style={{ marginTop: 20 }}>
+      <div style={{ marginTop: 20 }} data-testid="publish-site-jobs">
         <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_SECTION_STATUS)}</h3>
         {jobs.length === 0 ? (
           <p style={emptyStyle}>{message(MSG.PUBLISH_EMPTY_JOBS)}</p>
@@ -603,8 +614,9 @@ export function SiteWorkspace({
                   .toLowerCase()
                   .includes("run");
               return (
-                <li key={String(id)}>
+                <li key={String(id)} data-testid={`publish-job-${String(id)}`}>
                   {job.status} {job.serverName ?? ""}{" "}
+                  {id !== "" ? `job ${id}` : ""}{" "}
                   {stoppable && id !== "" && (
                     <button
                       type="button"

@@ -163,6 +163,7 @@ export function SitesSection({
               type="button"
               role="listitem"
               style={cardStyle}
+              data-testid={`publish-site-card-${site.name}`}
               onClick={() => setSelectedKey(siteKey(site))}
             >
               <strong>{site.name}</strong>
