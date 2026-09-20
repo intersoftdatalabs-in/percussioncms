@@ -114,6 +114,7 @@ class FolderAdaptorCopyFolderItemTest {
     source.setId("1-101-7");
     source.setType("percSimpleTextAsset");
     when(folderHelper.findItem("//Folders/$System$/Assets/src/item")).thenReturn(source);
+    when(folderHelper.findFolder("//Folders/$System$/Assets/dst")).thenReturn(source);
     PSLegacyGuid guid = new PSLegacyGuid(101, 1);
     when(idMapper.getGuid("1-101-7")).thenReturn(guid);
     when(contentService.newCopies(
@@ -143,6 +144,7 @@ class FolderAdaptorCopyFolderItemTest {
     source.setId("1-101-9");
     source.setType("percSimpleTextAsset");
     when(folderHelper.findItem("//Folders/$System$/Assets/src/item")).thenReturn(source);
+    when(folderHelper.findFolder("//Folders/$System$/Assets/dst")).thenReturn(source);
     PSLegacyGuid guid = new PSLegacyGuid(109, 1);
     when(idMapper.getGuid("1-101-9")).thenReturn(guid);
     when(contentService.newCopies(
@@ -167,6 +169,7 @@ class FolderAdaptorCopyFolderItemTest {
     source.setId("1-101-11");
     source.setType("percSimpleTextAsset");
     when(folderHelper.findItem("//Folders/$System$/Assets/src/item")).thenReturn(source);
+    when(folderHelper.findFolder("//Folders/$System$/Assets/dst")).thenReturn(source);
     PSLegacyGuid guid = new PSLegacyGuid(111, 1);
     when(idMapper.getGuid("1-101-11")).thenReturn(guid);
     when(contentService.newCopies(
@@ -196,5 +199,18 @@ class FolderAdaptorCopyFolderItemTest {
     assertThrows(
         FolderNotFoundException.class,
         () -> adaptor.copyFolderItem(base, "/Assets/missing/item", "/Assets/dst"));
+  }
+
+  @Test
+  void copyFolderItemMapsMissingDestToFolderNotFound() throws Exception {
+    PSDataItemSummary source = new PSDataItemSummary();
+    source.setId("1-101-13");
+    source.setType("percSimpleTextAsset");
+    when(folderHelper.findItem("//Folders/$System$/Assets/src/item")).thenReturn(source);
+    when(folderHelper.findFolder("//Folders/$System$/Assets/missing-dst"))
+        .thenThrow(new PSPathNotFoundServiceException("missing dest"));
+    assertThrows(
+        FolderNotFoundException.class,
+        () -> adaptor.copyFolderItem(base, "/Assets/src/item", "/Assets/missing-dst"));
   }
 }

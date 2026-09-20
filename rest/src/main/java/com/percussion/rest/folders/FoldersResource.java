@@ -464,10 +464,8 @@ public class FoldersResource {
       folderAdaptor.copyFolderItem(
           uriInfo.getBaseUri(), request.getItemPath(), request.getTargetFolderPath());
       return new Status(200, "Copied OK");
-    } catch (NotAuthorizedException | FolderNotFoundException e) {
+    } catch (NotAuthorizedException | FolderNotFoundException | NotFoundException e) {
       throw e;
-    } catch (NotFoundException nfe) {
-      return new Status(404, "Not Found");
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
