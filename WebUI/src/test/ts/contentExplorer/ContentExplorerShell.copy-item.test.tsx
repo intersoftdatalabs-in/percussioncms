@@ -112,9 +112,7 @@ describe("ContentExplorerShell copy item (#3656)", () => {
         loadDisplayFormats={async () => []}
         loadMenuActions={async () => []}
         loadWorkflowMenuActions={async () => null}
-        actionHandlers={{
-          prompt: () => "/Assets/qa3656_dst",
-        }}
+        actionHandlers={{}}
       />,
     );
 
@@ -123,6 +121,9 @@ describe("ContentExplorerShell copy item (#3656)", () => {
     const copyBtn = await screen.findByTestId("action-copy");
     expect(copyBtn).toBeEnabled();
     fireEvent.click(copyBtn);
+    const destInput = await screen.findByTestId("explorer-copy-dest-input");
+    fireEvent.change(destInput, { target: { value: "/Assets/qa3656_dst" } });
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
 
     await waitFor(() => {
       expect(copied).toBe(true);

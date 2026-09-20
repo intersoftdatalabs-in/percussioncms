@@ -24,6 +24,8 @@ import static org.mockito.Mockito.*;
 import com.percussion.rest.MoveFolderItem;
 import com.percussion.rest.Status;
 import com.percussion.rest.errors.BackendException;
+import com.percussion.rest.errors.FolderNotFoundException;
+import com.percussion.rest.errors.NotAuthorizedException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
@@ -85,6 +87,42 @@ public class FoldersTest {
         .thenReturn(f);
     Folder returned = resource.renameFolder("site/folder", "newname");
     assertSame(f, returned);
+  }
+
+  @Test
+  void copyFolderItem_successReturnsCopiedOk() throws Exception {
+    CopyFolderItemRequest req = new CopyFolderItemRequest();
+    req.setItemPath("/Assets/src/item");
+    req.setTargetFolderPath("/Assets/dst");
+    Status result = resource.copyFolderItem(req);
+    assertEquals(200, result.getStatusCode());
+    assertEquals("Copied OK", result.getMessage());
+    verify(adaptor)
+        .copyFolderItem(uriInfo.getBaseUri(), "/Assets/src/item", "/Assets/dst");
+  }
+
+  @Test
+  void copyFolderItem_mapsNotAuthorizedToForbidden() throws Exception {
+    CopyFolderItemRequest req = new CopyFolderItemRequest();
+    req.setItemPath("/Assets/src/item");
+    req.setTargetFolderPath("/Assets/dst");
+    doThrow(new NotAuthorizedException())
+        .when(adaptor)
+        .copyFolderItem(any(), anyString(), anyString());
+    NotAuthorizedException thrown =
+        assertThrows(NotAuthorizedException.class, () -> resource.copyFolderItem(req));
+    assertEquals(jakarta.ws.rs.core.Response.Status.FORBIDDEN, thrown.getStatus());
+  }
+
+  @Test
+  void copyFolderItem_mapsFolderNotFound() throws Exception {
+    CopyFolderItemRequest req = new CopyFolderItemRequest();
+    req.setItemPath("/Assets/missing");
+    req.setTargetFolderPath("/Assets/dst");
+    doThrow(new FolderNotFoundException())
+        .when(adaptor)
+        .copyFolderItem(any(), anyString(), anyString());
+    assertThrows(FolderNotFoundException.class, () -> resource.copyFolderItem(req));
   }
 
   @Test

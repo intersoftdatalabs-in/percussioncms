@@ -239,10 +239,6 @@ test.describe("Explorer Copy Item on product route (#3656 / #3102)", () => {
         const destPath = String(
           destFolder.path || `/Assets/${destFolderName}`,
         );
-        page.once("dialog", async (dialog) => {
-          await dialog.accept(destPath);
-        });
-
         const copyRespPromise = page.waitForResponse(
           (res) =>
             isFoldersCopyItemUrl(res.url()) &&
@@ -251,6 +247,12 @@ test.describe("Explorer Copy Item on product route (#3656 / #3102)", () => {
         );
 
         await copyBtn.click();
+        const destInput = page.locator(
+          '[data-testid="explorer-copy-dest-input"]',
+        );
+        await expect(destInput).toBeVisible({ timeout: 10_000 });
+        await destInput.fill(destPath);
+        await page.locator('[data-testid="explorer-copy-dest-ok"]').click();
         const copyResp = await copyRespPromise;
         expect(
           isCopyFolderSuccessStatus(copyResp.status()),
