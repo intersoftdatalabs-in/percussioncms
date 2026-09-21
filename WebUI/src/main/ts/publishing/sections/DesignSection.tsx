@@ -229,6 +229,7 @@ export function DesignSection(): React.ReactElement {
           <div style={toolbarStyle}>
             <button
               type="button"
+              data-testid="design-add-content-list"
               style={buttonStyle}
               onClick={() => setClEdit("new")}
             >

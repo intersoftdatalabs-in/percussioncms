@@ -213,23 +213,43 @@ export async function getContentList(
   )) as ContentListSummary;
 }
 
+function unwrapContentList(data: unknown): ContentListSummary {
+  if (data && typeof data === "object" && "contentList" in (data as object)) {
+    return (data as { contentList: ContentListSummary }).contentList;
+  }
+  return data as ContentListSummary;
+}
+
+/** JAXB/Jackson root wrap expected by sitemanage {@code PSContentListSummary}. */
+function wrapContentList(body: ContentListSummary): {
+  contentList: ContentListSummary;
+} {
+  return { contentList: body };
+}
+
+/** POST create. HTTP 403 non-Admin/Designer; 409 duplicate name. */
 export async function createContentList(
   body: ContentListSummary,
 ): Promise<ContentListSummary> {
-  return (await post<unknown>(
-    `${designRoot()}/contentlists`,
-    body,
-  )) as ContentListSummary;
+  return unwrapContentList(
+    await post<unknown>(
+      `${designRoot()}/contentlists`,
+      wrapContentList(body),
+    ),
+  );
 }
 
+/** PUT update. HTTP 403 non-Admin/Designer; 409 duplicate name. */
 export async function updateContentList(
   contentListId: string | number,
   body: ContentListSummary,
 ): Promise<ContentListSummary> {
-  return (await put<unknown>(
-    `${designRoot()}/contentlists/${encodeURIComponent(String(contentListId))}`,
-    body,
-  )) as ContentListSummary;
+  return unwrapContentList(
+    await put<unknown>(
+      `${designRoot()}/contentlists/${encodeURIComponent(String(contentListId))}`,
+      wrapContentList(body),
+    ),
+  );
 }
 
 export async function deleteContentList(

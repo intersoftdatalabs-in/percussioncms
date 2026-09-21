@@ -23,6 +23,8 @@ import {
   type ContentListSummary,
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
+import { mapContentListSaveError } from "../contentListSaveErrors";
+import { useDirtyForm } from "../dirtyFormContext";
 import {
   buttonStyle,
   errorStyle,
@@ -50,6 +52,7 @@ export function ContentListEditor({
   const [listType, setListType] = useState(contentList?.listType ?? "modern");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const { setDirty, confirmIfDirty } = useDirtyForm();
 
   useEffect(() => {
     setName(contentList?.name ?? "");
@@ -57,7 +60,8 @@ export function ContentListEditor({
     setGenerator(contentList?.generator ?? "");
     setUrl(contentList?.url ?? "");
     setListType(contentList?.listType ?? "modern");
-  }, [contentList]);
+    setDirty(false);
+  }, [contentList, setDirty]);
 
   const legacy = isLegacyContentList(listType);
 
@@ -81,12 +85,21 @@ export function ContentListEditor({
       } else {
         await createContentList(body);
       }
+      setDirty(false);
       onSaved();
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapContentListSaveError(e));
     } finally {
       setSaving(false);
     }
+  }
+
+  function handleCancel(): void {
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    onCancel();
   }
 
   async function handleDelete(): Promise<void> {
@@ -117,7 +130,10 @@ export function ContentListEditor({
         <input
           id="cl-name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            setDirty(true);
+          }}
           disabled={Boolean(contentList?.contentListId)}
         />
       </div>
@@ -126,7 +142,10 @@ export function ContentListEditor({
         <input
           id="cl-desc"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(e) => {
+            setDescription(e.target.value);
+            setDirty(true);
+          }}
         />
       </div>
       <div style={formRowStyle}>
@@ -134,7 +153,10 @@ export function ContentListEditor({
         <select
           id="cl-type"
           value={listType}
-          onChange={(e) => setListType(e.target.value)}
+          onChange={(e) => {
+            setListType(e.target.value);
+            setDirty(true);
+          }}
           disabled={Boolean(contentList?.contentListId)}
         >
           <option value="modern">Modern</option>
@@ -147,7 +169,10 @@ export function ContentListEditor({
           <input
             id="cl-url"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              setDirty(true);
+            }}
           />
         </div>
       ) : (
@@ -156,7 +181,10 @@ export function ContentListEditor({
           <input
             id="cl-gen"
             value={generator}
-            onChange={(e) => setGenerator(e.target.value)}
+            onChange={(e) => {
+              setGenerator(e.target.value);
+              setDirty(true);
+            }}
           />
         </div>
       )}
@@ -169,12 +197,13 @@ export function ContentListEditor({
         <button
           type="button"
           style={primaryButtonStyle}
+          data-testid="contentlist-save"
           disabled={saving}
           onClick={() => void handleSave()}
         >
           {message(MSG.PUBLISH_SAVE)}
         </button>
-        <button type="button" style={buttonStyle} onClick={onCancel}>
+        <button type="button" style={buttonStyle} onClick={handleCancel}>
           {message(MSG.PUBLISH_BACK)}
         </button>
         {contentList?.contentListId && (

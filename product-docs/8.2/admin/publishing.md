@@ -55,6 +55,19 @@ HTTP **403** (not Admin or Designer) and **409** (edition name already exists) a
 edition editor error region — not as a successful save. Content-list association, copy, and
 Runtime start/stop are separate Design/Runtime actions.
 
+### Save a content list (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Content lists**.
+**Add content list** (or open an existing list). Enter a **name** (required), optional description,
+type (modern vs legacy), generator or legacy URL, then **Save**. Unsaved field edits mark the form
+dirty; leaving the editor prompts to discard. The shell posts
+`POST …/sitemanage/publishingdesign/contentlists` (create) or
+`PUT …/sitemanage/publishingdesign/contentlists/{contentListId}` (update).
+
+HTTP **403** (not Admin or Designer) and **409** (content list name already exists) are shown in the
+content-list editor error region — not as a successful save. Edition save and delivery-type save
+are separate Design actions.
+
 ### Start or stop a publish job (Runtime)
 
 From **Publish** (`spa.jsp?entry=publish&section=runtime`), choose a **site** and
