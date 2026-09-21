@@ -6,9 +6,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import { coerceDisplayString, listSites } from "../api/developer/sitesApi";
 import type { SiteDef } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
-import { mutedCell, openButtonStyle } from "./catalogStyles";
+import { catalogColors, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { SiteCreatePanel } from "./SiteCreatePanel";
 import { SiteDetailPanel } from "./SiteDetailPanel";
 
 function siteName(s: SiteDef): string {
@@ -28,7 +29,18 @@ function siteName(s: SiteDef): string {
 export function SitesPanel(): React.ReactElement {
   const [items, setItems] = useState<SiteDef[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<SiteDef | null>(null);
+  const [selected, setSelected] = useState<SiteDef | "new" | null>(null);
+
+  function reload(): void {
+    setError(null);
+    listSites()
+      .then((list) => {
+        setItems(list);
+      })
+      .catch((e: unknown) => {
+        setError(panelErrMsg(e, DEV_MSG.SITE_ERROR));
+      });
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -45,6 +57,16 @@ export function SitesPanel(): React.ReactElement {
     };
   }, []);
 
+  function handleCreated(created: SiteDef): void {
+    reload();
+    setSelected(created);
+  }
+
+  function handleDeleted(): void {
+    setSelected(null);
+    reload();
+  }
+
   const sorted = useMemo(() => {
     if (!items) return [];
     return [...items]
@@ -54,8 +76,21 @@ export function SitesPanel(): React.ReactElement {
       );
   }, [items]);
 
+  if (selected === "new") {
+    return (
+      <SiteCreatePanel onBack={() => setSelected(null)} onCreated={handleCreated} />
+    );
+  }
+
   if (selected) {
-    return <SiteDetailPanel site={selected} onBack={() => setSelected(null)} />;
+    return (
+      <SiteDetailPanel
+        site={selected}
+        onBack={() => setSelected(null)}
+        onDeleted={handleDeleted}
+        onUpdated={(s) => setSelected(s)}
+      />
+    );
   }
 
   if (error)
@@ -68,8 +103,45 @@ export function SitesPanel(): React.ReactElement {
     return (
       <CatalogStatus testId="developer-site-loading">{DEV_MSG.SITE_LOADING}</CatalogStatus>
     );
-  if (items.length === 0)
-    return <CatalogStatus testId="developer-site-empty">{DEV_MSG.SITE_EMPTY}</CatalogStatus>;
+
+  const newButton = (
+    <button
+      type="button"
+      data-testid="developer-site-new"
+      onClick={() => setSelected("new")}
+      style={{
+        padding: "8px 14px",
+        background: catalogColors.accent,
+        color: "#fff",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }}
+    >
+      {DEV_MSG.SITE_NEW}
+    </button>
+  );
+
+  if (items.length === 0) {
+    return (
+      <div data-testid="developer-site-empty">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: "12px",
+            flexWrap: "wrap",
+            marginBottom: "12px",
+          }}
+        >
+          <CatalogStatus testId="developer-site-empty-msg">{DEV_MSG.SITE_EMPTY}</CatalogStatus>
+          {newButton}
+        </div>
+      </div>
+    );
+  }
+
   if (sorted.length === 0)
     return (
       <CatalogStatus testId="developer-site-error" error>
@@ -79,7 +151,19 @@ export function SitesPanel(): React.ReactElement {
 
   return (
     <div data-testid="developer-site-panel">
-      <CatalogHint>{DEV_MSG.SITE_HINT}</CatalogHint>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "12px",
+          gap: "12px",
+          flexWrap: "wrap",
+        }}
+      >
+        <CatalogHint>{DEV_MSG.SITE_HINT}</CatalogHint>
+        {newButton}
+      </div>
       <SimpleCatalogTable
         tableTestId="developer-site-table"
         rowTestId="developer-site-row"

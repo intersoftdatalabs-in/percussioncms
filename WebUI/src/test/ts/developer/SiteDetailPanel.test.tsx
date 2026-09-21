@@ -2,14 +2,14 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SiteDef } from "../../../main/ts/api/developer/types";
+import * as sitesApi from "../../../main/ts/api/developer/sitesApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { SiteDetailPanel } from "../../../main/ts/developer/SiteDetailPanel";
 
-// ObjectAclSection loads ACL via separate API; stub to isolate detail render + assert wiring.
 vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
   ObjectAclSection: (props: {
     objectGuid?: string | null;
@@ -24,18 +24,26 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
   ),
 }));
 
-// Virtual Site source panel has its own suite; stub to keep detail tests prop-driven.
 vi.mock("../../../main/ts/developer/VirtualSiteSourcePanel", () => ({
   VirtualSiteSourcePanel: (props: { siteName: string }) => (
     <div data-testid="developer-site-virtual-stub" data-site-name={props.siteName} />
   ),
 }));
 
-/**
- * SiteDetailPanel is prop-driven from the Sites list payload (no separate detail GET).
- * panelErrMsg ladders for load failures live on SitesPanel; this suite covers success +
- * default design-gaps empty fallback for the detail view itself.
- */
+vi.mock("../../../main/ts/api/developer/sitesApi", async () => {
+  const actual = await vi.importActual<typeof sitesApi>(
+    "../../../main/ts/api/developer/sitesApi",
+  );
+  return {
+    ...actual,
+    updateSite: vi.fn(),
+    deleteSite: vi.fn(),
+  };
+});
+
+const updateSite = sitesApi.updateSite as ReturnType<typeof vi.fn>;
+const deleteSite = sitesApi.deleteSite as ReturnType<typeof vi.fn>;
+
 const sampleSite: SiteDef = {
   name: "Corporate",
   description: "Main site",
@@ -53,6 +61,8 @@ describe("SiteDetailPanel", () => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
       message: (key: string) => key,
     };
+    updateSite.mockReset();
+    deleteSite.mockReset();
   });
 
   it("renders site detail from list payload and supports back", () => {
@@ -61,7 +71,9 @@ describe("SiteDetailPanel", () => {
     expect(screen.getByTestId("developer-site-detail")).toBeTruthy();
     expect(screen.getByTestId("developer-site-detail-title").textContent).toContain("Corporate");
     expect(screen.getByTestId("developer-site-gaps").textContent).toContain("gap-a");
-    expect(screen.getByText("https://example.com")).toBeTruthy();
+    expect(
+      (screen.getByTestId("developer-site-base-url-input") as HTMLInputElement).value,
+    ).toBe("https://example.com");
     const acl = screen.getByTestId("developer-site-acl-stub");
     expect(acl.getAttribute("data-object-kind")).toBe("site");
     expect(acl.getAttribute("data-object-guid")).toBe("0-10-1");
@@ -74,7 +86,7 @@ describe("SiteDetailPanel", () => {
     expect(onBack).toHaveBeenCalled();
   });
 
-  it("shows default design gaps when site has none", () => {
+  it("shows remaining design gaps when site has none", () => {
     const site: SiteDef = {
       name: "Bare",
       description: "",
@@ -82,9 +94,9 @@ describe("SiteDetailPanel", () => {
     };
     render(<SiteDetailPanel site={site} onBack={() => undefined} />);
     const gaps = screen.getByTestId("developer-site-gaps");
-    expect(gaps.textContent).toContain(DEV_MSG.SITE_GAP_WRITE);
     expect(gaps.textContent).toContain(DEV_MSG.SITE_GAP_PUBLISH);
     expect(gaps.textContent).toContain(DEV_MSG.SITE_GAP_WF);
+    expect(gaps.textContent).not.toContain("not supported from this Developer surface");
   });
 
   it("renders em-dash placeholders for missing optional fields", () => {
@@ -93,12 +105,8 @@ describe("SiteDetailPanel", () => {
     };
     render(<SiteDetailPanel site={site} onBack={() => undefined} />);
     expect(screen.getByTestId("developer-site-detail-title").textContent).toContain("Minimal");
-    // description / url / protocol empty → "—" in the meta grid
     const detail = screen.getByTestId("developer-site-detail");
     expect(detail.textContent).toMatch(/—/);
-    expect(screen.getByTestId("developer-site-gaps").textContent).toContain(
-      DEV_MSG.SITE_GAP_WRITE,
-    );
   });
 
   it("synthesizes object guid from host/type/uuid parts for Object ACL (#3203)", () => {
@@ -120,8 +128,46 @@ describe("SiteDetailPanel", () => {
     expect(screen.getByTestId("developer-site-acl-stub").getAttribute("data-object-guid")).toBe(
       "",
     );
-    expect(screen.getByTestId("developer-site-acl-stub").getAttribute("data-object-kind")).toBe(
-      "site",
+  });
+
+  it("saves description and base URL", async () => {
+    updateSite.mockResolvedValue({
+      name: "Corporate",
+      description: "New",
+      baseUrl: "https://n.example",
+    });
+    render(<SiteDetailPanel site={sampleSite} onBack={() => undefined} />);
+    fireEvent.change(screen.getByTestId("developer-site-description-input"), {
+      target: { value: "New" },
+    });
+    fireEvent.change(screen.getByTestId("developer-site-base-url-input"), {
+      target: { value: "https://n.example" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-save"));
+    await waitFor(() => {
+      expect(updateSite).toHaveBeenCalledWith("Corporate", {
+        name: "Corporate",
+        description: "New",
+        baseUrl: "https://n.example",
+      });
+    });
+    expect(screen.getByTestId("developer-site-save-notice").textContent).toBe(
+      DEV_MSG.SITE_SAVED,
     );
+  });
+
+  it("confirms delete then calls API", async () => {
+    deleteSite.mockResolvedValue(undefined);
+    const onDeleted = vi.fn();
+    render(
+      <SiteDetailPanel site={sampleSite} onBack={() => undefined} onDeleted={onDeleted} />,
+    );
+    fireEvent.click(screen.getByTestId("developer-site-delete"));
+    expect(deleteSite).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(deleteSite).toHaveBeenCalledWith("Corporate");
+    });
+    expect(onDeleted).toHaveBeenCalled();
   });
 });

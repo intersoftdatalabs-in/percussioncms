@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { get, post, put } from "../client";
+import { del, get, post, put } from "../client";
 import { objectGuidString } from "../displayFormatGuid";
 import { PATHS } from "../paths";
 import type {
@@ -17,10 +17,38 @@ import type {
 
 /** Honest design gaps for Developer SY-04 site browse (not full site design). */
 export const SITE_DESIGN_GAPS: string[] = [
-  "Site create / update / delete is not supported from this Developer surface",
   "Full site publish and section design live outside the Developer catalog",
   "Workflow association is browsed under the Workflows catalog",
 ];
+
+const SITE_NAME_RE = /^[A-Za-z][A-Za-z0-9_ -]{0,49}$/;
+
+export function normalizeSiteName(raw: string): string {
+  return raw.trim();
+}
+
+export function isValidSiteName(raw: string): boolean {
+  return SITE_NAME_RE.test(normalizeSiteName(raw));
+}
+
+export function isSiteCreateReady(opts: { name: string }): boolean {
+  return isValidSiteName(opts.name);
+}
+
+export type SiteWriteBody = {
+  name: string;
+  description?: string;
+  baseUrl?: string;
+  siteProtocol?: string;
+  defaultDocument?: string;
+  defaultFileExtention?: string;
+};
+
+export const SITE_WIRE_ROOT = "Site";
+
+export function wrapSiteForWire(body: SiteWriteBody): Record<string, SiteWriteBody> {
+  return { [SITE_WIRE_ROOT]: body };
+}
 
 const LIST_WRAPPER_KEYS = [
   "SiteList",
@@ -561,4 +589,37 @@ function asStringArray(value: unknown): string[] | undefined {
   if (value == null) return undefined;
   if (!Array.isArray(value)) return undefined;
   return value.filter((v): v is string => typeof v === "string");
+}
+
+function unwrapSitePayload(payload: unknown): SiteDef {
+  if (payload != null && typeof payload === "object" && !Array.isArray(payload)) {
+    const obj = payload as Record<string, unknown>;
+    const nested = obj.Site ?? obj.site;
+    if (nested != null && typeof nested === "object") {
+      return withGaps(normalizeSiteRow(nested));
+    }
+  }
+  return withGaps(normalizeSiteRow(payload));
+}
+
+/** POST /services/sites — Admin. Creates a publishing site. Duplicate name is 409. */
+export async function createSite(body: SiteWriteBody): Promise<SiteDef> {
+  const payload = await post<unknown>(PATHS.SITES, wrapSiteForWire(body));
+  return unwrapSitePayload(payload);
+}
+
+/** PUT /services/sites/{nameOrId} — Admin. Updates description/baseUrl/protocol/defaults. */
+export async function updateSite(
+  nameOrId: string,
+  body: SiteWriteBody,
+): Promise<SiteDef> {
+  const key = encodeURIComponent(nameOrId.trim());
+  const payload = await put<unknown>(`${PATHS.SITES}/${key}`, wrapSiteForWire(body));
+  return unwrapSitePayload(payload);
+}
+
+/** DELETE /services/sites/{nameOrId} — Admin. */
+export async function deleteSite(nameOrId: string): Promise<void> {
+  const key = encodeURIComponent(nameOrId.trim());
+  await del<void>(`${PATHS.SITES}/${key}`);
 }
