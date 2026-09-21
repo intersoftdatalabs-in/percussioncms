@@ -72,7 +72,7 @@ function consoleOn(page, pageErrors) {
     }
     const text = msg.text();
     if (
-      /Failed to load resource: the server responded with a status of (403|409)/.test(
+      /Failed to load resource: the server responded with a status of (403|404|409)/.test(
         text,
       )
     ) {
@@ -83,29 +83,39 @@ function consoleOn(page, pageErrors) {
 }
 
 async function stubEditorApis(page, { checkoutStatus, checkoutBody, checkinStatus } = {}) {
-  await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
+  const checkoutJson = JSON.stringify(
+    checkoutBody ?? {
+      EditorItemLockInfo: {
+        itemName: "Home",
+        checkOutUser: "admin",
+        currentUser: "admin",
+        assignmentType: "Assignee",
+      },
+    },
+  );
+  const fulfillCheckout = (route) =>
     route.fulfill({
       status: checkoutStatus ?? 200,
       contentType: "application/json",
-      body: JSON.stringify(
-        checkoutBody ?? {
-          ItemUserInfo: {
-            itemName: "Home",
-            checkOutUser: "admin",
-            currentUser: "admin",
-            assignmentType: "Assignee",
-          },
-        },
-      ),
-    }),
-  );
-  await page.route("**/services/itemmanagement/workflow/checkIn/**", (route) =>
+      body: checkoutJson,
+    });
+  const fulfillCheckin = (route) =>
     route.fulfill({
       status: checkinStatus ?? 200,
       contentType: "application/json",
-      body: JSON.stringify({ NoContent: { operation: "checkIn" } }),
-    }),
-  );
+      body: JSON.stringify({
+        EditorItemLockInfo: {
+          itemName: "Home",
+          checkOutUser: "",
+          currentUser: "admin",
+          assignmentType: "Assignee",
+        },
+      }),
+    });
+  await page.route("**/services/itemmanagement/workflow/checkOut/**", fulfillCheckout);
+  await page.route("**/rest/editor/items/**/checkout", fulfillCheckout);
+  await page.route("**/services/itemmanagement/workflow/checkIn/**", fulfillCheckin);
+  await page.route("**/rest/editor/items/**/checkin", fulfillCheckin);
   await page.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
     route.fulfill({
       status: 200,
@@ -131,6 +141,20 @@ async function stubEditorApis(page, { checkoutStatus, checkoutBody, checkinStatu
       status: 200,
       contentType: "application/json",
       body: JSON.stringify(FIELDS),
+    }),
+  );
+  await page.route("**/assembly/slot-relationships/canvas**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ SlotCanvas: { slots: [] } }),
+    }),
+  );
+  await page.route("**/content-explorer/relationships/**/local", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ PSLocalDependencySummary: { links: [] } }),
     }),
   );
 }

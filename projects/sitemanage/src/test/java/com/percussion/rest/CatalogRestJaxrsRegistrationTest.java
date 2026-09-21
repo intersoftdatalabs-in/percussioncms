@@ -65,6 +65,8 @@ class CatalogRestJaxrsRegistrationTest {
     "restContentTranslationsResource",
     // #3073 content-explorer folders façade over IPSContentWs
     "restContentExplorerFoldersResource",
+    // #4644 EditorHost checkout / check-in
+    "restEditorItemLockResource",
     // AS-09 / #4305 / #4307 Velocity tools + snippet catalog
     "restVelocityResource",
   };

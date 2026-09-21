@@ -98,6 +98,9 @@ async function stubEditorApis(page, opts) {
   await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
+  await page.route("**/rest/editor/items/**/checkout", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+  );
   await page.route("**/services/itemmanagement/item/fields/**", (route) => {
     const url = route.request().url();
     const fields = /\/fields\/99(?:[/?#]|$)/.test(url) ? PAGE_FIELDS_99 : PAGE_FIELDS_42;

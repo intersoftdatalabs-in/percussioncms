@@ -97,6 +97,12 @@ function consoleOn(page, pageErrors) {
 }
 
 async function stubCommonApis(page) {
+  await page.route("**/rest/editor/items/**/checkout", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+  );
+  await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+  );
   await page.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
     route.fulfill({
       status: 200,

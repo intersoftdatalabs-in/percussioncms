@@ -789,6 +789,13 @@ export const PATHS = {
   get ITEM_WORKFLOW_CHECKOUT() {
     return `${SERVICES_ROOT}/itemmanagement/workflow/checkOut/`;
   },
+  /** EditorHost lock actions (#4644) — HTTP 403/409 are failures. */
+  editorItemCheckout(itemId: string) {
+    return `${REST_ROOT}/editor/items/${encodeURIComponent(itemId)}/checkout`;
+  },
+  editorItemCheckin(itemId: string) {
+    return `${REST_ROOT}/editor/items/${encodeURIComponent(itemId)}/checkin`;
+  },
   get ITEM_WORKFLOW_FORCE_CHECKOUT() {
     return `${SERVICES_ROOT}/itemmanagement/workflow/forceCheckOut/`;
   },
