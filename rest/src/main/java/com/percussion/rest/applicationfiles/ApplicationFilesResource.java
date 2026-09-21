@@ -201,11 +201,13 @@ public class ApplicationFilesResource {
       summary = "Update application CMS/resource file",
       description =
           "Admin. Replaces UTF-8 text content for a relative path under a catalog application"
-              + " root. Query path is not taken from the body path field for persistence. Absolute"
-              + " paths, parent traversal, and unknown apps are 404 — no arbitrary filesystem"
-              + " write. Distinct from PUT /serverconfigs/{name} (SY-02). Requires a held"
-              + " design-session lock (POST .../lock). Unlocked or stolen lock is 409. For"
-              + " binary-safe replace (raw bytes, no UTF-8 mangling) use PUT .../binary.",
+              + " root, or creates the file when that path does not yet exist. Query path is not"
+              + " taken from the body path field for persistence. Absolute paths, parent"
+              + " traversal, and unknown apps are 404 — no arbitrary filesystem write. Distinct"
+              + " from PUT /serverconfigs/{name} (SY-02). Requires a held design-session lock"
+              + " (POST .../lock). Unlocked or stolen lock is 409. A directory occupying the"
+              + " path is 409. For binary-safe replace (raw bytes, no UTF-8 mangling) use PUT"
+              + " .../binary.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -213,10 +215,11 @@ public class ApplicationFilesResource {
             content = @Content(schema = @Schema(implementation = ApplicationFileSummary.class))),
         @ApiResponse(responseCode = "400", description = "Invalid input (missing body/content/path)"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
-        @ApiResponse(responseCode = "404", description = "Application or path not found / not allow-listed"),
+        @ApiResponse(responseCode = "404", description = "Unknown application or unsafe path"),
         @ApiResponse(
             responseCode = "409",
-            description = "Design lock required, or locked by another user"),
+            description =
+                "Design lock required, locked by another user, or a directory occupies the path"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
@@ -251,11 +254,12 @@ public class ApplicationFilesResource {
       summary = "Replace an application CMS/resource file with raw bytes",
       description =
           "Admin. Replaces the file body verbatim (binary-safe round-trip) for a relative path"
-              + " under a catalog application root. Query path is not taken from any body path"
-              + " field. Unsafe paths are 400; unknown apps or paths are 404; non-Admin is 403."
-              + " Requires a held design-session lock (POST .../lock); unlocked or stolen lock is"
-              + " 409. The updated detail reports binary=true when the new body is not valid UTF-8"
-              + " text.",
+              + " under a catalog application root, or creates the file when that path does not"
+              + " yet exist. Query path is not taken from any body path field. Unsafe paths are"
+              + " 400; unknown apps are 404; non-Admin is 403. Requires a held design-session"
+              + " lock (POST .../lock); unlocked or stolen lock is 409. A directory occupying"
+              + " the path is 409. The updated detail reports binary=true when the new body is"
+              + " not valid UTF-8 text.",
       responses = {
         @ApiResponse(
             responseCode = "200",

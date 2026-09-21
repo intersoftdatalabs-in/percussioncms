@@ -269,6 +269,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "SY-05 SPA application file folder CUD/rename H2 (#4544 / parent #1690)",
   },
   {
+    id: "application-files-create",
+    file: "developer-application-files-create.spec.js",
+    title: "Admin can create a missing application file via PUT",
+    status: "green",
+    notes: "SY-05 SPA application file create via PUT H2 (#4669 / parent #1690)",
+  },
+  {
     id: "application-files-binary",
     file: "developer-application-files-binary.spec.js",
     title: "Admin can download and replace a binary application file",

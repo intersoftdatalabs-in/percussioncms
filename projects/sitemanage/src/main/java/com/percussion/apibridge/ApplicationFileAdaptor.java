@@ -97,10 +97,8 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
 
   static final String SESSION_REQUIRED = "session and user are required for design lock";
 
-  private static final List<String> DESIGN_GAPS =
-      List.of(
-          "Admin PUT may create a new file when the relative path does not yet exist under the application root",
-          "Distinct from /serverconfigs (SY-02 fixed server configuration allow-list)");
+  /** Remaining design notes on detail payloads (empty when the SY-05 write surface is complete). */
+  private static final List<String> DESIGN_GAPS = List.of();
 
   private final Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader;
   private final ApplicationFileStore fileStore;
@@ -284,6 +282,7 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     if (safePath == null) {
       return null;
     }
+    rejectDirectoryTarget(resolved, safePath);
     requireHeldLock(resolved, safePath);
     PSSecurityToken tok = currentToken();
     byte[] bytes = body.getContent().getBytes(StandardCharsets.UTF_8);
@@ -337,6 +336,7 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     if (resolved == null) {
       return null;
     }
+    rejectDirectoryTarget(resolved, safePath);
     requireHeldLock(resolved, safePath);
     PSSecurityToken tok = currentToken();
     try (InputStream in = new ByteArrayInputStream(bytes)) {
@@ -674,6 +674,26 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
 
   private IPSLockerId currentLockerId() {
     return new PSXmlObjectStoreLockerId(userName(), true, sessionId());
+  }
+
+  /**
+   * PUT creates a missing relative file. A directory already occupying the path is 409, not a
+   * silent overwrite or 200 no-op.
+   */
+  private void rejectDirectoryTarget(ResolvedApp resolved, String safePath) {
+    File rel = new File(toOsRelativePath(safePath));
+    try {
+      if (fileStore.exists(resolved.appRoot(), rel)
+          && fileStore.isDirectory(resolved.trustedName(), resolved.appRoot(), rel)) {
+        throw new WebApplicationException(TARGET_EXISTS, Response.Status.CONFLICT);
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new IllegalStateException("Failed to inspect application file path", e);
+    }
   }
 
   private void requireHeldLock(ResolvedApp resolved, String safePath) {

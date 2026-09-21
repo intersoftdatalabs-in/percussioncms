@@ -53,9 +53,11 @@ public interface IApplicationFileAdaptor {
   byte[] getFileBytes(String appName, String relativePath);
 
   /**
-   * Admin. Replace UTF-8 text content of an existing or new file under the application root.
+   * Admin. Replace UTF-8 text content of an existing file, or <strong>create</strong> a new file
+   * when the relative path does not yet exist under the application root. A directory occupying
+   * the path is a conflict (HTTP 409), not a silent no-op.
    *
-   * @return updated detail, or {@code null} if app/path unknown or unsafe
+   * @return updated detail, or {@code null} if the application is unknown or the path is unsafe
    */
   ApplicationFileSummary putFile(String appName, String relativePath, ApplicationFileSummary body);
 

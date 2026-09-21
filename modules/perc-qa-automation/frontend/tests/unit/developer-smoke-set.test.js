@@ -32,6 +32,7 @@ describe("DEVELOPER_SMOKE_SET", () => {
     assert.ok(ids.has("application-files-write"));
     assert.ok(ids.has("application-files-folders"));
     assert.ok(ids.has("application-files-binary"));
+    assert.ok(ids.has("application-files-create"));
     assert.ok(ids.has("object-sorter"));
   });
 
