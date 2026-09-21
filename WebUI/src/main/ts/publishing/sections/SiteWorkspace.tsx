@@ -54,7 +54,7 @@ import {
   extractQueueItems,
   isQueueEmpty,
 } from "../incrementalQueue";
-import { isJobStoppable } from "../jobStop";
+import { isJobStoppable, mapJobStopError } from "../jobStop";
 import {
   extractPublishJobId,
   mapPublishError,
@@ -407,8 +407,8 @@ export function SiteWorkspace({
     try {
       await stopPublishing(job.jobId as string | number);
       refreshJobs();
-    } catch {
-      setActionMessage(message(MSG.PUBLISH_ERROR));
+    } catch (err) {
+      setActionMessage(mapJobStopError(err));
       setActionState("error");
     }
   }

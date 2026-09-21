@@ -16,7 +16,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { isJobStoppable } from "@/publishing/jobStop";
+import { isJobStoppable, mapJobStopError } from "@/publishing/jobStop";
 
 describe("isJobStoppable", () => {
   it("allows stop for a running job with an id", () => {
@@ -36,5 +36,29 @@ describe("isJobStoppable", () => {
     ).toBe(false);
     expect(isJobStoppable({ status: "running" })).toBe(false);
     expect(isJobStoppable({ jobId: "", status: "running" })).toBe(false);
+  });
+});
+
+describe("mapJobStopError", () => {
+  it("maps 403/404/409 to failure chrome, not success", () => {
+    expect(
+      mapJobStopError({ status: 403, statusText: "Forbidden", body: {} }),
+    ).toMatch(/Forbidden|403/i);
+    expect(
+      mapJobStopError({ status: 404, statusText: "Not Found", body: {} }),
+    ).toMatch(/not found|404/i);
+    expect(
+      mapJobStopError({ status: 409, statusText: "Conflict", body: {} }),
+    ).toMatch(/cannot be stopped|409|Conflict/i);
+  });
+
+  it("uses body message when present", () => {
+    expect(
+      mapJobStopError({
+        status: 409,
+        statusText: "Conflict",
+        body: { message: "Job already complete" },
+      }),
+    ).toBe("Job already complete");
   });
 });

@@ -131,4 +131,59 @@ test.describe("PublishingShell cancel/stop publish job (#4615)", () => {
     expect(stopPosts[0].method).toMatch(/POST/i);
     expect(consoleErrors).toEqual([]);
   });
+
+  test(`HTTP 403/409 on stop are errors not success ${TAGS.join(" ")}`, async ({
+    page,
+  }) => {
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      consoleErrors.push(String(err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        const text = msg.text();
+        if (!isKnownPublishConsoleNoise(text)) {
+          consoleErrors.push(text);
+        }
+      }
+    });
+
+    await page.route("**/publishmanagement/servers/stopPublishing/**", async (route) => {
+      if (isStopPublishingUrl(route.request().url())) {
+        await route.fulfill({
+          status: 403,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "Publish Forbidden" }),
+        });
+        return;
+      }
+      await route.continue();
+    });
+    await page.route("**/sitemanage/pubstatus/current**", async (route) => {
+      if (
+        isCurrentStatusUrl(route.request().url()) &&
+        route.request().method() === "GET"
+      ) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(JOBS),
+        });
+        return;
+      }
+      await route.continue();
+    });
+
+    await page.goto(publishingProductUrl(BASE_URL), {
+      waitUntil: "domcontentloaded",
+    });
+    await expect(page.getByTestId("publish-stop-job-4615")).toBeVisible({
+      timeout: 30000,
+    });
+    page.once("dialog", (dialog) => dialog.accept());
+    await page.getByTestId("publish-stop-job-4615").click();
+    await expect(page.getByRole("alert")).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole("alert")).toContainText(/Forbidden|403/i);
+    expect(consoleErrors).toEqual([]);
+  });
 });

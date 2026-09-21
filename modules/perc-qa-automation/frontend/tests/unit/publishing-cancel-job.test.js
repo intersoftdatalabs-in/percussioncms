@@ -57,5 +57,11 @@ describe("publishing-cancel-job helpers (#4615)", () => {
       true,
     );
     assert.equal(isKnownPublishConsoleNoise("TypeError: boom"), false);
+    assert.equal(
+      isKnownPublishConsoleNoise(
+        "Failed to load resource: the server responded with a status of 403 (Forbidden)",
+      ),
+      true,
+    );
   });
 });
