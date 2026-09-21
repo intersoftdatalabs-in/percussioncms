@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 import com.percussion.publishingdesign.data.PSContentListSummary;
 import com.percussion.publishingdesign.data.PSDeliveryTypeSummary;
 import com.percussion.publishingdesign.data.PSEditionSummary;
+import com.percussion.publishingdesign.data.PSLocationSchemeSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.IPSGuidManager;
@@ -34,6 +35,8 @@ import com.percussion.services.publisher.IPSContentList;
 import com.percussion.services.publisher.IPSDeliveryType;
 import com.percussion.services.publisher.IPSEdition;
 import com.percussion.services.publisher.IPSPublisherService;
+import com.percussion.services.sitemgr.IPSLocationScheme;
+import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.Collections;
@@ -54,6 +57,9 @@ class PSPublishingDesignRestServiceTest {
   @Mock private IPSGuid editionGuid;
   @Mock private IPSGuid contentListGuid;
   @Mock private IPSGuid deliveryTypeGuid;
+  @Mock private IPSSiteManager siteManager;
+  @Mock private IPSGuid contextGuid;
+  @Mock private IPSGuid schemeGuid;
 
   private PSPublishingDesignRestService service;
 
@@ -281,6 +287,39 @@ class PSPublishingDesignRestServiceTest {
     body.setName("Taken");
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> service.updateDeliveryType("5", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void createScheme_forbidden_403() {
+    PSPublishingDesignRestService design =
+        new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
+    design.setDesignWriteAllowed(() -> false);
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setName("Scheme");
+    body.setGenerator("Java/global/percussion/contentassembler/sys_JexlAssemblyLocation");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.createScheme("3", body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void createScheme_duplicateName_409() {
+    PSPublishingDesignRestService design =
+        new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
+    design.setDesignWriteAllowed(() -> true);
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    IPSLocationScheme existing = mock(IPSLocationScheme.class);
+    when(existing.getName()).thenReturn("DupScheme");
+    when(existing.getGUID()).thenReturn(schemeGuid);
+    when(schemeGuid.getUUID()).thenReturn(11);
+    when(siteManager.findSchemesByContextId(contextGuid)).thenReturn(List.of(existing));
+
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setName("DupScheme");
+    body.setGenerator("Java/global/percussion/contentassembler/sys_JexlAssemblyLocation");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.createScheme("3", body));
     assertEquals(409, ex.getResponse().getStatus());
   }
 

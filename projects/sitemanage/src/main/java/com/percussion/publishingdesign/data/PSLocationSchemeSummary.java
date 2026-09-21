@@ -16,7 +16,10 @@
  */
 package com.percussion.publishingdesign.data;
 
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 @XmlRootElement(name = "locationScheme")
 public class PSLocationSchemeSummary {
@@ -31,7 +34,7 @@ public class PSLocationSchemeSummary {
   /** modern | legacy | unknown */
   private String schemeType;
 
-  private java.util.List<PSSchemeParameter> parameters;
+  private List<PSSchemeParameter> parameters;
 
   public String getSchemeId() {
     return schemeId;
@@ -97,11 +100,13 @@ public class PSLocationSchemeSummary {
     this.templateId = templateId;
   }
 
-  public java.util.List<PSSchemeParameter> getParameters() {
+  @XmlElementWrapper(name = "parameters")
+  @XmlElement(name = "schemeParameter")
+  public List<PSSchemeParameter> getParameters() {
     return parameters;
   }
 
-  public void setParameters(java.util.List<PSSchemeParameter> parameters) {
+  public void setParameters(List<PSSchemeParameter> parameters) {
     this.parameters = parameters;
   }
 }
