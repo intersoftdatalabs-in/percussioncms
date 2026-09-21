@@ -45,7 +45,14 @@
  * DTOs in {@code projects/sitemanage/src/main/java/}.</p>
  */
 
-import { del, get, post, type ApiError } from "../client";
+import {
+  del,
+  formatApiError,
+  get,
+  isApiError,
+  post,
+  type ApiError,
+} from "../client";
 import { PATHS } from "../paths";
 import { normalizeListedPathItem } from "./pathItemId";
 import type {
@@ -749,7 +756,18 @@ export async function saveFolderProperties(
     ...props,
     permission: props.permission ?? { accessLevel: "ADMIN" },
   };
-  await post<void>(PATHS.PATH_SAVE_FOLDER_PROPERTIES, wrapFolderProperties(body));
+  try {
+    await post<void>(PATHS.PATH_SAVE_FOLDER_PROPERTIES, wrapFolderProperties(body));
+  } catch (err: unknown) {
+    if (isApiError(err) && (err.status === 403 || err.status === 404)) {
+      const fallback =
+        err.status === 403
+          ? "Not authorized to save folder ACL"
+          : "Folder not found";
+      throw new Error(formatApiError(err, fallback));
+    }
+    throw new Error(formatApiError(err, "Failed to save folder ACL"));
+  }
 }
 
 export async function validatePath(path: string): Promise<string> {

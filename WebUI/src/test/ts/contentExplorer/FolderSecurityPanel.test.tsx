@@ -226,6 +226,34 @@ describe("FolderSecurityPanel", () => {
     warnSpy.mockRestore();
   });
 
+  it("save 403/404 surfaces error chrome, not success (#4672)", async () => {
+    const props = makeProps({ permission: permission(["Admin"], [], [], []) });
+    const save403 = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: "Not authorized to save folder ACL",
+    });
+    render(
+      <FolderSecurityPanel
+        folderId={props.id}
+        currentUserIdentities={["Admin"]}
+        initial={props}
+        save={save403}
+        confirmLockout={async () => true}
+      />,
+    );
+    fireEvent.click(
+      screen.getByTestId("folder-security-list-adminPrincipals-remove-Admin"),
+    );
+    fireEvent.click(screen.getByTestId("folder-security-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("folder-security-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("folder-security-error").textContent).toMatch(
+      /Not authorized to save folder ACL|HTTP 403/,
+    );
+  });
+
   it("add-principal flow: typing + confirming appends to the list", () => {
     const props = makeProps({ permission: permission(["Admin"], [], [], []) });
     render(
