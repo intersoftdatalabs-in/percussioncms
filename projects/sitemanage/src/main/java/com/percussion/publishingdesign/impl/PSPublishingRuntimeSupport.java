@@ -79,10 +79,26 @@ public class PSPublishingRuntimeSupport {
   }
 
   public List<PSRuntimeEditionStatus> listRuntimeEditions(String siteId) {
+    return listRuntimeEditions(siteId, null);
+  }
+
+  /**
+   * Editions for a site, optionally limited to one publish server.
+   *
+   * @param siteId required site uuid/string
+   * @param pubServerId optional publishing server id; blank means all servers
+   */
+  public List<PSRuntimeEditionStatus> listRuntimeEditions(String siteId, String pubServerId) {
     requireNonBlank(siteId, "siteId");
     requireRx();
     IPSGuid siteGuid = guidManager.makeGuid(siteId, PSTypeEnum.SITE);
-    List<IPSEdition> editions = publisherService.findAllEditionsBySite(siteGuid);
+    List<IPSEdition> editions;
+    if (pubServerId != null && !pubServerId.isBlank()) {
+      IPSGuid serverGuid = guidManager.makeGuid(pubServerId.trim(), PSTypeEnum.PUBLISHING_SERVER);
+      editions = publisherService.findAllEditionsByPubServer(serverGuid);
+    } else {
+      editions = publisherService.findAllEditionsBySite(siteGuid);
+    }
     List<PSRuntimeEditionStatus> out = new ArrayList<>();
     for (IPSEdition edition : editions) {
       PSRuntimeEditionStatus row = new PSRuntimeEditionStatus();
@@ -111,6 +127,11 @@ public class PSPublishingRuntimeSupport {
       row.setName(edition.getName());
       row.setSiteId(siteId);
       row.setComment(edition.getComment());
+      if (edition.getPubServerId() != null) {
+        row.setPubServerId(String.valueOf(edition.getPubServerId().getUUID()));
+      } else if (pubServerId != null && !pubServerId.isBlank()) {
+        row.setPubServerId(pubServerId.trim());
+      }
       out.add(row);
     }
     return out;

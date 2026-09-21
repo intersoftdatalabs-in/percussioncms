@@ -25,6 +25,7 @@ public class PSRuntimeEditionStatus {
   private String name;
   private String siteId;
   private String comment;
+  private String pubServerId;
   private long runningJobId;
   private String jobStatus;
 
@@ -58,6 +59,14 @@ public class PSRuntimeEditionStatus {
 
   public void setComment(String comment) {
     this.comment = comment;
+  }
+
+  public String getPubServerId() {
+    return pubServerId;
+  }
+
+  public void setPubServerId(String pubServerId) {
+    this.pubServerId = pubServerId;
   }
 
   public long getRunningJobId() {

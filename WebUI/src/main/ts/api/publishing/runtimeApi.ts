@@ -24,6 +24,7 @@ export interface RuntimeEditionStatus {
   name?: string;
   siteId?: string;
   comment?: string;
+  pubServerId?: string;
   runningJobId?: number;
   jobStatus?: string;
 }
@@ -48,10 +49,14 @@ function runtimeRoot(): string {
 
 export async function listRuntimeEditions(
   siteId: string | number,
+  pubServerId?: string | number,
 ): Promise<RuntimeEditionStatus[]> {
-  const data = await get<unknown>(
-    `${runtimeRoot()}/editions?siteId=${encodeURIComponent(String(siteId))}`,
-  );
+  const params = new URLSearchParams();
+  params.set("siteId", String(siteId));
+  if (pubServerId != null && String(pubServerId).trim() !== "") {
+    params.set("pubServerId", String(pubServerId).trim());
+  }
+  const data = await get<unknown>(`${runtimeRoot()}/editions?${params.toString()}`);
   return normalizeArray(data);
 }
 

@@ -53,6 +53,17 @@ HTTP **403** (not Admin or Designer) and **409** (edition name already exists) a
 edition editor error region — not as a successful save. Content-list association, copy, and
 Runtime start/stop are separate Design/Runtime actions.
 
+### Start or stop a publish job (Runtime)
+
+From **Publish** (`spa.jsp?entry=publish&section=runtime`), choose a **site** and
+**publish server**. The Runtime list shows editions for that server. **Start** queues
+`POST …/sitemanage/publishingdesign/runtime/editions/{editionId}/start`. When a job is
+running, **Stop** posts `POST …/sitemanage/publishingdesign/runtime/jobs/{jobId}/stop`
+(falls back to ops `stopPublishing` if needed). The **Last result** status region shows
+started/cancelled (or the job state) plus job id. Listing may pass `pubServerId` so only
+editions on the selected server appear. Design edition save and Sites list filter are
+separate sections.
+
 ### Search and filter publish logs
 
 From **Publish** (`spa.jsp?entry=publish&section=logs`), the **Logs** section lists historical

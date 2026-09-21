@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import {
   canStopEdition,
@@ -27,17 +27,25 @@ vi.mock("@/api/home/homeApi", () => ({
   fetchSites: vi.fn().mockResolvedValue([{ name: "SiteA", siteId: "1" }]),
 }));
 
+vi.mock("@/api/publishing/serversApi", () => ({
+  listServers: vi.fn().mockResolvedValue([
+    { serverId: "7", serverName: "LocalFS" },
+  ]),
+}));
+
 vi.mock("@/api/publishing/runtimeApi", () => ({
   listRuntimeEditions: vi.fn().mockResolvedValue([
-    { editionId: "10", name: "Full", runningJobId: 0 },
+    { editionId: "10", name: "Full", runningJobId: 0, pubServerId: "7" },
     { editionId: "11", name: "Demand", runningJobId: 99, jobStatus: "Running" },
   ]),
-  startEditionJob: vi.fn(),
-  stopRuntimeJob: vi.fn(),
+  startEditionJob: vi.fn().mockResolvedValue({ jobId: 88, status: "started" }),
+  stopRuntimeJob: vi.fn().mockResolvedValue({ jobId: 99, status: "cancelled" }),
   demandPublish: vi.fn(),
   clearSiteItems: vi.fn(),
   purgeRuntimeJobLog: vi.fn(),
 }));
+
+const runtimeApi = await import("@/api/publishing/runtimeApi");
 
 describe("runtime edition helpers", () => {
   it("canStopEdition when job running", () => {
@@ -55,5 +63,37 @@ describe("RuntimeSection", () => {
   it("mounts runtime section", () => {
     render(<RuntimeSection />);
     expect(screen.getByTestId("publish-section-runtime")).toBeTruthy();
+  });
+
+  it("starts selected edition and shows status", async () => {
+    render(<RuntimeSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("runtime-start-10")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("runtime-start-10"));
+    await waitFor(() => {
+      expect(runtimeApi.startEditionJob).toHaveBeenCalledWith("10");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("runtime-job-status").textContent).toMatch(
+        /started/i,
+      );
+    });
+  });
+
+  it("stops a running edition job and shows status", async () => {
+    render(<RuntimeSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("runtime-stop-11")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("runtime-stop-11"));
+    await waitFor(() => {
+      expect(runtimeApi.stopRuntimeJob).toHaveBeenCalledWith(99);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("runtime-job-status").textContent).toMatch(
+        /cancelled/i,
+      );
+    });
   });
 });
