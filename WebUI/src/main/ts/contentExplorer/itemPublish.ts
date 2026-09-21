@@ -105,6 +105,16 @@ const FORCE_CHECKIN_ACTION_KEYS: ReadonlySet<string> = new Set([
   "forcecheckin",
 ]);
 
+const CHECKOUT_ACTION_KEYS: ReadonlySet<string> = new Set([
+  "check_out",
+  "checkout",
+]);
+
+const CHECKIN_ACTION_KEYS: ReadonlySet<string> = new Set([
+  "check_in",
+  "checkin",
+]);
+
 function actionNameKey(name: string | undefined | null): string {
   return (name ?? "").replace(/[\s-]/g, "_").toLowerCase();
 }
@@ -136,6 +146,20 @@ export function isForceCheckinActionName(
   name: string | undefined | null,
 ): boolean {
   return FORCE_CHECKIN_ACTION_KEYS.has(actionNameKey(name));
+}
+
+/** Catalog / toolbar names for Explorer check-out of the selected item (#4699). */
+export function isCheckoutActionName(
+  name: string | undefined | null,
+): boolean {
+  return CHECKOUT_ACTION_KEYS.has(actionNameKey(name));
+}
+
+/** Catalog / toolbar names for Explorer check-in of the selected item (#4699). */
+export function isCheckinActionName(
+  name: string | undefined | null,
+): boolean {
+  return CHECKIN_ACTION_KEYS.has(actionNameKey(name));
 }
 
 /**

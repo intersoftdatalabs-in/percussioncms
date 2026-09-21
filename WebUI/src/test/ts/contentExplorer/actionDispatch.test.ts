@@ -17,6 +17,7 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { MenuAction, PSPathItem } from "../../../main/ts/api/contentExplorer/types";
+import * as itemWorkflowApi from "../../../main/ts/api/contentExplorer/itemWorkflowApi";
 import {
   classifyAction,
   dispatchAction,
@@ -810,6 +811,80 @@ describe("actionDispatch", () => {
     expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
     expect(result.refresh).toBeUndefined();
     expect(onPublish).not.toHaveBeenCalled();
+  });
+
+  it("classifies Check Out and Check In as rest", () => {
+    expect(classifyAction(action({ name: "Check_Out" }))).toBe("rest");
+    expect(classifyAction(action({ name: "Check_In" }))).toBe("rest");
+  });
+
+  it("Check Out calls workflow checkOut and refreshes", async () => {
+    const checkOut = vi
+      .spyOn(itemWorkflowApi, "checkOutItem")
+      .mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Check_Out" }), {
+      item: item(),
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(checkOut).toHaveBeenCalledWith("42");
+  });
+
+  it("Check Out on a folder asks for a content item", async () => {
+    const checkOut = vi
+      .spyOn(itemWorkflowApi, "checkOutItem")
+      .mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Check_Out" }), {
+      item: item({
+        id: "1",
+        name: "Sites",
+        path: "/Sites",
+        type: "folder",
+        leaf: false,
+      }),
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(checkOut).not.toHaveBeenCalled();
+  });
+
+  it("Check Out maps HTTP 403/409", async () => {
+    vi.spyOn(itemWorkflowApi, "checkOutItem")
+      .mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: {} })
+      .mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: {} });
+    const forbidden = await dispatchAction(action({ name: "Check_Out" }), {
+      item: item(),
+    });
+    expect(forbidden.messageKey).toBe(EXPLORER_MSG.CHECKOUT_FORBIDDEN);
+    const conflict = await dispatchAction(action({ name: "Check_Out" }), {
+      item: item(),
+    });
+    expect(conflict.messageKey).toBe(EXPLORER_MSG.CHECKOUT_CONFLICT);
+  });
+
+  it("Check In calls workflow checkIn and refreshes", async () => {
+    const checkIn = vi
+      .spyOn(itemWorkflowApi, "checkInItem")
+      .mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Check_In" }), {
+      item: item(),
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(checkIn).toHaveBeenCalledWith("42");
+  });
+
+  it("Check In maps HTTP 403/409", async () => {
+    vi.spyOn(itemWorkflowApi, "checkInItem")
+      .mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: {} })
+      .mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: {} });
+    const forbidden = await dispatchAction(action({ name: "Check_In" }), {
+      item: item(),
+    });
+    expect(forbidden.messageKey).toBe(EXPLORER_MSG.CHECKIN_FORBIDDEN);
+    const conflict = await dispatchAction(action({ name: "Check_In" }), {
+      item: item(),
+    });
+    expect(conflict.messageKey).toBe(EXPLORER_MSG.CHECKIN_CONFLICT);
   });
 
   it("classifies Force Check-in as rest", () => {

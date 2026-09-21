@@ -182,6 +182,30 @@ export async function transitionItem(
 }
 
 /**
+ * Check-out the selected item ({@code GET …/workflow/checkOut/{id}}).
+ * HTTP 403 not allowed, 409 checked out to another user.
+ */
+export async function checkOutItem(itemId: string): Promise<void> {
+  const id = String(itemId ?? "").trim();
+  if (!id) {
+    throw new Error("checkOutItem requires itemId");
+  }
+  await get(`${PATHS.ITEM_WORKFLOW_CHECKOUT}${encodeURIComponent(id)}`);
+}
+
+/**
+ * Check-in the selected item ({@code GET …/workflow/checkIn/{id}}).
+ * HTTP 403 not allowed, 409 not checked out to the session user.
+ */
+export async function checkInItem(itemId: string): Promise<void> {
+  const id = String(itemId ?? "").trim();
+  if (!id) {
+    throw new Error("checkInItem requires itemId");
+  }
+  await get(`${PATHS.ITEM_WORKFLOW_CHECKIN}${encodeURIComponent(id)}`);
+}
+
+/**
  * Admin force check-in ({@code GET …/workflow/forceCheckIn/{id}}).
  * HTTP 403 non-Admin, 404 unknown id, 409 not checked out.
  */

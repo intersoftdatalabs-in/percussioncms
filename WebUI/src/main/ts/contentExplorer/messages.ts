@@ -416,6 +416,14 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Item not found",
   FORCE_CHECKIN_NOT_CHECKED_OUT:
     "perc.ui.explorer@Item is not checked out",
+  CHECKOUT_FORBIDDEN:
+    "perc.ui.explorer@You are not allowed to check out this item",
+  CHECKOUT_CONFLICT:
+    "perc.ui.explorer@Item is checked out to another user",
+  CHECKIN_FORBIDDEN:
+    "perc.ui.explorer@You are not allowed to check in this item",
+  CHECKIN_CONFLICT:
+    "perc.ui.explorer@Item is not checked out to you",
   CONFIRM_TAKEDOWN:
     "perc.ui.explorer@Take down (unpublish) this item from its site?",
   CONFIRM_TAKEDOWN_LINKED:

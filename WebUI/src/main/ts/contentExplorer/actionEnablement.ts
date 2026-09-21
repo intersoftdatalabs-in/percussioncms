@@ -49,6 +49,8 @@ import { parseExplorerContentId } from "../api/contentExplorer/pathItemId";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl } from "../util/safeNavigate";
 import {
+  isCheckinActionName,
+  isCheckoutActionName,
   isForceCheckinActionName,
   isPublishingHistoryActionName,
   isRemoveFromStagingActionName,
@@ -338,6 +340,16 @@ export function isToolbarForceCheckinHidden(
   return resolvePublishKind(selectionItem ?? null) === "none";
 }
 
+export function isToolbarCheckoutHidden(
+  action: MenuAction,
+  selectionItem: PSPathItem | null | undefined,
+): boolean {
+  if (!isCheckoutActionName(action.name) && !isCheckinActionName(action.name)) {
+    return false;
+  }
+  return resolvePublishKind(selectionItem ?? null) === "none";
+}
+
 /** Injected when CX catalog has no Take Down leaf for a page/asset. */
 export const EXPLORER_TAKEDOWN_ACTION: MenuAction = {
   name: "Take_Down",
@@ -383,6 +395,22 @@ export const EXPLORER_FORCE_CHECKIN_ACTION: MenuAction = {
   name: "Force_Checkin",
   label: "Force Check-in",
   sortRank: 10_050,
+  menuType: "MENUITEM",
+};
+
+/** Injected when a page/asset is selected (#4699). */
+export const EXPLORER_CHECKOUT_ACTION: MenuAction = {
+  name: "Check_Out",
+  label: "Check Out",
+  sortRank: 10_045,
+  menuType: "MENUITEM",
+};
+
+/** Injected when a page/asset is selected (#4699). */
+export const EXPLORER_CHECKIN_ACTION: MenuAction = {
+  name: "Check_In",
+  label: "Check In",
+  sortRank: 10_046,
   menuType: "MENUITEM",
 };
 
@@ -506,6 +534,27 @@ export function withExplorerForceCheckinAction(
 }
 
 /**
+ * Check-out / check-in of the selected page or asset (#4699). Hidden when
+ * the selection is not a page or asset (not applicable).
+ */
+export function withExplorerCheckoutActions(
+  actions: MenuAction[],
+  selectionItem: PSPathItem | null | undefined,
+): MenuAction[] {
+  return injectPublishItemAction(
+    injectPublishItemAction(
+      actions,
+      selectionItem,
+      isCheckoutActionName,
+      EXPLORER_CHECKOUT_ACTION,
+    ),
+    selectionItem,
+    isCheckinActionName,
+    EXPLORER_CHECKIN_ACTION,
+  );
+}
+
+/**
  * Edit / Quick Edit / View content need a selected page or asset.
  * Folder-only catalogs still include those leaves; hiding them keeps
  * Sites non-editable (#3638). Toolbar {@code Open} stays — folders
@@ -615,6 +664,9 @@ export function filterEnabledMenuActions(
     if (isToolbarForceCheckinHidden(action, ctx.selectionItem)) {
       continue;
     }
+    if (isToolbarCheckoutHidden(action, ctx.selectionItem)) {
+      continue;
+    }
     if (isToolbarEditorActionHidden(action, ctx.selectionItem)) {
       continue;
     }
@@ -634,16 +686,19 @@ export function filterToolbarActions(
 ): MenuAction[] {
   return prepareToolbarActions(
     withExplorerForceCheckinAction(
-      withExplorerPublishingHistoryAction(
-        withExplorerScheduleAction(
-          withExplorerStagingActions(
-            withExplorerTakedownAction(
-              filterEnabledMenuActions(actions, {
-                surface: "toolbar",
-                baseHref,
+      withExplorerCheckoutActions(
+        withExplorerPublishingHistoryAction(
+          withExplorerScheduleAction(
+            withExplorerStagingActions(
+              withExplorerTakedownAction(
+                filterEnabledMenuActions(actions, {
+                  surface: "toolbar",
+                  baseHref,
+                  selectionItem,
+                  isAdmin,
+                }),
                 selectionItem,
-                isAdmin,
-              }),
+              ),
               selectionItem,
             ),
             selectionItem,
@@ -671,16 +726,19 @@ export function filterContextMenuActions(
 ): MenuAction[] {
   return prepareMenuActionTree(
     withExplorerForceCheckinAction(
-      withExplorerPublishingHistoryAction(
-        withExplorerScheduleAction(
-          withExplorerStagingActions(
-            withExplorerTakedownAction(
-              filterEnabledMenuActions(actions, {
-                surface: "contextmenu",
-                baseHref,
+      withExplorerCheckoutActions(
+        withExplorerPublishingHistoryAction(
+          withExplorerScheduleAction(
+            withExplorerStagingActions(
+              withExplorerTakedownAction(
+                filterEnabledMenuActions(actions, {
+                  surface: "contextmenu",
+                  baseHref,
+                  selectionItem,
+                  isAdmin,
+                }),
                 selectionItem,
-                isAdmin,
-              }),
+              ),
               selectionItem,
             ),
             selectionItem,

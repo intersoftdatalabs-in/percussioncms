@@ -16,6 +16,8 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  checkInItem,
+  checkOutItem,
   coerceTransitionTriggers,
   forceCheckInItem,
   getItemWorkflowTransitions,
@@ -118,6 +120,32 @@ describe("itemWorkflowApi (#2732)", () => {
   it("transitionItem rejects missing id or trigger", async () => {
     await expect(transitionItem("", "Submit")).rejects.toThrow(/requires/);
     await expect(transitionItem("1", "")).rejects.toThrow(/requires/);
+    expect(client.get).not.toHaveBeenCalled();
+  });
+
+  it("checkOutItem calls checkOut path with encoded id", async () => {
+    vi.mocked(client.get).mockResolvedValue({ checkOutUser: "admin" });
+    await checkOutItem("42");
+    expect(client.get).toHaveBeenCalledWith(
+      `${PATHS.ITEM_WORKFLOW_CHECKOUT}${encodeURIComponent("42")}`,
+    );
+  });
+
+  it("checkOutItem rejects blank id", async () => {
+    await expect(checkOutItem("  ")).rejects.toThrow(/requires/);
+    expect(client.get).not.toHaveBeenCalled();
+  });
+
+  it("checkInItem calls checkIn path with encoded id", async () => {
+    vi.mocked(client.get).mockResolvedValue({ operation: "checkIn" });
+    await checkInItem("42");
+    expect(client.get).toHaveBeenCalledWith(
+      `${PATHS.ITEM_WORKFLOW_CHECKIN}${encodeURIComponent("42")}`,
+    );
+  });
+
+  it("checkInItem rejects blank id", async () => {
+    await expect(checkInItem("  ")).rejects.toThrow(/requires/);
     expect(client.get).not.toHaveBeenCalled();
   });
 

@@ -33,9 +33,15 @@ import {
 } from "../api/contentExplorer/itemCopyApi";
 import { del, isApiError } from "../api/client";
 import { PATHS } from "../api/paths";
-import { forceCheckInItem } from "../api/contentExplorer/itemWorkflowApi";
+import {
+  checkInItem,
+  checkOutItem,
+  forceCheckInItem,
+} from "../api/contentExplorer/itemWorkflowApi";
 import {
   formatTakedownConfirmBody,
+  isCheckinActionName,
+  isCheckoutActionName,
   isForceCheckinActionName,
   isPublishingHistoryActionName,
   isRemoveFromStagingActionName,
@@ -331,7 +337,9 @@ export function classifyAction(action: MenuAction): ActionKind {
     isStageActionName(name) ||
     isRemoveFromStagingActionName(name) ||
     isScheduleActionName(name) ||
-    isForceCheckinActionName(name)
+    isForceCheckinActionName(name) ||
+    isCheckoutActionName(name) ||
+    isCheckinActionName(name)
   ) {
     return "rest";
   }
@@ -902,6 +910,52 @@ export async function dispatchAction(
     const saved = await scheduleSelectedItem(item, picked);
     if (!saved) {
       return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    return { kind: "rest", refresh: true };
+  }
+
+  if (isCheckoutActionName(name)) {
+    if (!item || isFolder(item) || !item.id) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    if (resolvePublishKind(item) === "none") {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    try {
+      await checkOutItem(String(item.id));
+    } catch (err: unknown) {
+      if (isApiError(err)) {
+        if (err.status === 403) {
+          return { kind: "rest", messageKey: EXPLORER_MSG.CHECKOUT_FORBIDDEN };
+        }
+        if (err.status === 409 || err.status === 400) {
+          return { kind: "rest", messageKey: EXPLORER_MSG.CHECKOUT_CONFLICT };
+        }
+      }
+      throw err;
+    }
+    return { kind: "rest", refresh: true };
+  }
+
+  if (isCheckinActionName(name)) {
+    if (!item || isFolder(item) || !item.id) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    if (resolvePublishKind(item) === "none") {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    try {
+      await checkInItem(String(item.id));
+    } catch (err: unknown) {
+      if (isApiError(err)) {
+        if (err.status === 403) {
+          return { kind: "rest", messageKey: EXPLORER_MSG.CHECKIN_FORBIDDEN };
+        }
+        if (err.status === 409 || err.status === 400) {
+          return { kind: "rest", messageKey: EXPLORER_MSG.CHECKIN_CONFLICT };
+        }
+      }
+      throw err;
     }
     return { kind: "rest", refresh: true };
   }
