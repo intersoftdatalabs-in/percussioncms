@@ -17,7 +17,14 @@
 
 import type { PublishSiteSummary, SiteListViewMode } from "./types";
 
-/** Filter sites by name substring (case-insensitive). */
+function siteSearchHaystack(site: PublishSiteSummary): string {
+  return [site.name, site.id, site.siteId]
+    .filter((v) => v != null && String(v) !== "")
+    .join(" ")
+    .toLowerCase();
+}
+
+/** Filter sites by name or id substring (case-insensitive). */
 export function filterSitesByName(
   sites: PublishSiteSummary[],
   filter: string,
@@ -26,7 +33,7 @@ export function filterSitesByName(
   if (!q) {
     return sites;
   }
-  return sites.filter((s) => (s.name ?? "").toLowerCase().includes(q));
+  return sites.filter((s) => siteSearchHaystack(s).includes(q));
 }
 
 /** Toggle card/list view mode. */

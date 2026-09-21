@@ -29,6 +29,14 @@ channels (static files, FTP, database, custom locations).
 4. Verify logs for assembly errors and missing resources.
 5. Spot-check delivered files or the live site.
 
+### Search the Sites list (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), the **Sites** section lists sites as cards (or a list).
+Use **Filter Sites** to narrow the list by **name** or **id** (case-insensitive substring). Clearing
+the box restores the full list. A search with no matches shows an empty state; it does not hide the
+filter. Open a remaining card to configure servers and run Incremental / Full publish. Logs search
+is a separate **Logs** filter (not this Sites box).
+
 ### Incremental site publish (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then choose **Incremental**. Confirm the dialog (**Confirm Incremental Publish**). The shell calls the incremental site publish API (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), optionally with related-item approval after **Incremental preview**. Success shows **Publish Job Started** plus the job id and refreshes the site **Status** list (active jobs). Dismissing confirm does not start a job. Application-level `FORBIDDEN` / `BADCONFIG` responses are failures in the workspace error region, not success. Full site publish remains a separate **Full** action.
