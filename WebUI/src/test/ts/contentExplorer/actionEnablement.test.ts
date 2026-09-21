@@ -229,6 +229,8 @@ describe("filterEnabledMenuActions", () => {
       "Remove_from_Staging",
       "Schedule",
       "Publishing_History",
+      "Check_Out",
+      "Check_In",
     ]);
     expect(withPage[0]?.children?.map((c) => c.name)).toEqual([
       "View_Properties",
@@ -329,6 +331,8 @@ describe("filterEnabledMenuActions", () => {
       "Remove_from_Staging",
       "Schedule",
       "Publishing_History",
+      "Check_Out",
+      "Check_In",
     ]);
     expect(
       isToolbarPublishNowHidden(leaf({ name: "Publish_Now" }), null),
@@ -367,6 +371,8 @@ describe("filterEnabledMenuActions", () => {
       "Remove_from_Staging",
       "Schedule",
       "Publishing_History",
+      "Check_Out",
+      "Check_In",
     ]);
   });
 
@@ -403,6 +409,8 @@ describe("filterEnabledMenuActions", () => {
       "Remove_from_Staging",
       "Schedule",
       "Publishing_History",
+      "Check_Out",
+      "Check_In",
     ]);
     expect(
       isToolbarTakedownHidden(leaf({ name: "Take_Down" }), null),
@@ -442,10 +450,15 @@ describe("filterEnabledMenuActions", () => {
       "Remove_from_Staging",
       "Schedule",
       "Publishing_History",
+      "Check_Out",
+      "Check_In",
     ]);
     expect(
       filterToolbarActions(actions, BASE, page, true).map((a) => a.name),
     ).toContain("Force_Checkin");
+    expect(
+      filterToolbarActions(actions, BASE, null).map((a) => a.name),
+    ).not.toEqual(expect.arrayContaining(["Check_Out", "Check_In"]));
     expect(
       filterToolbarActions(actions, BASE, page, false).map((a) => a.name),
     ).not.toContain("Force_Checkin");
@@ -484,6 +497,8 @@ describe("filterEnabledMenuActions", () => {
       "Remove_from_Staging",
       "Schedule",
       "Publishing_History",
+      "Check_Out",
+      "Check_In",
     ]);
     expect(isToolbarStageHidden(leaf({ name: "Stage" }), null)).toBe(true);
     expect(
@@ -527,6 +542,8 @@ describe("filterEnabledMenuActions", () => {
       "Take_Down",
       "Schedule",
       "Publishing_History",
+      "Check_Out",
+      "Check_In",
     ]);
   });
 
@@ -563,6 +580,8 @@ describe("filterEnabledMenuActions", () => {
       "Remove_from_Staging",
       "Schedule",
       "Publishing_History",
+      "Check_Out",
+      "Check_In",
     ]);
     expect(isToolbarScheduleHidden(leaf({ name: "Schedule" }), null)).toBe(
       true,
@@ -599,6 +618,8 @@ describe("filterEnabledMenuActions", () => {
       "Stage",
       "Remove_from_Staging",
       "Publishing_History",
+      "Check_Out",
+      "Check_In",
     ]);
   });
 
@@ -627,6 +648,8 @@ describe("filterEnabledMenuActions", () => {
         "Remove_from_Staging",
         "Schedule",
         "Publishing_History",
+        "Check_Out",
+        "Check_In",
       ],
     );
     expect(
@@ -663,6 +686,8 @@ describe("filterEnabledMenuActions", () => {
       "Stage",
       "Remove_from_Staging",
       "Schedule",
+      "Check_Out",
+      "Check_In",
     ]);
   });
 
@@ -708,6 +733,8 @@ describe("filterEnabledMenuActions", () => {
       "Remove_from_Staging",
       "Schedule",
       "Publishing_History",
+      "Check_Out",
+      "Check_In",
     ]);
     expect(filtered[0]?.children?.map((c) => c.name)).toEqual([
       "View_Properties",
@@ -756,6 +783,8 @@ describe("filterEnabledMenuActions", () => {
       "Remove_from_Staging",
       "Schedule",
       "Publishing_History",
+      "Check_Out",
+      "Check_In",
     ]);
     expect(isToolbarEditorActionHidden(leaf({ name: "Edit" }), null)).toBe(true);
     expect(
