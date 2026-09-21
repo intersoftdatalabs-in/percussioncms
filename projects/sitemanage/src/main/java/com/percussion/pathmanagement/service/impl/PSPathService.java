@@ -252,7 +252,14 @@ public class PSPathService extends PSDispatchingPathService
                   PSSiteCopyUtils.class.getName()
                       + PSSiteCopyUtils.CAN_NOT_UPDATE_FOLDER_PROPERTIES));
     }
-    folderHelper.saveFolderProperties(props);
+    try {
+      folderHelper.saveFolderProperties(props);
+    } catch (PSValidationException e) {
+      if (isMissingFolderValidation(e)) {
+        throw new WebApplicationException("Folder not found", Response.Status.NOT_FOUND);
+      }
+      throw e;
+    }
     return new PSNoContent("saveFolderProperties");
   }
 
@@ -261,15 +268,36 @@ public class PSPathService extends PSDispatchingPathService
     if (e == null) {
       return false;
     }
-    String msg = e.getMessage();
-    if (msg != null && msg.toLowerCase().contains("cannot find folder")) {
+    if (messageLooksLikeMissingFolder(e.getMessage())) {
       return true;
     }
-    if (e.getValidationErrors() == null || e.getValidationErrors().getGlobalError() == null) {
-      return msg != null && msg.toLowerCase().contains("invalid.folder.id");
+    if (e.getValidationErrors() == null) {
+      return false;
     }
-    String def = e.getValidationErrors().getGlobalError().getDefaultMessage();
-    return def != null && def.toLowerCase().contains("cannot find folder");
+    if (e.getValidationErrors().getGlobalError() != null) {
+      String def = e.getValidationErrors().getGlobalError().getDefaultMessage();
+      if (messageLooksLikeMissingFolder(def)) {
+        return true;
+      }
+    }
+    if (e.getValidationErrors().getFieldErrors() != null) {
+      for (var fe : e.getValidationErrors().getFieldErrors()) {
+        if (fe != null && messageLooksLikeMissingFolder(fe.getDefaultMessage())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  static boolean messageLooksLikeMissingFolder(String msg) {
+    if (msg == null) {
+      return false;
+    }
+    String lower = msg.toLowerCase();
+    return lower.contains("cannot find folder")
+        || lower.contains("cannot find its parent folder")
+        || lower.contains("invalid.folder.id");
   }
 
   /**

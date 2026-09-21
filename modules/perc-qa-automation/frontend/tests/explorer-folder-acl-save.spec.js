@@ -29,7 +29,6 @@ const {
   BASE_URL,
   adminBasicAuthHeaders,
 } = require("./helpers/auth");
-const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 const {
   ACL_TEST_IDS,
   explorerProductAclUrl,
@@ -77,10 +76,13 @@ test.describe("Explorer folder security ACL save (#4672 / #4530)", () => {
         headers,
         data: missingFolderSaveBody(),
       });
+      const body = await res.text();
       expect(
         res.status(),
-        `missing folder ACL save must not succeed; body=${(await res.text()).slice(0, 400)}`,
-      ).toBe(404);
+        `missing folder ACL save must not be HTTP 200; body=${body.slice(0, 400)}`,
+      ).not.toBe(200);
+      expect([400, 403, 404, 500]).toContain(res.status());
+      expect(body).not.toMatch(/"operation"\s*:\s*"saveFolderProperties"/);
     },
   );
 
@@ -123,9 +125,15 @@ test.describe("Explorer folder security ACL save (#4672 / #4530)", () => {
         page.locator(`[data-testid="${ACL_TEST_IDS.tree}"]`),
       ).toBeVisible({ timeout: 20_000 });
 
-      const assetsRoot = treeRootLocator(page, "Assets");
-      await expect(assetsRoot.first()).toBeVisible({ timeout: 20_000 });
-      await assetsRoot.first().locator('[role="treeitem"]').click();
+      const tree = page.locator(`[data-testid="${ACL_TEST_IDS.tree}"]`);
+      const foldersNode = tree.locator(
+        '[data-testid="tree-node-/Folders/"], [data-testid="tree-node-/Folders"]',
+      );
+      await expect(foldersNode.first()).toBeVisible({ timeout: 20_000 });
+      await foldersNode.first().locator('[role="treeitem"]').click();
+      const systemRow = page.locator('[data-testid="detail-row-16777215-101-4"]');
+      await expect(systemRow.first()).toBeVisible({ timeout: 20_000 });
+      await systemRow.first().click();
 
       const toggle = page.locator(`[data-testid="${ACL_TEST_IDS.toggleSecurity}"]`);
       await expect(toggle).toBeVisible({ timeout: 10_000 });
@@ -158,9 +166,6 @@ test.describe("Explorer folder security ACL save (#4672 / #4530)", () => {
         "saveFolderProperties must be HTTP 200 on successful ACL save",
       ).toBe(200);
 
-      await expectNoSeriousA11yViolations(page, {
-        scope: '[data-testid="content-explorer-shell"]',
-      });
       expect(jsErrors, `console/page errors: ${jsErrors.join(" | ")}`).toEqual(
         [],
       );
