@@ -41,6 +41,8 @@ import {
   primaryButtonStyle,
   toolbarStyle,
 } from "../publishing.styles";
+import { mapLocationSchemeSaveError } from "../locationSchemeSaveErrors";
+import { useDirtyForm } from "../dirtyFormContext";
 import { normalizeSchemeType } from "./designLegacyTypes";
 import { SiteRootBrowser } from "./SiteRootBrowser";
 
@@ -75,6 +77,8 @@ export function ContextsPanel(): React.ReactElement {
   const [paramName, setParamName] = useState("");
   const [paramType, setParamType] = useState("String");
   const [paramValue, setParamValue] = useState("");
+  const [saving, setSaving] = useState(false);
+  const { setDirty, confirmIfDirty } = useDirtyForm();
 
   function reloadContexts(): void {
     setLoading(true);
@@ -122,6 +126,7 @@ export function ContextsPanel(): React.ReactElement {
         setSchCtype(full.contentTypeId != null ? String(full.contentTypeId) : "");
         setSchTemplate(full.templateId != null ? String(full.templateId) : "");
         setParams(full.parameters ?? []);
+        setDirty(false);
         setMode({ kind: "scheme-edit", scheme: full, contextId });
         return;
       } catch {
@@ -134,7 +139,16 @@ export function ContextsPanel(): React.ReactElement {
     setSchCtype("");
     setSchTemplate("");
     setParams([]);
+    setDirty(false);
     setMode({ kind: "scheme-edit", scheme: s, contextId });
+  }
+
+  function closeSchemeEditor(): void {
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setMode({ kind: "list" });
   }
 
   async function saveContext(): Promise<void> {
@@ -200,25 +214,31 @@ export function ContextsPanel(): React.ReactElement {
       return;
     }
     setError(null);
+    setSaving(true);
     const body: LocationSchemeSummary = {
       name: schName.trim(),
       generator: schGen.trim(),
-      description: schDesc,
+      description: schDesc || undefined,
       contentTypeId: schCtype ? Number(schCtype) : undefined,
       templateId: schTemplate ? Number(schTemplate) : undefined,
-      parameters: params,
       contextId: mode.contextId,
     };
+    if (params.length > 0) {
+      body.parameters = params;
+    }
     try {
       if (mode.scheme?.schemeId) {
         await updateScheme(mode.scheme.schemeId, body);
       } else {
         await createScheme(mode.contextId, body);
       }
+      setDirty(false);
       setMode({ kind: "list" });
       setSchemes(await listSchemesForContext(mode.contextId));
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapLocationSchemeSaveError(e));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -282,7 +302,10 @@ export function ContextsPanel(): React.ReactElement {
           <input
             id="sch-name"
             value={schName}
-            onChange={(e) => setSchName(e.target.value)}
+            onChange={(e) => {
+              setSchName(e.target.value);
+              setDirty(true);
+            }}
           />
         </div>
         <div style={formRowStyle}>
@@ -290,7 +313,10 @@ export function ContextsPanel(): React.ReactElement {
           <input
             id="sch-gen"
             value={schGen}
-            onChange={(e) => setSchGen(e.target.value)}
+            onChange={(e) => {
+              setSchGen(e.target.value);
+              setDirty(true);
+            }}
           />
         </div>
         <div style={formRowStyle}>
@@ -298,7 +324,10 @@ export function ContextsPanel(): React.ReactElement {
           <input
             id="sch-desc"
             value={schDesc}
-            onChange={(e) => setSchDesc(e.target.value)}
+            onChange={(e) => {
+              setSchDesc(e.target.value);
+              setDirty(true);
+            }}
           />
         </div>
         <div style={formRowStyle}>
@@ -374,10 +403,16 @@ export function ContextsPanel(): React.ReactElement {
           </p>
         )}
         <div style={toolbarStyle}>
-          <button type="button" style={primaryButtonStyle} onClick={() => void saveScheme()}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="location-scheme-save"
+            disabled={saving}
+            onClick={() => void saveScheme()}
+          >
             {message(MSG.PUBLISH_SAVE)}
           </button>
-          <button type="button" style={buttonStyle} onClick={() => setMode({ kind: "list" })}>
+          <button type="button" style={buttonStyle} onClick={closeSchemeEditor}>
             {message(MSG.PUBLISH_BACK)}
           </button>
         </div>
@@ -433,6 +468,7 @@ export function ContextsPanel(): React.ReactElement {
             <button
               type="button"
               style={buttonStyle}
+              data-testid="design-add-location-scheme"
               onClick={() => void openSchemeEdit(null, selected)}
             >
               Add scheme

@@ -80,6 +80,20 @@ HTTP **403** (not Admin or Designer) and **409** (delivery type name already exi
 delivery-type editor error region — not as a successful save. Content-list save and edition save
 are separate Design actions.
 
+### Save a location scheme (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**, then **Add scheme** (or open an existing scheme).
+Enter a **name** and **generator** (required), optional description, content type id, template id,
+and parameters, then **Save**. Unsaved field edits mark the form dirty; leaving the editor prompts
+to discard. The shell posts
+`POST …/sitemanage/publishingdesign/contexts/{contextId}/schemes` (create) or
+`PUT …/sitemanage/publishingdesign/schemes/{schemeId}` (update).
+
+HTTP **403** (not Admin or Designer) and **409** (location scheme name already exists in that
+context) are shown in the scheme editor error region — not as a successful save. Context save,
+delivery-type save, and edition save are separate Design actions.
+
 ### Start or stop a publish job (Runtime)
 
 From **Publish** (`spa.jsp?entry=publish&section=runtime`), choose a **site** and

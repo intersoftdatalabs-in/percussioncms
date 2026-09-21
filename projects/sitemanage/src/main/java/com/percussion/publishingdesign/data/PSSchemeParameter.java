@@ -16,9 +16,9 @@
  */
 package com.percussion.publishingdesign.data;
 
-import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "schemeParameter")
+@XmlType(name = "schemeParameter")
 public class PSSchemeParameter {
   private String name;
   private String type;

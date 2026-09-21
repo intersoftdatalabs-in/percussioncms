@@ -90,6 +90,7 @@ public class PSPublishingDesignRestService {
   static final String EDITION_NAME_CONFLICT = "Edition name already exists";
   static final String CONTENT_LIST_NAME_CONFLICT = "Content list name already exists";
   static final String DELIVERY_TYPE_NAME_CONFLICT = "Delivery type name already exists";
+  static final String LOCATION_SCHEME_NAME_CONFLICT = "Location scheme name already exists";
 
   private final IPSPublisherService publisherService;
   private final IPSGuidManager guidManager;
@@ -929,11 +930,13 @@ public class PSPublishingDesignRestService {
   public PSLocationSchemeSummary createScheme(
       @PathParam("contextId") String contextId, PSLocationSchemeSummary body) {
     requireSiteManager();
+    requireDesignWrite();
     requireNonBlank(contextId, "contextId");
     if (body == null || isBlank(body.getName()) || isBlank(body.getGenerator())) {
       throw badRequest("name and generator are required");
     }
     try {
+      requireUniqueLocationSchemeName(contextId, body.getName().trim(), null);
       IPSLocationScheme scheme = siteManager.createScheme();
       scheme.setName(body.getName().trim());
       scheme.setGenerator(body.getGenerator().trim());
@@ -964,6 +967,7 @@ public class PSPublishingDesignRestService {
   public PSLocationSchemeSummary updateScheme(
       @PathParam("schemeId") String schemeId, PSLocationSchemeSummary body) {
     requireSiteManager();
+    requireDesignWrite();
     requireNonBlank(schemeId, "schemeId");
     if (body == null) {
       throw badRequest("body is required");
@@ -972,6 +976,15 @@ public class PSPublishingDesignRestService {
       IPSLocationScheme scheme =
           siteManager.loadSchemeModifiable(
               guidManager.makeGuid(schemeId, PSTypeEnum.LOCATION_SCHEME));
+      String contextId =
+          !isBlank(body.getContextId())
+              ? body.getContextId().trim()
+              : (scheme.getContextId() != null
+                  ? String.valueOf(scheme.getContextId().getUUID())
+                  : null);
+      if (!isBlank(body.getName()) && contextId != null) {
+        requireUniqueLocationSchemeName(contextId, body.getName().trim(), schemeId);
+      }
       if (!isBlank(body.getName())) {
         scheme.setName(body.getName().trim());
       }
@@ -1337,6 +1350,29 @@ public class PSPublishingDesignRestService {
       return;
     }
     throw conflict(CONTENT_LIST_NAME_CONFLICT);
+  }
+
+  private void requireUniqueLocationSchemeName(
+      String contextId, String name, String currentSchemeId) {
+    IPSGuid ctxGuid = guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT);
+    List<IPSLocationScheme> schemes = siteManager.findSchemesByContextId(ctxGuid);
+    if (schemes == null) {
+      return;
+    }
+    for (IPSLocationScheme existing : schemes) {
+      if (existing == null || isBlank(existing.getName())) {
+        continue;
+      }
+      if (!existing.getName().equalsIgnoreCase(name)) {
+        continue;
+      }
+      String existingId =
+          existing.getGUID() != null ? String.valueOf(existing.getGUID().getUUID()) : null;
+      if (currentSchemeId != null && currentSchemeId.equals(existingId)) {
+        continue;
+      }
+      throw conflict(LOCATION_SCHEME_NAME_CONFLICT);
+    }
   }
 
   private void requireUniqueDeliveryTypeName(String name, String currentDeliveryTypeId) {
