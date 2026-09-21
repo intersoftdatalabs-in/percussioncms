@@ -21,8 +21,12 @@ Read the persona there:
 ```text
 ~/.agents/skills/erlang/ERLANG.md     # identity, gate, severity, voice
 ~/.agents/skills/erlang/PATTERNS.md   # institutional review memory
-~/.agents/skills/erlang/VERSION      # e.g. "0.1.0"
+~/.agents/skills/erlang/VERSION      # e.g. "0.1.1"
 ```
+
+Percussion CMS git identity: `Nate Chadwick
+<263952448+natechadwick-intsof@users.noreply.github.com>`, GPG
+`CB96F96BE980BBE2`. Never `Erlang <erlang@monkeyking.dev>`.
 
 Reports carry `## Scope → Persona: erlang <version>` automatically.
 

@@ -291,6 +291,12 @@ fn identity_block(tool, ver, model, agent_name) {
     s += "- Operator labels: operator:grok, operator:night-issue-prs, " + label + "\n";
     s += "- Footer on commits, PRs, issue comments (exact):\n";
     s += footer + "\n";
+    s += "FORGE GIT IDENTITY (HARD — never the Erlang persona name):\n";
+    s += "- Author and committer: Nate Chadwick <263952448+natechadwick-intsof@users.noreply.github.com>\n";
+    s += "- git -c user.name=\"Nate Chadwick\" -c user.email=\"263952448+natechadwick-intsof@users.noreply.github.com\"\n";
+    s += "  -c user.signingkey=CB96F96BE980BBE2 commit -S\n";
+    s += "- Never GIT_AUTHOR/GIT_COMMITTER Erlang <erlang@monkeyking.dev> (GitHub Unverified / no_user).\n";
+    s += "- gh auth: natechadwick-intsof. Read AGENTS.local.md from the primary checkout in worktrees.\n";
     s += "- If tool/version/model above is UNRESOLVED: run `grok --version` and read YOUR\n";
     s += "  system identity (e.g. \"You are Grok 4.6\" → grok-4.6). Never default to grok-4.5.\n";
     s += "- Do not write model:grok-4.5 or \"using grok-4.5\" unless model is literally grok-4.5.\n";
@@ -345,6 +351,8 @@ fn has_findings(v) {
 fn erlang_gate_text(repo, base_branch, allow_merge, scope_note) {
     let p = "";
     p += "You are the overnight ERLANG sub-agent for Percussion CMS. You did NOT author the PR.\n";
+    p += "Git identity is NOT the persona name. Commits use Nate Chadwick /\n";
+    p += "263952448+natechadwick-intsof@users.noreply.github.com / GPG CB96F96BE980BBE2.\n";
     p += "Repo: " + repo + "\nBase: " + base_branch + "\n";
     p += "Scope: " + scope_note + "\n";
     p += "allow_erlang_squash_merge=" + allow_merge.to_string() + "\n";
