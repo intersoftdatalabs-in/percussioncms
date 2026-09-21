@@ -80,15 +80,186 @@ function translationsRowIdFromAttrs(attrs) {
  */
 function isPreferredContentRowName(itemName, rowText) {
   const name = String(itemName == null ? "" : itemName).trim();
-  if (!name) {
+  const text = String(rowText == null ? "" : rowText).trim();
+  if (!name && !text) {
     return false;
   }
-  for (const wanted of PREFERRED_CONTENT_NAMES) {
-    if (name === wanted) {
-      return true;
+  return PREFERRED_CONTENT_NAMES.some(
+    (wanted) =>
+      name === wanted ||
+      foldedNamesEqual(name, wanted) ||
+      (text.length > 0 && foldedNamesEqual(text, wanted)),
+  );
+}
+
+/**
+ * GUID-shaped id from a pathmanagement / list JSON object.
+ * @param {unknown} item
+ * @returns {string}
+ */
+function guidFromPathItem(item) {
+  if (item == null || typeof item !== "object") {
+    return "";
+  }
+  const rec = /** @type {Record<string, unknown>} */ (item);
+  return (
+    guidShapedIdFromText(rec.id) ||
+    guidShapedIdFromText(rec.itemId) ||
+    guidShapedIdFromText(rec.sysId)
+  );
+}
+
+/**
+ * Parent CMS folder of a listed item path (logical {@code /} paths).
+ * @param {unknown} itemPath
+ * @returns {string}
+ */
+function parentFolderCmsPath(itemPath) {
+  let p = String(itemPath == null ? "" : itemPath)
+    .trim()
+    .replace(/\\/g, "/");
+  while (p.startsWith("//")) {
+    p = p.slice(1);
+  }
+  if (p && !p.startsWith("/")) {
+    p = `/${p}`;
+  }
+  if (p.length > 1 && p.endsWith("/")) {
+    p = p.replace(/\/+$/, "");
+  }
+  const idx = p.lastIndexOf("/");
+  if (idx <= 0) {
+    return p || "/";
+  }
+  return p.slice(0, idx) || "/";
+}
+
+/**
+ * Folder walk segments after the repository root ({@code Sites}).
+ * @param {unknown} folderPath
+ * @returns {string[]}
+ */
+function cmsFolderWalkSegments(folderPath) {
+  let p = String(folderPath == null ? "" : folderPath)
+    .trim()
+    .replace(/\\/g, "/");
+  while (p.startsWith("//")) {
+    p = p.slice(1);
+  }
+  if (p.startsWith("/")) {
+    p = p.slice(1);
+  }
+  if (p.endsWith("/")) {
+    p = p.replace(/\/+$/, "");
+  }
+  const parts = p.split("/").filter(Boolean);
+  if (parts.length === 0) {
+    return [];
+  }
+  if (foldedNamesEqual(parts[0], "Sites")) {
+    return parts.slice(1);
+  }
+  return parts;
+}
+
+/**
+ * Prefer a GUID-shaped listed page, then any GUID item (not folders).
+ * @param {unknown[]} items
+ * @returns {object|null}
+ */
+function pickGuidListedItem(items) {
+  const list = Array.isArray(items) ? items.filter(Boolean) : [];
+  const guidItems = list.filter((it) => {
+    if (!guidFromPathItem(it)) {
+      return false;
+    }
+    const type = `${it.type || ""} ${it.category || ""}`.toLowerCase();
+    if (type.includes("folder") || type.includes("fsfolder") || type.includes("site")) {
+      return false;
+    }
+    return true;
+  });
+  if (guidItems.length === 0) {
+    return null;
+  }
+  const preferred = guidItems.find((it) =>
+    isPreferredContentRowName(it.name, it.path),
+  );
+  return preferred || guidItems[0];
+}
+
+function isFolderishPathItem(item) {
+  if (item == null || typeof item !== "object") {
+    return false;
+  }
+  const type = `${item.type || ""} ${item.category || ""}`.toLowerCase();
+  if (type.includes("folder") || type.includes("site")) {
+    return true;
+  }
+  return String(item.path || "").endsWith("/");
+}
+
+/** Logical CMS folder path without a leading slash. */
+function cmsRelFolder(raw) {
+  let p = String(raw == null ? "" : raw)
+    .trim()
+    .replace(/\\/g, "/");
+  while (p.startsWith("//")) {
+    p = p.slice(1);
+  }
+  if (p && !p.startsWith("/")) {
+    p = `/${p}`;
+  }
+  if (p.length > 1 && p.endsWith("/")) {
+    p = p.replace(/\/+$/, "");
+  }
+  return p.replace(/^\/+/, "");
+}
+
+/**
+ * pathmanagement folders to search for a GUID page (site root + Pages).
+ * @param {unknown[]} sites
+ * @returns {string[]}
+ */
+function guidListCandidateFolders(sites) {
+  const list = Array.isArray(sites) ? sites.filter(Boolean) : [];
+  const folders = [];
+  const seen = new Set();
+  const add = (raw) => {
+    const s = cmsRelFolder(raw);
+    if (!s || seen.has(s)) {
+      return;
+    }
+    seen.add(s);
+    folders.push(s);
+  };
+  for (const site of list) {
+    const listPath = cmsRelFolder(site.folderPath || site.path);
+    if (listPath) {
+      add(listPath);
+      add(`${listPath}/Pages`);
+    }
+    if (site.name) {
+      add(`Sites/${site.name}`);
+      add(`Sites/${site.name}/Pages`);
     }
   }
-  return false;
+  return folders;
+}
+
+function nestedFolderRel(kid, parentFolder) {
+  if (!isFolderishPathItem(kid)) {
+    return "";
+  }
+  const fromPath = cmsRelFolder(kid.folderPath || kid.path);
+  if (fromPath) {
+    return fromPath;
+  }
+  const name = kid && kid.name ? String(kid.name) : "";
+  if (!name) {
+    return "";
+  }
+  return `${parentFolder}/${name}`;
 }
 
 /**
@@ -122,4 +293,11 @@ module.exports = {
   isPreferredContentRowName,
   foldExplorerName,
   foldedNamesEqual,
+  guidFromPathItem,
+  parentFolderCmsPath,
+  cmsFolderWalkSegments,
+  pickGuidListedItem,
+  isFolderishPathItem,
+  guidListCandidateFolders,
+  nestedFolderRel,
 };
