@@ -41,7 +41,12 @@ const sampleDetail = {
     {
       stepName: "Draft",
       permissionNames: ["Read", "Write"],
-      stepRoles: [{ roleName: "Author" }],
+      stepRoles: [
+        {
+          roleName: "Author",
+          roleTransitions: [{ transitionPermission: "Submit" }],
+        },
+      ],
     },
     {
       stepName: "Approved",
@@ -77,6 +82,10 @@ describe("WorkflowDetailPanel", () => {
       "Simple Workflow",
     );
     expect(screen.getByTestId("developer-wf-steps-table")).toBeTruthy();
+    expect(screen.getByTestId("developer-wf-step-name-0").textContent).toContain("Draft");
+    expect(screen.getByTestId("developer-wf-step-transitions-0").textContent).toContain(
+      "Submit",
+    );
     expect(screen.getByTestId("developer-wf-gaps").textContent).toContain("gap-a");
     expect(getWorkflowDetail).toHaveBeenCalledWith("Simple Workflow");
     const back = screen.getByTestId("developer-wf-back");
@@ -135,6 +144,39 @@ describe("WorkflowDetailPanel", () => {
         allowedContentTypes: [],
       });
     });
+  });
+
+  it("maps GET 404 to WF_NOT_FOUND without a blank success body", async () => {
+    getWorkflowDetail.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: null,
+    });
+    render(<WorkflowDetailPanel name="Missing" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-detail-error").textContent).toContain(
+      DEV_MSG.WF_NOT_FOUND,
+    );
+    expect(screen.queryByTestId("developer-wf-detail-title")).toBeNull();
+    expect(screen.queryByTestId("developer-wf-steps-table")).toBeNull();
+  });
+
+  it("maps GET 403 to WF_FORBIDDEN without a blank success body", async () => {
+    getWorkflowDetail.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: null,
+    });
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-detail-error").textContent).toContain(
+      DEV_MSG.WF_FORBIDDEN,
+    );
+    expect(screen.queryByTestId("developer-wf-detail-title")).toBeNull();
   });
 
   it("shows empty steps section when detail has none", async () => {

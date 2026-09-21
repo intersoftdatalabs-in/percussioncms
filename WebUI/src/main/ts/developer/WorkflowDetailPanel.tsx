@@ -32,6 +32,7 @@ import {
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { buildAllowedContentTypesReplaceBody } from "./workflowContentTypes";
+import { formatStepTransitionNames } from "./workflowStepTransitions";
 
 /** Canonical Percussion GUID shape: type-host-uuid (three numeric groups). */
 const PERC_GUID_RE = /^\d+-\d+-\d+$/;
@@ -64,6 +65,18 @@ const primaryBtnStyle: React.CSSProperties = {
 
 function isAllowedContentTypeInput(raw: string): boolean {
   return isValidContentTypeName(raw) || PERC_GUID_RE.test(raw);
+}
+
+function detailLoadErrorFallback(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 404) {
+      return DEV_MSG.WF_NOT_FOUND;
+    }
+    if (err.status === 403) {
+      return DEV_MSG.WF_FORBIDDEN;
+    }
+  }
+  return DEV_MSG.WF_DETAIL_ERROR;
 }
 
 export function WorkflowDetailPanel({
@@ -125,7 +138,9 @@ export function WorkflowDetailPanel({
         setDescriptionDirty(false);
       })
       .catch((err: unknown) => {
-        if (!cancelled) setError(panelErrMsg(err, DEV_MSG.WF_DETAIL_ERROR));
+        if (!cancelled) {
+          setError(panelErrMsg(err, detailLoadErrorFallback(err)));
+        }
       });
 
     getWorkflowAllowedContentTypes(name)
@@ -515,6 +530,7 @@ export function WorkflowDetailPanel({
                       <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_STEP}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_PERMS}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_ROLES}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_TRANSITIONS}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -528,13 +544,27 @@ export function WorkflowDetailPanel({
                       const perms = Array.isArray(s.permissionNames)
                         ? s.permissionNames.join(", ")
                         : "";
+                      const transitions = formatStepTransitionNames(s);
                       return (
-                        <tr key={`${s.stepName ?? "s"}-${i}`} style={tableRow}>
-                          <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                        <tr
+                          key={`${s.stepName ?? "s"}-${i}`}
+                          data-testid={`developer-wf-step-row-${i}`}
+                          style={tableRow}
+                        >
+                          <td
+                            style={{ padding: "8px", fontFamily: "monospace" }}
+                            data-testid={`developer-wf-step-name-${i}`}
+                          >
                             {s.stepName || "—"}
                           </td>
                           <td style={{ padding: "8px" }}>{perms || "—"}</td>
                           <td style={{ padding: "8px" }}>{roles || "—"}</td>
+                          <td
+                            style={{ padding: "8px" }}
+                            data-testid={`developer-wf-step-transitions-${i}`}
+                          >
+                            {transitions || "—"}
+                          </td>
                         </tr>
                       );
                     })}

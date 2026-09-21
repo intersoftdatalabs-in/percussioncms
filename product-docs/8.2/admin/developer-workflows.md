@@ -15,8 +15,26 @@ description, staging roles, and steps). Open a row to inspect steps and to edit
 **edit** the description, and **delete** a workflow from the catalog. The new row
 opens and lists on the catalog.
 
-Full workflow graph design (states, transitions, roles) and workflow renaming
-stay outside this chrome.
+Full workflow graph design (create/delete states and transitions) and workflow
+renaming stay outside this chrome. **Developer → Workflows** detail still shows
+a **read-only step list** (step name, permissions, roles, and transition names
+when the workflow DTO already includes them). Missing workflows (`404`) and
+non-Admin callers (`403`) surface as section alerts — not a blank success body.
+
+## Product path — browse steps (read-only)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows**, or deep-link
+   `spa.jsp?entry=developer&section=workflows`.
+3. Open a workflow row (for example **Simple Workflow**).
+4. Under **Steps**, confirm each state is listed. Transition names appear in
+   the **Transitions** column when the REST payload includes
+   `stepRoles[].roleTransitions` (Workbench-style `transitionPermission`).
+5. If the workflow has no steps, the section shows **None** (not an empty
+   success table). Load errors (`403` / `404`) appear in the detail alert.
+
+This is a catalog preview only. Adding or removing steps, or designing the
+graph, remains on the workflow-admin editor.
 
 ## Product path — create a workflow (slice 21)
 
