@@ -11,8 +11,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.percussion.rest.ObjectLockSummary;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -28,7 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Server configuration catalog for the Developer module (SY-02).
  *
  * <p>Admin PUT updates an allow-listed configuration file body ({@code PSConfigurationTypes}
- * names only). Arbitrary filesystem paths are rejected. SPA save chrome is a later slice.
+ * names only) while a design lock is held (POST .../lock). Arbitrary filesystem paths are
+ * rejected.
  */
 @PSSiteManageBean(value = "restServerConfigsResource")
 @Path("/serverconfigs")
@@ -125,7 +128,8 @@ public class ServerConfigsResource {
               + " (PSConfigurationTypes enum name such as LOG_CONFIG). Path name is the catalog"
               + " key and is not renamed. Body must include content (file text). Names outside the"
               + " allow-list (path traversal, unknown enum) are 404 — no arbitrary filesystem"
-              + " write. Locking / concurrent edit remain design gaps.",
+              + " write. Requires a held design-session lock (POST .../lock); unlocked or stolen"
+              + " lock is 409.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -134,6 +138,7 @@ public class ServerConfigsResource {
         @ApiResponse(responseCode = "400", description = "Invalid input (missing body/content)"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Configuration not found / not allow-listed"),
+        @ApiResponse(responseCode = "409", description = "Design lock required or held by another user"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
@@ -150,6 +155,65 @@ public class ServerConfigsResource {
       return updated;
     } catch (RuntimeException e) {
       // Adaptor declares no checked exceptions; mapWriteFailure covers all write failures.
+      throw mapWriteFailure(e);
+    }
+  }
+
+  @POST
+  @Path("/{name}/lock")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Lock server configuration file",
+      description =
+          "Admin. Acquires a self-only design-session lock for an allow-listed configuration key."
+              + " Does not save. Does not steal another user's lock. Re-lock by the same session"
+              + " user extends the lock.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Locked",
+            content = @Content(schema = @Schema(implementation = ObjectLockSummary.class))),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Configuration not found / not allow-listed"),
+        @ApiResponse(responseCode = "409", description = "Locked by another user"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ObjectLockSummary lockConfig(@PathParam("name") String name) {
+    try {
+      ObjectLockSummary summary = requireAdaptor().lockConfig(name);
+      if (summary == null) {
+        throw new WebApplicationException("Configuration not found", 404);
+      }
+      return summary;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    }
+  }
+
+  @POST
+  @Path("/{name}/unlock")
+  @Operation(
+      summary = "Unlock server configuration file",
+      description =
+          "Admin. Releases a design-session lock owned by the current user/session. Does not save."
+              + " Locks held by another user are not stolen (409).",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Unlocked"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Configuration not found / not allow-listed"),
+        @ApiResponse(responseCode = "409", description = "Locked by another user"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response unlockConfig(@PathParam("name") String name) {
+    try {
+      Boolean released = requireAdaptor().unlockConfig(name);
+      if (released == null || !released) {
+        throw new WebApplicationException("Configuration not found", 404);
+      }
+      return Response.noContent().build();
+    } catch (RuntimeException e) {
       throw mapWriteFailure(e);
     }
   }

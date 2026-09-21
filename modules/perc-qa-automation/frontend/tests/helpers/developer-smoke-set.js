@@ -248,6 +248,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "SY-02 SPA server config write H2 (#4277 / parent #1690)",
   },
   {
+    id: "server-configs-lock",
+    file: "developer-server-configs-lock.spec.js",
+    title: "Admin can lock, see held status, and unlock without silent overwrite",
+    status: "green",
+    notes: "SY-02 SPA server config locking H2 (#4623 / parent #1690)",
+  },
+  {
     id: "application-files-write",
     file: "developer-application-files-write.spec.js",
     title: "Admin can browse app files, save, and see refresh",

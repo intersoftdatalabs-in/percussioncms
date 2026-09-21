@@ -136,9 +136,29 @@ async function openConfigByKey(page, key) {
   }
   await expect(page.locator('[data-testid="developer-cfg-content-editor"]')).toBeVisible();
   await expect(page.locator('[data-testid="developer-cfg-save"]')).toBeVisible();
+  await expect(page.locator('[data-testid="developer-cfg-lock"]')).toBeVisible();
+}
+
+async function lockConfig(page) {
+  const lockBtn = page.locator('[data-testid="developer-cfg-lock"]');
+  if (await lockBtn.isEnabled()) {
+    const lockWait = page.waitForResponse(
+      (r) =>
+        /\/services\/serverconfigs\/[^/?#]+\/lock$/i.test(r.url()) &&
+        r.request().method() === "POST",
+      { timeout: 30_000 },
+    );
+    await lockBtn.click();
+    const lockResp = await lockWait;
+    expect(lockResp.status(), `POST lock ${lockResp.status()}`).toBe(200);
+    await expect(page.locator('[data-testid="developer-cfg-lock-status"]')).toContainText(
+      /Locked by you/i,
+    );
+  }
 }
 
 async function saveConfigContent(page, content) {
+  await lockConfig(page);
   const editor = page.locator('[data-testid="developer-cfg-content-editor"]');
   await editor.fill(content);
   const saveBtn = page.locator('[data-testid="developer-cfg-save"]');

@@ -8,6 +8,8 @@ import {
   SERVER_CONFIG_DESIGN_GAPS,
   SERVER_CONFIG_ROOT,
   getServerConfigDetail,
+  lockServerConfig,
+  unlockServerConfig,
   updateServerConfig,
   withoutStaleServerConfigWriteGap,
   wrapServerConfigForWire,
@@ -30,8 +32,16 @@ describe("serverConfigsApi SY-02 write", () => {
       withoutStaleServerConfigWriteGap([
         "Configuration create / update / save not supported via this API",
         "Locking and concurrent edit are not exposed on this Developer surface",
+        "Configuration create is not supported via this API (fixed allow-listed set only)",
       ]),
-    ).toEqual(["Locking and concurrent edit are not exposed on this Developer surface"]);
+    ).toEqual([
+      "Configuration create is not supported via this API (fixed allow-listed set only)",
+    ]);
+    expect(
+      withoutStaleServerConfigWriteGap({
+        string: "Locking and concurrent edit are not exposed on this Developer surface",
+      } as unknown as string[]),
+    ).toEqual([]);
   });
 
   it("getServerConfigDetail strips stale gaps and fills defaults when empty", async () => {
@@ -60,6 +70,23 @@ describe("serverConfigsApi SY-02 write", () => {
     expect(detail.name).toBe("LOG_CONFIG");
     expect(detail.content).toBe("rootLogger=INFO");
     expect(detail.designGaps).toEqual(SERVER_CONFIG_DESIGN_GAPS);
+  });
+
+  it("lockServerConfig POSTs /serverconfigs/{name}/lock", async () => {
+    const spy = vi.spyOn(client, "post").mockResolvedValue({
+      locker: "Admin",
+      remainingTime: 30,
+    });
+    const summary = await lockServerConfig("LOG_CONFIG");
+    expect(spy).toHaveBeenCalled();
+    expect(String(spy.mock.calls[0][0])).toMatch(/\/LOG_CONFIG\/lock$/);
+    expect(summary.locker).toBe("Admin");
+  });
+
+  it("unlockServerConfig POSTs /serverconfigs/{name}/unlock", async () => {
+    const spy = vi.spyOn(client, "post").mockResolvedValue(undefined);
+    await unlockServerConfig("LOG_CONFIG");
+    expect(String(spy.mock.calls[0][0])).toMatch(/\/LOG_CONFIG\/unlock$/);
   });
 
   it("updateServerConfig rejects missing content before PUT", async () => {

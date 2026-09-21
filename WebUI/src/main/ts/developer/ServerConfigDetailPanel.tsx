@@ -6,7 +6,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { isApiError } from "../api/client";
 import {
   getServerConfigDetail,
+  lockServerConfig,
   SERVER_CONFIG_DESIGN_GAPS,
+  unlockServerConfig,
   updateServerConfig,
   withoutStaleServerConfigWriteGap,
 } from "../api/developer/serverConfigsApi";
@@ -50,7 +52,9 @@ export function ServerConfigDetailPanel({
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [heldLock, setHeldLock] = useState(false);
   const inflight = useRef(false);
+  const heldLockRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,6 +68,8 @@ export function ServerConfigDetailPanel({
         if (cancelled) return;
         setDetail(d);
         setContent(d.content ?? "");
+        setHeldLock(false);
+        heldLockRef.current = false;
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -77,10 +83,78 @@ export function ServerConfigDetailPanel({
   }, [name]);
 
   const dirty = detail != null && content !== (detail.content ?? "");
-  const canSave = !busy && !loading && detail != null && dirty;
+  const canSave = !busy && !loading && detail != null && dirty && heldLock;
+
+  async function handleLock(): Promise<void> {
+    if (inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await lockServerConfig(name);
+      heldLockRef.current = true;
+      setHeldLock(true);
+      setNotice(DEV_MSG.CFG_LOCKED);
+    } catch (err: unknown) {
+      heldLockRef.current = false;
+      setHeldLock(false);
+      const fallback =
+        isApiError(err) && err.status === 409
+          ? DEV_MSG.CFG_LOCK_CONFLICT
+          : DEV_MSG.CFG_LOCK_ERROR;
+      setError(panelErrMsg(err, fallback));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function handleUnlock(): Promise<void> {
+    if (inflight.current) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await unlockServerConfig(name);
+      heldLockRef.current = false;
+      setHeldLock(false);
+      if (detail) {
+        setContent(detail.content ?? "");
+      }
+      setNotice(DEV_MSG.CFG_UNLOCKED_NOTICE);
+    } catch (err: unknown) {
+      const fallback =
+        isApiError(err) && err.status === 409
+          ? DEV_MSG.CFG_LOCK_CONFLICT
+          : DEV_MSG.CFG_UNLOCK_ERROR;
+      setError(panelErrMsg(err, fallback));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function handleBack(): Promise<void> {
+    if (heldLockRef.current) {
+      try {
+        await unlockServerConfig(name);
+      } catch {
+        // Best-effort release so Back cannot trap the operator on a stale lock.
+      }
+      heldLockRef.current = false;
+      setHeldLock(false);
+    }
+    onBack();
+  }
 
   async function handleSave(): Promise<void> {
     if (!canSave || inflight.current) return;
+    if (!heldLock) {
+      setError(DEV_MSG.CFG_LOCK_REQUIRED);
+      return;
+    }
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -97,7 +171,9 @@ export function ServerConfigDetailPanel({
           ? DEV_MSG.CFG_FORBIDDEN
           : isApiError(err) && err.status === 404
             ? DEV_MSG.CFG_NOT_FOUND
-            : DEV_MSG.CFG_SAVE_ERROR;
+            : isApiError(err) && err.status === 409
+              ? DEV_MSG.CFG_LOCK_CONFLICT
+              : DEV_MSG.CFG_SAVE_ERROR;
       setError(panelErrMsg(err, fallback));
     } finally {
       inflight.current = false;
@@ -112,7 +188,7 @@ export function ServerConfigDetailPanel({
           if (filtered.length > 0) return filtered;
           return SERVER_CONFIG_DESIGN_GAPS.length > 0
             ? SERVER_CONFIG_DESIGN_GAPS
-            : [DEV_MSG.CFG_GAP_LOCK];
+            : [];
         })()
       : [];
 
@@ -120,10 +196,10 @@ export function ServerConfigDetailPanel({
     <div data-testid="developer-cfg-detail">
       <button
         type="button"
-        onClick={onBack}
         data-testid="developer-cfg-back"
         aria-label={DEV_MSG.CFG_BACK}
         style={backButton}
+        onClick={() => void handleBack()}
       >
         ← {DEV_MSG.CFG_BACK}
       </button>
@@ -174,7 +250,7 @@ export function ServerConfigDetailPanel({
               aria-label={DEV_MSG.CFG_CONTENT}
               style={textareaStyle}
               value={content}
-              disabled={busy}
+              disabled={busy || !heldLock}
               onChange={(e) => setContent(e.target.value)}
               spellCheck={false}
             />
@@ -183,7 +259,45 @@ export function ServerConfigDetailPanel({
             </span>
           </section>
 
+          <p data-testid="developer-cfg-lock-status" style={{ color: catalogColors.muted }}>
+            {heldLock ? DEV_MSG.CFG_LOCKED : DEV_MSG.CFG_LOCK_REQUIRED}
+          </p>
+
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
+            <button
+              type="button"
+              data-testid="developer-cfg-lock"
+              aria-label={DEV_MSG.CFG_LOCK}
+              disabled={busy || heldLock}
+              onClick={() => void handleLock()}
+              style={{
+                padding: "8px 16px",
+                background: !busy && !heldLock ? catalogColors.accent : catalogColors.disabled,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: !busy && !heldLock ? "pointer" : "not-allowed",
+              }}
+            >
+              {DEV_MSG.CFG_LOCK}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-cfg-unlock"
+              aria-label={DEV_MSG.CFG_UNLOCK}
+              disabled={busy || !heldLock}
+              onClick={() => void handleUnlock()}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                color: catalogColors.text,
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                cursor: busy || !heldLock ? "not-allowed" : "pointer",
+              }}
+            >
+              {DEV_MSG.CFG_UNLOCK}
+            </button>
             <button
               type="button"
               data-testid="developer-cfg-save"
@@ -205,7 +319,7 @@ export function ServerConfigDetailPanel({
               type="button"
               data-testid="developer-cfg-cancel"
               disabled={busy}
-              onClick={onBack}
+              onClick={() => void handleBack()}
               style={{
                 padding: "8px 16px",
                 background: "transparent",

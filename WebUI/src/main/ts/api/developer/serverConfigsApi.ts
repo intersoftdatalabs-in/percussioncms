@@ -2,8 +2,9 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { get, put } from "../client";
+import { get, post, put } from "../client";
 import { PATHS } from "../paths";
+import { unwrapObjectLockSummary, type ContentTypeLockSummary } from "./contentTypesApi";
 import type { ServerConfigDef } from "./types";
 
 /**
@@ -14,12 +15,14 @@ import type { ServerConfigDef } from "./types";
  */
 export const SERVER_CONFIG_DESIGN_GAPS: string[] = [
   "Configuration create is not supported via this API (fixed allow-listed set only)",
-  "Locking and concurrent edit are not exposed on this Developer surface",
 ];
 
 /** Drop pre-write catalog strings now that Admin PUT save ships. */
 const STALE_WRITE_GAP =
   /(?:configuration\s+)?create\s*\/\s*update\s*\/\s*save|update\s*\/\s*save\s+not\s+supported/i;
+
+/** Drop locking-gap strings now that POST lock/unlock ships. */
+const STALE_LOCK_GAP = /locking\s+and\s+concurrent\s+edit/i;
 
 export type ServerConfigWriteBody = {
   /** File text to persist; empty string is allowed by the REST contract. */
@@ -42,12 +45,30 @@ function parseList(payload: unknown): ServerConfigDef[] {
   throw new Error("Unexpected server config list payload type");
 }
 
+/** Normalize designGaps whether Jackson sent an array, a single string, or a wrapper. */
+function asGapList(gaps: unknown): string[] {
+  if (gaps == null) return [];
+  if (Array.isArray(gaps)) {
+    return gaps.filter((g): g is string => typeof g === "string");
+  }
+  if (typeof gaps === "string") {
+    return [gaps];
+  }
+  if (typeof gaps === "object") {
+    const obj = gaps as Record<string, unknown>;
+    const inner = obj.string ?? obj.item ?? obj.designGap;
+    return asGapList(inner);
+  }
+  return [];
+}
+
 /** Drop stale REST write-gap strings now that SY-02 SPA save ships. */
 export function withoutStaleServerConfigWriteGap(
   gaps: string[] | undefined | null,
 ): string[] {
-  if (gaps == null || gaps.length === 0) return [];
-  return gaps.filter((g) => !STALE_WRITE_GAP.test(g));
+  const list = asGapList(gaps);
+  if (list.length === 0) return [];
+  return list.filter((g) => !STALE_WRITE_GAP.test(g) && !STALE_LOCK_GAP.test(g));
 }
 
 function withGaps(c: ServerConfigDef): ServerConfigDef {
@@ -122,4 +143,18 @@ export async function updateServerConfig(
     wrapServerConfigForWire({ content: body.content }),
   );
   return withGaps(unwrapServerConfig(payload));
+}
+
+/** POST /services/serverconfigs/{name}/lock — Admin self-only design-session lock. */
+export async function lockServerConfig(name: string): Promise<ContentTypeLockSummary> {
+  const key = encodeURIComponent(name);
+  return unwrapObjectLockSummary(
+    await post<unknown>(`${PATHS.SERVER_CONFIGS}/${key}/lock`),
+  );
+}
+
+/** POST /services/serverconfigs/{name}/unlock — release a lock owned by this session. */
+export async function unlockServerConfig(name: string): Promise<void> {
+  const key = encodeURIComponent(name);
+  await post(`${PATHS.SERVER_CONFIGS}/${key}/unlock`);
 }

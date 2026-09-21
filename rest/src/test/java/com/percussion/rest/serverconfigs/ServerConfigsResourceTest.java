@@ -196,6 +196,56 @@ public class ServerConfigsResourceTest {
     assertEquals(503, ex.getResponse().getStatus());
   }
 
+  @Test
+  public void lockConfigDelegates() {
+    com.percussion.rest.ObjectLockSummary summary = new com.percussion.rest.ObjectLockSummary();
+    summary.setLocker("Admin");
+    when(adaptor.lockConfig(eq("LOG_CONFIG"))).thenReturn(summary);
+    assertEquals("Admin", resource.lockConfig("LOG_CONFIG").getLocker());
+    verify(adaptor).lockConfig("LOG_CONFIG");
+  }
+
+  @Test
+  public void lockConfigUnknownIs404() {
+    when(adaptor.lockConfig(eq("NOT_A_REAL_CONFIG"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockConfig("NOT_A_REAL_CONFIG"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void lockConfigConflictIs409() {
+    when(adaptor.lockConfig(eq("LOG_CONFIG")))
+        .thenThrow(new WebApplicationException("locked", Response.Status.CONFLICT));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lockConfig("LOG_CONFIG"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void unlockConfigDelegates204() {
+    when(adaptor.unlockConfig(eq("LOG_CONFIG"))).thenReturn(Boolean.TRUE);
+    Response out = resource.unlockConfig("LOG_CONFIG");
+    assertEquals(204, out.getStatus());
+  }
+
+  @Test
+  public void unlockConfigUnknownIs404() {
+    when(adaptor.unlockConfig(eq("NOT_A_REAL_CONFIG"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.unlockConfig("NOT_A_REAL_CONFIG"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnLock() {
+    ServerConfigsResource bare = new ServerConfigsResource();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.lockConfig("LOG_CONFIG"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
   private static ServerConfigSummary bodyWithContent(String content) {
     ServerConfigSummary body = new ServerConfigSummary();
     body.setContent(content);

@@ -18,11 +18,15 @@ vi.mock("../../../main/ts/api/developer/serverConfigsApi", async (importOriginal
     listServerConfigs: vi.fn(),
     getServerConfigDetail: vi.fn(),
     updateServerConfig: vi.fn(),
+    lockServerConfig: vi.fn(),
+    unlockServerConfig: vi.fn(),
   };
 });
 
 const getServerConfigDetail = serverConfigsApi.getServerConfigDetail as ReturnType<typeof vi.fn>;
 const updateServerConfig = serverConfigsApi.updateServerConfig as ReturnType<typeof vi.fn>;
+const lockServerConfig = serverConfigsApi.lockServerConfig as ReturnType<typeof vi.fn>;
+const unlockServerConfig = serverConfigsApi.unlockServerConfig as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   name: "LOG_CONFIG",
@@ -33,7 +37,6 @@ const sampleDetail = {
   content: "<Configuration/>",
   designGaps: [
     "Configuration create is not supported via this API (fixed allow-listed set only)",
-    "Locking and concurrent edit are not exposed on this Developer surface",
   ],
 };
 
@@ -44,6 +47,10 @@ describe("ServerConfigDetailPanel", () => {
     };
     getServerConfigDetail.mockReset();
     updateServerConfig.mockReset();
+    lockServerConfig.mockReset();
+    unlockServerConfig.mockReset();
+    lockServerConfig.mockResolvedValue({ locker: "Admin", remainingTime: 30 });
+    unlockServerConfig.mockResolvedValue(undefined);
   });
 
   it("loads detail on success and supports back", async () => {
@@ -59,7 +66,8 @@ describe("ServerConfigDetailPanel", () => {
     expect(
       (screen.getByTestId("developer-cfg-content-editor") as HTMLTextAreaElement).value,
     ).toContain("Configuration");
-    expect(screen.getByTestId("developer-cfg-gaps").textContent).toContain("Locking");
+    expect(screen.getByTestId("developer-cfg-gaps").textContent).toContain("create");
+    expect(screen.getByTestId("developer-cfg-gaps").textContent).not.toMatch(/Locking/i);
     expect(screen.getByTestId("developer-cfg-gaps").textContent).not.toMatch(
       /create\s*\/\s*update\s*\/\s*save/i,
     );
@@ -94,6 +102,10 @@ describe("ServerConfigDetailPanel", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("developer-cfg-content-editor")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-cfg-lock"));
+    await waitFor(() => {
+      expect(lockServerConfig).toHaveBeenCalledWith("LOG_CONFIG");
     });
     fireEvent.change(screen.getByTestId("developer-cfg-content-editor"), {
       target: { value: "<Configuration updated/>" },
@@ -140,6 +152,8 @@ describe("ServerConfigDetailPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-cfg-content-editor")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-cfg-lock"));
+    await waitFor(() => expect(lockServerConfig).toHaveBeenCalled());
     fireEvent.change(screen.getByTestId("developer-cfg-content-editor"), {
       target: { value: "<Configuration boom/>" },
     });
@@ -163,6 +177,8 @@ describe("ServerConfigDetailPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-cfg-content-editor")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-cfg-lock"));
+    await waitFor(() => expect(lockServerConfig).toHaveBeenCalled());
     fireEvent.change(screen.getByTestId("developer-cfg-content-editor"), {
       target: { value: "<Configuration forbidden/>" },
     });
@@ -187,8 +203,53 @@ describe("ServerConfigDetailPanel", () => {
       expect(screen.getByTestId("developer-cfg-gaps")).toBeTruthy();
     });
     const gaps = screen.getByTestId("developer-cfg-gaps").textContent || "";
-    expect(gaps).toContain("Locking");
+    expect(gaps).not.toMatch(/Locking/i);
     expect(gaps).not.toMatch(/create\s*\/\s*update\s*\/\s*save/i);
+  });
+
+  it("disables save until lock is held then unlocks", async () => {
+    getServerConfigDetail.mockResolvedValue(sampleDetail);
+    render(<ServerConfigDetailPanel name="LOG_CONFIG" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-cfg-save")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-cfg-content-editor"), {
+      target: { value: "<Configuration dirty/>" },
+    });
+    expect((screen.getByTestId("developer-cfg-save") as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByTestId("developer-cfg-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-cfg-lock-status").textContent).toContain(
+        "Locked by you",
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-cfg-content-editor"), {
+      target: { value: "<Configuration dirty/>" },
+    });
+    expect((screen.getByTestId("developer-cfg-save") as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByTestId("developer-cfg-unlock"));
+    await waitFor(() => {
+      expect(unlockServerConfig).toHaveBeenCalledWith("LOG_CONFIG");
+    });
+  });
+
+  it("shows conflict on 409 lock", async () => {
+    getServerConfigDetail.mockResolvedValue(sampleDetail);
+    lockServerConfig.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: null,
+    });
+    render(<ServerConfigDetailPanel name="LOG_CONFIG" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-cfg-lock")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-cfg-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-cfg-detail-error").textContent).toContain(
+        DEV_MSG.CFG_LOCK_CONFLICT,
+      );
+    });
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

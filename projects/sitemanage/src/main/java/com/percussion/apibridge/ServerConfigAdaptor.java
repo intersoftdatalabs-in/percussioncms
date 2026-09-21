@@ -4,6 +4,11 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.design.objectstore.PSLockedException;
+import com.percussion.design.objectstore.server.IPSLockerId;
+import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
+import com.percussion.design.objectstore.server.PSXmlObjectStoreLockerId;
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.serverconfigs.IServerConfigAdaptor;
 import com.percussion.rest.serverconfigs.ServerConfigSummary;
 import com.percussion.services.system.IPSSystemService;
@@ -15,6 +20,7 @@ import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.util.IOTools;
+import com.percussion.utils.request.PSRequestInfo;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -25,7 +31,10 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,10 +55,14 @@ public class ServerConfigAdaptor implements IServerConfigAdaptor {
   static final String ADMIN_REQUIRED =
       "Admin role required to update server configuration files";
 
+  static final String LOCK_REQUIRED = "Design lock required, or locked by another user";
+
+  static final String LOCK_HELD_BY_OTHER = "Could not acquire design lock; locked by another user";
+
+  static final String SESSION_REQUIRED = "session and user are required for design lock";
+
   private static final List<String> DESIGN_GAPS =
-      List.of(
-          "Configuration create is not supported via this API (fixed allow-listed set only)",
-          "Locking and concurrent edit are not exposed on this Developer surface");
+      List.of("Configuration create is not supported via this API (fixed allow-listed set only)");
 
   private static final Map<PSConfigurationTypes, String> DISPLAY =
       new EnumMap<>(PSConfigurationTypes.class);
@@ -68,13 +81,21 @@ public class ServerConfigAdaptor implements IServerConfigAdaptor {
 
   private final IPSSystemService systemService;
   private final BooleanSupplier adminChecker;
+  private final ServerConfigDesignLockStore lockStore;
+  private final Supplier<String> sessionSupplier;
+  private final Supplier<String> userSupplier;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
   @Autowired(required = false)
   private IPSUserService userService;
 
   public ServerConfigAdaptor() {
-    this(PSSystemServiceLocator.getSystemService(), null);
+    this(
+        PSSystemServiceLocator.getSystemService(),
+        null,
+        new ObjectStoreServerConfigDesignLockStore(),
+        ServerConfigAdaptor::currentSession,
+        ServerConfigAdaptor::currentUser);
   }
 
   /** Package-visible for tests. */
@@ -84,8 +105,26 @@ public class ServerConfigAdaptor implements IServerConfigAdaptor {
 
   /** Package-visible for tests with an explicit Admin gate. */
   ServerConfigAdaptor(IPSSystemService systemService, BooleanSupplier adminChecker) {
+    this(
+        systemService,
+        adminChecker,
+        new InMemoryServerConfigDesignLockStore(),
+        () -> "s1",
+        () -> "Admin");
+  }
+
+  /** Package-visible for tests with an explicit lock store and identity. */
+  ServerConfigAdaptor(
+      IPSSystemService systemService,
+      BooleanSupplier adminChecker,
+      ServerConfigDesignLockStore lockStore,
+      Supplier<String> sessionSupplier,
+      Supplier<String> userSupplier) {
     this.systemService = systemService;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
+    this.lockStore = lockStore != null ? lockStore : new InMemoryServerConfigDesignLockStore();
+    this.sessionSupplier = sessionSupplier != null ? sessionSupplier : () -> "";
+    this.userSupplier = userSupplier != null ? userSupplier : () -> "";
   }
 
   @Override
@@ -120,6 +159,7 @@ public class ServerConfigAdaptor implements IServerConfigAdaptor {
     if (type == null) {
       return null;
     }
+    requireHeldLock(type);
 
     // saveConfiguration resolves the on-disk path solely from the enum name — never from
     // client-supplied file paths.
@@ -140,6 +180,55 @@ public class ServerConfigAdaptor implements IServerConfigAdaptor {
     }
 
     return toSummary(type, true);
+  }
+
+  @Override
+  public ObjectLockSummary lockConfig(String name) {
+    requireAdmin();
+    requireSessionUser();
+    PSConfigurationTypes type = resolveAllowListedType(name);
+    if (type == null) {
+      return null;
+    }
+    String lockName = designLockName(type);
+    try {
+      lockStore.acquire(lockName, userName(), sessionId(), 30);
+      return currentLockSummary(type);
+    } catch (PSLockedException e) {
+      throw new WebApplicationException(LOCK_HELD_BY_OTHER, Response.Status.CONFLICT);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to lock server config {}", type.name(), e);
+      throw new IllegalStateException("Failed to lock server configuration", e);
+    }
+  }
+
+  @Override
+  public Boolean unlockConfig(String name) {
+    requireAdmin();
+    requireSessionUser();
+    PSConfigurationTypes type = resolveAllowListedType(name);
+    if (type == null) {
+      return null;
+    }
+    String lockName = designLockName(type);
+    try {
+      if (lockStore.heldByOther(lockName, userName(), sessionId())) {
+        throw new WebApplicationException(LOCK_HELD_BY_OTHER, Response.Status.CONFLICT);
+      }
+      lockStore.release(lockName, userName(), sessionId());
+      return Boolean.TRUE;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to unlock server config {}", type.name(), e);
+      throw new IllegalStateException("Failed to unlock server configuration", e);
+    }
   }
 
   private ServerConfigSummary toSummary(PSConfigurationTypes type, boolean loadContent) {
@@ -233,6 +322,181 @@ public class ServerConfigAdaptor implements IServerConfigAdaptor {
     } catch (PSDataServiceException e) {
       log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
       return false;
+    }
+  }
+
+  private void requireSessionUser() {
+    if (StringUtils.isBlank(sessionId()) || StringUtils.isBlank(userName())) {
+      throw new WebApplicationException(SESSION_REQUIRED, Response.Status.CONFLICT);
+    }
+  }
+
+  private String sessionId() {
+    String s = sessionSupplier.get();
+    return s != null ? s : "";
+  }
+
+  private String userName() {
+    String u = userSupplier.get();
+    return u != null ? u : "";
+  }
+
+  static String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  static String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+  }
+
+  static String designLockName(PSConfigurationTypes type) {
+    return "serverconfig-" + type.name();
+  }
+
+  private void requireHeldLock(PSConfigurationTypes type) {
+    requireSessionUser();
+    String lockName = designLockName(type);
+    try {
+      if (lockStore.heldByOther(lockName, userName(), sessionId())
+          || !lockStore.heldBy(lockName, userName(), sessionId())) {
+        throw new WebApplicationException(LOCK_REQUIRED, Response.Status.CONFLICT);
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(LOCK_REQUIRED, Response.Status.CONFLICT);
+    }
+  }
+
+  private ObjectLockSummary currentLockSummary(PSConfigurationTypes type) {
+    try {
+      Properties info = lockStore.info(designLockName(type), userName(), sessionId());
+      if (info == null || StringUtils.isBlank(info.getProperty("lockerName"))) {
+        return null;
+      }
+      ObjectLockSummary summary = new ObjectLockSummary();
+      summary.setLocker(info.getProperty("lockerName"));
+      summary.setSession(info.getProperty("lockerSession"));
+      summary.setRemainingTime(30L);
+      return summary;
+    } catch (RuntimeException e) {
+      return null;
+    }
+  }
+
+  interface ServerConfigDesignLockStore {
+    void acquire(String lockName, String user, String session, int minutes) throws Exception;
+
+    void release(String lockName, String user, String session) throws Exception;
+
+    boolean heldBy(String lockName, String user, String session) throws Exception;
+
+    boolean heldByOther(String lockName, String user, String session) throws Exception;
+
+    Properties info(String lockName, String user, String session);
+  }
+
+  private record HeldLock(String user, String session) {}
+
+  static final class InMemoryServerConfigDesignLockStore implements ServerConfigDesignLockStore {
+    private final Map<String, HeldLock> held = new ConcurrentHashMap<>();
+
+    @Override
+    public void acquire(String lockName, String user, String session, int minutes)
+        throws Exception {
+      HeldLock existing = held.get(lockName);
+      if (existing != null
+          && (!existing.user().equals(user) || !existing.session().equals(session))) {
+        throw new PSLockedException(0, lockName);
+      }
+      held.put(lockName, new HeldLock(user, session));
+    }
+
+    @Override
+    public void release(String lockName, String user, String session) {
+      HeldLock existing = held.get(lockName);
+      if (existing != null && existing.user().equals(user) && existing.session().equals(session)) {
+        held.remove(lockName);
+      }
+    }
+
+    @Override
+    public boolean heldBy(String lockName, String user, String session) {
+      HeldLock existing = held.get(lockName);
+      return existing != null && existing.user().equals(user) && existing.session().equals(session);
+    }
+
+    @Override
+    public boolean heldByOther(String lockName, String user, String session) {
+      HeldLock existing = held.get(lockName);
+      return existing != null
+          && (!existing.user().equals(user) || !existing.session().equals(session));
+    }
+
+    @Override
+    public Properties info(String lockName, String user, String session) {
+      HeldLock existing = held.get(lockName);
+      if (existing == null) {
+        return null;
+      }
+      Properties p = new Properties();
+      p.setProperty("lockerName", existing.user());
+      p.setProperty("lockerSession", existing.session());
+      return p;
+    }
+  }
+
+  private static final class ObjectStoreServerConfigDesignLockStore
+      implements ServerConfigDesignLockStore {
+    @Override
+    public void acquire(String lockName, String user, String session, int minutes)
+        throws Exception {
+      IPSLockerId id = new PSXmlObjectStoreLockerId(user, true, session);
+      PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
+      if (os.isApplicationLocked(id, lockName)) {
+        os.getApplicationLock(id, lockName, minutes);
+        return;
+      }
+      Properties info = os.getApplicationLockInfo(id, lockName);
+      if (info != null && StringUtils.isNotBlank(info.getProperty("lockerName"))) {
+        String locker = info.getProperty("lockerName");
+        String lockerSession = info.getProperty("lockerSession");
+        if (!user.equals(locker) || (lockerSession != null && !session.equals(lockerSession))) {
+          throw new PSLockedException(0, lockName);
+        }
+      }
+      os.getApplicationLock(id, lockName, minutes);
+    }
+
+    @Override
+    public void release(String lockName, String user, String session) throws Exception {
+      IPSLockerId id = new PSXmlObjectStoreLockerId(user, true, session);
+      PSServerXmlObjectStore.getInstance().releaseApplicationLock(id, lockName);
+    }
+
+    @Override
+    public boolean heldBy(String lockName, String user, String session) throws Exception {
+      IPSLockerId id = new PSXmlObjectStoreLockerId(user, true, session);
+      return PSServerXmlObjectStore.getInstance().isApplicationLocked(id, lockName);
+    }
+
+    @Override
+    public boolean heldByOther(String lockName, String user, String session) throws Exception {
+      IPSLockerId id = new PSXmlObjectStoreLockerId(user, true, session);
+      PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
+      if (os.isApplicationLocked(id, lockName)) {
+        return false;
+      }
+      Properties info = os.getApplicationLockInfo(id, lockName);
+      return info != null && StringUtils.isNotBlank(info.getProperty("lockerName"));
+    }
+
+    @Override
+    public Properties info(String lockName, String user, String session) {
+      IPSLockerId id = new PSXmlObjectStoreLockerId(user, true, session);
+      return PSServerXmlObjectStore.getInstance().getApplicationLockInfo(id, lockName);
     }
   }
 }
