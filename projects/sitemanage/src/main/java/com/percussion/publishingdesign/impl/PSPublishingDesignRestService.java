@@ -89,6 +89,7 @@ public class PSPublishingDesignRestService {
       "Admin or Designer role required to save a publish edition";
   static final String EDITION_NAME_CONFLICT = "Edition name already exists";
   static final String CONTENT_LIST_NAME_CONFLICT = "Content list name already exists";
+  static final String DELIVERY_TYPE_NAME_CONFLICT = "Delivery type name already exists";
 
   private final IPSPublisherService publisherService;
   private final IPSGuidManager guidManager;
@@ -490,10 +491,12 @@ public class PSPublishingDesignRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSDeliveryTypeSummary createDeliveryType(PSDeliveryTypeSummary body) {
+    requireDesignWrite();
     if (body == null || isBlank(body.getName()) || isBlank(body.getBeanName())) {
       throw badRequest("name and beanName are required");
     }
     try {
+      requireUniqueDeliveryTypeName(body.getName().trim(), null);
       IPSDeliveryType t = publisherService.createDeliveryType();
       t.setName(body.getName().trim());
       t.setBeanName(body.getBeanName().trim());
@@ -516,6 +519,7 @@ public class PSPublishingDesignRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSDeliveryTypeSummary updateDeliveryType(
       @PathParam("deliveryTypeId") String deliveryTypeId, PSDeliveryTypeSummary body) {
+    requireDesignWrite();
     requireNonBlank(deliveryTypeId, "deliveryTypeId");
     if (body == null) {
       throw badRequest("body is required");
@@ -524,6 +528,7 @@ public class PSPublishingDesignRestService {
       IPSGuid guid = guidManager.makeGuid(deliveryTypeId, PSTypeEnum.DELIVERY_TYPE);
       IPSDeliveryType t = publisherService.loadDeliveryTypeModifiable(guid);
       if (!isBlank(body.getName())) {
+        requireUniqueDeliveryTypeName(body.getName().trim(), deliveryTypeId);
         t.setName(body.getName().trim());
       }
       if (!isBlank(body.getBeanName())) {
@@ -1332,6 +1337,22 @@ public class PSPublishingDesignRestService {
       return;
     }
     throw conflict(CONTENT_LIST_NAME_CONFLICT);
+  }
+
+  private void requireUniqueDeliveryTypeName(String name, String currentDeliveryTypeId) {
+    try {
+      IPSDeliveryType existing = publisherService.loadDeliveryType(name);
+      if (existing == null || existing.getGUID() == null) {
+        return;
+      }
+      String existingId = String.valueOf(existing.getGUID().getUUID());
+      if (currentDeliveryTypeId != null && currentDeliveryTypeId.equals(existingId)) {
+        return;
+      }
+      throw conflict(DELIVERY_TYPE_NAME_CONFLICT);
+    } catch (PSNotFoundException e) {
+      // name is free
+    }
   }
 
   private static WebApplicationException badRequest(String msg) {

@@ -196,6 +196,8 @@ export const MSG = {
     "perc.ui.publish.modern@Edition name already exists",
   PUBLISH_CONTENT_LIST_NAME_CONFLICT:
     "perc.ui.publish.modern@Content list name already exists",
+  PUBLISH_DELIVERY_TYPE_NAME_CONFLICT:
+    "perc.ui.publish.modern@Delivery type name already exists",
   PUBLISH_BADCONFIG: "perc.ui.publish.modern@Bad Server Configuration",
   PUBLISH_SUCCESS: "perc.ui.publish.title@Publish Request",
   PUBLISH_SELECT_SERVER: "perc.ui.publish.title@Server",

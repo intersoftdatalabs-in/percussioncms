@@ -25,11 +25,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.percussion.publishingdesign.data.PSContentListSummary;
+import com.percussion.publishingdesign.data.PSDeliveryTypeSummary;
 import com.percussion.publishingdesign.data.PSEditionSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.publisher.IPSContentList;
+import com.percussion.services.publisher.IPSDeliveryType;
 import com.percussion.services.publisher.IPSEdition;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.utils.guid.IPSGuid;
@@ -51,6 +53,7 @@ class PSPublishingDesignRestServiceTest {
   @Mock private IPSGuid siteGuid;
   @Mock private IPSGuid editionGuid;
   @Mock private IPSGuid contentListGuid;
+  @Mock private IPSGuid deliveryTypeGuid;
 
   private PSPublishingDesignRestService service;
 
@@ -233,6 +236,51 @@ class PSPublishingDesignRestServiceTest {
     body.setName("Taken");
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void createDeliveryType_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setName("filesystem");
+    body.setBeanName("sys_fileDeliveryType");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.createDeliveryType(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void createDeliveryType_duplicateName_409() throws Exception {
+    IPSDeliveryType existing = mock(IPSDeliveryType.class);
+    when(existing.getGUID()).thenReturn(deliveryTypeGuid);
+    when(deliveryTypeGuid.getUUID()).thenReturn(7);
+    when(publisherService.loadDeliveryType("DupDt")).thenReturn(existing);
+
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setName("DupDt");
+    body.setBeanName("sys_fileDeliveryType");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.createDeliveryType(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void updateDeliveryType_duplicateName_409() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.DELIVERY_TYPE))).thenReturn(deliveryTypeGuid);
+    IPSDeliveryType loaded = mock(IPSDeliveryType.class);
+    when(publisherService.loadDeliveryTypeModifiable(deliveryTypeGuid)).thenReturn(loaded);
+
+    IPSGuid otherGuid = mock(IPSGuid.class);
+    IPSDeliveryType existing = mock(IPSDeliveryType.class);
+    when(existing.getGUID()).thenReturn(otherGuid);
+    when(otherGuid.getUUID()).thenReturn(99);
+    when(publisherService.loadDeliveryType("Taken")).thenReturn(existing);
+
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setName("Taken");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateDeliveryType("5", body));
     assertEquals(409, ex.getResponse().getStatus());
   }
 

@@ -68,6 +68,18 @@ HTTP **403** (not Admin or Designer) and **409** (content list name already exis
 content-list editor error region — not as a successful save. Edition save and delivery-type save
 are separate Design actions.
 
+### Save a delivery type (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Delivery types**.
+**Add** (or open an existing type). Enter a **name** and **bean name** (required), optional
+description, then **Save**. Unsaved field edits mark the form dirty; leaving the editor prompts to
+discard. The shell posts `POST …/sitemanage/publishingdesign/deliverytypes` (create) or
+`PUT …/sitemanage/publishingdesign/deliverytypes/{deliveryTypeId}` (update).
+
+HTTP **403** (not Admin or Designer) and **409** (delivery type name already exists) are shown in the
+delivery-type editor error region — not as a successful save. Content-list save and edition save
+are separate Design actions.
+
 ### Start or stop a publish job (Runtime)
 
 From **Publish** (`spa.jsp?entry=publish&section=runtime`), choose a **site** and

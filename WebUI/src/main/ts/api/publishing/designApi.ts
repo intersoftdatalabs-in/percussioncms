@@ -266,23 +266,43 @@ export async function listDeliveryTypes(): Promise<DeliveryTypeSummary[]> {
   return normalizeArray(await get<unknown>(`${designRoot()}/deliverytypes`));
 }
 
+function unwrapDeliveryType(data: unknown): DeliveryTypeSummary {
+  if (data && typeof data === "object" && "deliveryType" in (data as object)) {
+    return (data as { deliveryType: DeliveryTypeSummary }).deliveryType;
+  }
+  return data as DeliveryTypeSummary;
+}
+
+/** JAXB/Jackson root wrap expected by sitemanage {@code PSDeliveryTypeSummary}. */
+function wrapDeliveryType(body: DeliveryTypeSummary): {
+  deliveryType: DeliveryTypeSummary;
+} {
+  return { deliveryType: body };
+}
+
+/** POST create. HTTP 403 non-Admin/Designer; 409 duplicate name. */
 export async function createDeliveryType(
   body: DeliveryTypeSummary,
 ): Promise<DeliveryTypeSummary> {
-  return (await post<unknown>(
-    `${designRoot()}/deliverytypes`,
-    body,
-  )) as DeliveryTypeSummary;
+  return unwrapDeliveryType(
+    await post<unknown>(
+      `${designRoot()}/deliverytypes`,
+      wrapDeliveryType(body),
+    ),
+  );
 }
 
+/** PUT update. HTTP 403 non-Admin/Designer; 409 duplicate name. */
 export async function updateDeliveryType(
   id: string | number,
   body: DeliveryTypeSummary,
 ): Promise<DeliveryTypeSummary> {
-  return (await put<unknown>(
-    `${designRoot()}/deliverytypes/${encodeURIComponent(String(id))}`,
-    body,
-  )) as DeliveryTypeSummary;
+  return unwrapDeliveryType(
+    await put<unknown>(
+      `${designRoot()}/deliverytypes/${encodeURIComponent(String(id))}`,
+      wrapDeliveryType(body),
+    ),
+  );
 }
 
 export async function deleteDeliveryType(id: string | number): Promise<void> {
