@@ -16,7 +16,7 @@
  */
 
 /**
- * Unit tests for explorer-create-folder helpers (#3640) — no live CMS.
+ * Unit tests for explorer-create-folder helpers (#4637) — no live CMS.
  */
 
 "use strict";
@@ -36,7 +36,7 @@ const {
   unwrapCreatedPathItem,
 } = require("../helpers/explorer-create-folder");
 
-describe("explorer-create-folder helpers (#3640)", () => {
+describe("explorer-create-folder helpers (#4637)", () => {
   it("exports reduced-action create test ids", () => {
     assert.equal(CREATE_TEST_IDS.shell, "content-explorer-shell");
     assert.equal(CREATE_TEST_IDS.tree, "explorer-tree");
@@ -118,7 +118,7 @@ describe("explorer-create-folder helpers (#3640)", () => {
   });
 
   it("uniqueCreateFolderName is stable for a given timestamp", () => {
-    assert.equal(uniqueCreateFolderName(1700000000000), "qa3640_1700000000000");
+    assert.equal(uniqueCreateFolderName(1700000000000), "qa4637_1700000000000");
   });
 
   it("unwrapCreatedPathItem reads Jackson PathItem wrap", () => {
