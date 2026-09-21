@@ -143,6 +143,22 @@ describe("ClipboardPanel", () => {
     expect(onModeChange).toHaveBeenCalledWith("cut");
   });
 
+  it("shows the selected destination path for paste (#4638)", () => {
+    render(
+      <ClipboardPanel
+        clipboard={makeCb([item("a")])}
+        onClipboardChange={() => {}}
+        items={[]}
+        mode="copy"
+        onModeChange={() => {}}
+        target={{ path: "/Assets/dst", accessLevel: "WRITE" }}
+      />,
+    );
+    expect(screen.getByTestId("clipboard-paste-dest").textContent).toBe(
+      "/Assets/dst",
+    );
+  });
+
   it("Paste is disabled when target is not supplied", () => {
     render(
       <ClipboardPanel

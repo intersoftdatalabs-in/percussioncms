@@ -229,6 +229,16 @@ public class FoldersTest {
   }
 
   @Test
+  void copyFolderItem_blankDestIsBadRequest() {
+    CopyFolderItemRequest req = new CopyFolderItemRequest();
+    req.setItemPath("/Assets/src/item");
+    req.setTargetFolderPath("  ");
+    WebApplicationException thrown =
+        assertThrows(WebApplicationException.class, () -> resource.copyFolderItem(req));
+    assertEquals(400, thrown.getResponse().getStatus());
+  }
+
+  @Test
   void copyFolderItem_successReturnsCopiedOk() throws Exception {
     CopyFolderItemRequest req = new CopyFolderItemRequest();
     req.setItemPath("/Assets/src/item");
@@ -264,6 +274,56 @@ public class FoldersTest {
     FolderNotFoundException thrown =
         assertThrows(FolderNotFoundException.class, () -> resource.copyFolderItem(req));
     assertEquals(jakarta.ws.rs.core.Response.Status.NOT_FOUND, thrown.getStatus());
+  }
+
+  @Test
+  void copyFolder_successReturnsCopiedOk() throws Exception {
+    CopyFolderItemRequest req = new CopyFolderItemRequest();
+    req.setItemPath("/Assets/src");
+    req.setTargetFolderPath("/Assets/dst");
+    Status result = resource.copyFolder(req);
+    assertEquals(200, result.getStatusCode());
+    assertEquals("Copied OK", result.getMessage());
+    verify(adaptor).copyFolder(uriInfo.getBaseUri(), "/Assets/src", "/Assets/dst");
+  }
+
+  @Test
+  void copyFolder_mapsNotAuthorizedToForbidden() throws Exception {
+    CopyFolderItemRequest req = new CopyFolderItemRequest();
+    req.setItemPath("/Assets/src");
+    req.setTargetFolderPath("/Assets/dst");
+    doThrow(new NotAuthorizedException())
+        .when(adaptor)
+        .copyFolder(any(), anyString(), anyString());
+    NotAuthorizedException thrown =
+        assertThrows(NotAuthorizedException.class, () -> resource.copyFolder(req));
+    assertEquals(jakarta.ws.rs.core.Response.Status.FORBIDDEN, thrown.getStatus());
+  }
+
+  @Test
+  void copyFolder_mapsFolderNotFound() throws Exception {
+    CopyFolderItemRequest req = new CopyFolderItemRequest();
+    req.setItemPath("/Assets/missing");
+    req.setTargetFolderPath("/Assets/dst");
+    doThrow(new FolderNotFoundException())
+        .when(adaptor)
+        .copyFolder(any(), anyString(), anyString());
+    FolderNotFoundException thrown =
+        assertThrows(FolderNotFoundException.class, () -> resource.copyFolder(req));
+    assertEquals(jakarta.ws.rs.core.Response.Status.NOT_FOUND, thrown.getStatus());
+  }
+
+  @Test
+  void copyFolder_rethrowsConflict() throws Exception {
+    CopyFolderItemRequest req = new CopyFolderItemRequest();
+    req.setItemPath("/Assets/src");
+    req.setTargetFolderPath("/Assets/src");
+    doThrow(new WebApplicationException("conflict", jakarta.ws.rs.core.Response.Status.CONFLICT))
+        .when(adaptor)
+        .copyFolder(any(), anyString(), anyString());
+    WebApplicationException thrown =
+        assertThrows(WebApplicationException.class, () -> resource.copyFolder(req));
+    assertEquals(409, thrown.getResponse().getStatus());
   }
 
   @Test

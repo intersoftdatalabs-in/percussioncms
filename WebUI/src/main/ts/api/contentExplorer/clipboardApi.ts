@@ -21,24 +21,20 @@
  * existing per-kind REST endpoints; the transport is overridable in
  * tests (Vitest) and the live CMS (browser).</p>
  *
- * <p>Endpoint mapping (verified 2026-07-20 against `paths.ts` and
- * the sitemanage REST services):</p>
+ * <p>Endpoint mapping (#4638 — paste into the selected destination
+ * folder, not back onto the source path):</p>
  * <ul>
- *   <li>page  → {@code POST /Rhythmyx/services/pagemanagement/page/copy/{id}}
- *             ({@code PSPageRestService#copy(id, addToRecent)} on the
- *             server).</li>
- *   <li>asset → {@code POST /rest/folders/copy/item}
- *             ({@code CopyFolderItemRequest}; #3362 — not moveItem).</li>
- *   <li>folder → {@code POST /rest/folders/copy/folder}
- *              ({@code CopyFolderItemRequest}; #3362 — not moveItem).</li>
+ *   <li>page / asset → {@code POST /rest/folders/copy/item} (copy) or
+ *             {@code POST /rest/folders/move/item} (cut).</li>
+ *   <li>folder → {@code POST /rest/folders/copy/folder} (copy) or
+ *             {@code POST /rest/folders/move/folder} (cut).</li>
  * </ul>
  * <p>The dispatcher in {@code pasteClipboardItems} chooses the right
- * call per item kind, in clipboard-source order.</p>
+ * call per item kind, in clipboard-source order. REST maps 403 / 404 /
+ * 409 on those endpoints.</p>
  */
 
-import { post } from "../client";
-import { PATHS } from "../paths";
-import { copyFolder, copyFolderItem, moveItem } from "./pathApi";
+import { copyFolder, copyFolderItem, moveFolder, moveFolderItem } from "./pathApi";
 import type {
   ClipboardItem,
   ClipboardPasteResultItem,
@@ -56,42 +52,40 @@ export type ClipboardPasteTransport = (
 ) => Promise<void>;
 
 /**
- * Default per-kind transport. Copy uses page copy / {@code copyFolderItem}
- * / {@code copyFolder}. Cut uses pathmanagement {@code moveItem} (wrapped
- * {@code MoveFolderItem} — no invented {@code copy} field).
+ * Default per-kind transport. Copy/cut both honor {@code destFolderPath}
+ * (the selected Explorer destination). Pages use copy/item so the
+ * destination is applied (page/copy by id ignores dest).
  */
 async function defaultPasteTransport(
   item: ClipboardItem,
   operation: "copy" | "cut",
+  destFolderPath: string,
 ): Promise<void> {
+  const dest = destFolderPath.trim();
+  if (!dest) {
+    const err = Object.assign(new Error("400 destination folder required"), {
+      status: 400,
+      statusText: "Bad Request",
+    });
+    throw err;
+  }
+  const body = { sourcePath: item.path, targetPath: dest };
   switch (item.kind) {
-    case "page": {
-      await post<void>(
-        `${PATHS.PAGE_COPY}/${encodeURIComponent(item.id)}?addToRecent=false`,
-        {},
-      );
-      return;
-    }
+    case "page":
     case "asset": {
       if (operation === "cut") {
-        await moveItem({ sourcePath: item.path, targetPath: item.path });
+        await moveFolderItem(body);
         return;
       }
-      await copyFolderItem({
-        sourcePath: item.path,
-        targetPath: item.path,
-      });
+      await copyFolderItem(body);
       return;
     }
     case "folder": {
       if (operation === "cut") {
-        await moveItem({ sourcePath: item.path, targetPath: item.path });
+        await moveFolder(body);
         return;
       }
-      await copyFolder({
-        sourcePath: item.path,
-        targetPath: item.path,
-      });
+      await copyFolder(body);
       return;
     }
   }
@@ -110,10 +104,12 @@ async function defaultPasteTransport(
 export async function pasteClipboardItems(
   items: ReadonlyArray<ClipboardItem>,
   operation: "copy" | "cut",
+  destFolderPath: string,
   transport?: ClipboardPasteTransport,
 ): Promise<ClipboardPasteSummary> {
   const run: ClipboardPasteTransport =
-    transport ?? ((item) => defaultPasteTransport(item, operation));
+    transport ??
+    ((item) => defaultPasteTransport(item, operation, destFolderPath));
   const settled = await Promise.allSettled(items.map((it) => run(it)));
   return {
     operation,

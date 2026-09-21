@@ -103,9 +103,11 @@ export function ClipboardPanel(props: ClipboardPanelProps): React.JSX.Element {
     if (pending || clipboard.items.length === 0) return;
     setPending(true);
     try {
+      const dest = (target?.path ?? "").trim();
       const summary = await pasteClipboardItems(
         clipboard.items,
         clipboard.operation,
+        dest,
         paste,
       );
       setLastSummary(summary);
@@ -142,7 +144,7 @@ export function ClipboardPanel(props: ClipboardPanelProps): React.JSX.Element {
         <span
           aria-live="polite"
           data-testid="clipboard-size"
-          style={{ color: "#888" }}
+          style={{ color: "#555" }}
         >
           ({size(cb)})
         </span>
@@ -198,6 +200,11 @@ export function ClipboardPanel(props: ClipboardPanelProps): React.JSX.Element {
           {message(EXPLORER_MSG.CLIPBOARD_PASTE)}
         </button>
       </div>
+      {target?.path ? (
+        <div data-testid="clipboard-paste-dest" style={{ marginTop: 6, color: "#555" }}>
+          {target.path}
+        </div>
+      ) : null}
       <ul
         data-testid="clipboard-items"
         style={{ listStyle: "none", padding: 0, margin: "8px 0 0 0" }}

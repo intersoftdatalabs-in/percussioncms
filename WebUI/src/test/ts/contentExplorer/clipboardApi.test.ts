@@ -30,32 +30,53 @@ function folder(id = "f-1"): ClipboardItem {
   return { id, path: "/Sites/" + id, kind: "folder" };
 }
 
+const DEST = "/Assets/dst";
+
 describe("pasteClipboardItems", () => {
-  it("calls the page-copy endpoint for page items (URL composition + body)", async () => {
+  it("fails with 400 when destination folder is blank", async () => {
+    const fetchMock = vi.spyOn(global, "fetch");
+    const summary = await pasteClipboardItems([page()], "copy", "  ");
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(summary.results[0]?.ok).toBe(false);
+    expect(summary.results[0]?.status).toBe(400);
+  });
+
+  it("POSTs copy/item for page items into the destination folder (#4638)", async () => {
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
       new Response("", { status: 200, headers: { "Content-Type": "text/plain" } }),
     );
-    const summary = await pasteClipboardItems([page()], "copy");
+    const summary = await pasteClipboardItems([page()], "copy", DEST);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0] ?? [];
-    expect(String(url)).toBe(
-      `${PATHS.PAGE_COPY}/p-1?addToRecent=false`,
-    );
+    expect(String(url)).toContain("/folders/copy/item");
+    expect(String(url)).not.toContain(PATHS.PAGE_COPY);
     expect(init?.method).toBe("POST");
+    const posted = JSON.parse(String(init?.body ?? "{}")) as Record<string, unknown>;
+    expect(posted).toEqual({
+      CopyFolderItemRequest: {
+        itemPath: "/Sites/Foo/p-1",
+        targetFolderPath: DEST,
+      },
+    });
     expect(summary.operation).toBe("copy");
     expect(summary.results).toHaveLength(1);
     expect(summary.results[0]?.ok).toBe(true);
   });
 
-  it("URL-encodes the page id", async () => {
+  it("POSTs move/item for a page cut into the destination", async () => {
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
       new Response("", { status: 200 }),
     );
-    await pasteClipboardItems([page("12-3")], "cut");
-    const [url] = fetchMock.mock.calls[0] ?? [];
-    expect(String(url)).toBe(
-      `${PATHS.PAGE_COPY}/12-3?addToRecent=false`,
-    );
+    await pasteClipboardItems([page("12-3")], "cut", DEST);
+    const [url, init] = fetchMock.mock.calls[0] ?? [];
+    expect(String(url)).toContain("/folders/move/item");
+    const posted = JSON.parse(String(init?.body ?? "{}")) as Record<string, unknown>;
+    expect(posted).toEqual({
+      MoveFolderItem: {
+        itemPath: "/Sites/Foo/12-3",
+        targetFolderPath: DEST,
+      },
+    });
   });
 
   it("uses the provided custom transport and aggregates per-item outcomes", async () => {
@@ -66,6 +87,7 @@ describe("pasteClipboardItems", () => {
     const summary = await pasteClipboardItems(
       [page("a"), folder("b")],
       "copy",
+      DEST,
       transport,
     );
     expect(transport).toHaveBeenCalledTimes(2);
@@ -84,6 +106,7 @@ describe("pasteClipboardItems", () => {
     const summary = await pasteClipboardItems(
       [page("a"), page("b"), folder("c")],
       "copy",
+      DEST,
       transport,
     );
     expect(summary.results.map((r) => r.ok)).toEqual([false, true, false]);
@@ -92,7 +115,7 @@ describe("pasteClipboardItems", () => {
 
   it("passes an empty items array through without invoking the transport", async () => {
     const transport = vi.fn();
-    const summary = await pasteClipboardItems([], "copy", transport);
+    const summary = await pasteClipboardItems([], "copy", DEST, transport);
     expect(transport).not.toHaveBeenCalled();
     expect(summary).toEqual({ operation: "copy", results: [] });
   });
@@ -103,7 +126,7 @@ describe("pasteClipboardItems / T092c / Edge Cases #3: concurrent rename/move 40
     const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
       new Response("", { status: 200 }),
     );
-    await pasteClipboardItems([folder("Help")], "copy");
+    await pasteClipboardItems([folder("Help")], "copy", DEST);
     const [url, init] = fetchMock.mock.calls[0] ?? [];
     expect(String(url)).toContain("/folders/copy/folder");
     expect(String(url)).not.toContain("/pathmanagement/path/moveItem");
@@ -111,7 +134,7 @@ describe("pasteClipboardItems / T092c / Edge Cases #3: concurrent rename/move 40
     expect(posted).toEqual({
       CopyFolderItemRequest: {
         itemPath: "/Sites/Help",
-        targetFolderPath: "/Sites/Help",
+        targetFolderPath: DEST,
       },
     });
     expect(posted).not.toHaveProperty("sourcePath");
@@ -131,6 +154,7 @@ describe("pasteClipboardItems / T092c / Edge Cases #3: concurrent rename/move 40
     const summary = await pasteClipboardItems(
       [folder("shared")],
       "cut",
+      DEST,
     );
     expect(summary.results).toHaveLength(1);
     expect(summary.results[0]?.ok).toBe(false);
@@ -157,6 +181,7 @@ describe("pasteClipboardItems / T092c / Edge Cases #3: concurrent rename/move 40
     const summary = await pasteClipboardItems(
       [folder("conflict"), folder("ok")],
       "copy",
+      DEST,
     );
     expect(summary.results).toHaveLength(2);
     expect(summary.results[0]?.ok).toBe(false);
@@ -167,7 +192,7 @@ describe("pasteClipboardItems / T092c / Edge Cases #3: concurrent rename/move 40
 
   it("does not set status when the rejection is a generic Error (network failure)", async () => {
     const transport = vi.fn().mockRejectedValueOnce(new Error("network down"));
-    const summary = await pasteClipboardItems([folder("x")], "copy", transport);
+    const summary = await pasteClipboardItems([folder("x")], "copy", DEST, transport);
     expect(summary.results[0]?.ok).toBe(false);
     expect(summary.results[0]?.status).toBeUndefined();
     expect(summary.results[0]?.message).toBe("network down");
@@ -186,6 +211,7 @@ describe("pasteClipboardItems / T092e / Edge Cases #11: network failure mid-acti
     const summary = await pasteClipboardItems(
       [folder("net-drop")],
       "copy",
+      DEST,
       transport,
     );
     expect(summary.results[0]?.ok).toBe(false);
@@ -210,6 +236,7 @@ describe("pasteClipboardItems / T092e / Edge Cases #11: network failure mid-acti
     const summary = await pasteClipboardItems(
       [folder("auth")],
       "cut",
+      DEST,
       transport,
     );
     expect(summary.results[0]?.ok).toBe(false);
@@ -230,6 +257,7 @@ describe("pasteClipboardItems / T092e / Edge Cases #11: network failure mid-acti
     const firstSummary = await pasteClipboardItems(
       [folder("retry")],
       "copy",
+      DEST,
       failingTransport,
     );
     expect(firstSummary.results[0]?.ok).toBe(false);
@@ -240,6 +268,7 @@ describe("pasteClipboardItems / T092e / Edge Cases #11: network failure mid-acti
     const secondSummary = await pasteClipboardItems(
       [folder("retry")],
       "copy",
+      DEST,
       succeedingTransport,
     );
     expect(secondSummary.results[0]?.ok).toBe(true);
@@ -260,6 +289,7 @@ describe("pasteClipboardItems / T092e / Edge Cases #11: network failure mid-acti
     const summary = await pasteClipboardItems(
       [folder("a"), folder("b")],
       "copy",
+      DEST,
       transport,
     );
     expect(summary.results.map((r) => r.ok)).toEqual([false, true]);

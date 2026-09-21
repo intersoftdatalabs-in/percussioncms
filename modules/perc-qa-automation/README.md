@@ -363,6 +363,26 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `explorer-copy-folder` (product-route Copy folder). Parent #3102.
 
+### Explorer paste clipboard into destination (#4638 / parent #4530)
+
+H2 operator proof that **Clipboard → Paste** on `spa.jsp?entry=explorer`
+posts `POST /rest/folders/copy/item` (or copy/folder) into the **selected
+destination folder**, not back onto the source path.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-paste-clipboard.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-paste-clipboard.js`, `tests/unit/explorer-paste-clipboard.test.js` |
+| Tags | `@explorer-paste-clipboard` `@explorer` `@item` `@smoke` |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-paste-clipboard.spec.js
+```
+
 ### Explorer New-item type picker live (#3628 / parent #3102)
 
 H2 operator proof that **New Item** on `spa.jsp?entry=explorer` opens the
