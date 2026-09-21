@@ -60,6 +60,8 @@ class ServerConfigAdaptorWriteTest {
     systemService = mock(IPSSystemService.class);
     adaptor = new ServerConfigAdaptor(systemService, () -> true);
     savedContent.set(null);
+    adaptor.lockConfig("LOG_CONFIG");
+    adaptor.lockConfig("TIDY_CONFIG");
 
     when(systemService.loadConfiguration(any(PSConfigurationTypes.class)))
         .thenAnswer(
@@ -205,5 +207,52 @@ class ServerConfigAdaptorWriteTest {
   void find_stillRejectsUnsafeKeys() {
     assertNull(adaptor.findConfigByName("../x"));
     assertNull(adaptor.findConfigByName("NOT_REAL"));
+  }
+
+  @Test
+  void update_withoutLockIs409() {
+    adaptor = new ServerConfigAdaptor(systemService, () -> true);
+    ServerConfigSummary body = new ServerConfigSummary();
+    body.setContent("x");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.updateConfig("LOG_CONFIG", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(ServerConfigAdaptor.LOCK_REQUIRED, ex.getMessage());
+  }
+
+  @Test
+  void lock_sameSessionSucceedsAndUnlocks() {
+    adaptor = new ServerConfigAdaptor(systemService, () -> true);
+    var summary = adaptor.lockConfig("LOG_CONFIG");
+    assertNotNull(summary);
+    assertEquals("Admin", summary.getLocker());
+    assertEquals(Boolean.TRUE, adaptor.unlockConfig("LOG_CONFIG"));
+  }
+
+  @Test
+  void lock_otherSessionIs409() {
+    ServerConfigAdaptor.InMemoryServerConfigDesignLockStore store =
+        new ServerConfigAdaptor.InMemoryServerConfigDesignLockStore();
+    ServerConfigAdaptor first =
+        new ServerConfigAdaptor(systemService, () -> true, store, () -> "s1", () -> "Admin");
+    ServerConfigAdaptor second =
+        new ServerConfigAdaptor(systemService, () -> true, store, () -> "s2", () -> "editor");
+    assertNotNull(first.lockConfig("LOG_CONFIG"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> second.lockConfig("LOG_CONFIG"));
+    assertEquals(409, ex.getResponse().getStatus());
+    ServerConfigSummary body = new ServerConfigSummary();
+    body.setContent("stolen");
+    WebApplicationException putEx =
+        assertThrows(
+            WebApplicationException.class, () -> second.updateConfig("LOG_CONFIG", body));
+    assertEquals(409, putEx.getResponse().getStatus());
+  }
+
+  @Test
+  void lock_unknownNameIsNull() {
+    assertNull(adaptor.lockConfig("NOT_A_REAL_CONFIG"));
+    assertNull(adaptor.lockConfig("../etc/passwd"));
   }
 }

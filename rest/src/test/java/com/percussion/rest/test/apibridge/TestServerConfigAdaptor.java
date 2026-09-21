@@ -4,6 +4,7 @@
 
 package com.percussion.rest.test.apibridge;
 
+import com.percussion.rest.ObjectLockSummary;
 import com.percussion.rest.serverconfigs.IServerConfigAdaptor;
 import com.percussion.rest.serverconfigs.ServerConfigSummary;
 import java.util.List;
@@ -25,6 +26,16 @@ public class TestServerConfigAdaptor implements IServerConfigAdaptor {
 
   @Override
   public ServerConfigSummary updateConfig(String name, ServerConfigSummary body) {
+    return null;
+  }
+
+  @Override
+  public ObjectLockSummary lockConfig(String name) {
+    return null;
+  }
+
+  @Override
+  public Boolean unlockConfig(String name) {
     return null;
   }
 }

@@ -18,6 +18,8 @@ vi.mock("../../../main/ts/api/developer/serverConfigsApi", async (importOriginal
     listServerConfigs: vi.fn(),
     getServerConfigDetail: vi.fn(),
     updateServerConfig: vi.fn(),
+    lockServerConfig: vi.fn(),
+    unlockServerConfig: vi.fn(),
   };
 });
 
@@ -46,7 +48,9 @@ describe("ServerConfigsPanel", () => {
       displayName: "Logging configuration",
       fileName: "log4j.xml",
       content: "<Configuration/>",
-      designGaps: ["Locking and concurrent edit are not exposed on this Developer surface"],
+      designGaps: [
+        "Configuration create is not supported via this API (fixed allow-listed set only)",
+      ],
     });
     render(<ServerConfigsPanel />);
     await waitFor(() => {

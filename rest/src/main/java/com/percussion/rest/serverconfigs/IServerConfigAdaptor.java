@@ -4,9 +4,10 @@
 
 package com.percussion.rest.serverconfigs;
 
+import com.percussion.rest.ObjectLockSummary;
 import java.util.List;
 
-/** Adaptor for server configuration catalog (SY-02 read + allow-listed write). */
+/** Adaptor for server configuration catalog (SY-02 read + allow-listed write + design lock). */
 public interface IServerConfigAdaptor {
 
   List<ServerConfigSummary> listConfigs();
@@ -17,9 +18,26 @@ public interface IServerConfigAdaptor {
   /**
    * Admin update of an allow-listed configuration file body.
    *
+   * <p>Requires a design-session lock held by the current user ({@link #lockConfig}). Unlocked or
+   * stolen lock is a conflict ({@code 409}).
+   *
    * @param name catalog key ({@code PSConfigurationTypes} enum name)
    * @param body must include {@code content} (file text); other fields are ignored for persistence
    * @return updated detail summary, or {@code null} when name is unknown/unsafe
    */
   ServerConfigSummary updateConfig(String name, ServerConfigSummary body);
+
+  /**
+   * Admin. Acquire a self-only design-session lock for an allow-listed configuration.
+   *
+   * @return lock summary, or {@code null} when name is unknown/unsafe
+   */
+  ObjectLockSummary lockConfig(String name);
+
+  /**
+   * Admin. Release a lock owned by the current user/session.
+   *
+   * @return {@link Boolean#TRUE} when released, or {@code null} when name is unknown/unsafe
+   */
+  Boolean unlockConfig(String name);
 }

@@ -2754,15 +2754,16 @@ descriptors Workbench system-design uses. Clients never supply a filesystem path
 
 Admin **write** updates the **file body** of an allow-listed key only. Path traversal, separators,
 and unknown enum names are **404** (no arbitrary filesystem write). Configuration **create**
-(adding new types) and **locking / concurrent edit** remain design gaps on this surface.
-**Developer → Server Configs** SPA save chrome is a later slice; integrators may call PUT
-directly.
+(adding new types) remains a design gap. **Locking** is `POST .../lock` / `POST .../unlock`;
+PUT requires a held design-session lock (**409** if unlocked or held by another user).
 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/serverconfigs` | List allow-listed server configuration summaries (no file body) |
 | `GET` | `/services/serverconfigs/{name}` | Load one configuration by enum name (e.g. `LOG_CONFIG`) including `content` when available |
-| `PUT` | `/services/serverconfigs/{name}` | **Admin.** Replace the file body for an allow-listed configuration key |
+| `POST` | `/services/serverconfigs/{name}/lock` | **Admin.** Acquire a self-only design-session lock |
+| `POST` | `/services/serverconfigs/{name}/unlock` | **Admin.** Release a lock owned by this session (`204`) |
+| `PUT` | `/services/serverconfigs/{name}` | **Admin.** Replace the file body; requires a held lock |
 
 JSON objects use the `ServerConfigSummary` wire type (`name`, `displayName`, `fileName`,
 `description`, `typeId`, optional `content` / `mimeType` / `characterEncoding` /
@@ -2779,9 +2780,9 @@ Update (`PUT /services/serverconfigs/{name}`) requires Admin. `{name}` must be a
 `{ "ServerConfig": { "content": "…" } }` (a bare `{ "content": "…" }` is **400**). Other
 metadata fields on the body are ignored for persistence — the server resolves the on-disk
 file from the allow-listed type. Unknown or unsafe names are **404** and never call save.
-Missing body or missing `content` is **400**. Non-Admin is **403**. On success the response
-is the updated detail (same shape as GET; often wrapped as `{ "ServerConfig": {…} }`),
-including reloaded `content`.
+Missing body or missing `content` is **400**. Non-Admin is **403**. Unlocked PUT or a lock
+held by another user is **409**. On success the response is the updated detail (same shape
+as GET; often wrapped as `{ "ServerConfig": {…} }`), including reloaded `content`.
 
 ## Application CMS/resource files (SY-05)
 

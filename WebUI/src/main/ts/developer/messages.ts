@@ -1843,7 +1843,7 @@ export const DEV_MSG_KEYS = {
   CFG_EMPTY: "perc.ui.developer@No server configs returned.",
   CFG_ERROR: "perc.ui.developer@Could not load server configs.",
   CFG_HINT:
-    "perc.ui.developer@Server configuration files (logging, tidy, navigation, velocity macros). Open a row to edit and save the file body (Admin). Create of new config types and locking remain design gaps.",
+    "perc.ui.developer@Server configuration files (logging, tidy, navigation, velocity macros). Open a row, acquire the design lock, edit, and save the file body (Admin). Create of new config types remains a design gap.",
   CFG_COL_DISPLAY: "perc.ui.developer@Name",
   CFG_COL_KEY: "perc.ui.developer@Key",
   CFG_COL_FILE: "perc.ui.developer@File",
@@ -1856,7 +1856,7 @@ export const DEV_MSG_KEYS = {
   /** @deprecated Retained for i18n key stability; editor always renders textarea (empty string ok). */
   CFG_CONTENT_EMPTY: "perc.ui.developer@No content loaded for this configuration.",
   CFG_CONTENT_HINT:
-    "perc.ui.developer@Admin save replaces the allow-listed file body. Empty content is allowed. Configuration create and locking are not supported here.",
+    "perc.ui.developer@Admin save replaces the allow-listed file body while a design lock is held. Empty content is allowed. Configuration create is not supported here.",
   CFG_SAVE: "perc.ui.developer@Save configuration",
   CFG_CANCEL: "perc.ui.developer@Cancel",
   CFG_SAVED: "perc.ui.developer@Configuration saved.",
@@ -1867,8 +1867,17 @@ export const DEV_MSG_KEYS = {
   /** @deprecated Retained for i18n key stability; SPA write retires this gap for writable peers. */
   CFG_GAP_SAVE:
     "perc.ui.developer@Configuration create / update / save not supported via this API",
+  /** @deprecated Retained for i18n key stability; SPA lock/unlock retires this gap. */
   CFG_GAP_LOCK:
     "perc.ui.developer@Locking and concurrent edit are not exposed on this Developer surface",
+  CFG_LOCK: "perc.ui.developer@Lock configuration",
+  CFG_UNLOCK: "perc.ui.developer@Unlock configuration",
+  CFG_LOCKED: "perc.ui.developer@Locked by you",
+  CFG_LOCK_REQUIRED: "perc.ui.developer@Lock the configuration before saving.",
+  CFG_LOCK_ERROR: "perc.ui.developer@Could not lock configuration.",
+  CFG_UNLOCK_ERROR: "perc.ui.developer@Could not unlock configuration.",
+  CFG_LOCK_CONFLICT: "perc.ui.developer@Configuration is locked by another user.",
+  CFG_UNLOCKED_NOTICE: "perc.ui.developer@Configuration unlocked.",
   APPFILE_APPS_LOADING: "perc.ui.developer@Loading applications...",
   APPFILE_APPS_EMPTY: "perc.ui.developer@No applications returned.",
   APPFILE_APPS_ERROR: "perc.ui.developer@Could not load applications.",
