@@ -287,6 +287,7 @@ To create a new Site from Explorer:
 3. Complete the remaining steps (name/description; managed navigation only for Traditional/Page;
    page template only for Page; optional Git root on Virtual confirm).
 4. On success, Explorer navigates to `/Sites/<new-site-name>`.
+   HTTP 400 (invalid name / existing NavTree) and HTTP 403 (no permission) stay on the wizard with mapped error chrome.
 
 **Virtual** create does not show managed navigation or a page template. If you supply a Git
 root path, the wizard PUTs the existing `VirtualSiteProperties` envelope after create.

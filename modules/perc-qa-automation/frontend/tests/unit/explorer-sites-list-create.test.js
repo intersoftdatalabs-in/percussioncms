@@ -58,6 +58,7 @@ describe("explorer-sites-list-create helpers (#3003)", () => {
     assert.equal(TEST_IDS.confirmBaseTemplate, "site-create-confirm-base-template");
     assert.equal(TEST_IDS.siteName, "site-create-name");
     assert.equal(TEST_IDS.run, "site-create-run");
+    assert.equal(TEST_IDS.progress, "site-create-progress");
     assert.equal(TEST_IDS.managedNav, "site-create-managed-nav");
     assert.equal(TEST_IDS.confirmManagedNav, "site-create-confirm-managed-nav");
     assert.equal(TEST_IDS.virtualRoot, "site-create-virtual-root");

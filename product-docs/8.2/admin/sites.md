@@ -52,7 +52,9 @@ Use **Content Explorer** or **Navigation → New Site** when you need a new Site
 6. On **Confirm**, review the type and name. **Virtual** also offers an optional **Git root path**. Leave it blank to finish source settings later on **Developer → Sites**. If you enter a path, Create Site sends the existing `{ "VirtualSiteProperties": { "sourceKind": "git-filesystem", "rootPath": "…" } }` envelope (`PUT /services/sites/{name}/virtual`) after the site is created.
 7. Choose **Create site** and wait for progress to complete. Explorer opens the new site under `/Sites/<name>`.
 
-With **Traditional** and **Include managed navigation** checked, the server seeds a NavTree, a site template, and the homepage (`index.html`) in that folder in one operation. If the folder already has a NavTree or Navon, Create Site returns HTTP 400 with a clear error (not HTTP 500).
+Site name is required (letters, digits, and underscore after filtering). If create is denied, Explorer shows a permission message (HTTP 403) and stays on the wizard. Invalid names or an existing NavTree/Navon return HTTP 400 with the server message in progress chrome (not HTTP 500).
+
+With **Traditional** and **Include managed navigation** checked, the server seeds a NavTree, a site template, and the homepage (`index.html`) in that folder in one operation.
 
 Full Git `rootPath`, remote URL, branch, and config-file editing remains on **Developer → Sites** (Virtual Site source panel). See [Virtual Sites (developer)](id:developer-virtual-sites) and the Virtual Sites section below.
 

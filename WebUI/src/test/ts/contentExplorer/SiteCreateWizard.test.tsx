@@ -254,6 +254,30 @@ describe("SiteCreateWizard (#3521 / parent #3512)", () => {
     ).toBe("BadName");
   });
 
+  it("Traditional Run surfaces 403 permission chrome (#4674)", async () => {
+    const submit = vi
+      .fn()
+      .mockRejectedValue(
+        new Error("You do not have permission to create a site"),
+      );
+    const onCreated = vi.fn();
+    renderWizard({ submit, onCreated });
+    advanceFromType();
+    fireEvent.change(screen.getByTestId("site-create-name"), {
+      target: { value: "Denied" },
+    });
+    fireEvent.click(screen.getByTestId("site-create-next"));
+    fireEvent.click(screen.getByTestId("site-create-next"));
+    fireEvent.click(screen.getByTestId("site-create-run"));
+    await waitFor(() => {
+      expect(submit).toHaveBeenCalledTimes(1);
+    });
+    expect(screen.getByTestId("site-create-progress").textContent).toMatch(
+      /permission/i,
+    );
+    expect(onCreated).not.toHaveBeenCalled();
+  });
+
   it("Page Run surfaces submit errors", async () => {
     const submit = vi.fn().mockRejectedValue(new Error("duplicate site"));
     renderWizard({ submit });

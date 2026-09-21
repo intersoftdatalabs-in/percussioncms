@@ -168,6 +168,10 @@ export const EXPLORER_MSG = {
   SITE_CREATE_VALIDATION: "perc.ui.explorer@Enter a valid site name",
   SITE_CREATE_VALIDATION_PAGE:
     "perc.ui.explorer@Enter a valid site name, template name, and base template",
+  SITE_CREATE_FORBIDDEN:
+    "perc.ui.explorer@You do not have permission to create a site",
+  SITE_CREATE_INVALID:
+    "perc.ui.explorer@Could not create the site (invalid name or existing NavTree)",
   SITE_CREATE_SUBMIT: "perc.ui.explorer@Create site",
   SITE_CREATE_SUBMITTING: "perc.ui.explorer@Creating site…",
   SITE_CREATE_SUCCESS: "perc.ui.explorer@Site {name} created",

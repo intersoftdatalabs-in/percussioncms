@@ -16,6 +16,8 @@ vi.mock("../../../main/ts/api/client", () => ({
   get: vi.fn(),
   put: vi.fn(),
   post: vi.fn(),
+  isApiError: (err: unknown) =>
+    !!err && typeof err === "object" && typeof (err as { status?: unknown }).status === "number",
   formatApiError: (err: unknown, fallback: string) =>
     err instanceof Error ? err.message : fallback,
 }));
