@@ -338,6 +338,12 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Selected item does not have a numeric content id",
   TRANSLATIONS_CREATE_ERROR:
     "perc.ui.explorer@Could not create translation variants",
+  TRANSLATIONS_NOT_FOUND:
+    "perc.ui.explorer@Item not found",
+  TRANSLATIONS_CONFLICT:
+    "perc.ui.explorer@A translation already exists for that locale",
+  TRANSLATIONS_OPEN_VARIANT: "perc.ui.explorer@Open locale copy",
+  TRANSLATIONS_COL_OPEN: "perc.ui.explorer@Open",
   TRANSLATIONS_CREATE_SUCCESS_SINGULAR:
     "perc.ui.explorer@Created 1 translation variant",
   TRANSLATIONS_CREATE_SUCCESS_PLURAL:

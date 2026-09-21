@@ -110,6 +110,38 @@ class ContentTranslationsResourceTest {
   }
 
   @Test
+  void createNotFoundMapsTo404() {
+    CreateTranslationsRequest body = new CreateTranslationsRequest();
+    body.setItemIds(List.of(9L));
+    when(adaptor.createTranslations(any(), any()))
+        .thenThrow(
+            new WebApplicationException(
+                jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.NOT_FOUND)
+                    .entity("Item not found: 9")
+                    .build()));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createTranslations(body));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void createConflictMapsTo409() {
+    CreateTranslationsRequest body = new CreateTranslationsRequest();
+    body.setItemIds(List.of(1L));
+    when(adaptor.createTranslations(any(), any()))
+        .thenThrow(
+            new WebApplicationException(
+                jakarta.ws.rs.core.Response.status(jakarta.ws.rs.core.Response.Status.CONFLICT)
+                    .entity("Translation already exists for locale: fr-fr")
+                    .build()));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createTranslations(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
   void listDelegatesToAdaptor() {
     ItemTranslationVariants expected = new ItemTranslationVariants();
     expected.setItemId(100L);

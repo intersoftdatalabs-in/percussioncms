@@ -85,8 +85,30 @@ export class TranslationAuthError extends Error {
   }
 }
 
+/** GET/POST source item missing (HTTP 404). */
+export class TranslationNotFoundError extends Error {
+  readonly status = 404;
+  constructor(message = "Item not found") {
+    super(message);
+    this.name = "TranslationNotFoundError";
+  }
+}
+
+/** POST locale already present (HTTP 409). */
+export class TranslationConflictError extends Error {
+  readonly status = 409;
+  constructor(message = "Translation already exists for locale") {
+    super(message);
+    this.name = "TranslationConflictError";
+  }
+}
+
 function rethrowAuthOrWrap(err: unknown, fallback: string): never {
-  if (err instanceof TranslationAuthError) {
+  if (
+    err instanceof TranslationAuthError ||
+    err instanceof TranslationNotFoundError ||
+    err instanceof TranslationConflictError
+  ) {
     throw err;
   }
   if (isApiError(err) && err.status === 403) {
@@ -94,6 +116,14 @@ function rethrowAuthOrWrap(err: unknown, fallback: string): never {
       formatApiError(err, "Not allowed"),
       err.status,
       err.statusText,
+    );
+  }
+  if (isApiError(err) && err.status === 404) {
+    throw new TranslationNotFoundError(formatApiError(err, "Item not found"));
+  }
+  if (isApiError(err) && err.status === 409) {
+    throw new TranslationConflictError(
+      formatApiError(err, "Translation already exists for locale"),
     );
   }
   if (err instanceof Error) {

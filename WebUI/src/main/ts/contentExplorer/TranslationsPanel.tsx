@@ -32,6 +32,8 @@ import {
   createTranslations,
   listItemTranslationVariants,
   TranslationAuthError,
+  TranslationConflictError,
+  TranslationNotFoundError,
   type CreateTranslationsResult,
   type ItemTranslationVariants,
   type TranslationLocaleOption,
@@ -58,6 +60,8 @@ export interface TranslationsPanelProps {
   }) => Promise<CreateTranslationsResult>;
   /** Fired after a successful create so the host can refresh lists. */
   onCreated?: (result: CreateTranslationsResult) => void;
+  /** Open an existing locale copy (numeric content id) in the editor. */
+  onOpenVariant?: (contentId: number, locale?: string | null) => void;
   ariaLabel?: string;
   className?: string;
 }
@@ -131,6 +135,7 @@ export function TranslationsPanel(
     loadLocaleCatalog = defaultLoadLocaleCatalog,
     createVariants = defaultCreateVariants,
     onCreated,
+    onOpenVariant,
     ariaLabel,
     className,
   } = props;
@@ -174,6 +179,19 @@ export function TranslationsPanel(
             (err as { status: number }).status === 403)
         ) {
           setState({ kind: "auth" });
+          return;
+        }
+        if (
+          err instanceof TranslationNotFoundError ||
+          (err &&
+            typeof err === "object" &&
+            "status" in err &&
+            (err as { status: number }).status === 404)
+        ) {
+          setState({
+            kind: "error",
+            message: message(EXPLORER_MSG.TRANSLATIONS_NOT_FOUND),
+          });
           return;
         }
         setState({
@@ -263,6 +281,26 @@ export function TranslationsPanel(
       ) {
         setCreateForbidden(true);
         setCreateError(message(EXPLORER_MSG.PERMISSION_DENIED));
+        return;
+      }
+      if (
+        err instanceof TranslationNotFoundError ||
+        (err &&
+          typeof err === "object" &&
+          "status" in err &&
+          (err as { status: number }).status === 404)
+      ) {
+        setCreateError(message(EXPLORER_MSG.TRANSLATIONS_NOT_FOUND));
+        return;
+      }
+      if (
+        err instanceof TranslationConflictError ||
+        (err &&
+          typeof err === "object" &&
+          "status" in err &&
+          (err as { status: number }).status === 409)
+      ) {
+        setCreateError(message(EXPLORER_MSG.TRANSLATIONS_CONFLICT));
         return;
       }
       setCreateError(
@@ -379,6 +417,9 @@ export function TranslationsPanel(
                 <th scope="col" style={{ textAlign: "left", padding: 4 }}>
                   {message(EXPLORER_MSG.TRANSLATIONS_COL_CONTENT_ID)}
                 </th>
+                <th scope="col" style={{ textAlign: "left", padding: 4 }}>
+                  {message(EXPLORER_MSG.TRANSLATIONS_COL_OPEN)}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -390,6 +431,20 @@ export function TranslationsPanel(
                   <td style={{ padding: 4 }}>{v.locale ?? "—"}</td>
                   <td style={{ padding: 4 }}>{roleLabel(v.role)}</td>
                   <td style={{ padding: 4 }}>{v.contentId}</td>
+                  <td style={{ padding: 4 }}>
+                    <button
+                      type="button"
+                      data-testid={`translations-open-variant-${v.contentId}`}
+                      disabled={!onOpenVariant || !v.contentId}
+                      onClick={() => {
+                        if (v.contentId) {
+                          onOpenVariant?.(v.contentId, v.locale);
+                        }
+                      }}
+                    >
+                      {message(EXPLORER_MSG.TRANSLATIONS_OPEN_VARIANT)}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

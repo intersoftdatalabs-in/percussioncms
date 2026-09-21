@@ -568,4 +568,102 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
       );
     },
   );
+
+  test(
+    "open locale copy and map create 403/404/409 (#4673)",
+    { tag: ["@explorer-translations", "@p-trans"] },
+    async ({ page }) => {
+      test.setTimeout(75_000);
+      const pageErrors = [];
+      const consoleErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          const text = msg.text();
+          if (
+            /Failed to load resource: the server responded with a status of \d+/i.test(
+              text,
+            ) &&
+            !/translations/i.test(text)
+          ) {
+            return;
+          }
+          consoleErrors.push(text);
+        }
+      });
+
+      const shell = page.locator('[data-testid="content-explorer-shell"]');
+      await expect(shell).toBeVisible({ timeout: 15_000 });
+      const tree = page.locator('[data-testid="explorer-tree"]');
+      await expect(tree).toBeVisible({ timeout: 15_000 });
+      const sitesNode = page
+        .locator(
+          '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"], [data-testid*="tree-node"][data-testid*="Sites"]',
+        )
+        .first();
+      if ((await sitesNode.count()) > 0) {
+        await sitesNode.click({ force: true, timeout: 10_000 }).catch(() => {});
+        await listWaitReady(page);
+      }
+
+      await selectFirstContentRow(page);
+      await page.locator('[data-testid="explorer-menu-view"]').click();
+      await page.locator('[data-testid="explorer-toggle-translations"]').click();
+
+      const panel = page.locator('[data-testid="translations-panel"]');
+      const hint = page.locator('[data-testid="explorer-translations-hint"]');
+      await expect(panel.or(hint)).toBeVisible({ timeout: 15_000 });
+      if ((await panel.count()) === 0) {
+        await expect(hint).toBeVisible();
+        expect(pageErrors).toEqual([]);
+        return;
+      }
+      await expect(panel).not.toHaveAttribute("data-testid-state", "loading", {
+        timeout: 20_000,
+      });
+      if ((await panel.getAttribute("data-testid-state")) !== "ok") {
+        expect(pageErrors).toEqual([]);
+        return;
+      }
+
+      const openBtn = page.locator('[data-testid^="translations-open-variant-"]');
+      await expect(openBtn.first()).toBeVisible();
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="translations-panel"]',
+      });
+
+      const localeOptions = page.locator(
+        '[data-testid^="translations-locale-option-"]',
+      );
+      if ((await localeOptions.count()) > 0) {
+        await page.route("**/rest/content-explorer/translations", async (route) => {
+          if (route.request().method() !== "POST") {
+            await route.continue();
+            return;
+          }
+          await route.fulfill({
+            status: 409,
+            contentType: "text/plain",
+            body: "Translation already exists for locale: de-de",
+          });
+        });
+        await localeOptions.first().click();
+        await page.locator('[data-testid="translations-create-submit"]').click();
+        await expect(
+          page.locator('[data-testid="translations-create-error"]'),
+        ).toBeVisible({ timeout: 10_000 });
+        await expect(
+          page.locator('[data-testid="translations-create-error"]'),
+        ).toContainText(/already exists/i);
+      }
+
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+      expect(
+        consoleErrors,
+        `console error: ${consoleErrors.join(" | ")}`,
+      ).toEqual([]);
+    },
+  );
 });

@@ -18,6 +18,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   availableTargetLocales,
   createTranslations,
+  TranslationConflictError,
+  TranslationNotFoundError,
   listItemTranslationVariants,
   TranslationAuthError,
   type ItemTranslationVariants,
@@ -130,6 +132,16 @@ describe("translationsApi", () => {
     expect(result.created?.[0]?.locale).toBe("de-de");
   });
 
+  it("listItemTranslationVariants maps 404 to TranslationNotFoundError", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("missing", { status: 404 })),
+    );
+    await expect(listItemTranslationVariants("999")).rejects.toBeInstanceOf(
+      TranslationNotFoundError,
+    );
+  });
+
   it("createTranslations maps 403 to TranslationAuthError", async () => {
     vi.stubGlobal(
       "fetch",
@@ -138,6 +150,26 @@ describe("translationsApi", () => {
     await expect(
       createTranslations({ itemIds: [1], locales: ["fr-fr"] }),
     ).rejects.toBeInstanceOf(TranslationAuthError);
+  });
+
+  it("createTranslations maps 404 to TranslationNotFoundError", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("gone", { status: 404 })),
+    );
+    await expect(
+      createTranslations({ itemIds: [1], locales: ["fr-fr"] }),
+    ).rejects.toBeInstanceOf(TranslationNotFoundError);
+  });
+
+  it("createTranslations maps 409 to TranslationConflictError", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("exists", { status: 409 })),
+    );
+    await expect(
+      createTranslations({ itemIds: [1], locales: ["fr-fr"] }),
+    ).rejects.toBeInstanceOf(TranslationConflictError);
   });
 });
 
