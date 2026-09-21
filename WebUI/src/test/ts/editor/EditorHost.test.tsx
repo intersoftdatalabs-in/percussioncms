@@ -49,12 +49,18 @@ describe("EditorHost", () => {
     render(
       <MemoryRouter initialEntries={["/editor"]}>
         <Routes>
-          <Route path="/editor" element={<EditorHost />} />
+          <Route
+            path="/editor"
+            element={<EditorHost loadContentTypes={async () => []} />}
+          />
         </Routes>
       </MemoryRouter>,
     );
     expect(screen.getByTestId("editor-overlay")).toBeTruthy();
-    expect(screen.getByTestId("editor-error").textContent).toMatch(/Explorer or Home/i);
+    expect(screen.getByTestId("editor-create-panel")).toBeTruthy();
+    expect(screen.getByTestId("editor-create-empty").textContent).toMatch(
+      /Explorer or Home/i,
+    );
   });
 
   it("surfaces linkback warningMessage when contentId is missing", () => {
@@ -65,11 +71,15 @@ describe("EditorHost", () => {
         ]}
       >
         <Routes>
-          <Route path="/editor" element={<EditorHost />} />
+          <Route
+            path="/editor"
+            element={<EditorHost loadContentTypes={async () => []} />}
+          />
         </Routes>
       </MemoryRouter>,
     );
     expect(screen.getByTestId("editor-error").textContent).toMatch(/does not exist in the CMS/i);
+    expect(screen.getByTestId("editor-create-panel")).toBeTruthy();
   });
 
   it("loads fields after checkout and saves edits", async () => {
