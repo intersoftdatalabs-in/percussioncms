@@ -37,6 +37,11 @@ describe("editorCheckout", () => {
     expect(isCheckedOutToSelf("", "", "admin", false)).toBe(false);
   });
 
+  it("does not grant canEdit when currentUser is empty and another holder is set", () => {
+    expect(isCheckedOutToSelf("editor", "", "admin", true)).toBe(false);
+    expect(isCheckedOutToSelf("editor", undefined, undefined, true)).toBe(false);
+  });
+
   it("is not checked out to self when nobody holds the lock", () => {
     expect(isCheckedOutToSelf("", "admin")).toBe(false);
   });

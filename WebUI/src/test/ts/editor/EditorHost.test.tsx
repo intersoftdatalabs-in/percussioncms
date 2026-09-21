@@ -198,6 +198,69 @@ describe("EditorHost", () => {
     expect(screen.getByTestId("editor-field-displaytitle")).toHaveProperty("readOnly", true);
   });
 
+  it("maps 403 on check-out and does not treat it as success", async () => {
+    const checkout = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
+    const loadFields = vi.fn().mockResolvedValue({
+      ...fields,
+      checkoutUser: "editor",
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={<EditorHost checkout={checkout} loadFields={loadFields} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(checkout).toHaveBeenCalledWith("42");
+    expect(screen.getByTestId("editor-lock-error").textContent).toMatch(
+      /not allowed to check out/i,
+    );
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+    expect(screen.getByTestId("editor-field-displaytitle")).toHaveProperty(
+      "readOnly",
+      true,
+    );
+  });
+
+  it("stays view-only when checkout user-info has another holder and empty currentUser", async () => {
+    const checkout = vi.fn().mockResolvedValue({
+      checkOutUser: "editor",
+      currentUser: "",
+    });
+    const loadFields = vi.fn().mockResolvedValue({
+      ...fields,
+      checkoutUser: "editor",
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={<EditorHost checkout={checkout} loadFields={loadFields} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+    expect(screen.getByTestId("editor-field-displaytitle")).toHaveProperty(
+      "readOnly",
+      true,
+    );
+  });
+
   it("maps 403 on check-in and does not treat it as success", async () => {
     const checkout = vi.fn().mockResolvedValue({
       checkOutUser: "admin",

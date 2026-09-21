@@ -392,6 +392,8 @@ export function EditorHost({
   const [copyErrorDetail, setCopyErrorDetail] = useState("");
   const [sessionUser, setSessionUser] = useState("");
   const [lockUser, setLockUser] = useState("");
+  /** User-info checkOutUser from the last checkout response (empty if omitted). */
+  const [restLockUser, setRestLockUser] = useState("");
   const [lockBusy, setLockBusy] = useState(false);
   const [lockErrorKey, setLockErrorKey] = useState<string | null>(null);
   const [lockErrorDetail, setLockErrorDetail] = useState("");
@@ -432,6 +434,7 @@ export function EditorHost({
     setLockErrorKey(null);
     setLockErrorDetail("");
     setCheckoutOk(false);
+    setRestLockUser("");
     void (async () => {
       try {
         const fields = await loadFields(itemId);
@@ -448,6 +451,7 @@ export function EditorHost({
               if (info) {
                 const nextLock = (info.checkOutUser ?? "").trim();
                 const nextSession = (info.currentUser ?? "").trim();
+                setRestLockUser(nextLock);
                 if (nextLock) {
                   setLockUser(nextLock);
                 }
@@ -961,6 +965,7 @@ export function EditorHost({
       setCheckoutOk(true);
       const nextLock = (info?.checkOutUser ?? "").trim();
       const nextSession = (info?.currentUser ?? "").trim();
+      setRestLockUser(nextLock);
       if (nextLock) {
         setLockUser(nextLock);
       }
@@ -969,8 +974,8 @@ export function EditorHost({
       }
       if (
         !isCheckedOutToSelf(
-          nextLock || lockUser,
-          nextSession || sessionUser,
+          nextLock,
+          nextSession,
           payload?.checkoutUser,
           true,
         )
@@ -1136,7 +1141,7 @@ export function EditorHost({
   }
 
   const heldBySelf = isCheckedOutToSelf(
-    lockUser,
+    restLockUser,
     sessionUser,
     payload?.checkoutUser,
     checkoutOk,

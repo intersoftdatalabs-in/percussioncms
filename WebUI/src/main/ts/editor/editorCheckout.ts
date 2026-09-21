@@ -47,13 +47,16 @@ export function isCheckedOutToSelf(
   fieldsCheckoutUser?: string,
   allowEmptySession = false,
 ): boolean {
-  const lockUser = (checkoutUser ?? "").trim() || (fieldsCheckoutUser ?? "").trim();
+  const infoLock = (checkoutUser ?? "").trim();
+  const lockUser = infoLock || (fieldsCheckoutUser ?? "").trim();
   const session = (currentUser ?? "").trim();
   if (!lockUser) {
     return false;
   }
   if (!session) {
-    return allowEmptySession;
+    // Legacy empty user-info after a successful check-out (no named holder in
+    // the response). Do not treat another named holder as self.
+    return allowEmptySession && !infoLock;
   }
   return namesEqual(lockUser, session);
 }
