@@ -37,14 +37,26 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { loginAsAdmin, BASE_URL, adminBasicAuthHeaders } = require("./helpers/auth");
 const {
   expectNoSeriousA11yViolations,
 } = require("./helpers/a11y");
 const {
   translationsRowIdFromAttrs,
   isPreferredContentRowName,
+  guidFromPathItem,
+  parentFolderCmsPath,
+  cmsFolderWalkSegments,
+  pickGuidListedItem,
 } = require("./helpers/explorer-translations-row");
+const {
+  encodeCmsRelPath,
+  unwrapPathItems,
+  resolveExplorerListPath,
+} = require("./helpers/explorer-preview-view");
+
+const PATH_FOLDER = `${BASE_URL}/Rhythmyx/services/pathmanagement/path/folder`;
+const PATH_PAGED = `${BASE_URL}/Rhythmyx/services/pathmanagement/path/paginatedFolder`;
 
 /** Wait until the detail list region is present (folder navigation settled). */
 async function listWaitReady(page) {
@@ -168,6 +180,108 @@ async function guidIdFromItemRows(page) {
  * the current list is folders only. GUID-shaped {@code data-testid} values
  * are valid (#3545).
  */
+async function fetchFolderChildren(request, cmsPath) {
+  const headers = adminBasicAuthHeaders();
+  const rel = encodeCmsRelPath(cmsPath);
+  if (!rel) {
+    return [];
+  }
+  const paged = await request.get(
+    `${PATH_PAGED}/${rel}?startIndex=0&maxResults=50`,
+    { headers },
+  );
+  if (paged.status() === 200) {
+    const kids = unwrapPathItems(await paged.json());
+    if (kids.length > 0) {
+      return kids;
+    }
+  }
+  const folder = await request.get(`${PATH_FOLDER}/${rel}`, { headers });
+  if (folder.status() === 200) {
+    return unwrapPathItems(await folder.json());
+  }
+  return [];
+}
+
+/**
+ * Locate a GUID-shaped listed page via pathmanagement (H2 FastForward).
+ * @param {import("@playwright/test").APIRequestContext} request
+ * @returns {Promise<object|null>}
+ */
+async function findGuidListedItemViaRest(request) {
+  const sites = await fetchFolderChildren(request, "Sites");
+  const candidateFolders = [];
+  for (const site of sites) {
+    const listPath = resolveExplorerListPath(site);
+    if (listPath) {
+      candidateFolders.push(listPath.replace(/^\/+/, ""));
+      candidateFolders.push(`${listPath.replace(/^\/+/, "")}/Pages`);
+    }
+    const name = site && site.name ? String(site.name) : "";
+    if (name) {
+      candidateFolders.push(`Sites/${name}`);
+      candidateFolders.push(`Sites/${name}/Pages`);
+    }
+  }
+  const seen = new Set();
+  for (const folder of candidateFolders) {
+    if (!folder || seen.has(folder)) {
+      continue;
+    }
+    seen.add(folder);
+    const kids = await fetchFolderChildren(request, folder);
+    const picked = pickGuidListedItem(kids);
+    if (picked) {
+      return picked;
+    }
+    for (const kid of kids.slice(0, 12)) {
+      const kidType = `${kid.type || ""} ${kid.category || ""}`.toLowerCase();
+      const looksFolder =
+        kidType.includes("folder") ||
+        kidType.includes("site") ||
+        String(kid.path || "").endsWith("/");
+      if (!looksFolder) {
+        continue;
+      }
+      const nestedPath = resolveExplorerListPath(kid);
+      const nestedRel = nestedPath
+        ? nestedPath.replace(/^\/+/, "")
+        : `${folder}/${kid.name || ""}`;
+      if (!nestedRel || seen.has(nestedRel)) {
+        continue;
+      }
+      seen.add(nestedRel);
+      const nested = await fetchFolderChildren(request, nestedRel);
+      const nestedPick = pickGuidListedItem(nested);
+      if (nestedPick) {
+        return nestedPick;
+      }
+    }
+  }
+  return null;
+}
+
+async function openCmsFolderWalk(page, folderPath) {
+  const tree = page.locator('[data-testid="explorer-tree"]');
+  const sitesNode = tree
+    .locator(
+      '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"], [data-testid*="tree-node"][data-testid*="Sites"]',
+    )
+    .first();
+  if ((await sitesNode.count()) > 0) {
+    await sitesNode.click({ force: true, timeout: 10_000 }).catch(() => {});
+    await listWaitReady(page);
+    await page.waitForLoadState("networkidle").catch(() => {});
+  }
+  const segments = cmsFolderWalkSegments(folderPath);
+  for (const seg of segments) {
+    const opened = await openFolderByName(page, seg);
+    if (!opened) {
+      await openFolderByName(page, seg.replace(/_/g, " "));
+    }
+  }
+}
+
 async function selectFirstContentRow(page) {
   const list = page.locator('[data-testid="detail-list"]');
   const itemRows = list.locator(
@@ -325,7 +439,7 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
   test(
     "GUID content row GET uses full GUID and loads locale variants (#3703)",
     { tag: ["@explorer-translations", "@p-trans"] },
-    async ({ page }) => {
+    async ({ page, request }) => {
       test.setTimeout(75_000);
       const pageErrors = [];
       const consoleErrors = [];
@@ -365,25 +479,26 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
 
       const tree = page.locator('[data-testid="explorer-tree"]');
       await expect(tree).toBeVisible({ timeout: 15_000 });
-      const sitesNode = page
-        .locator(
-          '[data-testid="tree-node-/Sites/"], [data-testid="tree-node-/Sites"], [data-testid*="tree-node"][data-testid*="Sites"]',
-        )
-        .first();
-      if ((await sitesNode.count()) > 0) {
-        await sitesNode.click({ force: true, timeout: 10_000 }).catch(() => {});
-        await listWaitReady(page);
-        await page.waitForLoadState("networkidle").catch(() => {});
+
+      const listed = await findGuidListedItemViaRest(request);
+      const restGuid = listed ? guidFromPathItem(listed) : "";
+      if (!restGuid) {
+        test.skip(
+          true,
+          "H2 QA pathmanagement listed no GUID-shaped content row (#3703 / #4691)",
+        );
+        return;
       }
+
+      const itemPath = resolveExplorerListPath(listed) || listed.path || "";
+      const parentPath = parentFolderCmsPath(itemPath);
+      await openCmsFolderWalk(page, parentPath);
 
       const list = page.locator('[data-testid="detail-list"]');
       await expect(list).toBeVisible({ timeout: 15_000 });
 
       let guidRowId = await guidIdFromItemRows(page);
       if (!guidRowId) {
-        // Sites list is site folders. Open Corporate Investments (or first
-        // site), then Pages — FastForward pages use host-type-uuid ids.
-        // Stop after the first matching site name (fold spaces/underscores).
         const openedSite =
           (await openFolderByName(page, "Corporate Investments")) ||
           (await openFolderByName(page, "CorporateInvestments")) ||
@@ -399,6 +514,15 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
       if (!guidRowId) {
         await selectFirstContentRow(page);
         guidRowId = await guidIdFromItemRows(page);
+      }
+      if (!guidRowId) {
+        guidRowId = restGuid;
+        const restRow = list.locator(
+          `[data-testid="detail-row-${restGuid}"], [data-item-id="${restGuid}"]`,
+        );
+        if ((await restRow.count()) > 0) {
+          await selectGuidRow(restRow.first(), restGuid, page);
+        }
       }
 
       expect(

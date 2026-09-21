@@ -14,6 +14,10 @@ const {
   translationsRowIdFromAttrs,
   isPreferredContentRowName,
   foldedNamesEqual,
+  guidFromPathItem,
+  parentFolderCmsPath,
+  cmsFolderWalkSegments,
+  pickGuidListedItem,
 } = require("../helpers/explorer-translations-row");
 
 describe("explorer-translations-row helpers (#3871)", () => {
@@ -81,5 +85,26 @@ describe("explorer-translations-row helpers (#3871)", () => {
       true,
     );
     assert.equal(foldedNamesEqual("Pages", "Assets"), false);
+  });
+
+  it("reads GUID from path items and parent folder walk (#3703 / #4691)", () => {
+    assert.equal(
+      guidFromPathItem({ id: "16777215-101-551", name: "Home" }),
+      "16777215-101-551",
+    );
+    assert.equal(guidFromPathItem({ id: "551" }), "");
+    assert.equal(
+      parentFolderCmsPath("//Sites/CorporateInvestments/Pages/Home"),
+      "/Sites/CorporateInvestments/Pages",
+    );
+    assert.deepEqual(
+      cmsFolderWalkSegments("/Sites/CorporateInvestments/Pages"),
+      ["CorporateInvestments", "Pages"],
+    );
+    const picked = pickGuidListedItem([
+      { id: "16777215-101-703", type: "site", name: "Corporate Investments" },
+      { id: "16777215-101-551", type: "percPage", name: "Corporate Investments Home" },
+    ]);
+    assert.equal(picked && picked.id, "16777215-101-551");
   });
 });

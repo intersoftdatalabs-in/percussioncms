@@ -80,15 +80,115 @@ function translationsRowIdFromAttrs(attrs) {
  */
 function isPreferredContentRowName(itemName, rowText) {
   const name = String(itemName == null ? "" : itemName).trim();
-  if (!name) {
+  const text = String(rowText == null ? "" : rowText).trim();
+  if (!name && !text) {
     return false;
   }
   for (const wanted of PREFERRED_CONTENT_NAMES) {
-    if (name === wanted) {
+    if (name === wanted || foldedNamesEqual(name, wanted)) {
+      return true;
+    }
+    if (text && foldedNamesEqual(text, wanted)) {
       return true;
     }
   }
   return false;
+}
+
+/**
+ * GUID-shaped id from a pathmanagement / list JSON object.
+ * @param {unknown} item
+ * @returns {string}
+ */
+function guidFromPathItem(item) {
+  if (item == null || typeof item !== "object") {
+    return "";
+  }
+  const rec = /** @type {Record<string, unknown>} */ (item);
+  return (
+    guidShapedIdFromText(rec.id) ||
+    guidShapedIdFromText(rec.itemId) ||
+    guidShapedIdFromText(rec.sysId)
+  );
+}
+
+/**
+ * Parent CMS folder of a listed item path (logical {@code /} paths).
+ * @param {unknown} itemPath
+ * @returns {string}
+ */
+function parentFolderCmsPath(itemPath) {
+  let p = String(itemPath == null ? "" : itemPath)
+    .trim()
+    .replace(/\\/g, "/");
+  while (p.startsWith("//")) {
+    p = p.slice(1);
+  }
+  if (p && !p.startsWith("/")) {
+    p = `/${p}`;
+  }
+  if (p.length > 1 && p.endsWith("/")) {
+    p = p.replace(/\/+$/, "");
+  }
+  const idx = p.lastIndexOf("/");
+  if (idx <= 0) {
+    return p || "/";
+  }
+  return p.slice(0, idx) || "/";
+}
+
+/**
+ * Folder walk segments after the repository root ({@code Sites}).
+ * @param {unknown} folderPath
+ * @returns {string[]}
+ */
+function cmsFolderWalkSegments(folderPath) {
+  let p = String(folderPath == null ? "" : folderPath)
+    .trim()
+    .replace(/\\/g, "/");
+  while (p.startsWith("//")) {
+    p = p.slice(1);
+  }
+  if (p.startsWith("/")) {
+    p = p.slice(1);
+  }
+  if (p.endsWith("/")) {
+    p = p.replace(/\/+$/, "");
+  }
+  const parts = p.split("/").filter(Boolean);
+  if (parts.length === 0) {
+    return [];
+  }
+  if (foldedNamesEqual(parts[0], "Sites")) {
+    return parts.slice(1);
+  }
+  return parts;
+}
+
+/**
+ * Prefer a GUID-shaped listed page, then any GUID item (not folders).
+ * @param {unknown[]} items
+ * @returns {object|null}
+ */
+function pickGuidListedItem(items) {
+  const list = Array.isArray(items) ? items.filter(Boolean) : [];
+  const guidItems = list.filter((it) => {
+    if (!guidFromPathItem(it)) {
+      return false;
+    }
+    const type = `${it.type || ""} ${it.category || ""}`.toLowerCase();
+    if (type.includes("folder") || type.includes("fsfolder") || type.includes("site")) {
+      return false;
+    }
+    return true;
+  });
+  if (guidItems.length === 0) {
+    return null;
+  }
+  const preferred = guidItems.find((it) =>
+    isPreferredContentRowName(it.name, it.path),
+  );
+  return preferred || guidItems[0];
 }
 
 /**
@@ -122,4 +222,8 @@ module.exports = {
   isPreferredContentRowName,
   foldExplorerName,
   foldedNamesEqual,
+  guidFromPathItem,
+  parentFolderCmsPath,
+  cmsFolderWalkSegments,
+  pickGuidListedItem,
 };
