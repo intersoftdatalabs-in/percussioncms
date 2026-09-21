@@ -1,8 +1,11 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.2.2
+// workflow_version: 2.2.3
 // Grok Build workflow meta has no version field (only name/description/when_to_use/phases).
 // Keep invocation name night-issue-prs stable; bump this header when behavior changes.
 //
+// 2.2.3 — Erlang CLI 0.1.18+ diff-aware: --git-base origin/main (Gitea
+//   mkd-code-review#25 / #24). In-diff findings only gate/short-circuit.
+//   Pack thresholds (percussion 15). Residual LLM on hunks.
 // 2.2.2 — Erlang CLI uses local Ollama: mkd-code-review analyze --pack percussion
 //   --format markdown --gate advisory
 //   --models …/mkd-code-review/config/models.ollama-dev-coder.toml
@@ -373,13 +376,15 @@ fn erlang_gate_text(repo, base_branch, allow_merge, scope_note) {
     p += "one-paragraph pointers to the same install — load the canonical files.\n";
     p += "\n";
     p += "REVIEW LOOP (R1 onward):\n";
-    p += "  scope -> load persona -> run mkd-code-review analyze --pack percussion\n";
-    p += "  --format markdown --gate advisory --models\n";
+    p += "  checkout the PR head -> load persona -> run:\n";
+    p += "  mkd-code-review analyze --pack percussion --format markdown --gate advisory\n";
+    p += "  --git-base origin/main --models\n";
     p += "  /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml\n";
-    p += "  <paths from gh pr diff / git diff, never the repo root> -> interpret\n";
-    p += "  tool findings -> enforce strict gate from ERLANG.md.\n";
-    p += "CLI must be mkd-code-review >= 0.1.17. Report header must show\n";
-    p += "Persona: erlang 0.1.1 and Persona source: ~/.local/share/mkd/agents/erlang.\n";
+    p += "  (optional extra PATHS only to further narrow; never the repo root).\n";
+    p += "CLI must be mkd-code-review >= 0.1.18 (diff-aware; Gitea mkd-code-review#25).\n";
+    p += "Report header must show Persona: erlang 0.1.1 and Persona source:\n";
+    p += "~/.local/share/mkd/agents/erlang. Scope Base/Head must be set.\n";
+    p += "Gate and short-circuit count (in-diff) bugs only. Preexisting rows do not BLOCK.\n";
     p += "Ollama local model is dev-coder:latest at http://localhost:11434.\n";
     p += "If the models file is missing, omit --models and continue machine-only.\n";
     p += "If Ollama is down, keep machine findings; do not fail the review for llm warn.\n";
@@ -901,7 +906,7 @@ if coding_tool == "" { coding_tool = "Grok Build"; }
 if coding_tool_version == "" { coding_tool_version = "UNRESOLVED"; }
 if model_id == "" { model_id = "UNRESOLVED"; }
 let model_label = "model:" + model_id;
-let workflow_version = "2.2.2";
+let workflow_version = "2.2.3";
 log("identity: tool=" + coding_tool + " version=" + coding_tool_version + " model=" + model_id
     + " workflow_version=" + workflow_version);
 
