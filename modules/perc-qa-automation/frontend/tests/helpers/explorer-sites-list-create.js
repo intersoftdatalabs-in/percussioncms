@@ -26,6 +26,7 @@ const TEST_IDS = Object.freeze({
   stepTemplate: "site-create-step-template",
   stepConfirm: "site-create-step-confirm",
   stepProgress: "site-create-step-progress",
+  progress: "site-create-progress",
   typeTraditional: "site-create-type-traditional",
   typePage: "site-create-type-page",
   typeVirtual: "site-create-type-virtual",

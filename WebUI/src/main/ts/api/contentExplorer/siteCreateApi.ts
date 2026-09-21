@@ -26,7 +26,9 @@
  * {@code SitesAdaptor#createSite} is intentionally not used.</p>
  */
 
-import { formatApiError, get, post } from "../client";
+import { formatApiError, get, isApiError, post } from "../client";
+import { message } from "../../i18n/message";
+import { EXPLORER_MSG } from "../../contentExplorer/messages";
 import { PATHS } from "../paths";
 import {
   updateVirtualSiteProperties,
@@ -231,6 +233,22 @@ export function pickDefaultBaseTemplate(
 }
 
 /**
+ * Map POST /sitemanage/site/ failures: 403 permission, 400 invalid/conflict
+ * (existing NavTree, bad name). Other statuses keep {@link formatApiError}.
+ */
+export function formatCreateSiteError(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return message(EXPLORER_MSG.SITE_CREATE_FORBIDDEN);
+    }
+    if (err.status === 400) {
+      return formatApiError(err, message(EXPLORER_MSG.SITE_CREATE_INVALID));
+    }
+  }
+  return formatApiError(err, "Could not create site");
+}
+
+/**
  * POST traditional site create via sitemanage (legacy Site contract).
  */
 export async function createTraditionalSite(
@@ -242,7 +260,7 @@ export async function createTraditionalSite(
     const payload = await post<unknown>(`${PATHS.SITES_ALL}/`, body);
     return parseCreatedSite(payload);
   } catch (err: unknown) {
-    throw new Error(formatApiError(err, "Could not create site"));
+    throw new Error(formatCreateSiteError(err));
   }
 }
 
@@ -291,6 +309,9 @@ export async function createVirtualSite(
   try {
     await updateVirtualSiteProperties(created.name, props);
   } catch (err: unknown) {
+    if (isApiError(err) && (err.status === 403 || err.status === 400)) {
+      throw new Error(formatCreateSiteError(err));
+    }
     throw new Error(
       formatApiError(
         err,
