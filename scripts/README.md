@@ -15,7 +15,7 @@ Out of scope for spec 994 (must NOT be touched):
 ### `opencode-night-issue-prs.py`
 
 Launcher for the opencode `night-issue-prs` overnight workflow (mirrors
-`.grok/workflows/night-issue-prs.rhai` v2.0.6 for opencode runners). Resolves
+`.grok/workflows/night-issue-prs.rhai` v2.0.8 for opencode runners). Resolves
 the dedicated worktree, sets the `NIGHT_*` env vars that
 `.opencode/plugin/night.ts` reads, and invokes `opencode run --agent night-worker`.
 
@@ -394,6 +394,42 @@ Harvest GitHub PR **line review comments** (including closed/merged PRs) from `k
 - **Outputs**: `docs/ai-generated/code-reviews/harvest-candidates-YYYY-MM-DD.md` and, with `--apply`, appends selected bullets to `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md`.
 - **Prereqs**: Python 3.9+, `gh` CLI authenticated.
 - **Tests**: `python3 -m pytest scripts/test_erlang_harvest_review_patterns.py -v`
+
+### `typesafe-prescreen.py` / `typesafe-prescreen.cmd`
+
+Cheap TypeSafe (`jev`) judgement layer run by the `night-issue-prs` **Preflight**
+phase before the expensive Triage / Work agents. Deterministic first, model as a
+fail-open hint layer.
+
+- **Purpose**: pre-screen the issue backlog and flag (a) semantic skips the label
+  rules cannot see (soak / customer-env / gated / human-sign-off) and
+  (b) reconcile close candidates.
+- **Usage**:
+
+  ```bash
+  python3 scripts/typesafe-prescreen.py \
+    --inventory scratch/issues-raw.json \
+    --out scratch/prescreen.json
+  # Windows:
+  #   scripts\typesafe-prescreen.cmd --inventory scratch\issues-raw.json --out scratch\prescreen.json
+  ```
+
+- **Deterministic layer (authoritative, always runs)**: labels `not safe for
+  agents`, `in progress` / `in-progress`, `qa task`, `migrated`, and any
+  assignee → `rule_skip` + `rule_kind`; `migrated` → `rule_close_candidate`.
+- **Model layer (adds only, never un-skips)**: one batched `noul` call
+  (`TYPESAFE_API_KEY` required) with `skip_safe` / `pr_sized` / `close` per
+  non-rule-skipped issue; `recommend_skip/source=model` needs
+  `skip_safe >= --threshold` (0.85); `recommend_close` needs
+  `close >= --close-threshold` (0.85).
+- **Fail-open**: missing key, API/network failure, or `--dry-run` still writes
+  `--out` with the deterministic layer and `status: fallback_rule_only` /
+  `dry_run`. Exit 0 unless the args/inventory are unusable (exit 2).
+- **Reuse / tests**: `--answers <saved-json>` skips the live call and replays a
+  saved TypeSafe `/systemone` response (`{"model", "answers", "usage"}`).
+- Measured on 44 real issues: $0.0018, ~1s, 4 answers … one batched request.
+  Cost inputs: `INPUT_PRICE_PER_MT = 0.042` ($/M input tokens; output is free).
+- **Tests**: `python3 -m pytest scripts/test_typesafe_prescreen.py -v`
 
 ### Other scripts in this directory
 
