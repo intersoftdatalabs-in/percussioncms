@@ -30,6 +30,30 @@ describe("FileFieldWidget", () => {
     cleanup();
   });
 
+  it("disables the file input in read-only view mode", async () => {
+    render(
+      <FileFieldWidget
+        itemId="42"
+        name="item_file_attachment"
+        readOnly
+        loadMeta={async () => ({
+          contentId: "42",
+          field: "item_file_attachment",
+          filename: "spec.pdf",
+          contentType: "application/pdf",
+          present: true,
+        })}
+        onFile={vi.fn()}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-item_file_attachment")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("editor-file-item_file_attachment") as HTMLInputElement).disabled,
+    ).toBe(true);
+  });
+
   it("shows existing filename and reports a chosen file", async () => {
     const onFile = vi.fn();
     render(

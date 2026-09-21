@@ -97,6 +97,7 @@ import {
   editorCreateErrorReason,
   parseCreateLandingContentId,
 } from "./editorCreate";
+import { editorBinaryErrorReason } from "./editorBinary";
 import { editorSaveErrorReason } from "./editorSave";
 import {
   canRunEditorTransition,
@@ -626,8 +627,34 @@ export function EditorHost({
           })),
       };
       const savedPayload = await saveFields(itemId, next);
-      for (const [field, file] of Object.entries(pendingFiles)) {
-        await uploadBinary(itemId, field, file);
+      try {
+        for (const [field, file] of Object.entries(pendingFiles)) {
+          await uploadBinary(itemId, field, file);
+        }
+      } catch (binErr) {
+        if (isSessionRedirectError(binErr)) {
+          return;
+        }
+        const binaryReason = editorBinaryErrorReason(binErr);
+        if (binaryReason === "forbidden") {
+          setFieldErrors({});
+          setSaveErrorKey(EDITOR_MSG.FILE_FORBIDDEN);
+          setSaveErrorDetail("");
+          return;
+        }
+        if (binaryReason === "tooLarge") {
+          setFieldErrors({});
+          setSaveErrorKey(EDITOR_MSG.FILE_TOO_LARGE);
+          setSaveErrorDetail("");
+          return;
+        }
+        if (binaryReason === "badRequest") {
+          setFieldErrors({});
+          setSaveErrorKey(EDITOR_MSG.FILE_BAD_REQUEST);
+          setSaveErrorDetail("");
+          return;
+        }
+        throw binErr;
       }
       setPendingFiles({});
       setPayload(savedPayload);
@@ -1180,7 +1207,11 @@ export function EditorHost({
           </span>
         ) : null}
         <div className={styles.actions}>
-          {saved ? <span className={styles.meta}>{message(EDITOR_MSG.SAVED)}</span> : null}
+          {saved ? (
+            <span className={styles.meta} data-testid="editor-saved">
+              {message(EDITOR_MSG.SAVED)}
+            </span>
+          ) : null}
           {workflowDone ? (
             <span className={styles.meta} data-testid="editor-workflow-done">
               {message(EDITOR_MSG.WORKFLOW_DONE)}

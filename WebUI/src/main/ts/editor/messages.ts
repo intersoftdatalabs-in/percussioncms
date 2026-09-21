@@ -58,6 +58,10 @@ export const EDITOR_MSG = {
   HTML_LABEL: "perc.ui.editor@Rich text",
   FILE_CHOOSE: "perc.ui.editor@Choose file",
   FILE_NONE: "perc.ui.editor@No file attached",
+  FILE_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to upload a file for this item.",
+  FILE_TOO_LARGE: "perc.ui.editor@That file is too large to upload.",
+  FILE_BAD_REQUEST: "perc.ui.editor@That file could not be uploaded.",
   IMAGE_CHOOSE: "perc.ui.editor@Choose image",
   IMAGE_NONE: "perc.ui.editor@No image attached",
   KEYWORD_EMPTY: "perc.ui.editor@Select a keyword",
