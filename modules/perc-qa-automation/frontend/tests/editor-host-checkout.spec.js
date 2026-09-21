@@ -188,6 +188,55 @@ test.describe("React Content Editor check-out and check-in", () => {
   );
 
   test(
+    "403 on check-out stays view-only and is not success",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      const leftover = [];
+      const pageErrors = [];
+      leftoverOn(page, leftover);
+      consoleOn(page, pageErrors);
+      await stubEditorApis(page, {
+        checkoutStatus: 403,
+        checkoutBody: { message: "forbidden" },
+      });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.getByTestId(TEST_IDS.form)).toBeVisible();
+      await expect(page.getByTestId(TEST_IDS.save)).toHaveCount(0);
+      await expect(page.getByTestId(TEST_IDS.lockError)).toContainText(
+        /not allowed to check out/i,
+      );
+      expect(leftover).toEqual([]);
+      expect(pageErrors, pageErrors.join("\n")).toEqual([]);
+    },
+  );
+
+  test(
+    "empty currentUser with another checkOutUser stays view-only",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      const leftover = [];
+      const pageErrors = [];
+      leftoverOn(page, leftover);
+      consoleOn(page, pageErrors);
+      await stubEditorApis(page, {
+        checkoutBody: {
+          EditorItemLockInfo: {
+            itemName: "Home",
+            checkOutUser: "editor",
+            currentUser: "",
+            assignmentType: "Reader",
+          },
+        },
+      });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.getByTestId(TEST_IDS.form)).toBeVisible();
+      await expect(page.getByTestId(TEST_IDS.save)).toHaveCount(0);
+      expect(leftover).toEqual([]);
+      expect(pageErrors, pageErrors.join("\n")).toEqual([]);
+    },
+  );
+
+  test(
     "409 on check-out stays view-only and is not success",
     { tag: ["@explorer-content-editor", "@editor"] },
     async ({ page }) => {

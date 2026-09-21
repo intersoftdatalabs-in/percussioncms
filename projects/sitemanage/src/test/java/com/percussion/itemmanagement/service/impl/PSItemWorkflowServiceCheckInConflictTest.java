@@ -32,12 +32,14 @@ import com.percussion.recycle.service.IPSRecycleService;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.workflow.IPSWorkflowService;
+import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
 import com.percussion.share.async.IPSAsyncJobService;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.data.PSDataItemSummary;
 import com.percussion.share.service.IPSDataItemSummaryService;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.sitemanage.dao.IPSiteDao;
+import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.security.IPSSecurityWs;
@@ -110,5 +112,18 @@ class PSItemWorkflowServiceCheckInConflictTest {
     WebApplicationException thrown =
         assertThrows(WebApplicationException.class, () -> service.checkIn("42"));
     assertEquals(Response.Status.CONFLICT.getStatusCode(), thrown.getResponse().getStatus());
+  }
+
+  @Test
+  void checkOutRestReturnsForbiddenWhenRequestContextMissing() throws Exception {
+    IPSGuid guid = org.mockito.Mockito.mock(IPSGuid.class);
+    when(idMapper.getGuid("42")).thenReturn(guid);
+    when(systemService.getContentAssignmentTypes(anyList()))
+        .thenReturn(List.of(PSAssignmentTypeEnum.READER));
+    when(securityWs.getRequestContext()).thenReturn(null);
+
+    WebApplicationException thrown =
+        assertThrows(WebApplicationException.class, () -> service.checkOut("42"));
+    assertEquals(Response.Status.FORBIDDEN.getStatusCode(), thrown.getResponse().getStatus());
   }
 }
