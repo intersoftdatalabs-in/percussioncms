@@ -6,9 +6,9 @@ Project workflows live here and are invocable by name (e.g. `/night-issue-prs` o
 
 ## `night-issue-prs`
 
-**Version:** `2.2.2` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
+**Version:** `2.2.3` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
 
-**Erlang local LLM (2.2.2):** Overnight Erlang runs `mkd-code-review analyze --pack percussion --format markdown --gate advisory --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml` on **scoped PR paths** (never the repo root). Requires `mkd-code-review` ≥ 0.1.17, persona `erlang` 0.1.1 at `~/.local/share/mkd/agents/erlang`, and Ollama `dev-coder:latest` on `localhost:11434`. Runbook: `mkd-code-review/docs/local.md`. LLM stage is fail-open if Ollama is down.
+**Erlang local LLM (2.2.3):** Overnight Erlang runs `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml` on the PR head (CLI ≥ **0.1.18**, Gitea mkd-code-review#25). Gate counts **in-diff** bugs only. Persona `erlang` 0.1.1 at `~/.local/share/mkd/agents/erlang`. Ollama `dev-coder:latest` on `localhost:11434`. LLM stage is fail-open if Ollama is down.
 
 **RTK (2.2.1):** Overnight children wrap noisy `git` / `gh` / Maven / npm / Playwright / docker through `rtk` when it is on PATH. Install once: `rtk init --agent grok -g --auto-patch` (writes `~/.grok/hooks.json` PreToolUse `rtk hook grok`). Reload Grok hooks. Compound `cd MODULE && ../mvnw` is **not** auto-rewritten — agents use `cd MODULE && rtk mvn clean install`. Do **not** wrap `perc-devctl`, Python decision-front, or `gh api` JSON dumps (cycle-verify and decision-front parse those outputs). Stub: `.rtk/filters.toml`.
 
