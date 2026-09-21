@@ -39,6 +39,19 @@ describe("filterSitesByName", () => {
     expect(filterSitesByName(sites, "ALPHA")).toEqual([{ name: "Alpha" }]);
     expect(filterSitesByName(sites, "site")).toEqual([{ name: "Beta Site" }]);
   });
+
+  it("matches id and siteId text", () => {
+    const withIds = [
+      { name: "Alpha", id: "101" },
+      { name: "Beta Site", siteId: "ci-site" },
+    ];
+    expect(filterSitesByName(withIds, "101")).toEqual([
+      { name: "Alpha", id: "101" },
+    ]);
+    expect(filterSitesByName(withIds, "CI-SITE")).toEqual([
+      { name: "Beta Site", siteId: "ci-site" },
+    ]);
+  });
 });
 
 describe("nextViewMode", () => {

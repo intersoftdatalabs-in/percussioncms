@@ -118,6 +118,7 @@ export function SitesSection({
           <span className="sr-only">{message(MSG.PUBLISH_FILTER_SITES)}</span>
           <input
             type="search"
+            data-testid="publish-sites-filter"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder={message(MSG.PUBLISH_FILTER_SITES)}
@@ -150,8 +151,14 @@ export function SitesSection({
       {!loading && !error && filtered.length === 0 && (
         <EmptyState
           title={message(MSG.PUBLISH_EMPTY_SITES)}
-          nextAction="Create or import a site, then return here to configure publish servers."
-          testId="publish-empty-sites"
+          nextAction={
+            filter.trim()
+              ? "No sites match this search. Clear the filter to see the full list."
+              : "Create or import a site, then return here to configure publish servers."
+          }
+          testId={
+            filter.trim() ? "publish-empty-sites-filter" : "publish-empty-sites"
+          }
         />
       )}
 
