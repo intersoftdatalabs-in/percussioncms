@@ -17,9 +17,12 @@
 package com.percussion.pathmanagement.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,6 +38,8 @@ import com.percussion.ui.service.IPSUiService;
 import com.percussion.ui.service.impl.PSCm1ListViewHelper;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.webservices.publishing.IPSPublishingWs;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -107,10 +112,44 @@ class PSPathServiceSaveFolderPropertiesValidationTest {
     perm.setAccessLevel(PSFolderPermission.Access.ADMIN);
     props.setPermission(perm);
 
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(props);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
     when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
     when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
 
     assertDoesNotThrow(() -> service.saveFolderProperties(props));
     verify(folderHelper).saveFolderProperties(props);
+  }
+
+  @Test
+  void missingFolder_mapsToHttp404NotSuccess() throws Exception {
+    PSFolderProperties props = new PSFolderProperties();
+    props.setId("16777215-101-999999");
+    props.setName("Gone");
+    when(folderHelper.findFolderProperties(anyString()))
+        .thenThrow(new RuntimeException("Cannot find folder with id"));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveFolderProperties(props));
+    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
+    verify(folderHelper, never()).saveFolderProperties(any(PSFolderProperties.class));
+  }
+
+  @Test
+  void nonAdmin_mapsToHttp403NotSuccess() throws Exception {
+    PSFolderProperties props = new PSFolderProperties();
+    props.setId("16777215-101-703");
+    props.setName("Design");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(props);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(false);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveFolderProperties(props));
+    assertEquals(Response.Status.FORBIDDEN.getStatusCode(), ex.getResponse().getStatus());
+    verify(folderHelper, never()).saveFolderProperties(any(PSFolderProperties.class));
   }
 }

@@ -474,7 +474,11 @@ When no folder is in context, Explorer shows a short hint to select a folder fir
 
 The panel is product React chrome on `spa.jsp?entry=explorer`. It does not open the
 legacy miller-column Finder. Site admins with ADMIN access on the folder can edit
-principal lists; other users see a read-only view.
+principal lists and **Save** ACL rows for the selected folder. Save uses
+`POST /Rhythmyx/services/pathmanagement/path/saveFolderProperties`. A missing
+folder is HTTP **404** and a caller without ADMIN on that folder is HTTP **403** —
+neither is treated as a successful save; Explorer shows the error on the panel.
+Other users see a read-only view.
 
 ## Other View tools
 

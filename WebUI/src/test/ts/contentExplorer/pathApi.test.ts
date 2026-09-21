@@ -570,6 +570,39 @@ describe("folderProperties Jackson root wrap (#2749)", () => {
       saveFolderProperties({ id: "", name: "x" } as { id: string; name: string }),
     ).rejects.toThrow(/props\.id/);
   });
+
+  it("saveFolderProperties maps HTTP 403 to Error, not success (#4672)", async () => {
+    mockFetch(async () => {
+      return new Response("Not authorized to save folder ACL", {
+        status: 403,
+        statusText: "Forbidden",
+        headers: { "Content-Type": "text/plain" },
+      });
+    });
+    await expect(
+      saveFolderProperties({
+        id: "16777215-101-703",
+        name: "Design",
+        permission: { accessLevel: "READ" },
+      }),
+    ).rejects.toThrow(/Not authorized to save folder ACL|HTTP 403/);
+  });
+
+  it("saveFolderProperties maps HTTP 404 to Error, not success (#4672)", async () => {
+    mockFetch(async () => {
+      return new Response("Folder not found", {
+        status: 404,
+        statusText: "Not Found",
+        headers: { "Content-Type": "text/plain" },
+      });
+    });
+    await expect(
+      saveFolderProperties({
+        id: "16777215-101-999999",
+        name: "Gone",
+      }),
+    ).rejects.toThrow(/Folder not found|HTTP 404/);
+  });
 });
 
 /**

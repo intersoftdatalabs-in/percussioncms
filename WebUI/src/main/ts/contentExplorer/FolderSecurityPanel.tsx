@@ -50,6 +50,7 @@
  */
 
 import React, { useMemo, useState } from "react";
+import { formatApiError } from "../api/client";
 import {
   folderProperties,
   saveFolderProperties,
@@ -168,10 +169,7 @@ export function FolderSecurityPanel(
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        const msg =
-          err instanceof Error
-            ? err.message
-            : message(EXPLORER_MSG.ERROR_GENERIC);
+        const msg = formatApiError(err, message(EXPLORER_MSG.ERROR_GENERIC));
         setStatus({ kind: "error", message: msg });
       });
     return () => {
@@ -229,10 +227,7 @@ export function FolderSecurityPanel(
       setStatus({ ...status, dirty: false });
       onSaved?.(current);
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error
-          ? err.message
-          : message(EXPLORER_MSG.SECURITY_SAVE_ERROR);
+      const msg = formatApiError(err, message(EXPLORER_MSG.SECURITY_SAVE_ERROR));
       setStatus({ kind: "error", message: msg });
     } finally {
       setPendingSave(false);

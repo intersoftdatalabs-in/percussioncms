@@ -24,6 +24,7 @@ import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
+import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderProperties;
 import com.percussion.pathmanagement.data.PSItemByWfStateRequest;
 import com.percussion.pathmanagement.data.PSMoveFolderItem;
@@ -68,6 +69,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -198,6 +200,9 @@ public class PSPathService extends PSDispatchingPathService
     } catch (PSValidationException e) {
       log.error("Error: {} Id: {}", PSExceptionUtils.getMessageForLog(e), id);
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      if (isMissingFolderValidation(e)) {
+        throw new WebApplicationException("Folder not found", Response.Status.NOT_FOUND);
+      }
       throw new PSPathServiceException(e);
     }
   }
@@ -217,6 +222,26 @@ public class PSPathService extends PSDispatchingPathService
           .throwIfInvalid();
     }
 
+    try {
+      folderHelper.findFolderProperties(props.getId());
+    } catch (PSValidationException e) {
+      if (isMissingFolderValidation(e)) {
+        throw new WebApplicationException("Folder not found", Response.Status.NOT_FOUND);
+      }
+      throw e;
+    } catch (RuntimeException e) {
+      String msg = e.getMessage();
+      if (msg != null && msg.toLowerCase().contains("cannot find folder")) {
+        throw new WebApplicationException("Folder not found", Response.Status.NOT_FOUND);
+      }
+      throw e;
+    }
+
+    if (!folderHelper.hasFolderPermission(props.getId(), PSFolderPermission.Access.ADMIN)) {
+      throw new WebApplicationException(
+          "Not authorized to save folder ACL", Response.Status.FORBIDDEN);
+    }
+
     List<IPSSite> sites = publishingWs.getItemSites(idMapper.getGuid(props.getId()));
     if ((sites != null) && (!sites.isEmpty())) {
       PSSiteCopyUtils.throwCopySiteMessageIfNotAllowed(
@@ -227,8 +252,52 @@ public class PSPathService extends PSDispatchingPathService
                   PSSiteCopyUtils.class.getName()
                       + PSSiteCopyUtils.CAN_NOT_UPDATE_FOLDER_PROPERTIES));
     }
-    folderHelper.saveFolderProperties(props);
+    try {
+      folderHelper.saveFolderProperties(props);
+    } catch (PSValidationException e) {
+      if (isMissingFolderValidation(e)) {
+        throw new WebApplicationException("Folder not found", Response.Status.NOT_FOUND);
+      }
+      throw e;
+    }
     return new PSNoContent("saveFolderProperties");
+  }
+
+  /** Missing folder id is HTTP 404, not a 400 validation success-path (#4672). */
+  static boolean isMissingFolderValidation(PSValidationException e) {
+    if (e == null) {
+      return false;
+    }
+    if (messageLooksLikeMissingFolder(e.getMessage())) {
+      return true;
+    }
+    if (e.getValidationErrors() == null) {
+      return false;
+    }
+    if (e.getValidationErrors().getGlobalError() != null) {
+      String def = e.getValidationErrors().getGlobalError().getDefaultMessage();
+      if (messageLooksLikeMissingFolder(def)) {
+        return true;
+      }
+    }
+    if (e.getValidationErrors().getFieldErrors() != null) {
+      for (var fe : e.getValidationErrors().getFieldErrors()) {
+        if (fe != null && messageLooksLikeMissingFolder(fe.getDefaultMessage())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  static boolean messageLooksLikeMissingFolder(String msg) {
+    if (msg == null) {
+      return false;
+    }
+    String lower = msg.toLowerCase();
+    return lower.contains("cannot find folder")
+        || lower.contains("cannot find its parent folder")
+        || lower.contains("invalid.folder.id");
   }
 
   /**
