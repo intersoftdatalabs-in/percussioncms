@@ -441,6 +441,27 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `editor-rich-controls.spec.js`, `explorer-workflow-transitions.spec.js`.
 
+### Editor host save field values (#4645 / parent #4532)
+
+H2 operator proof that **Edit** mode PUT dirty scalar fields through
+`PUT /services/itemmanagement/item/fields/{id}` including the loaded
+**revision**. HTTP **409** (stale revision) is shown on the host and is not
+treated as success.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/editor-host-save-fields.spec.js` |
+| Helpers | `frontend/tests/helpers/editor-host-save-fields.js` |
+| Tags | `@explorer-content-editor` `@editor` `@save` |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/editor-host-save-fields.spec.js
+```
+
 ### Editor host date / calendar fields (#4569 / parent #4532)
 
 H2 operator proof that `sys_CalendarSimple` and datetime content-type controls

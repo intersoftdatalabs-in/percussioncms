@@ -362,6 +362,15 @@ public class PSItemService implements IPSItemService {
     return contentItemDao.find(revGuid, false);
   }
 
+  /** Current CMS tip revision, or 0 when the locator is missing. */
+  static int currentRevision(PSComponentSummary sum) {
+    if (sum == null) {
+      return 0;
+    }
+    PSLocator loc = sum.getCurrentLocator();
+    return loc == null ? 0 : loc.getRevision();
+  }
+
   @GET
   @Path("fields/{id}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -376,15 +385,18 @@ public class PSItemService implements IPSItemService {
         throw new PSItemServiceException("The item no longer exists in the system.");
       }
       String checkoutUser = "";
+      PSComponentSummary sum = null;
       try {
-        PSComponentSummary sum = workflowHelper.getComponentSummary(guid);
+        sum = workflowHelper.getComponentSummary(guid);
         if (sum != null && StringUtils.isNotBlank(sum.getCheckoutUserName())) {
           checkoutUser = sum.getCheckoutUserName();
         }
       } catch (Exception e) {
         log.debug("Could not resolve checkout user for {}", guid, e);
       }
-      return PSItemEditorFieldsMapper.fromContentItem(item, checkoutUser);
+      PSItemEditorFields out = PSItemEditorFieldsMapper.fromContentItem(item, checkoutUser);
+      out.setRevision(currentRevision(sum));
+      return out;
     } catch (PSValidationException e) {
       throw new WebApplicationException(e);
     } catch (PSDataServiceException e) {
@@ -412,6 +424,12 @@ public class PSItemService implements IPSItemService {
         throw new PSItemServiceException(
             "User " + sum.getCheckoutUserName() + " is editing this item.");
       }
+      int liveRevision = currentRevision(sum);
+      if (req.getRevision() > 0 && liveRevision > 0 && req.getRevision() != liveRevision) {
+        throw new WebApplicationException(
+            "This item was saved with a newer revision. Reload and try again.",
+            Response.Status.CONFLICT);
+      }
       IPSGuid itemGuid = idMapper.getGuid(guid);
       PSItemStatus status = contentWs.prepareForEdit(itemGuid);
       if (status != null && status.isDidCheckout()) {
@@ -424,15 +442,20 @@ public class PSItemService implements IPSItemService {
       PSItemEditorFieldsMapper.applyUpdates(item, req.getFields());
       contentItemDao.save(item);
       String checkoutUser = "";
+      PSComponentSummary after = null;
       try {
-        PSComponentSummary after = workflowHelper.getComponentSummary(guid);
+        after = workflowHelper.getComponentSummary(guid);
         if (after != null && StringUtils.isNotBlank(after.getCheckoutUserName())) {
           checkoutUser = after.getCheckoutUserName();
         }
       } catch (Exception e) {
         log.debug("Could not resolve checkout user after save for {}", guid, e);
       }
-      return PSItemEditorFieldsMapper.fromContentItem(item, checkoutUser);
+      PSItemEditorFields saved = PSItemEditorFieldsMapper.fromContentItem(item, checkoutUser);
+      saved.setRevision(currentRevision(after != null ? after : sum));
+      return saved;
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (PSItemServiceException e) {
       throw e;
     } catch (PSValidationException e) {

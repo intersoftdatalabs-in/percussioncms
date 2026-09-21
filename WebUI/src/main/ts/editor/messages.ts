@@ -29,6 +29,8 @@ export const EDITOR_MSG = {
   SAVE: "perc.ui.editor@Save",
   SAVING: "perc.ui.editor@Saving…",
   SAVE_FAILED: "perc.ui.editor@Could not save the item.",
+  SAVE_STALE:
+    "perc.ui.editor@This item was saved with a newer revision. Reload and try again.",
   SAVED: "perc.ui.editor@Saved",
   FIELD_REQUIRED: "perc.ui.editor@This field is required.",
   FIELD_INVALID_DATE: "perc.ui.editor@Enter a valid date.",

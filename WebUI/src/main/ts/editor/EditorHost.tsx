@@ -87,6 +87,7 @@ import {
   resolveEditorPublishKind,
   type EditorPublishKind,
 } from "./editorPublish";
+import { editorSaveErrorReason } from "./editorSave";
 import {
   canRunEditorTransition,
   uniqueTransitionTriggers,
@@ -607,6 +608,12 @@ export function EditorHost({
       setSaved(true);
     } catch (err) {
       if (isSessionRedirectError(err)) {
+        return;
+      }
+      if (editorSaveErrorReason(err) === "stale") {
+        setFieldErrors({});
+        setSaveErrorKey(EDITOR_MSG.SAVE_STALE);
+        setSaveErrorDetail("");
         return;
       }
       const fallback = message(EDITOR_MSG.SAVE_FAILED);
