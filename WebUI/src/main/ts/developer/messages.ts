@@ -1895,7 +1895,7 @@ export const DEV_MSG_KEYS = {
   APPFILE_DETAIL_ERROR: "perc.ui.developer@Could not load application file.",
   APPFILE_CONTENT: "perc.ui.developer@Content",
   APPFILE_CONTENT_HINT:
-    "perc.ui.developer@UTF-8 text body. Empty content is allowed. Empty is fine. Binary round-trip is a design gap.",
+    "perc.ui.developer@UTF-8 text body. Empty content is allowed. Empty is fine. Binary and non-UTF-8 files round-trip as octet-stream GET/PUT (binary download/replace landed in the developer panel slice).",
   APPFILE_SAVE: "perc.ui.developer@Save file",
   APPFILE_CANCEL: "perc.ui.developer@Cancel",
   APPFILE_SAVED: "perc.ui.developer@Application file saved.",
