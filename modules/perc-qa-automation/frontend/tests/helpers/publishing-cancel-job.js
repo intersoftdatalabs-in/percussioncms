@@ -34,7 +34,12 @@ function isCurrentStatusUrl(url) {
 
 function isKnownPublishConsoleNoise(text) {
   const t = String(text || "");
-  return /Download the React DevTools/i.test(t);
+  return (
+    /Download the React DevTools/i.test(t) ||
+    /Failed to load resource:.*status of 403/i.test(t) ||
+    /Failed to load resource:.*status of 404/i.test(t) ||
+    /Failed to load resource:.*status of 409/i.test(t)
+  );
 }
 
 module.exports = {
