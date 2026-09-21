@@ -1218,10 +1218,23 @@ export interface RelationshipTypeDef {
 }
 
 /** Workflow step from workflowmanagement PSUiWorkflow. */
+export interface WorkflowStepRoleTransitionSummary {
+  /** PSUiWorkflowStepRoleTransition.transitionPermission */
+  transitionPermission?: string;
+  /** Alias some envelopes use instead of transitionPermission. */
+  transitionName?: string;
+}
+
+export interface WorkflowStepRoleSummary {
+  roleName?: string;
+  roleId?: number;
+  roleTransitions?: WorkflowStepRoleTransitionSummary[];
+}
+
 export interface WorkflowStepSummary {
   stepName?: string;
   permissionNames?: string[];
-  stepRoles?: { roleName?: string; roleId?: number }[];
+  stepRoles?: WorkflowStepRoleSummary[];
 }
 
 /**

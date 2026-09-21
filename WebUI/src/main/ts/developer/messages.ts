@@ -1794,6 +1794,8 @@ export const DEV_MSG_KEYS = {
   WF_COL_STEP: "perc.ui.developer@Step",
   WF_COL_PERMS: "perc.ui.developer@Permissions",
   WF_COL_ROLES: "perc.ui.developer@Roles",
+  WF_COL_TRANSITIONS: "perc.ui.developer@Transitions",
+  WF_NOT_FOUND: "perc.ui.developer@Workflow not found.",
   WF_YES: "perc.ui.developer@Yes",
   WF_NO: "perc.ui.developer@No",
   WF_BACK: "perc.ui.developer@Back to list",
