@@ -97,7 +97,7 @@ import {
   editorCreateErrorReason,
   parseCreateLandingContentId,
 } from "./editorCreate";
-import { editorBinaryErrorReason } from "./editorBinary";
+import { editorBinaryErrorReason, isImageFile } from "./editorBinary";
 import { editorSaveErrorReason } from "./editorSave";
 import {
   canRunEditorTransition,
@@ -615,6 +615,17 @@ export function EditorHost({
       return;
     }
     setFieldErrors({});
+    const imageFieldNames = new Set(
+      rows.filter((row) => row.kind === "image").map((row) => row.name),
+    );
+    for (const [field, file] of Object.entries(pendingFiles)) {
+      if (imageFieldNames.has(field) && !isImageFile(file)) {
+        setSaveErrorKey(EDITOR_MSG.IMAGE_BAD_REQUEST);
+        setSaveErrorDetail("");
+        setSaving(false);
+        return;
+      }
+    }
     try {
       const itemId = String(contentId);
       const next: ItemEditorFields = {
@@ -636,21 +647,30 @@ export function EditorHost({
           return;
         }
         const binaryReason = editorBinaryErrorReason(binErr);
+        const imageUpload = Object.keys(pendingFiles).some((name) =>
+          imageFieldNames.has(name),
+        );
         if (binaryReason === "forbidden") {
           setFieldErrors({});
-          setSaveErrorKey(EDITOR_MSG.FILE_FORBIDDEN);
+          setSaveErrorKey(
+            imageUpload ? EDITOR_MSG.IMAGE_FORBIDDEN : EDITOR_MSG.FILE_FORBIDDEN,
+          );
           setSaveErrorDetail("");
           return;
         }
         if (binaryReason === "tooLarge") {
           setFieldErrors({});
-          setSaveErrorKey(EDITOR_MSG.FILE_TOO_LARGE);
+          setSaveErrorKey(
+            imageUpload ? EDITOR_MSG.IMAGE_TOO_LARGE : EDITOR_MSG.FILE_TOO_LARGE,
+          );
           setSaveErrorDetail("");
           return;
         }
         if (binaryReason === "badRequest") {
           setFieldErrors({});
-          setSaveErrorKey(EDITOR_MSG.FILE_BAD_REQUEST);
+          setSaveErrorKey(
+            imageUpload ? EDITOR_MSG.IMAGE_BAD_REQUEST : EDITOR_MSG.FILE_BAD_REQUEST,
+          );
           setSaveErrorDetail("");
           return;
         }

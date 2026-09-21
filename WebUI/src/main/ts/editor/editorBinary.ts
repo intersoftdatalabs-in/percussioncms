@@ -43,3 +43,31 @@ export function editorBinaryErrorReason(err: unknown): EditorBinaryErrorReason {
   }
   return "failed";
 }
+
+const IMAGE_EXTS = new Set([
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".webp",
+  ".svg",
+  ".tif",
+  ".tiff",
+  ".bmp",
+]);
+
+export function isImageFile(file: File | null | undefined): boolean {
+  if (!file) {
+    return false;
+  }
+  const type = (file.type || "").trim().toLowerCase();
+  if (type.startsWith("image/")) {
+    return true;
+  }
+  const name = (file.name || "").trim().toLowerCase();
+  const dot = name.lastIndexOf(".");
+  if (dot < 0) {
+    return false;
+  }
+  return IMAGE_EXTS.has(name.slice(dot));
+}

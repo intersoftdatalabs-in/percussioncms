@@ -129,6 +129,21 @@ class PSItemServiceEditorBinaryTest {
   }
 
   @Test
+  void saveEditorBinaryBadRequestOnNonImageForImageField() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                service.saveEditorBinary(
+                    "42",
+                    "img",
+                    new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)),
+                    "spec.pdf",
+                    "application/pdf"));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+  }
+
+  @Test
   void saveEditorBinaryBadRequestOnInvalidFieldName() {
     WebApplicationException ex =
         assertThrows(
