@@ -22,10 +22,14 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router";
-import { getContentTypeDetail } from "../api/developer/contentTypesApi";
+import {
+  getContentTypeDetail,
+  listContentTypes,
+} from "../api/developer/contentTypesApi";
 import type {
   CommunitySummary,
   ContentTypeFieldSummary,
+  ContentTypeSummary,
   KeywordSummary,
 } from "../api/developer/types";
 import type { PSLocalDependencySummary } from "../api/contentExplorer/relationship";
@@ -87,11 +91,22 @@ import {
   resolveEditorPublishKind,
   type EditorPublishKind,
 } from "./editorPublish";
+import {
+  buildEditorCreateRequest,
+  canCreateFromEditor,
+  editorCreateErrorReason,
+  parseCreateLandingContentId,
+} from "./editorCreate";
 import { editorSaveErrorReason } from "./editorSave";
 import {
   canRunEditorTransition,
   uniqueTransitionTriggers,
 } from "./editorWorkflow";
+import {
+  createEditorItem,
+  type ItemCreateRequest,
+  type ItemCreateResult,
+} from "./itemCreateApi";
 import {
   checkinEditorItem,
   checkoutEditorItem,
@@ -173,6 +188,10 @@ export interface EditorHostProps {
   loadRelatedCanvas?: (ownerId: number) => Promise<SlotCanvas>;
   /** Test seam: local/inline related items. */
   loadRelatedLocal?: (itemId: string) => Promise<PSLocalDependencySummary>;
+  /** Test seam: content-type catalog for New item. */
+  loadContentTypes?: () => Promise<ContentTypeSummary[]>;
+  /** Test seam: itemmanagement create. */
+  createItem?: (req: ItemCreateRequest) => Promise<ItemCreateResult>;
 }
 
 function badgeKey(mode: EditorHostMode): string {
@@ -328,6 +347,8 @@ export function EditorHost({
   confirmRestore,
   loadRelatedCanvas,
   loadRelatedLocal,
+  loadContentTypes = listContentTypes,
+  createItem = createEditorItem,
 }: EditorHostProps = {}): React.ReactElement {
   const [params, setSearchParams] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
@@ -341,9 +362,7 @@ export function EditorHost({
   const [allowedTemplateCount, setAllowedTemplateCount] = useState(0);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({});
-  const [errorKey, setErrorKey] = useState<string | null>(
-    contentId == null ? EDITOR_MSG.MISSING_ITEM : null,
-  );
+  const [errorKey, setErrorKey] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState<string>(
     contentId == null ? linkbackWarning : "",
   );
@@ -388,6 +407,14 @@ export function EditorHost({
     null,
   );
   const [restoreDone, setRestoreDone] = useState(false);
+  const [createOpen, setCreateOpen] = useState(contentId == null);
+  const [createTypes, setCreateTypes] = useState<ContentTypeSummary[]>([]);
+  const [createType, setCreateType] = useState("");
+  const [createFolder, setCreateFolder] = useState("");
+  const [createName, setCreateName] = useState("");
+  const [createBusy, setCreateBusy] = useState(false);
+  const [createErrorKey, setCreateErrorKey] = useState<string | null>(null);
+  const [createErrorDetail, setCreateErrorDetail] = useState("");
 
   useEffect(() => {
     document.title = message(EDITOR_MSG.TITLE);
@@ -829,6 +856,86 @@ export function EditorHost({
     }
   }
 
+  function createErrorKeyFor(
+    reason: ReturnType<typeof editorCreateErrorReason>,
+  ): string {
+    if (reason === "forbidden") {
+      return EDITOR_MSG.CREATE_FORBIDDEN;
+    }
+    if (reason === "not_found") {
+      return EDITOR_MSG.CREATE_NOT_FOUND;
+    }
+    if (reason === "bad_request") {
+      return EDITOR_MSG.CREATE_BAD_REQUEST;
+    }
+    return EDITOR_MSG.CREATE_FAILED;
+  }
+
+  useEffect(() => {
+    if (!createOpen || !canCreateFromEditor(mode)) {
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const types = await loadContentTypes();
+        if (!cancelled) {
+          setCreateTypes(types);
+        }
+      } catch {
+        if (!cancelled) {
+          setCreateTypes([]);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [createOpen, mode, loadContentTypes]);
+
+  async function handleCreate(): Promise<void> {
+    if (!canCreateFromEditor(mode)) {
+      setCreateErrorDetail("");
+      setCreateErrorKey(EDITOR_MSG.CREATE_UNAVAILABLE);
+      return;
+    }
+    const req = buildEditorCreateRequest(createType, createFolder, createName);
+    if (req == null) {
+      setCreateErrorDetail("");
+      setCreateErrorKey(EDITOR_MSG.CREATE_INCOMPLETE);
+      return;
+    }
+    setCreateBusy(true);
+    setCreateErrorKey(null);
+    setCreateErrorDetail("");
+    try {
+      const result = await createItem(req);
+      const nextId = parseCreateLandingContentId(result.itemId);
+      if (nextId == null) {
+        setCreateErrorKey(EDITOR_MSG.CREATE_FAILED);
+        setCreateErrorDetail("Create result was missing item id");
+        return;
+      }
+      const next = new URLSearchParams(params);
+      next.set("contentId", String(nextId));
+      next.set("mode", "edit");
+      next.delete("warningMessage");
+      setCreateOpen(false);
+      setSearchParams(next);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = editorCreateErrorReason(err);
+      setCreateErrorKey(createErrorKeyFor(reason));
+      setCreateErrorDetail(
+        formatApiError(err, message(createErrorKeyFor(reason))),
+      );
+    } finally {
+      setCreateBusy(false);
+    }
+  }
+
   function lockErrorKeyFor(
     reason: ReturnType<typeof editorLockErrorReason>,
     kind: "in" | "out",
@@ -1045,6 +1152,7 @@ export function EditorHost({
   const showPreview = canPreviewFromEditor(mode, publishKind);
   const showCopy = canCopyFromEditor(mode) && contentId != null;
   const showRestore = canRestoreFromEditor(mode) && contentId != null;
+  const showCreate = canCreateFromEditor(mode);
 
   return (
     <div className={styles.root} data-testid="editor-host">
@@ -1173,6 +1281,21 @@ export function EditorHost({
               )}
             </button>
           ) : null}
+          {showCreate ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-new-item"
+              disabled={createBusy}
+              onClick={() => {
+                setCreateOpen((open) => !open);
+                setCreateErrorKey(null);
+                setCreateErrorDetail("");
+              }}
+            >
+              {message(EDITOR_MSG.NEW_ITEM)}
+            </button>
+          ) : null}
           <button
             type="button"
             className={styles.button}
@@ -1188,9 +1311,73 @@ export function EditorHost({
         </div>
       </header>
       <div className={styles.stage} data-testid="editor-stage">
+        {createOpen && showCreate ? (
+          <div className={styles.form} data-testid="editor-create-panel">
+            <p data-testid="editor-create-hint">{message(EDITOR_MSG.CREATE_HINT)}</p>
+            {linkbackWarning && contentId == null ? (
+              <div className={styles.status} role="status" data-testid="editor-error">
+                {message(EDITOR_MSG.MISSING_ITEM)} {linkbackWarning}
+              </div>
+            ) : contentId == null ? (
+              <p data-testid="editor-create-empty">{message(EDITOR_MSG.MISSING_ITEM)}</p>
+            ) : null}
+            <label>
+              {message(EDITOR_MSG.CREATE_TYPE)}
+              <select
+                data-testid="editor-create-type"
+                value={createType}
+                onChange={(e) => setCreateType(e.target.value)}
+              >
+                <option value="">{message(EDITOR_MSG.CREATE_TYPE)}</option>
+                {createTypes.map((t) => (
+                  <option key={t.name} value={t.name}>
+                    {t.label || t.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              {message(EDITOR_MSG.CREATE_FOLDER)}
+              <input
+                type="text"
+                data-testid="editor-create-folder"
+                value={createFolder}
+                onChange={(e) => setCreateFolder(e.target.value)}
+              />
+            </label>
+            <label>
+              {message(EDITOR_MSG.CREATE_NAME)}
+              <input
+                type="text"
+                data-testid="editor-create-name"
+                value={createName}
+                onChange={(e) => setCreateName(e.target.value)}
+              />
+            </label>
+            {createErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-create-error"
+              >
+                {message(createErrorKey)}
+                {createErrorDetail ? ` ${createErrorDetail}` : ""}
+              </div>
+            ) : null}
+            <button
+              type="button"
+              className={`${styles.button} ${styles.buttonPrimary}`}
+              data-testid="editor-create-submit"
+              disabled={createBusy}
+              onClick={() => void handleCreate()}
+            >
+              {message(createBusy ? EDITOR_MSG.CREATING : EDITOR_MSG.CREATE)}
+            </button>
+          </div>
+        ) : null}
         {contentId != null && promote ? (
           <PromoteForm itemId={String(contentId)} />
-        ) : errorKey ? (
+        ) : contentId == null ? null : errorKey ? (
           <div className={styles.status} role="alert" data-testid="editor-error">
             {message(errorKey)}
             {errorDetail ? ` ${errorDetail}` : ""}

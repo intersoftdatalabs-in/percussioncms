@@ -130,4 +130,21 @@ export const EDITOR_MSG = {
   RELATED_FORBIDDEN:
     "perc.ui.editor@You are not allowed to list related content for this item.",
   RELATED_FAILED: "perc.ui.editor@Could not load related content.",
+  NEW_ITEM: "perc.ui.editor@New item",
+  CREATING: "perc.ui.editor@Creating…",
+  CREATE: "perc.ui.editor@Create",
+  CREATE_TYPE: "perc.ui.editor@Content type",
+  CREATE_FOLDER: "perc.ui.editor@Folder path",
+  CREATE_NAME: "perc.ui.editor@Name (optional)",
+  CREATE_HINT:
+    "perc.ui.editor@Choose a content type and destination folder, then create the item. The editor opens the new item.",
+  CREATE_INCOMPLETE:
+    "perc.ui.editor@Choose a content type and folder path before creating.",
+  CREATE_FAILED: "perc.ui.editor@Could not create the item.",
+  CREATE_FORBIDDEN: "perc.ui.editor@You are not allowed to create an item here.",
+  CREATE_NOT_FOUND: "perc.ui.editor@That folder or content type was not found.",
+  CREATE_BAD_REQUEST:
+    "perc.ui.editor@The create request was not valid for this type or folder.",
+  CREATE_UNAVAILABLE:
+    "perc.ui.editor@Create is not available in this editor mode.",
 };
