@@ -205,8 +205,8 @@ export async function updateApplicationFile(
     throw new Error("content is required");
   }
   const payload = await put<unknown>(
-    moveUrl(name),
-    wrapApplicationFileMoveForWire({ fromPath: from, toPath: to }),
+    contentUrl(name, path),
+    wrapApplicationFileForWire(body),
   );
   return unwrapApplicationFile(payload);
 }
@@ -226,7 +226,7 @@ function binaryUrl(app: string, relativePath: string): string {
 export async function getApplicationFileBytes(
   app: string,
   relativePath: string,
-): Promise<{ bytes: Uint8Array; contentType: string }> {
+): Promise<{ bytes: Uint8Array<ArrayBuffer>; contentType: string }> {
   const name = (app || "").trim();
   const path = (relativePath || "").trim();
   if (!name) {
@@ -247,7 +247,7 @@ export async function getApplicationFileBytes(
 export async function replaceApplicationFileBytes(
   app: string,
   relativePath: string,
-  bytes: Uint8Array,
+  bytes: Uint8Array<ArrayBuffer>,
 ): Promise<ApplicationFileSummary> {
   const name = (app || "").trim();
   const path = (relativePath || "").trim();

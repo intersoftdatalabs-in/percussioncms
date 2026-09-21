@@ -2804,9 +2804,12 @@ absolute paths, and unknown applications on GET/PUT are **404** (no arbitrary fi
 Admin **folder create**, **delete**, and **rename/move** use the same relative keys; traversal is
 **400**, unknown app/path is **404**, and non-Admin is **403**. Admin **lock / unlock** uses
 object-store application file locks (`POST …/lock?path=` and `POST …/unlock?path=`). PUT
-requires a lock held by the current session; stale lock is **409**. **Binary** round-trip
-remains a design gap.
-**Developer → Application Files** SPA chrome browses, saves, and manages folders against this API
+requires a lock held by the current session; stale lock is **409**.
+**Binary** bodies (non-UTF-8 / NUL-containing) round-trip as raw octet-stream through
+`GET/PUT …/binary?path=`: the list/detail JSON flags them with `binary=true` and omits
+`content`, and the byte endpoints download/replace the exact bytes without JSON mangling.
+**Developer → Application Files** SPA chrome browses, saves, downloads/replaces binary files, and
+manages folders against this API
 ([Developer Application Files](id:admin-developer-application-files)). Integrators may also call
 the endpoints directly.
 
@@ -2815,6 +2818,8 @@ the endpoints directly.
 | `GET` | `/services/applicationfiles/{app}` | List relative file paths under a catalog application (no file body) |
 | `GET` | `/services/applicationfiles/{app}/content?path=` | Load one relative file including `content` when available |
 | `PUT` | `/services/applicationfiles/{app}/content?path=` | **Admin.** Replace UTF-8 text while holding a design lock |
+| `GET` | `/services/applicationfiles/{app}/binary?path=` | **Admin.** Download raw octet-stream bytes for a binary (`binary=true`) file |
+| `PUT` | `/services/applicationfiles/{app}/binary?path=` | **Admin.** Replace the file body with raw octet-stream bytes while holding a design lock |
 | `POST` | `/services/applicationfiles/{app}/lock?path=` | **Admin.** Acquire a self-only design-session lock |
 | `POST` | `/services/applicationfiles/{app}/unlock?path=` | **Admin.** Release a lock owned by this session |
 | `POST` | `/services/applicationfiles/{app}/folders?path=` | **Admin.** Create a relative folder |
@@ -2823,9 +2828,9 @@ the endpoints directly.
 
 JSON objects use the `ApplicationFile` / `ApplicationFileSummary` wire type (`applicationName`,
 `path`, `name`, optional `directory`, optional `content` / `mimeType` / `characterEncoding` /
-`contentLength`, and detail-only `designGaps`). Prefer the generated OpenAPI schema as the
-integration source of truth. File paths use a **query** parameter (`path`) because relative paths
-contain `/`.
+`contentLength`, `binary` when the body is not valid UTF-8, and detail-only `designGaps`). Prefer
+the generated OpenAPI schema as the integration source of truth. File paths use a **query**
+parameter (`path`) because relative paths contain `/`.
 
 ### Application file write contract (Admin)
 
@@ -2845,6 +2850,14 @@ Folder create (`POST …/folders?path=`), delete (`DELETE …/content?path=`), a
 Traversal, absolute, drive, UNC, and NUL paths are **400** (`Invalid path`). Unknown application
 or missing source is **404**. A destination that already exists, or creating a folder where a
 file already lives, is **409**. Moving a folder into itself is **400**.
+
+Binary download/replace (`GET/PUT …/binary?path=`) requires Admin and the same relative path
+rules as the text endpoints. `GET` returns the raw bytes as `application/octet-stream` (or the
+file MIME type) with no JSON wrapper; `PUT` sends the raw bytes as the request body and returns
+the updated detail JSON like the text PUT (the response flags `binary=true` when the new body is
+still not valid UTF-8). Binary PUT requires a held design lock (stale lock is **409**). A body
+that decodes as valid UTF-8 without NUL is stored and surfaced through the text `content`
+surface; a body that does not is stored and surfaced through the binary surface.
 
 | Status | Typical meaning |
 |--------|-----------------|

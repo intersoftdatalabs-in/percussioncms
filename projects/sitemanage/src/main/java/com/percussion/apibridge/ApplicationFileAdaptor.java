@@ -179,7 +179,11 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
         if (rel == null || normalizeSafeRelativePath(rel) == null) {
           continue;
         }
-        out.add(toListSummary(resolved.trustedName(), rel, f.isDirectory()));
+        // Resolve directory flag against the app root, not the JVM working dir: the store yields
+        // relative Files, on which File.isDirectory() resolves against the process CWD and
+        // misreports every directory as a file (renders a clickable row that 404s on open).
+        boolean isDir = fileStore.isDirectory(resolved.trustedName(), resolved.appRoot(), f);
+        out.add(toListSummary(resolved.trustedName(), rel, isDir));
       }
       out.sort(
           Comparator.comparing(

@@ -342,7 +342,7 @@ export async function putPlainText<T>(
  */
 export async function putBytes<T>(
   url: string,
-  body: Uint8Array,
+  body: Uint8Array<ArrayBuffer>,
   headers?: HeadersInit,
 ): Promise<T> {
   const response = await fetch(url, {
@@ -400,7 +400,7 @@ export async function postText<T>(
 export async function getBinary(
   url: string,
   headers?: HeadersInit,
-): Promise<{ bytes: Uint8Array; contentType: string; status: number }> {
+): Promise<{ bytes: Uint8Array<ArrayBuffer>; contentType: string; status: number }> {
   const response = await fetch(url, {
     method: "GET",
     headers: buildHeaders({ Accept: "*/*", ...headers }, false),

@@ -10,6 +10,7 @@ import { DEFAULT_SPA_BOOTSTRAP } from "../../../main/ts/app/bootstrap/types";
 import * as appFilesApi from "../../../main/ts/api/developer/applicationFilesApi";
 import {
   ApplicationFileDetailPanel,
+  formatBytes,
   hasXmlParseError,
   stripXmlCommentsCdataAndPi,
 } from "../../../main/ts/developer/ApplicationFileDetailPanel";
@@ -20,6 +21,8 @@ vi.mock("../../../main/ts/api/developer/applicationFilesApi", () => ({
   updateApplicationFile: vi.fn(),
   lockApplicationFile: vi.fn(),
   unlockApplicationFile: vi.fn(),
+  getApplicationFileBytes: vi.fn(),
+  replaceApplicationFileBytes: vi.fn(),
   APPLICATION_FILE_DESIGN_GAPS: ["gap-binary"],
 }));
 
@@ -29,6 +32,12 @@ const getApplicationFileDetail = appFilesApi.getApplicationFileDetail as ReturnT
 const updateApplicationFile = appFilesApi.updateApplicationFile as ReturnType<typeof vi.fn>;
 const lockApplicationFile = appFilesApi.lockApplicationFile as ReturnType<typeof vi.fn>;
 const unlockApplicationFile = appFilesApi.unlockApplicationFile as ReturnType<typeof vi.fn>;
+const getApplicationFileBytes = appFilesApi.getApplicationFileBytes as ReturnType<
+  typeof vi.fn
+>;
+const replaceApplicationFileBytes = appFilesApi.replaceApplicationFileBytes as ReturnType<
+  typeof vi.fn
+>;
 
 function renderDetail(isAdmin: boolean, path = "ApplicationFiles/a.css") {
   return render(
@@ -95,6 +104,8 @@ describe("ApplicationFileDetailPanel", () => {
     updateApplicationFile.mockReset();
     lockApplicationFile.mockReset();
     unlockApplicationFile.mockReset();
+    getApplicationFileBytes.mockReset();
+    replaceApplicationFileBytes.mockReset();
     lockApplicationFile.mockResolvedValue({ locker: "Admin", session: "s1" });
     unlockApplicationFile.mockResolvedValue(undefined);
   });
@@ -315,6 +326,258 @@ describe("ApplicationFileDetailPanel", () => {
     fireEvent.click(screen.getByTestId("developer-appfile-unlock"));
     await waitFor(() => {
       expect(unlockApplicationFile).toHaveBeenCalled();
+    });
+  });
+
+  it("formatBytes renders portable human-readable sizes", () => {
+    expect(formatBytes(0)).toBe("0 B");
+    expect(formatBytes(null)).toBe("—");
+    expect(formatBytes(2048)).toBe("2 KB");
+    expect(formatBytes(3.5 * 1024 * 1024)).toBe("3.5 MB");
+  });
+
+  it("shows the binary download/replace view instead of the text editor", async () => {
+    getApplicationFileDetail.mockResolvedValue({
+      applicationName: "sys_resources",
+      path: "ApplicationFiles/blob.bin",
+      name: "blob.bin",
+      binary: true,
+      contentLength: 3 * 1024 * 1024,
+      designGaps: [],
+    });
+    renderDetail(true, "ApplicationFiles/blob.bin");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-binary")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-appfile-content-editor")).toBeNull();
+    expect(screen.queryByTestId("developer-appfile-save")).toBeNull();
+    expect(screen.getByTestId("developer-appfile-download")).toBeTruthy();
+    expect(screen.getByTestId("developer-appfile-replace")).toBeTruthy();
+    // Binary view is not a text-too-large error: the >2MB gate is bypassed.
+    expect(screen.queryByTestId("developer-appfile-detail-error")).toBeNull();
+  });
+
+  it("downloads binary bytes through a blob anchor", async () => {
+    const originalCreate = URL.createObjectURL;
+    const originalRevoke = URL.revokeObjectURL;
+    URL.createObjectURL = vi.fn(() => "blob:mock");
+    URL.revokeObjectURL = vi.fn();
+    const clickSpy = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => undefined);
+    try {
+      getApplicationFileDetail.mockResolvedValue({
+        applicationName: "sys_resources",
+        path: "ApplicationFiles/blob.bin",
+        name: "blob.bin",
+        binary: true,
+        contentLength: 12,
+        designGaps: [],
+      });
+      getApplicationFileBytes.mockResolvedValue({
+        bytes: new Uint8Array([0x50, 0x4b, 0x03, 0x04]),
+        contentType: "application/octet-stream",
+      });
+      renderDetail(true, "ApplicationFiles/blob.bin");
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-appfile-download")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("developer-appfile-download"));
+      await waitFor(() => {
+        expect(getApplicationFileBytes).toHaveBeenCalledWith(
+          "sys_resources",
+          "ApplicationFiles/blob.bin",
+        );
+      });
+      expect(clickSpy).toHaveBeenCalledTimes(1);
+      expect(URL.createObjectURL).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "application/octet-stream" }),
+      );
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock");
+    } finally {
+      URL.createObjectURL = originalCreate;
+      URL.revokeObjectURL = originalRevoke;
+      clickSpy.mockRestore();
+    }
+  });
+
+  it("download failure maps to APPFILE_DOWNLOAD_ERROR", async () => {
+    getApplicationFileDetail.mockResolvedValue({
+      applicationName: "sys_resources",
+      path: "ApplicationFiles/blob.bin",
+      name: "blob.bin",
+      binary: true,
+      contentLength: 12,
+      designGaps: [],
+    });
+    getApplicationFileBytes.mockRejectedValue({
+      status: 500,
+      statusText: "Internal Server Error",
+      body: null,
+    });
+    renderDetail(true, "ApplicationFiles/blob.bin");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-download")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-appfile-download"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-detail-error").textContent).toContain(
+        DEV_MSG.APPFILE_DOWNLOAD_ERROR,
+      );
+    });
+  });
+
+  it("keeps replace disabled until the file is locked", async () => {
+    getApplicationFileDetail.mockResolvedValue({
+      applicationName: "sys_resources",
+      path: "ApplicationFiles/blob.bin",
+      name: "blob.bin",
+      binary: true,
+      contentLength: 12,
+      designGaps: [],
+    });
+    renderDetail(true, "ApplicationFiles/blob.bin");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-replace")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("developer-appfile-replace") as HTMLInputElement).disabled,
+    ).toBe(true);
+    fireEvent.click(screen.getByTestId("developer-appfile-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-appfile-replace") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+  });
+
+  it("replaces binary bytes after acquiring the lock", async () => {
+    getApplicationFileDetail.mockResolvedValue({
+      applicationName: "sys_resources",
+      path: "ApplicationFiles/blob.bin",
+      name: "blob.bin",
+      binary: true,
+      contentLength: 12,
+      designGaps: [],
+    });
+    replaceApplicationFileBytes.mockResolvedValue({
+      applicationName: "sys_resources",
+      path: "ApplicationFiles/blob.bin",
+      name: "blob.bin",
+      binary: true,
+      contentLength: 21,
+      designGaps: [],
+    });
+    renderDetail(true, "ApplicationFiles/blob.bin");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-replace")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-appfile-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-appfile-replace") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+    // Plain file-like object: host Blob.arrayBuffer() is not reliable in jsdom.
+    const file = {
+      name: "replacement.bin",
+      arrayBuffer: vi.fn().mockResolvedValue(new Uint8Array([1, 2, 3, 4]).buffer),
+    };
+    fireEvent.change(screen.getByTestId("developer-appfile-replace"), {
+      target: { files: [file] },
+    });
+    await waitFor(() => {
+      expect(replaceApplicationFileBytes).toHaveBeenCalledTimes(1);
+    });
+    const [app, p, bytes] = replaceApplicationFileBytes.mock.calls[0];
+    expect(app).toBe("sys_resources");
+    expect(p).toBe("ApplicationFiles/blob.bin");
+    expect(Array.from(bytes)).toEqual([1, 2, 3, 4]);
+    expect(screen.getByTestId("developer-appfile-editor-notice").textContent).toBe(
+      DEV_MSG.APPFILE_REPLACED,
+    );
+    expect((screen.getByTestId("developer-appfile-replace") as HTMLInputElement).value).toBe(
+      "",
+    );
+  });
+
+  it("flips back to the text editor when a replacement is UTF-8 text", async () => {
+    getApplicationFileDetail.mockResolvedValue({
+      applicationName: "sys_resources",
+      path: "ApplicationFiles/blob.txt",
+      name: "blob.txt",
+      binary: true,
+      contentLength: 5,
+      designGaps: [],
+    });
+    replaceApplicationFileBytes.mockResolvedValue({
+      applicationName: "sys_resources",
+      path: "ApplicationFiles/blob.txt",
+      name: "blob.txt",
+      binary: false,
+      content: "hello",
+      contentLength: 5,
+      designGaps: [],
+    });
+    renderDetail(true, "ApplicationFiles/blob.txt");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-replace")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-appfile-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-appfile-replace") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+    const file = {
+      name: "text.txt",
+      arrayBuffer: vi.fn().mockResolvedValue(new Uint8Array([104, 105]).buffer),
+    };
+    fireEvent.change(screen.getByTestId("developer-appfile-replace"), {
+      target: { files: [file] },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-content-editor")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-appfile-content-editor") as HTMLTextAreaElement).value)
+      .toBe("hello");
+  });
+
+  it("maps replace 404 to APPFILE_NOT_FOUND", async () => {
+    getApplicationFileDetail.mockResolvedValue({
+      applicationName: "sys_resources",
+      path: "ApplicationFiles/blob.bin",
+      name: "blob.bin",
+      binary: true,
+      contentLength: 12,
+      designGaps: [],
+    });
+    replaceApplicationFileBytes.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: null,
+    });
+    renderDetail(true, "ApplicationFiles/blob.bin");
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-replace")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-appfile-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-appfile-replace") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+    const file = {
+      name: "replacement.bin",
+      arrayBuffer: vi.fn().mockResolvedValue(new Uint8Array([1]).buffer),
+    };
+    fireEvent.change(screen.getByTestId("developer-appfile-replace"), {
+      target: { files: [file] },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-detail-error").textContent).toContain(
+        DEV_MSG.APPFILE_NOT_FOUND,
+      );
     });
   });
 });

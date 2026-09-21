@@ -1887,6 +1887,7 @@ export const DEV_MSG_KEYS = {
   APPFILE_COL_KIND: "perc.ui.developer@Kind",
   APPFILE_COL_MIME: "perc.ui.developer@MIME type",
   APPFILE_COL_ENC: "perc.ui.developer@Encoding",
+  APPFILE_COL_SIZE: "perc.ui.developer@Size",
   APPFILE_KIND_FILE: "perc.ui.developer@File",
   APPFILE_KIND_DIR: "perc.ui.developer@Folder",
   APPFILE_BACK_APPS: "perc.ui.developer@Back to applications",
@@ -1895,7 +1896,14 @@ export const DEV_MSG_KEYS = {
   APPFILE_DETAIL_ERROR: "perc.ui.developer@Could not load application file.",
   APPFILE_CONTENT: "perc.ui.developer@Content",
   APPFILE_CONTENT_HINT:
-    "perc.ui.developer@UTF-8 text body. Empty content is allowed. Empty is fine. Binary and non-UTF-8 files round-trip as octet-stream GET/PUT (binary download/replace landed in the developer panel slice).",
+    "perc.ui.developer@UTF-8 text body. Empty content is allowed. Binary and non-UTF-8 files switch to download and replace instead of the text editor.",
+  APPFILE_BINARY_HINT:
+    "perc.ui.developer@Binary file — the body is not UTF-8 text, so the text editor is replaced with download and replace actions. Lock the file before replacing it.",
+  APPFILE_DOWNLOAD: "perc.ui.developer@Download",
+  APPFILE_REPLACE: "perc.ui.developer@Replace file",
+  APPFILE_REPLACED: "perc.ui.developer@Application file replaced.",
+  APPFILE_DOWNLOAD_ERROR: "perc.ui.developer@Could not download application file.",
+  APPFILE_REPLACE_ERROR: "perc.ui.developer@Could not replace application file.",
   APPFILE_SAVE: "perc.ui.developer@Save file",
   APPFILE_CANCEL: "perc.ui.developer@Cancel",
   APPFILE_SAVED: "perc.ui.developer@Application file saved.",

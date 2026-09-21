@@ -139,6 +139,33 @@ class ApplicationFileAdaptorTest {
   }
 
   @Test
+  void list_directoryFlagsResolvedAgainstStoreNotCwd() throws Exception {
+    // Store yields relative Files; the adaptor must ask the store (app-root-aware) whether each
+    // entry is a directory, instead of File.isDirectory() which would resolve against the JVM CWD
+    // and misreport real directories as files.
+    when(fileStore.listFiles(eq("sys_resources"), any()))
+        .thenReturn(
+            List.of(
+                    new File("ApplicationFiles" + File.separator + "subdir"),
+                    new File("ApplicationFiles" + File.separator + "a.css"))
+                .iterator());
+    when(fileStore.isDirectory(eq("sys_resources"), eq("sys_resources"), any()))
+        .thenAnswer(
+            inv -> {
+              File f = inv.getArgument(2);
+              return f.getPath().equals("ApplicationFiles" + File.separator + "subdir");
+            });
+    List<ApplicationFileSummary> out = adaptor.listFiles("sys_resources");
+    assertEquals(2, out.size());
+    ApplicationFileSummary dir =
+        out.stream().filter(s -> s.getPath().equals("ApplicationFiles/subdir")).findFirst().orElseThrow();
+    ApplicationFileSummary file =
+        out.stream().filter(s -> s.getPath().equals("ApplicationFiles/a.css")).findFirst().orElseThrow();
+    assertTrue(Boolean.TRUE.equals(dir.getDirectory()));
+    assertFalse(Boolean.TRUE.equals(file.getDirectory()));
+  }
+
+  @Test
   void get_roundTripsUtf8Content() {
     ApplicationFileSummary out = adaptor.getFile("sys_resources", "ApplicationFiles/a.css");
     assertNotNull(out);

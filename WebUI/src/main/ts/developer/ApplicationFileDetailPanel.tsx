@@ -7,8 +7,10 @@ import { useSpaBootstrap } from "../app/bootstrap/BootstrapContext";
 import { isApiError } from "../api/client";
 import {
   APPLICATION_FILE_DESIGN_GAPS,
+  getApplicationFileBytes,
   getApplicationFileDetail,
   lockApplicationFile,
+  replaceApplicationFileBytes,
   unlockApplicationFile,
   updateApplicationFile,
 } from "../api/developer/applicationFilesApi";
@@ -43,6 +45,27 @@ const textareaStyle: React.CSSProperties = {
 function looksLikeXmlPath(path: string): boolean {
   const lower = (path || "").toLowerCase();
   return lower.endsWith(".xml") || lower.endsWith(".xsl") || lower.endsWith(".xslt");
+}
+
+/** Human-readable byte count for the file meta grid (portable, locale-free). */
+export function formatBytes(bytes: number | null | undefined): string {
+  if (bytes == null || !Number.isFinite(bytes) || bytes < 0) {
+    return "—";
+  }
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  const units = ["KB", "MB", "GB", "TB"];
+  let value = bytes;
+  let unit = "B";
+  for (const u of units) {
+    value /= 1024;
+    unit = u;
+    if (value < 1024) {
+      break;
+    }
+  }
+  return `${Number.isInteger(value) ? value.toString() : value.toFixed(1)} ${unit}`;
 }
 
 /**
@@ -193,6 +216,14 @@ export function ApplicationFileDetailPanel({
     getApplicationFileDetail(applicationName, path)
       .then((d) => {
         if (cancelled) return;
+        if (d.binary === true) {
+          // Binary bodies are not editable as text: download/replace only.
+          setDetail(d);
+          setTooLarge(false);
+          setContent("");
+          setLoading(false);
+          return;
+        }
         const len =
           typeof d.contentLength === "number"
             ? d.contentLength
@@ -221,13 +252,16 @@ export function ApplicationFileDetailPanel({
     };
   }, [applicationName, path]);
 
-  const dirty = detail != null && !tooLarge && content !== (detail.content ?? "");
+  const isBinary = detail != null && detail.binary === true;
+
+  const dirty = detail != null && !tooLarge && !isBinary && content !== (detail.content ?? "");
   const canSave =
     Boolean(isAdmin) &&
     heldLock &&
     !busy &&
     !loading &&
     !tooLarge &&
+    !isBinary &&
     detail != null &&
     dirty;
 
@@ -345,6 +379,80 @@ export function ApplicationFileDetailPanel({
       ? detail.designGaps
       : APPLICATION_FILE_DESIGN_GAPS;
 
+  async function handleDownload(): Promise<void> {
+    if (inflight.current) return;
+    if (!isBinary || !detail) return;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const { bytes, contentType } = await getApplicationFileBytes(
+        applicationName,
+        path,
+      );
+      // Same browser-download pattern as PipelineDetailPanel (blob URL on an
+      // <a download>). revokeObjectURL releases the blob after the click.
+      const blob = new Blob([bytes], {
+        type: contentType || "application/octet-stream",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = detail.name || path.split("/").pop() || "application-file";
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, DEV_MSG.APPFILE_DOWNLOAD_ERROR));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function handleReplace(file: File): Promise<void> {
+    if (inflight.current) return;
+    if (!isBinary || !detail) return;
+    if (!heldLock) {
+      setError(DEV_MSG.APPFILE_LOCK_REQUIRED);
+      return;
+    }
+    if (!isAdmin) {
+      setError(DEV_MSG.APPFILE_FORBIDDEN);
+      return;
+    }
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const saved = await replaceApplicationFileBytes(applicationName, path, bytes);
+      // A replacement that decodes as UTF-8 text flips the file back to the
+      // text editor; anything else keeps the binary download/replace view.
+      setDetail(saved);
+      setContent(saved.binary === true ? "" : (saved.content ?? ""));
+      setNotice(DEV_MSG.APPFILE_REPLACED);
+      onSaved?.(saved);
+    } catch (err: unknown) {
+      const fallback =
+        isApiError(err) && err.status === 403
+          ? DEV_MSG.APPFILE_FORBIDDEN
+          : isApiError(err) && err.status === 409
+            ? DEV_MSG.APPFILE_LOCK_CONFLICT
+            : isApiError(err) && err.status === 404
+              ? DEV_MSG.APPFILE_NOT_FOUND
+              : DEV_MSG.APPFILE_REPLACE_ERROR;
+      setError(panelErrMsg(err, fallback));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
   return (
     <div data-testid="developer-appfile-detail">
       <button
@@ -396,10 +504,12 @@ export function ApplicationFileDetailPanel({
               <dd style={{ margin: 0 }}>{detail.mimeType || "—"}</dd>
               <dt>{DEV_MSG.APPFILE_COL_ENC}</dt>
               <dd style={{ margin: 0 }}>{detail.characterEncoding || "—"}</dd>
+              <dt>{DEV_MSG.APPFILE_COL_SIZE}</dt>
+              <dd style={{ margin: 0 }}>{formatBytes(detail.contentLength)}</dd>
             </dl>
           </header>
 
-          {!tooLarge ? (
+          {!tooLarge && !isBinary ? (
             <section data-testid="developer-appfile-content" style={fieldStyle}>
               <label htmlFor="appfile-content">{DEV_MSG.APPFILE_CONTENT}</label>
               <textarea
@@ -415,6 +525,71 @@ export function ApplicationFileDetailPanel({
               <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
                 {DEV_MSG.APPFILE_CONTENT_HINT}
               </span>
+            </section>
+          ) : null}
+
+          {isBinary ? (
+            <section data-testid="developer-appfile-binary" style={fieldStyle}>
+              <p
+                style={{
+                  margin: 0,
+                  color: catalogColors.muted,
+                  fontSize: "0.9rem",
+                }}
+              >
+                {DEV_MSG.APPFILE_BINARY_HINT}
+              </p>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+                <button
+                  type="button"
+                  data-testid="developer-appfile-download"
+                  aria-label={DEV_MSG.APPFILE_DOWNLOAD}
+                  disabled={busy || !isAdmin}
+                  onClick={() => void handleDownload()}
+                  style={{
+                    padding: "8px 16px",
+                    background: busy || !isAdmin ? catalogColors.disabled : catalogColors.accent,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: busy || !isAdmin ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {DEV_MSG.APPFILE_DOWNLOAD}
+                </button>
+                <label
+                  style={{
+                    padding: "8px 16px",
+                    background: busy || !isAdmin || !heldLock
+                      ? catalogColors.disabled
+                      : catalogColors.accent,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: busy || !isAdmin || !heldLock ? "not-allowed" : "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  {DEV_MSG.APPFILE_REPLACE}
+                  <input
+                    type="file"
+                    data-testid="developer-appfile-replace"
+                    aria-label={DEV_MSG.APPFILE_REPLACE}
+                    disabled={busy || !isAdmin || !heldLock}
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      // Allow re-picking the same file; clear after reading.
+                      e.target.value = "";
+                      if (file) {
+                        void handleReplace(file);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
             </section>
           ) : null}
 
@@ -452,24 +627,26 @@ export function ApplicationFileDetailPanel({
             >
               {DEV_MSG.APPFILE_LOCK}
             </button>
-            <button
-              type="button"
-              data-testid="developer-appfile-save"
-              aria-label={DEV_MSG.APPFILE_SAVE}
-              disabled={!canSave}
-              title={!isAdmin ? DEV_MSG.APPFILE_SAVE_ADMIN_ONLY : undefined}
-              onClick={() => void handleSave()}
-              style={{
-                padding: "8px 16px",
-                background: canSave ? catalogColors.accent : catalogColors.disabled,
-                color: "#fff",
-                border: "none",
-                borderRadius: "4px",
-                cursor: canSave ? "pointer" : "not-allowed",
-              }}
-            >
-              {DEV_MSG.APPFILE_SAVE}
-            </button>
+            {!isBinary ? (
+              <button
+                type="button"
+                data-testid="developer-appfile-save"
+                aria-label={DEV_MSG.APPFILE_SAVE}
+                disabled={!canSave}
+                title={!isAdmin ? DEV_MSG.APPFILE_SAVE_ADMIN_ONLY : undefined}
+                onClick={() => void handleSave()}
+                style={{
+                  padding: "8px 16px",
+                  background: canSave ? catalogColors.accent : catalogColors.disabled,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: canSave ? "pointer" : "not-allowed",
+                }}
+              >
+                {DEV_MSG.APPFILE_SAVE}
+              </button>
+            ) : null}
             <button
               type="button"
               data-testid="developer-appfile-unlock"
