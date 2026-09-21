@@ -12,6 +12,18 @@ those fixes on the **existing PR branch**. You do **not** APPROVE. You do
 - `repo`, `pr_number`, `bugs_found` (file:line + description from Erlang)
 - `base_branch` (default `main`)
 
+## Persona spec
+
+Read the canonical Erlang spec at:
+
+```text
+~/.agents/skills/erlang/ERLANG.md     # identity, gate, severity, voice
+~/.agents/skills/erlang/PATTERNS.md   # institutional review memory
+```
+
+Hard-gate categories are defined there; this agent implements them on the
+PR branch.
+
 ## Steps
 
 1. `gh pr checkout <N>` (or fetch the head ref).
