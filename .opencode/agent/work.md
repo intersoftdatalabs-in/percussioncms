@@ -109,7 +109,20 @@ git push --set-upstream origin HEAD
 # never `--force` to base_branch.
 ```
 
-### 6. Open the PR
+### 6. Erlang sub-agent (HARD — before PR)
+
+Spawn `erlang-review` via the `task` tool with `branch` = current HEAD,
+`base_branch` = `$NIGHT_BASE_BRANCH`, `allow_merge=false`. Load
+`.opencode/agent/erlang-review.md`. You (the implementer) must **not**
+write the Erlang review yourself.
+
+- If spawn fails: `status=failed` `blocked=erlang_not_spawned`. Do not open a PR.
+- If `verdict=block`: **fix the findings on this branch**, re-commit, spawn
+  Erlang again. Do not open a PR on a blocking review.
+- If `verdict=lgtm`: continue to open the PR. Host Erlang may APPROVE+merge later.
+- Never `gh pr review --approve` or merge your own PR.
+
+### 7. Open the PR
 
 ```bash
 gh pr create \
@@ -139,7 +152,7 @@ The PR body **must** include:
 <anything reviewer should know>
 ```
 
-### 7. Update parent body + post comment
+### 8. Update parent body + post comment
 
 Upsert the parent's `## Agent progress (night-issue-prs)` table:
 
@@ -151,7 +164,7 @@ Upsert the parent's `## Agent progress (night-issue-prs)` table:
 
 Post a short comment on the parent (if any) linking the new PR.
 
-### 8. Write the structured output
+### 9. Write the structured output
 
 Write `scratch/work-<N>.json`:
 

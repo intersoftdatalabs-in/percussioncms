@@ -65,6 +65,24 @@ Filter:
 
 If `issue_numbers` is set, restrict to those (after the filters above).
 
+### 2B. Honor the TypeSafe pre-screen (fail-open hints, not gates)
+
+If `scratch/prescreen.json` exists (written by Preflight Phase 2D2), read it
+before ranking:
+
+- `recommend_skip` with `skip_source=model` → `disposition=skip`,
+  `reason` prefix `prescreen:` (soak / customer-env / gated /
+  human-sign-off that the nightly cannot complete). Do **not** dispatch a
+  `work` sub-agent for it.
+- `recommend_close=true` → leave for the `reconcile` sub-agent; do not
+  queue as implement. Never treat the prescreen as authoritative for
+  closing — reconcile still applies its C1–C7 gates.
+- Deterministic flags (`rule_skip`, the `NotSafe?`/`InProgress?` matrix)
+  **always win**; the prescreen never un-skips an issue.
+- If `scratch/prescreen.json` is missing, unreadable, or reports
+  `status: fallback_rule_only`, rank exactly as before — never block on
+  the prescreen.
+
 ### 3. Classify PRODUCT vs DEBT
 
 Read each candidate's labels and title. Apply the rhai `Product-first queue` table:

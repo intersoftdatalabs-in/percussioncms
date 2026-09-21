@@ -2,7 +2,7 @@
 name: night-gates
 description: >-
   Build / merge / handoff hard gates for the opencode night-issue-prs workflow
-  (mirrors .grok/workflows/night-issue-prs.rhai v2.0.6). Use when a sub-agent
+  (mirrors .grok/workflows/night-issue-prs.rhai v2.0.8). Use when a sub-agent
   opens a PR, clusters PRs, or proposes human-QA handoff, and when the host
   agent enforces C1–C5 / B1–B3 / Q1–Q8. Skip if you are not running
   night-issue-prs.
@@ -37,12 +37,15 @@ worktree); when in doubt, defer to that source of truth.
 3. **Evidence in the PR body.** Every gate references a section of the
    structured PR body the Work sub-agent must populate. A PR without
    `build_evidence` is **failed** by the host, not human-QA-eligible.
-4. **Erlang-style review before human-QA.** Code-style review lives in
-   `modules/ai-shared-develop/src/main/resources/skills/erlang-review/`.
-   Run a fresh review on every PR body before the host accepts `pr_opened`.
-5. **No own-PR self-merge.** Work sub-agents open PRs. Peer PR review (a
-   different agent's PR) is the only path that may squash-merge, and only
-   after an independent APPROVE + green checks.
+4. **Erlang is always a sub-agent** and **MAY APPROVE + squash-merge**
+   when LGTM + checks green. Work must spawn Erlang before `gh pr create`
+   (`allow_merge=false`). Host Erlang leftover (before Work) and this-run
+   (after Work) merge clean PRs. Same-login APPROVE fail → COMMENT +
+   `--admin` merge.
+5. **Work never self-APPROVEs or self-merges.** Findings: **erlang-fix**
+   on the same PR, then Erlang re-review (one retry). Out-of-scope
+   leftovers become residual GitHub issues; they do not block merge of
+   in-scope work. Goal: merged bug-free PRs with residuals logged.
 
 ## Work build gates (C1–C5)
 

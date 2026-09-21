@@ -6,7 +6,7 @@ Project workflows live here and are invocable by name (e.g. `/night-issue-prs` o
 
 ## `night-issue-prs`
 
-**Version:** `2.0.6` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
+**Version:** `2.0.8` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
 
 Unattended overnight worker. Specialists spawn only when Preflight (or this-run results) show work; empty phases do not pay a full agent.
 
@@ -15,18 +15,20 @@ Unattended overnight worker. Specialists spawn only when Preflight (or this-run 
 3. **Reconcile** — close issues that are **100% implemented** (merged covering PR, no remaining slices). Close unassigned **QA: Failed** when the residual that fixed the fail steps is merged. Emit `implement_candidates` for leftovers. Default on.  
 4. **PR follow-up PRE** — only if Preflight found merge blockers (conflicts or open review threads).  
 5. **Triage** — inventory + reconcile candidates. Product-first then pN; oversized p1–p6 product → **create 3 PR-sized slices**; QA: Failed → implement residual. **Covering PR = OPEN PR only.** A merged PR is close-or-implement, never skip-forever.  
-6. **Peer PR review** — only if Preflight found other-model / no-model eligible PRs.  
-7. **Work** — implement/split only. **`disposition=skip` does not spawn a Work agent** (parent `## Agent progress` is not updated for those skip rows).  
-8. **PR follow-up POST** — only if this run opened PRs or PRE left blockers. When no leftover blockers, POST touches **this-run PRs only**.  
-9. **PR cluster** — only if owned PR count ≥ `cluster_min_prs`.  
-10. **Security audit** — only if Preflight `open_alert_count > 0`.  
-11. **Cycle verify** — only if a PR or cluster opened. **Maven on the integration tip only** (does not re-install every PR head). **Playwright / qa-up only** when WebUI or `perc-qa-automation` is in `modules_built`.  
-12. **Human QA** — only if an independent APPROVE already exists (Q2 can pass). Same-night own-model PRs skip; the next tick can assign after a human or other-model review.  
-13. **Report** — written in-script to `scratch/night-report.md` (**no report agent**).
+6. **Peer PR review** — other-model PRs: spawn Erlang. Erlang child **MAY APPROVE and squash-merge** if LGTM. Spawn-fail is **not fatal** (host Erlang leftover runs next).  
+7. **Erlang leftover** — host Erlang on **all owned open MERGEABLE PRs**: merge LGTM; if BLOCK, **erlang-fix** then re-review once. Drains covering PRs so Work can fill.  
+8. **Work** — implement/split only. **`disposition=skip` does not spawn a Work agent**. Implementer must spawn Erlang before `gh pr create` and must not APPROVE/merge their own PR.  
+9. **Erlang review** — host Erlang on this-run PRs: **APPROVE + squash-merge** if LGTM; **erlang-fix** findings then re-review. Residual issues for out-of-scope leftovers.  
+10. **PR follow-up POST** — only if this run opened PRs or PRE left blockers. When no leftover blockers, POST touches **this-run PRs only**.  
+11. **PR cluster** — only if owned PR count ≥ `cluster_min_prs`.  
+12. **Security audit** — only if Preflight `open_alert_count > 0`.  
+13. **Cycle verify** — only if a PR or cluster opened. **Maven on the integration tip only** (does not re-install every PR head). **Playwright / qa-up only** when WebUI or `perc-qa-automation` is in `modules_built`.  
+14. **Human QA** — only if an independent APPROVE already exists (Q2 can pass). Erlang squash-merge counts. Work self-review does not.  
+15. **Report** — written in-script to `scratch/night-report.md` (**no report agent**).
 
 **Human QA handoff (after Cycle verify, default on):** when a this-run PR is **ready for human QA** *and* cycle verify did not fail it, create a **`qa task`** issue with a numbered **test plan**, assign **`vijaya-boddipudi`**, link Parent + PR. Pause: `include_human_qa: false`.
 
-**Merge policy:** Work phase still **opens PRs only** (does not auto-merge its own night Work PRs). **Peer PR review** may **squash-merge** eligible other-model / no-model agent PRs after an independent review when checks are green. Oversized issues become child issues, not mega-PRs.
+**Merge policy (2.0.8):** Goal is **merged bug-free PRs** with **residual issues logged** for leftover scope. Work **opens PRs only** (never APPROVEs or merges its own). **Erlang** (independent sub-agent) **MAY APPROVE and squash-merge** when LGTM + checks green. Hard-gate findings are **fixed on the same PR** (`erlang-fix`) then re-reviewed (one retry). Out-of-scope leftovers become residual GitHub issues — they do not block merge of in-scope work. GitHub same-login APPROVE rejection → COMMENT LGTM + `--admin` merge. Oversized issues become child issues, not mega-PRs.
 
 ### Product-first queue (HARD)
 
@@ -98,15 +100,16 @@ Cluster + follow-up rebase are **after-the-fact**. They do not stop the night fr
 
 `parent_issue` is an optional triage queue field. Workers must still live-check owned open PR files; the host skip is the backstop when triage sets `parent_issue`.
 
-### Peer PR review (other model / no model labels)
+### Peer PR review (other model / other operator)
 
 | Rule | Behavior |
 |------|----------|
-| **When** | After Triage (PRE already ran if blockers existed), before Work. **Skipped** when Preflight finds 0 other-model / no-model eligible PRs |
-| **Targets** | Open PRs **missing** an independent approving review, and either **(A)** labeled/co-authored by a **non-grok** model (`model:kilo`, Co-Authored Claude/Codex/Cursor/Kilo, etc.) or **(B)** **no `model:*` labels** but still **agent-shaped** (`operator:*`, Co-Authored footer, `fix/issue-*` / `feat/issue-*` branch) |
-| **Action** | Erlang-style code review → APPROVE or REQUEST_CHANGES |
-| **Squash merge** | Only if `allow_peer_squash_merge=true` (default), review APPROVE, no open threads, mergeable, **checks green** |
-| **Hard bans** | Pure human PRs with no agent markers; rule-only PRs without human approval; CONFLICTING/DIRTY (leave for follow-up); this night’s own `model:grok-4.5` Work PRs (POST follow-up only) |
+| **When** | After Triage (PRE already ran if blockers existed), before Work. **Skipped** when Preflight finds 0 other-model eligible PRs |
+| **Targets** | Open PRs missing a human APPROVE, and **other-agent**: any `model:*` other than this session, **or** `operator:opencode` / kilo / minimax / Co-Authored muse-spark/Claude/…, **or** no `model:*` but agent-shaped. **Dual-label** (`model:grok-4.6` **and** `operator:opencode`) **is eligible**. Own-model-only (this session’s `model:*` and no other operator) is **not**. |
+| **Erlang** | **Always a spawned sub-agent**. That child **MAY APPROVE and squash-merge** when LGTM. Peer must not Erlang in its own voice. Spawn-fail is not fatal (host Erlang leftover). |
+| **Action** | LGTM + green checks → APPROVE + squash-merge. BLOCK → erlang-fix on the same PR, then re-review. Residuals for out-of-scope leftovers. Same GitHub login is **not** a skip. |
+| **Squash merge** | Default `allow_peer_squash_merge=true`. Do not leave a clean other-model PR open because GitHub rejected self-APPROVE. |
+| **Hard bans** | Pure human PRs; rule-only PRs without human approval; CONFLICTING/DIRTY; own-model-only PRs (agent must not approve itself) |
 | **Disable** | `include_peer_pr_review: false` or `allow_peer_squash_merge: false` (review without merge) |
 
 ### Maintainer-authored issues only (default on)
@@ -134,6 +137,24 @@ Overnight work must not follow issues filed by random users or bots.
 | **InProgress?** | Label **In Progress** / `in progress`. |
 
 Host install, customer env, and human UAT are **capability skips for that issue’s implement row**. They must not starve **3-slice expansion** of a different p1–p6 product epic.
+
+### TypeSafe pre-screen (fail-open — 2.0.9)
+
+Preflight runs a cheap TypeSafe (`jev`) judgement layer before Triage/Work; it is a **hint layer, never a gate**.
+
+| Step | Where | What |
+|------|-------|------|
+| Raw inventory | Preflight PART D | `scratch/issues-raw.json` (JSON array: `number,title,labels,assignees,author,updatedAt`) |
+| Script | -- | `python3 scripts/typesafe-prescreen.py --inventory scratch/issues-raw.json --out scratch/prescreen.json` (Windows: `scripts\typesafe-prescreen.cmd`) |
+| Output | -- | `scratch/prescreen.json` — per issue: `rule_skip` / `rule_kind`, `model.skip_safe|pr_sized|close`, `recommend_skip` (+`skip_source`), `recommend_close`, plus `stats` and `status` |
+
+Rules:
+
+- **Deterministic label layer is authoritative**: `not safe for agents`, In Progress, `qa task`, `migrated`, and any assignee (unassigned-only) skip the issue in the script itself. The model **never un-skips** and is never asked about rule-skipped issues.
+- **Model layer adds only**: semantic skips (soak / customer-env / gated / human-sign-off) at `skip_safe >= prescreen_threshold` (default 0.85) and reconcile close candidates (`recommend_close`). Triage turns `recommend_skip/source=model` into `disposition=skip`; Reconcile treats `recommend_close` as inspection inputs still gated by its C1–C7 rules.
+- **Fail-open**: missing `TYPESAFE_API_KEY`, API/network failure, or a nonzero exit → the script still writes the deterministic layer with `status: fallback_rule_only`; Triage/Reconcile proceed identically. The nightly must **never block** on the pre-screen. Do not invent prescreen numbers when the file is absent.
+- **Cost/latency**: one batched call over the whole scored backlog — measured ~$0.002 and ~1s on 44 issues (44-issue / 176-question = $0.0018; sub-question batching identical accuracy). A single avoided Work spawn (~1M tokens ≈ $3.50) pays for ~1,900 pre-screens.
+- Disable with `include_typesafe_prescreen: false`; tune the model skip bar with `prescreen_threshold`.
 
 ### Primary overnight product (HARD — 2.0.6)
 
@@ -260,10 +281,15 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `include_reconcile` | bool | `true` | After Preflight: close 100% implemented open issues (including QA: Failed whose residual landed); emit leftover implement candidates |
 | `max_reconcile_closes` | int | `20` | Max issues to close per reconcile pass (capped 1–40) |
 | `max_reconcile_inspect` | int | `80` | Max open issues to inspect for close vs remaining work (capped 20–120) |
+| `include_typesafe_prescreen` | bool | `true` | Preflight runs `scripts/typesafe-prescreen.{py,cmd}` → `scratch/prescreen.json`. Deterministic label rules authoritative; model only adds semantic skip / close hints (fail-open) |
+| `prescreen_threshold` | float | `0.85` | Model `skip_safe` threshold to recommend a skip (`recommend_skip/source=model`). Below it the issue stays eligible |
 | `include_pr_followup` | bool | `true` | Run PR merge-blocker drain after stale cleanup (before Discover/Triage) **and** after issue Work |
-| `include_peer_pr_review` | bool | `true` | After PRE: review other-model / no-model agent PRs missing reviews; optional squash-merge |
+| `include_peer_pr_review` | bool | `true` | After PRE: Erlang sub-agent + APPROVE/merge other-model PRs (dual-label OpenCode eligible) |
+| `include_erlang_review` | bool | `true` | Host Erlang leftover (before Work) + this-run (after Work); Erlang may APPROVE+merge |
+| `include_erlang_fix` | bool | `true` | If Erlang BLOCKS, spawn a fix agent then re-review once |
+| `allow_erlang_squash_merge` | bool | `true` | Erlang squash-merges LGTM PRs (`--admin` if required-reviews blocks) |
 | `max_peer_reviews` | int | `4` | Max peer PRs fully reviewed per run (capped 1–8) |
-| `allow_peer_squash_merge` | bool | `true` | When peer review APPROVEs and checks are green, squash-merge eligible PRs |
+| `allow_peer_squash_merge` | bool | `true` | Peer/Erlang squash-merges other-model PRs after Erlang LGTM + green checks |
 | `include_pr_cluster` | bool | `true` | After POST follow-up, absorb same-file thrash PRs into one cluster PR (**independent of** `include_pr_followup`) |
 | `cluster_min_prs` | int | `3` | Min owned open PRs sharing thrash files to open a cluster (2–8) |
 | `include_security_audit` | bool | `true` | After PR cluster: inventory open code-scanning alerts; singleton Security Audit issue + mitigation PRs |
@@ -409,7 +435,7 @@ Rough agent use (v2.0.3 — specialists are 0 when Preflight says there is nothi
 
 A quiet grok-only night with no blockers, no alerts, and no other-model PRs is **Identity + Preflight + Triage + Work×N + Cycle verify** (if PRs opened). Default 128 is plenty.
 
-**Skip matrix (fail-open):** a specialist runs unless Preflight set `signals_complete=true` **and** that signal is a **known 0**. Missing counts are unknown (`-1`), not zero. CodeQL 403 must omit `open_alert_count` (never write 0). `cluster_recommended` covers `>= cluster_min_prs` **or** `>=2` CONFLICTING on shared paths; missing flag runs cluster. Cycle verify also runs when Security opened mitigation PRs.
+**Skip matrix (fail-open):** a specialist runs unless Preflight set `signals_complete=true` **and** that signal is a **known 0**. Missing counts are unknown (`-1`), not zero. CodeQL 403 must omit `open_alert_count` (never write 0). `cluster_recommended` covers `>= cluster_min_prs` **or** `>=2` CONFLICTING on shared paths; missing flag runs cluster. Cycle verify also runs when Security opened mitigation PRs. The TypeSafe pre-screen is **never** part of this matrix — `recommend_skip/source=model` merely re-ranks an issue to `disposition=skip` in Triage, and a missing/`fallback_rule_only` prescreen changes nothing.
 
 Pass stamp args from the launcher so Identity does not spawn:
 
@@ -539,7 +565,7 @@ Stamps come from the **Identity** phase (or `coding_tool` / `coding_tool_version
 | Footer | `> Co-Authored by Grok Build 1.0.3 using grok-4.6 with agent night-issue-prs.` |
 | Labels | `operator:grok` + `operator:night-issue-prs` + `model:grok-4.6` |
 
-Peer review treats **this run's** `model:<id>` as own-model (do not self-review). A 4.6 night does not skip 4.5 PRs as “own,” and the reverse is also true.
+Peer review treats **this run's** `model:<id>` **alone** as own-model (do not self-APPROVE). A 4.6 night does not skip 4.5 PRs as “own.” A PR that also has `operator:opencode` / another `model:*` is **other-model** even if it carries this session’s label. Same GitHub user is irrelevant.
 
 **Daily status Operator column** (derived):
 
