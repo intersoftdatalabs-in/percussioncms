@@ -102,6 +102,8 @@ python3 docker/scripts/perc-devctl.py qa-rebuild-chain --dry-run
 # license:aggregate-add-third-party (repo root, no -N; skipped when
 # THIRD-PARTY-MAVEN.txt already exists) →
 # secure-membership package (skipped when target/dependency exists) →
+# perc-tinymce package (skipped when target/classes .../rx_resources exists; #4695) →
+# perc-common-ui-bundle package (skipped when perc_common_ui.js exists; #4695) →
 # modules/perc-distribution-tree clean package -DskipTests
 python3 docker/scripts/perc-devctl.py qa-rebuild-chain --skip-tests
 

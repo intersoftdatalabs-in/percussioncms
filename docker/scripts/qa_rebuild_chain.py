@@ -20,7 +20,12 @@ wrapper (``mvnw`` / ``mvnw.cmd``), ``pathlib.Path``, and
 4. ``deliverytiersuite/delivery-tier-suite/secure-membership`` —
    ``package -DskipTests`` when ``target/dependency`` is missing
    (ANT copies those jars into the installer; #4420 residual).
-5. ``modules/perc-distribution-tree`` — ``clean package -DskipTests``
+5. ``modules/perc-tinymce`` — ``package -DskipTests`` when
+   ``target/classes/META-INF/resources/rx_resources`` is missing
+   (``installDistributionFiles.xml`` copies that tree; #4695).
+6. ``modules/perc-common-ui-bundle`` — ``package -DskipTests`` when
+   ``perc_common_ui.js`` is missing from ``target/classes`` (#4695).
+7. ``modules/perc-distribution-tree`` — ``clean package -DskipTests``
 
 Each step emits a parseable ``RESULT:OK`` / ``RESULT:FAIL`` line. ``--dry-run``
 prints the planned argv + cwd for every step and never invokes Maven.
@@ -61,6 +66,21 @@ LICENSE_INVENTORY_REL = (
 )
 SECURE_MEMBERSHIP_REL = (
     Path("deliverytiersuite") / "delivery-tier-suite" / "secure-membership"
+)
+TINYMCE_REL = Path("modules") / "perc-tinymce"
+TINYMCE_RX_REL = (
+    Path("target") / "classes" / "META-INF" / "resources" / "rx_resources"
+)
+COMMON_UI_BUNDLE_REL = Path("modules") / "perc-common-ui-bundle"
+COMMON_UI_JS_REL = (
+    Path("target")
+    / "classes"
+    / "META-INF"
+    / "resources"
+    / "cm"
+    / "common"
+    / "js"
+    / "perc_common_ui.js"
 )
 
 # Callable matching subprocess.run for tests to inject stubs.
@@ -141,6 +161,50 @@ def secure_membership_step() -> ChainStep:
     )
 
 
+def tinymce_rx_resources_dir(repo_root: Path) -> Path:
+    """Directory ANT copies into the installer ``rx_resources`` tree."""
+    return (repo_root / TINYMCE_REL / TINYMCE_RX_REL).resolve()
+
+
+def tinymce_rx_resources_present(repo_root: Path) -> bool:
+    """True when perc-tinymce has already processed rx_resources into classes."""
+    return _nonempty_dir(tinymce_rx_resources_dir(repo_root))
+
+
+def tinymce_step() -> ChainStep:
+    """Package perc-tinymce so ANT can copy META-INF/resources (issue #4695)."""
+    return ChainStep(
+        label="qa-rebuild-tinymce",
+        module_rel=TINYMCE_REL,
+        goals=("package",),
+        extra_args=("-DskipTests",),
+    )
+
+
+def common_ui_bundle_js_path(repo_root: Path) -> Path:
+    """perc_common_ui.js ANT copies into the installer web_resources tree."""
+    return (repo_root / COMMON_UI_BUNDLE_REL / COMMON_UI_JS_REL).resolve()
+
+
+def common_ui_bundle_present(repo_root: Path) -> bool:
+    """True when perc-common-ui-bundle already produced perc_common_ui.js."""
+    path = common_ui_bundle_js_path(repo_root)
+    try:
+        return path.is_file() and path.stat().st_size > 0
+    except OSError:
+        return False
+
+
+def common_ui_bundle_step() -> ChainStep:
+    """Package perc-common-ui-bundle so ANT can copy perc_common_ui.js (#4695)."""
+    return ChainStep(
+        label="qa-rebuild-common-ui-bundle",
+        module_rel=COMMON_UI_BUNDLE_REL,
+        goals=("package",),
+        extra_args=("-DskipTests",),
+    )
+
+
 def resolve_mvnw(repo_root: Path) -> Path:
     """Return the repo-root Maven wrapper path for this OS.
 
@@ -169,12 +233,16 @@ def plan_chain(
         When True, skip sitemanage/WebUI and only run the license
         inventory prereq plus ``perc-distribution-tree`` package. Use
         when only installer packaging resources changed and SNAPSHOT
-        artifacts under the WAR are already fresh.
+        artifacts under the WAR are already fresh. Still packages
+        ``perc-tinymce`` when its ``target/classes`` rx_resources tree
+        is missing (#4695).
     """
     skip = ("-DskipTests",)
     dist_steps = [
         license_inventory_step(),
         secure_membership_step(),
+        tinymce_step(),
+        common_ui_bundle_step(),
         ChainStep(
             label="qa-rebuild-dist",
             module_rel=Path("modules") / "perc-distribution-tree",
@@ -310,6 +378,20 @@ def run_chain(
                 "secure-membership-deps-present "
                 f"PATH:{secure_membership_dependency_dir(repo_root)}"
             )
+        elif step.label == "qa-rebuild-tinymce" and tinymce_rx_resources_present(
+            repo_root
+        ):
+            skip_reason = (
+                "tinymce-rx-resources-present "
+                f"PATH:{tinymce_rx_resources_dir(repo_root)}"
+            )
+        elif step.label == "qa-rebuild-common-ui-bundle" and common_ui_bundle_present(
+            repo_root
+        ):
+            skip_reason = (
+                "common-ui-bundle-present "
+                f"PATH:{common_ui_bundle_js_path(repo_root)}"
+            )
         if skip_reason is not None:
             skip_line = f"SKIP STEP:{step.label} REASON:{skip_reason}"
             print(skip_line)
@@ -386,6 +468,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         description=(
             "Run the QA Maven rebuild chain: sitemanage install → "
             "WebUI package → license:aggregate-add-third-party (no -N) → "
+            "secure-membership package → perc-tinymce package (#4695) → "
             "perc-distribution-tree package (#2533 / #4420). "
             "Uses repo-root mvnw/mvnw.cmd with shell=False."
         ),
@@ -414,8 +497,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help=(
             "Skip sitemanage/WebUI. Still generate the Maven license "
-            "inventory when missing, then package perc-distribution-tree "
-            "(when SNAPSHOT WAR inputs are already fresh)."
+            "inventory when missing, package perc-tinymce when its "
+            "rx_resources classes tree is missing (#4695), then package "
+            "perc-distribution-tree (when SNAPSHOT WAR inputs are already "
+            "fresh)."
         ),
     )
     p.add_argument(

@@ -187,6 +187,8 @@ class TestQaRebuildChain(unittest.TestCase):
         (self.repo_root / "projects" / "sitemanage").mkdir(parents=True)
         (self.repo_root / "WebUI").mkdir(parents=True)
         (self.repo_root / "modules" / "perc-distribution-tree").mkdir(parents=True)
+        (self.repo_root / "modules" / "perc-tinymce").mkdir(parents=True)
+        (self.repo_root / "modules" / "perc-common-ui-bundle").mkdir(parents=True)
         (
             self.repo_root
             / "deliverytiersuite"
@@ -355,6 +357,10 @@ class TestSubcommandDryRun(unittest.TestCase):
         (self.repo_root / "projects" / "sitemanage").mkdir(parents=True, exist_ok=True)
         (self.repo_root / "WebUI").mkdir(parents=True, exist_ok=True)
         (self.repo_root / "modules" / "perc-distribution-tree").mkdir(
+            parents=True, exist_ok=True
+        )
+        (self.repo_root / "modules" / "perc-tinymce").mkdir(parents=True, exist_ok=True)
+        (self.repo_root / "modules" / "perc-common-ui-bundle").mkdir(
             parents=True, exist_ok=True
         )
         (

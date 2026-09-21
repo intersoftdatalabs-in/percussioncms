@@ -57,6 +57,12 @@ Repository `docker/` scripts and the root `docker-compose.yml` support evaluatio
 QA mode for automated testing). Prefer documented `perc-devctl` / compose flows for agent and
 developer QA rather than one-off container recipes.
 
+H2 QA cells (`perc-devctl qa-up`) bind-mount `modules/perc-distribution-tree/target/perc-distribution-tree.jar`.
+Rebuild that jar with `perc-devctl qa-rebuild-chain` (or `--dist-only` when WAR SNAPSHOTs are already fresh).
+The chain packages **TinyMCE** (`modules/perc-tinymce`) before the dist tree so installer copy of
+`rx_resources` / `sys_resources` does not fail on a missing `target/classes` directory. If
+`qa-up` reports a missing or empty dist jar, run `qa-rebuild-chain` first, then `qa-health`.
+
 ## First verification checklist
 
 - [ ] Process is running; no fatal errors in server logs under the install tree.

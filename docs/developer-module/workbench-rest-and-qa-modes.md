@@ -132,7 +132,8 @@ cd ../../WebUI && ../mvnw package -DskipTests
 # Do not pass -N — that only loads the empty root POM.
 ./mvnw license:aggregate-add-third-party
 cd deliverytiersuite/delivery-tier-suite/secure-membership && ../../../mvnw package -DskipTests
-cd ../../../modules/perc-distribution-tree && ../../mvnw clean package -DskipTests
+cd ../../../modules/perc-tinymce && ../../mvnw package -DskipTests
+cd ../perc-distribution-tree && ../../mvnw clean package -DskipTests
 # Windows: use mvnw.cmd and the same module order
 ```
 
