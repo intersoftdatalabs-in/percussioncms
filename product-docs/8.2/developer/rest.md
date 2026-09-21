@@ -2803,7 +2803,8 @@ writes those server configuration keys — only files under a resolved XML appli
 | Backing | `PSServerXmlObjectStore` application files | `IPSSystemService` configuration load/save |
 | Arbitrary FS write | Rejected (catalog app + path-safe relative only) | Rejected (enum allow-list only) |
 
-Admin **write** updates UTF-8 text for a relative path under a catalog application. Path traversal,
+Admin **write** updates UTF-8 text for a relative path under a catalog application, or
+**creates** that file when the path does not yet exist (not a silent 200 no-op). Path traversal,
 absolute paths, and unknown applications on GET/PUT are **404** (no arbitrary filesystem write).
 Admin **folder create**, **delete**, and **rename/move** use the same relative keys; traversal is
 **400**, unknown app/path is **404**, and non-Admin is **403**. Admin **lock / unlock** uses
@@ -2821,7 +2822,7 @@ the endpoints directly.
 |--------|------|---------|
 | `GET` | `/services/applicationfiles/{app}` | List relative file paths under a catalog application (no file body) |
 | `GET` | `/services/applicationfiles/{app}/content?path=` | Load one relative file including `content` when available |
-| `PUT` | `/services/applicationfiles/{app}/content?path=` | **Admin.** Replace UTF-8 text while holding a design lock |
+| `PUT` | `/services/applicationfiles/{app}/content?path=` | **Admin.** Replace UTF-8 text, or create a missing relative file, while holding a design lock |
 | `GET` | `/services/applicationfiles/{app}/binary?path=` | **Admin.** Download raw octet-stream bytes for a binary (`binary=true`) file |
 | `PUT` | `/services/applicationfiles/{app}/binary?path=` | **Admin.** Replace the file body with raw octet-stream bytes while holding a design lock |
 | `POST` | `/services/applicationfiles/{app}/lock?path=` | **Admin.** Acquire a self-only design-session lock |
@@ -2843,9 +2844,11 @@ to a trusted object-store application catalog name (letters/digits/underscore-st
 numeric id also accepted). `path` must be a **relative** path under that application root (`/`
 separators; no `..`, no absolute / drive / UNC form). The JSON body must include `content` (file
 text; empty string is allowed). A `path` field on the body is **ignored for persistence** — only
-the query `path` selects the file. Unknown or unsafe app/path values are **404** and never call
-save. Missing body or missing `content` is **400**. Non-Admin is **403**. PUT without a lock held
-by this session, or when another user holds the lock, is **409**. GET includes `lock` (owner /
+the query `path` selects the file. When the relative path does not yet exist under the application
+root, PUT **creates** the file (parent directories are created as needed). A directory already
+occupying the path is **409**. Unknown application or unsafe path values are **404** and never
+call save. Missing body or missing `content` is **400**. Non-Admin is **403**. PUT without a lock
+held by this session, or when another user holds the lock, is **409**. GET includes `lock` (owner /
 session) when a design lock is held. On success the response is the updated detail (same shape as
 GET), including reloaded `content`. The lock remains held until `POST …/unlock`.
 
@@ -2869,7 +2872,7 @@ surface; a body that does not is stored and surfaced through the binary surface.
 | `204` | Delete or unlock success |
 | `400` | Missing body, missing `content`/`path`, or unsafe path on folder/delete/move |
 | `403` | Caller is not Admin |
-| `404` | Unknown application, unsafe GET/PUT path, or missing file |
+| `404` | Unknown application, unsafe GET/PUT path, or missing file on GET/DELETE |
 | `409` | Destination exists (move), a non-folder occupies the create path, or design lock required / held by another user |
 | `500` | Object-store I/O failure |
 | `503` | Application file adaptor not configured |

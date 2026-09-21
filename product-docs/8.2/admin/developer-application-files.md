@@ -52,9 +52,12 @@ relative folder, rename/move a path, or delete a file or folder (recursive).
    to a path that does not yet exist under the application root **creates** that
    file (Admin only). Click **Unlock** to release the design session (or **Back**,
    which best-effort unlocks). A stale or missing lock on PUT is **409**.
-6. From the file list, Admins can enter a relative folder path and click **Create
-   folder**, **Rename / move** a row to a new relative path, or **Delete** a file
-   or folder (confirm dialog). The list refreshes after each action.
+6. From the file list, Admins can enter a relative **file** path and click
+   **Create file** (the chrome **Locks**, **PUTs** empty UTF-8 content, then
+   opens the editor — missing paths are created, not a silent 200). Enter a
+   relative folder path and click **Create folder**, **Rename / move** a row to a
+   new relative path, or **Delete** a file or folder (confirm dialog). The list
+   refreshes after each action.
 7. **Binary files**: click **Download** to fetch the raw body through the browser
    (the suggested filename matches the file name). Click **Lock**, then **Replace
    file** to pick a local file and send its raw bytes (requires the same held
@@ -91,7 +94,7 @@ The chrome calls:
 | Load | `GET /services/applicationfiles/{app}/content?path=` |
 | Download binary | `GET /services/applicationfiles/{app}/binary?path=` (**Admin**; octet-stream bytes for `binary=true` files) |
 | Lock | `POST /services/applicationfiles/{app}/lock?path=` (**Admin**) |
-| Update | `PUT /services/applicationfiles/{app}/content?path=` (**Admin**; requires held lock; body must include `content`) |
+| Create or update | `PUT /services/applicationfiles/{app}/content?path=` (**Admin**; requires held lock; body must include `content`; missing relative path **creates** the file) |
 | Replace binary | `PUT /services/applicationfiles/{app}/binary?path=` (**Admin**; raw octet-stream body; requires held lock) |
 | Unlock | `POST /services/applicationfiles/{app}/unlock?path=` (**Admin**) |
 | Create folder | `POST /services/applicationfiles/{app}/folders?path=` (**Admin**) |

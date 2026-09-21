@@ -9,7 +9,10 @@ import {
   createApplicationFolder,
   deleteApplicationPath,
   listApplicationFiles,
+  lockApplicationFile,
   moveApplicationPath,
+  unlockApplicationFile,
+  updateApplicationFile,
 } from "../api/developer/applicationFilesApi";
 import { listApplications } from "../api/developer/pipelinesApi";
 import type { ApplicationFileSummary, ApplicationSummary } from "../api/developer/types";
@@ -59,6 +62,7 @@ export function ApplicationFilesPanel(): React.ReactElement {
   const [filesError, setFilesError] = useState<string | null>(null);
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [folderDraft, setFolderDraft] = useState("ApplicationFiles/");
+  const [fileDraft, setFileDraft] = useState("ApplicationFiles/");
   const [notice, setNotice] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -130,7 +134,43 @@ export function ApplicationFilesPanel(): React.ReactElement {
     if (isApiError(err) && err.status === 400) {
       return DEV_MSG.APPFILE_PATH_INVALID;
     }
+    if (isApiError(err) && err.status === 409) {
+      return DEV_MSG.APPFILE_LOCK_CONFLICT;
+    }
     return fallback;
+  }
+
+  async function handleCreateFile(): Promise<void> {
+    if (!selectedApp || busy || !isAdmin) return;
+    const path = fileDraft.trim();
+    if (!isSafeApplicationFileApiPath(path)) {
+      setActionError(DEV_MSG.APPFILE_PATH_INVALID);
+      return;
+    }
+    setBusy(true);
+    setActionError(null);
+    setNotice(null);
+    let locked = false;
+    try {
+      await lockApplicationFile(selectedApp, path);
+      locked = true;
+      await updateApplicationFile(selectedApp, path, { content: "" });
+      setNotice(DEV_MSG.APPFILE_FILE_CREATED);
+      setFileDraft("ApplicationFiles/");
+      await refreshFiles(selectedApp);
+      setSelectedPath(path);
+    } catch (err: unknown) {
+      setActionError(panelErrMsg(err, writeErrorFallback(err, DEV_MSG.APPFILE_FILE_CREATE_ERROR)));
+    } finally {
+      if (locked) {
+        try {
+          await unlockApplicationFile(selectedApp, path);
+        } catch {
+          /* best-effort; detail panel re-locks on open */
+        }
+      }
+      setBusy(false);
+    }
   }
 
   async function handleCreateFolder(): Promise<void> {
@@ -312,6 +352,42 @@ export function ApplicationFilesPanel(): React.ReactElement {
               disabled={busy || !folderDraft.trim()}
             >
               {DEV_MSG.APPFILE_NEW_FOLDER}
+            </button>
+          </form>
+        ) : null}
+        {isAdmin ? (
+          <form
+            data-testid="developer-appfile-file-form"
+            onSubmit={(ev) => {
+              ev.preventDefault();
+              void handleCreateFile();
+            }}
+            style={{
+              display: "flex",
+              gap: "8px",
+              alignItems: "center",
+              flexWrap: "wrap",
+              margin: "0 0 12px",
+            }}
+          >
+            <label htmlFor="developer-appfile-file-path" style={mutedCell}>
+              {DEV_MSG.APPFILE_NEW_FILE_LABEL}
+            </label>
+            <input
+              id="developer-appfile-file-path"
+              data-testid="developer-appfile-file-path"
+              value={fileDraft}
+              disabled={busy}
+              onChange={(ev) => setFileDraft(ev.target.value)}
+              placeholder={DEV_MSG.APPFILE_NEW_FILE_PLACEHOLDER}
+              style={toolbarInputStyle}
+            />
+            <button
+              type="submit"
+              data-testid="developer-appfile-create-file"
+              disabled={busy || !fileDraft.trim()}
+            >
+              {DEV_MSG.APPFILE_NEW_FILE}
             </button>
           </form>
         ) : (

@@ -262,4 +262,48 @@ describe("ApplicationFilesPanel", () => {
       );
     });
   });
+
+  it("creates a missing file via lock then PUT and opens the editor", async () => {
+    listApplications.mockResolvedValue([
+      { name: "sys_resources", description: "Resources", appRoot: "sys_resources" },
+    ]);
+    listApplicationFiles.mockResolvedValue([]);
+    updateApplicationFile.mockResolvedValue({
+      path: "ApplicationFiles/qa-new.txt",
+      name: "qa-new.txt",
+      content: "",
+    });
+    getApplicationFileDetail.mockResolvedValue({
+      path: "ApplicationFiles/qa-new.txt",
+      name: "qa-new.txt",
+      content: "",
+    });
+
+    renderAdmin(<ApplicationFilesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-apps-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-appfile-app-open"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-appfile-create-file")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-appfile-file-path"), {
+      target: { value: "ApplicationFiles/qa-new.txt" },
+    });
+    fireEvent.click(screen.getByTestId("developer-appfile-create-file"));
+    await waitFor(() => {
+      expect(lockApplicationFile).toHaveBeenCalledWith(
+        "sys_resources",
+        "ApplicationFiles/qa-new.txt",
+      );
+      expect(updateApplicationFile).toHaveBeenCalledWith(
+        "sys_resources",
+        "ApplicationFiles/qa-new.txt",
+        { content: "" },
+      );
+    });
+    await waitFor(() => {
+      expect(getApplicationFileDetail).toHaveBeenCalled();
+    });
+  });
 });

@@ -173,7 +173,7 @@ class ApplicationFileAdaptorTest {
     assertEquals("ApplicationFiles/a.css", out.getPath());
     assertEquals("text/css", out.getMimeType());
     assertNotNull(out.getDesignGaps());
-    assertTrue(out.getDesignGaps().stream().anyMatch(g -> g.contains("serverconfigs")));
+    assertTrue(out.getDesignGaps().isEmpty());
   }
 
   @Test
@@ -184,6 +184,43 @@ class ApplicationFileAdaptorTest {
     assertNull(adaptor.getFile("sys_resources", "a/../../b.txt"));
     assertNull(adaptor.getFile("sys_resources", ""));
     verify(fileStore, never()).read(any(), any(), any());
+  }
+
+  @Test
+  void put_createsMissingRelativePath() throws Exception {
+    ApplicationFileSummary body = new ApplicationFileSummary();
+    body.setContent("/* created */");
+    adaptor.lockFile("sys_resources", "ApplicationFiles/created.css");
+    ApplicationFileSummary out =
+        adaptor.putFile("sys_resources", "ApplicationFiles/created.css", body);
+    assertNotNull(out);
+    assertEquals("/* created */", out.getContent());
+    assertEquals("ApplicationFiles/created.css", out.getPath());
+    assertEquals("/* created */", savedContent.get());
+    verify(fileStore)
+        .write(
+            eq("sys_resources"),
+            any(File.class),
+            any(InputStream.class),
+            eq(true),
+            eq(token),
+            any());
+  }
+
+  @Test
+  void put_directoryTargetIs409AndDoesNotWrite() throws Exception {
+    when(fileStore.exists(eq("sys_resources"), any(File.class))).thenReturn(true);
+    when(fileStore.isDirectory(eq("sys_resources"), eq("sys_resources"), any(File.class)))
+        .thenReturn(true);
+    ApplicationFileSummary body = new ApplicationFileSummary();
+    body.setContent("x");
+    adaptor.lockFile("sys_resources", "ApplicationFiles");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.putFile("sys_resources", "ApplicationFiles", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(fileStore, never()).write(any(), any(), any(), anyBoolean(), any(), any());
   }
 
   @Test
@@ -867,7 +904,9 @@ class ApplicationFileAdaptorTest {
   void designGaps_noLongerClaimBinaryRoundTripGap() throws Exception {
     ApplicationFileSummary text = adaptor.getFile("sys_resources", "ApplicationFiles/a.css");
     assertNotNull(text.getDesignGaps());
+    assertTrue(text.getDesignGaps().isEmpty());
     assertTrue(text.getDesignGaps().stream().noneMatch(g -> g.contains("Binary")));
+    assertTrue(text.getDesignGaps().stream().noneMatch(g -> g.contains("create a new file")));
     when(fileStore.read(eq("sys_resources"), any(File.class), eq(token)))
         .thenReturn(new ByteArrayInputStream(new byte[] {(byte) 0xff, 0x00}));
     ApplicationFileSummary binary = adaptor.getFile("sys_resources", "raw.bin");

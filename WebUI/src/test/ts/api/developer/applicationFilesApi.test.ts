@@ -81,7 +81,7 @@ describe("applicationFilesApi", () => {
     expect(get).not.toHaveBeenCalled();
   });
 
-  it("getApplicationFileDetail unwraps and fills designGaps", async () => {
+  it("getApplicationFileDetail unwraps (PUT-create gap closed — empty designGaps)", async () => {
     get.mockResolvedValue({
       ApplicationFile: {
         applicationName: "sys_resources",
@@ -91,7 +91,7 @@ describe("applicationFilesApi", () => {
     });
     const detail = await getApplicationFileDetail("sys_resources", "ApplicationFiles/a.txt");
     expect(detail.content).toBe("hello");
-    expect(detail.designGaps?.length).toBeGreaterThan(0);
+    expect(detail.designGaps ?? []).toEqual([]);
     const expectedGet = `${PATHS.APPLICATION_FILES}/sys_resources/content?path=ApplicationFiles%2Fa.txt`;
     expect(get.mock.calls[0][0]).toBe(expectedGet);
   });

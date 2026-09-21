@@ -1959,6 +1959,12 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Could not save: design lock required or held by another user.",
   APPFILE_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   APPFILE_COL_ACTIONS: "perc.ui.developer@Actions",
+  APPFILE_NEW_FILE: "perc.ui.developer@Create file",
+  APPFILE_NEW_FILE_PLACEHOLDER:
+    "perc.ui.developer@Relative file path (for example ApplicationFiles/new.txt)",
+  APPFILE_NEW_FILE_LABEL: "perc.ui.developer@New file path",
+  APPFILE_FILE_CREATED: "perc.ui.developer@File created.",
+  APPFILE_FILE_CREATE_ERROR: "perc.ui.developer@Could not create file.",
   APPFILE_NEW_FOLDER: "perc.ui.developer@Create folder",
   APPFILE_NEW_FOLDER_PLACEHOLDER:
     "perc.ui.developer@Relative folder path (for example ApplicationFiles/new-folder)",
@@ -1976,7 +1982,7 @@ export const DEV_MSG_KEYS = {
   APPFILE_DELETE_ERROR: "perc.ui.developer@Could not delete this path.",
   APPFILE_DELETE_CONFIRM: "perc.ui.developer@Delete this application file or folder? This cannot be undone.",
   APPFILE_WRITE_ADMIN_ONLY:
-    "perc.ui.developer@Admin role required. Folder create, delete, and rename are disabled for this session.",
+    "perc.ui.developer@Admin role required. File create, folder create, delete, and rename are disabled for this session.",
   APPFILE_PATH_INVALID: "perc.ui.developer@Enter a relative path without .. or absolute form.",
   FE_LOADING: "perc.ui.developer@Loading File Explorer roots...",
   FE_EMPTY: "perc.ui.developer@No File Explorer roots are configured.",

@@ -28,10 +28,7 @@ import type { ApplicationFileSummary } from "./types";
  * (GET/PUT {@code application/octet-stream}); the old "may not round-trip as
  * UTF-8 text" entry was removed here and from the server's wire list.</p>
  */
-export const APPLICATION_FILE_DESIGN_GAPS: string[] = [
-  "Admin PUT may create a new file when the relative path does not yet exist under the application root",
-  "Distinct from /serverconfigs (SY-02 fixed server configuration allow-list)",
-];
+export const APPLICATION_FILE_DESIGN_GAPS: string[] = [];
 
 export type ApplicationFileWriteBody = {
   /** File text to persist; empty string is allowed by the REST contract. */
@@ -187,6 +184,7 @@ export async function getApplicationFileDetail(
 /**
  * PUT /services/applicationfiles/{app}/content?path= — Admin.
  * Query path selects the file; body path is ignored for persistence.
+ * Missing relative paths are created (not a silent 200 no-op).
  */
 export async function updateApplicationFile(
   app: string,
