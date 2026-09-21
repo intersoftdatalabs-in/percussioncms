@@ -54,6 +54,53 @@ public final class PSItemEditorBinarySupport {
     return field.trim();
   }
 
+  /**
+   * Image editor widgets ({@code img}, names containing {@code image}) must PUT
+   * an image MIME type or a known image filename extension.
+   */
+  public static boolean isImageFieldName(String field) {
+    if (StringUtils.isBlank(field)) {
+      return false;
+    }
+    String name = field.trim().toLowerCase(Locale.ROOT);
+    if (name.endsWith("_filename")
+        || name.endsWith("_ext")
+        || name.endsWith("_type")
+        || name.endsWith("_mime")
+        || name.endsWith("_size")
+        || name.endsWith("_width")
+        || name.endsWith("_height")) {
+      return false;
+    }
+    return "img".equals(name) || name.contains("image");
+  }
+
+  public static boolean isImageContentType(String contentType, String filename) {
+    String type = contentType == null ? "" : contentType.trim().toLowerCase(Locale.ROOT);
+    if (type.startsWith("image/")) {
+      return true;
+    }
+    String ext = extensionOf(filename);
+    return ".png".equals(ext)
+        || ".jpg".equals(ext)
+        || ".jpeg".equals(ext)
+        || ".gif".equals(ext)
+        || ".webp".equals(ext)
+        || ".svg".equals(ext)
+        || ".tif".equals(ext)
+        || ".tiff".equals(ext)
+        || ".bmp".equals(ext);
+  }
+
+  public static void requireImagePayload(String field, String contentType, String filename) {
+    if (!isImageFieldName(field)) {
+      return;
+    }
+    if (!isImageContentType(contentType, filename)) {
+      throw new IllegalArgumentException("The uploaded file is not an image.");
+    }
+  }
+
   public static String sanitizeFilename(String filename) {
     if (StringUtils.isBlank(filename)) {
       return "upload.bin";

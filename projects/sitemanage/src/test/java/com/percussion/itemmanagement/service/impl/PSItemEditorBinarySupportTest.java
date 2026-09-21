@@ -108,6 +108,21 @@ class PSItemEditorBinarySupportTest {
   }
 
   @Test
+  void imageFieldRequiresImagePayload() {
+    assertTrue(PSItemEditorBinarySupport.isImageFieldName("img"));
+    assertTrue(PSItemEditorBinarySupport.isImageFieldName("hero_image"));
+    assertFalse(PSItemEditorBinarySupport.isImageFieldName("item_file_attachment"));
+    assertFalse(PSItemEditorBinarySupport.isImageFieldName("img_filename"));
+    assertTrue(PSItemEditorBinarySupport.isImageContentType("image/png", "x.bin"));
+    assertTrue(PSItemEditorBinarySupport.isImageContentType("", "hero.jpg"));
+    assertFalse(PSItemEditorBinarySupport.isImageContentType("application/pdf", "spec.pdf"));
+    PSItemEditorBinarySupport.requireImagePayload("img", "image/png", "hero.png");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSItemEditorBinarySupport.requireImagePayload("img", "application/pdf", "spec.pdf"));
+  }
+
+  @Test
   void writeTempAndApplyBinary() throws Exception {
     PSContentItem item = new PSContentItem();
     item.setFields(new HashMap<>());

@@ -870,6 +870,127 @@ describe("EditorHost rich controls", () => {
     });
   });
 
+  it("maps image-field upload 403 as an error, not success", async () => {
+    const loadFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percImage",
+      name: "Hero",
+      checkoutUser: "admin",
+      fields: [{ name: "sys_title", value: "Hero" }],
+    });
+    const saveFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percImage",
+      name: "Hero",
+      checkoutUser: "admin",
+      fields: [{ name: "sys_title", value: "Hero" }],
+    });
+    const uploadBinary = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={async () => undefined}
+                loadFields={loadFields}
+                saveFields={saveFields}
+                uploadBinary={uploadBinary}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    { name: "img", label: "Image", control: "sys_webImageFX" },
+                  ],
+                })}
+                loadBinaryMeta={async () => ({
+                  contentId: "42",
+                  field: "img",
+                  filename: "",
+                  contentType: "",
+                  present: false,
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-img")).toBeTruthy();
+    });
+    const file = new File(["x"], "hero.png", { type: "image/png" });
+    fireEvent.change(screen.getByTestId("editor-file-img"), {
+      target: { files: [file] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+        /not allowed to upload an image/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("blocks a non-image file on an image field before PUT", async () => {
+    const uploadBinary = vi.fn();
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={async () => undefined}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percImage",
+                  name: "Hero",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "Hero" }],
+                })}
+                saveFields={saveFields}
+                uploadBinary={uploadBinary}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    { name: "img", label: "Image", control: "sys_webImageFX" },
+                  ],
+                })}
+                loadBinaryMeta={async () => ({
+                  contentId: "42",
+                  field: "img",
+                  filename: "",
+                  contentType: "",
+                  present: false,
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-img")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-file-img"), {
+      target: { files: [new File(["x"], "spec.pdf", { type: "application/pdf" })] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+        /could not be uploaded/i,
+      );
+    });
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
   it("opens the promote form without checkout", async () => {
     const checkout = vi.fn();
     render(

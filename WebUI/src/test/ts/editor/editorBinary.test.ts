@@ -16,7 +16,10 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { editorBinaryErrorReason } from "../../../main/ts/editor/editorBinary";
+import {
+  editorBinaryErrorReason,
+  isImageFile,
+} from "../../../main/ts/editor/editorBinary";
 
 describe("editorBinaryErrorReason", () => {
   it("maps 403, 413, and 400", () => {
@@ -40,5 +43,15 @@ describe("editorBinaryErrorReason", () => {
       editorBinaryErrorReason({ status: 500, statusText: "Error", body: {} }),
     ).toBe("failed");
     expect(editorBinaryErrorReason(new Error("boom"))).toBe("failed");
+  });
+
+  it("accepts image MIME or extension", () => {
+    expect(isImageFile(new File(["x"], "hero.png", { type: "image/png" }))).toBe(
+      true,
+    );
+    expect(isImageFile(new File(["x"], "hero.jpg", { type: "" }))).toBe(true);
+    expect(
+      isImageFile(new File(["x"], "spec.pdf", { type: "application/pdf" })),
+    ).toBe(false);
   });
 });

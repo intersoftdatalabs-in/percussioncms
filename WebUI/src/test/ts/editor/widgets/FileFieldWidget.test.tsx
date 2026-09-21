@@ -106,6 +106,30 @@ describe("FileFieldWidget", () => {
     expect((screen.getByTestId("editor-file-img") as HTMLInputElement).accept).toBe("image/*");
   });
 
+  it("disables the image input in read-only view mode", async () => {
+    render(
+      <ImageFieldWidget
+        itemId="7"
+        name="img"
+        readOnly
+        loadMeta={async () => ({
+          contentId: "7",
+          field: "img",
+          filename: "hero.png",
+          contentType: "image/png",
+          present: true,
+        })}
+        onFile={vi.fn()}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-img")).toBeTruthy();
+    });
+    expect((screen.getByTestId("editor-file-img") as HTMLInputElement).disabled).toBe(
+      true,
+    );
+  });
+
   it("strips HTML metacharacters from stored and chosen filenames", async () => {
     expect(displayBinaryFileName('<img src=x onerror=alert(1)>x.pdf')).toBe(
       "img src=x onerror=alert(1)x.pdf",

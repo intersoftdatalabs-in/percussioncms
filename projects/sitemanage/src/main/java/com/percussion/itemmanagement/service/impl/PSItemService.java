@@ -535,6 +535,7 @@ public class PSItemService implements IPSItemService {
         throw new WebApplicationException(
             "A file attachment is required.", Response.Status.BAD_REQUEST);
       }
+      PSItemEditorBinarySupport.requireImagePayload(fieldName, contentType, filename);
       String guid = PSLegacyExtensionUtils.getGUID(id);
       PSComponentSummary sum = workflowHelper.getComponentSummary(guid);
       if (sum != null
