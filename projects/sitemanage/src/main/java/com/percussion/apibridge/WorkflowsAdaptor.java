@@ -385,12 +385,16 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     summary.setWorkflowName(name);
     String requested = requestedDescription != null ? requestedDescription.trim() : "";
     if (ui != null) {
-      summary.setWorkflowDescription(
-          !requested.isEmpty() ? requested : ui.getWorkflowDescription());
       summary.setDefaultWorkflow(ui.isDefaultWorkflow());
     } else {
-      summary.setWorkflowDescription(requested);
       summary.setDefaultWorkflow(false);
+    }
+    // Non-null requested description (including "") is authoritative so PUT empty
+    // string clears stored text instead of copying the prior PSUiWorkflow value.
+    if (requestedDescription != null) {
+      summary.setWorkflowDescription(requested);
+    } else if (ui != null) {
+      summary.setWorkflowDescription(ui.getWorkflowDescription());
     }
     return summary;
   }

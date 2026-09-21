@@ -114,6 +114,11 @@ class WorkflowsAdaptorUpdateDeleteTest {
   void update_emptyStringClearsStoredDescription() {
     PSWorkflow stored = mockStoredWorkflow(NAME);
     when(workflowService.findWorkflowsByName(NAME)).thenReturn(List.of(stored));
+    PSUiWorkflow prior = new PSUiWorkflow();
+    prior.setWorkflowName(NAME);
+    prior.setWorkflowDescription("Prior stale text");
+    prior.setDefaultWorkflow(false);
+    when(stepped.getWorkflow(NAME)).thenReturn(prior);
 
     WorkflowSummary out = adaptor.updateWorkflow(null, NAME, body(NAME, ""));
     assertEquals("", out.getWorkflowDescription());
