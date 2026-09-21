@@ -12,7 +12,9 @@ The Erlang review skill moved to the canonical install at
 `~/.agents/skills/erlang/` and `~/.claude/skills/erlang/`). Run:
 
 ```text
-mkd-code-review analyze --pack percussion --format markdown
+mkd-code-review analyze --pack percussion --format markdown --gate advisory \
+    --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml \
+    <paths-from-diff>
 ```
 
 Read the persona there:
