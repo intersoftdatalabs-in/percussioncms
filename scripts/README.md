@@ -12,6 +12,23 @@ Out of scope for spec 994 (must NOT be touched):
 
 ## Scripts
 
+### `night-rtk-metrics.py` / `night-rtk-metrics.cmd`
+
+Snapshot `rtk gain -f json` and an optional **delta** for overnight token-savings
+metrics (`scratch/rtk-gain-before.json`, `scratch/rtk-gain-after.json`,
+`scratch/rtk-metrics.json`). Used by `night-issue-prs` 2.2.1. Fail-open if `rtk`
+is not on `PATH`. Does not merge or call GitHub.
+
+```bash
+python3 scripts/night-rtk-metrics.py --snapshot scratch/rtk-gain-before.json
+python3 scripts/night-rtk-metrics.py --snapshot scratch/rtk-gain-after.json \
+  --delta-from scratch/rtk-gain-before.json --out scratch/rtk-metrics.json
+python3 scripts/test_night_rtk_metrics.py
+```
+
+Windows: `scripts\night-rtk-metrics.cmd` with the same flags. The delta is RTK
+elided CLI output, not Grok billed tokens.
+
 ### `opencode-night-issue-prs.py`
 
 Launcher for the opencode `night-issue-prs` overnight workflow (mirrors

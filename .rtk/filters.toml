@@ -1,0 +1,6 @@
+# Project-local RTK filters for Percussion CMS.
+# Overnight night-issue-prs uses built-in rtk git / gh / mvn / npm / playwright.
+# Do not add perc-devctl filters: cycle-verify parses RESULT:OK / HEALTH / TEST_CMS_URL.
+# Trust once if you add matchers: rtk trust -y
+# Docs: https://github.com/rtk-ai/rtk#custom-filters
+schema_version = 1
