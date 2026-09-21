@@ -46,9 +46,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * <p>Distinct from {@code /serverconfigs} (SY-02 fixed server configuration allow-list). Paths are
  * relative under a catalog application root; traversal and absolute paths are rejected. Admin PUT
- * updates UTF-8 file bodies while a design lock is held (POST .../lock). Admin folder
- * create/delete and rename/move use the same path-safe keys (traversal is 400; unknown app/path is
- * 404; non-Admin is 403).
+ * updates UTF-8 file bodies while a design lock is held (POST .../lock). Binary-safe download and
+ * replace use GET/PUT .../binary (application/octet-stream) so non-UTF-8 bodies round-trip
+ * verbatim. Admin folder create/delete and rename/move use the same path-safe keys (traversal is
+ * 400; unknown app/path is 404; non-Admin is 403).
  */
 @PSSiteManageBean(value = "restApplicationFilesResource")
 @Path("/applicationfiles")
@@ -152,6 +153,46 @@ public class ApplicationFilesResource {
     }
   }
 
+  @GET
+  @Path("/{app}/binary")
+  @Produces({MediaType.APPLICATION_OCTET_STREAM})
+  @Operation(
+      summary = "Download an application CMS/resource file as raw bytes",
+      description =
+          "Returns the file body verbatim as application/octet-stream so binary files can be"
+              + " downloaded without UTF-8 mangling. Query path is relative (use / separators)."
+              + " Unsafe paths (parent traversal, absolute, drive-letter, NUL) are 400; unknown"
+              + " apps or files are 404.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Raw file bytes",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_OCTET_STREAM,
+                    schema = @Schema(type = "string", format = "byte"))),
+        @ApiResponse(responseCode = "400", description = "Missing or unsafe path"),
+        @ApiResponse(responseCode = "404", description = "Application or file not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response getFileBytes(@PathParam("app") String app, @QueryParam("path") String path) {
+    try {
+      if (path == null || path.isBlank()) {
+        throw new IllegalArgumentException(PATH_REQUIRED);
+      }
+      byte[] bytes = requireAdaptor().getFileBytes(app, path);
+      if (bytes == null) {
+        throw new WebApplicationException(FILE_NOT_FOUND, 404);
+      }
+      return Response.ok(bytes, MediaType.APPLICATION_OCTET_STREAM_TYPE).build();
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @PUT
   @Path("/{app}/content")
   @Consumes({MediaType.APPLICATION_JSON})
@@ -163,8 +204,8 @@ public class ApplicationFilesResource {
               + " root. Query path is not taken from the body path field for persistence. Absolute"
               + " paths, parent traversal, and unknown apps are 404 — no arbitrary filesystem"
               + " write. Distinct from PUT /serverconfigs/{name} (SY-02). Requires a held"
-              + " design-session lock (POST .../lock). Unlocked or stolen lock is 409. Binary"
-              + " round-trip remains a design gap.",
+              + " design-session lock (POST .../lock). Unlocked or stolen lock is 409. For"
+              + " binary-safe replace (raw bytes, no UTF-8 mangling) use PUT .../binary.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -191,6 +232,54 @@ public class ApplicationFilesResource {
         throw new IllegalArgumentException(PATH_REQUIRED);
       }
       ApplicationFileSummary updated = requireAdaptor().putFile(app, path, body);
+      if (updated == null) {
+        throw new WebApplicationException(FILE_NOT_FOUND, 404);
+      }
+      return updated;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @PUT
+  @Path("/{app}/binary")
+  @Consumes({MediaType.APPLICATION_OCTET_STREAM})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Replace an application CMS/resource file with raw bytes",
+      description =
+          "Admin. Replaces the file body verbatim (binary-safe round-trip) for a relative path"
+              + " under a catalog application root. Query path is not taken from any body path"
+              + " field. Unsafe paths are 400; unknown apps or paths are 404; non-Admin is 403."
+              + " Requires a held design-session lock (POST .../lock); unlocked or stolen lock is"
+              + " 409. The updated detail reports binary=true when the new body is not valid UTF-8"
+              + " text.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated (lock is still held)",
+            content = @Content(schema = @Schema(implementation = ApplicationFileSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid input (missing body/path)"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application or path not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ApplicationFileSummary putFileBytes(
+      @PathParam("app") String app, @QueryParam("path") String path, byte[] body) {
+    try {
+      if (path == null || path.isBlank()) {
+        throw new IllegalArgumentException(PATH_REQUIRED);
+      }
+      if (body == null) {
+        throw new IllegalArgumentException(BODY_REQUIRED);
+      }
+      ApplicationFileSummary updated = requireAdaptor().putFileBytes(app, path, body);
       if (updated == null) {
         throw new WebApplicationException(FILE_NOT_FOUND, 404);
       }

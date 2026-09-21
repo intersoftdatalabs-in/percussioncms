@@ -49,6 +49,12 @@ public class ApplicationFileSummary {
   /** File text when loaded for detail / PUT body; omitted on list. */
   private String content;
 
+  /**
+   * True when the file body is not valid UTF-8 text (raw bytes). Omitted (null) for UTF-8 text
+   * files and list rows so existing text clients are unaffected (class uses NON_NULL).
+   */
+  private Boolean binary;
+
   private String mimeType;
   private String characterEncoding;
   private Long contentLength;
@@ -97,6 +103,22 @@ public class ApplicationFileSummary {
 
   public void setContent(String content) {
     this.content = content;
+  }
+
+  /**
+   * True when the body is raw bytes (not valid UTF-8 text). Null for text files and list rows —
+   * use the binary GET/PUT endpoints for raw download/replace.
+   */
+  @Schema(
+      description =
+          "True when the file body is not valid UTF-8 text. Omitted for text files and list rows;"
+              + " binary GET/PUT endpoints serve the raw bytes")
+  public Boolean getBinary() {
+    return binary;
+  }
+
+  public void setBinary(Boolean binary) {
+    this.binary = binary;
   }
 
   public String getMimeType() {

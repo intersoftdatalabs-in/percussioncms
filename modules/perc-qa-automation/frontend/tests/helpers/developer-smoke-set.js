@@ -262,6 +262,13 @@ const DEVELOPER_SMOKE_SET = [
     notes: "SY-05 SPA application file folder CUD/rename H2 (#4544 / parent #1690)",
   },
   {
+    id: "application-files-binary",
+    file: "developer-application-files-binary.spec.js",
+    title: "Admin can download and replace a binary application file",
+    status: "green",
+    notes: "SY-05 SPA binary download/replace H2 (#4563 / parent #1690)",
+  },
+  {
     id: "problems-panel",
     file: "developer-problems-panel.spec.js",
     title: "Admin sees a problem row and can navigate to source",

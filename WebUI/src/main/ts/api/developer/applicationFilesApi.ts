@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { del, get, post, put } from "../client";
+import { del, get, getBinary, post, put, putBytes } from "../client";
 import { PATHS } from "../paths";
 import { unwrapObjectLockSummary, type ContentTypeLockSummary } from "./contentTypesApi";
 import type { ApplicationFileSummary } from "./types";
@@ -23,9 +23,12 @@ import type { ApplicationFileSummary } from "./types";
 /**
  * Catalog-level design gaps (REST-GAPS-02). Server omits these on list rows and may
  * still attach them on detail; SPA falls back when the wire array is missing/empty.
+ *
+ * <p>REST-GAPS-binary shipped in SY-02 slice D — binary files now round-trip
+ * (GET/PUT {@code application/octet-stream}); the old "may not round-trip as
+ * UTF-8 text" entry was removed here and from the server's wire list.</p>
  */
 export const APPLICATION_FILE_DESIGN_GAPS: string[] = [
-  "Binary files may not round-trip as UTF-8 text",
   "Admin PUT may create a new file when the relative path does not yet exist under the application root",
   "Distinct from /serverconfigs (SY-02 fixed server configuration allow-list)",
 ];
@@ -203,10 +206,64 @@ export async function updateApplicationFile(
   }
   const payload = await put<unknown>(
     contentUrl(name, path),
-    wrapApplicationFileForWire({ content: body.content }),
+    wrapApplicationFileForWire(body),
   );
-  return withGaps(unwrapApplicationFile(payload));
+  return unwrapApplicationFile(payload);
 }
+
+function binaryUrl(app: string, relativePath: string): string {
+  const params = new URLSearchParams();
+  params.set("path", relativePath);
+  return `${PATHS.APPLICATION_FILES}/${appKey(app)}/binary?${params.toString()}`;
+}
+
+/**
+ * GET /services/applicationfiles/{app}/binary?path= — Admin.
+ * Returns raw octet-stream bytes (binary files are not UTF-8 text; browser
+ * download/replace works off {@link getBinary}). Resolves like the detail
+ * contract (404 unknown app/file).
+ */
+export async function getApplicationFileBytes(
+  app: string,
+  relativePath: string,
+): Promise<{ bytes: Uint8Array<ArrayBuffer>; contentType: string }> {
+  const name = (app || "").trim();
+  const path = (relativePath || "").trim();
+  if (!name) {
+    throw new Error("application name is required");
+  }
+  if (!path) {
+    throw new Error("path is required");
+  }
+  const payload = await getBinary(binaryUrl(name, path));
+  return { bytes: payload.bytes, contentType: payload.contentType };
+}
+
+/**
+ * PUT /services/applicationfiles/{app}/binary?path= — Admin.
+ * Replaces the file body with raw octet-stream bytes (binary round-trip,
+ * SY-02 slice D). Requires the same lock + admin as the text PUT.
+ */
+export async function replaceApplicationFileBytes(
+  app: string,
+  relativePath: string,
+  bytes: Uint8Array<ArrayBuffer>,
+): Promise<ApplicationFileSummary> {
+  const name = (app || "").trim();
+  const path = (relativePath || "").trim();
+  if (!name) {
+    throw new Error("application name is required");
+  }
+  if (!path) {
+    throw new Error("path is required");
+  }
+  if (bytes == null) {
+    throw new Error("bytes are required");
+  }
+  const payload = await putBytes<unknown>(binaryUrl(name, path), bytes);
+  return unwrapApplicationFile(payload);
+}
+
 
 /** POST /services/applicationfiles/{app}/folders?path= — Admin. */
 export async function createApplicationFolder(

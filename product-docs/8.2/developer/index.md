@@ -76,7 +76,7 @@ preference):
 Operators using **Developer → Pipelines** browse, Admin start/stop, pipe IR, and OpenAPI chrome:
 [Developer Pipelines](id:admin-developer-pipelines).
 
-Operators using **Developer → Application Files** browse/lock/save/unlock/folder chrome (XML
+Operators using **Developer → Application Files** browse/lock/save/unlock/folder/download/replace chrome (XML
 application CMS/resource files; distinct from Server Configs):
 [Developer Application Files](id:admin-developer-application-files).
 
