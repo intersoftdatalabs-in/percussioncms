@@ -64,6 +64,21 @@ public class SitesTestAdaptor implements ISiteAdaptor {
   }
 
   @Override
+  public Site createSiteFromRequest(Site request) {
+    return request != null ? request : new Site();
+  }
+
+  @Override
+  public Site updateSite(String nameOrId, Site request) {
+    return request != null ? request : new Site();
+  }
+
+  @Override
+  public void deleteSiteByNameOrId(String nameOrId) {
+    // No-op for test adaptor
+  }
+
+  @Override
   public Site findByName(String name) {
     return null;
   }

@@ -2106,7 +2106,28 @@ export const DEV_MSG_KEYS = {
   SITE_BIND_ERROR:
     "perc.ui.developer@Sites API returned entries but none had a usable name. Check GET /services/sites JSON bind.",
   SITE_HINT:
-    "perc.ui.developer@Site definitions for association browse (SY-04). Open a row for URL, defaults, and Virtual Site source. Full site create/delete remains outside this catalog.",
+    "perc.ui.developer@Site definitions for association browse (SY-04). Create, open, update, or delete a site. Full section design and publish stay outside this catalog.",
+  SITE_NEW: "perc.ui.developer@New site",
+  SITE_FORM_NAME: "perc.ui.developer@Name",
+  SITE_FORM_DESCRIPTION: "perc.ui.developer@Description",
+  SITE_FORM_BASE_URL: "perc.ui.developer@Base URL",
+  SITE_NAME_HINT:
+    "perc.ui.developer@Letters, digits, space, hyphen, and underscore. Start with a letter. Max 50 characters.",
+  SITE_CREATE_SAVE: "perc.ui.developer@Create site",
+  SITE_CREATED: "perc.ui.developer@Site created.",
+  SITE_CREATE_ERROR: "perc.ui.developer@Could not create site.",
+  SITE_DUPLICATE: "perc.ui.developer@A site with that name already exists.",
+  SITE_INVALID_NAME: "perc.ui.developer@Enter a valid site name.",
+  SITE_FORBIDDEN: "perc.ui.developer@Admin role required to change sites.",
+  SITE_SAVE: "perc.ui.developer@Save site",
+  SITE_SAVING: "perc.ui.developer@Saving site...",
+  SITE_SAVED: "perc.ui.developer@Site saved.",
+  SITE_SAVE_ERROR: "perc.ui.developer@Could not save site.",
+  SITE_DELETE: "perc.ui.developer@Delete site",
+  SITE_DELETING: "perc.ui.developer@Deleting site...",
+  SITE_DELETE_ERROR: "perc.ui.developer@Could not delete site.",
+  SITE_DELETE_CONFIRM:
+    "perc.ui.developer@Delete this site? This removes the publishing site definition.",
   SITE_COL_NAME: "perc.ui.developer@Name",
   SITE_COL_GUID: "perc.ui.developer@GUID",
   SITE_COL_DESC: "perc.ui.developer@Description",
@@ -2123,7 +2144,7 @@ export const DEV_MSG_KEYS = {
   SITE_BACK: "perc.ui.developer@Back to list",
   SITE_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   SITE_GAP_WRITE:
-    "perc.ui.developer@Site create / update / delete is not supported from this Developer surface",
+    "perc.ui.developer@Site create, update, and delete are available from this Developer catalog",
   SITE_GAP_PUBLISH:
     "perc.ui.developer@Full site publish and section design live outside the Developer catalog",
   SITE_GAP_WF:

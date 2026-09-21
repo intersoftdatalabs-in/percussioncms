@@ -12,11 +12,14 @@ import { SitesPanel } from "../../../main/ts/developer/SitesPanel";
 
 vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
   listSites: vi.fn(),
+  createSite: vi.fn(),
+  updateSite: vi.fn(),
+  deleteSite: vi.fn(),
   getVirtualSiteProperties: vi.fn().mockResolvedValue({ virtual: false }),
   updateVirtualSiteProperties: vi.fn(),
   coerceDisplayString: (value: unknown) =>
     typeof value === "string" ? value.trim() : "",
-  SITE_DESIGN_GAPS: ["gap-write", "gap-publish", "gap-wf"],
+  SITE_DESIGN_GAPS: ["gap-publish", "gap-wf"],
 }));
 
 const listSites = sitesApi.listSites as ReturnType<typeof vi.fn>;
@@ -45,6 +48,7 @@ describe("SitesPanel", () => {
       expect(screen.getByTestId("developer-site-table")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-site-table").textContent).toContain("Corporate");
+    expect(screen.getByTestId("developer-site-new")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-site-open"));
     await waitFor(() => {
       expect(screen.getByTestId("developer-site-detail")).toBeTruthy();

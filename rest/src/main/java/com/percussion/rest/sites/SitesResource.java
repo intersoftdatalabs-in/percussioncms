@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -111,6 +112,115 @@ public class SitesResource {
    * @param nameOrId site name or GUID
    * @return site detail
    */
+  @POST
+  @Path("/")
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Operation(
+      summary = "Create a site",
+      description =
+          "Slice 22 Admin. Creates a publishing site (name required, unique, letters/digits/"
+              + "space/hyphen/underscore, max 50). Optional description and baseUrl. Jackson"
+              + " root wrap is Site. Full section design stays outside this surface.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created",
+            content = @Content(schema = @Schema(implementation = Site.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid name or missing body"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "409", description = "Site name already exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Site createSite(Site body) {
+    if (body == null) {
+      throw new WebApplicationException("Site body is required", Response.Status.BAD_REQUEST);
+    }
+    try {
+      return requireAdaptor().createSiteFromRequest(body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to create site ({}): {}", e.getClass().getName(), e.getMessage(), e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @PUT
+  @Path("/{nameOrId}")
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Operation(
+      summary = "Update a site",
+      description =
+          "Slice 22 Admin. Updates description, baseUrl, protocol, default document, and"
+              + " default file extension. Body name must match the path. Jackson root wrap is"
+              + " Site. Renames and section design stay outside this surface.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated",
+            content = @Content(schema = @Schema(implementation = Site.class))),
+        @ApiResponse(responseCode = "400", description = "Missing body or mismatched name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Site not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Site updateSite(@PathParam("nameOrId") String nameOrId, Site body) {
+    requireNonBlank(nameOrId, "nameOrId");
+    if (body == null) {
+      throw new WebApplicationException("Site body is required", Response.Status.BAD_REQUEST);
+    }
+    try {
+      return requireAdaptor().updateSite(nameOrId, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to update site '{}' ({}): {}",
+          nameOrId,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @DELETE
+  @Path("/{nameOrId}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Operation(
+      summary = "Delete a site",
+      description =
+          "Slice 22 Admin. Deletes a publishing site by name or GUID. 404 when missing.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(responseCode = "400", description = "Missing nameOrId"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Site not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public void deleteSite(@PathParam("nameOrId") String nameOrId) {
+    requireNonBlank(nameOrId, "nameOrId");
+    try {
+      requireAdaptor().deleteSiteByNameOrId(nameOrId);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to delete site '{}' ({}): {}",
+          nameOrId,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @GET
   @Path("/{nameOrId}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})

@@ -71,6 +71,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -96,6 +97,11 @@ public class SitesAdaptor implements ISiteAdaptor {
       "No assembled Virtual Site to preview. Run Build Virtual Site first.";
 
   static final long MAX_PREVIEW_FILE_BYTES = 20L * 1024 * 1024;
+
+  /** Catalog create/update name: letter first, then letters/digits/space/hyphen/underscore. */
+  static final Pattern SITE_NAME_PATTERN = Pattern.compile("^[A-Za-z][A-Za-z0-9_ \\-]{0,49}$");
+
+  static final int SITE_NAME_MAX = 50;
 
   @Autowired private IPSPublishingWs publishingWs;
 
@@ -197,11 +203,62 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   @Override
   public void saveSite(Site site) {
-    // General site save remains a later slice; use updateVirtualSiteProperties for virtual.*.
-    throw new WebApplicationException(
-        "General site save is not implemented; use PUT /sites/{nameOrId}/virtual for Virtual Site"
-            + " properties",
-        Response.Status.NOT_IMPLEMENTED);
+    if (site == null) {
+      throw new WebApplicationException("Site body is required", Response.Status.BAD_REQUEST);
+    }
+    updateSite(site.getName(), site);
+  }
+
+  @Override
+  public Site createSiteFromRequest(Site request) {
+    requireAdmin();
+    if (request == null) {
+      throw new WebApplicationException("Site body is required", Response.Status.BAD_REQUEST);
+    }
+    String name = normalizeSiteName(request.getName());
+    if (siteManager.findSite(name) != null) {
+      throw new WebApplicationException("Site already exists: " + name, Response.Status.CONFLICT);
+    }
+    IPSSite created = siteManager.createSite();
+    created.setName(name);
+    applyWritableFields(created, request, true);
+    siteManager.saveSite(created);
+    return toDetailSite(created);
+  }
+
+  @Override
+  public Site updateSite(String nameOrId, Site request) {
+    requireAdmin();
+    if (request == null) {
+      throw new WebApplicationException("Site body is required", Response.Status.BAD_REQUEST);
+    }
+    IPSSite found = requireSite(nameOrId);
+    String bodyName = request.getName();
+    if (StringUtils.isNotBlank(bodyName)) {
+      String normalized = bodyName.trim();
+      if (!normalized.equalsIgnoreCase(found.getName())
+          && (found.getGUID() == null
+              || !normalized.equalsIgnoreCase(String.valueOf(found.getGUID())))) {
+        throw new WebApplicationException(
+            "Site name must match the path (renames are not supported)",
+            Response.Status.BAD_REQUEST);
+      }
+    }
+    try {
+      IPSSite modifiable = loadModifiable(found);
+      applyWritableFields(modifiable, request, false);
+      siteManager.saveSite(modifiable);
+      return toDetailSite(modifiable);
+    } catch (PSNotFoundException e) {
+      throw new WebApplicationException("Site not found: " + nameOrId, Response.Status.NOT_FOUND);
+    }
+  }
+
+  @Override
+  public void deleteSiteByNameOrId(String nameOrId) {
+    requireAdmin();
+    IPSSite found = requireSite(nameOrId);
+    siteManager.deleteSite(found);
   }
 
   @Override
@@ -230,14 +287,18 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   @Override
   public void deleteSite(Site site) {
-    throw new WebApplicationException(
-        "Site delete is not implemented on this adaptor", Response.Status.NOT_IMPLEMENTED);
+    if (site == null || StringUtils.isBlank(site.getName())) {
+      throw new WebApplicationException("Site name is required", Response.Status.BAD_REQUEST);
+    }
+    deleteSiteByNameOrId(site.getName());
   }
 
   @Override
   public Site createSite() {
-    throw new WebApplicationException(
-        "Site create is not implemented on this adaptor", Response.Status.NOT_IMPLEMENTED);
+    requireAdmin();
+    Site empty = new Site();
+    empty.setName("");
+    return empty;
   }
 
   @Override
@@ -1051,11 +1112,48 @@ public class SitesAdaptor implements ISiteAdaptor {
     } catch (RuntimeException e) {
       log.debug("Admin check failed: {}", e.getMessage());
       throw new WebApplicationException(
-          "Admin role required to build or publish Virtual Sites", Response.Status.FORBIDDEN);
+          "Admin role required for site write operations", Response.Status.FORBIDDEN);
     }
     if (!allowed) {
       throw new WebApplicationException(
-          "Admin role required to build or publish Virtual Sites", Response.Status.FORBIDDEN);
+          "Admin role required for site write operations", Response.Status.FORBIDDEN);
+    }
+  }
+
+  static String normalizeSiteName(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      throw new WebApplicationException("Site name is required", Response.Status.BAD_REQUEST);
+    }
+    String name = raw.trim();
+    if (name.length() > SITE_NAME_MAX || !SITE_NAME_PATTERN.matcher(name).matches()) {
+      throw new WebApplicationException(
+          "Invalid site name (letters, digits, space, hyphen, underscore; max 50; start with a letter)",
+          Response.Status.BAD_REQUEST);
+    }
+    return name;
+  }
+
+  /**
+   * Apply Developer-catalog writable fields. On create, missing optionals stay unset; on update,
+   * a non-null field replaces the stored value (empty string clears description/baseUrl).
+   */
+  static void applyWritableFields(IPSSite target, Site request, boolean create) {
+    if (request.getDescription() != null) {
+      target.setDescription(request.getDescription().trim());
+    } else if (create) {
+      target.setDescription(null);
+    }
+    if (request.getBaseUrl() != null) {
+      target.setBaseUrl(request.getBaseUrl().trim());
+    }
+    if (StringUtils.isNotBlank(request.getSiteProtocol())) {
+      target.setSiteProtocol(request.getSiteProtocol().trim());
+    }
+    if (StringUtils.isNotBlank(request.getDefaultDocument())) {
+      target.setDefaultDocument(request.getDefaultDocument().trim());
+    }
+    if (StringUtils.isNotBlank(request.getDefaultFileExtention())) {
+      target.setDefaultFileExtension(request.getDefaultFileExtention().trim());
     }
   }
 

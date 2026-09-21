@@ -44,6 +44,32 @@ public interface ISiteAdaptor {
   void saveSite(Site site);
 
   /**
+   * Admin create: persist a new publishing site from the request body (name required; unique;
+   * letters/digits/space/hyphen/underscore; max 50). Description and baseUrl optional.
+   *
+   * @param request create body, not null
+   * @return persisted site detail
+   */
+  Site createSiteFromRequest(Site request);
+
+  /**
+   * Admin update: description, baseUrl, protocol, default document, and default file extension.
+   * Body name must match the path. Renames stay out of this surface.
+   *
+   * @param nameOrId existing site name or GUID
+   * @param request update body, not null
+   * @return persisted site detail
+   */
+  Site updateSite(String nameOrId, Site request);
+
+  /**
+   * Admin delete by name or GUID string.
+   *
+   * @param nameOrId site name or GUID, not blank
+   */
+  void deleteSiteByNameOrId(String nameOrId);
+
+  /**
    * Finds a site by name (detail includes {@link Site#getVirtual()} when configured).
    *
    * @param name the site name

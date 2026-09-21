@@ -3516,6 +3516,51 @@ public class SitesResourceTest {
     verify(adaptor, never()).publishVirtualSite(any());
   }
 
+  @Test
+  public void createSiteDelegates() {
+    Site body = new Site();
+    body.setName("NightlySite");
+    Site saved = new Site();
+    saved.setName("NightlySite");
+    when(adaptor.createSiteFromRequest(same(body))).thenReturn(saved);
+
+    Site out = resource.createSite(body);
+    assertEquals("NightlySite", out.getName());
+    verify(adaptor).createSiteFromRequest(same(body));
+  }
+
+  @Test
+  public void createSiteNullBody400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.createSite(null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).createSiteFromRequest(any());
+  }
+
+  @Test
+  public void updateSiteDelegates() {
+    Site body = new Site();
+    body.setName("NightlySite");
+    body.setDescription("n");
+    when(adaptor.updateSite(eq("NightlySite"), same(body))).thenReturn(body);
+    assertEquals("n", resource.updateSite("NightlySite", body).getDescription());
+    verify(adaptor).updateSite("NightlySite", body);
+  }
+
+  @Test
+  public void deleteSiteDelegates() {
+    resource.deleteSite("NightlySite");
+    verify(adaptor).deleteSiteByNameOrId("NightlySite");
+  }
+
+  @Test
+  public void deleteSiteBlank400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteSite(" "));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).deleteSiteByNameOrId(any());
+  }
+
   /**
    * CodeQL #1949: Jackson/JAXB JSON/XML DTO return must keep same-line {@code // codeql[java/xss]}
    * on the updateVirtual sink (not HTML body construction).
