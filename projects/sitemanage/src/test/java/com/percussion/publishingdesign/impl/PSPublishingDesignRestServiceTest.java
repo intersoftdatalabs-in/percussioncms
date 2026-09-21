@@ -36,6 +36,7 @@ import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -189,6 +190,49 @@ class PSPublishingDesignRestServiceTest {
     body.setName("Taken");
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> service.updateEdition("11", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void createContentList_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+    PSContentListSummary body = new PSContentListSummary();
+    body.setName("HomePages");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.createContentList(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void createContentList_duplicateName_409() {
+    IPSContentList existing = mock(IPSContentList.class);
+    when(existing.getGUID()).thenReturn(contentListGuid);
+    when(contentListGuid.getUUID()).thenReturn(7);
+    when(publisherService.findContentListByName("DupCl")).thenReturn(Optional.of(existing));
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setName("DupCl");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.createContentList(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void updateContentList_duplicateName_409() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = mock(IPSContentList.class);
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+
+    IPSGuid otherGuid = mock(IPSGuid.class);
+    IPSContentList existing = mock(IPSContentList.class);
+    when(existing.getGUID()).thenReturn(otherGuid);
+    when(otherGuid.getUUID()).thenReturn(99);
+    when(publisherService.findContentListByName("Taken")).thenReturn(Optional.of(existing));
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setName("Taken");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
     assertEquals(409, ex.getResponse().getStatus());
   }
 

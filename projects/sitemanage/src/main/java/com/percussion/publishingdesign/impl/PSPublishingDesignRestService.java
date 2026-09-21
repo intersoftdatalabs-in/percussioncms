@@ -66,6 +66,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,6 +88,7 @@ public class PSPublishingDesignRestService {
   static final String DESIGN_WRITE_FORBIDDEN =
       "Admin or Designer role required to save a publish edition";
   static final String EDITION_NAME_CONFLICT = "Edition name already exists";
+  static final String CONTENT_LIST_NAME_CONFLICT = "Content list name already exists";
 
   private final IPSPublisherService publisherService;
   private final IPSGuidManager guidManager;
@@ -385,10 +387,12 @@ public class PSPublishingDesignRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSContentListSummary createContentList(PSContentListSummary body) {
+    requireDesignWrite();
     if (body == null || isBlank(body.getName())) {
       throw badRequest("name is required");
     }
     try {
+      requireUniqueContentListName(body.getName().trim(), null);
       IPSContentList cl = publisherService.createContentList(body.getName().trim());
       applyContentListFields(cl, body, true);
       publisherService.saveContentList(cl);
@@ -406,6 +410,7 @@ public class PSPublishingDesignRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSContentListSummary updateContentList(
       @PathParam("contentListId") String contentListId, PSContentListSummary body) {
+    requireDesignWrite();
     requireNonBlank(contentListId, "contentListId");
     if (body == null) {
       throw badRequest("body is required");
@@ -413,6 +418,9 @@ public class PSPublishingDesignRestService {
     try {
       IPSContentList cl =
           publisherService.loadContentListModifiable(toContentListGuid(contentListId));
+      if (!isBlank(body.getName())) {
+        requireUniqueContentListName(body.getName().trim(), contentListId);
+      }
       applyContentListFields(cl, body, false);
       publisherService.saveContentList(cl);
       return toContentListSummary(cl);
@@ -1312,6 +1320,18 @@ public class PSPublishingDesignRestService {
       return;
     }
     throw conflict(EDITION_NAME_CONFLICT);
+  }
+
+  private void requireUniqueContentListName(String name, String currentContentListId) {
+    Optional<IPSContentList> existing = publisherService.findContentListByName(name);
+    if (existing.isEmpty() || existing.get().getGUID() == null) {
+      return;
+    }
+    String existingId = String.valueOf(existing.get().getGUID().getUUID());
+    if (currentContentListId != null && currentContentListId.equals(existingId)) {
+      return;
+    }
+    throw conflict(CONTENT_LIST_NAME_CONFLICT);
   }
 
   private static WebApplicationException badRequest(String msg) {
