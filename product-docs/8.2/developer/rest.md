@@ -2362,7 +2362,7 @@ in this release).
 | `GET` | `/services/workflowmanagement/workflows/{name}` | Load one workflow by name (steps, staging roles, default flag) |
 | `POST` | `/services/workflows` | **Admin.** Create a workflow (`WorkflowCreate` wrap: required unique `name`, optional `description`). States, transitions, and roles come from the base-workflow template. Duplicate name is `409`; invalid name is `400`; non-Admin is `403`. Returns the new `WorkflowSummary` |
 | `PUT` | `/services/workflows/{idOrName}` | **Admin.** Update the workflow's description (`WorkflowUpdate` wrap: required matching `name`, optional `description` — empty string clears). Name must match the path idOrName. Renaming and step / transitions / roles editing stay on the workflow-admin editor. Missing workflow is `404`; mismatched name is `400`; non-Admin is `403`. Returns the new `WorkflowSummary` |
-| `DELETE` | `/services/workflows/{idOrName}` | **Admin.** Delete the workflow via `IPSSteppedWorkflowService.deleteWorkflow` (same backend the workflow-admin editor uses). System workflows and workflows that still own content items return `409`; missing workflow returns `404`. `204` on success |
+| `DELETE` | `/services/workflows/{idOrName}` | **Admin.** Delete the workflow via `IPSSteppedWorkflowService.deleteWorkflow` (same backend the workflow-admin editor uses). Path `idOrName` is workflow name, numeric uuid, or rest guid (same resolution as `PUT`). System workflows and workflows that still own content items return `409`; missing workflow returns `404`. `204` on success |
 
 JSON list and detail may wrap under Jackson / JAXB root `Workflow` (including nested
 `{ "Workflow": { "Workflow": { … } } }` envelopes). The name field is `workflowName`;

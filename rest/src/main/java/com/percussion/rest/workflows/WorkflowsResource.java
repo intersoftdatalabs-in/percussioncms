@@ -309,7 +309,8 @@ public class WorkflowsResource {
       summary = "Delete a workflow",
       description =
           "Slice 21 Admin. Deletes a stepped workflow via IPSSteppedWorkflowService.deleteWorkflow"
-              + " (same backend the workflow-admin editor uses). System workflows and workflows"
+              + " (same backend the workflow-admin editor uses). Path idOrName is name, numeric"
+              + " uuid, or rest guid (same resolution as PUT). System workflows and workflows"
               + " that still own content items return 409; a missing workflow returns 404.",
       responses = {
         @ApiResponse(responseCode = "204", description = "Deleted"),
