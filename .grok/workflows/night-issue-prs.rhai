@@ -1,8 +1,13 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.2.0
+// workflow_version: 2.2.1
 // Grok Build workflow meta has no version field (only name/description/when_to_use/phases).
 // Keep invocation name night-issue-prs stable; bump this header when behavior changes.
 //
+// 2.2.1 — RTK: every child prompt includes rtk_block(). Wrap noisy git/gh/mvn/npm/
+//   playwright/docker through rtk when `rtk` is on PATH. Grok PreToolUse hook
+//   (rtk hook grok) also rewrites simple Bash; compound `cd MODULE && mvnw` is
+//   NOT auto-rewritten — agents must use `cd MODULE && rtk mvn clean install`.
+//   Do not wrap python scripts, perc-devctl, gh api GraphQL, or JSON dumps.
 // 2.2.0 — Decision-front script (scripts/night-decision-front.py) + one thin agent
 //   replaces Preflight+Reconcile+Triage Grok walks when the script returns a
 //   queue. gh facts + Jev prescreen hints; one-per-parent; covering-PR skip.
@@ -251,10 +256,33 @@ let identity_schema = #{
     },
 };
 
+fn rtk_block() {
+    let s = "";
+    s += "RTK (HARD when `rtk` is on PATH — compact CLI output before it hits context):\n";
+    s += "- Prefer: rtk git, rtk gh (pr/issue/run/repo), rtk mvn, rtk npm, rtk playwright,\n";
+    s += "  rtk docker (ps/logs/build only), rtk log, rtk grep/rg.\n";
+    s += "- Maven C1: cd MODULE && rtk mvn clean install (same goals/tests; rtk filters output).\n";
+    s += "  Do not use bare ../mvnw when rtk exists — the Grok hook does not rewrite `cd && mvnw`.\n";
+    s += "- Playwright: rtk playwright npm run test:surface -- --path … (or rtk npm run test:surface).\n";
+    s += "- NEVER wrap: python3/scripts, perc-devctl qa-up/qa-health/qa-down/qa-deploy-*,\n";
+    s += "  gh api / GraphQL, commands that write scratch/*.json, git commit/push,\n";
+    s += "  gh pr create / merge / comment. Use rtk run only if you must skip a filter.\n";
+    s += "- If `rtk` is missing, run the unprefixed command. Filtered BUILD SUCCESS / Tests run\n";
+    s += "  / pass counts still count as evidence. Recall elided output with rtk recall if needed.\n";
+    s += "- Metrics: if scratch/rtk-gain-before.json is missing, run\n";
+    s += "  python3 scripts/night-rtk-metrics.py --snapshot scratch/rtk-gain-before.json\n";
+    s += "  (Windows: scripts\\\\night-rtk-metrics.cmd). Before you return from Work, Erlang,\n";
+    s += "  or Cycle verify, run the same with --snapshot scratch/rtk-gain-after.json\n";
+    s += "  --delta-from scratch/rtk-gain-before.json --out scratch/rtk-metrics.json.\n";
+    s += "  Fail-open if rtk is missing. Do not commit those JSON files.\n";
+    s
+}
+
 fn identity_block(tool, ver, model, agent_name) {
     let label = "model:" + model;
     let footer = "> Co-Authored by " + tool + " " + ver + " using " + model + " with agent " + agent_name + ".";
     let s = "";
+    s += rtk_block();
     s += "SESSION IDENTITY (HARD — live tool + session model; never invent a model id):\n";
     s += "- Coding tool: " + tool + "\n";
     s += "- Tool version: " + ver + "\n";
@@ -970,9 +998,12 @@ if include_decision_front {
     let b_df = budget();
     if b_df.remaining >= 2 {
         let df_prompt = "";
+        df_prompt += rtk_block();
         df_prompt += "You are the overnight DECISION-FRONT runner (thin). Do not implement product code.\n";
         df_prompt += "Repo: " + repo + " base: " + base_branch + " model label: " + model_label + "\n";
         df_prompt += "max_issues=" + max_issues.to_string() + "\n";
+        df_prompt += "0) python3 scripts/night-rtk-metrics.py --snapshot scratch/rtk-gain-before.json\n";
+        df_prompt += "   (Windows: scripts\\\\night-rtk-metrics.cmd). Fail-open if rtk missing.\n";
         df_prompt += "1) gh auth status. Write scratch/issues-raw.json: JSON ARRAY of open issues\n";
         df_prompt += "   {number,title,labels,assignees,author,body,updatedAt} (paginate, cap 120).\n";
         df_prompt += "2) Write scratch/prs-open.json: JSON ARRAY of open PRs to " + base_branch + "\n";
@@ -1071,6 +1102,7 @@ if b_pf.remaining < 2 {
     };
 } else {
     let pf_prompt = "";
+    pf_prompt += rtk_block();
     pf_prompt += "You are the overnight PREFLIGHT scout for Percussion CMS (one pass).\n";
     pf_prompt += "Repo: " + repo + "  base_branch: " + base_branch + "\n";
     pf_prompt += "This run model label: " + model_label + "\n";
@@ -3527,6 +3559,9 @@ report_md += "- PR cluster: " + as_str(pr_cluster_result) + "\n";
 report_md += "- Security audit: " + as_str(security_audit_result) + "\n";
 report_md += "- Cycle verify: " + as_str(cycle_verify_result) + "\n";
 report_md += "- Human QA: " + as_str(human_qa_result) + "\n";
+report_md += "- RTK metrics: repo scratch/rtk-metrics.json (delta of `rtk gain` this run).\n";
+report_md += "  That file is CLI-output savings, not Grok billed tokens. Workflow\n";
+report_md += "  complete().tokens_used is billed usage for comparison vs pre-RTK runs.\n";
 
 let report_path = write_scratch_file("night-report.md", report_md);
 

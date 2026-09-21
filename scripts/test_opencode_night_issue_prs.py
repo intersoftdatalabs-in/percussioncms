@@ -241,6 +241,7 @@ def test_worktree_exists_true_for_real_worktree(tmp_path):
     (seed / "README.md").write_text("hi")
     subprocess.run(["git", "-C", str(seed), "add", "README.md"], check=True, shell=False, timeout=10)
     subprocess.run(["git", "-C", str(seed), "commit", "-m", "init"], check=True, shell=False, timeout=10)
+    subprocess.run(["git", "-C", str(seed), "branch", "-M", "main"], check=True, shell=False, timeout=10)
     subprocess.run(["git", "-C", str(seed), "push", "origin", "main"], check=True, shell=False, timeout=30)
 
     wt = tmp_path / "wt"
@@ -272,6 +273,7 @@ def test_ensure_worktree_no_ops_when_worktree_exists(tmp_path):
     (seed / "README.md").write_text("hi")
     subprocess.run(["git", "-C", str(seed), "add", "README.md"], check=True, shell=False, timeout=10)
     subprocess.run(["git", "-C", str(seed), "commit", "-m", "init"], check=True, shell=False, timeout=10)
+    subprocess.run(["git", "-C", str(seed), "branch", "-M", "main"], check=True, shell=False, timeout=10)
     subprocess.run(["git", "-C", str(seed), "push", "origin", "main"], check=True, shell=False, timeout=30)
 
     wt = tmp_path / "wt"
@@ -314,6 +316,7 @@ def test_ensure_worktree_resets_to_new_origin_commit(tmp_path):
     (seed / "README.md").write_text("v1")
     subprocess.run(["git", "-C", str(seed), "add", "README.md"], check=True, shell=False, timeout=10)
     subprocess.run(["git", "-C", str(seed), "commit", "-m", "v1"], check=True, shell=False, timeout=10)
+    subprocess.run(["git", "-C", str(seed), "branch", "-M", "main"], check=True, shell=False, timeout=10)
     subprocess.run(["git", "-C", str(seed), "push", "origin", "main"], check=True, shell=False, timeout=30)
 
     wt = tmp_path / "wt"
@@ -330,6 +333,7 @@ def test_ensure_worktree_resets_to_new_origin_commit(tmp_path):
     (seed / "README.md").write_text("v2")
     subprocess.run(["git", "-C", str(seed), "add", "README.md"], check=True, shell=False, timeout=10)
     subprocess.run(["git", "-C", str(seed), "commit", "-m", "v2"], check=True, shell=False, timeout=10)
+    subprocess.run(["git", "-C", str(seed), "branch", "-M", "main"], check=True, shell=False, timeout=10)
     subprocess.run(["git", "-C", str(seed), "push", "origin", "main"], check=True, shell=False, timeout=30)
     head_v2 = subprocess.run(["git", "-C", str(seed), "rev-parse", "origin/main"], check=True, shell=False, timeout=10, capture_output=True, text=True).stdout.strip()
     assert head_v1 != head_v2

@@ -6,7 +6,11 @@ Project workflows live here and are invocable by name (e.g. `/night-issue-prs` o
 
 ## `night-issue-prs`
 
-**Version:** `2.2.0` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
+**Version:** `2.2.1` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
+
+**RTK (2.2.1):** Overnight children wrap noisy `git` / `gh` / Maven / npm / Playwright / docker through `rtk` when it is on PATH. Install once: `rtk init --agent grok -g --auto-patch` (writes `~/.grok/hooks.json` PreToolUse `rtk hook grok`). Reload Grok hooks. Compound `cd MODULE && ../mvnw` is **not** auto-rewritten — agents use `cd MODULE && rtk mvn clean install`. Do **not** wrap `perc-devctl`, Python decision-front, or `gh api` JSON dumps (cycle-verify and decision-front parse those outputs). Stub: `.rtk/filters.toml`.
+
+**RTK metrics:** Decision-front writes `scratch/rtk-gain-before.json`. Work / Erlang / Cycle verify write `scratch/rtk-gain-after.json` + `scratch/rtk-metrics.json` via `scripts/night-rtk-metrics.py` (delta of `rtk gain`). That delta is **CLI output elided**, not Grok billed tokens. Compare billed usage with the workflow run’s `tokens_used` vs a pre-RTK run (e.g. night-issue-prs-32). `rtk gain -p -a` for a project history after several nights.
 
 Unattended overnight worker. Specialists spawn only when Preflight (or this-run results) show work; empty phases do not pay a full agent.
 
