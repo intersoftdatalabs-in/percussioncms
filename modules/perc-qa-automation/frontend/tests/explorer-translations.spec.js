@@ -210,32 +210,39 @@ async function fetchFolderChildren(request, cmsPath) {
  * @param {import("@playwright/test").APIRequestContext} request
  * @returns {Promise<object|null>}
  */
+async function pickGuidFromFolderAndChildren(request, folder, seen) {
+  const kids = await fetchFolderChildren(request, folder);
+  const picked = pickGuidListedItem(kids);
+  if (picked) {
+    return picked;
+  }
+  for (const kid of kids.slice(0, 12)) {
+    const nestedRel = nestedFolderRel(kid, folder);
+    if (!nestedRel || seen.has(nestedRel)) {
+      continue;
+    }
+    seen.add(nestedRel);
+    const nestedPick = pickGuidListedItem(
+      await fetchFolderChildren(request, nestedRel),
+    );
+    if (nestedPick) {
+      return nestedPick;
+    }
+  }
+  return null;
+}
+
 async function findGuidListedItemViaRest(request) {
   const sites = await fetchFolderChildren(request, "Sites");
-  const candidateFolders = guidListCandidateFolders(sites);
   const seen = new Set();
-  for (const folder of candidateFolders) {
+  for (const folder of guidListCandidateFolders(sites)) {
     if (!folder || seen.has(folder)) {
       continue;
     }
     seen.add(folder);
-    const kids = await fetchFolderChildren(request, folder);
-    const picked = pickGuidListedItem(kids);
-    if (picked) {
-      return picked;
-    }
-    for (const kid of kids.slice(0, 12)) {
-      const nestedRel = nestedFolderRel(kid, folder);
-      if (!nestedRel || seen.has(nestedRel)) {
-        continue;
-      }
-      seen.add(nestedRel);
-      const nestedPick = pickGuidListedItem(
-        await fetchFolderChildren(request, nestedRel),
-      );
-      if (nestedPick) {
-        return nestedPick;
-      }
+    const found = await pickGuidFromFolderAndChildren(request, folder, seen);
+    if (found) {
+      return found;
     }
   }
   return null;

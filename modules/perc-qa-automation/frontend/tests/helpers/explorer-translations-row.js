@@ -199,6 +199,23 @@ function isFolderishPathItem(item) {
   return String(item.path || "").endsWith("/");
 }
 
+/** Logical CMS folder path without a leading slash. */
+function cmsRelFolder(raw) {
+  let p = String(raw == null ? "" : raw)
+    .trim()
+    .replace(/\\/g, "/");
+  while (p.startsWith("//")) {
+    p = p.slice(1);
+  }
+  if (p && !p.startsWith("/")) {
+    p = `/${p}`;
+  }
+  if (p.length > 1 && p.endsWith("/")) {
+    p = p.replace(/\/+$/, "");
+  }
+  return p.replace(/^\/+/, "");
+}
+
 /**
  * pathmanagement folders to search for a GUID page (site root + Pages).
  * @param {unknown[]} sites
@@ -209,7 +226,7 @@ function guidListCandidateFolders(sites) {
   const folders = [];
   const seen = new Set();
   const add = (raw) => {
-    const s = String(raw || "").replace(/^\/+/, "").replace(/\/+$/, "");
+    const s = cmsRelFolder(raw);
     if (!s || seen.has(s)) {
       return;
     }
@@ -217,29 +234,14 @@ function guidListCandidateFolders(sites) {
     folders.push(s);
   };
   for (const site of list) {
-    const listPath = String(
-      (site && (site.folderPath || site.path)) || "",
-    )
-      .trim()
-      .replace(/\\/g, "/");
-    let normalized = listPath;
-    while (normalized.startsWith("//")) {
-      normalized = normalized.slice(1);
+    const listPath = cmsRelFolder(site.folderPath || site.path);
+    if (listPath) {
+      add(listPath);
+      add(`${listPath}/Pages`);
     }
-    if (normalized && !normalized.startsWith("/")) {
-      normalized = `/${normalized}`;
-    }
-    if (normalized.length > 1 && normalized.endsWith("/")) {
-      normalized = normalized.replace(/\/+$/, "");
-    }
-    if (normalized) {
-      add(normalized);
-      add(`${normalized}/Pages`);
-    }
-    const name = site && site.name ? String(site.name) : "";
-    if (name) {
-      add(`Sites/${name}`);
-      add(`Sites/${name}/Pages`);
+    if (site.name) {
+      add(`Sites/${site.name}`);
+      add(`Sites/${site.name}/Pages`);
     }
   }
   return folders;
@@ -249,21 +251,9 @@ function nestedFolderRel(kid, parentFolder) {
   if (!isFolderishPathItem(kid)) {
     return "";
   }
-  const nestedPath = String((kid && (kid.folderPath || kid.path)) || "")
-    .trim()
-    .replace(/\\/g, "/");
-  let p = nestedPath;
-  while (p.startsWith("//")) {
-    p = p.slice(1);
-  }
-  if (p && !p.startsWith("/")) {
-    p = `/${p}`;
-  }
-  if (p.length > 1 && p.endsWith("/")) {
-    p = p.replace(/\/+$/, "");
-  }
-  if (p) {
-    return p.replace(/^\/+/, "");
+  const fromPath = cmsRelFolder(kid.folderPath || kid.path);
+  if (fromPath) {
+    return fromPath;
   }
   const name = kid && kid.name ? String(kid.name) : "";
   if (!name) {
