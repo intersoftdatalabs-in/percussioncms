@@ -428,6 +428,10 @@ export const PATHS = {
   get FOLDERS_RENAME_ITEM() {
     return `${REST_ROOT}/folders/rename/item`;
   },
+  /** Public REST create folder ({@code FoldersResource#createFolder}). */
+  get FOLDERS_CREATE() {
+    return `${REST_ROOT}/folders/create`;
+  },
   /**
    * Recycle a non-folder item ({@code DELETE FoldersResource#deleteFolderItem}).
    */

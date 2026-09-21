@@ -256,6 +256,23 @@ describe("ReducedActions", () => {
     });
   });
 
+  it("does not create when the folder name contains a path separator", async () => {
+    const { handlers, calls } = makeHandlers();
+    handlers.prompt = () => "a/b";
+    const errors: string[] = [];
+    render(
+      <ReducedActions
+        item={null}
+        folder={FOLDER}
+        handlers={handlers}
+        onError={(m) => errors.push(m)}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-create-folder"));
+    await waitFor(() => expect(errors.length).toBeGreaterThan(0));
+    expect(calls.onCreateFolder).toHaveLength(0);
+  });
+
   it("does not invoke any server call when the user cancels the confirm dialog", async () => {
     const { handlers, calls } = makeHandlers();
     handlers.confirm = () => false;

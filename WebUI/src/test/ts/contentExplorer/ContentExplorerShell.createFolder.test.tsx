@@ -55,23 +55,9 @@ describe("ContentExplorerShell create folder (#3640)", {
     let created = false;
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
-      if (url.includes("/pathmanagement/path/addNewFolder")) {
-        return new Response(
-          JSON.stringify({
-            PathItem: {
-              id: "n-3640",
-              path: "/Sites/New-Folder/",
-              name: "New-Folder",
-              type: "folder",
-              accessLevel: "WRITE",
-            },
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        );
-      }
-      if (url.includes("/pathmanagement/path/renameFolder")) {
+      if (url.includes("/folders/create")) {
         created = true;
-        return new Response(JSON.stringify({ PathItem: CREATED }), {
+        return new Response(JSON.stringify({ Folder: CREATED }), {
           status: 200,
           headers: { "Content-Type": "application/json" },
         });

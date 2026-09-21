@@ -97,6 +97,16 @@ function isPathmanagementAddNewFolderUrl(url) {
 }
 
 /**
+ * Public REST create folder (#4637).
+ *
+ * @param {string | null | undefined} url
+ * @returns {boolean}
+ */
+function isFoldersCreateUrl(url) {
+  return /\/rest\/folders\/create(?:\?|$)/i.test(String(url || ""));
+}
+
+/**
  * Pathmanagement rename used after addNewFolder ignores {@code ?name=}.
  *
  * @param {string | null | undefined} url
@@ -135,7 +145,7 @@ function uniqueCreateFolderName(nowMs) {
     nowMs != null && Number.isFinite(Number(nowMs))
       ? Number(nowMs)
       : Date.now();
-  return `qa3640_${ts}`;
+  return `qa4637_${ts}`;
 }
 
 /**
@@ -152,6 +162,9 @@ function unwrapCreatedPathItem(body) {
   if (rec.PathItem && typeof rec.PathItem === "object") {
     return /** @type {object} */ (rec.PathItem);
   }
+  if (rec.Folder && typeof rec.Folder === "object") {
+    return /** @type {object} */ (rec.Folder);
+  }
   return rec;
 }
 
@@ -166,6 +179,7 @@ module.exports = {
   assetsFolderUrl,
   hasRxFolderMutationsQuery,
   isPathmanagementAddNewFolderUrl,
+  isFoldersCreateUrl,
   isPathmanagementRenameFolderUrl,
   isRxContentExplorerFoldersUrl,
   isCreateFolderSuccessStatus,

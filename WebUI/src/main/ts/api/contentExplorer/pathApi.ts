@@ -245,6 +245,62 @@ export async function addNewFolder(
   return res?.PathItem ?? ({} as PSPathItem);
 }
 
+export const CREATE_FOLDER_REQUEST_ROOT = "CreateFolderRequest";
+
+export type CreateFolderRequestEnvelope = {
+  CreateFolderRequest: { parentPath: string; name: string };
+};
+
+export function wrapCreateFolderRequest(body: {
+  parentPath: string;
+  name: string;
+}): CreateFolderRequestEnvelope {
+  const parentPath = String(body.parentPath ?? "").trim();
+  const folderName = String(body.name ?? "").trim();
+  if (!parentPath) {
+    throw new Error("createFolder requires parentPath");
+  }
+  if (!folderName) {
+    throw new Error("createFolder requires name");
+  }
+  return { CreateFolderRequest: { parentPath, name: folderName } };
+}
+
+function unwrapCreatedFolder(raw: unknown): PSPathItem {
+  const rec =
+    raw != null && typeof raw === "object" && !Array.isArray(raw)
+      ? (raw as Record<string, unknown>)
+      : {};
+  const inner =
+    rec.Folder && typeof rec.Folder === "object"
+      ? (rec.Folder as Record<string, unknown>)
+      : rec;
+  const name = String(inner.name ?? "").trim();
+  const path = String(inner.path ?? "").trim();
+  const id = String(inner.id ?? "").trim();
+  return {
+    id,
+    path,
+    name,
+    type: "folder",
+    accessLevel: String(inner.accessLevel ?? "WRITE"),
+  } as PSPathItem;
+}
+
+/**
+ * Create a folder via public REST {@code POST /folders/create} (#4637).
+ */
+export async function createFolder(body: {
+  parentPath: string;
+  name: string;
+}): Promise<PSPathItem> {
+  const res = await post<unknown>(
+    PATHS.FOLDERS_CREATE,
+    wrapCreateFolderRequest(body),
+  );
+  return unwrapCreatedFolder(res);
+}
+
 /**
  * Jackson / JAXB root for sitemanage {@code PSRenameFolderItem}
  * ({@code @XmlRootElement(name = "RenameFolderItem")}). The Java field is

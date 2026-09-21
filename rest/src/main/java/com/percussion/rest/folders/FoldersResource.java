@@ -513,6 +513,54 @@ public class FoldersResource {
   }
 
   /**
+   * Create a folder under the given Explorer parent path (#4637).
+   *
+   * <p>Name must be a single path segment (no {@code /} or {@code \}). Missing parent is 404;
+   * non-admin is 403; name already in use is 409.
+   */
+  @POST
+  @Path("/create")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Create a folder under a parent path",
+      description =
+          "Creates a folder named {@code name} under {@code parentPath}. Finder paths such as"
+              + " /Assets/… are accepted. Name must be a single folder segment.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created OK",
+            content = @Content(schema = @Schema(implementation = Folder.class))),
+        @ApiResponse(responseCode = "400", description = "Missing parentPath or name"),
+        @ApiResponse(responseCode = "403", description = "Not authorized to create"),
+        @ApiResponse(responseCode = "404", description = "Parent folder not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Name in use, parent is not a folder, or invalid destination")
+      })
+  public Folder createFolder(CreateFolderRequest request) {
+    try {
+      if (request == null
+          || StringUtils.isBlank(request.getParentPath())
+          || StringUtils.isBlank(request.getName())) {
+        throw new WebApplicationException(
+            "parentPath and name are required", Response.Status.BAD_REQUEST);
+      }
+      return folderAdaptor.createFolder(
+          uriInfo.getBaseUri(), request.getParentPath().trim(), request.getName().trim());
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (BackendException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /**
    * Renames a selected page, file, or asset. Folder rename remains {@code POST
    * /rename/{folderPath}/{name}} and pathmanagement {@code renameFolder}.
    */
