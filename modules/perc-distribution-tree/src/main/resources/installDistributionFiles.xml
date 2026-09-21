@@ -143,7 +143,20 @@
 			</fileset>
 		</copy>
 
-		<!-- TinyMCE config -->
+		<!-- TinyMCE config. ANT <copy> fails when fileset dir is missing
+			(#4695). perc-tinymce must be packaged first so
+			target/classes/META-INF/resources/{rx,sys}_resources exist
+			(qa-rebuild-chain qa-rebuild-tinymce). -->
+		<fail
+			message="perc-tinymce rx_resources missing under target/classes; run qa-rebuild-chain (qa-rebuild-tinymce) or package modules/perc-tinymce before perc-distribution-tree (#4695).">
+			<condition>
+				<not>
+					<available
+						file="${basedir}/../perc-tinymce/target/classes/META-INF/resources/rx_resources"
+						type="dir" />
+				</not>
+			</condition>
+		</fail>
 		<copy todir="${assembly-directory}/rx_resources"
 			overwrite="false" verbose="true">
 			<fileset
