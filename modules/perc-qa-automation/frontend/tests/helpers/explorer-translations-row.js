@@ -84,15 +84,12 @@ function isPreferredContentRowName(itemName, rowText) {
   if (!name && !text) {
     return false;
   }
-  for (const wanted of PREFERRED_CONTENT_NAMES) {
-    if (name === wanted || foldedNamesEqual(name, wanted)) {
-      return true;
-    }
-    if (text && foldedNamesEqual(text, wanted)) {
-      return true;
-    }
-  }
-  return false;
+  return PREFERRED_CONTENT_NAMES.some(
+    (wanted) =>
+      name === wanted ||
+      foldedNamesEqual(name, wanted) ||
+      (text.length > 0 && foldedNamesEqual(text, wanted)),
+  );
 }
 
 /**
@@ -191,6 +188,90 @@ function pickGuidListedItem(items) {
   return preferred || guidItems[0];
 }
 
+function isFolderishPathItem(item) {
+  if (item == null || typeof item !== "object") {
+    return false;
+  }
+  const type = `${item.type || ""} ${item.category || ""}`.toLowerCase();
+  if (type.includes("folder") || type.includes("site")) {
+    return true;
+  }
+  return String(item.path || "").endsWith("/");
+}
+
+/**
+ * pathmanagement folders to search for a GUID page (site root + Pages).
+ * @param {unknown[]} sites
+ * @returns {string[]}
+ */
+function guidListCandidateFolders(sites) {
+  const list = Array.isArray(sites) ? sites.filter(Boolean) : [];
+  const folders = [];
+  const seen = new Set();
+  const add = (raw) => {
+    const s = String(raw || "").replace(/^\/+/, "").replace(/\/+$/, "");
+    if (!s || seen.has(s)) {
+      return;
+    }
+    seen.add(s);
+    folders.push(s);
+  };
+  for (const site of list) {
+    const listPath = String(
+      (site && (site.folderPath || site.path)) || "",
+    )
+      .trim()
+      .replace(/\\/g, "/");
+    let normalized = listPath;
+    while (normalized.startsWith("//")) {
+      normalized = normalized.slice(1);
+    }
+    if (normalized && !normalized.startsWith("/")) {
+      normalized = `/${normalized}`;
+    }
+    if (normalized.length > 1 && normalized.endsWith("/")) {
+      normalized = normalized.replace(/\/+$/, "");
+    }
+    if (normalized) {
+      add(normalized);
+      add(`${normalized}/Pages`);
+    }
+    const name = site && site.name ? String(site.name) : "";
+    if (name) {
+      add(`Sites/${name}`);
+      add(`Sites/${name}/Pages`);
+    }
+  }
+  return folders;
+}
+
+function nestedFolderRel(kid, parentFolder) {
+  if (!isFolderishPathItem(kid)) {
+    return "";
+  }
+  const nestedPath = String((kid && (kid.folderPath || kid.path)) || "")
+    .trim()
+    .replace(/\\/g, "/");
+  let p = nestedPath;
+  while (p.startsWith("//")) {
+    p = p.slice(1);
+  }
+  if (p && !p.startsWith("/")) {
+    p = `/${p}`;
+  }
+  if (p.length > 1 && p.endsWith("/")) {
+    p = p.replace(/\/+$/, "");
+  }
+  if (p) {
+    return p.replace(/^\/+/, "");
+  }
+  const name = kid && kid.name ? String(kid.name) : "";
+  if (!name) {
+    return "";
+  }
+  return `${parentFolder}/${name}`;
+}
+
 /**
  * Fold finder / repository names so spaces and underscores match.
  * @param {unknown} name
@@ -226,4 +307,7 @@ module.exports = {
   parentFolderCmsPath,
   cmsFolderWalkSegments,
   pickGuidListedItem,
+  isFolderishPathItem,
+  guidListCandidateFolders,
+  nestedFolderRel,
 };

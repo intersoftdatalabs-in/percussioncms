@@ -18,6 +18,8 @@ const {
   parentFolderCmsPath,
   cmsFolderWalkSegments,
   pickGuidListedItem,
+  guidListCandidateFolders,
+  nestedFolderRel,
 } = require("../helpers/explorer-translations-row");
 
 describe("explorer-translations-row helpers (#3871)", () => {
@@ -106,5 +108,23 @@ describe("explorer-translations-row helpers (#3871)", () => {
       { id: "16777215-101-551", type: "percPage", name: "Corporate Investments Home" },
     ]);
     assert.equal(picked && picked.id, "16777215-101-551");
+    assert.deepEqual(
+      guidListCandidateFolders([
+        { name: "Corporate Investments", path: "/Sites/CorporateInvestments" },
+      ]),
+      [
+        "Sites/CorporateInvestments",
+        "Sites/CorporateInvestments/Pages",
+        "Sites/Corporate Investments",
+        "Sites/Corporate Investments/Pages",
+      ],
+    );
+    assert.equal(
+      nestedFolderRel(
+        { type: "folder", name: "Pages", path: "/Sites/CI/Pages/" },
+        "Sites/CI",
+      ),
+      "Sites/CI/Pages",
+    );
   });
 });

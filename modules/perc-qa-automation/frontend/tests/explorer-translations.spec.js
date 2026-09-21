@@ -48,6 +48,8 @@ const {
   parentFolderCmsPath,
   cmsFolderWalkSegments,
   pickGuidListedItem,
+  guidListCandidateFolders,
+  nestedFolderRel,
 } = require("./helpers/explorer-translations-row");
 const {
   encodeCmsRelPath,
@@ -210,19 +212,7 @@ async function fetchFolderChildren(request, cmsPath) {
  */
 async function findGuidListedItemViaRest(request) {
   const sites = await fetchFolderChildren(request, "Sites");
-  const candidateFolders = [];
-  for (const site of sites) {
-    const listPath = resolveExplorerListPath(site);
-    if (listPath) {
-      candidateFolders.push(listPath.replace(/^\/+/, ""));
-      candidateFolders.push(`${listPath.replace(/^\/+/, "")}/Pages`);
-    }
-    const name = site && site.name ? String(site.name) : "";
-    if (name) {
-      candidateFolders.push(`Sites/${name}`);
-      candidateFolders.push(`Sites/${name}/Pages`);
-    }
-  }
+  const candidateFolders = guidListCandidateFolders(sites);
   const seen = new Set();
   for (const folder of candidateFolders) {
     if (!folder || seen.has(folder)) {
@@ -235,24 +225,14 @@ async function findGuidListedItemViaRest(request) {
       return picked;
     }
     for (const kid of kids.slice(0, 12)) {
-      const kidType = `${kid.type || ""} ${kid.category || ""}`.toLowerCase();
-      const looksFolder =
-        kidType.includes("folder") ||
-        kidType.includes("site") ||
-        String(kid.path || "").endsWith("/");
-      if (!looksFolder) {
-        continue;
-      }
-      const nestedPath = resolveExplorerListPath(kid);
-      const nestedRel = nestedPath
-        ? nestedPath.replace(/^\/+/, "")
-        : `${folder}/${kid.name || ""}`;
+      const nestedRel = nestedFolderRel(kid, folder);
       if (!nestedRel || seen.has(nestedRel)) {
         continue;
       }
       seen.add(nestedRel);
-      const nested = await fetchFolderChildren(request, nestedRel);
-      const nestedPick = pickGuidListedItem(nested);
+      const nestedPick = pickGuidListedItem(
+        await fetchFolderChildren(request, nestedRel),
+      );
       if (nestedPick) {
         return nestedPick;
       }
@@ -269,9 +249,9 @@ async function openCmsFolderWalk(page, folderPath) {
     )
     .first();
   if ((await sitesNode.count()) > 0) {
-    await sitesNode.click({ force: true, timeout: 10_000 }).catch(() => {});
+    await sitesNode.click({ force: true, timeout: 10_000 });
     await listWaitReady(page);
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("networkidle");
   }
   const segments = cmsFolderWalkSegments(folderPath);
   for (const seg of segments) {
