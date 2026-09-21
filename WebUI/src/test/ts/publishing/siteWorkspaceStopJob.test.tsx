@@ -103,4 +103,23 @@ describe("SiteWorkspace stop publish job (#4615)", () => {
       expect(serversApi.stopPublishing).toHaveBeenCalledWith(4615);
     });
   });
+
+  it("maps HTTP 409 as error, not success", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(serversApi.stopPublishing).mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: {},
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-stop-job-4615")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-stop-job-4615"));
+    await waitFor(() => {
+      expect(screen.getByRole("alert").textContent).toMatch(
+        /cannot be stopped|409|Conflict/i,
+      );
+    });
+  });
 });

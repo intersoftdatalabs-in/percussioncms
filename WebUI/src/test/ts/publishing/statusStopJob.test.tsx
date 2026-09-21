@@ -73,4 +73,21 @@ describe("StatusSection cancel/stop job (#4615)", () => {
     });
     expect(statusApi.fetchCurrentJobs).toHaveBeenCalled();
   });
+
+  it("maps HTTP 403 as error, not success", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(serversApi.stopPublishing).mockRejectedValueOnce({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
+    render(<StatusSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-stop-job-4615")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-stop-job-4615"));
+    await waitFor(() => {
+      expect(screen.getByRole("alert").textContent).toMatch(/Forbidden|403/i);
+    });
+  });
 });

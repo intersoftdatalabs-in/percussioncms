@@ -19,7 +19,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { stopPublishing } from "../../api/publishing/serversApi";
 import { fetchCurrentJobs } from "../../api/publishing/statusApi";
 import { message, MSG } from "../../i18n/message";
-import { isJobStoppable } from "../jobStop";
+import { isJobStoppable, mapJobStopError } from "../jobStop";
 import { formatProgressLabel } from "../progressUtils";
 import {
   buttonStyle,
@@ -100,8 +100,8 @@ export function StatusSection({
     try {
       await stopPublishing(job.jobId as string | number);
       load();
-    } catch {
-      setError(message(MSG.PUBLISH_ERROR));
+    } catch (err) {
+      setError(mapJobStopError(err));
     }
   }
 
