@@ -3040,7 +3040,10 @@ appears on `GET /services/extensions/catalog`.
 Update (`PUT /services/extensions/catalog/item?key=`) updates mutable fields of a **user**
 extension (init parameters, interfaces, runtime parameters, resource lists, deprecated /
 restore-on-error flags, version). Identity (`handlerName` / `context` / `extensionName`) is
-not renamed on PUT — round-trip GET then PUT for boolean flags. Unknown key is **404**. A
+not renamed on PUT — round-trip GET then PUT for boolean flags. `initParameters` omitted
+keeps the current map; when present, the map **replaces** extra keys (omitted keys
+are deleted; **null** values also delete). `com.percussion.extension.version` is
+kept if omitted (owned by the version field). Workbench parameter-dialog parity. Unknown key is **404**. A
 **system** or **handler-owned** extension is **409**. Non-Admin is **403**.
 
 Delete (`DELETE /services/extensions/catalog/item?key=`) returns **204** when a user

@@ -1604,7 +1604,7 @@ export const DEV_MSG_KEYS = {
   EX_EMPTY: "perc.ui.developer@No extensions returned.",
   EX_ERROR: "perc.ui.developer@Could not load extensions.",
   EX_HINT:
-    "perc.ui.developer@Create, save, or delete user extensions (Java identifier name, at least one interface, className for Java). Admins can edit the method map and runtime parameters. System and handler-owned extensions are read-only.",
+    "perc.ui.developer@Create, save, or delete user extensions (Java identifier name, at least one interface, className for Java). Admins can edit the method map, runtime parameters, and init-parameter dialog. System and handler-owned extensions are read-only.",
   EX_COL_NAME: "perc.ui.developer@Name",
   EX_COL_HANDLER: "perc.ui.developer@Handler",
   EX_COL_CONTEXT: "perc.ui.developer@Context",
@@ -1644,6 +1644,20 @@ export const DEV_MSG_KEYS = {
   EX_RTPARAM_DESC: "perc.ui.developer@Runtime parameter description",
   EX_RTPARAM_EMPTY:
     "perc.ui.developer@No runtime parameters. Add one or save to clear the list.",
+  EX_INIT_SECTION: "perc.ui.developer@Init parameters",
+  EX_INIT_HINT:
+    "perc.ui.developer@Workbench-parity init parameters (name/value). className and version stay on the main form. Open the dialog to add, edit, or remove extra keys. Save writes the map; removed keys are deleted on PUT.",
+  EX_INIT_OPEN: "perc.ui.developer@Edit init parameters",
+  EX_INIT_DIALOG_TITLE: "perc.ui.developer@Extension init parameters",
+  EX_INIT_DIALOG_HINT:
+    "perc.ui.developer@Each row is an init-parameter name and value. Blank names are dropped. Apply then Save.",
+  EX_INIT_ADD: "perc.ui.developer@Add init parameter",
+  EX_INIT_REMOVE: "perc.ui.developer@Remove init parameter",
+  EX_INIT_KEY: "perc.ui.developer@Init parameter name",
+  EX_INIT_VALUE: "perc.ui.developer@Init parameter value",
+  EX_INIT_EMPTY: "perc.ui.developer@No extra init parameters.",
+  EX_INIT_APPLY: "perc.ui.developer@Apply",
+  EX_INIT_CANCEL: "perc.ui.developer@Cancel",
   EX_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   EX_GAP_METHODS: "perc.ui.developer@Extension method map editing not supported via this chrome",
   EX_GAP_WORKBENCH:

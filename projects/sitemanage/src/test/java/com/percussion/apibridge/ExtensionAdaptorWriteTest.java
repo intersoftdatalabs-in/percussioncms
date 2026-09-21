@@ -234,6 +234,31 @@ class ExtensionAdaptorWriteTest {
   }
 
   @Test
+  void update_nullInitParamValueDeletesKey() {
+    adaptor.registerExtension(BASE, userBody("my_user_ext"));
+    Extension add = userBody("my_user_ext");
+    add.setInitParameters(
+        Map.of(
+            IPSExtensionDef.INIT_PARAM_CLASSNAME,
+            "com.example.MyExt",
+            "extra",
+            "keep"));
+    adaptor.updateExtension(BASE, "my_user_ext", add);
+
+    Extension clear = userBody("my_user_ext");
+    Map<String, String> params = new HashMap<>();
+    params.put(IPSExtensionDef.INIT_PARAM_CLASSNAME, "com.example.MyExt");
+    // Omit extra (Jackson drops nulls); replace merge must delete it.
+    clear.setInitParameters(params);
+    Extension out = adaptor.updateExtension(BASE, "my_user_ext", clear);
+
+    assertFalse(out.getInitParameters().containsKey("extra"));
+    assertEquals(
+        "com.example.MyExt",
+        out.getInitParameters().get(IPSExtensionDef.INIT_PARAM_CLASSNAME));
+  }
+
+  @Test
   void update_systemExtensionIs409() throws Exception {
     seedSystemExtension();
     Extension body = userBody("sys_add");

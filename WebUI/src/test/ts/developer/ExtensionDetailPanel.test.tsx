@@ -227,6 +227,84 @@ describe("ExtensionDetailPanel", () => {
     );
   });
 
+  it("applies init parameters from the dialog and includes them on save", async () => {
+    getExtensionDetailMock.mockResolvedValue(sampleUserDetail);
+    saveExtensionMock.mockResolvedValue({
+      ...sampleUserDetail,
+      initParameters: {
+        className: "com.example.MyUserExtension",
+        "com.percussion.user.description": "from dialog",
+      },
+    });
+    const onSaved = vi.fn();
+    render(
+      <ExtensionDetailPanel idOrName="my_user_ext" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ex-init-open")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ex-init-empty")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-ex-init-open"));
+    expect(screen.getByTestId("developer-ex-init-dialog")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-ex-init-add"));
+    fireEvent.change(screen.getByTestId("developer-ex-init-key-0"), {
+      target: { value: "com.percussion.user.description" },
+    });
+    fireEvent.change(screen.getByTestId("developer-ex-init-value-0"), {
+      target: { value: "from dialog" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ex-init-apply"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-ex-init-dialog")).toBeNull();
+    });
+    expect(screen.getByTestId("developer-ex-init-summary-0").textContent).toContain(
+      "com.percussion.user.description",
+    );
+    fireEvent.click(screen.getByTestId("developer-ex-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(saveExtensionMock).toHaveBeenCalledWith(
+      "my_user_ext",
+      expect.objectContaining({
+        initParameters: expect.objectContaining({
+          className: "com.example.MyUserExtension",
+          "com.percussion.user.description": "from dialog",
+        }),
+      }),
+    );
+  });
+
+  it("sends null for an extra init parameter removed in the dialog", async () => {
+    getExtensionDetailMock.mockResolvedValue({
+      ...sampleUserDetail,
+      initParameters: {
+        className: "com.example.MyUserExtension",
+        extra: "gone",
+      },
+    });
+    saveExtensionMock.mockResolvedValue(sampleUserDetail);
+    const onSaved = vi.fn();
+    render(
+      <ExtensionDetailPanel idOrName="my_user_ext" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ex-init-summary-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ex-init-open"));
+    fireEvent.click(screen.getByTestId("developer-ex-init-remove-0"));
+    fireEvent.click(screen.getByTestId("developer-ex-init-apply"));
+    fireEvent.click(screen.getByTestId("developer-ex-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    const write = saveExtensionMock.mock.calls[0][1] as {
+      initParameters?: Record<string, string | null>;
+    };
+    expect(write.initParameters?.className).toBe("com.example.MyUserExtension");
+    expect(write.initParameters?.extra).toBeUndefined();
+  });
+
   it("adds a runtime parameter and includes it on save", async () => {
     getExtensionDetailMock.mockResolvedValue(sampleUserDetail);
     saveExtensionMock.mockResolvedValue({

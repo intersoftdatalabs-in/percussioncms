@@ -22,8 +22,9 @@ deleted here. Save and Delete stay **disabled** on those rows; a mutate or
 delete attempt against REST is **409**.
 
 This chrome uses the fields already on the REST `Extension` wire DTO (name,
-handler, interfaces, `initParameters.className`, deprecated, the **method
-map**, and the **runtime parameter list**).
+handler, interfaces, `initParameters.className`, extra **init parameters**
+(Workbench parameter dialog), deprecated, the **method map**, and the **runtime
+parameter list**).
 
 ## Product path — create, save, delete
 
@@ -46,13 +47,18 @@ map**, and the **runtime parameter list**).
    fields. Removing every method and **Save** **clears** the map. Blank method
    names are dropped client-side; a REST payload with a blank or duplicate
    method name is **400**. System and handler-owned rows stay read-only.
-7. Under **Runtime parameters**, **Add runtime parameter**. Enter a **name**,
+7. Under **Init parameters**, **Edit init parameters**. Add name/value rows for
+   extra init keys (for example `com.percussion.user.description`). **className**
+   and **version** stay on the main form. **Apply** then **Save**. Removed keys
+   are deleted on PUT (`initParameters` null values). System and handler-owned
+   rows stay read-only in the dialog.
+8. Under **Runtime parameters**, **Add runtime parameter**. Enter a **name**,
    optional **type** (defaults to `java.lang.String`), and description.
    **Save** writes the list; GET then Save round-trips those fields. Removing
    every parameter and **Save** **clears** the list. Blank names are dropped
    client-side. On REST, `runtimeParameters` omitted keeps the current list;
    `[]` clears. System and handler-owned rows stay read-only.
-8. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
+9. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    The catalog returns with a green **Extension deleted** notice. Delete of a
    missing extension is **404**. Delete of a **system** or **handler-owned**
    extension is blocked in the UI and would be **409** on REST.

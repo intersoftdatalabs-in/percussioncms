@@ -19,7 +19,6 @@ import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { extractRestErrorMessage, isApiError } from "../api/client";
 import {
   DEFAULT_EXTENSION_HANDLER,
-  EXTENSION_CLASSNAME_PARAM,
   EXTENSION_DESIGN_GAPS,
   USER_EXTENSION_CONTEXT,
   createExtension,
@@ -48,6 +47,13 @@ import {
   runtimeParamsFingerprint,
   runtimeParamsToRows,
 } from "../api/developer/extensionRuntimeParams";
+import {
+  initParamsFingerprint,
+  initParamsToRows,
+  mergeInitParametersForWrite,
+  type InitParamRow,
+} from "../api/developer/extensionInitParams";
+import { ExtensionInitParamDialog } from "./ExtensionInitParamDialog";
 import type {
   ExtensionDef,
   ExtensionMethodDef,
@@ -99,6 +105,8 @@ export function ExtensionDetailPanel({
   const [className, setClassName] = useState("");
   const [methodRows, setMethodRows] = useState<ExtensionMethodDef[]>([]);
   const [paramRows, setParamRows] = useState<ExtensionMethodParam[]>([]);
+  const [initRows, setInitRows] = useState<InitParamRow[]>([]);
+  const [initDialogOpen, setInitDialogOpen] = useState(false);
   const [deprecated, setDeprecated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -126,6 +134,7 @@ export function ExtensionDetailPanel({
         setClassName(extensionClassName(d.initParameters));
         setMethodRows(methodsToRows(d.methods));
         setParamRows(runtimeParamsToRows(d.runtimeParameters));
+        setInitRows(initParamsToRows(d.initParameters));
         setDeprecated(Boolean(d.deprecated));
         setLoading(false);
       })
@@ -151,6 +160,7 @@ export function ExtensionDetailPanel({
   const loadedParamsFp = runtimeParamsFingerprint(
     runtimeParamsToRows(detail?.runtimeParameters),
   );
+  const loadedInitFp = initParamsFingerprint(initParamsToRows(detail?.initParameters));
   // Compare normalized forms so server trim / Jackson map round-trips do not mark dirty on load.
   const dirty =
     isNew ||
@@ -160,7 +170,8 @@ export function ExtensionDetailPanel({
     className.trim() !== loadedClassName.trim() ||
     deprecated !== loadedDeprecated ||
     methodsFingerprint(methodRows) !== loadedMethodsFp ||
-    runtimeParamsFingerprint(paramRows) !== loadedParamsFp;
+    runtimeParamsFingerprint(paramRows) !== loadedParamsFp ||
+    initParamsFingerprint(initRows) !== loadedInitFp;
   const canSave =
     !busy &&
     dirty &&
@@ -228,19 +239,15 @@ export function ExtensionDetailPanel({
   }
 
   /**
-   * PUT writes the full initParameters map (round-trip from GET). Only className,
-   * deprecated, interfaces, restoreRequestParamsOnError, the method map, and the
-   * runtime parameter list are user-editable in this chrome; other keys are
-   * preserved verbatim so out-of-band Workbench keys are not silently dropped.
-   * REST buildDef iterates the map as-is.
+   * PUT writes initParameters from the dialog plus className. Removed extra keys
+   * are sent as null so REST mergeInitParams deletes them.
    */
   function writeBody(): ExtensionWriteBody {
-    const initParameters: Record<string, string> = {
-      ...(detail?.initParameters || {}),
-    };
-    if (className.trim()) {
-      initParameters[EXTENSION_CLASSNAME_PARAM] = className.trim();
-    }
+    const initParameters = mergeInitParametersForWrite({
+      previous: detail?.initParameters,
+      className,
+      rows: initRows,
+    });
     const body: ExtensionWriteBody = {
       extensionName: isNew
         ? normalizeExtensionName(name)
@@ -304,6 +311,7 @@ export function ExtensionDetailPanel({
       setClassName(extensionClassName(saved.initParameters));
       setMethodRows(methodsToRows(saved.methods));
       setParamRows(runtimeParamsToRows(saved.runtimeParameters));
+      setInitRows(initParamsToRows(saved.initParameters));
       setDeprecated(Boolean(saved.deprecated));
       setNotice(DEV_MSG.EX_SAVED);
       onSaved?.(saved);
@@ -708,6 +716,45 @@ export function ExtensionDetailPanel({
             </button>
           </section>
 
+          <section data-testid="developer-ex-init" style={{ marginBottom: "16px" }}>
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.EX_INIT_SECTION}</h3>
+            <p style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+              {DEV_MSG.EX_INIT_HINT}
+            </p>
+            {initRows.length === 0 ? (
+              <p style={{ color: catalogColors.empty }} data-testid="developer-ex-init-empty">
+                {DEV_MSG.EX_INIT_EMPTY}
+              </p>
+            ) : (
+              <ul data-testid="developer-ex-init-summary" style={{ fontFamily: "monospace" }}>
+                {initRows.map((row, i) => (
+                  <li key={`init-sum-${i}`} data-testid={`developer-ex-init-summary-${i}`}>
+                    {row.key}={row.value}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <button
+              type="button"
+              data-testid="developer-ex-init-open"
+              disabled={busy}
+              onClick={(ev) => {
+                captureDialogOpener(ev.currentTarget);
+                setInitDialogOpen(true);
+              }}
+              style={{
+                padding: "8px 16px",
+                background: catalogColors.accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              {DEV_MSG.EX_INIT_OPEN}
+            </button>
+          </section>
+
           <section data-testid="developer-ex-params" style={{ marginBottom: "16px" }}>
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.EX_PARAMS}</h3>
             <p style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
@@ -805,6 +852,16 @@ export function ExtensionDetailPanel({
         message={DEV_MSG.EX_DELETE_CONFIRM}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={() => void handleDelete()}
+      />
+      <ExtensionInitParamDialog
+        open={initDialogOpen}
+        readOnly={readOnly}
+        rows={initRows}
+        onCancel={() => setInitDialogOpen(false)}
+        onApply={(rows) => {
+          setInitRows(rows);
+          setInitDialogOpen(false);
+        }}
       />
     </div>
   );
