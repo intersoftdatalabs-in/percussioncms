@@ -32,6 +32,7 @@ const fields: ItemEditorFields = {
   contentType: "percPage",
   name: "Home",
   checkoutUser: "admin",
+  revision: 2,
   fields: [
     { name: "sys_title", value: "Home" },
     { name: "displaytitle", value: "Welcome" },
@@ -115,6 +116,7 @@ describe("EditorHost", () => {
     });
     const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
     expect(saved.fields.find((f) => f.name === "displaytitle")?.value).toBe("Updated");
+    expect(saved.revision).toBe(2);
   });
 
   it("does not checkout in view mode", async () => {
@@ -1348,6 +1350,56 @@ describe("EditorHost required field save errors (#4541)", () => {
       /required fields before checking in/i,
     );
     expect(checkin).not.toHaveBeenCalled();
+  });
+});
+
+describe("EditorHost save field values (#4645)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  it("maps save HTTP 409 to a stale revision banner", async () => {
+    const saveFields = vi.fn().mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "newer revision" },
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    { name: "displaytitle", label: "Display title", readOnly: false },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-displaytitle"), {
+      target: { value: "Updated" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+        /newer revision/i,
+      );
+    });
+    expect(screen.queryByText(/Saved/)).toBeNull();
+    expect(screen.getByTestId("editor-form")).toBeTruthy();
   });
 });
 

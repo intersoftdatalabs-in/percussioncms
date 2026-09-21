@@ -191,6 +191,13 @@ blank. A value the host cannot parse is blocked before PUT and shown on that row
 the named field. In **View** mode the pickers are read-only (disabled); Save is hidden.
 
 Save stays on itemmanagement (`PUT /services/itemmanagement/item/fields/{id}`).
+The GET/PUT field payload includes a **revision** (CMS tip). Saving from the
+React Content Editor sends that revision. If the item was saved again in the
+meantime, the PUT returns HTTP **409** and the host shows **This item was
+saved with a newer revision. Reload and try again.** — 409 is not treated as
+success. Validation errors (empty required fields, HTTP **400**) stay on the
+form as before. Active Assembly field saves that omit `revision` (or send `0`)
+are not stale-checked.
 **Check Out** and **Check In** on the editor host call public REST
 `POST /rest/editor/items/{id}/checkout` and `POST /rest/editor/items/{id}/checkin`.
 When the item is **not** checked out to you, the host is **view-only** (fields

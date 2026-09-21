@@ -55,7 +55,8 @@ public interface IPSItemService {
 
   /**
    * Saves scalar content-editor fields. Caller must have the item checked out.
-   * Only names present in {@code req} are updated.
+   * Only names present in {@code req} are updated. When {@code req.revision} is
+   * positive and does not match the live tip, the implementation throws HTTP 409.
    */
   PSItemEditorFields saveEditorFields(String id, PSItemEditorFields req)
       throws PSItemServiceException;

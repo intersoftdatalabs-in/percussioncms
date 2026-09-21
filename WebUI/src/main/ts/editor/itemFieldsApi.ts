@@ -29,6 +29,8 @@ export interface ItemEditorFields {
   contentType: string;
   name: string;
   checkoutUser: string;
+  /** CMS tip revision; PUT with a mismatch is HTTP 409. */
+  revision?: number;
   fields: ItemEditorField[];
 }
 
@@ -45,11 +47,19 @@ function unwrapFields(payload: unknown): ItemEditorFields {
     asRecord(root?.ItemEditorFields ?? root?.itemEditorFields) ?? root ?? {};
   const rawFields = body.fields ?? body.Fields;
   const list = Array.isArray(rawFields) ? rawFields : [];
+  const rawRev = body.revision ?? body.Revision;
+  const revision =
+    typeof rawRev === "number"
+      ? rawRev
+      : typeof rawRev === "string" && rawRev.trim()
+        ? Number(rawRev)
+        : 0;
   return {
     contentId: String(body.contentId ?? body.ContentId ?? ""),
     contentType: String(body.contentType ?? body.ContentType ?? ""),
     name: String(body.name ?? body.Name ?? ""),
     checkoutUser: String(body.checkoutUser ?? body.CheckoutUser ?? ""),
+    revision: Number.isFinite(revision) ? revision : 0,
     fields: list
       .map((row) => {
         const rec = asRecord(row);

@@ -28,6 +28,8 @@ public class PSItemEditorFields {
   private String contentType;
   private String name;
   private String checkoutUser;
+  /** Tip revision when the payload was loaded; PUT with a mismatch is HTTP 409. */
+  private int revision;
   private List<PSItemEditorField> fields = new ArrayList<>();
 
   public String getContentId() {
@@ -60,6 +62,14 @@ public class PSItemEditorFields {
 
   public void setCheckoutUser(String checkoutUser) {
     this.checkoutUser = checkoutUser;
+  }
+
+  public int getRevision() {
+    return revision;
+  }
+
+  public void setRevision(int revision) {
+    this.revision = revision;
   }
 
   public List<PSItemEditorField> getFields() {
