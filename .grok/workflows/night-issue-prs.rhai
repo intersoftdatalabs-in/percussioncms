@@ -1,8 +1,15 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.2.1
+// workflow_version: 2.2.2
 // Grok Build workflow meta has no version field (only name/description/when_to_use/phases).
 // Keep invocation name night-issue-prs stable; bump this header when behavior changes.
 //
+// 2.2.2 — Erlang CLI uses local Ollama: mkd-code-review analyze --pack percussion
+//   --format markdown --gate advisory
+//   --models …/mkd-code-review/config/models.ollama-dev-coder.toml
+//   Host must have mkd-code-review >= 0.1.17, persona erlang 0.1.1, and
+//   ollama serving dev-coder:latest on localhost:11434. Scope PATHS to the
+//   PR diff (do not analyze the repo root). LLM stage is fail-open if Ollama
+//   is down; machine findings still gate. See mkd-code-review/docs/local.md.
 // 2.2.1 — RTK: every child prompt includes rtk_block(). Wrap noisy git/gh/mvn/npm/
 //   playwright/docker through rtk when `rtk` is on PATH. Grok PreToolUse hook
 //   (rtk hook grok) also rewrites simple Bash; compound `cd MODULE && mvnw` is
@@ -367,7 +374,15 @@ fn erlang_gate_text(repo, base_branch, allow_merge, scope_note) {
     p += "\n";
     p += "REVIEW LOOP (R1 onward):\n";
     p += "  scope -> load persona -> run mkd-code-review analyze --pack percussion\n";
-    p += "  --format markdown -> interpret tool findings -> enforce strict gate.\n";
+    p += "  --format markdown --gate advisory --models\n";
+    p += "  /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml\n";
+    p += "  <paths from gh pr diff / git diff, never the repo root> -> interpret\n";
+    p += "  tool findings -> enforce strict gate from ERLANG.md.\n";
+    p += "CLI must be mkd-code-review >= 0.1.17. Report header must show\n";
+    p += "Persona: erlang 0.1.1 and Persona source: ~/.local/share/mkd/agents/erlang.\n";
+    p += "Ollama local model is dev-coder:latest at http://localhost:11434.\n";
+    p += "If the models file is missing, omit --models and continue machine-only.\n";
+    p += "If Ollama is down, keep machine findings; do not fail the review for llm warn.\n";
     p += "If mkd-code-review is missing, fall back to manual review and emit\n";
     p += "'Status: cli-unavailable, manual review' in the report header.\n";
     p += "\n";
@@ -886,7 +901,7 @@ if coding_tool == "" { coding_tool = "Grok Build"; }
 if coding_tool_version == "" { coding_tool_version = "UNRESOLVED"; }
 if model_id == "" { model_id = "UNRESOLVED"; }
 let model_label = "model:" + model_id;
-let workflow_version = "2.2.0";
+let workflow_version = "2.2.2";
 log("identity: tool=" + coding_tool + " version=" + coding_tool_version + " model=" + model_id
     + " workflow_version=" + workflow_version);
 

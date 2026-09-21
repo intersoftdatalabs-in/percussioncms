@@ -22,10 +22,19 @@ Read the canonical spec at:
 
 1. Load the Erlang persona (ERLANG.md + PATTERNS.md) from the path above.
 2. Collect the diff (`gh pr diff <N>` or `git diff origin/main...HEAD`).
-3. **Run `mkd-code-review analyze --pack percussion --format markdown`**
-   against the working tree or sparse-checkout of the PR head. The CLI
-   report is the machine finding layer; you add intent / missing-context
-   commentary the tool can't see.
+3. **Run** (CLI ≥ 0.1.17; scope PATHS to the PR diff, never the repo root):
+
+   ```bash
+   mkd-code-review analyze --pack percussion --format markdown --gate advisory \
+     --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml \
+     <paths-from-diff>
+   ```
+
+   Expect `Persona: erlang 0.1.1` and Ollama `dev-coder:latest` on
+   `localhost:11434`. If the models file is missing, omit `--models`.
+   If Ollama is down, keep machine findings. The CLI report is the
+   machine finding layer; you add intent / missing-context commentary
+   the tool can't see.
 4. Enforce the strict gate from the persona spec.
 
 ## Open PR + LGTM + checks green
