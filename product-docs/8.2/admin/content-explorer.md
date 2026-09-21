@@ -508,7 +508,13 @@ From the **View** menu you can also toggle:
   Use **Content → Add to clipboard** after multi-select to put items on the
   clipboard and open the panel (including **Sites** rows). Do not click
   **View → Clipboard** again after Add — that hides the already-open panel.
-  Paste from the panel when a destination folder is selected.
+  Select the destination folder in the tree or list, then **Paste** on the
+  clipboard panel. Paste copies (or cuts) each clipboard item **into that
+  destination** using public REST `POST /rest/folders/copy/item` (pages and
+  assets), `POST /rest/folders/copy/folder` (folders), or the matching
+  `move/item` / `move/folder` endpoints for Cut. Missing destination is HTTP
+  **404**; non-admin callers receive **403**; pasting a folder into itself is
+  **409**. Paste is not the reduced-actions Copy destination picker.
 
 ## Translations
 

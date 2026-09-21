@@ -1574,6 +1574,11 @@ public class FolderAdaptor implements IFolderAdaptor {
 
       folderName = folderHelper.getUniqueFolderName(correctedTarget, targetFolderName);
 
+      if (correctedSource.equals(correctedTarget)) {
+        throw new WebApplicationException(
+            "Cannot paste a folder into itself", Response.Status.CONFLICT);
+      }
+
       PSServerFolderProcessor folderProc = PSServerFolderProcessor.getInstance();
       String result =
           folderProc.copyFolder(
@@ -1591,9 +1596,20 @@ public class FolderAdaptor implements IFolderAdaptor {
       } else {
         log.info("Copied folder:" + folderPath + " to " + targetFolderPath);
       }
-    } catch (PSCmsException | PSDataServiceException | PSPathNotFoundServiceException e) {
+    } catch (NotAuthorizedException e) {
+      throw e;
+    } catch (FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSPathNotFoundServiceException | PSNotFoundException e) {
+      throw new FolderNotFoundException(e);
+    } catch (PSCmsException | PSDataServiceException e) {
       throw new BackendException(e);
     } catch (Exception e) {
+      if (e instanceof NotAuthorizedException nae) {
+        throw nae;
+      }
       throw new BackendException(e);
     }
   }

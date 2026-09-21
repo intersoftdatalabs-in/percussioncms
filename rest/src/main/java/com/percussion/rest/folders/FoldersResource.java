@@ -462,6 +462,12 @@ public class FoldersResource {
       })
   public Status copyFolderItem(CopyFolderItemRequest request) {
     try {
+      if (request == null
+          || StringUtils.isBlank(request.getItemPath())
+          || StringUtils.isBlank(request.getTargetFolderPath())) {
+        throw new WebApplicationException(
+            "itemPath and targetFolderPath are required", Response.Status.BAD_REQUEST);
+      }
       folderAdaptor.copyFolderItem(
           uriInfo.getBaseUri(), request.getItemPath(), request.getTargetFolderPath());
       return new Status(200, "Copied OK");
@@ -491,7 +497,10 @@ public class FoldersResource {
           "Moves the specified Folder in the CopyFolderItem request to the target path.  Path"
               + " should include the full path to the folder, for example /Sites/MySite/MyFolder",
       responses = {
+        @ApiResponse(responseCode = "400", description = "Missing item or destination path"),
         @ApiResponse(responseCode = "404", description = "Folder not found"),
+        @ApiResponse(responseCode = "403", description = "Not authorized to copy"),
+        @ApiResponse(responseCode = "409", description = "Destination conflict"),
         @ApiResponse(
             responseCode = "200",
             description = "Copied OK",
@@ -500,11 +509,21 @@ public class FoldersResource {
       })
   public Status copyFolder(CopyFolderItemRequest request) {
     try {
+      if (request == null
+          || StringUtils.isBlank(request.getItemPath())
+          || StringUtils.isBlank(request.getTargetFolderPath())) {
+        throw new WebApplicationException(
+            "itemPath and targetFolderPath are required", Response.Status.BAD_REQUEST);
+      }
       folderAdaptor.copyFolder(
           uriInfo.getBaseUri(), request.getItemPath(), request.getTargetFolderPath());
       return new Status(200, "Copied OK");
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
     } catch (NotFoundException nfe) {
-      return new Status(404, "Not Found");
+      throw nfe;
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
