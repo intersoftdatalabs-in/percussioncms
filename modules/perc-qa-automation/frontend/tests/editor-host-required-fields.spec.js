@@ -79,7 +79,13 @@ async function stubEditorApis(page, { onPut, putStatus, putBody } = {}) {
   await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
+  await page.route("**/rest/editor/items/**/checkout", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+  );
   await page.route("**/services/itemmanagement/workflow/checkIn/**", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+  );
+  await page.route("**/rest/editor/items/**/checkin", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
   await page.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
@@ -217,9 +223,6 @@ test.describe("React Content Editor required field save errors", () => {
     async ({ page }) => {
       const checkins = [];
       page.on("request", (req) => {
-        if (req.method() !== "GET") {
-          return;
-        }
         if (isWorkflowCheckinUrl(req.url())) {
           checkins.push(req.url());
         }

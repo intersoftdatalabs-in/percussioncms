@@ -190,8 +190,9 @@ blank. A value the host cannot parse is blocked before PUT and shown on that row
 `PUT /services/itemmanagement/item/fields/{id}` for an invalid date is mapped onto
 the named field. In **View** mode the pickers are read-only (disabled); Save is hidden.
 
-Save, **Check Out**, and **Check In** stay on itemmanagement
-(`GET /services/itemmanagement/workflow/checkOut/{id}` and `…/checkIn/{id}`).
+Save stays on itemmanagement (`PUT /services/itemmanagement/item/fields/{id}`).
+**Check Out** and **Check In** on the editor host call public REST
+`POST /rest/editor/items/{id}/checkout` and `POST /rest/editor/items/{id}/checkin`.
 When the item is **not** checked out to you, the host is **view-only** (fields
 read-only; Save and Check In hidden). Use **Check Out** to take the lock. HTTP
 **403** (not allowed) and **409** (checked out to someone else) are shown as

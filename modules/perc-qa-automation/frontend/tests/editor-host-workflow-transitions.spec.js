@@ -65,6 +65,9 @@ async function stubEditorApis(page, transitionCalls) {
   await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
+  await page.route("**/rest/editor/items/**/checkout", (route) =>
+    route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+  );
   await page.route("**/services/itemmanagement/item/fields/**", (route) =>
     route.fulfill({
       status: 200,

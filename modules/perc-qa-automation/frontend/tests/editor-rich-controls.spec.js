@@ -98,6 +98,9 @@ test.describe("React Content Editor rich controls", () => {
       await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
         route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
       );
+      await page.route("**/rest/editor/items/**/checkout", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
       await page.route("**/services/itemmanagement/item/fields/**", async (route) => {
         if (route.request().method() === "PUT") {
           fieldPuts.push(route.request().postData() || "");

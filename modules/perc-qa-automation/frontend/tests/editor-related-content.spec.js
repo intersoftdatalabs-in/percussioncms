@@ -95,6 +95,13 @@ async function stubEditorApis(page, { canvasBody, canvasStatus, localBody, local
       body: JSON.stringify({ checkOutUser: "admin", currentUser: "admin" }),
     });
   });
+  await page.route("**/rest/editor/items/**/checkout", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ checkOutUser: "admin", currentUser: "admin" }),
+    });
+  });
   await page.route("**/itemmanagement/workflow/getTransitions/**", async (route) => {
     await route.fulfill({
       status: 200,

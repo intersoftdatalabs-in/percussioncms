@@ -40,7 +40,11 @@ const TEST_IDS = Object.freeze({
  * @returns {boolean}
  */
 function isWorkflowCheckoutUrl(url) {
-  return /\/services\/itemmanagement\/workflow\/checkOut\//.test(String(url || ""));
+  const u = String(url || "");
+  return (
+    /\/services\/itemmanagement\/workflow\/checkOut\//.test(u) ||
+    /\/rest\/editor\/items\/[^/]+\/checkout/.test(u)
+  );
 }
 
 /**
@@ -48,7 +52,11 @@ function isWorkflowCheckoutUrl(url) {
  * @returns {boolean}
  */
 function isWorkflowCheckinUrl(url) {
-  return /\/services\/itemmanagement\/workflow\/checkIn\//.test(String(url || ""));
+  const u = String(url || "");
+  return (
+    /\/services\/itemmanagement\/workflow\/checkIn\//.test(u) ||
+    /\/rest\/editor\/items\/[^/]+\/checkin/.test(u)
+  );
 }
 
 module.exports = {

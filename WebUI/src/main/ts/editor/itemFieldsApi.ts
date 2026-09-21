@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { get, put } from "../api/client";
+import { get, post, put } from "../api/client";
 import { PATHS } from "../api/paths";
 import type { EditorCheckoutUserInfo } from "./editorCheckout";
 
@@ -92,7 +92,12 @@ export async function saveItemEditorFields(
 function unwrapUserInfo(payload: unknown): EditorCheckoutUserInfo {
   const root = asRecord(payload);
   const body =
-    asRecord(root?.ItemUserInfo ?? root?.itemUserInfo) ?? root ?? {};
+    asRecord(
+      root?.EditorItemLockInfo ??
+        root?.editorItemLockInfo ??
+        root?.ItemUserInfo ??
+        root?.itemUserInfo,
+    ) ?? root ?? {};
   return {
     itemName: String(body.itemName ?? body.ItemName ?? ""),
     checkOutUser: String(body.checkOutUser ?? body.CheckOutUser ?? ""),
@@ -104,12 +109,10 @@ function unwrapUserInfo(payload: unknown): EditorCheckoutUserInfo {
 export async function checkoutEditorItem(
   itemId: string,
 ): Promise<EditorCheckoutUserInfo> {
-  const res = await get<unknown>(
-    `${PATHS.ITEM_WORKFLOW_CHECKOUT}${encodeURIComponent(itemId)}`,
-  );
+  const res = await post<unknown>(PATHS.editorItemCheckout(itemId), {});
   return unwrapUserInfo(res);
 }
 
 export async function checkinEditorItem(itemId: string): Promise<void> {
-  await get(`${PATHS.ITEM_WORKFLOW_CHECKIN}${encodeURIComponent(itemId)}`);
+  await post(PATHS.editorItemCheckin(itemId), {});
 }

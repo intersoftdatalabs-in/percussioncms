@@ -243,6 +243,13 @@ test.describe("modern React Active Assembly — preview host", () => {
           body: "{}",
         });
       });
+      await page.route("**/rest/editor/items/**/checkout", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: "{}",
+        });
+      });
       await page.route("**/itemmanagement/item/fields/**", async (route) => {
         await route.fulfill({
           status: 200,
@@ -353,6 +360,13 @@ test.describe("modern React Active Assembly — preview host", () => {
         });
       });
       await page.route("**/itemmanagement/workflow/checkOut/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: "{}",
+        });
+      });
+      await page.route("**/rest/editor/items/**/checkout", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
