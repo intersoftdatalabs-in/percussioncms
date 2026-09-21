@@ -4,10 +4,9 @@
 Resolves the dedicated worktree, sets the NIGHT_* env vars that the
 `.opencode/plugin/night.ts` plugin reads, and runs `opencode run` against
 the `night-worker` host agent. Mirrors `.grok/workflows/night-issue-prs.rhai`
-v2.0.9 — see `.grok/workflows/README.md` for the canonical phase list and
-hard gates. v2.0.9 adds the TypeSafe pre-screen (Preflight PART D →
-`scratch/prescreen.json`; deterministic label rules authoritative, model only
-adds semantic skip / close hints; fails open to rule-only).
+v2.2.0 — see `.grok/workflows/README.md` for the canonical phase list and
+hard gates. Decision-front script ranks the queue; empty leftover Erlang /
+cluster skips from 2.1.0; TypeSafe pre-screen remains (fail-open).
 
 ## Behavioral Notes
 

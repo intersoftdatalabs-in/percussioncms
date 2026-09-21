@@ -1,5 +1,5 @@
 ---
-description: Launch the night-issue-prs unattended workflow (host = night-worker). Mirrors .grok/workflows/night-issue-prs.rhai v2.0.9 — Erlang MAY APPROVE+squash-merge; erlang-fix then re-review; residuals logged. TypeSafe pre-screen (cheap jev layer, fail-open) in Preflight PART D: deterministic label rules authoritative; model only adds semantic skips / close candidates.
+description: Launch the night-issue-prs unattended workflow (host = night-worker). Mirrors .grok/workflows/night-issue-prs.rhai v2.2.0 — decision-front script; skip empty specialists; TypeSafe pre-screen fail-open; Erlang MAY APPROVE+squash-merge.
 agent: night-worker
 ---
 

@@ -1,8 +1,21 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.0.9
+// workflow_version: 2.2.0
 // Grok Build workflow meta has no version field (only name/description/when_to_use/phases).
 // Keep invocation name night-issue-prs stable; bump this header when behavior changes.
 //
+// 2.2.0 — Decision-front script (scripts/night-decision-front.py) + one thin agent
+//   replaces Preflight+Reconcile+Triage Grok walks when the script returns a
+//   queue. gh facts + Jev prescreen hints; one-per-parent; covering-PR skip.
+//   Fallback: if the script/agent fails, the 2.1.0 three-agent path still runs.
+//   Triage still spawns when expand_needed and slots remain (new DESIGN_GAPS
+//   children). Script never merges and never overrides NotSafe / In Progress.
+// 2.1.0 — Skip empty specialists for real: leftover Erlang only when owned_pr_count
+//   is unknown or >0; erlang-fix/re-review only when bugs_found is a real list
+//   (not "", "none", "n/a"); PR cluster only when cluster_recommended or signals
+//   unknown (do not spawn just because owned_pr_count >= cluster_min_prs).
+//   Sentinel strings like "none" no longer count as nonempty for blockers / Q2.
+//   Decision-front agents (Preflight/Reconcile/Triage) still run; Jev remains
+//   a hint layer, not a merge gate.
 // 2.0.9 — TypeSafe pre-screen (cheap jev judgement layer in Preflight PART D; never a
 //   gate): Preflight writes scratch/issues-raw.json, runs scripts/typesafe-prescreen.py
 //   (or the .cmd launcher on Windows) → scratch/prescreen.json, and appends a compact
@@ -183,16 +196,17 @@ let meta = #{
     when_to_use: "Overnight: product work first, then residuals/follow-ups; not Xlint-by-default",
     phases: [
         #{ title: "Identity", detail: "live Grok Build version + session model (skipped when args set)" },
-        #{ title: "Preflight", detail: "stale In Progress + compact inventory + skip signals (blockers/peer/alerts)" },
-        #{ title: "Reconcile", detail: "close 100% implemented issues; emit leftover implement candidates" },
+        #{ title: "Decision front", detail: "script+thin agent: gh facts, Jev hints, queue; skip 3-agent walk when ok" },
+        #{ title: "Preflight", detail: "fallback only if decision-front failed" },
+        #{ title: "Reconcile", detail: "fallback close-walk if decision-front failed" },
         #{ title: "PR follow-up (pre)", detail: "only if preflight found merge blockers" },
         #{ title: "Triage", detail: "priority-first; oversized→3 slices; p7/p8 only if priority empty" },
         #{ title: "Peer PR review", detail: "other-model PRs: spawn Erlang (merge if LGTM); spawn-fail is not fatal" },
-        #{ title: "Erlang leftover", detail: "host Erlang on owned open PRs: merge LGTM or fix+re-review" },
+        #{ title: "Erlang leftover", detail: "only if owned_pr_count unknown or >0; fix only if bugs_found real" },
         #{ title: "Work", detail: "implement/split only; disposition=skip does not spawn an agent" },
         #{ title: "Erlang review", detail: "host Erlang on this-run PRs: APPROVE+merge if LGTM; fix findings" },
         #{ title: "PR follow-up (post)", detail: "only if this-run PRs or leftover blockers" },
-        #{ title: "PR cluster", detail: "only if owned PR count >= cluster_min_prs" },
+        #{ title: "PR cluster", detail: "only if cluster_recommended or skip-signals unknown" },
         #{ title: "Security audit", detail: "only if preflight open_alert_count > 0" },
         #{ title: "Cycle verify", detail: "only if a PR opened; tip Maven; Playwright only for UI surfaces" },
         #{ title: "Human QA", detail: "only if an independent APPROVE exists (Q2 can pass)" },
@@ -277,6 +291,27 @@ fn nonempty(v) {
     if v == () { return false; }
     if type_of(v) != "string" { return true; }
     v != ""
+}
+
+// Agent schemas use "" for empty, but models often write "none" / "n/a".
+// Those must NOT trip erlang-fix, leftover_blockers, or Human QA Q2.
+fn is_none_token(v) {
+    if v == () { return true; }
+    if type_of(v) != "string" { return false; }
+    if v == "" { return true; }
+    if v == "none" { return true; }
+    if v == "None" { return true; }
+    if v == "NONE" { return true; }
+    if v == "n/a" { return true; }
+    if v == "N/A" { return true; }
+    if v == "null" { return true; }
+    if v == "-" { return true; }
+    false
+}
+
+fn has_findings(v) {
+    if is_none_token(v) { return false; }
+    true
 }
 
 fn erlang_gate_text(repo, base_branch, allow_merge, scope_note) {
@@ -520,6 +555,55 @@ let preflight_schema = #{
     },
 };
 
+let decision_front_schema = #{
+    "type": "object",
+    "required": ["status", "summary", "inventory", "queue", "notes"],
+    "properties": #{
+        "status": #{ "type": "string" },
+        "summary": #{ "type": "string" },
+        "inventory": #{ "type": "string" },
+        "notes": #{ "type": "string" },
+        "owned_pr_count": #{ "type": "integer" },
+        "blocker_pr_count": #{ "type": "integer" },
+        "blocker_prs": #{ "type": "string" },
+        "peer_eligible_count": #{ "type": "integer" },
+        "peer_eligible_prs": #{ "type": "string" },
+        "prs_with_approve_count": #{ "type": "integer" },
+        "prs_with_approve": #{ "type": "string" },
+        "open_alert_count": #{ "type": "integer" },
+        "cycle_verify_residual_count": #{ "type": "integer" },
+        "qa_failed_count": #{ "type": "integer" },
+        "signals_complete": #{ "type": "boolean" },
+        "cluster_recommended": #{ "type": "boolean" },
+        "blocked": #{ "type": "string" },
+        "implement_candidates": #{ "type": "string" },
+        "issues_inspected": #{ "type": "integer" },
+        "issues_closed": #{ "type": "integer" },
+        "issues_closed_list": #{ "type": "string" },
+        "expand_needed": #{ "type": "boolean" },
+        "queue": #{
+            "type": "array",
+            "maxItems": 12,
+            "items": #{
+                "type": "object",
+                "required": ["issue_number", "disposition", "title", "rationale", "work_summary"],
+                "properties": #{
+                    "issue_number": #{ "type": "integer" },
+                    "title": #{ "type": "string" },
+                    "disposition": #{ "type": "string" },
+                    "rationale": #{ "type": "string" },
+                    "work_summary": #{ "type": "string" },
+                    "priority": #{ "type": "string" },
+                    "modules": #{ "type": "string" },
+                    "slice_title": #{ "type": "string" },
+                    "split_plan": #{ "type": "string" },
+                    "parent_issue": #{ "type": "integer" },
+                },
+            },
+        },
+    },
+};
+
 // Close 100% implemented leftovers; list remaining implement work for Triage.
 let reconcile_schema = #{
     "type": "object",
@@ -571,6 +655,7 @@ let include_reconcile = true;
 let max_reconcile_closes = 20;
 let max_reconcile_inspect = 80;
 let include_typesafe_prescreen = true;
+let include_decision_front = true;
 let prescreen_threshold = 0.85;
 let include_pr_followup = true;
 let include_peer_pr_review = true;
@@ -621,6 +706,7 @@ if args != () {
     if args.max_reconcile_closes != () { max_reconcile_closes = args.max_reconcile_closes; }
     if args.max_reconcile_inspect != () { max_reconcile_inspect = args.max_reconcile_inspect; }
     if args.include_typesafe_prescreen != () { include_typesafe_prescreen = args.include_typesafe_prescreen; }
+    if args.include_decision_front != () { include_decision_front = args.include_decision_front; }
     if args.prescreen_threshold != () { prescreen_threshold = args.prescreen_threshold; }
     if args.include_pr_followup != () { include_pr_followup = args.include_pr_followup; }
     if args.include_peer_pr_review != () { include_peer_pr_review = args.include_peer_pr_review; }
@@ -752,7 +838,7 @@ if coding_tool == "" { coding_tool = "Grok Build"; }
 if coding_tool_version == "" { coding_tool_version = "UNRESOLVED"; }
 if model_id == "" { model_id = "UNRESOLVED"; }
 let model_label = "model:" + model_id;
-let workflow_version = "2.0.8";
+let workflow_version = "2.2.0";
 log("identity: tool=" + coding_tool + " version=" + coding_tool_version + " model=" + model_id
     + " workflow_version=" + workflow_version);
 
@@ -872,11 +958,103 @@ pr_prompt_core += "residual_issue_urls, blocked. Honest inventory of remaining C
 pr_prompt_core += "threads only - not CI wait state.\n\n";
 pr_prompt_core += identity_block(coding_tool, coding_tool_version, model_id, "night-issue-prs");
 
-// ========== Preflight (stale + compact inventory + skip signals) ==========
-// One cold start replaces stale-cleanup + discover + later no-op inventories.
+// ========== Decision front (script + one thin agent) ==========
+let inventory = "";
+let decision_front_ok = false;
+let expand_needed = false;
+let queue = [];
+let triage_notes = "";
+
+if include_decision_front {
+    phase("Decision front");
+    let b_df = budget();
+    if b_df.remaining >= 2 {
+        let df_prompt = "";
+        df_prompt += "You are the overnight DECISION-FRONT runner (thin). Do not implement product code.\n";
+        df_prompt += "Repo: " + repo + " base: " + base_branch + " model label: " + model_label + "\n";
+        df_prompt += "max_issues=" + max_issues.to_string() + "\n";
+        df_prompt += "1) gh auth status. Write scratch/issues-raw.json: JSON ARRAY of open issues\n";
+        df_prompt += "   {number,title,labels,assignees,author,body,updatedAt} (paginate, cap 120).\n";
+        df_prompt += "2) Write scratch/prs-open.json: JSON ARRAY of open PRs to " + base_branch + "\n";
+        df_prompt += "   {number,title,body,headRefName,state,author,labels,files,mergeable,reviews}.\n";
+        df_prompt += "3) Optional: python3 scripts/typesafe-prescreen.py --inventory scratch/issues-raw.json\n";
+        df_prompt += "   --out scratch/prescreen.json (Windows: scripts\\\\typesafe-prescreen.cmd). Fail-open.\n";
+        df_prompt += "4) REQUIRED:\n";
+        df_prompt += "   python3 scripts/night-decision-front.py --issues scratch/issues-raw.json\n";
+        df_prompt += "     --prs scratch/prs-open.json --prescreen scratch/prescreen.json\n";
+        df_prompt += "     --out scratch/decision-front.json --max-issues " + max_issues.to_string() + "\n";
+        df_prompt += "     --self-model-label " + model_label + " --cluster-min-prs " + cluster_min_prs.to_string() + "\n";
+        df_prompt += "   Windows: scripts\\\\night-decision-front.cmd with the same flags.\n";
+        df_prompt += "5) Read scratch/decision-front.json and return those fields as your schema.\n";
+        df_prompt += "   Do not invent counts. If the script fails: status=failed, signals_complete=false,\n";
+        df_prompt += "   queue=[], inventory=\"\". Do not merge, approve, or assign humans.\n";
+        df_prompt += "   Do not close issues in this turn (close_hints are informational).\n";
+        let df_agent = agent(df_prompt, #{
+            label: "decision-front",
+            capability_mode: "all",
+            output_schema: decision_front_schema,
+        });
+        if df_agent != () && df_agent.success && df_agent.output != () {
+            let dfo = df_agent.output;
+            if dfo.signals_complete == true {
+                decision_front_ok = true;
+            }
+            inventory = as_str(dfo.inventory);
+            owned_pr_count = as_count(dfo.owned_pr_count);
+            blocker_pr_count = as_count(dfo.blocker_pr_count);
+            peer_eligible_count = as_count(dfo.peer_eligible_count);
+            prs_with_approve_count = as_count(dfo.prs_with_approve_count);
+            open_alert_count = as_count(dfo.open_alert_count);
+            if dfo.cluster_recommended == false { cluster_recommended = false; }
+            if dfo.cluster_recommended == true { cluster_recommended = true; }
+            if dfo.signals_complete == true { signals_ok = true; }
+            if dfo.expand_needed == true { expand_needed = true; }
+            stale_in_progress_result = #{
+                status: as_str(dfo.status),
+                summary: as_str(dfo.summary),
+                issues_scanned: 0,
+                issues_stale: 0,
+                issues_cleared: 0,
+                issues_kept: "",
+                issues_cleared_list: "",
+                label_name_used: "in progress",
+                blocked: as_str(dfo.blocked),
+            };
+            reconcile_result = #{
+                status: as_str(dfo.status),
+                summary: as_str(dfo.summary),
+                issues_inspected: as_int(dfo.issues_inspected),
+                issues_closed: 0,
+                issues_closed_list: "",
+                qa_failed_closed: 0,
+                qa_failed_closed_list: "",
+                implement_candidates: as_str(dfo.implement_candidates),
+                remaining_notes: as_str(dfo.notes),
+                blocked: "",
+            };
+            if dfo.queue != () {
+                for item in dfo.queue {
+                    if queue.len() < max_issues {
+                        queue.push(item);
+                    }
+                }
+            }
+            if dfo.notes != () { triage_notes = as_str(dfo.notes); }
+            log("Decision front: " + as_str(dfo.summary) + " queued=" + queue.len().to_string());
+        } else {
+            log("Decision front agent failed; falling back to Preflight/Reconcile/Triage.");
+        }
+    } else {
+        log("Decision front skipped: agent budget low; falling back.");
+    }
+}
+
+// ========== Preflight (fallback if decision-front failed) ==========
+if decision_front_ok {
+    log("Skipping Preflight agent: decision-front signals_complete.");
+} else {
 phase("Preflight");
 
-let inventory = "";
 let b_pf = budget();
 if b_pf.remaining < 2 {
     log("Preflight skipped: agent budget low.");
@@ -1081,11 +1259,12 @@ if b_pf.remaining < 2 {
         };
     }
 }
+} // end Preflight fallback
 
 // ========== Reconcile (close 100% implemented leftovers; emit remaining work) ==========
 // Runs every tick when enabled. Does not implement code. Does not assign humans.
 // Merged covering PR + no remaining slices → CLOSE. Remaining acceptance → candidate.
-if include_reconcile {
+if include_reconcile && !decision_front_ok {
     phase("Reconcile");
     let b_rec = budget();
     if b_rec.remaining < 2 {
@@ -1279,9 +1458,9 @@ if include_pr_followup && (!signals_ok || blocker_pr_count != 0) {
 // ========== Triage ==========
 phase("Triage");
 
-let queue = [];
-let triage_notes = "";
-if inventory == "" && issue_numbers == () {
+if decision_front_ok && queue.len() >= max_issues {
+    log("Skipping Triage agent: decision-front already filled max_issues.");
+} else if inventory == "" && issue_numbers == () {
     log("Skipping triage: empty preflight inventory.");
     triage_notes = "empty inventory";
 } else {
@@ -1742,7 +1921,7 @@ if include_peer_pr_review && (!signals_ok || peer_eligible_count != 0) {
 }
 
 // ========== Erlang leftover (owned open PRs before Work) ==========
-if include_erlang_review {
+if include_erlang_review && (!signals_ok || owned_pr_count != 0) {
     phase("Erlang leftover");
     let b_el = budget();
     if b_el.remaining < 2 {
@@ -1782,7 +1961,7 @@ if include_erlang_review {
             };
             log("Erlang leftover agent failed");
         }
-        if include_erlang_fix && erlang_leftover_result != () && nonempty(erlang_leftover_result.bugs_found) {
+        if include_erlang_fix && erlang_leftover_result != () && has_findings(erlang_leftover_result.bugs_found) {
             let b_fx = budget();
             if b_fx.remaining >= 2 {
                 phase("Erlang fix (leftover)");
@@ -1824,6 +2003,18 @@ if include_erlang_review {
             }
         }
     }
+} else if include_erlang_review {
+    log("Skipping Erlang leftover: preflight owned_pr_count=0.");
+    erlang_leftover_result = #{
+        status: "skipped",
+        summary: "Skipped leftover: 0 owned open PRs (preflight)",
+        prs_reviewed: "",
+        prs_approved: "",
+        prs_merged: "",
+        bugs_found: "",
+        residual_issue_urls: "",
+        blocked: "",
+    };
 }
 
 // ========== Work (sequential - shared workspace) ==========
@@ -2399,7 +2590,7 @@ if include_erlang_review && prs_opened_this_run > 0 {
             };
             log("Erlang review agent failed");
         }
-        if include_erlang_fix && erlang_review_result != () && nonempty(erlang_review_result.bugs_found) {
+        if include_erlang_fix && erlang_review_result != () && has_findings(erlang_review_result.bugs_found) {
             let b_fx2 = budget();
             if b_fx2.remaining >= 2 {
                 phase("Erlang fix");
@@ -2455,7 +2646,7 @@ if include_erlang_review && prs_opened_this_run > 0 {
 }
 
 let leftover_blockers = false;
-if pr_followup_result != () && nonempty(pr_followup_result.merge_blockers_still_open) {
+if pr_followup_result != () && has_findings(pr_followup_result.merge_blockers_still_open) {
     leftover_blockers = true;
 }
 if leftover_blockers == false && signals_ok == false && include_pr_followup {
@@ -2543,7 +2734,7 @@ let cluster_owned_estimate = owned_pr_count;
 if owned_pr_count >= 0 {
     cluster_owned_estimate = owned_pr_count + prs_opened_this_run;
 }
-if include_pr_cluster && (!signals_ok || cluster_recommended || cluster_owned_estimate < 0 || cluster_owned_estimate >= cluster_min_prs) {
+if include_pr_cluster && (!signals_ok || cluster_recommended) {
     phase("PR cluster");
     let b_cl = budget();
     if b_cl.remaining < 2 {
@@ -2726,12 +2917,11 @@ if include_pr_cluster && (!signals_ok || cluster_recommended || cluster_owned_es
         }
     }
 } else if include_pr_cluster {
-    log("Skipping PR cluster: no thrash group (cluster_recommended=false) and owned estimate "
-        + cluster_owned_estimate.to_string() + " < cluster_min_prs "
-        + cluster_min_prs.to_string() + ".");
+    log("Skipping PR cluster: cluster_recommended=false (owned estimate "
+        + cluster_owned_estimate.to_string() + ").");
     pr_cluster_result = #{
         status: "skipped",
-        summary: "Skipped: no cluster_recommended thrash group and count below cluster_min_prs",
+        summary: "Skipped: cluster_recommended=false",
         cluster_branch: "",
         cluster_pr_url: "",
         superseded_prs: "",
@@ -3153,7 +3343,7 @@ if include_cycle_verify && need_cycle_verify {
 // Work and Cycle verify never assign humans. This is the only phase that may
 // create qa-task issues and assign qa_assignee — and only when the bar passes.
 let peer_approved = false;
-if peer_pr_review_result != () && nonempty(peer_pr_review_result.prs_approved) {
+if peer_pr_review_result != () && has_findings(peer_pr_review_result.prs_approved) {
     peer_approved = true;
 }
 let hq_q2_possible = (!signals_ok) || (prs_with_approve_count != 0) || peer_approved;

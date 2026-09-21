@@ -2,7 +2,7 @@
 name: night-gates
 description: >-
   Build / merge / handoff hard gates for the opencode night-issue-prs workflow
-  (mirrors .grok/workflows/night-issue-prs.rhai v2.0.8). Use when a sub-agent
+  (mirrors .grok/workflows/night-issue-prs.rhai v2.2.0). Use when a sub-agent
   opens a PR, clusters PRs, or proposes human-QA handoff, and when the host
   agent enforces C1–C5 / B1–B3 / Q1–Q8. Skip if you are not running
   night-issue-prs.

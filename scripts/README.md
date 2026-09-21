@@ -15,7 +15,7 @@ Out of scope for spec 994 (must NOT be touched):
 ### `opencode-night-issue-prs.py`
 
 Launcher for the opencode `night-issue-prs` overnight workflow (mirrors
-`.grok/workflows/night-issue-prs.rhai` v2.0.8 for opencode runners). Resolves
+`.grok/workflows/night-issue-prs.rhai` v2.2.0 for opencode runners). Resolves
 the dedicated worktree, sets the `NIGHT_*` env vars that
 `.opencode/plugin/night.ts` reads, and invokes `opencode run --agent night-worker`.
 
@@ -394,6 +394,32 @@ Harvest GitHub PR **line review comments** (including closed/merged PRs) from `k
 - **Outputs**: `docs/ai-generated/code-reviews/harvest-candidates-YYYY-MM-DD.md` and, with `--apply`, appends selected bullets to `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md`.
 - **Prereqs**: Python 3.9+, `gh` CLI authenticated.
 - **Tests**: `python3 -m pytest scripts/test_erlang_harvest_review_patterns.py -v`
+
+### `night-decision-front.py` / `night-decision-front.cmd`
+
+Ranks the overnight implement queue from **gh JSON + Jev prescreen hints** (no live
+network in tests). Used by `night-issue-prs` **2.2.0** Decision front so
+Preflight/Reconcile/Triage Grok agents are skipped when the script fills
+`max_issues`.
+
+- **Purpose**: one-per-parent product queue; skip epics, covering OPEN PRs,
+  assigned / In Progress / NotSafe / migrated / Jev `recommend_skip`; emit
+  peer-eligible and cluster_recommended skip signals.
+- **Usage**:
+
+  ```bash
+  python3 scripts/night-decision-front.py \
+    --issues scratch/issues-raw.json \
+    --prs scratch/prs-open.json \
+    --prescreen scratch/prescreen.json \
+    --out scratch/decision-front.json \
+    --max-issues 3
+  # Windows: scripts\night-decision-front.cmd ...
+  ```
+
+- **Hard rules in code**: labels beat Jev; covering PR from `Fixes #N` / `issue-N`
+  branch; at most one implement item per parent; p7/p8 only in `--low-slots`.
+- **Tests**: `python3 scripts/test_night_decision_front.py`
 
 ### `typesafe-prescreen.py` / `typesafe-prescreen.cmd`
 

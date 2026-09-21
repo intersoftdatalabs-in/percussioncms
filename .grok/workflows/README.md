@@ -6,29 +6,32 @@ Project workflows live here and are invocable by name (e.g. `/night-issue-prs` o
 
 ## `night-issue-prs`
 
-**Version:** `2.0.8` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
+**Version:** `2.2.0` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
 
 Unattended overnight worker. Specialists spawn only when Preflight (or this-run results) show work; empty phases do not pay a full agent.
 
 1. **Identity** — live **Grok Build** version (`grok --version`) and **session model** (e.g. `grok-4.6`). Skipped when `coding_tool`, `coding_tool_version`, and `model_id` are all passed as args.  
-2. **Preflight** (one scout) — stale **In Progress** cleanup + **compact** issue inventory (up to ~80) + skip signals (owned PR blockers, peer-eligible other-model PRs, independent APPROVEs, open CodeQL alert count).  
-3. **Reconcile** — close issues that are **100% implemented** (merged covering PR, no remaining slices). Close unassigned **QA: Failed** when the residual that fixed the fail steps is merged. Emit `implement_candidates` for leftovers. Default on.  
-4. **PR follow-up PRE** — only if Preflight found merge blockers (conflicts or open review threads).  
-5. **Triage** — inventory + reconcile candidates. Product-first then pN; oversized p1–p6 product → **create 3 PR-sized slices**; QA: Failed → implement residual. **Covering PR = OPEN PR only.** A merged PR is close-or-implement, never skip-forever.  
-6. **Peer PR review** — other-model PRs: spawn Erlang. Erlang child **MAY APPROVE and squash-merge** if LGTM. Spawn-fail is **not fatal** (host Erlang leftover runs next).  
-7. **Erlang leftover** — host Erlang on **all owned open MERGEABLE PRs**: merge LGTM; if BLOCK, **erlang-fix** then re-review once. Drains covering PRs so Work can fill.  
-8. **Work** — implement/split only. **`disposition=skip` does not spawn a Work agent**. Implementer must spawn Erlang before `gh pr create` and must not APPROVE/merge their own PR.  
-9. **Erlang review** — host Erlang on this-run PRs: **APPROVE + squash-merge** if LGTM; **erlang-fix** findings then re-review. Residual issues for out-of-scope leftovers.  
-10. **PR follow-up POST** — only if this run opened PRs or PRE left blockers. When no leftover blockers, POST touches **this-run PRs only**.  
-11. **PR cluster** — only if owned PR count ≥ `cluster_min_prs`.  
-12. **Security audit** — only if Preflight `open_alert_count > 0`.  
-13. **Cycle verify** — only if a PR or cluster opened. **Maven on the integration tip only** (does not re-install every PR head). **Playwright / qa-up only** when WebUI or `perc-qa-automation` is in `modules_built`.  
-14. **Human QA** — only if an independent APPROVE already exists (Q2 can pass). Erlang squash-merge counts. Work self-review does not.  
-15. **Report** — written in-script to `scratch/night-report.md` (**no report agent**).
+2. **Decision front** (2.2.0) — one thin agent runs `scripts/night-decision-front.py` (plus optional TypeSafe prescreen). Emits skip signals, one-per-parent implement queue, covering-PR skips, Jev skip hints. **Skips** the Preflight/Reconcile/Triage Grok walks when `signals_complete` and the queue is full. Fallback to those agents if the script fails. Does not merge. Does not create new DESIGN_GAPS children (Triage still runs when slots remain).  
+3. **Preflight** (fallback) — stale **In Progress** cleanup + **compact** issue inventory + skip signals.  
+4. **Reconcile** (fallback) — close issues that are **100% implemented**. Emit `implement_candidates`.  
+5. **PR follow-up PRE** — only if Preflight found merge blockers (conflicts or open review threads).  
+6. **Triage** — skipped when decision-front filled `max_issues`; else inventory + slice create. **Covering PR = OPEN PR only.**  
+7. **Peer PR review** — other-model PRs: spawn Erlang. Erlang child **MAY APPROVE and squash-merge** if LGTM. Spawn-fail is **not fatal** (host Erlang leftover runs next).  
+8. **Erlang leftover** — only if Preflight `owned_pr_count` is unknown or **> 0**. Host Erlang on owned open MERGEABLE PRs: merge LGTM; if BLOCK (`bugs_found` not empty/`none`), **erlang-fix** then re-review once. Drains covering PRs so Work can fill. **Do not spawn** leftover Erlang, erlang-fix, or re-review when there are zero open PRs or `bugs_found` is `none`.  
+9. **Work** — implement/split only. **`disposition=skip` does not spawn a Work agent**. Implementer must spawn Erlang before `gh pr create` and must not APPROVE/merge their own PR.  
+10. **Erlang review** — host Erlang on this-run PRs: **APPROVE + squash-merge** if LGTM; **erlang-fix** findings then re-review. Residual issues for out-of-scope leftovers.  
+11. **PR follow-up POST** — only if this run opened PRs or PRE left blockers. When no leftover blockers, POST touches **this-run PRs only**.  
+12. **PR cluster** — only if Preflight `cluster_recommended` is true, or skip-signals are unknown (fail-open). Do **not** spawn a cluster agent just because `owned_pr_count >= cluster_min_prs`.  
+13. **Security audit** — only if Preflight `open_alert_count > 0`.  
+14. **Cycle verify** — only if a PR or cluster opened. **Maven on the integration tip only** (does not re-install every PR head). **Playwright / qa-up only** when WebUI or `perc-qa-automation` is in `modules_built`.  
+15. **Human QA** — only if an independent APPROVE already exists (Q2 can pass). Erlang squash-merge counts. Work self-review does not.  
+16. **Report** — written in-script to `scratch/night-report.md` (**no report agent**).
 
 **Human QA handoff (after Cycle verify, default on):** when a this-run PR is **ready for human QA** *and* cycle verify did not fail it, create a **`qa task`** issue with a numbered **test plan**, assign **`vijaya-boddipudi`**, link Parent + PR. Pause: `include_human_qa: false`.
 
-**Merge policy (2.0.8):** Goal is **merged bug-free PRs** with **residual issues logged** for leftover scope. Work **opens PRs only** (never APPROVEs or merges its own). **Erlang** (independent sub-agent) **MAY APPROVE and squash-merge** when LGTM + checks green. Hard-gate findings are **fixed on the same PR** (`erlang-fix`) then re-reviewed (one retry). Out-of-scope leftovers become residual GitHub issues — they do not block merge of in-scope work. GitHub same-login APPROVE rejection → COMMENT LGTM + `--admin` merge. Oversized issues become child issues, not mega-PRs.
+**Token skip (2.1.0):** Host skip is still fail-open on **unknown** counts (`-1`), but **known zeros** and sentinel `none` strings do not spawn specialists. Jev prescreen remains hints only.
+
+**Merge policy (2.0.8+):** Goal is **merged bug-free PRs** with **residual issues logged** for leftover scope. Work **opens PRs only** (never APPROVEs or merges its own). **Erlang** (independent sub-agent) **MAY APPROVE and squash-merge** when LGTM + checks green. Hard-gate findings are **fixed on the same PR** (`erlang-fix`) then re-reviewed (one retry). Out-of-scope leftovers become residual GitHub issues — they do not block merge of in-scope work. GitHub same-login APPROVE rejection → COMMENT LGTM + `--admin` merge. Oversized issues become child issues, not mega-PRs.
 
 ### Product-first queue (HARD)
 
