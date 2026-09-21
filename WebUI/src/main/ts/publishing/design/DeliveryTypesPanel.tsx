@@ -24,6 +24,8 @@ import {
   type DeliveryTypeSummary,
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
+import { mapDeliveryTypeSaveError } from "../deliveryTypeSaveErrors";
+import { useDirtyForm } from "../dirtyFormContext";
 import {
   buttonStyle,
   emptyStyle,
@@ -44,6 +46,8 @@ export function DeliveryTypesPanel(): React.ReactElement {
   const [description, setDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const { setDirty, confirmIfDirty } = useDirtyForm();
 
   function reload(): void {
     setLoading(true);
@@ -63,6 +67,8 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setName("");
     setBeanName("");
     setDescription("");
+    setError(null);
+    setDirty(false);
   }
 
   function openEdit(item: DeliveryTypeSummary): void {
@@ -71,6 +77,17 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setName(item.name ?? "");
     setBeanName(item.beanName ?? "");
     setDescription(item.description ?? "");
+    setError(null);
+    setDirty(false);
+  }
+
+  function closeEditor(): void {
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setCreating(false);
+    setEditing(null);
   }
 
   async function save(): Promise<void> {
@@ -78,6 +95,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
       setError("Name and bean name are required");
       return;
     }
+    setSaving(true);
     setError(null);
     try {
       const body: DeliveryTypeSummary = {
@@ -90,11 +108,14 @@ export function DeliveryTypesPanel(): React.ReactElement {
       } else {
         await createDeliveryType(body);
       }
+      setDirty(false);
       setCreating(false);
       setEditing(null);
       reload();
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapDeliveryTypeSaveError(e));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -116,14 +137,24 @@ export function DeliveryTypesPanel(): React.ReactElement {
         <h3>{editing ? "Edit delivery type" : "Add delivery type"}</h3>
         <div style={formRowStyle}>
           <label htmlFor="dt-name">* Name</label>
-          <input id="dt-name" value={name} onChange={(e) => setName(e.target.value)} />
+          <input
+            id="dt-name"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              setDirty(true);
+            }}
+          />
         </div>
         <div style={formRowStyle}>
           <label htmlFor="dt-bean">* Bean name</label>
           <input
             id="dt-bean"
             value={beanName}
-            onChange={(e) => setBeanName(e.target.value)}
+            onChange={(e) => {
+              setBeanName(e.target.value);
+              setDirty(true);
+            }}
           />
         </div>
         <div style={formRowStyle}>
@@ -131,7 +162,10 @@ export function DeliveryTypesPanel(): React.ReactElement {
           <input
             id="dt-desc"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              setDescription(e.target.value);
+              setDirty(true);
+            }}
           />
         </div>
         {error && (
@@ -140,17 +174,16 @@ export function DeliveryTypesPanel(): React.ReactElement {
           </p>
         )}
         <div style={toolbarStyle}>
-          <button type="button" style={primaryButtonStyle} onClick={() => void save()}>
-            {message(MSG.PUBLISH_SAVE)}
-          </button>
           <button
             type="button"
-            style={buttonStyle}
-            onClick={() => {
-              setCreating(false);
-              setEditing(null);
-            }}
+            style={primaryButtonStyle}
+            data-testid="delivery-type-save"
+            disabled={saving}
+            onClick={() => void save()}
           >
+            {message(MSG.PUBLISH_SAVE)}
+          </button>
+          <button type="button" style={buttonStyle} onClick={closeEditor}>
             {message(MSG.PUBLISH_BACK)}
           </button>
         </div>
@@ -161,7 +194,12 @@ export function DeliveryTypesPanel(): React.ReactElement {
   return (
     <div data-testid="delivery-types-panel">
       <div style={toolbarStyle}>
-        <button type="button" style={buttonStyle} onClick={openCreate}>
+        <button
+          type="button"
+          style={buttonStyle}
+          data-testid="design-add-delivery-type"
+          onClick={openCreate}
+        >
           Add
         </button>
         <button type="button" style={buttonStyle} onClick={reload}>
