@@ -1012,8 +1012,9 @@ public class PSPublishingDesignRestService {
   @GET
   @Path("/runtime/editions")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-  public List<PSRuntimeEditionStatus> listRuntimeEditions(@QueryParam("siteId") String siteId) {
-    return requireRuntime().listRuntimeEditions(siteId);
+  public List<PSRuntimeEditionStatus> listRuntimeEditions(
+      @QueryParam("siteId") String siteId, @QueryParam("pubServerId") String pubServerId) {
+    return requireRuntime().listRuntimeEditions(siteId, pubServerId);
   }
 
   @POST

@@ -108,6 +108,27 @@ class PSPublishingRuntimeSupportTest {
   }
 
   @Test
+  void listRuntimeEditions_filtersByPubServer() {
+    IPSGuid serverGuid = mock(IPSGuid.class);
+    when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.SITE))).thenReturn(siteGuid);
+    when(guidManager.makeGuid(eq("7"), eq(PSTypeEnum.PUBLISHING_SERVER))).thenReturn(serverGuid);
+    IPSEdition edition = mock(IPSEdition.class);
+    when(edition.getGUID()).thenReturn(editionGuid);
+    when(editionGuid.getUUID()).thenReturn(10);
+    when(edition.getName()).thenReturn("OnServer");
+    when(edition.getPubServerId()).thenReturn(serverGuid);
+    when(serverGuid.getUUID()).thenReturn(7);
+    when(publisherService.findAllEditionsByPubServer(serverGuid))
+        .thenReturn(Collections.singletonList(edition));
+    when(rxPublisherService.getEditionJobId(editionGuid)).thenReturn(0L);
+
+    List<PSRuntimeEditionStatus> list = support.listRuntimeEditions("42", "7");
+    assertEquals(1, list.size());
+    assertEquals("OnServer", list.get(0).getName());
+    assertEquals("7", list.get(0).getPubServerId());
+  }
+
+  @Test
   void startEdition_returnsJobId() {
     when(guidManager.makeGuid(eq("10"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
     when(rxPublisherService.startPublishingJob(eq(editionGuid), isNull())).thenReturn(77L);

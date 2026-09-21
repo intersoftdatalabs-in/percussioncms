@@ -17,6 +17,8 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { fetchSites } from "../../api/home/homeApi";
+import { listServers } from "../../api/publishing/serversApi";
+import type { PublishServer } from "../../api/publishing/types";
 import {
   clearSiteItems,
   demandPublish,
@@ -59,6 +61,8 @@ export function parseContentIds(raw: string): string[] {
 export function RuntimeSection(): React.ReactElement {
   const [sites, setSites] = useState<Array<{ name: string; id: string }>>([]);
   const [siteId, setSiteId] = useState("");
+  const [servers, setServers] = useState<PublishServer[]>([]);
+  const [pubServerId, setPubServerId] = useState("");
   const [editions, setEditions] = useState<RuntimeEditionStatus[]>([]);
   const [selectedEdition, setSelectedEdition] = useState("");
   const [demandIds, setDemandIds] = useState("");
@@ -89,7 +93,7 @@ export function RuntimeSection(): React.ReactElement {
     }
     setLoading(true);
     setError(null);
-    listRuntimeEditions(siteId)
+    listRuntimeEditions(siteId, pubServerId || undefined)
       .then((list) => {
         setEditions(list);
         if (list.length > 0 && !selectedEdition) {
@@ -98,11 +102,30 @@ export function RuntimeSection(): React.ReactElement {
       })
       .catch(() => setError(message(MSG.PUBLISH_ERROR)))
       .finally(() => setLoading(false));
-  }, [siteId, selectedEdition]);
+  }, [siteId, pubServerId, selectedEdition]);
+
+  useEffect(() => {
+    if (!siteId) {
+      setServers([]);
+      setPubServerId("");
+      return;
+    }
+    listServers(siteId)
+      .then((list) => {
+        setServers(list);
+        if (list.length > 0) {
+          const firstId = String(list[0].serverId ?? list[0].id ?? "");
+          setPubServerId((prev) => prev || firstId);
+        } else {
+          setPubServerId("");
+        }
+      })
+      .catch(() => setServers([]));
+  }, [siteId]);
 
   useEffect(() => {
     reload();
-  }, [siteId]);
+  }, [siteId, pubServerId]);
 
   async function onStart(editionId: string): Promise<void> {
     setBusy(true);
@@ -210,6 +233,24 @@ export function RuntimeSection(): React.ReactElement {
             ))}
           </select>
         </label>
+        <label>
+          Publish server{" "}
+          <select
+            data-testid="runtime-pub-server"
+            value={pubServerId}
+            onChange={(e) => setPubServerId(e.target.value)}
+            aria-label="Runtime publish server"
+          >
+            {servers.map((s) => {
+              const id = String(s.serverId ?? s.id ?? "");
+              return (
+                <option key={id} value={id}>
+                  {s.serverName ?? s.name ?? id}
+                </option>
+              );
+            })}
+          </select>
+        </label>
         <button type="button" style={buttonStyle} onClick={reload} disabled={busy}>
           Refresh
         </button>
@@ -251,6 +292,7 @@ export function RuntimeSection(): React.ReactElement {
               <button
                 type="button"
                 style={primaryButtonStyle}
+                data-testid={`runtime-start-${id}`}
                 disabled={busy || !id}
                 onClick={() => void onStart(id)}
               >
@@ -260,6 +302,7 @@ export function RuntimeSection(): React.ReactElement {
                 <button
                   type="button"
                   style={buttonStyle}
+                  data-testid={`runtime-stop-${id}`}
                   disabled={busy}
                   onClick={() => void onStop(ed.runningJobId!)}
                 >
@@ -328,7 +371,11 @@ export function RuntimeSection(): React.ReactElement {
       </div>
 
       {lastResult && (
-        <p style={{ marginTop: 16 }} role="status">
+        <p
+          style={{ marginTop: 16 }}
+          role="status"
+          data-testid="runtime-job-status"
+        >
           Last result: {lastResult.status}
           {lastResult.jobId != null ? ` · job ${lastResult.jobId}` : ""}
           {lastResult.requestId != null
