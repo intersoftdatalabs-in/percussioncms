@@ -500,12 +500,14 @@ public class PSItemService implements IPSItemService {
       @Multipart("file") Attachment attachment)
       throws PSItemServiceException {
     if (attachment == null) {
-      throw new PSItemServiceException("A file attachment is required.");
+      throw new WebApplicationException(
+          "A file attachment is required.", Response.Status.BAD_REQUEST);
     }
     try {
       var disposition = attachment.getContentDisposition();
       if (disposition == null) {
-        throw new PSItemServiceException("A file attachment is required.");
+        throw new WebApplicationException(
+            "A file attachment is required.", Response.Status.BAD_REQUEST);
       }
       String filename = disposition.getFilename();
       String type =
@@ -513,6 +515,8 @@ public class PSItemService implements IPSItemService {
       try (InputStream in = attachment.getDataHandler().getInputStream()) {
         return saveEditorBinary(id, field, in, filename, type);
       }
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (PSItemServiceException e) {
       throw e;
     } catch (Exception e) {
@@ -528,15 +532,17 @@ public class PSItemService implements IPSItemService {
       rejectIfBlank("saveEditorBinary", "id", id);
       String fieldName = PSItemEditorBinarySupport.requireFieldName(field);
       if (data == null) {
-        throw new PSItemServiceException("A file attachment is required.");
+        throw new WebApplicationException(
+            "A file attachment is required.", Response.Status.BAD_REQUEST);
       }
       String guid = PSLegacyExtensionUtils.getGUID(id);
       PSComponentSummary sum = workflowHelper.getComponentSummary(guid);
       if (sum != null
           && StringUtils.isNotBlank(sum.getCheckoutUserName())
           && !workflowHelper.isCheckedOutToCurrentUser(guid)) {
-        throw new PSItemServiceException(
-            "User " + sum.getCheckoutUserName() + " is editing this item.");
+        throw new WebApplicationException(
+            "User " + sum.getCheckoutUserName() + " is editing this item.",
+            Response.Status.FORBIDDEN);
       }
       IPSGuid itemGuid = idMapper.getGuid(guid);
       PSItemStatus status = contentWs.prepareForEdit(itemGuid);
@@ -551,10 +557,14 @@ public class PSItemService implements IPSItemService {
       PSItemEditorBinarySupport.applyBinary(item, fieldName, temp, filename, contentType);
       contentItemDao.save(item);
       return PSItemEditorBinarySupport.toMeta(item, fieldName);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSItemEditorBinarySupport.TooLargeException e) {
+      throw new WebApplicationException(e.getMessage(), Response.Status.REQUEST_ENTITY_TOO_LARGE);
     } catch (PSItemServiceException e) {
       throw e;
     } catch (IllegalArgumentException e) {
-      throw new PSItemServiceException(e.getMessage());
+      throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
     } catch (PSValidationException e) {
       throw new WebApplicationException(e);
     } catch (Exception e) {

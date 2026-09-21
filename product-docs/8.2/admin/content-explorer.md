@@ -179,7 +179,7 @@ content-type **Control** names from `GET /services/contenttypes/{type}` onto wid
 | `sys_tinymce`, `sys_TinyMCE`, `sys_EditLive`, HTML | TinyMCE (textarea fallback if the shipped TinyMCE script is unavailable) | Same fields API — HTML string |
 | Keyword-named dropdowns | Keyword picker | Same fields API — selected choice value |
 | `sys_communityid` | Community picker | Same fields API |
-| `sys_File` / file asset fields | File upload | `PUT /services/itemmanagement/item/binary/{id}/{field}` |
+| `sys_File` / file asset fields | File upload | `PUT /services/itemmanagement/item/binary/{id}/{field}` (multipart `file`). The item must be checked out to you. **View** mode disables the file input. HTTP **403** (not allowed / checked out to someone else), **400** (missing or invalid file), and **413** (file too large, 50 MiB) are errors — they are not treated as a successful save. Image widgets use the same binary API (separate slice). |
 | Image controls (`sys_webImageFX`, `img`) | Image upload with local preview | Same binary API |
 | `sys_CalendarSimple` and other date controls | Date picker (`type=date`) | Same fields API — `yyyy-MM-dd` |
 | Datetime / timestamp controls (`dataType` datetime) | Date-time picker (`type=datetime-local`) | Same fields API — `yyyy-MM-dd HH:mm:ss` |

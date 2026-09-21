@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.percussion.itemmanagement.data.PSItemEditorBinaryMeta;
 import com.percussion.share.dao.impl.PSContentItem;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -73,6 +74,37 @@ class PSItemEditorBinarySupportTest {
     assertEquals("image/png", meta.getContentType());
     assertTrue(meta.isPresent());
     assertFalse(PSItemEditorBinarySupport.isPresent(new byte[0]));
+  }
+
+  @Test
+  void writeTempRejectsOversizedBody() {
+    byte[] chunk = new byte[8192];
+    InputStream unbounded =
+        new InputStream() {
+          long remaining = PSItemEditorBinarySupport.MAX_EDITOR_BINARY_BYTES + 1;
+
+          @Override
+          public int read() {
+            if (remaining <= 0) {
+              return -1;
+            }
+            remaining--;
+            return 1;
+          }
+
+          @Override
+          public int read(byte[] b, int off, int len) {
+            if (remaining <= 0) {
+              return -1;
+            }
+            int n = (int) Math.min(len, remaining);
+            remaining -= n;
+            return n;
+          }
+        };
+    assertThrows(
+        PSItemEditorBinarySupport.TooLargeException.class,
+        () -> PSItemEditorBinarySupport.writeTemp(unbounded, "big.bin", "application/octet-stream"));
   }
 
   @Test

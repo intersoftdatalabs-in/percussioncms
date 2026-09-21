@@ -18,11 +18,12 @@ package com.percussion.itemmanagement.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
-import com.percussion.itemmanagement.service.IPSItemService;
+import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.pagemanagement.service.IPSTemplateService;
@@ -35,6 +36,10 @@ import com.percussion.share.dao.IPSContentItemDao;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.webservices.content.IPSContentWs;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -62,6 +67,7 @@ class PSItemServiceEditorBinaryTest {
   @Mock private IPSPublisherService pubService;
   @Mock private IPSManagedLinkDao linkService;
   @Mock private Attachment attachment;
+  @Mock private PSComponentSummary summary;
 
   private PSItemService service;
 
@@ -87,20 +93,53 @@ class PSItemServiceEditorBinaryTest {
 
   @Test
   void saveEditorBinaryRejectsMissingAttachment() {
-    IPSItemService.PSItemServiceException ex =
+    WebApplicationException ex =
         assertThrows(
-            IPSItemService.PSItemServiceException.class,
-            () -> service.saveEditorBinary("42", "img", null));
-    assertEquals("A file attachment is required.", ex.getMessage());
+            WebApplicationException.class, () -> service.saveEditorBinary("42", "img", null));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
   }
 
   @Test
   void saveEditorBinaryRejectsMissingContentDisposition() {
     when(attachment.getContentDisposition()).thenReturn(null);
-    IPSItemService.PSItemServiceException ex =
+    WebApplicationException ex =
         assertThrows(
-            IPSItemService.PSItemServiceException.class,
+            WebApplicationException.class,
             () -> service.saveEditorBinary("42", "img", attachment));
-    assertEquals("A file attachment is required.", ex.getMessage());
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+  }
+
+  @Test
+  void saveEditorBinaryForbiddenWhenCheckedOutToOtherUser() throws Exception {
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
+    when(summary.getCheckoutUserName()).thenReturn("other");
+    when(workflowHelper.isCheckedOutToCurrentUser(anyString())).thenReturn(false);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                service.saveEditorBinary(
+                    "42",
+                    "item_file_attachment",
+                    new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)),
+                    "note.txt",
+                    "text/plain"));
+    assertEquals(Response.Status.FORBIDDEN.getStatusCode(), ex.getResponse().getStatus());
+  }
+
+  @Test
+  void saveEditorBinaryBadRequestOnInvalidFieldName() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                service.saveEditorBinary(
+                    "42",
+                    "../img",
+                    new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)),
+                    "note.txt",
+                    "text/plain"));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
   }
 }

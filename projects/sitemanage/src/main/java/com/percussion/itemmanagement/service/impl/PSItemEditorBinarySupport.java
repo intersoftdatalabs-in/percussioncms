@@ -33,7 +33,19 @@ public final class PSItemEditorBinarySupport {
 
   private static final Pattern FIELD_NAME = Pattern.compile("^[A-Za-z][A-Za-z0-9_]{0,79}$");
 
+  /** Default max body for editor file/image PUT (50 MiB). */
+  public static final long MAX_EDITOR_BINARY_BYTES = 50L * 1024L * 1024L;
+
   private PSItemEditorBinarySupport() {}
+
+  /** Thrown when the multipart body exceeds {@link #MAX_EDITOR_BINARY_BYTES}. */
+  public static final class TooLargeException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
+    public TooLargeException() {
+      super("The uploaded file exceeds the maximum allowed size.");
+    }
+  }
 
   public static String requireFieldName(String field) {
     if (StringUtils.isBlank(field) || !FIELD_NAME.matcher(field.trim()).matches()) {
@@ -119,7 +131,23 @@ public final class PSItemEditorBinarySupport {
     PSPurgableTempFile temp =
         new PSPurgableTempFile("edt", ext, null, safeName, contentType, null);
     try (OutputStream out = Files.newOutputStream(temp.toPath())) {
-      in.transferTo(out);
+      byte[] buf = new byte[8192];
+      long copied = 0;
+      int n;
+      while ((n = in.read(buf)) >= 0) {
+        copied += n;
+        if (copied > MAX_EDITOR_BINARY_BYTES) {
+          throw new TooLargeException();
+        }
+        out.write(buf, 0, n);
+      }
+    } catch (TooLargeException e) {
+      try {
+        Files.deleteIfExists(temp.toPath());
+      } catch (IOException ignored) {
+        // best-effort; temp is purgable
+      }
+      throw e;
     }
     return temp;
   }

@@ -787,6 +787,89 @@ describe("EditorHost rich controls", () => {
     expect(uploadBinary).toHaveBeenCalledWith("42", "img", file);
   });
 
+  it("maps file-field upload 403 and 413 as errors, not success", async () => {
+    const loadFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percFile",
+      name: "Spec",
+      checkoutUser: "admin",
+      fields: [{ name: "sys_title", value: "Spec" }],
+    });
+    const saveFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percFile",
+      name: "Spec",
+      checkoutUser: "admin",
+      fields: [{ name: "sys_title", value: "Spec" }],
+    });
+    const uploadBinary = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={async () => undefined}
+                loadFields={loadFields}
+                saveFields={saveFields}
+                uploadBinary={uploadBinary}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    {
+                      name: "item_file_attachment",
+                      label: "File",
+                      control: "sys_File",
+                    },
+                  ],
+                })}
+                loadBinaryMeta={async () => ({
+                  contentId: "42",
+                  field: "item_file_attachment",
+                  filename: "",
+                  contentType: "",
+                  present: false,
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-item_file_attachment")).toBeTruthy();
+    });
+    const file = new File(["x"], "spec.pdf", { type: "application/pdf" });
+    fireEvent.change(screen.getByTestId("editor-file-item_file_attachment"), {
+      target: { files: [file] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+        /not allowed to upload/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+
+    uploadBinary.mockRejectedValueOnce({
+      status: 413,
+      statusText: "Payload Too Large",
+      body: {},
+    });
+    fireEvent.change(screen.getByTestId("editor-file-item_file_attachment"), {
+      target: { files: [file] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/too large/i);
+    });
+  });
+
   it("opens the promote form without checkout", async () => {
     const checkout = vi.fn();
     render(
