@@ -35,6 +35,8 @@ import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
 import { formatCopyItemError } from "./copyItemErrors";
 import { formatDeleteItemError } from "./deleteItemErrors";
 import { formatMoveItemError } from "./moveItemErrors";
+import { formatCreateFolderError } from "./createFolderErrors";
+import { isValidExplorerFolderName } from "./folderName";
 import { formatRenameItemError } from "./renameItemErrors";
 // Dual-run router (#3074): pathmanagement when flag off; RX folders REST under
 // /Folders and /Sites when perc.explorer.rxFolderMutations is on.
@@ -143,6 +145,8 @@ export function ReducedActions({
             ? formatDeleteItemError(err)
             : key === "rename"
             ? formatRenameItemError(err)
+            : key === "createFolder"
+            ? formatCreateFolderError(err)
             : formatApiError(err, message(EXPLORER_MSG.ERROR_GENERIC));
         onError?.(msg);
       } finally {
@@ -171,8 +175,12 @@ export function ReducedActions({
       "New Folder",
     );
     if (!name) return;
+    if (!isValidExplorerFolderName(name)) {
+      onError?.(message(EXPLORER_MSG.ACTION_CREATE_FOLDER_INVALID));
+      return;
+    }
     void runItemAction("createFolder", () => handlers.onCreateFolder(parent, name));
-  }, [folder, handlers, item, runItemAction]);
+  }, [folder, handlers, item, onError, runItemAction]);
 
   const handleRename = useCallback(() => {
     if (!item) return;

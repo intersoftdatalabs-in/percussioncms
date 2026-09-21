@@ -47,6 +47,12 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Preview is not available for this item",
   PREVIEW_OPEN_ERROR: "perc.ui.explorer@Could not open preview",
   ACTION_CREATE_FOLDER: "perc.ui.explorer@Create Folder",
+  ACTION_CREATE_FOLDER_NOT_FOUND:
+    "perc.ui.explorer@The destination folder was not found",
+  ACTION_CREATE_FOLDER_CONFLICT:
+    "perc.ui.explorer@Could not create the folder (name in use or destination is not a folder)",
+  ACTION_CREATE_FOLDER_INVALID:
+    "perc.ui.explorer@Enter a folder name without path separators",
   ACTION_RENAME: "perc.ui.explorer@Rename",
   ACTION_RENAME_NOT_FOUND:
     "perc.ui.explorer@The selected item was not found",

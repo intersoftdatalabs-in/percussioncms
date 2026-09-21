@@ -51,6 +51,16 @@ public interface IFolderAdaptor {
   Folder renameFolder(URI baseURI, String site, String path, String folderName, String newName)
       throws BackendException;
 
+  /**
+   * Creates a folder under {@code parentPath} with {@code name} (#4637).
+   *
+   * <p>Implementations map missing parent to {@link
+   * com.percussion.rest.errors.FolderNotFoundException} (HTTP 404), non-admin callers to {@link
+   * com.percussion.rest.errors.NotAuthorizedException} (HTTP 403), and name-in-use / invalid
+   * destination to HTTP 409.
+   */
+  Folder createFolder(URI baseURI, String parentPath, String name) throws BackendException;
+
   /** Copies a folder item. */
   void copyFolderItem(URI baseURI, String itemPath, String targetFolderPath) throws Exception;
 

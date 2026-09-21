@@ -130,6 +130,64 @@ public class FoldersTest {
   }
 
   @Test
+  void createFolder_callsAdaptor() throws Exception {
+    Folder created = new Folder();
+    created.setName("qa4637");
+    created.setPath("/Assets");
+    when(adaptor.createFolder(any(), eq("/Assets"), eq("qa4637"))).thenReturn(created);
+    Folder result = resource.createFolder(new CreateFolderRequest("/Assets", "qa4637"));
+    assertSame(created, result);
+    verify(adaptor).createFolder(uriInfo.getBaseUri(), "/Assets", "qa4637");
+  }
+
+  @Test
+  void createFolder_mapsNotAuthorizedToForbidden() throws Exception {
+    doThrow(new NotAuthorizedException())
+        .when(adaptor)
+        .createFolder(any(), anyString(), anyString());
+    NotAuthorizedException thrown =
+        assertThrows(
+            NotAuthorizedException.class,
+            () -> resource.createFolder(new CreateFolderRequest("/Assets", "x")));
+    assertEquals(jakarta.ws.rs.core.Response.Status.FORBIDDEN, thrown.getStatus());
+  }
+
+  @Test
+  void createFolder_mapsFolderNotFound() throws Exception {
+    doThrow(new FolderNotFoundException())
+        .when(adaptor)
+        .createFolder(any(), anyString(), anyString());
+    assertThrows(
+        FolderNotFoundException.class,
+        () -> resource.createFolder(new CreateFolderRequest("/Assets/missing", "x")));
+  }
+
+  @Test
+  void createFolder_mapsConflict() throws Exception {
+    doThrow(new WebApplicationException("exists", jakarta.ws.rs.core.Response.Status.CONFLICT))
+        .when(adaptor)
+        .createFolder(any(), anyString(), anyString());
+    WebApplicationException thrown =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createFolder(new CreateFolderRequest("/Assets", "dup")));
+    assertEquals(
+        jakarta.ws.rs.core.Response.Status.CONFLICT.getStatusCode(),
+        thrown.getResponse().getStatus());
+  }
+
+  @Test
+  void createFolder_rejectsBlankName() {
+    WebApplicationException thrown =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createFolder(new CreateFolderRequest("/Assets", "  ")));
+    assertEquals(
+        jakarta.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode(),
+        thrown.getResponse().getStatus());
+  }
+
+  @Test
   void renameFolderItem_rejectsBlankName() {
     RenameFolderItemRequest req = new RenameFolderItemRequest("/Assets/src/item", "  ");
     WebApplicationException thrown =

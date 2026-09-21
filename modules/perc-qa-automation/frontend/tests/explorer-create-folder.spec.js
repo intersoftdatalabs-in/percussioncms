@@ -56,7 +56,7 @@ const {
   assetsFolderUrl,
   hasRxFolderMutationsQuery,
   isPathmanagementAddNewFolderUrl,
-  isPathmanagementRenameFolderUrl,
+  isFoldersCreateUrl,
   isRxContentExplorerFoldersUrl,
   isCreateFolderSuccessStatus,
   uniqueCreateFolderName,
@@ -116,7 +116,8 @@ test.describe("Explorer Create Folder on product route (#3640 / #3102)", () => {
       page.on("request", (req) => {
         const url = req.url();
         if (
-          (isPathmanagementAddNewFolderUrl(url) ||
+          (isFoldersCreateUrl(url) ||
+            isPathmanagementAddNewFolderUrl(url) ||
             isRxContentExplorerFoldersUrl(url)) &&
           req.method() !== "OPTIONS"
         ) {
@@ -185,13 +186,7 @@ test.describe("Explorer Create Folder on product route (#3640 / #3102)", () => {
 
       const createRespPromise = page.waitForResponse(
         (res) =>
-          isPathmanagementAddNewFolderUrl(res.url()) &&
-          res.request().method() !== "OPTIONS",
-        { timeout: 30_000 },
-      );
-      const renameRespPromise = page.waitForResponse(
-        (res) =>
-          isPathmanagementRenameFolderUrl(res.url()) &&
+          isFoldersCreateUrl(res.url()) &&
           res.request().method() !== "OPTIONS",
         { timeout: 30_000 },
       );
@@ -200,21 +195,11 @@ test.describe("Explorer Create Folder on product route (#3640 / #3102)", () => {
       const createResp = await createRespPromise;
       expect(
         isCreateFolderSuccessStatus(createResp.status()),
-        `addNewFolder expected 200, got ${createResp.status()} ${createResp.url()}`,
-      ).toBe(true);
-      const renameResp = await renameRespPromise;
-      expect(
-        isCreateFolderSuccessStatus(renameResp.status()),
-        `renameFolder expected 200, got ${renameResp.status()} ${renameResp.url()}`,
+        `POST /folders/create expected 200, got ${createResp.status()} ${createResp.url()}`,
       ).toBe(true);
       createdItem = unwrapCreatedPathItem(
-        await renameResp.json().catch(() => ({})),
+        await createResp.json().catch(() => ({})),
       );
-      if (!createdItem.path) {
-        createdItem = unwrapCreatedPathItem(
-          await createResp.json().catch(() => ({})),
-        );
-      }
 
       const rxHits = mutations.filter((m) =>
         isRxContentExplorerFoldersUrl(m.url),

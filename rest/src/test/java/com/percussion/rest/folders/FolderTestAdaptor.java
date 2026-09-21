@@ -112,4 +112,12 @@ public class FolderTestAdaptor implements IFolderAdaptor {
   public void renameFolderItem(URI baseURI, String itemPath, String newName) {
     // No-op for test adaptor
   }
+
+  @Override
+  public Folder createFolder(URI baseURI, String parentPath, String name) {
+    var f = new Folder();
+    f.setPath(parentPath);
+    f.setName(name);
+    return f;
+  }
 }

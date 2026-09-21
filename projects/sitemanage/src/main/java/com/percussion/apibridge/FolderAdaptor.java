@@ -1665,6 +1665,114 @@ public class FolderAdaptor implements IFolderAdaptor {
   }
 
   @Override
+  public Folder createFolder(URI baseURI, String parentPath, String name) throws BackendException {
+    try {
+      checkAPIPermission();
+      String wanted = StringUtils.trimToEmpty(name);
+      validateExplorerFolderName(wanted);
+
+      String parentRaw = StringUtils.trimToEmpty(parentPath);
+      if (StringUtils.isBlank(parentRaw)) {
+        throw new WebApplicationException("parentPath is required", Response.Status.BAD_REQUEST);
+      }
+
+      String finderParent = parentRaw.startsWith("/") ? parentRaw : "/" + parentRaw;
+      finderParent = StringUtils.stripEnd(finderParent, "/");
+      if (finderParent.isEmpty()) {
+        finderParent = "/";
+      }
+
+      PSPathItem parentItem;
+      try {
+        parentItem = pathService.find(finderParent);
+      } catch (PSPathNotFoundServiceException | PSParametersValidationException e) {
+        throw new FolderNotFoundException(e);
+      }
+      if (parentItem == null) {
+        throw new FolderNotFoundException();
+      }
+      if (!parentItem.isFolder()) {
+        throw new WebApplicationException(
+            "Parent path is not a folder", Response.Status.CONFLICT);
+      }
+
+      String destFinder = folderHelper.concatPath(finderParent, wanted, "/");
+      try {
+        PSPathItem existing = pathService.find(destFinder);
+        if (existing != null) {
+          throw new WebApplicationException(
+              "A folder with that name already exists", Response.Status.CONFLICT);
+        }
+      } catch (PSPathNotFoundServiceException e) {
+        // expected when the name is free
+      }
+
+      PSPathItem created = pathService.addFolder(destFinder);
+      Folder folder = new Folder();
+      if (created != null) {
+        folder.setId(created.getId());
+        folder.setName(created.getName());
+        folder.setPath(created.getPath());
+        folder.setAccessLevel(Folder.ACCESS_LEVEL_WRITE);
+      } else {
+        folder.setName(wanted);
+        folder.setPath(destFinder);
+      }
+      return folder;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSPathNotFoundServiceException e) {
+      throw new FolderNotFoundException(e);
+    } catch (PSDataServiceException e) {
+      throw new BackendException(e);
+    } catch (Exception e) {
+      if (e instanceof NotAuthorizedException nae) {
+        throw nae;
+      }
+      if (e instanceof FolderNotFoundException fnf) {
+        throw fnf;
+      }
+      if (e instanceof WebApplicationException wae) {
+        throw wae;
+      }
+      if (e instanceof BackendException be) {
+        throw be;
+      }
+      String msg = PSExceptionUtils.getMessageForLog(e);
+      if (msg != null
+          && (msg.contains("already exists")
+              || msg.contains("must be unique")
+              || msg.contains("Failed to add folder"))) {
+        throw new WebApplicationException(msg, Response.Status.CONFLICT);
+      }
+      throw new BackendException(e);
+    }
+  }
+
+  /**
+   * Folder names are a single NIO path segment (no separators, not {@code .} / {@code ..}).
+   */
+  static void validateExplorerFolderName(String name) {
+    String n = StringUtils.trimToEmpty(name);
+    if (StringUtils.isBlank(n) || ".".equals(n) || "..".equals(n)) {
+      throw new WebApplicationException("invalid folder name", Response.Status.BAD_REQUEST);
+    }
+    if (n.indexOf('/') >= 0 || n.indexOf('\\') >= 0) {
+      throw new WebApplicationException(
+          "name must be a single folder segment", Response.Status.BAD_REQUEST);
+    }
+    java.nio.file.Path asPath = java.nio.file.Path.of(n);
+    if (asPath.isAbsolute() || asPath.getNameCount() != 1) {
+      throw new WebApplicationException(
+          "name must be a single folder segment", Response.Status.BAD_REQUEST);
+    }
+    if (n.length() > 50) {
+      throw new WebApplicationException(
+          "name exceeds character limit", Response.Status.CONFLICT);
+    }
+  }
+
+  @Override
   public void renameFolderItem(URI baseURI, String itemPath, String newName)
       throws BackendException {
     try {

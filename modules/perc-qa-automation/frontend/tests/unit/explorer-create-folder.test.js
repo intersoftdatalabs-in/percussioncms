@@ -28,6 +28,7 @@ const {
   explorerProductCreateFolderUrl,
   hasRxFolderMutationsQuery,
   isPathmanagementAddNewFolderUrl,
+  isFoldersCreateUrl,
   isPathmanagementRenameFolderUrl,
   isRxContentExplorerFoldersUrl,
   isCreateFolderSuccessStatus,
@@ -65,6 +66,19 @@ describe("explorer-create-folder helpers (#3640)", () => {
     assert.equal(
       hasRxFolderMutationsQuery(
         "http://127.0.0.1:9992/Rhythmyx/cm/app/spa.jsp?entry=explorer",
+      ),
+      false,
+    );
+  });
+
+  it("matches public REST /folders/create", () => {
+    assert.equal(
+      isFoldersCreateUrl("http://x/Rhythmyx/rest/folders/create"),
+      true,
+    );
+    assert.equal(
+      isFoldersCreateUrl(
+        "http://x/Rhythmyx/services/pathmanagement/path/addNewFolder/Assets",
       ),
       false,
     );
