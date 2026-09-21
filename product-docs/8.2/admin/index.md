@@ -133,6 +133,7 @@ Non-administrators never see the Admin top-nav item or these configuration surfa
 - [Developer Application Files](id:admin-developer-application-files)
 - [Object ACL & default template](id:admin-object-acl)
 - [Publishing](id:admin-publishing)
+- [Faculty Directory membership and publish](id:admin-faculty-directory)
 - [Server operations](id:admin-server-ops)
 
 ## Day-two checklist
