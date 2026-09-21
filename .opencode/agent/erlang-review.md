@@ -55,6 +55,12 @@ If `mkd-code-review` is not on PATH or the persona install is missing, emit
 `Status: cli-unavailable, manual review` in the report header and run the
 legacy manual review path documented in the persona spec.
 
+## Forge git identity
+
+If you create a commit (you usually should not; squash-merge uses GitHub):
+author/committer `Nate Chadwick <263952448+natechadwick-intsof@users.noreply.github.com>`,
+GPG `CB96F96BE980BBE2`, never `Erlang <erlang@monkeyking.dev>`.
+
 ## Hard bans
 
 - Implementing the fix yourself (that is erlang-fix).

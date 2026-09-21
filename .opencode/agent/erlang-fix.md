@@ -31,6 +31,13 @@ PR branch.
    companions, HTTP status, etc.).
 3. Standalone `mvnw clean install` on each changed module.
 4. Commit + push to the PR branch. Reply on the PR with what you fixed.
+
+   **Forge identity (HARD):** author and committer must be
+   `Nate Chadwick <263952448+natechadwick-intsof@users.noreply.github.com>`,
+   signed `-S` with `user.signingkey=CB96F96BE980BBE2`. Never
+   `Erlang <erlang@monkeyking.dev>` (GitHub Unverified / `no_user`).
+   `gh auth` must be `natechadwick-intsof`. Read `AGENTS.local.md` from
+   the primary checkout if this worktree has none.
 5. Out-of-scope leftovers: `gh issue create` residual (unassigned). Do not
    expand the PR.
 

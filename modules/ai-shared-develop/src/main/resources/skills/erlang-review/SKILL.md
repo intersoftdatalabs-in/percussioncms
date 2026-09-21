@@ -20,8 +20,13 @@ Read the persona there:
 ```text
 ~/.agents/skills/erlang/ERLANG.md     # identity, gate, severity, voice
 ~/.agents/skills/erlang/PATTERNS.md   # institutional review memory
-~/.agents/skills/erlang/VERSION      # e.g. "0.1.0"
+~/.agents/skills/erlang/VERSION      # e.g. "0.1.1"
 ```
+
+Percussion CMS commits from Erlang / erlang-fix use
+`Nate Chadwick <263952448+natechadwick-intsof@users.noreply.github.com>`
+and GPG `CB96F96BE980BBE2` (`AGENTS.local.md`). Never
+`Erlang <erlang@monkeyking.dev>`.
 
 Kilo `/erlang-review` (or `.kilocode/workflows/erlang-review.md`) is the
 preferred invocation in Kilo Code. The OpenCode `.opencode/agent/erlang-review.md`
