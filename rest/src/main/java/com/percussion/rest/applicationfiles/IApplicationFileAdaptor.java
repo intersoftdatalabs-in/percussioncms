@@ -36,9 +36,21 @@ public interface IApplicationFileAdaptor {
   /**
    * Load one file by application name and relative path under that app root.
    *
+   * <p>Non-UTF-8 bodies are reported as {@code binary=true} with no {@code content} (the raw bytes
+   * are served by {@link #getFileBytes} so they are never mangled by JSON text decoding).
+   *
    * @return detail with content, or {@code null} if app/path unknown or unsafe
    */
   ApplicationFileSummary getFile(String appName, String relativePath);
+
+  /**
+   * Read the raw bytes of one file verbatim (binary-safe download).
+   *
+   * @return raw file bytes, or {@code null} if app/path unknown
+   * @throws IllegalArgumentException when the relative path is unsafe (parent traversal, absolute,
+   *     drive-letter, NUL forms) — the resource maps this to HTTP 400
+   */
+  byte[] getFileBytes(String appName, String relativePath);
 
   /**
    * Admin. Replace UTF-8 text content of an existing or new file under the application root.
@@ -46,6 +58,16 @@ public interface IApplicationFileAdaptor {
    * @return updated detail, or {@code null} if app/path unknown or unsafe
    */
   ApplicationFileSummary putFile(String appName, String relativePath, ApplicationFileSummary body);
+
+  /**
+   * Admin. Replace the raw bytes of an existing or new file under the application root
+   * (binary-safe round-trip). Requires a held design lock — same semantics as {@link #putFile}.
+   *
+   * @return updated detail ({@code binary=true} when the new body is not valid UTF-8 text), or
+   *     {@code null} if app/path unknown
+   * @throws IllegalArgumentException when the relative path is unsafe or the body is null
+   */
+  ApplicationFileSummary putFileBytes(String appName, String relativePath, byte[] bytes);
 
   /**
    * Admin. Create a folder at a relative path under the application root.

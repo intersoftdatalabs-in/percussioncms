@@ -1263,6 +1263,8 @@ export interface ApplicationFileSummary {
   mimeType?: string;
   characterEncoding?: string;
   contentLength?: number;
+  /** True when the server reports the body as not valid UTF-8 text (binary round-trip). */
+  binary?: boolean;
   designGaps?: string[];
   lock?: { session?: string; locker?: string; remainingTime?: number };
 }

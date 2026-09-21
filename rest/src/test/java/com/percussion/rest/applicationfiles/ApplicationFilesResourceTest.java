@@ -390,4 +390,143 @@ public class ApplicationFilesResourceTest {
     assertSame(mapped, ex);
     assertEquals(409, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void getFileBytesDelegates200WithRawEntity() {
+    byte[] raw = new byte[] {0x00, 0x01, 0x7f, 0x2a};
+    when(adaptor.getFileBytes(eq("sys_resources"), eq("blobs/img.bin"))).thenReturn(raw);
+
+    Response out = resource.getFileBytes("sys_resources", "blobs/img.bin");
+    assertEquals(200, out.getStatus());
+    assertSame(raw, out.getEntity());
+    verify(adaptor).getFileBytes("sys_resources", "blobs/img.bin");
+  }
+
+  @Test
+  public void getFileBytesBlankPathIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.getFileBytes("sys_resources", "  "));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(ApplicationFilesResource.PATH_REQUIRED, ex.getMessage());
+    verify(adaptor, never()).getFileBytes(eq("sys_resources"), eq("  "));
+  }
+
+  @Test
+  public void getFileBytesUnsafeFromAdaptorIs400() {
+    when(adaptor.getFileBytes(eq("sys_resources"), eq("../escape")))
+        .thenThrow(new IllegalArgumentException("Invalid path"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.getFileBytes("sys_resources", "../escape"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("Invalid path", ex.getMessage());
+  }
+
+  @Test
+  public void getFileBytesUnknownIs404() {
+    when(adaptor.getFileBytes(eq("sys_resources"), eq("missing.bin"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.getFileBytes("sys_resources", "missing.bin"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Application file not found", ex.getMessage());
+  }
+
+  @Test
+  public void missingAdaptorReturnsServiceUnavailableOnGetBinary() {
+    ApplicationFilesResource bare = new ApplicationFilesResource();
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> bare.getFileBytes("any", "a.bin"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void putFileBytesDelegates() {
+    byte[] raw = new byte[] {0x00, 0x01, 0x02};
+    ApplicationFileSummary saved = new ApplicationFileSummary();
+    saved.setPath("blobs/img.bin");
+    saved.setBinary(true);
+    saved.setContentLength(3L);
+    when(adaptor.putFileBytes(eq("sys_resources"), eq("blobs/img.bin"), eq(raw)))
+        .thenReturn(saved);
+
+    ApplicationFileSummary out = resource.putFileBytes("sys_resources", "blobs/img.bin", raw);
+    assertEquals(Boolean.TRUE, out.getBinary());
+    verify(adaptor).putFileBytes("sys_resources", "blobs/img.bin", raw);
+  }
+
+  @Test
+  public void putFileBytesNullBodyIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.putFileBytes("sys_resources", "a.bin", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(ApplicationFilesResource.BODY_REQUIRED, ex.getMessage());
+    verify(adaptor, never()).putFileBytes(eq("sys_resources"), eq("a.bin"), isNull());
+  }
+
+  @Test
+  public void putFileBytesBlankPathIs400() {
+    byte[] raw = new byte[] {0x01};
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.putFileBytes("sys_resources", " ", raw));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(ApplicationFilesResource.PATH_REQUIRED, ex.getMessage());
+    verify(adaptor, never()).putFileBytes(eq("sys_resources"), eq(" "), eq(raw));
+  }
+
+  @Test
+  public void putFileBytesUnsafeFromAdaptorIs400() {
+    byte[] raw = new byte[] {0x01};
+    when(adaptor.putFileBytes(eq("sys_resources"), eq("../escape"), eq(raw)))
+        .thenThrow(new IllegalArgumentException("Invalid path"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.putFileBytes("sys_resources", "../escape", raw));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void putFileBytesUnknownIs404() {
+    byte[] raw = new byte[] {0x01};
+    when(adaptor.putFileBytes(eq("sys_resources"), eq("missing.bin"), eq(raw))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.putFileBytes("sys_resources", "missing.bin", raw));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void putFileBytesRethrowsAdaptor403() {
+    byte[] raw = new byte[] {0x01};
+    WebApplicationException mapped = new WebApplicationException("Admin role required", 403);
+    when(adaptor.putFileBytes(eq("sys_resources"), eq("a.bin"), eq(raw))).thenThrow(mapped);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.putFileBytes("sys_resources", "a.bin", raw));
+    assertSame(mapped, ex);
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void putFileBytesRethrowsAdaptor409() {
+    byte[] raw = new byte[] {0x01};
+    WebApplicationException mapped = new WebApplicationException("Design lock required", 409);
+    when(adaptor.putFileBytes(eq("sys_resources"), eq("a.bin"), eq(raw))).thenThrow(mapped);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.putFileBytes("sys_resources", "a.bin", raw));
+    assertSame(mapped, ex);
+    assertEquals(409, ex.getResponse().getStatus());
+  }
 }

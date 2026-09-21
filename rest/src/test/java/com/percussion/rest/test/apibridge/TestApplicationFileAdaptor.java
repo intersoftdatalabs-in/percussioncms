@@ -40,8 +40,19 @@ public class TestApplicationFileAdaptor implements IApplicationFileAdaptor {
   }
 
   @Override
+  public byte[] getFileBytes(String appName, String relativePath) {
+    return null;
+  }
+
+  @Override
   public ApplicationFileSummary putFile(
       String appName, String relativePath, ApplicationFileSummary body) {
+    return null;
+  }
+
+  @Override
+  public ApplicationFileSummary putFileBytes(
+      String appName, String relativePath, byte[] bytes) {
     return null;
   }
 

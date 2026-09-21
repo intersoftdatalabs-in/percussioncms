@@ -37,13 +37,16 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
-import com.percussion.util.IOTools;
 import com.percussion.utils.request.PSRequestInfo;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -96,7 +99,6 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
 
   private static final List<String> DESIGN_GAPS =
       List.of(
-          "Binary files may not round-trip as UTF-8 text",
           "Admin PUT may create a new file when the relative path does not yet exist under the application root",
           "Distinct from /serverconfigs (SY-02 fixed server configuration allow-list)");
 
@@ -207,8 +209,8 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
       if (in == null) {
         return null;
       }
-      String text = IOTools.getContent(in);
-      return toDetail(resolved.trustedName(), safePath, text, currentLockSummary(resolved, safePath));
+      byte[] bytes = in.readAllBytes();
+      return toDetail(resolved.trustedName(), safePath, bytes, currentLockSummary(resolved, safePath));
     } catch (PSNotFoundException e) {
       log.debug("Application file not found {}:{} — {}", resolved.trustedName(), safePath, e.toString());
       return null;
@@ -224,6 +226,38 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
       throw e;
     } catch (Exception e) {
       log.warn("Failed to read application file {}:{}", resolved.trustedName(), safePath, e);
+      throw new IllegalStateException("Failed to read application file", e);
+    }
+  }
+
+  @Override
+  public byte[] getFileBytes(String appName, String relativePath) {
+    String safePath = requireSafeRelativePath(relativePath);
+    ResolvedApp resolved = resolveApp(appName);
+    if (resolved == null) {
+      return null;
+    }
+    PSSecurityToken tok = currentToken();
+    try (InputStream in = fileStore.read(resolved.trustedName(), new File(toOsRelativePath(safePath)), tok)) {
+      if (in == null) {
+        return null;
+      }
+      return in.readAllBytes();
+    } catch (PSNotFoundException e) {
+      log.debug("Application file not found {}:{} — {}", resolved.trustedName(), safePath, e.toString());
+      return null;
+    } catch (PSAuthorizationException e) {
+      log.debug(
+          "Not authorized to read application file {}:{} — {}",
+          resolved.trustedName(),
+          safePath,
+          e.toString());
+      return null;
+    } catch (RuntimeException e) {
+      // Must precede catch (Exception): otherwise RuntimeException is wrapped as IllegalStateException.
+      throw e;
+    } catch (Exception e) {
+      log.warn("Failed to read application file bytes {}:{}", resolved.trustedName(), safePath, e);
       throw new IllegalStateException("Failed to read application file", e);
     }
   }
@@ -285,6 +319,58 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     }
     return toDetail(
         resolved.trustedName(), safePath, body.getContent(), currentLockSummary(resolved, safePath));
+  }
+
+  @Override
+  public ApplicationFileSummary putFileBytes(
+      String appName, String relativePath, byte[] bytes) {
+    requireAdmin();
+    if (bytes == null) {
+      throw new IllegalArgumentException("body is required");
+    }
+    String safePath = requireSafeRelativePath(relativePath);
+    ResolvedApp resolved = resolveApp(appName);
+    if (resolved == null) {
+      return null;
+    }
+    requireHeldLock(resolved, safePath);
+    PSSecurityToken tok = currentToken();
+    try (InputStream in = new ByteArrayInputStream(bytes)) {
+      fileStore.write(
+          resolved.trustedName(),
+          new File(toOsRelativePath(safePath)),
+          in,
+          true,
+          tok,
+          currentLockerId());
+    } catch (PSNotFoundException e) {
+      log.debug(
+          "Application not found for write {}:{} — {}",
+          resolved.trustedName(),
+          safePath,
+          e.toString());
+      return null;
+    } catch (PSAuthorizationException e) {
+      throw new WebApplicationException(
+          "Not authorized to update application file", Response.Status.FORBIDDEN);
+    } catch (PSNotLockedException | PSLockedException e) {
+      throw new WebApplicationException(LOCK_REQUIRED, Response.Status.CONFLICT);
+    } catch (RuntimeException e) {
+      // Must precede catch (Exception): otherwise RuntimeException is remapped to HTTP 500.
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to save application file {}:{}: {}",
+          resolved.trustedName(),
+          safePath,
+          e.getMessage());
+      throw new WebApplicationException(
+          "Failed to save application file: " + e.getMessage(),
+          e,
+          Response.Status.INTERNAL_SERVER_ERROR);
+    }
+    return toDetail(
+        resolved.trustedName(), safePath, bytes, currentLockSummary(resolved, safePath));
   }
 
   @Override
@@ -794,6 +880,45 @@ public class ApplicationFileAdaptor implements IApplicationFileAdaptor {
     s.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
     s.setLock(lock);
     return s;
+  }
+
+  /**
+   * Binary-aware detail. Valid UTF-8 bodies decode to text (binary stays null); everything else is
+   * reported as {@code binary=true} with no {@code content} so JSON never mangles the bytes.
+   */
+  static ApplicationFileSummary toDetail(
+      String appName, String apiPath, byte[] bytes, ObjectLockSummary lock) {
+    if (isUtf8Text(bytes)) {
+      return toDetail(appName, apiPath, new String(bytes, StandardCharsets.UTF_8), lock);
+    }
+    ApplicationFileSummary s = toListSummary(appName, apiPath, false);
+    s.setBinary(true);
+    s.setMimeType(guessMimeType(apiPath));
+    s.setContentLength(bytes == null ? null : (long) bytes.length);
+    s.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
+    s.setLock(lock);
+    return s;
+  }
+
+  /**
+   * True when the bytes decode as UTF-8 without malformed/unmappable sequences and contain no NUL.
+   * NUL anywhere is treated as binary — it is not representable in the JSON text editor surface.
+   */
+  static boolean isUtf8Text(byte[] bytes) {
+    if (bytes == null) {
+      return false;
+    }
+    try {
+      CharsetDecoder decoder =
+          StandardCharsets.UTF_8
+              .newDecoder()
+              .onMalformedInput(CodingErrorAction.REPORT)
+              .onUnmappableCharacter(CodingErrorAction.REPORT);
+      String text = decoder.decode(ByteBuffer.wrap(bytes)).toString();
+      return text.indexOf('\0') < 0;
+    } catch (CharacterCodingException e) {
+      return false;
+    }
   }
 
   static String leafName(String apiPath) {

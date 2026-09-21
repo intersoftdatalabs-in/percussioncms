@@ -333,6 +333,31 @@ export async function putPlainText<T>(
 }
 
 /**
+ * Sends a PUT request with a raw {@code application/octet-stream} byte body
+ * (no JSON wrapper). Used by the application-file binary replace endpoint
+ * ({@code PUT /services/applicationfiles/{app}/binary?path=}).
+ *
+ * <p>Unlike {@link putPlainText}, the body is passed through verbatim as typed
+ * bytes and {@code Content-Type} defaults to {@code application/octet-stream}.
+ */
+export async function putBytes<T>(
+  url: string,
+  body: Uint8Array,
+  headers?: HeadersInit,
+): Promise<T> {
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: buildHeaders(
+      { "Content-Type": "application/octet-stream", ...headers },
+      false,
+    ),
+    credentials: "same-origin",
+    body,
+  });
+  return handleResponse<T>(response);
+}
+
+/**
  * GET that also returns response headers (e.g. {@code Content-Disposition}
  * on CD-14 content-type export and AS-08 template export).
  */
