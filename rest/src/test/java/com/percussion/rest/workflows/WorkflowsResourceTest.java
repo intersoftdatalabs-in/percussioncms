@@ -385,6 +385,14 @@ public class WorkflowsResourceTest {
   }
 
   @Test
+  public void deleteWorkflowForwardsUuidAndGuidToAdaptor() {
+    resource.deleteWorkflow("4");
+    verify(adaptor).deleteWorkflow(any(), eq("4"));
+    resource.deleteWorkflow("0-23-4");
+    verify(adaptor).deleteWorkflow(any(), eq("0-23-4"));
+  }
+
+  @Test
   public void deleteWorkflowNotFoundIs404() {
     doThrow(new WebApplicationException("Workflow not found: missing", 404))
         .when(adaptor)

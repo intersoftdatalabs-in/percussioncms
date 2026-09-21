@@ -39,8 +39,11 @@ import com.percussion.workflow.data.PSUiWorkflow;
 import com.percussion.workflow.service.IPSSteppedWorkflowService;
 import com.percussion.workflow.service.IPSSteppedWorkflowService.PSWorkflowEditorServiceException;
 import jakarta.ws.rs.WebApplicationException;
+import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.utils.guid.IPSGuid;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -203,20 +206,57 @@ class WorkflowsAdaptorUpdateDeleteTest {
 
   // --- delete ---
 
+  private void stubNamedWorkflow(String storedName) {
+    PSWorkflow stored = mockStoredWorkflow(storedName);
+    when(workflowService.findWorkflowsByName(storedName)).thenReturn(List.of(stored));
+  }
+
   @Test
   void delete_delegatesToSteppedService() {
+    stubNamedWorkflow(NAME);
     adaptor.deleteWorkflow(null, NAME);
     verify(stepped).deleteWorkflow(NAME);
   }
 
   @Test
   void delete_trimsLeadingAndTrailingWhitespace() {
+    stubNamedWorkflow(NAME);
     adaptor.deleteWorkflow(null, "  Nightly QA  ");
     verify(stepped).deleteWorkflow("Nightly QA");
   }
 
   @Test
+  void delete_resolvesNumericUuidToName() {
+    PSWorkflow stored = mockStoredWorkflow(NAME);
+    when(workflowService.findWorkflow(any(IPSGuid.class))).thenReturn(Optional.of(stored));
+
+    adaptor.deleteWorkflow(null, "4");
+    verify(stepped).deleteWorkflow(NAME);
+    verify(workflowService).findWorkflow(any(IPSGuid.class));
+  }
+
+  @Test
+  void delete_resolvesRestGuidToName() {
+    PSWorkflow stored = mockStoredWorkflow(NAME);
+    when(workflowService.findWorkflow(any(IPSGuid.class))).thenReturn(Optional.of(stored));
+
+    adaptor.deleteWorkflow(null, "0-" + PSTypeEnum.WORKFLOW.getOrdinal() + "-4");
+    verify(stepped).deleteWorkflow(NAME);
+  }
+
+  @Test
+  void delete_unknownUuidIs404WithoutSteppedCall() {
+    when(workflowService.findWorkflow(any(IPSGuid.class))).thenReturn(Optional.empty());
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.deleteWorkflow(null, "999"));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(stepped, never()).deleteWorkflow(any());
+  }
+
+  @Test
   void delete_systemWorkflowIs409() {
+    stubNamedWorkflow(NAME);
     doThrow(new PSWorkflowEditorServiceException("is a system workflow"))
         .when(stepped)
         .deleteWorkflow(NAME);
@@ -228,6 +268,7 @@ class WorkflowsAdaptorUpdateDeleteTest {
 
   @Test
   void delete_itemsStillAssignedIs409() {
+    stubNamedWorkflow(NAME);
     doThrow(
             new PSWorkflowEditorServiceException(
                 "Workflow " + NAME + " still have items assigned."))
@@ -241,13 +282,12 @@ class WorkflowsAdaptorUpdateDeleteTest {
 
   @Test
   void delete_missingWorkflowIs404() {
-    doThrow(new PSWorkflowEditorServiceException("Can't find the workflow by given name 'Nightly QA'."))
-        .when(stepped)
-        .deleteWorkflow(NAME);
+    when(workflowService.findWorkflowsByName(NAME)).thenReturn(List.of());
 
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> adaptor.deleteWorkflow(null, NAME));
     assertEquals(404, ex.getResponse().getStatus());
+    verify(stepped, never()).deleteWorkflow(any());
   }
 
   @Test
@@ -279,6 +319,7 @@ class WorkflowsAdaptorUpdateDeleteTest {
 
   @Test
   void delete_unexpectedErrorIs500() {
+    stubNamedWorkflow(NAME);
     doThrow(new PSWorkflowEditorServiceException("Other failure"))
         .when(stepped)
         .deleteWorkflow(NAME);

@@ -216,9 +216,15 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     if (idOrName == null || idOrName.trim().isEmpty()) {
       throw new IllegalArgumentException("idOrName is required");
     }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    String resolvedName = workflow.getName();
     IPSSteppedWorkflowService stepped = requireSteppedService();
     try {
-      stepped.deleteWorkflow(idOrName.trim());
+      // Stepped delete looks up by name only; resolve uuid/guid first (same as PUT).
+      stepped.deleteWorkflow(resolvedName);
     } catch (IPSSteppedWorkflowService.PSWorkflowEditorServiceException e) {
       String msg = e.getMessage() != null ? e.getMessage() : "";
       if (msg.toLowerCase().contains("system workflow")) {
