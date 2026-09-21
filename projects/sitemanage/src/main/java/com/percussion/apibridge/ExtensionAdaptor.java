@@ -638,21 +638,29 @@ public class ExtensionAdaptor implements IExtensionAdaptor {
    */
   private static Map<String, String> mergeInitParams(
       IPSExtensionDef current, Map<String, String> bodyParams) {
-    Map<String, String> merged = new HashMap<>();
+    Map<String, String> currentMap = new HashMap<>();
     current
         .getInitParameterNames()
-        .forEachRemaining(name -> merged.put(name, current.getInitParameter(name)));
-    if (bodyParams != null) {
-      for (Map.Entry<String, String> e : bodyParams.entrySet()) {
-        if (e.getKey() == null) {
-          continue;
-        }
-        if (e.getValue() == null) {
-          merged.remove(e.getKey());
-        } else {
-          merged.put(e.getKey(), e.getValue());
-        }
+        .forEachRemaining(name -> currentMap.put(name, current.getInitParameter(name)));
+    if (bodyParams == null) {
+      return currentMap;
+    }
+    // Body present: replace the map (Workbench dialog can drop keys). Null values
+    // still delete. Keys omitted from the body are dropped except version, which
+    // is also owned by the dedicated version field.
+    Map<String, String> merged = new HashMap<>();
+    for (Map.Entry<String, String> e : bodyParams.entrySet()) {
+      if (e.getKey() == null) {
+        continue;
       }
+      if (e.getValue() != null) {
+        merged.put(e.getKey(), e.getValue());
+      }
+    }
+    if (!merged.containsKey(IPSExtensionDef.INIT_PARAM_VERSION)
+        && currentMap.containsKey(IPSExtensionDef.INIT_PARAM_VERSION)) {
+      merged.put(
+          IPSExtensionDef.INIT_PARAM_VERSION, currentMap.get(IPSExtensionDef.INIT_PARAM_VERSION));
     }
     return merged;
   }

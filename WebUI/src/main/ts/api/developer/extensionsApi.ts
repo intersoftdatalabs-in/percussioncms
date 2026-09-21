@@ -47,7 +47,7 @@ export type ExtensionWriteBody = {
   context?: string;
   category?: string;
   supportedInterfaces: string[];
-  initParameters?: Record<string, string>;
+  initParameters?: Record<string, string | null>;
   runtimeParameters?: ExtensionDef["runtimeParameters"];
   methods?: Record<string, ExtensionMethodDef> | ExtensionMethodDef[];
   deprecated?: boolean;
@@ -221,17 +221,18 @@ export function isExtensionWriteReady(opts: {
  * Jackson/JAXB Map&lt;String,String&gt; wire shape used by Extension.initParameters
  * on this stack (flat `{ className: "…" }` does not bind; entry list does).
  */
-export type JacksonMapEntry = { key: string; value: string };
+export type JacksonMapEntry = { key: string; value: string | null };
 export type JacksonStringMapWire = { entry: JacksonMapEntry[] };
 
 /** Convert a flat string map to the Jackson/JAXB entry-list map wire form. */
 export function toJacksonStringMapWire(
-  map: Record<string, string> | undefined | null,
+  map: Record<string, string | null> | undefined | null,
 ): JacksonStringMapWire | undefined {
   if (map == null) return undefined;
   const entry: JacksonMapEntry[] = Object.entries(map).map(([key, value]) => ({
     key,
-    value: value == null ? "" : String(value),
+    // Null values delete keys on PUT (ExtensionAdaptor.mergeInitParams).
+    value: value == null ? null : String(value),
   }));
   return { entry };
 }
