@@ -16,7 +16,11 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { TranslationAuthError } from "../../../main/ts/api/contentExplorer/translationsApi";
+import {
+  TranslationAuthError,
+  TranslationConflictError,
+  TranslationNotFoundError,
+} from "../../../main/ts/api/contentExplorer/translationsApi";
 import {
   TranslationsPanel,
   translationsVariantsItemKey,
@@ -258,6 +262,70 @@ describe("TranslationsPanel", () => {
       /does not have a numeric content id/i,
     );
     expect(createVariants).not.toHaveBeenCalled();
+  });
+
+  it("opens a locale copy via Open button", async () => {
+    const onOpenVariant = vi.fn();
+    render(
+      <TranslationsPanel
+        itemId="335"
+        loadVariants={async () => SAMPLE_VARIANTS}
+        loadLocaleCatalog={async () => CATALOG}
+        onOpenVariant={onOpenVariant}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("translations-open-variant-900"),
+      ).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("translations-open-variant-900"));
+    expect(onOpenVariant).toHaveBeenCalledWith(900, "fr-fr");
+  });
+
+  it("maps GET 404 to not-found chrome", async () => {
+    render(
+      <TranslationsPanel
+        itemId="335"
+        loadVariants={async () => {
+          throw new TranslationNotFoundError("missing");
+        }}
+        loadLocaleCatalog={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-panel")).toHaveAttribute(
+        "data-testid-state",
+        "error",
+      ),
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(/not found/i);
+  });
+
+  it("maps create 409 to conflict chrome", async () => {
+    const createVariants = vi.fn(async () => {
+      throw new TranslationConflictError("exists");
+    });
+    render(
+      <TranslationsPanel
+        itemId="335"
+        loadVariants={async () => SAMPLE_VARIANTS}
+        loadLocaleCatalog={async () => CATALOG}
+        createVariants={createVariants}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("translations-locale-option-de-de"),
+      ).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
+    fireEvent.click(screen.getByTestId("translations-create-submit"));
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-create-error")).toHaveTextContent(
+        /already exists/i,
+      ),
+    );
   });
 
   it("maps create 403 to permission chrome", async () => {

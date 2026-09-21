@@ -1795,6 +1795,14 @@ function ContentExplorerShellInner({
               onCreated={() => {
                 setListEpoch((n) => n + 1);
               }}
+              onOpenVariant={(contentId, locale) => {
+                onOpenItem({
+                  id: String(contentId),
+                  name: locale?.trim() || String(contentId),
+                  path: selection.item?.path ?? "",
+                  type: selection.item?.type ?? "item",
+                });
+              }}
             />
           </section>
         )}

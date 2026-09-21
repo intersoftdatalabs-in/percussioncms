@@ -100,6 +100,8 @@ public class ContentTranslationsResource {
                 @Content(schema = @Schema(implementation = CreateTranslationsResult.class))),
         @ApiResponse(responseCode = "400", description = "Invalid request body / contract"),
         @ApiResponse(responseCode = "403", description = "Not allowed"),
+        @ApiResponse(responseCode = "404", description = "Source item not found"),
+        @ApiResponse(responseCode = "409", description = "Locale variant already exists"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Server error creating translations")
       })

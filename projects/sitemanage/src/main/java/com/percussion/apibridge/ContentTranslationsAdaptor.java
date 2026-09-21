@@ -44,7 +44,9 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
@@ -119,6 +121,14 @@ public class ContentTranslationsAdaptor implements IContentTranslationsAdaptor {
       if (id > Integer.MAX_VALUE) {
         throw new IllegalArgumentException("itemIds content id out of range: " + id);
       }
+      PSComponentSummary summary = loadSummary(id.intValue());
+      if (summary == null) {
+        throw new WebApplicationException(
+            Response.status(Response.Status.NOT_FOUND)
+                .entity("Item not found: " + id)
+                .build());
+      }
+      rejectExistingLocales(id.intValue(), request.getLocales());
       // content id + undefined revision — same shape SOAP NewTranslations uses via legacy guids
       guids.add(new PSLegacyGuid(id.intValue(), -1));
     }
@@ -221,6 +231,48 @@ public class ContentTranslationsAdaptor implements IContentTranslationsAdaptor {
     }
     List<IPSGuid> rows = systemWs.findDependents(guid, filter);
     return rows != null ? rows : List.of();
+  }
+
+  /**
+   * HTTP 409 when a requested target locale already exists on the source or a
+   * translation-category dependent (#4673).
+   */
+  private void rejectExistingLocales(int contentId, List<String> locales) {
+    if (locales == null || locales.isEmpty()) {
+      return;
+    }
+    Set<String> taken = new HashSet<>();
+    PSComponentSummary source = loadSummary(contentId);
+    if (source != null && StringUtils.isNotBlank(source.getLocale())) {
+      taken.add(source.getLocale().trim().toLowerCase());
+    }
+    IPSGuid guid = new PSLegacyGuid(contentId, -1);
+    try {
+      for (IPSGuid dep : findTranslationDependents(guid)) {
+        int depId = contentIdFromGuid(dep);
+        PSComponentSummary depSum = loadSummary(depId);
+        if (depSum != null && StringUtils.isNotBlank(depSum.getLocale())) {
+          taken.add(depSum.getLocale().trim().toLowerCase());
+        }
+      }
+    } catch (RuntimeException e) {
+      if (isAuthzFailure(e)) {
+        throw new SecurityException("Cannot list translation variants for " + contentId, e);
+      }
+      throw e;
+    }
+    for (String locale : locales) {
+      if (StringUtils.isBlank(locale)) {
+        continue;
+      }
+      String key = locale.trim().toLowerCase();
+      if (taken.contains(key)) {
+        throw new WebApplicationException(
+            Response.status(Response.Status.CONFLICT)
+                .entity("Translation already exists for locale: " + locale.trim())
+                .build());
+      }
+    }
   }
 
   private PSComponentSummary loadSummary(int contentId) {

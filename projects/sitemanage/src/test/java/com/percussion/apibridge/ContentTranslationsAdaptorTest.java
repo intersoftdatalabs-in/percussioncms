@@ -130,6 +130,12 @@ class ContentTranslationsAdaptorTest {
     when(item.getRevision()).thenReturn(1);
     when(item.getFieldByName("sys_lang")).thenReturn(null);
 
+    PSComponentSummary source = mock(PSComponentSummary.class);
+    when(source.getLocale()).thenReturn("en-us");
+    when(objectMgr.loadComponentSummary(100)).thenReturn(source);
+    when(systemWs.findDependents(any(IPSGuid.class), any(PSRelationshipFilter.class)))
+        .thenReturn(List.of());
+
     when(contentWs.newTranslations(any(), any(), isNull(), eq(true))).thenReturn(List.of(item));
 
     CreateTranslationsResult out =
@@ -160,6 +166,7 @@ class ContentTranslationsAdaptorTest {
     req.setItemIds(List.of(55L));
     req.setLocales(List.of());
 
+    when(objectMgr.loadComponentSummary(55)).thenReturn(mock(PSComponentSummary.class));
     when(contentWs.newTranslations(any(), isNull(), isNull(), eq(false))).thenReturn(List.of());
 
     CreateTranslationsResult out =
@@ -170,10 +177,55 @@ class ContentTranslationsAdaptorTest {
   }
 
   @Test
+  void createMissingItemIs404() throws Exception {
+    CreateTranslationsRequest req = new CreateTranslationsRequest();
+    req.setItemIds(List.of(404L));
+    req.setLocales(List.of("fr-fr"));
+    when(objectMgr.loadComponentSummary(404)).thenReturn(null);
+
+    jakarta.ws.rs.WebApplicationException ex =
+        assertThrows(
+            jakarta.ws.rs.WebApplicationException.class,
+            () -> adaptor.createTranslations(URI.create("http://localhost/rest"), req));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(contentWs, never()).newTranslations(any(), any(), any(), anyBoolean());
+  }
+
+  @Test
+  void createExistingLocaleIs409() throws Exception {
+    CreateTranslationsRequest req = new CreateTranslationsRequest();
+    req.setItemIds(List.of(100L));
+    req.setLocales(List.of("fr-fr"));
+
+    PSComponentSummary source = mock(PSComponentSummary.class);
+    when(source.getLocale()).thenReturn("en-us");
+    when(objectMgr.loadComponentSummary(100)).thenReturn(source);
+
+    PSLegacyGuid depGuid = new PSLegacyGuid(200L);
+    when(systemWs.findDependents(any(IPSGuid.class), any(PSRelationshipFilter.class)))
+        .thenReturn(List.of(depGuid));
+    PSComponentSummary dep = mock(PSComponentSummary.class);
+    when(dep.getLocale()).thenReturn("fr-fr");
+    when(objectMgr.loadComponentSummary(200)).thenReturn(dep);
+
+    jakarta.ws.rs.WebApplicationException ex =
+        assertThrows(
+            jakarta.ws.rs.WebApplicationException.class,
+            () -> adaptor.createTranslations(URI.create("http://localhost/rest"), req));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(contentWs, never()).newTranslations(any(), any(), any(), anyBoolean());
+  }
+
+  @Test
   void createRejectsBlankLocale() {
     CreateTranslationsRequest req = new CreateTranslationsRequest();
     req.setItemIds(List.of(1L));
     req.setLocales(List.of("fr-fr", "  "));
+    PSComponentSummary source = mock(PSComponentSummary.class);
+    when(source.getLocale()).thenReturn("en-us");
+    when(objectMgr.loadComponentSummary(1)).thenReturn(source);
+    when(systemWs.findDependents(any(IPSGuid.class), any(PSRelationshipFilter.class)))
+        .thenReturn(List.of());
     assertThrows(
         IllegalArgumentException.class,
         () -> adaptor.createTranslations(URI.create("http://localhost/rest"), req));
