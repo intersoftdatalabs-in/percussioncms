@@ -29,6 +29,8 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSParameterValidationUtils;
 import com.percussion.share.service.exception.PSParametersValidationException;
 import com.percussion.share.service.exception.PSValidationException;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -39,7 +41,9 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
+import java.util.Locale;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,11 +64,23 @@ import tools.jackson.databind.json.JsonMapper;
 public class PSPubServerRestService {
   private static final Logger log = LogManager.getLogger(PSPubServerRestService.class);
 
+  static final String PUB_SERVER_WRITE_FORBIDDEN =
+      "Only Admin or Designer users may create or update publish servers.";
+
+  static final String PUB_SERVER_NAME_CONFLICT = "Publish server name already exists";
+
   private final IPSPubServerService service;
+
+  private IPSUserService userService;
 
   @Autowired
   public PSPubServerRestService(IPSPubServerService service) {
     this.service = service;
+  }
+
+  @Autowired(required = false)
+  public void setUserService(IPSUserService userService) {
+    this.userService = userService;
   }
 
   /** Loads the server information based on the server name as the parameter. */
@@ -106,14 +122,17 @@ public class PSPubServerRestService {
       @PathParam("serverName") String serverName,
       PSPublishServerInfo pubServerInfo)
       throws PSValidationException, WebApplicationException {
+    requirePubServerWrite();
     try {
       PSParameterValidationUtils.rejectIfBlank("create", "siteId", siteId);
       PSParameterValidationUtils.rejectIfBlank("create", "serverName", serverName);
       return service.createPubServer(siteId, serverName, pubServerInfo);
-    } catch (PSParametersValidationException ps) {
-      log.error(ps.getMessage());
-      log.debug(ps.getMessage(), ps);
-      throw ps;
+    } catch (PSValidationException ve) {
+      if (isUniqueNameConflict(ve)) {
+        String msg = ve.getMessage() != null ? ve.getMessage() : PUB_SERVER_NAME_CONFLICT;
+        throw new WebApplicationException(msg, Response.Status.CONFLICT);
+      }
+      throw ve;
     } catch (PSNotFoundException | IPSPubServerService.PSPubServerServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -130,15 +149,18 @@ public class PSPubServerRestService {
       @PathParam("siteId") String siteId,
       @PathParam("serverId") String serverId,
       PSPublishServerInfo pubServerInfo)
-      throws PSParametersValidationException {
+      throws PSValidationException {
+    requirePubServerWrite();
     try {
       PSParameterValidationUtils.rejectIfBlank("update", "siteId", siteId);
       PSParameterValidationUtils.rejectIfBlank("update", "serverId", serverId);
       return service.updatePubServer(siteId, serverId, pubServerInfo);
-    } catch (PSParametersValidationException ps) {
-      log.error(ps.getMessage());
-      log.debug(ps.getMessage(), ps);
-      throw ps;
+    } catch (PSValidationException ve) {
+      if (isUniqueNameConflict(ve)) {
+        String msg = ve.getMessage() != null ? ve.getMessage() : PUB_SERVER_NAME_CONFLICT;
+        throw new WebApplicationException(msg, Response.Status.CONFLICT);
+      }
+      throw ve;
     } catch (PSDataServiceException
         | PSNotFoundException
         | IPSPubServerService.PSPubServerServiceException e) {
@@ -264,5 +286,42 @@ public class PSPubServerRestService {
   public String getAvailableDeliveryServers() throws tools.jackson.core.JacksonException {
     IPSDeliveryInfoService svc = PSDeliveryInfoServiceLocator.getDeliveryInfoService();
     return JsonMapper.builder().build().writeValueAsString(svc.findAll());
+  }
+
+  void requirePubServerWrite() {
+    if (userService == null) {
+      return;
+    }
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || isBlank(current.getName())) {
+        throw forbidden();
+      }
+      String name = current.getName();
+      if (!(userService.isAdminUser(name) || userService.isDesignUser(name))) {
+        throw forbidden();
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException | PSDataServiceException e) {
+      log.debug("Publish server write check failed: {}", e.getMessage());
+      throw forbidden();
+    }
+  }
+
+  static boolean isUniqueNameConflict(Throwable e) {
+    if (e == null || e.getMessage() == null) {
+      return false;
+    }
+    String lower = e.getMessage().toLowerCase(Locale.ROOT);
+    return lower.contains("already exists");
+  }
+
+  private static WebApplicationException forbidden() {
+    return new WebApplicationException(PUB_SERVER_WRITE_FORBIDDEN, Response.Status.FORBIDDEN);
+  }
+
+  private static boolean isBlank(String value) {
+    return value == null || value.isBlank();
   }
 }

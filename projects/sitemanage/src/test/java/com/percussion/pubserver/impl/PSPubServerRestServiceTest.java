@@ -19,8 +19,19 @@ package com.percussion.pubserver.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
+import com.percussion.pubserver.IPSPubServerService;
+import com.percussion.pubserver.data.PSPublishServerInfo;
+import com.percussion.share.service.exception.PSValidationException;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
+import jakarta.ws.rs.WebApplicationException;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,5 +86,48 @@ public class PSPubServerRestServiceTest {
 
     String json = service.getAvailableRegions();
     assertNull(json);
+  }
+
+  @Test
+  public void createPubServer_mapsDuplicateNameTo409() throws Exception {
+    IPSPubServerService svc = mock(IPSPubServerService.class);
+    PSValidationException ve = mock(PSValidationException.class);
+    when(ve.getMessage())
+        .thenReturn("Cannot create server 'Dup' because a server named 'Dup' already exists.");
+    when(svc.createPubServer(eq("1"), eq("Dup"), any())).thenThrow(ve);
+    PSPubServerRestService rest = new PSPubServerRestService(svc);
+    rest.setUserService(adminUsers());
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> rest.createPubServer("1", "Dup", mock(PSPublishServerInfo.class)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createPubServer_forbiddenWhenNotAdminOrDesigner() throws Exception {
+    IPSPubServerService svc = mock(IPSPubServerService.class);
+    PSPubServerRestService rest = new PSPubServerRestService(svc);
+    IPSUserService users = mock(IPSUserService.class);
+    PSCurrentUser editor = mock(PSCurrentUser.class);
+    when(editor.getName()).thenReturn("Editor");
+    when(users.getCurrentUser()).thenReturn(editor);
+    when(users.isAdminUser("Editor")).thenReturn(false);
+    when(users.isDesignUser("Editor")).thenReturn(false);
+    rest.setUserService(users);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> rest.createPubServer("1", "Night", mock(PSPublishServerInfo.class)));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  private static IPSUserService adminUsers() throws Exception {
+    IPSUserService users = mock(IPSUserService.class);
+    PSCurrentUser admin = mock(PSCurrentUser.class);
+    when(admin.getName()).thenReturn("Admin");
+    when(users.getCurrentUser()).thenReturn(admin);
+    when(users.isAdminUser("Admin")).thenReturn(true);
+    return users;
   }
 }

@@ -201,17 +201,18 @@ export function modelToSaveBody(model: ServerEditorModel): {
       }
     }
   }
-  return {
-    serverInfo: {
-      isDefault: model.isDefault,
-      serverId: model.serverId || null,
-      serverName: model.serverName.trim(),
-      type: model.type,
-      isModified: "",
-      properties: mapToProps(props),
-      serverType: model.serverType,
-    },
+  const serverInfo: Record<string, unknown> = {
+    isDefault: model.isDefault,
+    serverName: model.serverName.trim(),
+    type: model.type,
+    isModified: false,
+    properties: mapToProps(props),
+    serverType: model.serverType,
   };
+  if (model.serverId) {
+    serverInfo.serverId = model.serverId;
+  }
+  return { serverInfo };
 }
 
 function looksBase64(value: string): boolean {

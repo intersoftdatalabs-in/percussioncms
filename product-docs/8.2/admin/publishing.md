@@ -39,6 +39,18 @@ the box restores the full list. A search with no matches shows an empty state; i
 filter. Open a remaining card to configure servers and run Incremental / Full publish. Logs search
 is a separate **Logs** filter (not this Sites box).
 
+### Save a site delivery server (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a **site** card, then **Add** (or **Edit Server**).
+Enter a **server name** (required), production vs staging, File vs Database, driver fields, then
+**Save**. Unsaved field edits mark the form dirty; leaving the editor prompts to discard. The shell
+posts `POST …/publishmanagement/servers/{siteId}/{serverName}` (create) or
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` (update).
+
+HTTP **403** (not Admin or Designer) and **409** (publish server name already exists on the site)
+are shown in the server editor error region — not as a successful save. Incremental / Full publish
+and Design delivery-type save are separate actions.
+
 ### Incremental site publish (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then choose **Incremental**. Confirm the dialog (**Confirm Incremental Publish**). The shell calls the incremental site publish API (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), optionally with related-item approval after **Incremental preview**. Success shows **Publish Job Started** plus the job id and refreshes the site **Status** list (active jobs). Dismissing confirm does not start a job. Application-level `FORBIDDEN` / `BADCONFIG` responses are failures in the workspace error region, not success. Full site publish remains a separate **Full** action.
