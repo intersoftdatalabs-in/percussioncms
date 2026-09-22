@@ -304,7 +304,7 @@
         <sqlite.version>3.51.1.0</sqlite.version>
         <stax.version>1.0.1</stax.version>
         <surefireArgLine/>
-        <swagger.ui.version>5.32.11</swagger.ui.version>
+        <swagger.ui.version>5.32.15</swagger.ui.version>
         <swagger.version>2.2.55</swagger.version>
         <!-- Stay on Tika 3.x. Tika 4.0 (Dependabot #4474) is not a drop-in:
              parsers-standard-package is a POM not a JAR (TIKA-4712), TikaConfig
