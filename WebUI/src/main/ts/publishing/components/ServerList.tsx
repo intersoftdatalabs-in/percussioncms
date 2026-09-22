@@ -60,7 +60,12 @@ export function ServerList({
           </button>
         )}
         {onAdd && (
-          <button type="button" style={buttonStyle} onClick={onAdd}>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="publish-add-server"
+            onClick={onAdd}
+          >
             Add
           </button>
         )}

@@ -17,6 +17,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { message, MSG } from "../../i18n/message";
+import { mapDeliveryServerSaveError } from "../deliveryServerSaveErrors";
 import {
   buttonStyle,
   errorStyle,
@@ -129,7 +130,7 @@ export function ServerEditor({
       setBaseline(JSON.stringify(model));
       onDirtyChange?.(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapDeliveryServerSaveError(e));
     } finally {
       setSaving(false);
     }
@@ -271,6 +272,7 @@ export function ServerEditor({
           type="button"
           style={primaryButtonStyle}
           disabled={saving}
+          data-testid="publish-server-save"
           onClick={() => void handleSave()}
         >
           {message(MSG.PUBLISH_SAVE)}
