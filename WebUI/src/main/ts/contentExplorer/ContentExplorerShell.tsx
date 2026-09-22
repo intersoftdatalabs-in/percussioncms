@@ -721,6 +721,15 @@ function ContentExplorerShellInner({
       }
       handleRefreshListAndTree();
     },
+    onRestore: async (item) => {
+      const impl = actionHandlers?.onRestore ?? stockReducedHandlers.onRestore;
+      await impl(item);
+      setSelection((prev) => ({
+        folderPath: prev.folderPath,
+        item: null,
+      }));
+      handleRefreshListAndTree();
+    },
   };
   // Always true for product shell (built-in openPreviewItem); override still counts.
   const hasPreviewHandler = true;

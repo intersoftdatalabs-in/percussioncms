@@ -338,6 +338,45 @@ public class FoldersTest {
   }
 
   @Test
+  void restoreRecycledItem_successReturnsOk() throws Exception {
+    Status result = resource.restoreRecycledItem("1-101-9");
+    assertEquals(200, result.getStatusCode());
+    assertEquals("Ok", result.getMessage());
+    verify(adaptor).restoreRecycledItem(uriInfo.getBaseUri(), "1-101-9");
+  }
+
+  @Test
+  void restoreRecycledItem_mapsNotAuthorizedToForbidden() throws Exception {
+    doThrow(new NotAuthorizedException())
+        .when(adaptor)
+        .restoreRecycledItem(any(), anyString());
+    NotAuthorizedException thrown =
+        assertThrows(
+            NotAuthorizedException.class, () -> resource.restoreRecycledItem("1-101-9"));
+    assertEquals(jakarta.ws.rs.core.Response.Status.FORBIDDEN, thrown.getStatus());
+  }
+
+  @Test
+  void restoreRecycledItem_mapsFolderNotFound() throws Exception {
+    doThrow(new FolderNotFoundException())
+        .when(adaptor)
+        .restoreRecycledItem(any(), anyString());
+    assertThrows(
+        FolderNotFoundException.class, () -> resource.restoreRecycledItem("missing"));
+  }
+
+  @Test
+  void restoreRecycledItem_mapsConflict() throws Exception {
+    doThrow(new WebApplicationException(jakarta.ws.rs.core.Response.Status.CONFLICT))
+        .when(adaptor)
+        .restoreRecycledItem(any(), anyString());
+    WebApplicationException thrown =
+        assertThrows(
+            WebApplicationException.class, () -> resource.restoreRecycledItem("1-101-9"));
+    assertEquals(409, thrown.getResponse().getStatus());
+  }
+
+  @Test
   void deleteFolderItem_successReturnsOk() throws Exception {
     Status result = resource.deleteFolderItem("/Assets/src/item");
     assertEquals(200, result.getStatusCode());

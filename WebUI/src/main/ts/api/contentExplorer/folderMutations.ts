@@ -39,6 +39,7 @@ import {
   copyFolderItem as pathCopyFolderItem,
   deleteFolderItem as pathDeleteFolderItem,
   deleteItem as pathDeleteItem,
+  restoreRecycledItem as pathRestoreRecycledItem,
   moveFolder as pathMoveFolder,
   moveFolderItem as pathMoveFolderItem,
   moveItem as pathMoveItem,
@@ -215,6 +216,11 @@ export async function deleteItem(
  */
 export async function deleteFolderItem(itemPath: string): Promise<void> {
   await pathDeleteFolderItem(itemPath);
+}
+
+/** Restore a recycled item/folder by GUID via public REST. */
+export async function restoreRecycledItem(guid: string): Promise<void> {
+  await pathRestoreRecycledItem(guid);
 }
 
 /** Re-export flag helpers for call sites / tests. */

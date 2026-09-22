@@ -23,6 +23,8 @@ import {
   deleteFolderItem,
   deleteItem,
   foldersDeleteItemUrl,
+  foldersRestoreItemUrl,
+  restoreRecycledItem,
   wrapDeleteFolderCriteria,
   folderDeleteGuid,
   encodePath,
@@ -365,6 +367,15 @@ describe("pathmanagement URL shape (no double-slash)", () => {
         guid: "1-101-1",
       },
     });
+  });
+
+  it("restoreRecycledItem PUTs public REST recycle restore (#4700)", async () => {
+    const cap = mockJson({ Status: { statusCode: 200, message: "Ok" } });
+    await restoreRecycledItem("1-101-9");
+    expect(cap.lastUrl()).toContain("/rest/folders/recycle/restore/1-101-9");
+    expect(foldersRestoreItemUrl("1-101-9")).toContain(
+      "/folders/recycle/restore/1-101-9",
+    );
   });
 
   it("deleteFolderItem DELETEs public REST folders/item path (#4602)", async () => {

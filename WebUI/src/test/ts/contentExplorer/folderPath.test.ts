@@ -19,10 +19,22 @@ import {
   isFolderIdLookupPath,
   isSafeExplorerTreeChild,
   isStrictCmsPathDescendant,
+  isRecyclingExplorerPath,
   normalizeExplorerFolderPath,
   resolveFolderPathFromSelection,
   toRepositorySearchFolderPath,
 } from "../../../main/ts/contentExplorer/folderPath";
+
+describe("isRecyclingExplorerPath (#4700)", () => {
+  it("detects Recycling finder and repository paths", () => {
+    expect(isRecyclingExplorerPath("/Recycling")).toBe(true);
+    expect(isRecyclingExplorerPath("/Recycling/Assets/foo")).toBe(true);
+    expect(
+      isRecyclingExplorerPath("//Folders/$System$/Recycling/Assets"),
+    ).toBe(true);
+    expect(isRecyclingExplorerPath("/Assets/foo")).toBe(false);
+  });
+});
 
 describe("normalizeExplorerFolderPath (#2792)", () => {
   it("returns null for empty / root-only paths", () => {
