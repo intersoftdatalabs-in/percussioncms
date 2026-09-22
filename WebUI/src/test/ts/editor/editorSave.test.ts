@@ -25,10 +25,13 @@ describe("editorSaveErrorReason", () => {
     ).toBe("stale");
   });
 
-  it("maps other statuses to failed", () => {
+  it("maps HTTP 400 to badRequest", () => {
     expect(
       editorSaveErrorReason({ status: 400, statusText: "Bad Request", body: {} }),
-    ).toBe("failed");
+    ).toBe("badRequest");
+  });
+
+  it("maps other statuses to failed", () => {
     expect(editorSaveErrorReason(new Error("boom"))).toBe("failed");
   });
 });

@@ -61,9 +61,9 @@ Create still saves the page under the site's repository folder
 (`spa.jsp?entry=editor`). The finder SITENAME (`Corporate_Investments`) is
 not a separate create ACL; the server maps it to the repository folder.
 
-Rich file, image, and TinyMCE widget chrome in that editor is still a later
-slice — a new asset can still be created as a stub and opened on the field
-form.
+File, image, and TinyMCE HTML widgets save from that editor (binary PUT for
+file/image; `PUT /services/itemmanagement/item/fields/{id}` for HTML). HTTP 400
+on HTML is mapped onto the field; **View** stays read-only.
 
 ## Product Admin navigation (SPA)
 
