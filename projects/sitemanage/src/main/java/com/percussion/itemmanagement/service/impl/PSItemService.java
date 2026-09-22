@@ -720,6 +720,48 @@ public class PSItemService implements IPSItemService {
   }
 
   /**
+   * Schedule writes need assignee or admin. No assignment or reader is 403. A checkout held by
+   * someone else is 409 so the client does not treat the save as success.
+   */
+  private void assertCanScheduleItem(String id) {
+    try {
+      List<PSAssignmentTypeEnum> atypes =
+          systemService.getContentAssignmentTypes(asList(idMapper.getGuid(id)));
+      PSAssignmentTypeEnum asmt =
+          atypes == null || atypes.isEmpty() ? PSAssignmentTypeEnum.NONE : atypes.get(0);
+      if (asmt != PSAssignmentTypeEnum.ASSIGNEE && asmt != PSAssignmentTypeEnum.ADMIN) {
+        throw new WebApplicationException(
+            "Not authorized to schedule publish dates for this item.",
+            Response.Status.FORBIDDEN);
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(
+          "Not authorized to schedule publish dates for this item.",
+          Response.Status.FORBIDDEN);
+    }
+    try {
+      PSComponentSummary sum = workflowHelper.getComponentSummary(id);
+      if (sum != null
+          && StringUtils.isNotBlank(sum.getCheckoutUserName())
+          && !workflowHelper.isCheckedOutToCurrentUser(id)) {
+        String type = workflowHelper.isPage(id) ? PAGE : ASSET;
+        throw new WebApplicationException(
+            MessageFormat.format(
+                "User {1} is editing this {0}. You cannot modify this item.",
+                type,
+                sum.getCheckoutUserName()),
+            Response.Status.CONFLICT);
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException("Item not found.", Response.Status.NOT_FOUND);
+    }
+  }
+
+  /**
    * Same assignment gate as revision compare: no assignment is forbidden, and a failed assignment
    * lookup is forbidden rather than an empty history.
    */
@@ -1519,26 +1561,23 @@ public class PSItemService implements IPSItemService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSNoContent setItemDates(PSItemDates req) throws Exception {
+    if (req == null || StringUtils.isBlank(req.getItemId())) {
+      throw new WebApplicationException(
+          "Item id is required.", Response.Status.BAD_REQUEST);
+    }
     PSNoContent validationResponse = dateValidation(req);
-    if (!validationResponse.getOperation().equals("Success")) {
-      String opName = "setItemDates";
-      PSValidationErrorsBuilder builder =
-          validateParameters(opName).reject("Set Publish Dates", validationResponse.getOperation());
-      builder.throwIfInvalid();
+    if (!"Success".equals(validationResponse.getOperation())
+        || "error".equalsIgnoreCase(validationResponse.getResult())) {
+      String op = validationResponse.getOperation();
+      String detail =
+          op == null || "Success".equals(op) ? "Invalid schedule dates." : op;
+      throw new WebApplicationException(detail, Response.Status.BAD_REQUEST);
     }
     String id = req.getItemId();
     IPSGuid guid = idMapper.getGuid(id);
 
-    // if item is checked out to some one else throws exception.
-    PSComponentSummary sum = workflowHelper.getComponentSummary(id);
-    String type = workflowHelper.isPage(id) ? PAGE : ASSET;
-    if (StringUtils.isNotBlank(sum.getCheckoutUserName())
-        && !workflowHelper.isCheckedOutToCurrentUser(id)) {
-      Object[] args = {type, sum.getCheckoutUserName()};
-      throw new PSItemServiceException(
-          MessageFormat.format(
-              "User {1} is editing this {0}. " + "You cannot modify this item.", args));
-    }
+    // Readers cannot write a schedule. Another user's checkout is a conflict, not a save.
+    assertCanScheduleItem(id);
     String startDate = "";
     String endDate = "";
 
@@ -1549,8 +1588,9 @@ public class PSItemService implements IPSItemService {
       endDate = StringUtils.isBlank(endDate) ? null : endDate;
     } catch (ParseException e) {
       Object[] args = {req.getStartDate(), req.getEndDate()};
-      throw new PSItemServiceException(
-          MessageFormat.format("Error when converting one of the following date: {0}, {1}", args));
+      throw new WebApplicationException(
+          MessageFormat.format("Error when converting one of the following date: {0}, {1}", args),
+          Response.Status.BAD_REQUEST);
     }
 
     PSItemStatus status = contentWs.prepareForEdit(guid);
