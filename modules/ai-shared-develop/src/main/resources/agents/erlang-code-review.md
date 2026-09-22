@@ -32,6 +32,9 @@ Percussion CMS git identity: `Nate Chadwick
 
 Reports carry `## Scope → Persona: erlang <version>` automatically.
 
+Paste the full CLI markdown into the PR body under **Pre-push local code review**
+and write `docs/ai-generated/code-reviews/pr-<N>-erlang.md`.
+
 This stub exists only so the Java classpath resource lookup at
 `modules/ai-shared-develop/src/main/resources/agents/erlang-code-review.md`
 still resolves for any consumer that loads it. The substantive spec

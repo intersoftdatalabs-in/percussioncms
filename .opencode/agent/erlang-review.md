@@ -35,6 +35,10 @@ Read the canonical spec at:
    only; preexisting rows do not BLOCK. If the models file is missing,
    omit `--models`. If Ollama is down, keep machine findings.
 4. Enforce the strict gate from the persona spec.
+5. **Pre-push local code review:** write the FULL CLI markdown to
+   `docs/ai-generated/code-reviews/pr-<N>-erlang.md` and replace the PR body
+   section `## Pre-push local code review` with that report (`gh pr edit
+   --body-file`). Do not leave only a two-line LGTM comment.
 
 ## Open PR + LGTM + checks green
 

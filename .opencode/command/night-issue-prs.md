@@ -1,5 +1,5 @@
 ---
-description: Launch the night-issue-prs unattended workflow (host = night-worker). Mirrors .grok/workflows/night-issue-prs.rhai v2.2.3 — decision-front; Erlang CLI 0.1.18 --git-base origin/main; skip empty specialists; TypeSafe pre-screen fail-open; Erlang MAY APPROVE+squash-merge.
+description: Launch the night-issue-prs unattended workflow (host = night-worker). Mirrors .grok/workflows/night-issue-prs.rhai v2.2.4 — decision-front; Erlang CLI 0.1.18 --git-base; full Pre-push local code review in PR body; skip empty specialists; TypeSafe pre-screen fail-open; Erlang MAY APPROVE+squash-merge.
 agent: night-worker
 ---
 

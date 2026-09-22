@@ -22,6 +22,16 @@
 - [ ] **Cross-platform** — path/file I/O changes are portable (Windows / Linux / macOS)  
   - **or N/A** (no path/file I/O)
 
+## Pre-push local code review
+
+<!-- Erlang / mkd-code-review: paste the FULL `analyze --format markdown` report here
+     (not a two-line LGTM). Overnight Erlang replaces this placeholder.
+     Also store a copy at docs/ai-generated/code-reviews/pr-<N>-erlang.md -->
+
+```text
+(CLI markdown report goes here)
+```
+
 ### Product-docs pointers
 
 - Gate: root `AGENTS.md` → **Product documentation (HARD GATE)**

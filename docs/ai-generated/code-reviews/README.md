@@ -16,6 +16,9 @@ continuity must not depend on it.
 
 ## Naming
 
+Overnight Erlang also pastes the same CLI markdown into the GitHub PR body
+under **Pre-push local code review** (see `.github/pull_request_template.md`).
+
 Prefer one canonical file per topic (update in place on re-review):
 
 ```text

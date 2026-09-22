@@ -6,7 +6,9 @@ Project workflows live here and are invocable by name (e.g. `/night-issue-prs` o
 
 ## `night-issue-prs`
 
-**Version:** `2.2.3` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
+**Version:** `2.2.4` (file header `workflow_version` in `night-issue-prs.rhai`). Grok Build workflow `meta` has **no version field** (only `name`, `description`, `when_to_use`, `phases`). The invocation name stays **`night-issue-prs`** — do not put the version in the filename.
+
+**Erlang local LLM (2.2.4):** Same CLI as 2.2.3. Erlang pastes the **full** `analyze --format markdown` report into the PR body section **Pre-push local code review** (`.github/pull_request_template.md`) and writes `docs/ai-generated/code-reviews/pr-<N>-erlang.md`. A two-line LGTM comment is not enough.
 
 **Erlang local LLM (2.2.3):** Overnight Erlang runs `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml` on the PR head (CLI ≥ **0.1.18**, Gitea mkd-code-review#25). Gate counts **in-diff** bugs only. Persona `erlang` 0.1.1 at `~/.local/share/mkd/agents/erlang`. Ollama `dev-coder:latest` on `localhost:11434`. LLM stage is fail-open if Ollama is down.
 
