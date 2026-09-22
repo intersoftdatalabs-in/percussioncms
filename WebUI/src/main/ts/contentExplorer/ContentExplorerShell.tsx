@@ -79,6 +79,12 @@ import {
   type DisplayFormat,
 } from "../api/contentExplorer/displayFormatsApi";
 import {
+  columnsToDisplayFormat,
+  getExplorerListColumns,
+  type ExplorerListColumns,
+} from "../api/contentExplorer/listColumnsApi";
+import { ExplorerListColumnsPanel } from "./ExplorerListColumnsPanel";
+import {
   getItemWorkflowTransitions,
   transitionItem,
 } from "../api/contentExplorer/itemWorkflowApi";
@@ -234,6 +240,8 @@ export interface ContentExplorerShellProps {
   onFolderActivated?: (path: string, folder: PSPathItem) => void;
   /** Test seam: override display-format catalog load. */
   loadDisplayFormats?: () => Promise<DisplayFormat[]>;
+  /** Test seam: session column overlay for the current folder (#4722). */
+  loadListColumns?: (folderPath: string) => Promise<ExplorerListColumns>;
   /** Test seam: override action menu load. */
   loadMenuActions?: (item: PSPathItem | null) => Promise<MenuAction[]>;
   /**
@@ -479,6 +487,7 @@ function ContentExplorerShellInner({
   actionHandlers,
   onFolderActivated,
   loadDisplayFormats = defaultLoadDisplayFormats,
+  loadListColumns = getExplorerListColumns,
   loadMenuActions = defaultLoadMenuActions,
   loadWorkflowMenuActions = defaultLoadWorkflowMenuActions,
   currentUserIdentities: currentUserIdentitiesProp,
@@ -558,6 +567,8 @@ function ContentExplorerShellInner({
     useState<RevisionsPanelTab>("revisions");
   const [displayFormats, setDisplayFormats] = useState<DisplayFormat[]>([]);
   const [selectedFormatKey, setSelectedFormatKey] = useState<string>("");
+  /** Session column overlay for the current folder (#4722). Empty = format/default. */
+  const [sessionColumnSources, setSessionColumnSources] = useState<string[]>([]);
   /** Non-fatal display-format catalog failure — selector stays mounted (#3208). */
   const [displayFormatLoadError, setDisplayFormatLoadError] = useState<
     string | null
@@ -767,6 +778,26 @@ function ContentExplorerShellInner({
 
   useEffect(() => {
     let cancelled = false;
+    const path = selection.folderPath;
+    if (!path) {
+      setSessionColumnSources([]);
+      return;
+    }
+    loadListColumns(path)
+      .then((saved) => {
+        if (cancelled) return;
+        setSessionColumnSources(saved.columns ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setSessionColumnSources([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selection.folderPath, loadListColumns]);
+
+  useEffect(() => {
+    let cancelled = false;
     async function loadMenus(): Promise<void> {
       try {
         const base = await loadMenuActions(selection.item);
@@ -826,11 +857,14 @@ function ContentExplorerShellInner({
   }, [displayFormats, selectedFormatKey]);
 
   const detailDisplayFormat = useMemo(() => {
+    if (sessionColumnSources.length > 0) {
+      return toDetailDisplayFormat(columnsToDisplayFormat(sessionColumnSources));
+    }
     if (!selectedFormat) return undefined;
     return toDetailDisplayFormat(
       normalizeDisplayFormatColumns(selectedFormat.columns),
     );
-  }, [selectedFormat]);
+  }, [selectedFormat, sessionColumnSources]);
 
   const displayFormatId = selectedFormat
     ? resolvePathmanagementDisplayFormatId(selectedFormat) || null
@@ -1559,6 +1593,11 @@ function ContentExplorerShellInner({
             displayFormatLoadError={displayFormatLoadError}
             onSelectFormat={setSelectedFormatKey}
             onCommand={handleMenuBarCommand}
+          />
+          <ExplorerListColumnsPanel
+            folderPath={selection.folderPath}
+            selectedSources={sessionColumnSources}
+            onSaved={setSessionColumnSources}
           />
           <div style={toolRowStyle}>
             <ReducedActions
