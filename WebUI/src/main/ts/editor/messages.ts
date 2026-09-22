@@ -56,6 +56,11 @@ export const EDITOR_MSG = {
   EMPTY: "perc.ui.editor@This content type has no editable text fields.",
   LOCKED: "perc.ui.editor@This item is checked out to another user.",
   HTML_LABEL: "perc.ui.editor@Rich text",
+  HTML_UNSAFE:
+    "perc.ui.editor@That HTML contains script or event markup that cannot be saved.",
+  HTML_BAD_REQUEST: "perc.ui.editor@That HTML could not be saved.",
+  HTML_INVALID_SAVE:
+    "perc.ui.editor@Correct the HTML fields before saving.",
   FILE_CHOOSE: "perc.ui.editor@Choose file",
   FILE_NONE: "perc.ui.editor@No file attached",
   FILE_FORBIDDEN:

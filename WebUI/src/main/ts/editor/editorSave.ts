@@ -21,11 +21,14 @@
 
 import { isApiError } from "../api/client";
 
-export type EditorSaveErrorReason = "stale" | "failed";
+export type EditorSaveErrorReason = "stale" | "badRequest" | "failed";
 
 export function editorSaveErrorReason(err: unknown): EditorSaveErrorReason {
   if (isApiError(err) && err.status === 409) {
     return "stale";
+  }
+  if (isApiError(err) && err.status === 400) {
+    return "badRequest";
   }
   return "failed";
 }

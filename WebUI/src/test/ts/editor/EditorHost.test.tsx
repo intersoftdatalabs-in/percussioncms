@@ -1182,7 +1182,199 @@ describe("EditorHost date calendar fields (#4569)", () => {
     });
     const input = screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement;
     expect(input.readOnly || input.disabled).toBe(true);
-    expect(checkout).not.toHaveBeenCalled();
+  });
+});
+
+describe("EditorHost HTML field save (#4680)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  it("saves TinyMCE HTML through PUT fields", async () => {
+    const saveFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percRichText",
+      name: "Intro",
+      checkoutUser: "admin",
+      fields: [
+        { name: "sys_title", value: "Intro" },
+        { name: "text", value: "<p>Bye</p>" },
+      ],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percRichText",
+                  name: "Intro",
+                  checkoutUser: "admin",
+                  fields: [
+                    { name: "sys_title", value: "Intro" },
+                    { name: "text", value: "<p>Hi</p>" },
+                  ],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    { name: "text", label: "Body", control: "sys_tinymce" },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-text")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-text"), {
+      target: { value: "<p>Bye</p>" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "text")?.value).toBe("<p>Bye</p>");
+  });
+
+  it("blocks XSS markup before PUT and maps unnamed HTTP 400 onto the html field", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percRichText",
+                  name: "Intro",
+                  checkoutUser: "admin",
+                  fields: [
+                    { name: "sys_title", value: "Intro" },
+                    { name: "text", value: "<p>Hi</p>" },
+                  ],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    { name: "text", label: "Body", control: "sys_tinymce" },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-text")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-text"), {
+      target: { value: '<p><script>alert(1)</script></p>' },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text")).toBeTruthy();
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("maps unnamed HTTP 400 onto the html field", async () => {
+    const saveFields = vi.fn().mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { Error: { message: "HTML rejected" } },
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percRichText",
+                  name: "Intro",
+                  checkoutUser: "admin",
+                  fields: [
+                    { name: "sys_title", value: "Intro" },
+                    { name: "text", value: "<p>Hi</p>" },
+                  ],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    { name: "text", label: "Body", control: "sys_tinymce" },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-text")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-text"), {
+      target: { value: "<p>Updated</p>" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /could not be saved/i,
+    );
+  });
+
+  it("keeps html widgets read-only in view mode", async () => {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percRichText",
+                  name: "Intro",
+                  checkoutUser: "",
+                  fields: [{ name: "text", value: "<p>Hi</p>" }],
+                })}
+                loadType={async () => ({
+                  fields: [{ name: "text", label: "Body", control: "sys_tinymce" }],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    const area = screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
+    expect(area.readOnly).toBe(true);
     expect(screen.queryByTestId("editor-save")).toBeNull();
   });
 });

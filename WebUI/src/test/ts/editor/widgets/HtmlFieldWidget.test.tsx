@@ -44,4 +44,17 @@ describe("HtmlFieldWidget", () => {
     fireEvent.change(area, { target: { value: "<p>Bye</p>" } });
     expect(onChange).toHaveBeenCalledWith("<p>Bye</p>");
   });
+
+  it("is read-only in view mode", () => {
+    render(
+      <HtmlFieldWidget
+        name="text"
+        value="<p>Hi</p>"
+        readOnly={true}
+        onChange={vi.fn()}
+      />,
+    );
+    const area = screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
+    expect(area.readOnly).toBe(true);
+  });
 });

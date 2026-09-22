@@ -54,6 +54,7 @@ import {
   collectRequiredFieldErrors,
   mapSaveApiErrorToFieldErrors,
 } from "./editorFieldErrors";
+import { collectUnsafeHtmlFieldErrors } from "./htmlField";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
 import {
   canCopyFromEditor,
@@ -614,6 +615,20 @@ export function EditorHost({
       setSaving(false);
       return;
     }
+    const unsafeHtml = collectUnsafeHtmlFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: fieldValueAsString(draft[row.name] ?? row.value),
+      })),
+      message(EDITOR_MSG.HTML_UNSAFE),
+    );
+    if (Object.keys(unsafeHtml).length > 0) {
+      setFieldErrors(unsafeHtml);
+      setSaveErrorKey(EDITOR_MSG.HTML_INVALID_SAVE);
+      setSaving(false);
+      return;
+    }
     setFieldErrors({});
     const imageFieldNames = new Set(
       rows.filter((row) => row.kind === "image").map((row) => row.name),
@@ -700,8 +715,25 @@ export function EditorHost({
         rows.map((row) => row.name),
         fallback,
       );
+      const htmlNames = rows
+        .filter((row) => row.kind === "html")
+        .map((row) => row.name);
+      const namedHtml = Object.keys(mapped.fieldErrors).some((name) =>
+        htmlNames.includes(name),
+      );
+      const html400 =
+        editorSaveErrorReason(err) === "badRequest" &&
+        (namedHtml ||
+          (Object.keys(mapped.fieldErrors).length === 0 && htmlNames.length === 1));
+      if (
+        html400 &&
+        Object.keys(mapped.fieldErrors).length === 0 &&
+        htmlNames.length === 1
+      ) {
+        mapped.fieldErrors[htmlNames[0]] = message(EDITOR_MSG.HTML_BAD_REQUEST);
+      }
       setFieldErrors(mapped.fieldErrors);
-      setSaveErrorKey(EDITOR_MSG.SAVE_FAILED);
+      setSaveErrorKey(html400 ? EDITOR_MSG.HTML_BAD_REQUEST : EDITOR_MSG.SAVE_FAILED);
       setSaveErrorDetail(mapped.banner === fallback ? "" : mapped.banner);
     } finally {
       setSaving(false);
