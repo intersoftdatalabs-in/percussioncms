@@ -3824,23 +3824,29 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(executeView).toHaveBeenCalled();
   });
 
-  it("other custom URL view leaf does not call execute (#3116 / #3240)", async () => {
+  it("Outbox packaged CX view executes and shows a result row (#4721)", async () => {
     stubPathFetch();
-    const listViews = vi.fn(async () => [
-      {
-        name: "Outbox",
-        label: "Outbox",
-        parentCategory: 1,
-        customView: true,
-      },
-    ]);
-    const executeView = vi.fn();
+    const executeView = vi.fn(async () => ({
+      children: [
+        {
+          id: "91",
+          title: "Sent page",
+          folderPath: "/Sites/Demo",
+          type: "page",
+        },
+      ],
+      totalCount: 1,
+      startIndex: 1,
+      viewName: "Outbox",
+    }));
     renderShell(
       <ContentExplorerShell
         initialPath="/Sites"
         loadDisplayFormats={async () => []}
         loadMenuActions={async () => []}
-        listViews={listViews}
+        listViews={async () => [
+          { name: "Outbox", label: "Outbox", parentCategory: 1, customView: true },
+        ]}
         executeView={executeView}
       />,
     );
@@ -3849,12 +3855,49 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     );
     fireEvent.click(screen.getByTestId("explorer-views-leaf-Outbox"));
     await waitFor(() => {
-      expect(screen.getByTestId("explorer-view-results-error")).toBeInTheDocument();
+      expect(executeView).toHaveBeenCalledWith("Outbox", {
+        startIndex: 1,
+        maxResults: 50,
+      });
+      expect(screen.getByTestId("explorer-view-open-91")).toBeInTheDocument();
     });
-    expect(executeView).not.toHaveBeenCalled();
-    expect(screen.getByTestId("explorer-view-results-error").textContent).toMatch(
-      /Custom URL views cannot be run/i,
+  });
+
+  it("custom URL view HTTP 403 and missing view HTTP 404 map on the results panel (#4721)", async () => {
+    stubPathFetch();
+    const executeView = vi.fn(async (key: string) => {
+      if (key === "MissingView") {
+        throw { status: 404, statusText: "Not Found", body: "View not found" };
+      }
+      throw { status: 403, statusText: "Forbidden", body: "Admin role required" };
+    });
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listViews={async () => [
+          { name: "MyCustom", label: "My Custom", parentCategory: 1, customView: true },
+          { name: "MissingView", label: "Missing", parentCategory: 1, customView: true },
+        ]}
+        executeView={executeView}
+      />,
     );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-views-leaf-MyCustom")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-views-leaf-MyCustom"));
+    await waitFor(() => {
+      const err = screen.getByTestId("explorer-view-results-error");
+      expect(err).toHaveAttribute("data-http-status", "403");
+      expect(err.textContent).toMatch(/HTTP 403/);
+    });
+    fireEvent.click(screen.getByTestId("explorer-views-leaf-MissingView"));
+    await waitFor(() => {
+      const err = screen.getByTestId("explorer-view-results-error");
+      expect(err).toHaveAttribute("data-http-status", "404");
+      expect(err.textContent).toMatch(/HTTP 404/);
+    });
   });
 
   it("New Item host opens a content-type picker instead of an error toast (#3513)", async () => {

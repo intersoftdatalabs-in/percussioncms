@@ -29,7 +29,7 @@ import { listStyle } from "./styles";
 export type ViewRunStatus =
   | { kind: "loading"; label: string }
   | { kind: "ready"; label: string; results: ViewExecuteResult }
-  | { kind: "error"; label: string; message: string };
+  | { kind: "error"; label: string; message: string; httpStatus?: number };
 
 export interface ViewResultsPanelProps {
   status: ViewRunStatus;
@@ -109,7 +109,13 @@ function ViewRunBody(props: {
   if (status.kind === "error") {
     return (
       <div role="alert" style={{ color: "#a00", padding: 12 }}>
-        <p data-testid="explorer-view-results-error" style={{ margin: "0 0 8px 0" }}>
+        <p
+          data-testid="explorer-view-results-error"
+          data-http-status={
+            status.httpStatus != null ? String(status.httpStatus) : undefined
+          }
+          style={{ margin: "0 0 8px 0" }}
+        >
           {message(EXPLORER_MSG.VIEWS_RUN_ERROR)}: {status.message}
         </p>
         {onRetry ? (

@@ -62,9 +62,15 @@ to see the same four groups as Desktop Content Explorer:
 | **Other Content** | Views in parent category 4 (and any view without a known category) |
 
 Selecting a **group** only expands or collapses its children. Selecting a **standard**
-view (field-criteria) runs it and replaces the folder list with the result rows.
-Each row has **Open** (editor) and **Reveal in folder** (select the item’s parent
-folder in the tree), matching the Search panel result actions.
+view (field-criteria) or a **packaged CX view** (Inbox, Outbox, Recent, Session,
+Checked Out By Me, Duplicate Folder Paths) runs it
+(`POST /services/views/{idOrName}/execute`) and replaces the folder list with the
+result rows, or an empty state when the view returns no items. Each row has
+**Open** (editor) and **Reveal in folder** (select the item’s parent folder in the
+tree), matching the Search panel result actions. A view the catalog no longer
+has returns **HTTP 404** in the results panel. A user-created custom URL view
+(not one of the packaged names above) runs only for an Admin session; other
+roles see **HTTP 403** in that same panel, with Retry.
 
 **Inbox** is always listed under **Views → My Content** (the Desktop Content Explorer
 path `//Views//MyContent/Inbox`, not a separate Explorer root). Selecting **Inbox**
@@ -74,11 +80,9 @@ and shows assignment rows, or an empty state when you have no Inbox items. A
 Retry button appears only for a real execute failure — not for a request-envelope
 mismatch.
 
-Other **custom URL** views (for example Outbox or Recent) stay listed so you can see
-them in the catalog, but they cannot be executed from this Explorer release. Those
-leaves show an error instead of an empty list. Do not use Developer → Views as a
-substitute for this Explorer tree — Developer is the design catalog, not the
-operator navigation path.
+**Outbox**, **Recent**, and the other packaged CX views use the same execute path
+as Inbox. Do not use Developer → Views as a substitute for this Explorer tree —
+Developer is the design catalog, not the operator navigation path.
 
 If the left tree fails to load, Explorer shows an **error** in the tree panel (not a
 blank list). Typical causes are a path-service HTTP error or a session timeout.

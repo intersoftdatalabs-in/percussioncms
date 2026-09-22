@@ -25,6 +25,7 @@ import {
   groupViewsByParentCategory,
   isCustomUrlView,
   isInboxView,
+  isPackagedCxView,
   normalizeViewParentCategory,
   viewCatalogIdentity,
   viewKey,
@@ -91,13 +92,20 @@ describe("viewCatalog grouping (#3116)", () => {
     expect(isCustomUrlView({ standardView: true })).toBe(false);
   });
 
-  it("identifies Inbox and allows C1 execute only for Inbox among custom-URL views", () => {
+  it("executes packaged CX views and other named custom-URL leaves (#4721)", () => {
     expect(isInboxView({ name: "Inbox", customView: true })).toBe(true);
     expect(isInboxView({ name: PATH_MY_CONTENT_INBOX })).toBe(true);
     expect(isInboxView({ name: "Outbox", customView: true })).toBe(false);
+    expect(isPackagedCxView({ name: "Outbox", customView: true })).toBe(true);
+    expect(isPackagedCxView({ name: "Checked Out By Me", customView: true })).toBe(
+      true,
+    );
+    expect(isPackagedCxView({ name: "MyCustom", customView: true })).toBe(false);
     expect(canExecuteView({ name: "View_All", standardView: true })).toBe(true);
     expect(canExecuteView({ name: "Inbox", customView: true })).toBe(true);
-    expect(canExecuteView({ name: "Outbox", customView: true })).toBe(false);
+    expect(canExecuteView({ name: "Outbox", customView: true })).toBe(true);
+    expect(canExecuteView({ name: "MyCustom", customView: true })).toBe(true);
+    expect(canExecuteView({})).toBe(false);
     const ensured = ensureInboxInMyContent([
       { name: "Inbox", parentCategory: 4, customView: true },
     ]);
