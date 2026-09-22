@@ -233,12 +233,38 @@ export function isInboxView(def: ViewDef | null | undefined): boolean {
 }
 
 /**
- * Standard field-criteria views and the Inbox custom-URL leaf may run via
- * {@code POST /services/views/{idOrName}/execute} (C1 / #3239). Other
- * custom-URL views stay unsupported in this slice.
+ * Packaged CX custom-view names (same set as {@code ViewAdaptor}
+ * {@code PACKAGED_CX_VIEW_NAMES}). Any operator may execute these; other
+ * custom-URL views are Admin-only on the server (HTTP 403).
+ */
+const PACKAGED_CX_VIEW_NAMES = new Set([
+  "inbox",
+  "outbox",
+  "recent",
+  "session",
+  "checked_out_by_me",
+  "duplicatefolderpaths",
+]);
+
+/** True when {@code def} is a packaged sys_cxViews leaf (Inbox family). */
+export function isPackagedCxView(def: ViewDef | null | undefined): boolean {
+  if (def == null) {
+    return false;
+  }
+  if (isInboxView(def)) {
+    return true;
+  }
+  const raw = (def.name ?? viewKey(def) ?? "").trim().toLowerCase().replace(/ /g, "_");
+  return raw.length > 0 && PACKAGED_CX_VIEW_NAMES.has(raw);
+}
+
+/**
+ * Any catalog leaf with a key may be executed (#4721). Standard and packaged
+ * CX views return rows. A missing key is HTTP 404. A non-packaged custom URL
+ * view for a non-Admin session is HTTP 403 — the results panel maps both.
  */
 export function canExecuteView(def: ViewDef): boolean {
-  return !isCustomUrlView(def) || isInboxView(def);
+  return viewKey(def).length > 0;
 }
 
 /** Stub used when the catalog omits Inbox so the My Content group still has the leaf. */

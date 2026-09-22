@@ -33,7 +33,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { formatApiError } from "../api/client";
+import { formatApiError, isApiError } from "../api/client";
 import {
   addSlotRelationship,
   changeSlotTemplateSlot,
@@ -197,7 +197,7 @@ import {
   shellStyleWithPanels,
   sidePanelsRegionStyle,
 } from "./styles";
-import { canExecuteView, viewKey, viewLabel } from "./viewCatalog";
+import { viewKey, viewLabel } from "./viewCatalog";
 import { ViewResultsPanel, type ViewRunStatus } from "./ViewResultsPanel";
 import { ViewsCatalogTree } from "./ViewsCatalogTree";
 import { TranslationsPanel } from "./TranslationsPanel";
@@ -1301,14 +1301,6 @@ function ContentExplorerShellInner({
         return;
       }
       setSelectedViewKey(key);
-      if (!canExecuteView(view)) {
-        setViewRun({
-          kind: "error",
-          label,
-          message: message(EXPLORER_MSG.VIEWS_CUSTOM_UNSUPPORTED),
-        });
-        return;
-      }
       setViewRun({ kind: "loading", label });
       try {
         const results = await executeView(key, {
@@ -1317,10 +1309,19 @@ function ContentExplorerShellInner({
         });
         setViewRun({ kind: "ready", label, results });
       } catch (err: unknown) {
+        const httpStatus = isApiError(err) ? err.status : undefined;
+        let text = formatApiError(err, message(EXPLORER_MSG.VIEWS_RUN_ERROR));
+        if (
+          (httpStatus === 403 || httpStatus === 404) &&
+          !text.includes(String(httpStatus))
+        ) {
+          text = `${text} (HTTP ${httpStatus})`;
+        }
         setViewRun({
           kind: "error",
           label,
-          message: formatApiError(err, message(EXPLORER_MSG.VIEWS_RUN_ERROR)),
+          message: text,
+          httpStatus,
         });
       }
     },
@@ -1328,18 +1329,11 @@ function ContentExplorerShellInner({
   );
 
   const handleRetryView = useCallback(() => {
-    if (viewRun == null) return;
-    // Retry last execute using the selected key + last label. Inbox
-    // (custom URL) re-POSTs execute; other custom-URL views stay
-    // on the unsupported message.
-    if (selectedViewKey) {
-      void runSelectedView({
-        name: selectedViewKey,
-        label: viewRun.label,
-        customView: viewRun.kind === "error"
-          && viewRun.message === message(EXPLORER_MSG.VIEWS_CUSTOM_UNSUPPORTED),
-      });
-    }
+    if (viewRun == null || !selectedViewKey) return;
+    void runSelectedView({
+      name: selectedViewKey,
+      label: viewRun.label,
+    });
   }, [viewRun, selectedViewKey, runSelectedView]);
 
   const siteNameForCopy = useMemo(
