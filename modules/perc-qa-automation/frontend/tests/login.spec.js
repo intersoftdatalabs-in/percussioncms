@@ -34,7 +34,10 @@ test.describe("Admin login @smoke", () => {
   test("logs in and lands on a non-login Rhythmyx page @smoke", async ({
     page,
   }) => {
-    test.setTimeout(30_000);
+    // login() can wait up to ~30s each for surface, fill, and post-submit
+    // navigation. A 30s test budget races those waits on a loaded H2 QA cell
+    // (#4714: timeout closed the page mid snapshotLoginSurface).
+    test.setTimeout(90_000);
     await loginAsAdmin(page);
 
     const url = page.url();

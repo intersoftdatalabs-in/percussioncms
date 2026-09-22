@@ -10,6 +10,8 @@
 
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const {
   isOffLoginPath,
   classifyLoginSurface,
@@ -143,5 +145,21 @@ describe("loginUiWaitSelector", () => {
     assert.match(sel, /perc-spa-app/);
     assert.match(sel, /assembly-host/);
     assert.doesNotMatch(sel, /perc-login-root/);
+  });
+});
+
+describe("login.spec.js timeout vs stacked login waits (#4714)", () => {
+  it("gives loginAsAdmin more than one 30s waitForLoginSurface budget", () => {
+    const spec = fs.readFileSync(
+      path.join(__dirname, "../login.spec.js"),
+      "utf8",
+    );
+    const m = spec.match(/setTimeout\(([\d_]+)\)/);
+    assert.ok(m, "login.spec.js must set a Playwright test timeout");
+    const ms = Number(m[1].replace(/_/g, ""));
+    assert.ok(
+      ms >= 90_000,
+      `expected >= 90000ms (got ${ms}) so login() surface+fill+nav waits do not close the page`,
+    );
   });
 });
