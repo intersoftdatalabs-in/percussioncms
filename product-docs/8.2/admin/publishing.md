@@ -302,7 +302,7 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 3. Enter the item id (content GUID such as `16777215-101-9`) and choose **Load dates**.
 4. Set or clear **Publish date** and **Removal date** (optional comments, 500 characters). Removal must be after publish when both are set. **Save dates** posts the `ItemDates` envelope.
 
-**Empty and error states:** Blank item id is not a lookup. Invalid dates return **HTTP 400** (the panel shows the server validation message — past dates, unparseable values, or removal before publish). Forbidden updates return **HTTP 403** (or an application-level `FORBIDDEN` body) — the panel shows that error and does **not** treat the save as success. Clearing both dates and saving removes the schedule.
+**Empty and error states:** Blank item id is not a lookup. Invalid dates return **HTTP 400** (the panel shows the server validation message — past dates, unparseable values, or removal before publish). Forbidden updates return **HTTP 403** (reader or no assignment, or an application-level `FORBIDDEN` body). If another user has the item checked out, save returns **HTTP 409** and the panel shows that conflict. None of those responses are treated as success. After a successful save the panel reloads the stored publish and removal dates. The optional comment is the workflow note sent with the save; it is not returned by the dates lookup, so it stays in the form until the next lookup. Clearing both dates and saving removes the schedule.
 
 **Deep links:**
 

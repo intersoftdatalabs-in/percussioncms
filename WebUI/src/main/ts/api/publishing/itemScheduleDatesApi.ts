@@ -42,9 +42,10 @@ export async function fetchItemScheduleDates(
 }
 
 /**
- * POST {@code ItemDates}. HTTP 400 (invalid dates) and 403 (forbidden)
- * throw {@code ApiError}. HTTP 200 {@code FORBIDDEN}/{@code INVALID}/
- * {@code BADCONFIG} is also a failure ({@code mapPublishResponse}).
+ * POST {@code ItemDates}. HTTP 400 (invalid dates), 403 (forbidden), and
+ * 409 (checked out to someone else) throw {@code ApiError}. HTTP 200
+ * {@code FORBIDDEN}/{@code INVALID}/{@code BADCONFIG} is also a failure
+ * ({@code mapPublishResponse}).
  */
 export async function saveItemScheduleDates(
   dates: ItemScheduleDates,

@@ -255,6 +255,8 @@ export const MSG = {
   PUBLISH_SCHEDULE_DATE_RANGE: "perc.ui.schedule.dialog@Enter Valid Date Range",
   PUBLISH_SCHEDULE_INVALID: "perc.ui.publish.modern@Invalid schedule dates",
   PUBLISH_SCHEDULE_FORBIDDEN: "perc.ui.publish.modern@Publish Forbidden",
+  PUBLISH_SCHEDULE_CONFLICT:
+    "perc.ui.publish.modern@Someone else is editing this item",
   PUBLISH_SCHEDULE_SAVED: "perc.ui.publish.modern@Schedule dates saved",
   PUBLISH_NOW: "perc.ui.publish.title@Publish Now",
   PUBLISH_NOW_HINT:

@@ -177,6 +177,22 @@ test.describe("PublishingShell schedule publish dates", () => {
       );
       await expect(page.locator('[data-testid="item-schedule-success"]')).toHaveCount(0);
 
+      await page.unroute("**/itemmanagement/item/setitemdates**");
+      await page.route("**/itemmanagement/item/setitemdates**", async (route) => {
+        await route.fulfill({
+          status: 409,
+          contentType: "application/json",
+          body: JSON.stringify({
+            message: "User other is editing this page. You cannot modify this item.",
+          }),
+        });
+      });
+      await page.locator('[data-testid="item-schedule-save"]').click();
+      await expect(page.locator('[data-testid="item-schedule-error"]')).toContainText(
+        /editing this page|HTTP 409/i,
+      );
+      await expect(page.locator('[data-testid="item-schedule-success"]')).toHaveCount(0);
+
       expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
         [],
       );

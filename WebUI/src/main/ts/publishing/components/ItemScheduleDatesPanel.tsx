@@ -54,6 +54,9 @@ function scheduleErrorMessage(err: unknown): string {
     if (err.status === 400) {
       return formatApiError(err, message(MSG.PUBLISH_SCHEDULE_INVALID));
     }
+    if (err.status === 409) {
+      return formatApiError(err, message(MSG.PUBLISH_SCHEDULE_CONFLICT));
+    }
   }
   const text = formatApiError(err, message(MSG.PUBLISH_ERROR));
   if (/\bFORBIDDEN\b/i.test(text)) {
@@ -153,12 +156,19 @@ export function ItemScheduleDatesPanel({
     setError(null);
     setSuccess(null);
     try {
+      const savedComments = comments.trim().slice(0, COMMENT_MAX);
       await saveItemScheduleDates({
         itemId: safe,
         startDate,
         endDate,
-        comments: comments.trim().slice(0, COMMENT_MAX),
+        comments: savedComments,
       });
+      // GET item dates does not return the workflow comment. Reload start/end
+      // only so a successful save still shows the stored schedule.
+      const saved = await fetchItemScheduleDates(safe);
+      setStartLocal(serverDateToDatetimeLocal(saved.startDate));
+      setEndLocal(serverDateToDatetimeLocal(saved.endDate));
+      setComments(savedComments);
       setLoadedId(safe);
       setSuccess(message(MSG.PUBLISH_SCHEDULE_SAVED));
       onItemIdChange?.(safe);

@@ -108,6 +108,22 @@ describe("itemScheduleDatesApi", () => {
     ).rejects.toMatchObject({ status: 403 });
   });
 
+  it("throws on HTTP 409", async () => {
+    postMock.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "editing" },
+    });
+    await expect(
+      saveItemScheduleDates({
+        itemId: "42",
+        startDate: "",
+        endDate: "",
+        comments: "",
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+  });
+
   it("throws on HTTP 200 FORBIDDEN body", async () => {
     postMock.mockResolvedValue({ status: "FORBIDDEN" });
     await expect(

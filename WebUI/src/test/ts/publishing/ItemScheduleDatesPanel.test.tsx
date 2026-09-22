@@ -86,6 +86,35 @@ describe("ItemScheduleDatesPanel", () => {
       });
     });
     expect(screen.getByTestId("item-schedule-success")).toBeTruthy();
+    expect(fetchDates).toHaveBeenCalledTimes(2);
+    expect(screen.getByTestId("item-schedule-comments")).toHaveValue("");
+  });
+
+  it("keeps the comment after save because getitemdates omits it", async () => {
+    fetchDates
+      .mockResolvedValueOnce({
+        itemId: "42",
+        startDate: "09/18/2026 09:00 am",
+        endDate: "09/19/2026 10:00 am",
+        comments: "",
+      })
+      .mockResolvedValueOnce({
+        itemId: "42",
+        startDate: "09/18/2026 09:00 am",
+        endDate: "09/19/2026 10:00 am",
+        comments: "",
+      });
+    saveDates.mockResolvedValue();
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => expect(fetchDates).toHaveBeenCalled());
+    fireEvent.change(screen.getByTestId("item-schedule-comments"), {
+      target: { value: "go live" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-success")).toBeTruthy();
+    });
+    expect(screen.getByTestId("item-schedule-comments")).toHaveValue("go live");
   });
 
   it("surfaces HTTP 400 as an invalid-dates error", async () => {
@@ -129,6 +158,29 @@ describe("ItemScheduleDatesPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("item-schedule-error").textContent).toMatch(
         /editing this page|Forbidden|Publish Forbidden/i,
+      );
+    });
+    expect(screen.queryByTestId("item-schedule-success")).toBeNull();
+  });
+
+  it("surfaces HTTP 409 checkout conflict, not success", async () => {
+    fetchDates.mockResolvedValue({
+      itemId: "42",
+      startDate: "",
+      endDate: "",
+      comments: "",
+    });
+    saveDates.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "User other is editing this page." },
+    });
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => expect(fetchDates).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-schedule-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-error").textContent).toMatch(
+        /editing this page|Conflict|HTTP 409/i,
       );
     });
     expect(screen.queryByTestId("item-schedule-success")).toBeNull();
