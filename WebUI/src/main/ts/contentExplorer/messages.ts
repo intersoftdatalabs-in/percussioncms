@@ -244,6 +244,10 @@ export const EXPLORER_MSG = {
   /** Non-fatal catalog load failure — selector stays mounted (#3208). */
   DISPLAY_FORMAT_LOAD_ERROR:
     "perc.ui.explorer@Could not load display formats",
+  LIST_COLUMNS_OPEN: "perc.ui.explorer@Columns",
+  LIST_COLUMNS_APPLY: "perc.ui.explorer@Apply columns",
+  LIST_COLUMNS_NEED_FOLDER: "perc.ui.explorer@Select a folder before changing columns (HTTP 400)",
+  LIST_COLUMNS_SAVE_ERROR: "perc.ui.explorer@Could not save list columns",
   /** Product shell: server-driven action toolbar (US3 / #2400 / #2972). */
   SERVER_ACTIONS_ARIA: "perc.ui.explorer@Server actions",
   /** Visible chrome label so QA/operators can identify the toolbar region. */

@@ -40,6 +40,8 @@ class CatalogRestJaxrsRegistrationTest {
     // #4096 UI-09 community CX new-search defaults (nested under /communities/{id}/…)
     "restCommunityNewSearchDefaultsResource",
     "restViewResource",
+    // #4722 Explorer session list-column overlay
+    "restExplorerListColumnsResource",
     "restServerConfigsResource",
     // #4289 / #4288 SY-05 application CMS/resource files (+ pipelines app picker)
     "restApplicationFilesResource",

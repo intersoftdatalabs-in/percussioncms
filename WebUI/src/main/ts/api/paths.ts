@@ -594,6 +594,10 @@ export const PATHS = {
   get DISPLAY_FORMATS() {
     return `${SERVICES_ROOT}/displayformats`;
   },
+  /** Session overlay of Explorer folder-list columns (#4722). */
+  get EXPLORER_LIST_COLUMNS() {
+    return `${SERVICES_ROOT}/explorer/list-columns`;
+  },
   /** CX action menu design catalog (GET list/detail). */
   get ACTION_MENUS() {
     return `${SERVICES_ROOT}/actions/catalog`;

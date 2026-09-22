@@ -437,6 +437,14 @@ Changing the format reloads the detail list using that format's numeric id
 (`displayFormatId`) so headings and cell values match the selected columns. The selector
 stays available if the catalog fails to load (a short error appears next to it).
 
+**Columns** (next to the menu bar) changes which fields the current folder list shows
+without editing the shared display format. Title (`sys_title`) stays selected. Apply
+saves the list for this user and folder for the server session
+(`PUT /Rhythmyx/services/explorer/list-columns`). Opening the same folder again in that
+session restores the columns. A missing folder, unknown field, or duplicate field is
+**HTTP 400**. A request with no signed-in user is **HTTP 403**. The list shows that
+status next to the Columns control. Restarting the server clears the overlay.
+
 ## Server actions and context menu
 
 The **Server actions** toolbar is the labeled product chrome under Open / Preview / Create Folder
