@@ -26,10 +26,12 @@ const fetchSlotCanvas = vi.fn().mockResolvedValue({
 });
 const fetchLocal = vi.fn().mockResolvedValue({ count: 0, links: [] });
 const addSlotRelationship = vi.fn();
+const removeSlotRelationship = vi.fn();
 
 vi.mock("../../../main/ts/api/contentExplorer/slotRelationshipApi", () => ({
   fetchSlotCanvas: (...args: unknown[]) => fetchSlotCanvas(...args),
   addSlotRelationship: (...args: unknown[]) => addSlotRelationship(...args),
+  removeSlotRelationship: (...args: unknown[]) => removeSlotRelationship(...args),
 }));
 
 vi.mock("../../../main/ts/api/contentExplorer/relationshipsApi", () => ({
@@ -167,6 +169,116 @@ describe("EditorRelatedContentPanel", () => {
     );
     await waitFor(() => {
       expect(screen.queryByTestId("editor-related-insert")).toBeNull();
+    });
+  });
+
+  it("removes a slot relationship and reloads without the row", async () => {
+    const filled = {
+      ownerId: 42,
+      templateId: 7,
+      slots: [
+        {
+          slotId: 9,
+          name: "content",
+          label: "Content",
+          items: [
+            {
+              relationshipId: 3,
+              ownerId: 42,
+              dependentId: 55,
+              slotId: 9,
+              templateId: 7,
+              sortRank: 0,
+            },
+          ],
+        },
+      ],
+    };
+    const loadCanvas = vi
+      .fn()
+      .mockResolvedValueOnce(filled)
+      .mockResolvedValueOnce({
+        ownerId: 42,
+        templateId: 7,
+        slots: [{ slotId: 9, name: "content", label: "Content", items: [] }],
+      });
+    const removeRelationship = vi.fn().mockResolvedValue(undefined);
+    render(
+      <EditorRelatedContentPanel
+        itemId="42"
+        loadCanvas={loadCanvas}
+        loadLocal={async () => ({ count: 0, links: [] })}
+        removeRelationship={removeRelationship}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-remove")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-related-remove"));
+    await waitFor(() => {
+      expect(removeRelationship).toHaveBeenCalledWith(3);
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-related-item-id")).toBeNull();
+    });
+  });
+
+  it("maps remove 404 and keeps the row", async () => {
+    const filled = {
+      ownerId: 42,
+      templateId: 7,
+      slots: [
+        {
+          slotId: 9,
+          name: "content",
+          label: "Content",
+          items: [
+            {
+              relationshipId: 3,
+              ownerId: 42,
+              dependentId: 55,
+              slotId: 9,
+              templateId: 7,
+              sortRank: 0,
+            },
+          ],
+        },
+      ],
+    };
+    const removeRelationship = vi.fn().mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: {},
+    });
+    const { rerender } = render(
+      <EditorRelatedContentPanel
+        itemId="42"
+        loadCanvas={async () => filled}
+        loadLocal={async () => ({ count: 1, links: [{ type: "local", targetId: "88" }] })}
+        removeRelationship={removeRelationship}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getAllByTestId("editor-related-remove")).toHaveLength(1);
+    });
+    fireEvent.click(screen.getByTestId("editor-related-remove"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-remove-error").textContent).toMatch(
+        /not found/i,
+      );
+    });
+    expect(screen.getAllByTestId("editor-related-item-id")).toHaveLength(2);
+    rerender(
+      <EditorRelatedContentPanel
+        itemId="42"
+        readOnly
+        loadCanvas={async () => filled}
+        loadLocal={async () => ({ count: 1, links: [{ type: "local", targetId: "88" }] })}
+        removeRelationship={removeRelationship}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-related-remove")).toBeNull();
     });
   });
 });

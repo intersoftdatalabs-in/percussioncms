@@ -259,8 +259,16 @@ and the snippet template from the canvas (or from an item already in that slot).
 HTTP **400** (bad id or slot), **403** (not allowed), and **404** (item or slot
 not found) stay on the panel as errors — they are not treated as a successful
 insert and the list is not cleared. **View** and **Promote** do not show the
-insert form. This increment does not remove or rearrange slots and does not
-check the item in.
+insert form.
+
+In **Edit** mode each slot row that has an Active Assembly relationship id shows
+**Remove**. The host calls
+`DELETE /services/assembly/slot-relationships/{relationshipId}` and reloads the
+list. HTTP **403** (not allowed) and **404** (relationship not found) stay on
+the panel — the row is not dropped and the call is not treated as success.
+Inline local links that have no relationship id are listed but have no Remove
+control. **View** and **Promote** do not show Remove. This increment does not
+rearrange slots and does not check the item in.
 
 **Preview** is available in **View** and **Edit** for the already-open **page**
 or **asset** so authors do not need to bounce to Explorer solely to preview.

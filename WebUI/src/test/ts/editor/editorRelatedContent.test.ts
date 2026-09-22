@@ -22,6 +22,7 @@ import {
   insertSlotChoices,
   relatedContentErrorReason,
   relatedInsertErrorReason,
+  relatedRemoveErrorReason,
 } from "../../../main/ts/editor/editorRelatedContent";
 
 describe("flattenRelatedContent", () => {
@@ -61,7 +62,9 @@ describe("flattenRelatedContent", () => {
     );
     expect(rows.map((r) => r.itemId)).toEqual(["55", "88"]);
     expect(rows[0].kind).toBe("slot");
+    expect(rows[0].relationshipId).toBe(100);
     expect(rows[1].kind).toBe("inline");
+    expect(rows[1].relationshipId).toBeUndefined();
   });
 });
 
@@ -88,6 +91,15 @@ describe("relatedContentErrorReason", () => {
       "not_found",
     );
     expect(relatedInsertErrorReason(new Error("boom"))).toBe("failed");
+    expect(relatedRemoveErrorReason({ status: 403, statusText: "F", body: {} })).toBe(
+      "forbidden",
+    );
+    expect(relatedRemoveErrorReason({ status: 404, statusText: "N", body: {} })).toBe(
+      "not_found",
+    );
+    expect(relatedRemoveErrorReason({ status: 500, statusText: "x", body: {} })).toBe(
+      "failed",
+    );
   });
 
   it("offers canvas slots and a template id for insert", () => {
