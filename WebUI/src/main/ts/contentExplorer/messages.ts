@@ -75,6 +75,11 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@The selected item was not found",
   ACTION_DELETE_CONFLICT:
     "perc.ui.explorer@Could not delete the item (in use, locked, or not a recyclable item)",
+  ACTION_RESTORE: "perc.ui.explorer@Restore",
+  ACTION_RESTORE_NOT_FOUND:
+    "perc.ui.explorer@The recycled item was not found",
+  ACTION_RESTORE_CONFLICT:
+    "perc.ui.explorer@Could not restore the item (destination already has that name)",
   CONFIRM_DELETE_TITLE: "perc.ui.explorer@Delete Confirmation",
   CONFIRM_DELETE_BODY:
     "perc.ui.explorer@Are you sure you want to delete this item?",

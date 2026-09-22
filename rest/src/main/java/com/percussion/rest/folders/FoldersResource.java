@@ -237,6 +237,51 @@ public class FoldersResource {
   }
 
   /**
+   * Restore a recycled item or folder by GUID to its original folder.
+   *
+   * @param guid CMS GUID of the recycled item
+   * @return status of the restore
+   */
+  @PUT
+  @Path("/recycle/restore/{guid}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Restore a recycled item or folder by GUID",
+      description =
+          "PUT the recycled item GUID to restore it to its original parent folder. Explorer Recycle"
+              + " uses this for Restore. Missing GUID is 404; non-admin callers 403; destination"
+              + " name-in-use 409.",
+      responses = {
+        @ApiResponse(responseCode = "404", description = "Recycled item not found"),
+        @ApiResponse(responseCode = "403", description = "Not authorized to restore"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Restore conflicts (destination already has that name)"),
+        @ApiResponse(responseCode = "500", description = "Error"),
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = Status.class)))
+      })
+  public Status restoreRecycledItem(@PathParam(value = "guid") String guid) {
+    try {
+      folderAdaptor.restoreRecycledItem(uriInfo.getBaseUri(), guid);
+      return new Status(200, "Ok");
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (NotFoundException nfe) {
+      throw nfe;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (BackendException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /**
    * Delete a folder item below root of site
    *
    * @param itempath the path to the item

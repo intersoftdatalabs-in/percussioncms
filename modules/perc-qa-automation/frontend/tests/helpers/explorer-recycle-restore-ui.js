@@ -55,6 +55,7 @@ const SELECTORS = Object.freeze({
   detailList: '[data-testid="detail-list"]',
   reducedActions: '[data-testid="reduced-actions"]',
   actionDelete: '[data-testid="action-delete"]',
+  actionRestore: '[data-testid="action-restore"]',
   actionOpen: '[data-testid="action-open"]',
   actionCreateFolder: '[data-testid="action-create-folder"]',
   actionToolbar: '[data-testid="action-toolbar"]',
@@ -230,6 +231,11 @@ function restoreFolderApiPathFragment() {
   return "/pathmanagement/path/restoreFolder";
 }
 
+/** Public REST restore used by Explorer reduced Restore (#4700). */
+function restoreRecycledItemApiPathFragment() {
+  return "/folders/recycle/restore";
+}
+
 /**
  * URL fragment for empty Recycling bulk purge (DELETE).
  * @returns {string}
@@ -377,6 +383,7 @@ module.exports = {
   deleteItemApiPathFragment,
   deleteFolderApiPathFragment,
   restoreFolderApiPathFragment,
+  restoreRecycledItemApiPathFragment,
   emptyRecyclingApiPathFragment,
   recycledFolderExplorerPath,
   exactExplorerItemNameMatcher,

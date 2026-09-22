@@ -28,6 +28,7 @@ import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
+import com.percussion.share.dao.impl.PSFolderHelper;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.fastforward.managednav.PSNavException;
@@ -55,6 +56,7 @@ import com.percussion.pathmanagement.service.IPSPathService;
 import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.recent.service.rest.IPSRecentService;
+import com.percussion.recycle.service.IPSRecycleService;
 import com.percussion.redirect.service.IPSRedirectService;
 import com.percussion.rest.LinkRef;
 import com.percussion.rest.errors.BackendException;
@@ -167,6 +169,9 @@ public class FolderAdaptor implements IFolderAdaptor {
   @Autowired(required = false)
   private PlatformTransactionManager transactionManager;
 
+  @Autowired(required = false)
+  private IPSRecycleService recycleService;
+
   /** Logger for this service. */
   public static final Logger log = LogManager.getLogger(FolderAdaptor.class);
 
@@ -202,6 +207,11 @@ public class FolderAdaptor implements IFolderAdaptor {
     this.redirectService = redirectService;
     this.siteDataService = siteDataService;
     this.recentService = recentService;
+  }
+
+  /** Test seam for recycle restore (#4700). */
+  public void setRecycleService(IPSRecycleService recycleService) {
+    this.recycleService = recycleService;
   }
 
   @Override
@@ -1610,6 +1620,72 @@ public class FolderAdaptor implements IFolderAdaptor {
       if (e instanceof NotAuthorizedException nae) {
         throw nae;
       }
+      throw new BackendException(e);
+    }
+  }
+
+  @Override
+  public void restoreRecycledItem(URI baseURI, String guid) throws BackendException {
+    try {
+      checkAPIPermission();
+      String id = StringUtils.trimToEmpty(guid);
+      if (StringUtils.isBlank(id)) {
+        throw new FolderNotFoundException();
+      }
+      if (recycleService == null) {
+        throw new BackendException("Recycle service is not available");
+      }
+
+      PSPathItem item;
+      try {
+        item = folderHelper.findItemById(id, PSRelationshipConfig.TYPE_RECYCLED_CONTENT);
+      } catch (PSParametersValidationException | PSNotFoundException e) {
+        throw new FolderNotFoundException(e);
+      } catch (Exception e) {
+        throw new FolderNotFoundException(e);
+      }
+      if (item == null) {
+        throw new FolderNotFoundException();
+      }
+      if (!recycleService.isInRecycler(id)) {
+        throw new FolderNotFoundException();
+      }
+
+      List<String> folderPaths = item.getFolderPaths();
+      if (folderPaths == null || folderPaths.isEmpty()) {
+        throw new WebApplicationException(
+            "Recycled item has no parent folder", Response.Status.CONFLICT);
+      }
+      String folderPath = folderPaths.get(0);
+      String pathToCheck = PSFolderHelper.getOppositePath(folderPath);
+      boolean valid;
+      try {
+        valid =
+            folderHelper.isFolderValidForRecycleOrRestore(
+                pathToCheck,
+                folderPath,
+                PSRelationshipConfig.TYPE_FOLDER_CONTENT,
+                PSRelationshipConfig.TYPE_RECYCLED_CONTENT);
+      } catch (Exception e) {
+        throw new WebApplicationException(
+            e.getMessage(), Response.Status.CONFLICT);
+      }
+      if (!valid) {
+        throw new WebApplicationException(
+            "Destination already contains an item with that name",
+            Response.Status.CONFLICT);
+      }
+
+      if (item.isFolder()) {
+        recycleService.restoreFolder(id);
+      } else {
+        recycleService.restoreItem(id);
+      }
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSDataServiceException e) {
       throw new BackendException(e);
     }
   }

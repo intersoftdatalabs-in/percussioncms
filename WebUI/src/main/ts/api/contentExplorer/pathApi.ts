@@ -51,6 +51,7 @@ import {
   get,
   isApiError,
   post,
+  put,
   type ApiError,
 } from "../client";
 import { PATHS } from "../paths";
@@ -619,6 +620,26 @@ export function foldersDeleteItemUrl(itemPath: string): string {
 
 export async function deleteFolderItem(itemPath: string): Promise<void> {
   await del<unknown>(foldersDeleteItemUrl(itemPath));
+}
+
+/**
+ * Restore a recycled item/folder via {@code PUT /rest/folders/recycle/restore/{guid}}.
+ */
+export function foldersRestoreItemUrl(guid: string): string {
+  const id = encodeURIComponent(String(guid ?? "").trim());
+  return `${PATHS.FOLDERS_RESTORE_ITEM}/${id}`;
+}
+
+export async function restoreRecycledItem(guid: string): Promise<void> {
+  const id = String(guid ?? "").trim();
+  if (!id) {
+    throw Object.assign(new Error("guid is required"), {
+      status: 404,
+      statusText: "Not Found",
+      body: {},
+    });
+  }
+  await put<unknown>(foldersRestoreItemUrl(id), {});
 }
 
 /**

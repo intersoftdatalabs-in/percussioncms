@@ -34,6 +34,8 @@ import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
 import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
 import { formatCopyItemError } from "./copyItemErrors";
 import { formatDeleteItemError } from "./deleteItemErrors";
+import { formatRestoreItemError } from "./restoreItemErrors";
+import { isRecyclingExplorerPath } from "./folderPath";
 import { formatMoveItemError } from "./moveItemErrors";
 import { formatCreateFolderError } from "./createFolderErrors";
 import { isValidExplorerFolderName } from "./folderName";
@@ -46,6 +48,7 @@ import {
   copyFolderItem,
   deleteFolderItem,
   deleteItem,
+  restoreRecycledItem,
   moveFolder,
   moveFolderItem,
   renameFolder,
@@ -65,7 +68,8 @@ export type ReducedActionKey =
   | "rename"
   | "move"
   | "copy"
-  | "delete";
+  | "delete"
+  | "restore";
 
 export interface ReducedActionHandlers {
   onOpen: (item: PSPathItem) => void | Promise<void>;
@@ -75,6 +79,7 @@ export interface ReducedActionHandlers {
   onMove: (item: PSPathItem, targetPath: string) => Promise<void>;
   onCopy: (item: PSPathItem, targetPath: string) => Promise<void>;
   onDelete: (item: PSPathItem) => Promise<void>;
+  onRestore: (item: PSPathItem) => Promise<void>;
   /**
    * Optional prompt helper (defaults to {@link window.prompt} / confirm).
    * Hosts may override to provide a richer dialog.
@@ -143,6 +148,8 @@ export function ReducedActions({
             ? formatMoveItemError(err)
             : key === "delete"
             ? formatDeleteItemError(err)
+            : key === "restore"
+            ? formatRestoreItemError(err)
             : key === "rename"
             ? formatRenameItemError(err)
             : key === "createFolder"
@@ -212,6 +219,16 @@ export function ReducedActions({
     if (!ok) return;
     void runItemAction("delete", () => handlers.onDelete(item));
   }, [handlers, item, runItemAction]);
+
+  const handleRestore = useCallback(() => {
+    if (!item) return;
+    void runItemAction("restore", () => handlers.onRestore(item));
+  }, [handlers, item, runItemAction]);
+
+  const restoreEligible =
+    Boolean(item) &&
+    itemWrite &&
+    isRecyclingExplorerPath(item?.path ?? item?.folderPath);
 
   const isBusy = busy || pending !== null;
   const previewEnabled =
@@ -292,6 +309,15 @@ export function ReducedActions({
         data-testid="action-delete"
       >
         {message(EXPLORER_MSG.ACTION_DELETE)}
+      </button>
+      <button
+        type="button"
+        style={actionButtonStyle(!restoreEligible || isBusy)}
+        disabled={!restoreEligible || isBusy}
+        onClick={handleRestore}
+        data-testid="action-restore"
+      >
+        {message(EXPLORER_MSG.ACTION_RESTORE)}
       </button>
       {copyPickerItem ? (
         <CopyDestinationPickerDialog
@@ -390,6 +416,9 @@ export function defaultReducedActionHandlers(): ReducedActionHandlers {
         return;
       }
       await deleteFolderItem(item.path);
+    },
+    onRestore: async (item) => {
+      await restoreRecycledItem(String(item.id ?? "").trim());
     },
   };
 }

@@ -439,6 +439,13 @@ export const PATHS = {
     return `${REST_ROOT}/folders/item`;
   },
   /**
+   * Restore a recycled item or folder by GUID
+   * ({@code PUT FoldersResource#restoreRecycledItem}).
+   */
+  get FOLDERS_RESTORE_ITEM() {
+    return `${REST_ROOT}/folders/recycle/restore`;
+  },
+  /**
    * Folder recycle/delete ({@code POST} {@code PSDeleteFolderCriteria}).
    * Classic Finder uses this resource; there is no {@code /path/delete/{path}}.
    */

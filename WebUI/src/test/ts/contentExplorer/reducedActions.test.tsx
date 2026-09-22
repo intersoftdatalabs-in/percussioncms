@@ -53,6 +53,7 @@ function makeHandlers(): {
     onMove: [],
     onCopy: [],
     onDelete: [],
+    onRestore: [],
   };
   const handlers: ReducedActionHandlers = {
     onOpen: (item) => calls.onOpen.push(item),
@@ -65,6 +66,7 @@ function makeHandlers(): {
     onCopy: async (item, targetPath) =>
       calls.onCopy.push({ item, targetPath }),
     onDelete: async (item) => calls.onDelete.push(item),
+    onRestore: async (item) => calls.onRestore.push(item),
     prompt: () => null,
     confirm: () => false,
   };
@@ -197,6 +199,7 @@ describe("ReducedActions", () => {
       />,
     );
     expect(screen.getByTestId("action-delete")).toBeEnabled();
+    expect(screen.getByTestId("action-restore")).toBeDisabled();
     const asset: PSPathItem = {
       id: "a-4602",
       path: "/Assets/qa4602",
@@ -215,6 +218,37 @@ describe("ReducedActions", () => {
       />,
     );
     expect(screen.getByTestId("action-delete")).toBeEnabled();
+  });
+
+  it("enables Restore only for writable recycle-bin selections (#4700)", async () => {
+    const { handlers, calls } = makeHandlers();
+    const recycled: PSPathItem = {
+      id: "1-101-9",
+      path: "/Recycling/Assets/qa4700",
+      name: "qa4700",
+      type: "percSimpleTextAsset",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    render(
+      <ReducedActions
+        item={recycled}
+        folder={{
+          id: "bin",
+          path: "/Recycling",
+          name: "Recycling",
+          type: "folder",
+          accessLevel: "ADMIN",
+        }}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    const restore = screen.getByTestId("action-restore");
+    expect(restore).toBeEnabled();
+    fireEvent.click(restore);
+    await waitFor(() => expect(calls.onRestore).toHaveLength(1));
+    expect(calls.onRestore[0]).toMatchObject({ id: "1-101-9" });
   });
 
   it("fires onRename when the user enters a new name via the prompt helper (#3645)", async () => {
@@ -548,6 +582,25 @@ describe("ReducedActions", () => {
     await handlers.onCopy(asset, "/Assets/Dst");
     expect(urls.at(-1)).toContain("/folders/copy/item");
     expect(urls.at(-1)).not.toContain("/folders/copy/folder");
+  });
+
+  it("default onRestore PUTs public REST recycle restore (#4700)", async () => {
+    const handlers = defaultReducedActionHandlers();
+    const urls: string[] = [];
+    mockFetch(async (input) => {
+      urls.push(typeof input === "string" ? input : (input as Request).url);
+      return new Response(JSON.stringify({ Status: { statusCode: 200, message: "Ok" } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await handlers.onRestore({
+      id: "1-101-9",
+      path: "/Recycling/Assets/qa4700",
+      name: "qa4700",
+      type: "percSimpleTextAsset",
+    });
+    expect(urls.at(-1)).toContain("/rest/folders/recycle/restore/1-101-9");
   });
 
   it("passes the zero serious/critical axe-core gate (admin item)", () => {

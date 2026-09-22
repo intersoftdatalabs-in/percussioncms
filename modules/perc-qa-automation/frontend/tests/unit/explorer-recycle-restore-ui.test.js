@@ -40,6 +40,7 @@ const {
   deleteItemApiPathFragment,
   deleteFolderApiPathFragment,
   restoreFolderApiPathFragment,
+  restoreRecycledItemApiPathFragment,
   emptyRecyclingApiPathFragment,
   recycledFolderExplorerPath,
   exactExplorerItemNameMatcher,
@@ -60,6 +61,7 @@ describe("explorer-recycle-restore-ui helpers", () => {
     assert.equal(SELECTORS.detailList, '[data-testid="detail-list"]');
     assert.equal(SELECTORS.reducedActions, '[data-testid="reduced-actions"]');
     assert.equal(SELECTORS.actionDelete, '[data-testid="action-delete"]');
+    assert.equal(SELECTORS.actionRestore, '[data-testid="action-restore"]');
     assert.equal(SELECTORS.classicWebManagement, "#perc-web-management");
     assert.ok(SURFACE_TAGS.includes("explorer-recycle-restore"));
     assert.ok(SURFACE_TAGS.includes("folder-recycle"));
@@ -142,6 +144,7 @@ describe("explorer-recycle-restore-ui helpers", () => {
     assert.match(deleteItemApiPathFragment(), /path\/delete$/);
     assert.match(deleteFolderApiPathFragment(), /deleteFolder$/);
     assert.match(restoreFolderApiPathFragment(), /restoreFolder$/);
+    assert.match(restoreRecycledItemApiPathFragment(), /folders\/recycle\/restore$/);
     assert.match(emptyRecyclingApiPathFragment(), /recycle\/empty$/);
     assert.match(PATH_DELETE_FOLDER, /deleteFolder$/);
     assert.match(PATH_RESTORE_FOLDER, /restoreFolder$/);

@@ -71,6 +71,16 @@ public interface IFolderAdaptor {
   void deleteFolderItem(URI baseURI, String itemPath) throws BackendException;
 
   /**
+   * Restores a recycled folder or item by GUID to its original parent (#4700).
+   *
+   * <p>Implementations map missing recycled items to {@link
+   * com.percussion.rest.errors.FolderNotFoundException} (HTTP 404), non-admin callers to {@link
+   * com.percussion.rest.errors.NotAuthorizedException} (HTTP 403), and destination name-in-use to
+   * HTTP 409.
+   */
+  void restoreRecycledItem(URI baseURI, String guid) throws BackendException;
+
+  /**
    * Renames a non-folder item (page, file, or asset). Folder rename stays on {@link
    * #renameFolder}.
    */

@@ -103,6 +103,28 @@ export function isStrictCmsPathDescendant(
 }
 
 /**
+ * Whether a CMS explorer path is under Recycling (recycle bin).
+ * CMS paths use {@code /} (not OS separators).
+ */
+export function isRecyclingExplorerPath(
+  path: string | null | undefined,
+): boolean {
+  const raw = String(path ?? "")
+    .trim()
+    .replace(/\\/g, "/");
+  if (!raw) {
+    return false;
+  }
+  const lower = raw.toLowerCase().replace(/\/{2,}/g, "/");
+  const n = lower.startsWith("/") ? lower : `/${lower}`;
+  return (
+    n === "/recycling" ||
+    n.startsWith("/recycling/") ||
+    n.includes("/$system$/recycling")
+  );
+}
+
+/**
  * Whether {@code childPath} is safe to render under a tree node.
  *
  * <p>Drops self/ancestor cycles. Accepts children whose finder path uses
