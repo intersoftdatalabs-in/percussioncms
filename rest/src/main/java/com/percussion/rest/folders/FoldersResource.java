@@ -672,6 +672,99 @@ public class FoldersResource {
   }
 
   /**
+   * Load listing name and display title for a selected page, file, or asset
+   * (#4701).
+   */
+  @GET
+  @Path("/item-properties/{itemPath:.+}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Get item properties (name / display title)",
+      description =
+          "Returns sys_title and displaytitle for the item at itemPath. Folders are HTTP 409.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Properties loaded",
+            content = @Content(schema = @Schema(implementation = ItemProperties.class))),
+        @ApiResponse(responseCode = "400", description = "Missing itemPath"),
+        @ApiResponse(responseCode = "403", description = "Not authorized"),
+        @ApiResponse(responseCode = "404", description = "Item not found"),
+        @ApiResponse(responseCode = "409", description = "Folder selected")
+      })
+  public ItemProperties getItemProperties(
+      @Parameter(description = "Full path to the item", required = true) @PathParam("itemPath")
+          String itemPath) {
+    try {
+      if (StringUtils.isBlank(itemPath)) {
+        throw new WebApplicationException("itemPath is required", Response.Status.BAD_REQUEST);
+      }
+      String path = itemPath.trim();
+      if (!path.startsWith("/")) {
+        path = "/" + path;
+      }
+      return folderAdaptor.getItemProperties(uriInfo.getBaseUri(), path);
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (BackendException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /**
+   * Save listing name and optional display title for a selected page, file, or
+   * asset (#4701).
+   */
+  @POST
+  @Path("/item-properties")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Save item properties (name / display title)",
+      description =
+          "Persists sys_title (and displaytitle when supplied) for the item at itemPath."
+              + " Folder selections are HTTP 409. Blank name is HTTP 400.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Saved OK",
+            content = @Content(schema = @Schema(implementation = ItemProperties.class))),
+        @ApiResponse(responseCode = "400", description = "Missing itemPath or name"),
+        @ApiResponse(responseCode = "403", description = "Not authorized"),
+        @ApiResponse(responseCode = "404", description = "Item not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Folder selected, name in use, or item locked")
+      })
+  public ItemProperties saveItemProperties(ItemPropertiesRequest request) {
+    try {
+      if (request == null
+          || StringUtils.isBlank(request.getItemPath())
+          || StringUtils.isBlank(request.getName())) {
+        throw new WebApplicationException(
+            "itemPath and name are required", Response.Status.BAD_REQUEST);
+      }
+      return folderAdaptor.saveItemProperties(
+          uriInfo.getBaseUri(),
+          request.getItemPath().trim(),
+          request.getName().trim(),
+          request.getDisplayTitle());
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (BackendException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /**
    * Rename the specified Folder.
    *
    * @param path the path to the folder

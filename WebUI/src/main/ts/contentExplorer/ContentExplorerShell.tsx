@@ -158,6 +158,7 @@ import {
   parentExplorerTreePath,
 } from "./ExplorerTree";
 import { FolderSecurityPanel } from "./FolderSecurityPanel";
+import { ItemPropertiesPanel } from "./ItemPropertiesPanel";
 import type { ExplorerMenuCommandId } from "./menuBarModel";
 import { EXPLORER_MSG } from "./messages";
 import { openInEditor } from "./openInEditor";
@@ -171,6 +172,7 @@ import { SearchPanel, type SearchPanelProps } from "./SearchPanel";
 import { resolvePublishKind } from "./itemPublish";
 import {
   EMPTY_SELECTION,
+  canWrite,
   explorerMultiSelectKey,
   isFolder,
   sameExplorerItemId,
@@ -535,6 +537,8 @@ function ContentExplorerShellInner({
   const [selectedViewKey, setSelectedViewKey] = useState<string | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [showSecurity, setShowSecurity] = useState(false);
+  const [showItemProperties, setShowItemProperties] = useState(false);
+  const [itemPropertiesReadOnly, setItemPropertiesReadOnly] = useState(false);
   const [showClipboard, setShowClipboard] = useState(false);
   const [showTranslations, setShowTranslations] = useState(false);
   /** Content → Create Site wizard panel (#3002 / parent #2989). */
@@ -1191,6 +1195,10 @@ function ContentExplorerShellInner({
             confirm: (body) => window.confirm(message(body)),
             runWorkflow: runWorkflowTransition,
             onShowTranslations: () => setShowTranslations(true),
+            onShowItemProperties: (readOnly) => {
+              setItemPropertiesReadOnly(readOnly);
+              setShowItemProperties(true);
+            },
             onShowDependencies: () => setShowDependencies(true),
             onShowRevisions: (tab) => {
               setRevisionsTab(tab);
@@ -1361,6 +1369,7 @@ function ContentExplorerShellInner({
   const hasOpenSidePanel =
     showSearch ||
     showSecurity ||
+    showItemProperties ||
     showClipboard ||
     showTranslations ||
     showRelationships ||
@@ -1406,6 +1415,10 @@ function ContentExplorerShellInner({
           break;
         case "view-security":
           setShowSecurity((v) => !v);
+          break;
+        case "view-item-properties":
+          setItemPropertiesReadOnly(false);
+          setShowItemProperties((v) => !v);
           break;
         case "view-translations":
           setShowTranslations((v) => !v);
@@ -1535,6 +1548,7 @@ function ContentExplorerShellInner({
           <ExplorerMenuBar
             showSearch={showSearch}
             showSecurity={showSecurity}
+            showItemProperties={showItemProperties}
             showTranslations={showTranslations}
             showRelationships={showRelationships}
             showDependencies={showDependencies}
@@ -1635,6 +1649,18 @@ function ContentExplorerShellInner({
               onClick={() => handleMenuBarCommand("view-security")}
             >
               {message(EXPLORER_MSG.SECURITY_TITLE)}
+            </button>
+            <button
+              type="button"
+              data-testid="explorer-toggle-item-properties"
+              aria-pressed={showItemProperties}
+              aria-expanded={showItemProperties}
+              aria-controls="explorer-item-properties-panel"
+              aria-label={message(EXPLORER_MSG.TOGGLE_ITEM_PROPS_ARIA)}
+              title={message(EXPLORER_MSG.TOGGLE_ITEM_PROPS_ARIA)}
+              onClick={() => handleMenuBarCommand("view-item-properties")}
+            >
+              {message(EXPLORER_MSG.ITEM_PROPS_TITLE)}
             </button>
             <button
               type="button"
@@ -1784,6 +1810,40 @@ function ContentExplorerShellInner({
           {message(EXPLORER_MSG.SECURITY_SELECT_FOLDER)}
         </div>
       )}
+      {showItemProperties &&
+        selection.item &&
+        !isFolder(selection.item) &&
+        selection.item.path && (
+          <section
+            id="explorer-item-properties-panel"
+            style={sidePanelStyle}
+            data-testid="explorer-item-properties-panel"
+            aria-label={message(EXPLORER_MSG.ITEM_PROPS_PANEL_REGION)}
+          >
+            <ItemPropertiesPanel
+              itemPath={String(selection.item.path)}
+              itemName={selection.item.name}
+              canEdit={
+                !itemPropertiesReadOnly && canWrite(selection.item)
+              }
+              onSaved={() => {
+                setListEpoch((n) => n + 1);
+              }}
+            />
+          </section>
+        )}
+      {showItemProperties &&
+        (!selection.item || isFolder(selection.item) || !selection.item.path) && (
+          <div
+            id="explorer-item-properties-panel"
+            style={sidePanelStyle}
+            data-testid="explorer-item-properties-hint"
+            role="status"
+            aria-live="polite"
+          >
+            {message(EXPLORER_MSG.ITEM_PROPS_SELECT_ITEM)}
+          </div>
+        )}
       {showTranslations &&
         selection.item &&
         selection.item.type !== "folder" &&

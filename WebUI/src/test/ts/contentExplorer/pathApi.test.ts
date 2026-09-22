@@ -41,6 +41,8 @@ import {
   paginatedFolder,
   renameFolder,
   renameFolderItem,
+  wrapItemPropertiesRequest,
+  saveItemProperties,
   saveFolderProperties,
   unwrapFolderProperties,
   unwrapPrincipalList,
@@ -787,6 +789,43 @@ describe("moveItem / copyFolder wire envelopes (#3362)", () => {
         newName: "qa4636_new",
       },
     });
+  });
+
+  it("saveItemProperties POSTs ItemPropertiesRequest (#4701)", async () => {
+    let url = "";
+    let posted: unknown;
+    mockFetch(async (input, init) => {
+      url = typeof input === "string" ? input : (input as Request).url;
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(
+        JSON.stringify({
+          ItemProperties: {
+            itemPath: "/Assets/qa4701",
+            name: "qa-name",
+            displayTitle: "qa-title",
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    });
+    const saved = await saveItemProperties({
+      itemPath: "/Assets/qa4701",
+      name: "qa-name",
+      displayTitle: "qa-title",
+    });
+    expect(url).toContain("/folders/item-properties");
+    expect(posted).toEqual(
+      wrapItemPropertiesRequest({
+        itemPath: "/Assets/qa4701",
+        name: "qa-name",
+        displayTitle: "qa-title",
+      }),
+    );
+    expect(saved.name).toBe("qa-name");
+    expect(saved.displayTitle).toBe("qa-title");
   });
 });
 

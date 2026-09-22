@@ -119,6 +119,17 @@ public class FolderTestAdaptor implements IFolderAdaptor {
   }
 
   @Override
+  public ItemProperties getItemProperties(URI baseURI, String itemPath) {
+    return new ItemProperties(itemPath, "stub-name", "stub-title");
+  }
+
+  @Override
+  public ItemProperties saveItemProperties(
+      URI baseURI, String itemPath, String name, String displayTitle) {
+    return new ItemProperties(itemPath, name, displayTitle);
+  }
+
+  @Override
   public Folder createFolder(URI baseURI, String parentPath, String name) {
     var f = new Folder();
     f.setPath(parentPath);

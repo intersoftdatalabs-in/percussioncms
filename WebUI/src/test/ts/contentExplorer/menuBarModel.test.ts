@@ -47,6 +47,7 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     );
     expect(byId["view-search"]).toBe("explorer-toggle-search");
     expect(byId["view-security"]).toBe("explorer-toggle-security");
+    expect(byId["view-item-properties"]).toBe("explorer-toggle-item-properties");
     expect(byId["view-translations"]).toBe("explorer-toggle-translations");
     expect(byId["view-relationships"]).toBe("explorer-toggle-relationships");
     expect(byId["view-dependencies"]).toBe("explorer-toggle-dependencies");

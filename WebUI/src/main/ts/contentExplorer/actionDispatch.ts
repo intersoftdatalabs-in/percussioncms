@@ -123,10 +123,8 @@ export type ActionKind =
 const EDITOR_NAMES = new Set([
   "edit",
   "edit_content",
-  "edit_properties",
   "quick_edit",
   "view_content",
-  "view_properties",
   "revision_viewcontent",
   "revision_viewproperties",
   "revision_promote",
@@ -160,6 +158,8 @@ const P1_PANEL_NAMES = new Set([
   "item_publishing_history",
   "pubhistory",
   "publish_history",
+  "edit_properties",
+  "view_properties",
 ]);
 
 const P1_REST_NAMES = new Set([
@@ -203,6 +203,7 @@ export interface ActionDispatchContext {
   onPreview?: (item: PSPathItem) => void | Promise<void>;
   onPurge?: (item: PSPathItem) => Promise<void>;
   onShowTranslations?: () => void;
+  onShowItemProperties?: (readOnly: boolean) => void;
   onShowDependencies?: () => void;
   onShowRevisions?: (tab: "revisions" | "audit") => void;
   onShowPublishingHistory?: (item: PSPathItem) => void;
@@ -639,6 +640,14 @@ export async function dispatchAction(
 
   if (name === "open" && item && ctx.onOpen) {
     ctx.onOpen(item);
+    return { kind: "client" };
+  }
+
+  if (name === "edit_properties" || name === "view_properties") {
+    if (!item || isFolder(item)) {
+      return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    ctx.onShowItemProperties?.(name === "view_properties");
     return { kind: "client" };
   }
 

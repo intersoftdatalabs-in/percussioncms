@@ -120,6 +120,20 @@ export interface PSRenameItemRequest {
   newName: string;
 }
 
+/** Client request for {@code POST /rest/folders/item/properties} (#4701). */
+export interface PSItemPropertiesSaveRequest {
+  itemPath: string;
+  name: string;
+  displayTitle?: string | null;
+}
+
+/** Response for item properties GET/POST (#4701). */
+export interface PSExplorerItemProperties {
+  itemPath?: string;
+  name?: string;
+  displayTitle?: string | null;
+}
+
 /**
  * Client request for {@code POST …/pathmanagement/path/moveItem}.
  *

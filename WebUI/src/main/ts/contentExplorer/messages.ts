@@ -299,6 +299,23 @@ export const EXPLORER_MSG = {
   FOLDER_PROPS_LOCALE: "perc.ui.explorer@Locale",
   FOLDER_PROPS_DISPLAY_FORMAT: "perc.ui.explorer@Display format",
   FOLDER_PROPS_WORKFLOW_ID: "perc.ui.explorer@Workflow id",
+  ITEM_PROPS_TITLE: "perc.ui.explorer@Item properties",
+  TOGGLE_ITEM_PROPS_ARIA: "perc.ui.explorer@Show or hide item properties",
+  ITEM_PROPS_PANEL_REGION: "perc.ui.explorer@Item properties panel",
+  ITEM_PROPS_SELECT_ITEM:
+    "perc.ui.explorer@Select a page, file, or asset to view or save properties.",
+  ITEM_PROPS_LOADING: "perc.ui.explorer@Loading item properties",
+  ITEM_PROPS_NAME: "perc.ui.explorer@Name",
+  ITEM_PROPS_DISPLAY_TITLE: "perc.ui.explorer@Display title",
+  ITEM_PROPS_SAVE: "perc.ui.explorer@Save properties",
+  ITEM_PROPS_SAVE_SUCCESS: "perc.ui.explorer@Properties saved",
+  ITEM_PROPS_READ_ONLY:
+    "perc.ui.explorer@View-only (you do not have write access)",
+  ITEM_PROPS_BAD_REQUEST:
+    "perc.ui.explorer@Name is required to save item properties.",
+  ITEM_PROPS_NOT_FOUND: "perc.ui.explorer@Item not found.",
+  ITEM_PROPS_CONFLICT:
+    "perc.ui.explorer@Could not save properties (folder selected, name in use, or item locked).",
   // US7 P-Adv / multi-select + clipboard panel (FR-026, #2400 #2408).
   SELECT_COLUMN_HEADER: "perc.ui.explorer@Select",
   SELECT_ROW_LABEL: "perc.ui.explorer@Select item",

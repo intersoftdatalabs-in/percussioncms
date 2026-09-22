@@ -535,6 +535,94 @@ export async function renameFolderItem(body: {
   await post<void>(PATHS.FOLDERS_RENAME_ITEM, wrapRenameFolderItemRequest(body));
 }
 
+function encodeItemPropertiesPath(itemPath: string): string {
+  const trimmed = String(itemPath ?? "").replace(/^\/+/, "").trim();
+  return trimmed
+    .split("/")
+    .filter((seg) => seg.length > 0)
+    .map((seg) => encodeURIComponent(seg))
+    .join("/");
+}
+
+export function wrapItemPropertiesRequest(body: {
+  itemPath: string;
+  name: string;
+  displayTitle?: string | null;
+}): { ItemPropertiesRequest: { itemPath: string; name: string; displayTitle?: string } } {
+  const itemPath = String(body.itemPath ?? "").trim();
+  const name = String(body.name ?? "").trim();
+  if (!itemPath) {
+    throw new Error("saveItemProperties requires itemPath");
+  }
+  if (!name) {
+    throw new Error("saveItemProperties requires name");
+  }
+  const displayTitle =
+    body.displayTitle == null ? undefined : String(body.displayTitle);
+  return {
+    ItemPropertiesRequest: {
+      itemPath,
+      name,
+      ...(displayTitle !== undefined ? { displayTitle } : {}),
+    },
+  };
+}
+
+function unwrapItemProperties(raw: unknown): {
+  itemPath?: string;
+  name?: string;
+  displayTitle?: string | null;
+} {
+  if (raw == null || typeof raw !== "object") {
+    return {};
+  }
+  const rec = raw as Record<string, unknown>;
+  const nested = rec.ItemProperties;
+  const src =
+    nested != null && typeof nested === "object"
+      ? (nested as Record<string, unknown>)
+      : rec;
+  return {
+    itemPath: typeof src.itemPath === "string" ? src.itemPath : undefined,
+    name: typeof src.name === "string" ? src.name : undefined,
+    displayTitle:
+      typeof src.displayTitle === "string" ? src.displayTitle : null,
+  };
+}
+
+/** GET {@code /folders/item/properties/{path}} (#4701). */
+export async function getItemProperties(itemPath: string): Promise<{
+  itemPath?: string;
+  name?: string;
+  displayTitle?: string | null;
+}> {
+  const path = String(itemPath ?? "").trim();
+  if (!path) {
+    throw new Error("getItemProperties requires itemPath");
+  }
+  const raw = await get<unknown>(
+    `${PATHS.FOLDERS_ITEM_PROPERTIES}/${encodeItemPropertiesPath(path)}`,
+  );
+  return unwrapItemProperties(raw);
+}
+
+/** POST {@code /folders/item/properties} (#4701). */
+export async function saveItemProperties(body: {
+  itemPath: string;
+  name: string;
+  displayTitle?: string | null;
+}): Promise<{
+  itemPath?: string;
+  name?: string;
+  displayTitle?: string | null;
+}> {
+  const raw = await post<unknown>(
+    PATHS.FOLDERS_ITEM_PROPERTIES,
+    wrapItemPropertiesRequest(body),
+  );
+  return unwrapItemProperties(raw);
+}
+
 /**
  * Jackson / JAXB root for sitemanage {@code PSDeleteFolderCriteria}
  * ({@code @XmlRootElement(name = "DeleteFolderCriteria")}).

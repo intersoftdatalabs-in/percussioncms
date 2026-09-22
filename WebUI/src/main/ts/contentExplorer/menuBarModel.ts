@@ -35,6 +35,7 @@ export type ExplorerMenuCommandId =
   | "view-refresh"
   | "view-search"
   | "view-security"
+  | "view-item-properties"
   | "view-translations"
   | "view-relationships"
   | "view-dependencies"
@@ -145,6 +146,13 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.SECURITY_TITLE,
           ariaLabelKey: EXPLORER_MSG.TOGGLE_SECURITY_ARIA,
           testId: "explorer-toggle-security",
+          toggle: true,
+        },
+        {
+          id: "view-item-properties",
+          labelKey: EXPLORER_MSG.ITEM_PROPS_TITLE,
+          ariaLabelKey: EXPLORER_MSG.TOGGLE_ITEM_PROPS_ARIA,
+          testId: "explorer-toggle-item-properties",
           toggle: true,
         },
         {

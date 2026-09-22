@@ -188,6 +188,65 @@ public class FoldersTest {
   }
 
   @Test
+  void saveItemProperties_callsAdaptor() throws Exception {
+    ItemProperties saved = new ItemProperties("/Assets/src/item", "n", "t");
+    when(adaptor.saveItemProperties(any(), eq("/Assets/src/item"), eq("n"), eq("t")))
+        .thenReturn(saved);
+    ItemPropertiesRequest req = new ItemPropertiesRequest("/Assets/src/item", "n", "t");
+    ItemProperties result = resource.saveItemProperties(req);
+    assertEquals("n", result.getName());
+    verify(adaptor).saveItemProperties(uriInfo.getBaseUri(), "/Assets/src/item", "n", "t");
+  }
+
+  @Test
+  void saveItemProperties_mapsNotAuthorizedToForbidden() throws Exception {
+    ItemPropertiesRequest req = new ItemPropertiesRequest("/Assets/src/item", "n", "t");
+    doThrow(new NotAuthorizedException())
+        .when(adaptor)
+        .saveItemProperties(any(), anyString(), anyString(), any());
+    NotAuthorizedException thrown =
+        assertThrows(NotAuthorizedException.class, () -> resource.saveItemProperties(req));
+    assertEquals(jakarta.ws.rs.core.Response.Status.FORBIDDEN, thrown.getStatus());
+  }
+
+  @Test
+  void saveItemProperties_mapsFolderNotFound() throws Exception {
+    ItemPropertiesRequest req = new ItemPropertiesRequest("/Assets/missing", "n", null);
+    doThrow(new FolderNotFoundException())
+        .when(adaptor)
+        .saveItemProperties(any(), anyString(), anyString(), any());
+    assertThrows(FolderNotFoundException.class, () -> resource.saveItemProperties(req));
+  }
+
+  @Test
+  void saveItemProperties_rejectsBlankName() {
+    ItemPropertiesRequest req = new ItemPropertiesRequest("/Assets/src/item", "  ", "t");
+    WebApplicationException thrown =
+        assertThrows(WebApplicationException.class, () -> resource.saveItemProperties(req));
+    assertEquals(
+        jakarta.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode(),
+        thrown.getResponse().getStatus());
+  }
+
+  @Test
+  void getItemProperties_callsAdaptor() throws Exception {
+    ItemProperties loaded = new ItemProperties("/Assets/src/item", "n", "t");
+    when(adaptor.getItemProperties(any(), eq("/Assets/src/item"))).thenReturn(loaded);
+    ItemProperties result = resource.getItemProperties("/Assets/src/item");
+    assertEquals("n", result.getName());
+    verify(adaptor).getItemProperties(uriInfo.getBaseUri(), "/Assets/src/item");
+  }
+
+  @Test
+  void getItemProperties_rejectsBlankPath() {
+    WebApplicationException thrown =
+        assertThrows(WebApplicationException.class, () -> resource.getItemProperties("  "));
+    assertEquals(
+        jakarta.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode(),
+        thrown.getResponse().getStatus());
+  }
+
+  @Test
   void renameFolderItem_rejectsBlankName() {
     RenameFolderItemRequest req = new RenameFolderItemRequest("/Assets/src/item", "  ");
     WebApplicationException thrown =
