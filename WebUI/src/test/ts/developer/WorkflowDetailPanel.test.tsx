@@ -19,6 +19,7 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   deleteWorkflow: vi.fn(),
   createWorkflowStep: vi.fn(),
   updateWorkflowStep: vi.fn(),
+  getWorkflowGraph: vi.fn(),
   isValidWorkflowStepName: (name: string) =>
     !!name && name.trim().length > 0 && name.trim().length <= 50 && /^[\s\w-]+$/.test(name.trim()),
   wrapWorkflowContentTypesForWire: vi.fn((body) => ({ WorkflowContentTypes: body })),
@@ -37,6 +38,7 @@ const updateWorkflowMock = workflowsApi.updateWorkflow as ReturnType<typeof vi.f
 const deleteWorkflowMock = workflowsApi.deleteWorkflow as ReturnType<typeof vi.fn>;
 const createWorkflowStepMock = workflowsApi.createWorkflowStep as ReturnType<typeof vi.fn>;
 const updateWorkflowStepMock = workflowsApi.updateWorkflowStep as ReturnType<typeof vi.fn>;
+const getWorkflowGraphMock = workflowsApi.getWorkflowGraph as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   workflowName: "Simple Workflow",
@@ -75,6 +77,13 @@ describe("WorkflowDetailPanel", () => {
     deleteWorkflowMock.mockReset();
     createWorkflowStepMock.mockReset();
     updateWorkflowStepMock.mockReset();
+    getWorkflowGraphMock.mockReset();
+    getWorkflowGraphMock.mockResolvedValue({
+      workflowName: "Simple Workflow",
+      packaged: true,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [{ from: "Draft", to: "Review", label: "Submit" }],
+    });
     createWorkflowStepMock.mockResolvedValue({ workflowName: "Simple Workflow" });
     updateWorkflowStepMock.mockResolvedValue({ workflowName: "Simple Workflow" });
     getWorkflowAllowedContentTypes.mockResolvedValue([{ name: "percPage", label: "Page" }]);
@@ -92,6 +101,13 @@ describe("WorkflowDetailPanel", () => {
       "Simple Workflow",
     );
     expect(screen.getByTestId("developer-wf-steps-table")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-kind").textContent).toContain(
+        DEV_MSG.WF_GRAPH_PACKAGED,
+      );
+    });
+    expect(screen.getByTestId("developer-wf-graph-edge-0").textContent).toContain("Submit");
+    expect(screen.getByTestId("developer-wf-graph-node-0").textContent).toContain("Draft");
     expect(screen.getByTestId("developer-wf-step-name-0").textContent).toContain("Draft");
     expect(screen.getByTestId("developer-wf-step-transitions-0").textContent).toContain(
       "Submit",

@@ -17,6 +17,15 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   setWorkflowAllowedContentTypes: vi.fn(),
   updateWorkflow: vi.fn(),
   deleteWorkflow: vi.fn(),
+  getWorkflowGraph: vi.fn().mockResolvedValue({
+    workflowName: "Simple Workflow",
+    packaged: true,
+    nodes: [{ name: "Draft" }],
+    edges: [],
+  }),
+  createWorkflowStep: vi.fn(),
+  updateWorkflowStep: vi.fn(),
+  isValidWorkflowStepName: () => true,
   WORKFLOW_DESIGN_GAPS: [
     "Full workflow graph design is not exposed in the Developer catalog",
   ],

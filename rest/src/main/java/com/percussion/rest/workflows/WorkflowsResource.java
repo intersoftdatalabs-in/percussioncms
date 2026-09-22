@@ -342,6 +342,43 @@ public class WorkflowsResource {
     }
   }
 
+  @GET
+  @Path("/{idOrName}/graph")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Read a workflow state/transition graph",
+      description =
+          "Slice 32 Admin. Read-only projection of workflow states and transitions (including"
+              + " aging transitions). Packaged workflows (Default Workflow, Simple Workflow,"
+              + " Local Content, or the default flag) are marked packaged=true and remain"
+              + " readable. Does not create or edit steps or transitions.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Graph",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid idOrName"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Workflow not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph getWorkflowGraph(@PathParam("idOrName") String idOrName) {
+    try {
+      return requireAdaptor().getWorkflowGraph(uriInfo.getBaseUri(), idOrName);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to read workflow graph ({}): {}", e.getClass().getName(), e.getMessage(), e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @POST
   @Path("/{idOrName}/steps")
   @Consumes({MediaType.APPLICATION_JSON})

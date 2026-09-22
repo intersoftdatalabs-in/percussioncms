@@ -5,12 +5,12 @@
 import { get, post, put, del } from "../client";
 import { asJsonRecord } from "../jsonList";
 import { PATHS } from "../paths";
-import type { NamedObjectRef, WorkflowDef } from "./types";
+import type { NamedObjectRef, WorkflowDef, WorkflowGraph } from "./types";
 import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Transition graph design is not exposed in the Developer catalog",
+  "Transition graph writes are not exposed in the Developer catalog",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -454,6 +454,31 @@ export async function updateWorkflow(
  * stepped-workflow editor. 404 when not found; 409 when the workflow is a
  * system workflow or still owns content items. Returns void on success.
  */
+export function parseWorkflowGraph(payload: unknown): WorkflowGraph {
+  const raw = asJsonRecord(payload) ?? {};
+  const wrapped = raw.WorkflowGraph;
+  const obj =
+    wrapped && typeof wrapped === "object" && !Array.isArray(wrapped)
+      ? (wrapped as Record<string, unknown>)
+      : raw;
+  const nodesRaw = obj.nodes;
+  const edgesRaw = obj.edges;
+  return {
+    workflowName: typeof obj.workflowName === "string" ? obj.workflowName : undefined,
+    packaged: obj.packaged === true,
+    defaultWorkflow: obj.defaultWorkflow === true,
+    nodes: Array.isArray(nodesRaw) ? (nodesRaw as WorkflowGraph["nodes"]) : [],
+    edges: Array.isArray(edgesRaw) ? (edgesRaw as WorkflowGraph["edges"]) : [],
+  };
+}
+
+/** GET /services/workflows/{idOrName}/graph — Admin read-only state graph. */
+export async function getWorkflowGraph(idOrName: string): Promise<WorkflowGraph> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await get<unknown>(`${PATHS.WORKFLOWS_ASSOC}/${key}/graph`);
+  return parseWorkflowGraph(payload);
+}
+
 export async function deleteWorkflow(idOrName: string): Promise<void> {
   const key = encodeURIComponent(idOrName);
   await del<void>(`${PATHS.WORKFLOWS_ASSOC}/${key}`);

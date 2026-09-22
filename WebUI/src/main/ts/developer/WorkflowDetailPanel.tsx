@@ -36,6 +36,7 @@ import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { buildAllowedContentTypesReplaceBody } from "./workflowContentTypes";
 import { formatStepTransitionNames } from "./workflowStepTransitions";
+import { WorkflowGraphView } from "./WorkflowGraphView";
 
 /** Canonical Percussion GUID shape: type-host-uuid (three numeric groups). */
 const PERC_GUID_RE = /^\d+-\d+-\d+$/;
@@ -617,6 +618,8 @@ export function WorkflowDetailPanel({
             onCancel={() => setConfirmDeleteOpen(false)}
             onConfirm={() => void handleDelete()}
           />
+
+          <WorkflowGraphView workflowName={name} />
 
           <section data-testid="developer-wf-steps">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.WF_STEPS}</h3>

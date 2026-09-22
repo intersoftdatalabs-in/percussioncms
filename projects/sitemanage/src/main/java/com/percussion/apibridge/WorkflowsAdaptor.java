@@ -22,6 +22,7 @@ import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.rest.workflows.IWorkflowsAdaptor;
 import com.percussion.rest.workflows.WorkflowContentTypesDesignLockException;
 import com.percussion.rest.workflows.WorkflowCreate;
+import com.percussion.rest.workflows.WorkflowGraph;
 import com.percussion.rest.workflows.WorkflowStepWrite;
 import com.percussion.rest.workflows.WorkflowSummary;
 import com.percussion.rest.workflows.WorkflowUpdate;
@@ -302,12 +303,50 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     }
   }
 
-  private void rejectPackagedWorkflow(PSWorkflow workflow) {
-    String n = workflow.getName() != null ? workflow.getName() : "";
-    if (n.equalsIgnoreCase("Default Workflow")
+  @Override
+  public WorkflowGraph getWorkflowGraph(URI baseUri, String idOrName) {
+    requireAdmin();
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    String name = workflow.getName() != null ? workflow.getName() : "";
+    boolean packaged = isPackagedWorkflowName(name);
+    boolean defaultWorkflow = false;
+    PSUiWorkflow ui = lookupUiWorkflowOptional(name);
+    if (ui != null && ui.isDefaultWorkflow()) {
+      defaultWorkflow = true;
+      packaged = true;
+    }
+    return WorkflowGraphProjector.project(name, packaged, defaultWorkflow, workflow.getStates());
+  }
+
+  static boolean isPackagedWorkflowName(String name) {
+    String n = name != null ? name : "";
+    return n.equalsIgnoreCase("Default Workflow")
         || n.equalsIgnoreCase("Simple Workflow")
         || n.equalsIgnoreCase("Local Content")
-        || n.equalsIgnoreCase("LocalContent")) {
+        || n.equalsIgnoreCase("LocalContent");
+  }
+
+  private PSUiWorkflow lookupUiWorkflowOptional(String name) {
+    if (steppedWorkflowService == null || StringUtils.isBlank(name)) {
+      return null;
+    }
+    try {
+      return steppedWorkflowService.getWorkflow(name);
+    } catch (IPSSteppedWorkflowService.PSWorkflowEditorServiceException e) {
+      log.debug("Could not load PSUiWorkflow for graph {}: {}", name, e.getMessage());
+      return null;
+    } catch (RuntimeException e) {
+      log.debug("Could not load PSUiWorkflow for graph {}: {}", name, e.getMessage());
+      return null;
+    }
+  }
+
+  private void rejectPackagedWorkflow(PSWorkflow workflow) {
+    String n = workflow.getName() != null ? workflow.getName() : "";
+    if (isPackagedWorkflowName(n)) {
       throw new WebApplicationException(PACKAGED_WORKFLOW_FORBIDDEN, 403);
     }
     PSUiWorkflow ui = lookupUiWorkflow(n);
