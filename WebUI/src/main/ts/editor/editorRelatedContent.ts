@@ -35,6 +35,18 @@ export interface RelatedContentRow {
 
 export type RelatedContentErrorReason = "forbidden" | "failed";
 
+export type RelatedInsertErrorReason =
+  | "bad_request"
+  | "forbidden"
+  | "not_found"
+  | "failed";
+
+export interface InsertSlotChoice {
+  slotId: number;
+  templateId: number;
+  label: string;
+}
+
 export function relatedContentErrorReason(
   err: unknown,
 ): RelatedContentErrorReason {
@@ -53,6 +65,68 @@ export function relatedContentErrorReason(
     return "forbidden";
   }
   return "failed";
+}
+
+function httpStatus(err: unknown): number | null {
+  if (isApiError(err)) {
+    return err.status;
+  }
+  if (
+    err != null &&
+    typeof err === "object" &&
+    "status" in err &&
+    typeof (err as { status: unknown }).status === "number"
+  ) {
+    return (err as { status: number }).status;
+  }
+  return null;
+}
+
+/** Maps insert HTTP failures. Anything else is a generic failure, not success. */
+export function relatedInsertErrorReason(err: unknown): RelatedInsertErrorReason {
+  const status = httpStatus(err);
+  if (status === 400) {
+    return "bad_request";
+  }
+  if (status === 403) {
+    return "forbidden";
+  }
+  if (status === 404) {
+    return "not_found";
+  }
+  return "failed";
+}
+
+/** Slots an author can insert into. Template falls back to the canvas template. */
+export function insertSlotChoices(
+  canvas: SlotCanvas | null | undefined,
+): InsertSlotChoice[] {
+  if (!canvas?.slots) {
+    return [];
+  }
+  const canvasTemplate =
+    canvas.templateId != null && canvas.templateId > 0 ? canvas.templateId : 0;
+  const choices: InsertSlotChoice[] = [];
+  for (const slot of canvas.slots) {
+    if (!(slot.slotId > 0)) {
+      continue;
+    }
+    let templateId = canvasTemplate;
+    if (templateId <= 0) {
+      for (const item of slot.items ?? []) {
+        if (item.templateId > 0) {
+          templateId = item.templateId;
+          break;
+        }
+      }
+    }
+    if (templateId <= 0) {
+      continue;
+    }
+    const label = (slot.label || slot.name || "").trim() || "Slot";
+    choices.push({ slotId: slot.slotId, templateId, label });
+  }
+  return choices;
 }
 
 export function flattenRelatedContent(

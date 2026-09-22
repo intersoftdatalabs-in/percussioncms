@@ -240,13 +240,23 @@ failure: the host shows the server warning and does not treat the job as started
 **View** and **Promote** stay read-only (no Publish now). Templates and other
 non-page/non-asset types stay unavailable. Does not open the demand-publish servlet.
 
-The host also lists **Related content** for the open item (browse only). Slot
-relationships come from `GET /services/assembly/slot-relationships/canvas?ownerId=`
-and inline / local dependents from
+The host also lists **Related content** for the open item. Slot relationships
+come from `GET /services/assembly/slot-relationships/canvas?ownerId=` and inline
+/ local dependents from
 `GET /Rhythmyx/rest/content-explorer/relationships/{itemId}/local`. An empty
-list is shown as **No related content for this item.** HTTP **403** is an
-explicit **not allowed** message — not a blank panel. This increment does not
-add or rearrange slots (Active Assembly) and does not check the item in.
+list is shown as **No related content for this item.** HTTP **403** on the list
+is an explicit **not allowed** message — not a blank panel.
+
+In **Edit** mode, when the canvas has at least one slot, the host shows
+**Insert existing item**. Choose the slot, enter the id of an item that already
+exists, and insert. The host calls
+`POST /services/assembly/slot-relationships` with the owner, dependent, slot,
+and the snippet template from the canvas (or from an item already in that slot).
+HTTP **400** (bad id or slot), **403** (not allowed), and **404** (item or slot
+not found) stay on the panel as errors — they are not treated as a successful
+insert and the list is not cleared. **View** and **Promote** do not show the
+insert form. This increment does not remove or rearrange slots and does not
+check the item in.
 
 **Preview** is available in **View** and **Edit** for the already-open **page**
 or **asset** so authors do not need to bounce to Explorer solely to preview.

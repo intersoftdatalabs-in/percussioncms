@@ -85,6 +85,42 @@ class SlotRelationshipAdaptorTest {
   }
 
   @Test
+  void add_notFound_is404() {
+    FakeContentWs ws = new FakeContentWs();
+    ws.addThrows = new ItemNotFoundException("missing");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).add(addReq()));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void add_forbidden_is403() {
+    FakeContentWs ws = new FakeContentWs();
+    ws.addThrows = new SecurityException("no");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).add(addReq()));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void add_invalid_is400() {
+    FakeContentWs ws = new FakeContentWs();
+    ws.addThrows = new IllegalArgumentException("templateId");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).add(addReq()));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void add_incidentalInvalidText_stays500() {
+    FakeContentWs ws = new FakeContentWs();
+    ws.addThrows = new IllegalStateException("invalid column name; row not found");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).add(addReq()));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
   void moveUp_reordersToPreviousIndex() {
     FakeContentWs ws = new FakeContentWs();
     PSAaRelationship first = fakeRel(1, 10, 21, 5, 4, 0);
@@ -200,6 +236,24 @@ class SlotRelationshipAdaptorTest {
     assertEquals(1, filtered.getItems().size());
     assertEquals(4, filtered.getItems().get(0).getId());
     assertTrue(adaptor.allowedTemplates(5, null).getItems().size() >= 2);
+  }
+
+  /** Simple name contains NotFound so the adaptor maps the type, not the message. */
+  private static final class ItemNotFoundException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
+    ItemNotFoundException(String message) {
+      super(message);
+    }
+  }
+
+  private static SlotAddRequest addReq() {
+    SlotAddRequest req = new SlotAddRequest();
+    req.setOwnerId(10);
+    req.setDependentId(20);
+    req.setSlotId(5);
+    req.setTemplateId(4);
+    return req;
   }
 
   private static SlotRelationshipAdaptor adaptor(FakeContentWs ws, FakeAssembly assembly) {

@@ -124,9 +124,32 @@ public class SlotRelationshipAdaptor implements ISlotRelationshipAdaptor {
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
-      log.debug("Failed to add slot relationship: {}", e.toString());
-      throw new WebApplicationException(e, 500);
+      int status = httpStatusForAddFailure(e);
+      log.debug("Failed to add slot relationship ({}): {}", status, e.toString());
+      String msg = StringUtils.defaultIfBlank(e.getMessage(), "Add failed");
+      throw new WebApplicationException(msg, status);
     }
+  }
+
+  /**
+   * Maps known client exception types for EditorHost insert. Message text is ignored so a
+   * server failure that happens to say "invalid" or "not found" stays HTTP 500.
+   */
+  static int httpStatusForAddFailure(Exception e) {
+    if (e instanceof IllegalArgumentException) {
+      return 400;
+    }
+    String type = e.getClass().getSimpleName();
+    if (type.contains("NotFound")) {
+      return 404;
+    }
+    if (type.contains("NotAuthorized")
+        || type.contains("Authorization")
+        || type.contains("AccessDenied")
+        || "SecurityException".equals(type)) {
+      return 403;
+    }
+    return 500;
   }
 
   @Override
