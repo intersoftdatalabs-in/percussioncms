@@ -1785,7 +1785,7 @@ export const DEV_MSG_KEYS = {
   WF_EMPTY: "perc.ui.developer@No workflows returned.",
   WF_ERROR: "perc.ui.developer@Could not load workflows.",
   WF_HINT:
-    "perc.ui.developer@Workflow definitions for association and step browse (SY-04). Full graph design stays on the workflow management surface.",
+    "perc.ui.developer@Workflow definitions for association, step browse, and a read-only state graph (SY-04). Transition writes stay on the workflow management surface.",
   WF_COL_NAME: "perc.ui.developer@Name",
   WF_COL_DESC: "perc.ui.developer@Description",
   WF_COL_DEFAULT: "perc.ui.developer@Default",
@@ -1857,7 +1857,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_AFTER_LABEL: "perc.ui.developer@Insert after",
   WF_STEP_ROLES_LABEL: "perc.ui.developer@Roles (comma-separated)",
   WF_STEP_HINT:
-    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. Transition graph design remains on the workflow-admin editor.",
+    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. The graph below is browse-only.",
   WF_STEP_SAVED: "perc.ui.developer@Workflow step saved.",
   WF_STEP_ERROR: "perc.ui.developer@Could not save workflow step.",
   WF_STEP_INVALID:
@@ -1865,8 +1865,16 @@ export const DEV_MSG_KEYS = {
   WF_STEP_PACKAGED:
     "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
   WF_STEP_FORBIDDEN: "perc.ui.developer@Admin role is required.",
+  WF_GRAPH: "perc.ui.developer@Graph",
+  WF_GRAPH_PACKAGED: "perc.ui.developer@Packaged workflow",
+  WF_GRAPH_CUSTOM: "perc.ui.developer@Custom workflow",
+  WF_GRAPH_EMPTY: "perc.ui.developer@No states in this workflow graph.",
+  WF_GRAPH_LOADING: "perc.ui.developer@Loading workflow graph...",
+  WF_GRAPH_ERROR: "perc.ui.developer@Could not load workflow graph.",
+  WF_GRAPH_HINT:
+    "perc.ui.developer@Read-only states and transitions. Creating or editing transitions stays on the workflow-admin editor.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Transition graph design is not exposed in the Developer catalog",
+    "perc.ui.developer@Transition graph writes are not exposed in the Developer catalog",
   WF_GAP_WRITE:
     "perc.ui.developer@Workflow update / delete is not supported from this Developer surface",
   WF_GAP_CT:

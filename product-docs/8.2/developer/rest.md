@@ -2353,8 +2353,8 @@ enable/disable, and classic ZIP import/export.
 
 Workflow definitions used by **Developer → Workflows** (SY-04 browse) are exposed under
 `/services/workflowmanagement/workflows`. This is the existing stepped-workflow catalog,
-not a full graph editor and **not** an Object ACL surface (workflow DTOs have no GUID
-in this release).
+not a transition-write editor and **not** an Object ACL surface (workflow DTOs have no GUID
+in this release). A read-only state/transition graph is `GET /services/workflows/{idOrName}/graph`.
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -2365,6 +2365,7 @@ in this release).
 | `DELETE` | `/services/workflows/{idOrName}` | **Admin.** Delete the workflow via `IPSSteppedWorkflowService.deleteWorkflow` (same backend the workflow-admin editor uses). Path `idOrName` is workflow name, numeric uuid, or rest guid (same resolution as `PUT`). System workflows and workflows that still own content items return `409`; missing workflow returns `404`. `204` on success |
 | `POST` | `/services/workflows/{idOrName}/steps` | **Admin.** Create a step (`WorkflowStepWrite` wrap: required `name`, optional `afterStep`, optional `roleNames`). Packaged Default Workflow / Simple Workflow / Local Content return `403`. Invalid names are `400`; duplicate step is `409`. |
 | `PUT` | `/services/workflows/{idOrName}/steps/{stepName}` | **Admin.** Update a step (`WorkflowStepWrite` wrap). Path `stepName` is the current name; body `name` is the new name. Packaged workflows are `403`. |
+| `GET` | `/services/workflows/{idOrName}/graph` | **Admin.** Read-only graph (`WorkflowGraph`: `nodes`, `edges` with `from` / `to` / `label`, `packaged`, `defaultWorkflow`). Stock names (Default Workflow, Simple Workflow, Local Content) and the server default flag set `packaged` true. Does not create transitions. Missing workflow is `404`; non-Admin is `403`. |
 
 JSON list and detail may wrap under Jackson / JAXB root `Workflow` (including nested
 `{ "Workflow": { "Workflow": { … } } }` envelopes). The name field is `workflowName`;

@@ -23,6 +23,7 @@ import {
   isWorkflowCreateReady,
   normalizeWorkflowName,
   parseWorkflowDetail,
+  parseWorkflowGraph,
   parseWorkflowList,
   parseWorkflowSummary,
   setWorkflowAllowedContentTypes,
@@ -473,5 +474,37 @@ describe("workflow delete API (slice 21 delete)", () => {
       ),
     );
     await expect(deleteWorkflow("In Use")).rejects.toMatchObject({ status: 409 });
+  });
+});
+
+describe("parseWorkflowGraph", () => {
+  it("unwraps WorkflowGraph and defaults missing lists", () => {
+    expect(
+      parseWorkflowGraph({
+        WorkflowGraph: {
+          workflowName: "Simple Workflow",
+          packaged: true,
+          nodes: [{ name: "Draft" }],
+        },
+      }),
+    ).toEqual({
+      workflowName: "Simple Workflow",
+      packaged: true,
+      defaultWorkflow: false,
+      nodes: [{ name: "Draft" }],
+      edges: [],
+    });
+  });
+
+  it("reads a bare graph object", () => {
+    const graph = parseWorkflowGraph({
+      workflowName: "Nightly QA",
+      packaged: false,
+      defaultWorkflow: false,
+      nodes: [],
+      edges: [{ from: "A", to: "B", label: "Go" }],
+    });
+    expect(graph.edges?.[0]?.label).toBe("Go");
+    expect(graph.packaged).toBe(false);
   });
 });

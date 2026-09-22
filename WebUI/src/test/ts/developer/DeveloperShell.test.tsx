@@ -760,6 +760,11 @@ vi.mock("../../../main/ts/api/developer/relationshipTypesApi", async (importOrig
 });
 
 vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
+  getWorkflowGraph: vi.fn().mockResolvedValue({
+    packaged: false,
+    nodes: [],
+    edges: [],
+  }),
   listWorkflows: vi.fn().mockResolvedValue([
     {
       workflowName: "Simple Workflow",

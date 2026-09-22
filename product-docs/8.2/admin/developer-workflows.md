@@ -15,10 +15,12 @@ description, staging roles, and steps). Open a row to inspect steps and to edit
 **edit** the description, and **delete** a workflow from the catalog. The new row
 opens and lists on the catalog.
 
-Full workflow graph design (create/delete states and transitions) and workflow
-renaming stay outside this chrome. **Developer → Workflows** detail still shows
-a **read-only step list** (step name, permissions, roles, and transition names
-when the workflow DTO already includes them). Missing workflows (`404`) and
+Creating or deleting transitions, and workflow renaming, stay outside this
+chrome. **Developer → Workflows** detail shows a **read-only step list** and a
+**read-only graph** of states and transitions (`GET .../workflows/{id}/graph`).
+The graph badge says **Packaged workflow** for Default Workflow, Simple
+Workflow, Local Content, and any workflow the server marks as the default;
+other workflows show **Custom workflow**. Missing workflows (`404`) and
 non-Admin callers (`403`) surface as section alerts — not a blank success body.
 
 ## Product path — browse steps (read-only)
@@ -33,8 +35,22 @@ non-Admin callers (`403`) surface as section alerts — not a blank success body
 5. If the workflow has no steps, the section shows **None** (not an empty
    success table). Load errors (`403` / `404`) appear in the detail alert.
 
-This is a catalog preview only. Adding or removing steps, or designing the
-graph, remains on the workflow-admin editor.
+This is a catalog preview only. Adding or removing steps remains on the
+detail form for custom workflows. Creating or editing transitions remains
+on the workflow-admin editor.
+
+## Product path — browse the graph (read-only)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a workflow (for example **Simple
+   Workflow**).
+3. Under **Graph**, confirm each state is a node and each transition is an
+   edge (`from — label → to`).
+4. Confirm the badge: **Packaged workflow** for stock/default workflows,
+   **Custom workflow** otherwise.
+5. If the workflow has no states, the section shows **No states in this
+   workflow graph** (not a blank success). Load errors (`403` / `404`) appear
+   in the graph alert.
 
 ## Product path — create a workflow (slice 21)
 
@@ -133,6 +149,7 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Delete workflow | `DELETE /services/workflows/{idOrName}` (Admin; system workflows and item owners return `409`) |
 | Create step | `POST /services/workflows/{idOrName}/steps` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
 | Update step | `PUT /services/workflows/{idOrName}/steps/{stepName}` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
+| Read graph | `GET /services/workflows/{idOrName}/graph` (Admin; read-only states and transitions; `packaged` true for stock or default workflows) |
 | List allowed content types | `GET /services/workflows/{idOrName}/allowedContentTypes` |
 | Replace allowed content types | `PUT /services/workflows/{idOrName}/allowedContentTypes` (`WorkflowContentTypes` wrap) |
 

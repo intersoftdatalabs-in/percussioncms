@@ -20,6 +20,7 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.rest.workflows.IWorkflowsAdaptor;
 import com.percussion.rest.workflows.WorkflowCreate;
+import com.percussion.rest.workflows.WorkflowGraph;
 import com.percussion.rest.workflows.WorkflowStepWrite;
 import com.percussion.rest.workflows.WorkflowSummary;
 import com.percussion.rest.workflows.WorkflowUpdate;
@@ -73,6 +74,15 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
   @Override
   public WorkflowSummary createWorkflowStep(URI baseUri, String idOrName, WorkflowStepWrite body) {
     return updateWorkflow(baseUri, idOrName, null);
+  }
+
+  @Override
+  public WorkflowGraph getWorkflowGraph(URI baseUri, String idOrName) {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName(idOrName != null ? idOrName.trim() : "");
+    graph.setPackaged(false);
+    graph.setNodes(List.of(new WorkflowGraph.Node("Draft")));
+    return graph;
   }
 
   @Override

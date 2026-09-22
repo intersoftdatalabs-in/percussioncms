@@ -112,4 +112,14 @@ public interface IWorkflowsAdaptor {
    */
   WorkflowSummary updateWorkflowStep(
       URI baseUri, String idOrName, String stepName, WorkflowStepWrite body);
+
+  /**
+   * Read-only state/transition graph (slice 32). Packaged workflows are readable; this method does
+   * not mutate.
+   *
+   * @param idOrName workflow name, numeric uuid, or guid string
+   * @return graph, never {@code null}
+   * @throws jakarta.ws.rs.WebApplicationException 404 when the workflow is not found
+   */
+  WorkflowGraph getWorkflowGraph(URI baseUri, String idOrName);
 }

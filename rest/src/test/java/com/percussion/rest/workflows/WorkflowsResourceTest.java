@@ -518,6 +518,47 @@ public class WorkflowsResourceTest {
   }
 
   @Test
+  public void getWorkflowGraphSuccess() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Simple Workflow");
+    graph.setPackaged(true);
+    when(adaptor.getWorkflowGraph(any(), eq("Simple Workflow"))).thenReturn(graph);
+    WorkflowGraph out = resource.getWorkflowGraph("Simple Workflow");
+    assertEquals("Simple Workflow", out.getWorkflowName());
+    assertTrue(out.isPackaged());
+    verify(adaptor).getWorkflowGraph(any(), eq("Simple Workflow"));
+  }
+
+  @Test
+  public void getWorkflowGraphNotFoundIs404() {
+    when(adaptor.getWorkflowGraph(any(), any()))
+        .thenThrow(new WebApplicationException("Workflow not found", 404));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getWorkflowGraph("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getWorkflowGraphInvalidIs400() {
+    when(adaptor.getWorkflowGraph(any(), any()))
+        .thenThrow(new IllegalArgumentException("idOrName must not contain wildcards"));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getWorkflowGraph("a*b"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturns503OnGraph() {
+    WorkflowsResource bare = new WorkflowsResource();
+    UriInfo uriInfo = mock(UriInfo.class);
+    when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
+    bare.setUriInfo(uriInfo);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.getWorkflowGraph("Simple Workflow"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void updateWorkflowStepRequiresBody() {
     WebApplicationException ex =
         assertThrows(

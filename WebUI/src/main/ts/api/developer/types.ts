@@ -1241,6 +1241,21 @@ export interface WorkflowStepSummary {
  * Workflow catalog row from GET /services/workflowmanagement/workflows
  * (PSUiWorkflow — SY-04 association browse).
  */
+/** Read-only state/transition graph from GET /services/workflows/{id}/graph. */
+export interface WorkflowGraphEdge {
+  from?: string;
+  to?: string;
+  label?: string;
+}
+
+export interface WorkflowGraph {
+  workflowName?: string;
+  packaged?: boolean;
+  defaultWorkflow?: boolean;
+  nodes?: { name?: string }[];
+  edges?: WorkflowGraphEdge[];
+}
+
 export interface WorkflowDef {
   workflowName?: string;
   workflowDescription?: string;
