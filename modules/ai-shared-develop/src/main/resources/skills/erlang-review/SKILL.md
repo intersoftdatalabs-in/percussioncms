@@ -15,6 +15,9 @@ The Erlang review skill moved to the canonical install at
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
     --git-base origin/main \
     --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+
+Paste the full markdown report into the PR body under **Pre-push local code review**
+and write `docs/ai-generated/code-reviews/pr-<N>-erlang.md`.
 ```
 
 Read the persona there:

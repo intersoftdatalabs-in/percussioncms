@@ -1,8 +1,12 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.2.3
+// workflow_version: 2.2.4
 // Grok Build workflow meta has no version field (only name/description/when_to_use/phases).
 // Keep invocation name night-issue-prs stable; bump this header when behavior changes.
 //
+// 2.2.4 — Erlang pastes FULL mkd-code-review markdown into the PR body
+//   section "## Pre-push local code review" and writes
+//   docs/ai-generated/code-reviews/pr-<N>-erlang.md (durable). Comment
+//   LGTM may stay short; the PR body holds the CLI report.
 // 2.2.3 — Erlang CLI 0.1.18+ diff-aware: --git-base origin/main (Gitea
 //   mkd-code-review#25 / #24). In-diff findings only gate/short-circuit.
 //   Pack thresholds (percussion 15). Residual LLM on hunks.
@@ -390,6 +394,16 @@ fn erlang_gate_text(repo, base_branch, allow_merge, scope_note) {
     p += "If Ollama is down, keep machine findings; do not fail the review for llm warn.\n";
     p += "If mkd-code-review is missing, fall back to manual review and emit\n";
     p += "'Status: cli-unavailable, manual review' in the report header.\n";
+    p += "\n";
+    p += "PRE-PUSH LOCAL CODE REVIEW (required, not a two-line LGTM):\n";
+    p += "  Capture the FULL `analyze --format markdown` stdout.\n";
+    p += "  1) Write it to docs/ai-generated/code-reviews/pr-<N>-erlang.md on the PR\n";
+    p += "     branch (commit+push if the PR is still open; Intersoft 2026 header).\n";
+    p += "  2) Put the same markdown in the PR body under heading\n";
+    p += "     '## Pre-push local code review' (replace the template placeholder;\n";
+    p += "     keep Summary / Test plan / Checklist). Use gh pr view --json body,\n";
+    p += "     then gh pr edit --body-file. Do not drop other sections.\n";
+    p += "  3) COMMENT may summarize; the PR body section must be the full CLI report.\n";
     p += "\n";
     p += "Hard gates (BLOCK merge): bugs, missing behavioral tests, non-portable paths,\n";
     p += "change-class companions, wrong-type test fakes, security/data-loss, unapproved rule diffs.\n";
@@ -906,7 +920,7 @@ if coding_tool == "" { coding_tool = "Grok Build"; }
 if coding_tool_version == "" { coding_tool_version = "UNRESOLVED"; }
 if model_id == "" { model_id = "UNRESOLVED"; }
 let model_label = "model:" + model_id;
-let workflow_version = "2.2.3";
+let workflow_version = "2.2.4";
 log("identity: tool=" + coding_tool + " version=" + coding_tool_version + " model=" + model_id
     + " workflow_version=" + workflow_version);
 
@@ -2551,7 +2565,8 @@ for item in queue {
             work_prompt += "   body: Summary, Test plan, Product documentation checklist ([x] updated pages under product-docs/ OR [x] N/A reason),\n";
             work_prompt += "   C3 evidence (modules_built, build_evidence commands+BUILD SUCCESS, downstream_checked),\n";
             work_prompt += "   C5 UI proof when applicable (Playwright surface path + pass, console-clean, server.log-clean),\n";
-            work_prompt += "   Fixes or Partial. Prefer the checklist shape from .github/pull_request_template.md.\n";
+            work_prompt += "   Fixes or Partial. Prefer the checklist shape from .github/pull_request_template.md\n";
+            work_prompt += "   including an empty '## Pre-push local code review' section (Erlang fills it).\n";
             work_prompt += "   Also put Operator: Grok: night-issue-prs (model " + model_id + ") in the PR body.\n";
             work_prompt += "   Link PARENT tracker issue in the PR body when this is a slice.\n";
             work_prompt += "H) Do not merge.\n";
