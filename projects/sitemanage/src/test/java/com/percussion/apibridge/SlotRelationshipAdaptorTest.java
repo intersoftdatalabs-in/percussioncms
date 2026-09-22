@@ -112,6 +112,33 @@ class SlotRelationshipAdaptorTest {
   }
 
   @Test
+  void remove_deletesExistingRelationship() {
+    FakeContentWs ws = new FakeContentWs();
+    ws.byId.put(9, fakeRel(9, 10, 20, 5, 4, 0));
+    adaptor(ws, new FakeAssembly()).remove(9);
+    assertEquals(1, ws.deleteCalls);
+  }
+
+  @Test
+  void remove_missing_is404() {
+    FakeContentWs ws = new FakeContentWs();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).remove(9));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals(0, ws.deleteCalls);
+  }
+
+  @Test
+  void remove_forbidden_is403() {
+    FakeContentWs ws = new FakeContentWs();
+    ws.byId.put(9, fakeRel(9, 10, 20, 5, 4, 0));
+    ws.deleteThrows = new SecurityException("no");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).remove(9));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
   void add_incidentalInvalidText_stays500() {
     FakeContentWs ws = new FakeContentWs();
     ws.addThrows = new IllegalStateException("invalid column name; row not found");
@@ -336,6 +363,7 @@ class SlotRelationshipAdaptorTest {
     List<String> order = new ArrayList<>();
     PSAaRelationship addResult;
     RuntimeException addThrows;
+    RuntimeException deleteThrows;
     Map<Integer, PSAaRelationship> byId = new HashMap<>();
     Map<String, List<PSAaRelationship>> slotRels = new HashMap<>();
 
@@ -360,6 +388,9 @@ class SlotRelationshipAdaptorTest {
     public void deleteContentRelations(List<IPSGuid> ids) {
       deleteCalls++;
       order.add("delete");
+      if (deleteThrows != null) {
+        throw deleteThrows;
+      }
     }
 
     @Override

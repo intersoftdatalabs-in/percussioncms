@@ -16,7 +16,7 @@
  */
 
 /**
- * Related / inline content list plus insert of an existing item into a slot.
+ * Related / inline content list, insert of an existing item, and remove of a slot row.
  */
 
 import React, { useEffect, useState } from "react";
@@ -26,6 +26,7 @@ import type { PSLocalDependencySummary } from "../api/contentExplorer/relationsh
 import {
   addSlotRelationship,
   fetchSlotCanvas,
+  removeSlotRelationship,
   type SlotAddRequest,
   type SlotCanvas,
   type SlotRelationship,
@@ -36,6 +37,7 @@ import {
   insertSlotChoices,
   relatedContentErrorReason,
   relatedInsertErrorReason,
+  relatedRemoveErrorReason,
   type InsertSlotChoice,
   type RelatedContentRow,
 } from "./editorRelatedContent";
@@ -44,11 +46,12 @@ import { EDITOR_MSG } from "./messages";
 
 export interface EditorRelatedContentPanelProps {
   itemId: string;
-  /** View / promote: list only. Insert is an edit action. */
+  /** View / promote: list only. Insert and remove are edit actions. */
   readOnly?: boolean;
   loadCanvas?: (ownerId: number) => Promise<SlotCanvas>;
   loadLocal?: (itemId: string) => Promise<PSLocalDependencySummary>;
   insertRelationship?: (request: SlotAddRequest) => Promise<SlotRelationship>;
+  removeRelationship?: (relationshipId: number) => Promise<void>;
 }
 
 function insertMessageKey(reason: ReturnType<typeof relatedInsertErrorReason>): string {
@@ -64,20 +67,34 @@ function insertMessageKey(reason: ReturnType<typeof relatedInsertErrorReason>): 
   return EDITOR_MSG.RELATED_INSERT_FAILED;
 }
 
+function removeMessageKey(reason: ReturnType<typeof relatedRemoveErrorReason>): string {
+  if (reason === "forbidden") {
+    return EDITOR_MSG.RELATED_REMOVE_FORBIDDEN;
+  }
+  if (reason === "not_found") {
+    return EDITOR_MSG.RELATED_REMOVE_NOT_FOUND;
+  }
+  return EDITOR_MSG.RELATED_REMOVE_FAILED;
+}
+
 export function EditorRelatedContentPanel({
   itemId,
   readOnly = false,
   loadCanvas = fetchSlotCanvas,
   loadLocal = fetchLocal,
   insertRelationship = addSlotRelationship,
+  removeRelationship = removeSlotRelationship,
 }: EditorRelatedContentPanelProps): React.ReactElement {
   const [rows, setRows] = useState<RelatedContentRow[]>([]);
   const [choices, setChoices] = useState<InsertSlotChoice[]>([]);
   const [slotId, setSlotId] = useState("");
   const [dependentId, setDependentId] = useState("");
   const [inserting, setInserting] = useState(false);
+  const [removingId, setRemovingId] = useState<number | null>(null);
   const [insertErrorKey, setInsertErrorKey] = useState<string | null>(null);
   const [insertDetail, setInsertDetail] = useState("");
+  const [removeErrorKey, setRemoveErrorKey] = useState<string | null>(null);
+  const [removeDetail, setRemoveDetail] = useState("");
   const [reloadToken, setReloadToken] = useState(0);
   const [loading, setLoading] = useState(true);
   const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -218,6 +235,28 @@ export function EditorRelatedContentPanel({
     }
   }
 
+  async function handleRemove(relationshipId: number): Promise<void> {
+    if (!(relationshipId > 0)) {
+      return;
+    }
+    setRemovingId(relationshipId);
+    setRemoveErrorKey(null);
+    setRemoveDetail("");
+    try {
+      await removeRelationship(relationshipId);
+      setReloadToken((n) => n + 1);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = relatedRemoveErrorReason(err);
+      setRemoveErrorKey(removeMessageKey(reason));
+      setRemoveDetail(formatApiError(err, message(EDITOR_MSG.RELATED_REMOVE_FAILED)));
+    } finally {
+      setRemovingId(null);
+    }
+  }
+
   return (
     <section className={styles.form} data-testid="editor-related-panel">
       <h2 className={styles.label}>{message(EDITOR_MSG.RELATED_TITLE)}</h2>
@@ -293,6 +332,16 @@ export function EditorRelatedContentPanel({
           {message(EDITOR_MSG.RELATED_EMPTY)}
         </div>
       ) : null}
+      {removeErrorKey ? (
+        <div
+          className={styles.status}
+          role="alert"
+          data-testid="editor-related-remove-error"
+        >
+          {message(removeErrorKey)}
+          {removeDetail ? ` ${removeDetail}` : ""}
+        </div>
+      ) : null}
       {rows.length > 0 ? (
         <ul className={styles.relatedList} data-testid="editor-related-list">
           {rows.map((row) => (
@@ -304,6 +353,21 @@ export function EditorRelatedContentPanel({
             >
               <span className={styles.relatedSlot}>{row.slotLabel}</span>
               <span data-testid="editor-related-item-id">{row.itemId}</span>
+              {!readOnly && row.relationshipId != null && row.relationshipId > 0 ? (
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid="editor-related-remove"
+                  disabled={removingId != null}
+                  onClick={() => void handleRemove(row.relationshipId as number)}
+                >
+                  {message(
+                    removingId === row.relationshipId
+                      ? EDITOR_MSG.RELATED_REMOVING
+                      : EDITOR_MSG.RELATED_REMOVE,
+                  )}
+                </button>
+              ) : null}
             </li>
           ))}
         </ul>

@@ -146,6 +146,8 @@ public class SlotRelationshipResource {
       responses = {
         @ApiResponse(responseCode = "204", description = "Removed"),
         @ApiResponse(responseCode = "400", description = "Invalid relationship id"),
+        @ApiResponse(responseCode = "403", description = "Not allowed to remove the relationship"),
+        @ApiResponse(responseCode = "404", description = "Relationship not found"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })

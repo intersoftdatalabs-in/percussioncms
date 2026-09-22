@@ -154,6 +154,13 @@ export const EDITOR_MSG = {
   RELATED_INSERT_NOT_FOUND:
     "perc.ui.editor@That item or slot was not found.",
   RELATED_INSERT_FAILED: "perc.ui.editor@Could not insert the related item.",
+  RELATED_REMOVE: "perc.ui.editor@Remove",
+  RELATED_REMOVING: "perc.ui.editor@Removing…",
+  RELATED_REMOVE_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to remove related content from this item.",
+  RELATED_REMOVE_NOT_FOUND:
+    "perc.ui.editor@That related item was not found.",
+  RELATED_REMOVE_FAILED: "perc.ui.editor@Could not remove the related item.",
   NEW_ITEM: "perc.ui.editor@New item",
   CREATING: "perc.ui.editor@Creating…",
   CREATE: "perc.ui.editor@Create",

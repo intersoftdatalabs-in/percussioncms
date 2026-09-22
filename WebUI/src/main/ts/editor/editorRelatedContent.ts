@@ -31,6 +31,8 @@ export interface RelatedContentRow {
   kind: RelatedContentKind;
   itemId: string;
   slotLabel: string;
+  /** Active Assembly relationship id when the row can be removed. */
+  relationshipId?: number;
 }
 
 export type RelatedContentErrorReason = "forbidden" | "failed";
@@ -82,7 +84,7 @@ function httpStatus(err: unknown): number | null {
   return null;
 }
 
-/** Maps insert HTTP failures. Anything else is a generic failure, not success. */
+/** Maps insert and remove HTTP failures. Anything else is a generic failure, not success. */
 export function relatedInsertErrorReason(err: unknown): RelatedInsertErrorReason {
   const status = httpStatus(err);
   if (status === 400) {
@@ -95,6 +97,11 @@ export function relatedInsertErrorReason(err: unknown): RelatedInsertErrorReason
     return "not_found";
   }
   return "failed";
+}
+
+/** Same status map as insert: 400, 403, and 404 are not a successful remove. */
+export function relatedRemoveErrorReason(err: unknown): RelatedInsertErrorReason {
+  return relatedInsertErrorReason(err);
 }
 
 /** Slots an author can insert into. Template falls back to the canvas template. */
@@ -148,11 +155,14 @@ export function flattenRelatedContent(
           continue;
         }
         seen.add(key);
+        const relationshipId =
+          item.relationshipId > 0 ? item.relationshipId : undefined;
         rows.push({
           key,
           kind: "slot",
           itemId,
           slotLabel,
+          relationshipId,
         });
       }
     }

@@ -155,12 +155,15 @@ public class SlotRelationshipAdaptor implements ISlotRelationshipAdaptor {
   @Override
   public void remove(int relationshipId) {
     try {
+      requireRelationship(relationshipId);
       contentWs.deleteContentRelations(Collections.singletonList(guids.relationship(relationshipId)));
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
-      log.debug("Failed to remove relationship {}: {}", relationshipId, e.toString());
-      throw new WebApplicationException(e, 500);
+      int status = httpStatusForAddFailure(e);
+      log.debug("Failed to remove relationship {} ({}): {}", relationshipId, status, e.toString());
+      String msg = StringUtils.defaultIfBlank(e.getMessage(), "Remove failed");
+      throw new WebApplicationException(msg, status);
     }
   }
 
