@@ -688,10 +688,24 @@ public class PSItemService implements IPSItemService {
       throws PSItemServiceException {
     try {
       rejectIfBlank("getPublishingHistory", "id", id);
-      List<PSItemPublishingHistory> pubHistoryList = new ArrayList<>();
-
-      pubHistoryList = pubService.findItemPublishingHistory(idMapper.getGuid(id));
+      String guid = PSLegacyExtensionUtils.getGUID(id);
+      try {
+        workflowHelper.getComponentSummary(guid);
+      } catch (Exception e) {
+        throw new WebApplicationException("Item not found.", Response.Status.NOT_FOUND);
+      }
+      assertCanReadPublishingHistory(guid);
+      List<PSItemPublishingHistory> pubHistoryList =
+          pubService.findItemPublishingHistory(idMapper.getGuid(id));
+      if (pubHistoryList == null) {
+        pubHistoryList = new ArrayList<>();
+      }
       return new PSItemPublishingHistoryList(pubHistoryList);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSValidationException | IllegalArgumentException e) {
+      throw new WebApplicationException(
+          "The content item id is not valid.", Response.Status.BAD_REQUEST);
     } catch (Exception e) {
       log.error(
           "Error fetching the publishing history for the supplied id: {} Error: {}",
@@ -700,7 +714,32 @@ public class PSItemService implements IPSItemService {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(
           "An unexpected error occurred while fetching the publishing history, "
-              + "see log for details.");
+              + "see log for details.",
+          Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Same assignment gate as revision compare: no assignment is forbidden, and a failed assignment
+   * lookup is forbidden rather than an empty history.
+   */
+  private void assertCanReadPublishingHistory(String guid) {
+    try {
+      List<PSAssignmentTypeEnum> atypes =
+          systemService.getContentAssignmentTypes(asList(idMapper.getGuid(guid)));
+      PSAssignmentTypeEnum asmt =
+          atypes == null || atypes.isEmpty() ? PSAssignmentTypeEnum.NONE : atypes.get(0);
+      if (asmt == PSAssignmentTypeEnum.NONE) {
+        throw new WebApplicationException(
+            "Not authorized to view publishing history for this item.",
+            Response.Status.FORBIDDEN);
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(
+          "Not authorized to view publishing history for this item.",
+          Response.Status.FORBIDDEN);
     }
   }
 

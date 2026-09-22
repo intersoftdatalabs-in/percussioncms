@@ -278,7 +278,12 @@ From **Publish** (`spa.jsp?entry=publish`), open **Status** or **Logs**. The **I
 3. Enter the item id (content GUID such as `16777215-101-9`) and choose **View History**.
 4. Rows show server, location, revision, date, operation, and status (newest first). A **FAILURE** row keeps the server error on the status cell title.
 
-**Empty and error states:** If the item has never been published, the panel says there is no publishing history. A failed lookup (HTTP **404** unknown id, HTTP **403** forbidden, or another HTTP error / unexpected server message) is shown as an error in the panel — it is not treated as success or as empty history.
+**Empty and error states:** If the item has never been published, the panel says there is no publishing history. A failed lookup is an error, not empty history and not success:
+
+- HTTP **400** — the item id is blank or not a content id
+- HTTP **403** — the caller is not allowed to read that item
+- HTTP **404** — the item id is unknown
+- Any other HTTP error keeps the server message
 
 **Deep links** (same panel on Status or Logs):
 
