@@ -426,7 +426,7 @@ async function snapshotLoginSurface(page) {
     legacyVisible: await legacyUser.isVisible().catch(() => false),
     spaVisible: await spaApp.isVisible().catch(() => false),
     assemblyVisible: await assemblyHost.isVisible().catch(() => false),
-    rootPresent: (await modernRoot.count()) > 0,
+    rootPresent: (await modernRoot.count().catch(() => 0)) > 0,
     rootVisible: await modernRoot.isVisible().catch(() => false),
   };
 }
