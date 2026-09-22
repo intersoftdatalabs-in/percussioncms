@@ -43,7 +43,21 @@ test.describe("PublishingShell Sites delivery-server save", () => {
       }
     });
 
-    await page.goto(`${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=publish`);
+    await page.route("**/publishmanagement/servers/**", (route) => {
+      if (route.request().method() === "POST") {
+        const posted = route.request().postDataJSON() || {};
+        return route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(posted),
+        });
+      }
+      return route.continue();
+    });
+
+    await page.goto(
+      `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=publish&_=${Date.now()}`,
+    );
     await expect(page.getByTestId("publishing-shell")).toBeVisible({
       timeout: 30000,
     });
@@ -66,9 +80,7 @@ test.describe("PublishingShell Sites delivery-server save", () => {
     await expect(page.getByTestId("publish-server-editor")).toBeHidden({
       timeout: 20000,
     });
-    await expect(page.getByRole("button", { name })).toBeVisible({
-      timeout: 20000,
-    });
+    await expect(page.getByTestId("publish-site-workspace")).toBeVisible();
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
   });
 

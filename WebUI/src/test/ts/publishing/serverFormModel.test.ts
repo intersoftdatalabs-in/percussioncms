@@ -40,6 +40,7 @@ describe("serverFormModel", () => {
     const body = modelToSaveBody(model);
     expect(body.serverInfo.serverName).toBe("LocalProd");
     expect(body.serverInfo.isDefault).toBe(true);
+    expect(body.serverInfo.isModified).toBe(false);
     expect(body.serverInfo.type).toBe("File");
     const props = body.serverInfo.properties as Array<{ key: string; value: string }>;
     expect(props.some((p) => p.key === "driver" && p.value === "Local")).toBe(
