@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 import com.percussion.publishingdesign.data.PSContentListSummary;
 import com.percussion.publishingdesign.data.PSDeliveryTypeSummary;
 import com.percussion.publishingdesign.data.PSEditionSummary;
+import com.percussion.publishingdesign.data.PSContextSummary;
 import com.percussion.publishingdesign.data.PSLocationSchemeSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
@@ -36,6 +37,7 @@ import com.percussion.services.publisher.IPSDeliveryType;
 import com.percussion.services.publisher.IPSEdition;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.sitemgr.IPSLocationScheme;
+import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
@@ -320,6 +322,59 @@ class PSPublishingDesignRestServiceTest {
     body.setGenerator("Java/global/percussion/contentassembler/sys_JexlAssemblyLocation");
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> design.createScheme("3", body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void createContext_forbidden_403() {
+    PSPublishingDesignRestService design =
+        new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
+    design.setDesignWriteAllowed(() -> false);
+    PSContextSummary body = new PSContextSummary();
+    body.setName("Preview");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.createContext(body));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void createContext_duplicateName_409() throws Exception {
+    PSPublishingDesignRestService design =
+        new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
+    design.setDesignWriteAllowed(() -> true);
+    IPSPublishingContext existing = mock(IPSPublishingContext.class);
+    when(existing.getName()).thenReturn("Publish");
+    when(existing.getGUID()).thenReturn(contextGuid);
+    when(contextGuid.getUUID()).thenReturn(3);
+    when(siteManager.findAllContexts()).thenReturn(List.of(existing));
+
+    PSContextSummary body = new PSContextSummary();
+    body.setName("Publish");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.createContext(body));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void updateContext_duplicateName_409() throws Exception {
+    PSPublishingDesignRestService design =
+        new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
+    design.setDesignWriteAllowed(() -> true);
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    IPSPublishingContext current = mock(IPSPublishingContext.class);
+    when(siteManager.loadContextModifiable(contextGuid)).thenReturn(current);
+
+    IPSGuid otherGuid = mock(IPSGuid.class);
+    IPSPublishingContext existing = mock(IPSPublishingContext.class);
+    when(existing.getName()).thenReturn("Taken");
+    when(existing.getGUID()).thenReturn(otherGuid);
+    when(otherGuid.getUUID()).thenReturn(99);
+    when(siteManager.findAllContexts()).thenReturn(List.of(existing));
+
+    PSContextSummary body = new PSContextSummary();
+    body.setName("Taken");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateContext("5", body));
     assertEquals(409, ex.getResponse().getStatus());
   }
 
