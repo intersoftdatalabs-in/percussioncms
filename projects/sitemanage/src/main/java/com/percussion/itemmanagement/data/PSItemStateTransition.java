@@ -34,6 +34,11 @@ public class PSItemStateTransition extends PSAbstractDataObject {
   private String stateName;
   private String workflowId;
   private ArrayList<String> transitionTriggers = new ArrayList<>();
+  /**
+   * Trigger names whose workflow comment policy is required. Subset of
+   * {@link #transitionTriggers}. Empty when no allowed transition requires a comment.
+   */
+  private ArrayList<String> commentRequiredTriggers = new ArrayList<>();
 
   public String getItemId() {
     return itemId;
@@ -76,6 +81,18 @@ public class PSItemStateTransition extends PSAbstractDataObject {
       transitionTriggers = new ArrayList<>(triggers);
     } else {
       transitionTriggers.clear();
+    }
+  }
+
+  public List<String> getCommentRequiredTriggers() {
+    return commentRequiredTriggers;
+  }
+
+  public void setCommentRequiredTriggers(List<String> triggers) {
+    if (triggers != null) {
+      commentRequiredTriggers = new ArrayList<>(triggers);
+    } else {
+      commentRequiredTriggers.clear();
     }
   }
 }

@@ -622,4 +622,119 @@ test.describe("modern React Content Explorer - workflow transitions (#3668 / #36
       ).toEqual([]);
     },
   );
+
+  test(
+    "toolbar transition prompts for a required comment and maps HTTP 403 (#4723)",
+    { tag: ["@explorer-workflow", "@workflow"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err && err.message ? err.message : err));
+      });
+      page.on("console", (msg) => {
+        if (msg.type() !== "error") return;
+        const text = msg.text();
+        if (
+          /Failed to load resource: the server responded with a status of (403|404|400|500)/i.test(
+            text,
+          )
+        ) {
+          return;
+        }
+        pageErrors.push(text);
+      });
+
+      const found = await findEligibleWorkflowItemViaRest(page.request);
+      const listed = found && found.item ? found.item : null;
+      if (!listed || (found.triggers || []).length === 0) {
+        if (String(process.env.TEST_DB_TYPE || "").toLowerCase() === "h2") {
+          throw new Error(h2MissingEligibleMessage());
+        }
+        test.skip(true, noEligibleItemSkipMessage());
+        return;
+      }
+
+      let requireComment = true;
+      page.on("dialog", async (dialog) => {
+        if (requireComment) {
+          await dialog.dismiss();
+          return;
+        }
+        await dialog.accept("qa note");
+      });
+
+      await page.route("**/itemmanagement/workflow/getTransitions/**", async (route) => {
+        const response = await route.fetch();
+        let body;
+        try {
+          body = await response.json();
+        } catch {
+          await route.fulfill({ response });
+          return;
+        }
+        const rootName = body.ItemStateTransition
+          ? "ItemStateTransition"
+          : body.PSItemStateTransition
+            ? "PSItemStateTransition"
+            : null;
+        const node = rootName ? body[rootName] : body;
+        const raw = node && node.transitionTriggers;
+        const names = Array.isArray(raw)
+          ? raw.map((t) => String(t))
+          : raw
+            ? [String(raw)]
+            : [];
+        if (node && names.length > 0) {
+          node.commentRequiredTriggers = [names[0]];
+          if (rootName) {
+            body[rootName] = node;
+          }
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(body),
+        });
+      });
+
+      await openSitesThenPages(page, listed);
+      const list = page.locator(`[data-testid="${TEST_IDS.list}"]`);
+      const listedName = listed.name ? String(listed.name) : "";
+      let pageRow = list.locator(
+        'tbody tr[data-testid^="detail-row-"][data-row-kind="item"]',
+      ).first();
+      if (listedName) {
+        const byName = list
+          .locator('tbody tr[data-testid^="detail-row-"][data-row-kind="item"]')
+          .filter({ hasText: listedName });
+        if ((await byName.count()) > 0) {
+          pageRow = byName.first();
+        }
+      }
+      await pageRow.click({ force: true });
+      const transitionBtn = page
+        .locator(`[data-testid^="${TEST_IDS.workflowTransitionPrefix}"]`)
+        .first();
+      await expect(transitionBtn).toBeVisible({ timeout: 15_000 });
+      await transitionBtn.click({ force: true });
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toContainText("comment is required", { timeout: 10_000 });
+
+      requireComment = false;
+      await page.route("**/workflow/transitionWithComments/**", async (route) => {
+        await route.fulfill({
+          status: 403,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "not allowed" }),
+        });
+      });
+      await transitionBtn.click({ force: true });
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toContainText("HTTP 403", { timeout: 10_000 });
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+    },
+  );
 });

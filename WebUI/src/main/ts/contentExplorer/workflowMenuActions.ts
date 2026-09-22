@@ -43,6 +43,8 @@ export interface BuildWorkflowMenuOptions {
   stateName?: string;
   /** Parent sort rank; defaults to {@link WORKFLOW_MENU_SORT_RANK}. */
   sortRank?: number;
+  /** Trigger names that must collect a comment before invoke (#4723). */
+  commentRequiredTriggers?: readonly string[] | null;
 }
 
 /**
@@ -68,9 +70,29 @@ export function parseWorkflowTransitionTrigger(
 /**
  * Build a single MenuAction for one transition trigger.
  */
+function foldTrigger(value: string): string {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "");
+}
+
+/** True when {@code trigger} is in the server comment-required list (case/space folded). */
+export function triggerCommentRequired(
+  trigger: string,
+  required: readonly string[] | null | undefined,
+): boolean {
+  const folded = foldTrigger(trigger);
+  if (!folded) {
+    return false;
+  }
+  return (required ?? []).some((name) => foldTrigger(name) === folded);
+}
+
 export function buildWorkflowTransitionChild(
   trigger: string,
   sortRank: number,
+  commentRequired = false,
 ): MenuAction {
   const label = String(trigger ?? "").trim() || "transition";
   return {
@@ -80,6 +102,7 @@ export function buildWorkflowTransitionChild(
     sortRank,
     menuType: "MENUITEM",
     handler: "client",
+    commentRequired,
   };
 }
 
@@ -107,7 +130,13 @@ export function buildWorkflowTransitionMenu(
   if (unique.length === 0) {
     return null;
   }
-  const children = unique.map((t, i) => buildWorkflowTransitionChild(t, i + 1));
+  const children = unique.map((t, i) =>
+    buildWorkflowTransitionChild(
+      t,
+      i + 1,
+      triggerCommentRequired(t, options.commentRequiredTriggers),
+    ),
+  );
   const groupLabel = options.groupLabel?.trim() || "Workflow";
   const stateName = options.stateName?.trim();
   return {

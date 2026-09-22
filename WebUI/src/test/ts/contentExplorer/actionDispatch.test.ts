@@ -1326,7 +1326,58 @@ describe("actionDispatch", () => {
     );
     expect(result.kind).toBe("workflow");
     expect(result.refresh).toBe(true);
-    expect(runWorkflow).toHaveBeenCalledWith("42", "Submit");
+    expect(runWorkflow).toHaveBeenCalledWith("42", "Submit", undefined);
+  });
+
+  it("comment-required workflow transition blocks a blank comment (#4723)", async () => {
+    const runWorkflow = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "workflow-transition:Reject", commentRequired: true }),
+      { item: item(), runWorkflow, promptWorkflowComment: () => "  " },
+    );
+    expect(result.messageKey).toBe(EXPLORER_MSG.WORKFLOW_COMMENT_REQUIRED);
+    expect(result.refresh).toBeUndefined();
+    expect(runWorkflow).not.toHaveBeenCalled();
+  });
+
+  it("comment-required workflow transition sends the trimmed comment (#4723)", async () => {
+    const runWorkflow = vi.fn().mockResolvedValue(undefined);
+    const result = await dispatchAction(
+      action({ name: "workflow-transition:Reject", commentRequired: true }),
+      {
+        item: item(),
+        runWorkflow,
+        promptWorkflowComment: () => " needs work ",
+      },
+    );
+    expect(result.refresh).toBe(true);
+    expect(runWorkflow).toHaveBeenCalledWith("42", "Reject", "needs work");
+  });
+
+  it("maps workflow transition HTTP 403 and 409 (#4723)", async () => {
+    const forbidden = await dispatchAction(
+      action({ name: "workflow-transition:Submit" }),
+      {
+        item: item(),
+        runWorkflow: async () => {
+          throw Object.assign(new Error("no"), { status: 403 });
+        },
+      },
+    );
+    expect(forbidden.messageKey).toBe(EXPLORER_MSG.WORKFLOW_TRANSITION_FORBIDDEN);
+    expect(forbidden.refresh).toBeUndefined();
+
+    const conflict = await dispatchAction(
+      action({ name: "workflow-transition:Submit" }),
+      {
+        item: item(),
+        runWorkflow: async () => {
+          throw Object.assign(new Error("comment"), { status: 409 });
+        },
+      },
+    );
+    expect(conflict.messageKey).toBe(EXPLORER_MSG.WORKFLOW_TRANSITION_CONFLICT);
+    expect(conflict.refresh).toBeUndefined();
   });
 
   it("slot add without AA slot context stays unavailable to invent", async () => {
