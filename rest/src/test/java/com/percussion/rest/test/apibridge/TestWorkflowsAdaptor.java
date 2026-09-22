@@ -20,6 +20,7 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.rest.workflows.IWorkflowsAdaptor;
 import com.percussion.rest.workflows.WorkflowCreate;
+import com.percussion.rest.workflows.WorkflowStepWrite;
 import com.percussion.rest.workflows.WorkflowSummary;
 import com.percussion.rest.workflows.WorkflowUpdate;
 import java.net.URI;
@@ -67,5 +68,16 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
   @Override
   public void deleteWorkflow(URI baseUri, String idOrName) {
     // No-op stub; CXF Spring context tests only assert bean wiring, not delete behavior.
+  }
+
+  @Override
+  public WorkflowSummary createWorkflowStep(URI baseUri, String idOrName, WorkflowStepWrite body) {
+    return updateWorkflow(baseUri, idOrName, null);
+  }
+
+  @Override
+  public WorkflowSummary updateWorkflowStep(
+      URI baseUri, String idOrName, String stepName, WorkflowStepWrite body) {
+    return updateWorkflow(baseUri, idOrName, null);
   }
 }

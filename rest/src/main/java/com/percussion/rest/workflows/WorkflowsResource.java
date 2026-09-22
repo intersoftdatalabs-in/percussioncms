@@ -341,4 +341,99 @@ public class WorkflowsResource {
       throw new WebApplicationException(e, 500);
     }
   }
+
+  @POST
+  @Path("/{idOrName}/steps")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Create a workflow step",
+      description =
+          "Slice 30 Admin. Inserts a step after `afterStep` (or the first existing step) via"
+              + " IPSSteppedWorkflowService.createStep. Packaged default workflows (Default"
+              + " Workflow, Simple Workflow, Local Content) are forbidden (403). Invalid names"
+              + " are 400. Jackson root wrap is WorkflowStepWrite. Transition graph design stays"
+              + " outside this surface.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created",
+            content = @Content(schema = @Schema(implementation = WorkflowSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid step or afterStep name"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow not found"),
+        @ApiResponse(responseCode = "409", description = "Step name already exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowSummary createWorkflowStep(
+      @PathParam("idOrName") String idOrName, WorkflowStepWrite body) {
+    if (body == null) {
+      throw new WebApplicationException("Workflow step body is required", 400);
+    }
+    try {
+      return requireAdaptor().createWorkflowStep(uriInfo.getBaseUri(), idOrName, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to create workflow step ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/steps/{stepName}")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Update a workflow step",
+      description =
+          "Slice 30 Admin. Renames a step and/or replaces assigned roles via"
+              + " IPSSteppedWorkflowService.updateStep. Path stepName is the current name. Body"
+              + " `name` is the new name (may match). Packaged default workflows are 403.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated",
+            content = @Content(schema = @Schema(implementation = WorkflowSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid step name or missing body"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow or step not found"),
+        @ApiResponse(responseCode = "409", description = "Target step name already exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowSummary updateWorkflowStep(
+      @PathParam("idOrName") String idOrName,
+      @PathParam("stepName") String stepName,
+      WorkflowStepWrite body) {
+    if (body == null) {
+      throw new WebApplicationException("Workflow step body is required", 400);
+    }
+    try {
+      return requireAdaptor()
+          .updateWorkflowStep(uriInfo.getBaseUri(), idOrName, stepName, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to update workflow step ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
 }

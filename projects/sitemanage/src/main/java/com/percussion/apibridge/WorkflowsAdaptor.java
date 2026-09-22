@@ -22,6 +22,7 @@ import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.rest.workflows.IWorkflowsAdaptor;
 import com.percussion.rest.workflows.WorkflowContentTypesDesignLockException;
 import com.percussion.rest.workflows.WorkflowCreate;
+import com.percussion.rest.workflows.WorkflowStepWrite;
 import com.percussion.rest.workflows.WorkflowSummary;
 import com.percussion.rest.workflows.WorkflowUpdate;
 import com.percussion.services.catalog.IPSCatalogSummary;
@@ -45,6 +46,9 @@ import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.workflow.data.PSUiWorkflow;
+import com.percussion.workflow.data.PSUiWorkflowStep;
+import com.percussion.workflow.data.PSUiWorkflowStepRole;
+import com.percussion.workflow.data.PSUiWorkflowStepRoleTransition;
 import com.percussion.workflow.service.IPSSteppedWorkflowService;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -82,6 +86,9 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
 
   /** Max workflow name length enforced by the stepped workflow editor. */
   static final int WORKFLOW_NAME_MAX_LENGTH = 50;
+
+  static final String PACKAGED_WORKFLOW_FORBIDDEN =
+      "Packaged or default workflows cannot be modified from this surface";
 
   private final IPSContentDesignWs designWs;
   private final IPSWorkflowService workflowService;
@@ -244,6 +251,155 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
       throw new WebApplicationException(
           msg.isEmpty() ? "Could not delete workflow" : msg, 500);
     }
+  }
+
+  @Override
+  public WorkflowSummary createWorkflowStep(URI baseUri, String idOrName, WorkflowStepWrite body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    String stepName = validateStepName(body);
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    String resolvedName = workflow.getName();
+    PSUiWorkflow existing = lookupUiWorkflow(resolvedName);
+    String after = resolveAfterStep(body, existing);
+    IPSSteppedWorkflowService stepped = requireSteppedService();
+    PSUiWorkflow payload = buildStepPayload(resolvedName, stepName, after, body);
+    try {
+      PSUiWorkflow saved = stepped.createStep(resolvedName, stepName, payload);
+      return toWorkflowSummary(saved, resolvedName, null);
+    } catch (IPSSteppedWorkflowService.PSWorkflowEditorServiceException e) {
+      throw mapStepEditorException(e, true);
+    }
+  }
+
+  @Override
+  public WorkflowSummary updateWorkflowStep(
+      URI baseUri, String idOrName, String stepName, WorkflowStepWrite body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    String newName = validateStepName(body);
+    if (stepName == null || stepName.trim().isEmpty()) {
+      throw new IllegalArgumentException("Step name is required");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    String resolvedName = workflow.getName();
+    String current = stepName.trim();
+    IPSSteppedWorkflowService stepped = requireSteppedService();
+    PSUiWorkflow payload = buildStepPayload(resolvedName, newName, current, body);
+    try {
+      PSUiWorkflow saved = stepped.updateStep(resolvedName, current, payload);
+      return toWorkflowSummary(saved, resolvedName, null);
+    } catch (IPSSteppedWorkflowService.PSWorkflowEditorServiceException e) {
+      throw mapStepEditorException(e, false);
+    }
+  }
+
+  private void rejectPackagedWorkflow(PSWorkflow workflow) {
+    String n = workflow.getName() != null ? workflow.getName() : "";
+    if (n.equalsIgnoreCase("Default Workflow")
+        || n.equalsIgnoreCase("Simple Workflow")
+        || n.equalsIgnoreCase("Local Content")
+        || n.equalsIgnoreCase("LocalContent")) {
+      throw new WebApplicationException(PACKAGED_WORKFLOW_FORBIDDEN, 403);
+    }
+    PSUiWorkflow ui = lookupUiWorkflow(n);
+    if (ui != null && ui.isDefaultWorkflow()) {
+      throw new WebApplicationException(PACKAGED_WORKFLOW_FORBIDDEN, 403);
+    }
+  }
+
+  private static String validateStepName(WorkflowStepWrite body) {
+    if (body == null) {
+      throw new IllegalArgumentException("Workflow step body is required");
+    }
+    String name = body.getName() != null ? body.getName().trim() : "";
+    if (name.isEmpty()) {
+      throw new IllegalArgumentException("Step name is required");
+    }
+    if (name.contains("*") || name.contains("%")) {
+      throw new IllegalArgumentException("Step name must not contain wildcards: " + name);
+    }
+    if (name.length() > WORKFLOW_NAME_MAX_LENGTH) {
+      throw new IllegalArgumentException(
+          "Step name cannot have more than " + WORKFLOW_NAME_MAX_LENGTH + " characters");
+    }
+    if (!name.matches("[\\s\\w-]+")) {
+      throw new IllegalArgumentException(
+          "Invalid character in step name. Characters allowed are: a-z, 0-9, -, _ and [space].");
+    }
+    return name;
+  }
+
+  private static String resolveAfterStep(WorkflowStepWrite body, PSUiWorkflow existing) {
+    String requested = body.getAfterStep() != null ? body.getAfterStep().trim() : "";
+    if (!requested.isEmpty()) {
+      return requested;
+    }
+    if (existing != null && existing.getWorkflowSteps() != null) {
+      for (PSUiWorkflowStep step : existing.getWorkflowSteps()) {
+        if (step != null && StringUtils.isNotBlank(step.getStepName())) {
+          return step.getStepName();
+        }
+      }
+    }
+    throw new IllegalArgumentException("afterStep is required when the workflow has no steps");
+  }
+
+  private static PSUiWorkflow buildStepPayload(
+      String workflowName, String stepName, String previousStepName, WorkflowStepWrite body) {
+    PSUiWorkflow ui = new PSUiWorkflow();
+    ui.setWorkflowName(workflowName);
+    ui.setPreviousStepName(previousStepName);
+    PSUiWorkflowStep step = new PSUiWorkflowStep();
+    step.setStepName(stepName);
+    List<String> roles = body.getRoleNames();
+    if (roles == null || roles.isEmpty()) {
+      step.getStepRoles().add(roleWithSubmit("Admin"));
+    } else {
+      for (String role : roles) {
+        if (role != null && !role.isBlank()) {
+          step.getStepRoles().add(roleWithSubmit(role.trim()));
+        }
+      }
+      if (step.getStepRoles().isEmpty()) {
+        step.getStepRoles().add(roleWithSubmit("Admin"));
+      }
+    }
+    ui.getWorkflowSteps().add(step);
+    return ui;
+  }
+
+  private static PSUiWorkflowStepRole roleWithSubmit(String roleName) {
+    PSUiWorkflowStepRole role = new PSUiWorkflowStepRole(roleName, 0);
+    role.getRoleTransitions().add(new PSUiWorkflowStepRoleTransition("Submit"));
+    return role;
+  }
+
+  private static RuntimeException mapStepEditorException(
+      IPSSteppedWorkflowService.PSWorkflowEditorServiceException e, boolean create) {
+    String msg = e.getMessage() != null ? e.getMessage() : "";
+    String lower = msg.toLowerCase();
+    if (lower.contains("already exist") || lower.contains("already exists")) {
+      return new WebApplicationException(msg.isEmpty() ? "Step already exists" : msg, 409);
+    }
+    if (lower.contains("can't find")
+        || lower.contains("invalid workflow")
+        || lower.contains("not found")) {
+      return new WebApplicationException(msg.isEmpty() ? "Workflow or step not found" : msg, 404);
+    }
+    if (lower.contains("system")) {
+      return new WebApplicationException(msg.isEmpty() ? PACKAGED_WORKFLOW_FORBIDDEN : msg, 403);
+    }
+    return new IllegalArgumentException(
+        msg.isEmpty() ? (create ? "Invalid workflow step" : "Invalid step update") : msg, e);
   }
 
   private static String validateWorkflowCreateName(WorkflowCreate body) {

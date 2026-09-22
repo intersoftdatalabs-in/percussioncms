@@ -459,4 +459,70 @@ public class WorkflowsResourceTest {
         assertThrows(WebApplicationException.class, () -> bare.deleteWorkflow("Simple Workflow"));
     assertEquals(503, ex.getResponse().getStatus());
   }
+
+  private static WorkflowStepWrite stepBody(String name) {
+    WorkflowStepWrite body = new WorkflowStepWrite();
+    body.setName(name);
+    body.setAfterStep("Draft");
+    return body;
+  }
+
+  @Test
+  public void createWorkflowStepSuccess() {
+    when(adaptor.createWorkflowStep(any(), eq("Nightly QA"), any()))
+        .thenReturn(createdSummary("Nightly QA"));
+    WorkflowSummary out = resource.createWorkflowStep("Nightly QA", stepBody("Review"));
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor).createWorkflowStep(any(), eq("Nightly QA"), any());
+  }
+
+  @Test
+  public void createWorkflowStepRequiresBody() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createWorkflowStep("Nightly QA", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).createWorkflowStep(any(), any(), any());
+  }
+
+  @Test
+  public void createWorkflowStepInvalidIs400() {
+    when(adaptor.createWorkflowStep(any(), any(), any()))
+        .thenThrow(new IllegalArgumentException("Step name is required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createWorkflowStep("Nightly QA", stepBody("  ")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createWorkflowStepPackagedIs403() {
+    when(adaptor.createWorkflowStep(any(), any(), any()))
+        .thenThrow(new WebApplicationException("Packaged or default workflows cannot be modified from this surface", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createWorkflowStep("Default Workflow", stepBody("Review")));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateWorkflowStepSuccess() {
+    when(adaptor.updateWorkflowStep(any(), eq("Nightly QA"), eq("Review"), any()))
+        .thenReturn(createdSummary("Nightly QA"));
+    WorkflowSummary out =
+        resource.updateWorkflowStep("Nightly QA", "Review", stepBody("Review 2"));
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor).updateWorkflowStep(any(), eq("Nightly QA"), eq("Review"), any());
+  }
+
+  @Test
+  public void updateWorkflowStepRequiresBody() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateWorkflowStep("Nightly QA", "Review", null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
 }

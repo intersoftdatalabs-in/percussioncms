@@ -10,7 +10,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Full workflow graph design is not exposed in the Developer catalog",
+  "Transition graph design is not exposed in the Developer catalog",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -457,4 +457,49 @@ export async function updateWorkflow(
 export async function deleteWorkflow(idOrName: string): Promise<void> {
   const key = encodeURIComponent(idOrName);
   await del<void>(`${PATHS.WORKFLOWS_ASSOC}/${key}`);
+}
+
+/** Writable fields for {@code POST .../workflows/{id}/steps} (slice 30). */
+export type WorkflowStepWriteBody = {
+  name: string;
+  afterStep?: string;
+  roleNames?: string[];
+};
+
+export const WORKFLOW_STEP_WRITE_ROOT = "WorkflowStepWrite";
+
+export function wrapWorkflowStepWriteForWire(
+  body: WorkflowStepWriteBody,
+): Record<string, WorkflowStepWriteBody> {
+  return { [WORKFLOW_STEP_WRITE_ROOT]: body };
+}
+
+export function isValidWorkflowStepName(name: string | undefined | null): boolean {
+  return isValidWorkflowName(name);
+}
+
+export async function createWorkflowStep(
+  idOrName: string,
+  body: WorkflowStepWriteBody,
+): Promise<WorkflowCreateResult> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/steps`,
+    wrapWorkflowStepWriteForWire(body),
+  );
+  return parseWorkflowSummary(payload);
+}
+
+export async function updateWorkflowStep(
+  idOrName: string,
+  stepName: string,
+  body: WorkflowStepWriteBody,
+): Promise<WorkflowCreateResult> {
+  const key = encodeURIComponent(idOrName);
+  const step = encodeURIComponent(stepName);
+  const payload = await put<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}`,
+    wrapWorkflowStepWriteForWire(body),
+  );
+  return parseWorkflowSummary(payload);
 }
