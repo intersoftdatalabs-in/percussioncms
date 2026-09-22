@@ -108,6 +108,11 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 
 ## Limits
 
+- Add or rename a **step** on a custom (non-packaged) workflow from the
+  detail panel. Packaged **Default Workflow**, **Simple Workflow**, and
+  **Local Content** stay protected (`403`). Invalid names return `400`.
+  Transition graph design (new transitions) stays on the workflow-admin
+  editor.
 - Workflow rename and full graph design (states, transitions, roles) are
   not in this chrome; they stay on the workflow-admin editor.
 - Object ACL is not available on workflow detail (no workflow GUID in this
@@ -126,6 +131,8 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Create workflow | `POST /services/workflows` (`WorkflowCreate` wrap; Admin; duplicate `409`) |
 | Update description | `PUT /services/workflows/{idOrName}` (`WorkflowUpdate` wrap; Admin; name must match; missing workflow `404`) |
 | Delete workflow | `DELETE /services/workflows/{idOrName}` (Admin; system workflows and item owners return `409`) |
+| Create step | `POST /services/workflows/{idOrName}/steps` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
+| Update step | `PUT /services/workflows/{idOrName}/steps/{stepName}` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
 | List allowed content types | `GET /services/workflows/{idOrName}/allowedContentTypes` |
 | Replace allowed content types | `PUT /services/workflows/{idOrName}/allowedContentTypes` (`WorkflowContentTypes` wrap) |
 

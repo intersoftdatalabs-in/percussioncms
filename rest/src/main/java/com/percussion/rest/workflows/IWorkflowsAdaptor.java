@@ -92,4 +92,24 @@ public interface IWorkflowsAdaptor {
    *     workflow or the workflow is a system workflow
    */
   void deleteWorkflow(URI baseUri, String idOrName);
+
+  /**
+   * Create a step on a non-packaged workflow (Admin, slice 30).
+   *
+   * @param idOrName workflow name, numeric uuid, or guid string
+   * @param body create body, never {@code null}; {@code name} is the new step
+   * @return the parent workflow summary after persist
+   * @throws IllegalArgumentException when names are invalid
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow
+   */
+  WorkflowSummary createWorkflowStep(URI baseUri, String idOrName, WorkflowStepWrite body);
+
+  /**
+   * Update a step on a non-packaged workflow (Admin, slice 30).
+   *
+   * @param stepName current step name (path); must exist
+   * @param body update body; {@code name} is the new/same step name
+   */
+  WorkflowSummary updateWorkflowStep(
+      URI baseUri, String idOrName, String stepName, WorkflowStepWrite body);
 }

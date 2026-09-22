@@ -6,11 +6,14 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { isApiError } from "../api/client";
 import { isValidContentTypeName } from "../api/developer/contentTypesApi";
 import {
+  createWorkflowStep,
   deleteWorkflow,
   getWorkflowAllowedContentTypes,
   getWorkflowDetail,
+  isValidWorkflowStepName,
   setWorkflowAllowedContentTypes,
   updateWorkflow,
+  updateWorkflowStep,
   type WorkflowCreateResult,
 } from "../api/developer/workflowsApi";
 import type { NamedObjectRef, WorkflowDef } from "../api/developer/types";
@@ -108,6 +111,13 @@ export function WorkflowDetailPanel({
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [stepNameDraft, setStepNameDraft] = useState("");
+  const [stepAfter, setStepAfter] = useState("");
+  const [stepRolesDraft, setStepRolesDraft] = useState("Admin");
+  const [editingStep, setEditingStep] = useState<string | null>(null);
+  const [stepBusy, setStepBusy] = useState(false);
+  const [stepError, setStepError] = useState<string | null>(null);
+  const [stepNotice, setStepNotice] = useState<string | null>(null);
   const inflight = useRef(false);
 
   useEffect(() => {
@@ -127,6 +137,12 @@ export function WorkflowDetailPanel({
     setDescriptionNotice(null);
     setConfirmDeleteOpen(false);
     setDeleteError(null);
+    setStepNameDraft("");
+    setStepAfter("");
+    setStepRolesDraft("Admin");
+    setEditingStep(null);
+    setStepError(null);
+    setStepNotice(null);
 
     getWorkflowDetail(name)
       .then((d) => {
@@ -136,6 +152,12 @@ export function WorkflowDetailPanel({
         setDescriptionDraft(description);
         setBaselineDescription(description);
         setDescriptionDirty(false);
+        const firstStep = Array.isArray(d.workflowSteps)
+          ? d.workflowSteps.find((s) => s.stepName)?.stepName
+          : "";
+        if (firstStep) {
+          setStepAfter(firstStep);
+        }
       })
       .catch((err: unknown) => {
         if (!cancelled) {
@@ -349,6 +371,87 @@ export function WorkflowDetailPanel({
     setConfirmDeleteOpen(true);
   }
 
+  function stepSaveErrorFallback(err: unknown): string {
+    if (isApiError(err)) {
+      if (err.status === 400) {
+        return DEV_MSG.WF_STEP_INVALID;
+      }
+      if (err.status === 403) {
+        const raw = typeof err.body === "string" ? err.body : "";
+        const msg = (raw || err.statusText || "").toLowerCase();
+        if (msg.includes("packaged") || msg.includes("default")) {
+          return DEV_MSG.WF_STEP_PACKAGED;
+        }
+        return DEV_MSG.WF_STEP_FORBIDDEN;
+      }
+    }
+    return DEV_MSG.WF_STEP_ERROR;
+  }
+
+  function parseRoleNames(raw: string): string[] {
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  async function reloadDetail(): Promise<void> {
+    const d = await getWorkflowDetail(name);
+    setDetail(d);
+    const firstStep = Array.isArray(d.workflowSteps)
+      ? d.workflowSteps.find((s) => s.stepName)?.stepName
+      : "";
+    if (firstStep && !editingStep) {
+      setStepAfter((prev) => prev || firstStep);
+    }
+  }
+
+  function beginEditStep(stepName: string): void {
+    setEditingStep(stepName);
+    setStepNameDraft(stepName);
+    setStepError(null);
+    setStepNotice(null);
+  }
+
+  async function handleStepSave(): Promise<void> {
+    if (stepBusy || inflight.current) {
+      return;
+    }
+    const trimmed = stepNameDraft.trim();
+    if (!isValidWorkflowStepName(trimmed)) {
+      setStepError(DEV_MSG.WF_STEP_INVALID);
+      return;
+    }
+    inflight.current = true;
+    setStepBusy(true);
+    setStepError(null);
+    setStepNotice(null);
+    const roles = parseRoleNames(stepRolesDraft);
+    try {
+      if (editingStep) {
+        await updateWorkflowStep(name, editingStep, {
+          name: trimmed,
+          roleNames: roles,
+        });
+      } else {
+        await createWorkflowStep(name, {
+          name: trimmed,
+          afterStep: stepAfter.trim() || undefined,
+          roleNames: roles,
+        });
+      }
+      await reloadDetail();
+      setStepNotice(DEV_MSG.WF_STEP_SAVED);
+      setStepNameDraft("");
+      setEditingStep(null);
+    } catch (err: unknown) {
+      setStepError(panelErrMsg(err, stepSaveErrorFallback(err)));
+    } finally {
+      inflight.current = false;
+      setStepBusy(false);
+    }
+  }
+
   async function handleDelete(): Promise<void> {
     if (inflight.current || deleteBusy) {
       return;
@@ -531,6 +634,7 @@ export function WorkflowDetailPanel({
                       <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_PERMS}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_ROLES}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_TRANSITIONS}</th>
+                      <th style={{ padding: "8px" }} />
                     </tr>
                   </thead>
                   <tbody>
@@ -565,6 +669,18 @@ export function WorkflowDetailPanel({
                           >
                             {transitions || "—"}
                           </td>
+                          <td style={{ padding: "8px" }}>
+                            {s.stepName ? (
+                              <button
+                                type="button"
+                                data-testid={`developer-wf-step-edit-${i}`}
+                                style={smallBtnStyle}
+                                onClick={() => beginEditStep(s.stepName as string)}
+                              >
+                                {DEV_MSG.WF_STEP_EDIT}
+                              </button>
+                            ) : null}
+                          </td>
                         </tr>
                       );
                     })}
@@ -572,6 +688,121 @@ export function WorkflowDetailPanel({
                 </table>
               </div>
             )}
+            <div
+              style={{ marginTop: "12px" }}
+              data-testid="developer-wf-step-editor"
+            >
+              <p
+                style={{
+                  color: catalogColors.muted,
+                  fontSize: "0.9rem",
+                  margin: "0 0 8px",
+                }}
+              >
+                {DEV_MSG.WF_STEP_HINT}
+              </p>
+              {stepError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-wf-step-error"
+                  style={{ ...errorAlert, marginBottom: "8px" }}
+                >
+                  {stepError}
+                </div>
+              ) : null}
+              {stepNotice ? (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  data-testid="developer-wf-step-notice"
+                  style={{ color: catalogColors.accent, marginBottom: "8px" }}
+                >
+                  {stepNotice}
+                </div>
+              ) : null}
+              <label htmlFor="wf-step-name" style={{ display: "block", marginBottom: 4 }}>
+                {DEV_MSG.WF_STEP_NAME_LABEL}
+              </label>
+              <input
+                id="wf-step-name"
+                data-testid="developer-wf-step-name"
+                style={inputStyle}
+                value={stepNameDraft}
+                disabled={stepBusy}
+                onChange={(e) => {
+                  setStepNameDraft(e.target.value);
+                  if (stepError) {
+                    setStepError(null);
+                  }
+                }}
+                aria-label={DEV_MSG.WF_STEP_NAME_LABEL}
+              />
+              {!editingStep ? (
+                <>
+                  <label
+                    htmlFor="wf-step-after"
+                    style={{ display: "block", margin: "8px 0 4px" }}
+                  >
+                    {DEV_MSG.WF_STEP_AFTER_LABEL}
+                  </label>
+                  <select
+                    id="wf-step-after"
+                    data-testid="developer-wf-step-after"
+                    style={inputStyle}
+                    value={stepAfter}
+                    disabled={stepBusy}
+                    onChange={(e) => setStepAfter(e.target.value)}
+                    aria-label={DEV_MSG.WF_STEP_AFTER_LABEL}
+                  >
+                    {steps.map((s, i) =>
+                      s.stepName ? (
+                        <option key={`${s.stepName}-${i}`} value={s.stepName}>
+                          {s.stepName}
+                        </option>
+                      ) : null,
+                    )}
+                  </select>
+                </>
+              ) : null}
+              <label
+                htmlFor="wf-step-roles"
+                style={{ display: "block", margin: "8px 0 4px" }}
+              >
+                {DEV_MSG.WF_STEP_ROLES_LABEL}
+              </label>
+              <input
+                id="wf-step-roles"
+                data-testid="developer-wf-step-roles"
+                style={inputStyle}
+                value={stepRolesDraft}
+                disabled={stepBusy}
+                onChange={(e) => setStepRolesDraft(e.target.value)}
+                aria-label={DEV_MSG.WF_STEP_ROLES_LABEL}
+              />
+              <div style={{ marginTop: "8px" }}>
+                <button
+                  type="button"
+                  data-testid="developer-wf-step-save"
+                  disabled={stepBusy || !stepNameDraft.trim()}
+                  onClick={() => void handleStepSave()}
+                  style={{
+                    ...primaryBtnStyle,
+                    background:
+                      stepBusy || !stepNameDraft.trim()
+                        ? catalogColors.disabled
+                        : catalogColors.accent,
+                    cursor:
+                      stepBusy || !stepNameDraft.trim() ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {stepBusy
+                    ? DEV_MSG.WF_STEP_SAVING
+                    : editingStep
+                      ? DEV_MSG.WF_STEP_SAVE
+                      : DEV_MSG.WF_STEP_ADD}
+                </button>
+              </div>
+            </div>
           </section>
 
           <section

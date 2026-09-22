@@ -17,6 +17,10 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   setWorkflowAllowedContentTypes: vi.fn(),
   updateWorkflow: vi.fn(),
   deleteWorkflow: vi.fn(),
+  createWorkflowStep: vi.fn(),
+  updateWorkflowStep: vi.fn(),
+  isValidWorkflowStepName: (name: string) =>
+    !!name && name.trim().length > 0 && name.trim().length <= 50 && /^[\s\w-]+$/.test(name.trim()),
   wrapWorkflowContentTypesForWire: vi.fn((body) => ({ WorkflowContentTypes: body })),
   WORKFLOW_CONTENT_TYPES_ROOT: "WorkflowContentTypes",
   WORKFLOW_DESIGN_GAPS: [
@@ -31,6 +35,8 @@ const setWorkflowAllowedContentTypes =
   workflowsApi.setWorkflowAllowedContentTypes as ReturnType<typeof vi.fn>;
 const updateWorkflowMock = workflowsApi.updateWorkflow as ReturnType<typeof vi.fn>;
 const deleteWorkflowMock = workflowsApi.deleteWorkflow as ReturnType<typeof vi.fn>;
+const createWorkflowStepMock = workflowsApi.createWorkflowStep as ReturnType<typeof vi.fn>;
+const updateWorkflowStepMock = workflowsApi.updateWorkflowStep as ReturnType<typeof vi.fn>;
 
 const sampleDetail = {
   workflowName: "Simple Workflow",
@@ -67,6 +73,10 @@ describe("WorkflowDetailPanel", () => {
     setWorkflowAllowedContentTypes.mockReset();
     updateWorkflowMock.mockReset();
     deleteWorkflowMock.mockReset();
+    createWorkflowStepMock.mockReset();
+    updateWorkflowStepMock.mockReset();
+    createWorkflowStepMock.mockResolvedValue({ workflowName: "Simple Workflow" });
+    updateWorkflowStepMock.mockResolvedValue({ workflowName: "Simple Workflow" });
     getWorkflowAllowedContentTypes.mockResolvedValue([{ name: "percPage", label: "Page" }]);
     setWorkflowAllowedContentTypes.mockImplementation(async (_id, body) => body.allowedContentTypes);
   });
@@ -461,5 +471,73 @@ describe("WorkflowDetailPanel", () => {
     expect(screen.getByTestId("developer-wf-delete-error").textContent).toContain(
       DEV_MSG.WF_DETAIL_DELETE_HAS_ITEMS,
     );
+  });
+
+  it("creates a workflow step then reloads detail", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    render(<WorkflowDetailPanel name="Nightly QA" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-step-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-step-name"), {
+      target: { value: "Review" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-step-save"));
+    await waitFor(() => {
+      expect(createWorkflowStepMock).toHaveBeenCalled();
+    });
+    expect(createWorkflowStepMock).toHaveBeenCalledWith("Nightly QA", {
+      name: "Review",
+      afterStep: "Draft",
+      roleNames: ["Admin"],
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-step-notice").textContent).toContain(
+        DEV_MSG.WF_STEP_SAVED,
+      );
+    });
+  });
+
+  it("maps packaged-workflow 403 on step create", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    createWorkflowStepMock.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: "Packaged or default workflows cannot be modified from this surface",
+    });
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-step-name")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-step-name"), {
+      target: { value: "Review" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-step-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-step-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-step-error").textContent).toContain(
+      DEV_MSG.WF_STEP_PACKAGED,
+    );
+  });
+
+  it("updates an existing step from the edit control", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    render(<WorkflowDetailPanel name="Nightly QA" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-step-edit-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-step-edit-0"));
+    fireEvent.change(screen.getByTestId("developer-wf-step-name"), {
+      target: { value: "Draft 2" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-step-save"));
+    await waitFor(() => {
+      expect(updateWorkflowStepMock).toHaveBeenCalled();
+    });
+    expect(updateWorkflowStepMock).toHaveBeenCalledWith("Nightly QA", "Draft", {
+      name: "Draft 2",
+      roleNames: ["Admin"],
+    });
   });
 });

@@ -1849,8 +1849,24 @@ export const DEV_MSG_KEYS = {
   WF_DETAIL_NAME_MISMATCH:
     "perc.ui.developer@Workflow name on the update body does not match the path idOrName.",
   WF_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
+  WF_STEP_EDIT: "perc.ui.developer@Edit",
+  WF_STEP_ADD: "perc.ui.developer@Add step",
+  WF_STEP_SAVE: "perc.ui.developer@Save step",
+  WF_STEP_SAVING: "perc.ui.developer@Saving...",
+  WF_STEP_NAME_LABEL: "perc.ui.developer@Step name",
+  WF_STEP_AFTER_LABEL: "perc.ui.developer@Insert after",
+  WF_STEP_ROLES_LABEL: "perc.ui.developer@Roles (comma-separated)",
+  WF_STEP_HINT:
+    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. Transition graph design remains on the workflow-admin editor.",
+  WF_STEP_SAVED: "perc.ui.developer@Workflow step saved.",
+  WF_STEP_ERROR: "perc.ui.developer@Could not save workflow step.",
+  WF_STEP_INVALID:
+    "perc.ui.developer@Step name must be 1–50 characters: letters, digits, space, hyphen, or underscore.",
+  WF_STEP_PACKAGED:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_STEP_FORBIDDEN: "perc.ui.developer@Admin role is required.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Full workflow graph design is not exposed in the Developer catalog",
+    "perc.ui.developer@Transition graph design is not exposed in the Developer catalog",
   WF_GAP_WRITE:
     "perc.ui.developer@Workflow update / delete is not supported from this Developer surface",
   WF_GAP_CT:
