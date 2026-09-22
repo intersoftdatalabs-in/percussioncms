@@ -167,4 +167,57 @@ test.describe("PublishingShell item publishing history", () => {
       );
     },
   );
+
+  test(
+    "HTTP 400, 403, and 404 stay errors",
+    { tag: ["@publishing", "@publishing-history"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      await stubPublishApis(page, { message: "The content item id is not valid." }, 400);
+      await page.goto(publishSpaUrl("status", "nope"));
+      await expect(page.locator('[data-testid="item-history-error"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.locator('[data-testid="item-history-error"]')).toContainText(
+        /not valid|Bad Server Configuration|HTTP 400/i,
+      );
+      await expect(page.locator('[data-testid="item-history-empty"]')).toHaveCount(0);
+
+      await page.unroute("**/itemmanagement/item/pubhistory/**");
+      await page.route("**/itemmanagement/item/pubhistory/**", async (route) => {
+        await route.fulfill({
+          status: 403,
+          contentType: "application/json",
+          body: JSON.stringify({
+            message: "Not authorized to view publishing history for this item.",
+          }),
+        });
+      });
+      await page.locator('[data-testid="item-history-id"]').fill("7");
+      await page.locator('[data-testid="item-history-lookup"]').click();
+      await expect(page.locator('[data-testid="item-history-error"]')).toContainText(
+        /Not authorized|Publish Forbidden|HTTP 403/i,
+        { timeout: 10_000 },
+      );
+
+      await page.unroute("**/itemmanagement/item/pubhistory/**");
+      await page.route("**/itemmanagement/item/pubhistory/**", async (route) => {
+        await route.fulfill({
+          status: 404,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "Item not found." }),
+        });
+      });
+      await page.locator('[data-testid="item-history-id"]').fill("8");
+      await page.locator('[data-testid="item-history-lookup"]').click();
+      await expect(page.locator('[data-testid="item-history-error"]')).toContainText(
+        /Item not found|HTTP 404/i,
+        { timeout: 10_000 },
+      );
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
 });

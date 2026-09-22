@@ -113,14 +113,14 @@ describe("ItemPublishingHistoryPanel", () => {
     expect(onOpen).toHaveBeenCalledWith("logs");
   });
 
-  it("treats HTTP 404 and 403 as errors, not empty success", async () => {
+  it("treats HTTP 400, 404, and 403 as errors, not empty success", async () => {
     fetchHistory.mockRejectedValue({ status: 404, statusText: "Not Found" });
     const { rerender } = render(
       <ItemPublishingHistoryPanel currentSection="logs" itemId="missing" />,
     );
     await waitFor(() => {
       expect(screen.getByTestId("item-history-error")).toHaveTextContent(
-        /HTTP 404/i,
+        /Item not found|HTTP 404/i,
       );
     });
     expect(screen.queryByTestId("item-history-empty")).toBeNull();
@@ -132,7 +132,22 @@ describe("ItemPublishingHistoryPanel", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("item-history-error")).toHaveTextContent(
-        /HTTP 403/i,
+        /Publish Forbidden|HTTP 403/i,
+      );
+    });
+    expect(screen.queryByTestId("item-history-empty")).toBeNull();
+
+    fetchHistory.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "The content item id is not valid." },
+    });
+    rerender(
+      <ItemPublishingHistoryPanel currentSection="logs" itemId="bad" />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("item-history-error")).toHaveTextContent(
+        /not valid|Bad Server Configuration|HTTP 400/i,
       );
     });
     expect(screen.queryByTestId("item-history-empty")).toBeNull();

@@ -17,6 +17,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  itemHistoryErrorMessage,
   itemHistoryShellHref,
   itemPubHistoryUrl,
   normalizeItemPublishingHistory,
@@ -93,5 +94,25 @@ describe("item history hrefs", () => {
     expect(itemHistoryShellHref({ section: "logs", itemId: "a/b" })).toBe(
       "/cm/app/publish/logs",
     );
+  });
+});
+
+describe("itemHistoryErrorMessage", () => {
+  it("maps 400, 403, and 404 and keeps other server text", () => {
+    expect(itemHistoryErrorMessage({ status: 400, statusText: "Bad Request" })).toMatch(
+      /Bad Server Configuration|HTTP 400/i,
+    );
+    expect(itemHistoryErrorMessage({ status: 403, statusText: "Forbidden" })).toMatch(
+      /Publish Forbidden|HTTP 403/i,
+    );
+    expect(itemHistoryErrorMessage({ status: 404, statusText: "Not Found" })).toMatch(
+      /Item not found|HTTP 404/i,
+    );
+    expect(
+      itemHistoryErrorMessage({
+        status: 500,
+        body: { message: "history lookup failed" },
+      }),
+    ).toBe("history lookup failed");
   });
 });

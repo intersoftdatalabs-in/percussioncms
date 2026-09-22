@@ -16,6 +16,8 @@
  */
 
 import { asJsonRecord } from "../api/jsonList";
+import { formatApiError, isApiError } from "../api/client";
+import { message, MSG } from "../i18n/message";
 import { SERVICES_ROOT } from "../api/paths";
 import { mapIdParam } from "./deepLinkMap";
 
@@ -151,6 +153,35 @@ export function sortHistoryNewestFirst(
   return [...rows].sort(
     (a, b) => publishedDateMillis(b.publishedDate) - publishedDateMillis(a.publishedDate),
   );
+}
+
+/**
+ * Map pubhistory failures: HTTP 400 invalid id, 403 forbidden, 404 unknown item.
+ * Other failures keep the server message. Never treat these as empty history.
+ */
+export function itemHistoryErrorMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
+    }
+    if (err.status === 400) {
+      return formatApiError(err, message(MSG.PUBLISH_BADCONFIG));
+    }
+    if (err.status === 404) {
+      return formatApiError(err, message(MSG.PUBLISH_NOW_NOT_FOUND));
+    }
+  }
+  const text = formatApiError(err, message(MSG.PUBLISH_ITEM_HISTORY_ERROR));
+  if (/\bFORBIDDEN\b/i.test(text)) {
+    return message(MSG.PUBLISH_FORBIDDEN);
+  }
+  if (/\bBADCONFIG\b|\bBAD REQUEST\b/i.test(text)) {
+    return message(MSG.PUBLISH_BADCONFIG);
+  }
+  if (/\b404\b|\bNOT FOUND\b/i.test(text)) {
+    return message(MSG.PUBLISH_NOW_NOT_FOUND);
+  }
+  return text;
 }
 
 /** Classic perc_paths.ITEM_PUB_HISTORY + id. */

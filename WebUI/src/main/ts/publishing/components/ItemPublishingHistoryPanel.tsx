@@ -17,11 +17,12 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchItemPublishingHistory } from "../../api/publishing/itemHistoryApi";
-import { formatApiError, isSessionRedirectError } from "../../api/client";
+import { isSessionRedirectError } from "../../api/client";
 import { message, MSG } from "../../i18n/message";
 import { mapIdParam } from "../deepLinkMap";
 import {
   formatPublishedDate,
+  itemHistoryErrorMessage,
   itemHistoryShellHref,
   sortHistoryNewestFirst,
   type ItemPublishingHistory,
@@ -87,9 +88,7 @@ export function ItemPublishingHistoryPanel({
         return;
       }
       setRows([]);
-      setError(
-        formatApiError(err, message(MSG.PUBLISH_ITEM_HISTORY_ERROR)),
-      );
+      setError(itemHistoryErrorMessage(err));
     } finally {
       setLoading(false);
     }
