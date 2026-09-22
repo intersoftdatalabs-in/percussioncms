@@ -85,4 +85,21 @@ public interface IFolderAdaptor {
    * #renameFolder}.
    */
   void renameFolderItem(URI baseURI, String itemPath, String newName) throws BackendException;
+
+  /**
+   * Loads listing name and display title for a non-folder item (#4701).
+   *
+   * <p>Missing items map to {@link com.percussion.rest.errors.FolderNotFoundException} (HTTP 404),
+   * non-admin callers to {@link com.percussion.rest.errors.NotAuthorizedException} (HTTP 403).
+   */
+  ItemProperties getItemProperties(URI baseURI, String itemPath) throws BackendException;
+
+  /**
+   * Persists listing name and optional display title for a non-folder item (#4701).
+   *
+   * <p>Blank {@code name} is HTTP 400. Missing items map to 404; non-admin callers to 403; folder
+   * selected, name in use, or locked to HTTP 409.
+   */
+  ItemProperties saveItemProperties(URI baseURI, String itemPath, String name, String displayTitle)
+      throws BackendException;
 }

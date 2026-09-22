@@ -1896,7 +1896,120 @@ public class FolderAdaptor implements IFolderAdaptor {
       // Listing name is sys_title. Persist via content WS with check-in false so
       // releaseFromEdit is the only check-in (saveItems checkin=true then
       // releaseFromEdit marks the wrapping TX rollback-only → HTTP 500 on H2, #4655).
-      persistItemDisplayName(sourceItem, wanted, correctedItemPath, sourceItem.isPage());
+      persistItemDisplayName(sourceItem, wanted, correctedItemPath, sourceItem.isPage(), null);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(
+          e.getLocalizedMessage(), Response.Status.CONFLICT);
+    } catch (PSPathNotFoundServiceException e) {
+      throw new FolderNotFoundException(e);
+    } catch (PSDataServiceException e) {
+      throw new BackendException(e);
+    } catch (Exception e) {
+      if (e instanceof NotAuthorizedException nae) {
+        throw nae;
+      }
+      if (e instanceof FolderNotFoundException fnf) {
+        throw fnf;
+      }
+      if (e instanceof WebApplicationException wae) {
+        throw wae;
+      }
+      if (e instanceof BackendException be) {
+        throw be;
+      }
+      String msg = PSExceptionUtils.getMessageForLog(e);
+      if (msg != null
+          && (msg.contains("already exists")
+              || msg.contains("must be unique")
+              || msg.contains("locked"))) {
+        throw new WebApplicationException(msg, Response.Status.CONFLICT);
+      }
+      throw new BackendException(e);
+    }
+  }
+
+  @Override
+  public com.percussion.rest.folders.ItemProperties getItemProperties(URI baseURI, String itemPath)
+      throws BackendException {
+    try {
+      checkAPIPermission();
+      if (StringUtils.isBlank(itemPath)) {
+        throw new WebApplicationException("itemPath is required", Response.Status.BAD_REQUEST);
+      }
+      String correctedItemPath =
+          PSPathUtils.fixSiteFolderPath(
+              siteDataService, PSPathUtils.toRepositoryPath(itemPath));
+      PSDataItemSummary sourceItem;
+      try {
+        sourceItem = (PSDataItemSummary) this.folderHelper.findItem(correctedItemPath);
+      } catch (PSPathNotFoundServiceException | PSNotFoundException e) {
+        throw new FolderNotFoundException(e);
+      }
+      if (sourceItem == null) {
+        throw new FolderNotFoundException();
+      }
+      if (sourceItem.isFolder()) {
+        throw new WebApplicationException(
+            "Use folder properties for folders", Response.Status.CONFLICT);
+      }
+      String displayTitle = null;
+      try {
+        IPSGuid guid = idMapper.getGuid(sourceItem.getId());
+        List<PSCoreItem> items =
+            contentService.loadItems(
+                Collections.singletonList(guid), false, false, false, false);
+        if (items != null && !items.isEmpty() && items.get(0) != null) {
+          displayTitle = readTextField(items.get(0), "displaytitle");
+        }
+      } catch (Exception e) {
+        log.debug("item properties displaytitle load skipped: {}", e.getMessage());
+      }
+      String name = StringUtils.defaultIfBlank(sourceItem.getName(), "");
+      return new com.percussion.rest.folders.ItemProperties(itemPath, name, displayTitle);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      if (e instanceof NotAuthorizedException nae) {
+        throw nae;
+      }
+      if (e instanceof FolderNotFoundException fnf) {
+        throw fnf;
+      }
+      throw new BackendException(e);
+    }
+  }
+
+  @Override
+  public com.percussion.rest.folders.ItemProperties saveItemProperties(
+      URI baseURI, String itemPath, String name, String displayTitle) throws BackendException {
+    try {
+      checkAPIPermission();
+      String wanted = StringUtils.trimToEmpty(name);
+      if (StringUtils.isBlank(wanted)) {
+        throw new WebApplicationException("name is required", Response.Status.BAD_REQUEST);
+      }
+      String correctedItemPath =
+          PSPathUtils.fixSiteFolderPath(
+              siteDataService, PSPathUtils.toRepositoryPath(itemPath));
+      PSDataItemSummary sourceItem;
+      try {
+        sourceItem = (PSDataItemSummary) this.folderHelper.findItem(correctedItemPath);
+      } catch (PSPathNotFoundServiceException | PSNotFoundException e) {
+        throw new FolderNotFoundException(e);
+      }
+      if (sourceItem == null) {
+        throw new FolderNotFoundException();
+      }
+      if (sourceItem.isFolder()) {
+        throw new WebApplicationException(
+            "Use folder properties for folders", Response.Status.CONFLICT);
+      }
+      String title = displayTitle == null ? null : displayTitle.trim();
+      persistItemDisplayName(
+          sourceItem, wanted, correctedItemPath, sourceItem.isPage(), title);
+      return new com.percussion.rest.folders.ItemProperties(itemPath, wanted, title);
     } catch (WebApplicationException e) {
       throw e;
     } catch (PSValidationException e) {
@@ -1936,7 +2049,11 @@ public class FolderAdaptor implements IFolderAdaptor {
    * before save runs (#4655).
    */
   private void persistItemDisplayName(
-      PSDataItemSummary sourceItem, String wanted, String correctedItemPath, boolean isPage)
+      PSDataItemSummary sourceItem,
+      String wanted,
+      String correctedItemPath,
+      boolean isPage,
+      String displayTitle)
       throws BackendException, FolderNotFoundException, PSErrorResultsException {
     if (transactionManager != null) {
       TransactionTemplate tt = new TransactionTemplate(transactionManager);
@@ -1944,7 +2061,8 @@ public class FolderAdaptor implements IFolderAdaptor {
       try {
         tt.execute(
             status -> {
-              persistItemDisplayNameInTx(sourceItem, wanted, correctedItemPath, isPage);
+              persistItemDisplayNameInTx(
+                  sourceItem, wanted, correctedItemPath, isPage, displayTitle);
               return null;
             });
       } catch (org.springframework.transaction.UnexpectedRollbackException e) {
@@ -1952,11 +2070,27 @@ public class FolderAdaptor implements IFolderAdaptor {
       }
       return;
     }
-    persistItemDisplayNameInTx(sourceItem, wanted, correctedItemPath, isPage);
+    persistItemDisplayNameInTx(sourceItem, wanted, correctedItemPath, isPage, displayTitle);
+  }
+
+  private static String readTextField(PSCoreItem core, String fieldName) {
+    if (core == null || StringUtils.isBlank(fieldName)) {
+      return null;
+    }
+    var field = core.getFieldByName(fieldName);
+    if (field == null || field.getValue() == null) {
+      return null;
+    }
+    String v = String.valueOf(field.getValue());
+    return StringUtils.trimToNull(v);
   }
 
   private void persistItemDisplayNameInTx(
-      PSDataItemSummary sourceItem, String wanted, String correctedItemPath, boolean isPage) {
+      PSDataItemSummary sourceItem,
+      String wanted,
+      String correctedItemPath,
+      boolean isPage,
+      String displayTitle) {
     try {
       IPSGuid guid = idMapper.getGuid(sourceItem.getId());
       boolean loadBinary = isPage || isFileAssetType(sourceItem.getType());
@@ -1972,6 +2106,9 @@ public class FolderAdaptor implements IFolderAdaptor {
         core.setTextField("sys_title", wanted);
         if (loadBinary) {
           core.setTextField("filename", wanted);
+        }
+        if (displayTitle != null) {
+          core.setTextField("displaytitle", displayTitle);
         }
         IPSGuid folderId = null;
         String parent = StringUtils.substringBeforeLast(correctedItemPath, "/");

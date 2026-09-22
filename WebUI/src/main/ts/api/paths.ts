@@ -428,6 +428,10 @@ export const PATHS = {
   get FOLDERS_RENAME_ITEM() {
     return `${REST_ROOT}/folders/rename/item`;
   },
+  /** Public REST item properties save ({@code FoldersResource#saveItemProperties}). */
+  get FOLDERS_ITEM_PROPERTIES() {
+    return `${REST_ROOT}/folders/item-properties`;
+  },
   /** Public REST create folder ({@code FoldersResource#createFolder}). */
   get FOLDERS_CREATE() {
     return `${REST_ROOT}/folders/create`;

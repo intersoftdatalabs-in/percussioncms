@@ -38,6 +38,7 @@ import { EXPLORER_MSG } from "./messages";
 export interface ExplorerMenuBarProps {
   showSearch: boolean;
   showSecurity: boolean;
+  showItemProperties?: boolean;
   showTranslations: boolean;
   showRelationships: boolean;
   showDependencies: boolean;
@@ -134,6 +135,7 @@ function isToggleChecked(
     ExplorerMenuBarProps,
     | "showSearch"
     | "showSecurity"
+    | "showItemProperties"
     | "showTranslations"
     | "showRelationships"
     | "showDependencies"
@@ -150,6 +152,8 @@ function isToggleChecked(
       return props.showSearch;
     case "view-security":
       return props.showSecurity;
+    case "view-item-properties":
+      return Boolean(props.showItemProperties);
     case "view-translations":
       return props.showTranslations;
     case "view-relationships":
@@ -203,6 +207,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
   const {
     showSearch,
     showSecurity,
+    showItemProperties = false,
     showTranslations,
     showRelationships,
     showDependencies,
@@ -342,6 +347,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                       ? isToggleChecked(item.id, {
                           showSearch,
                           showSecurity,
+                          showItemProperties,
                           showTranslations,
                           showRelationships,
                           showDependencies,
@@ -396,6 +402,8 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                                               ? hasFolderContext
                                                 ? "explorer-subfolder-copy-panel"
                                                 : "explorer-subfolder-copy-hint"
+                                              : item.id === "view-item-properties"
+                                                ? "explorer-item-properties-panel"
                                               : undefined
                           }
                           data-testid={menuItemTestId(item)}
