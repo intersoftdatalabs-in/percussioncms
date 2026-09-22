@@ -89,6 +89,7 @@ import {
   parseExplorerContentId,
 } from "./menuCatalogLoad";
 import { resolveFolderPathFromSelection } from "./folderPath";
+import { message } from "../i18n/message";
 import { EXPLORER_MSG } from "./messages";
 import {
   buildSitePathPreviewUrl,
@@ -236,7 +237,16 @@ export interface ActionDispatchContext {
   confirm?: (body: string) => boolean;
   openWindow?: (url: string, target?: string, features?: string) => Window | null;
   fetchPreview?: typeof fetchPreviewLocation;
-  runWorkflow?: (itemId: string, trigger: string) => Promise<void>;
+  runWorkflow?: (
+    itemId: string,
+    trigger: string,
+    comment?: string,
+  ) => Promise<void>;
+  /**
+   * Comment collector for comment-required workflow triggers. Return null or
+   * blank to cancel. Defaults to {@code window.prompt}.
+   */
+  promptWorkflowComment?: (trigger: string) => string | null;
   /**
    * Selected AA slot (and optional relationship). Folder browse has no
    * slot — dispatch must not invent Arrange_* from a folder.
@@ -524,8 +534,38 @@ export async function dispatchAction(
     if (trigger == null || !item?.id) {
       return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED };
     }
-    if (ctx.runWorkflow) {
-      await ctx.runWorkflow(String(item.id), trigger);
+    let comment: string | undefined;
+    if (action.commentRequired === true) {
+      const prompt =
+        ctx.promptWorkflowComment ??
+        ((name: string) => {
+          if (typeof window === "undefined" || typeof window.prompt !== "function") {
+            return null;
+          }
+          return window.prompt(
+            `${message(EXPLORER_MSG.WORKFLOW_COMMENT_PROMPT)} (${name})`,
+          );
+        });
+      const entered = prompt(trigger);
+      if (entered == null || String(entered).trim().length === 0) {
+        return { kind, messageKey: EXPLORER_MSG.WORKFLOW_COMMENT_REQUIRED };
+      }
+      comment = String(entered).trim();
+    }
+    try {
+      if (ctx.runWorkflow) {
+        await ctx.runWorkflow(String(item.id), trigger, comment);
+      }
+    } catch (err: unknown) {
+      if (isApiError(err)) {
+        if (err.status === 403) {
+          return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_FORBIDDEN };
+        }
+        if (err.status === 409) {
+          return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_CONFLICT };
+        }
+      }
+      throw err;
     }
     return { kind, refresh: true };
   }

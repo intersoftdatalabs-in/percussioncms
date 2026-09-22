@@ -560,4 +560,9 @@ export interface MenuAction {
   parameters?: ActionMenuParameter[];
   /** Empty unless the parent has cascading children. */
   children?: MenuAction[];
+  /**
+   * Workflow child only: server says this trigger requires a non-blank comment
+   * before {@code transitionWithComments} (#4723).
+   */
+  commentRequired?: boolean;
 }

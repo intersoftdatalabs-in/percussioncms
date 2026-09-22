@@ -384,6 +384,14 @@ export const EXPLORER_MSG = {
   WORKFLOW_MENU_LABEL: "perc.ui.explorer@Workflow",
   WORKFLOW_TRANSITION_FAILED:
     "perc.ui.explorer@Workflow transition failed",
+  WORKFLOW_TRANSITION_FORBIDDEN:
+    "perc.ui.explorer@You are not allowed to run this workflow transition (HTTP 403)",
+  WORKFLOW_TRANSITION_CONFLICT:
+    "perc.ui.explorer@This workflow transition conflicts with the item state (HTTP 409)",
+  WORKFLOW_COMMENT_REQUIRED:
+    "perc.ui.explorer@A comment is required for this workflow transition",
+  WORKFLOW_COMMENT_PROMPT:
+    "perc.ui.explorer@Enter a comment for this workflow transition",
   // Success path refreshes the list silently (error banner is fail-only).
 
   // Views catalog tree + run results (#3116 / parent #3110) — not the View menu

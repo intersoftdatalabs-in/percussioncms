@@ -338,6 +338,7 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
 
       int stateId = sum.getContentStateId();
       List<String> triggers = new ArrayList<>();
+      List<String> commentRequired = new ArrayList<>();
       String defTrigger = null;
       PSState state = workflowHelper.getState(id);
       for (PSTransition t : state.getTransitions()) {
@@ -346,6 +347,11 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
             defTrigger = t.getTrigger();
           } else {
             triggers.add(t.getTrigger());
+          }
+          if (t.getRequiresComment() == PSTransition.PSWorkflowCommentEnum.REQUIRED
+              && t.getTrigger() != null
+              && !t.getTrigger().isBlank()) {
+            commentRequired.add(t.getTrigger());
           }
         }
       }
@@ -358,6 +364,7 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
       trans.setStateName(state.getName());
       trans.setWorkflowId("" + wfId);
       trans.setTransitionTriggers(triggers);
+      trans.setCommentRequiredTriggers(commentRequired);
 
       return trans;
     } catch (PSValidationException e) {
@@ -405,6 +412,7 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
       @QueryParam("comment") String comment) {
     try {
       rejectIfBlank("transition", "id", id);
+      rejectDisallowedTransition(id, trigger, comment);
       PSItemTransitionResults results = new PSItemTransitionResults();
       // Make sure user has permission for publish transition while he is approving the content
       // When the scheduled date is on
@@ -418,10 +426,47 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
         results.setItemId(id);
       }
       return results;
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (PSItemWorkflowServiceException | PSDataServiceException | PSNotFoundException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e.getMessage());
+    }
+  }
+
+  /**
+   * Explorer toolbar transitions (#4723): a trigger outside the allowlist is 403;
+   * a required comment that is blank is 409. Allowed optional comments stay 200.
+   */
+  private void rejectDisallowedTransition(String id, String trigger, String comment) {
+    PSItemStateTransition allowed = getTransitions(id);
+    boolean triggerAllowed = false;
+    if (allowed.getTransitionTriggers() != null && trigger != null) {
+      for (String name : allowed.getTransitionTriggers()) {
+        if (name != null && name.equalsIgnoreCase(trigger.trim())) {
+          triggerAllowed = true;
+          break;
+        }
+      }
+    }
+    boolean commentRequired = false;
+    if (allowed.getCommentRequiredTriggers() != null && trigger != null) {
+      for (String name : allowed.getCommentRequiredTriggers()) {
+        if (name != null && name.equalsIgnoreCase(trigger.trim())) {
+          commentRequired = true;
+          break;
+        }
+      }
+    }
+    int status = PSItemWorkflowTransitionGate.httpStatus(triggerAllowed, commentRequired, comment);
+    if (status == PSItemWorkflowTransitionGate.FORBIDDEN) {
+      throw new WebApplicationException(
+          "Workflow transition is not allowed: " + trigger, Response.Status.FORBIDDEN);
+    }
+    if (status == PSItemWorkflowTransitionGate.COMMENT_REQUIRED) {
+      throw new WebApplicationException(
+          "A comment is required for workflow transition: " + trigger, Response.Status.CONFLICT);
     }
   }
 

@@ -120,6 +120,8 @@ public class PSSerializableListWrappersTest {
   public void serialFieldCollectionTypesAreConcreteAndSerializable() throws Exception {
     assertCollectionFieldConcrete(PSUser.class, "roles", ArrayList.class);
     assertCollectionFieldConcrete(PSItemStateTransition.class, "transitionTriggers", ArrayList.class);
+    assertCollectionFieldConcrete(
+        PSItemStateTransition.class, "commentRequiredTriggers", ArrayList.class);
     assertCollectionFieldConcrete(PSSiteSection.class, "childIds", ArrayList.class);
     assertCollectionFieldConcrete(PSItemProperties.class, "tags", ArrayList.class);
     assertCollectionFieldConcrete(
@@ -155,6 +157,14 @@ public class PSSerializableListWrappersTest {
     assertEquals(List.of("approve", "reject"), transition.getTransitionTriggers());
     triggers.clear();
     assertEquals(2, transition.getTransitionTriggers().size());
+    List<String> required = new LinkedList<>(List.of("reject"));
+    transition.setCommentRequiredTriggers(required);
+    assertEquals(List.of("reject"), transition.getCommentRequiredTriggers());
+    required.clear();
+    assertEquals(1, transition.getCommentRequiredTriggers().size());
+    transition.setCommentRequiredTriggers(null);
+    assertNotNull(transition.getCommentRequiredTriggers());
+    assertTrue(transition.getCommentRequiredTriggers().isEmpty());
 
     var section = new PSSiteSection();
     section.setChildIds(new LinkedList<>(List.of("a", "b")));

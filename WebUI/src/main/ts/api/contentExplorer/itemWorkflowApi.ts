@@ -43,6 +43,8 @@ export interface ItemStateTransition {
   stateName?: string;
   workflowId?: string;
   transitionTriggers?: string[];
+  /** Triggers whose workflow comment policy is required (#4723). */
+  commentRequiredTriggers?: string[];
 }
 
 /**
@@ -137,6 +139,7 @@ export function unwrapItemStateTransition(
     stateName: asOptionalString(body.stateName),
     workflowId: asOptionalString(body.workflowId),
     transitionTriggers: coerceTransitionTriggers(body.transitionTriggers),
+    commentRequiredTriggers: coerceTransitionTriggers(body.commentRequiredTriggers),
   };
 }
 

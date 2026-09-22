@@ -270,6 +270,7 @@ export interface ContentExplorerShellProps {
   runWorkflowTransition?: (
     itemId: string,
     trigger: string,
+    comment?: string,
   ) => Promise<void>;
   /**
    * Test seam: load consolidated relationship summary for DependencyViewer
@@ -416,6 +417,7 @@ async function defaultLoadWorkflowMenuActions(
     return buildWorkflowTransitionMenu(state?.transitionTriggers ?? [], {
       groupLabel: message(EXPLORER_MSG.WORKFLOW_MENU_LABEL),
       stateName: state?.stateName,
+      commentRequiredTriggers: state?.commentRequiredTriggers,
     });
   } catch {
     // Non-fatal: keep server action menus without workflow group.
@@ -426,8 +428,9 @@ async function defaultLoadWorkflowMenuActions(
 async function defaultRunWorkflowTransition(
   itemId: string,
   trigger: string,
+  comment?: string,
 ): Promise<void> {
-  await transitionItem(itemId, trigger);
+  await transitionItem(itemId, trigger, comment);
 }
 
 /** Stable default — module scope so useEffect deps do not refetch every render. */

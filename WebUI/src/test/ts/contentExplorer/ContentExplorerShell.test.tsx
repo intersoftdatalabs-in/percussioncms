@@ -1397,6 +1397,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       expect(runWorkflowTransition).toHaveBeenCalledWith(
         "33554432-101-1",
         "Submit",
+        undefined,
       );
     });
   });

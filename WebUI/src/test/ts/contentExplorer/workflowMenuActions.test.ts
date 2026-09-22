@@ -50,6 +50,21 @@ describe("workflowMenuActions mapping (#2732)", () => {
       "Submit",
       "Approve",
     ]);
+    expect(menu!.children?.every((c) => c.commentRequired !== true)).toBe(true);
+  });
+
+  it("marks comment-required triggers from the server list (#4723)", () => {
+    const menu = buildWorkflowTransitionMenu(["Submit", "Reject", "Send Back"], {
+      commentRequiredTriggers: ["reject", "SendBack"],
+    });
+    const byLabel = Object.fromEntries(
+      (menu!.children ?? []).map((c) => [c.label, c.commentRequired === true]),
+    );
+    expect(byLabel).toEqual({
+      Submit: false,
+      Reject: true,
+      "Send Back": true,
+    });
   });
 
   it("de-duplicates triggers preserving first-seen order", () => {

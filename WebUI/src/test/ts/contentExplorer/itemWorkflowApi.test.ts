@@ -64,6 +64,17 @@ describe("itemWorkflowApi (#2732)", () => {
     expect(result.itemId).toBe("101-1");
     expect(result.stateName).toBe("Draft");
     expect(result.transitionTriggers).toEqual(["Submit", "Approve"]);
+    expect(result.commentRequiredTriggers).toEqual([]);
+  });
+
+  it("unwraps commentRequiredTriggers (#4723)", () => {
+    const result = unwrapItemStateTransition({
+      ItemStateTransition: {
+        transitionTriggers: ["Submit", "Reject"],
+        commentRequiredTriggers: ["Reject"],
+      },
+    });
+    expect(result.commentRequiredTriggers).toEqual(["Reject"]);
   });
 
   it("getItemWorkflowTransitions returns empty triggers for blank id without fetch", async () => {
