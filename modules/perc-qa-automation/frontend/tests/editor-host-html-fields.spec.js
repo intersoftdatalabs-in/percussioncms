@@ -69,6 +69,9 @@ const TYPE = {
 };
 
 async function stubEditorApis(page, { putStatus, putBody, onPut } = {}) {
+  await page.route("**/sys_resources/tinymce/**", (route) =>
+    route.fulfill({ status: 404, body: "" }),
+  );
   await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
