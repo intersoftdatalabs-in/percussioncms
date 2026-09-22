@@ -41,6 +41,7 @@ import {
   primaryButtonStyle,
   toolbarStyle,
 } from "../publishing.styles";
+import { mapContextSaveError } from "../contextSaveErrors";
 import { mapLocationSchemeSaveError } from "../locationSchemeSaveErrors";
 import { useDirtyForm } from "../dirtyFormContext";
 import { normalizeSchemeType } from "./designLegacyTypes";
@@ -110,7 +111,17 @@ export function ContextsPanel(): React.ReactElement {
   function openContextEdit(c: ContextSummary | null): void {
     setCtxName(c?.name ?? "");
     setCtxDesc(c?.description ?? "");
+    setError(null);
+    setDirty(false);
     setMode({ kind: "context-edit", context: c });
+  }
+
+  function closeContextEditor(): void {
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setMode({ kind: "list" });
   }
 
   async function openSchemeEdit(
@@ -152,13 +163,17 @@ export function ContextsPanel(): React.ReactElement {
   }
 
   async function saveContext(): Promise<void> {
+    if (mode.kind !== "context-edit") {
+      return;
+    }
     if (!ctxName.trim()) {
       setError("Name is required");
       return;
     }
     setError(null);
+    setSaving(true);
     try {
-      if (mode.kind === "context-edit" && mode.context?.contextId) {
+      if (mode.context?.contextId) {
         await updateContext(mode.context.contextId, {
           name: ctxName.trim(),
           description: ctxDesc,
@@ -166,10 +181,13 @@ export function ContextsPanel(): React.ReactElement {
       } else {
         await createContext({ name: ctxName.trim(), description: ctxDesc });
       }
+      setDirty(false);
       setMode({ kind: "list" });
       reloadContexts();
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapContextSaveError(e));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -265,7 +283,10 @@ export function ContextsPanel(): React.ReactElement {
           <input
             id="ctx-name"
             value={ctxName}
-            onChange={(e) => setCtxName(e.target.value)}
+            onChange={(e) => {
+              setCtxName(e.target.value);
+              setDirty(true);
+            }}
           />
         </div>
         <div style={formRowStyle}>
@@ -273,7 +294,10 @@ export function ContextsPanel(): React.ReactElement {
           <input
             id="ctx-desc"
             value={ctxDesc}
-            onChange={(e) => setCtxDesc(e.target.value)}
+            onChange={(e) => {
+              setCtxDesc(e.target.value);
+              setDirty(true);
+            }}
           />
         </div>
         {error && (
@@ -282,10 +306,16 @@ export function ContextsPanel(): React.ReactElement {
           </p>
         )}
         <div style={toolbarStyle}>
-          <button type="button" style={primaryButtonStyle} onClick={() => void saveContext()}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="context-save"
+            disabled={saving}
+            onClick={() => void saveContext()}
+          >
             {message(MSG.PUBLISH_SAVE)}
           </button>
-          <button type="button" style={buttonStyle} onClick={() => setMode({ kind: "list" })}>
+          <button type="button" style={buttonStyle} onClick={() => closeContextEditor()}>
             {message(MSG.PUBLISH_BACK)}
           </button>
         </div>
@@ -443,7 +473,12 @@ export function ContextsPanel(): React.ReactElement {
             ))}
           </select>
         </label>
-        <button type="button" style={buttonStyle} onClick={() => openContextEdit(null)}>
+        <button
+          type="button"
+          style={buttonStyle}
+          data-testid="design-add-context"
+          onClick={() => openContextEdit(null)}
+        >
           Add context
         </button>
         {selected && (

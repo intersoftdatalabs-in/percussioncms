@@ -91,6 +91,7 @@ public class PSPublishingDesignRestService {
   static final String CONTENT_LIST_NAME_CONFLICT = "Content list name already exists";
   static final String DELIVERY_TYPE_NAME_CONFLICT = "Delivery type name already exists";
   static final String LOCATION_SCHEME_NAME_CONFLICT = "Location scheme name already exists";
+  static final String CONTEXT_NAME_CONFLICT = "Publishing context name already exists";
 
   private final IPSPublisherService publisherService;
   private final IPSGuidManager guidManager;
@@ -803,10 +804,12 @@ public class PSPublishingDesignRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSContextSummary createContext(PSContextSummary body) {
     requireSiteManager();
+    requireDesignWrite();
     if (body == null || isBlank(body.getName())) {
       throw badRequest("name is required");
     }
     try {
+      requireUniqueContextName(body.getName().trim(), null);
       IPSPublishingContext ctx = siteManager.createContext();
       ctx.setName(body.getName().trim());
       if (body.getDescription() != null) {
@@ -832,6 +835,7 @@ public class PSPublishingDesignRestService {
   public PSContextSummary updateContext(
       @PathParam("contextId") String contextId, PSContextSummary body) {
     requireSiteManager();
+    requireDesignWrite();
     requireNonBlank(contextId, "contextId");
     if (body == null) {
       throw badRequest("body is required");
@@ -840,6 +844,7 @@ public class PSPublishingDesignRestService {
       IPSPublishingContext ctx =
           siteManager.loadContextModifiable(guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT));
       if (!isBlank(body.getName())) {
+        requireUniqueContextName(body.getName().trim(), contextId);
         ctx.setName(body.getName().trim());
       }
       if (body.getDescription() != null) {
@@ -1372,6 +1377,28 @@ public class PSPublishingDesignRestService {
         continue;
       }
       throw conflict(LOCATION_SCHEME_NAME_CONFLICT);
+    }
+  }
+
+  private void requireUniqueContextName(String name, String currentContextId)
+      throws PSNotFoundException {
+    List<IPSPublishingContext> contexts = siteManager.findAllContexts();
+    if (contexts == null) {
+      return;
+    }
+    for (IPSPublishingContext existing : contexts) {
+      if (existing == null || isBlank(existing.getName())) {
+        continue;
+      }
+      if (!existing.getName().equalsIgnoreCase(name)) {
+        continue;
+      }
+      String existingId =
+          existing.getGUID() != null ? String.valueOf(existing.getGUID().getUUID()) : null;
+      if (currentContextId != null && currentContextId.equals(existingId)) {
+        continue;
+      }
+      throw conflict(CONTEXT_NAME_CONFLICT);
     }
   }
 

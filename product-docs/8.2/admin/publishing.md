@@ -80,6 +80,19 @@ HTTP **403** (not Admin or Designer) and **409** (delivery type name already exi
 delivery-type editor error region — not as a successful save. Content-list save and edition save
 are separate Design actions.
 
+### Save a publishing context (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. **Add context** (or **Edit context** for the selected context).
+Enter a **name** (required) and optional description, then **Save**. Unsaved field edits
+mark the form dirty; leaving the editor prompts to discard. The shell posts
+`POST …/sitemanage/publishingdesign/contexts` (create) or
+`PUT …/sitemanage/publishingdesign/contexts/{contextId}` (update).
+
+HTTP **403** (not Admin or Designer) and **409** (publishing context name already exists)
+are shown in the context editor error region — not as a successful save. Location-scheme
+save, delivery-type save, and edition save are separate Design actions.
+
 ### Save a location scheme (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
