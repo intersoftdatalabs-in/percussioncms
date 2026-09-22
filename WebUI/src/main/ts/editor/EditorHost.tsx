@@ -1616,6 +1616,7 @@ export function EditorHost({
             {contentId != null && payload != null ? (
               <EditorRelatedContentPanel
                 itemId={String(contentId)}
+                readOnly={!canEdit}
                 loadCanvas={loadRelatedCanvas}
                 loadLocal={loadRelatedLocal}
               />

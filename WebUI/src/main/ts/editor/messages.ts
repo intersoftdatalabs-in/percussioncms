@@ -143,6 +143,17 @@ export const EDITOR_MSG = {
   RELATED_FORBIDDEN:
     "perc.ui.editor@You are not allowed to list related content for this item.",
   RELATED_FAILED: "perc.ui.editor@Could not load related content.",
+  RELATED_INSERT: "perc.ui.editor@Insert existing item",
+  RELATED_ITEM_ID: "perc.ui.editor@Existing item id",
+  RELATED_SLOT: "perc.ui.editor@Slot",
+  RELATED_INSERTING: "perc.ui.editor@Inserting…",
+  RELATED_INSERT_BAD:
+    "perc.ui.editor@That related item could not be inserted. Check the item id and slot.",
+  RELATED_INSERT_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to insert related content on this item.",
+  RELATED_INSERT_NOT_FOUND:
+    "perc.ui.editor@That item or slot was not found.",
+  RELATED_INSERT_FAILED: "perc.ui.editor@Could not insert the related item.",
   NEW_ITEM: "perc.ui.editor@New item",
   CREATING: "perc.ui.editor@Creating…",
   CREATE: "perc.ui.editor@Create",

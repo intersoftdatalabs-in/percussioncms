@@ -111,7 +111,8 @@ public class SlotRelationshipResource {
             description = "OK",
             content = @Content(schema = @Schema(implementation = SlotRelationship.class))),
         @ApiResponse(responseCode = "400", description = "Missing or invalid ids"),
-        @ApiResponse(responseCode = "404", description = "Owner not found"),
+        @ApiResponse(responseCode = "403", description = "Not allowed to insert into the slot"),
+        @ApiResponse(responseCode = "404", description = "Owner or dependent not found"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })

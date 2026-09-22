@@ -19,7 +19,9 @@ import { describe, expect, it } from "vitest";
 import { RelationshipSummaryAuthError } from "../../../main/ts/api/contentExplorer/relationshipsApi";
 import {
   flattenRelatedContent,
+  insertSlotChoices,
   relatedContentErrorReason,
+  relatedInsertErrorReason,
 } from "../../../main/ts/editor/editorRelatedContent";
 
 describe("flattenRelatedContent", () => {
@@ -73,6 +75,64 @@ describe("relatedContentErrorReason", () => {
         new RelationshipSummaryAuthError("no", 403, "Forbidden"),
       ),
     ).toBe("forbidden");
+  });
+
+  it("maps insert 400, 403, and 404 and leaves other statuses failed", () => {
+    expect(relatedInsertErrorReason({ status: 400, statusText: "B", body: {} })).toBe(
+      "bad_request",
+    );
+    expect(relatedInsertErrorReason({ status: 403, statusText: "F", body: {} })).toBe(
+      "forbidden",
+    );
+    expect(relatedInsertErrorReason({ status: 404, statusText: "N", body: {} })).toBe(
+      "not_found",
+    );
+    expect(relatedInsertErrorReason(new Error("boom"))).toBe("failed");
+  });
+
+  it("offers canvas slots and a template id for insert", () => {
+    expect(
+      insertSlotChoices({
+        ownerId: 42,
+        templateId: 7,
+        slots: [
+          { slotId: 9, name: "percSystem", label: "Content", items: [] },
+          { slotId: 0, name: "skip", label: "Skip", items: [] },
+        ],
+      }),
+    ).toEqual([{ slotId: 9, templateId: 7, label: "Content" }]);
+  });
+
+  it("uses an existing item template and skips slots with no template", () => {
+    expect(
+      insertSlotChoices({
+        ownerId: 1,
+        templateId: null,
+        slots: [
+          {
+            slotId: 2,
+            name: "bare",
+            label: "Bare",
+            items: [],
+          },
+          {
+            slotId: 3,
+            name: "filled",
+            label: "Filled",
+            items: [
+              {
+                relationshipId: 1,
+                ownerId: 1,
+                dependentId: 8,
+                slotId: 3,
+                templateId: 4,
+                sortRank: 0,
+              },
+            ],
+          },
+        ],
+      }),
+    ).toEqual([{ slotId: 3, templateId: 4, label: "Filled" }]);
   });
 
   it("maps other errors to failed", () => {

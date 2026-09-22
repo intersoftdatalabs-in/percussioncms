@@ -579,6 +579,37 @@ describe("EditorHost", () => {
     });
     expect(screen.getAllByTestId("editor-related-row")).toHaveLength(2);
     expect(screen.queryByTestId("editor-related-empty")).toBeNull();
+    expect(screen.getByTestId("editor-related-insert")).toBeTruthy();
+  });
+
+  it("does not offer related insert in view mode", async () => {
+    const loadRelatedCanvas = vi.fn().mockResolvedValue({
+      ownerId: 42,
+      templateId: 7,
+      slots: [{ slotId: 1, name: "content", label: "Content", items: [] }],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => ({ fields: [] })}
+                loadRelatedCanvas={loadRelatedCanvas}
+                loadRelatedLocal={async () => ({ count: 0, links: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-panel")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-related-insert")).toBeNull();
   });
 
   it("shows empty related content when there are no links", async () => {
