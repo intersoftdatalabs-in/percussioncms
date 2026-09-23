@@ -142,6 +142,23 @@ export const EXPLORER_MSG = {
   TOGGLE_SITE_COPY_ARIA: "perc.ui.explorer@Show or hide site copy wizard",
   SITE_COPY_SELECT_SITE:
     "perc.ui.explorer@Open a site under Sites to copy it.",
+
+  SITE_RENAME_TITLE: "perc.ui.explorer@Rename Site",
+  TOGGLE_SITE_RENAME_ARIA: "perc.ui.explorer@Show or hide rename site",
+  SITE_RENAME_PANEL_REGION: "perc.ui.explorer@Rename site panel",
+  SITE_RENAME_SELECT_SITE:
+    "perc.ui.explorer@Open a site under Sites to rename it.",
+  SITE_RENAME_NAME_LABEL: "perc.ui.explorer@New site name",
+  SITE_RENAME_SUBMIT: "perc.ui.explorer@Rename",
+  SITE_RENAME_CANCEL: "perc.ui.explorer@Cancel",
+  SITE_RENAME_ERROR_400:
+    "perc.ui.explorer@That site name is not valid. Use letters, digits, spaces, hyphens, or underscores.",
+  SITE_RENAME_ERROR_403:
+    "perc.ui.explorer@You do not have permission to rename this site.",
+  SITE_RENAME_ERROR_409:
+    "perc.ui.explorer@A site or site folder already uses that name.",
+  SITE_RENAME_ERROR_GENERIC:
+    "perc.ui.explorer@The site could not be renamed.",
   SITE_COPY_COMPLETED: "perc.ui.explorer@Site copy completed",
   SITE_COPY_HTTP_400:
     "perc.ui.explorer@Site copy was rejected (HTTP 400). Check the source site and target name.",

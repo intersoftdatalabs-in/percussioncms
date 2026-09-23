@@ -49,6 +49,8 @@ export interface ExplorerMenuBarProps {
   showSiteCreate?: boolean;
   /** Content → Site Copy panel open (#2767). */
   showSiteCopy?: boolean;
+  /** Content → Rename Site panel open (#4764). */
+  showSiteRename?: boolean;
   /** Content → Subfolder Copy panel open (#2792). */
   showSubfolderCopy?: boolean;
   /** Multi-select size for clipboard-add disable + status badge. */
@@ -143,6 +145,7 @@ function isToggleChecked(
     | "showClipboard"
     | "showSiteCreate"
     | "showSiteCopy"
+    | "showSiteRename"
     | "showSubfolderCopy"
   >,
 ): boolean {
@@ -166,6 +169,8 @@ function isToggleChecked(
       return props.showSiteCreate === true;
     case "content-site-copy":
       return props.showSiteCopy === true;
+    case "content-site-rename":
+      return props.showSiteRename === true;
     case "content-subfolder-copy":
       return props.showSubfolderCopy === true;
     default:
@@ -215,6 +220,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
     showClipboard,
     showSiteCreate = false,
     showSiteCopy = false,
+    showSiteRename = false,
     showSubfolderCopy = false,
     multiSelectedCount,
     hasSiteContext = false,
@@ -355,6 +361,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                           showClipboard,
                           showSiteCreate,
                           showSiteCopy,
+                          showSiteRename,
                           showSubfolderCopy,
                         })
                       : undefined;
@@ -398,6 +405,10 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                                             ? hasSiteContext
                                               ? "explorer-site-copy-panel"
                                               : "explorer-site-copy-hint"
+                                            : item.id === "content-site-rename"
+                                              ? hasSiteContext
+                                                ? "explorer-site-rename-panel"
+                                                : "explorer-site-rename-hint"
                                             : item.id === "content-subfolder-copy"
                                               ? hasFolderContext
                                                 ? "explorer-subfolder-copy-panel"

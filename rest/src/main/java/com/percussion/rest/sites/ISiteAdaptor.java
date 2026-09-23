@@ -63,6 +63,16 @@ public interface ISiteAdaptor {
   Site updateSite(String nameOrId, Site request);
 
   /**
+   * Admin rename. Does not copy the site. Blank or illegal names are 400; non-admin is 403;
+   * an existing site or site folder name is 409.
+   *
+   * @param nameOrId existing site name or GUID
+   * @param newName requested name, not blank
+   * @return site detail under the new name
+   */
+  Site renameSite(String nameOrId, String newName);
+
+  /**
    * Admin delete by name or GUID string.
    *
    * @param nameOrId site name or GUID, not blank

@@ -3538,6 +3538,27 @@ public class SitesResourceTest {
   }
 
   @Test
+  public void renameSiteDelegates() {
+    RenameSiteRequest body = new RenameSiteRequest();
+    body.setName("RenamedSite");
+    Site saved = new Site();
+    saved.setName("RenamedSite");
+    when(adaptor.renameSite("NightlySite", "RenamedSite")).thenReturn(saved);
+    assertEquals("RenamedSite", resource.renameSite("NightlySite", body).getName());
+    verify(adaptor).renameSite("NightlySite", "RenamedSite");
+  }
+
+  @Test
+  public void renameSiteBlankName400() {
+    RenameSiteRequest body = new RenameSiteRequest();
+    body.setName(" ");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.renameSite("NightlySite", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).renameSite(any(), any());
+  }
+
+  @Test
   public void updateSiteDelegates() {
     Site body = new Site();
     body.setName("NightlySite");

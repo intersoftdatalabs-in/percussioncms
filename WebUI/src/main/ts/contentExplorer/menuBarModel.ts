@@ -31,6 +31,7 @@ export type ExplorerMenuCommandId =
   | "content-clipboard-add"
   | "content-create-site"
   | "content-site-copy"
+  | "content-site-rename"
   | "content-subfolder-copy"
   | "view-refresh"
   | "view-search"
@@ -111,6 +112,14 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.SITE_COPY_TITLE,
           ariaLabelKey: EXPLORER_MSG.TOGGLE_SITE_COPY_ARIA,
           testId: "explorer-content-site-copy",
+          toggle: true,
+          disabledWhen: "noSiteContext",
+        },
+        {
+          id: "content-site-rename",
+          labelKey: EXPLORER_MSG.SITE_RENAME_TITLE,
+          ariaLabelKey: EXPLORER_MSG.TOGGLE_SITE_RENAME_ARIA,
+          testId: "explorer-content-site-rename",
           toggle: true,
           disabledWhen: "noSiteContext",
         },

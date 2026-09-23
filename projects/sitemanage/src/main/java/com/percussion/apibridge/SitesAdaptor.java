@@ -255,6 +255,69 @@ public class SitesAdaptor implements ISiteAdaptor {
   }
 
   @Override
+  public Site renameSite(String nameOrId, String newName) {
+    requireAdmin();
+    String normalized = normalizeSiteName(newName);
+    IPSSite found = requireSite(nameOrId);
+    if (normalized.equalsIgnoreCase(found.getName())) {
+      return toDetailSite(found);
+    }
+    if (siteManager.findSite(normalized) != null) {
+      throw new WebApplicationException(
+          "Cannot rename site \""
+              + found.getName()
+              + "\" to an existing site name: \""
+              + normalized
+              + "\".",
+          Response.Status.CONFLICT);
+    }
+    if (siteDataService == null) {
+      try {
+        IPSSite modifiable = loadModifiable(found);
+        modifiable.setName(normalized);
+        siteManager.saveSite(modifiable);
+        return toDetailSite(modifiable);
+      } catch (PSNotFoundException e) {
+        throw new WebApplicationException("Site not found: " + nameOrId, Response.Status.NOT_FOUND);
+      }
+    }
+    try {
+      var props = siteDataService.getSiteProperties(found.getName());
+      if (props == null) {
+        throw new WebApplicationException("Site not found: " + nameOrId, Response.Status.NOT_FOUND);
+      }
+      props.setName(normalized);
+      siteDataService.updateSiteProperties(props);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSNotFoundException e) {
+      throw new WebApplicationException("Site not found: " + nameOrId, Response.Status.NOT_FOUND);
+    } catch (PSDataServiceException e) {
+      throw mapRenameFailure(found.getName(), normalized, e);
+    }
+    IPSSite renamed = siteManager.findSite(normalized);
+    return renamed != null ? toDetailSite(renamed) : toDetailSite(found);
+  }
+
+  /** Package-visible so unit tests can inject the rename persistence service. */
+  void setSiteDataService(IPSSiteDataService service) {
+    this.siteDataService = service;
+  }
+
+  private static WebApplicationException mapRenameFailure(String from, String to, Exception e) {
+    String msg = e.getMessage() == null ? "" : e.getMessage();
+    if (msg.toLowerCase(Locale.ROOT).contains("existing")) {
+      return new WebApplicationException(
+          msg.isBlank()
+              ? "Cannot rename site \"" + from + "\" to \"" + to + "\"."
+              : msg,
+          Response.Status.CONFLICT);
+    }
+    return new WebApplicationException(
+        msg.isBlank() ? "Invalid site name" : msg, Response.Status.BAD_REQUEST);
+  }
+
+  @Override
   public void deleteSiteByNameOrId(String nameOrId) {
     requireAdmin();
     IPSSite found = requireSite(nameOrId);

@@ -197,6 +197,25 @@ describe("ExplorerMenuBar (#2731)", () => {
     expect(onCommand).toHaveBeenCalledWith("content-site-copy");
   });
 
+  it("Content → Rename Site is disabled without site context (#4764)", () => {
+    renderBar({ hasSiteContext: false });
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    const item = screen.getByTestId(
+      "explorer-content-site-rename",
+    ) as HTMLButtonElement;
+    expect(item.disabled).toBe(true);
+  });
+
+  it("Content → Rename Site invokes when site context present (#4764)", () => {
+    const { onCommand } = renderBar({
+      hasSiteContext: true,
+      showSiteRename: false,
+    });
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-content-site-rename"));
+    expect(onCommand).toHaveBeenCalledWith("content-site-rename");
+  });
+
   it("Content → Subfolder Copy is disabled without folder context (#2792)", () => {
     renderBar({ hasFolderContext: false });
     fireEvent.click(screen.getByTestId("explorer-menu-content"));
