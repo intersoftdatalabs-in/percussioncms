@@ -55,6 +55,12 @@ function takedownErrorMessage(err: unknown): string {
     if (err.status === 400) {
       return formatApiError(err, message(MSG.PUBLISH_BADCONFIG));
     }
+    if (err.status === 404) {
+      return formatApiError(err, message(MSG.PUBLISH_NOW_NOT_FOUND));
+    }
+    if (err.status === 409) {
+      return formatApiError(err, message(MSG.PUBLISH_SCHEDULE_CONFLICT));
+    }
   }
   const text = formatApiError(err, message(MSG.PUBLISH_ERROR));
   if (/\bFORBIDDEN\b/i.test(text)) {
@@ -62,6 +68,12 @@ function takedownErrorMessage(err: unknown): string {
   }
   if (/\bBADCONFIG\b/i.test(text)) {
     return message(MSG.PUBLISH_BADCONFIG);
+  }
+  if (/\b404\b|\bNOT FOUND\b/i.test(text)) {
+    return message(MSG.PUBLISH_NOW_NOT_FOUND);
+  }
+  if (/\b409\b|\bCONFLICT\b|checked out|editing this/i.test(text)) {
+    return message(MSG.PUBLISH_SCHEDULE_CONFLICT);
   }
   return text;
 }

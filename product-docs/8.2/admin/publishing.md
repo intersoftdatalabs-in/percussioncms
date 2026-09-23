@@ -329,14 +329,14 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 
 ## Take down from the Publishing site workspace
 
-From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Remove From Site** panel takes down (unpublishes) a page or asset using the same sitemanage paths as Content Explorer and classic Finder (`GET /services/sitemanage/publish/takedown/page/{id}` or `/resource/{id}`; `PUT` of the linked-page list when that list is non-empty). Linked pages come from `GET /services/itemmanagement/item/findLinkedItems/{id}` and are listed on confirm (up to ten). A failed linked-item lookup still proceeds with the confirm (classic Finder).
+From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Remove From Site** panel takes down (unpublishes) a page or asset using the same sitemanage paths as Content Explorer and classic Finder (`GET /services/sitemanage/publish/takedown/page/{id}` or `/resource/{id}`; `PUT` of the linked-page list when that list is non-empty). Take down does **not** delete the CMS content item. Linked pages come from `GET /services/itemmanagement/item/findLinkedItems/{id}` and are listed on confirm (up to ten). A failed linked-item lookup still proceeds with the confirm (classic Finder).
 
 1. Sign in as an operator who can open Publish.
 2. Open **Publish → Sites** and select a site (or deep-link `section=sites` with `siteId`).
 3. Enter the item id (content GUID such as `16777215-101-9`), choose **Page** or **Asset**, and choose **Review take down**.
 4. Confirm lists linked page paths when present. Choose **Take down** to unpublish.
 
-**Empty and error states:** Blank item id is not a takedown. HTTP 200 with application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is a failure — the panel shows the server warning and does **not** treat the item as unpublished. HTTP **403** is the same (not success). Content Explorer Take Down remains the selection-based action for a Finder row.
+**Empty and error states:** Blank item id is not a takedown. HTTP 200 with application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is a failure — the panel shows the server warning and does **not** treat the item as unpublished. HTTP **400** (validation), **403** (forbidden), **404** (item not found), and **409** (someone else is editing the item) are shown in the panel and are **not** success. The content item remains in the CMS. Content Explorer Take Down remains the selection-based action for a Finder row.
 
 **Deep links:**
 
