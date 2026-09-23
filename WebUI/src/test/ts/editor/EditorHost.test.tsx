@@ -1426,6 +1426,207 @@ describe("EditorHost HTML field save (#4680)", () => {
     expect(area.readOnly).toBe(true);
     expect(screen.queryByTestId("editor-save")).toBeNull();
   });
+
+  it("saves sys_EditBox maxtext through PUT and keeps line breaks", async () => {
+    const saveFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percPage",
+      name: "Home",
+      checkoutUser: "admin",
+      fields: [
+        { name: "sys_title", value: "Home" },
+        { name: "description", value: "line one\nline two" },
+      ],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percPage",
+                  name: "Home",
+                  checkoutUser: "admin",
+                  fields: [
+                    { name: "sys_title", value: "Home" },
+                    { name: "description", value: "line one" },
+                  ],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox", dataType: "text" },
+                    {
+                      name: "description",
+                      label: "Description",
+                      control: "sys_EditBox",
+                      dataType: "maxtext",
+                    },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-description")).toBeTruthy();
+    });
+    const area = screen.getByTestId("editor-field-description") as HTMLTextAreaElement;
+    expect(area.getAttribute("data-editor-kind")).toBe("longtext");
+    fireEvent.change(area, { target: { value: "line one\nline two" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "description")?.value).toBe(
+      "line one\nline two",
+    );
+  });
+
+  it("blocks a NUL in long text before PUT", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percPage",
+                  name: "Home",
+                  checkoutUser: "admin",
+                  fields: [{ name: "description", value: "ok" }],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    {
+                      name: "description",
+                      label: "Description",
+                      control: "sys_TextArea",
+                    },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-description")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-description"), {
+      target: { value: "bad\u0000value" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-description")).toBeTruthy();
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("maps unnamed HTTP 400 onto the long-text field", async () => {
+    const saveFields = vi.fn().mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { Error: { message: "rejected" } },
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percPage",
+                  name: "Home",
+                  checkoutUser: "admin",
+                  fields: [{ name: "description", value: "ok" }],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    {
+                      name: "description",
+                      label: "Description",
+                      control: "sys_TextArea",
+                    },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-description")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-description"), {
+      target: { value: "updated\nbody" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-description")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /long text could not be saved/i,
+    );
+  });
+
+  it("keeps long-text read-only in view mode", async () => {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percPage",
+                  name: "Home",
+                  checkoutUser: "",
+                  fields: [{ name: "description", value: "line one" }],
+                })}
+                loadType={async () => ({
+                  fields: [
+                    {
+                      name: "description",
+                      label: "Description",
+                      control: "sys_EditBox",
+                      dataType: "maxtext",
+                    },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    const area = screen.getByTestId("editor-field-description") as HTMLTextAreaElement;
+    expect(area.readOnly).toBe(true);
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+  });
 });
 
 describe("EditorHost workflow transitions (#4539)", () => {

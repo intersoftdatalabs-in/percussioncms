@@ -119,6 +119,19 @@ class PSItemServiceSaveEditorFieldsTest {
   }
 
   @Test
+  void embeddedNulInLongTextMapsToBadRequestAndDoesNotSave() throws Exception {
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(0);
+    req.setFields(List.of(new PSItemEditorField("description", "line\u0000two")));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveEditorFields("42", req));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+    verify(contentItemDao, never()).save(any());
+    verify(contentWs, never()).prepareForEdit(any(IPSGuid.class));
+  }
+
+  @Test
   void matchingRevisionSavesAndReturnsLiveRevision() throws Exception {
     when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
     when(summary.getCurrentLocator()).thenReturn(new PSLocator(42, 2));

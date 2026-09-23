@@ -55,6 +55,7 @@ import {
   mapSaveApiErrorToFieldErrors,
 } from "./editorFieldErrors";
 import { collectUnsafeHtmlFieldErrors } from "./htmlField";
+import { collectInvalidLongTextFieldErrors } from "./longTextField";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
 import {
   canCopyFromEditor,
@@ -629,6 +630,20 @@ export function EditorHost({
       setSaving(false);
       return;
     }
+    const invalidLongText = collectInvalidLongTextFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: fieldValueAsString(draft[row.name] ?? row.value),
+      })),
+      message(EDITOR_MSG.LONGTEXT_INVALID),
+    );
+    if (Object.keys(invalidLongText).length > 0) {
+      setFieldErrors(invalidLongText);
+      setSaveErrorKey(EDITOR_MSG.LONGTEXT_INVALID_SAVE);
+      setSaving(false);
+      return;
+    }
     setFieldErrors({});
     const imageFieldNames = new Set(
       rows.filter((row) => row.kind === "image").map((row) => row.name),
@@ -732,8 +747,32 @@ export function EditorHost({
       ) {
         mapped.fieldErrors[htmlNames[0]] = message(EDITOR_MSG.HTML_BAD_REQUEST);
       }
+      const longNames = rows
+        .filter((row) => row.kind === "longtext")
+        .map((row) => row.name);
+      const namedLong = Object.keys(mapped.fieldErrors).some((name) =>
+        longNames.includes(name),
+      );
+      const long400 =
+        !html400 &&
+        editorSaveErrorReason(err) === "badRequest" &&
+        (namedLong ||
+          (Object.keys(mapped.fieldErrors).length === 0 && longNames.length === 1));
+      if (
+        long400 &&
+        Object.keys(mapped.fieldErrors).length === 0 &&
+        longNames.length === 1
+      ) {
+        mapped.fieldErrors[longNames[0]] = message(EDITOR_MSG.LONGTEXT_BAD_REQUEST);
+      }
       setFieldErrors(mapped.fieldErrors);
-      setSaveErrorKey(html400 ? EDITOR_MSG.HTML_BAD_REQUEST : EDITOR_MSG.SAVE_FAILED);
+      setSaveErrorKey(
+        html400
+          ? EDITOR_MSG.HTML_BAD_REQUEST
+          : long400
+            ? EDITOR_MSG.LONGTEXT_BAD_REQUEST
+            : EDITOR_MSG.SAVE_FAILED,
+      );
       setSaveErrorDetail(mapped.banner === fallback ? "" : mapped.banner);
     } finally {
       setSaving(false);

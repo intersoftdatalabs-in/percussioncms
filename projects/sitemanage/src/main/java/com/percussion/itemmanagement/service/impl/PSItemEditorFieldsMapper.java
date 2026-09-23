@@ -98,6 +98,27 @@ public final class PSItemEditorFieldsMapper {
     return out;
   }
 
+  /**
+   * NUL cannot be stored in item field text. Callers map this to HTTP 400 before writing.
+   *
+   * @param updates field values from the editor PUT; may be {@code null}
+   */
+  public static void rejectEmbeddedNul(List<PSItemEditorField> updates) {
+    if (updates == null || updates.isEmpty()) {
+      return;
+    }
+    for (PSItemEditorField update : updates) {
+      if (update == null || update.getValue() == null) {
+        continue;
+      }
+      if (update.getValue().indexOf('\0') >= 0) {
+        String name = update.getName() == null ? "" : update.getName();
+        throw new IllegalArgumentException(
+            "Field \"" + name + "\" contains a character that cannot be saved.");
+      }
+    }
+  }
+
   public static void applyUpdates(PSContentItem item, List<PSItemEditorField> updates) {
     if (item == null || updates == null || updates.isEmpty()) {
       return;
