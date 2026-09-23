@@ -96,8 +96,32 @@ export function WorkflowsPanel(): React.ReactElement {
     );
   if (items == null)
     return <CatalogStatus testId="developer-wf-loading">{DEV_MSG.WF_LOADING}</CatalogStatus>;
-  if (items.length === 0)
-    return <CatalogStatus testId="developer-wf-empty">{DEV_MSG.WF_EMPTY}</CatalogStatus>;
+  const newWorkflowButton = (
+    <button
+      type="button"
+      data-testid="developer-wf-new"
+      onClick={() => setSelected("new")}
+      style={{
+        padding: "8px 14px",
+        background: catalogColors.accent,
+        color: "#fff",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }}
+    >
+      {DEV_MSG.WF_NEW}
+    </button>
+  );
+
+  if (items.length === 0) {
+    return (
+      <div data-testid="developer-wf-panel">
+        <div style={{ marginBottom: "12px" }}>{newWorkflowButton}</div>
+        <CatalogStatus testId="developer-wf-empty">{DEV_MSG.WF_EMPTY}</CatalogStatus>
+      </div>
+    );
+  }
 
   return (
     <div data-testid="developer-wf-panel">
@@ -112,21 +136,7 @@ export function WorkflowsPanel(): React.ReactElement {
         }}
       >
         <CatalogHint>{DEV_MSG.WF_HINT}</CatalogHint>
-        <button
-          type="button"
-          data-testid="developer-wf-new"
-          onClick={() => setSelected("new")}
-          style={{
-            padding: "8px 14px",
-            background: catalogColors.accent,
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          {DEV_MSG.WF_NEW}
-        </button>
+        {newWorkflowButton}
       </div>
       <SimpleCatalogTable
         tableTestId="developer-wf-table"

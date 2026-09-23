@@ -6,6 +6,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as workflowsApi from "../../../main/ts/api/developer/workflowsApi";
+import { DEFAULT_WORKFLOW_TEMPLATE_STEPS } from "../../../main/ts/api/developer/workflowsApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { WorkflowCreatePanel } from "../../../main/ts/developer/WorkflowCreatePanel";
 
@@ -26,6 +27,42 @@ describe("WorkflowCreatePanel", () => {
       message: (key: string) => key,
     };
     createWorkflow.mockReset();
+  });
+
+  it("lists the base-workflow steps and cancel does not create", () => {
+    const onBack = vi.fn();
+    render(<WorkflowCreatePanel onBack={onBack} />);
+    const steps = screen.getAllByTestId("developer-wf-create-step").map((el) => el.textContent);
+    expect(steps).toEqual([...DEFAULT_WORKFLOW_TEMPLATE_STEPS]);
+    fireEvent.change(screen.getByTestId("developer-wf-create-name"), {
+      target: { value: "Nightly QA" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-create-cancel"));
+    expect(onBack).toHaveBeenCalledTimes(1);
+    expect(createWorkflow).not.toHaveBeenCalled();
+  });
+
+  it("maps 400 and 403 without treating them as created", async () => {
+    const onCreated = vi.fn();
+    render(<WorkflowCreatePanel onBack={() => undefined} onCreated={onCreated} />);
+    fireEvent.change(screen.getByTestId("developer-wf-create-name"), {
+      target: { value: "Nightly QA" },
+    });
+    createWorkflow.mockRejectedValueOnce({ status: 400, statusText: "Bad Request", body: null });
+    fireEvent.click(screen.getByTestId("developer-wf-create-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-create-error").textContent).toContain(
+        DEV_MSG.WF_INVALID_NAME,
+      );
+    });
+    createWorkflow.mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: null });
+    fireEvent.click(screen.getByTestId("developer-wf-create-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-create-error").textContent).toContain(
+        DEV_MSG.WF_FORBIDDEN,
+      );
+    });
+    expect(onCreated).not.toHaveBeenCalled();
   });
 
   it("disables save until the name is valid", () => {

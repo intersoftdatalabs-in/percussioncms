@@ -110,6 +110,7 @@ describe("WorkflowsPanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-wf-empty")).toBeTruthy();
     });
+    expect(screen.getByTestId("developer-wf-new")).toBeTruthy();
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {
