@@ -162,6 +162,74 @@ class SlotRelationshipAdaptorTest {
   }
 
   @Test
+  void moveMissing_is404() {
+    FakeContentWs ws = new FakeContentWs();
+    SlotMoveRequest req = new SlotMoveRequest();
+    req.setDirection("DOWN");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).move(9, req));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertTrue(ws.reorderedIds.isEmpty());
+  }
+
+  @Test
+  void moveForbidden_is403() {
+    FakeContentWs ws = new FakeContentWs();
+    PSAaRelationship first = fakeRel(1, 10, 21, 5, 4, 0);
+    PSAaRelationship second = fakeRel(2, 10, 22, 5, 4, 1);
+    ws.byId.put(2, second);
+    ws.slotRels.put(key(10, 5), List.of(first, second));
+    ws.reorderThrows = new SecurityException("no");
+    SlotMoveRequest req = new SlotMoveRequest();
+    req.setDirection("UP");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).move(2, req));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void moveConflict_is409() {
+    FakeContentWs ws = new FakeContentWs();
+    PSAaRelationship first = fakeRel(1, 10, 21, 5, 4, 0);
+    PSAaRelationship second = fakeRel(2, 10, 22, 5, 4, 1);
+    ws.byId.put(2, second);
+    ws.slotRels.put(key(10, 5), List.of(first, second));
+    ws.reorderThrows = new OrderConflictException();
+    SlotMoveRequest req = new SlotMoveRequest();
+    req.setDirection("UP");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).move(2, req));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void moveNotInSlot_is409() {
+    FakeContentWs ws = new FakeContentWs();
+    ws.byId.put(2, fakeRel(2, 10, 22, 5, 4, 1));
+    SlotMoveRequest req = new SlotMoveRequest();
+    req.setDirection("DOWN");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).move(2, req));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ws.reorderedIds.isEmpty());
+  }
+
+  @Test
+  void moveIndexOutOfRange_is409() {
+    FakeContentWs ws = new FakeContentWs();
+    PSAaRelationship only = fakeRel(2, 10, 22, 5, 4, 0);
+    ws.byId.put(2, only);
+    ws.slotRels.put(key(10, 5), List.of(only));
+    SlotMoveRequest req = new SlotMoveRequest();
+    req.setDirection("INDEX");
+    req.setIndex(4);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).move(2, req));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ws.reorderedIds.isEmpty());
+  }
+
+  @Test
   void moveInvalidDirection_is400() {
     FakeContentWs ws = new FakeContentWs();
     ws.byId.put(2, fakeRel(2, 10, 22, 5, 4, 1));
@@ -364,6 +432,7 @@ class SlotRelationshipAdaptorTest {
     PSAaRelationship addResult;
     RuntimeException addThrows;
     RuntimeException deleteThrows;
+    RuntimeException reorderThrows;
     Map<Integer, PSAaRelationship> byId = new HashMap<>();
     Map<String, List<PSAaRelationship>> slotRels = new HashMap<>();
 
@@ -395,6 +464,9 @@ class SlotRelationshipAdaptorTest {
 
     @Override
     public void reorderContentRelations(List<IPSGuid> ids, int index) {
+      if (reorderThrows != null) {
+        throw reorderThrows;
+      }
       reorderIndex = index;
       reorderedIds = new ArrayList<>();
       for (IPSGuid id : ids) {
@@ -431,6 +503,15 @@ class SlotRelationshipAdaptorTest {
     @Override
     public IPSTemplateSlot findSlot(IPSGuid id) {
       return slots.get((int) id.getUUID());
+    }
+  }
+
+  /** Simple name contains Conflict so move maps it to HTTP 409. */
+  private static final class OrderConflictException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
+    OrderConflictException() {
+      super("stale slot order");
     }
   }
 }

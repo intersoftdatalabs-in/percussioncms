@@ -16,7 +16,7 @@
  */
 
 /**
- * Related / inline content list, insert of an existing item, and remove of a slot row.
+ * Related / inline content list, insert, remove, and reorder of a slot row.
  */
 
 import React, { useEffect, useState } from "react";
@@ -26,6 +26,7 @@ import type { PSLocalDependencySummary } from "../api/contentExplorer/relationsh
 import {
   addSlotRelationship,
   fetchSlotCanvas,
+  moveSlotRelationship,
   removeSlotRelationship,
   type SlotAddRequest,
   type SlotCanvas,
@@ -38,6 +39,7 @@ import {
   relatedContentErrorReason,
   relatedInsertErrorReason,
   relatedRemoveErrorReason,
+  relatedReorderErrorReason,
   type InsertSlotChoice,
   type RelatedContentRow,
 } from "./editorRelatedContent";
@@ -52,6 +54,10 @@ export interface EditorRelatedContentPanelProps {
   loadLocal?: (itemId: string) => Promise<PSLocalDependencySummary>;
   insertRelationship?: (request: SlotAddRequest) => Promise<SlotRelationship>;
   removeRelationship?: (relationshipId: number) => Promise<void>;
+  moveRelationship?: (
+    relationshipId: number,
+    direction: "UP" | "DOWN",
+  ) => Promise<void>;
 }
 
 function insertMessageKey(reason: ReturnType<typeof relatedInsertErrorReason>): string {
@@ -77,6 +83,32 @@ function removeMessageKey(reason: ReturnType<typeof relatedRemoveErrorReason>): 
   return EDITOR_MSG.RELATED_REMOVE_FAILED;
 }
 
+function reorderMessageKey(reason: ReturnType<typeof relatedReorderErrorReason>): string {
+  if (reason === "forbidden") {
+    return EDITOR_MSG.RELATED_REORDER_FORBIDDEN;
+  }
+  if (reason === "not_found") {
+    return EDITOR_MSG.RELATED_REORDER_NOT_FOUND;
+  }
+  if (reason === "conflict") {
+    return EDITOR_MSG.RELATED_REORDER_CONFLICT;
+  }
+  return EDITOR_MSG.RELATED_REORDER_FAILED;
+}
+
+function slotPeers(rows: RelatedContentRow[], slotId: number | undefined): RelatedContentRow[] {
+  if (slotId == null || slotId <= 0) {
+    return [];
+  }
+  return rows.filter(
+    (row) =>
+      row.kind === "slot" &&
+      row.slotId === slotId &&
+      row.relationshipId != null &&
+      row.relationshipId > 0,
+  );
+}
+
 export function EditorRelatedContentPanel({
   itemId,
   readOnly = false,
@@ -84,6 +116,8 @@ export function EditorRelatedContentPanel({
   loadLocal = fetchLocal,
   insertRelationship = addSlotRelationship,
   removeRelationship = removeSlotRelationship,
+  moveRelationship = (relationshipId, direction) =>
+    moveSlotRelationship(relationshipId, direction),
 }: EditorRelatedContentPanelProps): React.ReactElement {
   const [rows, setRows] = useState<RelatedContentRow[]>([]);
   const [choices, setChoices] = useState<InsertSlotChoice[]>([]);
@@ -91,10 +125,13 @@ export function EditorRelatedContentPanel({
   const [dependentId, setDependentId] = useState("");
   const [inserting, setInserting] = useState(false);
   const [removingId, setRemovingId] = useState<number | null>(null);
+  const [movingId, setMovingId] = useState<number | null>(null);
   const [insertErrorKey, setInsertErrorKey] = useState<string | null>(null);
   const [insertDetail, setInsertDetail] = useState("");
   const [removeErrorKey, setRemoveErrorKey] = useState<string | null>(null);
   const [removeDetail, setRemoveDetail] = useState("");
+  const [reorderErrorKey, setReorderErrorKey] = useState<string | null>(null);
+  const [reorderDetail, setReorderDetail] = useState("");
   const [reloadToken, setReloadToken] = useState(0);
   const [loading, setLoading] = useState(true);
   const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -257,6 +294,31 @@ export function EditorRelatedContentPanel({
     }
   }
 
+  async function handleMove(
+    relationshipId: number,
+    direction: "UP" | "DOWN",
+  ): Promise<void> {
+    if (!(relationshipId > 0)) {
+      return;
+    }
+    setMovingId(relationshipId);
+    setReorderErrorKey(null);
+    setReorderDetail("");
+    try {
+      await moveRelationship(relationshipId, direction);
+      setReloadToken((n) => n + 1);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = relatedReorderErrorReason(err);
+      setReorderErrorKey(reorderMessageKey(reason));
+      setReorderDetail(formatApiError(err, message(EDITOR_MSG.RELATED_REORDER_FAILED)));
+    } finally {
+      setMovingId(null);
+    }
+  }
+
   return (
     <section className={styles.form} data-testid="editor-related-panel">
       <h2 className={styles.label}>{message(EDITOR_MSG.RELATED_TITLE)}</h2>
@@ -342,9 +404,28 @@ export function EditorRelatedContentPanel({
           {removeDetail ? ` ${removeDetail}` : ""}
         </div>
       ) : null}
+      {reorderErrorKey ? (
+        <div
+          className={styles.status}
+          role="alert"
+          data-testid="editor-related-reorder-error"
+        >
+          {message(reorderErrorKey)}
+          {reorderDetail ? ` ${reorderDetail}` : ""}
+        </div>
+      ) : null}
       {rows.length > 0 ? (
         <ul className={styles.relatedList} data-testid="editor-related-list">
-          {rows.map((row) => (
+          {rows.map((row) => {
+            const peers = slotPeers(rows, row.slotId);
+            const peerIndex = peers.findIndex((peer) => peer.key === row.key);
+            const canMove =
+              !readOnly &&
+              row.relationshipId != null &&
+              row.relationshipId > 0 &&
+              peers.length > 1 &&
+              peerIndex >= 0;
+            return (
             <li
               key={row.key}
               className={styles.relatedItem}
@@ -353,12 +434,46 @@ export function EditorRelatedContentPanel({
             >
               <span className={styles.relatedSlot}>{row.slotLabel}</span>
               <span data-testid="editor-related-item-id">{row.itemId}</span>
+              {canMove && peerIndex > 0 ? (
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid="editor-related-move-up"
+                  disabled={movingId != null || removingId != null}
+                  onClick={() =>
+                    void handleMove(row.relationshipId as number, "UP")
+                  }
+                >
+                  {message(
+                    movingId === row.relationshipId
+                      ? EDITOR_MSG.RELATED_MOVING
+                      : EDITOR_MSG.RELATED_MOVE_UP,
+                  )}
+                </button>
+              ) : null}
+              {canMove && peerIndex < peers.length - 1 ? (
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid="editor-related-move-down"
+                  disabled={movingId != null || removingId != null}
+                  onClick={() =>
+                    void handleMove(row.relationshipId as number, "DOWN")
+                  }
+                >
+                  {message(
+                    movingId === row.relationshipId
+                      ? EDITOR_MSG.RELATED_MOVING
+                      : EDITOR_MSG.RELATED_MOVE_DOWN,
+                  )}
+                </button>
+              ) : null}
               {!readOnly && row.relationshipId != null && row.relationshipId > 0 ? (
                 <button
                   type="button"
                   className={styles.button}
                   data-testid="editor-related-remove"
-                  disabled={removingId != null}
+                  disabled={removingId != null || movingId != null}
                   onClick={() => void handleRemove(row.relationshipId as number)}
                 >
                   {message(
@@ -369,7 +484,8 @@ export function EditorRelatedContentPanel({
                 </button>
               ) : null}
             </li>
-          ))}
+            );
+          })}
         </ul>
       ) : null}
     </section>

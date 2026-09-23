@@ -181,7 +181,7 @@ public class SlotRelationshipAdaptor implements ISlotRelationshipAdaptor {
       }
       int currentIndex = indexOf(siblings, relationshipId);
       if (currentIndex < 0) {
-        throw new WebApplicationException("Relationship is not in its slot", 400);
+        throw new WebApplicationException("Relationship is not in its slot", 409);
       }
       int target;
       if ("UP".equals(direction)) {
@@ -199,6 +199,9 @@ public class SlotRelationshipAdaptor implements ISlotRelationshipAdaptor {
           throw new WebApplicationException("index is required when direction is INDEX", 400);
         }
         target = request.getIndex();
+        if (target < 0 || target >= siblings.size()) {
+          throw new WebApplicationException("Target index is outside the slot", 409);
+        }
       } else {
         throw new WebApplicationException("direction must be UP, DOWN, or INDEX", 400);
       }
@@ -207,9 +210,30 @@ public class SlotRelationshipAdaptor implements ISlotRelationshipAdaptor {
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
-      log.debug("Failed to move relationship {}: {}", relationshipId, e.toString());
-      throw new WebApplicationException(e, 500);
+      int status = httpStatusForMoveFailure(e);
+      log.debug("Failed to move relationship {} ({}): {}", relationshipId, status, e.toString());
+      String msg = StringUtils.defaultIfBlank(e.getMessage(), "Move failed");
+      throw new WebApplicationException(msg, status);
     }
+  }
+
+  /**
+   * Maps move failures for EditorHost reorder. 403 and 404 follow insert; a stale or
+   * conflicting order is 409. Message text is ignored.
+   */
+  static int httpStatusForMoveFailure(Exception e) {
+    int status = httpStatusForAddFailure(e);
+    if (status != 500) {
+      return status;
+    }
+    String type = e.getClass().getSimpleName();
+    if (type.contains("Conflict")
+        || type.contains("Concurrent")
+        || type.contains("Optimistic")
+        || type.contains("Stale")) {
+      return 409;
+    }
+    return 500;
   }
 
   @Override

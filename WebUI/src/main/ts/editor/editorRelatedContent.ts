@@ -31,8 +31,10 @@ export interface RelatedContentRow {
   kind: RelatedContentKind;
   itemId: string;
   slotLabel: string;
-  /** Active Assembly relationship id when the row can be removed. */
+  /** Active Assembly relationship id when the row can be removed or reordered. */
   relationshipId?: number;
+  /** Slot id for Active Assembly rows; used to reorder within one slot. */
+  slotId?: number;
 }
 
 export type RelatedContentErrorReason = "forbidden" | "failed";
@@ -41,6 +43,7 @@ export type RelatedInsertErrorReason =
   | "bad_request"
   | "forbidden"
   | "not_found"
+  | "conflict"
   | "failed";
 
 export interface InsertSlotChoice {
@@ -96,7 +99,15 @@ export function relatedInsertErrorReason(err: unknown): RelatedInsertErrorReason
   if (status === 404) {
     return "not_found";
   }
+  if (status === 409) {
+    return "conflict";
+  }
   return "failed";
+}
+
+/** Reorder failures: 403, 404, and 409 are not a successful move. */
+export function relatedReorderErrorReason(err: unknown): RelatedInsertErrorReason {
+  return relatedInsertErrorReason(err);
 }
 
 /** Same status map as insert: 400, 403, and 404 are not a successful remove. */
@@ -163,6 +174,7 @@ export function flattenRelatedContent(
           itemId,
           slotLabel,
           relationshipId,
+          slotId: slot.slotId > 0 ? slot.slotId : undefined,
         });
       }
     }

@@ -269,8 +269,18 @@ In **Edit** mode each slot row that has an Active Assembly relationship id shows
 list. HTTP **403** (not allowed) and **404** (relationship not found) stay on
 the panel — the row is not dropped and the call is not treated as success.
 Inline local links that have no relationship id are listed but have no Remove
-control. **View** and **Promote** do not show Remove. This increment does not
-rearrange slots and does not check the item in.
+control. **View** and **Promote** do not show Remove.
+
+When a slot has two or more Active Assembly relationships, **Edit** mode shows
+**Move up** and **Move down** on those rows (not on the first or last row of
+that slot). The host calls
+`POST /services/assembly/slot-relationships/{relationshipId}/move` with
+`direction` `UP` or `DOWN`, then reloads the canvas so the new order is the
+order returned by the server. HTTP **403** (not allowed), **404** (relationship
+not found), and **409** (the relationship is no longer in that slot, or the
+target index is outside the slot) stay on the panel — the displayed order is
+not changed and the call is not treated as success. **View** and **Promote**
+do not show Move up or Move down. This increment does not check the item in.
 
 **Preview** is available in **View** and **Edit** for the already-open **page**
 or **asset** so authors do not need to bounce to Explorer solely to preview.

@@ -3363,7 +3363,7 @@ Slot add / create / arrange use relationship REST, not Data Flow
 | `GET` | `/services/assembly/slot-relationships/canvas?ownerId=&templateId=` | Slots on the owner template plus current AA relationships |
 | `POST` | `/services/assembly/slot-relationships` | Add an existing item to a slot (`ownerId`, `dependentId`, `slotId`, `templateId`) |
 | `DELETE` | `/services/assembly/slot-relationships/{relationshipId}` | Remove the relationship (Arrange Remove) |
-| `POST` | `/services/assembly/slot-relationships/{relationshipId}/move` | Move up / down / to an index (`direction`: `UP`, `DOWN`, `INDEX`) |
+| `POST` | `/services/assembly/slot-relationships/{relationshipId}/move` | Move up / down / to an index (`direction`: `UP`, `DOWN`, `INDEX`). **403** not allowed, **404** relationship missing, **409** relationship is not in the slot or the index is outside the current order |
 | `POST` | `/services/assembly/slot-relationships/{relationshipId}/template-slot` | Change snippet template and/or slot |
 | `GET` | `/services/assembly/slot-relationships/allowed-types?slotId=` | Content types allowed in the slot (Create) |
 | `GET` | `/services/assembly/slot-relationships/allowed-templates?slotId=&contentTypeId=` | Snippet templates allowed in the slot (Add / Create / Change) |

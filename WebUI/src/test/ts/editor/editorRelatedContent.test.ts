@@ -23,6 +23,7 @@ import {
   relatedContentErrorReason,
   relatedInsertErrorReason,
   relatedRemoveErrorReason,
+  relatedReorderErrorReason,
 } from "../../../main/ts/editor/editorRelatedContent";
 
 describe("flattenRelatedContent", () => {
@@ -63,6 +64,7 @@ describe("flattenRelatedContent", () => {
     expect(rows.map((r) => r.itemId)).toEqual(["55", "88"]);
     expect(rows[0].kind).toBe("slot");
     expect(rows[0].relationshipId).toBe(100);
+    expect(rows[0].slotId).toBe(9);
     expect(rows[1].kind).toBe("inline");
     expect(rows[1].relationshipId).toBeUndefined();
   });
@@ -98,6 +100,18 @@ describe("relatedContentErrorReason", () => {
       "not_found",
     );
     expect(relatedRemoveErrorReason({ status: 500, statusText: "x", body: {} })).toBe(
+      "failed",
+    );
+    expect(relatedReorderErrorReason({ status: 403, statusText: "F", body: {} })).toBe(
+      "forbidden",
+    );
+    expect(relatedReorderErrorReason({ status: 404, statusText: "N", body: {} })).toBe(
+      "not_found",
+    );
+    expect(relatedReorderErrorReason({ status: 409, statusText: "C", body: {} })).toBe(
+      "conflict",
+    );
+    expect(relatedReorderErrorReason({ status: 500, statusText: "x", body: {} })).toBe(
       "failed",
     );
   });

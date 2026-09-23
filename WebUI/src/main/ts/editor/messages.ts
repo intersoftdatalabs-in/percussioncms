@@ -178,6 +178,16 @@ export const EDITOR_MSG = {
   RELATED_REMOVE_NOT_FOUND:
     "perc.ui.editor@That related item was not found.",
   RELATED_REMOVE_FAILED: "perc.ui.editor@Could not remove the related item.",
+  RELATED_MOVE_UP: "perc.ui.editor@Move up",
+  RELATED_MOVE_DOWN: "perc.ui.editor@Move down",
+  RELATED_MOVING: "perc.ui.editor@Moving…",
+  RELATED_REORDER_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to reorder related content on this item.",
+  RELATED_REORDER_NOT_FOUND:
+    "perc.ui.editor@That related item was not found.",
+  RELATED_REORDER_CONFLICT:
+    "perc.ui.editor@That related item could not be reordered. Reload and try again.",
+  RELATED_REORDER_FAILED: "perc.ui.editor@Could not reorder the related item.",
   NEW_ITEM: "perc.ui.editor@New item",
   CREATING: "perc.ui.editor@Creating…",
   CREATE: "perc.ui.editor@Create",

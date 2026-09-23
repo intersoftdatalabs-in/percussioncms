@@ -27,11 +27,13 @@ const fetchSlotCanvas = vi.fn().mockResolvedValue({
 const fetchLocal = vi.fn().mockResolvedValue({ count: 0, links: [] });
 const addSlotRelationship = vi.fn();
 const removeSlotRelationship = vi.fn();
+const moveSlotRelationship = vi.fn();
 
 vi.mock("../../../main/ts/api/contentExplorer/slotRelationshipApi", () => ({
   fetchSlotCanvas: (...args: unknown[]) => fetchSlotCanvas(...args),
   addSlotRelationship: (...args: unknown[]) => addSlotRelationship(...args),
   removeSlotRelationship: (...args: unknown[]) => removeSlotRelationship(...args),
+  moveSlotRelationship: (...args: unknown[]) => moveSlotRelationship(...args),
 }));
 
 vi.mock("../../../main/ts/api/contentExplorer/relationshipsApi", () => ({
@@ -279,6 +281,114 @@ describe("EditorRelatedContentPanel", () => {
     );
     await waitFor(() => {
       expect(screen.queryByTestId("editor-related-remove")).toBeNull();
+    });
+  });
+
+  function twoItemCanvas(firstId: number, secondId: number) {
+    return {
+      ownerId: 42,
+      templateId: 7,
+      slots: [
+        {
+          slotId: 9,
+          name: "content",
+          label: "Content",
+          items: [
+            {
+              relationshipId: 3,
+              ownerId: 42,
+              dependentId: firstId,
+              slotId: 9,
+              templateId: 7,
+              sortRank: 0,
+            },
+            {
+              relationshipId: 4,
+              ownerId: 42,
+              dependentId: secondId,
+              slotId: 9,
+              templateId: 7,
+              sortRank: 1,
+            },
+          ],
+        },
+      ],
+    };
+  }
+
+  it("moves a slot relationship down and reloads in the new order", async () => {
+    const loadCanvas = vi
+      .fn()
+      .mockResolvedValueOnce(twoItemCanvas(55, 66))
+      .mockResolvedValueOnce(twoItemCanvas(66, 55));
+    const moveRelationship = vi.fn().mockResolvedValue(undefined);
+    render(
+      <EditorRelatedContentPanel
+        itemId="42"
+        loadCanvas={loadCanvas}
+        loadLocal={async () => ({ count: 0, links: [] })}
+        moveRelationship={moveRelationship}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getAllByTestId("editor-related-item-id").map((n) => n.textContent)).toEqual([
+        "55",
+        "66",
+      ]);
+    });
+    expect(screen.getAllByTestId("editor-related-move-down")).toHaveLength(1);
+    expect(screen.getAllByTestId("editor-related-move-up")).toHaveLength(1);
+    fireEvent.click(screen.getByTestId("editor-related-move-down"));
+    await waitFor(() => {
+      expect(moveRelationship).toHaveBeenCalledWith(3, "DOWN");
+    });
+    await waitFor(() => {
+      expect(screen.getAllByTestId("editor-related-item-id").map((n) => n.textContent)).toEqual([
+        "66",
+        "55",
+      ]);
+    });
+  });
+
+  it("maps reorder 409 and keeps the order", async () => {
+    const moveRelationship = vi.fn().mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: {},
+    });
+    const { rerender } = render(
+      <EditorRelatedContentPanel
+        itemId="42"
+        loadCanvas={async () => twoItemCanvas(55, 66)}
+        loadLocal={async () => ({ count: 0, links: [] })}
+        moveRelationship={moveRelationship}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-move-down")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-related-move-down"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-reorder-error").textContent).toMatch(
+        /could not be reordered/i,
+      );
+    });
+    expect(screen.getAllByTestId("editor-related-item-id").map((n) => n.textContent)).toEqual([
+      "55",
+      "66",
+    ]);
+    rerender(
+      <EditorRelatedContentPanel
+        itemId="42"
+        readOnly
+        loadCanvas={async () => twoItemCanvas(55, 66)}
+        loadLocal={async () => ({ count: 0, links: [] })}
+        moveRelationship={moveRelationship}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-related-move-down")).toBeNull();
+      expect(screen.queryByTestId("editor-related-move-up")).toBeNull();
     });
   });
 });

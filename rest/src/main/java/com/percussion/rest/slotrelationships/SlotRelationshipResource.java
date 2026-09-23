@@ -177,6 +177,9 @@ public class SlotRelationshipResource {
       responses = {
         @ApiResponse(responseCode = "204", description = "Moved"),
         @ApiResponse(responseCode = "400", description = "Invalid request"),
+        @ApiResponse(responseCode = "403", description = "Not allowed to reorder the relationship"),
+        @ApiResponse(responseCode = "404", description = "Relationship not found"),
+        @ApiResponse(responseCode = "409", description = "Order conflict; relationship is not in the slot or the index is stale"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
