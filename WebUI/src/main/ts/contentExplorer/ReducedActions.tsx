@@ -36,6 +36,7 @@ import { formatCopyItemError } from "./copyItemErrors";
 import { formatDeleteItemError } from "./deleteItemErrors";
 import { formatRestoreItemError } from "./restoreItemErrors";
 import { formatEmptyRecycleError } from "./emptyRecycleErrors";
+import { formatPurgeItemError } from "./purgeItemErrors";
 import { isRecyclingExplorerPath } from "./folderPath";
 import { formatMoveItemError } from "./moveItemErrors";
 import { formatCreateFolderError } from "./createFolderErrors";
@@ -50,6 +51,7 @@ import {
   deleteFolderItem,
   deleteItem,
   emptyRecycleBin,
+  purgeRecycledItem,
   restoreRecycledItem,
   moveFolder,
   moveFolderItem,
@@ -72,6 +74,7 @@ export type ReducedActionKey =
   | "copy"
   | "delete"
   | "restore"
+  | "purge"
   | "emptyRecycle";
 
 export interface ReducedActionHandlers {
@@ -83,6 +86,8 @@ export interface ReducedActionHandlers {
   onCopy: (item: PSPathItem, targetPath: string) => Promise<void>;
   onDelete: (item: PSPathItem) => Promise<void>;
   onRestore: (item: PSPathItem) => Promise<void>;
+  /** Permanently purge the selected recycled item after confirm (#4763). */
+  onPurge: (item: PSPathItem) => Promise<void>;
   /** Permanently empty the open recycle bin after confirm (#4762). */
   onEmptyRecycle: () => Promise<void>;
   /**
@@ -157,6 +162,8 @@ export function ReducedActions({
             ? formatRestoreItemError(err)
             : key === "emptyRecycle"
             ? formatEmptyRecycleError(err)
+            : key === "purge"
+            ? formatPurgeItemError(err)
             : key === "rename"
             ? formatRenameItemError(err)
             : key === "createFolder"
@@ -230,6 +237,14 @@ export function ReducedActions({
   const handleRestore = useCallback(() => {
     if (!item) return;
     void runItemAction("restore", () => handlers.onRestore(item));
+  }, [handlers, item, runItemAction]);
+
+  const handlePurge = useCallback(() => {
+    if (!item) return;
+    const confirm = handlers.confirm ?? defaultConfirm;
+    const ok = confirm(message(EXPLORER_MSG.CONFIRM_PURGE));
+    if (!ok) return;
+    void runItemAction("purge", () => handlers.onPurge(item));
   }, [handlers, item, runItemAction]);
 
   const handleEmptyRecycle = useCallback(() => {
@@ -337,6 +352,17 @@ export function ReducedActions({
       >
         {message(EXPLORER_MSG.ACTION_RESTORE)}
       </button>
+      {restoreEligible ? (
+        <button
+          type="button"
+          style={actionButtonStyle(isBusy)}
+          disabled={isBusy}
+          onClick={handlePurge}
+          data-testid="action-purge"
+        >
+          {message(EXPLORER_MSG.ACTION_PURGE)}
+        </button>
+      ) : null}
       <button
         type="button"
         style={actionButtonStyle(!emptyEligible || isBusy)}
@@ -446,6 +472,9 @@ export function defaultReducedActionHandlers(): ReducedActionHandlers {
     },
     onRestore: async (item) => {
       await restoreRecycledItem(String(item.id ?? "").trim());
+    },
+    onPurge: async (item) => {
+      await purgeRecycledItem(String(item.id ?? "").trim());
     },
     onEmptyRecycle: async () => {
       await emptyRecycleBin();

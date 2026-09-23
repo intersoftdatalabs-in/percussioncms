@@ -91,6 +91,16 @@ public interface IFolderAdaptor {
   void emptyRecycleBin(URI baseURI) throws BackendException;
 
   /**
+   * Permanently purges one recycled folder or item by GUID (#4763). Does not empty the bin.
+   *
+   * <p>Implementations map missing recycled items to {@link
+   * com.percussion.rest.errors.FolderNotFoundException} (HTTP 404), non-admin callers to {@link
+   * com.percussion.rest.errors.NotAuthorizedException} (HTTP 403), and in-use or locked items to
+   * HTTP 409.
+   */
+  void purgeRecycledItem(URI baseURI, String guid) throws BackendException;
+
+  /**
    * Renames a non-folder item (page, file, or asset). Folder rename stays on {@link
    * #renameFolder}.
    */

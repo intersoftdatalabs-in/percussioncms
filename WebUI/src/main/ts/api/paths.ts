@@ -456,6 +456,12 @@ export const PATHS = {
     return `${REST_ROOT}/folders/recycle/empty`;
   },
   /**
+   * Permanently purge one recycled item ({@code DELETE FoldersResource#purgeRecycledItem}).
+   */
+  get FOLDERS_PURGE_ITEM() {
+    return `${REST_ROOT}/folders/recycle`;
+  },
+  /**
    * Folder recycle/delete ({@code POST} {@code PSDeleteFolderCriteria}).
    * Classic Finder uses this resource; there is no {@code /path/delete/{path}}.
    */

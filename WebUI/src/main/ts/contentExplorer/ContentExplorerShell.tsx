@@ -748,6 +748,15 @@ function ContentExplorerShellInner({
       }));
       handleRefreshListAndTree();
     },
+    onPurge: async (item) => {
+      const impl = actionHandlers?.onPurge ?? stockReducedHandlers.onPurge;
+      await impl(item);
+      setSelection((prev) => ({
+        folderPath: prev.folderPath,
+        item: null,
+      }));
+      handleRefreshListAndTree();
+    },
     onEmptyRecycle: async () => {
       const impl =
         actionHandlers?.onEmptyRecycle ?? stockReducedHandlers.onEmptyRecycle;

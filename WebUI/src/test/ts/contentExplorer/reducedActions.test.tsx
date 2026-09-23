@@ -54,6 +54,7 @@ function makeHandlers(): {
     onCopy: [],
     onDelete: [],
     onRestore: [],
+    onPurge: [],
     onEmptyRecycle: [],
   };
   const handlers: ReducedActionHandlers = {
@@ -68,6 +69,7 @@ function makeHandlers(): {
       calls.onCopy.push({ item, targetPath }),
     onDelete: async (item) => calls.onDelete.push(item),
     onRestore: async (item) => calls.onRestore.push(item),
+    onPurge: async (item) => calls.onPurge.push(item),
     onEmptyRecycle: async () => calls.onEmptyRecycle.push(true),
     prompt: () => null,
     confirm: () => false,
@@ -202,6 +204,7 @@ describe("ReducedActions", () => {
     );
     expect(screen.getByTestId("action-delete")).toBeEnabled();
     expect(screen.getByTestId("action-restore")).toBeDisabled();
+    expect(screen.queryByTestId("action-purge")).not.toBeInTheDocument();
     const asset: PSPathItem = {
       id: "a-4602",
       path: "/Assets/qa4602",
@@ -251,6 +254,58 @@ describe("ReducedActions", () => {
     fireEvent.click(restore);
     await waitFor(() => expect(calls.onRestore).toHaveLength(1));
     expect(calls.onRestore[0]).toMatchObject({ id: "1-101-9" });
+    expect(screen.getByTestId("action-purge")).toBeEnabled();
+  });
+
+  it("purges one recycled item only after confirm (#4763)", async () => {
+    const { handlers, calls } = makeHandlers();
+    handlers.confirm = () => true;
+    const recycled: PSPathItem = {
+      id: "1-101-9",
+      path: "/Recycling/Assets/qa4763",
+      name: "qa4763",
+      type: "percSimpleTextAsset",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    render(
+      <ReducedActions
+        item={recycled}
+        folder={{
+          id: "bin",
+          path: "/Recycling",
+          name: "Recycling",
+          type: "folder",
+          accessLevel: "ADMIN",
+        }}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-purge"));
+    await waitFor(() => expect(calls.onPurge).toHaveLength(1));
+    expect(calls.onPurge[0]).toMatchObject({ id: "1-101-9" });
+  });
+
+  it("does not purge when confirm is cancelled (#4763)", () => {
+    const { handlers, calls } = makeHandlers();
+    handlers.confirm = () => false;
+    render(
+      <ReducedActions
+        item={{
+          id: "1-101-9",
+          path: "/Recycling/Assets/qa4763",
+          name: "qa4763",
+          type: "folder",
+          accessLevel: "WRITE",
+        }}
+        folder={null}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-purge"));
+    expect(calls.onPurge).toHaveLength(0);
   });
 
   it("fires onRename when the user enters a new name via the prompt helper (#3645)", async () => {

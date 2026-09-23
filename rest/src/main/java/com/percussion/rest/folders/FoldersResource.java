@@ -327,6 +327,50 @@ public class FoldersResource {
   }
 
   /**
+   * Permanently purge one recycled item or folder by GUID. Does not empty the bin.
+   *
+   * @param guid CMS GUID of the recycled item
+   * @return status of the purge
+   */
+  @DELETE
+  @Path("/recycle/{guid}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Permanently purge one recycled item or folder by GUID",
+      description =
+          "DELETE the recycled item GUID to remove it permanently. Explorer Recycle uses this"
+              + " for Purge of the current selection only. Missing GUID is 404; non-admin callers"
+              + " 403; in-use or locked is 409. This is not empty-bin.",
+      responses = {
+        @ApiResponse(responseCode = "404", description = "Recycled item not found"),
+        @ApiResponse(responseCode = "403", description = "Not authorized to purge"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Purge conflicts (in use or locked)"),
+        @ApiResponse(responseCode = "500", description = "Error"),
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = Status.class)))
+      })
+  public Status purgeRecycledItem(@PathParam(value = "guid") String guid) {
+    try {
+      folderAdaptor.purgeRecycledItem(uriInfo.getBaseUri(), guid);
+      return new Status(200, "Ok");
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (NotFoundException nfe) {
+      throw nfe;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (BackendException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /**
    * Delete a folder item below root of site
    *
    * @param itempath the path to the item

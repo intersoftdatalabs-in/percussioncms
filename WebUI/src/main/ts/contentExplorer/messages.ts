@@ -87,6 +87,13 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Could not empty the recycle bin (one or more items could not be purged)",
   CONFIRM_EMPTY_RECYCLE:
     "perc.ui.explorer@Permanently empty the recycle bin? This cannot be undone.",
+  ACTION_PURGE: "perc.ui.explorer@Purge",
+  ACTION_PURGE_NOT_FOUND:
+    "perc.ui.explorer@The recycled item was not found",
+  ACTION_PURGE_CONFLICT:
+    "perc.ui.explorer@Could not purge the item (in use or locked)",
+  CONFIRM_PURGE:
+    "perc.ui.explorer@Permanently purge this recycled item? This cannot be undone.",
   CONFIRM_DELETE_TITLE: "perc.ui.explorer@Delete Confirmation",
   CONFIRM_DELETE_BODY:
     "perc.ui.explorer@Are you sure you want to delete this item?",

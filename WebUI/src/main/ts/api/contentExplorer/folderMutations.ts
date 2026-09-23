@@ -41,6 +41,7 @@ import {
   deleteItem as pathDeleteItem,
   restoreRecycledItem as pathRestoreRecycledItem,
   emptyRecycleBin as pathEmptyRecycleBin,
+  purgeRecycledItem as pathPurgeRecycledItem,
   moveFolder as pathMoveFolder,
   moveFolderItem as pathMoveFolderItem,
   moveItem as pathMoveItem,
@@ -227,6 +228,11 @@ export async function restoreRecycledItem(guid: string): Promise<void> {
 /** Permanently empty the recycle bin via public REST. */
 export async function emptyRecycleBin(): Promise<void> {
   await pathEmptyRecycleBin();
+}
+
+/** Permanently purge one recycled item/folder by GUID via public REST. */
+export async function purgeRecycledItem(guid: string): Promise<void> {
+  await pathPurgeRecycledItem(guid);
 }
 
 /** Re-export flag helpers for call sites / tests. */

@@ -44,6 +44,7 @@ import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
+import com.percussion.pathmanagement.data.PSDeleteFolderCriteria.SkipItemsType;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderPermission.Access;
 import com.percussion.pathmanagement.data.PSFolderPermission.Principal;
@@ -62,6 +63,7 @@ import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleExcep
 import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleNotAuthorizedException;
 import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleNotFoundException;
 import com.percussion.recycle.service.IPSRecycleService;
+import com.percussion.recycle.service.impl.PSRecycleService;
 import com.percussion.redirect.service.IPSRedirectService;
 import com.percussion.rest.LinkRef;
 import com.percussion.rest.errors.BackendException;
@@ -1729,6 +1731,60 @@ public class FolderAdaptor implements IFolderAdaptor {
       throw new FolderNotFoundException(e);
     } catch (PSEmptyRecycleException e) {
       throw new BackendException(e);
+    } catch (PSDataServiceException e) {
+      throw new BackendException(e);
+    }
+  }
+
+  @Override
+  public void purgeRecycledItem(URI baseURI, String guid) throws BackendException {
+    try {
+      checkAPIPermission();
+      String id = StringUtils.trimToEmpty(guid);
+      if (StringUtils.isBlank(id)) {
+        throw new FolderNotFoundException();
+      }
+      PSPathItem item;
+      try {
+        item = folderHelper.findItemById(id, PSRelationshipConfig.TYPE_RECYCLED_CONTENT);
+      } catch (Exception e) {
+        throw new FolderNotFoundException(e);
+      }
+      if (item == null) {
+        throw new FolderNotFoundException();
+      }
+      try {
+        if (item.isFolder()) {
+          PSDeleteFolderCriteria criteria = new PSDeleteFolderCriteria();
+          String finderPath = StringUtils.defaultString(item.getPath());
+          if (StringUtils.isBlank(finderPath)) {
+            throw new WebApplicationException(
+                "Recycled folder has no path", Response.Status.CONFLICT);
+          }
+          if (!finderPath.endsWith("/")) {
+            finderPath = finderPath + "/";
+          }
+          criteria.setPath(finderPath);
+          criteria.setShouldPurge(true);
+          criteria.setSkipItems(SkipItemsType.NO);
+          criteria.setGuid(id);
+          int undeleted = pathService.deleteFolder(criteria);
+          if (undeleted > 0) {
+            throw new WebApplicationException(
+                "Recycled folder could not be fully purged", Response.Status.CONFLICT);
+          }
+        } else {
+          folderHelper.removeItem(PSRecycleService.RECYCLING_ROOT, id, true);
+        }
+      } catch (WebApplicationException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
+      }
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
     } catch (PSDataServiceException e) {
       throw new BackendException(e);
     }
