@@ -160,7 +160,9 @@ test.describe("modern React Content Explorer — site copy chrome (#2767)", () =
       await menuItem.click();
       const panel = page.locator(`[data-testid="${TEST_IDS.siteCopyPanel}"]`);
       const wizard = page.locator(`[data-testid="${TEST_IDS.wizard}"]`);
-      await expect(panel.or(wizard)).toBeVisible({ timeout: 10_000 });
+      // Panel stays mounted while the wizard opens, so or() matches two nodes
+      // and Playwright strict mode fails. Either visible is enough.
+      await expect(panel.or(wizard).first()).toBeVisible({ timeout: 10_000 });
       if ((await wizard.count()) > 0) {
         await expect(
           page.locator(`[data-testid="${TEST_IDS.sourceInput}"]`),
