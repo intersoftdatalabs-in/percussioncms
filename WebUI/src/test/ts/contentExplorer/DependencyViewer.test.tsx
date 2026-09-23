@@ -112,6 +112,62 @@ describe("DependencyViewer", () => {
     );
   });
 
+  it("renders an explicit empty state when every dimension is zero", async () => {
+    const empty = {
+      outgoing: { count: 0, byType: [] },
+      incoming: { count: 0, byType: [] },
+      taxonomy: { count: 0, nodes: [] },
+      local: { count: 0, links: [] },
+      reverse: { count: 0, byType: [] },
+    };
+    render(
+      <DependencyViewer
+        item={{ id: "42" }}
+        aaLinkCount={0}
+        loadServerSummary={() => Promise.resolve(empty)}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("dependency-empty")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("dependency-edges")).toBeNull();
+    expect(screen.getByTestId("dependency-row-outgoing")).toBeTruthy();
+  });
+
+  it("lists known edges and does not show the empty state", async () => {
+    render(
+      <DependencyViewer
+        item={{ id: "42" }}
+        aaLinkCount={2}
+        loadServerSummary={mockLoad}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("dependency-edges")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("dependency-empty")).toBeNull();
+    expect(screen.getByTestId("dependency-edge-local").textContent).toContain(
+      "asset-1",
+    );
+  });
+
+  it("maps HTTP 404 to a not-found state, not success or forbidden", async () => {
+    render(
+      <DependencyViewer
+        item={{ id: "42" }}
+        loadServerSummary={() => Promise.reject({ status: 404 })}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("dependency-viewer")).toHaveAttribute(
+        "data-testid-state",
+        "missing",
+      ),
+    );
+    expect(screen.queryByTestId("dependency-empty")).toBeNull();
+    expect(screen.queryByTestId("dependency-edges")).toBeNull();
+  });
+
   it("renders the auth placeholder when the loader throws 403", async () => {
     const denied = { status: 403, statusText: "Forbidden" };
     render(

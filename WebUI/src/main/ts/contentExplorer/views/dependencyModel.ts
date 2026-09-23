@@ -233,3 +233,66 @@ export function totalKnownEdges(summary: NodeRelationshipSummary): number {
     .filter((d: RelationshipSummary) => !d.unknown)
     .reduce((acc: number, d: RelationshipSummary) => acc + d.count, 0);
 }
+
+/** One concrete edge the operator can read (type bucket, taxonomy node, or local link). */
+export interface DependencyEdgeRow {
+  key: string;
+  dimension: string;
+  label: string;
+}
+
+/**
+ * Known edges for the dependency viewer (#4751). Zero rows is an explicit empty
+ * graph — not a silent success and not a permission error.
+ */
+export function knownEdgeRows(
+  server: ServerNodeSummary | null | undefined,
+  aaLinkCount: number,
+): DependencyEdgeRow[] {
+  const rows: DependencyEdgeRow[] = [];
+  const pushBuckets = (
+    dimension: string,
+    relation: ServerRelationSummary | null | undefined,
+  ) => {
+    const buckets = relationOrEmpty(relation).byType;
+    for (const bucket of buckets) {
+      const type = (bucket?.type ?? "").trim();
+      const count = typeof bucket?.count === "number" ? bucket.count : 0;
+      if (!type || count <= 0) continue;
+      rows.push({
+        key: `${dimension}:${type}`,
+        dimension,
+        label: `${count} ${type}`,
+      });
+    }
+  };
+  pushBuckets("outgoing", server?.outgoing);
+  pushBuckets("incoming", server?.incoming);
+  pushBuckets("reverse", server?.reverse);
+  if (aaLinkCount > 0) {
+    rows.push({
+      key: "aa",
+      dimension: "aa",
+      label: `${aaLinkCount} AA link${aaLinkCount === 1 ? "" : "s"}`,
+    });
+  }
+  for (const node of taxonomyNodes(server)) {
+    const label = node.trim();
+    if (!label) continue;
+    rows.push({ key: `taxonomy:${label}`, dimension: "taxonomy", label });
+  }
+  const links = server?.local?.links;
+  if (Array.isArray(links)) {
+    for (const link of links) {
+      const type = (link?.type ?? "").trim() || "local";
+      const target = (link?.targetId ?? "").trim();
+      if (!target) continue;
+      rows.push({
+        key: `local:${type}:${target}`,
+        dimension: "local",
+        label: `${type} ${target}`,
+      });
+    }
+  }
+  return rows;
+}

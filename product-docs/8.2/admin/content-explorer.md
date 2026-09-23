@@ -569,8 +569,16 @@ From the **View** menu you can also toggle:
   content row. Under **Assets**, select a library asset (including auto-named
   items such as `New-percSimpleTextAsset-…`) the same way. **View → IA
   Relationships** or **View → Dependencies** then mounts the matching panel
-  (loading, results, or empty). An **Admin** session does not see *You do not
-  have permission to perform this action* for a selected asset; that message
+  (loading, results, or empty). **Dependencies** calls
+  `GET /Rhythmyx/rest/content-explorer/relationships/{contentId}/summary`
+  (read-only; this view does not create or delete relationships). When the
+  item has relationship buckets, taxonomy nodes, local links, or Active
+  Assembly links, those edges are listed. When every count is zero the panel
+  says **No known dependencies for this item** — that is not a successful
+  edit and not a blank panel. HTTP **403** is *You do not have permission to
+  perform this action*. HTTP **404** (unknown content id) is **This item was
+  not found.** Neither status is shown as an empty graph. An **Admin** session
+  does not see the permission message for a selected asset; that message
   is reserved for a true authorization failure. List row ids may be
   GUID-shaped (`1-101-708`); both panels use the last segment as the content
   id, not a trailing timestamp on the asset title. A folder-only or empty

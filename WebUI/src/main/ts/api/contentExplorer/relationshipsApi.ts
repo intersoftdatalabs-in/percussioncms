@@ -60,9 +60,11 @@ async function fetchOne<T>(path: string, signal?: AbortSignal): Promise<T> {
     credentials: "same-origin",
     signal,
   });
-  if (res.status === 403) {
+  if (res.status === 403 || res.status === 404) {
     throw new RelationshipSummaryAuthError(
-      `Authorization denied for ${path}`,
+      res.status === 404
+        ? `Item not found for ${path}`
+        : `Authorization denied for ${path}`,
       res.status,
       res.statusText,
     );

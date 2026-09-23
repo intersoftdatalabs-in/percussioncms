@@ -100,4 +100,17 @@ public interface IPSRelationshipSummaryService {
    * @return non-null consolidated summary or {@code Optional.empty()} on AuthZ denial.
    */
   java.util.Optional<PSNodeRelationshipSummary> summarise(String itemId);
+
+  /**
+   * Classifies an absent consolidated summary so the REST façade can map HTTP 404 vs 403 (#4751).
+   *
+   * <p>Blank ids and guid-resolution failures that are not access denials are {@link
+   * RelationshipSummaryAbsence#NOT_FOUND}. Access-denied resolution failures, and ids that resolve
+   * but still yield {@link java.util.Optional#empty()} from {@link #summarise(String)}, are {@link
+   * RelationshipSummaryAbsence#FORBIDDEN}.
+   *
+   * @param itemId content id or guid string; may be blank
+   * @return never {@code null}
+   */
+  RelationshipSummaryAbsence absence(String itemId);
 }

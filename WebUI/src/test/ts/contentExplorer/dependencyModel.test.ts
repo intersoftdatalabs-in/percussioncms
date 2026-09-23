@@ -17,6 +17,7 @@ import {
   composeFromServerSummary,
   labelFor,
   synthesiseRelationshipSummary,
+  knownEdgeRows,
   totalKnownEdges,
 } from "../../../main/ts/contentExplorer/views/dependencyModel";
 import type { PSItemProperties } from "../../../main/ts/api/contentExplorer/types";
@@ -150,5 +151,33 @@ describe("composeFromServerSummary (US8 / T102)", () => {
     const tax = summary.dimensions.find((d) => d.dimension === "taxonomy");
     expect(tax?.count).toBe(0);
     expect(summary.clientSideOnly).toBe(false);
+  });
+
+  it("knownEdgeRows is empty when the summary has no edges (#4751)", () => {
+    const sparse = {
+      outgoing: { count: 0, byType: [] },
+      incoming: { count: 0, byType: [] },
+      taxonomy: { count: 0, nodes: [] },
+      local: { count: 0, links: [] },
+      reverse: { count: 0, byType: [] },
+    } as PSNodeRelationshipSummary;
+    expect(knownEdgeRows(sparse, 0)).toEqual([]);
+  });
+
+  it("knownEdgeRows lists buckets, taxonomy nodes, and local links", () => {
+    const server = {
+      outgoing: { count: 2, byType: [{ type: "translation", count: 2 }] },
+      incoming: { count: 0, byType: [] },
+      taxonomy: { count: 1, nodes: ["About"] },
+      local: { count: 1, links: [{ type: "local", targetId: "asset-9" }] },
+      reverse: { count: 0, byType: [] },
+    } as PSNodeRelationshipSummary;
+    const rows = knownEdgeRows(server, 1);
+    expect(rows.map((row) => row.label)).toEqual([
+      "2 translation",
+      "1 AA link",
+      "About",
+      "local asset-9",
+    ]);
   });
 });

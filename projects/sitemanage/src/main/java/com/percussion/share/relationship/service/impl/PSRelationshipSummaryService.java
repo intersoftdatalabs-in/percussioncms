@@ -29,6 +29,7 @@ import com.percussion.share.relationship.data.PSRelationshipSummary;
 import com.percussion.share.relationship.data.PSRelationshipSummary.PSRelationshipTypeBucket;
 import com.percussion.share.relationship.data.PSTaxonomySummary;
 import com.percussion.share.relationship.service.IPSRelationshipSummaryService;
+import com.percussion.share.relationship.service.RelationshipSummaryAbsence;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -293,6 +295,51 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
     }
     return Optional.of(
         new PSNodeRelationshipSummary(out.get(), in.get(), tax.get(), loc.get(), rev.get()));
+  }
+
+  @Override
+  public RelationshipSummaryAbsence absence(String itemId) {
+    if (itemId == null || itemId.isBlank()) {
+      return RelationshipSummaryAbsence.NOT_FOUND;
+    }
+    try {
+      idMapper.getGuid(itemId);
+    } catch (RuntimeException e) {
+      if (isAccessDenied(e)) {
+        return RelationshipSummaryAbsence.FORBIDDEN;
+      }
+      return RelationshipSummaryAbsence.NOT_FOUND;
+    }
+    // Guid resolved, but a dimension still returned empty. Keep the historical
+    // AuthZ contract (HTTP 403) rather than pretending the item is missing.
+    return RelationshipSummaryAbsence.FORBIDDEN;
+  }
+
+  /**
+   * Access denials are 403. Ordinary resolution failures ("not found", bad id) are not. Do not
+   * match the substring {@code access} inside data-layer type names.
+   */
+  static boolean isAccessDenied(Throwable error) {
+    for (Throwable current = error; current != null; current = current.getCause()) {
+      String simple = current.getClass().getSimpleName().toLowerCase(Locale.ROOT);
+      if (simple.contains("auth")
+          || simple.contains("forbidden")
+          || simple.contains("permission")
+          || simple.contains("accessdenied")) {
+        return true;
+      }
+      String message = current.getMessage();
+      if (message != null) {
+        String lower = message.toLowerCase(Locale.ROOT);
+        if (lower.contains("access denied")
+            || lower.contains("not authorized")
+            || lower.contains("forbidden")
+            || lower.contains("permission denied")) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   // ---------------------------------------------------------------------

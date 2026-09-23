@@ -225,13 +225,12 @@ test.describe("modern React Content Explorer — dependency viewer (#2768 / #357
       await expect(
         page.locator('[data-testid="explorer-dependencies-hint"]'),
       ).toHaveCount(0);
-      await expect(panel).toHaveAttribute(
-        "data-testid-state",
-        /ok|loading|auth|error/,
-      );
-      await expect(panel).not.toHaveAttribute("data-testid-state", "loading", {
+      await expect(panel).toHaveAttribute("data-testid-state", "ok", {
         timeout: 20_000,
       });
+      const edges = page.locator('[data-testid="dependency-edges"]');
+      const empty = page.locator('[data-testid="dependency-empty"]');
+      await expect(edges.or(empty).first()).toBeVisible({ timeout: 5_000 });
       expect(
         pageErrors,
         "uncaught pageerror on dependencies mount",
@@ -244,6 +243,110 @@ test.describe("modern React Content Explorer — dependency viewer (#2768 / #357
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });
+    },
+  );
+
+  test(
+    "HTTP 404 and 403 are not an empty dependency graph (#4751)",
+    { tag: ["@explorer-dependencies", "@p-adv"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const { pageErrors, consoleErrors } = attachConsoleCleanGate(page);
+      const shell = page.locator('[data-testid="content-explorer-shell"]');
+      await expect(shell).toBeVisible({ timeout: 15_000 });
+
+      async function fetchChildren(folderPath) {
+        const url = paginatedFolderUrl(BASE_URL, folderPath);
+        const res = await page.request.get(url, {
+          headers: { Accept: "application/json" },
+        });
+        if (!res.ok()) return [];
+        const body = await res.json();
+        return body?.PagedItemList?.childrenInPage ?? [];
+      }
+
+      const children = await fetchChildren("/Sites");
+      let folderPath = "/Sites";
+      let foundItem = children.find((child) => {
+        const category = String(child?.category ?? "").toLowerCase();
+        return category === "page" || category === "asset" || category === "landing_page";
+      });
+      if (!foundItem) {
+        for (const child of children) {
+          const next = child.folderPath || child.path;
+          if (!next) continue;
+          const nested = await fetchChildren(next);
+          foundItem = nested.find((row) => {
+            const category = String(row?.category ?? "").toLowerCase();
+            return (
+              category === "page" ||
+              category === "asset" ||
+              category === "landing_page"
+            );
+          });
+          if (foundItem) {
+            folderPath = next;
+            break;
+          }
+        }
+      }
+      expect(foundItem, "sample content under /Sites").toBeTruthy();
+
+      await page.goto(
+        `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&path=${encodeURIComponent(folderPath)}&_=${Date.now()}`,
+      );
+      await page.waitForLoadState("networkidle");
+      await listWaitReady(page);
+
+      const summaryPattern = "**/content-explorer/relationships/**/summary";
+      await page.route(summaryPattern, (route) =>
+        route.fulfill({
+          status: 404,
+          contentType: "text/plain",
+          body: "missing",
+        }),
+      );
+
+      const list = page.locator('[data-testid="detail-list"]');
+      const itemRow = list.locator(
+        'tbody tr[data-testid^="detail-row-"][data-row-kind="item"]:not([aria-disabled="true"])',
+      );
+      await itemRow.first().click({ force: true, timeout: 10_000 });
+      await page.locator('[data-testid="explorer-menu-view"]').click();
+      await page.locator('[data-testid="explorer-toggle-dependencies"]').click();
+      const panel = page.locator('[data-testid="dependency-viewer"]');
+      await expect(panel).toHaveAttribute("data-testid-state", "missing", {
+        timeout: 20_000,
+      });
+      await expect(page.locator('[data-testid="dependency-empty"]')).toHaveCount(0);
+
+      await page.unroute(summaryPattern);
+      await page.route(summaryPattern, (route) =>
+        route.fulfill({
+          status: 403,
+          contentType: "text/plain",
+          body: "denied",
+        }),
+      );
+      await page.goto(
+        `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=explorer&path=${encodeURIComponent(folderPath)}&_=${Date.now()}`,
+      );
+      await page.waitForLoadState("networkidle");
+      await listWaitReady(page);
+      await list
+        .locator(
+          'tbody tr[data-testid^="detail-row-"][data-row-kind="item"]:not([aria-disabled="true"])',
+        )
+        .first()
+        .click({ force: true, timeout: 10_000 });
+      await page.locator('[data-testid="explorer-menu-view"]').click();
+      await page.locator('[data-testid="explorer-toggle-dependencies"]').click();
+      await expect(panel).toHaveAttribute("data-testid-state", "auth", {
+        timeout: 20_000,
+      });
+      await expect(page.locator('[data-testid="dependency-empty"]')).toHaveCount(0);
+      expect(pageErrors, "uncaught pageerror on 404/403").toEqual([]);
+      expect(consoleErrors, "console error on 404/403").toEqual([]);
     },
   );
 });
