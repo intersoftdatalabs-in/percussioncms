@@ -322,6 +322,29 @@ Related Content menu commands:
 
 - **Create Site** — new Traditional, Page, or Virtual Site (no site context required)
 - **Site Copy** / **Subfolder Copy** — copy workflows when a site or folder is in context
+
+### Site Copy
+
+**Content → Site Copy** opens when a site folder is in context (you are inside a site
+under **Sites**). It does not create an empty site (**Create Site** does that) and it
+does not copy a single subfolder (**Subfolder Copy** does that).
+
+| Step | What you enter |
+|------|----------------|
+| Source site | Prefilled from the open site. You can change the name before continuing |
+| Target site | New site name. An optional asset-folder path is sent only when it is not blank or `/` |
+| Options | Workflow and template filters (use `*` to copy all) |
+| Confirm | Review source, target, workflows, and templates |
+| Run | Posts `POST /services/sitemanage/site/copy` with a `SiteCopyRequest` body (`srcSite`, `copySite`, optional `assetFolder`) |
+
+| Result | What Explorer shows |
+|--------|---------------------|
+| HTTP 200 | **Site copy completed** and the new site name. The folder list refreshes |
+| HTTP 400 | The request was rejected (missing source, unknown source site, or an invalid target name). The wizard stays on the progress step; this is not success |
+| HTTP 403 | You are not allowed to copy a site |
+| HTTP 409 | The target name already exists, or another site copy is already in progress |
+
+Cancel resets the wizard. A copy that is still running blocks a second copy of the same server until it finishes.
 - **Search** — same Search panel as **View → Search**
 
 ### Subfolder Copy

@@ -26,6 +26,7 @@ import com.percussion.itemmanagement.service.IPSItemService;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.share.dao.IPSGenericDao;
+import com.percussion.share.service.PSSiteCopyUtils;
 import com.percussion.share.data.PSEnumVals;
 import com.percussion.share.data.PSMapWrapper;
 import com.percussion.share.service.IPSDataService;
@@ -400,12 +401,42 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite copy(PSSiteCopyRequest req) {
+    if (req == null
+        || req.getSrcSite() == null
+        || req.getSrcSite().isBlank()
+        || req.getCopySite() == null
+        || req.getCopySite().isBlank()) {
+      throw PSSiteCopyHttpStatus.failure(Response.Status.BAD_REQUEST);
+    }
+    if (PSSiteCopyUtils.copyInProgress
+        || req.getSrcSite().trim().equalsIgnoreCase(req.getCopySite().trim())) {
+      throw PSSiteCopyHttpStatus.failure(Response.Status.CONFLICT);
+    }
+    try {
+      var existing = siteDataService.findAll(false);
+      if (existing != null) {
+        for (var summary : existing) {
+          if (summary != null
+              && summary.getName() != null
+              && summary.getName().equalsIgnoreCase(req.getCopySite().trim())) {
+            throw PSSiteCopyHttpStatus.failure(Response.Status.CONFLICT);
+          }
+        }
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      // Listing sites failed. copy() still rejects a duplicate name inside the service.
+    }
     try {
       // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
-      // not HTML body
+      // not HTML body. Failures become fixed 400/403/409 text (PSSiteCopyHttpStatus), not the
+      // exception message.
       return siteDataService.copy(req); // codeql[java/xss]
-    } catch (IPSItemService.PSItemServiceException | PSDataServiceException e) {
-      throw new WebApplicationException(e);
+    } catch (RuntimeException e) {
+      throw PSSiteCopyHttpStatus.toException(e);
+    } catch (Exception e) {
+      throw PSSiteCopyHttpStatus.toException(e);
     }
   }
 }

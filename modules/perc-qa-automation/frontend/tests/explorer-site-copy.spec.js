@@ -174,23 +174,85 @@ test.describe("modern React Content Explorer — site copy chrome (#2767)", () =
   );
 
   test(
-    "full site-copy submit soft-skips without multi-site fixture",
+    "site-copy submit reports the new name or a mapped 409",
     { tag: ["@explorer-site-copy", "@explorer"] },
     async ({ page }) => {
-      // Intentional soft-skip: destructive multi-site copy needs two sites
-      // and is not exercised on default H2 QA fixtures.
-      test.info().annotations.push({
-        type: "soft-skip",
-        description:
-          "Submit path uses existing POST /rest/sitemanage/site/copy (SiteCopyWizard default). Live multi-site submit deferred — H2 often has 0–1 sites.",
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() !== "error") {
+          return;
+        }
+        const text = msg.text();
+        // The live 409/400 response is an expected HTTP failure, not a JS defect.
+        if (/Failed to load resource/i.test(text)) {
+          return;
+        }
+        pageErrors.push(text);
       });
+
       const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
       await expect(shell).toBeVisible({ timeout: 15_000 });
-      // Prove menu chrome still reachable without running copy.
+      await tryEnterSiteFolder(page);
       await openContentMenu(page);
-      await expect(
-        page.locator(`[data-testid="${TEST_IDS.siteCopyMenu}"]`),
-      ).toBeVisible();
+      const menuItem = page.locator(`[data-testid="${TEST_IDS.siteCopyMenu}"]`);
+      await expect(menuItem).toBeVisible();
+      if (await menuItem.isDisabled()) {
+        throw new Error(
+          "Site Copy stayed disabled — H2 QA has no site folder in context",
+        );
+      }
+      await menuItem.click();
+      const wizard = page.locator(`[data-testid="${TEST_IDS.wizard}"]`);
+      await expect(wizard).toBeVisible({ timeout: 10_000 });
+      const source = page.locator(`[data-testid="${TEST_IDS.sourceInput}"]`);
+      const sourceName = (await source.inputValue()).trim();
+      expect(sourceName.length).toBeGreaterThan(0);
+
+      const targetName = `${sourceName}-copy-${Date.now()}`;
+      await page.route("**/sitemanage/site/copy", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ name: targetName }),
+        });
+      });
+
+      await page.locator('[data-testid="site-copy-next"]').click();
+      await page.locator('[data-testid="site-copy-target"]').fill(targetName);
+      await page.locator('[data-testid="site-copy-next"]').click();
+      await page.locator('[data-testid="site-copy-next"]').click();
+      await page.locator('[data-testid="site-copy-next"]').click();
+      await page.locator('[data-testid="site-copy-run"]').click();
+      await expect(page.locator('[data-testid="site-copy-progress"]')).toContainText(
+        "Site copy completed",
+      );
+      await expect(page.locator('[data-testid="site-copy-result-name"]')).toContainText(
+        targetName,
+      );
+      await page.unroute("**/sitemanage/site/copy");
+
+      await page.locator('[data-testid="site-copy-cancel"]').click();
+      await page.locator('[data-testid="site-copy-next"]').click();
+      await page.locator('[data-testid="site-copy-target"]').fill(sourceName);
+      await page.locator('[data-testid="site-copy-next"]').click();
+      await page.locator('[data-testid="site-copy-next"]').click();
+      await page.locator('[data-testid="site-copy-next"]').click();
+      const copyResponse = page.waitForResponse(
+        (res) =>
+          res.url().includes("/sitemanage/site/copy") &&
+          res.request().method() === "POST",
+        { timeout: 60_000 },
+      );
+      await page.locator('[data-testid="site-copy-run"]').click();
+      const response = await copyResponse;
+      expect([400, 403, 409]).toContain(response.status());
+      await expect(page.locator('[data-testid="site-copy-progress"]')).toContainText(
+        `HTTP ${response.status()}`,
+      );
+      await expect(page.locator('[data-testid="site-copy-result-name"]')).toHaveCount(0);
+      expect(pageErrors, pageErrors.join("\n")).toEqual([]);
     },
   );
 });

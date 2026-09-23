@@ -128,6 +128,13 @@ export const EXPLORER_MSG = {
   TOGGLE_SITE_COPY_ARIA: "perc.ui.explorer@Show or hide site copy wizard",
   SITE_COPY_SELECT_SITE:
     "perc.ui.explorer@Open a site under Sites to copy it.",
+  SITE_COPY_COMPLETED: "perc.ui.explorer@Site copy completed",
+  SITE_COPY_HTTP_400:
+    "perc.ui.explorer@Site copy was rejected (HTTP 400). Check the source site and target name.",
+  SITE_COPY_HTTP_403:
+    "perc.ui.explorer@You do not have permission to copy this site (HTTP 403).",
+  SITE_COPY_HTTP_409:
+    "perc.ui.explorer@Site copy conflicts with an existing site or a copy already in progress (HTTP 409).",
 
   // Create Site (#3002 / parent #2989 / type picker #3512 / Virtual #3521)
   SITE_CREATE_TITLE: "perc.ui.explorer@Create Site",
