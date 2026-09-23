@@ -20,6 +20,8 @@ import {
   extractQueueItems,
   hasMorePages,
   isQueueEmpty,
+  queueItemId,
+  queueItemLabel,
 } from "@/publishing/incrementalQueue";
 
 describe("incrementalQueue", () => {
@@ -57,5 +59,15 @@ describe("incrementalQueue", () => {
     const items = Array.from({ length: 10 }, (_, i) => ({ i }));
     expect(hasMorePages({ items }, 1, 10)).toBe(true);
     expect(hasMorePages({ items: [{ i: 1 }] }, 1, 10)).toBe(false);
+  });
+
+  it("reads content id and title or name for a queue row", () => {
+    expect(queueItemId({ id: "301", name: "Home" })).toBe("301");
+    expect(queueItemId({ contentid: 88 })).toBe("88");
+    expect(queueItemLabel({ id: "301", name: "Home" })).toBe("Home");
+    expect(queueItemLabel({ contentId: 9, title: "About" })).toBe("About");
+    expect(queueItemLabel({ id: "12" })).toBe("12");
+    expect(queueItemLabel({})).toBe("—");
+    expect(queueItemId(null)).toBe("");
   });
 });
