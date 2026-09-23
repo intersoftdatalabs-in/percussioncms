@@ -174,6 +174,7 @@ describe("takedownSelectedItem", () => {
     expect(String(req?.[0] ?? "")).toContain(
       "sitemanage/publish/takedown/page/42",
     );
+    expect(String(req?.[0] ?? "")).not.toMatch(/\/delete/i);
     expect(req?.[1]?.method ?? "GET").toBe("GET");
   });
 

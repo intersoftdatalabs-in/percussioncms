@@ -155,6 +155,57 @@ describe("ItemTakedownPanel", () => {
     expect(screen.queryByTestId("item-takedown-success")).toBeNull();
   });
 
+  it("surfaces HTTP 400 as a config error, not success", async () => {
+    takeDown.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Invalid item id" },
+    });
+    render(<ItemTakedownPanel itemId="42" />);
+    await waitFor(() => expect(loadLinked).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-takedown-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-error").textContent).toMatch(
+        /Invalid item id|Bad Server Configuration/i,
+      );
+    });
+    expect(screen.queryByTestId("item-takedown-success")).toBeNull();
+  });
+
+  it("surfaces HTTP 404 as item not found, not success", async () => {
+    takeDown.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: {},
+    });
+    render(<ItemTakedownPanel itemId="42" />);
+    await waitFor(() => expect(loadLinked).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-takedown-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-error").textContent).toMatch(
+        /Item not found/i,
+      );
+    });
+    expect(screen.queryByTestId("item-takedown-success")).toBeNull();
+  });
+
+  it("surfaces HTTP 409 as a checkout conflict, not success", async () => {
+    takeDown.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "checked out" },
+    });
+    render(<ItemTakedownPanel itemId="42" />);
+    await waitFor(() => expect(loadLinked).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-takedown-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-error").textContent).toMatch(
+        /editing this item|checked out/i,
+      );
+    });
+    expect(screen.queryByTestId("item-takedown-success")).toBeNull();
+  });
+
   it("surfaces HTTP 403 as forbidden, not success", async () => {
     takeDown.mockRejectedValue({
       status: 403,

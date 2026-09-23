@@ -236,4 +236,66 @@ test.describe("PublishingShell site-workspace takedown", () => {
       );
     },
   );
+
+  test(
+    "HTTP 400 403 404 and 409 are not success and do not delete the item",
+    { tag: ["@publishing", "@publishing-takedown"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      const methods = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      await stubPublishSiteApis(page, { takedownStatus: 400, takedownBody: "Invalid item id" });
+      page.on("request", (req) => {
+        if (/takedown|itemmanagement\/item/.test(req.url())) {
+          methods.push(`${req.method()} ${req.url()}`);
+        }
+      });
+
+      await page.goto(publishSitesUrl("9", "42"));
+      await expect(page.locator('[data-testid="item-takedown-submit"]')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      async function expectStatusError(status, body, pattern) {
+        await page.unroute("**/sitemanage/publish/takedown/**");
+        await page.route("**/sitemanage/publish/takedown/**", async (route) => {
+          methods.push(`${route.request().method()} ${route.request().url()}`);
+          await route.fulfill({
+            status,
+            contentType: "application/json",
+            body,
+          });
+        });
+        await page.locator('[data-testid="item-takedown-submit"]').click();
+        await expect(page.locator('[data-testid="item-takedown-error"]')).toContainText(
+          pattern,
+          { timeout: 10_000 },
+        );
+        await expect(page.locator('[data-testid="item-takedown-success"]')).toHaveCount(0);
+      }
+
+      await expectStatusError(
+        400,
+        JSON.stringify({ message: "Invalid item id" }),
+        /Invalid item id|Bad Server Configuration/i,
+      );
+      await expectStatusError(
+        403,
+        JSON.stringify({ message: "Publish Forbidden" }),
+        /Forbidden|Publish Forbidden/i,
+      );
+      await expectStatusError(404, "{}", /Item not found/i);
+      await expectStatusError(409, "{}", /editing this item/i);
+
+      const deleteCalls = methods.filter((line) => /\/delete/i.test(line));
+      expect(deleteCalls, `unexpected delete calls: ${deleteCalls.join(" | ")}`).toEqual(
+        [],
+      );
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+    },
+  );
 });
