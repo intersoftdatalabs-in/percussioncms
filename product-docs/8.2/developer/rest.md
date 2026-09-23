@@ -3432,6 +3432,13 @@ assignment) and **404** (item or revision not found) are surfaced as errors in t
 host — neither status is treated as success, and the open item does not change. The
 action is hidden in **View** and **Promote** modes.
 
+The React Content Editor host **Recycle** action (edit mode only) reuses
+`DELETE /rest/folders/item/{path}` after
+`GET /services/pathmanagement/path/item/id/{id}`. It does not recycle folders
+and does not empty or purge the bin. On success the host drops the open content
+id and leaves edit mode. HTTP **403**, **404**, and **409** are errors on the
+host; cancel does not call DELETE. **View** mode has no Recycle control.
+
 ## Item publish now (Explorer)
 
 Explorer **Publish Now** uses the existing sitemanage demand-publish GETs (same as classic Finder).

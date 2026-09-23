@@ -45,6 +45,7 @@ import {
   transitionItem,
   type ItemStateTransition,
 } from "../api/contentExplorer/itemWorkflowApi";
+import { deleteFolderItem, findItemById } from "../api/contentExplorer/pathApi";
 import { formatApiError, isSessionRedirectError } from "../api/client";
 import { parsePositiveInt } from "../assembly/assemblyHostUrl";
 import { message } from "../i18n/message";
@@ -65,6 +66,12 @@ import {
   parseCopyLandingContentId,
   type EditorCopyKind,
 } from "./editorCopy";
+import {
+  canRecycleFromEditor,
+  editorRecycleErrorReason,
+  editorRecycleItemPath,
+  type EditorRecycleTarget,
+} from "./editorRecycle";
 import {
   canUseEditorCheckoutActions,
   editorLockErrorReason,
@@ -183,6 +190,12 @@ export interface EditorHostProps {
   copyPromotable?: (itemId: string) => Promise<ItemCopyResult>;
   /** Test seam: confirm new copy / promotable (defaults to {@code window.confirm}). */
   confirmCopy?: (body: string) => boolean;
+  /** Test seam: pathmanagement lookup of the open item. */
+  resolveRecycleTarget?: (itemId: string) => Promise<EditorRecycleTarget>;
+  /** Test seam: public REST item recycle ({@code DELETE /rest/folders/item}). */
+  recycleItem?: (itemPath: string) => Promise<void>;
+  /** Test seam: confirm recycle (defaults to {@code window.confirm}). */
+  confirmRecycle?: (body: string) => boolean;
   /** Test seam: itemmanagement {@code revisions/{id}}. */
   loadRevisions?: (itemId: string) => Promise<ItemRevisionsSummary>;
   /** Test seam: itemmanagement {@code restoreRevision/{guid}}. */
@@ -390,6 +403,9 @@ export function EditorHost({
   copyItem = createNewCopy,
   copyPromotable = createPromotableVersion,
   confirmCopy,
+  resolveRecycleTarget = findItemById,
+  recycleItem = deleteFolderItem,
+  confirmRecycle,
   loadRevisions = fetchItemRevisions,
   restoreRevision = restoreItemRevision,
   confirmRestore,
@@ -438,6 +454,10 @@ export function EditorHost({
   const [copyBusy, setCopyBusy] = useState(false);
   const [copyErrorKey, setCopyErrorKey] = useState<string | null>(null);
   const [copyErrorDetail, setCopyErrorDetail] = useState("");
+  const [recycleBusy, setRecycleBusy] = useState(false);
+  const [recycleDone, setRecycleDone] = useState(false);
+  const [recycleErrorKey, setRecycleErrorKey] = useState<string | null>(null);
+  const [recycleErrorDetail, setRecycleErrorDetail] = useState("");
   const [sessionUser, setSessionUser] = useState("");
   const [lockUser, setLockUser] = useState("");
   /** User-info checkOutUser from the last checkout response (empty if omitted). */
@@ -1116,6 +1136,71 @@ export function EditorHost({
     }
   }
 
+  function recycleErrorKeyFor(
+    reason: ReturnType<typeof editorRecycleErrorReason> | "folder",
+  ): string {
+    if (reason === "forbidden") {
+      return EDITOR_MSG.RECYCLE_FORBIDDEN;
+    }
+    if (reason === "not_found") {
+      return EDITOR_MSG.RECYCLE_NOT_FOUND;
+    }
+    if (reason === "conflict") {
+      return EDITOR_MSG.RECYCLE_CONFLICT;
+    }
+    if (reason === "folder") {
+      return EDITOR_MSG.RECYCLE_FOLDER;
+    }
+    return EDITOR_MSG.RECYCLE_FAILED;
+  }
+
+  async function handleRecycle(): Promise<void> {
+    if (contentId == null || !canRecycleFromEditor(mode)) {
+      setRecycleErrorDetail("");
+      setRecycleErrorKey(EDITOR_MSG.RECYCLE_UNAVAILABLE);
+      return;
+    }
+    const confirmFn =
+      confirmRecycle ??
+      ((body: string) =>
+        typeof window !== "undefined" ? window.confirm(body) : false);
+    if (!confirmFn(message(EDITOR_MSG.CONFIRM_RECYCLE))) {
+      return;
+    }
+    setRecycleBusy(true);
+    setRecycleDone(false);
+    setRecycleErrorKey(null);
+    setRecycleErrorDetail("");
+    const itemId = String(contentId);
+    try {
+      const target = await resolveRecycleTarget(itemId);
+      const resolved = editorRecycleItemPath(target);
+      if (!resolved.ok) {
+        setRecycleErrorKey(recycleErrorKeyFor(resolved.reason));
+        setRecycleErrorDetail("");
+        return;
+      }
+      await recycleItem(resolved.path);
+      setRecycleDone(true);
+      const next = new URLSearchParams(params);
+      next.delete("contentId");
+      next.set("mode", "view");
+      next.delete("warningMessage");
+      setSearchParams(next);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = editorRecycleErrorReason(err);
+      setRecycleErrorKey(recycleErrorKeyFor(reason));
+      setRecycleErrorDetail(
+        formatApiError(err, message(recycleErrorKeyFor(reason))),
+      );
+    } finally {
+      setRecycleBusy(false);
+    }
+  }
+
   function createErrorKeyFor(
     reason: ReturnType<typeof editorCreateErrorReason>,
   ): string {
@@ -1412,6 +1497,7 @@ export function EditorHost({
   const showPublish = canPublishFromEditor(mode, publishKind);
   const showPreview = canPreviewFromEditor(mode, publishKind);
   const showCopy = canCopyFromEditor(mode) && contentId != null;
+  const showRecycle = canRecycleFromEditor(mode) && contentId != null;
   const showRestore = canRestoreFromEditor(mode) && contentId != null;
   const showCreate = canCreateFromEditor(mode);
 
@@ -1456,6 +1542,11 @@ export function EditorHost({
               {message(EDITOR_MSG.PREVIEW_DONE)}
             </span>
           ) : null}
+          {recycleDone ? (
+            <span className={styles.meta} data-testid="editor-recycle-done">
+              {message(EDITOR_MSG.RECYCLED)}
+            </span>
+          ) : null}
           {canEdit ? (
             <button
               type="button"
@@ -1487,6 +1578,17 @@ export function EditorHost({
               onClick={() => void handleCopy("copy")}
             >
               {message(copyBusy ? EDITOR_MSG.COPYING : EDITOR_MSG.NEW_COPY)}
+            </button>
+          ) : null}
+          {showRecycle ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-recycle"
+              disabled={recycleBusy || loading || payload == null || saving}
+              onClick={() => void handleRecycle()}
+            >
+              {message(recycleBusy ? EDITOR_MSG.RECYCLING : EDITOR_MSG.RECYCLE)}
             </button>
           ) : null}
           {showCopy ? (
@@ -1691,6 +1793,16 @@ export function EditorHost({
               >
                 {message(copyErrorKey)}
                 {copyErrorDetail ? ` ${copyErrorDetail}` : ""}
+              </div>
+            ) : null}
+            {recycleErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-recycle-error"
+              >
+                {message(recycleErrorKey)}
+                {recycleErrorDetail ? ` ${recycleErrorDetail}` : ""}
               </div>
             ) : null}
             {lockErrorKey ? (
