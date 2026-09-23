@@ -3046,3 +3046,147 @@ describe("EditorHost recycle (#4773)", () => {
     expect(screen.queryByTestId("editor-recycle")).toBeNull();
   });
 });
+
+describe("EditorHost move to folder (#4774)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  const emptyRelated = {
+    loadRelatedCanvas: async () => ({
+      ownerId: 42,
+      templateId: null,
+      slots: [],
+    }),
+    loadRelatedLocal: async () => ({ count: 0, links: [] }),
+  };
+
+  function titleType() {
+    return {
+      fields: [{ name: "sys_title", label: "Title", readOnly: false }],
+    };
+  }
+
+  function renderHost(
+    mode: string,
+    extra: Partial<React.ComponentProps<typeof EditorHost>> = {},
+  ) {
+    return render(
+      <MemoryRouter initialEntries={[`/editor?contentId=42&mode=${mode}`]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                loadItemLocation={async () => ({ path: "//Sites/Demo/Home" })}
+                {...emptyRelated}
+                {...extra}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it("moves the open item and stays on the same content id", async () => {
+    const moveItem = vi.fn().mockResolvedValue(undefined);
+    renderHost("edit", { moveItem });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-move")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-move"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-move-dest-input")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("explorer-move-dest-input"), {
+      target: { value: "//Sites/Other" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
+    await waitFor(() => {
+      expect(moveItem).toHaveBeenCalledWith("//Sites/Demo/Home", "//Sites/Other");
+    });
+    expect(screen.getByTestId("editor-content-id").textContent).toMatch(/42/);
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-move-done")).toBeTruthy();
+    });
+  });
+
+  it("does not move when the picker is cancelled", async () => {
+    const moveItem = vi.fn();
+    renderHost("edit", { moveItem });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-move")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-move"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-move-dest-cancel")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("explorer-move-dest-cancel"));
+    expect(moveItem).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-move-done")).toBeNull();
+  });
+
+  it("does not post when the destination is the current folder", async () => {
+    const moveItem = vi.fn();
+    renderHost("edit", { moveItem });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-move")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-move"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-move-dest-ok")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-move-error").textContent).toMatch(
+        /already there/i,
+      );
+    });
+    expect(moveItem).not.toHaveBeenCalled();
+  });
+
+  it("hides move in view mode", async () => {
+    renderHost("view");
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-move")).toBeNull();
+  });
+
+  it("surfaces HTTP 403, 404, and 409", async () => {
+    for (const [status, pattern] of [
+      [403, /not allowed to move/i],
+      [404, /not found/i],
+      [409, /already has an item|not a folder/i],
+    ] as const) {
+      cleanup();
+      const moveItem = vi.fn().mockRejectedValue({
+        status,
+        statusText: String(status),
+        body: {},
+      });
+      renderHost("edit", { moveItem });
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-move")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("editor-move"));
+      await waitFor(() => {
+        expect(screen.getByTestId("explorer-move-dest-input")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("explorer-move-dest-input"), {
+        target: { value: "//Sites/Other" },
+      });
+      fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-move-error").textContent).toMatch(pattern);
+      });
+      expect(screen.getByTestId("editor-content-id").textContent).toMatch(/42/);
+      expect(screen.queryByTestId("editor-move-done")).toBeNull();
+    }
+  });
+});

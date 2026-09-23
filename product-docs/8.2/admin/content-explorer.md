@@ -305,6 +305,18 @@ new `itemId` in this editor (edit mode). HTTP **403** (forbidden) and **404**
 change the open item. Cancel confirm does not POST. **View** and **Promote** do
 not show these actions.
 
+In **Edit** mode the host also shows **Move to folder** for the already-open
+item. The author picks a destination folder (cancel closes the picker and does
+not move). Confirm posts public REST `POST /rest/folders/move/item`
+(`MoveFolderItem`: the item's current path and `targetFolderPath`). The editor
+stays on the **same content id**. The item is listed in the destination folder
+and is no longer in the source folder. Choosing the folder the item is already
+in does not post. HTTP **403** (not allowed), **404** (item or destination
+missing), and **409** (name already in the destination, or the target is not a
+folder) are errors on the host — they are not treated as a successful move.
+**View** and **Promote** do not show **Move to folder**. This is not a folder-node
+move, recycle, or copy.
+
 In **Edit** mode the host also shows **Recycle** for the already-open **item**
 (not a folder). Confirm, then the host looks up the item
 (`GET /services/pathmanagement/path/item/id/{id}`) and recycles that path with
