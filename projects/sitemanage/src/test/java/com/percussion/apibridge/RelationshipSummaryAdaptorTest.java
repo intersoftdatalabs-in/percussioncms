@@ -26,6 +26,7 @@ import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
 import com.percussion.share.relationship.data.PSRelationshipSummary;
 import com.percussion.share.relationship.data.PSTaxonomySummary;
 import com.percussion.share.relationship.service.IPSRelationshipSummaryService;
+import com.percussion.share.relationship.service.RelationshipSummaryAbsence;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
@@ -146,13 +147,26 @@ class RelationshipSummaryAdaptorTest {
   }
 
   @Test
-  void summaryReturns403WhenServiceReturnsEmpty() {
+  void summaryReturns403WhenAbsenceIsForbidden() {
     when(service.summarise(any())).thenReturn(Optional.empty());
+    when(service.absence(any())).thenReturn(RelationshipSummaryAbsence.FORBIDDEN);
 
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
             () -> adaptor.summary(URI.create("http://localhost/api"), "private"));
     assertEquals(Response.Status.FORBIDDEN.getStatusCode(), ex.getResponse().getStatus());
+  }
+
+  @Test
+  void summaryReturns404WhenAbsenceIsNotFound() {
+    when(service.summarise(any())).thenReturn(Optional.empty());
+    when(service.absence(any())).thenReturn(RelationshipSummaryAbsence.NOT_FOUND);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.summary(URI.create("http://localhost/api"), "999999"));
+    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
   }
 }

@@ -174,6 +174,7 @@ public class RelationshipSummaryResource {
               + " RelationshipsView.")
   @ApiResponse(responseCode = "200", description = "OK — consolidated summary returned")
   @ApiResponse(responseCode = "403", description = "Caller cannot read the item")
+  @ApiResponse(responseCode = "404", description = "Item id is unknown or cannot be resolved")
   public Response summary(
       @Parameter(name = "itemId", required = true) @PathParam("itemId") String itemId) {
     URI base = uriInfo == null ? null : uriInfo.getBaseUri();

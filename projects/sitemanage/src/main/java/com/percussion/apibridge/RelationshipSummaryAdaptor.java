@@ -21,6 +21,7 @@ import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
 import com.percussion.share.relationship.data.PSRelationshipSummary;
 import com.percussion.share.relationship.data.PSTaxonomySummary;
 import com.percussion.share.relationship.service.IPSRelationshipSummaryService;
+import com.percussion.share.relationship.service.RelationshipSummaryAbsence;
 import com.percussion.system.utils.PSSiteManageBean;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -87,7 +88,14 @@ public class RelationshipSummaryAdaptor implements IRelationshipSummaryAdaptor {
   public PSNodeRelationshipSummary summary(URI baseURI, String itemId) {
     return service
         .summarise(itemId)
-        .orElseThrow(() -> forbidden("Cannot summarise node " + itemId));
+        .orElseThrow(
+            () -> {
+              RelationshipSummaryAbsence absence = service.absence(itemId);
+              if (absence == RelationshipSummaryAbsence.NOT_FOUND) {
+                return notFound("Item not found: " + itemId);
+              }
+              return forbidden("Cannot summarise node " + itemId);
+            });
   }
 
   /**
@@ -97,5 +105,10 @@ public class RelationshipSummaryAdaptor implements IRelationshipSummaryAdaptor {
    */
   private static WebApplicationException forbidden(String message) {
     return new WebApplicationException(message, Response.Status.FORBIDDEN);
+  }
+
+  /** Unknown or unresolvable item id. Not an empty graph and not a permission denial. */
+  private static WebApplicationException notFound(String message) {
+    return new WebApplicationException(message, Response.Status.NOT_FOUND);
   }
 }

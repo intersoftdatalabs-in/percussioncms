@@ -30,6 +30,7 @@ import com.percussion.share.dao.IPSRelationshipCataloger;
 import com.percussion.share.dao.PSJcrNodeFinder;
 import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
 import com.percussion.share.relationship.service.IPSRelationshipSummaryService;
+import com.percussion.share.relationship.service.RelationshipSummaryAbsence;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.system.IPSSystemWs;
@@ -126,6 +127,28 @@ class PSRelationshipSummaryServiceTest {
         service.summariseOutgoing("missing");
 
     assertFalse(out.isPresent());
+  }
+
+  @Test
+  void absenceIsNotFoundWhenGuidCannotBeResolved() {
+    when(idMapper.getGuid("missing")).thenThrow(new RuntimeException("not found"));
+
+    assertEquals(RelationshipSummaryAbsence.NOT_FOUND, service.absence("missing"));
+    assertEquals(RelationshipSummaryAbsence.NOT_FOUND, service.absence("  "));
+  }
+
+  @Test
+  void absenceIsForbiddenWhenResolutionIsAccessDenied() {
+    when(idMapper.getGuid("private")).thenThrow(new RuntimeException("access denied"));
+
+    assertEquals(RelationshipSummaryAbsence.FORBIDDEN, service.absence("private"));
+  }
+
+  @Test
+  void absenceIsForbiddenWhenGuidResolves() {
+    stubGuid("123");
+
+    assertEquals(RelationshipSummaryAbsence.FORBIDDEN, service.absence("123"));
   }
 
   @Test

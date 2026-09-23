@@ -38,6 +38,14 @@ describe("relationshipsApi", () => {
     expect(result).toEqual(SAMPLE_OUTGOING);
   });
 
+  it("throws RelationshipSummaryAuthError on 404", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("missing", { status: 404 })),
+    );
+    await expect(fetchOutgoing("999")).rejects.toMatchObject({ status: 404 });
+  });
+
   it("throws RelationshipSummaryAuthError on 403", async () => {
     vi.stubGlobal(
       "fetch",

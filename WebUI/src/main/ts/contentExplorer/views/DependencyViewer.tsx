@@ -22,6 +22,7 @@ import { message } from "../../i18n/message";
 import { EXPLORER_MSG } from "../messages";
 import {
   composeFromServerSummary,
+  knownEdgeRows,
   labelFor,
   totalKnownEdges,
 } from "./dependencyModel";
@@ -100,6 +101,7 @@ export function DependencyViewer(
     | { kind: "loading" }
     | { kind: "ok"; summary: PSNodeRelationshipSummary }
     | { kind: "auth" }
+    | { kind: "missing" }
     | { kind: "error"; message: string }
   >({ kind: "loading" });
 
@@ -128,14 +130,16 @@ export function DependencyViewer(
       })
       .catch((err: unknown) => {
         if (!alive) return;
-        if (
-          err &&
-          typeof err === "object" &&
-          "status" in err &&
-          (err as { status: number }).status === 403
-        ) {
-          setState({ kind: "auth" });
-          return;
+        if (err && typeof err === "object" && "status" in err) {
+          const status = (err as { status: number }).status;
+          if (status === 403) {
+            setState({ kind: "auth" });
+            return;
+          }
+          if (status === 404) {
+            setState({ kind: "missing" });
+            return;
+          }
         }
         setState({
           kind: "error",
@@ -177,6 +181,20 @@ export function DependencyViewer(
       </section>
     );
   }
+  if (state.kind === "missing") {
+    return (
+      <section
+        role="region"
+        aria-label={ariaLabel ?? message(EXPLORER_MSG.DEPENDENCY_TITLE)}
+        data-testid="dependency-viewer"
+        data-testid-state="missing"
+        className={className}
+        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
+      >
+        <p role="alert">{message(EXPLORER_MSG.DEPENDENCY_NOT_FOUND)}</p>
+      </section>
+    );
+  }
   if (state.kind === "error") {
     return (
       <section
@@ -200,6 +218,7 @@ export function DependencyViewer(
     aaLinkCount,
   );
   const total = totalKnownEdges(summary);
+  const edges = knownEdgeRows(state.summary, aaLinkCount);
 
   return (
     <section
@@ -219,10 +238,23 @@ export function DependencyViewer(
       <p
         aria-live="polite"
         data-testid="dependency-total"
-        style={{ color: "#888", margin: "0 0 8px 0" }}
+        style={{ color: "#333", margin: "0 0 8px 0" }}
       >
         Known edges: {total}
       </p>
+      {edges.length === 0 ? (
+        <p role="status" data-testid="dependency-empty">
+          {message(EXPLORER_MSG.DEPENDENCY_EMPTY)}
+        </p>
+      ) : (
+        <ul data-testid="dependency-edges" style={{ margin: "0 0 8px 1rem" }}>
+          {edges.map((edge) => (
+            <li key={edge.key} data-testid={`dependency-edge-${edge.dimension}`}>
+              {edge.label}
+            </li>
+          ))}
+        </ul>
+      )}
       <ul
         data-testid="dependency-dimensions"
         style={{ listStyle: "none", padding: 0, margin: 0 }}
