@@ -17,7 +17,6 @@
 package com.percussion.sitemanage.service.impl;
 
 import com.percussion.share.service.exception.PSValidationException;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.util.Locale;
 
@@ -40,15 +39,32 @@ public final class PSSiteCopyHttpStatus {
     if (isConflict(text)) {
       return Response.Status.CONFLICT;
     }
-    if (error instanceof PSValidationException || isBadRequest(text)) {
+    if (causedByValidation(error) || isBadRequest(text)) {
       return Response.Status.BAD_REQUEST;
     }
     return Response.Status.INTERNAL_SERVER_ERROR;
   }
 
-  public static WebApplicationException toException(Throwable error) {
+  private static boolean causedByValidation(Throwable error) {
+    Throwable cur = error;
+    int depth = 0;
+    while (cur != null && depth < 8) {
+      if (cur instanceof PSValidationException) {
+        return true;
+      }
+      cur = cur.getCause();
+      depth++;
+    }
+    return false;
+  }
+
+  public static PSSiteCopyStatusException toException(Throwable error) {
     Response.Status status = statusFor(error);
-    return new WebApplicationException(messageFor(status), status);
+    return failure(status);
+  }
+
+  public static PSSiteCopyStatusException failure(Response.Status status) {
+    return new PSSiteCopyStatusException(status.getStatusCode(), messageFor(status));
   }
 
   static String messageFor(Response.Status status) {

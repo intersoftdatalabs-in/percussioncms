@@ -215,6 +215,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="PSJsonProcessingExceptionMapper"/>
             <ref bean="validationExceptionMapper"/>
             <ref bean="constraintsViolatedExceptionMapper"/>
+            <ref bean="siteCopyStatusExceptionMapper"/>
             <ref bean="runtimeExceptionMapper"/>
             <ref bean="jacksonProvider"/>
             <ref bean="jacksonContextResolver"/>

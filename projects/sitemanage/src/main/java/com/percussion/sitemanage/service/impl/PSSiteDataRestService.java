@@ -26,6 +26,7 @@ import com.percussion.itemmanagement.service.IPSItemService;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.share.dao.IPSGenericDao;
+import com.percussion.share.service.PSSiteCopyUtils;
 import com.percussion.share.data.PSEnumVals;
 import com.percussion.share.data.PSMapWrapper;
 import com.percussion.share.service.IPSDataService;
@@ -405,8 +406,27 @@ public class PSSiteDataRestService {
         || req.getSrcSite().isBlank()
         || req.getCopySite() == null
         || req.getCopySite().isBlank()) {
-      throw new WebApplicationException(
-          PSSiteCopyHttpStatus.messageFor(Response.Status.BAD_REQUEST), Response.Status.BAD_REQUEST);
+      throw PSSiteCopyHttpStatus.failure(Response.Status.BAD_REQUEST);
+    }
+    if (PSSiteCopyUtils.copyInProgress
+        || req.getSrcSite().trim().equalsIgnoreCase(req.getCopySite().trim())) {
+      throw PSSiteCopyHttpStatus.failure(Response.Status.CONFLICT);
+    }
+    try {
+      var existing = siteDataService.findAll(false);
+      if (existing != null) {
+        for (var summary : existing) {
+          if (summary != null
+              && summary.getName() != null
+              && summary.getName().equalsIgnoreCase(req.getCopySite().trim())) {
+            throw PSSiteCopyHttpStatus.failure(Response.Status.CONFLICT);
+          }
+        }
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      // Listing sites failed. copy() still rejects a duplicate name inside the service.
     }
     try {
       // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;

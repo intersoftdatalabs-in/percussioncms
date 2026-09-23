@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.percussion.share.service.PSSiteCopyUtils;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 
@@ -30,10 +29,10 @@ class PSSiteCopyHttpStatusTest {
 
   @Test
   void missingSourceIsBadRequest() {
-    WebApplicationException ex =
+    PSSiteCopyStatusException ex =
         PSSiteCopyHttpStatus.toException(
             new RuntimeException("Unable to copy site, failed to find site with name: Missing"));
-    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(400, ex.status());
     assertEquals("Site copy request was rejected.", ex.getMessage());
     assertFalse(ex.getMessage().contains("Missing"));
   }
@@ -46,7 +45,7 @@ class PSSiteCopyHttpStatusTest {
                 validateParameters("copy")
                     .reject("site.saveNotAuthorized", "You are not authorized to create a site")
                     .throwIfInvalid());
-    assertEquals(403, PSSiteCopyHttpStatus.toException(validation).getResponse().getStatus());
+    assertEquals(403, PSSiteCopyHttpStatus.toException(validation).status());
   }
 
   @Test
@@ -68,14 +67,28 @@ class PSSiteCopyHttpStatusTest {
                 validateParameters("copy")
                     .reject(PSSiteCopyUtils.SITE_COPY_KEY, PSSiteCopyUtils.CAN_NOT_COPY_SITE)
                     .throwIfInvalid());
-    assertEquals(409, PSSiteCopyHttpStatus.toException(validation).getResponse().getStatus());
+    assertEquals(409, PSSiteCopyHttpStatus.toException(validation).status());
+  }
+
+  @Test
+  void rollbackWrappingDuplicateNameIsConflict() throws Exception {
+    Exception validation =
+        catchValidation(
+            () ->
+                validateParameters("save")
+                    .reject("site.exists", "a site named X already exists")
+                    .throwIfInvalid());
+    var wrapped =
+        new org.springframework.transaction.UnexpectedRollbackException(
+            "Transaction rolled back because it has been marked as rollback-only", validation);
+    assertEquals(409, PSSiteCopyHttpStatus.toException(wrapped).status());
   }
 
   @Test
   void unexpectedFailureStays500() {
     assertEquals(
         500,
-        PSSiteCopyHttpStatus.toException(new IllegalStateException("disk full")).getResponse().getStatus());
+        PSSiteCopyHttpStatus.toException(new IllegalStateException("disk full")).status());
   }
 
   private static Exception catchValidation(RunnableThrowing action) throws Exception {
