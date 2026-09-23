@@ -190,6 +190,14 @@ export const MSG = {
   PUBLISH_ERROR: "perc.ui.home.modern@Error",
   PUBLISH_FORBIDDEN: "perc.ui.publish.modern@Publish Forbidden",
   PUBLISH_JOB_NOT_FOUND: "perc.ui.publish.modern@Publish job not found",
+  PUBLISH_LOG_OPEN_EDITOR: "perc.ui.publish.modern@Open in editor",
+  PUBLISH_LOG_ITEM_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to open this item",
+  PUBLISH_LOG_ITEM_NOT_FOUND: "perc.ui.publish.modern@This item was not found",
+  PUBLISH_LOG_ITEM_NO_ID:
+    "perc.ui.publish.modern@This log row has no content id",
+  PUBLISH_LOG_ITEM_OPEN_FAILED:
+    "perc.ui.publish.modern@Could not open this item in the editor",
   PUBLISH_JOB_STOP_CONFLICT:
     "perc.ui.publish.modern@Publish job cannot be stopped",
   PUBLISH_EDITION_NAME_CONFLICT:

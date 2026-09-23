@@ -138,7 +138,11 @@ click **Logs** to load rows (`POST …/sitemanage/pubstatus/logs`). Use **Status
 Success) and **Search** to filter the loaded table by site, server, job id, or status without
 another round trip. **Failures only (server)** sets `showOnlyFailures` on the logs request so the
 server returns failed jobs only. Open **details** on a row for item-level log lines (those details
-have their own text filter).
+have their own text filter). From an item row, **view** then **Open in editor** probes
+`GET …/itemmanagement/item/fields/{contentId}` and, on success, opens the React content editor
+for that content id (`spa.jsp?entry=editor&contentId=…&mode=edit`). HTTP **403** (not allowed)
+and **404** (item not found) stay on the log item detail as an error — they do not open a blank
+editor window. A row with no content id cannot be opened.
 
 ### Filter current jobs by site (Status)
 

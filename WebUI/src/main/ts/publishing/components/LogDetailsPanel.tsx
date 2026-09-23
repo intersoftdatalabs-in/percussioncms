@@ -22,6 +22,12 @@ import {
   filterLogItems,
   type PublishLogItem,
 } from "../logDetails";
+import { reserveEditorWindow } from "../../editor/openEditorHost";
+import {
+  openLogItemInEditor,
+  type OpenLogItemReason,
+  type OpenLogItemResult,
+} from "../openLogItemInEditor";
 import {
   buttonStyle,
   emptyStyle,
@@ -41,6 +47,24 @@ export interface LogDetailsPanelProps {
     status?: string;
   };
   onClose: () => void;
+  /** Test seam. Production uses {@link openLogItemInEditor}. */
+  openItem?: (
+    contentId: string | number | null | undefined,
+    reservedWindow?: Window | null,
+  ) => Promise<OpenLogItemResult>;
+}
+
+function openFailureMessage(reason: OpenLogItemReason): string {
+  if (reason === "forbidden") {
+    return message(MSG.PUBLISH_LOG_ITEM_FORBIDDEN);
+  }
+  if (reason === "not_found") {
+    return message(MSG.PUBLISH_LOG_ITEM_NOT_FOUND);
+  }
+  if (reason === "missing_id") {
+    return message(MSG.PUBLISH_LOG_ITEM_NO_ID);
+  }
+  return message(MSG.PUBLISH_LOG_ITEM_OPEN_FAILED);
 }
 
 /**
@@ -50,10 +74,14 @@ export function LogDetailsPanel({
   details,
   jobSummary,
   onClose,
+  openItem = (contentId, reservedWindow) =>
+    openLogItemInEditor(contentId, { reservedWindow }),
 }: LogDetailsPanelProps): React.ReactElement {
   const items = useMemo(() => extractLogItems(details), [details]);
   const [filter, setFilter] = useState("");
   const [selected, setSelected] = useState<PublishLogItem | null>(null);
+  const [opening, setOpening] = useState(false);
+  const [openError, setOpenError] = useState<string | null>(null);
   const filtered = useMemo(
     () => filterLogItems(items, filter),
     [items, filter],
@@ -198,10 +226,41 @@ export function LogDetailsPanel({
           <p>
             <strong>Status:</strong> {String(selected.status ?? "—")}
           </p>
+          {openError && (
+            <p role="alert" data-testid="publish-log-item-open-error">
+              {openError}
+            </p>
+          )}
           <button
             type="button"
             style={buttonStyle}
-            onClick={() => setSelected(null)}
+            data-testid="publish-log-open-editor"
+            disabled={opening}
+            onClick={() => {
+              const reserved = reserveEditorWindow();
+              setOpening(true);
+              setOpenError(null);
+              void openItem(selected.contentid, reserved)
+                .then((result) => {
+                  if (!result.ok) {
+                    setOpenError(openFailureMessage(result.reason));
+                  }
+                })
+                .catch(() => {
+                  setOpenError(message(MSG.PUBLISH_LOG_ITEM_OPEN_FAILED));
+                })
+                .finally(() => setOpening(false));
+            }}
+          >
+            {message(MSG.PUBLISH_LOG_OPEN_EDITOR)}
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            onClick={() => {
+              setSelected(null);
+              setOpenError(null);
+            }}
           >
             {message(MSG.PUBLISH_BACK)}
           </button>
