@@ -30,6 +30,8 @@ import com.percussion.rest.slotrelationships.SlotAllowedChoiceList;
 import com.percussion.rest.slotrelationships.SlotCanvas;
 import com.percussion.rest.slotrelationships.SlotMoveRequest;
 import com.percussion.rest.slotrelationships.SlotRelationship;
+import com.percussion.webservices.IPSWebserviceErrors;
+import com.percussion.webservices.PSErrorException;
 import com.percussion.rest.slotrelationships.SlotTemplateSlotRequest;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
@@ -159,6 +161,56 @@ class SlotRelationshipAdaptorTest {
     adaptor(ws, new FakeAssembly()).move(2, req);
     assertEquals(List.of(2), ws.reorderedIds);
     assertEquals(0, ws.reorderIndex);
+  }
+
+  @Test
+  void move_notFound_is404() {
+    FakeContentWs ws = new FakeContentWs();
+    SlotMoveRequest req = new SlotMoveRequest();
+    req.setDirection("DOWN");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).move(9, req));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void move_forbidden_is403() {
+    FakeContentWs ws = new FakeContentWs();
+    ws.byId.put(2, fakeRel(2, 10, 22, 5, 4, 1));
+    ws.slotRels.put(key(10, 5), List.of(fakeRel(1, 10, 21, 5, 4, 0), fakeRel(2, 10, 22, 5, 4, 1)));
+    ws.reorderThrows = new SecurityException("no");
+    SlotMoveRequest req = new SlotMoveRequest();
+    req.setDirection("UP");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).move(2, req));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void move_checkoutConflict_is409() {
+    FakeContentWs ws = new FakeContentWs();
+    ws.byId.put(2, fakeRel(2, 10, 22, 5, 4, 1));
+    ws.slotRels.put(key(10, 5), List.of(fakeRel(1, 10, 21, 5, 4, 0), fakeRel(2, 10, 22, 5, 4, 1)));
+    ws.reorderThrows =
+        new PSErrorException(IPSWebserviceErrors.ITEM_NOT_CHECKOUT_BY_USER, "held", "stack");
+    SlotMoveRequest req = new SlotMoveRequest();
+    req.setDirection("UP");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).move(2, req));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void move_incidentalConflictText_stays500() {
+    FakeContentWs ws = new FakeContentWs();
+    ws.byId.put(2, fakeRel(2, 10, 22, 5, 4, 1));
+    ws.slotRels.put(key(10, 5), List.of(fakeRel(1, 10, 21, 5, 4, 0), fakeRel(2, 10, 22, 5, 4, 1)));
+    ws.reorderThrows = new IllegalStateException("checkout conflict; row not found");
+    SlotMoveRequest req = new SlotMoveRequest();
+    req.setDirection("UP");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor(ws, new FakeAssembly()).move(2, req));
+    assertEquals(500, ex.getResponse().getStatus());
   }
 
   @Test
@@ -364,6 +416,7 @@ class SlotRelationshipAdaptorTest {
     PSAaRelationship addResult;
     RuntimeException addThrows;
     RuntimeException deleteThrows;
+    RuntimeException reorderThrows;
     Map<Integer, PSAaRelationship> byId = new HashMap<>();
     Map<String, List<PSAaRelationship>> slotRels = new HashMap<>();
 
@@ -395,6 +448,9 @@ class SlotRelationshipAdaptorTest {
 
     @Override
     public void reorderContentRelations(List<IPSGuid> ids, int index) {
+      if (reorderThrows != null) {
+        throw reorderThrows;
+      }
       reorderIndex = index;
       reorderedIds = new ArrayList<>();
       for (IPSGuid id : ids) {

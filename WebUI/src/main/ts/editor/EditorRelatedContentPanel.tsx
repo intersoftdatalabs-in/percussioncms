@@ -26,6 +26,7 @@ import type { PSLocalDependencySummary } from "../api/contentExplorer/relationsh
 import {
   addSlotRelationship,
   fetchSlotCanvas,
+  moveSlotRelationship,
   removeSlotRelationship,
   type SlotAddRequest,
   type SlotCanvas,
@@ -38,6 +39,8 @@ import {
   relatedContentErrorReason,
   relatedInsertErrorReason,
   relatedRemoveErrorReason,
+  relatedReorderEnds,
+  relatedReorderErrorReason,
   type InsertSlotChoice,
   type RelatedContentRow,
 } from "./editorRelatedContent";
@@ -52,6 +55,10 @@ export interface EditorRelatedContentPanelProps {
   loadLocal?: (itemId: string) => Promise<PSLocalDependencySummary>;
   insertRelationship?: (request: SlotAddRequest) => Promise<SlotRelationship>;
   removeRelationship?: (relationshipId: number) => Promise<void>;
+  moveRelationship?: (
+    relationshipId: number,
+    direction: "UP" | "DOWN",
+  ) => Promise<void>;
 }
 
 function insertMessageKey(reason: ReturnType<typeof relatedInsertErrorReason>): string {
@@ -65,6 +72,21 @@ function insertMessageKey(reason: ReturnType<typeof relatedInsertErrorReason>): 
     return EDITOR_MSG.RELATED_INSERT_NOT_FOUND;
   }
   return EDITOR_MSG.RELATED_INSERT_FAILED;
+}
+
+function reorderMessageKey(
+  reason: ReturnType<typeof relatedReorderErrorReason>,
+): string {
+  if (reason === "forbidden") {
+    return EDITOR_MSG.RELATED_MOVE_FORBIDDEN;
+  }
+  if (reason === "not_found") {
+    return EDITOR_MSG.RELATED_MOVE_NOT_FOUND;
+  }
+  if (reason === "conflict") {
+    return EDITOR_MSG.RELATED_MOVE_CONFLICT;
+  }
+  return EDITOR_MSG.RELATED_MOVE_FAILED;
 }
 
 function removeMessageKey(reason: ReturnType<typeof relatedRemoveErrorReason>): string {
@@ -84,6 +106,8 @@ export function EditorRelatedContentPanel({
   loadLocal = fetchLocal,
   insertRelationship = addSlotRelationship,
   removeRelationship = removeSlotRelationship,
+  moveRelationship = (relationshipId, direction) =>
+    moveSlotRelationship(relationshipId, direction),
 }: EditorRelatedContentPanelProps): React.ReactElement {
   const [rows, setRows] = useState<RelatedContentRow[]>([]);
   const [choices, setChoices] = useState<InsertSlotChoice[]>([]);
@@ -91,6 +115,9 @@ export function EditorRelatedContentPanel({
   const [dependentId, setDependentId] = useState("");
   const [inserting, setInserting] = useState(false);
   const [removingId, setRemovingId] = useState<number | null>(null);
+  const [movingId, setMovingId] = useState<number | null>(null);
+  const [moveErrorKey, setMoveErrorKey] = useState<string | null>(null);
+  const [moveDetail, setMoveDetail] = useState("");
   const [insertErrorKey, setInsertErrorKey] = useState<string | null>(null);
   const [insertDetail, setInsertDetail] = useState("");
   const [removeErrorKey, setRemoveErrorKey] = useState<string | null>(null);
@@ -235,6 +262,31 @@ export function EditorRelatedContentPanel({
     }
   }
 
+  async function handleMove(
+    relationshipId: number,
+    direction: "UP" | "DOWN",
+  ): Promise<void> {
+    if (!(relationshipId > 0) || movingId != null || removingId != null) {
+      return;
+    }
+    setMovingId(relationshipId);
+    setMoveErrorKey(null);
+    setMoveDetail("");
+    try {
+      await moveRelationship(relationshipId, direction);
+      setReloadToken((n) => n + 1);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = relatedReorderErrorReason(err);
+      setMoveErrorKey(reorderMessageKey(reason));
+      setMoveDetail(formatApiError(err, message(EDITOR_MSG.RELATED_MOVE_FAILED)));
+    } finally {
+      setMovingId(null);
+    }
+  }
+
   async function handleRemove(relationshipId: number): Promise<void> {
     if (!(relationshipId > 0)) {
       return;
@@ -332,6 +384,16 @@ export function EditorRelatedContentPanel({
           {message(EDITOR_MSG.RELATED_EMPTY)}
         </div>
       ) : null}
+      {moveErrorKey ? (
+        <div
+          className={styles.status}
+          role="alert"
+          data-testid="editor-related-move-error"
+        >
+          {message(moveErrorKey)}
+          {moveDetail ? ` ${moveDetail}` : ""}
+        </div>
+      ) : null}
       {removeErrorKey ? (
         <div
           className={styles.status}
@@ -354,11 +416,46 @@ export function EditorRelatedContentPanel({
               <span className={styles.relatedSlot}>{row.slotLabel}</span>
               <span data-testid="editor-related-item-id">{row.itemId}</span>
               {!readOnly && row.relationshipId != null && row.relationshipId > 0 ? (
+                <>
+                {relatedReorderEnds(rows, row).up ? (
+                  <button
+                    type="button"
+                    className={styles.button}
+                    data-testid="editor-related-move-up"
+                    disabled={movingId != null || removingId != null}
+                    onClick={() =>
+                      void handleMove(row.relationshipId as number, "UP")
+                    }
+                  >
+                    {message(
+                      movingId === row.relationshipId
+                        ? EDITOR_MSG.RELATED_MOVING
+                        : EDITOR_MSG.RELATED_MOVE_UP,
+                    )}
+                  </button>
+                ) : null}
+                {relatedReorderEnds(rows, row).down ? (
+                  <button
+                    type="button"
+                    className={styles.button}
+                    data-testid="editor-related-move-down"
+                    disabled={movingId != null || removingId != null}
+                    onClick={() =>
+                      void handleMove(row.relationshipId as number, "DOWN")
+                    }
+                  >
+                    {message(
+                      movingId === row.relationshipId
+                        ? EDITOR_MSG.RELATED_MOVING
+                        : EDITOR_MSG.RELATED_MOVE_DOWN,
+                    )}
+                  </button>
+                ) : null}
                 <button
                   type="button"
                   className={styles.button}
                   data-testid="editor-related-remove"
-                  disabled={removingId != null}
+                  disabled={removingId != null || movingId != null}
                   onClick={() => void handleRemove(row.relationshipId as number)}
                 >
                   {message(
@@ -367,6 +464,7 @@ export function EditorRelatedContentPanel({
                       : EDITOR_MSG.RELATED_REMOVE,
                   )}
                 </button>
+                </>
               ) : null}
             </li>
           ))}
