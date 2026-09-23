@@ -2889,5 +2889,160 @@ describe("EditorHost new copy / promotable version (#4570)", () => {
     });
     expect(screen.queryByTestId("editor-new-copy")).toBeNull();
     expect(screen.queryByTestId("editor-promotable-version")).toBeNull();
+    expect(screen.queryByTestId("editor-recycle")).toBeNull();
+  });
+});
+
+describe("EditorHost recycle (#4773)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function host(extra: Record<string, unknown>) {
+    return (
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => ({ fields: [] })}
+                {...extra}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>
+    );
+  }
+
+  it("recycles the open item and leaves edit mode", async () => {
+    const recycleItem = vi.fn().mockResolvedValue(undefined);
+    const resolveRecycleTarget = vi.fn().mockResolvedValue({
+      path: "//Sites/Demo/Home",
+      type: "percPage",
+    });
+    render(
+      host({
+        recycleItem,
+        resolveRecycleTarget,
+        confirmRecycle: () => true,
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-recycle")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-recycle"));
+    await waitFor(() => {
+      expect(recycleItem).toHaveBeenCalledWith("//Sites/Demo/Home");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-recycle-done")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-content-id")).toBeNull();
+    expect(screen.queryByTestId("editor-form")).toBeNull();
+    expect(screen.queryByTestId("editor-recycle")).toBeNull();
+  });
+
+  it("does not recycle when confirm is cancelled", async () => {
+    const recycleItem = vi.fn();
+    const resolveRecycleTarget = vi.fn();
+    render(
+      host({
+        recycleItem,
+        resolveRecycleTarget,
+        confirmRecycle: () => false,
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-recycle")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-recycle"));
+    expect(resolveRecycleTarget).not.toHaveBeenCalled();
+    expect(recycleItem).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-content-id").textContent).toMatch(/42/);
+    expect(screen.queryByTestId("editor-recycle-done")).toBeNull();
+  });
+
+  it("does not recycle a folder", async () => {
+    const recycleItem = vi.fn();
+    render(
+      host({
+        recycleItem,
+        resolveRecycleTarget: async () => ({
+          path: "//Sites/Demo/",
+          type: "Folder",
+        }),
+        confirmRecycle: () => true,
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-recycle")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-recycle"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-recycle-error").textContent).toMatch(
+        /folder/i,
+      );
+    });
+    expect(recycleItem).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-content-id").textContent).toMatch(/42/);
+  });
+
+  it.each([
+    [403, /not allowed to recycle/i],
+    [404, /not found/i],
+    [409, /cannot be recycled/i],
+  ])("surfaces HTTP %s as a failure, not success", async (status, pattern) => {
+    const recycleItem = vi.fn().mockRejectedValue({
+      status,
+      statusText: "err",
+      body: {},
+    });
+    render(
+      host({
+        recycleItem,
+        resolveRecycleTarget: async () => ({
+          path: "//Sites/Demo/Home",
+          type: "percPage",
+        }),
+        confirmRecycle: () => true,
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-recycle")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-recycle"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-recycle-error").textContent).toMatch(pattern);
+    });
+    expect(screen.queryByTestId("editor-recycle-done")).toBeNull();
+    expect(screen.getByTestId("editor-content-id").textContent).toMatch(/42/);
+  });
+
+  it("hides recycle in view mode", async () => {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-recycle")).toBeNull();
   });
 });

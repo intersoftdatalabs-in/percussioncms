@@ -135,6 +135,19 @@ export const EDITOR_MSG = {
   COPY_FORBIDDEN: "perc.ui.editor@You are not allowed to copy this item.",
   COPY_NOT_FOUND: "perc.ui.editor@This item was not found.",
   COPY_UNAVAILABLE: "perc.ui.editor@Copy is only available while editing an item.",
+  RECYCLE: "perc.ui.editor@Recycle",
+  RECYCLING: "perc.ui.editor@Recycling…",
+  CONFIRM_RECYCLE:
+    "perc.ui.editor@Move this item to the recycle bin? It will leave the folder and this editor.",
+  RECYCLED: "perc.ui.editor@Item moved to the recycle bin.",
+  RECYCLE_FAILED: "perc.ui.editor@Could not recycle this item.",
+  RECYCLE_FORBIDDEN: "perc.ui.editor@You are not allowed to recycle this item.",
+  RECYCLE_NOT_FOUND: "perc.ui.editor@This item was not found.",
+  RECYCLE_CONFLICT:
+    "perc.ui.editor@This item cannot be recycled because it is in use or checked out.",
+  RECYCLE_FOLDER: "perc.ui.editor@Folders cannot be recycled from the editor.",
+  RECYCLE_UNAVAILABLE:
+    "perc.ui.editor@Recycle is only available while editing an item.",
   RESTORE_PRIOR_REVISION: "perc.ui.editor@Restore prior revision",
   RESTORING: "perc.ui.editor@Restoring…",
   RESTORE_CONFIRM:
