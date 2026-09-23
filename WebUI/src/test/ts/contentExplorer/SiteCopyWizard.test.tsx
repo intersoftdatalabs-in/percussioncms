@@ -72,8 +72,11 @@ describe("SiteCopyWizard", () => {
     const req: PSSiteCopyRequest = submit.mock.calls[0]?.[0];
     expect(req.sourceSite).toBe("A");
     expect(req.targetSite).toBe("B");
-    expect(screen.getByTestId("site-copy-progress").textContent).toBe(
+    expect(screen.getByTestId("site-copy-progress").textContent).toContain(
       "Site copy completed",
+    );
+    expect(screen.getByTestId("site-copy-result-name").textContent).toContain(
+      "B",
     );
   });
 
@@ -97,6 +100,26 @@ describe("SiteCopyWizard", () => {
     expect(screen.getByTestId("site-copy-progress").textContent).toContain(
       "mock failure",
     );
+  });
+
+  it("maps HTTP 409 from submit onto conflict chrome", async () => {
+    const submit = vi.fn().mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: null,
+    });
+    render(<SiteCopyWizard submit={submit} initialSource="A" initialTarget="A" />);
+    fireEvent.click(screen.getByTestId("site-copy-next"));
+    fireEvent.click(screen.getByTestId("site-copy-next"));
+    fireEvent.click(screen.getByTestId("site-copy-next"));
+    fireEvent.click(screen.getByTestId("site-copy-next"));
+    fireEvent.click(screen.getByTestId("site-copy-run"));
+    await waitFor(() => {
+      expect(screen.getByTestId("site-copy-progress").textContent).toContain(
+        "HTTP 409",
+      );
+    });
+    expect(screen.queryByTestId("site-copy-result-name")).toBeNull();
   });
 
   it("passes the zero serious/critical axe-core gate (step 0)", async () => {

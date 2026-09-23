@@ -400,12 +400,23 @@ public class PSSiteDataRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSite copy(PSSiteCopyRequest req) {
+    if (req == null
+        || req.getSrcSite() == null
+        || req.getSrcSite().isBlank()
+        || req.getCopySite() == null
+        || req.getCopySite().isBlank()) {
+      throw new WebApplicationException(
+          PSSiteCopyHttpStatus.messageFor(Response.Status.BAD_REQUEST), Response.Status.BAD_REQUEST);
+    }
     try {
       // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
-      // not HTML body
+      // not HTML body. Failures become fixed 400/403/409 text (PSSiteCopyHttpStatus), not the
+      // exception message.
       return siteDataService.copy(req); // codeql[java/xss]
-    } catch (IPSItemService.PSItemServiceException | PSDataServiceException e) {
-      throw new WebApplicationException(e);
+    } catch (RuntimeException e) {
+      throw PSSiteCopyHttpStatus.toException(e);
+    } catch (Exception e) {
+      throw PSSiteCopyHttpStatus.toException(e);
     }
   }
 }

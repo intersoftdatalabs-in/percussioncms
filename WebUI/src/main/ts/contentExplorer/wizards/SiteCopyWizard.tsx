@@ -26,9 +26,11 @@
  */
 
 import React, { useState } from "react";
+import { copyManagedSite } from "../../api/architecture/siteAdminApi";
 import type { PSSiteCopyRequest } from "../../api/contentExplorer/types";
 import { message } from "../../i18n/message";
 import { EXPLORER_MSG } from "../messages";
+import { formatSiteCopyError } from "../siteCopyErrors";
 import {
   advance,
   back,
@@ -69,11 +71,10 @@ export function SiteCopyWizard(
   const [targetFolder, setTargetFolder] = useState("/");
   const [workflows, setWorkflows] = useState("*");
   const [templates, setTemplates] = useState("*");
+  const [copiedName, setCopiedName] = useState("");
 
   async function defaultSubmit(req: PSSiteCopyRequest): Promise<void> {
-    const { post } = await import("../../api/client");
-    const { PATHS } = await import("../../api/paths");
-    await post<void>(PATHS.SITES_ALL + "/copy", req);
+    await copyManagedSite(req);
   }
 
   async function handleRun(): Promise<void> {
@@ -91,11 +92,14 @@ export function SiteCopyWizard(
     try {
       const fn = submitOverride ?? defaultSubmit;
       await fn(req);
+      setCopiedName(targetSite.trim());
       setWizard((w) => finishWizard(w, { kind: "ok" }));
       onSettled?.(true);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err ?? "unknown");
-      setWizard((w) => finishWizard(w, { kind: "error", message: msg }));
+      setCopiedName("");
+      setWizard((w) =>
+        finishWizard(w, { kind: "error", message: formatSiteCopyError(err) }),
+      );
       onSettled?.(false);
     }
   }
@@ -225,10 +229,13 @@ export function SiteCopyWizard(
               {wizard.submitting
                 ? "Submitting\u2026"
                 : wizard.result?.kind === "ok"
-                  ? "Site copy completed"
+                  ? message(EXPLORER_MSG.SITE_COPY_COMPLETED)
                   : wizard.result?.kind === "error"
-                    ? `${message(EXPLORER_MSG.WIZARD_ERROR)}: ${wizard.result.message}`
+                    ? wizard.result.message
                     : ""}
+              {wizard.result?.kind === "ok" && copiedName ? (
+                <span data-testid="site-copy-result-name"> {copiedName}</span>
+              ) : null}
             </p>
           </fieldset>
         );
