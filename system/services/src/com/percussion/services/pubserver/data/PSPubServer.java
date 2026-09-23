@@ -43,6 +43,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -208,10 +209,14 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
 
    /**
     * Coerce a loaded or copied flag so JDBC does not send a multi-character value.
+    * {@code @PreUpdate} alone is not enough: Hibernate may bind the snapshot taken
+    * before that callback, and a later flush (navon {@code loadItems}) then marks
+    * the request rollback-only.
     */
+   @PostLoad
    @PrePersist
    @PreUpdate
-   void normalizeHasFullPublishedForColumn()
+   public void normalizeHasFullPublishedForColumn()
    {
       this.hasFullPublished = toHasFullPublishedColumn(hasFullPublished);
    }

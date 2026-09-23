@@ -24,6 +24,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSCoreItem;
@@ -41,6 +42,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.transaction.UnexpectedRollbackException;
 
 /**
  * Architecture section rename must save navon displaytitle without
@@ -78,6 +80,22 @@ class PSManagedNavServiceSetNavonPropertiesTest {
     verify(coreItem).setTextField("displaytitle", "Renamed");
     verify(contentWs).saveItems(anyList(), eq(false), eq(false));
     verify(contentWs, never()).prepareForEdit(anyList());
+  }
+
+  @Test
+  void setNavonPropertiesRetriesWhenLoadItemsRollsBack() throws Exception {
+    doReturn(true).when(service).isNavonAlreadyCheckedOut(navonId);
+    when(contentWs.loadItems(anyList(), eq(false), eq(false), eq(false), eq(false)))
+        .thenThrow(new UnexpectedRollbackException("rollback-only"))
+        .thenReturn(List.of(coreItem));
+    Map<String, String> map = new HashMap<>();
+    map.put("displaytitle", "Renamed");
+
+    service.setNavonProperties(navonId, map);
+
+    verify(contentWs, times(2))
+        .loadItems(anyList(), eq(false), eq(false), eq(false), eq(false));
+    verify(contentWs).saveItems(anyList(), eq(false), eq(false));
     verify(contentWs, never()).releaseFromEdit(anyList(), anyBoolean());
     verify(contentWs, never()).checkinItems(any(), any());
   }

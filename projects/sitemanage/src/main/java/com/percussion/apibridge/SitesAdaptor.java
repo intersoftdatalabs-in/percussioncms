@@ -294,6 +294,18 @@ public class SitesAdaptor implements ISiteAdaptor {
       throw new WebApplicationException("Site not found: " + nameOrId, Response.Status.NOT_FOUND);
     } catch (PSDataServiceException e) {
       throw mapRenameFailure(found.getName(), normalized, e);
+    } catch (RuntimeException e) {
+      if (isUnexpectedRollback(e)) {
+        IPSSite renamed = siteManager.findSite(normalized);
+        if (renamed != null) {
+          log.warn(
+              "Site rename to '{}' persisted but the request transaction was rollback-only."
+                  + " Returning the saved site.",
+              normalized);
+          return toDetailSite(renamed);
+        }
+      }
+      throw e;
     }
     IPSSite renamed = siteManager.findSite(normalized);
     return renamed != null ? toDetailSite(renamed) : toDetailSite(found);
@@ -302,6 +314,17 @@ public class SitesAdaptor implements ISiteAdaptor {
   /** Package-visible so unit tests can inject the rename persistence service. */
   void setSiteDataService(IPSSiteDataService service) {
     this.siteDataService = service;
+  }
+
+  private static boolean isUnexpectedRollback(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      if (current instanceof org.springframework.transaction.UnexpectedRollbackException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   private static WebApplicationException mapRenameFailure(String from, String to, Exception e) {

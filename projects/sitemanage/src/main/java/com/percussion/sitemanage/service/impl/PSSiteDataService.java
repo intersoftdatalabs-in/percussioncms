@@ -450,8 +450,6 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     // update the psx_recent table entries.
     updatePSRecentEntries(site, props);
 
-    updatePubServers(site, props);
-
     // update navtree, folder and landing page
     PSSiteSectionProperties section = new PSSiteSectionProperties();
     IPSGuid treeId = navService.findNavigationIdFromFolder(site.getFolderRoot());
@@ -468,6 +466,11 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
         siteDao.updateSite(site, newSiteName, props.getDescription().orElse(""));
 
     sectionService.update(section);
+
+    // After the section save. A publish-server flush joined to this request
+    // used to run first and, on CHAR(1) failure, mark the transaction
+    // rollback-only so navon loadItems threw UnexpectedRollbackException (#4784).
+    updatePubServers(site, oldSiteName, props);
 
     updateThumbnailCache(oldSiteName, newSiteName);
 
@@ -620,23 +623,40 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
    * @param site the site object
    * @param props
    */
-  private void updatePubServers(IPSSite site, PSSiteProperties props) {
-    log.info("Updating publishing server for site: {}", site.getName());
+  private void updatePubServers(IPSSite site, String nameBeforeRename, PSSiteProperties props) {
+    log.info("Updating publishing server for site: {}", nameBeforeRename);
     try {
-      PSPubServer pubServer = getPubServerService().getDefaultPubServer(site.getGUID());
-
-      if (!site.getName().equals(props.getName())) {
-        pubServer.setSiteRenamed(true);
-      }
-
-      IPSPubServerDao pubServerDao = PSPubServerDaoLocator.getPubServerManager();
-      pubServerDao.savePubServer(pubServer);
+      var tm =
+          getWebApplicationContext()
+              .getBean(
+                  "sys_transactionManager",
+                  org.springframework.transaction.PlatformTransactionManager.class);
+      var tx = new org.springframework.transaction.support.TransactionTemplate(tm);
+      tx.setPropagationBehavior(
+          org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+      tx.executeWithoutResult(
+          status -> savePubServerRenamedFlag(site, nameBeforeRename, props));
     } catch (Exception e) {
       log.error(
           "Error updating PSPubServer flag setSiteRenamed while renaming site: {}. Error: {}",
-          site.getName(),
+          nameBeforeRename,
           PSExceptionUtils.getMessageForLog(e));
     }
+  }
+
+  /**
+   * Writes {@code siteRenamed} in its own transaction. Must not join the rename
+   * request: a CHAR(1) failure there is rollback-only for every later flush.
+   */
+  private void savePubServerRenamedFlag(
+      IPSSite site, String nameBeforeRename, PSSiteProperties props) {
+    PSPubServer pubServer = getPubServerService().getDefaultPubServer(site.getGUID());
+    pubServer.normalizeHasFullPublishedForColumn();
+    String updatedName = props.getName().orElse(nameBeforeRename);
+    if (!nameBeforeRename.equals(updatedName)) {
+      pubServer.setSiteRenamed(true);
+    }
+    PSPubServerDaoLocator.getPubServerManager().savePubServer(pubServer);
   }
 
   /**

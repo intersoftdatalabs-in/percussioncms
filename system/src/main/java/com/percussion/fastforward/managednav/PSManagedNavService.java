@@ -680,12 +680,44 @@ public class PSManagedNavService implements IPSManagedNavService {
       statuses = prepareForEditIsolated(nodeId);
     }
     try {
-      applyNavonPropertyMap(nodeId, propertyMap);
+      // Suspend the rename request TX. loadItems is itself @Transactional; joined
+      // to a rollback-only request it commits as UnexpectedRollbackException
+      // after the site row was already updated (#4784).
+      try {
+        runWithoutJoiningCallerTx(() -> applyNavonPropertiesIsolated(nodeId, propertyMap));
+      } catch (RuntimeException first) {
+        if (!isUnexpectedRollback(first)) {
+          throw first;
+        }
+        log.warn(
+            "Retrying navon property save after rollback-only transaction; id={}", nodeId);
+        runWithoutJoiningCallerTx(() -> applyNavonPropertiesIsolated(nodeId, propertyMap));
+      }
     } catch (Exception e) {
       throw new PSNavException("Failed to set properties for navon (id=" + nodeId + ").", e);
     } finally {
       releaseFromEditIsolated(statuses);
     }
+  }
+
+  private Boolean applyNavonPropertiesIsolated(IPSGuid nodeId, Map<String, String> propertyMap) {
+    try {
+      applyNavonPropertyMap(nodeId, propertyMap);
+      return Boolean.TRUE;
+    } catch (PSErrorResultsException e) {
+      throw new PSNavException("Failed to set properties for navon (id=" + nodeId + ").", e);
+    }
+  }
+
+  private static boolean isUnexpectedRollback(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      if (current instanceof org.springframework.transaction.UnexpectedRollbackException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   /**
