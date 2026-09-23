@@ -56,6 +56,7 @@ import {
 } from "./editorFieldErrors";
 import { collectUnsafeHtmlFieldErrors } from "./htmlField";
 import { collectInvalidLongTextFieldErrors } from "./longTextField";
+import { collectInvalidLinkFieldErrors } from "./linkField";
 import { collectInvalidNumericFieldErrors } from "./numericField";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
 import {
@@ -294,6 +295,33 @@ function EditorFieldControl({
         required={row.required}
         onChange={(value) => onChange(row.name, value)}
       />
+    );
+  }
+  if (row.kind === "link") {
+    return (
+      <div className={styles.linkRow}>
+        <input
+          className={`${styles.input} ${locked ? styles.readonly : ""}`}
+          data-testid={`editor-field-${row.name}`}
+          data-editor-kind="link"
+          name={row.name}
+          value={row.value}
+          readOnly={locked}
+          aria-invalid={invalid ? true : undefined}
+          aria-required={row.required ? true : undefined}
+          onChange={(e) => onChange(row.name, e.target.value)}
+        />
+        {locked ? null : (
+          <button
+            type="button"
+            className={styles.button}
+            data-testid={`editor-link-clear-${row.name}`}
+            onClick={() => onChange(row.name, "")}
+          >
+            {message(EDITOR_MSG.LINK_CLEAR)}
+          </button>
+        )}
+      </div>
     );
   }
   if (row.kind === "number") {
@@ -679,6 +707,20 @@ export function EditorHost({
       setSaving(false);
       return;
     }
+    const invalidLinks = collectInvalidLinkFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: fieldValueAsString(draft[row.name] ?? row.value),
+      })),
+      message(EDITOR_MSG.LINK_INVALID),
+    );
+    if (Object.keys(invalidLinks).length > 0) {
+      setFieldErrors(invalidLinks);
+      setSaveErrorKey(EDITOR_MSG.LINK_INVALID_SAVE);
+      setSaving(false);
+      return;
+    }
     setFieldErrors({});
     const imageFieldNames = new Set(
       rows.filter((row) => row.kind === "image").map((row) => row.name),
@@ -706,7 +748,9 @@ export function EditorHost({
                   minimum: row.numericMinimum,
                   maximum: row.numericMaximum,
                 }
-              : {}),
+              : row.kind === "link"
+                ? { dataType: "link" }
+                : {}),
           })),
       };
       const savedPayload = await saveFields(itemId, next);
@@ -826,6 +870,31 @@ export function EditorHost({
       ) {
         mapped.fieldErrors[numberNames[0]] = message(EDITOR_MSG.NUMBER_BAD_REQUEST);
       }
+      const linkNames = rows
+        .filter((row) => row.kind === "link")
+        .map((row) => row.name);
+      const namedLink = Object.keys(mapped.fieldErrors).some((name) =>
+        linkNames.includes(name),
+      );
+      const saveReason = editorSaveErrorReason(err);
+      const linkStatus =
+        saveReason === "notFound" || saveReason === "forbidden" || saveReason === "badRequest";
+      const linkMapped =
+        !html400 &&
+        !long400 &&
+        !number400 &&
+        linkStatus &&
+        (namedLink ||
+          (Object.keys(mapped.fieldErrors).length === 0 && linkNames.length === 1));
+      if (linkMapped && Object.keys(mapped.fieldErrors).length === 0 && linkNames.length === 1) {
+        mapped.fieldErrors[linkNames[0]] = message(
+          saveReason === "notFound"
+            ? EDITOR_MSG.LINK_NOT_FOUND
+            : saveReason === "forbidden"
+              ? EDITOR_MSG.LINK_FORBIDDEN
+              : EDITOR_MSG.LINK_BAD_REQUEST,
+        );
+      }
       setFieldErrors(mapped.fieldErrors);
       setSaveErrorKey(
         html400
@@ -834,7 +903,13 @@ export function EditorHost({
             ? EDITOR_MSG.LONGTEXT_BAD_REQUEST
             : number400
               ? EDITOR_MSG.NUMBER_BAD_REQUEST
-              : EDITOR_MSG.SAVE_FAILED,
+              : linkMapped && saveReason === "notFound"
+                ? EDITOR_MSG.LINK_NOT_FOUND
+                : linkMapped && saveReason === "forbidden"
+                  ? EDITOR_MSG.LINK_FORBIDDEN
+                  : linkMapped
+                    ? EDITOR_MSG.LINK_BAD_REQUEST
+                    : EDITOR_MSG.SAVE_FAILED,
       );
       setSaveErrorDetail(mapped.banner === fallback ? "" : mapped.banner);
     } finally {

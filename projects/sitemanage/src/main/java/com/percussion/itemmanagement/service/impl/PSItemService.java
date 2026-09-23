@@ -42,6 +42,7 @@ import com.percussion.itemmanagement.data.PSItemDates;
 import com.percussion.itemmanagement.data.PSItemCreateRequest;
 import com.percussion.itemmanagement.data.PSItemCreateResult;
 import com.percussion.itemmanagement.data.PSItemEditorBinaryMeta;
+import com.percussion.itemmanagement.data.PSItemEditorField;
 import com.percussion.itemmanagement.data.PSItemEditorFields;
 import com.percussion.itemmanagement.data.PSItemRevisionCompareResult;
 import com.percussion.itemmanagement.data.PSPageLinkedToItem;
@@ -58,6 +59,7 @@ import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderProperties;
 import com.percussion.recycle.service.IPSRecycleService;
+import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -138,6 +140,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -436,6 +439,7 @@ public class PSItemService implements IPSItemService {
       } catch (IllegalArgumentException e) {
         throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
       }
+      rejectUnresolvedLinks(req.getFields());
       IPSGuid itemGuid = idMapper.getGuid(guid);
       PSItemStatus status = contentWs.prepareForEdit(itemGuid);
       if (status != null && status.isDidCheckout()) {
@@ -468,6 +472,64 @@ public class PSItemService implements IPSItemService {
       throw new WebApplicationException(e);
     } catch (Exception e) {
       throw new PSItemServiceException("Could not save item fields.", e);
+    }
+  }
+
+  /**
+   * Link fields ({@code dataType=link}) must name an existing item the caller may read. Blank
+   * clears the field. Does not insert, remove, or reorder slot relationships.
+   */
+  private void rejectUnresolvedLinks(List<PSItemEditorField> updates) throws PSItemServiceException {
+    if (updates == null || updates.isEmpty()) {
+      return;
+    }
+    for (PSItemEditorField update : updates) {
+      if (update == null || !PSItemEditorLink.isLinkDataType(update.getDataType())) {
+        continue;
+      }
+      String value = PSItemEditorLink.normalize(update.getValue());
+      update.setValue(value);
+      String syntax =
+          PSItemEditorLink.syntaxRejection(update.getName(), value, update.getDataType());
+      if (syntax != null) {
+        throw new WebApplicationException(syntax, Response.Status.BAD_REQUEST);
+      }
+      if (value.isEmpty()) {
+        continue;
+      }
+      String name = update.getName() == null ? "" : update.getName();
+      try {
+        Object found =
+            PSItemEditorLink.isPath(value)
+                ? folderHelper.findItem(value)
+                : folderHelper.findItemById(value);
+        if (found == null) {
+          throw new WebApplicationException(
+              PSItemEditorLink.notFoundMessage(name), Response.Status.NOT_FOUND);
+        }
+      } catch (WebApplicationException e) {
+        throw e;
+      } catch (PSNotFoundException e) {
+        throw new WebApplicationException(
+            PSItemEditorLink.notFoundMessage(name), Response.Status.NOT_FOUND);
+      } catch (PSValidationException | PSAuthorizationException e) {
+        throw new WebApplicationException(
+            PSItemEditorLink.forbiddenMessage(name), Response.Status.FORBIDDEN);
+      } catch (Exception e) {
+        String detail = e.getMessage() == null ? "" : e.getMessage().toLowerCase(Locale.ROOT);
+        if (detail.contains("not found") || detail.contains("does not exist")) {
+          throw new WebApplicationException(
+              PSItemEditorLink.notFoundMessage(name), Response.Status.NOT_FOUND);
+        }
+        if (detail.contains("authoriz")
+            || detail.contains("forbidden")
+            || detail.contains("not allowed")
+            || detail.contains("access denied")) {
+          throw new WebApplicationException(
+              PSItemEditorLink.forbiddenMessage(name), Response.Status.FORBIDDEN);
+        }
+        throw new PSItemServiceException("Could not resolve the link target.", e);
+      }
     }
   }
 

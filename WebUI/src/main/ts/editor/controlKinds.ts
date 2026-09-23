@@ -29,7 +29,8 @@ export type EditorWidgetKind =
   | "community"
   | "date"
   | "datetime"
-  | "number";
+  | "number"
+  | "link";
 
 export interface EditorFieldRow extends ItemEditorField {
   label: string;
@@ -135,6 +136,9 @@ export function classifyEditorControl(
   ) {
     return "number";
   }
+  if (isLinkControl(control, name, dataType)) {
+    return "link";
+  }
   if (
     control.includes("textarea") ||
     dataType === "maxtext"
@@ -142,6 +146,17 @@ export function classifyEditorControl(
     return "longtext";
   }
   return "text";
+}
+
+function isLinkControl(control: string, name: string, dataType: string): boolean {
+  if (control.includes("related")) {
+    return false;
+  }
+  if (dataType === "link") {
+    return true;
+  }
+  const tokens = ["pagelink", "managedlink", "rxhyperlink", "sys_link", "sys_url"];
+  return tokens.some((token) => control === token || control.includes(token) || name === token);
 }
 
 function numericRowFields(

@@ -156,6 +156,17 @@
   background: #e2e8f0;
 }
 
+.linkRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.linkRow .input {
+  flex: 1;
+  min-width: 0;
+}
+
 .html {
   min-height: 12rem;
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
