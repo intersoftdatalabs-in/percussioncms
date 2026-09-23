@@ -28,6 +28,7 @@ import React, { useState } from "react";
 import { copyFolder } from "../../api/contentExplorer/pathApi";
 import type { PSCopyRequest } from "../../api/contentExplorer/types";
 import { message } from "../../i18n/message";
+import { formatCopyFolderError } from "../copyFolderErrors";
 import { EXPLORER_MSG } from "../messages";
 import {
   advance,
@@ -46,7 +47,8 @@ export interface SubfolderCopyWizardProps {
   initialTarget?: string;
   ariaLabel?: string;
   className?: string;
-  onSettled?: (ok: boolean) => void;
+  /** Success includes the destination path so the shell can open that folder. */
+  onSettled?: (ok: boolean, targetPath?: string) => void;
   /**
    * Host dismiss (Cancel / Escape). Unmounts the overlay; does not POST.
    * When omitted, Cancel falls back to {@link resetWizard} for standalone mounts.
@@ -96,9 +98,9 @@ export function SubfolderCopyWizard(
         await copyFolder(req);
       }
       setWizard((w) => finishWizard(w, { kind: "ok" }));
-      onSettled?.(true);
+      onSettled?.(true, targetPath);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err ?? "unknown");
+      const msg = formatCopyFolderError(err);
       setWizard((w) => finishWizard(w, { kind: "error", message: msg }));
       onSettled?.(false);
     }

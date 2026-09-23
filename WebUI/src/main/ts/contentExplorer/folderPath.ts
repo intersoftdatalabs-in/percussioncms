@@ -183,12 +183,33 @@ export function isSafeExplorerTreeChild(
  * @param itemPath selected row path (optional)
  * @param itemType selected row type (e.g. {@code "folder"})
  */
+function isCopySourceFolderType(
+  itemType?: string | null,
+  itemCategory?: string | null,
+  itemPath?: string | null,
+): boolean {
+  const type = (itemType ?? "").trim().toLowerCase();
+  const category = (itemCategory ?? "").trim().toLowerCase();
+  if (
+    type === "folder" ||
+    type === "fsfolder" ||
+    type === "site" ||
+    category === "folder" ||
+    category === "fsfolder"
+  ) {
+    return true;
+  }
+  return (itemPath ?? "").trim().endsWith("/");
+}
+
 export function resolveFolderPathFromSelection(
   folderPath: string | null | undefined,
   itemPath?: string | null,
   itemType?: string | null,
+  itemCategory?: string | null,
 ): string | null {
-  if (itemType === "folder") {
+  // Pathmanagement Sites rows use FSFolder / site, not lowercase "folder".
+  if (isCopySourceFolderType(itemType, itemCategory, itemPath)) {
     const fromItem = normalizeExplorerFolderPath(itemPath);
     if (fromItem != null) return fromItem;
   }

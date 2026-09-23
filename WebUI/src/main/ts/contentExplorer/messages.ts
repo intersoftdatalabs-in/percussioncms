@@ -198,6 +198,14 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Show or hide subfolder copy wizard",
   SUBFOLDER_COPY_SELECT_FOLDER:
     "perc.ui.explorer@Open a folder to copy it to another location.",
+  SUBFOLDER_COPY_BAD_REQUEST:
+    "perc.ui.explorer@Folder copy needs a source folder and a destination folder (HTTP 400)",
+  SUBFOLDER_COPY_FORBIDDEN:
+    "perc.ui.explorer@You do not have permission to copy this folder (HTTP 403)",
+  SUBFOLDER_COPY_NOT_FOUND:
+    "perc.ui.explorer@The source or destination folder was not found (HTTP 404). The source folder was not deleted.",
+  SUBFOLDER_COPY_CONFLICT:
+    "perc.ui.explorer@Could not copy the folder (destination conflict, HTTP 409). The source folder was not deleted.",
 
   DEPENDENCY_TITLE: "perc.ui.explorer@Dependencies",
   DEPENDENCY_OUTGOING: "perc.ui.explorer@Outgoing relationships",

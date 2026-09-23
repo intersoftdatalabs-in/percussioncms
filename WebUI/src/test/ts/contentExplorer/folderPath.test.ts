@@ -152,6 +152,17 @@ describe("resolveFolderPathFromSelection (#2792)", () => {
     ).toBe("/Sites/Demo/Home");
   });
 
+  it("treats an FSFolder row as the selected source (#4750)", () => {
+    expect(
+      resolveFolderPathFromSelection(
+        "/Assets",
+        "/Assets/qa-src",
+        "FSFolder",
+        "folder",
+      ),
+    ).toBe("/Assets/qa-src");
+  });
+
   it("falls back to folder path when selection is a content item", () => {
     expect(
       resolveFolderPathFromSelection(
