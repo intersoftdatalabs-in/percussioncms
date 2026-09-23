@@ -74,6 +74,51 @@ describe("SubfolderCopyWizard", () => {
     );
   });
 
+  it("maps an ApiError 409 and reports failure without a success settle (#4750)", async () => {
+    const submit = vi.fn().mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: {},
+    });
+    const onSettled = vi.fn();
+    render(<SubfolderCopyWizard submit={submit} onSettled={onSettled} />);
+    fireEvent.change(screen.getByTestId("subfolder-copy-source"), {
+      target: { value: "/Sites/A" },
+    });
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    fireEvent.change(screen.getByTestId("subfolder-copy-target"), {
+      target: { value: "/Sites/A" },
+    });
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    fireEvent.click(screen.getByTestId("subfolder-copy-run"));
+    await waitFor(() => {
+      expect(onSettled).toHaveBeenCalledWith(false);
+    });
+    expect(screen.getByTestId("subfolder-copy-progress").textContent).toContain(
+      "HTTP 409",
+    );
+  });
+
+  it("passes the destination path when copy succeeds (#4750)", async () => {
+    const submit = vi.fn().mockResolvedValue(undefined);
+    const onSettled = vi.fn();
+    render(<SubfolderCopyWizard submit={submit} onSettled={onSettled} />);
+    fireEvent.change(screen.getByTestId("subfolder-copy-source"), {
+      target: { value: "/Sites/A" },
+    });
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    fireEvent.change(screen.getByTestId("subfolder-copy-target"), {
+      target: { value: "/Sites/B" },
+    });
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    fireEvent.click(screen.getByTestId("subfolder-copy-next"));
+    fireEvent.click(screen.getByTestId("subfolder-copy-run"));
+    await waitFor(() => {
+      expect(onSettled).toHaveBeenCalledWith(true, "/Sites/B");
+    });
+  });
+
   it("Back walks to the previous step and does not dismiss", () => {
     const onDismiss = vi.fn();
     const submit = vi.fn();

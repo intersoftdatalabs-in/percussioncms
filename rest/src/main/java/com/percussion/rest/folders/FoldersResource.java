@@ -570,10 +570,32 @@ public class FoldersResource {
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
+      if (isFolderCopyConflict(e)) {
+        throw new WebApplicationException(
+            e.getMessage() != null ? e.getMessage() : "Folder copy conflict",
+            Response.Status.CONFLICT);
+      }
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e);
     }
+  }
+
+  /**
+   * Server folder copy rejects a folder pasted onto itself or into a descendant
+   * with {@code PSCmsException} ("Cannot copy a folder …"). That is a conflict,
+   * not an internal error (#4750).
+   */
+  static boolean isFolderCopyConflict(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      String message = current.getMessage();
+      if (message != null && message.contains("Cannot copy a folder")) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   /**

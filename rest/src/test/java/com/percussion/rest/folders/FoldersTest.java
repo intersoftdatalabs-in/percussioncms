@@ -386,6 +386,21 @@ public class FoldersTest {
   }
 
   @Test
+  void copyFolder_mapsDescendantCopyToConflict() throws Exception {
+    CopyFolderItemRequest req = new CopyFolderItemRequest();
+    req.setItemPath("/Assets");
+    req.setTargetFolderPath("/Assets/child");
+    doThrow(
+            new IllegalStateException(
+                "Cannot copy a folder 'Assets' (id=7) to its descendent sub folder 'child'"))
+        .when(adaptor)
+        .copyFolder(any(), anyString(), anyString());
+    WebApplicationException thrown =
+        assertThrows(WebApplicationException.class, () -> resource.copyFolder(req));
+    assertEquals(409, thrown.getResponse().getStatus());
+  }
+
+  @Test
   void copyFolderItem_rethrowsJaxrsNotFound() throws Exception {
     CopyFolderItemRequest req = new CopyFolderItemRequest();
     req.setItemPath("/Assets/src/item");

@@ -1388,8 +1388,14 @@ function ContentExplorerShellInner({
         selection.folderPath,
         selection.item?.path,
         selection.item?.type,
+        selection.item?.category,
       ),
-    [selection.folderPath, selection.item?.path, selection.item?.type],
+    [
+      selection.folderPath,
+      selection.item?.path,
+      selection.item?.type,
+      selection.item?.category,
+    ],
   );
   const hasFolderContext = sourceFolderPathForCopy != null;
   const hasRelationshipItem = canOpenIaRelationships(selection.item);
@@ -2001,10 +2007,19 @@ function ContentExplorerShellInner({
             key={`subfolder-copy-${sourceFolderPathForCopy}`}
             initialSource={sourceFolderPathForCopy}
             onDismiss={dismissSubfolderCopy}
-            onSettled={(ok) => {
-              if (ok) {
-                setListEpoch((n) => n + 1);
+            onSettled={(ok, targetPath) => {
+              if (!ok) {
+                return;
               }
+              const dest = String(targetPath || "").trim();
+              if (dest) {
+                setSelection({ folderPath: dest, item: null });
+                setMultiSelectedIds(new Set<string>());
+                setMultiSelectedItems(new Map<string, PSPathItem>());
+              }
+              setShowSubfolderCopy(false);
+              setError(null);
+              handleRefreshListAndTree();
             }}
           />
         </section>

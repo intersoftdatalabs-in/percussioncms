@@ -367,6 +367,18 @@ After Cancel, Escape, item-click, or click-away, focus returns to the Explorer
 **Content** menu so you can continue working in the shell. The wizard does not
 POST a folder copy until you reach the last step and choose **Submit**.
 
+**Submit** copies the selected folder subtree into the destination
+(`POST /Rhythmyx/rest/folders/copy/folder`). It does not copy a whole Site and
+it does not delete the source folder. On success, Explorer opens the
+destination so the copied folder is listed there. Failures stay on the wizard:
+
+| HTTP | Meaning |
+|------|---------|
+| 400 | Source or destination path is missing |
+| 403 | You do not have permission to copy the folder |
+| 404 | Source or destination folder was not found. The source folder is not deleted |
+| 409 | Destination conflict (for example, copying a folder into itself). The source folder is not deleted |
+
 ## Views → My Content → Inbox
 
 Desktop Content Explorer **Inbox** is **not** a separate Content Explorer root and is **not**

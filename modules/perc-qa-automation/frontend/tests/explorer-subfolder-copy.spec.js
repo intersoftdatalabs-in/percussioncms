@@ -30,13 +30,30 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const {
+  loginAsAdmin,
+  BASE_URL,
+  adminBasicAuthHeaders,
+} = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 const {
   TEST_IDS,
   explorerSpaUrl,
   openContentMenu,
 } = require("./helpers/explorer-subfolder-copy");
+const {
+  assetsFolderUrl,
+  isCopyFolderSuccessStatus,
+  isFoldersCopyFolderUrl,
+  pathFolderServiceUrl,
+  seedDisposableEmptyFolder,
+  sitesFolderUrl,
+  uniqueCopyFolderName,
+} = require("./helpers/explorer-copy-folder");
+const {
+  expandExplorerTreeNode,
+  isKnownExplorerSitesConsoleNoise,
+} = require("./helpers/explorer-sites-list-create");
 
 /** Wait until the detail list region is present (folder navigation settled). */
 async function listWaitReady(page) {
@@ -118,7 +135,7 @@ async function tryOpenWizard(page) {
 
 test.describe("modern React Content Explorer — subfolder copy chrome (#2792)", () => {
   test.beforeEach(async ({ page }) => {
-    test.setTimeout(45_000);
+    test.setTimeout(180_000);
     await loginAsAdmin(page);
     await page.goto(explorerSpaUrl(BASE_URL));
     await page.waitForLoadState("networkidle");
@@ -199,7 +216,7 @@ test.describe("modern React Content Explorer — subfolder copy chrome (#2792)",
         pageErrors.push(String(err && err.message ? err.message : err));
       });
       page.on("console", (msg) => {
-        if (msg.type() === "error") {
+        if (msg.type() === "error" && !isKnownExplorerSitesConsoleNoise(msg.text())) {
           pageErrors.push(msg.text());
         }
       });
@@ -246,7 +263,7 @@ test.describe("modern React Content Explorer — subfolder copy chrome (#2792)",
         pageErrors.push(String(err && err.message ? err.message : err));
       });
       page.on("console", (msg) => {
-        if (msg.type() === "error") {
+        if (msg.type() === "error" && !isKnownExplorerSitesConsoleNoise(msg.text())) {
           pageErrors.push(msg.text());
         }
       });
@@ -297,22 +314,160 @@ test.describe("modern React Content Explorer — subfolder copy chrome (#2792)",
   );
 
   test(
-    "full subfolder-copy submit soft-skips without multi-folder fixture",
+    "Submit copies the selected folder into the destination and leaves the source (#4750)",
     { tag: ["@explorer-subfolder-copy", "@explorer"] },
-    async ({ page }) => {
-      // Intentional soft-skip: destructive folder copy needs a target path
-      // and is not exercised on default H2 QA fixtures.
-      test.info().annotations.push({
-        type: "soft-skip",
-        description:
-          "Submit path uses POST /rest/folders/copy/folder with CopyFolderItemRequest (#3362). Live multi-folder submit deferred — H2 fixtures lack safe copy targets.",
+    async ({ page, request }) => {
+      test.setTimeout(180_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error" && !isKnownExplorerSitesConsoleNoise(msg.text())) {
+          pageErrors.push(msg.text());
+        }
       });
+
+      const stamp = Date.now();
+      const sourceName = uniqueCopyFolderName("qa4750src", stamp);
+      const destName = uniqueCopyFolderName("qa4750dst", stamp);
+      const headers = adminBasicAuthHeaders();
+      const assetsStatus = await request.get(assetsFolderUrl(BASE_URL), {
+        headers,
+      });
+      const sitesStatus = await request.get(sitesFolderUrl(BASE_URL), {
+        headers,
+      });
+      const useAssets = assetsStatus.status() === 200;
+      expect(
+        useAssets || sitesStatus.status() === 200,
+        `H2 parent missing Assets=${assetsStatus.status()} Sites=${sitesStatus.status()}`,
+      ).toBe(true);
+      const parentPath = useAssets ? "Assets" : "Sites";
+      const destFolder = await seedDisposableEmptyFolder(
+        request,
+        BASE_URL,
+        headers,
+        { parentPath, name: destName },
+      );
+      const sourceFolder = await seedDisposableEmptyFolder(
+        request,
+        BASE_URL,
+        headers,
+        { parentPath, name: sourceName },
+      );
+
       const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
-      await expect(shell).toBeVisible({ timeout: 15_000 });
+      await expect(shell).toBeVisible({ timeout: 20_000 });
+      const parentNode = page
+        .locator(
+          `[data-testid*="tree-node"][data-testid*="${parentPath}"]`,
+        )
+        .first();
+      await expect(parentNode).toBeVisible({ timeout: 20_000 });
+      await parentNode.click({ force: true });
+      await expandExplorerTreeNode(parentNode).catch(() => undefined);
+      const list = page.locator(`[data-testid="${TEST_IDS.detailList}"]`);
+      await expect(list.getByText(sourceName, { exact: true })).toBeVisible({
+        timeout: 20_000,
+      });
+      await list.getByText(sourceName, { exact: true }).click();
+
       await openContentMenu(page);
+      await page.locator(`[data-testid="${TEST_IDS.subfolderCopyMenu}"]`).click();
+      const wizard = page.locator(`[data-testid="${TEST_IDS.wizard}"]`);
+      await expect(wizard).toBeVisible({ timeout: 10_000 });
+      const sourcePath = String(
+        sourceFolder.path || `/${parentPath}/${sourceName}`,
+      );
+      await page.locator(`[data-testid="${TEST_IDS.sourceInput}"]`).fill(sourcePath);
+      await page.locator(`[data-testid="${TEST_IDS.next}"]`).click();
+      await page
+        .locator('[data-testid="subfolder-copy-target"]')
+        .fill(String(destFolder.path || `/${parentPath}/${destName}`));
+      await page.locator(`[data-testid="${TEST_IDS.next}"]`).click();
+      await page.locator(`[data-testid="${TEST_IDS.next}"]`).click();
+
+      const copyRespPromise = page.waitForResponse(
+        (res) =>
+          isFoldersCopyFolderUrl(res.url()) &&
+          res.request().method() === "POST",
+        { timeout: 60_000 },
+      );
+      await page.locator('[data-testid="subfolder-copy-run"]').click();
+      const copyResp = await copyRespPromise;
+      expect(
+        isCopyFolderSuccessStatus(copyResp.status()),
+        `copy/folder status ${copyResp.status()}`,
+      ).toBe(true);
+
+      await expect(list.getByText(sourceName, { exact: true })).toBeVisible({
+        timeout: 30_000,
+      });
+      const sourceUrl = `${pathFolderServiceUrl(BASE_URL)}/${parentPath}/${encodeURIComponent(sourceName)}`;
+      const sourceStill = await request.get(sourceUrl, { headers });
+      expect(
+        sourceStill.status(),
+        `source folder must remain after copy (${sourceUrl})`,
+      ).toBe(200);
+      expect(String(sourceFolder.path || "")).not.toBe("");
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+    },
+  );
+
+  test(
+    "HTTP 409 stays on the wizard and does not remove the source folder (#4750)",
+    { tag: ["@explorer-subfolder-copy", "@explorer"] },
+    async ({ page, request }) => {
+      test.setTimeout(180_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+      const stamp = Date.now();
+      const sourceName = uniqueCopyFolderName("qa4750cfl", stamp);
+      const headers = adminBasicAuthHeaders();
+      const assetsStatus = await request.get(assetsFolderUrl(BASE_URL), {
+        headers,
+      });
+      const parentPath = assetsStatus.status() === 200 ? "Assets" : "Sites";
+      await seedDisposableEmptyFolder(request, BASE_URL, headers, {
+        parentPath,
+        name: sourceName,
+      });
+
+      await page.route(/\/rest\/folders\/copy\/folder(?:\?|$)/, (route) => {
+        if (route.request().method() !== "POST") {
+          return route.continue();
+        }
+        return route.fulfill({
+          status: 409,
+          contentType: "application/json",
+          body: "{}",
+        });
+      });
+
+      const parentNode = page
+        .locator(`[data-testid*="tree-node"][data-testid*="${parentPath}"]`)
+        .first();
+      await expect(parentNode).toBeVisible({ timeout: 20_000 });
+      await parentNode.click({ force: true });
+      const list = page.locator(`[data-testid="${TEST_IDS.detailList}"]`);
+      await expect(list.getByText(sourceName, { exact: true })).toBeVisible({
+        timeout: 20_000,
+      });
+      await list.getByText(sourceName, { exact: true }).click();
+      await openContentMenu(page);
+      await page.locator(`[data-testid="${TEST_IDS.subfolderCopyMenu}"]`).click();
+      await page.locator(`[data-testid="${TEST_IDS.next}"]`).click();
+      await page
+        .locator('[data-testid="subfolder-copy-target"]')
+        .fill(`/${parentPath}`);
+      await page.locator(`[data-testid="${TEST_IDS.next}"]`).click();
+      await page.locator(`[data-testid="${TEST_IDS.next}"]`).click();
+      await page.locator('[data-testid="subfolder-copy-run"]').click();
       await expect(
-        page.locator(`[data-testid="${TEST_IDS.subfolderCopyMenu}"]`),
-      ).toBeVisible();
+        page.locator('[data-testid="subfolder-copy-progress"]'),
+      ).toContainText("HTTP 409", { timeout: 20_000 });
+      await expect(list.getByText(sourceName, { exact: true })).toBeVisible();
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
     },
   );
 });
