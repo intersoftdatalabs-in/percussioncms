@@ -28,7 +28,9 @@ import {
   tableStyle,
   tdStyle,
   thStyle,
+  toolbarStyle,
 } from "../publishing.styles";
+import { filterJobsBySite } from "../statusSiteFilter";
 import {
   nextSortState,
   sortIndicator,
@@ -61,6 +63,7 @@ export function StatusSection({
   const [jobs, setJobs] = useState<PublishingJob[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [siteFilter, setSiteFilter] = useState("");
   const [sort, setSort] = useState<StatusSortState>(DEFAULT_SORT);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -84,8 +87,10 @@ export function StatusSection({
     };
   }, [load]);
 
-  const sortedJobs = useMemo(() => sortJobs(jobs, sort), [jobs, sort]);
-
+  const visibleJobs = useMemo(
+    () => sortJobs(filterJobsBySite(jobs, siteFilter), sort),
+    [jobs, siteFilter, sort],
+  );
   function onHeaderClick(key: StatusSortKey): void {
     setSort((prev) => nextSortState(prev, key));
   }
@@ -140,6 +145,20 @@ export function StatusSection({
         onItemIdChange={onItemIdChange}
         onOpenSection={onOpenSection}
       />
+      <div style={toolbarStyle}>
+        <label>
+          <span className="sr-only">{message(MSG.PUBLISH_FILTER_SITES)}</span>
+          <input
+            type="search"
+            data-testid="publish-status-site-filter"
+            value={siteFilter}
+            onChange={(e) => setSiteFilter(e.target.value)}
+            placeholder={message(MSG.PUBLISH_FILTER_SITES)}
+            aria-label={message(MSG.PUBLISH_FILTER_SITES)}
+            style={{ padding: "6px 10px", minWidth: 200 }}
+          />
+        </label>
+      </div>
       {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
       {error && (
         <p style={errorStyle} role="alert">
@@ -149,7 +168,12 @@ export function StatusSection({
       {!loading && jobs.length === 0 && (
         <p style={emptyStyle}>{message(MSG.PUBLISH_EMPTY_JOBS)}</p>
       )}
-      {jobs.length > 0 && (
+      {!loading && jobs.length > 0 && visibleJobs.length === 0 && (
+        <p style={emptyStyle} data-testid="publish-status-empty-filter">
+          No jobs match this site filter. Clear the filter to see the full list.
+        </p>
+      )}
+      {visibleJobs.length > 0 && (
         <table style={tableStyle}>
           <thead>
             <tr>
@@ -160,7 +184,7 @@ export function StatusSection({
             </tr>
           </thead>
           <tbody>
-            {sortedJobs.map((job) => {
+            {visibleJobs.map((job) => {
               const id = job.jobId ?? "";
               const stoppable = isJobStoppable(job);
               return (

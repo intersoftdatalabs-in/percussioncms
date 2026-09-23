@@ -140,6 +140,15 @@ another round trip. **Failures only (server)** sets `showOnlyFailures` on the lo
 server returns failed jobs only. Open **details** on a row for item-level log lines (those details
 have their own text filter).
 
+### Filter current jobs by site (Status)
+
+From **Publish** → **Status** (`spa.jsp?entry=publish&section=status`), the current-jobs
+table lists jobs already returned by `GET …/sitemanage/pubstatus/current`. **Filter Sites**
+narrows that table by site name or site id (case-insensitive; no extra publish request).
+Clear the field to restore the full list. When jobs are loaded but none match, Status shows
+**No jobs match this site filter**. When the server returns no jobs at all, Status still shows
+**No active publishing jobs**. **Stop** is unchanged and applies only to visible running jobs.
+
 ### Cancel or stop an in-flight publish job
 
 From **Publish** → **Status**, or from a site workspace **Status** list, **Stop** is shown only for jobs whose status is running (not completed, failed, or already stopping). Confirm the dialog. The shell posts `POST …/publishmanagement/servers/stopPublishing/{jobId}`. Success refreshes the Status list. Dismissing the confirm does not call the server. Jobs that are not running have no Stop control. HTTP **403** (forbidden), **404** (unknown job), and **409** (job cannot be stopped — already finished or already stopping) are shown as errors in Status; they are **not** treated as success.
