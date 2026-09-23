@@ -81,6 +81,16 @@ public interface IFolderAdaptor {
   void restoreRecycledItem(URI baseURI, String guid) throws BackendException;
 
   /**
+   * Permanently empties the Recycling bin (#4762).
+   *
+   * <p>Implementations map a missing Recycling root to {@link
+   * com.percussion.rest.errors.FolderNotFoundException} (HTTP 404), non-admin callers to {@link
+   * com.percussion.rest.errors.NotAuthorizedException} (HTTP 403), and a partial purge (items left
+   * behind) to HTTP 409. A fully emptied or already-empty bin completes without error.
+   */
+  void emptyRecycleBin(URI baseURI) throws BackendException;
+
+  /**
    * Renames a non-folder item (page, file, or asset). Folder rename stays on {@link
    * #renameFolder}.
    */

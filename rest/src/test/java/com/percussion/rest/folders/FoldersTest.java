@@ -451,6 +451,38 @@ public class FoldersTest {
   }
 
   @Test
+  void emptyRecycleBin_successReturnsOk() throws Exception {
+    Status result = resource.emptyRecycleBin();
+    assertEquals(200, result.getStatusCode());
+    assertEquals("Ok", result.getMessage());
+    verify(adaptor).emptyRecycleBin(uriInfo.getBaseUri());
+  }
+
+  @Test
+  void emptyRecycleBin_mapsNotAuthorizedToForbidden() throws Exception {
+    doThrow(new NotAuthorizedException()).when(adaptor).emptyRecycleBin(any());
+    NotAuthorizedException thrown =
+        assertThrows(NotAuthorizedException.class, () -> resource.emptyRecycleBin());
+    assertEquals(jakarta.ws.rs.core.Response.Status.FORBIDDEN, thrown.getStatus());
+  }
+
+  @Test
+  void emptyRecycleBin_mapsFolderNotFound() throws Exception {
+    doThrow(new FolderNotFoundException()).when(adaptor).emptyRecycleBin(any());
+    assertThrows(FolderNotFoundException.class, () -> resource.emptyRecycleBin());
+  }
+
+  @Test
+  void emptyRecycleBin_mapsConflict() throws Exception {
+    doThrow(new WebApplicationException(jakarta.ws.rs.core.Response.Status.CONFLICT))
+        .when(adaptor)
+        .emptyRecycleBin(any());
+    WebApplicationException thrown =
+        assertThrows(WebApplicationException.class, () -> resource.emptyRecycleBin());
+    assertEquals(409, thrown.getResponse().getStatus());
+  }
+
+  @Test
   void deleteFolderItem_successReturnsOk() throws Exception {
     Status result = resource.deleteFolderItem("/Assets/src/item");
     assertEquals(200, result.getStatusCode());

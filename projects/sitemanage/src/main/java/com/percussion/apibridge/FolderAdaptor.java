@@ -56,6 +56,11 @@ import com.percussion.pathmanagement.service.IPSPathService;
 import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.recent.service.rest.IPSRecentService;
+import com.percussion.recycle.data.PSEmptyRecycleResult;
+import com.percussion.recycle.service.IPSEmptyRecycleService;
+import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleException;
+import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleNotAuthorizedException;
+import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleNotFoundException;
 import com.percussion.recycle.service.IPSRecycleService;
 import com.percussion.redirect.service.IPSRedirectService;
 import com.percussion.rest.LinkRef;
@@ -172,6 +177,9 @@ public class FolderAdaptor implements IFolderAdaptor {
   @Autowired(required = false)
   private IPSRecycleService recycleService;
 
+  @Autowired(required = false)
+  private IPSEmptyRecycleService emptyRecycleService;
+
   /** Logger for this service. */
   public static final Logger log = LogManager.getLogger(FolderAdaptor.class);
 
@@ -212,6 +220,11 @@ public class FolderAdaptor implements IFolderAdaptor {
   /** Test seam for recycle restore (#4700). */
   public void setRecycleService(IPSRecycleService recycleService) {
     this.recycleService = recycleService;
+  }
+
+  /** Test seam for empty recycle bin (#4762). */
+  public void setEmptyRecycleService(IPSEmptyRecycleService emptyRecycleService) {
+    this.emptyRecycleService = emptyRecycleService;
   }
 
   @Override
@@ -1685,6 +1698,37 @@ public class FolderAdaptor implements IFolderAdaptor {
       throw e;
     } catch (WebApplicationException e) {
       throw e;
+    } catch (PSDataServiceException e) {
+      throw new BackendException(e);
+    }
+  }
+
+  @Override
+  public void emptyRecycleBin(URI baseURI) throws BackendException {
+    try {
+      checkAPIPermission();
+      if (emptyRecycleService == null) {
+        throw new BackendException("Empty recycle service is not available");
+      }
+      PSEmptyRecycleResult result = emptyRecycleService.emptyRecyclingBin();
+      boolean partial =
+          result != null
+              && (result.getUndeletedCount() > 0
+                  || (result.getErrors() != null && !result.getErrors().isEmpty()));
+      if (partial) {
+        throw new WebApplicationException(
+            "Recycling bin could not be fully emptied", Response.Status.CONFLICT);
+      }
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSEmptyRecycleNotAuthorizedException e) {
+      throw new NotAuthorizedException();
+    } catch (PSEmptyRecycleNotFoundException e) {
+      throw new FolderNotFoundException(e);
+    } catch (PSEmptyRecycleException e) {
+      throw new BackendException(e);
     } catch (PSDataServiceException e) {
       throw new BackendException(e);
     }

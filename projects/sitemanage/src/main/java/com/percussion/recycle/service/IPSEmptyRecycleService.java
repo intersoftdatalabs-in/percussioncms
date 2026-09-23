@@ -37,11 +37,15 @@ public interface IPSEmptyRecycleService {
    *
    * @return summary of purge attempts; never {@code null}
    * @throws PSEmptyRecycleNotAuthorizedException if the current user is not an Admin
+   * @throws PSEmptyRecycleNotFoundException if the Recycling root cannot be listed
    * @throws PSDataServiceException on authorization lookup failure
    * @throws PSEmptyRecycleException on unexpected bulk failures that abort the operation
    */
   PSEmptyRecycleResult emptyRecyclingBin()
-      throws PSDataServiceException, PSEmptyRecycleException, PSEmptyRecycleNotAuthorizedException;
+      throws PSDataServiceException,
+          PSEmptyRecycleException,
+          PSEmptyRecycleNotAuthorizedException,
+          PSEmptyRecycleNotFoundException;
 
   /** Thrown when a non-Admin attempts to empty the Recycling bin. */
   class PSEmptyRecycleNotAuthorizedException extends Exception {
@@ -49,6 +53,15 @@ public interface IPSEmptyRecycleService {
 
     public PSEmptyRecycleNotAuthorizedException(String message) {
       super(message);
+    }
+  }
+
+  /** Thrown when the Recycling root cannot be found. Maps to HTTP 404 on public REST. */
+  class PSEmptyRecycleNotFoundException extends PSEmptyRecycleException {
+    private static final long serialVersionUID = 1L;
+
+    public PSEmptyRecycleNotFoundException(String message, Throwable cause) {
+      super(message, cause);
     }
   }
 

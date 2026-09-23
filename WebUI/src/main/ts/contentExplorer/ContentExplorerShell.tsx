@@ -748,6 +748,16 @@ function ContentExplorerShellInner({
       }));
       handleRefreshListAndTree();
     },
+    onEmptyRecycle: async () => {
+      const impl =
+        actionHandlers?.onEmptyRecycle ?? stockReducedHandlers.onEmptyRecycle;
+      await impl();
+      setSelection((prev) => ({
+        folderPath: prev.folderPath,
+        item: null,
+      }));
+      handleRefreshListAndTree();
+    },
   };
   // Always true for product shell (built-in openPreviewItem); override still counts.
   const hasPreviewHandler = true;

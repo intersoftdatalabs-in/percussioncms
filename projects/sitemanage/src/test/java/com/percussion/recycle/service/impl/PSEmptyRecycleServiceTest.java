@@ -31,6 +31,7 @@ import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.pathmanagement.service.IPSPathService;
 import com.percussion.recycle.data.PSEmptyRecycleResult;
 import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleNotAuthorizedException;
+import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleNotFoundException;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
@@ -69,6 +70,16 @@ class PSEmptyRecycleServiceTest {
     assertEquals(0, result.getPurgedFolderCount());
     assertEquals(0, result.getPurgedItemCount());
     assertEquals(0, result.getUndeletedCount());
+    verify(pathService, never()).deleteFolder(any());
+  }
+
+  @Test
+  void empty_whenRecyclingRootMissing_throwsNotFound() throws Exception {
+    stubAdmin("admin");
+    when(pathService.findChildren(PSEmptyRecycleService.RECYCLING_FINDER_ROOT))
+        .thenThrow(new IPSPathService.PSPathNotFoundServiceException("missing"));
+
+    assertThrows(PSEmptyRecycleNotFoundException.class, () -> service.emptyRecyclingBin());
     verify(pathService, never()).deleteFolder(any());
   }
 

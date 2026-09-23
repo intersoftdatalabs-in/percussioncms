@@ -20,6 +20,7 @@ import com.percussion.recycle.data.PSEmptyRecycleResult;
 import com.percussion.recycle.service.IPSEmptyRecycleService;
 import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleException;
 import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleNotAuthorizedException;
+import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleNotFoundException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
 import jakarta.ws.rs.DELETE;
@@ -85,6 +86,13 @@ public class PSRecycleRestService {
   private PSEmptyRecycleResult emptyRecyclingBin() {
     try {
       return emptyRecycleService.emptyRecyclingBin();
+    } catch (PSEmptyRecycleNotFoundException e) {
+      log.warn("Empty Recycling bin missing: {}", PSExceptionUtils.getMessageForLog(e));
+      throw new WebApplicationException(
+          Response.status(Response.Status.NOT_FOUND)
+              .entity("Recycling bin was not found.")
+              .type(MediaType.TEXT_PLAIN)
+              .build());
     } catch (PSEmptyRecycleNotAuthorizedException e) {
       log.warn("Empty Recycling denied: {}", PSExceptionUtils.getMessageForLog(e));
       throw new WebApplicationException(

@@ -26,6 +26,7 @@ import com.percussion.recycle.data.PSEmptyRecycleResult;
 import com.percussion.recycle.service.IPSEmptyRecycleService;
 import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleException;
 import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleNotAuthorizedException;
+import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleNotFoundException;
 import jakarta.ws.rs.WebApplicationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,6 +77,16 @@ class PSRecycleRestServiceTest {
     String body = String.valueOf(ex.getResponse().getEntity());
     assertTrue(body.contains("Admin"));
     assertTrue(!body.contains("XYZ"));
+  }
+
+  @Test
+  void empty_whenBinMissing_returns404() throws Exception {
+    when(emptyRecycleService.emptyRecyclingBin())
+        .thenThrow(new PSEmptyRecycleNotFoundException("missing", new IllegalStateException("x")));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> rest.emptyRecyclingBinDelete());
+    assertEquals(404, ex.getResponse().getStatus());
   }
 
   @Test

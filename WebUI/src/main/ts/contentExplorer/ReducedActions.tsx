@@ -35,6 +35,7 @@ import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
 import { formatCopyItemError } from "./copyItemErrors";
 import { formatDeleteItemError } from "./deleteItemErrors";
 import { formatRestoreItemError } from "./restoreItemErrors";
+import { formatEmptyRecycleError } from "./emptyRecycleErrors";
 import { isRecyclingExplorerPath } from "./folderPath";
 import { formatMoveItemError } from "./moveItemErrors";
 import { formatCreateFolderError } from "./createFolderErrors";
@@ -48,6 +49,7 @@ import {
   copyFolderItem,
   deleteFolderItem,
   deleteItem,
+  emptyRecycleBin,
   restoreRecycledItem,
   moveFolder,
   moveFolderItem,
@@ -69,7 +71,8 @@ export type ReducedActionKey =
   | "move"
   | "copy"
   | "delete"
-  | "restore";
+  | "restore"
+  | "emptyRecycle";
 
 export interface ReducedActionHandlers {
   onOpen: (item: PSPathItem) => void | Promise<void>;
@@ -80,6 +83,8 @@ export interface ReducedActionHandlers {
   onCopy: (item: PSPathItem, targetPath: string) => Promise<void>;
   onDelete: (item: PSPathItem) => Promise<void>;
   onRestore: (item: PSPathItem) => Promise<void>;
+  /** Permanently empty the open recycle bin after confirm (#4762). */
+  onEmptyRecycle: () => Promise<void>;
   /**
    * Optional prompt helper (defaults to {@link window.prompt} / confirm).
    * Hosts may override to provide a richer dialog.
@@ -150,6 +155,8 @@ export function ReducedActions({
             ? formatDeleteItemError(err)
             : key === "restore"
             ? formatRestoreItemError(err)
+            : key === "emptyRecycle"
+            ? formatEmptyRecycleError(err)
             : key === "rename"
             ? formatRenameItemError(err)
             : key === "createFolder"
@@ -225,10 +232,21 @@ export function ReducedActions({
     void runItemAction("restore", () => handlers.onRestore(item));
   }, [handlers, item, runItemAction]);
 
+  const handleEmptyRecycle = useCallback(() => {
+    const confirm = handlers.confirm ?? defaultConfirm;
+    const ok = confirm(message(EXPLORER_MSG.CONFIRM_EMPTY_RECYCLE));
+    if (!ok) return;
+    void runItemAction("emptyRecycle", () => handlers.onEmptyRecycle());
+  }, [handlers, runItemAction]);
+
   const restoreEligible =
     Boolean(item) &&
     itemWrite &&
     isRecyclingExplorerPath(item?.path ?? item?.folderPath);
+
+  const emptyEligible = isRecyclingExplorerPath(
+    folder?.path ?? folder?.folderPath ?? item?.folderPath ?? item?.path,
+  );
 
   const isBusy = busy || pending !== null;
   const previewEnabled =
@@ -318,6 +336,15 @@ export function ReducedActions({
         data-testid="action-restore"
       >
         {message(EXPLORER_MSG.ACTION_RESTORE)}
+      </button>
+      <button
+        type="button"
+        style={actionButtonStyle(!emptyEligible || isBusy)}
+        disabled={!emptyEligible || isBusy}
+        onClick={handleEmptyRecycle}
+        data-testid="action-empty-recycle"
+      >
+        {message(EXPLORER_MSG.ACTION_EMPTY_RECYCLE)}
       </button>
       {copyPickerItem ? (
         <CopyDestinationPickerDialog
@@ -419,6 +446,9 @@ export function defaultReducedActionHandlers(): ReducedActionHandlers {
     },
     onRestore: async (item) => {
       await restoreRecycledItem(String(item.id ?? "").trim());
+    },
+    onEmptyRecycle: async () => {
+      await emptyRecycleBin();
     },
   };
 }
