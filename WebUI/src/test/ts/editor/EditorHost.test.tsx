@@ -299,6 +299,135 @@ describe("EditorHost", () => {
     expect(screen.getByTestId("editor-lock-error").textContent).toMatch(
       /not allowed to check in/i,
     );
+    expect(screen.queryByTestId("editor-force-checkin")).toBeNull();
+  });
+
+  it("force check-in of another user clears the lock only after confirm", async () => {
+    const checkout = vi.fn().mockResolvedValue({
+      checkOutUser: "editor",
+      currentUser: "admin",
+    });
+    const forceCheckin = vi.fn().mockResolvedValue(undefined);
+    const confirmForceCheckin = vi.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
+    const loadFields = vi.fn().mockResolvedValue({
+      ...fields,
+      checkoutUser: "editor",
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                forceCheckin={forceCheckin}
+                confirmForceCheckin={confirmForceCheckin}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-force-checkin")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-checkout-user").textContent).toMatch(/editor/i);
+    expect(screen.queryByTestId("editor-checkin")).toBeNull();
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-force-checkin"));
+    expect(forceCheckin).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("editor-force-checkin"));
+    await waitFor(() => {
+      expect(forceCheckin).toHaveBeenCalledWith("42");
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-checkout-user")).toBeNull();
+    });
+    expect(screen.queryByTestId("editor-force-checkin")).toBeNull();
+    expect(screen.getByTestId("editor-checkout")).toBeTruthy();
+  });
+
+  it("maps 403, 404, and 409 on force check-in as failures", async () => {
+    const checkout = vi.fn().mockResolvedValue({
+      checkOutUser: "editor",
+      currentUser: "admin",
+    });
+    const forceCheckin = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: {} })
+      .mockRejectedValueOnce({ status: 404, statusText: "Not Found", body: {} })
+      .mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: {} });
+    const loadFields = vi.fn().mockResolvedValue({
+      ...fields,
+      checkoutUser: "editor",
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                forceCheckin={forceCheckin}
+                confirmForceCheckin={() => true}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-force-checkin")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-force-checkin"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-lock-error").textContent).toMatch(
+        /not allowed to force check-in/i,
+      );
+    });
+    expect(screen.getByTestId("editor-checkout-user").textContent).toMatch(/editor/i);
+    fireEvent.click(screen.getByTestId("editor-force-checkin"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-lock-error").textContent).toMatch(/not found/i);
+    });
+    fireEvent.click(screen.getByTestId("editor-force-checkin"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-lock-error").textContent).toMatch(
+        /not checked out/i,
+      );
+    });
+    expect(forceCheckin).toHaveBeenCalledTimes(3);
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+  });
+
+  it("does not offer force check-in in view mode", async () => {
+    const checkout = vi.fn();
+    const loadFields = vi.fn().mockResolvedValue({
+      ...fields,
+      checkoutUser: "editor",
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={<EditorHost checkout={checkout} loadFields={loadFields} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-checkout-user").textContent).toMatch(/editor/i);
+    });
+    expect(checkout).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-force-checkin")).toBeNull();
+    expect(screen.queryByTestId("editor-checkin")).toBeNull();
   });
 
   it("restore toggle loads revisions, restore revives fields, and 403 is not success", async () => {

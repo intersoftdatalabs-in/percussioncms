@@ -29,7 +29,7 @@ export interface EditorCheckoutUserInfo {
   assignmentType?: string;
 }
 
-export type EditorLockErrorReason = "forbidden" | "conflict" | "failed";
+export type EditorLockErrorReason = "forbidden" | "conflict" | "not_found" | "failed";
 
 function namesEqual(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -66,10 +66,32 @@ export function canUseEditorCheckoutActions(mode: EditorHostMode): boolean {
   return mode === "edit";
 }
 
+/**
+ * Force check-in of another user's checkout is edit mode only.
+ * Own check-in stays {@code Check In}. View mode never offers force check-in.
+ */
+export function canForceCheckInFromEditor(
+  mode: EditorHostMode,
+  checkoutUser: string | undefined,
+  currentUser: string | undefined,
+): boolean {
+  if (!canUseEditorCheckoutActions(mode)) {
+    return false;
+  }
+  const lockUser = (checkoutUser ?? "").trim();
+  if (!lockUser) {
+    return false;
+  }
+  return !isCheckedOutToSelf(lockUser, currentUser, undefined, false);
+}
+
 export function editorLockErrorReason(err: unknown): EditorLockErrorReason {
   if (isApiError(err)) {
     if (err.status === 403) {
       return "forbidden";
+    }
+    if (err.status === 404) {
+      return "not_found";
     }
     if (err.status === 409) {
       return "conflict";

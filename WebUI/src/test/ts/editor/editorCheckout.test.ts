@@ -17,6 +17,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  canForceCheckInFromEditor,
   canUseEditorCheckoutActions,
   editorLockErrorReason,
   isCheckedOutToSelf,
@@ -52,9 +53,20 @@ describe("editorCheckout", () => {
     expect(canUseEditorCheckoutActions("promote")).toBe(false);
   });
 
-  it("maps 403 and 409 without treating them as success", () => {
+  it("offers force check-in only for another user's checkout in edit mode", () => {
+    expect(canForceCheckInFromEditor("edit", "editor", "admin")).toBe(true);
+    expect(canForceCheckInFromEditor("edit", "admin", "admin")).toBe(false);
+    expect(canForceCheckInFromEditor("edit", "", "admin")).toBe(false);
+    expect(canForceCheckInFromEditor("view", "editor", "admin")).toBe(false);
+    expect(canForceCheckInFromEditor("promote", "editor", "admin")).toBe(false);
+  });
+
+  it("maps 403, 404, and 409 without treating them as success", () => {
     expect(editorLockErrorReason({ status: 403, statusText: "Forbidden", body: {} })).toBe(
       "forbidden",
+    );
+    expect(editorLockErrorReason({ status: 404, statusText: "Not Found", body: {} })).toBe(
+      "not_found",
     );
     expect(editorLockErrorReason({ status: 409, statusText: "Conflict", body: {} })).toBe(
       "conflict",

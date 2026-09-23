@@ -82,11 +82,13 @@ import {
   type EditorRecycleTarget,
 } from "./editorRecycle";
 import {
+  canForceCheckInFromEditor,
   canUseEditorCheckoutActions,
   editorLockErrorReason,
   isCheckedOutToSelf,
   type EditorCheckoutUserInfo,
 } from "./editorCheckout";
+import { forceCheckInItem } from "../api/contentExplorer/itemWorkflowApi";
 import {
   fetchItemRevisions,
   restoreItemRevision,
@@ -163,6 +165,10 @@ export interface EditorHostProps {
   ) => Promise<ItemEditorFields>;
   checkout?: (itemId: string) => Promise<EditorCheckoutUserInfo | void>;
   checkin?: (itemId: string) => Promise<void>;
+  /** Admin force check-in of another user's checkout ({@code forceCheckIn/{id}}). */
+  forceCheckin?: (itemId: string) => Promise<void>;
+  /** Test seam: confirm force check-in (defaults to {@code window.confirm}). */
+  confirmForceCheckin?: (body: string) => boolean;
   loadType?: (typeName: string) => Promise<{
     fields?: ContentTypeFieldSummary[];
     allowedTemplates?: unknown[];
@@ -401,6 +407,8 @@ export function EditorHost({
   saveFields = saveItemEditorFields,
   checkout = checkoutEditorItem,
   checkin = checkinEditorItem,
+  forceCheckin = forceCheckInItem,
+  confirmForceCheckin,
   loadType = getContentTypeDetail,
   uploadBinary = uploadItemEditorBinary,
   loadKeywords,
@@ -1401,8 +1409,20 @@ export function EditorHost({
 
   function lockErrorKeyFor(
     reason: ReturnType<typeof editorLockErrorReason>,
-    kind: "in" | "out",
+    kind: "in" | "out" | "force",
   ): string {
+    if (kind === "force") {
+      if (reason === "forbidden") {
+        return EDITOR_MSG.FORCE_CHECKIN_FORBIDDEN;
+      }
+      if (reason === "not_found") {
+        return EDITOR_MSG.FORCE_CHECKIN_NOT_FOUND;
+      }
+      if (reason === "conflict") {
+        return EDITOR_MSG.FORCE_CHECKIN_CONFLICT;
+      }
+      return EDITOR_MSG.FORCE_CHECKIN_FAILED;
+    }
     if (reason === "forbidden") {
       return kind === "in" ? EDITOR_MSG.CHECKIN_FORBIDDEN : EDITOR_MSG.CHECKOUT_FORBIDDEN;
     }
@@ -1480,6 +1500,43 @@ export function EditorHost({
       const reason = editorLockErrorReason(err);
       setLockErrorKey(lockErrorKeyFor(reason, "in"));
       setLockErrorDetail(formatApiError(err, message(lockErrorKeyFor(reason, "in"))));
+    } finally {
+      setLockBusy(false);
+    }
+  }
+
+  async function handleForceCheckin(): Promise<void> {
+    const owner = (restLockUser || lockUser || payload?.checkoutUser || "").trim();
+    if (
+      contentId == null ||
+      !canForceCheckInFromEditor(mode, owner, sessionUser)
+    ) {
+      return;
+    }
+    const confirmFn =
+      confirmForceCheckin ??
+      ((body: string) =>
+        typeof window !== "undefined" ? window.confirm(body) : false);
+    if (!confirmFn(message(EDITOR_MSG.CONFIRM_FORCE_CHECKIN))) {
+      return;
+    }
+    setLockBusy(true);
+    setLockErrorKey(null);
+    setLockErrorDetail("");
+    try {
+      await forceCheckin(String(contentId));
+      setRestLockUser("");
+      setLockUser("");
+      setCheckoutOk(false);
+      setPayload((prev) => (prev ? { ...prev, checkoutUser: "" } : prev));
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = editorLockErrorReason(err);
+      const errorKey = lockErrorKeyFor(reason, "force");
+      setLockErrorKey(errorKey);
+      setLockErrorDetail(formatApiError(err, message(errorKey)));
     } finally {
       setLockBusy(false);
     }
@@ -1606,8 +1663,19 @@ export function EditorHost({
     checkoutOk,
   );
   const canEdit = !readOnly && !promote && heldBySelf;
+  const checkoutOwner = (
+    restLockUser ||
+    lockUser ||
+    payload?.checkoutUser ||
+    ""
+  ).trim();
   const showCheckoutAction =
     canUseEditorCheckoutActions(mode) && contentId != null && !heldBySelf;
+  const showForceCheckin = canForceCheckInFromEditor(
+    mode,
+    checkoutOwner,
+    sessionUser,
+  );
   const publishKind = resolveEditorPublishKind(payload?.contentType, {
     id: contentId != null ? String(contentId) : "",
     allowedTemplateCount,
@@ -1741,6 +1809,17 @@ export function EditorHost({
               onClick={() => void handleCheckout()}
             >
               {message(EDITOR_MSG.CHECKOUT_ACTION)}
+            </button>
+          ) : null}
+          {showForceCheckin ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-force-checkin"
+              disabled={lockBusy || loading || payload == null}
+              onClick={() => void handleForceCheckin()}
+            >
+              {message(EDITOR_MSG.FORCE_CHECKIN)}
             </button>
           ) : null}
           {canEdit ? (

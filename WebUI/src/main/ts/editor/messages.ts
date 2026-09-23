@@ -52,6 +52,15 @@ export const EDITOR_MSG = {
     "perc.ui.editor@This item is not checked out to you.",
   CHECKOUT_FAILED: "perc.ui.editor@Could not check out this item.",
   CHECKIN_FAILED: "perc.ui.editor@Could not check in this item.",
+  FORCE_CHECKIN: "perc.ui.editor@Force Check-in",
+  CONFIRM_FORCE_CHECKIN:
+    "perc.ui.editor@Force check-in this item? Other users will lose their checkout.",
+  FORCE_CHECKIN_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to force check-in this item.",
+  FORCE_CHECKIN_NOT_FOUND: "perc.ui.editor@This item was not found.",
+  FORCE_CHECKIN_CONFLICT:
+    "perc.ui.editor@This item is not checked out, so it cannot be force checked in.",
+  FORCE_CHECKIN_FAILED: "perc.ui.editor@Could not force check-in this item.",
   CLOSE: "perc.ui.editor@Close",
   EMPTY: "perc.ui.editor@This content type has no editable text fields.",
   LOCKED: "perc.ui.editor@This item is checked out to another user.",
