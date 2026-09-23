@@ -23,6 +23,8 @@ import {
   relatedContentErrorReason,
   relatedInsertErrorReason,
   relatedRemoveErrorReason,
+  relatedReorderEnds,
+  relatedReorderErrorReason,
 } from "../../../main/ts/editor/editorRelatedContent";
 
 describe("flattenRelatedContent", () => {
@@ -100,6 +102,55 @@ describe("relatedContentErrorReason", () => {
     expect(relatedRemoveErrorReason({ status: 500, statusText: "x", body: {} })).toBe(
       "failed",
     );
+    expect(relatedReorderErrorReason({ status: 403, statusText: "F", body: {} })).toBe(
+      "forbidden",
+    );
+    expect(relatedReorderErrorReason({ status: 404, statusText: "N", body: {} })).toBe(
+      "not_found",
+    );
+    expect(relatedReorderErrorReason({ status: 409, statusText: "C", body: {} })).toBe(
+      "conflict",
+    );
+    expect(relatedReorderErrorReason({ status: 500, statusText: "x", body: {} })).toBe(
+      "failed",
+    );
+  });
+
+  it("allows move only between siblings in the same slot", () => {
+    const rows = flattenRelatedContent(
+      {
+        ownerId: 1,
+        templateId: 7,
+        slots: [
+          {
+            slotId: 9,
+            name: "a",
+            label: "A",
+            items: [
+              {
+                relationshipId: 1,
+                ownerId: 1,
+                dependentId: 10,
+                slotId: 9,
+                templateId: 7,
+                sortRank: 0,
+              },
+              {
+                relationshipId: 2,
+                ownerId: 1,
+                dependentId: 11,
+                slotId: 9,
+                templateId: 7,
+                sortRank: 1,
+              },
+            ],
+          },
+        ],
+      },
+      { count: 0, links: [] },
+    );
+    expect(relatedReorderEnds(rows, rows[0])).toEqual({ up: false, down: true });
+    expect(relatedReorderEnds(rows, rows[1])).toEqual({ up: true, down: false });
   });
 
   it("offers canvas slots and a template id for insert", () => {

@@ -281,4 +281,142 @@ describe("EditorRelatedContentPanel", () => {
       expect(screen.queryByTestId("editor-related-remove")).toBeNull();
     });
   });
+
+  it("reorders a slot row and reloads the new order", async () => {
+    const first = {
+      ownerId: 42,
+      templateId: 7,
+      slots: [
+        {
+          slotId: 9,
+          name: "content",
+          label: "Content",
+          items: [
+            {
+              relationshipId: 3,
+              ownerId: 42,
+              dependentId: 55,
+              slotId: 9,
+              templateId: 7,
+              sortRank: 0,
+            },
+            {
+              relationshipId: 4,
+              ownerId: 42,
+              dependentId: 66,
+              slotId: 9,
+              templateId: 7,
+              sortRank: 1,
+            },
+          ],
+        },
+      ],
+    };
+    const swapped = {
+      ...first,
+      slots: [
+        {
+          ...first.slots[0],
+          items: [first.slots[0].items[1], first.slots[0].items[0]],
+        },
+      ],
+    };
+    const loadCanvas = vi.fn().mockResolvedValueOnce(first).mockResolvedValueOnce(swapped);
+    const moveRelationship = vi.fn().mockResolvedValue(undefined);
+    render(
+      <EditorRelatedContentPanel
+        itemId="42"
+        loadCanvas={loadCanvas}
+        loadLocal={async () => ({ count: 0, links: [] })}
+        moveRelationship={moveRelationship}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getAllByTestId("editor-related-item-id").map((n) => n.textContent)).toEqual([
+        "55",
+        "66",
+      ]);
+    });
+    fireEvent.click(screen.getByTestId("editor-related-move-down"));
+    await waitFor(() => {
+      expect(moveRelationship).toHaveBeenCalledWith(3, "DOWN");
+    });
+    await waitFor(() => {
+      expect(screen.getAllByTestId("editor-related-item-id").map((n) => n.textContent)).toEqual([
+        "66",
+        "55",
+      ]);
+    });
+  });
+
+  it("maps reorder 409 and keeps the order", async () => {
+    const filled = {
+      ownerId: 42,
+      templateId: 7,
+      slots: [
+        {
+          slotId: 9,
+          name: "content",
+          label: "Content",
+          items: [
+            {
+              relationshipId: 3,
+              ownerId: 42,
+              dependentId: 55,
+              slotId: 9,
+              templateId: 7,
+              sortRank: 0,
+            },
+            {
+              relationshipId: 4,
+              ownerId: 42,
+              dependentId: 66,
+              slotId: 9,
+              templateId: 7,
+              sortRank: 1,
+            },
+          ],
+        },
+      ],
+    };
+    const moveRelationship = vi.fn().mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: {},
+    });
+    const { rerender } = render(
+      <EditorRelatedContentPanel
+        itemId="42"
+        loadCanvas={async () => filled}
+        loadLocal={async () => ({ count: 0, links: [] })}
+        moveRelationship={moveRelationship}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-move-down")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-related-move-down"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-move-error").textContent).toMatch(
+        /not checked out/i,
+      );
+    });
+    expect(screen.getAllByTestId("editor-related-item-id").map((n) => n.textContent)).toEqual([
+      "55",
+      "66",
+    ]);
+    rerender(
+      <EditorRelatedContentPanel
+        itemId="42"
+        readOnly
+        loadCanvas={async () => filled}
+        loadLocal={async () => ({ count: 0, links: [] })}
+        moveRelationship={moveRelationship}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-related-move-down")).toBeNull();
+      expect(screen.queryByTestId("editor-related-move-up")).toBeNull();
+    });
+  });
 });

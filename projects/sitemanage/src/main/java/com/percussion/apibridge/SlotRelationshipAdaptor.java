@@ -39,6 +39,8 @@ import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
+import com.percussion.webservices.IPSWebserviceErrors;
+import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import jakarta.ws.rs.WebApplicationException;
@@ -207,9 +209,30 @@ public class SlotRelationshipAdaptor implements ISlotRelationshipAdaptor {
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
-      log.debug("Failed to move relationship {}: {}", relationshipId, e.toString());
-      throw new WebApplicationException(e, 500);
+      int status = httpStatusForMoveFailure(e);
+      log.debug("Failed to move relationship {} ({}): {}", relationshipId, status, e.toString());
+      String msg = StringUtils.defaultIfBlank(e.getMessage(), "Move failed");
+      throw new WebApplicationException(msg, status);
     }
+  }
+
+  /**
+   * Maps reorder failures for EditorHost. Checkout conflicts are 409. Not-found and
+   * authorization use the same type rules as insert. Message text is ignored.
+   */
+  static int httpStatusForMoveFailure(Exception e) {
+    if (e instanceof PSErrorException pe) {
+      int code = pe.getCode();
+      if (code == IPSWebserviceErrors.ITEM_NOT_CHECKED_OUT
+          || code == IPSWebserviceErrors.ITEM_NOT_CHECKOUT_BY_USER) {
+        return 409;
+      }
+    }
+    String type = e.getClass().getSimpleName();
+    if (type.contains("Conflict")) {
+      return 409;
+    }
+    return httpStatusForAddFailure(e);
   }
 
   @Override

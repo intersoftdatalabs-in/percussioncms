@@ -31,7 +31,9 @@ export interface RelatedContentRow {
   kind: RelatedContentKind;
   itemId: string;
   slotLabel: string;
-  /** Active Assembly relationship id when the row can be removed. */
+  /** Slot id when the row is an Active Assembly slot item. */
+  slotId?: number;
+  /** Active Assembly relationship id when the row can be removed or reordered. */
   relationshipId?: number;
 }
 
@@ -104,6 +106,51 @@ export function relatedRemoveErrorReason(err: unknown): RelatedInsertErrorReason
   return relatedInsertErrorReason(err);
 }
 
+export type RelatedReorderErrorReason =
+  | "forbidden"
+  | "not_found"
+  | "conflict"
+  | "failed";
+
+/** 403, 404, and 409 are not a successful reorder. */
+export function relatedReorderErrorReason(
+  err: unknown,
+): RelatedReorderErrorReason {
+  const status = httpStatus(err);
+  if (status === 403) {
+    return "forbidden";
+  }
+  if (status === 404) {
+    return "not_found";
+  }
+  if (status === 409) {
+    return "conflict";
+  }
+  return "failed";
+}
+
+/** Whether a slot row can move up or down among siblings in the same slot. */
+export function relatedReorderEnds(
+  rows: RelatedContentRow[],
+  row: RelatedContentRow,
+): { up: boolean; down: boolean } {
+  if (row.kind !== "slot" || !(row.relationshipId != null && row.relationshipId > 0)) {
+    return { up: false, down: false };
+  }
+  const siblings = rows.filter(
+    (candidate) =>
+      candidate.kind === "slot" &&
+      candidate.slotId === row.slotId &&
+      candidate.relationshipId != null &&
+      candidate.relationshipId > 0,
+  );
+  const index = siblings.findIndex((candidate) => candidate.key === row.key);
+  if (index < 0 || siblings.length < 2) {
+    return { up: false, down: false };
+  }
+  return { up: index > 0, down: index < siblings.length - 1 };
+}
+
 /** Slots an author can insert into. Template falls back to the canvas template. */
 export function insertSlotChoices(
   canvas: SlotCanvas | null | undefined,
@@ -162,6 +209,7 @@ export function flattenRelatedContent(
           kind: "slot",
           itemId,
           slotLabel,
+          slotId: slot.slotId > 0 ? slot.slotId : undefined,
           relationshipId,
         });
       }
