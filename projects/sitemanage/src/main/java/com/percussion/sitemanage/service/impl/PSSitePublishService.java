@@ -907,6 +907,49 @@ public class PSSitePublishService implements IPSSitePublishService {
     return true;
   }
 
+  @Override
+  public void removeQueuedIncrementalContent(
+      String siteName, String serverName, String contentId) throws PSSitePublishException {
+    Validate.notEmpty(siteName);
+    Validate.notEmpty(serverName);
+    Validate.notEmpty(contentId);
+    if (!isPublishAllowed()) {
+      throw new PSIncrementalQueueStatusException(403, "Publish forbidden");
+    }
+    final int cid;
+    try {
+      cid = idMapper.getContentId(contentId.trim());
+    } catch (RuntimeException ex) {
+      throw new PSIncrementalQueueStatusException(404, "Queued item not found");
+    }
+    final long siteId;
+    final PSContentChangeType changeType;
+    final List<Integer> queued;
+    try {
+      IPSSite site = pubWs.findSite(siteName);
+      if (site == null || site.getSiteId() == null) {
+        throw new PSIncrementalQueueStatusException(404, "Site not found");
+      }
+      siteId = site.getSiteId();
+      PSPublishServerInfo info = findPubServerInfo(siteName, serverName);
+      changeType =
+          PSPubServer.STAGING.equalsIgnoreCase(info.getServerType())
+              ? PSContentChangeType.PENDING_STAGED
+              : PSContentChangeType.PENDING_LIVE;
+      queued = contentChangeService.getChangedContent(siteId, changeType);
+    } catch (PSIncrementalQueueStatusException ex) {
+      throw ex;
+    } catch (PSSitePublishException ex) {
+      throw new PSIncrementalQueueStatusException(404, "Publish server or site was not found");
+    } catch (IPSPubServerService.PSPubServerServiceException ex) {
+      throw new PSSitePublishException(ex.getMessage(), ex);
+    }
+    if (queued == null || !queued.contains(Integer.valueOf(cid))) {
+      throw new PSIncrementalQueueStatusException(404, "Queued item not found");
+    }
+    contentChangeService.deleteChangeEvents(siteId, cid, changeType);
+  }
+
   public PSPagedItemList getQueuedIncrementalContent(
       String siteName, String serverName, int startIndex, int pageSize)
       throws PSSitePublishException {

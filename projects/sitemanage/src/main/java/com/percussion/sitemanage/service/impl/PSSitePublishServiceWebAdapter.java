@@ -47,6 +47,7 @@ import com.percussion.sitemanage.service.IPSSitePublishService;
 import com.percussion.sitemanage.service.IPSSitePublishService.PubType;
 import com.percussion.webservices.content.IPSContentWs;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -483,6 +484,27 @@ public class PSSitePublishServiceWebAdapter {
     try {
       return sitePublishService.getQueuedIncrementalContent(
           siteName, serverName, startIndex, pageSize);
+    } catch (IPSSitePublishService.PSSitePublishException e) {
+      throw new WebApplicationException(e.getMessage());
+    }
+  }
+
+  /**
+   * Removes one content id from the incremental queue for the site and server. HTTP 204 on
+   * success. HTTP 403 when publish is not allowed. HTTP 404 when the id is not queued or the site
+   * or server cannot be resolved.
+   */
+  @DELETE
+  @Path("/incremental/content/{name}/{server}/{contentId}")
+  public Response removeQueuedIncrementalContent(
+      @PathParam("name") String siteName,
+      @PathParam("server") String serverName,
+      @PathParam("contentId") String contentId) {
+    try {
+      sitePublishService.removeQueuedIncrementalContent(siteName, serverName, contentId);
+      return Response.noContent().build();
+    } catch (PSIncrementalQueueStatusException e) {
+      return Response.status(e.status()).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
     } catch (IPSSitePublishService.PSSitePublishException e) {
       throw new WebApplicationException(e.getMessage());
     }

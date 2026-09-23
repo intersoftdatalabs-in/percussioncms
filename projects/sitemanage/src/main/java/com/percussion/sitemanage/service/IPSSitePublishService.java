@@ -94,6 +94,17 @@ public interface IPSSitePublishService {
       String siteName, String serverName, int startIndex, int pageSize)
       throws PSSitePublishException;
 
+  /**
+   * Removes one content id from the site incremental queue for the named server.
+   *
+   * @param siteName site name, not blank
+   * @param serverName publish server name, not blank
+   * @param contentId content id or item GUID string, not blank
+   * @throws PSSitePublishException when the queue cannot be read
+   */
+  void removeQueuedIncrementalContent(String siteName, String serverName, String contentId)
+      throws PSSitePublishException;
+
   /** Exception thrown when an error occurs attempting to publish a site. */
   class PSSitePublishException extends PSDataServiceException {
     private static final long serialVersionUID = 1L;

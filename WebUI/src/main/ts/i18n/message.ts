@@ -186,6 +186,16 @@ export const MSG = {
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",
   PUBLISH_EMPTY_QUEUE: "perc.ui.publish.incrementalPreview@No items queued for incremental",
+  PUBLISH_REMOVE_QUEUE_ITEM: "perc.ui.publish.modern@Remove from queue",
+  PUBLISH_CONFIRM_REMOVE_QUEUE_ITEM:
+    "perc.ui.publish.modern@Remove this item from the incremental queue?",
+  PUBLISH_QUEUE_ITEM_REMOVED: "perc.ui.publish.modern@Removed from incremental queue",
+  PUBLISH_QUEUE_REMOVE_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to remove this queued item",
+  PUBLISH_QUEUE_REMOVE_NOT_FOUND:
+    "perc.ui.publish.modern@This item is not on the incremental queue",
+  PUBLISH_QUEUE_REMOVE_FAILED:
+    "perc.ui.publish.modern@Could not remove the queued item",
   PUBLISH_LOADING: "perc.ui.home.modern@Loading",
   PUBLISH_ERROR: "perc.ui.home.modern@Error",
   PUBLISH_FORBIDDEN: "perc.ui.publish.modern@Publish Forbidden",
