@@ -38,6 +38,7 @@ import com.percussion.utils.xml.IPSXmlSerialization;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
@@ -129,6 +130,7 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
    private String  serverType;
    
    @Basic
+   @Convert(converter = PSHasFullPublishedColumnConverter.class)
    @Column(name="HAS_FULL_PUBLISHED", nullable=true)
    private String hasFullPublished;
 

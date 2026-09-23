@@ -68,6 +68,18 @@ class PSPubServerHasFullPublishedFlagTest {
     assertFalse(unset.hasFullPublished());
   }
 
+  @Test
+  void jdbcConverterWritesOneCharacterForLegacyWords() {
+    PSHasFullPublishedColumnConverter converter = new PSHasFullPublishedColumnConverter();
+    assertEquals("y", converter.convertToDatabaseColumn("yes"));
+    assertEquals("n", converter.convertToDatabaseColumn("no"));
+    assertEquals("y", converter.convertToDatabaseColumn("true"));
+    assertEquals("n", converter.convertToDatabaseColumn("false"));
+    assertNull(converter.convertToDatabaseColumn(null));
+    assertEquals("y", converter.convertToEntityAttribute("yes"));
+    assertEquals("n", converter.convertToEntityAttribute("no"));
+  }
+
   private static void store(PSPubServer server, String raw) throws Exception {
     Field field = PSPubServer.class.getDeclaredField("hasFullPublished");
     field.setAccessible(true);

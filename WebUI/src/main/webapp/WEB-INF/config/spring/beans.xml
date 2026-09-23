@@ -617,6 +617,8 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 		<constructor-arg
 			type="com.percussion.services.legacy.IPSCmsObjectMgr"
 			ref="sys_cmsObjectMgr" />
+		<!-- Navon saves must not join the site-rename session (#4797). -->
+		<property name="transactionManager" ref="sys_transactionManager" />
 	</bean>
 
 	<bean id="sys_publishQueueListener"

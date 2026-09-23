@@ -680,9 +680,9 @@ public class PSManagedNavService implements IPSManagedNavService {
       statuses = prepareForEditIsolated(nodeId);
     }
     try {
-      // Suspend the rename request TX. loadItems is itself @Transactional; joined
-      // to a rollback-only request it commits as UnexpectedRollbackException
-      // after the site row was already updated (#4784).
+      // New transaction, not NOT_SUPPORTED. NOT_SUPPORTED keeps the request
+      // Hibernate session; loadItems then commits that rollback-only session
+      // (#4797 / #4784).
       try {
         runWithoutJoiningCallerTx(() -> applyNavonPropertiesIsolated(nodeId, propertyMap));
       } catch (RuntimeException first) {
@@ -806,7 +806,9 @@ public class PSManagedNavService implements IPSManagedNavService {
       return work.get();
     }
     TransactionTemplate tt = new TransactionTemplate(transactionManager);
-    tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_NOT_SUPPORTED);
+    // REQUIRES_NEW suspends the caller session. NOT_SUPPORTED does not, so
+    // loadItems still flushes the rollback-only request session (#4797).
+    tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
     return tt.execute(status -> work.get());
   }
 
