@@ -34,46 +34,43 @@ function attachConsoleGate(page) {
   page.on("pageerror", (err) => errors.push(String(err)));
   page.on("console", (msg) => {
     if (msg.type() === "error") {
-      errors.push(msg.text());
+      const text = msg.text();
+      if (!/favicon|Failed to load resource/i.test(text)) {
+        errors.push(text);
+      }
     }
   });
   page._renameErrors = errors;
 }
 
-async function csrfHeaders(page) {
-  return page.evaluate(() => {
-    const token =
-      window.OWASP_CSRFTOKEN?.token ||
-      document.querySelector('meta[name="_csrf"]')?.getAttribute("content") ||
-      "";
-    const header =
-      document.querySelector('meta[name="_csrf_header"]')?.getAttribute("content") ||
-      "OWASP-CSRFTOKEN";
-    return { token, header };
+async function createTraditionalSite(page, name) {
+  await openContentMenu(page);
+  await page.getByTestId("explorer-content-create-site").click();
+  await expect(page.getByTestId("site-create-wizard")).toBeVisible({
+    timeout: 15_000,
+  });
+  await page.getByTestId("site-create-type-traditional").check();
+  await page.getByTestId("site-create-next").click();
+  await page.getByTestId("site-create-name").fill(name);
+  await page.getByTestId("site-create-next").click();
+  await expect(page.getByTestId("site-create-step-confirm")).toBeVisible({
+    timeout: 15_000,
+  });
+  await page.getByTestId("site-create-next").click();
+  const run = page.getByTestId("site-create-run");
+  await expect(run).toBeEnabled({ timeout: 15_000 });
+  await run.click();
+  await expect(page.getByTestId("explorer-site-create-panel")).toHaveCount(0, {
+    timeout: 90_000,
   });
 }
 
-async function postJson(page, path, body) {
-  const csrf = await csrfHeaders(page);
-  return page.evaluate(
-    async ({ path, body, csrf }) => {
-      const headers = {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      };
-      if (csrf.token) {
-        headers[csrf.header] = csrf.token;
-      }
-      const response = await fetch(path, {
-        method: "POST",
-        credentials: "same-origin",
-        headers,
-        body: JSON.stringify(body),
-      });
-      return { status: response.status, text: await response.text() };
-    },
-    { path, body, csrf },
-  );
+async function openRename(page) {
+  await openContentMenu(page);
+  const menu = page.getByTestId("explorer-content-site-rename");
+  await expect(menu).toBeEnabled({ timeout: 10_000 });
+  await menu.click();
+  await expect(page.getByTestId("explorer-site-rename-panel")).toBeVisible();
 }
 
 test.describe("Explorer rename site (#4764)", () => {
@@ -81,93 +78,52 @@ test.describe("Explorer rename site (#4764)", () => {
     "cancel leaves the name; rename persists; duplicate is 409",
     { tag: ["@explorer-site-rename", "@explorer"] },
     async ({ page }) => {
-      test.setTimeout(120_000);
+      test.setTimeout(180_000);
       attachConsoleGate(page);
       await loginAsAdmin(page);
       await page.goto(explorerSpaUrl(BASE_URL), { waitUntil: "networkidle" });
-      const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
-      await expect(shell).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByTestId(TEST_IDS.shell)).toBeVisible({
+        timeout: 20_000,
+      });
 
       const stamp = Date.now().toString(36);
-      const original = `QaRen${stamp}`.slice(0, 20);
-      const renamed = `QaRenX${stamp}`.slice(0, 20);
-      const created = await postJson(page, "/Rhythmyx/services/sites", {
-        Site: { name: original, description: "rename slice" },
+      const original = `QaRen${stamp}`.replace(/[^A-Za-z0-9]/g, "").slice(0, 18);
+      const renamed = `QaRenX${stamp}`.replace(/[^A-Za-z0-9]/g, "").slice(0, 18);
+      const other = `QaRenY${stamp}`.replace(/[^A-Za-z0-9]/g, "").slice(0, 18);
+
+      await createTraditionalSite(page, original);
+
+      await openRename(page);
+      await page.getByTestId("site-rename-cancel").click();
+      await expect(page.getByTestId("explorer-site-rename-panel")).toHaveCount(0);
+
+      await openRename(page);
+      await page.getByTestId("site-rename-name").fill("bad/name");
+      await page.getByTestId("site-rename-submit").click();
+      await expect(page.getByTestId("site-rename-error")).toBeVisible();
+
+      await page.getByTestId("site-rename-name").fill(renamed);
+      await page.getByTestId("site-rename-submit").click();
+      await expect(page.getByTestId("explorer-site-rename-panel")).toHaveCount(0, {
+        timeout: 30_000,
       });
-      expect(created.status, created.text).toBe(200);
+      await page.reload({ waitUntil: "networkidle" });
+      await openRename(page);
+      await expect(page.getByTestId("site-rename-name")).toHaveValue(renamed);
+      await page.getByTestId("site-rename-cancel").click();
 
-      await page.goto(
-        `${explorerSpaUrl(BASE_URL)}&path=${encodeURIComponent(`/Sites/${original}`)}`,
-        { waitUntil: "networkidle" },
-      );
-      await openContentMenu(page);
-      const menu = page.locator(`[data-testid="${TEST_IDS.siteRenameMenu}"]`);
-      await expect(menu).toBeVisible();
-      await expect(menu).toBeEnabled();
-      await menu.click();
-      await expect(
-        page.locator(`[data-testid="${TEST_IDS.siteRenamePanel}"]`),
-      ).toBeVisible();
-      await page.locator(`[data-testid="${TEST_IDS.siteRenameCancel}"]`).click();
-      await expect(
-        page.locator(`[data-testid="${TEST_IDS.siteRenamePanel}"]`),
-      ).toHaveCount(0);
-
-      await openContentMenu(page);
-      await page.locator(`[data-testid="${TEST_IDS.siteRenameMenu}"]`).click();
-      await page.locator(`[data-testid="${TEST_IDS.siteRenameName}"]`).fill("bad/name");
-      await page.locator(`[data-testid="${TEST_IDS.siteRenameSubmit}"]`).click();
-      await expect(page.locator(`[data-testid="${TEST_IDS.siteRenameError}"]`)).toBeVisible();
-
-      await page.locator(`[data-testid="${TEST_IDS.siteRenameName}"]`).fill(renamed);
-      await page.locator(`[data-testid="${TEST_IDS.siteRenameSubmit}"]`).click();
-      await expect(
-        page.locator(`[data-testid="${TEST_IDS.siteRenamePanel}"]`),
-      ).toHaveCount(0, { timeout: 20_000 });
-
-      await page.goto(
-        `${explorerSpaUrl(BASE_URL)}&path=${encodeURIComponent(`/Sites/${renamed}`)}`,
-        { waitUntil: "networkidle" },
-      );
-      await expect(shell).toBeVisible({ timeout: 20_000 });
-      await openContentMenu(page);
-      await page.locator(`[data-testid="${TEST_IDS.siteRenameMenu}"]`).click();
-      await expect(page.locator(`[data-testid="${TEST_IDS.siteRenameName}"]`)).toHaveValue(
-        renamed,
-      );
-
-      await page.locator(`[data-testid="${TEST_IDS.siteRenameName}"]`).fill(original);
-      const duplicate = page.waitForResponse(
+      await createTraditionalSite(page, other);
+      await openRename(page);
+      await expect(page.getByTestId("site-rename-name")).toHaveValue(other);
+      await page.getByTestId("site-rename-name").fill(renamed);
+      const conflict = page.waitForResponse(
         (response) =>
           response.url().includes("/rename") && response.request().method() === "POST",
       );
-      await page.locator(`[data-testid="${TEST_IDS.siteRenameSubmit}"]`).click();
-      const dupResponse = await duplicate;
-      // original name may still exist as a folder after rename (409) or be free (200).
-      if (dupResponse.status() === 409 || dupResponse.status() === 400) {
-        await expect(page.locator(`[data-testid="${TEST_IDS.siteRenameError}"]`)).toBeVisible();
-      } else {
-        expect(dupResponse.status()).toBe(200);
-      }
-
-      const clash = await postJson(
-        page,
-        `/Rhythmyx/services/sites/${encodeURIComponent(renamed)}/rename`,
-        { RenameSiteRequest: { name: renamed } },
-      );
-      // Same name is a no-op 200. A second distinct site name that exists is 409.
-      const other = `QaRenY${stamp}`.slice(0, 20);
-      const second = await postJson(page, "/Rhythmyx/services/sites", {
-        Site: { name: other },
-      });
-      expect(second.status, second.text).toBe(200);
-      const conflict = await postJson(
-        page,
-        `/Rhythmyx/services/sites/${encodeURIComponent(other)}/rename`,
-        { RenameSiteRequest: { name: renamed } },
-      );
-      expect(conflict.status, conflict.text).toBe(409);
-      expect(clash.status).toBeGreaterThanOrEqual(200);
+      await page.getByTestId("site-rename-submit").click();
+      expect((await conflict).status()).toBe(409);
+      await expect(page.getByTestId("site-rename-error")).toContainText(/already uses/i);
+      await expect(page.getByTestId("site-rename-name")).toHaveValue(renamed);
 
       expect(page._renameErrors || []).toEqual([]);
     },
