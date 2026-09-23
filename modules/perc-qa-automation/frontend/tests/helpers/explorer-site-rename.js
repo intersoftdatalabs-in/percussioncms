@@ -3,7 +3,12 @@
  */
 "use strict";
 
-const { TEST_IDS: COPY_IDS, explorerSpaUrl, openContentMenu } = require("./explorer-site-copy");
+const {
+  TEST_IDS: COPY_IDS,
+  explorerSpaUrl,
+  explorerSpaUrlWithPath,
+  openContentMenu,
+} = require("./explorer-site-copy");
 
 const TEST_IDS = Object.freeze({
   ...COPY_IDS,
@@ -18,5 +23,6 @@ const TEST_IDS = Object.freeze({
 module.exports = {
   TEST_IDS,
   explorerSpaUrl,
+  explorerSpaUrlWithPath,
   openContentMenu,
 };

@@ -1449,7 +1449,11 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     PSFolderProperties folderProps = new PSFolderProperties();
     folderProps.setId(idMapper.getString(folderId));
     folderProps.setName(req.getFolderName());
-    folderProps.setPermission(req.getFolderPermission());
+    // Site rename must change the folder name only. Rewriting the same ACL allocates
+    // a next-number row and marks the H2 transaction rollback-only (#3797 / #4784).
+    if (!req.isSiteRootSection()) {
+      folderProps.setPermission(req.getFolderPermission());
+    }
 
     folderHelper.saveFolderProperties(folderProps);
   }

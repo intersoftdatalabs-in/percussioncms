@@ -29,12 +29,14 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
+import com.percussion.fastforward.managednav.PSNavException;
 import com.percussion.services.sitemgr.data.PSSite;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.sitemanage.data.PSSiteProperties;
 import com.percussion.sitemanage.service.IPSSiteDataService;
 import jakarta.ws.rs.WebApplicationException;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -201,6 +203,31 @@ class SitesAdaptorCreateUpdateDeleteTest {
     assertEquals("RenamedSite", props.getName().orElse(null));
     verify(data).updateSiteProperties(props);
     verify(siteManager, never()).saveSite(org.mockito.ArgumentMatchers.any(IPSSite.class));
+  }
+
+  @Test
+  void rename_rollbackAfterNamePersisted_returnsSavedSite() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 7));
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    IPSSiteDataService data = mock(IPSSiteDataService.class);
+    PSSiteProperties props = new PSSiteProperties();
+    props.setName("NightlySite");
+    when(data.getSiteProperties("NightlySite")).thenReturn(props);
+    when(data.updateSiteProperties(props))
+        .thenThrow(
+            new PSNavException(
+                "setNavonProperties",
+                new UnexpectedRollbackException("Transaction rolled back because it has been marked as rollback-only")));
+    adaptor.setSiteDataService(data);
+    PSSite renamed = new PSSite();
+    renamed.setName("RenamedSite");
+    when(siteManager.findSite("RenamedSite")).thenReturn(null, renamed);
+
+    Site out = adaptor.renameSite("NightlySite", "RenamedSite");
+
+    assertEquals("RenamedSite", out.getName());
   }
 
   @Test

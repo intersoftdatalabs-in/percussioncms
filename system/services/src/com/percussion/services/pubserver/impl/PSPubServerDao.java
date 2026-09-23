@@ -214,6 +214,7 @@ return pubServer;
 
 
       setValidPersistedIds(pubServer);
+      pubServer.normalizeHasFullPublishedForColumn();
 
       getSession().merge(pubServer);
 

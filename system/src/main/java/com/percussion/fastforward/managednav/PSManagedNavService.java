@@ -680,12 +680,44 @@ public class PSManagedNavService implements IPSManagedNavService {
       statuses = prepareForEditIsolated(nodeId);
     }
     try {
-      applyNavonPropertyMap(nodeId, propertyMap);
+      // New transaction, not NOT_SUPPORTED. NOT_SUPPORTED keeps the request
+      // Hibernate session; loadItems then commits that rollback-only session
+      // (#4797 / #4784).
+      try {
+        runWithoutJoiningCallerTx(() -> applyNavonPropertiesIsolated(nodeId, propertyMap));
+      } catch (RuntimeException first) {
+        if (!isUnexpectedRollback(first)) {
+          throw first;
+        }
+        log.warn(
+            "Retrying navon property save after rollback-only transaction; id={}", nodeId);
+        runWithoutJoiningCallerTx(() -> applyNavonPropertiesIsolated(nodeId, propertyMap));
+      }
     } catch (Exception e) {
       throw new PSNavException("Failed to set properties for navon (id=" + nodeId + ").", e);
     } finally {
       releaseFromEditIsolated(statuses);
     }
+  }
+
+  private Boolean applyNavonPropertiesIsolated(IPSGuid nodeId, Map<String, String> propertyMap) {
+    try {
+      applyNavonPropertyMap(nodeId, propertyMap);
+      return Boolean.TRUE;
+    } catch (PSErrorResultsException e) {
+      throw new PSNavException("Failed to set properties for navon (id=" + nodeId + ").", e);
+    }
+  }
+
+  private static boolean isUnexpectedRollback(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      if (current instanceof org.springframework.transaction.UnexpectedRollbackException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   /**
@@ -774,7 +806,9 @@ public class PSManagedNavService implements IPSManagedNavService {
       return work.get();
     }
     TransactionTemplate tt = new TransactionTemplate(transactionManager);
-    tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_NOT_SUPPORTED);
+    // REQUIRES_NEW suspends the caller session. NOT_SUPPORTED does not, so
+    // loadItems still flushes the rollback-only request session (#4797).
+    tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
     return tt.execute(status -> work.get());
   }
 

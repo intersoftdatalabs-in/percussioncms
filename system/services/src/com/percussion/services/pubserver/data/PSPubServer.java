@@ -38,11 +38,15 @@ import com.percussion.utils.xml.IPSXmlSerialization;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.io.IOException;
 import java.io.Serializable;
@@ -126,6 +130,7 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
    private String  serverType;
    
    @Basic
+   @Convert(converter = PSHasFullPublishedColumnConverter.class)
    @Column(name="HAS_FULL_PUBLISHED", nullable=true)
    private String hasFullPublished;
 
@@ -176,17 +181,94 @@ public class PSPubServer extends PSAbstractDataObject implements Serializable, I
    @JsonProperty("has-full-published")
    public boolean hasFullPublished()
    {
-      return "yes".equalsIgnoreCase(hasFullPublished) || Boolean.TRUE.toString().equalsIgnoreCase(hasFullPublished);
+      return isTruthyHasFullPublished(hasFullPublished);
    }
 
    /**
     * Set whether this server has been fully published.
     *
+    * <p>{@code PSX_PUBSERVER.HAS_FULL_PUBLISHED} is {@code CHAR(1)}. Values are {@code y}, {@code n},
+    * or {@code null}. Legacy {@code yes}/{@code no}/{@code true}/{@code false} still read correctly
+    * and are coerced to one character before insert or update (site rename saves this row).
+    *
     * @param hasFullPublished true if fully published, false otherwise
     */
    public void setHasFullPublished(boolean hasFullPublished)
    {
-      this.hasFullPublished = hasFullPublished ? "yes" : "no";
+      this.hasFullPublished = hasFullPublished ? "y" : "n";
+   }
+
+   /**
+    * Column value after {@link #setHasFullPublished(boolean)} or {@link #normalizeHasFullPublishedForColumn()}.
+    * Package-visible for the CHAR(1) unit test.
+    *
+    * @return {@code y}, {@code n}, {@code null}, or a not-yet-normalized legacy token
+    */
+   String storedHasFullPublished()
+   {
+      return hasFullPublished;
+   }
+
+   /**
+    * Coerce a loaded or copied flag so JDBC does not send a multi-character value.
+    * {@code @PreUpdate} alone is not enough: Hibernate may bind the snapshot taken
+    * before that callback, and a later flush (navon {@code loadItems}) then marks
+    * the request rollback-only.
+    */
+   @PostLoad
+   @PrePersist
+   @PreUpdate
+   public void normalizeHasFullPublishedForColumn()
+   {
+      this.hasFullPublished = toHasFullPublishedColumn(hasFullPublished);
+   }
+
+   static String toHasFullPublishedColumn(String raw)
+   {
+      if (raw == null)
+      {
+         return null;
+      }
+      String trimmed = raw.trim();
+      if (trimmed.isEmpty())
+      {
+         return null;
+      }
+      if (isTruthyHasFullPublished(trimmed))
+      {
+         return "y";
+      }
+      if (isFalsyHasFullPublished(trimmed))
+      {
+         return "n";
+      }
+      if (trimmed.length() == 1)
+      {
+         return trimmed;
+      }
+      return null;
+   }
+
+   private static boolean isTruthyHasFullPublished(String raw)
+   {
+      if (raw == null)
+      {
+         return false;
+      }
+      String value = raw.trim();
+      return "y".equalsIgnoreCase(value)
+          || "yes".equalsIgnoreCase(value)
+          || "true".equalsIgnoreCase(value)
+          || "1".equals(value);
+   }
+
+   private static boolean isFalsyHasFullPublished(String raw)
+   {
+      String value = raw.trim();
+      return "n".equalsIgnoreCase(value)
+          || "no".equalsIgnoreCase(value)
+          || "false".equalsIgnoreCase(value)
+          || "0".equals(value);
    }
    /***
     *  Test validity of a publishing server type.
