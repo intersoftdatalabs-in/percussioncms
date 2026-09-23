@@ -430,6 +430,11 @@ public class PSItemService implements IPSItemService {
             "This item was saved with a newer revision. Reload and try again.",
             Response.Status.CONFLICT);
       }
+      try {
+        PSItemEditorFieldsMapper.rejectEmbeddedNul(req.getFields());
+      } catch (IllegalArgumentException e) {
+        throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
+      }
       IPSGuid itemGuid = idMapper.getGuid(guid);
       PSItemStatus status = contentWs.prepareForEdit(itemGuid);
       if (status != null && status.isDidCheckout()) {

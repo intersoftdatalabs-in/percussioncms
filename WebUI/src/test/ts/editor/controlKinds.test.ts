@@ -46,6 +46,12 @@ describe("classifyEditorControl", () => {
     expect(classifyEditorControl({ control: "sys_TextArea" }, "description")).toBe(
       "longtext",
     );
+    expect(
+      classifyEditorControl({ control: "sys_EditBox", dataType: "text" }, "sys_title"),
+    ).toBe("text");
+    expect(
+      classifyEditorControl({ control: "sys_EditBox", dataType: "maxtext" }, "description"),
+    ).toBe("longtext");
   });
 });
 

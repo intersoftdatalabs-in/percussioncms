@@ -180,8 +180,8 @@ content-type **Control** names from `GET /services/contenttypes/{type}` onto wid
 
 | Control / field | Widget | How it is saved |
 |-----------------|--------|-----------------|
-| `sys_EditBox` and other short text | Text input | `PUT /services/itemmanagement/item/fields/{id}` |
-| `sys_TextArea` | Multi-line text | Same fields API |
+| `sys_EditBox` and other short text (`dataType` `text`) | Text input | `PUT /services/itemmanagement/item/fields/{id}` |
+| `sys_TextArea`, or `sys_EditBox` when `dataType` is `maxtext` | Multi-line text | Same fields API. Line breaks are kept. A value that contains a NUL character is rejected before save and shown on that row. HTTP **400** from the fields PUT is mapped onto the long-text field (when the error names it, or when it is the only long-text field). **View** mode makes the box read-only and hides Save. |
 | `sys_tinymce`, `sys_TinyMCE`, `sys_EditLive`, HTML | TinyMCE (textarea fallback if the shipped TinyMCE script is unavailable) | Same fields API — HTML string |
 | Keyword-named dropdowns | Keyword picker | Same fields API — selected choice value |
 | `sys_communityid` | Community picker | Same fields API |

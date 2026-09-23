@@ -61,6 +61,11 @@ export const EDITOR_MSG = {
   HTML_BAD_REQUEST: "perc.ui.editor@That HTML could not be saved.",
   HTML_INVALID_SAVE:
     "perc.ui.editor@Correct the HTML fields before saving.",
+  LONGTEXT_INVALID:
+    "perc.ui.editor@That long text contains a character that cannot be saved.",
+  LONGTEXT_BAD_REQUEST: "perc.ui.editor@That long text could not be saved.",
+  LONGTEXT_INVALID_SAVE:
+    "perc.ui.editor@Correct the long text fields before saving.",
   FILE_CHOOSE: "perc.ui.editor@Choose file",
   FILE_NONE: "perc.ui.editor@No file attached",
   FILE_FORBIDDEN:

@@ -119,9 +119,10 @@ export function classifyEditorControl(
   ) {
     return "html";
   }
+  // sys_EditBox stays a single-line input unless the catalog data type is maxtext
+  // (CLOB / long text). sys_TextArea and other textarea controls are always long text.
   if (
     control.includes("textarea") ||
-    dataType.includes("text") ||
     dataType === "maxtext"
   ) {
     return "longtext";
