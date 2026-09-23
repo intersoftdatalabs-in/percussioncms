@@ -13,6 +13,19 @@ import { cleanup, configure } from "@testing-library/react";
 // jsdom contention (App PublishingShell lazy load, Explorer axe, #4558).
 configure({ asyncUtilTimeout: 5_000 });
 
+// Vitest 5 / jsdom on Node 22 throws inside URL.createObjectURL (missing
+// blob _buffer). Image-field tests need a blob: URL; swallow the throw.
+if (typeof URL !== "undefined" && typeof URL.createObjectURL === "function") {
+  const nativeCreate = URL.createObjectURL.bind(URL);
+  URL.createObjectURL = (obj: Blob | MediaSource) => {
+    try {
+      return nativeCreate(obj);
+    } catch {
+      return "blob:vitest-preview";
+    }
+  };
+}
+
 // Cleanup after each test
 afterEach(() => {
   cleanup();

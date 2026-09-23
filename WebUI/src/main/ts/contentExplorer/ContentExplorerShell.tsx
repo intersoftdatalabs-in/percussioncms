@@ -211,6 +211,7 @@ import {
   RevisionsPanel,
   type RevisionsPanelTab,
 } from "./RevisionsPanel";
+import { SiteRenamePanel } from "./SiteRenamePanel";
 import { SiteCopyWizard } from "./wizards/SiteCopyWizard";
 import { SiteCreateWizard } from "./wizards/SiteCreateWizard";
 import { SubfolderCopyWizard } from "./wizards/SubfolderCopyWizard";
@@ -557,6 +558,7 @@ function ContentExplorerShellInner({
   const [showSiteCreate, setShowSiteCreate] = useState(false);
   /** Content → Site Copy wizard panel (#2767 / parent #2400). */
   const [showSiteCopy, setShowSiteCopy] = useState(false);
+  const [showSiteRename, setShowSiteRename] = useState(false);
   /** Content → Subfolder Copy wizard panel (#2792 / parent #2400). */
   const [showSubfolderCopy, setShowSubfolderCopy] = useState(false);
   const dismissSubfolderCopy = useCallback(() => {
@@ -1433,6 +1435,7 @@ function ContentExplorerShellInner({
     showRevisions ||
     showSiteCreate ||
     showSiteCopy ||
+    showSiteRename ||
     showSubfolderCopy;
 
   const handleMenuBarCommand = useCallback(
@@ -1452,6 +1455,11 @@ function ContentExplorerShellInner({
           // Only open when a site is in context; menu item is disabled otherwise.
           if (siteNameForCopy) {
             setShowSiteCopy((v) => !v);
+          }
+          break;
+        case "content-site-rename":
+          if (siteNameForCopy) {
+            setShowSiteRename((v) => !v);
           }
           break;
         case "content-subfolder-copy":
@@ -1612,6 +1620,7 @@ function ContentExplorerShellInner({
             showClipboard={showClipboard}
             showSiteCreate={showSiteCreate}
             showSiteCopy={showSiteCopy}
+            showSiteRename={showSiteRename}
             showSubfolderCopy={showSubfolderCopy}
             multiSelectedCount={multiSelectedIds.size}
             hasSiteContext={hasSiteContext}
@@ -1998,6 +2007,38 @@ function ContentExplorerShellInner({
             }}
           />
         </section>
+      )}
+      {showSiteRename && siteNameForCopy && (
+        <section
+          id="explorer-site-rename-panel"
+          style={sidePanelStyle}
+          data-testid="explorer-site-rename-panel"
+          aria-label={message(EXPLORER_MSG.SITE_RENAME_PANEL_REGION)}
+        >
+          <SiteRenamePanel
+            key={`site-rename-${siteNameForCopy}`}
+            siteName={siteNameForCopy}
+            onCancel={() => setShowSiteRename(false)}
+            onRenamed={(newName) => {
+              setSelection({ folderPath: `/Sites/${newName}`, item: null });
+              setMultiSelectedIds(new Set<string>());
+              setMultiSelectedItems(new Map<string, PSPathItem>());
+              handleRefreshListAndTree();
+              setShowSiteRename(false);
+              setError(null);
+            }}
+          />
+        </section>
+      )}
+      {showSiteRename && !siteNameForCopy && (
+        <div
+          id="explorer-site-rename-hint"
+          style={sidePanelStyle}
+          data-testid="explorer-site-rename-hint"
+          role="status"
+        >
+          {message(EXPLORER_MSG.SITE_RENAME_SELECT_SITE)}
+        </div>
       )}
       {showSiteCopy && !siteNameForCopy && (
         <div

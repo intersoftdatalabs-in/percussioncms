@@ -30,6 +30,9 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.data.PSSite;
+import com.percussion.share.service.exception.PSDataServiceException;
+import com.percussion.sitemanage.data.PSSiteProperties;
+import com.percussion.sitemanage.service.IPSSiteDataService;
 import jakarta.ws.rs.WebApplicationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -139,6 +142,85 @@ class SitesAdaptorCreateUpdateDeleteTest {
         assertThrows(
             WebApplicationException.class, () -> adaptor.updateSite("NightlySite", req));
     assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void rename_duplicateName_409() {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.findSite("OtherSite")).thenReturn(new PSSite());
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.renameSite("NightlySite", "OtherSite"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void rename_blankName_400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.renameSite("NightlySite", " "));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void rename_illegalName_400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.renameSite("NightlySite", "bad/name"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void rename_nonAdmin_403() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> denied.renameSite("NightlySite", "OtherSite"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void rename_persistsViaSiteDataService() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 7));
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.findSite("RenamedSite")).thenReturn(null);
+    IPSSiteDataService data = mock(IPSSiteDataService.class);
+    PSSiteProperties props = new PSSiteProperties();
+    props.setName("NightlySite");
+    when(data.getSiteProperties("NightlySite")).thenReturn(props);
+    adaptor.setSiteDataService(data);
+    PSSite renamed = new PSSite();
+    renamed.setName("RenamedSite");
+    when(siteManager.findSite("RenamedSite")).thenReturn(null, renamed);
+
+    Site out = adaptor.renameSite("NightlySite", "RenamedSite");
+
+    assertEquals("RenamedSite", out.getName());
+    assertEquals("RenamedSite", props.getName().orElse(null));
+    verify(data).updateSiteProperties(props);
+    verify(siteManager, never()).saveSite(org.mockito.ArgumentMatchers.any(IPSSite.class));
+  }
+
+  @Test
+  void rename_existingFolder_409() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.findSite("TakenFolder")).thenReturn(null);
+    IPSSiteDataService data = mock(IPSSiteDataService.class);
+    PSSiteProperties props = new PSSiteProperties();
+    props.setName("NightlySite");
+    when(data.getSiteProperties("NightlySite")).thenReturn(props);
+    when(data.updateSiteProperties(props))
+        .thenThrow(new PSDataServiceException("Cannot rename site to an existing site folder"));
+    adaptor.setSiteDataService(data);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.renameSite("NightlySite", "TakenFolder"));
+    assertEquals(409, ex.getResponse().getStatus());
   }
 
   @Test

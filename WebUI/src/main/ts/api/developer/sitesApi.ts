@@ -608,6 +608,20 @@ export async function createSite(body: SiteWriteBody): Promise<SiteDef> {
   return unwrapSitePayload(payload);
 }
 
+export const RENAME_SITE_WIRE_ROOT = "RenameSiteRequest";
+
+/**
+ * POST /services/sites/{nameOrId}/rename — Admin. Renames the site (not a copy).
+ * Blank or illegal names are 400; non-admin is 403; an existing name is 409.
+ */
+export async function renameSite(nameOrId: string, newName: string): Promise<SiteDef> {
+  const key = encodeURIComponent(nameOrId.trim());
+  const payload = await post<unknown>(`${PATHS.SITES}/${key}/rename`, {
+    [RENAME_SITE_WIRE_ROOT]: { name: newName },
+  });
+  return unwrapSitePayload(payload);
+}
+
 /** PUT /services/sites/{nameOrId} — Admin. Updates description/baseUrl/protocol/defaults. */
 export async function updateSite(
   nameOrId: string,

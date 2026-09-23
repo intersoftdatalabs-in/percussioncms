@@ -74,6 +74,13 @@ public class SitesTestAdaptor implements ISiteAdaptor {
   }
 
   @Override
+  public Site renameSite(String nameOrId, String newName) {
+    Site site = new Site();
+    site.setName(newName != null ? newName : nameOrId);
+    return site;
+  }
+
+  @Override
   public void deleteSiteByNameOrId(String nameOrId) {
     // No-op for test adaptor
   }

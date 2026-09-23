@@ -189,6 +189,48 @@ public class SitesResource {
     }
   }
 
+  @POST
+  @Path("/{nameOrId}/rename")
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Operation(
+      summary = "Rename a site",
+      description =
+          "Explorer rename. Persists the new site name (not a copy). Jackson root wrap is"
+              + " RenameSiteRequest. Blank or illegal names are 400; non-admin is 403; an"
+              + " existing site or site folder name is 409.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Renamed",
+            content = @Content(schema = @Schema(implementation = Site.class))),
+        @ApiResponse(responseCode = "400", description = "Missing or illegal name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Site not found"),
+        @ApiResponse(responseCode = "409", description = "Name already used"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Site renameSite(@PathParam("nameOrId") String nameOrId, RenameSiteRequest body) {
+    requireNonBlank(nameOrId, "nameOrId");
+    if (body == null || StringUtils.isBlank(body.getName())) {
+      throw new WebApplicationException("Site name is required", Response.Status.BAD_REQUEST);
+    }
+    try {
+      return requireAdaptor().renameSite(nameOrId, body.getName());
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to rename site '{}' ({}): {}",
+          nameOrId,
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @DELETE
   @Path("/{nameOrId}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
