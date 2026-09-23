@@ -25,6 +25,10 @@ import {
 import { message, MSG } from "../../i18n/message";
 import { LogDetailsPanel } from "../components/LogDetailsPanel";
 import {
+  buildPublishingLogsCsv,
+  downloadPublishingLogsCsv,
+} from "../logsExport";
+import {
   buildLogRequest,
   DEFAULT_LOG_DAYS,
   DEFAULT_LOG_MAXCOUNT,
@@ -72,6 +76,7 @@ export function LogsSection({
   const [sites, setSites] = useState<PublishSiteSummary[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [exportError, setExportError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [details, setDetails] = useState<unknown>(null);
   const [detailsJob, setDetailsJob] = useState<PublishingLogEntry | null>(null);
@@ -125,6 +130,15 @@ export function LogsSection({
     () => filterLogEntries(logs, { query, status: statusFilter }),
     [logs, query, statusFilter],
   );
+
+  function onExportFiltered(): void {
+    setExportError(null);
+    try {
+      downloadPublishingLogsCsv(buildPublishingLogsCsv(visibleLogs));
+    } catch {
+      setExportError("Could not export the filtered publish logs.");
+    }
+  }
 
   function toggle(id: string): void {
     setSelected((prev) => {
@@ -296,6 +310,14 @@ export function LogsSection({
         <button
           type="button"
           style={buttonStyle}
+          onClick={onExportFiltered}
+          data-testid="logs-export-filtered"
+        >
+          Export
+        </button>
+        <button
+          type="button"
+          style={buttonStyle}
           disabled={!canPurge([...selected])}
           onClick={() => setConfirmPurge(true)}
         >
@@ -307,6 +329,11 @@ export function LogsSection({
       {error && (
         <p style={errorStyle} role="alert">
           {error}
+        </p>
+      )}
+      {exportError && (
+        <p style={errorStyle} role="alert" data-testid="publish-logs-export-error">
+          {exportError}
         </p>
       )}
       {!loading && visibleLogs.length === 0 && (
