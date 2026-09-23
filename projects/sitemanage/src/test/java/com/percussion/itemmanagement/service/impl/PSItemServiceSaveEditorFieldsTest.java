@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -34,6 +35,8 @@ import com.percussion.itemmanagement.data.PSItemEditorFields;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.pagemanagement.service.IPSTemplateService;
+import com.percussion.pathmanagement.data.PSPathItem;
+import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.linkmanagement.IPSManagedLinkDao;
 import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.publisher.IPSPublisherService;
@@ -43,6 +46,7 @@ import com.percussion.share.dao.IPSContentItemDao;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.dao.impl.PSContentItem;
 import com.percussion.share.service.IPSIdMapper;
+import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentWs;
 import jakarta.ws.rs.WebApplicationException;
@@ -54,6 +58,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
@@ -214,6 +219,116 @@ class PSItemServiceSaveEditorFieldsTest {
 
     service.saveEditorFields("42", req);
     assertEquals("7", item.getFields().get("qty"));
+    verify(contentItemDao).save(item);
+  }
+
+  @Test
+  void invalidLinkSyntaxMapsToBadRequestAndDoesNotSave() throws Exception {
+    PSItemEditorField page = new PSItemEditorField("page", "javascript:alert(1)");
+    page.setDataType("link");
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(0);
+    req.setFields(List.of(page));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveEditorFields("42", req));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+    verify(contentItemDao, never()).save(any());
+    verify(folderHelper, never()).findItem(anyString());
+    verify(folderHelper, never()).findItemById(anyString());
+    verify(linkService, never()).createLink(anyInt(), anyInt(), anyInt(), any());
+  }
+
+  @Test
+  void missingLinkTargetMapsToNotFoundAndDoesNotSave() throws Exception {
+    when(folderHelper.findItemById("999")).thenThrow(new PSNotFoundException("missing"));
+    PSItemEditorField page = new PSItemEditorField("page", "999");
+    page.setDataType("link");
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(0);
+    req.setFields(List.of(page));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveEditorFields("42", req));
+    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
+    verify(contentItemDao, never()).save(any());
+    verify(waRelService, never()).updateLocalRelationshipAsset(anyString());
+  }
+
+  @Test
+  void forbiddenLinkTargetMapsToForbiddenAndDoesNotSave() throws Exception {
+    PSValidationException denied = Mockito.mock(PSValidationException.class);
+    when(folderHelper.findItem("//Sites/Hidden/index")).thenThrow(denied);
+    PSItemEditorField page = new PSItemEditorField("page", "//Sites/Hidden/index");
+    page.setDataType("link");
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(0);
+    req.setFields(List.of(page));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveEditorFields("42", req));
+    assertEquals(Response.Status.FORBIDDEN.getStatusCode(), ex.getResponse().getStatus());
+    verify(contentItemDao, never()).save(any());
+  }
+
+  @Test
+  void clearedLinkSavesEmptyAndDoesNotLookUpATarget() throws Exception {
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
+    when(summary.getCurrentLocator()).thenReturn(new PSLocator(42, 2));
+    when(summary.getCheckoutUserName()).thenReturn("admin");
+    when(workflowHelper.isCheckedOutToCurrentUser(anyString())).thenReturn(true);
+    when(idMapper.getGuid(anyString())).thenReturn(guid);
+    when(contentWs.prepareForEdit(guid)).thenReturn(null);
+    PSContentItem item = new PSContentItem();
+    item.setId("42");
+    item.setType("percPage");
+    item.setName("Home");
+    item.setFields(new HashMap<>());
+    when(contentItemDao.find(anyString(), anyBoolean())).thenReturn(item);
+
+    PSItemEditorField page = new PSItemEditorField("page", "  ");
+    page.setDataType("link");
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(2);
+    req.setFields(List.of(page));
+
+    service.saveEditorFields("42", req);
+    assertEquals("", item.getFields().get("page"));
+    verify(folderHelper, never()).findItem(anyString());
+    verify(folderHelper, never()).findItemById(anyString());
+    verify(contentItemDao).save(item);
+  }
+
+  @Test
+  void existingLinkIdSavesWithoutCreatingARelationship() throws Exception {
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
+    when(summary.getCurrentLocator()).thenReturn(new PSLocator(42, 2));
+    when(summary.getCheckoutUserName()).thenReturn("admin");
+    when(workflowHelper.isCheckedOutToCurrentUser(anyString())).thenReturn(true);
+    when(idMapper.getGuid(anyString())).thenReturn(guid);
+    when(contentWs.prepareForEdit(guid)).thenReturn(null);
+    when(folderHelper.findItemById("594")).thenReturn(null);
+    PSContentItem item = new PSContentItem();
+    item.setId("42");
+    item.setType("percPage");
+    item.setName("Home");
+    item.setFields(new HashMap<>());
+    when(contentItemDao.find(anyString(), anyBoolean())).thenReturn(item);
+
+    PSItemEditorField page = new PSItemEditorField("page", "594");
+    page.setDataType("link");
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(2);
+    req.setFields(List.of(page));
+
+    WebApplicationException missing =
+        assertThrows(WebApplicationException.class, () -> service.saveEditorFields("42", req));
+    assertEquals(Response.Status.NOT_FOUND.getStatusCode(), missing.getResponse().getStatus());
+
+    when(folderHelper.findItemById("594")).thenReturn(Mockito.mock(PSPathItem.class));
+    service.saveEditorFields("42", req);
+    assertEquals("594", item.getFields().get("page"));
+    verify(linkService, never()).createLink(anyInt(), anyInt(), anyInt(), any());
     verify(contentItemDao).save(item);
   }
 

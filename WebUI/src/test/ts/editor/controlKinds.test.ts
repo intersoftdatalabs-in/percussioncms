@@ -52,6 +52,15 @@ describe("classifyEditorControl", () => {
     expect(
       classifyEditorControl({ control: "sys_EditBox", dataType: "maxtext" }, "description"),
     ).toBe("longtext");
+    expect(classifyEditorControl({ control: "sys_PageLink", dataType: "text" }, "page")).toBe(
+      "link",
+    );
+    expect(
+      classifyEditorControl({ control: "sys_EditBox", dataType: "link" }, "target"),
+    ).toBe("link");
+    expect(
+      classifyEditorControl({ control: "sys_RelatedContentTable" }, "slots"),
+    ).not.toBe("link");
     expect(classifyEditorControl({ control: "sys_Number", dataType: "integer" }, "qty")).toBe(
       "number",
     );

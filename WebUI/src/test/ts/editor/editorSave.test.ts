@@ -31,6 +31,15 @@ describe("editorSaveErrorReason", () => {
     ).toBe("badRequest");
   });
 
+  it("maps HTTP 404 and 403 for link targets", () => {
+    expect(editorSaveErrorReason({ status: 404, statusText: "Not Found", body: {} })).toBe(
+      "notFound",
+    );
+    expect(editorSaveErrorReason({ status: 403, statusText: "Forbidden", body: {} })).toBe(
+      "forbidden",
+    );
+  });
+
   it("maps other statuses to failed", () => {
     expect(editorSaveErrorReason(new Error("boom"))).toBe("failed");
   });

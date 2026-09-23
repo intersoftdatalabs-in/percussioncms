@@ -71,6 +71,13 @@ export const EDITOR_MSG = {
   NUMBER_INVALID_SAVE:
     "perc.ui.editor@Correct the number fields before saving.",
   NUMBER_BAD_REQUEST: "perc.ui.editor@That number could not be saved.",
+  LINK_INVALID: "perc.ui.editor@Enter a content id or a site path.",
+  LINK_INVALID_SAVE:
+    "perc.ui.editor@Correct the link fields before saving.",
+  LINK_BAD_REQUEST: "perc.ui.editor@That link could not be saved.",
+  LINK_NOT_FOUND: "perc.ui.editor@That link target was not found.",
+  LINK_FORBIDDEN: "perc.ui.editor@You are not allowed to use that link target.",
+  LINK_CLEAR: "perc.ui.editor@Clear link",
   FILE_CHOOSE: "perc.ui.editor@Choose file",
   FILE_NONE: "perc.ui.editor@No file attached",
   FILE_FORBIDDEN:
