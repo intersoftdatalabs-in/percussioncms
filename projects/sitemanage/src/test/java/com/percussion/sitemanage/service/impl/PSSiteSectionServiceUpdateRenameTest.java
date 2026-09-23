@@ -17,6 +17,7 @@
 package com.percussion.sitemanage.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -60,6 +61,7 @@ import com.percussion.webservices.publishing.IPSPublishingWs;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -177,6 +179,34 @@ class PSSiteSectionServiceUpdateRenameTest {
     verify(navService).setNavonProperties(eq(navonId), anyMap());
     verify(folderHelper, never()).saveFolderProperties(any(PSFolderProperties.class));
     verify(contentSrv, never()).checkinItems(any(), isNull());
+  }
+
+  @Test
+  void applyValidatedSectionUpdate_siteRootRenameDoesNotRewriteAcl() throws Exception {
+    IPSGuid navonId = new PSLegacyGuid(9001, -1);
+    IPSGuid folderId = new PSLegacyGuid(501, -1);
+    PSSiteSectionProperties req = new PSSiteSectionProperties();
+    req.setId("9001--1");
+    req.setTitle("Home");
+    req.setFolderName("QaRenX");
+    req.setSiteRootSection(true);
+    req.setFolderPermission(new PSFolderPermission());
+
+    when(idMapper.getGuid("9001--1")).thenReturn(navonId);
+    when(idMapper.getString(folderId)).thenReturn("501--1");
+    when(publishingWs.getItemSites(navonId)).thenReturn(Collections.singletonList(site));
+    when(site.getName()).thenReturn("QaRen");
+    when(site.isSecure()).thenReturn(false);
+    when(navService.getLandingPageFromNavnode(navonId)).thenReturn(null);
+    when(folderHelper.getParentFolderId(navonId)).thenReturn(folderId);
+    when(contentSrv.loadFolder(folderId, false)).thenReturn(new PSFolder("QaRen", 501, 1001, 1, ""));
+    doReturn(new PSSiteSection()).when(service).load(anyString());
+
+    service.applyValidatedSectionUpdate(req);
+
+    ArgumentCaptor<PSFolderProperties> saved = ArgumentCaptor.forClass(PSFolderProperties.class);
+    verify(folderHelper).saveFolderProperties(saved.capture());
+    assertNull(saved.getValue().getPermission());
   }
 
   @Test

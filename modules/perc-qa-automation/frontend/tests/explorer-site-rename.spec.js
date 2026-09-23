@@ -15,7 +15,9 @@
  */
 
 /**
- * Playwright surface: #4764 / parent #4530 — Explorer rename site.
+ * Playwright surface: #4764 / #4784 / parent #4530 — Explorer rename site.
+ * Successful rename must be HTTP 200 (publish-server CHAR(1) flag) and stay renamed.
+ * Invalid names keep the panel open with a visible error.
  *
  * Run (QA mode after perc-devctl qa-up):
  * npm run test:surface -- --path tests/explorer-site-rename.spec.js
@@ -103,7 +105,13 @@ test.describe("Explorer rename site (#4764)", () => {
       await expect(page.getByTestId("site-rename-error")).toBeVisible();
 
       await page.getByTestId("site-rename-name").fill(renamed);
+      const renamedResponse = page.waitForResponse(
+        (response) =>
+          response.url().includes("/rename") && response.request().method() === "POST",
+      );
       await page.getByTestId("site-rename-submit").click();
+      expect((await renamedResponse).status()).toBe(200);
+      await expect(page.getByTestId("site-rename-error")).toHaveCount(0);
       await expect(page.getByTestId("explorer-site-rename-panel")).toHaveCount(0, {
         timeout: 30_000,
       });
