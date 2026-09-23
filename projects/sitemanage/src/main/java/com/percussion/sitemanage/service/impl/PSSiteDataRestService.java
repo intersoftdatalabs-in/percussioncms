@@ -423,10 +423,13 @@ public class PSSiteDataRestService {
           }
         }
       }
+    } catch (PSSiteCopyStatusException e) {
+      throw e;
     } catch (WebApplicationException e) {
       throw e;
     } catch (RuntimeException e) {
       // Listing sites failed. copy() still rejects a duplicate name inside the service.
+      log.debug("Site list unavailable during copy pre-check: {}", e.toString());
     }
     try {
       // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;

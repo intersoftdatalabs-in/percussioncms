@@ -23,6 +23,7 @@ import com.percussion.share.service.exception.IPSValidationException;
 import com.percussion.share.service.exception.PSErrorUtils;
 import com.percussion.share.validation.PSErrors;
 import com.percussion.share.validation.PSValidationErrors;
+import com.percussion.sitemanage.service.impl.PSSiteCopyStatusException;
 import com.percussion.system.utils.PSSiteManageBean;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.Produces;
@@ -58,7 +59,10 @@ public class PSRuntimeExceptionMapper extends PSAbstractExceptionMapper<RuntimeE
   @Override
   @Produces(MediaType.APPLICATION_JSON)
   protected PSErrors createErrors(RuntimeException exception) {
-    if (exception instanceof IPSValidationException ve) {
+    if (exception instanceof PSSiteCopyStatusException) {
+      // Expected operator outcome (400/403/409). Do not log at error.
+      log.debug(ERROR_MESSAGE, exception);
+    } else if (exception instanceof IPSValidationException ve) {
       log.debug(ERROR_MESSAGE, exception);
       var errors = ve.getValidationErrors();
       if (errors != null) return errors;
@@ -72,6 +76,13 @@ public class PSRuntimeExceptionMapper extends PSAbstractExceptionMapper<RuntimeE
   @Override
   @Produces(MediaType.APPLICATION_JSON)
   protected Status getStatus(RuntimeException exception) {
+    // CXF may select this RuntimeException mapper ahead of
+    // PSSiteCopyStatusExceptionMapper. Honor the status the site-copy
+    // resource already chose (duplicate name is 409, not 500).
+    if (exception instanceof PSSiteCopyStatusException siteCopy) {
+      Status mapped = Status.fromStatusCode(siteCopy.status());
+      return mapped != null ? mapped : Status.INTERNAL_SERVER_ERROR;
+    }
     if (exception instanceof IPSValidationException) {
       return Status.BAD_REQUEST;
     }

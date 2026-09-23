@@ -19,9 +19,13 @@ package com.percussion.sitemanage.service.impl;
 import static com.percussion.share.service.exception.PSParameterValidationUtils.validateParameters;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.percussion.share.service.PSSiteCopyUtils;
+import com.percussion.share.web.service.PSRuntimeExceptionMapper;
+import com.percussion.sitemanage.data.PSSiteCopyRequest;
 import jakarta.ws.rs.core.Response;
+import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 
 /** Maps site-copy failures to 400 / 403 / 409 without echoing the cause text. */
@@ -82,6 +86,29 @@ class PSSiteCopyHttpStatusTest {
         new org.springframework.transaction.UnexpectedRollbackException(
             "Transaction rolled back because it has been marked as rollback-only", validation);
     assertEquals(409, PSSiteCopyHttpStatus.toException(wrapped).status());
+  }
+
+  @Test
+  void sameNameCopyIsConflictBeforeTheServiceRuns() {
+    var service = new PSSiteDataRestService(null);
+    var req = new PSSiteCopyRequest();
+    req.setSrcSite("Enterprise");
+    req.setCopySite("enterprise");
+    PSSiteCopyStatusException ex =
+        assertThrows(PSSiteCopyStatusException.class, () -> service.copy(req));
+    assertEquals(409, ex.status());
+  }
+
+  @Test
+  void runtimeMapperKeepsSiteCopyStatus() throws Exception {
+    var mapper = new PSRuntimeExceptionMapper();
+    Method getStatus =
+        PSRuntimeExceptionMapper.class.getDeclaredMethod("getStatus", RuntimeException.class);
+    getStatus.setAccessible(true);
+    var conflict = PSSiteCopyHttpStatus.failure(Response.Status.CONFLICT);
+    assertEquals(Response.Status.CONFLICT, getStatus.invoke(mapper, conflict));
+    var forbidden = PSSiteCopyHttpStatus.failure(Response.Status.FORBIDDEN);
+    assertEquals(Response.Status.FORBIDDEN, getStatus.invoke(mapper, forbidden));
   }
 
   @Test
