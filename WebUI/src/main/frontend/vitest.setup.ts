@@ -18,6 +18,20 @@ afterEach(() => {
   cleanup();
 });
 
+// Vitest 5 + jsdom 30 on the Maven-pinned Node 22.22.0 throws inside
+// URL.createObjectURL (Blob has no _buffer). Keep image-field previews testable.
+if (typeof URL !== "undefined" && typeof URL.createObjectURL === "function") {
+  const nativeCreateObjectURL = URL.createObjectURL.bind(URL);
+  URL.createObjectURL = (obj: Blob | MediaSource): string => {
+    try {
+      return nativeCreateObjectURL(obj);
+    } catch {
+      const token = Math.random().toString(16).slice(2);
+      return `blob:http://localhost/${token}`;
+    }
+  };
+}
+
 // jsdom stubs used by axe-core / chart-ish components — avoid unhandled
 // "Not implemented" errors that fail the suite with exit code 1.
 if (typeof HTMLCanvasElement !== "undefined") {
