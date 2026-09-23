@@ -47,6 +47,7 @@ import {
 } from "../api/contentExplorer/itemWorkflowApi";
 import { deleteFolderItem, findItemById } from "../api/contentExplorer/pathApi";
 import { formatApiError, isSessionRedirectError } from "../api/client";
+import { MoveDestinationPickerDialog } from "../contentExplorer/MoveDestinationPickerDialog";
 import { parsePositiveInt } from "../assembly/assemblyHostUrl";
 import { message } from "../i18n/message";
 import { mergeEditorRows, type EditorFieldRow } from "./controlKinds";
@@ -66,6 +67,14 @@ import {
   parseCopyLandingContentId,
   type EditorCopyKind,
 } from "./editorCopy";
+import {
+  canMoveFromEditor,
+  cmsFoldersEqual,
+  editorMoveErrorReason,
+  loadEditorItemPath,
+  moveEditorItemToFolder,
+  parentFolderOfItemPath,
+} from "./editorMove";
 import {
   canRecycleFromEditor,
   editorRecycleErrorReason,
@@ -190,6 +199,10 @@ export interface EditorHostProps {
   copyPromotable?: (itemId: string) => Promise<ItemCopyResult>;
   /** Test seam: confirm new copy / promotable (defaults to {@code window.confirm}). */
   confirmCopy?: (body: string) => boolean;
+  /** Test seam: pathmanagement item path for the open content id. */
+  loadItemLocation?: (itemId: string) => Promise<{ path: string }>;
+  /** Test seam: {@code POST /rest/folders/move/item}. */
+  moveItem?: (itemPath: string, targetFolderPath: string) => Promise<void>;
   /** Test seam: pathmanagement lookup of the open item. */
   resolveRecycleTarget?: (itemId: string) => Promise<EditorRecycleTarget>;
   /** Test seam: public REST item recycle ({@code DELETE /rest/folders/item}). */
@@ -403,6 +416,10 @@ export function EditorHost({
   copyItem = createNewCopy,
   copyPromotable = createPromotableVersion,
   confirmCopy,
+  loadItemLocation = async (itemId: string) => ({
+    path: await loadEditorItemPath(itemId),
+  }),
+  moveItem = moveEditorItemToFolder,
   resolveRecycleTarget = findItemById,
   recycleItem = deleteFolderItem,
   confirmRecycle,
@@ -454,6 +471,12 @@ export function EditorHost({
   const [copyBusy, setCopyBusy] = useState(false);
   const [copyErrorKey, setCopyErrorKey] = useState<string | null>(null);
   const [copyErrorDetail, setCopyErrorDetail] = useState("");
+  const [moveOpen, setMoveOpen] = useState(false);
+  const [moveSourceParent, setMoveSourceParent] = useState("");
+  const [moveBusy, setMoveBusy] = useState(false);
+  const [moveDone, setMoveDone] = useState(false);
+  const [moveErrorKey, setMoveErrorKey] = useState<string | null>(null);
+  const [moveErrorDetail, setMoveErrorDetail] = useState("");
   const [recycleBusy, setRecycleBusy] = useState(false);
   const [recycleDone, setRecycleDone] = useState(false);
   const [recycleErrorKey, setRecycleErrorKey] = useState<string | null>(null);
@@ -1136,6 +1159,101 @@ export function EditorHost({
     }
   }
 
+  function moveErrorKeyFor(
+    reason: ReturnType<typeof editorMoveErrorReason>,
+  ): string {
+    if (reason === "forbidden") {
+      return EDITOR_MSG.MOVE_FORBIDDEN;
+    }
+    if (reason === "not_found") {
+      return EDITOR_MSG.MOVE_NOT_FOUND;
+    }
+    if (reason === "conflict") {
+      return EDITOR_MSG.MOVE_CONFLICT;
+    }
+    return EDITOR_MSG.MOVE_FAILED;
+  }
+
+  async function handleMoveOpen(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    if (!canMoveFromEditor(mode)) {
+      setMoveErrorDetail("");
+      setMoveErrorKey(EDITOR_MSG.MOVE_UNAVAILABLE);
+      return;
+    }
+    setMoveBusy(true);
+    setMoveDone(false);
+    setMoveErrorKey(null);
+    setMoveErrorDetail("");
+    try {
+      const located = await loadItemLocation(String(contentId));
+      const parent = parentFolderOfItemPath(located.path);
+      if (!parent) {
+        setMoveErrorKey(EDITOR_MSG.MOVE_NOT_FOUND);
+        setMoveErrorDetail("");
+        return;
+      }
+      setMoveSourceParent(parent);
+      setMoveOpen(true);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = editorMoveErrorReason(err);
+      setMoveErrorKey(moveErrorKeyFor(reason));
+      setMoveErrorDetail(formatApiError(err, message(moveErrorKeyFor(reason))));
+    } finally {
+      setMoveBusy(false);
+    }
+  }
+
+  async function handleMovePick(targetFolderPath: string): Promise<void> {
+    setMoveOpen(false);
+    if (contentId == null || !canMoveFromEditor(mode)) {
+      return;
+    }
+    const target = targetFolderPath.trim();
+    if (!target) {
+      return;
+    }
+    if (cmsFoldersEqual(moveSourceParent, target)) {
+      setMoveErrorDetail("");
+      setMoveErrorKey(EDITOR_MSG.MOVE_SAME_FOLDER);
+      return;
+    }
+    setMoveBusy(true);
+    setMoveDone(false);
+    setMoveErrorKey(null);
+    setMoveErrorDetail("");
+    try {
+      const located = await loadItemLocation(String(contentId));
+      const source = String(located.path ?? "").trim();
+      const parent = parentFolderOfItemPath(source);
+      if (!source || !parent) {
+        setMoveErrorKey(EDITOR_MSG.MOVE_NOT_FOUND);
+        return;
+      }
+      if (cmsFoldersEqual(parent, target)) {
+        setMoveErrorKey(EDITOR_MSG.MOVE_SAME_FOLDER);
+        return;
+      }
+      await moveItem(source, target);
+      setMoveSourceParent(target);
+      setMoveDone(true);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = editorMoveErrorReason(err);
+      setMoveErrorKey(moveErrorKeyFor(reason));
+      setMoveErrorDetail(formatApiError(err, message(moveErrorKeyFor(reason))));
+    } finally {
+      setMoveBusy(false);
+    }
+  }
+
   function recycleErrorKeyFor(
     reason: ReturnType<typeof editorRecycleErrorReason> | "folder",
   ): string {
@@ -1497,6 +1615,7 @@ export function EditorHost({
   const showPublish = canPublishFromEditor(mode, publishKind);
   const showPreview = canPreviewFromEditor(mode, publishKind);
   const showCopy = canCopyFromEditor(mode) && contentId != null;
+  const showMove = canMoveFromEditor(mode) && contentId != null;
   const showRecycle = canRecycleFromEditor(mode) && contentId != null;
   const showRestore = canRestoreFromEditor(mode) && contentId != null;
   const showCreate = canCreateFromEditor(mode);
@@ -1567,6 +1686,17 @@ export function EditorHost({
               onClick={() => void handlePublish()}
             >
               {message(publishBusy ? EDITOR_MSG.PUBLISHING : EDITOR_MSG.PUBLISH_NOW)}
+            </button>
+          ) : null}
+          {showMove ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-move"
+              disabled={moveBusy || loading || payload == null || saving}
+              onClick={() => void handleMoveOpen()}
+            >
+              {message(moveBusy ? EDITOR_MSG.MOVING : EDITOR_MSG.MOVE_TO_FOLDER)}
             </button>
           ) : null}
           {showCopy ? (
@@ -1795,6 +1925,25 @@ export function EditorHost({
                 {copyErrorDetail ? ` ${copyErrorDetail}` : ""}
               </div>
             ) : null}
+            {moveDone ? (
+              <div
+                className={styles.status}
+                role="status"
+                data-testid="editor-move-done"
+              >
+                {message(EDITOR_MSG.MOVE_DONE)}
+              </div>
+            ) : null}
+            {moveErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-move-error"
+              >
+                {message(moveErrorKey)}
+                {moveErrorDetail ? ` ${moveErrorDetail}` : ""}
+              </div>
+            ) : null}
             {recycleErrorKey ? (
               <div
                 className={styles.status}
@@ -1981,6 +2130,15 @@ export function EditorHost({
           </>
         )}
       </div>
+      {moveOpen ? (
+        <MoveDestinationPickerDialog
+          defaultPath={moveSourceParent}
+          onPick={(target) => {
+            void handleMovePick(target);
+          }}
+          onCancel={() => setMoveOpen(false)}
+        />
+      ) : null}
     </div>
   );
 }

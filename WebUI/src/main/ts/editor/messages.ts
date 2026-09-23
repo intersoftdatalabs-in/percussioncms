@@ -135,6 +135,20 @@ export const EDITOR_MSG = {
   COPY_FORBIDDEN: "perc.ui.editor@You are not allowed to copy this item.",
   COPY_NOT_FOUND: "perc.ui.editor@This item was not found.",
   COPY_UNAVAILABLE: "perc.ui.editor@Copy is only available while editing an item.",
+  MOVE_TO_FOLDER: "perc.ui.editor@Move to folder",
+  MOVING: "perc.ui.editor@Moving…",
+  MOVE_DONE:
+    "perc.ui.editor@Item moved. This editor is still open on the same item.",
+  MOVE_FAILED: "perc.ui.editor@Could not move this item.",
+  MOVE_FORBIDDEN: "perc.ui.editor@You are not allowed to move this item.",
+  MOVE_NOT_FOUND:
+    "perc.ui.editor@This item or the destination folder was not found.",
+  MOVE_CONFLICT:
+    "perc.ui.editor@That folder already has an item with this name, or the destination is not a folder.",
+  MOVE_SAME_FOLDER:
+    "perc.ui.editor@Choose a different folder. This item is already there.",
+  MOVE_UNAVAILABLE:
+    "perc.ui.editor@Move is only available while editing an item.",
   RECYCLE: "perc.ui.editor@Recycle",
   RECYCLING: "perc.ui.editor@Recycling…",
   CONFIRM_RECYCLE:

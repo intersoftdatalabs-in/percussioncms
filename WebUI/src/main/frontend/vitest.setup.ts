@@ -20,6 +20,7 @@ afterEach(() => {
 
 // Vitest 5 + jsdom 30 on the Maven-pinned Node 22.22.0 throws inside
 // URL.createObjectURL (Blob has no _buffer). Keep image-field previews testable.
+// revokeObjectURL can throw the same way; swallow it so editor tests stay quiet.
 if (typeof URL !== "undefined" && typeof URL.createObjectURL === "function") {
   const nativeCreateObjectURL = URL.createObjectURL.bind(URL);
   URL.createObjectURL = (obj: Blob | MediaSource): string => {
@@ -28,6 +29,14 @@ if (typeof URL !== "undefined" && typeof URL.createObjectURL === "function") {
     } catch {
       const token = Math.random().toString(16).slice(2);
       return `blob:http://localhost/${token}`;
+    }
+  };
+  const nativeRevoke = URL.revokeObjectURL?.bind(URL);
+  URL.revokeObjectURL = (url: string): void => {
+    try {
+      nativeRevoke?.(url);
+    } catch {
+      // ignore broken jsdom revoke
     }
   };
 }
