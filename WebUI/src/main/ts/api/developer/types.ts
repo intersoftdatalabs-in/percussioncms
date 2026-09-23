@@ -70,6 +70,8 @@ export interface ContentTypeFieldSummary {
   hasOutputTranslation?: boolean;
   control?: string;
   fieldSet?: string | null;
+  /** Control parameters when the content-type GET includes them (numeric min/max). */
+  controlProperties?: ContentTypeControlProperty[];
 }
 
 /** One control parameter name/value (CD-07 GET/PUT .../controlProperties). */

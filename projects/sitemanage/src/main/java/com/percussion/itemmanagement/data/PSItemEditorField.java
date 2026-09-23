@@ -25,6 +25,15 @@ public class PSItemEditorField {
   private String name;
   private String value;
 
+  /** Catalog data type when the editor knows it ({@code integer}, {@code number}, {@code float}). */
+  private String dataType;
+
+  /** Inclusive lower bound for a numeric field; blank when unset. */
+  private String minimum;
+
+  /** Inclusive upper bound for a numeric field; blank when unset. */
+  private String maximum;
+
   public PSItemEditorField() {}
 
   public PSItemEditorField(String name, String value) {
@@ -46,5 +55,29 @@ public class PSItemEditorField {
 
   public void setValue(String value) {
     this.value = value;
+  }
+
+  public String getDataType() {
+    return dataType;
+  }
+
+  public void setDataType(String dataType) {
+    this.dataType = dataType;
+  }
+
+  public String getMinimum() {
+    return minimum;
+  }
+
+  public void setMinimum(String minimum) {
+    this.minimum = minimum;
+  }
+
+  public String getMaximum() {
+    return maximum;
+  }
+
+  public void setMaximum(String maximum) {
+    this.maximum = maximum;
   }
 }

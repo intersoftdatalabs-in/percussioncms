@@ -1627,6 +1627,179 @@ describe("EditorHost HTML field save (#4680)", () => {
     expect(area.readOnly).toBe(true);
     expect(screen.queryByTestId("editor-save")).toBeNull();
   });
+
+  it("saves an in-range sys_Number and blocks non-numeric input", async () => {
+    const saveFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percPage",
+      name: "Home",
+      checkoutUser: "admin",
+      fields: [
+        { name: "sys_title", value: "Home" },
+        { name: "qty", value: "7" },
+      ],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percPage",
+                  name: "Home",
+                  checkoutUser: "admin",
+                  fields: [
+                    { name: "sys_title", value: "Home" },
+                    { name: "qty", value: "1" },
+                  ],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox", dataType: "text" },
+                    {
+                      name: "qty",
+                      label: "Quantity",
+                      control: "sys_Number",
+                      dataType: "integer",
+                      controlProperties: [
+                        { name: "minimum", value: "0" },
+                        { name: "maximum", value: "10" },
+                      ],
+                    },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-qty")).toBeTruthy();
+    });
+    const input = screen.getByTestId("editor-field-qty") as HTMLInputElement;
+    expect(input.getAttribute("data-editor-kind")).toBe("number");
+    fireEvent.change(input, { target: { value: "abc" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/valid number/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("editor-field-qty"), { target: { value: "11" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/range/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("editor-field-qty"), { target: { value: "7" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const sent = saveFields.mock.calls[0][1] as {
+      fields: { name: string; value: string; dataType?: string; minimum?: string; maximum?: string }[];
+    };
+    const qty = sent.fields.find((field) => field.name === "qty");
+    expect(qty).toMatchObject({
+      value: "7",
+      dataType: "integer",
+      minimum: "0",
+      maximum: "10",
+    });
+  });
+
+  it("maps a numeric fields HTTP 400 onto the number field", async () => {
+    const saveFields = vi.fn().mockRejectedValue({
+      status: 400,
+      body: { message: 'Field "qty" is not a valid number.' },
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percPage",
+                  name: "Home",
+                  checkoutUser: "admin",
+                  fields: [{ name: "qty", value: "1" }],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    {
+                      name: "qty",
+                      label: "Quantity",
+                      control: "sys_Number",
+                      dataType: "integer",
+                    },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-qty")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-qty"), { target: { value: "4" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(/number could not be saved/i);
+  });
+
+  it("keeps a number field read-only in view mode", async () => {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percPage",
+                  name: "Home",
+                  checkoutUser: "",
+                  fields: [{ name: "qty", value: "3" }],
+                })}
+                loadType={async () => ({
+                  fields: [
+                    {
+                      name: "qty",
+                      label: "Quantity",
+                      control: "sys_Number",
+                      dataType: "integer",
+                    },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    const input = screen.getByTestId("editor-field-qty") as HTMLInputElement;
+    expect(input.readOnly).toBe(true);
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+  });
 });
 
 describe("EditorHost workflow transitions (#4539)", () => {

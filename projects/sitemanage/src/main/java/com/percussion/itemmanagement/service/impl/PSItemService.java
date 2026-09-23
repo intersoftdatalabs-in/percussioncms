@@ -432,6 +432,7 @@ public class PSItemService implements IPSItemService {
       }
       try {
         PSItemEditorFieldsMapper.rejectEmbeddedNul(req.getFields());
+        PSItemEditorFieldsMapper.rejectInvalidNumeric(req.getFields());
       } catch (IllegalArgumentException e) {
         throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
       }
