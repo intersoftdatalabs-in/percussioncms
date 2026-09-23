@@ -739,6 +739,27 @@ export async function emptyRecycleBin(): Promise<void> {
 }
 
 /**
+ * Permanently purge one recycled item via {@code DELETE /rest/folders/recycle/{guid}}.
+ * HTTP 403/404/409 propagate as {@link ApiError}.
+ */
+export function foldersPurgeItemUrl(guid: string): string {
+  const id = encodeURIComponent(String(guid ?? "").trim());
+  return `${PATHS.FOLDERS_PURGE_ITEM}/${id}`;
+}
+
+export async function purgeRecycledItem(guid: string): Promise<void> {
+  const id = String(guid ?? "").trim();
+  if (!id) {
+    throw Object.assign(new Error("guid is required"), {
+      status: 404,
+      statusText: "Not Found",
+      body: {},
+    });
+  }
+  await del<unknown>(foldersPurgeItemUrl(id));
+}
+
+/**
  * Jackson {@code @JsonRootName("FolderProperties")} for sitemanage
  * {@code PSFolderProperties}. {@code JacksonContextResolver} enables
  * WRAP_ROOT_VALUE / UNWRAP_ROOT_VALUE, so GET responses and POST bodies use

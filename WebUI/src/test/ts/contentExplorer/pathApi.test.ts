@@ -24,6 +24,8 @@ import {
   deleteItem,
   foldersDeleteItemUrl,
   foldersRestoreItemUrl,
+  foldersPurgeItemUrl,
+  purgeRecycledItem,
   restoreRecycledItem,
   emptyRecycleBin,
   wrapDeleteFolderCriteria,
@@ -385,6 +387,14 @@ describe("pathmanagement URL shape (no double-slash)", () => {
     const cap = mockJson({ Status: { statusCode: 200, message: "Ok" } });
     await emptyRecycleBin();
     expect(cap.lastUrl()).toContain("/rest/folders/recycle/empty");
+  });
+
+  it("purgeRecycledItem DELETEs one recycled guid (#4763)", async () => {
+    const cap = mockJson({ Status: { statusCode: 200, message: "Ok" } });
+    await purgeRecycledItem("1-101-9");
+    expect(cap.lastUrl()).toContain("/rest/folders/recycle/1-101-9");
+    expect(cap.lastUrl()).not.toContain("/recycle/empty");
+    expect(foldersPurgeItemUrl("1-101-9")).toContain("/folders/recycle/1-101-9");
   });
 
   it("deleteFolderItem DELETEs public REST folders/item path (#4602)", async () => {
