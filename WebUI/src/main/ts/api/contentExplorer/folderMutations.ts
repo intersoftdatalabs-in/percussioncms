@@ -40,6 +40,7 @@ import {
   deleteFolderItem as pathDeleteFolderItem,
   deleteItem as pathDeleteItem,
   restoreRecycledItem as pathRestoreRecycledItem,
+  emptyRecycleBin as pathEmptyRecycleBin,
   moveFolder as pathMoveFolder,
   moveFolderItem as pathMoveFolderItem,
   moveItem as pathMoveItem,
@@ -221,6 +222,11 @@ export async function deleteFolderItem(itemPath: string): Promise<void> {
 /** Restore a recycled item/folder by GUID via public REST. */
 export async function restoreRecycledItem(guid: string): Promise<void> {
   await pathRestoreRecycledItem(guid);
+}
+
+/** Permanently empty the recycle bin via public REST. */
+export async function emptyRecycleBin(): Promise<void> {
+  await pathEmptyRecycleBin();
 }
 
 /** Re-export flag helpers for call sites / tests. */

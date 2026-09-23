@@ -23,6 +23,7 @@ import com.percussion.pathmanagement.service.IPSPathService;
 import com.percussion.pathmanagement.service.IPSPathService.PSPathServiceException;
 import com.percussion.recycle.data.PSEmptyRecycleResult;
 import com.percussion.recycle.service.IPSEmptyRecycleService;
+import com.percussion.recycle.service.IPSEmptyRecycleService.PSEmptyRecycleNotFoundException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.service.exception.PSDataServiceException;
@@ -65,14 +66,22 @@ public class PSEmptyRecycleService implements IPSEmptyRecycleService {
 
   @Override
   public PSEmptyRecycleResult emptyRecyclingBin()
-      throws PSDataServiceException, PSEmptyRecycleException, PSEmptyRecycleNotAuthorizedException {
+      throws PSDataServiceException,
+          PSEmptyRecycleException,
+          PSEmptyRecycleNotAuthorizedException,
+          PSEmptyRecycleNotFoundException {
     requireAdmin();
 
     PSEmptyRecycleResult result = new PSEmptyRecycleResult();
     List<PSPathItem> children;
     try {
       children = pathService.findChildren(RECYCLING_FINDER_ROOT);
+    } catch (IPSPathService.PSPathNotFoundServiceException e) {
+      throw new PSEmptyRecycleNotFoundException("Recycling bin was not found", e);
     } catch (PSPathServiceException e) {
+      if (e.getCause() instanceof IPSPathService.PSPathNotFoundServiceException) {
+        throw new PSEmptyRecycleNotFoundException("Recycling bin was not found", e);
+      }
       throw new PSEmptyRecycleException(
           "Failed to list Recycling bin children: " + e.getMessage(), e);
     } catch (PSDataServiceException e) {

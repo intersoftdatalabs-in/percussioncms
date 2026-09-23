@@ -80,6 +80,13 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@The recycled item was not found",
   ACTION_RESTORE_CONFLICT:
     "perc.ui.explorer@Could not restore the item (destination already has that name)",
+  ACTION_EMPTY_RECYCLE: "perc.ui.explorer@Empty recycle bin",
+  ACTION_EMPTY_RECYCLE_NOT_FOUND:
+    "perc.ui.explorer@The recycle bin was not found",
+  ACTION_EMPTY_RECYCLE_CONFLICT:
+    "perc.ui.explorer@Could not empty the recycle bin (one or more items could not be purged)",
+  CONFIRM_EMPTY_RECYCLE:
+    "perc.ui.explorer@Permanently empty the recycle bin? This cannot be undone.",
   CONFIRM_DELETE_TITLE: "perc.ui.explorer@Delete Confirmation",
   CONFIRM_DELETE_BODY:
     "perc.ui.explorer@Are you sure you want to delete this item?",

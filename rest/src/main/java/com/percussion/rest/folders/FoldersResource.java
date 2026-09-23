@@ -282,6 +282,51 @@ public class FoldersResource {
   }
 
   /**
+   * Permanently empty the Recycling bin.
+   *
+   * @return status of the empty operation
+   */
+  @POST
+  @Path("/recycle/empty")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Empty the recycle bin",
+      description =
+          "POST to permanently purge every item in the Recycling bin. Explorer uses this after"
+              + " an explicit confirm. Missing Recycling root is 404; non-admin callers 403;"
+              + " items that cannot be purged are 409 and must not be treated as success."
+              + " An already-empty bin returns 200.",
+      responses = {
+        @ApiResponse(responseCode = "404", description = "Recycling bin not found"),
+        @ApiResponse(responseCode = "403", description = "Not authorized to empty the bin"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Empty conflicts (one or more items could not be purged)"),
+        @ApiResponse(responseCode = "500", description = "Error"),
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = Status.class)))
+      })
+  public Status emptyRecycleBin() {
+    try {
+      folderAdaptor.emptyRecycleBin(uriInfo.getBaseUri());
+      return new Status(200, "Ok");
+    } catch (NotAuthorizedException | FolderNotFoundException e) {
+      throw e;
+    } catch (NotFoundException nfe) {
+      throw nfe;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (BackendException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /**
    * Delete a folder item below root of site
    *
    * @param itempath the path to the item

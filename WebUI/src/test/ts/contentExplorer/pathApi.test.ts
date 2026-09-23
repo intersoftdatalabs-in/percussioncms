@@ -25,6 +25,7 @@ import {
   foldersDeleteItemUrl,
   foldersRestoreItemUrl,
   restoreRecycledItem,
+  emptyRecycleBin,
   wrapDeleteFolderCriteria,
   folderDeleteGuid,
   encodePath,
@@ -378,6 +379,12 @@ describe("pathmanagement URL shape (no double-slash)", () => {
     expect(foldersRestoreItemUrl("1-101-9")).toContain(
       "/folders/recycle/restore/1-101-9",
     );
+  });
+
+  it("emptyRecycleBin POSTs public REST recycle empty (#4762)", async () => {
+    const cap = mockJson({ Status: { statusCode: 200, message: "Ok" } });
+    await emptyRecycleBin();
+    expect(cap.lastUrl()).toContain("/rest/folders/recycle/empty");
   });
 
   it("deleteFolderItem DELETEs public REST folders/item path (#4602)", async () => {

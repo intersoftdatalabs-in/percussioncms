@@ -114,6 +114,11 @@ public class FolderTestAdaptor implements IFolderAdaptor {
   }
 
   @Override
+  public void emptyRecycleBin(URI baseURI) {
+    // No-op for test adaptor
+  }
+
+  @Override
   public void renameFolderItem(URI baseURI, String itemPath, String newName) {
     // No-op for test adaptor
   }

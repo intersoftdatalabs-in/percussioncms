@@ -54,6 +54,7 @@ function makeHandlers(): {
     onCopy: [],
     onDelete: [],
     onRestore: [],
+    onEmptyRecycle: [],
   };
   const handlers: ReducedActionHandlers = {
     onOpen: (item) => calls.onOpen.push(item),
@@ -67,6 +68,7 @@ function makeHandlers(): {
       calls.onCopy.push({ item, targetPath }),
     onDelete: async (item) => calls.onDelete.push(item),
     onRestore: async (item) => calls.onRestore.push(item),
+    onEmptyRecycle: async () => calls.onEmptyRecycle.push(true),
     prompt: () => null,
     confirm: () => false,
   };
@@ -601,6 +603,85 @@ describe("ReducedActions", () => {
       type: "percSimpleTextAsset",
     });
     expect(urls.at(-1)).toContain("/rest/folders/recycle/restore/1-101-9");
+  });
+
+  it("enables Empty recycle bin on a Recycling folder and confirms (#4762)", async () => {
+    const { handlers, calls } = makeHandlers();
+    handlers.confirm = () => true;
+    render(
+      <ReducedActions
+        item={null}
+        folder={{
+          id: "recycle-root",
+          path: "/Recycling",
+          name: "Recycling",
+          type: "folder",
+          accessLevel: "WRITE",
+        }}
+        handlers={handlers}
+      />,
+    );
+    const btn = screen.getByTestId("action-empty-recycle");
+    expect(btn).toBeEnabled();
+    fireEvent.click(btn);
+    await waitFor(() => expect(calls.onEmptyRecycle).toHaveLength(1));
+  });
+
+  it("does not empty the bin when confirm is cancelled (#4762)", async () => {
+    const { handlers, calls } = makeHandlers();
+    handlers.confirm = () => false;
+    render(
+      <ReducedActions
+        item={null}
+        folder={{
+          id: "recycle-root",
+          path: "/Recycling",
+          name: "Recycling",
+          type: "folder",
+        }}
+        handlers={handlers}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-empty-recycle"));
+    expect(calls.onEmptyRecycle).toHaveLength(0);
+  });
+
+  it("default onEmptyRecycle POSTs public REST recycle empty (#4762)", async () => {
+    const handlers = defaultReducedActionHandlers();
+    const urls: string[] = [];
+    mockFetch(async (input) => {
+      urls.push(typeof input === "string" ? input : (input as Request).url);
+      return new Response(JSON.stringify({ Status: { statusCode: 200, message: "Ok" } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await handlers.onEmptyRecycle();
+    expect(urls.at(-1)).toContain("/rest/folders/recycle/empty");
+  });
+
+  it("maps empty-bin 409 to an error and does not swallow it (#4762)", async () => {
+    const errors: string[] = [];
+    const handlers = defaultReducedActionHandlers();
+    mockFetch(async () =>
+      new Response("conflict", { status: 409, statusText: "Conflict" }),
+    );
+    render(
+      <ReducedActions
+        item={null}
+        folder={{
+          id: "recycle-root",
+          path: "/Recycling",
+          name: "Recycling",
+          type: "folder",
+        }}
+        handlers={{ ...handlers, confirm: () => true }}
+        onError={(msg) => errors.push(msg)}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-empty-recycle"));
+    await waitFor(() => expect(errors.length).toBe(1));
+    expect(errors[0].toLowerCase()).toContain("could not empty");
   });
 
   it("passes the zero serious/critical axe-core gate (admin item)", () => {

@@ -450,6 +450,12 @@ export const PATHS = {
     return `${REST_ROOT}/folders/recycle/restore`;
   },
   /**
+   * Empty the recycle bin ({@code POST FoldersResource#emptyRecycleBin}).
+   */
+  get FOLDERS_EMPTY_RECYCLE() {
+    return `${REST_ROOT}/folders/recycle/empty`;
+  },
+  /**
    * Folder recycle/delete ({@code POST} {@code PSDeleteFolderCriteria}).
    * Classic Finder uses this resource; there is no {@code /path/delete/{path}}.
    */

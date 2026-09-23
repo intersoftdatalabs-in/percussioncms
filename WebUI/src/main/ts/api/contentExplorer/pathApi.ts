@@ -731,6 +731,14 @@ export async function restoreRecycledItem(guid: string): Promise<void> {
 }
 
 /**
+ * Permanently empty the recycle bin via {@code POST /rest/folders/recycle/empty}.
+ * HTTP 403/404/409 propagate as {@link ApiError} and must not be treated as success.
+ */
+export async function emptyRecycleBin(): Promise<void> {
+  await post<unknown>(PATHS.FOLDERS_EMPTY_RECYCLE, {});
+}
+
+/**
  * Jackson {@code @JsonRootName("FolderProperties")} for sitemanage
  * {@code PSFolderProperties}. {@code JacksonContextResolver} enables
  * WRAP_ROOT_VALUE / UNWRAP_ROOT_VALUE, so GET responses and POST bodies use
