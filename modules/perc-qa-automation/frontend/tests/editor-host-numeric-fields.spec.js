@@ -117,7 +117,7 @@ async function stubEditorApis(page, { putStatus, onPut } = {}) {
         contentType: "application/json",
         body: JSON.stringify(
           putStatus === 400
-            ? { Error: { message: 'Field "qty" is not a valid number.' } }
+            ? { Error: { message: "Field 'qty' is not a valid number." } }
             : SAVED,
         ),
       });

@@ -35,7 +35,7 @@ class PSItemEditorNumericTest {
   @Test
   void nonNumericAndOutOfRangeAreRejected() {
     String bad = PSItemEditorNumeric.rejectionMessage("qty", "abc", "integer", "0", "10");
-    assertTrue(bad.contains("\"qty\""));
+    assertTrue(bad.contains("'qty'"));
     assertTrue(bad.contains("not a valid number"));
     String range = PSItemEditorNumeric.rejectionMessage("qty", "11", "integer", "0", "10");
     assertTrue(range.contains("outside the allowed range"));

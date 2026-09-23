@@ -1716,7 +1716,7 @@ describe("EditorHost HTML field save (#4680)", () => {
   it("maps a numeric fields HTTP 400 onto the number field", async () => {
     const saveFields = vi.fn().mockRejectedValue({
       status: 400,
-      body: { message: 'Field "qty" is not a valid number.' },
+      body: { message: "Field 'qty' is not a valid number." },
     });
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
