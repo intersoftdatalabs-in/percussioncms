@@ -264,11 +264,11 @@ public class SitesAdaptor implements ISiteAdaptor {
     }
     if (siteManager.findSite(normalized) != null) {
       throw new WebApplicationException(
-          "Cannot rename site \""
+          "Cannot rename site '"
               + found.getName()
-              + "\" to an existing site name: \""
+              + "' to an existing site name: '"
               + normalized
-              + "\".",
+              + "'.",
           Response.Status.CONFLICT);
     }
     if (siteDataService == null) {
@@ -309,7 +309,7 @@ public class SitesAdaptor implements ISiteAdaptor {
     if (msg.toLowerCase(Locale.ROOT).contains("existing")) {
       return new WebApplicationException(
           msg.isBlank()
-              ? "Cannot rename site \"" + from + "\" to \"" + to + "\"."
+              ? "Cannot rename site '" + from + "' to '" + to + "'."
               : msg,
           Response.Status.CONFLICT);
     }
