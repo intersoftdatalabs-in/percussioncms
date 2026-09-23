@@ -53,6 +53,8 @@ import {
 import {
   extractQueueItems,
   isQueueEmpty,
+  queueItemId,
+  queueItemLabel,
 } from "../incrementalQueue";
 import { isJobStoppable, mapJobStopError } from "../jobStop";
 import {
@@ -143,6 +145,7 @@ export function SiteWorkspace({
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [jobs, setJobs] = useState<PublishingJob[]>([]);
   const [queuePreview, setQueuePreview] = useState<unknown[]>([]);
+  const [queueLoadError, setQueueLoadError] = useState<string | null>(null);
   const [relatedPreview, setRelatedPreview] = useState<unknown[]>([]);
   const [selectedRelated, setSelectedRelated] = useState<Set<string>>(
     new Set(),
@@ -305,6 +308,7 @@ export function SiteWorkspace({
     if (!selectedServerName) {
       return;
     }
+    setQueueLoadError(null);
     try {
       const page = await getIncrementalItems(siteName, selectedServerName, 1, 25);
       setQueuePreview(extractQueueItems(page));
@@ -319,12 +323,16 @@ export function SiteWorkspace({
       // Default: select none (user explicitly chooses related items to approve)
       setSelectedRelated(new Set());
       setPreviewLoaded(true);
-    } catch {
+      setQueueLoadError(null);
+    } catch (err) {
       setQueuePreview([]);
       setRelatedPreview([]);
       setSelectedRelated(new Set());
       setPreviewLoaded(false);
-      setActionMessage(message(MSG.PUBLISH_ERROR));
+      const mapped = mapPublishError(err);
+      const text = caughtErrorMessage(mapped);
+      setQueueLoadError(text);
+      setActionMessage(text);
       setActionState("error");
     }
   }
@@ -388,6 +396,7 @@ export function SiteWorkspace({
       setPreviewLoaded(false);
       setRelatedPreview([]);
       setQueuePreview([]);
+      setQueueLoadError(null);
       setSelectedRelated(new Set());
       refreshJobs();
     } catch (err) {
@@ -541,15 +550,49 @@ export function SiteWorkspace({
         </p>
       )}
 
+      {queueLoadError && (
+        <p
+          style={errorStyle}
+          role="alert"
+          data-testid="publish-incremental-queue-error"
+        >
+          {queueLoadError}
+        </p>
+      )}
+
       {previewLoaded && (
         <div style={{ marginTop: 12 }} data-testid="publish-incremental-preview">
           <h3 style={{ fontSize: "1rem" }}>
             {message(MSG.PUBLISH_INCREMENTAL)}
           </h3>
           {isQueueEmpty({ items: queuePreview }) ? (
-            <p style={emptyStyle}>{message(MSG.PUBLISH_EMPTY_QUEUE)}</p>
+            <p style={emptyStyle} data-testid="publish-incremental-queue-empty">
+              {message(MSG.PUBLISH_EMPTY_QUEUE)}
+            </p>
           ) : (
-            <p>Queue items: {queuePreview.length}</p>
+            <table style={tableStyle} data-testid="publish-incremental-queue-list">
+              <thead>
+                <tr>
+                  <th style={thStyle}>Id</th>
+                  <th style={thStyle}>Item</th>
+                </tr>
+              </thead>
+              <tbody>
+                {queuePreview.map((item, idx) => {
+                  const id = queueItemId(item);
+                  const label = queueItemLabel(item);
+                  return (
+                    <tr
+                      key={id !== "" ? id : `queue-${idx}`}
+                      data-testid="publish-incremental-queue-row"
+                    >
+                      <td style={tdStyle}>{id !== "" ? id : "—"}</td>
+                      <td style={tdStyle}>{label}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           )}
 
           {relatedPreview.length > 0 && (

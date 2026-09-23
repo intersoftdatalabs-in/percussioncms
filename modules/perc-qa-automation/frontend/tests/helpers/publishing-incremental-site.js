@@ -39,6 +39,16 @@ function isIncrementalPreviewUrl(url) {
   );
 }
 
+function isIncrementalContentListUrl(url) {
+  const raw = String(url || "");
+  return /\/sitemanage\/publish\/incremental\/content\//i.test(raw);
+}
+
+function isIncrementalRelatedListUrl(url) {
+  const raw = String(url || "");
+  return /\/sitemanage\/publish\/incremental\/relatedcontent\//i.test(raw);
+}
+
 function isIncrementalConfirmMessage(text) {
   const t = String(text || "");
   return /confirm incremental publish/i.test(t);
@@ -75,6 +85,8 @@ module.exports = {
   isIncrementalPublishUrl,
   isPubServersListUrl,
   isIncrementalPreviewUrl,
+  isIncrementalContentListUrl,
+  isIncrementalRelatedListUrl,
   isIncrementalConfirmMessage,
   mockPublishServer,
   mockIncrementalPublishResponse,

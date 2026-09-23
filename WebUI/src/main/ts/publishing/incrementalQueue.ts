@@ -56,6 +56,37 @@ export function isQueueEmpty(page: IncrementalQueuePage | null | undefined): boo
   return extractQueueItems(page).length === 0;
 }
 
+/** Content id shown on an incremental queue row (empty when the item has none). */
+export function queueItemId(item: unknown): string {
+  if (item == null || typeof item !== "object") {
+    return "";
+  }
+  const obj = item as Record<string, unknown>;
+  const raw = obj.id ?? obj.contentId ?? obj.contentid ?? obj.itemId;
+  if (raw == null || raw === "") {
+    return "";
+  }
+  return String(raw);
+}
+
+/**
+ * Title or name for an incremental queue row.
+ * Falls back to the content id, then an em dash when both are missing.
+ */
+export function queueItemLabel(item: unknown): string {
+  if (item == null || typeof item !== "object") {
+    return "—";
+  }
+  const obj = item as Record<string, unknown>;
+  const name =
+    obj.name ?? obj.title ?? obj.label ?? obj.sys_title ?? obj.fileName;
+  if (name != null && String(name).trim() !== "") {
+    return String(name);
+  }
+  const id = queueItemId(item);
+  return id !== "" ? id : "—";
+}
+
 /** Whether another page may exist given startIndex/pageSize/totalCount. */
 export function hasMorePages(
   page: IncrementalQueuePage | null | undefined,

@@ -55,6 +55,8 @@ and Design delivery-type save are separate actions.
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then choose **Incremental**. Confirm the dialog (**Confirm Incremental Publish**). The shell calls the incremental site publish API (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), optionally with related-item approval after **Incremental preview**. Success shows **Publish Job Started** plus the job id and refreshes the site **Status** list (active jobs). Dismissing confirm does not start a job. Application-level `FORBIDDEN` / `BADCONFIG` responses are failures in the workspace error region, not success. Full site publish remains a separate **Full** action.
 
+**Incremental preview** loads the queued items for the selected site and server (`GET …/sitemanage/publish/incremental/content/{site}/{server}`). Each queued item is a row with its **content id** and **title or name**. An empty queue shows the empty-queue message and no rows. If the list request fails, the workspace shows the error and does not invent rows. Removing a queue item and job-status detail are separate actions.
+
 ### Save a publish edition (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
