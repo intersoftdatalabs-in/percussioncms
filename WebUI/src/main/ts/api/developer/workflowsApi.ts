@@ -274,6 +274,21 @@ export async function setWorkflowAllowedContentTypes(
 }
 
 /**
+ * State names copied from {@code DefaultWorkflow.xml} on POST
+ * /services/workflows. The create body is name (and optional description)
+ * only; the stepped editor always loads this template. Keep the names in
+ * lockstep with that file.
+ */
+export const DEFAULT_WORKFLOW_TEMPLATE_STEPS = [
+  "Draft",
+  "Review",
+  "Pending",
+  "Live",
+  "Quick Edit",
+  "Archive",
+] as const;
+
+/**
  * Writable fields for {@code POST /services/workflows} (slice 21 create).
  * Name is required; unique (case-insensitive); letters, digits, underscore,
  * hyphen, space; max 50 chars. States, transitions, and roles come from the

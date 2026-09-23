@@ -114,6 +114,14 @@ test.describe("Developer workflow create (slice 21 / #4564)", () => {
 
     await page.locator('[data-testid="developer-wf-new"]').click();
     await expect(page.locator('[data-testid="developer-wf-create"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-wf-create-step"]')).toHaveText([
+      "Draft",
+      "Review",
+      "Pending",
+      "Live",
+      "Quick Edit",
+      "Archive",
+    ]);
 
     const saveBtn = page.locator('[data-testid="developer-wf-create-save"]');
     await expect(saveBtn).toBeDisabled();
@@ -123,6 +131,61 @@ test.describe("Developer workflow create (slice 21 / #4564)", () => {
 
     await page.locator('[data-testid="developer-wf-create-name"]').fill("Nightly QA Draft");
     await expect(saveBtn).toBeEnabled();
+    guards.assertClean();
+  });
+
+  test("cancel returns to the catalog and does not POST", async ({ page }) => {
+    test.setTimeout(120_000);
+    const guards = attachConsoleGuards(page);
+    let posts = 0;
+    page.on("request", (req) => {
+      if (req.method() === "POST" && /\/services\/workflows(?:\?|$)/.test(req.url())) {
+        posts += 1;
+      }
+    });
+    await loginAsAdmin(page);
+    await openWorkflowsCatalog(page);
+    await page.locator('[data-testid="developer-wf-new"]').click();
+    await page.locator('[data-testid="developer-wf-create-name"]').fill("Nightly Cancel WF");
+    await page.locator('[data-testid="developer-wf-create-cancel"]').click();
+    await expect(page.locator('[data-testid="developer-wf-panel"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-wf-create"]')).toHaveCount(0);
+    expect(posts, "cancel must not create").toBe(0);
+    guards.assertClean();
+  });
+
+  test("duplicate name shows the 409 alert and stays on the form", async ({
+    page,
+    request,
+  }) => {
+    test.setTimeout(120_000);
+    const guards = attachConsoleGuards(page);
+    const name = uniqueWorkflowName("Nightly Dup");
+    const headers = {
+      ...adminBasicAuthHeaders(),
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    };
+    const seeded = await request.post(`${BASE_URL}/Rhythmyx/services/workflows`, {
+      headers,
+      data: { WorkflowCreate: { name } },
+    });
+    expect(seeded.status(), "seed workflow for duplicate").toBe(200);
+    await loginAsAdmin(page);
+    await openWorkflowsCatalog(page);
+    await page.locator('[data-testid="developer-wf-new"]').click();
+    await page.locator('[data-testid="developer-wf-create-name"]').fill(name);
+    const duplicate = page.waitForResponse(
+      (res) =>
+        res.request().method() === "POST" &&
+        /\/services\/workflows(?:\?|$)/.test(res.url()),
+    );
+    await page.locator('[data-testid="developer-wf-create-save"]').click();
+    expect((await duplicate).status()).toBe(409);
+    await expect(page.locator('[data-testid="developer-wf-create-error"]')).toContainText(
+      /already exists/i,
+    );
+    await expect(page.locator('[data-testid="developer-wf-create"]')).toBeVisible();
     guards.assertClean();
   });
 

@@ -1821,6 +1821,8 @@ export const DEV_MSG_KEYS = {
   WF_FORM_NAME: "perc.ui.developer@Name",
   WF_NAME_HINT:
     "perc.ui.developer@Letters, digits, underscore, hyphen, and space; max 50 characters.",
+  WF_DEFAULT_STEPS:
+    "perc.ui.developer@Create copies the product base-workflow steps. You cannot change this set on create.",
   WF_FORM_DESCRIPTION: "perc.ui.developer@Description",
   WF_CREATE_SAVE: "perc.ui.developer@Create workflow",
   WF_CANCEL: "perc.ui.developer@Cancel",

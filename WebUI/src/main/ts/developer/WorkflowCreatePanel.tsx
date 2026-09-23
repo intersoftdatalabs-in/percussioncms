@@ -19,6 +19,7 @@ import React, { useRef, useState } from "react";
 import { isApiError } from "../api/client";
 import {
   createWorkflow,
+  DEFAULT_WORKFLOW_TEMPLATE_STEPS,
   isWorkflowCreateReady,
   normalizeWorkflowName,
   type WorkflowCreateBody,
@@ -151,6 +152,16 @@ export function WorkflowCreatePanel({
         <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
           {DEV_MSG.WF_NAME_HINT}
         </span>
+      </div>
+      <div style={fieldStyle} data-testid="developer-wf-create-steps">
+        <span>{DEV_MSG.WF_DEFAULT_STEPS}</span>
+        <ul style={{ margin: "4px 0 0", paddingLeft: "1.25rem" }}>
+          {DEFAULT_WORKFLOW_TEMPLATE_STEPS.map((step) => (
+            <li key={step} data-testid="developer-wf-create-step">
+              {step}
+            </li>
+          ))}
+        </ul>
       </div>
       <div style={fieldStyle}>
         <label htmlFor="wf-create-desc">{DEV_MSG.WF_FORM_DESCRIPTION}</label>

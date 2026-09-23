@@ -57,12 +57,16 @@ on the workflow-admin editor.
 1. Sign in as **Admin**.
 2. Open **Developer → Workflows**, or deep-link
    `spa.jsp?entry=developer&section=workflows`.
-3. Click **New workflow**.
+3. Click **New workflow**. The button is also shown when the catalog is empty.
 4. Enter a **Name** (required, unique; letters, digits, underscore, hyphen,
-   and space; max 50 characters) and an optional **Description**.
+   and space; max 50 characters) and an optional **Description**. The form
+   lists the default steps the server will copy (**Draft**, **Review**,
+   **Pending**, **Live**, **Quick Edit**, **Archive**). That set is not
+   editable on create.
 5. Click **Create workflow**. States, transitions, and roles come from the
    product base-workflow template (same backend the workflow-admin editor
-   uses). The catalog refreshes and the new workflow opens.
+   uses). **Cancel** returns to the catalog and does not create a workflow.
+   The catalog refreshes and the new workflow opens.
 6. Errors such as duplicate names (`409`), invalid names (`400`), or
    non-Admin callers (`403`) appear in the section alert.
 
