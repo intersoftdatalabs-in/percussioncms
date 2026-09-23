@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { del, get } from "../client";
 import { PATHS } from "../paths";
 import type { IncrementalQueuePage } from "./types";
 
@@ -67,6 +67,21 @@ export async function getIncrementalItems(
     `?startIndex=${startIndex}&pageSize=${pageSize}`;
   const data = await get<unknown>(url);
   return (data ?? {}) as IncrementalQueuePage;
+}
+
+/**
+ * Remove one content id from the incremental queue (HTTP 204).
+ * 403 and 404 are thrown as {@link ApiError}.
+ */
+export async function removeIncrementalQueueItem(
+  siteName: string,
+  serverName: string,
+  contentId: string,
+): Promise<void> {
+  const url =
+    `${PATHS.INCREMENTAL_LIST}${encodeSeg(siteName)}/${encodeSeg(serverName)}/` +
+    encodeSeg(contentId);
+  await del<void>(url);
 }
 
 /** Paged incremental related-items queue. */

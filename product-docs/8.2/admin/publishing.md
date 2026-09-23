@@ -55,7 +55,9 @@ and Design delivery-type save are separate actions.
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then choose **Incremental**. Confirm the dialog (**Confirm Incremental Publish**). The shell calls the incremental site publish API (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), optionally with related-item approval after **Incremental preview**. Success shows **Publish Job Started** plus the job id and refreshes the site **Status** list (active jobs). Dismissing confirm does not start a job. Application-level `FORBIDDEN` / `BADCONFIG` responses are failures in the workspace error region, not success. Full site publish remains a separate **Full** action.
 
-**Incremental preview** loads the queued items for the selected site and server (`GET …/sitemanage/publish/incremental/content/{site}/{server}`). Each queued item is a row with its **content id** and **title or name**. An empty queue shows the empty-queue message and no rows. If the list request fails, the workspace shows the error and does not invent rows. Removing a queue item and job-status detail are separate actions.
+**Incremental preview** loads the queued items for the selected site and server (`GET …/sitemanage/publish/incremental/content/{site}/{server}`). Each queued item is a row with its **content id** and **title or name**. An empty queue shows the empty-queue message and no rows. If the list request fails, the workspace shows the error and does not invent rows.
+
+**Remove from queue** on a row asks for confirmation, then calls `DELETE …/sitemanage/publish/incremental/content/{site}/{server}/{contentId}`. Confirm removes that content id from the site incremental queue for the selected server (live or staging) and the row disappears. Cancel leaves the queue unchanged. HTTP **403** (publish not allowed) and **404** (the id is not queued, or the site or server was not found) stay on the workspace as errors; the row is not removed. Job-status detail is a separate action.
 
 ### Save a publish edition (Design)
 

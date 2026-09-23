@@ -15,7 +15,23 @@
  * limitations under the License.
  */
 
+import { isApiError } from "../api/client";
 import type { IncrementalQueuePage } from "./types";
+
+export type QueueRemoveFailure = "forbidden" | "not_found" | "failed";
+
+/** Map a remove-one-item failure so 403 and 404 stay visible (not success). */
+export function queueRemoveFailure(err: unknown): QueueRemoveFailure {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return "forbidden";
+    }
+    if (err.status === 404) {
+      return "not_found";
+    }
+  }
+  return "failed";
+}
 
 /** Normalize queue payload into a stable list of items. */
 export function extractQueueItems(page: IncrementalQueuePage | null | undefined): unknown[] {

@@ -22,6 +22,7 @@ import {
   isQueueEmpty,
   queueItemId,
   queueItemLabel,
+  queueRemoveFailure,
 } from "@/publishing/incrementalQueue";
 
 describe("incrementalQueue", () => {
@@ -69,5 +70,18 @@ describe("incrementalQueue", () => {
     expect(queueItemLabel({ id: "12" })).toBe("12");
     expect(queueItemLabel({})).toBe("—");
     expect(queueItemId(null)).toBe("");
+  });
+
+  it("maps remove failures so 403 and 404 are not success", () => {
+    expect(queueRemoveFailure({ status: 403, statusText: "Forbidden", body: "" })).toBe(
+      "forbidden",
+    );
+    expect(queueRemoveFailure({ status: 404, statusText: "Not Found", body: "" })).toBe(
+      "not_found",
+    );
+    expect(queueRemoveFailure({ status: 500, statusText: "Error", body: "" })).toBe(
+      "failed",
+    );
+    expect(queueRemoveFailure(new Error("network"))).toBe("failed");
   });
 });

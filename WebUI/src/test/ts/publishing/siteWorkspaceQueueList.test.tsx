@@ -26,6 +26,7 @@ vi.mock("@/api/publishing/publishApi", () => ({
   publishIncrementalWithApproval: vi.fn(),
   getIncrementalItems: vi.fn().mockResolvedValue({ items: [], totalCount: 0 }),
   getIncrementalRelatedItems: vi.fn().mockResolvedValue({ items: [], totalCount: 0 }),
+  removeIncrementalQueueItem: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/api/publishing/serversApi", () => ({
@@ -67,12 +68,15 @@ function renderWorkspace(): void {
 
 describe("SiteWorkspace incremental queue list (#4787)", () => {
   afterEach(() => {
+    vi.restoreAllMocks();
     vi.mocked(publishApi.getIncrementalItems).mockReset();
     vi.mocked(publishApi.getIncrementalRelatedItems).mockReset();
+    vi.mocked(publishApi.removeIncrementalQueueItem).mockReset();
     vi.mocked(publishApi.getIncrementalRelatedItems).mockResolvedValue({
       items: [],
       totalCount: 0,
     });
+    vi.mocked(publishApi.removeIncrementalQueueItem).mockResolvedValue(undefined);
   });
 
   it("renders queued items as id and label rows", async () => {
@@ -135,5 +139,96 @@ describe("SiteWorkspace incremental queue list (#4787)", () => {
     });
     expect(screen.queryByTestId("publish-incremental-queue-list")).toBeNull();
     expect(screen.queryAllByTestId("publish-incremental-queue-row")).toHaveLength(0);
+  });
+
+  it("confirm removes that content id from the queue", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [
+        { id: "301", name: "Home" },
+        { id: "88", title: "About" },
+      ],
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(2);
+    });
+    const removes = screen.getAllByTestId("publish-incremental-queue-remove");
+    fireEvent.click(removes[0]);
+    await waitFor(() => {
+      expect(publishApi.removeIncrementalQueueItem).toHaveBeenCalledWith(
+        "MySite",
+        "FTP-Prod",
+        "301",
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+    });
+    expect(screen.getByTestId("publish-incremental-queue-row").textContent).toContain(
+      "88",
+    );
+  });
+
+  it("cancel leaves the queue unchanged", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [{ id: "301", name: "Home" }],
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-incremental-queue-remove")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-queue-remove"));
+    expect(publishApi.removeIncrementalQueueItem).not.toHaveBeenCalled();
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+  });
+
+  it("shows 403 and 404 without removing the row", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [{ id: "301", name: "Home" }],
+    });
+    vi.mocked(publishApi.removeIncrementalQueueItem).mockRejectedValueOnce({
+      status: 403,
+      statusText: "Forbidden",
+      body: "no",
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-incremental-queue-remove")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-queue-remove"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("publish-incremental-queue-remove-error").textContent,
+      ).toMatch(/not allowed/i);
+    });
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+
+    vi.mocked(publishApi.removeIncrementalQueueItem).mockRejectedValueOnce({
+      status: 404,
+      statusText: "Not Found",
+      body: "missing",
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-queue-remove"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("publish-incremental-queue-remove-error").textContent,
+      ).toMatch(/not on the incremental queue/i);
+    });
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
   });
 });

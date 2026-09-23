@@ -25,6 +25,7 @@ vi.mock("@/api/publishing/publishApi", () => ({
   incrementalPublishSite: vi.fn(),
   publishIncrementalWithApproval: vi.fn(),
   getIncrementalItems: vi.fn().mockResolvedValue({ items: [], totalCount: 0 }),
+  removeIncrementalQueueItem: vi.fn().mockResolvedValue(undefined),
   getIncrementalRelatedItems: vi.fn().mockResolvedValue({ items: [], totalCount: 0 }),
 }));
 

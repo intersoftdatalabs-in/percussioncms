@@ -22,6 +22,7 @@ import {
   incrementalPublishSite,
   publishIncrementalWithApproval,
   publishSite,
+  removeIncrementalQueueItem,
 } from "../../api/publishing/publishApi";
 import {
   createServer,
@@ -55,6 +56,7 @@ import {
   isQueueEmpty,
   queueItemId,
   queueItemLabel,
+  queueRemoveFailure,
 } from "../incrementalQueue";
 import { isJobStoppable, mapJobStopError } from "../jobStop";
 import {
@@ -146,6 +148,7 @@ export function SiteWorkspace({
   const [jobs, setJobs] = useState<PublishingJob[]>([]);
   const [queuePreview, setQueuePreview] = useState<unknown[]>([]);
   const [queueLoadError, setQueueLoadError] = useState<string | null>(null);
+  const [queueRemoveError, setQueueRemoveError] = useState<string | null>(null);
   const [relatedPreview, setRelatedPreview] = useState<unknown[]>([]);
   const [selectedRelated, setSelectedRelated] = useState<Set<string>>(
     new Set(),
@@ -309,6 +312,7 @@ export function SiteWorkspace({
       return;
     }
     setQueueLoadError(null);
+    setQueueRemoveError(null);
     try {
       const page = await getIncrementalItems(siteName, selectedServerName, 1, 25);
       setQueuePreview(extractQueueItems(page));
@@ -333,6 +337,37 @@ export function SiteWorkspace({
       const text = caughtErrorMessage(mapped);
       setQueueLoadError(text);
       setActionMessage(text);
+      setActionState("error");
+    }
+  }
+
+  function queueRemoveMessage(reason: ReturnType<typeof queueRemoveFailure>): string {
+    if (reason === "forbidden") {
+      return message(MSG.PUBLISH_QUEUE_REMOVE_FORBIDDEN);
+    }
+    if (reason === "not_found") {
+      return message(MSG.PUBLISH_QUEUE_REMOVE_NOT_FOUND);
+    }
+    return message(MSG.PUBLISH_QUEUE_REMOVE_FAILED);
+  }
+
+  async function removeOneQueueItem(contentId: string): Promise<void> {
+    if (!selectedServerName || contentId === "") {
+      return;
+    }
+    if (!window.confirm(message(MSG.PUBLISH_CONFIRM_REMOVE_QUEUE_ITEM))) {
+      return;
+    }
+    setQueueRemoveError(null);
+    try {
+      await removeIncrementalQueueItem(siteName, selectedServerName, contentId);
+      setQueuePreview((prev) =>
+        prev.filter((item) => queueItemId(item) !== contentId),
+      );
+      setActionState(successPublishState());
+      setActionMessage(message(MSG.PUBLISH_QUEUE_ITEM_REMOVED));
+    } catch (err) {
+      setQueueRemoveError(queueRemoveMessage(queueRemoveFailure(err)));
       setActionState("error");
     }
   }
@@ -397,6 +432,7 @@ export function SiteWorkspace({
       setRelatedPreview([]);
       setQueuePreview([]);
       setQueueLoadError(null);
+      setQueueRemoveError(null);
       setSelectedRelated(new Set());
       refreshJobs();
     } catch (err) {
@@ -550,6 +586,16 @@ export function SiteWorkspace({
         </p>
       )}
 
+      {queueRemoveError && (
+        <p
+          style={errorStyle}
+          role="alert"
+          data-testid="publish-incremental-queue-remove-error"
+        >
+          {queueRemoveError}
+        </p>
+      )}
+
       {queueLoadError && (
         <p
           style={errorStyle}
@@ -575,6 +621,7 @@ export function SiteWorkspace({
                 <tr>
                   <th style={thStyle}>Id</th>
                   <th style={thStyle}>Item</th>
+                  <th style={thStyle}>{message(MSG.PUBLISH_REMOVE_QUEUE_ITEM)}</th>
                 </tr>
               </thead>
               <tbody>
@@ -588,6 +635,17 @@ export function SiteWorkspace({
                     >
                       <td style={tdStyle}>{id !== "" ? id : "—"}</td>
                       <td style={tdStyle}>{label}</td>
+                      <td style={tdStyle}>
+                        <button
+                          type="button"
+                          style={buttonStyle}
+                          disabled={id === "" || actionState === "starting"}
+                          data-testid="publish-incremental-queue-remove"
+                          onClick={() => void removeOneQueueItem(id)}
+                        >
+                          {message(MSG.PUBLISH_REMOVE_QUEUE_ITEM)}
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
