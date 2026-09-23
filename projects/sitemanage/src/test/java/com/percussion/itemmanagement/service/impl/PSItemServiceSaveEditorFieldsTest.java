@@ -132,6 +132,39 @@ class PSItemServiceSaveEditorFieldsTest {
   }
 
   @Test
+  void nonNumericValueMapsToBadRequestAndDoesNotSave() throws Exception {
+    PSItemEditorField qty = new PSItemEditorField("qty", "abc");
+    qty.setDataType("integer");
+    qty.setMinimum("0");
+    qty.setMaximum("10");
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(0);
+    req.setFields(List.of(qty));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveEditorFields("42", req));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+    verify(contentItemDao, never()).save(any());
+    verify(contentWs, never()).prepareForEdit(any(IPSGuid.class));
+  }
+
+  @Test
+  void outOfRangeNumberMapsToBadRequestAndDoesNotSave() throws Exception {
+    PSItemEditorField qty = new PSItemEditorField("qty", "11");
+    qty.setDataType("number");
+    qty.setMinimum("0");
+    qty.setMaximum("10");
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(0);
+    req.setFields(List.of(qty));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveEditorFields("42", req));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+    verify(contentItemDao, never()).save(any());
+  }
+
+  @Test
   void matchingRevisionSavesAndReturnsLiveRevision() throws Exception {
     when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
     when(summary.getCurrentLocator()).thenReturn(new PSLocator(42, 2));
@@ -153,6 +186,34 @@ class PSItemServiceSaveEditorFieldsTest {
     PSItemEditorFields saved = service.saveEditorFields("42", req);
     assertEquals(2, saved.getRevision());
     assertEquals("Welcome", item.getFields().get("displaytitle"));
+    verify(contentItemDao).save(item);
+  }
+
+  @Test
+  void inRangeIntegerSavesTheSubmittedValue() throws Exception {
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
+    when(summary.getCurrentLocator()).thenReturn(new PSLocator(42, 2));
+    when(summary.getCheckoutUserName()).thenReturn("admin");
+    when(workflowHelper.isCheckedOutToCurrentUser(anyString())).thenReturn(true);
+    when(idMapper.getGuid(anyString())).thenReturn(guid);
+    when(contentWs.prepareForEdit(guid)).thenReturn(null);
+    PSContentItem item = new PSContentItem();
+    item.setId("42");
+    item.setType("percPage");
+    item.setName("Home");
+    item.setFields(new HashMap<>());
+    when(contentItemDao.find(anyString(), anyBoolean())).thenReturn(item);
+
+    PSItemEditorField qty = new PSItemEditorField("qty", "7");
+    qty.setDataType("integer");
+    qty.setMinimum("0");
+    qty.setMaximum("10");
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(2);
+    req.setFields(List.of(qty));
+
+    service.saveEditorFields("42", req);
+    assertEquals("7", item.getFields().get("qty"));
     verify(contentItemDao).save(item);
   }
 

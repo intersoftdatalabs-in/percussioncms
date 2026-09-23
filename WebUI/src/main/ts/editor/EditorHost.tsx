@@ -56,6 +56,7 @@ import {
 } from "./editorFieldErrors";
 import { collectUnsafeHtmlFieldErrors } from "./htmlField";
 import { collectInvalidLongTextFieldErrors } from "./longTextField";
+import { collectInvalidNumericFieldErrors } from "./numericField";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
 import {
   canCopyFromEditor,
@@ -292,6 +293,22 @@ function EditorFieldControl({
         invalid={invalid}
         required={row.required}
         onChange={(value) => onChange(row.name, value)}
+      />
+    );
+  }
+  if (row.kind === "number") {
+    return (
+      <input
+        className={`${styles.input} ${locked ? styles.readonly : ""}`}
+        data-testid={`editor-field-${row.name}`}
+        data-editor-kind="number"
+        name={row.name}
+        inputMode={row.numericInteger === false ? "decimal" : "numeric"}
+        value={row.value}
+        readOnly={locked}
+        aria-invalid={invalid ? true : undefined}
+        aria-required={row.required ? true : undefined}
+        onChange={(e) => onChange(row.name, e.target.value)}
       />
     );
   }
@@ -644,6 +661,24 @@ export function EditorHost({
       setSaving(false);
       return;
     }
+    const invalidNumbers = collectInvalidNumericFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: fieldValueAsString(draft[row.name] ?? row.value),
+        numericInteger: row.numericInteger,
+        numericMinimum: row.numericMinimum,
+        numericMaximum: row.numericMaximum,
+      })),
+      message(EDITOR_MSG.NUMBER_INVALID),
+      message(EDITOR_MSG.NUMBER_RANGE),
+    );
+    if (Object.keys(invalidNumbers).length > 0) {
+      setFieldErrors(invalidNumbers);
+      setSaveErrorKey(EDITOR_MSG.NUMBER_INVALID_SAVE);
+      setSaving(false);
+      return;
+    }
     setFieldErrors({});
     const imageFieldNames = new Set(
       rows.filter((row) => row.kind === "image").map((row) => row.name),
@@ -665,6 +700,13 @@ export function EditorHost({
           .map((row) => ({
             name: row.name,
             value: fieldValueAsString(draft[row.name] ?? row.value),
+            ...(row.kind === "number"
+              ? {
+                  dataType: row.numericInteger === false ? "float" : "integer",
+                  minimum: row.numericMinimum,
+                  maximum: row.numericMaximum,
+                }
+              : {}),
           })),
       };
       const savedPayload = await saveFields(itemId, next);
@@ -765,13 +807,34 @@ export function EditorHost({
       ) {
         mapped.fieldErrors[longNames[0]] = message(EDITOR_MSG.LONGTEXT_BAD_REQUEST);
       }
+      const numberNames = rows
+        .filter((row) => row.kind === "number")
+        .map((row) => row.name);
+      const namedNumber = Object.keys(mapped.fieldErrors).some((name) =>
+        numberNames.includes(name),
+      );
+      const number400 =
+        !html400 &&
+        !long400 &&
+        editorSaveErrorReason(err) === "badRequest" &&
+        (namedNumber ||
+          (Object.keys(mapped.fieldErrors).length === 0 && numberNames.length === 1));
+      if (
+        number400 &&
+        Object.keys(mapped.fieldErrors).length === 0 &&
+        numberNames.length === 1
+      ) {
+        mapped.fieldErrors[numberNames[0]] = message(EDITOR_MSG.NUMBER_BAD_REQUEST);
+      }
       setFieldErrors(mapped.fieldErrors);
       setSaveErrorKey(
         html400
           ? EDITOR_MSG.HTML_BAD_REQUEST
           : long400
             ? EDITOR_MSG.LONGTEXT_BAD_REQUEST
-            : EDITOR_MSG.SAVE_FAILED,
+            : number400
+              ? EDITOR_MSG.NUMBER_BAD_REQUEST
+              : EDITOR_MSG.SAVE_FAILED,
       );
       setSaveErrorDetail(mapped.banner === fallback ? "" : mapped.banner);
     } finally {

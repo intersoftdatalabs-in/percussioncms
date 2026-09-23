@@ -17,6 +17,7 @@
 
 import type { ContentTypeFieldSummary } from "../api/developer/types";
 import type { ItemEditorField, ItemEditorFields } from "./itemFieldsApi";
+import { numericMetaForSchema } from "./numericField";
 
 export type EditorWidgetKind =
   | "text"
@@ -27,13 +28,18 @@ export type EditorWidgetKind =
   | "keyword"
   | "community"
   | "date"
-  | "datetime";
+  | "datetime"
+  | "number";
 
 export interface EditorFieldRow extends ItemEditorField {
   label: string;
   readOnly: boolean;
   kind: EditorWidgetKind;
   required: boolean;
+  /** Whole number ({@code integer} / {@code number} / {@code sys_Number}). */
+  numericInteger?: boolean;
+  numericMinimum?: string;
+  numericMaximum?: string;
 }
 
 function norm(value: string | undefined | null): string {
@@ -122,12 +128,38 @@ export function classifyEditorControl(
   // sys_EditBox stays a single-line input unless the catalog data type is maxtext
   // (CLOB / long text). sys_TextArea and other textarea controls are always long text.
   if (
+    dataType === "integer" ||
+    dataType === "number" ||
+    dataType === "float" ||
+    control === "sys_number"
+  ) {
+    return "number";
+  }
+  if (
     control.includes("textarea") ||
     dataType === "maxtext"
   ) {
     return "longtext";
   }
   return "text";
+}
+
+function numericRowFields(
+  schema: ContentTypeFieldSummary | undefined,
+  kind: EditorWidgetKind,
+): Pick<EditorFieldRow, "numericInteger" | "numericMinimum" | "numericMaximum"> {
+  if (kind !== "number") {
+    return {};
+  }
+  const meta = numericMetaForSchema(schema);
+  if (!meta) {
+    return { numericInteger: true };
+  }
+  return {
+    numericInteger: meta.integer,
+    numericMinimum: meta.minimum,
+    numericMaximum: meta.maximum,
+  };
 }
 
 export function isSchemaInjectedKind(kind: EditorWidgetKind): boolean {
@@ -165,6 +197,7 @@ export function mergeEditorRows(
       readOnly: schema?.readOnly === true,
       required: isEditorFieldRequired(schema),
       kind,
+      ...numericRowFields(schema, kind),
     });
   }
 

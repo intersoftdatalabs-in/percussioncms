@@ -52,6 +52,12 @@ describe("classifyEditorControl", () => {
     expect(
       classifyEditorControl({ control: "sys_EditBox", dataType: "maxtext" }, "description"),
     ).toBe("longtext");
+    expect(classifyEditorControl({ control: "sys_Number", dataType: "integer" }, "qty")).toBe(
+      "number",
+    );
+    expect(classifyEditorControl({ control: "sys_EditBox", dataType: "float" }, "rate")).toBe(
+      "number",
+    );
   });
 });
 

@@ -119,6 +119,31 @@ public final class PSItemEditorFieldsMapper {
     }
   }
 
+  /**
+   * Numeric catalog types must be a number inside any inclusive bounds. Callers map this to HTTP
+   * 400 before writing.
+   */
+  public static void rejectInvalidNumeric(List<PSItemEditorField> updates) {
+    if (updates == null || updates.isEmpty()) {
+      return;
+    }
+    for (PSItemEditorField update : updates) {
+      if (update == null) {
+        continue;
+      }
+      String message =
+          PSItemEditorNumeric.rejectionMessage(
+              update.getName(),
+              update.getValue(),
+              update.getDataType(),
+              update.getMinimum(),
+              update.getMaximum());
+      if (message != null) {
+        throw new IllegalArgumentException(message);
+      }
+    }
+  }
+
   public static void applyUpdates(PSContentItem item, List<PSItemEditorField> updates) {
     if (item == null || updates == null || updates.isEmpty()) {
       return;
