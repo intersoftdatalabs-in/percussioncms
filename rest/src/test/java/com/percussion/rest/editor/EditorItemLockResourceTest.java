@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
@@ -79,16 +81,24 @@ class EditorItemLockResourceTest {
   @Test
   void checkinDelegates() {
     EditorItemLockInfo info = new EditorItemLockInfo("Home", "", "admin", "Assignee");
-    when(adaptor.checkin(any(), eq("42"))).thenReturn(info);
-    assertEquals("", resource.checkin("42").getCheckOutUser());
+    when(adaptor.checkin(any(), eq("42"), isNull())).thenReturn(info);
+    assertEquals("", resource.checkin("42", null).getCheckOutUser());
+  }
+
+  @Test
+  void checkinForwardsRevisionComment() {
+    EditorItemLockInfo info = new EditorItemLockInfo("Home", "", "admin", "Assignee");
+    when(adaptor.checkin(any(), eq("42"), eq("shipped copy"))).thenReturn(info);
+    assertEquals("", resource.checkin("42", "shipped copy").getCheckOutUser());
+    verify(adaptor).checkin(any(), eq("42"), eq("shipped copy"));
   }
 
   @Test
   void checkinPropagates403() {
-    when(adaptor.checkin(any(), eq("42")))
+    when(adaptor.checkin(any(), eq("42"), isNull()))
         .thenThrow(new WebApplicationException("forbidden", 403));
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, () -> resource.checkin("42"));
+        assertThrows(WebApplicationException.class, () -> resource.checkin("42", null));
     assertEquals(403, ex.getResponse().getStatus());
   }
 

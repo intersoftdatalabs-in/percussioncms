@@ -186,7 +186,7 @@ export interface EditorHostProps {
     payload: ItemEditorFields,
   ) => Promise<ItemEditorFields>;
   checkout?: (itemId: string) => Promise<EditorCheckoutUserInfo | void>;
-  checkin?: (itemId: string) => Promise<void>;
+  checkin?: (itemId: string, comment?: string) => Promise<void>;
   /** Admin force check-in of another user's checkout ({@code forceCheckIn/{id}}). */
   forceCheckin?: (itemId: string) => Promise<void>;
   /** Test seam: confirm force check-in (defaults to {@code window.confirm}). */
@@ -572,6 +572,8 @@ export function EditorHost({
   const [lockErrorKey, setLockErrorKey] = useState<string | null>(null);
   const [lockErrorDetail, setLockErrorDetail] = useState("");
   const [checkoutOk, setCheckoutOk] = useState(false);
+  const [checkinPrompt, setCheckinPrompt] = useState(false);
+  const [checkinComment, setCheckinComment] = useState("");
   const [restoreBusy, setRestoreBusy] = useState(false);
   const [restoreOpen, setRestoreOpen] = useState(false);
   const [restoreRevisions, setRestoreRevisions] = useState<ItemRevision[]>([]);
@@ -1712,11 +1714,27 @@ export function EditorHost({
       setSaveErrorDetail("");
       return;
     }
+    setCheckinComment("");
+    setCheckinPrompt(true);
+  }
+
+  function cancelCheckin(): void {
+    setCheckinPrompt(false);
+    setCheckinComment("");
+  }
+
+  async function confirmCheckin(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    const comment = checkinComment.trim();
     setLockBusy(true);
     setLockErrorKey(null);
     setLockErrorDetail("");
     try {
-      await checkin(String(contentId));
+      await checkin(String(contentId), comment.length > 0 ? comment : undefined);
+      setCheckinPrompt(false);
+      setCheckinComment("");
       setLockUser("");
       if (typeof window !== "undefined") {
         window.close();
@@ -2223,6 +2241,48 @@ export function EditorHost({
         </div>
       </header>
       <div className={styles.stage} data-testid="editor-stage">
+        {checkinPrompt ? (
+          <div
+            className={styles.form}
+            role="dialog"
+            aria-labelledby="editor-checkin-comment-title"
+            data-testid="editor-checkin-comment"
+          >
+            <p id="editor-checkin-comment-title" data-testid="editor-checkin-comment-title">
+              {message(EDITOR_MSG.CHECKIN_COMMENT)}
+            </p>
+            <p>{message(EDITOR_MSG.CHECKIN_COMMENT_HINT)}</p>
+            <label className={styles.field}>
+              <span className={styles.label}>{message(EDITOR_MSG.CHECKIN_COMMENT)}</span>
+              <textarea
+                className={styles.textarea}
+                data-testid="editor-checkin-comment-input"
+                value={checkinComment}
+                onChange={(e) => setCheckinComment(e.target.value)}
+              />
+            </label>
+            <div className={styles.actions}>
+              <button
+                type="button"
+                className={styles.button}
+                data-testid="editor-checkin-cancel"
+                disabled={lockBusy}
+                onClick={cancelCheckin}
+              >
+                {message(EDITOR_MSG.CHECKIN_CANCEL)}
+              </button>
+              <button
+                type="button"
+                className={`${styles.button} ${styles.buttonPrimary}`}
+                data-testid="editor-checkin-confirm"
+                disabled={lockBusy}
+                onClick={() => void confirmCheckin()}
+              >
+                {message(EDITOR_MSG.CHECKIN_CONFIRM)}
+              </button>
+            </div>
+          </div>
+        ) : null}
         {createOpen && showCreate ? (
           <div className={styles.form} data-testid="editor-create-panel">
             <p data-testid="editor-create-hint">{message(EDITOR_MSG.CREATE_HINT)}</p>

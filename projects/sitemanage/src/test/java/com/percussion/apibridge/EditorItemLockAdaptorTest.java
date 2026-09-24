@@ -20,6 +20,7 @@ package com.percussion.apibridge;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.itemmanagement.data.PSItemUserInfo;
@@ -86,6 +87,22 @@ class EditorItemLockAdaptorTest {
     doReturn(true).when(workflow).isModifiableByUser("42");
     when(workflow.checkIn("42")).thenReturn(new PSNoContent("checkIn"));
     assertEquals("", adaptor.checkin(base, "42").getCheckOutUser());
+  }
+
+  @Test
+  void checkinForwardsTrimmedComment() throws Exception {
+    doReturn(true).when(workflow).isModifiableByUser("42");
+    when(workflow.checkIn("42", "rev note")).thenReturn(new PSNoContent("checkIn"));
+    assertEquals("", adaptor.checkin(base, "42", "  rev note  ").getCheckOutUser());
+    verify(workflow).checkIn("42", "rev note");
+  }
+
+  @Test
+  void checkinBlankCommentUsesNoCommentOverload() throws Exception {
+    doReturn(true).when(workflow).isModifiableByUser("42");
+    when(workflow.checkIn("42")).thenReturn(new PSNoContent("checkIn"));
+    adaptor.checkin(base, "42", "   ");
+    verify(workflow).checkIn("42");
   }
 
   @Test

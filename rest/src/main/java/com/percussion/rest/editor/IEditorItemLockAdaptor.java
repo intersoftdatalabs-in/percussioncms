@@ -25,4 +25,12 @@ public interface IEditorItemLockAdaptor {
   EditorItemLockInfo checkout(URI baseUri, String itemId);
 
   EditorItemLockInfo checkin(URI baseUri, String itemId);
+
+  /**
+   * Check in with an optional revision comment. A blank comment is the same as {@link
+   * #checkin(URI, String)}.
+   */
+  default EditorItemLockInfo checkin(URI baseUri, String itemId, String comment) {
+    return checkin(baseUri, itemId);
+  }
 }

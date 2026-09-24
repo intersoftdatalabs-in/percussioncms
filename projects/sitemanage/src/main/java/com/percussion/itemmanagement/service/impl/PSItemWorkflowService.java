@@ -184,13 +184,23 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
   }
 
   @Override
+  public PSNoContent checkIn(String id) {
+    return checkInRest(id, null);
+  }
+
+  @Override
+  public PSNoContent checkIn(String id, String comment) {
+    return checkInRest(id, comment);
+  }
+
   @GET
   @Path("checkIn/{id}")
-  public PSNoContent checkIn(@PathParam("id") String id) {
+  public PSNoContent checkInRest(
+      @PathParam("id") String id, @QueryParam("comment") String comment) {
     try {
       rejectIfBlank("checkIn", "id", id);
 
-      return checkIn(id, false);
+      return checkIn(id, false, comment);
     } catch (PSItemWorkflowServiceException | PSDataServiceException e) {
       if (isUndeterminedGuidType(e)) {
         log.warn("checkIn skipping id {} with undetermined GUID type: {}", id, e.getMessage());
@@ -233,6 +243,14 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
    */
   public PSNoContent checkIn(String id, boolean ignoreRevisionCheck)
       throws PSItemWorkflowServiceException, PSDataServiceException {
+    return checkIn(id, ignoreRevisionCheck, null);
+  }
+
+  /**
+   * @param comment optional revision comment; blank is stored as {@code null}
+   */
+  public PSNoContent checkIn(String id, boolean ignoreRevisionCheck, String comment)
+      throws PSItemWorkflowServiceException, PSDataServiceException {
     var ids = new ArrayList<String>();
     ids.add(id);
 
@@ -255,7 +273,8 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
     }
 
     try {
-      contentWs.checkinItems(idMapper.getGuids(ids), null, ignoreRevisionCheck);
+      contentWs.checkinItems(
+          idMapper.getGuids(ids), org.apache.commons.lang3.StringUtils.trimToNull(comment), ignoreRevisionCheck);
       return new PSNoContent("checkIn");
     } catch (PSErrorsException e) {
       Object errObj = e.getErrors() == null ? null : e.getErrors().get(ids.get(0));

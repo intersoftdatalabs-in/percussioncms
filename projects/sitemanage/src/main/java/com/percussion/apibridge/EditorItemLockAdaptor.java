@@ -67,12 +67,21 @@ public class EditorItemLockAdaptor implements IEditorItemLockAdaptor {
 
   @Override
   public EditorItemLockInfo checkin(URI baseUri, String itemId) {
+    return checkin(baseUri, itemId, null);
+  }
+
+  @Override
+  public EditorItemLockInfo checkin(URI baseUri, String itemId, String comment) {
     requireId(itemId);
     try {
       if (!workflow.isModifiableByUser(itemId)) {
         throw new NotAuthorizedException();
       }
-      workflow.checkIn(itemId);
+      if (StringUtils.isBlank(comment)) {
+        workflow.checkIn(itemId);
+      } else {
+        workflow.checkIn(itemId, comment.trim());
+      }
       return new EditorItemLockInfo("", "", "", "");
     } catch (WebApplicationException e) {
       throw e;

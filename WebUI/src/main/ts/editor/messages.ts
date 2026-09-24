@@ -41,6 +41,11 @@ export const EDITOR_MSG = {
   REQUIRED_CHECKIN:
     "perc.ui.editor@Fill in the required fields before checking in.",
   CHECKIN: "perc.ui.editor@Check In",
+  CHECKIN_COMMENT: "perc.ui.editor@Revision comment",
+  CHECKIN_COMMENT_HINT:
+    "perc.ui.editor@Optional comment stored with this check-in. Leave blank to check in without a comment.",
+  CHECKIN_CONFIRM: "perc.ui.editor@Check in",
+  CHECKIN_CANCEL: "perc.ui.editor@Cancel",
   CHECKOUT_ACTION: "perc.ui.editor@Check Out",
   CHECKOUT_FORBIDDEN:
     "perc.ui.editor@You are not allowed to check out this item.",

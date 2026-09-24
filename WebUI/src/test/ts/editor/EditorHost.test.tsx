@@ -293,13 +293,57 @@ describe("EditorHost", () => {
       expect(screen.getByTestId("editor-checkin")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("editor-checkin"));
+    expect(checkin).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("editor-checkin-confirm"));
     await waitFor(() => {
-      expect(checkin).toHaveBeenCalledWith("42");
+      expect(checkin).toHaveBeenCalledWith("42", undefined);
     });
     expect(screen.getByTestId("editor-lock-error").textContent).toMatch(
       /not allowed to check in/i,
     );
     expect(screen.queryByTestId("editor-force-checkin")).toBeNull();
+  });
+
+  it("check-in comment cancel does not check in; confirm sends the comment", async () => {
+    const checkin = vi.fn().mockResolvedValue(undefined);
+    const close = vi.spyOn(window, "close").mockImplementation(() => undefined);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue({
+                  checkOutUser: "admin",
+                  currentUser: "admin",
+                })}
+                checkin={checkin}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-checkin")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-checkin"));
+    expect(screen.getByTestId("editor-checkin-comment")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("editor-checkin-cancel"));
+    expect(screen.queryByTestId("editor-checkin-comment")).toBeNull();
+    expect(checkin).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("editor-checkin"));
+    fireEvent.change(screen.getByTestId("editor-checkin-comment-input"), {
+      target: { value: "  shipped copy  " },
+    });
+    fireEvent.click(screen.getByTestId("editor-checkin-confirm"));
+    await waitFor(() => {
+      expect(checkin).toHaveBeenCalledWith("42", "shipped copy");
+    });
+    close.mockRestore();
   });
 
   it("force check-in of another user clears the lock only after confirm", async () => {
@@ -2538,6 +2582,7 @@ describe("EditorHost required field save errors (#4541)", () => {
       /required fields before checking in/i,
     );
     expect(checkin).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-checkin-comment")).toBeNull();
   });
 });
 
