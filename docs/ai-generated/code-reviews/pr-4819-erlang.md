@@ -1,6 +1,7 @@
-# Erlang review PR #4819
-
-Machine review via `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main` (persona erlang 0.1.1).
+<!--
+Copyright (c) 2026 Intersoft Data Labs, Inc.
+Licensed under the Apache License, Version 2.0.
+-->
 
 ## Summary
 
@@ -10,7 +11,7 @@ Machine analysis found **0** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 4 analyzed
+- Files: 5 analyzed
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 
@@ -26,3 +27,4 @@ approve
 ## Issues
 
 _No issues._
+
