@@ -20,6 +20,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSPublisherJobStatus.State;
+import com.percussion.rx.publisher.data.PSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSRxPublisherServiceInternal;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -40,6 +41,7 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.sitemanage.data.PSSitePublishItem;
 import com.percussion.sitemanage.data.PSSitePublishItemList;
 import com.percussion.sitemanage.data.PSSitePublishJob;
+import com.percussion.sitemanage.data.PSSitePublishJobDetailFields;
 import com.percussion.sitemanage.data.PSSitePublishJobList;
 import com.percussion.sitemanage.data.PSSitePublishLogDetailsRequest;
 import com.percussion.sitemanage.data.PSSitePublishLogRequest;
@@ -380,7 +382,7 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
     }
     for (long id : activeJobs) {
       IPSPublisherJobStatus status = rxPubSvc.getPublishingJobStatus(id);
-      if (isJobActive(status)) {
+      if (isJobActive(status) || isFailedJobStillListed(status)) {
         jobs.add(buildJob(id, status));
       }
     }
@@ -471,6 +473,20 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Failed jobs that the publisher still returns an id for stay on Status so the detail panel can
+   * show the publisher message. Completed-clean and cancelled jobs stay off the current list.
+   */
+  protected boolean isFailedJobStillListed(IPSPublisherJobStatus pubJobStatus) {
+    if (pubJobStatus == null) {
+      return false;
+    }
+    State state = pubJobStatus.getState();
+    return state == State.ABORTED
+        || state == State.COMPLETED_W_FAILURE
+        || state == State.PUBSERVERNEWDBCONFIG;
   }
 
   protected boolean isJobActive(IPSPublisherJobStatus pubJobStatus) {
@@ -580,6 +596,7 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
             .orElse("")
             .equalsIgnoreCase(IPSPublisherJobStatus.State.CANCELLED.toString()));
     job.setPubServerId(getPubServerId(status.getEditionId()).longValue());
+    applyOptionalJobDetail(job, status.getEditionId(), status);
     return job;
   }
 
@@ -615,7 +632,33 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
       log.error("Error trying to get server " + status.getPubServerId());
     }
     job.setPubServerName(serverName);
+    applyOptionalJobDetail(
+        job, guidMgr.makeGuid(status.getEditionId(), PSTypeEnum.EDITION), null);
     return job;
+  }
+
+  /**
+   * Copies edition name and, for a live failed job, the publisher message. Lookup failures leave
+   * the optional fields unset.
+   */
+  private void applyOptionalJobDetail(
+      PSSitePublishJob job, IPSGuid editionId, IPSPublisherJobStatus liveStatus) {
+    if (editionId != null) {
+      try {
+        IPSEdition edition = pubSvc.loadEdition(editionId);
+        if (edition != null) {
+          job.setEditionName(PSSitePublishJobDetailFields.editionNameOrNull(edition.getName()));
+        }
+      } catch (RuntimeException ex) {
+        log.debug("Edition name unavailable for {}", editionId);
+      }
+    }
+    String message = null;
+    if (liveStatus instanceof PSPublisherJobStatus concrete) {
+      message = concrete.getMessage();
+    }
+    job.setErrorMessage(
+        PSSitePublishJobDetailFields.errorTextForFailedJob(job.getStatus().orElse(""), message));
   }
 
   protected PSSitePublishItem buildItem(IPSPubItemStatus status) {

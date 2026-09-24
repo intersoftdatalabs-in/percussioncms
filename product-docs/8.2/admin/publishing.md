@@ -160,6 +160,10 @@ Clear the field to restore the full list. When jobs are loaded but none match, S
 **No jobs match this site filter**. When the server returns no jobs at all, Status still shows
 **No active publishing jobs**. **Stop** is unchanged and applies only to visible running jobs.
 
+### Job detail (Status)
+
+From **Publish** → **Status**, choose a job’s site name. A detail panel shows the job id, site, edition name when the status API includes one, and status. Optional fields that the API omits are left blank. When the job failed (including **Completed with failures**) and the API includes error text, the panel shows that text. A failed job the publisher still returns on the current-jobs list stays on Status so that text is visible. **Close** (Back) hides the panel and does **not** stop the job. **Stop** stays on the row for running jobs and still requires confirm.
+
 ### Cancel or stop an in-flight publish job
 
 From **Publish** → **Status**, or from a site workspace **Status** list, **Stop** is shown only for jobs whose status is running (not completed, failed, or already stopping). Confirm the dialog. The shell posts `POST …/publishmanagement/servers/stopPublishing/{jobId}`. Success refreshes the Status list. Dismissing the confirm does not call the server. Jobs that are not running have no Stop control. HTTP **403** (forbidden), **404** (unknown job), and **409** (job cannot be stopped — already finished or already stopping) are shown as errors in Status; they are **not** treated as success.
