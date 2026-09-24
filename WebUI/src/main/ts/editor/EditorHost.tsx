@@ -20,7 +20,7 @@
  * Rich controls persist through itemmanagement fields / binary APIs.
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import {
   getContentTypeDetail,
@@ -32,6 +32,7 @@ import type {
   ContentTypeSummary,
   KeywordSummary,
 } from "../api/developer/types";
+import type { NamedObjectRef } from "../api/developer/types";
 import type { PSLocalDependencySummary } from "../api/contentExplorer/relationship";
 import type { SlotCanvas } from "../api/contentExplorer/slotRelationshipApi";
 import type { ItemEditorBinaryMeta } from "./itemBinaryApi";
@@ -134,6 +135,19 @@ import {
 } from "./editorCreate";
 import { editorBinaryErrorReason, isImageFile } from "./editorBinary";
 import { editorSaveErrorReason } from "./editorSave";
+import {
+  changePageTemplate,
+  isAllowedPageTemplate,
+  pageTemplateIdFromFields,
+  resolvePageTemplateSelection,
+  withPageTemplateField,
+} from "./editorPageTemplate";
+import {
+  isExplorerPageType,
+  loadPageTemplates,
+  templatesFromContentType,
+  type PageTemplateChoice,
+} from "./pageTemplates";
 import {
   canRunEditorTransition,
   uniqueTransitionTriggers,
@@ -270,6 +284,13 @@ export interface EditorHostProps {
     itemIds: number[];
     locales?: string[];
   }) => Promise<CreateTranslationsResult>;
+  /** Test seam: allowed page templates ({@code loadPageTemplates}). */
+  loadTemplates?: (
+    folderPath: string,
+    contentType: string,
+  ) => Promise<PageTemplateChoice[]>;
+  /** Test seam: {@code PUT …/page/changeTemplate/{pageId}/{templateId}}. */
+  changeTemplate?: (pageId: string, templateId: string) => Promise<void>;
 }
 
 function badgeKey(mode: EditorHostMode): string {
@@ -505,6 +526,8 @@ export function EditorHost({
   loadTranslationVariants = listItemTranslationVariants,
   loadTranslationLocales = listLocales,
   createTranslationVariants = createTranslations,
+  loadTemplates = loadPageTemplates,
+  changeTemplate = changePageTemplate,
 }: EditorHostProps = {}): React.ReactElement {
   const [params, setSearchParams] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
@@ -516,6 +539,18 @@ export function EditorHost({
   const [payload, setPayload] = useState<ItemEditorFields | null>(null);
   const [schema, setSchema] = useState<ContentTypeFieldSummary[]>([]);
   const [allowedTemplateCount, setAllowedTemplateCount] = useState(0);
+  const [loadedAllowedTemplates, setLoadedAllowedTemplates] = useState<
+    NamedObjectRef[] | null
+  >(null);
+  const [pageTemplateChoices, setPageTemplateChoices] = useState<PageTemplateChoice[]>(
+    [],
+  );
+  const [pageTemplateId, setPageTemplateId] = useState("");
+  const [pageTemplateBaseline, setPageTemplateBaseline] = useState("");
+  const loadTemplatesRef = useRef(loadTemplates);
+  loadTemplatesRef.current = loadTemplates;
+  const loadItemLocationRef = useRef(loadItemLocation);
+  loadItemLocationRef.current = loadItemLocation;
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({});
   const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -619,6 +654,7 @@ export function EditorHost({
     setLockErrorDetail("");
     setCheckoutOk(false);
     setRestLockUser("");
+    setLoadedAllowedTemplates(null);
     void (async () => {
       try {
         const fields = await loadFields(itemId);
@@ -672,11 +708,15 @@ export function EditorHost({
             if (!cancelled) {
               setSchema(detail.fields ?? []);
               setAllowedTemplateCount(detail.allowedTemplates?.length ?? 0);
+              setLoadedAllowedTemplates(
+                (detail.allowedTemplates ?? []) as NamedObjectRef[],
+              );
             }
           } catch {
             if (!cancelled) {
               setSchema([]);
               setAllowedTemplateCount(0);
+              setLoadedAllowedTemplates([]);
             }
           }
         }
@@ -712,6 +752,73 @@ export function EditorHost({
     };
   }, [contentId, readOnly, promote, checkout, loadFields, loadType, loadTransitions]);
 
+  useEffect(() => {
+    if (
+      contentId == null ||
+      payload == null ||
+      !isExplorerPageType(payload.contentType)
+    ) {
+      setPageTemplateChoices([]);
+      setPageTemplateId("");
+      setPageTemplateBaseline("");
+      return;
+    }
+    if (loadedAllowedTemplates == null) {
+      return;
+    }
+    const fromType = templatesFromContentType(loadedAllowedTemplates);
+    if (fromType.length > 0) {
+      const selected = resolvePageTemplateSelection(
+        pageTemplateIdFromFields(payload.fields),
+        fromType,
+      );
+      setPageTemplateChoices(fromType);
+      setPageTemplateId(selected);
+      setPageTemplateBaseline(selected);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      let folder = "";
+      try {
+        const loc = await loadItemLocationRef.current(String(contentId));
+        folder = loc.path ?? "";
+      } catch {
+        folder = "";
+      }
+      if (!folder.trim()) {
+        if (!cancelled) {
+          setPageTemplateChoices([]);
+          setPageTemplateId("");
+          setPageTemplateBaseline("");
+        }
+        return;
+      }
+      try {
+        const choices = await loadTemplatesRef.current(folder, payload.contentType);
+        if (cancelled) {
+          return;
+        }
+        const selected = resolvePageTemplateSelection(
+          pageTemplateIdFromFields(payload.fields),
+          choices,
+        );
+        setPageTemplateChoices(choices);
+        setPageTemplateId(selected);
+        setPageTemplateBaseline(selected);
+      } catch {
+        if (!cancelled) {
+          setPageTemplateChoices([]);
+          setPageTemplateId("");
+          setPageTemplateBaseline("");
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [contentId, payload, loadedAllowedTemplates]);
+
   const rows = useMemo(() => {
     if (!payload) {
       return [];
@@ -725,10 +832,18 @@ export function EditorHost({
         })),
       },
       schema,
-    ).map((row) => ({
-      ...row,
-      value: fieldValueAsString(draft[row.name] ?? row.value),
-    }));
+    )
+      .filter(
+        (row) =>
+          !(
+            isExplorerPageType(payload.contentType) &&
+            row.name.trim().toLowerCase() === "templateid"
+          ),
+      )
+      .map((row) => ({
+        ...row,
+        value: fieldValueAsString(draft[row.name] ?? row.value),
+      }));
   }, [payload, draft, schema]);
 
   function setField(name: string, value: string): void {
@@ -890,7 +1005,21 @@ export function EditorHost({
                 : {}),
           })),
       };
+      if (
+        isExplorerPageType(payload.contentType) &&
+        isAllowedPageTemplate(pageTemplateId, pageTemplateChoices)
+      ) {
+        next.fields = withPageTemplateField(next.fields, pageTemplateId);
+      }
       const savedPayload = await saveFields(itemId, next);
+      if (
+        isExplorerPageType(payload.contentType) &&
+        isAllowedPageTemplate(pageTemplateId, pageTemplateChoices) &&
+        pageTemplateId !== pageTemplateBaseline
+      ) {
+        await changeTemplate(itemId, pageTemplateId);
+        setPageTemplateBaseline(pageTemplateId);
+      }
       try {
         for (const [field, file] of Object.entries(pendingFiles)) {
           await uploadBinary(itemId, field, file);
@@ -2017,6 +2146,26 @@ export function EditorHost({
           <span className={styles.meta} data-testid="editor-content-type">
             {message(EDITOR_MSG.TYPE_LABEL)} {payload.contentType}
           </span>
+        ) : null}
+        {pageTemplateChoices.length > 0 ? (
+          <label className={styles.meta} data-testid="editor-page-template-label">
+            {message(EDITOR_MSG.PAGE_TEMPLATE)}
+            <select
+              className={styles.input}
+              data-testid="editor-page-template"
+              value={pageTemplateId}
+              disabled={
+                !canEdit || saving || loading || pageTemplateChoices.length < 2
+              }
+              onChange={(e) => setPageTemplateId(e.target.value)}
+            >
+              {pageTemplateChoices.map((choice) => (
+                <option key={choice.id} value={choice.id}>
+                  {choice.name || choice.id}
+                </option>
+              ))}
+            </select>
+          </label>
         ) : null}
         {(lockUser || payload?.checkoutUser) ? (
           <span className={styles.meta} data-testid="editor-checkout-user">

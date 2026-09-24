@@ -21,6 +21,7 @@ export const EDITOR_MSG = {
   BADGE_VIEW: "perc.ui.editor@View",
   CONTENT_ID: "perc.ui.editor@Content",
   TYPE_LABEL: "perc.ui.editor@Type",
+  PAGE_TEMPLATE: "perc.ui.editor@Page template",
   CHECKOUT: "perc.ui.editor@Checked out to",
   MISSING_ITEM:
     "perc.ui.editor@Open an item from Explorer or Home, or create one from Home → Create.",
