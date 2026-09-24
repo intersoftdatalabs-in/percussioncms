@@ -1329,7 +1329,31 @@ public class PSSiteSectionService implements IPSSiteSectionService {
         req.getFolderName(),
         SectionAuditKind.UPDATE,
         AuditOutcome.SUCCESS);
-    return load(req.getId());
+    try {
+      return load(req.getId());
+    } catch (RuntimeException e) {
+      if (!isUnexpectedRollback(e)) {
+        throw e;
+      }
+      // Folder rename and navon save already committed. A rollback-only reload
+      // must not fail the site-rename request (#4798).
+      log.warn("Section update persisted but reload was skipped for id={}", req.getId());
+      PSSiteSection saved = new PSSiteSection();
+      saved.setId(req.getId());
+      saved.setTitle(req.getTitle());
+      return saved;
+    }
+  }
+
+  private static boolean isUnexpectedRollback(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      if (current instanceof org.springframework.transaction.UnexpectedRollbackException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   /**
@@ -1449,6 +1473,14 @@ public class PSSiteSectionService implements IPSSiteSectionService {
     PSFolderProperties folderProps = new PSFolderProperties();
     folderProps.setId(idMapper.getString(folderId));
     folderProps.setName(req.getFolderName());
+    // Partial rename DTO defaults communityId to 0. Copy the loaded folder so
+    // save does not wipe community or locale and fail the flush.
+    if (folder != null) {
+      folderProps.setCommunityId(folder.getCommunityId());
+      if (folder.getLocale() != null) {
+        folderProps.setLocale(folder.getLocale());
+      }
+    }
     // Site rename must change the folder name only. Rewriting the same ACL allocates
     // a next-number row and marks the H2 transaction rollback-only (#3797 / #4784).
     if (!req.isSiteRootSection()) {

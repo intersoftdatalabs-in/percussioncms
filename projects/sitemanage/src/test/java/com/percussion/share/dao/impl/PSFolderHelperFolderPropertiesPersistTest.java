@@ -17,6 +17,7 @@
 package com.percussion.share.dao.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.percussion.cms.objectstore.PSFolder;
@@ -59,6 +60,11 @@ class PSFolderHelperFolderPropertiesPersistTest {
     PSFolderHelper.applyPersistableFolderProperties(folder, props);
 
     assertEquals("en-us", folder.getLocale());
+  }
+
+  @Test
+  void persistAclRepairOnRead_doesNotWrite() {
+    assertFalse(PSFolderHelper.persistAclRepairOnRead());
   }
 
   @Test

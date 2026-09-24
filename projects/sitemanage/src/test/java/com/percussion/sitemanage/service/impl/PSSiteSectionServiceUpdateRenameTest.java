@@ -16,6 +16,7 @@
  */
 package com.percussion.sitemanage.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -52,6 +54,7 @@ import com.percussion.share.service.IPSIdMapper;
 import com.percussion.sitemanage.dao.IPSiteDao;
 import com.percussion.sitemanage.data.PSMoveSiteSection;
 import com.percussion.sitemanage.data.PSSiteSection;
+import org.springframework.transaction.UnexpectedRollbackException;
 import com.percussion.sitemanage.data.PSSiteSectionProperties;
 import com.percussion.sitemanage.service.IPSSiteTemplateService;
 import com.percussion.utils.guid.IPSGuid;
@@ -199,7 +202,9 @@ class PSSiteSectionServiceUpdateRenameTest {
     when(site.isSecure()).thenReturn(false);
     when(navService.getLandingPageFromNavnode(navonId)).thenReturn(null);
     when(folderHelper.getParentFolderId(navonId)).thenReturn(folderId);
-    when(contentSrv.loadFolder(folderId, false)).thenReturn(new PSFolder("QaRen", 501, 1001, 1, ""));
+    PSFolder current = new PSFolder("QaRen", 501, 1001, 1, "");
+    current.setCommunityId(42);
+    when(contentSrv.loadFolder(folderId, false)).thenReturn(current);
     doReturn(new PSSiteSection()).when(service).load(anyString());
 
     service.applyValidatedSectionUpdate(req);
@@ -207,6 +212,32 @@ class PSSiteSectionServiceUpdateRenameTest {
     ArgumentCaptor<PSFolderProperties> saved = ArgumentCaptor.forClass(PSFolderProperties.class);
     verify(folderHelper).saveFolderProperties(saved.capture());
     assertNull(saved.getValue().getPermission());
+    assertEquals(42, saved.getValue().getCommunityId());
+  }
+
+  @Test
+  void applyValidatedSectionUpdate_reloadRollbackOnly_returnsSavedSection() throws Exception {
+    IPSGuid navonId = new PSLegacyGuid(9001, -1);
+    IPSGuid folderId = new PSLegacyGuid(501, -1);
+    PSSiteSectionProperties req = new PSSiteSectionProperties();
+    req.setId("9001--1");
+    req.setTitle("Home");
+    req.setFolderName("about");
+    req.setFolderPermission(new PSFolderPermission());
+
+    when(idMapper.getGuid("9001--1")).thenReturn(navonId);
+    when(publishingWs.getItemSites(navonId)).thenReturn(Collections.singletonList(site));
+    when(site.getName()).thenReturn("Demo");
+    when(site.isSecure()).thenReturn(false);
+    when(folderHelper.getParentFolderId(navonId)).thenReturn(folderId);
+    when(contentSrv.loadFolder(folderId, false)).thenReturn(new PSFolder("about", 501, 1001, 1, ""));
+    doThrow(new UnexpectedRollbackException("rollback-only")).when(service).load(anyString());
+
+    PSSiteSection out = service.applyValidatedSectionUpdate(req);
+
+    assertEquals("9001--1", out.getId());
+    assertEquals("Home", out.getTitle());
+    verify(navService).setNavonProperties(eq(navonId), anyMap());
   }
 
   @Test

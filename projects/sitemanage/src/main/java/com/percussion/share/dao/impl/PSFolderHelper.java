@@ -719,11 +719,23 @@ public class PSFolderHelper implements IPSFolderHelper {
   private PSFolderPermission.Access getUserPermission(
       PSFolder folder, String userName, List<String> roles) {
     PSPair<Access, Boolean> result = getUserAcl(folder, userName, roles);
-    if (result.getSecond()) {
+    // getUserAcl may add Designer/Admin in memory. Persisting that on a read
+    // allocates a PSX_OBJECTACL id and marks the request rollback-only on H2
+    // (#4798). The access check uses the in-memory ACL.
+    if (result.getSecond() && persistAclRepairOnRead()) {
       contentWs.saveFolder(folder);
     }
 
     return result.getFirst();
+  }
+
+  /**
+   * Read-path ACL repair must not write. Writes belong to folder save.
+   *
+   * @return {@code false}; kept as a method so tests lock the #4798 behavior
+   */
+  static boolean persistAclRepairOnRead() {
+    return false;
   }
 
   /*
