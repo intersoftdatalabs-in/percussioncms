@@ -50,11 +50,14 @@ import {
   loadLinkedPagesForTakedown,
   publishSelectedItem,
   removeFromStagingSelectedItem,
+  removeFromStagingSelectedItems,
   resolvePublishKind,
+  describeRemoveFromStagingBatch,
   describeStageBatch,
   partitionStageSelection,
   stageSelectedItem,
   stageSelectedItems,
+  type RemoveFromStagingBatchResult,
   takedownSelectedItem,
   type StageBatchResult,
 } from "./itemPublish";
@@ -601,6 +604,86 @@ async function runStageBatch(
   };
 }
 
+async function removeFromStagingMultiSelection(
+  ctx: ActionDispatchContext,
+  items: readonly PSPathItem[],
+): Promise<ActionDispatchResult> {
+  const plan = partitionStageSelection(items);
+  if (plan.eligible.length === 0) {
+    const noted = describeRemoveFromStagingBatch({
+      removedIds: [],
+      skippedFolders: plan.skippedFolders,
+      skippedOther: plan.skippedOther,
+      failures: [],
+    });
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.UNSTAGE_NOTHING_ELIGIBLE,
+      messageText:
+        noted ?? message(EXPLORER_MSG.UNSTAGE_NOTHING_ELIGIBLE),
+    };
+  }
+  const confirmBody = message(EXPLORER_MSG.CONFIRM_REMOVE_FROM_STAGING_MULTI)
+    .split("{count}")
+    .join(String(plan.eligible.length));
+  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  const result = await runRemoveFromStagingBatch(items, ctx.onRemoveFromStaging);
+  const messageText = describeRemoveFromStagingBatch(result);
+  const anyRemoved = result.removedIds.length > 0;
+  const incomplete = result.failures.length > 0;
+  return {
+    kind: "rest",
+    refresh: anyRemoved,
+    messageText,
+    messageKey: incomplete
+      ? EXPLORER_MSG.UNSTAGE_BATCH_INCOMPLETE
+      : messageText
+        ? EXPLORER_MSG.UNSTAGE_SKIPPED_FOLDERS
+        : undefined,
+  };
+}
+
+async function runRemoveFromStagingBatch(
+  items: readonly PSPathItem[],
+  onRemove: ActionDispatchContext["onRemoveFromStaging"],
+): Promise<RemoveFromStagingBatchResult> {
+  if (!onRemove) {
+    return removeFromStagingSelectedItems(items);
+  }
+  const plan = partitionStageSelection(items);
+  const removedIds: string[] = [];
+  const failures: RemoveFromStagingBatchResult["failures"] = [];
+  for (const item of plan.eligible) {
+    try {
+      await onRemove(item);
+      removedIds.push((item.id ?? "").trim());
+    } catch (err: unknown) {
+      const status = isApiError(err) ? err.status : undefined;
+      const text =
+        err instanceof Error
+          ? err.message
+          : status != null
+            ? `HTTP ${status}`
+            : "remove from staging failed";
+      failures.push({
+        id: (item.id ?? "").trim(),
+        name: (item.name ?? item.id ?? "item").trim() || "item",
+        status,
+        message: text || "remove from staging failed",
+      });
+    }
+  }
+  return {
+    removedIds,
+    skippedFolders: plan.skippedFolders,
+    skippedOther: plan.skippedOther,
+    failures,
+  };
+}
+
 function defaultOpenWindow(
   url: string,
   target?: string,
@@ -1005,6 +1088,10 @@ export async function dispatchAction(
   }
 
   if (isRemoveFromStagingActionName(name)) {
+    const multi = ctx.selectedItems ?? [];
+    if (multi.length >= 2) {
+      return removeFromStagingMultiSelection(ctx, multi);
+    }
     if (!item || isFolder(item)) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }

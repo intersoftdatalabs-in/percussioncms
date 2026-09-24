@@ -28,6 +28,7 @@ import {
   parseLinkedPagesForTakedown,
   publishSelectedItem,
   removeFromStagingSelectedItem,
+  removeFromStagingSelectedItems,
   resolvePublishKind,
   stageSelectedItem,
   stageSelectedItems,
@@ -551,6 +552,51 @@ describe("removeFromStagingSelectedItem", () => {
     await expect(removeFromStagingSelectedItem(item())).rejects.toThrow(
       "Could not connect to publishing server",
     );
+  });
+
+  it("removes each eligible item and records a 409 without stopping the batch", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("/staging/43")) {
+        return new Response("locked", { status: 409, statusText: "Conflict" });
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    const result = await removeFromStagingSelectedItems([
+      item({ id: "42", name: "Home" }),
+      item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      item({ id: "43", name: "About" }),
+      item({
+        id: "77",
+        name: "base",
+        path: "/Design/Templates/base",
+        type: "percTemplate",
+        category: "template",
+      }),
+    ]);
+    expect(result.removedIds).toEqual(["42"]);
+    expect(result.skippedFolders).toEqual(["News"]);
+    expect(result.skippedOther).toEqual(["base"]);
+    expect(result.failures).toEqual([
+      expect.objectContaining({ id: "43", name: "About", status: 409 }),
+    ]);
+    const urls = global.fetch.mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("takedown/page/staging/42"))).toBe(
+      true,
+    );
+    expect(urls.some((url) => url.includes("takedown/page/staging/43"))).toBe(
+      true,
+    );
+    expect(urls.some((url) => url.includes("/staging/7"))).toBe(false);
   });
 
   it("recognizes Remove from Staging action name variants", () => {

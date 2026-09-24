@@ -1218,6 +1218,119 @@ describe("actionDispatch", () => {
     expect(onRemoveFromStaging).toHaveBeenCalled();
   });
 
+  it("multi-select Remove from Staging confirms once and unstages each page and asset", async () => {
+    const onRemoveFromStaging = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const folder = item({
+      id: "7",
+      name: "News",
+      path: "/Sites/Demo/News",
+      type: "folder",
+      leaf: false,
+    });
+    const asset = item({
+      id: "99",
+      name: "logo",
+      path: "/Assets/logo.png",
+      type: "percImageAsset",
+    });
+    const page = item({ id: "42", name: "Home" });
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: page,
+        selectedItems: [page, folder, asset],
+        onRemoveFromStaging,
+        confirm,
+      },
+    );
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(String(confirm.mock.calls[0]?.[0] ?? "")).toContain("2");
+    expect(onRemoveFromStaging).toHaveBeenCalledTimes(2);
+    expect(onRemoveFromStaging.mock.calls.map((call) => call[0].id)).toEqual([
+      "42",
+      "99",
+    ]);
+    expect(result.refresh).toBe(true);
+    expect(result.messageText ?? "").toMatch(
+      /Folders are not removed from staging: News/,
+    );
+  });
+
+  it("multi-select Remove from Staging cancel unstages nothing", async () => {
+    const onRemoveFromStaging = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item(),
+        selectedItems: [item({ id: "42" }), item({ id: "43", name: "About" })],
+        onRemoveFromStaging,
+        confirm: () => false,
+      },
+    );
+    expect(onRemoveFromStaging).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("multi-select Remove from Staging reports one HTTP failure without claiming full success", async () => {
+    const onRemoveFromStaging = vi.fn(async (row: PSPathItem) => {
+      if (row.id === "43") {
+        throw { status: 404, statusText: "Not Found", body: "missing" };
+      }
+    });
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item(),
+        selectedItems: [
+          item({ id: "42", name: "Home" }),
+          item({ id: "43", name: "About" }),
+        ],
+        onRemoveFromStaging,
+        confirm: () => true,
+      },
+    );
+    expect(onRemoveFromStaging).toHaveBeenCalledTimes(2);
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBe(EXPLORER_MSG.UNSTAGE_BATCH_INCOMPLETE);
+    expect(result.messageText ?? "").toMatch(/About \(HTTP 404\)/);
+    expect(result.messageText ?? "").not.toMatch(/Home \(HTTP/);
+  });
+
+  it("multi-select of only folders does not remove from staging", async () => {
+    const onRemoveFromStaging = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item(),
+        selectedItems: [
+          item({
+            id: "1",
+            name: "Sites",
+            path: "/Sites",
+            type: "folder",
+            leaf: false,
+          }),
+          item({
+            id: "2",
+            name: "News",
+            path: "/Sites/Demo/News",
+            type: "folder",
+            leaf: false,
+          }),
+        ],
+        onRemoveFromStaging,
+        confirm: () => true,
+      },
+    );
+    expect(onRemoveFromStaging).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText ?? "").toMatch(
+      /Folders are not removed from staging: Sites, News/,
+    );
+  });
+
   it("Remove from Staging cancel does not unstage", async () => {
     const onRemoveFromStaging = vi.fn();
     const result = await dispatchAction(

@@ -563,3 +563,109 @@ export async function removeFromStagingSelectedItem(
   }
   return false;
 }
+
+/** Outcome of removing a checkbox multi-selection from staging. */
+export interface RemoveFromStagingBatchResult {
+  removedIds: string[];
+  skippedFolders: string[];
+  skippedOther: string[];
+  failures: StageItemFailure[];
+}
+
+function failureFromRemove(item: PSPathItem, err: unknown): StageItemFailure {
+  if (isApiError(err)) {
+    return {
+      id: (item.id ?? "").trim(),
+      name: stageItemLabel(item),
+      status: err.status,
+      message: `HTTP ${err.status}`,
+    };
+  }
+  const text =
+    err instanceof Error ? err.message : "remove from staging failed";
+  return {
+    id: (item.id ?? "").trim(),
+    name: stageItemLabel(item),
+    message: text || "remove from staging failed",
+  };
+}
+
+/**
+ * Remove every eligible page/asset from staging. Folders and other types
+ * are skipped. A 403/404/409 (or application-level preflight failure) on
+ * one item is recorded and the rest of the selection still runs.
+ */
+export async function removeFromStagingSelectedItems(
+  items: readonly PSPathItem[],
+): Promise<RemoveFromStagingBatchResult> {
+  const plan = partitionStageSelection(items);
+  const removedIds: string[] = [];
+  const failures: StageItemFailure[] = [];
+  for (const item of plan.eligible) {
+    try {
+      const removed = await removeFromStagingSelectedItem(item);
+      if (!removed) {
+        failures.push({
+          id: (item.id ?? "").trim(),
+          name: stageItemLabel(item),
+          message: "not removed",
+        });
+      } else {
+        removedIds.push((item.id ?? "").trim());
+      }
+    } catch (err: unknown) {
+      failures.push(failureFromRemove(item, err));
+    }
+  }
+  return {
+    removedIds,
+    skippedFolders: plan.skippedFolders,
+    skippedOther: plan.skippedOther,
+    failures,
+  };
+}
+
+/** Operator-visible reason when folders or individual items were not fully unstaged. */
+export function describeRemoveFromStagingBatch(
+  result: RemoveFromStagingBatchResult,
+): string | undefined {
+  const parts: string[] = [];
+  if (result.skippedFolders.length > 0) {
+    parts.push(
+      fillTemplate(
+        EXPLORER_MSG.UNSTAGE_SKIPPED_FOLDERS,
+        "{names}",
+        result.skippedFolders.join(", "),
+      ),
+    );
+  }
+  if (result.skippedOther.length > 0) {
+    parts.push(
+      fillTemplate(
+        EXPLORER_MSG.UNSTAGE_SKIPPED_OTHER,
+        "{names}",
+        result.skippedOther.join(", "),
+      ),
+    );
+  }
+  if (result.failures.length > 0) {
+    const detail = result.failures
+      .map((failure) =>
+        failure.status != null
+          ? `${failure.name} (HTTP ${failure.status})`
+          : `${failure.name} (${failure.message})`,
+      )
+      .join("; ");
+    parts.push(
+      fillTemplate(
+        EXPLORER_MSG.UNSTAGE_BATCH_INCOMPLETE,
+        "{detail}",
+        detail,
+      ),
+    );
+  }
+  if (parts.length === 0) {
+    return undefined;
+  }
+  return parts.join(" ");
+}
