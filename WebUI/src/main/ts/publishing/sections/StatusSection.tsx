@@ -39,6 +39,7 @@ import {
   type StatusSortState,
 } from "../statusSort";
 import { ItemPublishingHistoryPanel } from "../components/ItemPublishingHistoryPanel";
+import { StatusJobDetailPanel } from "../components/StatusJobDetailPanel";
 import type { PublishSection, PublishingJob } from "../types";
 
 /** Minuet-comparable default poll interval (ms). */
@@ -65,6 +66,7 @@ export function StatusSection({
   const [loading, setLoading] = useState(true);
   const [siteFilter, setSiteFilter] = useState("");
   const [sort, setSort] = useState<StatusSortState>(DEFAULT_SORT);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const load = useCallback(() => {
@@ -91,6 +93,14 @@ export function StatusSection({
     () => sortJobs(filterJobsBySite(jobs, siteFilter), sort),
     [jobs, siteFilter, sort],
   );
+  const selectedJob = useMemo(() => {
+    if (selectedJobId == null) {
+      return null;
+    }
+    return (
+      jobs.find((job) => String(job.jobId ?? "") === selectedJobId) ?? null
+    );
+  }, [jobs, selectedJobId]);
   function onHeaderClick(key: StatusSortKey): void {
     setSort((prev) => nextSortState(prev, key));
   }
@@ -186,11 +196,29 @@ export function StatusSection({
           <tbody>
             {visibleJobs.map((job) => {
               const id = job.jobId ?? "";
+              const idText = String(id);
               const stoppable = isJobStoppable(job);
               return (
-                <tr key={String(id || job.siteName)}>
-                  <td style={tdStyle}>{job.siteName ?? "—"}</td>
-                  <td style={tdStyle}>{job.status ?? "—"}</td>
+                <tr key={idText || String(job.siteName ?? "")}>
+                  <td style={tdStyle}>
+                    <button
+                      type="button"
+                      style={{
+                        ...buttonStyle,
+                        border: "none",
+                        background: "transparent",
+                        padding: 0,
+                        textAlign: "left",
+                      }}
+                      data-testid={`publish-status-job-${idText}`}
+                      onClick={() => setSelectedJobId(idText)}
+                    >
+                      {job.siteName && job.siteName.trim() !== ""
+                        ? job.siteName
+                        : idText || "Job"}
+                    </button>
+                  </td>
+                  <td style={tdStyle}>{job.status ?? ""}</td>
                   <td style={tdStyle}>
                     {formatProgressLabel(job.completedItems, job.totalItems)}
                   </td>
@@ -199,8 +227,11 @@ export function StatusSection({
                       <button
                         type="button"
                         style={buttonStyle}
-                        data-testid={`publish-stop-job-${String(id)}`}
-                        onClick={() => void onStop(job)}
+                        data-testid={`publish-stop-job-${idText}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          void onStop(job);
+                        }}
                       >
                         {message(MSG.PUBLISH_STOP)}
                       </button>
@@ -213,6 +244,12 @@ export function StatusSection({
             })}
           </tbody>
         </table>
+      )}
+      {selectedJob && (
+        <StatusJobDetailPanel
+          job={selectedJob}
+          onClose={() => setSelectedJobId(null)}
+        />
       )}
     </div>
   );

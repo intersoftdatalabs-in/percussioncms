@@ -72,6 +72,10 @@ export interface PublishingJob {
   completedItems?: number;
   totalItems?: number;
   isStopping?: boolean;
+  /** Edition display name when the status API includes it. */
+  editionName?: string;
+  /** Publisher error text for a failed job, when the status API includes it. */
+  errorMessage?: string;
   [key: string]: unknown;
 }
 

@@ -76,6 +76,12 @@ public class PSSitePublishJob extends PSAbstractDataObject {
   /** Indicates if the job is stopping. */
   private Boolean isStopping;
 
+  /** Edition display name when the edition can be loaded. Absent when unknown. */
+  private String editionName;
+
+  /** Publisher message for a failed job. Absent when the job did not fail or no message exists. */
+  private String errorMessage;
+
   public long getJobId() {
     return jobId;
   }
@@ -186,5 +192,21 @@ public class PSSitePublishJob extends PSAbstractDataObject {
 
   public void setIsStopping(Boolean isStopping) {
     this.isStopping = isStopping;
+  }
+
+  public Optional<String> getEditionName() {
+    return Optional.ofNullable(editionName);
+  }
+
+  public void setEditionName(String editionName) {
+    this.editionName = editionName;
+  }
+
+  public Optional<String> getErrorMessage() {
+    return Optional.ofNullable(errorMessage);
+  }
+
+  public void setErrorMessage(String errorMessage) {
+    this.errorMessage = errorMessage;
   }
 }
