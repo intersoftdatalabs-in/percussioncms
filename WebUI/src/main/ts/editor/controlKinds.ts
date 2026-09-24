@@ -30,7 +30,8 @@ export type EditorWidgetKind =
   | "date"
   | "datetime"
   | "number"
-  | "link";
+  | "link"
+  | "table";
 
 export interface EditorFieldRow extends ItemEditorField {
   label: string;
@@ -136,6 +137,9 @@ export function classifyEditorControl(
   ) {
     return "number";
   }
+  if (isTableControl(control, dataType)) {
+    return "table";
+  }
   if (isLinkControl(control, name, dataType)) {
     return "link";
   }
@@ -146,6 +150,17 @@ export function classifyEditorControl(
     return "longtext";
   }
   return "text";
+}
+
+/** {@code sys_Table} grid. Related-content tables stay off this widget. */
+function isTableControl(control: string, dataType: string): boolean {
+  if (control.includes("related")) {
+    return false;
+  }
+  if (dataType === "table") {
+    return true;
+  }
+  return control === "sys_table" || control.includes("sys_table");
 }
 
 function isLinkControl(control: string, name: string, dataType: string): boolean {

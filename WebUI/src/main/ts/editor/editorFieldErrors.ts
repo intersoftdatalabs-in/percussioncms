@@ -27,6 +27,7 @@ import {
 } from "../api/client";
 import type { EditorWidgetKind } from "./controlKinds";
 import { isInvalidEditorDate, type EditorDateKind } from "./dateField";
+import { tableFieldIsEmpty } from "./tableField";
 
 export interface EditorRequiredRow {
   name: string;
@@ -68,6 +69,9 @@ export function isEmptyEditorFieldValue(
 ): boolean {
   if (kind === "file" || kind === "image") {
     return !pendingFile && !(value ?? "").trim();
+  }
+  if (kind === "table") {
+    return tableFieldIsEmpty(value);
   }
   return !(value ?? "").trim();
 }

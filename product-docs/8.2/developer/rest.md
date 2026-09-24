@@ -3384,7 +3384,7 @@ Explorer **Edit** uses itemmanagement field maps (same `PSContentItem` store as 
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/services/itemmanagement/item/fields/{id}` | Scalar fields for the React editor (`sys_*` except `sys_title` and `sys_communityid` omitted; binary omitted) |
-| `PUT` | `/services/itemmanagement/item/fields/{id}` | Save scalar field updates, including HTML (TinyMCE), keyword values, and community id. Item must be checked out to the current user. |
+| `PUT` | `/services/itemmanagement/item/fields/{id}` | Save scalar field updates, including HTML (TinyMCE), keyword values, community id, and `sys_Table` grids (blank, or JSON `{"columns":[…],"rows":[[…]]}`). Item must be checked out to the current user. |
 | `GET` | `/services/itemmanagement/item/binary/{id}/{field}` | Filename / presence metadata for a binary field (file or image). Does not stream bytes. |
 | `PUT` | `/services/itemmanagement/item/binary/{id}/{field}` | Multipart upload (`file`) that replaces the binary field. Item must be checked out to the current user. |
 | `POST` | `/services/itemmanagement/item/create` | Create an item in a folder. JSON body is `{ "ItemCreateRequest": { contentType, folderPath, optional name, optional templateId } }` (JAXB root). Pages (`percPage`) require `templateId` and save through page management. Home → Create **Asset** and Explorer **New Item** both use this POST, then open `spa.jsp?entry=editor`. |

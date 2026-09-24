@@ -62,6 +62,7 @@ import { collectInvalidLongTextFieldErrors } from "./longTextField";
 import { collectInvalidLinkFieldErrors } from "./linkField";
 import { collectInvalidNumericFieldErrors } from "./numericField";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
+import { TableFieldWidget } from "./widgets/TableFieldWidget";
 import {
   canCopyFromEditor,
   copyEditorItemToFolder,
@@ -344,6 +345,18 @@ function EditorFieldControl({
         name={row.name}
         value={fieldValueAsString(row.value)}
         kind={row.kind}
+        readOnly={locked}
+        invalid={invalid}
+        required={row.required}
+        onChange={(value) => onChange(row.name, value)}
+      />
+    );
+  }
+  if (row.kind === "table") {
+    return (
+      <TableFieldWidget
+        name={row.name}
+        value={fieldValueAsString(row.value)}
         readOnly={locked}
         invalid={invalid}
         required={row.required}
