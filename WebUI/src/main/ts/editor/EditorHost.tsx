@@ -45,7 +45,7 @@ import {
   transitionItem,
   type ItemStateTransition,
 } from "../api/contentExplorer/itemWorkflowApi";
-import { deleteFolderItem, findItemById } from "../api/contentExplorer/pathApi";
+import { deleteFolderItem, findItemById, renameFolderItem } from "../api/contentExplorer/pathApi";
 import { formatApiError, isSessionRedirectError } from "../api/client";
 import { MoveDestinationPickerDialog } from "../contentExplorer/MoveDestinationPickerDialog";
 import { parsePositiveInt } from "../assembly/assemblyHostUrl";
@@ -68,10 +68,16 @@ import {
   type EditorCopyKind,
 } from "./editorCopy";
 import {
+  canRenameFromEditor,
+  editorItemPathFromLookup,
+  editorListingName,
+  editorRenameErrorReason,
+  renameLanded,
+} from "./editorRename";
+import {
   canMoveFromEditor,
   cmsFoldersEqual,
   editorMoveErrorReason,
-  loadEditorItemPath,
   moveEditorItemToFolder,
   parentFolderOfItemPath,
 } from "./editorMove";
@@ -205,6 +211,8 @@ export interface EditorHostProps {
   copyPromotable?: (itemId: string) => Promise<ItemCopyResult>;
   /** Test seam: confirm new copy / promotable (defaults to {@code window.confirm}). */
   confirmCopy?: (body: string) => boolean;
+  /** Test seam: folders {@code POST /folders/rename/item}. */
+  renameItem?: (itemPath: string, newName: string) => Promise<void>;
   /** Test seam: pathmanagement item path for the open content id. */
   loadItemLocation?: (itemId: string) => Promise<{ path: string }>;
   /** Test seam: {@code POST /rest/folders/move/item}. */
@@ -424,9 +432,18 @@ export function EditorHost({
   copyItem = createNewCopy,
   copyPromotable = createPromotableVersion,
   confirmCopy,
-  loadItemLocation = async (itemId: string) => ({
-    path: await loadEditorItemPath(itemId),
-  }),
+  renameItem = async (itemPath: string, newName: string) => {
+    await renameFolderItem({ itemPath, newName });
+  },
+  loadItemLocation = async (itemId: string) => {
+    const item = await findItemById(itemId);
+    const path = editorItemPathFromLookup(item);
+    if (!path) {
+      const missing = { status: 404, statusText: "Not Found", body: {} };
+      throw missing;
+    }
+    return { path };
+  },
   moveItem = moveEditorItemToFolder,
   resolveRecycleTarget = findItemById,
   recycleItem = deleteFolderItem,
@@ -479,6 +496,11 @@ export function EditorHost({
   const [copyBusy, setCopyBusy] = useState(false);
   const [copyErrorKey, setCopyErrorKey] = useState<string | null>(null);
   const [copyErrorDetail, setCopyErrorDetail] = useState("");
+  const [renameName, setRenameName] = useState("");
+  const [renameBusy, setRenameBusy] = useState(false);
+  const [renameDone, setRenameDone] = useState(false);
+  const [renameErrorKey, setRenameErrorKey] = useState<string | null>(null);
+  const [renameErrorDetail, setRenameErrorDetail] = useState("");
   const [moveOpen, setMoveOpen] = useState(false);
   const [moveSourceParent, setMoveSourceParent] = useState("");
   const [moveBusy, setMoveBusy] = useState(false);
@@ -541,6 +563,7 @@ export function EditorHost({
           return;
         }
         setPayload(fields);
+        setRenameName(editorListingName(fields));
         setLockUser(fields.checkoutUser ?? "");
         if (!readOnly) {
           try {
@@ -1167,6 +1190,75 @@ export function EditorHost({
     }
   }
 
+  function renameErrorKeyFor(
+    reason: ReturnType<typeof editorRenameErrorReason>,
+  ): string {
+    if (reason === "bad_request") {
+      return EDITOR_MSG.RENAME_BAD_REQUEST;
+    }
+    if (reason === "forbidden") {
+      return EDITOR_MSG.RENAME_FORBIDDEN;
+    }
+    if (reason === "not_found") {
+      return EDITOR_MSG.RENAME_NOT_FOUND;
+    }
+    return EDITOR_MSG.RENAME_FAILED;
+  }
+
+  async function handleRename(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    if (!canRenameFromEditor(mode)) {
+      setRenameDone(false);
+      setRenameErrorDetail("");
+      setRenameErrorKey(EDITOR_MSG.RENAME_UNAVAILABLE);
+      return;
+    }
+    const wanted = renameName.trim();
+    if (!wanted || wanted.includes("/") || wanted.includes("\\")) {
+      setRenameDone(false);
+      setRenameErrorDetail("");
+      setRenameErrorKey(EDITOR_MSG.RENAME_BAD_REQUEST);
+      return;
+    }
+    setRenameBusy(true);
+    setRenameDone(false);
+    setRenameErrorKey(null);
+    setRenameErrorDetail("");
+    const itemId = String(contentId);
+    try {
+      const located = await loadItemLocation(itemId);
+      const itemPath = String(located?.path ?? "").trim();
+      if (!itemPath) {
+        setRenameErrorKey(EDITOR_MSG.RENAME_NO_FOLDER);
+        return;
+      }
+      await renameItem(itemPath, wanted);
+      const refreshed = await loadFields(itemId);
+      const loaded = editorListingName(refreshed);
+      if (!renameLanded(wanted, loaded)) {
+        setRenameErrorKey(EDITOR_MSG.RENAME_FAILED);
+        return;
+      }
+      setPayload(refreshed);
+      setRenameName(loaded);
+      setDraft((prev) => ({ ...prev, sys_title: loaded }));
+      setRenameDone(true);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = editorRenameErrorReason(err);
+      const errorKey = renameErrorKeyFor(reason);
+      setRenameErrorKey(errorKey);
+      setRenameErrorDetail(formatApiError(err, message(errorKey)));
+      setRenameDone(false);
+    } finally {
+      setRenameBusy(false);
+    }
+  }
+
   function moveErrorKeyFor(
     reason: ReturnType<typeof editorMoveErrorReason>,
   ): string {
@@ -1683,6 +1775,7 @@ export function EditorHost({
   const showPublish = canPublishFromEditor(mode, publishKind);
   const showPreview = canPreviewFromEditor(mode, publishKind);
   const showCopy = canCopyFromEditor(mode) && contentId != null;
+  const showRename = canRenameFromEditor(mode) && contentId != null;
   const showMove = canMoveFromEditor(mode) && contentId != null;
   const showRecycle = canRecycleFromEditor(mode) && contentId != null;
   const showRestore = canRestoreFromEditor(mode) && contentId != null;
@@ -1765,6 +1858,34 @@ export function EditorHost({
               onClick={() => void handleMoveOpen()}
             >
               {message(moveBusy ? EDITOR_MSG.MOVING : EDITOR_MSG.MOVE_TO_FOLDER)}
+            </button>
+          ) : null}
+          {renameDone ? (
+            <span className={styles.meta} data-testid="editor-renamed">
+              {message(EDITOR_MSG.RENAMED)}
+            </span>
+          ) : null}
+          {showRename ? (
+            <label className={styles.meta}>
+              {message(EDITOR_MSG.RENAME_NAME)}
+              <input
+                className={styles.input}
+                data-testid="editor-rename-name"
+                value={renameName}
+                disabled={renameBusy || loading || payload == null || saving}
+                onChange={(e) => setRenameName(e.target.value)}
+              />
+            </label>
+          ) : null}
+          {showRename ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-rename"
+              disabled={renameBusy || loading || payload == null || saving}
+              onClick={() => void handleRename()}
+            >
+              {message(renameBusy ? EDITOR_MSG.RENAMING : EDITOR_MSG.RENAME)}
             </button>
           ) : null}
           {showCopy ? (
@@ -1992,6 +2113,16 @@ export function EditorHost({
               >
                 {message(previewErrorKey)}
                 {previewErrorDetail ? ` ${previewErrorDetail}` : ""}
+              </div>
+            ) : null}
+            {renameErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-rename-error"
+              >
+                {message(renameErrorKey)}
+                {renameErrorDetail ? ` ${renameErrorDetail}` : ""}
               </div>
             ) : null}
             {copyErrorKey ? (
