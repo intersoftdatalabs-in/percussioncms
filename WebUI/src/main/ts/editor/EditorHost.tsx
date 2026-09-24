@@ -156,6 +156,15 @@ import { normalizeEditorMode, type EditorHostMode } from "./editorHostUrl";
 import { EditorRelatedContentPanel } from "./EditorRelatedContentPanel";
 import { EditorWorkflowPanel } from "./EditorWorkflowPanel";
 import { EDITOR_MSG } from "./messages";
+import { TranslationsPanel } from "../contentExplorer/TranslationsPanel";
+import {
+  createTranslations,
+  listItemTranslationVariants,
+  type CreateTranslationsResult,
+  type ItemTranslationVariants,
+} from "../api/contentExplorer/translationsApi";
+import { listLocales } from "../api/developer/localesApi";
+import type { LocaleSummary } from "../api/developer/types";
 import { CommunityFieldWidget } from "./widgets/CommunityFieldWidget";
 import { FileFieldWidget } from "./widgets/FileFieldWidget";
 import { HtmlFieldWidget } from "./widgets/HtmlFieldWidget";
@@ -252,6 +261,15 @@ export interface EditorHostProps {
   loadContentTypes?: () => Promise<ContentTypeSummary[]>;
   /** Test seam: itemmanagement create. */
   createItem?: (req: ItemCreateRequest) => Promise<ItemCreateResult>;
+  /** Test seam: GET translation variants for the open item. */
+  loadTranslationVariants?: (itemId: string) => Promise<ItemTranslationVariants>;
+  /** Test seam: locale catalog for create-variant targets. */
+  loadTranslationLocales?: () => Promise<LocaleSummary[]>;
+  /** Test seam: POST one or more locale copies. */
+  createTranslationVariants?: (body: {
+    itemIds: number[];
+    locales?: string[];
+  }) => Promise<CreateTranslationsResult>;
 }
 
 function badgeKey(mode: EditorHostMode): string {
@@ -484,6 +502,9 @@ export function EditorHost({
   loadRelatedLocal,
   loadContentTypes = listContentTypes,
   createItem = createEditorItem,
+  loadTranslationVariants = listItemTranslationVariants,
+  loadTranslationLocales = listLocales,
+  createTranslationVariants = createTranslations,
 }: EditorHostProps = {}): React.ReactElement {
   const [params, setSearchParams] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
@@ -2692,6 +2713,39 @@ export function EditorHost({
             void handleMovePick(target);
           }}
           onCancel={() => setMoveOpen(false)}
+        />
+      ) : null}
+      {contentId != null && !promote ? (
+        <TranslationsPanel
+          itemId={String(contentId)}
+          loadVariants={loadTranslationVariants}
+          loadLocaleCatalog={loadTranslationLocales}
+          createVariants={createTranslationVariants}
+          onOpenVariant={(nextId) => {
+            if (!nextId || nextId === contentId) {
+              return;
+            }
+            const next = new URLSearchParams(params);
+            next.set("contentId", String(nextId));
+            next.set("mode", mode === "view" ? "view" : "edit");
+            next.delete("warningMessage");
+            setSearchParams(next);
+          }}
+          onCreated={(result) => {
+            const created = result.created ?? [];
+            if (created.length !== 1 || !created[0]?.contentId) {
+              return;
+            }
+            const nextId = created[0].contentId;
+            if (nextId === contentId) {
+              return;
+            }
+            const next = new URLSearchParams(params);
+            next.set("contentId", String(nextId));
+            next.set("mode", "edit");
+            next.delete("warningMessage");
+            setSearchParams(next);
+          }}
         />
       ) : null}
     </div>
