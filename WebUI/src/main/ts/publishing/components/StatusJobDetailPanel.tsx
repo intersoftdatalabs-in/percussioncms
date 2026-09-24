@@ -40,7 +40,9 @@ export function StatusJobDetailPanel({
   return (
     <div data-testid="publish-status-job-detail" style={{ marginTop: 16 }}>
       <div style={toolbarStyle}>
-        <h3 style={{ margin: 0, fontSize: "1rem" }}>Job details</h3>
+        <h3 style={{ margin: 0, fontSize: "1rem" }} data-testid="publish-status-detail-heading">
+          {message(MSG.PUBLISH.STATUS_DETAIL.HEADING)}
+        </h3>
         <button
           type="button"
           style={buttonStyle}
@@ -51,7 +53,9 @@ export function StatusJobDetailPanel({
         </button>
       </div>
       <dl style={{ fontSize: "0.9rem", margin: 0 }}>
-        <dt style={labelStyle}>Job ID</dt>
+        <dt style={labelStyle} data-testid="publish-status-detail-job-id-label">
+          {message(MSG.PUBLISH.STATUS_DETAIL.JOB_ID)}
+        </dt>
         <dd style={valueStyle} data-testid="publish-status-detail-job-id">
           {detail.jobId}
         </dd>
@@ -59,7 +63,9 @@ export function StatusJobDetailPanel({
         <dd style={valueStyle} data-testid="publish-status-detail-site">
           {detail.site}
         </dd>
-        <dt style={labelStyle}>Edition</dt>
+        <dt style={labelStyle} data-testid="publish-status-detail-edition-label">
+          {message(MSG.PUBLISH.STATUS_DETAIL.EDITION)}
+        </dt>
         <dd style={valueStyle} data-testid="publish-status-detail-edition">
           {detail.editionName}
         </dd>
@@ -69,7 +75,9 @@ export function StatusJobDetailPanel({
         </dd>
         {detail.showError && (
           <>
-            <dt style={labelStyle}>Error</dt>
+            <dt style={labelStyle} data-testid="publish-status-detail-error-label">
+              {message(MSG.PUBLISH.STATUS_DETAIL.ERROR)}
+            </dt>
             <dd style={valueStyle} data-testid="publish-status-detail-error">
               {detail.errorText}
             </dd>

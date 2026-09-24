@@ -71,6 +71,18 @@ describe("StatusSection job detail (#4789)", () => {
     expect(screen.getByTestId("publish-status-detail-error").textContent).toBe(
       "disk full",
     );
+    expect(screen.getByTestId("publish-status-detail-heading").textContent).toBe(
+      "Job details",
+    );
+    expect(
+      screen.getByTestId("publish-status-detail-job-id-label").textContent,
+    ).toBe("Job ID");
+    expect(
+      screen.getByTestId("publish-status-detail-edition-label").textContent,
+    ).toBe("Edition");
+    expect(
+      screen.getByTestId("publish-status-detail-error-label").textContent,
+    ).toBe("Error");
 
     fireEvent.click(screen.getByTestId("publish-status-job-detail-close"));
     expect(screen.queryByTestId("publish-status-job-detail")).toBeNull();
