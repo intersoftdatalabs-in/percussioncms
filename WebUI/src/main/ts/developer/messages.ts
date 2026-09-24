@@ -1785,7 +1785,7 @@ export const DEV_MSG_KEYS = {
   WF_EMPTY: "perc.ui.developer@No workflows returned.",
   WF_ERROR: "perc.ui.developer@Could not load workflows.",
   WF_HINT:
-    "perc.ui.developer@Workflow definitions for association, step browse, and a read-only state graph (SY-04). Transition writes stay on the workflow management surface.",
+    "perc.ui.developer@Workflow definitions for association and step browse. Custom workflows can delete one graph transition; packaged workflows stay read-only.",
   WF_COL_NAME: "perc.ui.developer@Name",
   WF_COL_DESC: "perc.ui.developer@Description",
   WF_COL_DEFAULT: "perc.ui.developer@Default",
@@ -1859,7 +1859,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_AFTER_LABEL: "perc.ui.developer@Insert after",
   WF_STEP_ROLES_LABEL: "perc.ui.developer@Roles (comma-separated)",
   WF_STEP_HINT:
-    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. The graph below is browse-only.",
+    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. Custom workflows can delete one transition from the graph; creating transitions stays on the workflow-admin editor.",
   WF_STEP_SAVED: "perc.ui.developer@Workflow step saved.",
   WF_STEP_ERROR: "perc.ui.developer@Could not save workflow step.",
   WF_STEP_INVALID:
@@ -1874,9 +1874,18 @@ export const DEV_MSG_KEYS = {
   WF_GRAPH_LOADING: "perc.ui.developer@Loading workflow graph...",
   WF_GRAPH_ERROR: "perc.ui.developer@Could not load workflow graph.",
   WF_GRAPH_HINT:
-    "perc.ui.developer@Read-only states and transitions. Creating or editing transitions stays on the workflow-admin editor.",
+    "perc.ui.developer@States and transitions. On a custom workflow, delete one transition between existing steps. Packaged workflows stay read-only. Creating transitions stays on the workflow-admin editor.",
+  WF_GRAPH_DELETE: "perc.ui.developer@Delete transition",
+  WF_GRAPH_DELETE_CONFIRM:
+    "perc.ui.developer@Delete this transition? The steps stay on the workflow.",
+  WF_GRAPH_DELETED: "perc.ui.developer@Transition deleted.",
+  WF_GRAPH_DELETE_ERROR: "perc.ui.developer@Could not delete workflow transition.",
+  WF_GRAPH_DELETE_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_GRAPH_DELETE_BAD:
+    "perc.ui.developer@That transition could not be deleted. Check the step names and try again.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Transition graph writes are not exposed in the Developer catalog",
+    "perc.ui.developer@Creating transitions stays on the workflow-admin editor. Custom workflows can delete one existing transition from the graph.",
   WF_GAP_WRITE:
     "perc.ui.developer@Workflow update / delete is not supported from this Developer surface",
   WF_GAP_CT:

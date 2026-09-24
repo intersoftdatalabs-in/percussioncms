@@ -90,4 +90,10 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
       URI baseUri, String idOrName, String stepName, WorkflowStepWrite body) {
     return updateWorkflow(baseUri, idOrName, null);
   }
+
+  @Override
+  public WorkflowGraph deleteWorkflowTransition(
+      URI baseUri, String idOrName, String fromStep, String label, String toStep) {
+    return getWorkflowGraph(baseUri, idOrName);
+  }
 }

@@ -33,6 +33,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -467,6 +468,57 @@ public class WorkflowsResource {
     } catch (Exception e) {
       log.error(
           "Failed to update workflow step ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @DELETE
+  @Path("/{idOrName}/transitions")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Delete one workflow transition",
+      description =
+          "Slice 33 Admin. Deletes a single transition between existing steps. Query `from` is"
+              + " the source step and `label` is the transition label (or trigger). Query `to`"
+              + " is the destination step and is required when more than one transition on the"
+              + " source step shares the label. Does not delete steps. Packaged default workflows"
+              + " (Default Workflow, Simple Workflow, Local Content) are forbidden (403).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Deleted; returns the updated graph",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing from/label, or label is ambiguous without to"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow, step, or transition not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph deleteWorkflowTransition(
+      @PathParam("idOrName") String idOrName,
+      @QueryParam("from") String fromStep,
+      @QueryParam("label") String label,
+      @QueryParam("to") String toStep) {
+    if (fromStep == null || fromStep.isBlank() || label == null || label.isBlank()) {
+      throw new WebApplicationException("from and label are required", 400);
+    }
+    try {
+      return requireAdaptor()
+          .deleteWorkflowTransition(uriInfo.getBaseUri(), idOrName, fromStep, label, toStep);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to delete workflow transition ({}): {}",
           e.getClass().getName(),
           e.getMessage(),
           e);

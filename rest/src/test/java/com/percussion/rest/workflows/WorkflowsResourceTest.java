@@ -566,4 +566,37 @@ public class WorkflowsResourceTest {
             () -> resource.updateWorkflowStep("Nightly QA", "Review", null));
     assertEquals(400, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void deleteTransitionRequiresFromAndLabel() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.deleteWorkflowTransition("Nightly QA", " ", "Submit", "Review"));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).deleteWorkflowTransition(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  public void deleteTransitionMapsAmbiguousLabelTo400() {
+    when(adaptor.deleteWorkflowTransition(any(), eq("Nightly QA"), eq("Draft"), eq("Submit"), eq(null)))
+        .thenThrow(new IllegalArgumentException("specify to"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.deleteWorkflowTransition("Nightly QA", "Draft", "Submit", null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteTransitionPassesThrough404() {
+    WebApplicationException missing = new WebApplicationException("missing", 404);
+    when(adaptor.deleteWorkflowTransition(any(), eq("Missing"), eq("Draft"), eq("Submit"), eq("Review")))
+        .thenThrow(missing);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.deleteWorkflowTransition("Missing", "Draft", "Submit", "Review"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
 }
