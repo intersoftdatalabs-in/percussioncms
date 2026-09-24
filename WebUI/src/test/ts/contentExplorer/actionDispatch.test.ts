@@ -1041,6 +1041,105 @@ describe("actionDispatch", () => {
     expect(onTakedown).toHaveBeenCalled();
   });
 
+  it("multi-select Take Down confirms once and unpublishes each page and asset", async () => {
+    const onTakedown = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const folder = item({
+      id: "7",
+      name: "News",
+      path: "/Sites/Demo/News",
+      type: "folder",
+      leaf: false,
+    });
+    const asset = item({
+      id: "99",
+      name: "logo",
+      path: "/Assets/logo.png",
+      type: "percImageAsset",
+    });
+    const page = item({ id: "42", name: "Home" });
+    const result = await dispatchAction(action({ name: "Take_Down" }), {
+      item: page,
+      selectedItems: [page, folder, asset],
+      onTakedown,
+      confirm,
+    });
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(String(confirm.mock.calls[0]?.[0] ?? "")).toContain("2");
+    expect(onTakedown).toHaveBeenCalledTimes(2);
+    expect(onTakedown.mock.calls.map((call) => call[0].id)).toEqual([
+      "42",
+      "99",
+    ]);
+    expect(result.refresh).toBe(true);
+    expect(result.messageText ?? "").toMatch(/Folders are not taken down: News/);
+  });
+
+  it("multi-select Take Down cancel takes down nothing", async () => {
+    const onTakedown = vi.fn();
+    const result = await dispatchAction(action({ name: "Take_Down" }), {
+      item: item(),
+      selectedItems: [item({ id: "42" }), item({ id: "43", name: "About" })],
+      onTakedown,
+      confirm: () => false,
+    });
+    expect(onTakedown).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("multi-select Take Down reports one HTTP failure without claiming full success", async () => {
+    const onTakedown = vi.fn(async (row: PSPathItem) => {
+      if (row.id === "43") {
+        throw { status: 403, statusText: "Forbidden", body: "denied" };
+      }
+    });
+    const result = await dispatchAction(action({ name: "Take_Down" }), {
+      item: item(),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About" }),
+      ],
+      onTakedown,
+      confirm: () => true,
+    });
+    expect(onTakedown).toHaveBeenCalledTimes(2);
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBe(EXPLORER_MSG.TAKEDOWN_BATCH_INCOMPLETE);
+    expect(result.messageText ?? "").toMatch(/About \(HTTP 403\)/);
+    expect(result.messageText ?? "").not.toMatch(/Home \(HTTP/);
+  });
+
+  it("multi-select of only folders does not take down", async () => {
+    const onTakedown = vi.fn();
+    const result = await dispatchAction(action({ name: "Take_Down" }), {
+      item: item(),
+      selectedItems: [
+        item({
+          id: "1",
+          name: "Sites",
+          path: "/Sites",
+          type: "folder",
+          leaf: false,
+        }),
+        item({
+          id: "2",
+          name: "News",
+          path: "/Sites/Demo/News",
+          type: "folder",
+          leaf: false,
+        }),
+      ],
+      onTakedown,
+      confirm: () => true,
+    });
+    expect(onTakedown).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText ?? "").toMatch(
+      /Folders are not taken down: Sites, News/,
+    );
+  });
+
   it("classifies Stage and Remove from Staging as rest", () => {
     expect(classifyAction(action({ name: "Stage" }))).toBe("rest");
     expect(classifyAction(action({ name: "Remove_from_Staging" }))).toBe(

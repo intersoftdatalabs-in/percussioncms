@@ -510,6 +510,16 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Take down (unpublish) this item from its site?",
   CONFIRM_TAKEDOWN_LINKED:
     "perc.ui.explorer@These pages link to this item:",
+  CONFIRM_TAKEDOWN_MULTI:
+    "perc.ui.explorer@Take down {count} selected items from their sites? Folders in the selection are not taken down.",
+  TAKEDOWN_SKIPPED_FOLDERS:
+    "perc.ui.explorer@Folders are not taken down: {names}",
+  TAKEDOWN_SKIPPED_OTHER:
+    "perc.ui.explorer@These selected items are not pages or assets and were not taken down: {names}",
+  TAKEDOWN_BATCH_INCOMPLETE:
+    "perc.ui.explorer@Not every selected item was taken down. {detail}",
+  TAKEDOWN_NOTHING_ELIGIBLE:
+    "perc.ui.explorer@Nothing in the selection can be taken down. Folders are not taken down.",
   CONFIRM_STAGE:
     "perc.ui.explorer@Stage this item to the staging server?",
   CONFIRM_STAGE_MULTI:

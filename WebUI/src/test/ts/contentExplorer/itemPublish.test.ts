@@ -33,6 +33,7 @@ import {
   stageSelectedItem,
   stageSelectedItems,
   takedownSelectedItem,
+  takedownSelectedItems,
 } from "../../../main/ts/contentExplorer/itemPublish";
 
 afterEach(() => {
@@ -277,6 +278,54 @@ describe("takedownSelectedItem", () => {
     await expect(takedownSelectedItem(item())).rejects.toMatchObject({
       status: 403,
     });
+  });
+
+  it("takes down each eligible item, skips folders, and records a 403", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("findLinkedItems")) {
+        return new Response(JSON.stringify({ ArrayList: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (url.includes("/takedown/page/43")) {
+        return new Response("denied", { status: 403, statusText: "Forbidden" });
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    const result = await takedownSelectedItems([
+      item({ id: "42", name: "Home" }),
+      item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      item({ id: "43", name: "About" }),
+      item({
+        id: "77",
+        name: "base",
+        path: "/Design/Templates/base",
+        type: "percTemplate",
+        category: "template",
+      }),
+    ]);
+    expect(result.takenDownIds).toEqual(["42"]);
+    expect(result.skippedFolders).toEqual(["News"]);
+    expect(result.skippedOther).toEqual(["base"]);
+    expect(result.failures).toEqual([
+      expect.objectContaining({ id: "43", name: "About", status: 403 }),
+    ]);
+    const urls = global.fetch.mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("takedown/page/42"))).toBe(true);
+    expect(urls.some((url) => url.includes("takedown/page/43"))).toBe(true);
+    expect(urls.some((url) => url.includes("takedown/page/7"))).toBe(false);
+    expect(urls.some((url) => url.includes("/staging/"))).toBe(false);
   });
 });
 

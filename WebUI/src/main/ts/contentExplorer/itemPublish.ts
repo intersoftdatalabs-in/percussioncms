@@ -332,6 +332,108 @@ export async function takedownSelectedItem(
   return false;
 }
 
+export interface TakedownBatchResult {
+  takenDownIds: string[];
+  skippedFolders: string[];
+  skippedOther: string[];
+  failures: StageItemFailure[];
+}
+
+function failureFromTakedown(item: PSPathItem, err: unknown): StageItemFailure {
+  if (isApiError(err)) {
+    return {
+      id: (item.id ?? "").trim(),
+      name: stageItemLabel(item),
+      status: err.status,
+      message: `HTTP ${err.status}`,
+    };
+  }
+  const text = err instanceof Error ? err.message : "takedown failed";
+  return {
+    id: (item.id ?? "").trim(),
+    name: stageItemLabel(item),
+    message: text || "takedown failed",
+  };
+}
+
+/**
+ * Take down every eligible page/asset. Folders and other types are skipped.
+ * Each item uses the same linked-page lookup and GET/PUT as
+ * {@link takedownSelectedItem}. A failure on one item is recorded and the
+ * rest of the selection still runs.
+ */
+export async function takedownSelectedItems(
+  items: readonly PSPathItem[],
+): Promise<TakedownBatchResult> {
+  const plan = partitionStageSelection(items);
+  const takenDownIds: string[] = [];
+  const failures: StageItemFailure[] = [];
+  for (const item of plan.eligible) {
+    try {
+      const linked = await loadLinkedPagesForTakedown(item.id ?? "");
+      const takenDown = await takedownSelectedItem(item, linked);
+      if (!takenDown) {
+        failures.push({
+          id: (item.id ?? "").trim(),
+          name: stageItemLabel(item),
+          message: "not taken down",
+        });
+      } else {
+        takenDownIds.push((item.id ?? "").trim());
+      }
+    } catch (err: unknown) {
+      failures.push(failureFromTakedown(item, err));
+    }
+  }
+  return {
+    takenDownIds,
+    skippedFolders: plan.skippedFolders,
+    skippedOther: plan.skippedOther,
+    failures,
+  };
+}
+
+/** Operator-visible reason when folders or individual items were not fully taken down. */
+export function describeTakedownBatch(
+  result: TakedownBatchResult,
+): string | undefined {
+  const parts: string[] = [];
+  if (result.skippedFolders.length > 0) {
+    parts.push(
+      fillTemplate(
+        EXPLORER_MSG.TAKEDOWN_SKIPPED_FOLDERS,
+        "{names}",
+        result.skippedFolders.join(", "),
+      ),
+    );
+  }
+  if (result.skippedOther.length > 0) {
+    parts.push(
+      fillTemplate(
+        EXPLORER_MSG.TAKEDOWN_SKIPPED_OTHER,
+        "{names}",
+        result.skippedOther.join(", "),
+      ),
+    );
+  }
+  if (result.failures.length > 0) {
+    const detail = result.failures
+      .map((failure) =>
+        failure.status != null
+          ? `${failure.name} (HTTP ${failure.status})`
+          : `${failure.name} (${failure.message})`,
+      )
+      .join("; ");
+    parts.push(
+      fillTemplate(EXPLORER_MSG.TAKEDOWN_BATCH_INCOMPLETE, "{detail}", detail),
+    );
+  }
+  if (parts.length === 0) {
+    return undefined;
+  }
+  return parts.join(" ");
+}
+
 async function demandTakedown(
   url: string,
   linked: LinkedPageForTakedown[],
