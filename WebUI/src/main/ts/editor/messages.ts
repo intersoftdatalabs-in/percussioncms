@@ -87,6 +87,8 @@ export const EDITOR_MSG = {
   LINK_NOT_FOUND: "perc.ui.editor@That link target was not found.",
   LINK_FORBIDDEN: "perc.ui.editor@You are not allowed to use that link target.",
   LINK_CLEAR: "perc.ui.editor@Clear link",
+  TABLE_ADD_ROW: "perc.ui.editor@Add row",
+  TABLE_REMOVE_ROW: "perc.ui.editor@Remove row",
   FILE_CHOOSE: "perc.ui.editor@Choose file",
   FILE_NONE: "perc.ui.editor@No file attached",
   FILE_FORBIDDEN:

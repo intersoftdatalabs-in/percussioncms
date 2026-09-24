@@ -67,6 +67,13 @@ describe("classifyEditorControl", () => {
     expect(classifyEditorControl({ control: "sys_EditBox", dataType: "float" }, "rate")).toBe(
       "number",
     );
+    expect(classifyEditorControl({ control: "sys_Table" }, "hours")).toBe("table");
+    expect(classifyEditorControl({ control: "sys_EditBox", dataType: "table" }, "grid")).toBe(
+      "table",
+    );
+    expect(classifyEditorControl({ control: "sys_RelatedContentTable" }, "slots")).not.toBe(
+      "table",
+    );
   });
 });
 
