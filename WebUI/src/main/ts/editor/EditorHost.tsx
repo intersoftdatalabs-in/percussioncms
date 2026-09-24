@@ -96,16 +96,20 @@ import {
 } from "./editorCheckout";
 import { forceCheckInItem } from "../api/contentExplorer/itemWorkflowApi";
 import {
+  fetchItemRevisionCompare,
   fetchItemRevisions,
   restoreItemRevision,
   type ItemRevision,
+  type ItemRevisionCompare,
   type ItemRevisionsSummary,
 } from "../api/contentExplorer/itemRevisionsApi";
 import {
   canRestoreFromEditor,
   editorRevisionErrorReason,
+  isEmptyRevisionCompare,
   parseRevisionId,
   restoreRevisionConfirmBody,
+  revisionCompareSelection,
   summarizeRevisionRow,
 } from "./editorRevisions";
 import {
@@ -227,6 +231,12 @@ export interface EditorHostProps {
   loadRevisions?: (itemId: string) => Promise<ItemRevisionsSummary>;
   /** Test seam: itemmanagement {@code restoreRevision/{guid}}. */
   restoreRevision?: (itemId: string, revId: number) => Promise<void>;
+  /** Test seam: itemmanagement {@code compare/{id}/{rev1}/{rev2}}. */
+  compareRevisions?: (
+    itemId: string,
+    rev1: number,
+    rev2: number,
+  ) => Promise<ItemRevisionCompare>;
   /** Test seam: confirm restore (defaults to {@code window.confirm}). */
   confirmRestore?: (body: string) => boolean;
   /** Test seam: slot-relationships canvas for related content browse. */
@@ -450,6 +460,7 @@ export function EditorHost({
   confirmRecycle,
   loadRevisions = fetchItemRevisions,
   restoreRevision = restoreItemRevision,
+  compareRevisions = fetchItemRevisionCompare,
   confirmRestore,
   loadRelatedCanvas,
   loadRelatedLocal,
@@ -530,6 +541,14 @@ export function EditorHost({
     null,
   );
   const [restoreDone, setRestoreDone] = useState(false);
+  const [compareLeft, setCompareLeft] = useState<number | "">("");
+  const [compareRight, setCompareRight] = useState<number | "">("");
+  const [compareBusy, setCompareBusy] = useState(false);
+  const [compareResult, setCompareResult] = useState<ItemRevisionCompare | null>(
+    null,
+  );
+  const [compareErrorKey, setCompareErrorKey] = useState<string | null>(null);
+  const [compareErrorDetail, setCompareErrorDetail] = useState("");
   const [createOpen, setCreateOpen] = useState(contentId == null);
   const [createTypes, setCreateTypes] = useState<ContentTypeSummary[]>([]);
   const [createType, setCreateType] = useState("");
@@ -1655,6 +1674,9 @@ export function EditorHost({
     setRestoreErrorKey(null);
     setRestoreErrorDetail("");
     setRestoreDone(false);
+    setCompareResult(null);
+    setCompareErrorKey(null);
+    setCompareErrorDetail("");
     if (restoreOpen) {
       return;
     }
@@ -1665,10 +1687,23 @@ export function EditorHost({
         setRestoreRevisions(summary.revisions);
         setRestoreRestorable(summary.restorable);
         setRestoreSelected(summary.revisions[0].revId);
+        const ids = summary.revisions
+          .map((rev) => rev.revId)
+          .filter((id) => Number.isFinite(id))
+          .sort((a, b) => a - b);
+        if (ids.length >= 2) {
+          setCompareLeft(ids[0] ?? "");
+          setCompareRight(ids[ids.length - 1] ?? "");
+        } else {
+          setCompareLeft(ids[0] ?? "");
+          setCompareRight(ids[0] ?? "");
+        }
       } else {
         setRestoreRevisions([]);
         setRestoreRestorable(false);
         setRestoreSelected("");
+        setCompareLeft("");
+        setCompareRight("");
       }
     } catch (err) {
       if (isSessionRedirectError(err)) {
@@ -1678,8 +1713,60 @@ export function EditorHost({
       setRestoreRevisions([]);
       setRestoreRestorable(false);
       setRestoreSelected("");
+      setCompareLeft("");
+      setCompareRight("");
     } finally {
       setRestoreBusy(false);
+    }
+  }
+
+  function compareErrorKeyFor(
+    reason: ReturnType<typeof editorRevisionErrorReason>,
+  ): string {
+    if (reason === "forbidden") {
+      return EDITOR_MSG.COMPARE_FORBIDDEN;
+    }
+    if (reason === "not_found") {
+      return EDITOR_MSG.COMPARE_NOT_FOUND;
+    }
+    return EDITOR_MSG.COMPARE_FAILED;
+  }
+
+  async function handleCompareRevisions(): Promise<void> {
+    if (contentId == null || !canRestoreFromEditor(mode)) {
+      return;
+    }
+    const selection = revisionCompareSelection(compareLeft, compareRight);
+    setCompareResult(null);
+    if (!selection.ok) {
+      setCompareErrorKey(
+        selection.reason === "same"
+          ? EDITOR_MSG.COMPARE_SAME
+          : EDITOR_MSG.COMPARE_NEED_TWO,
+      );
+      setCompareErrorDetail("");
+      return;
+    }
+    setCompareBusy(true);
+    setCompareErrorKey(null);
+    setCompareErrorDetail("");
+    try {
+      const result = await compareRevisions(
+        String(contentId),
+        selection.left,
+        selection.right,
+      );
+      setCompareResult(result);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = editorRevisionErrorReason(err);
+      const errorKey = compareErrorKeyFor(reason);
+      setCompareErrorKey(errorKey);
+      setCompareErrorDetail(formatApiError(err, message(errorKey)));
+    } finally {
+      setCompareBusy(false);
     }
   }
 
@@ -2258,6 +2345,139 @@ export function EditorHost({
                         : EDITOR_MSG.RESTORE_PRIOR_REVISION,
                     )}
                   </button>
+                </div>
+                <div data-testid="editor-compare" className={styles.form}>
+                  {restoreLoadErrorKey ? (
+                    <div
+                      className={styles.status}
+                      data-testid="editor-compare-unavailable"
+                    >
+                      {message(EDITOR_MSG.COMPARE_LOAD_HINT)}
+                    </div>
+                  ) : restoreRevisions.length < 2 ? (
+                    <div
+                      className={styles.status}
+                      data-testid="editor-compare-need-two"
+                    >
+                      {message(EDITOR_MSG.COMPARE_NEED_TWO)}
+                    </div>
+                  ) : (
+                    <>
+                      <label className={styles.field}>
+                        <span className={styles.label}>
+                          {message(EDITOR_MSG.COMPARE_FROM)}
+                        </span>
+                        <select
+                          className={styles.input}
+                          data-testid="editor-compare-left"
+                          value={compareLeft === "" ? "" : String(compareLeft)}
+                          onChange={(e) => {
+                            setCompareLeft(
+                              e.target.value ? Number(e.target.value) : "",
+                            );
+                            setCompareResult(null);
+                            setCompareErrorKey(null);
+                          }}
+                        >
+                          {restoreRevisions.map((rev) => (
+                            <option key={`cmp-l-${rev.revId}`} value={rev.revId}>
+                              {summarizeRevisionRow(rev, `#${rev.revId}`)}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className={styles.field}>
+                        <span className={styles.label}>
+                          {message(EDITOR_MSG.COMPARE_TO)}
+                        </span>
+                        <select
+                          className={styles.input}
+                          data-testid="editor-compare-right"
+                          value={compareRight === "" ? "" : String(compareRight)}
+                          onChange={(e) => {
+                            setCompareRight(
+                              e.target.value ? Number(e.target.value) : "",
+                            );
+                            setCompareResult(null);
+                            setCompareErrorKey(null);
+                          }}
+                        >
+                          {restoreRevisions.map((rev) => (
+                            <option key={`cmp-r-${rev.revId}`} value={rev.revId}>
+                              {summarizeRevisionRow(rev, `#${rev.revId}`)}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <div className={styles.actions}>
+                        <button
+                          type="button"
+                          className={styles.button}
+                          data-testid="editor-compare-run"
+                          disabled={
+                            compareBusy ||
+                            !revisionCompareSelection(compareLeft, compareRight)
+                              .ok
+                          }
+                          onClick={() => void handleCompareRevisions()}
+                        >
+                          {message(
+                            compareBusy
+                              ? EDITOR_MSG.COMPARING
+                              : EDITOR_MSG.COMPARE,
+                          )}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                  {compareErrorKey ? (
+                    <div
+                      className={styles.status}
+                      role="alert"
+                      data-testid="editor-compare-error"
+                    >
+                      {message(compareErrorKey)}
+                      {compareErrorDetail ? ` ${compareErrorDetail}` : ""}
+                    </div>
+                  ) : null}
+                  {compareResult && isEmptyRevisionCompare(compareResult.fields) ? (
+                    <div
+                      className={styles.status}
+                      data-testid="editor-compare-empty"
+                    >
+                      {message(EDITOR_MSG.COMPARE_EMPTY)}
+                    </div>
+                  ) : null}
+                  {compareResult && !isEmptyRevisionCompare(compareResult.fields) ? (
+                    <table data-testid="editor-compare-table">
+                      <thead>
+                        <tr>
+                          <th>{message(EDITOR_MSG.COMPARE_COL_FIELD)}</th>
+                          <th>{message(EDITOR_MSG.COMPARE_COL_LEFT)}</th>
+                          <th>{message(EDITOR_MSG.COMPARE_COL_RIGHT)}</th>
+                          <th>{message(EDITOR_MSG.RESTORE_REVISION_LABEL)}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {compareResult.fields.map((field) => (
+                          <tr
+                            key={field.name}
+                            data-testid={`editor-compare-row-${field.name}`}
+                            data-changed={field.changed ? "true" : "false"}
+                          >
+                            <td>{field.name}</td>
+                            <td>{field.leftValue}</td>
+                            <td>{field.rightValue}</td>
+                            <td>
+                              {field.changed
+                                ? message(EDITOR_MSG.COMPARE_CHANGED)
+                                : message(EDITOR_MSG.COMPARE_UNCHANGED)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : null}
                 </div>
               </div>
             ) : null}
