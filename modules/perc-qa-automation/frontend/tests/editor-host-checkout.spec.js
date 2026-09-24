@@ -157,6 +157,13 @@ async function stubEditorApis(page, { checkoutStatus, checkoutBody, checkinStatu
       body: JSON.stringify({ PSLocalDependencySummary: { links: [] } }),
     }),
   );
+  await page.route("**/rest/content-explorer/translations/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ itemId: 42, locale: "en-us", variants: [] }),
+    }),
+  );
 }
 
 test.describe("React Content Editor check-out and check-in", () => {
@@ -179,11 +186,15 @@ test.describe("React Content Editor check-out and check-in", () => {
       await expect(page.getByTestId(TEST_IDS.checkin)).toBeVisible();
       await expect(page.getByTestId(TEST_IDS.save)).toBeVisible();
       await page.getByTestId(TEST_IDS.checkin).click();
+      await expect(page.getByTestId(TEST_IDS.checkinComment)).toBeVisible();
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="editor-checkin-comment"]',
+      });
+      await page.getByTestId(TEST_IDS.checkinConfirm).click();
       await expect(page.getByTestId(TEST_IDS.lockError)).toBeVisible();
       await expect(page.getByTestId(TEST_IDS.lockError)).toContainText(/not allowed to check in/i);
       expect(leftover).toEqual([]);
       expect(pageErrors, pageErrors.join("\n")).toEqual([]);
-      await expectNoSeriousA11yViolations(page);
     },
   );
 

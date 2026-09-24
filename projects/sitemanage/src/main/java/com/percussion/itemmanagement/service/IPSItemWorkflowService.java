@@ -51,6 +51,15 @@ public interface IPSItemWorkflowService {
   PSNoContent checkIn(String id) throws PSItemWorkflowServiceException;
 
   /**
+   * Same as {@link #checkIn(String)} with an optional revision comment. Blank or {@code null} is
+   * stored as no comment.
+   *
+   * @param id never blank
+   * @param comment revision comment, may be null or blank
+   */
+  PSNoContent checkIn(String id, String comment) throws PSItemWorkflowServiceException;
+
+  /**
    * Checks in the content. If ignoreRevisionCheck is true, the underlying server code doesn't check
    * whether the content's revision is checked out to the current user or not. Pass true for this
    * method only in case of force checkin.

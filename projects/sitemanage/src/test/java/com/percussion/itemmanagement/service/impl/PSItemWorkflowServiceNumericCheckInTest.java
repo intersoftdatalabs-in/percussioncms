@@ -130,6 +130,33 @@ class PSItemWorkflowServiceNumericCheckInTest {
   }
 
   @Test
+  void checkInPassesTrimmedRevisionComment() throws Exception {
+    var sum = new PSDataItemSummary();
+    sum.setName("Home");
+    sum.setType("percAsset");
+    when(dataItemSummaryService.find("594")).thenReturn(sum);
+    when(idMapper.getGuids(anyList())).thenReturn(List.of(contentGuid));
+
+    var result = service.checkIn("594", "  shipped copy  ");
+
+    assertEquals("checkIn", result.getOperation());
+    verify(contentWs).checkinItems(eq(List.of(contentGuid)), eq("shipped copy"), eq(false));
+  }
+
+  @Test
+  void checkInBlankCommentIsNullOnContentWs() throws Exception {
+    var sum = new PSDataItemSummary();
+    sum.setName("Home");
+    sum.setType("percAsset");
+    when(dataItemSummaryService.find("594")).thenReturn(sum);
+    when(idMapper.getGuids(anyList())).thenReturn(List.of(contentGuid));
+
+    service.checkIn("594", "  ");
+
+    verify(contentWs).checkinItems(eq(List.of(contentGuid)), isNull(), eq(false));
+  }
+
+  @Test
   void checkInRestPathAcceptsBareNumericContentId() throws PSDataServiceException {
     when(dataItemSummaryService.find("594")).thenReturn(null);
 

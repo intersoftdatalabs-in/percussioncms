@@ -127,6 +127,9 @@ export async function checkoutEditorItem(
   return unwrapUserInfo(res);
 }
 
-export async function checkinEditorItem(itemId: string): Promise<void> {
-  await post(PATHS.editorItemCheckin(itemId), {});
+export async function checkinEditorItem(
+  itemId: string,
+  comment?: string,
+): Promise<void> {
+  await post(PATHS.editorItemCheckin(itemId, comment), {});
 }

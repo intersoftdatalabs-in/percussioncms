@@ -27,6 +27,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -104,7 +105,8 @@ public class EditorItemLockResource {
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
       summary = "Check in an item",
-      description = "Releases the CMS lock. 403/409 are failures.",
+      description =
+          "Releases the CMS lock. Optional query comment is the revision comment. 403/409 are failures.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -114,9 +116,10 @@ public class EditorItemLockResource {
         @ApiResponse(responseCode = "403", description = "Not allowed to check in"),
         @ApiResponse(responseCode = "409", description = "Not checked out to the session user")
       })
-  public EditorItemLockInfo checkin(@PathParam("id") String id) {
+  public EditorItemLockInfo checkin(
+      @PathParam("id") String id, @QueryParam("comment") String comment) {
     try {
-      return requireAdaptor().checkin(uriInfo.getBaseUri(), id);
+      return requireAdaptor().checkin(uriInfo.getBaseUri(), id, comment);
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {

@@ -824,8 +824,13 @@ export const PATHS = {
   editorItemCheckout(itemId: string) {
     return `${REST_ROOT}/editor/items/${encodeURIComponent(itemId)}/checkout`;
   },
-  editorItemCheckin(itemId: string) {
-    return `${REST_ROOT}/editor/items/${encodeURIComponent(itemId)}/checkin`;
+  editorItemCheckin(itemId: string, comment?: string) {
+    const base = `${REST_ROOT}/editor/items/${encodeURIComponent(itemId)}/checkin`;
+    const trimmed = (comment ?? "").trim();
+    if (trimmed.length === 0) {
+      return base;
+    }
+    return `${base}?comment=${encodeURIComponent(trimmed)}`;
   },
   get ITEM_WORKFLOW_FORCE_CHECKOUT() {
     return `${SERVICES_ROOT}/itemmanagement/workflow/forceCheckOut/`;
