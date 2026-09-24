@@ -115,14 +115,16 @@ describe("EditorHost translation variants (#4816)", () => {
     });
     fireEvent.click(await screen.findByTestId("translations-locale-option-de-de"));
     fireEvent.click(screen.getByTestId("translations-create-submit"));
+    // createVariants resolves after the click's act(), so the content-id
+    // render can commit before the load effect records the new id (#4830).
     await waitFor(() => {
       expect(screen.getByTestId("editor-content-id").textContent).toMatch(/901/);
+      expect(loadFields).toHaveBeenCalledWith("901");
     });
     expect(createTranslationVariants).toHaveBeenCalledWith({
       itemIds: [42],
       locales: ["de-de"],
     });
-    expect(loadFields).toHaveBeenCalledWith("901");
   });
 
   it("shows permission and duplicate errors without blanking the host", async () => {
