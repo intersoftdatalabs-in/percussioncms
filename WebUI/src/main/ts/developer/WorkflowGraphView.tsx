@@ -5,6 +5,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { isApiError } from "../api/client";
 import {
+  deleteWorkflowStep,
   deleteWorkflowTransition,
   getWorkflowGraph,
 } from "../api/developer/workflowsApi";
@@ -14,8 +15,8 @@ import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { DEV_MSG } from "./messages";
 
 /**
- * State/transition graph for one workflow (slice 32 read, slice 33 delete).
- * Packaged workflows stay read-only. Delete removes one edge and keeps steps.
+ * State/transition graph for one workflow (slice 32 read, slice 33 transition delete,
+ * slice 34 step delete). Packaged workflows stay read-only.
  */
 export function WorkflowGraphView({
   workflowName,
@@ -26,6 +27,7 @@ export function WorkflowGraphView({
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
   const [pending, setPending] = useState<WorkflowGraphEdge | null>(null);
+  const [pendingStep, setPendingStep] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
@@ -90,6 +92,35 @@ export function WorkflowGraphView({
     }
   }, [pending, workflowName]);
 
+  const onConfirmDeleteStep = useCallback(async () => {
+    if (!pendingStep) {
+      setPendingStep(null);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const next = await deleteWorkflowStep(workflowName, pendingStep);
+      setGraph(next);
+      setNotice(DEV_MSG.WF_STEP_DELETED);
+      setPendingStep(null);
+      setReloadToken((n) => n + 1);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 403) {
+        setError(DEV_MSG.WF_STEP_DELETE_FORBIDDEN);
+      } else if (isApiError(err) && err.status === 409) {
+        setError(DEV_MSG.WF_STEP_DELETE_CONFLICT);
+      } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
+        setError(DEV_MSG.WF_STEP_DELETE_BAD);
+      } else {
+        setError(DEV_MSG.WF_STEP_DELETE_ERROR);
+      }
+      setPendingStep(null);
+    } finally {
+      setBusy(false);
+    }
+  }, [pendingStep, workflowName]);
+
   const nodes = graph?.nodes ?? [];
   const edges = graph?.edges ?? [];
   const packaged = graph?.packaged === true;
@@ -134,6 +165,20 @@ export function WorkflowGraphView({
               }}
             >
               {node.name || "—"}
+              {!packaged && node.name ? (
+                <button
+                  type="button"
+                  data-testid={`developer-wf-graph-delete-step-${i}`}
+                  style={{ marginLeft: 8 }}
+                  onClick={() => {
+                    setNotice(null);
+                    setPending(null);
+                    setPendingStep(node.name as string);
+                  }}
+                >
+                  {DEV_MSG.WF_STEP_DELETE}
+                </button>
+              ) : null}
             </span>
           ))}
         </div>
@@ -150,6 +195,7 @@ export function WorkflowGraphView({
                   style={{ marginLeft: 8 }}
                   onClick={() => {
                     setNotice(null);
+                    setPendingStep(null);
                     setPending(edge);
                   }}
                 >
@@ -175,6 +221,23 @@ export function WorkflowGraphView({
         }}
         onConfirm={() => {
           void onConfirmDelete();
+        }}
+      />
+      <CatalogConfirmDialog
+        open={pendingStep != null}
+        busy={busy}
+        message={
+          pendingStep
+            ? `${DEV_MSG.WF_STEP_DELETE_CONFIRM} ${pendingStep}`
+            : DEV_MSG.WF_STEP_DELETE_CONFIRM
+        }
+        onCancel={() => {
+          if (!busy) {
+            setPendingStep(null);
+          }
+        }}
+        onConfirm={() => {
+          void onConfirmDeleteStep();
         }}
       />
     </section>

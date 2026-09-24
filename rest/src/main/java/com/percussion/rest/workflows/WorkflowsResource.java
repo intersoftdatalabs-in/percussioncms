@@ -525,4 +525,51 @@ public class WorkflowsResource {
       throw new WebApplicationException(e, 500);
     }
   }
+
+  @DELETE
+  @Path("/{idOrName}/steps/{stepName}")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Delete one workflow step",
+      description =
+          "Slice 34 Admin. Deletes a single step only when no regular or aging transition still"
+              + " uses it (outgoing or incoming). Does not rewire neighboring steps. Packaged"
+              + " default workflows (Default Workflow, Simple Workflow, Local Content) are"
+              + " forbidden (403). A step that is still referenced returns 409.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Deleted; returns the updated graph",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(responseCode = "400", description = "Missing or invalid step name"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow or step not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "A transition still references the step"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph deleteWorkflowStep(
+      @PathParam("idOrName") String idOrName, @PathParam("stepName") String stepName) {
+    if (stepName == null || stepName.isBlank()) {
+      throw new WebApplicationException("stepName is required", 400);
+    }
+    try {
+      return requireAdaptor().deleteWorkflowStep(uriInfo.getBaseUri(), idOrName, stepName);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to delete workflow step ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
 }

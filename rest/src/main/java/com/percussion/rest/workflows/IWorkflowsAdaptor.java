@@ -137,4 +137,17 @@ public interface IWorkflowsAdaptor {
    */
   WorkflowGraph deleteWorkflowTransition(
       URI baseUri, String idOrName, String fromStep, String label, String toStep);
+
+  /**
+   * Delete one step that has no remaining transitions (Admin, slice 34). Does not rewire
+   * neighboring steps.
+   *
+   * @param stepName step to delete; must exist and must not be the source or destination of a
+   *     transition
+   * @return the graph after the delete
+   * @throws IllegalArgumentException when {@code stepName} is blank or invalid
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow or
+   *     step, 409 when a transition still references the step
+   */
+  WorkflowGraph deleteWorkflowStep(URI baseUri, String idOrName, String stepName);
 }

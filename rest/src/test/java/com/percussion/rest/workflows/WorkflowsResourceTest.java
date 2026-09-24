@@ -599,4 +599,45 @@ public class WorkflowsResourceTest {
             () -> resource.deleteWorkflowTransition("Missing", "Draft", "Submit", "Review"));
     assertEquals(404, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void deleteStepRequiresName() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteWorkflowStep("Nightly QA", " "));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).deleteWorkflowStep(any(), any(), any());
+  }
+
+  @Test
+  public void deleteStepSuccessReturnsGraph() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Nightly QA");
+    when(adaptor.deleteWorkflowStep(any(), eq("Nightly QA"), eq("Orphan")))
+        .thenReturn(graph);
+    WorkflowGraph out = resource.deleteWorkflowStep("Nightly QA", "Orphan");
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor).deleteWorkflowStep(any(), eq("Nightly QA"), eq("Orphan"));
+  }
+
+  @Test
+  public void deleteStepConflictIs409() {
+    when(adaptor.deleteWorkflowStep(any(), eq("Nightly QA"), eq("Draft")))
+        .thenThrow(new WebApplicationException("still referenced", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteWorkflowStep("Nightly QA", "Draft"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteStepInvalidNameIs400() {
+    when(adaptor.deleteWorkflowStep(any(), any(), any()))
+        .thenThrow(new IllegalArgumentException("wildcards"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.deleteWorkflowStep("Nightly QA", "bad*name"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
 }
