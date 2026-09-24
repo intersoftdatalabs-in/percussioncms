@@ -133,7 +133,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -3366,16 +3365,23 @@ public class PSPublisherService
    
    public List<IPSPubStatus> findPubStatusBySiteWithFilters(IPSGuid siteId, int numDays, int maxCount)
    {
+      return findPubStatusBySiteWithFilters(siteId, numDays, maxCount, 0, false);
+   }
+
+   public List<IPSPubStatus> findPubStatusBySiteWithFilters(
+         IPSGuid siteId, int numDays, int maxCount, int skipCount, boolean failuresOnly)
+   {
       List<IPSEdition> editions = findAllEditionsBySite(siteId);
       List<Long> editionIds = new ArrayList<>();
       if (editions.isEmpty())
          return Collections.emptyList();
-      
-      for(IPSEdition e : editions)
+
+      for (IPSEdition e : editions)
       {
          editionIds.add(((PSEdition) e).getId());
       }
-      return findPubStatusByEditionListWithFilters(editionIds, numDays, maxCount);
+      return findPubStatusByEditionListWithFilters(
+            editionIds, numDays, maxCount, skipCount, failuresOnly);
    }
    
    public List<IPSPubStatus> findPubStatusBySiteAndServer(IPSGuid siteId, IPSGuid pubServerId)
@@ -3391,8 +3397,15 @@ public class PSPublisherService
    public List<IPSPubStatus> findPubStatusBySiteAndServerWithFilters(IPSGuid siteId, IPSGuid serverId, int numDays,
          int maxCount)
    {
-      List<IPSPubStatus> statusList = findAllPubStatusBySiteAndServer(siteId, serverId, numDays, maxCount);
-      
+      return findPubStatusBySiteAndServerWithFilters(siteId, serverId, numDays, maxCount, 0, false);
+   }
+
+   public List<IPSPubStatus> findPubStatusBySiteAndServerWithFilters(
+         IPSGuid siteId, IPSGuid serverId, int numDays, int maxCount, int skipCount, boolean failuresOnly)
+   {
+      List<IPSPubStatus> statusList =
+            findAllPubStatusBySiteAndServer(siteId, serverId, numDays, maxCount, skipCount, failuresOnly);
+
       if (statusList == null || statusList.isEmpty())
          return Collections.emptyList();
       else
@@ -3416,7 +3429,14 @@ public class PSPublisherService
    
    public List<IPSPubStatus> findAllPubStatusWithFilters(int days, int maxCount)
    {
-      return findPubStatusByEditionListWithFilters(Collections.emptyList(), days, maxCount);
+      return findAllPubStatusWithFilters(days, maxCount, 0, false);
+   }
+
+   public List<IPSPubStatus> findAllPubStatusWithFilters(
+         int days, int maxCount, int skipCount, boolean failuresOnly)
+   {
+      return findPubStatusByEditionListWithFilters(
+            Collections.emptyList(), days, maxCount, skipCount, failuresOnly);
    }
    
    /**
@@ -3429,14 +3449,15 @@ public class PSPublisherService
     */
    public List<IPSPubStatus> findAllPubStatusBySiteAndServer(IPSGuid siteId, IPSGuid serverId, int days, int maxCount)
    {
+      return findAllPubStatusBySiteAndServer(siteId, serverId, days, maxCount, 0, false);
+   }
+
+   public List<IPSPubStatus> findAllPubStatusBySiteAndServer(
+         IPSGuid siteId, IPSGuid serverId, int days, int maxCount, int skipCount, boolean failuresOnly)
+   {
       Session s = getSession();
-      Calendar cal = Calendar.getInstance();
       List<IPSPubStatus> stati = new ArrayList<>();
-      
-      if (days != -1)
-          cal.add(Calendar.DAY_OF_YEAR, -days);
-      Date fromDate = cal.getTime();
-      
+
       if (siteId == null)
       {
          throw new IllegalArgumentException("siteId may not be null");
@@ -3445,43 +3466,53 @@ public class PSPublisherService
       {
          throw new IllegalArgumentException("serverId may not be null");
       }
-         
-      String sqlQuery = "select status from PSPubStatus status, PSPubServer server "
+
+      StringBuilder sqlQuery = new StringBuilder("select status from PSPubStatus status, PSPubServer server "
             + "where server.siteId = :siteid and server.serverId = :serverid and "
-            + "server.serverId = status.pubServerId and status.hidden is null ";
-      
-      if (days != -1)
-         sqlQuery += "and status.startDate >= :fromDate ";
-      
-      sqlQuery += "order by status.startDate desc";
-      
+            + "server.serverId = status.pubServerId and status.hidden is null");
+      PSPubStatusLogQuery.appendWindow(sqlQuery, "status", days, failuresOnly);
+      sqlQuery.append(" order by status.startDate desc");
+
       log.debug("Query is: " + sqlQuery);
-      
+
       Query<IPSPubStatus> query = null;
-      try 
+      try
       {
-          query = s.createQuery(sqlQuery, IPSPubStatus.class);
+          query = s.createQuery(sqlQuery.toString(), IPSPubStatus.class);
       }
       catch (HibernateException hibernateException)
       {
           log.error(hibernateException.getMessage());
       }
-      
+
       query.setParameter("siteid", siteId.longValue());
       query.setParameter("serverid", serverId.longValue());
       if (days != -1) {
-         query.setParameter("fromDate", fromDate);
+         query.setParameter(PSPubStatusLogQuery.FROM_DATE, PSPubStatusLogQuery.fromDate(days, new Date()));
       }
-      
-      if (maxCount != -1) {
-         query.setMaxResults(maxCount);
+      if (failuresOnly) {
+         query.setParameterList(PSPubStatusLogQuery.ENDING_STATES, PSPubStatusLogQuery.failureEndingOrdinals());
       }
-      
+      applyLogLimits(query, skipCount, maxCount);
+
       log.debug("HQL query string is: " + query.getQueryString());
       List<IPSPubStatus> result = query.list();
       stati.addAll(result);
-      
+
       return stati;
+   }
+
+   private static void applyLogLimits(Query<?> query, int skipCount, int maxCount)
+   {
+      PSPubStatusLogQuery.Limits limits = PSPubStatusLogQuery.limits(skipCount, maxCount);
+      if (limits.firstResult() != null)
+      {
+         query.setFirstResult(limits.firstResult());
+      }
+      if (limits.maxResults() != null)
+      {
+         query.setMaxResults(limits.maxResults());
+      }
    }
 
    /**
@@ -3653,12 +3684,13 @@ public class PSPublisherService
     */
    private List<IPSPubStatus> findPubStatusByEditionListWithFilters(List<Long> editionids, int days, int maxCount)
    {
-      Session session = getSession();
+      return findPubStatusByEditionListWithFilters(editionids, days, maxCount, 0, false);
+   }
 
-      Calendar cal = Calendar.getInstance();
-      if (days != -1)
-          cal.add(Calendar.DAY_OF_YEAR, -days);
-      Date fromDate = cal.getTime();
+   private List<IPSPubStatus> findPubStatusByEditionListWithFilters(
+         List<Long> editionids, int days, int maxCount, int skipCount, boolean failuresOnly)
+   {
+      Session session = getSession();
 
       StringBuilder hql = new StringBuilder("from PSPubStatus p where p.hidden is null and p.startDate is not null");
       if (editionids.size() == 1)
@@ -3669,9 +3701,7 @@ public class PSPublisherService
       {
          hql.append(" and p.editionId in (:editionIds)");
       }
-      if (days != -1) {
-         hql.append(" and p.startDate > :fromDate");
-      }
+      PSPubStatusLogQuery.appendWindow(hql, "p", days, failuresOnly);
       hql.append(" order by p.startDate desc");
 
       Query<IPSPubStatus> q = session.createQuery(hql.toString(), IPSPubStatus.class);
@@ -3680,10 +3710,10 @@ public class PSPublisherService
       else if (!editionids.isEmpty())
          q.setParameterList("editionIds", editionids);
       if (days != -1)
-         q.setParameter("fromDate", fromDate);
-      if (maxCount != -1) {
-         q.setMaxResults(maxCount);
-      }
+         q.setParameter(PSPubStatusLogQuery.FROM_DATE, PSPubStatusLogQuery.fromDate(days, new Date()));
+      if (failuresOnly)
+         q.setParameterList(PSPubStatusLogQuery.ENDING_STATES, PSPubStatusLogQuery.failureEndingOrdinals());
+      applyLogLimits(q, skipCount, maxCount);
       return q.list();
    }
    
