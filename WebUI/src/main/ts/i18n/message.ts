@@ -196,6 +196,18 @@ export const MSG = {
     "perc.ui.publish.modern@This item is not on the incremental queue",
   PUBLISH_QUEUE_REMOVE_FAILED:
     "perc.ui.publish.modern@Could not remove the queued item",
+  PUBLISH_CLEAR_QUEUE: "perc.ui.publish.modern@Clear queue",
+  PUBLISH_CONFIRM_CLEAR_QUEUE:
+    "perc.ui.publish.modern@Clear the incremental queue for this site and server?",
+  PUBLISH_QUEUE_CLEARED: "perc.ui.publish.modern@Incremental queue cleared",
+  PUBLISH_QUEUE_CLEAR_PARTIAL:
+    "perc.ui.publish.modern@Some items are still on the incremental queue",
+  PUBLISH_QUEUE_CLEAR_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to clear the incremental queue",
+  PUBLISH_QUEUE_CLEAR_NOT_FOUND:
+    "perc.ui.publish.modern@The site or server was not found",
+  PUBLISH_QUEUE_CLEAR_FAILED:
+    "perc.ui.publish.modern@Could not clear the incremental queue",
   PUBLISH_LOADING: "perc.ui.home.modern@Loading",
   PUBLISH_ERROR: "perc.ui.home.modern@Error",
   PUBLISH_FORBIDDEN: "perc.ui.publish.modern@Publish Forbidden",

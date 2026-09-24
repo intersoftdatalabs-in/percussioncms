@@ -950,6 +950,41 @@ public class PSSitePublishService implements IPSSitePublishService {
     contentChangeService.deleteChangeEvents(siteId, cid, changeType);
   }
 
+  @Override
+  public void clearQueuedIncrementalContent(String siteName, String serverName)
+      throws PSSitePublishException {
+    Validate.notEmpty(siteName);
+    Validate.notEmpty(serverName);
+    if (!isPublishAllowed()) {
+      throw new PSIncrementalQueueStatusException(403, "Publish forbidden");
+    }
+    final long siteId;
+    final PSContentChangeType changeType;
+    try {
+      IPSSite site = pubWs.findSite(siteName);
+      if (site == null || site.getSiteId() == null) {
+        throw new PSIncrementalQueueStatusException(404, "Site not found");
+      }
+      siteId = site.getSiteId();
+      PSPublishServerInfo info = findPubServerInfo(siteName, serverName);
+      changeType =
+          PSPubServer.STAGING.equalsIgnoreCase(info.getServerType())
+              ? PSContentChangeType.PENDING_STAGED
+              : PSContentChangeType.PENDING_LIVE;
+    } catch (PSIncrementalQueueStatusException ex) {
+      throw ex;
+    } catch (PSSitePublishException ex) {
+      throw new PSIncrementalQueueStatusException(404, "Publish server or site was not found");
+    } catch (IPSPubServerService.PSPubServerServiceException ex) {
+      throw new PSSitePublishException(ex.getMessage(), ex);
+    }
+    try {
+      contentChangeService.deleteChangeEventsForSite(siteId, changeType);
+    } catch (RuntimeException ex) {
+      throw new PSSitePublishException(ex.getMessage(), ex);
+    }
+  }
+
   public PSPagedItemList getQueuedIncrementalContent(
       String siteName, String serverName, int startIndex, int pageSize)
       throws PSSitePublishException {

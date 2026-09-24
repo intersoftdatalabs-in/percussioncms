@@ -27,6 +27,7 @@ vi.mock("@/api/publishing/publishApi", () => ({
   getIncrementalItems: vi.fn().mockResolvedValue({ items: [], totalCount: 0 }),
   getIncrementalRelatedItems: vi.fn().mockResolvedValue({ items: [], totalCount: 0 }),
   removeIncrementalQueueItem: vi.fn().mockResolvedValue(undefined),
+  clearIncrementalQueue: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/api/publishing/serversApi", () => ({
@@ -72,11 +73,13 @@ describe("SiteWorkspace incremental queue list (#4787)", () => {
     vi.mocked(publishApi.getIncrementalItems).mockReset();
     vi.mocked(publishApi.getIncrementalRelatedItems).mockReset();
     vi.mocked(publishApi.removeIncrementalQueueItem).mockReset();
+    vi.mocked(publishApi.clearIncrementalQueue).mockReset();
     vi.mocked(publishApi.getIncrementalRelatedItems).mockResolvedValue({
       items: [],
       totalCount: 0,
     });
     vi.mocked(publishApi.removeIncrementalQueueItem).mockResolvedValue(undefined);
+    vi.mocked(publishApi.clearIncrementalQueue).mockResolvedValue(undefined);
   });
 
   it("renders queued items as id and label rows", async () => {
@@ -228,6 +231,107 @@ describe("SiteWorkspace incremental queue list (#4787)", () => {
       expect(
         screen.getByTestId("publish-incremental-queue-remove-error").textContent,
       ).toMatch(/not on the incremental queue/i);
+    });
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+  });
+
+  it("confirm clears the queue and reloads an empty list", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(publishApi.getIncrementalItems)
+      .mockResolvedValueOnce({
+        items: [
+          { id: "301", name: "Home" },
+          { id: "88", title: "About" },
+        ],
+      })
+      .mockResolvedValueOnce({ items: [] });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-incremental-queue-clear")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-queue-clear"));
+    await waitFor(() => {
+      expect(publishApi.clearIncrementalQueue).toHaveBeenCalledWith(
+        "MySite",
+        "FTP-Prod",
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-incremental-queue-empty")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("publish-incremental-queue-row")).toBeNull();
+    expect(screen.getByTestId("publish-action-message").textContent).toMatch(
+      /cleared/i,
+    );
+  });
+
+  it("cancel does not clear the queue", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [{ id: "301", name: "Home" }],
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-incremental-queue-clear")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-queue-clear"));
+    expect(publishApi.clearIncrementalQueue).not.toHaveBeenCalled();
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+  });
+
+  it("keeps remaining rows and a message when the server still has items", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(publishApi.getIncrementalItems)
+      .mockResolvedValueOnce({ items: [{ id: "301", name: "Home" }] })
+      .mockResolvedValueOnce({ items: [{ id: "301", name: "Home" }] });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-incremental-queue-clear")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-queue-clear"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-action-message").textContent).toMatch(
+        /still on the incremental queue/i,
+      );
+    });
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+  });
+
+  it("shows clear-queue 403 without treating it as success", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [{ id: "301", name: "Home" }],
+    });
+    vi.mocked(publishApi.clearIncrementalQueue).mockRejectedValueOnce({
+      status: 403,
+      statusText: "Forbidden",
+      body: "no",
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-incremental-queue-clear")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-queue-clear"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("publish-incremental-queue-remove-error").textContent,
+      ).toMatch(/not allowed to clear/i);
     });
     expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
   });

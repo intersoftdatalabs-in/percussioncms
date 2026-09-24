@@ -84,6 +84,19 @@ export async function removeIncrementalQueueItem(
   await del<void>(url);
 }
 
+/**
+ * Clear every item on the incremental queue for the site and server (HTTP 204).
+ * 403 and 404 are thrown as {@link ApiError}.
+ */
+export async function clearIncrementalQueue(
+  siteName: string,
+  serverName: string,
+): Promise<void> {
+  const url =
+    `${PATHS.INCREMENTAL_LIST}${encodeSeg(siteName)}/${encodeSeg(serverName)}`;
+  await del<void>(url);
+}
+
 /** Paged incremental related-items queue. */
 export async function getIncrementalRelatedItems(
   siteName: string,
