@@ -105,6 +105,16 @@ public interface IPSSitePublishService {
   void removeQueuedIncrementalContent(String siteName, String serverName, String contentId)
       throws PSSitePublishException;
 
+  /**
+   * Deletes every incremental-queue event for the site and named server (live or staging).
+   *
+   * @param siteName site name, not blank
+   * @param serverName publish server name, not blank
+   * @throws PSSitePublishException when the queue cannot be cleared
+   */
+  void clearQueuedIncrementalContent(String siteName, String serverName)
+      throws PSSitePublishException;
+
   /** Exception thrown when an error occurs attempting to publish a site. */
   class PSSitePublishException extends PSDataServiceException {
     private static final long serialVersionUID = 1L;

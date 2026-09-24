@@ -17,6 +17,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  clearIncrementalQueue,
   getIncrementalItems,
   getIncrementalRelatedItems,
   incrementalPublishSite,
@@ -307,15 +308,20 @@ export function SiteWorkspace({
     }
   }
 
-  async function loadIncrementalPreview(): Promise<void> {
+  async function loadIncrementalPreview(options?: {
+    preserveRemoveError?: boolean;
+  }): Promise<unknown[] | null> {
     if (!selectedServerName) {
-      return;
+      return null;
     }
     setQueueLoadError(null);
-    setQueueRemoveError(null);
+    if (!options?.preserveRemoveError) {
+      setQueueRemoveError(null);
+    }
     try {
       const page = await getIncrementalItems(siteName, selectedServerName, 1, 25);
-      setQueuePreview(extractQueueItems(page));
+      const items = extractQueueItems(page);
+      setQueuePreview(items);
       const related = await getIncrementalRelatedItems(
         siteName,
         selectedServerName,
@@ -328,6 +334,7 @@ export function SiteWorkspace({
       setSelectedRelated(new Set());
       setPreviewLoaded(true);
       setQueueLoadError(null);
+      return items;
     } catch (err) {
       setQueuePreview([]);
       setRelatedPreview([]);
@@ -338,6 +345,7 @@ export function SiteWorkspace({
       setQueueLoadError(text);
       setActionMessage(text);
       setActionState("error");
+      return null;
     }
   }
 
@@ -370,6 +378,45 @@ export function SiteWorkspace({
       setQueueRemoveError(queueRemoveMessage(queueRemoveFailure(err)));
       setActionState("error");
     }
+  }
+
+  function queueClearMessage(reason: ReturnType<typeof queueRemoveFailure>): string {
+    if (reason === "forbidden") {
+      return message(MSG.PUBLISH_QUEUE_CLEAR_FORBIDDEN);
+    }
+    if (reason === "not_found") {
+      return message(MSG.PUBLISH_QUEUE_CLEAR_NOT_FOUND);
+    }
+    return message(MSG.PUBLISH_QUEUE_CLEAR_FAILED);
+  }
+
+  async function clearWholeQueue(): Promise<void> {
+    if (!selectedServerName || isQueueEmpty({ items: queuePreview })) {
+      return;
+    }
+    if (!window.confirm(message(MSG.PUBLISH_CONFIRM_CLEAR_QUEUE))) {
+      return;
+    }
+    setQueueRemoveError(null);
+    try {
+      await clearIncrementalQueue(siteName, selectedServerName);
+    } catch (err) {
+      setQueueRemoveError(queueClearMessage(queueRemoveFailure(err)));
+      setActionState("error");
+      await loadIncrementalPreview({ preserveRemoveError: true });
+      return;
+    }
+    const remaining = await loadIncrementalPreview();
+    if (remaining == null) {
+      return;
+    }
+    if (remaining.length === 0) {
+      setActionState(successPublishState());
+      setActionMessage(message(MSG.PUBLISH_QUEUE_CLEARED));
+      return;
+    }
+    setActionState("error");
+    setActionMessage(message(MSG.PUBLISH_QUEUE_CLEAR_PARTIAL));
   }
 
   function toggleRelated(id: string): void {
@@ -611,6 +658,19 @@ export function SiteWorkspace({
           <h3 style={{ fontSize: "1rem" }}>
             {message(MSG.PUBLISH_INCREMENTAL)}
           </h3>
+          {!isQueueEmpty({ items: queuePreview }) && (
+            <div style={{ marginBottom: 8 }}>
+              <button
+                type="button"
+                style={buttonStyle}
+                disabled={actionState === "starting"}
+                data-testid="publish-incremental-queue-clear"
+                onClick={() => void clearWholeQueue()}
+              >
+                {message(MSG.PUBLISH_CLEAR_QUEUE)}
+              </button>
+            </div>
+          )}
           {isQueueEmpty({ items: queuePreview }) ? (
             <p style={emptyStyle} data-testid="publish-incremental-queue-empty">
               {message(MSG.PUBLISH_EMPTY_QUEUE)}

@@ -490,6 +490,24 @@ public class PSSitePublishServiceWebAdapter {
   }
 
   /**
+   * Clears every incremental-queue item for the site and server. HTTP 204 on success. HTTP 403
+   * when publish is not allowed. HTTP 404 when the site or server cannot be resolved.
+   */
+  @DELETE
+  @Path("/incremental/content/{name}/{server}")
+  public Response clearQueuedIncrementalContent(
+      @PathParam("name") String siteName, @PathParam("server") String serverName) {
+    try {
+      sitePublishService.clearQueuedIncrementalContent(siteName, serverName);
+      return Response.noContent().build();
+    } catch (PSIncrementalQueueStatusException e) {
+      return Response.status(e.status()).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
+    } catch (IPSSitePublishService.PSSitePublishException e) {
+      throw new WebApplicationException(e.getMessage());
+    }
+  }
+
+  /**
    * Removes one content id from the incremental queue for the site and server. HTTP 204 on
    * success. HTTP 403 when publish is not allowed. HTTP 404 when the id is not queued or the site
    * or server cannot be resolved.

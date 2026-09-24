@@ -59,6 +59,8 @@ From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish s
 
 **Remove from queue** on a row asks for confirmation, then calls `DELETE …/sitemanage/publish/incremental/content/{site}/{server}/{contentId}`. Confirm removes that content id from the site incremental queue for the selected server (live or staging) and the row disappears. Cancel leaves the queue unchanged. HTTP **403** (publish not allowed) and **404** (the id is not queued, or the site or server was not found) stay on the workspace as errors; the row is not removed. Job-status detail is a separate action.
 
+**Clear queue** (shown when the preview has at least one row) asks for confirmation, then calls `DELETE …/sitemanage/publish/incremental/content/{site}/{server}` with no content id. Confirm deletes the incremental queue for that site and server (live or staging) and reloads the list. An empty reload shows the empty-queue message. If the server still returns rows, those rows stay and the workspace says some items are still queued. Cancel does not call the server. HTTP **403** and **404** (site or server not found) stay on the workspace as errors; this is not incremental publish and not remove-one-row.
+
 ### Save a publish edition (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
