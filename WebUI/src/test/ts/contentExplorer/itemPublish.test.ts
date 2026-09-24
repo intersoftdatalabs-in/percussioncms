@@ -30,6 +30,7 @@ import {
   removeFromStagingSelectedItem,
   resolvePublishKind,
   stageSelectedItem,
+  stageSelectedItems,
   takedownSelectedItem,
 } from "../../../main/ts/contentExplorer/itemPublish";
 
@@ -421,6 +422,47 @@ describe("stageSelectedItem", () => {
     await expect(stageSelectedItem(item())).rejects.toMatchObject({
       status: 403,
     });
+  });
+
+  it("stages each eligible item and records a 403 without stopping the batch", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("/staging/43")) {
+        return new Response("denied", { status: 403, statusText: "Forbidden" });
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    const result = await stageSelectedItems([
+      item({ id: "42", name: "Home" }),
+      item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      item({ id: "43", name: "About" }),
+      item({
+        id: "77",
+        name: "base",
+        path: "/Design/Templates/base",
+        type: "percTemplate",
+        category: "template",
+      }),
+    ]);
+    expect(result.stagedIds).toEqual(["42"]);
+    expect(result.skippedFolders).toEqual(["News"]);
+    expect(result.skippedOther).toEqual(["base"]);
+    expect(result.failures).toEqual([
+      expect.objectContaining({ id: "43", name: "About", status: 403 }),
+    ]);
+    const urls = global.fetch.mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("/staging/42"))).toBe(true);
+    expect(urls.some((url) => url.includes("/staging/43"))).toBe(true);
+    expect(urls.some((url) => url.includes("/staging/7"))).toBe(false);
   });
 
   it("recognizes Stage action name variants", () => {

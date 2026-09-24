@@ -28,7 +28,7 @@
  * {@link loadLinkedPagesForTakedown} — do not invent a second contract.
  */
 
-import { get, put } from "../api/client";
+import { get, isApiError, put } from "../api/client";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { asObjectArray } from "../api/jsonList";
 import { itemPublishPaths } from "../publishing/itemPublishPaths";
@@ -370,6 +370,166 @@ export async function stageSelectedItem(item: PSPathItem): Promise<boolean> {
     return true;
   }
   return false;
+}
+
+export interface StageItemFailure {
+  id: string;
+  name: string;
+  status?: number;
+  message: string;
+}
+
+/** Outcome of staging a checkbox multi-selection. One item failure does not erase the rest. */
+export interface StageBatchResult {
+  stagedIds: string[];
+  skippedFolders: string[];
+  skippedOther: string[];
+  failures: StageItemFailure[];
+}
+
+export interface StageSelectionPlan {
+  eligible: PSPathItem[];
+  skippedFolders: string[];
+  skippedOther: string[];
+}
+
+function stageItemLabel(item: PSPathItem): string {
+  const name = (item.name ?? "").trim();
+  if (name) {
+    return name;
+  }
+  const path = (item.path ?? "").trim();
+  if (path) {
+    return path;
+  }
+  return (item.id ?? "").trim() || "item";
+}
+
+function fillTemplate(key: string, token: string, value: string): string {
+  return message(key).split(token).join(value);
+}
+
+/**
+ * Split a multi-selection into pages/assets that can be staged and rows
+ * that must be skipped (folders, templates, other types). Duplicate ids
+ * are staged once.
+ */
+export function partitionStageSelection(
+  items: readonly PSPathItem[],
+): StageSelectionPlan {
+  const eligible: PSPathItem[] = [];
+  const skippedFolders: string[] = [];
+  const skippedOther: string[] = [];
+  const seen = new Set<string>();
+  for (const item of items) {
+    const id = (item.id ?? "").trim();
+    const key = id || `name:${stageItemLabel(item)}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    if (isFolder(item)) {
+      skippedFolders.push(stageItemLabel(item));
+      continue;
+    }
+    if (!id || resolvePublishKind(item) === "none") {
+      skippedOther.push(stageItemLabel(item));
+      continue;
+    }
+    eligible.push(item);
+  }
+  return { eligible, skippedFolders, skippedOther };
+}
+
+function failureFromStage(item: PSPathItem, err: unknown): StageItemFailure {
+  if (isApiError(err)) {
+    return {
+      id: (item.id ?? "").trim(),
+      name: stageItemLabel(item),
+      status: err.status,
+      message: `HTTP ${err.status}`,
+    };
+  }
+  const text = err instanceof Error ? err.message : "stage failed";
+  return {
+    id: (item.id ?? "").trim(),
+    name: stageItemLabel(item),
+    message: text || "stage failed",
+  };
+}
+
+/**
+ * Stage every eligible page/asset. Folders and other types are skipped.
+ * A 403/404/409 (or application-level preflight failure) on one item is
+ * recorded and the rest of the selection still runs.
+ */
+export async function stageSelectedItems(
+  items: readonly PSPathItem[],
+): Promise<StageBatchResult> {
+  const plan = partitionStageSelection(items);
+  const stagedIds: string[] = [];
+  const failures: StageItemFailure[] = [];
+  for (const item of plan.eligible) {
+    try {
+      const staged = await stageSelectedItem(item);
+      if (!staged) {
+        failures.push({
+          id: (item.id ?? "").trim(),
+          name: stageItemLabel(item),
+          message: "not staged",
+        });
+      } else {
+        stagedIds.push((item.id ?? "").trim());
+      }
+    } catch (err: unknown) {
+      failures.push(failureFromStage(item, err));
+    }
+  }
+  return {
+    stagedIds,
+    skippedFolders: plan.skippedFolders,
+    skippedOther: plan.skippedOther,
+    failures,
+  };
+}
+
+/** Operator-visible reason when folders or individual items were not fully staged. */
+export function describeStageBatch(result: StageBatchResult): string | undefined {
+  const parts: string[] = [];
+  if (result.skippedFolders.length > 0) {
+    parts.push(
+      fillTemplate(
+        EXPLORER_MSG.STAGE_SKIPPED_FOLDERS,
+        "{names}",
+        result.skippedFolders.join(", "),
+      ),
+    );
+  }
+  if (result.skippedOther.length > 0) {
+    parts.push(
+      fillTemplate(
+        EXPLORER_MSG.STAGE_SKIPPED_OTHER,
+        "{names}",
+        result.skippedOther.join(", "),
+      ),
+    );
+  }
+  if (result.failures.length > 0) {
+    const detail = result.failures
+      .map((failure) =>
+        failure.status != null
+          ? `${failure.name} (HTTP ${failure.status})`
+          : `${failure.name} (${failure.message})`,
+      )
+      .join("; ");
+    parts.push(
+      fillTemplate(EXPLORER_MSG.STAGE_BATCH_INCOMPLETE, "{detail}", detail),
+    );
+  }
+  if (parts.length === 0) {
+    return undefined;
+  }
+  return parts.join(" ");
 }
 
 /**
