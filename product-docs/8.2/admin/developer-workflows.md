@@ -18,8 +18,9 @@ opens and lists on the catalog.
 Workflow renaming stays outside this chrome. **Developer → Workflows** detail
 shows a step list and a graph of states and transitions
 (`GET .../workflows/{id}/graph`). On a **custom** workflow an Admin can
-**delete one transition** between existing steps. Creating transitions, and
-deletes on packaged workflows, stay outside this chrome.
+**delete one transition** between existing steps, or **delete one step** that
+no transition still uses. Creating transitions, and deletes on packaged
+workflows, stay outside this chrome.
 The graph badge says **Packaged workflow** for Default Workflow, Simple
 Workflow, Local Content, and any workflow the server marks as the default;
 other workflows show **Custom workflow**. Missing workflows (`404`) and
@@ -39,8 +40,8 @@ non-Admin callers (`403`) surface as section alerts — not a blank success body
 
 This is a catalog preview of steps. Adding or renaming steps remains on the
 detail form for custom workflows. Creating transitions remains on the
-workflow-admin editor. Deleting one existing transition is on the graph
-(see below).
+workflow-admin editor. Deleting one existing transition, or a step that no
+longer has transitions, is on the graph (see below).
 
 ## Product path — browse the graph
 
@@ -68,6 +69,19 @@ workflow-admin editor. Deleting one existing transition is on the graph
    API on them returns `403`. A missing workflow, step, or transition returns
    `404`. A blank `from` or `label`, or a label that matches more than one
    edge without `to`, returns `400`. Non-Admin callers receive `403`.
+
+## Product path — delete one step (slice 34)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow.
+3. Remove every transition that starts or ends on the step you want to delete
+   (**Delete transition** on the graph). A step that still has a transition
+   cannot be deleted.
+4. Under **Graph**, click **Delete step** on that state and confirm.
+5. The state disappears from the graph. Reopening the workflow shows it gone.
+6. Packaged workflows do not show **Delete step** (`403` on the API). A missing
+   workflow or step is `404`. An invalid step name is `400`. A step that a
+   transition still uses is `409`. Non-Admin callers receive `403`.
 
 ## Product path — create a workflow (slice 21)
 
@@ -150,7 +164,9 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
   **Local Content** stay protected (`403`). Invalid names return `400`.
   Creating transitions stays on the workflow-admin editor. Deleting one
   existing transition on a custom workflow is `DELETE
-  .../workflows/{idOrName}/transitions`.
+  .../workflows/{idOrName}/transitions`. Deleting one step that no transition
+  still uses is `DELETE .../workflows/{idOrName}/steps/{stepName}` (`409` when
+  a transition still references the step).
 - Workflow rename and full graph design (states, transitions, roles) are
   not in this chrome; they stay on the workflow-admin editor.
 - Object ACL is not available on workflow detail (no workflow GUID in this
@@ -173,6 +189,7 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Update step | `PUT /services/workflows/{idOrName}/steps/{stepName}` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
 | Read graph | `GET /services/workflows/{idOrName}/graph` (Admin; states and transitions; `packaged` true for stock or default workflows) |
 | Delete one transition | `DELETE /services/workflows/{idOrName}/transitions?from={step}&label={label}&to={step}` (Admin; does not delete steps; packaged workflows `403`; missing workflow/step/transition `404`; blank or ambiguous label `400`) |
+| Delete one step | `DELETE /services/workflows/{idOrName}/steps/{stepName}` (Admin; only when no transition still uses the step; returns the updated graph; packaged workflows `403`; missing workflow or step `404`; invalid step name `400`; step still referenced `409`) |
 | List allowed content types | `GET /services/workflows/{idOrName}/allowedContentTypes` |
 | Replace allowed content types | `PUT /services/workflows/{idOrName}/allowedContentTypes` (`WorkflowContentTypes` wrap) |
 

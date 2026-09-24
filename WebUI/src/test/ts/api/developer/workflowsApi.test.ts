@@ -18,7 +18,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createWorkflow,
   deleteWorkflow,
+  deleteWorkflowStep,
   deleteWorkflowTransition,
+  workflowStepDeletePath,
   workflowTransitionDeletePath,
   getWorkflowAllowedContentTypes,
   isValidWorkflowName,
@@ -532,6 +534,55 @@ describe("workflow transition delete API (slice 33)", () => {
     await expect(
       deleteWorkflowTransition("Nightly QA", "Draft", "Missing", "Review"),
     ).rejects.toMatchObject({ status: 404 });
+  });
+});
+
+describe("workflow step delete API (slice 34)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("builds a DELETE path for one step", () => {
+    const path = workflowStepDeletePath("Nightly QA", "Orphan Step");
+    expect(path).toBe(
+      `${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Nightly QA")}/steps/${encodeURIComponent("Orphan Step")}`,
+    );
+  });
+
+  it("DELETEs an unreferenced step and parses the graph", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          packaged: false,
+          nodes: [{ name: "Draft" }],
+          edges: [],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await deleteWorkflowStep("Nightly QA", "Orphan");
+    expect(graph.nodes).toEqual([{ name: "Draft" }]);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/steps/Orphan");
+  });
+
+  it("propagates 409 when the step is still referenced", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "still referenced" }), {
+        status: 409,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(deleteWorkflowStep("Nightly QA", "Draft")).rejects.toMatchObject({ status: 409 });
   });
 });
 

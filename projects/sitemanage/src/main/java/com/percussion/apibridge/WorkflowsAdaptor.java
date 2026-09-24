@@ -345,6 +345,43 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     return getWorkflowGraph(baseUri, idOrName);
   }
 
+  @Override
+  public WorkflowGraph deleteWorkflowStep(URI baseUri, String idOrName, String stepName) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    validateStepPathName(stepName);
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates();
+    if (states == null) {
+      throw new WebApplicationException("Workflow step not found: " + stepName.trim(), 404);
+    }
+    int before = states.size();
+    WorkflowStepRemover.removeUnreferenced(states, stepName);
+    if (states.size() != before - 1) {
+      throw new IllegalStateException("Deleting a step must remove exactly one state");
+    }
+    workflowService.saveWorkflow(workflow);
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  private static void validateStepPathName(String stepName) {
+    if (stepName == null || stepName.trim().isEmpty()) {
+      throw new IllegalArgumentException("Step name is required");
+    }
+    String name = stepName.trim();
+    if (name.contains("*") || name.contains("%")) {
+      throw new IllegalArgumentException("Step name must not contain wildcards: " + name);
+    }
+    if (!name.matches("[\\s\\w-]+")) {
+      throw new IllegalArgumentException(
+          "Invalid character in step name. Characters allowed are: a-z, 0-9, -, _ and [space].");
+    }
+  }
+
   static boolean isPackagedWorkflowName(String name) {
     String n = name != null ? name : "";
     return n.equalsIgnoreCase("Default Workflow")

@@ -20,6 +20,8 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   createWorkflowStep: vi.fn(),
   updateWorkflowStep: vi.fn(),
   getWorkflowGraph: vi.fn(),
+  deleteWorkflowTransition: vi.fn(),
+  deleteWorkflowStep: vi.fn(),
   isValidWorkflowStepName: (name: string) =>
     !!name && name.trim().length > 0 && name.trim().length <= 50 && /^[\s\w-]+$/.test(name.trim()),
   wrapWorkflowContentTypesForWire: vi.fn((body) => ({ WorkflowContentTypes: body })),

@@ -523,6 +523,21 @@ export async function deleteWorkflowTransition(
   return parseWorkflowGraph(payload);
 }
 
+/** DELETE /services/workflows/{id}/steps/{stepName} — one unreferenced step. */
+export function workflowStepDeletePath(idOrName: string, stepName: string): string {
+  const key = encodeURIComponent(idOrName);
+  const step = encodeURIComponent(stepName);
+  return `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}`;
+}
+
+export async function deleteWorkflowStep(
+  idOrName: string,
+  stepName: string,
+): Promise<WorkflowGraph> {
+  const payload = await del<unknown>(workflowStepDeletePath(idOrName, stepName));
+  return parseWorkflowGraph(payload);
+}
+
 export async function deleteWorkflow(idOrName: string): Promise<void> {
   const key = encodeURIComponent(idOrName);
   await del<void>(`${PATHS.WORKFLOWS_ASSOC}/${key}`);

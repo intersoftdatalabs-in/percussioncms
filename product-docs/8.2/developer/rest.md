@@ -2357,7 +2357,9 @@ Workflow definitions used by **Developer → Workflows** (SY-04 browse) are expo
 not a full transition-design editor and **not** an Object ACL surface (workflow DTOs have no GUID
 in this release). A state/transition graph is `GET /services/workflows/{idOrName}/graph`.
 Admins can delete one existing transition on a custom workflow with
-`DELETE /services/workflows/{idOrName}/transitions`.
+`DELETE /services/workflows/{idOrName}/transitions`, or delete one step that
+no transition still uses with
+`DELETE /services/workflows/{idOrName}/steps/{stepName}`.
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -2370,6 +2372,7 @@ Admins can delete one existing transition on a custom workflow with
 | `PUT` | `/services/workflows/{idOrName}/steps/{stepName}` | **Admin.** Update a step (`WorkflowStepWrite` wrap). Path `stepName` is the current name; body `name` is the new name. Packaged workflows are `403`. |
 | `GET` | `/services/workflows/{idOrName}/graph` | **Admin.** Graph (`WorkflowGraph`: `nodes`, `edges` with `from` / `to` / `label`, `packaged`, `defaultWorkflow`). Stock names (Default Workflow, Simple Workflow, Local Content) and the server default flag set `packaged` true. Does not create transitions. Missing workflow is `404`; non-Admin is `403`. |
 | `DELETE` | `/services/workflows/{idOrName}/transitions?from={step}&label={label}&to={step}` | **Admin.** Delete one transition between existing steps. `from` and `label` are required. `to` is required when more than one transition on that step shares the label. Returns the updated `WorkflowGraph`. Does not delete steps. Packaged/default workflows are `403`. Missing workflow, step, or transition is `404`. Blank `from`/`label` or an ambiguous label is `400`. Non-Admin is `403`. |
+| `DELETE` | `/services/workflows/{idOrName}/steps/{stepName}` | **Admin.** Delete one step only when no regular or aging transition still uses it (outgoing or incoming). Returns the updated `WorkflowGraph`. Does not rewire neighboring steps. Packaged/default workflows are `403`. Missing workflow or step is `404`. Invalid or blank step name is `400`. A step that is still referenced is `409`. Non-Admin is `403`. |
 
 JSON list and detail may wrap under Jackson / JAXB root `Workflow` (including nested
 `{ "Workflow": { "Workflow": { … } } }` envelopes). The name field is `workflowName`;
