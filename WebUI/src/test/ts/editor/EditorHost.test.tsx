@@ -3319,3 +3319,119 @@ describe("EditorHost move to folder (#4774)", () => {
     }
   });
 });
+
+describe("EditorHost rename open item (#4791)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function renderHost(
+    mode: string,
+    extra: Partial<React.ComponentProps<typeof EditorHost>> = {},
+  ) {
+    return render(
+      <MemoryRouter initialEntries={[`/editor?contentId=42&mode=${mode}`]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => ({ fields: [] })}
+                loadItemLocation={async () => ({ path: "//Assets/Home" })}
+                {...extra}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it("hides rename in view mode", async () => {
+    renderHost("view");
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-host")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-rename")).toBeNull();
+    expect(screen.queryByTestId("editor-rename-name")).toBeNull();
+  });
+
+  it("renames via folders/rename/item and shows the reloaded name", async () => {
+    const renameItem = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi
+      .fn()
+      .mockResolvedValueOnce(fields)
+      .mockResolvedValueOnce({
+        ...fields,
+        name: "Home2",
+        fields: [
+          { name: "sys_title", value: "Home2" },
+          { name: "displaytitle", value: "Welcome" },
+        ],
+      });
+    renderHost("edit", { renameItem, loadFields });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-rename-name")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-rename-name"), {
+      target: { value: "Home2" },
+    });
+    fireEvent.click(screen.getByTestId("editor-rename"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-renamed")).toBeTruthy();
+    });
+    expect(renameItem).toHaveBeenCalledWith("//Assets/Home", "Home2");
+    expect(screen.getByTestId("editor-field-sys_title")).toHaveProperty(
+      "value",
+      "Home2",
+    );
+    expect(screen.queryByTestId("editor-rename-error")).toBeNull();
+  });
+
+  it("does not claim success for a blank name or HTTP 400/403/404", async () => {
+    const renameItem = vi.fn();
+    renderHost("edit", { renameItem });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-rename")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-rename-name"), {
+      target: { value: "  " },
+    });
+    fireEvent.click(screen.getByTestId("editor-rename"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-rename-error").textContent).toMatch(
+        /slash/i,
+      );
+    });
+    expect(renameItem).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-renamed")).toBeNull();
+
+    for (const status of [400, 403, 404]) {
+      cleanup();
+      const failing = vi.fn().mockRejectedValue({
+        status,
+        statusText: String(status),
+        body: {},
+      });
+      renderHost("edit", { renameItem: failing });
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-rename-name")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("editor-rename-name"), {
+        target: { value: "Other" },
+      });
+      fireEvent.click(screen.getByTestId("editor-rename"));
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-rename-error")).toBeTruthy();
+      });
+      expect(screen.getByTestId("editor-field-sys_title")).toHaveProperty(
+        "value",
+        "Home",
+      );
+      expect(screen.queryByTestId("editor-renamed")).toBeNull();
+    }
+  });
+});

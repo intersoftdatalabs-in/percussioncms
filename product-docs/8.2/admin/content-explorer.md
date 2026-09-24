@@ -305,6 +305,16 @@ new `itemId` in this editor (edit mode). HTTP **403** (forbidden) and **404**
 change the open item. Cancel confirm does not POST. **View** and **Promote** do
 not show these actions.
 
+In **Edit** mode the host also shows **Rename** and a **Listing name** field for
+the already-open item. The name starts as the item's `sys_title`. Submit posts
+public REST `POST /rest/folders/rename/item` (`RenameFolderItemRequest`: the
+item's current path and `newName`). The item stays in the same folder. After a
+successful rename the host reloads the item and shows the new listing name.
+A blank name, a name that contains `/`, HTTP **400** (invalid request), **403**
+(not allowed), and **404** (item not found) are errors on the host — they are
+not treated as success and the previous name stays. **View** and **Promote** do
+not show Rename. This does not move the item or change folder membership.
+
 In **Edit** mode the host also shows **Move to folder** for the already-open
 item. The author picks a destination folder (cancel closes the picker and does
 not move). Confirm posts public REST `POST /rest/folders/move/item`

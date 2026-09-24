@@ -241,4 +241,14 @@ export const EDITOR_MSG = {
     "perc.ui.editor@The create request was not valid for this type or folder.",
   CREATE_UNAVAILABLE:
     "perc.ui.editor@Create is not available in this editor mode.",
+  RENAME: "perc.ui.editor@Rename",
+  RENAMING: "perc.ui.editor@Renaming…",
+  RENAME_NAME: "perc.ui.editor@Listing name",
+  RENAMED: "perc.ui.editor@Renamed",
+  RENAME_FAILED: "perc.ui.editor@Could not rename this item.",
+  RENAME_BAD_REQUEST: "perc.ui.editor@Enter a listing name that does not contain a slash.",
+  RENAME_FORBIDDEN: "perc.ui.editor@You are not allowed to rename this item.",
+  RENAME_NOT_FOUND: "perc.ui.editor@This item was not found.",
+  RENAME_NO_FOLDER: "perc.ui.editor@This item is not in a folder, so it cannot be renamed here.",
+  RENAME_UNAVAILABLE: "perc.ui.editor@Rename is only available while editing an item.",
 };
