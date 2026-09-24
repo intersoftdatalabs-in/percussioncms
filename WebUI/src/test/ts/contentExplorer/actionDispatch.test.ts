@@ -1517,6 +1517,100 @@ describe("actionDispatch", () => {
     expect(result.refresh).toBeUndefined();
   });
 
+  it("Schedule multi-select uses one dialog and writes every page", async () => {
+    const posted: string[] = [];
+    const onSchedule = vi.fn(async (row: { id?: string }) => {
+      posted.push(String(row.id));
+    });
+    const confirm = vi.fn().mockReturnValue(true);
+    const pickScheduleDates = vi.fn().mockResolvedValue({
+      itemId: "42",
+      startDate: "",
+      endDate: "",
+      comments: "",
+    });
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ ItemDates: { itemId: "42" } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const folder = item({
+      id: "1",
+      name: "Sites",
+      path: "/Sites",
+      type: "folder",
+      leaf: false,
+    });
+    const about = item({ id: "43", name: "About", path: "/Sites/Demo/About" });
+    const result = await dispatchAction(action({ name: "Schedule" }), {
+      item: item(),
+      selectedItems: [item(), folder, about],
+      onSchedule,
+      pickScheduleDates,
+      confirm,
+    });
+    expect(result.refresh).toBe(true);
+    expect(result.messageText).toBeUndefined();
+    expect(pickScheduleDates).toHaveBeenCalledTimes(1);
+    expect(pickScheduleDates.mock.calls[0]?.[2]).toEqual({ applyCount: 2 });
+    expect(confirm).toHaveBeenCalledWith(EXPLORER_MSG.CONFIRM_SCHEDULE_MULTI);
+    expect(posted).toEqual(["42", "43"]);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("Schedule multi-select cancel writes nothing", async () => {
+    const onSchedule = vi.fn();
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ ItemDates: {} }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await dispatchAction(action({ name: "Schedule" }), {
+      item: item(),
+      selectedItems: [item(), item({ id: "43", path: "/Sites/Demo/About" })],
+      onSchedule,
+      pickScheduleDates: async () => null,
+      confirm: () => true,
+    });
+    expect(onSchedule).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("Schedule multi-select partial failure is not full success", async () => {
+    const onSchedule = vi
+      .fn()
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error("FORBIDDEN"));
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ ItemDates: {} }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await dispatchAction(action({ name: "Schedule" }), {
+      item: item(),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About", path: "/Sites/Demo/About" }),
+      ],
+      onSchedule,
+      pickScheduleDates: async () => ({
+        itemId: "42",
+        startDate: "",
+        endDate: "",
+        comments: "",
+      }),
+      confirm: () => true,
+    });
+    expect(onSchedule).toHaveBeenCalledTimes(2);
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBe(EXPLORER_MSG.SCHEDULE_PARTIAL);
+    expect(result.messageText).toMatch(/About/);
+    expect(result.messageText).toMatch(/FORBIDDEN/);
+  });
+
   it("Schedule confirm cancel does not save", async () => {
     const onSchedule = vi.fn();
     vi.spyOn(global, "fetch").mockResolvedValue(

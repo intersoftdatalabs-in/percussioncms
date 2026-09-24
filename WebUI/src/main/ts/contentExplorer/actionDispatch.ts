@@ -65,10 +65,14 @@ import {
   type TakedownBatchResult,
 } from "./itemPublish";
 import {
+  formatScheduleBatchFailure,
   getItemScheduleDates,
   isScheduleActionName,
-  scheduleSelectedItem,
+  publishableScheduleTargets,
+  scheduleSelectedItems,
   type ItemScheduleDates,
+  type ScheduleBatchResult,
+  type ScheduleItemFailure,
 } from "./itemScheduleDates";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
 import { classifyUrl, safeNavigate } from "../util/safeNavigate";
@@ -245,6 +249,7 @@ export interface ActionDispatchContext {
   pickScheduleDates?: (
     item: PSPathItem,
     current: ItemScheduleDates,
+    options?: { applyCount: number },
   ) => Promise<ItemScheduleDates | null>;
   /** Parent menu name when the user activated a child (AA vs Preview). */
   parentName?: string;
@@ -766,6 +771,33 @@ async function runRemoveFromStagingBatch(
   };
 }
 
+async function applyScheduleDates(
+  targets: readonly PSPathItem[],
+  dates: ItemScheduleDates,
+  onSchedule?: (item: PSPathItem, dates: ItemScheduleDates) => Promise<void>,
+): Promise<ScheduleBatchResult> {
+  if (!onSchedule) {
+    return scheduleSelectedItems(targets, dates);
+  }
+  const failures: ScheduleItemFailure[] = [];
+  let saved = 0;
+  for (const item of targets) {
+    const id = (item.id ?? "").trim();
+    try {
+      await onSchedule(item, { ...dates, itemId: id });
+      saved += 1;
+    } catch (err: unknown) {
+      const text = err instanceof Error ? err.message.trim() : "";
+      failures.push({
+        id,
+        name: (item.name ?? "").trim() || id,
+        message: text || "Schedule failed",
+      });
+    }
+  }
+  return { saved, skipped: 0, failures };
+}
+
 function defaultOpenWindow(
   url: string,
   target?: string,
@@ -1199,33 +1231,54 @@ export async function dispatchAction(
   }
 
   if (isScheduleActionName(name)) {
-    if (!item || isFolder(item)) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-    }
-    if (resolvePublishKind(item) === "none") {
+    const checked = ctx.selectedItems ?? [];
+    const multi = checked.length >= 2;
+    const targets = multi
+      ? publishableScheduleTargets(checked)
+      : item && resolvePublishKind(item) !== "none"
+        ? [item]
+        : [];
+    if (targets.length === 0) {
+      const onlyFolders =
+        !multi && (!item || isFolder(item))
+          ? true
+          : multi &&
+            checked.every((row) => isFolder(row) || !(row.id ?? "").trim());
+      if (onlyFolders) {
+        return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+      }
       return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
     }
-    const current = await getItemScheduleDates(item.id ?? "");
+    const seed = targets[0];
+    const current = await getItemScheduleDates(seed.id ?? "");
     let picked: ItemScheduleDates | null = current;
     if (ctx.pickScheduleDates) {
-      picked = await ctx.pickScheduleDates(item, current);
+      picked = await ctx.pickScheduleDates(seed, current, {
+        applyCount: targets.length,
+      });
       if (!picked) {
         return { kind: "rest" };
       }
     }
-    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
-      EXPLORER_MSG.CONFIRM_SCHEDULE,
-    );
+    const confirmKey =
+      targets.length > 1
+        ? EXPLORER_MSG.CONFIRM_SCHEDULE_MULTI
+        : EXPLORER_MSG.CONFIRM_SCHEDULE;
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(confirmKey);
     if (!ok) {
       return { kind: "rest" };
     }
-    if (ctx.onSchedule) {
-      await ctx.onSchedule(item, picked);
-      return { kind: "rest", refresh: true };
-    }
-    const saved = await scheduleSelectedItem(item, picked);
-    if (!saved) {
+    const batch = await applyScheduleDates(targets, picked, ctx.onSchedule);
+    if (batch.saved === 0 && batch.failures.length === 0) {
       return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    if (batch.failures.length > 0) {
+      return {
+        kind: "rest",
+        messageText: formatScheduleBatchFailure(batch),
+        messageKey: EXPLORER_MSG.SCHEDULE_PARTIAL,
+        refresh: batch.saved > 0,
+      };
     }
     return { kind: "rest", refresh: true };
   }

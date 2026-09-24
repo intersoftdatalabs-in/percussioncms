@@ -327,7 +327,7 @@ Use **Open Logs** / **Open Status** in the panel to switch those sections withou
 
 ## Schedule publish dates (Publishing site workspace)
 
-From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Schedule** panel gets and sets item publish and removal dates using the existing item-management APIs (`GET /services/itemmanagement/item/getitemdates/{id}`, `POST /services/itemmanagement/item/setitemdates`). It replaces the classic jQuery `PercScheduleDialog` for this shell. Explorer still has its own Schedule action for a selected page or asset.
+From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Schedule** panel gets and sets item publish and removal dates using the existing item-management APIs (`GET /services/itemmanagement/item/getitemdates/{id}`, `POST /services/itemmanagement/item/setitemdates`). It replaces the classic jQuery `PercScheduleDialog` for this shell. Explorer still has its own Schedule action for a selected page or asset, including one dialog for every checked page or asset (folders skipped; a partial save is an error).
 
 1. Sign in as an operator who can open Publish.
 2. Open **Publish → Sites** and select a site (or deep-link `section=sites` with `siteId`).

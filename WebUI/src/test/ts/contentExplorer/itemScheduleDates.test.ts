@@ -25,7 +25,10 @@ import {
   isScheduleActionName,
   parseItemScheduleDates,
   parseServerScheduleDate,
+  formatScheduleBatchFailure,
+  publishableScheduleTargets,
   scheduleSelectedItem,
+  scheduleSelectedItems,
   serverDateToDatetimeLocal,
   setItemScheduleDates,
   validateScheduleDateRange,
@@ -209,6 +212,101 @@ describe("get/set schedule dates", () => {
         comments: "",
       }),
     ).rejects.toThrow("INVALID");
+  });
+
+  it("writes the same dates to each page and skips folders", async () => {
+    const bodies: unknown[] = [];
+    vi.spyOn(global, "fetch").mockImplementation(async (_url, init) => {
+      bodies.push(JSON.parse(String(init?.body ?? "{}")));
+      return new Response(JSON.stringify({ status: "SUCCESS" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    const dates = {
+      itemId: "ignored",
+      startDate: "09/18/2026 09:00 am",
+      endDate: "",
+      comments: "batch",
+    };
+    const folder = item({
+      id: "1",
+      name: "Sites",
+      path: "/Sites",
+      type: "folder",
+      leaf: false,
+    });
+    const page = item({ id: "42", name: "Home" });
+    const asset = item({
+      id: "43",
+      name: "Logo",
+      path: "/Assets/Logo",
+      type: "percAsset",
+      category: "asset",
+    });
+    expect(publishableScheduleTargets([folder, page, page, asset]).map((r) => r.id)).toEqual([
+      "42",
+      "43",
+    ]);
+    const batch = await scheduleSelectedItems([folder, page, asset], dates);
+    expect(batch.saved).toBe(2);
+    expect(batch.skipped).toBe(1);
+    expect(batch.failures).toEqual([]);
+    expect(bodies).toEqual([
+      {
+        ItemDates: {
+          itemId: "42",
+          startDate: dates.startDate,
+          endDate: "",
+          comments: "batch",
+        },
+      },
+      {
+        ItemDates: {
+          itemId: "43",
+          startDate: dates.startDate,
+          endDate: "",
+          comments: "batch",
+        },
+      },
+    ]);
+  });
+
+  it("keeps going after a partial failure and does not report full success", async () => {
+    vi.spyOn(global, "fetch")
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ status: "SUCCESS" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            status: "FORBIDDEN",
+            warningMessage: "Publication stopped",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+    const batch = await scheduleSelectedItems(
+      [item({ id: "42", name: "Home" }), item({ id: "43", name: "About" })],
+      { itemId: "", startDate: "", endDate: "", comments: "" },
+    );
+    expect(batch.saved).toBe(1);
+    expect(batch.failures).toEqual([
+      { id: "43", name: "About", message: "Publication stopped" },
+    ]);
+    expect(formatScheduleBatchFailure(batch)).toMatch(/not saved for every/i);
+    expect(formatScheduleBatchFailure(batch)).toContain("About");
+    expect(
+      await scheduleSelectedItem(item({ id: "9", type: "folder", path: "/Sites" }), {
+        itemId: "9",
+        startDate: "",
+        endDate: "",
+        comments: "",
+      }),
+    ).toBe(false);
   });
 
   it("scheduleSelectedItem returns false for folders", async () => {

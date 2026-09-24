@@ -19,6 +19,8 @@ import type { ItemScheduleDates } from "./itemScheduleDates";
 
 export interface SchedulePickerSession {
   current: ItemScheduleDates;
+  /** Publishable rows this dialog will write. 1 is the single-item path. */
+  applyCount: number;
   resolve: (dates: ItemScheduleDates | null) => void;
 }
 

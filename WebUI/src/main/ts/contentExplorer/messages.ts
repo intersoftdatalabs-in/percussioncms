@@ -546,6 +546,12 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Nothing in the selection can be removed from staging. Folders are not removed.",
   CONFIRM_SCHEDULE:
     "perc.ui.explorer@Save schedule publish dates for this item?",
+  CONFIRM_SCHEDULE_MULTI:
+    "perc.ui.explorer@Save the same schedule publish dates for every selected page and asset? Folders are skipped.",
+  SCHEDULE_MULTI_HINT:
+    "perc.ui.explorer@These dates apply to every selected page and asset. Folders are skipped.",
+  SCHEDULE_PARTIAL:
+    "perc.ui.explorer@Schedule was not saved for every selected item.",
   PUBLISHING_HISTORY_TITLE: "perc.ui.explorer@Publishing History",
   SCHEDULE_TITLE: "perc.ui.explorer@Schedule",
   SCHEDULE_PUBLISH_DATE: "perc.ui.explorer@Publish date",

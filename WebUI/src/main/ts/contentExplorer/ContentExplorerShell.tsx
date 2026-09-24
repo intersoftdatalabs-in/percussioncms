@@ -1114,9 +1114,17 @@ function ContentExplorerShellInner({
   }, []);
 
   const pickScheduleDates = useCallback(
-    (_item: PSPathItem, current: ItemScheduleDates) => {
+    (
+      _item: PSPathItem,
+      current: ItemScheduleDates,
+      options?: { applyCount: number },
+    ) => {
       return new Promise<ItemScheduleDates | null>((resolve) => {
-        const session = { current, resolve };
+        const session = {
+          current,
+          applyCount: options?.applyCount ?? 1,
+          resolve,
+        };
         schedulePickerRef.current = replaceSchedulePickerSession(
           schedulePickerRef.current,
           session,
@@ -2240,6 +2248,7 @@ function ContentExplorerShellInner({
       {schedulePicker ? (
         <ScheduleDatesDialog
           current={schedulePicker.current}
+          applyCount={schedulePicker.applyCount}
           onSave={(dates) => finishSchedulePicker(dates)}
           onCancel={() => finishSchedulePicker(null)}
         />
