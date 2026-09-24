@@ -10,7 +10,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Transition graph writes are not exposed in the Developer catalog",
+  "Creating transitions stays on the workflow-admin editor. Custom workflows can delete one existing transition from the graph.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -491,6 +491,35 @@ export function parseWorkflowGraph(payload: unknown): WorkflowGraph {
 export async function getWorkflowGraph(idOrName: string): Promise<WorkflowGraph> {
   const key = encodeURIComponent(idOrName);
   const payload = await get<unknown>(`${PATHS.WORKFLOWS_ASSOC}/${key}/graph`);
+  return parseWorkflowGraph(payload);
+}
+
+/** DELETE /services/workflows/{id}/transitions?from&label&to — one edge, steps stay. */
+export function workflowTransitionDeletePath(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  toStep?: string,
+): string {
+  const key = encodeURIComponent(idOrName);
+  const q = new URLSearchParams();
+  q.set("from", fromStep);
+  q.set("label", label);
+  if (toStep && toStep.trim()) {
+    q.set("to", toStep.trim());
+  }
+  return `${PATHS.WORKFLOWS_ASSOC}/${key}/transitions?${q.toString()}`;
+}
+
+export async function deleteWorkflowTransition(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  toStep?: string,
+): Promise<WorkflowGraph> {
+  const payload = await del<unknown>(
+    workflowTransitionDeletePath(idOrName, fromStep, label, toStep),
+  );
   return parseWorkflowGraph(payload);
 }
 

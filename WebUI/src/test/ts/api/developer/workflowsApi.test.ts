@@ -18,6 +18,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createWorkflow,
   deleteWorkflow,
+  deleteWorkflowTransition,
+  workflowTransitionDeletePath,
   getWorkflowAllowedContentTypes,
   isValidWorkflowName,
   isWorkflowCreateReady,
@@ -474,6 +476,62 @@ describe("workflow delete API (slice 21 delete)", () => {
       ),
     );
     await expect(deleteWorkflow("In Use")).rejects.toMatchObject({ status: 409 });
+  });
+});
+
+describe("workflow transition delete API (slice 33)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("builds a DELETE path with from, label, and to", () => {
+    const path = workflowTransitionDeletePath("Nightly QA", "Draft", "Submit", "Review");
+    expect(path.startsWith(`${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Nightly QA")}/transitions?`)).toBe(
+      true,
+    );
+    const q = new URLSearchParams(path.split("?")[1]);
+    expect(q.get("from")).toBe("Draft");
+    expect(q.get("label")).toBe("Submit");
+    expect(q.get("to")).toBe("Review");
+  });
+
+  it("DELETEs one transition and parses the returned graph", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          packaged: false,
+          nodes: [{ name: "Draft" }, { name: "Review" }],
+          edges: [],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await deleteWorkflowTransition("Nightly QA", "Draft", "Submit", "Review");
+    expect(graph.nodes).toHaveLength(2);
+    expect(graph.edges).toEqual([]);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/transitions?");
+  });
+
+  it("propagates 404 when the transition is missing", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(
+      deleteWorkflowTransition("Nightly QA", "Draft", "Missing", "Review"),
+    ).rejects.toMatchObject({ status: 404 });
   });
 });
 

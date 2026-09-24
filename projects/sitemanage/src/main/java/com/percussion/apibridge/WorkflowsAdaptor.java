@@ -35,6 +35,7 @@ import com.percussion.services.contentmgr.data.PSContentTypeWorkflow;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
+import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -319,6 +320,29 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
       packaged = true;
     }
     return WorkflowGraphProjector.project(name, packaged, defaultWorkflow, workflow.getStates());
+  }
+
+  @Override
+  public WorkflowGraph deleteWorkflowTransition(
+      URI baseUri, String idOrName, String fromStep, String label, String toStep) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(fromStep) || StringUtils.isBlank(label)) {
+      throw new IllegalArgumentException("from and label are required");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> before = workflow.getStates() != null ? workflow.getStates() : List.of();
+    int stepCount = before.size();
+    WorkflowTransitionRemover.removeOne(before, fromStep, label, toStep);
+    if (workflow.getStates() == null || workflow.getStates().size() != stepCount) {
+      throw new IllegalStateException("Deleting a transition must not delete steps");
+    }
+    workflowService.saveWorkflow(workflow);
+    return getWorkflowGraph(baseUri, idOrName);
   }
 
   static boolean isPackagedWorkflowName(String name) {

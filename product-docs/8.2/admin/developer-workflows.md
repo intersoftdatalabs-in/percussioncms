@@ -15,9 +15,11 @@ description, staging roles, and steps). Open a row to inspect steps and to edit
 **edit** the description, and **delete** a workflow from the catalog. The new row
 opens and lists on the catalog.
 
-Creating or deleting transitions, and workflow renaming, stay outside this
-chrome. **Developer → Workflows** detail shows a **read-only step list** and a
-**read-only graph** of states and transitions (`GET .../workflows/{id}/graph`).
+Workflow renaming stays outside this chrome. **Developer → Workflows** detail
+shows a step list and a graph of states and transitions
+(`GET .../workflows/{id}/graph`). On a **custom** workflow an Admin can
+**delete one transition** between existing steps. Creating transitions, and
+deletes on packaged workflows, stay outside this chrome.
 The graph badge says **Packaged workflow** for Default Workflow, Simple
 Workflow, Local Content, and any workflow the server marks as the default;
 other workflows show **Custom workflow**. Missing workflows (`404`) and
@@ -35,11 +37,12 @@ non-Admin callers (`403`) surface as section alerts — not a blank success body
 5. If the workflow has no steps, the section shows **None** (not an empty
    success table). Load errors (`403` / `404`) appear in the detail alert.
 
-This is a catalog preview only. Adding or removing steps remains on the
-detail form for custom workflows. Creating or editing transitions remains
-on the workflow-admin editor.
+This is a catalog preview of steps. Adding or renaming steps remains on the
+detail form for custom workflows. Creating transitions remains on the
+workflow-admin editor. Deleting one existing transition is on the graph
+(see below).
 
-## Product path — browse the graph (read-only)
+## Product path — browse the graph
 
 1. Sign in as **Admin**.
 2. Open **Developer → Workflows** and open a workflow (for example **Simple
@@ -51,6 +54,20 @@ on the workflow-admin editor.
 5. If the workflow has no states, the section shows **No states in this
    workflow graph** (not a blank success). Load errors (`403` / `404`) appear
    in the graph alert.
+
+## Product path — delete one transition (slice 33)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow (not Default
+   Workflow, Simple Workflow, or Local Content).
+3. Under **Graph**, click **Delete transition** on one edge.
+4. Confirm in the in-app dialog. The edge disappears. The source and
+   destination steps remain under **Steps** and as graph nodes. Reopening the
+   workflow shows the same edge gone.
+5. Packaged workflows do not show **Delete transition**. Calling the delete
+   API on them returns `403`. A missing workflow, step, or transition returns
+   `404`. A blank `from` or `label`, or a label that matches more than one
+   edge without `to`, returns `400`. Non-Admin callers receive `403`.
 
 ## Product path — create a workflow (slice 21)
 
@@ -131,8 +148,9 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 - Add or rename a **step** on a custom (non-packaged) workflow from the
   detail panel. Packaged **Default Workflow**, **Simple Workflow**, and
   **Local Content** stay protected (`403`). Invalid names return `400`.
-  Transition graph design (new transitions) stays on the workflow-admin
-  editor.
+  Creating transitions stays on the workflow-admin editor. Deleting one
+  existing transition on a custom workflow is `DELETE
+  .../workflows/{idOrName}/transitions`.
 - Workflow rename and full graph design (states, transitions, roles) are
   not in this chrome; they stay on the workflow-admin editor.
 - Object ACL is not available on workflow detail (no workflow GUID in this
@@ -153,7 +171,8 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Delete workflow | `DELETE /services/workflows/{idOrName}` (Admin; system workflows and item owners return `409`) |
 | Create step | `POST /services/workflows/{idOrName}/steps` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
 | Update step | `PUT /services/workflows/{idOrName}/steps/{stepName}` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
-| Read graph | `GET /services/workflows/{idOrName}/graph` (Admin; read-only states and transitions; `packaged` true for stock or default workflows) |
+| Read graph | `GET /services/workflows/{idOrName}/graph` (Admin; states and transitions; `packaged` true for stock or default workflows) |
+| Delete one transition | `DELETE /services/workflows/{idOrName}/transitions?from={step}&label={label}&to={step}` (Admin; does not delete steps; packaged workflows `403`; missing workflow/step/transition `404`; blank or ambiguous label `400`) |
 | List allowed content types | `GET /services/workflows/{idOrName}/allowedContentTypes` |
 | Replace allowed content types | `PUT /services/workflows/{idOrName}/allowedContentTypes` (`WorkflowContentTypes` wrap) |
 

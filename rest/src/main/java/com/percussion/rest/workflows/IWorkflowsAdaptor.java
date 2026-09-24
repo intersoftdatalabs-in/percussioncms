@@ -122,4 +122,19 @@ public interface IWorkflowsAdaptor {
    * @throws jakarta.ws.rs.WebApplicationException 404 when the workflow is not found
    */
   WorkflowGraph getWorkflowGraph(URI baseUri, String idOrName);
+
+  /**
+   * Delete one transition between existing steps (Admin, slice 33). Does not delete steps.
+   *
+   * @param fromStep source step name
+   * @param label transition label or trigger
+   * @param toStep destination step name; required when the label is not unique on the source step
+   * @return the graph after the delete
+   * @throws IllegalArgumentException when {@code fromStep} or {@code label} is blank, or the label
+   *     is ambiguous without {@code toStep}
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or transition
+   */
+  WorkflowGraph deleteWorkflowTransition(
+      URI baseUri, String idOrName, String fromStep, String label, String toStep);
 }
