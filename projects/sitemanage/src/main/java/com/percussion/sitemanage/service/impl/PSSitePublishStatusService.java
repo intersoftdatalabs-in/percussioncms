@@ -58,7 +58,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -432,40 +431,27 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
       String siteId, String pubServerId, int days, int maxCount, int skipCount, boolean showAll)
       throws PSNotFoundException {
     List<PSSitePublishJob> jobs = new ArrayList<>();
-    GregorianCalendar dateLimit = new GregorianCalendar();
-    dateLimit.add(Calendar.DATE, -days);
+    int skip = Math.max(skipCount, 0);
+    boolean failuresOnly = !showAll;
 
-    int counter = Math.max(skipCount, 0);
-
-    // TODO:  Fix so the filtering is done in the back end service and add support for pagination.
-    // The code as is is effectively getting all publishing logs from backend even when we are only
-    // trying to render 1 days worth.
-    List<IPSPubStatus> pubStatus = null;
+    List<IPSPubStatus> pubStatus;
     if (isNotBlank(siteId)) {
       IPSGuid siteGUID = guidMgr.makeGuid(siteId, PSTypeEnum.SITE);
 
       if (isNotBlank(pubServerId)) {
         IPSGuid pubServerGUID = guidMgr.makeGuid(pubServerId, PSTypeEnum.PUBLISHING_SERVER);
         pubStatus =
-            pubSvc.findPubStatusBySiteAndServerWithFilters(siteGUID, pubServerGUID, days, maxCount);
+            pubSvc.findPubStatusBySiteAndServerWithFilters(
+                siteGUID, pubServerGUID, days, maxCount, skip, failuresOnly);
       } else {
-        pubStatus = pubSvc.findPubStatusBySiteWithFilters(siteGUID, days, maxCount);
+        pubStatus =
+            pubSvc.findPubStatusBySiteWithFilters(siteGUID, days, maxCount, skip, failuresOnly);
       }
     } else {
-      pubStatus = pubSvc.findAllPubStatusWithFilters(days, maxCount);
+      pubStatus = pubSvc.findAllPubStatusWithFilters(days, maxCount, skip, failuresOnly);
     }
     for (IPSPubStatus status : pubStatus) {
-      if (counter > 0) {
-        if (showAll || isFailure(status.getEndingState())) {
-          counter--;
-          continue;
-        }
-      }
-
-      if ((showAll || isFailure(status.getEndingState()))) {
-        jobs.add(buildJob(status));
-      }
-      if (jobs.size() >= maxCount) break;
+      jobs.add(buildJob(status));
     }
     return jobs;
   }

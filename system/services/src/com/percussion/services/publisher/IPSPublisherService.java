@@ -375,15 +375,44 @@ public interface IPSPublisherService extends IPSCataloger {
         IPSGuid siteId, IPSGuid serverId, int numDays, int maxCount);
 
     /**
+     * Same as {@link #findPubStatusBySiteAndServerWithFilters(IPSGuid, IPSGuid, int, int)}
+     * with a SQL offset and an optional failures-only ending-state predicate.
+     * {@code numDays == -1} does not add a start-date bound. {@code maxCount == -1}
+     * does not cap the result size. The day window and failures filter are applied
+     * in the query, not by discarding rows after a full load.
+     */
+    List<IPSPubStatus> findPubStatusBySiteAndServerWithFilters(
+        IPSGuid siteId,
+        IPSGuid serverId,
+        int numDays,
+        int maxCount,
+        int skipCount,
+        boolean failuresOnly);
+
+    /**
      * Retrieve publishing status records filtered by site and date range.
      */
     List<IPSPubStatus> findPubStatusBySiteWithFilters(
         IPSGuid siteId, int numDays, int maxCount);
 
     /**
+     * Site log window with SQL offset and optional failures-only predicate.
+     * See {@link #findPubStatusBySiteAndServerWithFilters(IPSGuid, IPSGuid, int, int, int, boolean)}.
+     */
+    List<IPSPubStatus> findPubStatusBySiteWithFilters(
+        IPSGuid siteId, int numDays, int maxCount, int skipCount, boolean failuresOnly);
+
+    /**
      * Retrieve publishing status records across all sites filtered by date range.
      */
     List<IPSPubStatus> findAllPubStatusWithFilters(int numDays, int maxCount);
+
+    /**
+     * All-sites log window with SQL offset and optional failures-only predicate.
+     * See {@link #findPubStatusBySiteAndServerWithFilters(IPSGuid, IPSGuid, int, int, int, boolean)}.
+     */
+    List<IPSPubStatus> findAllPubStatusWithFilters(
+        int numDays, int maxCount, int skipCount, boolean failuresOnly);
 
     /**
      * Determines whether the specified site has been published recently.

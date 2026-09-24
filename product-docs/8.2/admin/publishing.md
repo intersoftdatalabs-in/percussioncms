@@ -138,10 +138,14 @@ separate sections.
 
 From **Publish** (`spa.jsp?entry=publish&section=logs`), the **Logs** section lists historical
 publish jobs. Choose a **site**, optional **server id**, **days** window, and **max count**, then
-click **Logs** to load rows (`POST …/sitemanage/pubstatus/logs`). Use **Status** (All / Failed /
+click **Logs** to load rows (`POST …/sitemanage/pubstatus/logs`). The **days** value
+(3, 5, or 10) is the server query window: the publish-status lookup includes a start-date
+bound for that many days and a max-count limit. It does not load every historical job and
+drop older rows in memory. Use **Status** (All / Failed /
 Success) and **Search** to filter the loaded table by site, server, job id, or status without
 another round trip. **Failures only (server)** sets `showOnlyFailures` on the logs request so the
-server returns failed jobs only. **Export** downloads a CSV of the rows currently on screen
+server query returns failed jobs only (aborted, canceled, completed with failures, or restart
+needed), still inside the same day window. **Export** downloads a CSV of the rows currently on screen
 (job, site, server, status), including after **Status** and **Search**. An empty filter still
 downloads a header-only file; if the file cannot be built, the section shows
 **Could not export the filtered publish logs.** Open **details** on a row for item-level log lines (those details
