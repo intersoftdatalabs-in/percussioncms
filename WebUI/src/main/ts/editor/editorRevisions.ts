@@ -103,3 +103,33 @@ export function parseRevisionId(value: unknown): number | null {
   }
   return null;
 }
+
+export type RevisionCompareBlock =
+  | { ok: true; left: number; right: number }
+  | { ok: false; reason: "need_two" | "same" };
+
+/**
+ * Two distinct positive revision ids are required before a compare request.
+ * The same id, or a missing id, must not be sent (that would look like a diff).
+ */
+export function revisionCompareSelection(
+  left: unknown,
+  right: unknown,
+): RevisionCompareBlock {
+  const a = parseRevisionId(left);
+  const b = parseRevisionId(right);
+  if (a == null || b == null) {
+    return { ok: false, reason: "need_two" };
+  }
+  if (a === b) {
+    return { ok: false, reason: "same" };
+  }
+  return { ok: true, left: a, right: b };
+}
+
+/** Server returned a compare with no field rows — show empty, not a fabricated diff. */
+export function isEmptyRevisionCompare(
+  fields: { length: number } | null | undefined,
+): boolean {
+  return fields == null || fields.length === 0;
+}

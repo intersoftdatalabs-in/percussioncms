@@ -190,6 +190,28 @@ export const EDITOR_MSG = {
   RESTORE_REVISION_LABEL: "perc.ui.editor@Revision",
   RESTORE_OPEN: "perc.ui.editor@Show revisions",
   RESTORE_HIDE: "perc.ui.editor@Hide revisions",
+  COMPARE: "perc.ui.editor@Compare revisions",
+  COMPARING: "perc.ui.editor@Comparing…",
+  COMPARE_FROM: "perc.ui.editor@From revision",
+  COMPARE_TO: "perc.ui.editor@To revision",
+  COMPARE_NEED_TWO:
+    "perc.ui.editor@Pick two different revisions to compare.",
+  COMPARE_SAME:
+    "perc.ui.editor@Choose two different revisions. The same revision is not a diff.",
+  COMPARE_EMPTY:
+    "perc.ui.editor@These revisions have no field differences.",
+  COMPARE_FAILED: "perc.ui.editor@Could not compare these revisions.",
+  COMPARE_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to compare revisions of this item.",
+  COMPARE_NOT_FOUND:
+    "perc.ui.editor@This item or revision was not found for compare.",
+  COMPARE_LOAD_HINT:
+    "perc.ui.editor@Revision history could not be loaded, so compare is unavailable.",
+  COMPARE_COL_FIELD: "perc.ui.editor@Field",
+  COMPARE_COL_LEFT: "perc.ui.editor@Older value",
+  COMPARE_COL_RIGHT: "perc.ui.editor@Newer value",
+  COMPARE_CHANGED: "perc.ui.editor@Changed",
+  COMPARE_UNCHANGED: "perc.ui.editor@Unchanged",
   RELATED_TITLE: "perc.ui.editor@Related content",
   RELATED_LOADING: "perc.ui.editor@Loading related content…",
   RELATED_EMPTY: "perc.ui.editor@No related content for this item.",

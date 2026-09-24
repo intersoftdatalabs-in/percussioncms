@@ -3434,4 +3434,209 @@ describe("EditorHost rename open item (#4791)", () => {
       expect(screen.queryByTestId("editor-renamed")).toBeNull();
     }
   });
+
+  it("compares two revisions and shows field diffs without calling restore", async () => {
+    const checkout = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi.fn().mockResolvedValue(fields);
+    const loadRevisions = vi.fn().mockResolvedValue({
+      restorable: true,
+      revisions: [
+        {
+          revId: 4,
+          status: "Live",
+          lastModifier: "admin",
+          lastModifiedDate: "2026-04-10",
+        },
+        {
+          revId: 5,
+          status: "Quick Edit",
+          lastModifier: "admin",
+          lastModifiedDate: "2026-04-12",
+        },
+      ],
+      comments: [],
+    });
+    const compareRevisions = vi.fn().mockResolvedValue({
+      itemId: "42",
+      rev1: 4,
+      rev2: 5,
+      fields: [
+        {
+          name: "sys_title",
+          leftValue: "Old",
+          rightValue: "Home",
+          changed: true,
+        },
+      ],
+    });
+    const restoreRevision = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+                loadRevisions={loadRevisions}
+                restoreRevision={restoreRevision}
+                compareRevisions={compareRevisions}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-restore-toggle"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-compare-left")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-compare-run"));
+    await waitFor(() => {
+      expect(compareRevisions).toHaveBeenCalledWith("42", 4, 5);
+    });
+    expect(screen.getByTestId("editor-compare-row-sys_title").textContent).toMatch(
+      /Old/,
+    );
+    expect(screen.getByTestId("editor-compare-row-sys_title").textContent).toMatch(
+      /Changed/,
+    );
+    expect(restoreRevision).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-compare-empty")).toBeNull();
+  });
+
+  it("does not show a diff when the history has fewer than two revisions", async () => {
+    const loadRevisions = vi.fn().mockResolvedValue({
+      restorable: false,
+      revisions: [],
+      comments: [],
+    });
+    const compareRevisions = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => ({ fields: [] })}
+                loadRevisions={loadRevisions}
+                compareRevisions={compareRevisions}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-restore-toggle"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-compare-need-two")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-compare-table")).toBeNull();
+    expect(compareRevisions).not.toHaveBeenCalled();
+  });
+
+  it("shows an empty compare and a load failure instead of a fake diff", async () => {
+    const loadRevisions = vi.fn().mockResolvedValue({
+      restorable: true,
+      revisions: [
+        { revId: 1, status: "A", lastModifier: "a", lastModifiedDate: "d" },
+        { revId: 2, status: "B", lastModifier: "b", lastModifiedDate: "e" },
+      ],
+      comments: [],
+    });
+    const compareRevisions = vi
+      .fn()
+      .mockResolvedValueOnce({ itemId: "42", rev1: 1, rev2: 2, fields: [] })
+      .mockRejectedValueOnce({ status: 404, statusText: "Not Found", body: {} });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => ({ fields: [] })}
+                loadRevisions={loadRevisions}
+                compareRevisions={compareRevisions}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-restore-toggle"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-compare-run")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-compare-right"), {
+      target: { value: "1" },
+    });
+    const run = screen.getByTestId("editor-compare-run") as HTMLButtonElement;
+    expect(run.disabled).toBe(true);
+    expect(screen.queryByTestId("editor-compare-table")).toBeNull();
+    fireEvent.change(screen.getByTestId("editor-compare-right"), {
+      target: { value: "2" },
+    });
+    fireEvent.click(screen.getByTestId("editor-compare-run"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-compare-empty")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-compare-table")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-compare-run"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-compare-error").textContent).toMatch(
+        /not found for compare/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-compare-table")).toBeNull();
+  });
+
+  it("shows compare unavailable when revision history fails to load", async () => {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => ({ fields: [] })}
+                loadRevisions={vi.fn().mockRejectedValue({
+                  status: 403,
+                  statusText: "Forbidden",
+                  body: {},
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-restore-toggle"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-compare-unavailable")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-restore-load-error")).toBeTruthy();
+    expect(screen.queryByTestId("editor-compare-table")).toBeNull();
+  });
 });

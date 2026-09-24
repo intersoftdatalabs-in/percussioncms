@@ -140,7 +140,7 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 | **Audit Trail** | Same Revisions panel, audit-trail tab. |
 | **New Copy** | Confirm, then create a copy in the current folder. |
 | **Promotable Version** | Confirm, then create a promotable version in the current folder. |
-| **Restore Prior Revision** (inside the editor host) | Open the open item in the React editor (`spa.jsp?entry=editor`) and click **Show revisions** in the header. Pick a revision and **Restore prior revision** to confirm; the host calls `GET /services/itemmanagement/item/restoreRevision/{revisionGuid}` and refreshes fields from `GET /services/itemmanagement/item/fields/{id}`. HTTP **403** (not allowed to restore) and **404** (item or revision not found) are errors in the panel — they are not treated as success. Edit mode only. View / Promote modes hide the toggle. |
+| **Restore Prior Revision** (inside the editor host) | Open the open item in the React editor (`spa.jsp?entry=editor`) and click **Show revisions** in the header. Pick a revision and **Restore prior revision** to confirm; the host calls `GET /services/itemmanagement/item/restoreRevision/{revisionGuid}` and refreshes fields from `GET /services/itemmanagement/item/fields/{id}`. HTTP **403** (not allowed to restore) and **404** (item or revision not found) are errors in the panel — they are not treated as success. In the same panel, pick **From revision** and **To revision** and **Compare revisions** to see a field-level compare (`GET /services/itemmanagement/item/compare/{id}/{rev1}/{rev2}`). The compare view does not edit fields and does not restore. Choosing the same revision, or opening an item with fewer than two revisions, does not show a diff. An empty field list is shown as no differences. HTTP **403** and **404** on compare, and a failure to load revision history, are errors in the panel. Edit mode only. View / Promote modes hide the toggle. |
 | **Flush Cache** (Refresh Item) | Confirms, then flushes **all** assembler pages (not only the selected item). |
 | **Nav Reset** | Same goal as classic Nav Reset. On 8.2 this is typically a no-op once managed navigation is loaded (FastForward 6.0+ variants unused). |
 | **Publish Now** | Select a **page** or **asset** row in the list first (clicking only **Sites** or another folder is not enough). The toolbar and the item context menu hide Publish Now until a page or asset is selected. Explorer then confirms and demand-publishes (`GET /services/sitemanage/publish/page/{id}` or `/resource/{id}`). Other types stay unavailable. Does not open the demand-publish servlet page. HTTP 200 with application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is a failure (same as classic Finder) — the **Server actions** error region shows the server warning (for example licensing / Publication stopped) and the list does not refresh as if published. Folder-only selection does not publish. |
@@ -219,7 +219,14 @@ restore-prior-revision panel: the host lists revisions plus workflow comments
 **reloads fields** from `GET /services/itemmanagement/item/fields/{id}` after
 a successful restore. HTTP **403** (not allowed to restore) and **404** (item
 or revision not found) are errors in the panel — they are not treated as
-success. The restore panel is shown in **Edit** mode only.  **Required** fields (content-type
+success. In that same panel, **Compare revisions** reads
+`GET /services/itemmanagement/item/compare/{id}/{rev1}/{rev2}` and lists each
+field’s older value, newer value, and whether it changed. It does not edit
+fields and does not restore a revision. The same revision, or a history with
+fewer than two revisions, does not show a diff. A compare with no field rows
+says the revisions have no field differences. HTTP **403** and **404** on
+compare are errors, as is a failure to load the revision list. The restore
+panel is shown in **Edit** mode only.  **Required** fields (content-type
 `required` flag or occurrence `required` / `oneOrMore` from
 `GET /services/contenttypes/{type}`) show a marker on the field row. Saving with
 an empty required field keeps the form on screen and shows an inline error on

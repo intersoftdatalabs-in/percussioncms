@@ -18,8 +18,10 @@ import { describe, expect, it } from "vitest";
 import {
   canRestoreFromEditor,
   editorRevisionErrorReason,
+  isEmptyRevisionCompare,
   parseRevisionId,
   restoreRevisionConfirmBody,
+  revisionCompareSelection,
   summarizeRevisionRow,
 } from "../../../main/ts/editor/editorRevisions";
 
@@ -108,5 +110,30 @@ describe("editorRevisions", () => {
       }),
     ).toBe("failed");
     expect(editorRevisionErrorReason(new Error("network down"))).toBe("failed");
+  });
+
+  it("refuses a compare unless two different revision ids are chosen", () => {
+    expect(revisionCompareSelection(4, 5)).toEqual({
+      ok: true,
+      left: 4,
+      right: 5,
+    });
+    expect(revisionCompareSelection("1", "2")).toEqual({
+      ok: true,
+      left: 1,
+      right: 2,
+    });
+    expect(revisionCompareSelection(3, 3)).toEqual({ ok: false, reason: "same" });
+    expect(revisionCompareSelection("", 2)).toEqual({
+      ok: false,
+      reason: "need_two",
+    });
+    expect(revisionCompareSelection(null, undefined)).toEqual({
+      ok: false,
+      reason: "need_two",
+    });
+    expect(isEmptyRevisionCompare([])).toBe(true);
+    expect(isEmptyRevisionCompare(null)).toBe(true);
+    expect(isEmptyRevisionCompare([{ length: 1 }])).toBe(false);
   });
 });
