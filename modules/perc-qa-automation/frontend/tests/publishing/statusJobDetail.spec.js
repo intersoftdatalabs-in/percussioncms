@@ -116,6 +116,18 @@ test.describe("PublishingShell Status job detail (#4789)", () => {
     await expect(page.getByTestId("publish-status-detail-error")).toHaveText(
       "disk full",
     );
+    await expect(page.getByTestId("publish-status-detail-heading")).toHaveText(
+      "Job details",
+    );
+    await expect(
+      page.getByTestId("publish-status-detail-job-id-label"),
+    ).toHaveText("Job ID");
+    await expect(
+      page.getByTestId("publish-status-detail-edition-label"),
+    ).toHaveText("Edition");
+    await expect(
+      page.getByTestId("publish-status-detail-error-label"),
+    ).toHaveText("Error");
 
     await page.getByTestId("publish-status-job-detail-close").click();
     await expect(page.getByTestId("publish-status-job-detail")).toHaveCount(0);

@@ -642,6 +642,12 @@ GADGET_DESC_DASHBOARD_CONFIG:
         },
       },
     },
+    STATUS_DETAIL: {
+      HEADING: "perc.ui.publish.modern@Job details",
+      JOB_ID: "perc.ui.publish.title@Job ID",
+      EDITION: "perc.ui.publish.modern@Edition",
+      ERROR: "perc.ui.publish.title@Error",
+    },
     LOGS_DETAILS: {
       JOB_ID: "perc.ui.publish.title@Job ID",
       FILTER_ITEMS: "perc.ui.publish.title@Filter Items",
