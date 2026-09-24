@@ -3320,6 +3320,133 @@ describe("EditorHost move to folder (#4774)", () => {
   });
 });
 
+describe("EditorHost copy to folder (#4793)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  const emptyRelated = {
+    loadRelatedCanvas: async () => ({
+      ownerId: 42,
+      templateId: null,
+      slots: [],
+    }),
+    loadRelatedLocal: async () => ({ count: 0, links: [] }),
+  };
+
+  function titleType() {
+    return {
+      fields: [{ name: "sys_title", label: "Title", readOnly: false }],
+    };
+  }
+
+  function renderHost(
+    mode: string,
+    extra: Partial<React.ComponentProps<typeof EditorHost>> = {},
+  ) {
+    return render(
+      <MemoryRouter initialEntries={[`/editor?contentId=42&mode=${mode}`]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                loadItemLocation={async () => ({ path: "//Sites/Demo/Home" })}
+                {...emptyRelated}
+                {...extra}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it("copies into the chosen folder and stays on the original item", async () => {
+    const copyItemToFolder = vi.fn().mockResolvedValue(undefined);
+    renderHost("edit", { copyItemToFolder });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-copy-to-folder")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-copy-to-folder"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-copy-dest-input")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
+      target: { value: "//Sites/Other" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
+    await waitFor(() => {
+      expect(copyItemToFolder).toHaveBeenCalledWith("//Sites/Demo/Home", "//Sites/Other");
+    });
+    expect(screen.getByTestId("editor-content-id").textContent).toMatch(/42/);
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-copy-to-folder-done").textContent).toMatch(
+        /Sites\/Other/,
+      );
+    });
+  });
+
+  it("does not copy when the picker is cancelled", async () => {
+    const copyItemToFolder = vi.fn();
+    renderHost("edit", { copyItemToFolder });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-copy-to-folder")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-copy-to-folder"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-copy-dest-cancel")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-cancel"));
+    expect(copyItemToFolder).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-copy-to-folder-done")).toBeNull();
+  });
+
+  it("hides copy to folder in view mode", async () => {
+    renderHost("view");
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-copy-to-folder")).toBeNull();
+  });
+
+  it("surfaces HTTP 400, 403, and 404 without success", async () => {
+    for (const [status, pattern] of [
+      [400, /not valid/i],
+      [403, /not allowed to copy/i],
+      [404, /not found/i],
+    ] as const) {
+      cleanup();
+      const copyItemToFolder = vi.fn().mockRejectedValue({
+        status,
+        statusText: String(status),
+        body: {},
+      });
+      renderHost("edit", { copyItemToFolder });
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-copy-to-folder")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("editor-copy-to-folder"));
+      await waitFor(() => {
+        expect(screen.getByTestId("explorer-copy-dest-input")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
+        target: { value: "//Sites/Other" },
+      });
+      fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-copy-error").textContent).toMatch(pattern);
+      });
+      expect(screen.getByTestId("editor-content-id").textContent).toMatch(/42/);
+      expect(screen.queryByTestId("editor-copy-to-folder-done")).toBeNull();
+    }
+  });
+});
+
 describe("EditorHost rename open item (#4791)", () => {
   afterEach(() => {
     cleanup();

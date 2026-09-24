@@ -23,12 +23,17 @@
  */
 
 import { isApiError } from "../api/client";
+import { copyFolderItem } from "../api/contentExplorer/pathApi";
 import { parseExplorerContentId } from "../api/contentExplorer/pathItemId";
 import type { EditorHostMode } from "./editorHostUrl";
 
 export type EditorCopyKind = "copy" | "promotable";
 
-export type EditorCopyErrorReason = "forbidden" | "not_found" | "failed";
+export type EditorCopyErrorReason =
+  | "forbidden"
+  | "not_found"
+  | "bad_request"
+  | "failed";
 
 /** Copy actions are available in edit mode when an item is open. */
 export function canCopyFromEditor(mode: EditorHostMode): boolean {
@@ -44,9 +49,12 @@ export function parseCopyLandingContentId(
   return parseExplorerContentId(itemId);
 }
 
-/** Map REST failures so 403/404 are not treated as a successful copy. */
+/** Map REST failures so 400/403/404 are not treated as a successful copy. */
 export function editorCopyErrorReason(err: unknown): EditorCopyErrorReason {
   if (isApiError(err)) {
+    if (err.status === 400) {
+      return "bad_request";
+    }
     if (err.status === 403) {
       return "forbidden";
     }
@@ -55,4 +63,22 @@ export function editorCopyErrorReason(err: unknown): EditorCopyErrorReason {
     }
   }
   return "failed";
+}
+
+/**
+ * Copy the open item into a chosen folder via
+ * {@code POST /rest/folders/copy/item}. Blank paths are HTTP 400 and do not
+ * call the server. The public contract returns a status, not a new item id.
+ */
+export async function copyEditorItemToFolder(
+  itemPath: string,
+  targetFolderPath: string,
+): Promise<void> {
+  const item = String(itemPath ?? "").trim();
+  const target = String(targetFolderPath ?? "").trim();
+  if (!item || !target) {
+    const bad = { status: 400, statusText: "Bad Request", body: {} };
+    throw bad;
+  }
+  await copyFolderItem({ itemPath: item, targetFolderPath: target });
 }

@@ -47,6 +47,7 @@ import {
 } from "../api/contentExplorer/itemWorkflowApi";
 import { deleteFolderItem, findItemById, renameFolderItem } from "../api/contentExplorer/pathApi";
 import { formatApiError, isSessionRedirectError } from "../api/client";
+import { CopyDestinationPickerDialog } from "../contentExplorer/CopyDestinationPickerDialog";
 import { MoveDestinationPickerDialog } from "../contentExplorer/MoveDestinationPickerDialog";
 import { parsePositiveInt } from "../assembly/assemblyHostUrl";
 import { message } from "../i18n/message";
@@ -63,6 +64,7 @@ import { collectInvalidNumericFieldErrors } from "./numericField";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
 import {
   canCopyFromEditor,
+  copyEditorItemToFolder,
   editorCopyErrorReason,
   parseCopyLandingContentId,
   type EditorCopyKind,
@@ -215,6 +217,8 @@ export interface EditorHostProps {
   copyPromotable?: (itemId: string) => Promise<ItemCopyResult>;
   /** Test seam: confirm new copy / promotable (defaults to {@code window.confirm}). */
   confirmCopy?: (body: string) => boolean;
+  /** Test seam: {@code POST /rest/folders/copy/item} into a chosen folder. */
+  copyItemToFolder?: (itemPath: string, targetFolderPath: string) => Promise<void>;
   /** Test seam: folders {@code POST /folders/rename/item}. */
   renameItem?: (itemPath: string, newName: string) => Promise<void>;
   /** Test seam: pathmanagement item path for the open content id. */
@@ -442,6 +446,7 @@ export function EditorHost({
   copyItem = createNewCopy,
   copyPromotable = createPromotableVersion,
   confirmCopy,
+  copyItemToFolder = copyEditorItemToFolder,
   renameItem = async (itemPath: string, newName: string) => {
     await renameFolderItem({ itemPath, newName });
   },
@@ -507,6 +512,9 @@ export function EditorHost({
   const [copyBusy, setCopyBusy] = useState(false);
   const [copyErrorKey, setCopyErrorKey] = useState<string | null>(null);
   const [copyErrorDetail, setCopyErrorDetail] = useState("");
+  const [copyFolderOpen, setCopyFolderOpen] = useState(false);
+  const [copyFolderDefault, setCopyFolderDefault] = useState("");
+  const [copyFolderDone, setCopyFolderDone] = useState("");
   const [renameName, setRenameName] = useState("");
   const [renameBusy, setRenameBusy] = useState(false);
   const [renameDone, setRenameDone] = useState(false);
@@ -1149,6 +1157,9 @@ export function EditorHost({
   }
 
   function copyErrorKeyFor(reason: ReturnType<typeof editorCopyErrorReason>): string {
+    if (reason === "bad_request") {
+      return EDITOR_MSG.COPY_BAD_REQUEST;
+    }
     if (reason === "forbidden") {
       return EDITOR_MSG.COPY_FORBIDDEN;
     }
@@ -1204,6 +1215,78 @@ export function EditorHost({
       const reason = editorCopyErrorReason(err);
       setCopyErrorKey(copyErrorKeyFor(reason));
       setCopyErrorDetail(formatApiError(err, message(copyErrorKeyFor(reason))));
+    } finally {
+      setCopyBusy(false);
+    }
+  }
+
+  async function handleCopyToFolderOpen(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    if (!canCopyFromEditor(mode)) {
+      setCopyErrorDetail("");
+      setCopyErrorKey(EDITOR_MSG.COPY_UNAVAILABLE);
+      return;
+    }
+    setCopyBusy(true);
+    setCopyFolderDone("");
+    setCopyErrorKey(null);
+    setCopyErrorDetail("");
+    try {
+      const located = await loadItemLocation(String(contentId));
+      const parent = parentFolderOfItemPath(located.path);
+      if (!parent) {
+        setCopyErrorKey(EDITOR_MSG.COPY_NOT_FOUND);
+        return;
+      }
+      setCopyFolderDefault(parent);
+      setCopyFolderOpen(true);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = editorCopyErrorReason(err);
+      setCopyErrorKey(copyErrorKeyFor(reason));
+      setCopyErrorDetail(formatApiError(err, message(copyErrorKeyFor(reason))));
+    } finally {
+      setCopyBusy(false);
+    }
+  }
+
+  async function handleCopyToFolderPick(targetFolderPath: string): Promise<void> {
+    setCopyFolderOpen(false);
+    if (contentId == null || !canCopyFromEditor(mode)) {
+      return;
+    }
+    const target = targetFolderPath.trim();
+    if (!target) {
+      setCopyFolderDone("");
+      setCopyErrorKey(EDITOR_MSG.COPY_BAD_REQUEST);
+      setCopyErrorDetail("");
+      return;
+    }
+    setCopyBusy(true);
+    setCopyFolderDone("");
+    setCopyErrorKey(null);
+    setCopyErrorDetail("");
+    try {
+      const located = await loadItemLocation(String(contentId));
+      const source = String(located.path ?? "").trim();
+      if (!source) {
+        setCopyErrorKey(EDITOR_MSG.COPY_NOT_FOUND);
+        return;
+      }
+      await copyItemToFolder(source, target);
+      setCopyFolderDone(target);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const reason = editorCopyErrorReason(err);
+      setCopyErrorKey(copyErrorKeyFor(reason));
+      setCopyErrorDetail(formatApiError(err, message(copyErrorKeyFor(reason))));
+      setCopyFolderDone("");
     } finally {
       setCopyBusy(false);
     }
@@ -1979,6 +2062,17 @@ export function EditorHost({
             <button
               type="button"
               className={styles.button}
+              data-testid="editor-copy-to-folder"
+              disabled={copyBusy || loading || payload == null || saving}
+              onClick={() => void handleCopyToFolderOpen()}
+            >
+              {message(copyBusy ? EDITOR_MSG.COPYING : EDITOR_MSG.COPY_TO_FOLDER)}
+            </button>
+          ) : null}
+          {showCopy ? (
+            <button
+              type="button"
+              className={styles.button}
               data-testid="editor-new-copy"
               disabled={copyBusy || loading || payload == null || saving}
               onClick={() => void handleCopy("copy")}
@@ -2220,6 +2314,15 @@ export function EditorHost({
               >
                 {message(copyErrorKey)}
                 {copyErrorDetail ? ` ${copyErrorDetail}` : ""}
+              </div>
+            ) : null}
+            {copyFolderDone ? (
+              <div
+                className={styles.status}
+                role="status"
+                data-testid="editor-copy-to-folder-done"
+              >
+                {message(EDITOR_MSG.COPY_TO_FOLDER_DONE)} {copyFolderDone}
               </div>
             ) : null}
             {moveDone ? (
@@ -2560,6 +2663,15 @@ export function EditorHost({
           </>
         )}
       </div>
+      {copyFolderOpen ? (
+        <CopyDestinationPickerDialog
+          defaultPath={copyFolderDefault}
+          onPick={(target) => {
+            void handleCopyToFolderPick(target);
+          }}
+          onCancel={() => setCopyFolderOpen(false)}
+        />
+      ) : null}
       {moveOpen ? (
         <MoveDestinationPickerDialog
           defaultPath={moveSourceParent}
