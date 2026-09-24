@@ -287,6 +287,106 @@ export async function publishSelectedItem(item: PSPathItem): Promise<boolean> {
   return false;
 }
 
+export interface PublishBatchResult {
+  publishedIds: string[];
+  skippedFolders: string[];
+  skippedOther: string[];
+  failures: StageItemFailure[];
+}
+
+function failureFromPublish(item: PSPathItem, err: unknown): StageItemFailure {
+  if (isApiError(err)) {
+    return {
+      id: (item.id ?? "").trim(),
+      name: stageItemLabel(item),
+      status: err.status,
+      message: `HTTP ${err.status}`,
+    };
+  }
+  const text = err instanceof Error ? err.message : "publish failed";
+  return {
+    id: (item.id ?? "").trim(),
+    name: stageItemLabel(item),
+    message: text || "publish failed",
+  };
+}
+
+/**
+ * Demand-publish every eligible page/asset. Folders and other types are
+ * skipped. A 403/404/409 (or application-level preflight failure) on one
+ * item is recorded and the rest of the selection still runs.
+ */
+export async function publishSelectedItems(
+  items: readonly PSPathItem[],
+): Promise<PublishBatchResult> {
+  const plan = partitionStageSelection(items);
+  const publishedIds: string[] = [];
+  const failures: StageItemFailure[] = [];
+  for (const item of plan.eligible) {
+    try {
+      const published = await publishSelectedItem(item);
+      if (!published) {
+        failures.push({
+          id: (item.id ?? "").trim(),
+          name: stageItemLabel(item),
+          message: "not published",
+        });
+      } else {
+        publishedIds.push((item.id ?? "").trim());
+      }
+    } catch (err: unknown) {
+      failures.push(failureFromPublish(item, err));
+    }
+  }
+  return {
+    publishedIds,
+    skippedFolders: plan.skippedFolders,
+    skippedOther: plan.skippedOther,
+    failures,
+  };
+}
+
+/** Operator-visible reason when folders or individual items were not fully published. */
+export function describePublishBatch(
+  result: PublishBatchResult,
+): string | undefined {
+  const parts: string[] = [];
+  if (result.skippedFolders.length > 0) {
+    parts.push(
+      fillTemplate(
+        EXPLORER_MSG.PUBLISH_SKIPPED_FOLDERS,
+        "{names}",
+        result.skippedFolders.join(", "),
+      ),
+    );
+  }
+  if (result.skippedOther.length > 0) {
+    parts.push(
+      fillTemplate(
+        EXPLORER_MSG.PUBLISH_SKIPPED_OTHER,
+        "{names}",
+        result.skippedOther.join(", "),
+      ),
+    );
+  }
+  if (result.failures.length > 0) {
+    const detail = result.failures
+      .map((failure) =>
+        failure.status != null
+          ? `${failure.name} (HTTP ${failure.status})`
+          : `${failure.name} (${failure.message})`,
+      )
+      .join("; ");
+    parts.push(
+      fillTemplate(EXPLORER_MSG.PUBLISH_BATCH_INCOMPLETE, "{detail}", detail),
+    );
+  }
+  if (parts.length === 0) {
+    return undefined;
+  }
+  return parts.join(" ");
+}
+
 async function demandPublish(url: string): Promise<void> {
   const body = await get<unknown>(url);
   const preflight = mapPublishResponse(body);

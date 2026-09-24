@@ -490,6 +490,16 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Permanently delete this item from the system?",
   CONFIRM_PUBLISH_NOW:
     "perc.ui.explorer@Publish this item now?",
+  CONFIRM_PUBLISH_NOW_MULTI:
+    "perc.ui.explorer@Publish {count} selected items now? Folders in the selection are not published.",
+  PUBLISH_SKIPPED_FOLDERS:
+    "perc.ui.explorer@Folders are not published: {names}",
+  PUBLISH_SKIPPED_OTHER:
+    "perc.ui.explorer@These selected items are not pages or assets and were not published: {names}",
+  PUBLISH_BATCH_INCOMPLETE:
+    "perc.ui.explorer@Not every selected item was published. {detail}",
+  PUBLISH_NOTHING_ELIGIBLE:
+    "perc.ui.explorer@Nothing in the selection can be published. Folders are not published.",
   CONFIRM_FORCE_CHECKIN:
     "perc.ui.explorer@Force check-in this item? Other users will lose their checkout.",
   FORCE_CHECKIN_FORBIDDEN:

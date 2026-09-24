@@ -26,7 +26,9 @@ import {
   linkedPagePathsForConfirm,
   loadLinkedPagesForTakedown,
   parseLinkedPagesForTakedown,
+  describePublishBatch,
   publishSelectedItem,
+  publishSelectedItems,
   removeFromStagingSelectedItem,
   removeFromStagingSelectedItems,
   resolvePublishKind,
@@ -161,6 +163,50 @@ describe("publishSelectedItem", () => {
     await expect(publishSelectedItem(item())).rejects.toThrow(
       "Could not connect to publishing server",
     );
+  });
+
+  it("publishes each eligible item and records a 403 without stopping the batch", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("/publish/page/43")) {
+        return new Response("denied", { status: 403, statusText: "Forbidden" });
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    const result = await publishSelectedItems([
+      item({ id: "42", name: "Home" }),
+      item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      item({ id: "43", name: "About" }),
+      item({
+        id: "99",
+        name: "logo",
+        path: "/Assets/logo.png",
+        type: "percImageAsset",
+      }),
+    ]);
+    expect(result.publishedIds).toEqual(["42", "99"]);
+    expect(result.skippedFolders).toEqual(["News"]);
+    expect(result.failures).toEqual([
+      expect.objectContaining({ id: "43", name: "About", status: 403 }),
+    ]);
+    const urls = global.fetch.mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("/publish/page/42"))).toBe(true);
+    expect(urls.some((url) => url.includes("/publish/page/43"))).toBe(true);
+    expect(urls.some((url) => url.includes("/publish/resource/99"))).toBe(true);
+    expect(urls.some((url) => url.includes("/7"))).toBe(false);
+    const text = describePublishBatch(result) ?? "";
+    expect(text).toMatch(/Folders are not published: News/);
+    expect(text).toMatch(/About \(HTTP 403\)/);
+    expect(text).toMatch(/Not every selected item was published/);
   });
 });
 

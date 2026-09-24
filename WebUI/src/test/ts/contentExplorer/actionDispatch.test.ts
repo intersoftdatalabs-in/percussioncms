@@ -795,6 +795,102 @@ describe("actionDispatch", () => {
     expect(result.refresh).toBeUndefined();
   });
 
+  it("multi-select Publish Now confirms once and publishes each page and asset", async () => {
+    const onPublish = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const folder = item({
+      id: "7",
+      name: "News",
+      path: "/Sites/Demo/News",
+      type: "folder",
+      leaf: false,
+    });
+    const asset = item({
+      id: "99",
+      name: "logo",
+      path: "/Assets/logo.png",
+      type: "percImageAsset",
+    });
+    const page = item({ id: "42", name: "Home" });
+    const result = await dispatchAction(action({ name: "Publish_Now" }), {
+      item: page,
+      selectedItems: [page, folder, asset],
+      onPublish,
+      confirm,
+    });
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(String(confirm.mock.calls[0]?.[0] ?? "")).toContain("2");
+    expect(onPublish).toHaveBeenCalledTimes(2);
+    expect(onPublish.mock.calls.map((call) => call[0].id)).toEqual(["42", "99"]);
+    expect(result.refresh).toBe(true);
+    expect(result.messageText ?? "").toMatch(/Folders are not published: News/);
+  });
+
+  it("multi-select Publish Now cancel publishes nothing", async () => {
+    const onPublish = vi.fn();
+    const result = await dispatchAction(action({ name: "Publish_Now" }), {
+      item: item(),
+      selectedItems: [item({ id: "42" }), item({ id: "43", name: "About" })],
+      onPublish,
+      confirm: () => false,
+    });
+    expect(onPublish).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("multi-select Publish Now reports one HTTP failure without claiming full success", async () => {
+    const onPublish = vi.fn(async (row: PSPathItem) => {
+      if (row.id === "43") {
+        throw { status: 409, statusText: "Conflict", body: "locked" };
+      }
+    });
+    const result = await dispatchAction(action({ name: "Publish_Now" }), {
+      item: item(),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About" }),
+      ],
+      onPublish,
+      confirm: () => true,
+    });
+    expect(onPublish).toHaveBeenCalledTimes(2);
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBe(EXPLORER_MSG.PUBLISH_BATCH_INCOMPLETE);
+    expect(result.messageText ?? "").toMatch(/About \(HTTP 409\)/);
+    expect(result.messageText ?? "").not.toMatch(/Home \(HTTP/);
+  });
+
+  it("multi-select of only folders does not publish", async () => {
+    const onPublish = vi.fn();
+    const result = await dispatchAction(action({ name: "Publish_Now" }), {
+      item: item(),
+      selectedItems: [
+        item({
+          id: "1",
+          name: "Sites",
+          path: "/Sites",
+          type: "folder",
+          leaf: false,
+        }),
+        item({
+          id: "2",
+          name: "News",
+          path: "/Sites/Demo/News",
+          type: "folder",
+          leaf: false,
+        }),
+      ],
+      onPublish,
+      confirm: () => true,
+    });
+    expect(onPublish).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText ?? "").toMatch(
+      /Folders are not published: Sites, News/,
+    );
+  });
+
   it("Publish Now on a Sites folder asks for a content item and does not publish", async () => {
     const onPublish = vi.fn();
     const result = await dispatchAction(action({ name: "Publish_Now" }), {
