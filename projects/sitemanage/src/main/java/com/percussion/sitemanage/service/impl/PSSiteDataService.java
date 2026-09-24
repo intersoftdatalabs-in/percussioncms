@@ -631,16 +631,19 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
               .getBean(
                   "sys_transactionManager",
                   org.springframework.transaction.PlatformTransactionManager.class);
-      var tx = new org.springframework.transaction.support.TransactionTemplate(tm);
-      tx.setPropagationBehavior(
-          org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-      tx.executeWithoutResult(
-          status -> savePubServerRenamedFlag(site, nameBeforeRename, props));
+      // Unbind the request connection before REQUIRES_NEW. A bare template
+      // enlists that holder and a CHAR(1) or flush failure marks the rename
+      // request rollback-only (#4798).
+      com.percussion.services.tx.PSCallerTransactionSuspension.executeRequiresNew(
+          tm, () -> {
+            savePubServerRenamedFlag(site, nameBeforeRename, props);
+            return Boolean.TRUE;
+          });
     } catch (Exception e) {
-      log.error(
-          "Error updating PSPubServer flag setSiteRenamed while renaming site: {}. Error: {}",
-          nameBeforeRename,
-          PSExceptionUtils.getMessageForLog(e));
+      log.warn(
+          "Publishing server renamed flag was not saved while renaming site: {}",
+          nameBeforeRename);
+      log.debug("Publishing server renamed flag failure", e);
     }
   }
 

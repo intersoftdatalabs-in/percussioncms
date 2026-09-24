@@ -25,9 +25,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSCoreItem;
+import com.percussion.services.content.data.PSItemStatus;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
@@ -115,5 +118,24 @@ class PSManagedNavServiceSetNavonPropertiesTest {
     verify(coreItem).setTextField("displaytitle", "Renamed");
     verify(contentWs).saveItems(anyList(), eq(false), eq(false));
     verify(contentWs, never()).releaseFromEdit(anyList(), anyBoolean());
+  }
+
+  @Test
+  void setNavonPropertiesKeepsSaveWhenReleaseIsRollbackOnly() throws Exception {
+    doReturn(false).when(service).isNavonAlreadyCheckedOut(navonId);
+    PSItemStatus status = new PSItemStatus(9001);
+    when(contentWs.prepareForEdit(anyList())).thenReturn(List.of(status));
+    when(contentWs.loadItems(anyList(), eq(false), eq(false), eq(false), eq(false)))
+        .thenReturn(List.of(coreItem));
+    doThrow(new UnexpectedRollbackException("rollback-only"))
+        .when(contentWs)
+        .releaseFromEdit(anyList(), eq(false));
+    Map<String, String> map = new HashMap<>();
+    map.put("displaytitle", "Renamed");
+
+    assertDoesNotThrow(() -> service.setNavonProperties(navonId, map));
+
+    verify(contentWs).saveItems(anyList(), eq(false), eq(false));
+    verify(contentWs).releaseFromEdit(anyList(), eq(false));
   }
 }

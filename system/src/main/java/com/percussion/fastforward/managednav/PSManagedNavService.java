@@ -779,10 +779,13 @@ public class PSManagedNavService implements IPSManagedNavService {
             return Boolean.TRUE;
           });
     } catch (RuntimeException e) {
-      if (!PSNavFolderUtils.isSampleWorkflowAttachFailure(e)) {
+      // Sample-workflow NPE, or a nested REQUIRES_NEW that is already
+      // rollback-only. Either one must not fail the site-rename request
+      // (#4798): the navon properties are already saved.
+      if (!PSNavFolderUtils.isSampleWorkflowAttachFailure(e) && !isUnexpectedRollback(e)) {
         throw e;
       }
-      log.warn("Skipping releaseFromEdit after navon property save", e);
+      log.warn("Skipping releaseFromEdit after navon property save");
     }
   }
 
