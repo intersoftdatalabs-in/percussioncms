@@ -158,6 +158,72 @@ export function buildWorkflowTransitionMenu(
  * <p>Replaces any prior client Workflow group (same {@link WORKFLOW_MENU_NAME})
  * then sorts by {@code sortRank}. Pure — does not mutate inputs.</p>
  */
+/**
+ * Triggers shared by every supplied Workflow menu (intersection).
+ *
+ * <p>A {@code null} menu means that item has no allowed transitions (or the
+ * load failed). Shared triggers are then empty so Explorer does not offer a
+ * transition some selected items cannot take. Comment-required is true when
+ * any item marks the shared trigger. Order follows the first menu.</p>
+ */
+export function intersectWorkflowMenus(
+  menus: readonly (MenuAction | null | undefined)[],
+  options: BuildWorkflowMenuOptions = {},
+): MenuAction | null {
+  if (menus.length === 0) {
+    return null;
+  }
+  const perItem: { trigger: string; commentRequired: boolean }[][] = [];
+  for (const menu of menus) {
+    const children = menu?.children ?? [];
+    const rows: { trigger: string; commentRequired: boolean }[] = [];
+    for (const child of children) {
+      const trigger = parseWorkflowTransitionTrigger(child.name);
+      if (!trigger) {
+        continue;
+      }
+      rows.push({
+        trigger,
+        commentRequired: child.commentRequired === true,
+      });
+    }
+    if (rows.length === 0) {
+      return null;
+    }
+    perItem.push(rows);
+  }
+  const [first, ...rest] = perItem;
+  const shared = (first ?? []).filter((row) =>
+    rest.every((list) =>
+      list.some((other) => foldTrigger(other.trigger) === foldTrigger(row.trigger)),
+    ),
+  );
+  if (shared.length === 0) {
+    return null;
+  }
+  const commentRequired = shared
+    .filter((row) =>
+      perItem.some((list) =>
+        list.some(
+          (other) =>
+            foldTrigger(other.trigger) === foldTrigger(row.trigger) &&
+            other.commentRequired,
+        ),
+      ),
+    )
+    .map((row) => row.trigger);
+  return buildWorkflowTransitionMenu(
+    shared.map((row) => row.trigger),
+    {
+      ...options,
+      commentRequiredTriggers: [
+        ...(options.commentRequiredTriggers ?? []),
+        ...commentRequired,
+      ],
+    },
+  );
+}
+
 export function mergeWorkflowMenuActions(
   baseActions: readonly MenuAction[] | null | undefined,
   workflowMenu: MenuAction | null | undefined,

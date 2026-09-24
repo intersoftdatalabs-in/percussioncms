@@ -440,6 +440,16 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@A comment is required for this workflow transition",
   WORKFLOW_COMMENT_PROMPT:
     "perc.ui.explorer@Enter a comment for this workflow transition",
+  CONFIRM_WORKFLOW_MULTI:
+    "perc.ui.explorer@Apply {trigger} to {count} selected items? Folders in the selection are skipped.",
+  WORKFLOW_SKIPPED_FOLDERS:
+    "perc.ui.explorer@Folders are not transitioned: {names}",
+  WORKFLOW_SKIPPED_OTHER:
+    "perc.ui.explorer@These selected items are not workflow items and were not transitioned: {names}",
+  WORKFLOW_BATCH_INCOMPLETE:
+    "perc.ui.explorer@Not every selected item was transitioned. {detail}",
+  WORKFLOW_NOTHING_ELIGIBLE:
+    "perc.ui.explorer@Nothing in the selection can take this workflow transition. Folders are skipped.",
   // Success path refreshes the list silently (error banner is fail-only).
 
   // Views catalog tree + run results (#3116 / parent #3110) — not the View menu

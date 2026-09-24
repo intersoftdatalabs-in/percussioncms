@@ -21,6 +21,7 @@ import {
   WORKFLOW_TRANSITION_PREFIX,
   buildWorkflowTransitionMenu,
   isWorkflowTransitionActionName,
+  intersectWorkflowMenus,
   mergeWorkflowMenuActions,
   parseWorkflowTransitionTrigger,
 } from "../../../main/ts/contentExplorer/workflowMenuActions";
@@ -111,6 +112,24 @@ describe("workflowMenuActions mapping (#2732)", () => {
     expect(mergeWorkflowMenuActions(base, null).map((a) => a.name)).toEqual([
       "open",
     ]);
+  });
+
+  it("intersects triggers shared by every selected item (#4833)", () => {
+    const home = buildWorkflowTransitionMenu(["Submit", "Approve"]);
+    const about = buildWorkflowTransitionMenu(["Approve", "Reject"], {
+      commentRequiredTriggers: ["Reject"],
+    });
+    const shared = intersectWorkflowMenus([home, about], { groupLabel: "Workflow" });
+    expect(shared?.children?.map((c) => c.label)).toEqual(["Approve"]);
+    expect(shared?.children?.[0]?.commentRequired).not.toBe(true);
+
+    const rejectShared = intersectWorkflowMenus([
+      buildWorkflowTransitionMenu(["Reject"], { commentRequiredTriggers: ["Reject"] }),
+      buildWorkflowTransitionMenu(["Reject"]),
+    ]);
+    expect(rejectShared?.children?.[0]?.commentRequired).toBe(true);
+    expect(intersectWorkflowMenus([home, null])).toBeNull();
+    expect(intersectWorkflowMenus([])).toBeNull();
   });
 
   it("parses and detects workflow transition action names", () => {

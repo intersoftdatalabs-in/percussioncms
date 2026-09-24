@@ -116,6 +116,7 @@ import {
 } from "./previewItem";
 import { isFolder } from "./selection";
 import { parseWorkflowTransitionTrigger } from "./workflowMenuActions";
+import { isWorkflowEligibleItem } from "./workflowEligibility";
 import {
   type AssemblySlotContext,
   isSlotActionName,
@@ -243,8 +244,8 @@ export interface ActionDispatchContext {
   onStage?: (item: PSPathItem) => Promise<void>;
   /**
    * Checkbox multi-selection. When length is 2 or more, Publish now,
-   * Stage, Take Down, and Remove from Staging use one confirm for every
-   * eligible page/asset and skip folders.
+   * Stage, Take Down, Remove from Staging, and workflow transitions use
+   * one confirm for every eligible page/asset and skip folders.
    */
   selectedItems?: readonly PSPathItem[];
   onRemoveFromStaging?: (item: PSPathItem) => Promise<void>;
@@ -881,6 +882,190 @@ async function applyScheduleDates(
   return { saved, skipped: 0, failures };
 }
 
+function workflowItemLabel(item: PSPathItem): string {
+  const name = (item.name ?? "").trim();
+  if (name) return name;
+  const path = (item.path ?? "").trim();
+  if (path) return path;
+  return (item.id ?? "").trim() || "item";
+}
+
+function fillWorkflow(key: string, token: string, value: string): string {
+  return message(key).split(token).join(value);
+}
+
+interface WorkflowBatchFailure {
+  name: string;
+  status?: number;
+  message: string;
+}
+
+function partitionWorkflowSelection(items: readonly PSPathItem[]): {
+  eligible: PSPathItem[];
+  skippedFolders: string[];
+  skippedOther: string[];
+} {
+  const eligible: PSPathItem[] = [];
+  const skippedFolders: string[] = [];
+  const skippedOther: string[] = [];
+  const seen = new Set<string>();
+  for (const item of items) {
+    const id = (item.id ?? "").trim();
+    const key = id || `name:${workflowItemLabel(item)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    if (isFolder(item)) {
+      skippedFolders.push(workflowItemLabel(item));
+      continue;
+    }
+    if (!isWorkflowEligibleItem(item)) {
+      skippedOther.push(workflowItemLabel(item));
+      continue;
+    }
+    eligible.push(item);
+  }
+  return { eligible, skippedFolders, skippedOther };
+}
+
+function describeWorkflowBatch(result: {
+  skippedFolders: string[];
+  skippedOther: string[];
+  failures: WorkflowBatchFailure[];
+}): string | undefined {
+  const parts: string[] = [];
+  if (result.skippedFolders.length > 0) {
+    parts.push(
+      fillWorkflow(
+        EXPLORER_MSG.WORKFLOW_SKIPPED_FOLDERS,
+        "{names}",
+        result.skippedFolders.join(", "),
+      ),
+    );
+  }
+  if (result.skippedOther.length > 0) {
+    parts.push(
+      fillWorkflow(
+        EXPLORER_MSG.WORKFLOW_SKIPPED_OTHER,
+        "{names}",
+        result.skippedOther.join(", "),
+      ),
+    );
+  }
+  if (result.failures.length > 0) {
+    const detail = result.failures
+      .map((failure) =>
+        failure.status != null
+          ? `${failure.name} (HTTP ${failure.status})`
+          : `${failure.name} (${failure.message})`,
+      )
+      .join("; ");
+    parts.push(
+      fillWorkflow(EXPLORER_MSG.WORKFLOW_BATCH_INCOMPLETE, "{detail}", detail),
+    );
+  }
+  if (parts.length === 0) return undefined;
+  return parts.join(" ");
+}
+
+function promptWorkflowComment(
+  ctx: ActionDispatchContext,
+  trigger: string,
+): string | null {
+  const prompt =
+    ctx.promptWorkflowComment ??
+    ((name: string) => {
+      if (typeof window === "undefined" || typeof window.prompt !== "function") {
+        return null;
+      }
+      return window.prompt(
+        `${message(EXPLORER_MSG.WORKFLOW_COMMENT_PROMPT)} (${name})`,
+      );
+    });
+  const entered = prompt(trigger);
+  if (entered == null || String(entered).trim().length === 0) {
+    return null;
+  }
+  return String(entered).trim();
+}
+
+async function transitionMultiSelection(
+  ctx: ActionDispatchContext,
+  items: readonly PSPathItem[],
+  trigger: string,
+  commentRequired: boolean,
+): Promise<ActionDispatchResult> {
+  const plan = partitionWorkflowSelection(items);
+  if (plan.eligible.length === 0) {
+    const noted = describeWorkflowBatch({
+      skippedFolders: plan.skippedFolders,
+      skippedOther: plan.skippedOther,
+      failures: [],
+    });
+    return {
+      kind: "workflow",
+      messageKey: EXPLORER_MSG.WORKFLOW_NOTHING_ELIGIBLE,
+      messageText: noted ?? message(EXPLORER_MSG.WORKFLOW_NOTHING_ELIGIBLE),
+    };
+  }
+  const confirmBody = fillWorkflow(
+    fillWorkflow(EXPLORER_MSG.CONFIRM_WORKFLOW_MULTI, "{count}", String(plan.eligible.length)),
+    "{trigger}",
+    trigger,
+  );
+  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
+  if (!ok) {
+    return { kind: "workflow" };
+  }
+  let comment: string | undefined;
+  if (commentRequired) {
+    const entered = promptWorkflowComment(ctx, trigger);
+    if (entered == null) {
+      return { kind: "workflow", messageKey: EXPLORER_MSG.WORKFLOW_COMMENT_REQUIRED };
+    }
+    comment = entered;
+  }
+  const transitionedIds: string[] = [];
+  const failures: WorkflowBatchFailure[] = [];
+  for (const row of plan.eligible) {
+    const id = (row.id ?? "").trim();
+    try {
+      if (ctx.runWorkflow) {
+        await ctx.runWorkflow(id, trigger, comment);
+      }
+      transitionedIds.push(id);
+    } catch (err: unknown) {
+      const status = isApiError(err) ? err.status : undefined;
+      const text =
+        err instanceof Error
+          ? err.message
+          : status != null
+            ? `HTTP ${status}`
+            : "transition failed";
+      failures.push({
+        name: workflowItemLabel(row),
+        status,
+        message: text || "transition failed",
+      });
+    }
+  }
+  const messageText = describeWorkflowBatch({
+    skippedFolders: plan.skippedFolders,
+    skippedOther: plan.skippedOther,
+    failures,
+  });
+  const incomplete = failures.length > 0;
+  return {
+    kind: "workflow",
+    refresh: transitionedIds.length > 0,
+    messageText,
+    messageKey: incomplete
+      ? EXPLORER_MSG.WORKFLOW_BATCH_INCOMPLETE
+      : messageText
+        ? EXPLORER_MSG.WORKFLOW_SKIPPED_FOLDERS
+        : undefined,
+  };
+}
+
 function defaultOpenWindow(
   url: string,
   target?: string,
@@ -901,26 +1086,23 @@ export async function dispatchAction(
 
   if (kind === "workflow") {
     const trigger = parseWorkflowTransitionTrigger(action.name);
-    if (trigger == null || !item?.id) {
+    if (trigger == null) {
+      return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED };
+    }
+    const multi = ctx.selectedItems ?? [];
+    if (multi.length >= 2) {
+      return transitionMultiSelection(ctx, multi, trigger, action.commentRequired === true);
+    }
+    if (!item?.id) {
       return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED };
     }
     let comment: string | undefined;
     if (action.commentRequired === true) {
-      const prompt =
-        ctx.promptWorkflowComment ??
-        ((name: string) => {
-          if (typeof window === "undefined" || typeof window.prompt !== "function") {
-            return null;
-          }
-          return window.prompt(
-            `${message(EXPLORER_MSG.WORKFLOW_COMMENT_PROMPT)} (${name})`,
-          );
-        });
-      const entered = prompt(trigger);
-      if (entered == null || String(entered).trim().length === 0) {
+      const entered = promptWorkflowComment(ctx, trigger);
+      if (entered == null) {
         return { kind, messageKey: EXPLORER_MSG.WORKFLOW_COMMENT_REQUIRED };
       }
-      comment = String(entered).trim();
+      comment = entered;
     }
     try {
       if (ctx.runWorkflow) {
