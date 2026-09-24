@@ -51,8 +51,12 @@ import {
   publishSelectedItem,
   removeFromStagingSelectedItem,
   resolvePublishKind,
+  describeStageBatch,
+  partitionStageSelection,
   stageSelectedItem,
+  stageSelectedItems,
   takedownSelectedItem,
+  type StageBatchResult,
 } from "./itemPublish";
 import {
   getItemScheduleDates,
@@ -224,6 +228,11 @@ export interface ActionDispatchContext {
   onPublish?: (item: PSPathItem) => Promise<void>;
   onTakedown?: (item: PSPathItem) => Promise<void>;
   onStage?: (item: PSPathItem) => Promise<void>;
+  /**
+   * Checkbox multi-selection. When length is 2 or more, Stage uses one
+   * confirm for every eligible page/asset and skips folders.
+   */
+  selectedItems?: readonly PSPathItem[];
   onRemoveFromStaging?: (item: PSPathItem) => Promise<void>;
   onSchedule?: (item: PSPathItem, dates: ItemScheduleDates) => Promise<void>;
   onForceCheckin?: (item: PSPathItem) => Promise<void>;
@@ -275,6 +284,8 @@ export interface ActionDispatchContext {
 export interface ActionDispatchResult {
   kind: ActionKind;
   messageKey?: string;
+  /** Already-resolved operator text (batch stage details). Prefer over messageKey. */
+  messageText?: string;
   refresh?: boolean;
 }
 
@@ -509,6 +520,85 @@ export async function purgeSelectedItem(item: PSPathItem): Promise<boolean> {
     return true;
   }
   return false;
+}
+
+async function stageMultiSelection(
+  ctx: ActionDispatchContext,
+  items: readonly PSPathItem[],
+): Promise<ActionDispatchResult> {
+  const plan = partitionStageSelection(items);
+  if (plan.eligible.length === 0) {
+    const noted = describeStageBatch({
+      stagedIds: [],
+      skippedFolders: plan.skippedFolders,
+      skippedOther: plan.skippedOther,
+      failures: [],
+    });
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.STAGE_NOTHING_ELIGIBLE,
+      messageText: noted ?? message(EXPLORER_MSG.STAGE_NOTHING_ELIGIBLE),
+    };
+  }
+  const confirmBody = message(EXPLORER_MSG.CONFIRM_STAGE_MULTI)
+    .split("{count}")
+    .join(String(plan.eligible.length));
+  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  const result = await runStageBatch(items, ctx.onStage);
+  const messageText = describeStageBatch(result);
+  const anyStaged = result.stagedIds.length > 0;
+  const incomplete = result.failures.length > 0;
+  return {
+    kind: "rest",
+    refresh: anyStaged,
+    messageText,
+    messageKey: incomplete
+      ? EXPLORER_MSG.STAGE_BATCH_INCOMPLETE
+      : messageText
+        ? EXPLORER_MSG.STAGE_SKIPPED_FOLDERS
+        : undefined,
+  };
+}
+
+async function runStageBatch(
+  items: readonly PSPathItem[],
+  onStage: ActionDispatchContext["onStage"],
+): Promise<StageBatchResult> {
+  if (!onStage) {
+    return stageSelectedItems(items);
+  }
+  const plan = partitionStageSelection(items);
+  const stagedIds: string[] = [];
+  const failures: StageBatchResult["failures"] = [];
+  for (const item of plan.eligible) {
+    try {
+      await onStage(item);
+      stagedIds.push((item.id ?? "").trim());
+    } catch (err: unknown) {
+      const status = isApiError(err) ? err.status : undefined;
+      const text =
+        err instanceof Error
+          ? err.message
+          : status != null
+            ? `HTTP ${status}`
+            : "stage failed";
+      failures.push({
+        id: (item.id ?? "").trim(),
+        name: (item.name ?? item.id ?? "item").trim() || "item",
+        status,
+        message: text || "stage failed",
+      });
+    }
+  }
+  return {
+    stagedIds,
+    skippedFolders: plan.skippedFolders,
+    skippedOther: plan.skippedOther,
+    failures,
+  };
 }
 
 function defaultOpenWindow(
@@ -890,6 +980,10 @@ export async function dispatchAction(
   }
 
   if (isStageActionName(name)) {
+    const multi = ctx.selectedItems ?? [];
+    if (multi.length >= 2) {
+      return stageMultiSelection(ctx, multi);
+    }
     if (!item || isFolder(item)) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }

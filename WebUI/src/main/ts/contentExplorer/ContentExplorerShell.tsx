@@ -629,6 +629,8 @@ function ContentExplorerShellInner({
   const [multiSelectedItems, setMultiSelectedItems] = useState<
     ReadonlyMap<string, PSPathItem>
   >(() => new Map<string, PSPathItem>());
+  const multiSelectedItemsRef = useRef(multiSelectedItems);
+  multiSelectedItemsRef.current = multiSelectedItems;
   const [clipboard, setClipboardState] = useState<Clipboard>(EMPTY_CLIPBOARD);
   const [clipboardMode, setClipboardMode] = useState<"copy" | "cut">("copy");
   /** Folder content id for security/properties (resolved from selection or path). */
@@ -1236,6 +1238,7 @@ function ContentExplorerShellInner({
           const result = await dispatchAction(action, {
             item: current.item,
             folderPath: current.folderPath,
+            selectedItems: Array.from(multiSelectedItemsRef.current.values()),
             parentName:
               action.parentName ??
               findMenuParentName(
@@ -1280,8 +1283,9 @@ function ContentExplorerShellInner({
             pickSlotCreate,
             pickSlotTemplateSlot,
           });
-          if (result.messageKey) {
-            const msg = message(result.messageKey);
+          if (result.messageText || result.messageKey) {
+            const msg =
+              result.messageText ?? message(result.messageKey ?? "");
             setActionInvokeError(msg);
             // Keep Sites-folder "select a content item first" off the
             // generic banner so Publish Now failures mount

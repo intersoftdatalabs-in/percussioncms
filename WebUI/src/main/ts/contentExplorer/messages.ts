@@ -512,6 +512,16 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@These pages link to this item:",
   CONFIRM_STAGE:
     "perc.ui.explorer@Stage this item to the staging server?",
+  CONFIRM_STAGE_MULTI:
+    "perc.ui.explorer@Stage {count} selected items to the staging server? Folders in the selection are not staged.",
+  STAGE_SKIPPED_FOLDERS:
+    "perc.ui.explorer@Folders are not staged: {names}",
+  STAGE_SKIPPED_OTHER:
+    "perc.ui.explorer@These selected items are not pages or assets and were not staged: {names}",
+  STAGE_BATCH_INCOMPLETE:
+    "perc.ui.explorer@Not every selected item was staged. {detail}",
+  STAGE_NOTHING_ELIGIBLE:
+    "perc.ui.explorer@Nothing in the selection can be staged. Folders are not staged.",
   CONFIRM_REMOVE_FROM_STAGING:
     "perc.ui.explorer@Remove this item from staging?",
   CONFIRM_SCHEDULE:

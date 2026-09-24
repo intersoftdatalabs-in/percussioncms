@@ -1074,6 +1074,100 @@ describe("actionDispatch", () => {
     expect(result.refresh).toBeUndefined();
   });
 
+  it("multi-select Stage confirms once and stages each page and asset", async () => {
+    const onStage = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const folder = item({
+      id: "7",
+      name: "News",
+      path: "/Sites/Demo/News",
+      type: "folder",
+      leaf: false,
+    });
+    const asset = item({
+      id: "99",
+      name: "logo",
+      path: "/Assets/logo.png",
+      type: "percImageAsset",
+    });
+    const page = item({ id: "42", name: "Home" });
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: page,
+      selectedItems: [page, folder, asset],
+      onStage,
+      confirm,
+    });
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(String(confirm.mock.calls[0]?.[0] ?? "")).toContain("2");
+    expect(onStage).toHaveBeenCalledTimes(2);
+    expect(onStage.mock.calls.map((call) => call[0].id)).toEqual(["42", "99"]);
+    expect(result.refresh).toBe(true);
+    expect(result.messageText ?? "").toMatch(/Folders are not staged: News/);
+  });
+
+  it("multi-select Stage cancel stages nothing", async () => {
+    const onStage = vi.fn();
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item(),
+      selectedItems: [item({ id: "42" }), item({ id: "43", name: "About" })],
+      onStage,
+      confirm: () => false,
+    });
+    expect(onStage).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("multi-select Stage reports one HTTP failure without claiming full success", async () => {
+    const onStage = vi.fn(async (row: PSPathItem) => {
+      if (row.id === "43") {
+        throw { status: 409, statusText: "Conflict", body: "locked" };
+      }
+    });
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item(),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About" }),
+      ],
+      onStage,
+      confirm: () => true,
+    });
+    expect(onStage).toHaveBeenCalledTimes(2);
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBe(EXPLORER_MSG.STAGE_BATCH_INCOMPLETE);
+    expect(result.messageText ?? "").toMatch(/About \(HTTP 409\)/);
+    expect(result.messageText ?? "").not.toMatch(/Home \(HTTP/);
+  });
+
+  it("multi-select of only folders does not stage", async () => {
+    const onStage = vi.fn();
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item(),
+      selectedItems: [
+        item({
+          id: "1",
+          name: "Sites",
+          path: "/Sites",
+          type: "folder",
+          leaf: false,
+        }),
+        item({
+          id: "2",
+          name: "News",
+          path: "/Sites/Demo/News",
+          type: "folder",
+          leaf: false,
+        }),
+      ],
+      onStage,
+      confirm: () => true,
+    });
+    expect(onStage).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText ?? "").toMatch(/Folders are not staged: Sites, News/);
+  });
+
   it("Stage on a Sites folder asks for a content item", async () => {
     const onStage = vi.fn();
     const result = await dispatchAction(action({ name: "Stage" }), {
