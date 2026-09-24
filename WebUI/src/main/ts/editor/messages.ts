@@ -144,6 +144,10 @@ export const EDITOR_MSG = {
   COPY_FORBIDDEN: "perc.ui.editor@You are not allowed to copy this item.",
   COPY_NOT_FOUND: "perc.ui.editor@This item was not found.",
   COPY_UNAVAILABLE: "perc.ui.editor@Copy is only available while editing an item.",
+  COPY_TO_FOLDER: "perc.ui.editor@Copy to folder",
+  COPY_TO_FOLDER_DONE:
+    "perc.ui.editor@Copied into the chosen folder. This editor stays on the original item.",
+  COPY_BAD_REQUEST: "perc.ui.editor@The destination folder was not valid.",
   MOVE_TO_FOLDER: "perc.ui.editor@Move to folder",
   MOVING: "perc.ui.editor@Moving…",
   MOVE_DONE:

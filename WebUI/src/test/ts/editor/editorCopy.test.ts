@@ -18,6 +18,7 @@
 import { describe, expect, it } from "vitest";
 import {
   canCopyFromEditor,
+  copyEditorItemToFolder,
   editorCopyErrorReason,
   parseCopyLandingContentId,
 } from "../../../main/ts/editor/editorCopy";
@@ -42,6 +43,18 @@ describe("editorCopy", () => {
     expect(editorCopyErrorReason({ status: 404, statusText: "Not Found", body: {} })).toBe(
       "not_found",
     );
+    expect(editorCopyErrorReason({ status: 400, statusText: "Bad Request", body: {} })).toBe(
+      "bad_request",
+    );
     expect(editorCopyErrorReason(new Error("boom"))).toBe("failed");
+  });
+
+  it("refuses a blank destination as HTTP 400 before copy/item", async () => {
+    await expect(copyEditorItemToFolder("/Sites/Demo/Home", "  ")).rejects.toMatchObject({
+      status: 400,
+    });
+    await expect(copyEditorItemToFolder("", "//Sites/Other")).rejects.toMatchObject({
+      status: 400,
+    });
   });
 });

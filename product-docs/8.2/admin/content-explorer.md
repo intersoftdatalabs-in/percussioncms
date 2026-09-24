@@ -312,6 +312,17 @@ new `itemId` in this editor (edit mode). HTTP **403** (forbidden) and **404**
 change the open item. Cancel confirm does not POST. **View** and **Promote** do
 not show these actions.
 
+In **Edit** mode the host also shows **Copy to folder** for the already-open item.
+This is not **New copy** (same-folder itemmanagement `newCopy`). The author picks
+a destination folder. Cancel closes the picker and does not create a copy.
+Confirm posts public REST `POST /rest/folders/copy/item` (`CopyFolderItemRequest`:
+the item's current path and `targetFolderPath`). The copy is created in the
+chosen folder. The public response is a status, not a new content id, so the
+host stays on the **original** item and shows that the copy landed in that
+folder. HTTP **400** (blank or invalid destination), **403** (not allowed), and
+**404** (item or destination missing) are errors on the host — they are not
+treated as success. **View** and **Promote** do not show **Copy to folder**.
+
 In **Edit** mode the host also shows **Rename** and a **Listing name** field for
 the already-open item. The name starts as the item's `sys_title`. Submit posts
 public REST `POST /rest/folders/rename/item` (`RenameFolderItemRequest`: the
