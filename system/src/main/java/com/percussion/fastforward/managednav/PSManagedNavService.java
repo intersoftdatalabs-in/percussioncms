@@ -60,6 +60,7 @@ import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.IPSItemEntry;
+import com.percussion.services.tx.PSCallerTransactionSuspension;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfoBase;
 import com.percussion.webservices.PSErrorException;
@@ -81,8 +82,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Implements {@link IPSManagedNavService}.
@@ -802,14 +801,10 @@ public class PSManagedNavService implements IPSManagedNavService {
   }
 
   private <T> T runWithoutJoiningCallerTx(java.util.function.Supplier<T> work) {
-    if (transactionManager == null) {
-      return work.get();
-    }
-    TransactionTemplate tt = new TransactionTemplate(transactionManager);
-    // REQUIRES_NEW suspends the caller session. NOT_SUPPORTED does not, so
-    // loadItems still flushes the rollback-only request session (#4797).
-    tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-    return tt.execute(status -> work.get());
+    // Unbind the request connection holder before REQUIRES_NEW. Suspending only
+    // the JPA session still enlists that holder, so loadItems throws
+    // UnexpectedRollbackException on Explorer site rename (#4796).
+    return PSCallerTransactionSuspension.executeRequiresNew(transactionManager, work);
   }
 
   @Autowired(required = false)
