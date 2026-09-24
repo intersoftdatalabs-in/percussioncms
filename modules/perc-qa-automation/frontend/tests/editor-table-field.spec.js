@@ -96,6 +96,29 @@ test.describe("React Content Editor table field", () => {
           body: JSON.stringify(TYPE),
         }),
       );
+      await page.route("**/itemmanagement/workflow/getTransitions/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ stateName: "Draft", transitionTriggers: [] }),
+        }),
+      );
+      await page.route("**/assembly/slot-relationships/canvas**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            SlotCanvas: { ownerId: 42, templateId: null, slots: [] },
+          }),
+        }),
+      );
+      await page.route("**/content-explorer/relationships/**/local", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ count: 0, links: [] }),
+        }),
+      );
 
       await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator('[data-testid="editor-field-hours"]')).toHaveAttribute(
@@ -151,6 +174,29 @@ test.describe("React Content Editor table field", () => {
           status: 200,
           contentType: "application/json",
           body: JSON.stringify(TYPE),
+        }),
+      );
+      await page.route("**/itemmanagement/workflow/getTransitions/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ stateName: "Draft", transitionTriggers: [] }),
+        }),
+      );
+      await page.route("**/assembly/slot-relationships/canvas**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            SlotCanvas: { ownerId: 42, templateId: null, slots: [] },
+          }),
+        }),
+      );
+      await page.route("**/content-explorer/relationships/**/local", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ count: 0, links: [] }),
         }),
       );
 
