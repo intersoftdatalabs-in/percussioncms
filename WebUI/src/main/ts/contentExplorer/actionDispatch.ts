@@ -54,12 +54,15 @@ import {
   resolvePublishKind,
   describeRemoveFromStagingBatch,
   describeStageBatch,
+  describeTakedownBatch,
   partitionStageSelection,
   stageSelectedItem,
   stageSelectedItems,
   type RemoveFromStagingBatchResult,
   takedownSelectedItem,
+  takedownSelectedItems,
   type StageBatchResult,
+  type TakedownBatchResult,
 } from "./itemPublish";
 import {
   getItemScheduleDates,
@@ -523,6 +526,85 @@ export async function purgeSelectedItem(item: PSPathItem): Promise<boolean> {
     return true;
   }
   return false;
+}
+
+async function takedownMultiSelection(
+  ctx: ActionDispatchContext,
+  items: readonly PSPathItem[],
+): Promise<ActionDispatchResult> {
+  const plan = partitionStageSelection(items);
+  if (plan.eligible.length === 0) {
+    const noted = describeTakedownBatch({
+      takenDownIds: [],
+      skippedFolders: plan.skippedFolders,
+      skippedOther: plan.skippedOther,
+      failures: [],
+    });
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.TAKEDOWN_NOTHING_ELIGIBLE,
+      messageText: noted ?? message(EXPLORER_MSG.TAKEDOWN_NOTHING_ELIGIBLE),
+    };
+  }
+  const confirmBody = message(EXPLORER_MSG.CONFIRM_TAKEDOWN_MULTI)
+    .split("{count}")
+    .join(String(plan.eligible.length));
+  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  const result = await runTakedownBatch(items, ctx.onTakedown);
+  const messageText = describeTakedownBatch(result);
+  const anyTakenDown = result.takenDownIds.length > 0;
+  const incomplete = result.failures.length > 0;
+  return {
+    kind: "rest",
+    refresh: anyTakenDown,
+    messageText,
+    messageKey: incomplete
+      ? EXPLORER_MSG.TAKEDOWN_BATCH_INCOMPLETE
+      : messageText
+        ? EXPLORER_MSG.TAKEDOWN_SKIPPED_FOLDERS
+        : undefined,
+  };
+}
+
+async function runTakedownBatch(
+  items: readonly PSPathItem[],
+  onTakedown: ActionDispatchContext["onTakedown"],
+): Promise<TakedownBatchResult> {
+  if (!onTakedown) {
+    return takedownSelectedItems(items);
+  }
+  const plan = partitionStageSelection(items);
+  const takenDownIds: string[] = [];
+  const failures: TakedownBatchResult["failures"] = [];
+  for (const item of plan.eligible) {
+    try {
+      await onTakedown(item);
+      takenDownIds.push((item.id ?? "").trim());
+    } catch (err: unknown) {
+      const status = isApiError(err) ? err.status : undefined;
+      const text =
+        err instanceof Error
+          ? err.message
+          : status != null
+            ? `HTTP ${status}`
+            : "takedown failed";
+      failures.push({
+        id: (item.id ?? "").trim(),
+        name: (item.name ?? item.id ?? "item").trim() || "item",
+        status,
+        message: text || "takedown failed",
+      });
+    }
+  }
+  return {
+    takenDownIds,
+    skippedFolders: plan.skippedFolders,
+    skippedOther: plan.skippedOther,
+    failures,
+  };
 }
 
 async function stageMultiSelection(
@@ -1041,6 +1123,10 @@ export async function dispatchAction(
   }
 
   if (isTakedownActionName(name)) {
+    const multi = ctx.selectedItems ?? [];
+    if (multi.length >= 2) {
+      return takedownMultiSelection(ctx, multi);
+    }
     if (!item || isFolder(item)) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
