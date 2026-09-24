@@ -524,6 +524,16 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Nothing in the selection can be staged. Folders are not staged.",
   CONFIRM_REMOVE_FROM_STAGING:
     "perc.ui.explorer@Remove this item from staging?",
+  CONFIRM_REMOVE_FROM_STAGING_MULTI:
+    "perc.ui.explorer@Remove {count} selected items from staging? Folders in the selection are not removed.",
+  UNSTAGE_SKIPPED_FOLDERS:
+    "perc.ui.explorer@Folders are not removed from staging: {names}",
+  UNSTAGE_SKIPPED_OTHER:
+    "perc.ui.explorer@These selected items are not pages or assets and were not removed from staging: {names}",
+  UNSTAGE_BATCH_INCOMPLETE:
+    "perc.ui.explorer@Not every selected item was removed from staging. {detail}",
+  UNSTAGE_NOTHING_ELIGIBLE:
+    "perc.ui.explorer@Nothing in the selection can be removed from staging. Folders are not removed.",
   CONFIRM_SCHEDULE:
     "perc.ui.explorer@Save schedule publish dates for this item?",
   PUBLISHING_HISTORY_TITLE: "perc.ui.explorer@Publishing History",
