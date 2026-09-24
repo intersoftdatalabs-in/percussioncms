@@ -49,6 +49,8 @@ import {
   isTakedownActionName,
   loadLinkedPagesForTakedown,
   publishSelectedItem,
+  publishSelectedItems,
+  describePublishBatch,
   removeFromStagingSelectedItem,
   removeFromStagingSelectedItems,
   resolvePublishKind,
@@ -58,6 +60,7 @@ import {
   partitionStageSelection,
   stageSelectedItem,
   stageSelectedItems,
+  type PublishBatchResult,
   type RemoveFromStagingBatchResult,
   takedownSelectedItem,
   takedownSelectedItems,
@@ -239,8 +242,9 @@ export interface ActionDispatchContext {
   onTakedown?: (item: PSPathItem) => Promise<void>;
   onStage?: (item: PSPathItem) => Promise<void>;
   /**
-   * Checkbox multi-selection. When length is 2 or more, Stage uses one
-   * confirm for every eligible page/asset and skips folders.
+   * Checkbox multi-selection. When length is 2 or more, Publish now,
+   * Stage, Take Down, and Remove from Staging use one confirm for every
+   * eligible page/asset and skip folders.
    */
   selectedItems?: readonly PSPathItem[];
   onRemoveFromStaging?: (item: PSPathItem) => Promise<void>;
@@ -531,6 +535,85 @@ export async function purgeSelectedItem(item: PSPathItem): Promise<boolean> {
     return true;
   }
   return false;
+}
+
+async function publishMultiSelection(
+  ctx: ActionDispatchContext,
+  items: readonly PSPathItem[],
+): Promise<ActionDispatchResult> {
+  const plan = partitionStageSelection(items);
+  if (plan.eligible.length === 0) {
+    const noted = describePublishBatch({
+      publishedIds: [],
+      skippedFolders: plan.skippedFolders,
+      skippedOther: plan.skippedOther,
+      failures: [],
+    });
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.PUBLISH_NOTHING_ELIGIBLE,
+      messageText: noted ?? message(EXPLORER_MSG.PUBLISH_NOTHING_ELIGIBLE),
+    };
+  }
+  const confirmBody = message(EXPLORER_MSG.CONFIRM_PUBLISH_NOW_MULTI)
+    .split("{count}")
+    .join(String(plan.eligible.length));
+  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  const result = await runPublishBatch(items, ctx.onPublish);
+  const messageText = describePublishBatch(result);
+  const anyPublished = result.publishedIds.length > 0;
+  const incomplete = result.failures.length > 0;
+  return {
+    kind: "rest",
+    refresh: anyPublished,
+    messageText,
+    messageKey: incomplete
+      ? EXPLORER_MSG.PUBLISH_BATCH_INCOMPLETE
+      : messageText
+        ? EXPLORER_MSG.PUBLISH_SKIPPED_FOLDERS
+        : undefined,
+  };
+}
+
+async function runPublishBatch(
+  items: readonly PSPathItem[],
+  onPublish: ActionDispatchContext["onPublish"],
+): Promise<PublishBatchResult> {
+  if (!onPublish) {
+    return publishSelectedItems(items);
+  }
+  const plan = partitionStageSelection(items);
+  const publishedIds: string[] = [];
+  const failures: PublishBatchResult["failures"] = [];
+  for (const item of plan.eligible) {
+    try {
+      await onPublish(item);
+      publishedIds.push((item.id ?? "").trim());
+    } catch (err: unknown) {
+      const status = isApiError(err) ? err.status : undefined;
+      const text =
+        err instanceof Error
+          ? err.message
+          : status != null
+            ? `HTTP ${status}`
+            : "publish failed";
+      failures.push({
+        id: (item.id ?? "").trim(),
+        name: (item.name ?? item.id ?? "item").trim() || "item",
+        status,
+        message: text || "publish failed",
+      });
+    }
+  }
+  return {
+    publishedIds,
+    skippedFolders: plan.skippedFolders,
+    skippedOther: plan.skippedOther,
+    failures,
+  };
 }
 
 async function takedownMultiSelection(
@@ -1134,6 +1217,10 @@ export async function dispatchAction(
   }
 
   if (name === "publish_now") {
+    const multi = ctx.selectedItems ?? [];
+    if (multi.length >= 2) {
+      return publishMultiSelection(ctx, multi);
+    }
     if (!item || isFolder(item)) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
