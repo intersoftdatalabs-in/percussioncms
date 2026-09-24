@@ -154,7 +154,11 @@ editor window. A row with no content id cannot be opened.
 ### Filter current jobs by site (Status)
 
 From **Publish** → **Status** (`spa.jsp?entry=publish&section=status`), the current-jobs
-table lists jobs already returned by `GET …/sitemanage/pubstatus/current`. **Filter Sites**
+table lists jobs returned by `GET …/sitemanage/pubstatus/current`. That list is running jobs
+plus jobs that finished as **Completed with failures**, **Failed** (aborted), or publish-server
+database reconfigure (**Failed**) during the last day — even after the publisher drops them from
+its in-memory active ids. A clean **Completed** job and a user-cancelled job do not stay on this
+list (use **Logs** for that history). **Filter Sites**
 narrows that table by site name or site id (case-insensitive; no extra publish request).
 Clear the field to restore the full list. When jobs are loaded but none match, Status shows
 **No jobs match this site filter**. When the server returns no jobs at all, Status still shows
@@ -162,7 +166,7 @@ Clear the field to restore the full list. When jobs are loaded but none match, S
 
 ### Job detail (Status)
 
-From **Publish** → **Status**, choose a job’s site name. A detail panel shows the job id, site, edition name when the status API includes one, and status. Optional fields that the API omits are left blank. When the job failed (including **Completed with failures**) and the API includes error text, the panel shows that text. A failed job the publisher still returns on the current-jobs list stays on Status so that text is visible. **Close** (Back) hides the panel and does **not** stop the job. **Stop** stays on the row for running jobs and still requires confirm.
+From **Publish** → **Status**, choose a job’s site name. A detail panel shows the job id, site, edition name when the status API includes one, and status. Optional fields that the API omits are left blank. When the job failed (including **Completed with failures**) and the API includes error text, the panel shows that text. A failed job stays on Status for the last day after it leaves the active id set; while the publisher still has the live job, the panel includes that publisher message. **Close** (Back) hides the panel and does **not** stop the job. **Stop** stays on the row for running jobs and still requires confirm.
 
 ### Cancel or stop an in-flight publish job
 

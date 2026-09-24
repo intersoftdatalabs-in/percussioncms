@@ -63,7 +63,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -371,23 +373,54 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
     return new PSSitePublishItemList(details);
   }
 
+  /**
+   * How far back persisted publish status is scanned for failures that have already left the
+   * in-memory active id set (those ids are reaped about an hour after the job ends).
+   */
+  static final int FAILED_JOB_LOOKBACK_DAYS = 1;
+
+  /**
+   * No SQL row cap on that one-day scan. Failures are filtered in memory; clean completed rows are
+   * dropped.
+   */
+  static final int FAILED_JOB_SCAN_MAX = -1;
+
   protected List<PSSitePublishJob> buildCurrentJobs(String siteId) throws PSNotFoundException {
-    List<PSSitePublishJob> jobs = new ArrayList<>();
-    Collection<Long> activeJobs = null;
-    if (siteId != null && !siteId.equals("")) {
+    Map<Long, PSSitePublishJob> jobs = new LinkedHashMap<>();
+    Collection<Long> activeJobs;
+    List<IPSPubStatus> persisted;
+    if (isNotBlank(siteId)) {
       IPSGuid siteGUID = guidMgr.makeGuid(siteId, PSTypeEnum.SITE);
       activeJobs = rxPubSvc.getActiveJobIds(siteGUID);
+      persisted =
+          pubSvc.findPubStatusBySiteWithFilters(
+              siteGUID, FAILED_JOB_LOOKBACK_DAYS, FAILED_JOB_SCAN_MAX);
     } else {
       activeJobs = rxPubSvc.getActiveJobIds();
+      persisted = pubSvc.findAllPubStatusWithFilters(FAILED_JOB_LOOKBACK_DAYS, FAILED_JOB_SCAN_MAX);
+    }
+    if (activeJobs == null) {
+      activeJobs = List.of();
     }
     for (long id : activeJobs) {
       IPSPublisherJobStatus status = rxPubSvc.getPublishingJobStatus(id);
       if (isJobActive(status) || isFailedJobStillListed(status)) {
-        jobs.add(buildJob(id, status));
+        jobs.put(id, buildJob(id, status));
+      }
+    }
+    if (persisted != null) {
+      for (IPSPubStatus status : persisted) {
+        if (status == null || jobs.containsKey(status.getStatusId())) {
+          continue;
+        }
+        if (!isFailedEndingStateStillListed(status.getEndingState())) {
+          continue;
+        }
+        jobs.put(status.getStatusId(), buildJob(status));
       }
     }
 
-    return jobs;
+    return new ArrayList<>(jobs.values());
   }
 
   protected List<PSSitePublishJob> buildLogs(
@@ -476,8 +509,19 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
   }
 
   /**
+   * Persisted ending states that stay on Status after the job leaves {@code getActiveJobIds}.
+   * Clean completed and user-cancelled jobs stay off the current list (they remain in Logs).
+   */
+  protected boolean isFailedEndingStateStillListed(EndingState estate) {
+    return estate == EndingState.ABORTED
+        || estate == EndingState.COMPLETED_W_FAILURE
+        || estate == EndingState.RESTARTNEEDED;
+  }
+
+  /**
    * Failed jobs that the publisher still returns an id for stay on Status so the detail panel can
    * show the publisher message. Completed-clean and cancelled jobs stay off the current list.
+   * Jobs already reaped from the active id set are added from persisted status instead.
    */
   protected boolean isFailedJobStillListed(IPSPublisherJobStatus pubJobStatus) {
     if (pubJobStatus == null) {
