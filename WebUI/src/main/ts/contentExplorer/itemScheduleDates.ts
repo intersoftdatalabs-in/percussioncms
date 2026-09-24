@@ -26,6 +26,7 @@ import { get, post } from "../api/client";
 import { asJsonRecord } from "../api/jsonList";
 import { SERVICES_ROOT } from "../api/paths";
 import type { PSPathItem } from "../api/contentExplorer/types";
+import { message } from "../i18n/message";
 import { mapPublishResponse } from "../publishing/publishActions";
 import { EXPLORER_MSG } from "./messages";
 import { resolvePublishKind } from "./itemPublish";
@@ -255,13 +256,89 @@ export async function scheduleSelectedItem(
   item: PSPathItem,
   dates: ItemScheduleDates,
 ): Promise<boolean> {
-  const id = (item.id ?? "").trim();
-  if (!id) {
-    return false;
+  const batch = await scheduleSelectedItems([item], dates);
+  return batch.saved === 1 && batch.failures.length === 0;
+}
+
+export interface ScheduleItemFailure {
+  id: string;
+  name: string;
+  message: string;
+}
+
+/** Outcome of one dialog applied to a selection. Skipped rows are not failures. */
+export interface ScheduleBatchResult {
+  saved: number;
+  skipped: number;
+  failures: ScheduleItemFailure[];
+}
+
+/**
+ * Pages and assets only. Folders and other non-publishable rows are omitted.
+ * Duplicate ids are written once.
+ */
+export function publishableScheduleTargets(
+  items: readonly PSPathItem[],
+): PSPathItem[] {
+  const seen = new Set<string>();
+  const out: PSPathItem[] = [];
+  for (const item of items) {
+    const id = (item.id ?? "").trim();
+    if (!id || seen.has(id)) {
+      continue;
+    }
+    if (resolvePublishKind(item) === "none") {
+      continue;
+    }
+    seen.add(id);
+    out.push(item);
   }
-  if (resolvePublishKind(item) === "none") {
-    return false;
+  return out;
+}
+
+function failureMessage(err: unknown): string {
+  if (err instanceof Error && err.message.trim()) {
+    return err.message.trim();
   }
-  await setItemScheduleDates({ ...dates, itemId: id });
-  return true;
+  return "Schedule failed";
+}
+
+/**
+ * Write the same start/end (or clear) to every publishable row.
+ * Continues after a per-item failure so a later row can still save.
+ * Any failure means the batch is not a full success.
+ */
+export async function scheduleSelectedItems(
+  items: readonly PSPathItem[],
+  dates: ItemScheduleDates,
+): Promise<ScheduleBatchResult> {
+  const targets = publishableScheduleTargets(items);
+  const failures: ScheduleItemFailure[] = [];
+  let saved = 0;
+  for (const item of targets) {
+    const id = (item.id ?? "").trim();
+    try {
+      await setItemScheduleDates({ ...dates, itemId: id });
+      saved += 1;
+    } catch (err: unknown) {
+      failures.push({
+        id,
+        name: (item.name ?? "").trim() || id,
+        message: failureMessage(err),
+      });
+    }
+  }
+  return {
+    saved,
+    skipped: Math.max(0, items.length - targets.length),
+    failures,
+  };
+}
+
+/** Visible partial-failure text. Item names are data, not chrome. */
+export function formatScheduleBatchFailure(result: ScheduleBatchResult): string {
+  const detail = result.failures
+    .map((f) => `${f.name} (${f.message})`)
+    .join("; ");
+  return `${message(EXPLORER_MSG.SCHEDULE_PARTIAL)} ${detail}`.trim();
 }

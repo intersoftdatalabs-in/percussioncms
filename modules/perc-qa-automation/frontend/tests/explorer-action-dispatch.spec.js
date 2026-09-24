@@ -566,6 +566,128 @@ test.describe("modern React Content Explorer — action dispatch", () => {
   );
 
   test(
+    "Schedule multi-select writes one dialog to each page and shows partial failure",
+    { tag: ["@explorer-action-dispatch", "@explorer", "@explorer-schedule"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      const posted = [];
+      let confirms = [];
+      page.on("dialog", (dialog) => {
+        confirms.push(dialog.message());
+        void dialog.accept();
+      });
+      await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "1",
+                  name: "Sites",
+                  path: "/Sites",
+                  type: "folder",
+                  category: "folder",
+                  leaf: false,
+                },
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "percPage",
+                  category: "page",
+                  accessLevel: "WRITE",
+                  leaf: true,
+                },
+                {
+                  id: "43",
+                  name: "About",
+                  path: "/Sites/Demo/About",
+                  type: "percPage",
+                  category: "page",
+                  accessLevel: "WRITE",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 3,
+              startIndex: 0,
+            },
+          }),
+        });
+      });
+      await page.route("**/itemmanagement/item/getitemdates/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemDates: { itemId: "42", startDate: "", endDate: "", comments: "" },
+          }),
+        });
+      });
+      await page.route("**/itemmanagement/item/setitemdates**", async (route) => {
+        const body = route.request().postDataJSON();
+        const id = body?.ItemDates?.itemId;
+        posted.push(id);
+        if (id === "43") {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              status: "FORBIDDEN",
+              warningMessage: "Publication stopped because of licensing issues",
+            }),
+          });
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ ItemDates: body?.ItemDates ?? {} }),
+        });
+      });
+
+      await page.goto(explorerSpaUrl(BASE_URL));
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator('[data-testid="content-explorer-shell"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      const home = page.locator('[data-testid="detail-row-42"][data-row-kind="item"]');
+      await expect(home).toBeVisible({ timeout: 20_000 });
+      await home.click();
+      await page.locator('[data-testid="detail-select-1"]').check();
+      await page.locator('[data-testid="detail-select-42"]').check();
+      await page.locator('[data-testid="detail-select-43"]').check();
+      const schedule = page.locator('[data-testid="action-toolbar-item-Schedule"]');
+      await expect(schedule).toBeVisible({ timeout: 15_000 });
+      await schedule.click();
+      await expect(page.locator('[data-testid="explorer-schedule-multi"]')).toBeVisible({
+        timeout: 10_000,
+      });
+      await page.locator('[data-testid="explorer-schedule-clear"]').click();
+      await page.locator('[data-testid="explorer-schedule-cancel"]').click();
+      expect(posted).toEqual([]);
+      await schedule.click();
+      await expect(page.locator('[data-testid="explorer-schedule-dialog"]')).toBeVisible();
+      await page.locator('[data-testid="explorer-schedule-save"]').click();
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toContainText(/not saved for every|About|FORBIDDEN|licensing/i, {
+        timeout: 10_000,
+      });
+      expect(posted.sort()).toEqual(["42", "43"]);
+      expect(confirms.some((text) => /every selected page and asset/i.test(text))).toBe(
+        true,
+      );
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
     "Publishing History shows rows or empty; HTTP 404 and 403 are errors",
     { tag: ["@explorer-action-dispatch", "@explorer", "@explorer-publishing-history"] },
     async ({ page }) => {

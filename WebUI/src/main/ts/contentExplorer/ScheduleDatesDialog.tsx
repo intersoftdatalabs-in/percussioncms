@@ -33,12 +33,15 @@ const COMMENT_MAX = 500;
 
 export interface ScheduleDatesDialogProps {
   current: ItemScheduleDates;
+  /** When greater than 1, the dialog states that one save covers the selection. */
+  applyCount?: number;
   onSave: (dates: ItemScheduleDates) => void;
   onCancel: () => void;
 }
 
 export function ScheduleDatesDialog({
   current,
+  applyCount = 1,
   onSave,
   onCancel,
 }: ScheduleDatesDialogProps): React.ReactElement {
@@ -136,6 +139,14 @@ export function ScheduleDatesDialog({
         <h2 id="explorer-schedule-title" style={{ fontSize: 16, margin: "0 0 12px" }}>
           {message(EXPLORER_MSG.SCHEDULE_TITLE)}
         </h2>
+        {applyCount > 1 ? (
+          <p
+            data-testid="explorer-schedule-multi"
+            style={{ fontSize: 13, margin: "0 0 12px" }}
+          >
+            {message(EXPLORER_MSG.SCHEDULE_MULTI_HINT)}
+          </p>
+        ) : null}
         <label style={{ display: "block", fontSize: 13, marginBottom: 10 }}>
           {message(EXPLORER_MSG.SCHEDULE_PUBLISH_DATE)}
           <input

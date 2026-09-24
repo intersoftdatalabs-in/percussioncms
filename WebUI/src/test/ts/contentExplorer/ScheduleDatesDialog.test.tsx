@@ -120,6 +120,21 @@ describe("ScheduleDatesDialog", () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
+  it("states that one dialog covers a multi-selection", async () => {
+    const { container } = render(
+      <ScheduleDatesDialog
+        current={CURRENT}
+        applyCount={3}
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId("explorer-schedule-multi")).toHaveTextContent(
+      /every selected page and asset/i,
+    );
+    await renderA11yGate(container);
+  });
+
   it("has no serious a11y violations", async () => {
     const { container } = render(
       <ScheduleDatesDialog
