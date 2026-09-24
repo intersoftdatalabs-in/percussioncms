@@ -99,7 +99,8 @@ test.describe("PublishingShell logs day window (#4809)", () => {
     });
 
     expect(bodies.length).toBeGreaterThan(0);
-    const posted = bodies[bodies.length - 1];
+    const envelope = bodies[bodies.length - 1];
+    const posted = envelope.SitePublishLogRequest || envelope;
     expect(posted.days).toBe(3);
     expect(posted.showOnlyFailures).toBe(true);
 
