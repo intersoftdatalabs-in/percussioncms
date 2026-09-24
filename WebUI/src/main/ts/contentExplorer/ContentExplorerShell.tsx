@@ -224,6 +224,7 @@ import { DependencyViewer } from "./views/DependencyViewer";
 import type { PSNodeRelationshipSummary } from "../api/contentExplorer/relationship";
 import {
   buildWorkflowTransitionMenu,
+  intersectWorkflowMenus,
   mergeWorkflowMenuActions,
 } from "./workflowMenuActions";
 
@@ -830,7 +831,24 @@ function ContentExplorerShellInner({
         if (cancelled) return;
         let workflow: MenuAction | null = null;
         try {
-          workflow = await loadWorkflowMenuActions(selection.item);
+          const checked = Array.from(multiSelectedItems.values());
+          if (checked.length >= 2) {
+            const eligible = checked.filter((row) => isWorkflowEligibleItem(row));
+            const loaded = await Promise.all(
+              eligible.map(async (row) => {
+                try {
+                  return await loadWorkflowMenuActions(row);
+                } catch {
+                  return null;
+                }
+              }),
+            );
+            workflow = intersectWorkflowMenus(loaded, {
+              groupLabel: message(EXPLORER_MSG.WORKFLOW_MENU_LABEL),
+            });
+          } else {
+            workflow = await loadWorkflowMenuActions(selection.item);
+          }
         } catch {
           workflow = null;
         }
@@ -867,6 +885,7 @@ function ContentExplorerShellInner({
     };
   }, [
     selection.item,
+    multiSelectedItems,
     loadMenuActions,
     loadWorkflowMenuActions,
     listEpoch,

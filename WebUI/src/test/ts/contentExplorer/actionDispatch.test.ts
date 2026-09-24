@@ -1850,6 +1850,94 @@ describe("actionDispatch", () => {
     expect(runWorkflow).toHaveBeenCalledWith("42", "Reject", "needs work");
   });
 
+  it("multi-select workflow transition confirms once and skips folders (#4833)", async () => {
+    const runWorkflow = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const page = item({ id: "42", name: "Home" });
+    const asset = item({
+      id: "44",
+      name: "Logo",
+      type: "percImageAsset",
+      category: "asset",
+    });
+    const folder = item({
+      id: "7",
+      name: "News",
+      type: "folder",
+      category: "folder",
+    });
+    const result = await dispatchAction(
+      action({ name: "workflow-transition:Submit" }),
+      { item: page, selectedItems: [page, folder, asset], runWorkflow, confirm },
+    );
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(String(confirm.mock.calls[0]?.[0])).toMatch(/Apply Submit to 2 selected items/i);
+    expect(runWorkflow).toHaveBeenCalledTimes(2);
+    expect(runWorkflow).toHaveBeenNthCalledWith(1, "42", "Submit", undefined);
+    expect(runWorkflow).toHaveBeenNthCalledWith(2, "44", "Submit", undefined);
+    expect(result.refresh).toBe(true);
+    expect(result.messageText).toMatch(/Folders are not transitioned: News/i);
+  });
+
+  it("multi-select workflow cancel transitions nothing (#4833)", async () => {
+    const runWorkflow = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "workflow-transition:Submit" }),
+      {
+        item: item(),
+        selectedItems: [item({ id: "42" }), item({ id: "43", name: "About" })],
+        runWorkflow,
+        confirm: () => false,
+      },
+    );
+    expect(runWorkflow).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("multi-select workflow names an HTTP failure and still records the other item (#4833)", async () => {
+    const runWorkflow = vi.fn(async (id: string) => {
+      if (id === "43") {
+        throw Object.assign(new Error("denied"), { status: 403 });
+      }
+    });
+    const result = await dispatchAction(
+      action({ name: "workflow-transition:Submit" }),
+      {
+        item: item(),
+        selectedItems: [
+          item({ id: "42", name: "Home" }),
+          item({ id: "43", name: "About" }),
+        ],
+        runWorkflow,
+        confirm: () => true,
+      },
+    );
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBe(EXPLORER_MSG.WORKFLOW_BATCH_INCOMPLETE);
+    expect(result.messageText).toMatch(/About \(HTTP 403\)/i);
+    expect(result.messageText).toMatch(/Not every selected item was transitioned/i);
+    expect(runWorkflow).toHaveBeenCalledTimes(2);
+  });
+
+  it("multi-select of only folders does not transition (#4833)", async () => {
+    const runWorkflow = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "workflow-transition:Submit" }),
+      {
+        item: item({ id: "7", type: "folder", category: "folder", name: "News" }),
+        selectedItems: [
+          item({ id: "7", type: "folder", category: "folder", name: "News" }),
+          item({ id: "8", type: "folder", category: "folder", name: "Blog" }),
+        ],
+        runWorkflow,
+        confirm: () => true,
+      },
+    );
+    expect(runWorkflow).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText).toMatch(/Folders are not transitioned/i);
+  });
+
   it("maps workflow transition HTTP 403 and 409 (#4723)", async () => {
     const forbidden = await dispatchAction(
       action({ name: "workflow-transition:Submit" }),
