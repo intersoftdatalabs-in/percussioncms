@@ -111,8 +111,10 @@ export const buttonStyle: CSSProperties = {
 
 export const primaryButtonStyle: CSSProperties = {
   ...buttonStyle,
-  background: "#0b6",
-  borderColor: "#0a5",
+  // White on #0b6 is ~2.5:1 (axe color-contrast on Publishing History lookup).
+  // #146c43 is ~6.5:1 with #fff at default button size (WCAG AA normal text).
+  background: "#146c43",
+  borderColor: "#0f5132",
   color: "#fff",
   fontWeight: 600,
 };
