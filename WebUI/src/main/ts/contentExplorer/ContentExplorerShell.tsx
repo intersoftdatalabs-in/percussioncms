@@ -88,7 +88,11 @@ import {
   getItemWorkflowTransitions,
   transitionItem,
 } from "../api/contentExplorer/itemWorkflowApi";
-import { copyFolderItem, findItemByPath } from "../api/contentExplorer/pathApi";
+import {
+  copyFolderItem,
+  findItemByPath,
+  moveFolderItem,
+} from "../api/contentExplorer/pathApi";
 import { bindExplorerPathItemId } from "../api/contentExplorer/pathItemId";
 import { canOpenIaRelationships } from "./actionEnablement";
 import {
@@ -168,12 +172,19 @@ import { ItemPropertiesPanel } from "./ItemPropertiesPanel";
 import type { ExplorerMenuCommandId } from "./menuBarModel";
 import { EXPLORER_MSG } from "./messages";
 import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
+import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
 import {
   copyCheckedItemsToFolder,
   formatMultiFolderCopyStatus,
   multiCopyOutcome,
   type MultiFolderCopyOutcome,
 } from "./multiFolderCopy";
+import {
+  formatMultiFolderMoveStatus,
+  moveCheckedItemsToFolder,
+  multiMoveOutcome,
+  type MultiFolderMoveOutcome,
+} from "./multiFolderMove";
 import { openInEditor } from "./openInEditor";
 import { openPreviewItem } from "./previewItem";
 import {
@@ -643,6 +654,11 @@ function ContentExplorerShellInner({
   const [multiCopyStatus, setMultiCopyStatus] = useState<{
     text: string;
     outcome: MultiFolderCopyOutcome;
+  } | null>(null);
+  const [multiMoveOpen, setMultiMoveOpen] = useState(false);
+  const [multiMoveStatus, setMultiMoveStatus] = useState<{
+    text: string;
+    outcome: MultiFolderMoveOutcome;
   } | null>(null);
   const [clipboard, setClipboardState] = useState<Clipboard>(EMPTY_CLIPBOARD);
   const [clipboardMode, setClipboardMode] = useState<"copy" | "cut">("copy");
@@ -1497,6 +1513,12 @@ function ContentExplorerShellInner({
             setMultiCopyOpen(true);
           }
           break;
+        case "content-multi-move":
+          if (multiSelectedItemsRef.current.size > 0) {
+            setMultiMoveStatus(null);
+            setMultiMoveOpen(true);
+          }
+          break;
         case "content-create-site":
           setShowSiteCreate((v) => !v);
           break;
@@ -1837,6 +1859,43 @@ function ContentExplorerShellInner({
             });
           }}
           onCancel={() => setMultiCopyOpen(false)}
+        />
+      ) : null}
+      {multiMoveStatus ? (
+        <div
+          data-testid="explorer-multi-move-result"
+          data-outcome={multiMoveStatus.outcome}
+          role={multiMoveStatus.outcome === "success" ? "status" : "alert"}
+          aria-live={multiMoveStatus.outcome === "success" ? "polite" : "assertive"}
+          style={{
+            gridColumn: "1 / -1",
+            padding: "8px 12px",
+            background: multiMoveStatus.outcome === "success" ? "#ecfdf5" : "#fef2f2",
+            color: "#0f172a",
+          }}
+        >
+          {multiMoveStatus.text}
+        </div>
+      ) : null}
+      {multiMoveOpen ? (
+        <MoveDestinationPickerDialog
+          defaultPath={selection.folderPath ?? "/"}
+          onPick={(target) => {
+            setMultiMoveOpen(false);
+            const items = Array.from(multiSelectedItemsRef.current.values());
+            void moveCheckedItemsToFolder(items, target, (sourcePath, targetPath) =>
+              moveFolderItem({ sourcePath, targetPath }),
+            ).then((result) => {
+              setMultiMoveStatus({
+                text: formatMultiFolderMoveStatus(result, target),
+                outcome: multiMoveOutcome(result),
+              });
+              if (result.movedNames.length > 0) {
+                setListEpoch((n) => n + 1);
+              }
+            });
+          }}
+          onCancel={() => setMultiMoveOpen(false)}
         />
       ) : null}
       <div
