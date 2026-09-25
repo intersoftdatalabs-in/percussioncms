@@ -20,6 +20,7 @@ package com.percussion.itemmanagement.service;
 import com.percussion.itemmanagement.data.PSApprovableItems;
 import com.percussion.itemmanagement.data.PSBulkApprovalJobStatus;
 import com.percussion.itemmanagement.data.PSItemStateTransition;
+import com.percussion.itemmanagement.data.PSItemWorkflowChoices;
 import com.percussion.itemmanagement.data.PSItemTransitionResults;
 import com.percussion.itemmanagement.data.PSItemUserInfo;
 import com.percussion.services.error.PSNotFoundException;
@@ -111,6 +112,24 @@ public interface IPSItemWorkflowService {
    * @return the transition info
    */
   PSItemStateTransition getTransitions(String id);
+
+  /**
+   * Workflows associated with the item's content type. The current workflow is included so the
+   * editor can show it, but {@link #changeWorkflow(String, String)} rejects re-saving it.
+   *
+   * @param id item id, not blank
+   */
+  PSItemWorkflowChoices allowedWorkflows(String id);
+
+  /**
+   * Move the item onto another workflow the content type allows, then return the new state's
+   * transitions. Checks the item in first because a checked-out row cannot change workflow. Does
+   * not report success for a blank, malformed, unchanged, or unassociated workflow id.
+   *
+   * @param id item id, not blank
+   * @param workflowId target workflow app id
+   */
+  PSItemStateTransition changeWorkflow(String id, String workflowId);
 
   /** Calls {@link #transitionWithComments(String, String, String)} with null for comment. */
   PSItemTransitionResults transition(String id, String trigger);

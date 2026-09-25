@@ -42,9 +42,12 @@ import {
   type ItemCopyResult,
 } from "../api/contentExplorer/itemCopyApi";
 import {
+  changeItemWorkflow,
+  getItemWorkflowChoices,
   getItemWorkflowTransitions,
   transitionItem,
   type ItemStateTransition,
+  type ItemWorkflowChoices,
 } from "../api/contentExplorer/itemWorkflowApi";
 import { deleteFolderItem, findItemById, renameFolderItem } from "../api/contentExplorer/pathApi";
 import { formatApiError, isSessionRedirectError } from "../api/client";
@@ -155,6 +158,7 @@ import {
   type PageTemplateChoice,
 } from "./pageTemplates";
 import {
+  canChangeEditorWorkflow,
   canRunEditorTransition,
   uniqueTransitionTriggers,
 } from "./editorWorkflow";
@@ -225,6 +229,10 @@ export interface EditorHostProps {
   loadBinaryMeta?: (itemId: string, field: string) => Promise<ItemEditorBinaryMeta>;
   /** Test seam: allowed transitions ({@code getTransitions}). */
   loadTransitions?: (itemId: string) => Promise<ItemStateTransition>;
+  /** Test seam: content-type workflow catalog ({@code allowedWorkflows}). */
+  loadWorkflowChoices?: (itemId: string) => Promise<ItemWorkflowChoices>;
+  /** Test seam: {@code POST changeWorkflow}. */
+  changeWorkflow?: (itemId: string, workflowId: string) => Promise<ItemStateTransition>;
   /** Test seam: {@code transitionWithComments}. */
   runTransition?: (
     itemId: string,
@@ -503,6 +511,8 @@ export function EditorHost({
   loadCommunities,
   loadBinaryMeta,
   loadTransitions = getItemWorkflowTransitions,
+  loadWorkflowChoices = getItemWorkflowChoices,
+  changeWorkflow = changeItemWorkflow,
   runTransition = transitionItem,
   commentRequiredTriggers,
   publishItem = publishEditorItem,
@@ -585,6 +595,12 @@ export function EditorHost({
   const [workflowErrorDetail, setWorkflowErrorDetail] = useState("");
   const [workflowBusy, setWorkflowBusy] = useState(false);
   const [workflowDone, setWorkflowDone] = useState(false);
+  const [workflowChoices, setWorkflowChoices] = useState<
+    { id: string; name: string }[]
+  >([]);
+  const [currentWorkflowId, setCurrentWorkflowId] = useState("");
+  const [selectedWorkflowId, setSelectedWorkflowId] = useState("");
+  const [workflowChanged, setWorkflowChanged] = useState(false);
   const [publishBusy, setPublishBusy] = useState(false);
   const [publishDone, setPublishDone] = useState(false);
   const [publishErrorKey, setPublishErrorKey] = useState<string | null>(null);
@@ -748,11 +764,29 @@ export function EditorHost({
                 uniqueTransitionTriggers(trans.transitionTriggers),
               );
               setWorkflowState(trans.stateName ?? "");
+              if (trans.workflowId) {
+                setCurrentWorkflowId(trans.workflowId);
+              }
             }
           } catch {
             if (!cancelled) {
               setWorkflowTriggers([]);
               setWorkflowState("");
+            }
+          }
+          try {
+            const catalog = await loadWorkflowChoices(itemId);
+            if (!cancelled) {
+              setWorkflowChoices(catalog.choices ?? []);
+              const current = catalog.currentWorkflowId ?? "";
+              if (current) {
+                setCurrentWorkflowId(current);
+              }
+              setSelectedWorkflowId("");
+            }
+          } catch {
+            if (!cancelled) {
+              setWorkflowChoices([]);
             }
           }
         }
@@ -770,7 +804,16 @@ export function EditorHost({
     return () => {
       cancelled = true;
     };
-  }, [contentId, readOnly, promote, checkout, loadFields, loadType, loadTransitions]);
+  }, [
+    contentId,
+    readOnly,
+    promote,
+    checkout,
+    loadFields,
+    loadType,
+    loadTransitions,
+    loadWorkflowChoices,
+  ]);
 
   useEffect(() => {
     if (
@@ -1232,6 +1275,7 @@ export function EditorHost({
     }
     setWorkflowBusy(true);
     setWorkflowDone(false);
+    setWorkflowChanged(false);
     setWorkflowErrorKey(null);
     setWorkflowErrorDetail("");
     const itemId = String(contentId);
@@ -1253,6 +1297,57 @@ export function EditorHost({
     } catch (err) {
       setWorkflowErrorDetail(err instanceof Error ? err.message : String(err));
       setWorkflowErrorKey(EDITOR_MSG.WORKFLOW_FAILED);
+    } finally {
+      setWorkflowBusy(false);
+    }
+  }
+
+  function workflowChangeErrorFor(reason: string): string {
+    if (reason === "blank") {
+      return EDITOR_MSG.WORKFLOW_CHANGE_EMPTY;
+    }
+    if (reason === "unchanged") {
+      return EDITOR_MSG.WORKFLOW_CHANGE_UNCHANGED;
+    }
+    if (reason === "forbidden") {
+      return EDITOR_MSG.WORKFLOW_CHANGE_FORBIDDEN;
+    }
+    return EDITOR_MSG.WORKFLOW_CHANGE_FAILED;
+  }
+
+  async function handleChangeWorkflow(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    const gate = canChangeEditorWorkflow({
+      selectedId: selectedWorkflowId,
+      currentId: currentWorkflowId,
+      allowedIds: workflowChoices.map((choice) => choice.id),
+    });
+    if (!gate.ok) {
+      setWorkflowChanged(false);
+      setWorkflowDone(false);
+      setWorkflowErrorDetail("");
+      setWorkflowErrorKey(workflowChangeErrorFor(gate.reason));
+      return;
+    }
+    setWorkflowBusy(true);
+    setWorkflowChanged(false);
+    setWorkflowDone(false);
+    setWorkflowErrorKey(null);
+    setWorkflowErrorDetail("");
+    try {
+      const trans = await changeWorkflow(String(contentId), gate.workflowId);
+      setWorkflowTriggers(uniqueTransitionTriggers(trans.transitionTriggers));
+      setWorkflowState(trans.stateName ?? "");
+      const nextId = trans.workflowId ?? gate.workflowId;
+      setCurrentWorkflowId(nextId);
+      setSelectedWorkflowId("");
+      setWorkflowChanged(true);
+    } catch (err) {
+      setWorkflowChanged(false);
+      setWorkflowErrorDetail(err instanceof Error ? err.message : String(err));
+      setWorkflowErrorKey(EDITOR_MSG.WORKFLOW_CHANGE_FAILED);
     } finally {
       setWorkflowBusy(false);
     }
@@ -2943,6 +3038,11 @@ export function EditorHost({
                 errorKey={workflowErrorKey}
                 errorDetail={workflowErrorDetail}
                 commentRequiredTriggers={commentRequiredTriggers}
+                workflowChoices={workflowChoices}
+                selectedWorkflowId={selectedWorkflowId}
+                onWorkflowIdChange={setSelectedWorkflowId}
+                onChangeWorkflow={() => void handleChangeWorkflow()}
+                workflowChanged={workflowChanged}
               />
             ) : null}
             {rows.length === 0 ? (

@@ -17,6 +17,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  canChangeEditorWorkflow,
   canRunEditorTransition,
   isAllowedTransitionTrigger,
   triggerRequiresComment,
@@ -96,5 +97,24 @@ describe("editorWorkflow (#4539)", () => {
         comment: "needs work",
       }),
     ).toEqual({ ok: true });
+  });
+
+  it("canChangeEditorWorkflow accepts only a different listed id", () => {
+    expect(
+      canChangeEditorWorkflow({
+        selectedId: "7",
+        currentId: "4",
+        allowedIds: ["4", "7"],
+      }),
+    ).toEqual({ ok: true, workflowId: "7" });
+    expect(
+      canChangeEditorWorkflow({ selectedId: "", currentId: "4", allowedIds: ["7"] }),
+    ).toEqual({ ok: false, reason: "blank" });
+    expect(
+      canChangeEditorWorkflow({ selectedId: "4", currentId: "4", allowedIds: ["4", "7"] }),
+    ).toEqual({ ok: false, reason: "unchanged" });
+    expect(
+      canChangeEditorWorkflow({ selectedId: "9", currentId: "4", allowedIds: ["7"] }),
+    ).toEqual({ ok: false, reason: "forbidden" });
   });
 });

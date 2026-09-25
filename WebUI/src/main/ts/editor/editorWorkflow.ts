@@ -122,3 +122,35 @@ export function canRunEditorTransition(input: {
   }
   return { ok: true };
 }
+
+export type EditorWorkflowChangeReason = "blank" | "unchanged" | "forbidden";
+
+export type EditorWorkflowChangeGate =
+  | { ok: true; workflowId: string }
+  | { ok: false; reason: EditorWorkflowChangeReason };
+
+/**
+ * Client gate before POST changeWorkflow (#4861). The server repeats the
+ * association check; this only stops an empty, current, or unlisted id.
+ */
+export function canChangeEditorWorkflow(input: {
+  selectedId: string;
+  currentId: string;
+  allowedIds: readonly string[] | null | undefined;
+}): EditorWorkflowChangeGate {
+  const workflowId = String(input.selectedId ?? "").trim();
+  if (!workflowId) {
+    return { ok: false, reason: "blank" };
+  }
+  const current = String(input.currentId ?? "").trim();
+  if (current && workflowId === current) {
+    return { ok: false, reason: "unchanged" };
+  }
+  const allowed = (input.allowedIds ?? [])
+    .map((id) => String(id ?? "").trim())
+    .filter((id) => id.length > 0);
+  if (!allowed.includes(workflowId)) {
+    return { ok: false, reason: "forbidden" };
+  }
+  return { ok: true, workflowId };
+}
