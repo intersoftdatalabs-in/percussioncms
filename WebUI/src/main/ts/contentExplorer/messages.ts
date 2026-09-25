@@ -563,6 +563,16 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@You are not allowed to check in this item",
   CHECKIN_CONFLICT:
     "perc.ui.explorer@Item is not checked out to you",
+  CONFIRM_CHECKIN_MULTI:
+    "perc.ui.explorer@Check in {count} selected items? Folders in the selection are not checked in.",
+  CHECKIN_SKIPPED_FOLDERS:
+    "perc.ui.explorer@Folders are not checked in: {names}",
+  CHECKIN_SKIPPED_OTHER:
+    "perc.ui.explorer@These selected items are not pages or assets and were not checked in: {names}",
+  CHECKIN_BATCH_INCOMPLETE:
+    "perc.ui.explorer@Not every selected item was checked in. {detail}",
+  CHECKIN_NOTHING_ELIGIBLE:
+    "perc.ui.explorer@Nothing in the selection can be checked in. Folders are not checked in.",
   CONFIRM_TAKEDOWN:
     "perc.ui.explorer@Take down (unpublish) this item from its site?",
   CONFIRM_TAKEDOWN_LINKED:

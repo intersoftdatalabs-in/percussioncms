@@ -1058,6 +1058,98 @@ describe("actionDispatch", () => {
     expect(checkIn).toHaveBeenCalledWith("42");
   });
 
+  it("multi-select Check In checks in pages, names skipped folders (#4872)", async () => {
+    const checkIn = vi
+      .spyOn(itemWorkflowApi, "checkInItem")
+      .mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const page = item({ id: "42", name: "Home" });
+    const asset = item({
+      id: "44",
+      name: "Logo",
+      type: "percAsset",
+      category: "asset",
+      path: "/Assets/Logo",
+    });
+    const folder = item({
+      id: "7",
+      name: "News",
+      type: "folder",
+      category: "folder",
+    });
+    const result = await dispatchAction(action({ name: "Check_In" }), {
+      item: page,
+      selectedItems: [page, folder, asset],
+      confirm,
+    });
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(String(confirm.mock.calls[0]?.[0])).toMatch(
+      /Check in 2 selected items/i,
+    );
+    expect(checkIn).toHaveBeenCalledTimes(2);
+    expect(checkIn).toHaveBeenNthCalledWith(1, "42");
+    expect(checkIn).toHaveBeenNthCalledWith(2, "44");
+    expect(result.refresh).toBe(true);
+    expect(result.messageText).toMatch(/Folders are not checked in: News/i);
+    expect(result.messageKey).not.toBe(EXPLORER_MSG.CHECKIN_BATCH_INCOMPLETE);
+  });
+
+  it("multi-select Check In cancel checks in nothing (#4872)", async () => {
+    const checkIn = vi
+      .spyOn(itemWorkflowApi, "checkInItem")
+      .mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Check_In" }), {
+      item: item(),
+      selectedItems: [item({ id: "42" }), item({ id: "43", name: "About" })],
+      confirm: () => false,
+    });
+    expect(checkIn).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("multi-select Check In names HTTP 409 and is not full success (#4872)", async () => {
+    const checkIn = vi
+      .spyOn(itemWorkflowApi, "checkInItem")
+      .mockImplementation(async (id: string) => {
+        if (id === "43") {
+          throw { status: 409, statusText: "Conflict", body: {} };
+        }
+      });
+    const result = await dispatchAction(action({ name: "Check_In" }), {
+      item: item(),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About" }),
+      ],
+      confirm: () => true,
+    });
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBe(EXPLORER_MSG.CHECKIN_BATCH_INCOMPLETE);
+    expect(result.messageText).toMatch(/About \(HTTP 409\)/i);
+    expect(result.messageText).toMatch(
+      /Not every selected item was checked in/i,
+    );
+    expect(checkIn).toHaveBeenCalledTimes(2);
+  });
+
+  it("multi-select of only folders does not check in (#4872)", async () => {
+    const checkIn = vi
+      .spyOn(itemWorkflowApi, "checkInItem")
+      .mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Check_In" }), {
+      item: item({ id: "7", type: "folder", category: "folder", name: "News" }),
+      selectedItems: [
+        item({ id: "7", type: "folder", category: "folder", name: "News" }),
+        item({ id: "8", type: "folder", category: "folder", name: "Blog" }),
+      ],
+      confirm: () => true,
+    });
+    expect(checkIn).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText).toMatch(/Folders are not checked in/i);
+    expect(result.messageKey).toBe(EXPLORER_MSG.CHECKIN_NOTHING_ELIGIBLE);
+  });
+
   it("Check In maps HTTP 403/409", async () => {
     vi.spyOn(itemWorkflowApi, "checkInItem")
       .mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: {} })
