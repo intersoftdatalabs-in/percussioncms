@@ -11,6 +11,7 @@ import {
   getWorkflowAllowedContentTypes,
   getWorkflowDetail,
   isValidWorkflowStepName,
+  setDefaultWorkflow,
   setWorkflowAllowedContentTypes,
   updateWorkflow,
   updateWorkflowStep,
@@ -87,10 +88,12 @@ export function WorkflowDetailPanel({
   name,
   onBack,
   onDeleted,
+  onDefaultChanged,
 }: {
   name: string;
   onBack: () => void;
   onDeleted?: () => void;
+  onDefaultChanged?: (workflowName: string) => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<WorkflowDef | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -109,6 +112,9 @@ export function WorkflowDetailPanel({
   const [descriptionBusy, setDescriptionBusy] = useState(false);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
+  const [defaultBusy, setDefaultBusy] = useState(false);
+  const [defaultError, setDefaultError] = useState<string | null>(null);
+  const [defaultNotice, setDefaultNotice] = useState<string | null>(null);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -300,6 +306,39 @@ export function WorkflowDetailPanel({
       }
     }
     return DEV_MSG.WF_DETAIL_SAVE_ERROR;
+  }
+
+  async function handleSetDefault(): Promise<void> {
+    if (defaultBusy || detail?.defaultWorkflow || inflight.current) {
+      return;
+    }
+    const targetName = (detail?.workflowName || name).trim();
+    if (!targetName) {
+      return;
+    }
+    inflight.current = true;
+    setDefaultBusy(true);
+    setDefaultError(null);
+    setDefaultNotice(null);
+    try {
+      const updated = await setDefaultWorkflow(targetName);
+      setDetail((prev) =>
+        prev == null
+          ? prev
+          : ({
+              ...prev,
+              workflowName: updated.workflowName || prev.workflowName,
+              defaultWorkflow: true,
+            } as WorkflowDef),
+      );
+      setDefaultNotice(DEV_MSG.WF_DETAIL_SET_DEFAULT_SAVED);
+      onDefaultChanged?.(updated.workflowName || targetName);
+    } catch (err: unknown) {
+      setDefaultError(panelErrMsg(err, DEV_MSG.WF_DETAIL_SET_DEFAULT_ERROR));
+    } finally {
+      inflight.current = false;
+      setDefaultBusy(false);
+    }
   }
 
   async function handleDescriptionSave(): Promise<void> {
@@ -506,8 +545,46 @@ export function WorkflowDetailPanel({
               <dt>{DEV_MSG.WF_COL_DESC}</dt>
               <dd style={{ margin: 0 }}>{detail.workflowDescription || "—"}</dd>
               <dt>{DEV_MSG.WF_COL_DEFAULT}</dt>
-              <dd style={{ margin: 0 }}>
+              <dd style={{ margin: 0 }} data-testid="developer-wf-default-flag">
                 {detail.defaultWorkflow ? DEV_MSG.WF_YES : DEV_MSG.WF_NO}
+                {detail.defaultWorkflow ? (
+                  <span
+                    data-testid="developer-wf-default-current"
+                    style={{ marginLeft: "8px", color: catalogColors.muted }}
+                  >
+                    {DEV_MSG.WF_DETAIL_SET_DEFAULT_DONE}
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    data-testid="developer-wf-set-default"
+                    onClick={() => void handleSetDefault()}
+                    disabled={defaultBusy}
+                    style={{ marginLeft: "8px" }}
+                  >
+                    {defaultBusy
+                      ? DEV_MSG.WF_DETAIL_SET_DEFAULT_BUSY
+                      : DEV_MSG.WF_DETAIL_SET_DEFAULT}
+                  </button>
+                )}
+                {defaultError ? (
+                  <div
+                    role="alert"
+                    data-testid="developer-wf-default-error"
+                    style={{ ...errorAlert, marginTop: "8px" }}
+                  >
+                    {defaultError}
+                  </div>
+                ) : null}
+                {defaultNotice ? (
+                  <div
+                    role="status"
+                    data-testid="developer-wf-default-notice"
+                    style={{ color: catalogColors.accent, marginTop: "8px" }}
+                  >
+                    {defaultNotice}
+                  </div>
+                ) : null}
               </dd>
               <dt>{DEV_MSG.WF_COL_STAGING}</dt>
               <dd style={{ margin: 0 }}>{detail.stagingRoleNames || "—"}</dd>

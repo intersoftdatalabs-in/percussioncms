@@ -26,6 +26,7 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   createWorkflowStep: vi.fn(),
   updateWorkflowStep: vi.fn(),
   copyWorkflow: vi.fn(),
+  setDefaultWorkflow: vi.fn(),
   isWorkflowCreateReady: (opts: { name: string }) =>
     /^[\s\w-]+$/.test((opts.name || "").trim()) &&
     (opts.name || "").trim().length <= 50 &&
@@ -40,6 +41,7 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
 const listWorkflows = workflowsApi.listWorkflows as ReturnType<typeof vi.fn>;
 const getWorkflowDetail = workflowsApi.getWorkflowDetail as ReturnType<typeof vi.fn>;
 const copyWorkflow = workflowsApi.copyWorkflow as ReturnType<typeof vi.fn>;
+const setDefaultWorkflow = workflowsApi.setDefaultWorkflow as ReturnType<typeof vi.fn>;
 
 describe("WorkflowsPanel", () => {
   beforeEach(() => {
@@ -49,6 +51,43 @@ describe("WorkflowsPanel", () => {
     listWorkflows.mockReset();
     getWorkflowDetail.mockReset();
     copyWorkflow.mockReset();
+    setDefaultWorkflow.mockReset();
+  });
+
+  it("clears the previous default flag when another workflow is set default", async () => {
+    listWorkflows.mockResolvedValue([
+      { workflowName: "Alpha Flow", defaultWorkflow: true, workflowSteps: [] },
+      { workflowName: "Beta Flow", defaultWorkflow: false, workflowSteps: [] },
+    ]);
+    getWorkflowDetail.mockResolvedValue({
+      workflowName: "Beta Flow",
+      defaultWorkflow: false,
+      workflowSteps: [],
+    });
+    setDefaultWorkflow.mockResolvedValue({
+      workflowName: "Beta Flow",
+      defaultWorkflow: true,
+    });
+    render(<WorkflowsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getAllByTestId("developer-wf-open")[1]);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-set-default")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-set-default"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-default-notice")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-table")).toBeTruthy();
+    });
+    const alpha = screen.getByRole("button", { name: "Open Alpha Flow" }).closest("tr");
+    const beta = screen.getByRole("button", { name: "Open Beta Flow" }).closest("tr");
+    expect(alpha?.textContent).not.toContain(DEV_MSG.WF_YES);
+    expect(beta?.textContent).toContain(DEV_MSG.WF_YES);
   });
 
   it("copies a catalog workflow and opens the new name", async () => {

@@ -96,6 +96,17 @@ export function WorkflowsPanel(): React.ReactElement {
         name={selected}
         onBack={() => setSelected(null)}
         onDeleted={handleDeleted}
+        onDefaultChanged={(workflowName) => {
+          const key = workflowName.trim().toLowerCase();
+          setItems((prev) =>
+            prev == null
+              ? prev
+              : prev.map((w) => ({
+                  ...w,
+                  defaultWorkflow: (w.workflowName || "").trim().toLowerCase() === key,
+                })),
+          );
+        }}
       />
     );
   }

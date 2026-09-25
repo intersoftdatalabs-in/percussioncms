@@ -18,8 +18,10 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -44,6 +46,7 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -202,6 +205,68 @@ class WorkflowsAdaptorUpdateDeleteTest {
             () -> adaptor.updateWorkflow(null, NAME, body(NAME, "Edited")));
     assertEquals(403, ex.getResponse().getStatus());
     verify(workflowService, never()).saveWorkflow(any());
+  }
+
+  // --- set default (slice 37) ---
+
+  @Test
+  void setDefault_storesNameAndReportsDefault() {
+    stubNamedWorkflow(NAME);
+    AtomicReference<String> stored = new AtomicReference<>("Default Workflow");
+    adaptor.setDefaultWorkflowWriter(stored::set);
+    PSUiWorkflow refreshed = new PSUiWorkflow();
+    refreshed.setWorkflowName(NAME);
+    refreshed.setWorkflowDescription("Edited");
+    refreshed.setDefaultWorkflow(false);
+    when(stepped.getWorkflow(NAME)).thenReturn(refreshed);
+
+    WorkflowSummary out = adaptor.setDefaultWorkflow(null, NAME);
+    assertEquals(NAME, stored.get());
+    assertEquals(NAME, out.getWorkflowName());
+    assertTrue(out.isDefaultWorkflow());
+    assertEquals("Edited", out.getWorkflowDescription());
+  }
+
+  @Test
+  void setDefault_secondWorkflowReplacesPreviousName() {
+    String first = "Alpha Flow";
+    String second = "Beta Flow";
+    stubNamedWorkflow(first);
+    stubNamedWorkflow(second);
+    AtomicReference<String> stored = new AtomicReference<>("Default Workflow");
+    adaptor.setDefaultWorkflowWriter(stored::set);
+    when(stepped.getWorkflow(first)).thenReturn(new PSUiWorkflow());
+    when(stepped.getWorkflow(second)).thenReturn(new PSUiWorkflow());
+
+    adaptor.setDefaultWorkflow(null, first);
+    assertEquals(first, stored.get());
+    adaptor.setDefaultWorkflow(null, second);
+    assertEquals(second, stored.get());
+    assertFalse(first.equals(stored.get()));
+  }
+
+  @Test
+  void setDefault_missingWorkflowIs404() {
+    when(workflowService.findWorkflowsByName(eq("missing"))).thenReturn(List.of());
+    AtomicReference<String> stored = new AtomicReference<>("Default Workflow");
+    adaptor.setDefaultWorkflowWriter(stored::set);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.setDefaultWorkflow(null, "missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Default Workflow", stored.get());
+  }
+
+  @Test
+  void setDefault_nonAdminIs403() {
+    WorkflowsAdaptor locked =
+        new WorkflowsAdaptor(designWs, workflowService, contentMgr, () -> false, stepped);
+    AtomicReference<String> stored = new AtomicReference<>("keep");
+    locked.setDefaultWorkflowWriter(stored::set);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> locked.setDefaultWorkflow(null, NAME));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertEquals("keep", stored.get());
   }
 
   // --- delete ---

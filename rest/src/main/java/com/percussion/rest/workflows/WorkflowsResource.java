@@ -345,6 +345,43 @@ public class WorkflowsResource {
     }
   }
 
+  @POST
+  @Path("/{idOrName}/default")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Set the system default workflow",
+      description =
+          "Slice 37 Admin. Marks this workflow as the single system default. A later call for"
+              + " another workflow replaces the stored name so the previous workflow is no longer"
+              + " default. Does not rewrite content items.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Default updated",
+            content = @Content(schema = @Schema(implementation = WorkflowSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid idOrName"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Workflow not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowSummary setDefaultWorkflow(@PathParam("idOrName") String idOrName) {
+    try {
+      return requireAdaptor().setDefaultWorkflow(uriInfo.getBaseUri(), idOrName);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to set default workflow ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @DELETE
   @Path("/{idOrName}")
   @Produces({MediaType.APPLICATION_JSON})

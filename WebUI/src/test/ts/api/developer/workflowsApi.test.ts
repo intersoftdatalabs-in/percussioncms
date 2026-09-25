@@ -31,6 +31,7 @@ import {
   parseWorkflowList,
   parseWorkflowSummary,
   setWorkflowAllowedContentTypes,
+  setDefaultWorkflow,
   updateWorkflow,
   wrapWorkflowContentTypesForWire,
   wrapWorkflowCreateForWire,
@@ -433,6 +434,43 @@ describe("workflow update API (slice 21 update)", () => {
     await updateWorkflow("My WF", { name: "My WF" });
     const url = String(fetchMock.mock.calls[0][0]);
     expect(url).toContain(encodeURIComponent("My WF"));
+  });
+});
+
+describe("set default workflow API (slice 37)", () => {
+  const fetchMock = vi.fn();
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("POSTs /workflows/{name}/default and parses the summary", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        workflowName: "Beta Flow",
+        defaultWorkflow: true,
+      }),
+    );
+    const updated = await setDefaultWorkflow("Beta Flow");
+    expect(updated.workflowName).toBe("Beta Flow");
+    expect(updated.defaultWorkflow).toBe(true);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      `${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Beta Flow")}/default`,
+    );
   });
 });
 

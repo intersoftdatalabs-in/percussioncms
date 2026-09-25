@@ -72,6 +72,14 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
   }
 
   @Override
+  public WorkflowSummary setDefaultWorkflow(URI baseUri, String idOrName) {
+    WorkflowSummary summary = new WorkflowSummary();
+    summary.setWorkflowName(idOrName != null ? idOrName.trim() : "");
+    summary.setDefaultWorkflow(true);
+    return summary;
+  }
+
+  @Override
   public void deleteWorkflow(URI baseUri, String idOrName) {
     // No-op stub; CXF Spring context tests only assert bean wiring, not delete behavior.
   }

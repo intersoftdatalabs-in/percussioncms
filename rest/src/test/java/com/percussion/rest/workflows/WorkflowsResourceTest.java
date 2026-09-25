@@ -348,6 +348,35 @@ public class WorkflowsResourceTest {
   }
 
   @Test
+  public void setDefaultWorkflowSuccess() {
+    when(adaptor.setDefaultWorkflow(any(), eq("Simple Workflow")))
+        .thenReturn(createdSummary("Simple Workflow"));
+    WorkflowSummary out = resource.setDefaultWorkflow("Simple Workflow");
+    assertEquals("Simple Workflow", out.getWorkflowName());
+    verify(adaptor).setDefaultWorkflow(any(), eq("Simple Workflow"));
+  }
+
+  @Test
+  public void setDefaultWorkflowNotFound() {
+    when(adaptor.setDefaultWorkflow(any(), eq("missing")))
+        .thenThrow(new WebApplicationException("Workflow not found: missing", 404));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.setDefaultWorkflow("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturns503OnSetDefault() {
+    WorkflowsResource bare = new WorkflowsResource();
+    UriInfo uriInfo = mock(UriInfo.class);
+    when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
+    bare.setUriInfo(uriInfo);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> bare.setDefaultWorkflow("Simple Workflow"));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void updateWorkflowRequiresBody() {
     WebApplicationException ex =
         assertThrows(

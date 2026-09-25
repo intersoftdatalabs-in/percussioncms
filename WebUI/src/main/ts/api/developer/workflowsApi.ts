@@ -481,6 +481,18 @@ export async function updateWorkflow(
 }
 
 /**
+ * POST /services/workflows/{idOrName}/default — Admin. Marks this workflow as
+ * the single system default. A later call for another workflow replaces it.
+ */
+export async function setDefaultWorkflow(
+  idOrName: string,
+): Promise<WorkflowCreateResult> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(`${PATHS.WORKFLOWS_ASSOC}/${key}/default`);
+  return parseWorkflowSummary(payload);
+}
+
+/**
  * DELETE /services/workflows/{idOrName} — Admin. Deletes the workflow via the
  * stepped-workflow editor. 404 when not found; 409 when the workflow is a
  * system workflow or still owns content items. Returns void on success.

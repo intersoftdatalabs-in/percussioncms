@@ -140,6 +140,28 @@ The public call is `POST /services/workflows/{idOrName}/copy` with a
 Renaming, step / transitions / roles editing, and full graph design stay
 on the workflow-admin editor — this chrome updates only the description.
 
+## Product path — set the system default (slice 37)
+
+The catalog **Default** column shows **Yes** for the single system default
+workflow (`DEFAULT_WORKFLOW` in workflow properties). Detail shows the same
+flag.
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows**.
+3. Open a workflow that is not already the default.
+4. Next to **Default**, click **Set as default**.
+5. The detail flag becomes **Yes**. Go **Back to list**: that row shows
+   **Yes** and the previous default row no longer does.
+6. Missing workflows (`404`) and non-Admin callers (`403`) appear in the
+   section alert.
+
+Setting the default does not move existing content items onto the new
+workflow. Content-type default workflow (which workflow a type uses for new
+items) stays on Content Type detail. The public call is
+`POST /services/workflows/{idOrName}/default` (no body). The graph treats the
+system default as a packaged workflow, so step and transition deletes stay
+off for whichever workflow currently holds the flag.
+
 ## Product path — delete a workflow (slice 21)
 
 1. Sign in as **Admin**.
