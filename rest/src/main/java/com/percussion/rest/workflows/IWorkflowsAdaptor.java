@@ -64,6 +64,23 @@ public interface IWorkflowsAdaptor {
   WorkflowSummary createWorkflow(URI baseUri, WorkflowCreate body);
 
   /**
+   * Copy an existing workflow, including its states and transitions, under a new name (Admin,
+   * slice 36).
+   *
+   * <p>The source is not modified or deleted. {@code body.name} must be unique (case-insensitive)
+   * and follow workflow-admin name rules. A non-null description replaces the copied description;
+   * a null description keeps the source text. The copy is not marked default.
+   *
+   * @param idOrName source workflow name, numeric uuid, or guid string
+   * @param body new name (required) and optional description
+   * @return the new workflow summary
+   * @throws IllegalArgumentException when the new name is invalid
+   * @throws jakarta.ws.rs.WebApplicationException 404 when the source is missing, 409 when the new
+   *     name already exists
+   */
+  WorkflowSummary copyWorkflow(URI baseUri, String idOrName, WorkflowCreate body);
+
+  /**
    * Update a stepped workflow's description (Admin, slice 21 Developer workflow update).
    *
    * <p>The name is immutable from this surface; renaming and step/transitions/roles editing stay

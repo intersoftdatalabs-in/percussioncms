@@ -1,7 +1,7 @@
 ---
 id: admin-developer-workflows
 title: Developer Workflows
-description: Browse workflow definitions, create / update / delete workflows, and edit allowed content types from Developer Workflows chrome
+description: Browse workflow definitions, create / copy / update / delete workflows, and edit allowed content types from Developer Workflows chrome
 version: "8.2"
 order: 46
 tags: [admin, developer, workflows]
@@ -12,8 +12,10 @@ tags: [admin, developer, workflows]
 **Developer → Workflows** lists stepped workflow definitions (name, default flag,
 description, staging roles, and steps). Open a row to inspect steps and to edit
 **Allowed content types** for that workflow (SY-06). Admins can also **create**,
-**edit** the description, and **delete** a workflow from the catalog. The new row
-opens and lists on the catalog.
+**copy** (steps and transitions included), **edit** the description, and
+**delete** a workflow from the catalog. The new or copied row opens and lists
+on the catalog. A copy name that already exists is rejected and does not
+overwrite.
 
 Workflow renaming stays outside this chrome. **Developer → Workflows** detail
 shows a step list and a graph of states and transitions
@@ -82,6 +84,26 @@ longer has transitions, is on the graph (see below).
 6. Packaged workflows do not show **Delete step** (`403` on the API). A missing
    workflow or step is `404`. An invalid step name is `400`. A step that a
    transition still uses is `409`. Non-Admin callers receive `403`.
+
+## Product path — copy a workflow (slice 36)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows**, or deep-link
+   `spa.jsp?entry=developer&section=workflows`.
+3. On a catalog row, click **Copy** (the source workflow is not changed).
+4. Enter a **Name** that does not already exist (same character rules as
+   create: letters, digits, underscore, hyphen, and space; max 50 characters)
+   and an optional **Description**. When description is left blank, the copy
+   keeps the source description.
+5. Click **Copy workflow**. The server copies that workflow's steps and
+   transitions onto the new name and opens the copy. **Cancel** returns to the
+   catalog and does not create a workflow.
+6. A name that already exists returns `409`. The form stays open and neither
+   the existing workflow nor the source is overwritten. An invalid name is
+   `400`. A missing source is `404`. Non-Admin callers receive `403`.
+
+The public call is `POST /services/workflows/{idOrName}/copy` with a
+`WorkflowCreate` body (`name` required).
 
 ## Product path — create a workflow (slice 21)
 

@@ -257,6 +257,48 @@ public class WorkflowsResource {
     }
   }
 
+  @POST
+  @Path("/{idOrName}/copy")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Copy a workflow",
+      description =
+          "Slice 36 Admin. Copies an existing workflow, including states and transitions, under"
+              + " a new unique name. The source is not modified. Name rules match create"
+              + " (letters, digits, underscore, hyphen, space; max 50). A duplicate name is 409"
+              + " and does not overwrite. Optional description replaces the copied description;"
+              + " omit it to keep the source description. Jackson root wrap is WorkflowCreate.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Copied",
+            content = @Content(schema = @Schema(implementation = WorkflowSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid new name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Source workflow not found"),
+        @ApiResponse(responseCode = "409", description = "A workflow with the new name exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowSummary copyWorkflow(
+      @PathParam("idOrName") String idOrName, WorkflowCreate body) {
+    if (body == null) {
+      throw new WebApplicationException("Workflow name is required", 400);
+    }
+    try {
+      return requireAdaptor().copyWorkflow(uriInfo.getBaseUri(), idOrName, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to copy workflow ({}): {}", e.getClass().getName(), e.getMessage(), e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @PUT
   @Path("/{idOrName}")
   @Consumes({MediaType.APPLICATION_JSON})

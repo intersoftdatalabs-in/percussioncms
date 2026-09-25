@@ -420,6 +420,22 @@ export async function createWorkflow(
   return parseWorkflowSummary(payload);
 }
 
+/**
+ * POST /services/workflows/{source}/copy — Admin. Copies states and transitions
+ * onto a new unique name. Duplicate name is 409 and does not overwrite.
+ */
+export async function copyWorkflow(
+  sourceName: string,
+  body: WorkflowCreateBody,
+): Promise<WorkflowCreateResult> {
+  const key = encodeURIComponent(sourceName);
+  const payload = await post<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/copy`,
+    wrapWorkflowCreateForWire(body),
+  );
+  return parseWorkflowSummary(payload);
+}
+
 /** Writable fields for {@code PUT /services/workflows/{idOrName}} (slice 21 update). */
 export type WorkflowUpdateBody = {
   /** Workflow name echoed from the path (must match). */
