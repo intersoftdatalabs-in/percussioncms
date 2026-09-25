@@ -252,6 +252,22 @@ export const EDITOR_MSG = {
   RELATED_FORBIDDEN:
     "perc.ui.editor@You are not allowed to list related content for this item.",
   RELATED_FAILED: "perc.ui.editor@Could not load related content.",
+  RELATED_CHANGE_TEMPLATE: "perc.ui.editor@Change template",
+  RELATED_CHANGE_TITLE: "perc.ui.editor@Change snippet template",
+  RELATED_TEMPLATE_LABEL: "perc.ui.editor@Snippet template",
+  RELATED_TEMPLATE_APPLY: "perc.ui.editor@Apply",
+  RELATED_TEMPLATE_CANCEL: "perc.ui.editor@Cancel",
+  RELATED_TEMPLATE_NEEDS:
+    "perc.ui.editor@Choose a snippet template before applying.",
+  RELATED_TEMPLATE_FAILED:
+    "perc.ui.editor@Could not change the snippet template.",
+  RELATED_TEMPLATE_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to change this snippet template.",
+  RELATED_TEMPLATE_NOT_FOUND:
+    "perc.ui.editor@That related item or template was not found.",
+  RELATED_TEMPLATE_BAD_REQUEST:
+    "perc.ui.editor@That snippet template is not allowed for this slot.",
+  RELATED_TEMPLATE_SAVED: "perc.ui.editor@Snippet template updated.",
   RELATED_INSERT: "perc.ui.editor@Insert existing item",
   RELATED_ITEM_ID: "perc.ui.editor@Existing item id",
   RELATED_SLOT: "perc.ui.editor@Slot",

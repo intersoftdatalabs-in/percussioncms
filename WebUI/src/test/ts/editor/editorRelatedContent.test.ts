@@ -18,6 +18,7 @@
 import { describe, expect, it } from "vitest";
 import { RelationshipSummaryAuthError } from "../../../main/ts/api/contentExplorer/relationshipsApi";
 import {
+  canChangeRelatedSnippetTemplate,
   flattenRelatedContent,
   insertSlotChoices,
   relatedContentErrorReason,
@@ -67,6 +68,8 @@ describe("flattenRelatedContent", () => {
     expect(rows.map((r) => r.itemId)).toEqual(["55", "88"]);
     expect(rows[0].kind).toBe("slot");
     expect(rows[0].relationshipId).toBe(100);
+    expect(rows[0].templateId).toBe(3);
+    expect(rows[0].slotId).toBe(9);
     expect(rows[1].kind).toBe("inline");
     expect(rows[1].relationshipId).toBeUndefined();
   });
@@ -221,5 +224,38 @@ describe("related item open", () => {
     expect(relatedRowCanOpen("")).toBe(false);
     expect(relatedRowCanOpen("not-an-id")).toBe(false);
     expect(relatedRowCanOpen("0")).toBe(false);
+  });
+});
+
+describe("canChangeRelatedSnippetTemplate", () => {
+  it("allows a slot row with relationship and slot ids only", () => {
+    expect(
+      canChangeRelatedSnippetTemplate({
+        key: "slot:1:55",
+        kind: "slot",
+        itemId: "55",
+        slotLabel: "Content",
+        relationshipId: 3,
+        slotId: 9,
+        templateId: 7,
+      }),
+    ).toBe(true);
+    expect(
+      canChangeRelatedSnippetTemplate({
+        key: "inline:local:88",
+        kind: "inline",
+        itemId: "88",
+        slotLabel: "Inline",
+      }),
+    ).toBe(false);
+    expect(
+      canChangeRelatedSnippetTemplate({
+        key: "slot:x:55",
+        kind: "slot",
+        itemId: "55",
+        slotLabel: "Content",
+        slotId: 9,
+      }),
+    ).toBe(false);
   });
 });

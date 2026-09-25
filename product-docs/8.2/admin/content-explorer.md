@@ -305,6 +305,19 @@ related item in edit. **View** and **Promote** open it in view, not edit.
 A row with no content id has no **Open** control and cannot be opened.
 Open does not insert, remove, or reorder the association.
 
+In **Edit** mode each slot row that has an Active Assembly relationship id also
+shows **Change template**. The host loads allowed snippet templates from
+`GET /services/assembly/slot-relationships/allowed-templates?slotId=` and, on
+**Apply**, calls
+`POST /services/assembly/slot-relationships/{relationshipId}/template-slot`
+with the **same slot** and the chosen snippet template. **Cancel** closes the
+dialog and does not post. HTTP **400** (template not allowed), **403** (not
+allowed), and **404** (relationship or template not found) stay on the related
+panel — the list is not treated as updated. Inline local links have no
+**Change template** control. **View** and **Promote** do not show it. This
+does not insert, remove, or reorder the association, and it does not change
+the page template of the open item.
+
 **Preview** is available in **View** and **Edit** for the already-open **page**
 or **asset** so authors do not need to bounce to Explorer solely to preview.
 It uses the same assembled preview as Explorer **Preview**: pages open Page
