@@ -202,6 +202,8 @@ From **Content Explorer** (`spa.jsp?entry=explorer`), select a **page** or **ass
 
 From the **React Content Editor** (`spa.jsp?entry=editor`) in **Edit** mode, **Publish now** demand-publishes the already-open page or asset after confirm (same sitemanage `publish/page/{id}` or `publish/resource/{id}` GETs). **View** mode stays read-only. `FORBIDDEN` / `BADCONFIG` is a failure on the editor host, not success.
 
+**Take down** on that same editor host unpublishes the already-open page or asset (same meaning as Explorer **Take Down**). Confirm first. Linked pages (`GET /services/itemmanagement/item/findLinkedItems/{id}`) are listed on the confirm (up to ten). Confirm then calls `GET /services/sitemanage/publish/takedown/page/{id}` or `/takedown/resource/{id}`, or `PUT` of the linked-page list when that list is non-empty. Cancel does not call takedown. **View** mode, folders, templates, and a new unsaved item (no content id yet) have no **Take down** control. HTTP 200 with application-level `FORBIDDEN` / `BADCONFIG` / `INVALID` is a failure on the editor host, not success. Take down does not delete the CMS item.
+
 ## Virtual Sites and docs builds
 
 For Git/filesystem, CSV/filesystem, SQL/database, or HTTP JSON Virtual Sites such as product documentation:

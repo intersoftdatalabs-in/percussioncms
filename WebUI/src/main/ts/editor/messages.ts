@@ -142,6 +142,15 @@ export const EDITOR_MSG = {
   PUBLISH_FAILED: "perc.ui.editor@Could not publish this item.",
   PUBLISH_UNAVAILABLE:
     "perc.ui.editor@Publish now is only available for pages and assets.",
+  TAKE_DOWN: "perc.ui.editor@Take down",
+  TAKING_DOWN: "perc.ui.editor@Taking down…",
+  CONFIRM_TAKE_DOWN:
+    "perc.ui.editor@Take down (unpublish) this item from its site?",
+  CONFIRM_TAKE_DOWN_LINKED: "perc.ui.editor@Pages that link to this item:",
+  TAKEDOWN_DONE: "perc.ui.editor@Item taken down.",
+  TAKEDOWN_FAILED: "perc.ui.editor@Could not take down this item.",
+  TAKEDOWN_UNAVAILABLE:
+    "perc.ui.editor@Take down is only available for saved pages and assets.",
   PREVIEW: "perc.ui.editor@Preview",
   PREVIEWING: "perc.ui.editor@Opening preview…",
   PREVIEW_DONE: "perc.ui.editor@Preview opened.",

@@ -18,8 +18,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   canPublishFromEditor,
+  canTakedownFromEditor,
+  formatEditorTakedownConfirm,
   publishEditorItem,
   resolveEditorPublishKind,
+  takedownEditorItem,
 } from "../../../main/ts/editor/editorPublish";
 
 afterEach(() => {
@@ -129,5 +132,97 @@ describe("publishEditorItem", () => {
     await expect(publishEditorItem("42", "page")).rejects.toThrow(
       "Could not connect to publishing server",
     );
+  });
+});
+
+describe("canTakedownFromEditor", () => {
+  it("matches publish eligibility: edit mode page or asset only", () => {
+    expect(canTakedownFromEditor("edit", "page")).toBe(true);
+    expect(canTakedownFromEditor("edit", "asset")).toBe(true);
+    expect(canTakedownFromEditor("view", "page")).toBe(false);
+    expect(canTakedownFromEditor("edit", "none")).toBe(false);
+  });
+
+  it("treats folders and missing ids as not takedown-eligible", () => {
+    expect(resolveEditorPublishKind("Folder", { id: "8" })).toBe("none");
+    expect(
+      canTakedownFromEditor("edit", resolveEditorPublishKind("Folder", { id: "8" })),
+    ).toBe(false);
+    expect(
+      canTakedownFromEditor("edit", resolveEditorPublishKind("percPage", { id: "" })),
+    ).toBe(false);
+  });
+});
+
+describe("takedownEditorItem", () => {
+  it("GETs sitemanage takedown/page when there are no linked pages", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    expect(await takedownEditorItem("42", "page")).toBe(true);
+    const req = global.fetch.mock.calls[0];
+    expect(String(req?.[0] ?? "")).toContain(
+      "sitemanage/publish/takedown/page/42",
+    );
+    expect(req?.[1]?.method ?? "GET").toBe("GET");
+  });
+
+  it("GETs sitemanage takedown/resource for an asset", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    expect(await takedownEditorItem("99", "asset")).toBe(true);
+    expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
+      "sitemanage/publish/takedown/resource/99",
+    );
+  });
+
+  it("PUTs the linked-page list when it is non-empty", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const linked = [
+      { id: "7", pagePath: "/Sites/Demo/Home", relationshipId: "rel-1" },
+    ];
+    expect(await takedownEditorItem("42", "page", linked)).toBe(true);
+    const req = global.fetch.mock.calls[0];
+    expect(req?.[1]?.method).toBe("PUT");
+    expect(String(req?.[1]?.body ?? "")).toContain("/Sites/Demo/Home");
+  });
+
+  it("returns false without an id or for none", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    expect(await takedownEditorItem("", "page")).toBe(false);
+    expect(await takedownEditorItem("42", "none")).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("throws on HTTP 200 FORBIDDEN instead of returning true", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ status: "FORBIDDEN" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(takedownEditorItem("42", "page")).rejects.toThrow("FORBIDDEN");
+  });
+});
+
+describe("formatEditorTakedownConfirm", () => {
+  it("lists linked page paths and stays plain when there are none", () => {
+    expect(formatEditorTakedownConfirm([])).toMatch(/unpublish/i);
+    expect(formatEditorTakedownConfirm([])).not.toMatch(/Sites\/Demo/);
+    expect(
+      formatEditorTakedownConfirm([{ pagePath: "/Sites/Demo/Home" }]),
+    ).toContain("/Sites/Demo/Home");
   });
 });
