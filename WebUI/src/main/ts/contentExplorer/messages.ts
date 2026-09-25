@@ -70,6 +70,15 @@ export const EXPLORER_MSG = {
   COPY_DEST_LABEL: "perc.ui.explorer@Destination folder path",
   ACTION_COPY_NOT_FOUND:
     "perc.ui.explorer@The selected item or destination folder was not found",
+  MULTI_COPY: "perc.ui.explorer@Copy selected to folder",
+  MULTI_COPY_SUCCESS:
+    "perc.ui.explorer@Copied {count} item(s) to {path}",
+  MULTI_COPY_PARTIAL:
+    "perc.ui.explorer@Copied {count} item(s) to {path}; some copies failed and were not rolled back",
+  MULTI_COPY_NONE:
+    "perc.ui.explorer@No pages or assets were copied",
+  MULTI_COPY_SKIPPED: "perc.ui.explorer@Skipped folders: {names}",
+  MULTI_COPY_FAILURES: "perc.ui.explorer@Copy failed for: {details}",
   ACTION_DELETE: "perc.ui.explorer@Delete",
   ACTION_DELETE_NOT_FOUND:
     "perc.ui.explorer@The selected item was not found",

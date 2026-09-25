@@ -1955,6 +1955,97 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     ).toBe("true");
   });
 
+  it("copies checked pages to one folder, skips folders, and keeps a partial failure visible (#4855)", async () => {
+    const copyPosts: string[] = [];
+    mockFetch(async (input, init) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/folders/copy/item")) {
+        copyPosts.push(String(init?.body ?? ""));
+        const body = String(init?.body ?? "");
+        if (body.includes("Missing")) {
+          return new Response("{}", {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        return new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "fold-1",
+                  name: "SkipMe",
+                  path: "/Assets/Src/SkipMe/",
+                  type: "folder",
+                  category: "folder",
+                  leaf: false,
+                },
+                {
+                  id: "page-ok",
+                  name: "OkPage",
+                  path: "/Assets/Src/OkPage",
+                  type: "percPage",
+                  category: "page",
+                  leaf: true,
+                },
+                {
+                  id: "page-miss",
+                  name: "Missing",
+                  path: "/Assets/Src/Missing",
+                  type: "percPage",
+                  category: "page",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 3,
+              startIndex: 0,
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Assets/Src"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-select-fold-1")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-select-fold-1"));
+    fireEvent.click(screen.getByTestId("detail-select-page-ok"));
+    fireEvent.click(screen.getByTestId("detail-select-page-miss"));
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-multi-copy"));
+    const dest = await screen.findByTestId("explorer-copy-dest-input");
+    fireEvent.change(dest, { target: { value: "/Assets/Dest" } });
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
+
+    const result = await screen.findByTestId("explorer-multi-copy-result");
+    expect(result.getAttribute("data-outcome")).toBe("partial");
+    expect(result.textContent).toContain("SkipMe");
+    expect(result.textContent).toContain("Missing");
+    expect(result.textContent).not.toContain("Copied 2 item(s) to /Assets/Dest");
+    expect(copyPosts.length).toBe(2);
+    expect(copyPosts.some((body) => body.includes("SkipMe"))).toBe(false);
+    await renderA11yGate(container);
+  });
+
   it("translations toggle shows select-item hint without a content selection (#2430)", async () => {
     stubPathFetch();
     renderShell(
