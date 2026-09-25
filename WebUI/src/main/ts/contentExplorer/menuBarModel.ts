@@ -29,6 +29,7 @@ import { EXPLORER_MSG } from "./messages";
 export type ExplorerMenuCommandId =
   | "content-search"
   | "content-clipboard-add"
+  | "content-multi-copy"
   | "content-create-site"
   | "content-site-copy"
   | "content-site-rename"
@@ -98,6 +99,13 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.CLIPBOARD_ADD,
           ariaLabelKey: EXPLORER_MSG.CLIPBOARD_ADD,
           testId: "explorer-clipboard-add",
+          disabledWhen: "noSelection",
+        },
+        {
+          id: "content-multi-copy",
+          labelKey: EXPLORER_MSG.MULTI_COPY,
+          ariaLabelKey: EXPLORER_MSG.MULTI_COPY,
+          testId: "explorer-multi-copy",
           disabledWhen: "noSelection",
         },
         {

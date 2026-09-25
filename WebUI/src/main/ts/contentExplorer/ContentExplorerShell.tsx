@@ -88,7 +88,7 @@ import {
   getItemWorkflowTransitions,
   transitionItem,
 } from "../api/contentExplorer/itemWorkflowApi";
-import { findItemByPath } from "../api/contentExplorer/pathApi";
+import { copyFolderItem, findItemByPath } from "../api/contentExplorer/pathApi";
 import { bindExplorerPathItemId } from "../api/contentExplorer/pathItemId";
 import { canOpenIaRelationships } from "./actionEnablement";
 import {
@@ -167,6 +167,13 @@ import { FolderSecurityPanel } from "./FolderSecurityPanel";
 import { ItemPropertiesPanel } from "./ItemPropertiesPanel";
 import type { ExplorerMenuCommandId } from "./menuBarModel";
 import { EXPLORER_MSG } from "./messages";
+import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
+import {
+  copyCheckedItemsToFolder,
+  formatMultiFolderCopyStatus,
+  multiCopyOutcome,
+  type MultiFolderCopyOutcome,
+} from "./multiFolderCopy";
 import { openInEditor } from "./openInEditor";
 import { openPreviewItem } from "./previewItem";
 import {
@@ -632,6 +639,11 @@ function ContentExplorerShellInner({
   >(() => new Map<string, PSPathItem>());
   const multiSelectedItemsRef = useRef(multiSelectedItems);
   multiSelectedItemsRef.current = multiSelectedItems;
+  const [multiCopyOpen, setMultiCopyOpen] = useState(false);
+  const [multiCopyStatus, setMultiCopyStatus] = useState<{
+    text: string;
+    outcome: MultiFolderCopyOutcome;
+  } | null>(null);
   const [clipboard, setClipboardState] = useState<Clipboard>(EMPTY_CLIPBOARD);
   const [clipboardMode, setClipboardMode] = useState<"copy" | "cut">("copy");
   /** Folder content id for security/properties (resolved from selection or path). */
@@ -1479,6 +1491,12 @@ function ContentExplorerShellInner({
         case "content-clipboard-add":
           handleAddToClipboard();
           break;
+        case "content-multi-copy":
+          if (multiSelectedItemsRef.current.size > 0) {
+            setMultiCopyStatus(null);
+            setMultiCopyOpen(true);
+          }
+          break;
         case "content-create-site":
           setShowSiteCreate((v) => !v);
           break;
@@ -1784,6 +1802,43 @@ function ContentExplorerShellInner({
           {message(EXPLORER_MSG.ERROR_GENERIC)}: {error}
         </div>
       )}
+      {multiCopyStatus ? (
+        <div
+          data-testid="explorer-multi-copy-result"
+          data-outcome={multiCopyStatus.outcome}
+          role={multiCopyStatus.outcome === "success" ? "status" : "alert"}
+          aria-live={multiCopyStatus.outcome === "success" ? "polite" : "assertive"}
+          style={{
+            gridColumn: "1 / -1",
+            padding: "8px 12px",
+            background: multiCopyStatus.outcome === "success" ? "#ecfdf5" : "#fef2f2",
+            color: "#0f172a",
+          }}
+        >
+          {multiCopyStatus.text}
+        </div>
+      ) : null}
+      {multiCopyOpen ? (
+        <CopyDestinationPickerDialog
+          defaultPath={selection.folderPath ?? "/"}
+          onPick={(target) => {
+            setMultiCopyOpen(false);
+            const items = Array.from(multiSelectedItemsRef.current.values());
+            void copyCheckedItemsToFolder(items, target, (sourcePath, targetPath) =>
+              copyFolderItem({ sourcePath, targetPath }),
+            ).then((result) => {
+              setMultiCopyStatus({
+                text: formatMultiFolderCopyStatus(result, target),
+                outcome: multiCopyOutcome(result),
+              });
+              if (result.copiedNames.length > 0) {
+                setListEpoch((n) => n + 1);
+              }
+            });
+          }}
+          onCancel={() => setMultiCopyOpen(false)}
+        />
+      ) : null}
       <div
         style={navColumnStyle}
         data-testid="explorer-nav"

@@ -68,6 +68,14 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     expect(add?.testId).toBe("explorer-clipboard-add");
   });
 
+  it("puts multi-select copy under Content, disabled without a selection (#4855)", () => {
+    const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
+    const copy = content?.items.find((i) => i.id === "content-multi-copy");
+    expect(copy?.testId).toBe("explorer-multi-copy");
+    expect(copy?.disabledWhen).toBe("noSelection");
+    expect(copy?.labelKey).toBe(EXPLORER_MSG.MULTI_COPY);
+  });
+
   it("Content → Search is a toggle sharing the Search panel (#2850)", () => {
     const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
     const search = content?.items.find((i) => i.id === "content-search");
