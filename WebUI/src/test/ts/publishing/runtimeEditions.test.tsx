@@ -25,6 +25,7 @@ function fallback(key: string): string {
 import { MSG } from "@/i18n/message";
 import {
   canStopEdition,
+  openableRunningJobId,
   parseContentIds,
   runtimeMessage,
   RuntimeSection,
@@ -59,6 +60,12 @@ describe("runtime edition helpers", () => {
     expect(canStopEdition({ runningJobId: 5 })).toBe(true);
     expect(canStopEdition({ runningJobId: 0 })).toBe(false);
     expect(canStopEdition({})).toBe(false);
+  });
+
+  it("openableRunningJobId is null for idle editions", () => {
+    expect(openableRunningJobId({ runningJobId: 99 })).toBe("99");
+    expect(openableRunningJobId({ runningJobId: 0 })).toBeNull();
+    expect(openableRunningJobId({})).toBeNull();
   });
 
   it("parseContentIds splits mixed separators", () => {
@@ -113,6 +120,17 @@ describe("RuntimeSection", () => {
         /started/i,
       );
     });
+  });
+
+  it("opens a running job and hides the control on idle editions", async () => {
+    const onOpenRunningJob = vi.fn();
+    render(<RuntimeSection onOpenRunningJob={onOpenRunningJob} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("runtime-open-job-11")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("runtime-open-job-10")).toBeNull();
+    fireEvent.click(screen.getByTestId("runtime-open-job-11"));
+    expect(onOpenRunningJob).toHaveBeenCalledWith("99");
   });
 
   it("stops a running edition job and shows status", async () => {

@@ -27559,6 +27559,9 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Job {0}">
       <tuv xml:lang="en-us"><seg>Job {0}</seg></tuv>
     </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Open job">
+      <tuv xml:lang="en-us"><seg>Open job</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.sections.runtime@Demand publish">
       <tuv xml:lang="en-us"><seg>Demand publish</seg></tuv>
     </tu>

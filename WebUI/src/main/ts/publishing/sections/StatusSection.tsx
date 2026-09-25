@@ -54,12 +54,20 @@ export interface StatusSectionProps {
   itemId?: string;
   onItemIdChange?: (itemId: string) => void;
   onOpenSection?: (section: PublishSection) => void;
+  /**
+   * Job to open in the detail panel (Runtime “Open job”).
+   * `token` changes on each request so the same id can be reopened.
+   */
+  focusJob?: { id: string; token: number } | null;
+  onFocusJobClear?: () => void;
 }
 
 export function StatusSection({
   itemId,
   onItemIdChange,
   onOpenSection,
+  focusJob,
+  onFocusJobClear,
 }: StatusSectionProps = {}): React.ReactElement {
   const [jobs, setJobs] = useState<PublishingJob[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -93,12 +101,21 @@ export function StatusSection({
     () => sortJobs(filterJobsBySite(jobs, siteFilter), sort),
     [jobs, siteFilter, sort],
   );
+  useEffect(() => {
+    const id = focusJob?.id?.trim() ?? "";
+    if (id !== "") {
+      setSelectedJobId(id);
+    }
+  }, [focusJob?.id, focusJob?.token]);
+
   const selectedJob = useMemo(() => {
-    if (selectedJobId == null) {
+    if (selectedJobId == null || selectedJobId === "") {
       return null;
     }
     return (
-      jobs.find((job) => String(job.jobId ?? "") === selectedJobId) ?? null
+      jobs.find((job) => String(job.jobId ?? "") === selectedJobId) ?? {
+        jobId: selectedJobId,
+      }
     );
   }, [jobs, selectedJobId]);
   function onHeaderClick(key: StatusSortKey): void {
@@ -248,7 +265,10 @@ export function StatusSection({
       {selectedJob && (
         <StatusJobDetailPanel
           job={selectedJob}
-          onClose={() => setSelectedJobId(null)}
+          onClose={() => {
+            setSelectedJobId(null);
+            onFocusJobClear?.();
+          }}
         />
       )}
     </div>
