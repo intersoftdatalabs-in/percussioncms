@@ -16,6 +16,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from "react";
+import { formatApiError } from "../../api/client";
 import { fetchSites } from "../../api/home/homeApi";
 import { listServers } from "../../api/publishing/serversApi";
 import type { PublishServer } from "../../api/publishing/types";
@@ -194,7 +195,8 @@ export function RuntimeSection({
       const res = await demandPublish(selectedEdition, { contentIds: ids });
       setLastResult(res);
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setLastResult(null);
+      setError(formatApiError(e, message(MSG.PUBLISH_ERROR)));
     } finally {
       setBusy(false);
     }
@@ -369,6 +371,7 @@ export function RuntimeSection({
           <label htmlFor="demand-ids">{message(RT.CONTENT_IDS)}</label>
           <input
             id="demand-ids"
+            data-testid="runtime-demand-ids"
             value={demandIds}
             onChange={(e) => setDemandIds(e.target.value)}
             placeholder={message(RT.CONTENT_IDS_PLACEHOLDER)}
@@ -377,6 +380,7 @@ export function RuntimeSection({
         <button
           type="button"
           style={primaryButtonStyle}
+          data-testid="runtime-demand-submit"
           disabled={busy}
           onClick={() => void onDemand()}
         >

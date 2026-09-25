@@ -133,6 +133,78 @@ describe("RuntimeSection", () => {
     expect(onOpenRunningJob).toHaveBeenCalledWith("99");
   });
 
+  it("queues demand publish with the selected edition and parsed content ids", async () => {
+    vi.mocked(runtimeApi.demandPublish).mockResolvedValue({
+      editionId: "10",
+      requestId: 44,
+      status: "queued",
+    });
+    render(<RuntimeSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-section-runtime").textContent).toMatch(
+        /Selected edition: 10/,
+      );
+    });
+    fireEvent.change(screen.getByTestId("runtime-demand-ids"), {
+      target: { value: "101, 102" },
+    });
+    fireEvent.click(screen.getByTestId("runtime-demand-submit"));
+    await waitFor(() => {
+      expect(runtimeApi.demandPublish).toHaveBeenCalledWith("10", {
+        contentIds: ["101", "102"],
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("runtime-job-status").textContent).toMatch(
+        /queued/i,
+      );
+    });
+    expect(
+      screen.getByTestId("publish-section-runtime").textContent,
+    ).toMatch(/request 44/);
+  });
+
+  it("does not call demand publish when the content id list is empty", async () => {
+    render(<RuntimeSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-section-runtime").textContent).toMatch(
+        /Selected edition: 10/,
+      );
+    });
+    fireEvent.click(screen.getByTestId("runtime-demand-submit"));
+    expect(runtimeApi.demandPublish).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert").textContent).toMatch(
+      /at least one content id/i,
+    );
+    expect(screen.queryByTestId("runtime-job-status")).toBeNull();
+  });
+
+  it("keeps HTTP demand errors on the Runtime section", async () => {
+    vi.mocked(runtimeApi.demandPublish).mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "folderId required for contentId 101" },
+    });
+    render(<RuntimeSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-section-runtime").textContent).toMatch(
+        /Selected edition: 10/,
+      );
+    });
+    fireEvent.change(screen.getByTestId("runtime-demand-ids"), {
+      target: { value: "101" },
+    });
+    fireEvent.click(screen.getByTestId("runtime-demand-submit"));
+    await waitFor(() => {
+      expect(screen.getByRole("alert").textContent).toMatch(
+        /folderId required for contentId 101/,
+      );
+    });
+    const section = screen.getByTestId("publish-section-runtime");
+    expect(section.contains(screen.getByRole("alert"))).toBe(true);
+    expect(screen.queryByTestId("runtime-job-status")).toBeNull();
+  });
+
   it("stops a running edition job and shows status", async () => {
     render(<RuntimeSection />);
     await waitFor(() => {
