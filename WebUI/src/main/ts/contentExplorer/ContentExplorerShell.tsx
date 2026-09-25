@@ -90,6 +90,7 @@ import {
 } from "../api/contentExplorer/itemWorkflowApi";
 import {
   copyFolderItem,
+  deleteFolderItem,
   findItemByPath,
   moveFolderItem,
 } from "../api/contentExplorer/pathApi";
@@ -173,6 +174,7 @@ import type { ExplorerMenuCommandId } from "./menuBarModel";
 import { EXPLORER_MSG } from "./messages";
 import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
 import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
+import { RecycleConfirmDialog } from "./RecycleConfirmDialog";
 import {
   copyCheckedItemsToFolder,
   formatMultiFolderCopyStatus,
@@ -185,6 +187,12 @@ import {
   multiMoveOutcome,
   type MultiFolderMoveOutcome,
 } from "./multiFolderMove";
+import {
+  formatMultiFolderRecycleStatus,
+  multiRecycleOutcome,
+  recycleCheckedItems,
+  type MultiFolderRecycleOutcome,
+} from "./multiFolderRecycle";
 import { openInEditor } from "./openInEditor";
 import { openPreviewItem } from "./previewItem";
 import {
@@ -659,6 +667,11 @@ function ContentExplorerShellInner({
   const [multiMoveStatus, setMultiMoveStatus] = useState<{
     text: string;
     outcome: MultiFolderMoveOutcome;
+  } | null>(null);
+  const [multiRecycleOpen, setMultiRecycleOpen] = useState(false);
+  const [multiRecycleStatus, setMultiRecycleStatus] = useState<{
+    text: string;
+    outcome: MultiFolderRecycleOutcome;
   } | null>(null);
   const [clipboard, setClipboardState] = useState<Clipboard>(EMPTY_CLIPBOARD);
   const [clipboardMode, setClipboardMode] = useState<"copy" | "cut">("copy");
@@ -1519,6 +1532,12 @@ function ContentExplorerShellInner({
             setMultiMoveOpen(true);
           }
           break;
+        case "content-multi-recycle":
+          if (multiSelectedItemsRef.current.size > 0) {
+            setMultiRecycleStatus(null);
+            setMultiRecycleOpen(true);
+          }
+          break;
         case "content-create-site":
           setShowSiteCreate((v) => !v);
           break;
@@ -1896,6 +1915,45 @@ function ContentExplorerShellInner({
             });
           }}
           onCancel={() => setMultiMoveOpen(false)}
+        />
+      ) : null}
+      {multiRecycleStatus ? (
+        <div
+          data-testid="explorer-multi-recycle-result"
+          data-outcome={multiRecycleStatus.outcome}
+          role={multiRecycleStatus.outcome === "success" ? "status" : "alert"}
+          aria-live={
+            multiRecycleStatus.outcome === "success" ? "polite" : "assertive"
+          }
+          style={{
+            gridColumn: "1 / -1",
+            padding: "8px 12px",
+            background:
+              multiRecycleStatus.outcome === "success" ? "#ecfdf5" : "#fef2f2",
+            color: "#0f172a",
+          }}
+        >
+          {multiRecycleStatus.text}
+        </div>
+      ) : null}
+      {multiRecycleOpen ? (
+        <RecycleConfirmDialog
+          onConfirm={() => {
+            setMultiRecycleOpen(false);
+            const items = Array.from(multiSelectedItemsRef.current.values());
+            void recycleCheckedItems(items, (itemPath) =>
+              deleteFolderItem(itemPath),
+            ).then((result) => {
+              setMultiRecycleStatus({
+                text: formatMultiFolderRecycleStatus(result),
+                outcome: multiRecycleOutcome(result),
+              });
+              if (result.recycledNames.length > 0) {
+                setListEpoch((n) => n + 1);
+              }
+            });
+          }}
+          onCancel={() => setMultiRecycleOpen(false)}
         />
       ) : null}
       <div
