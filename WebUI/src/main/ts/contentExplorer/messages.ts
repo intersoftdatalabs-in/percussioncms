@@ -539,6 +539,16 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Nothing in the selection can be published. Folders are not published.",
   CONFIRM_FORCE_CHECKIN:
     "perc.ui.explorer@Force check-in this item? Other users will lose their checkout.",
+  CONFIRM_FORCE_CHECKIN_MULTI:
+    "perc.ui.explorer@Force check-in {count} selected items? Other users will lose their checkout. Folders in the selection are not force checked in.",
+  FORCE_CHECKIN_SKIPPED_FOLDERS:
+    "perc.ui.explorer@Folders are not force checked in: {names}",
+  FORCE_CHECKIN_SKIPPED_OTHER:
+    "perc.ui.explorer@These selected items are not pages or assets and were not force checked in: {names}",
+  FORCE_CHECKIN_BATCH_INCOMPLETE:
+    "perc.ui.explorer@Not every selected item was force checked in. {detail}",
+  FORCE_CHECKIN_NOTHING_ELIGIBLE:
+    "perc.ui.explorer@Nothing in the selection can be force checked in. Folders are not force checked in.",
   FORCE_CHECKIN_FORBIDDEN:
     "perc.ui.explorer@Admin assignment is required to force check-in",
   FORCE_CHECKIN_NOT_FOUND:

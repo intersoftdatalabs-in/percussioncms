@@ -640,6 +640,121 @@ function describeCheckinBatch(result: {
   return parts.join(" ");
 }
 
+interface ForceCheckinBatchFailure {
+  name: string;
+  status?: number;
+  message: string;
+}
+
+function describeForceCheckinBatch(result: {
+  skippedFolders: string[];
+  skippedOther: string[];
+  failures: ForceCheckinBatchFailure[];
+}): string | undefined {
+  const parts: string[] = [];
+  if (result.skippedFolders.length > 0) {
+    parts.push(
+      message(EXPLORER_MSG.FORCE_CHECKIN_SKIPPED_FOLDERS)
+        .split("{names}")
+        .join(result.skippedFolders.join(", ")),
+    );
+  }
+  if (result.skippedOther.length > 0) {
+    parts.push(
+      message(EXPLORER_MSG.FORCE_CHECKIN_SKIPPED_OTHER)
+        .split("{names}")
+        .join(result.skippedOther.join(", ")),
+    );
+  }
+  if (result.failures.length > 0) {
+    const detail = result.failures
+      .map((failure) =>
+        failure.status != null
+          ? `${failure.name} (HTTP ${failure.status})`
+          : `${failure.name} (${failure.message})`,
+      )
+      .join("; ");
+    parts.push(
+      message(EXPLORER_MSG.FORCE_CHECKIN_BATCH_INCOMPLETE)
+        .split("{detail}")
+        .join(detail),
+    );
+  }
+  if (parts.length === 0) {
+    return undefined;
+  }
+  return parts.join(" ");
+}
+
+/**
+ * Admin force check-in of every eligible page/asset. One confirm.
+ * Folders are skipped. HTTP failures are named; the rest still run.
+ */
+async function forceCheckinMultiSelection(
+  ctx: ActionDispatchContext,
+  items: readonly PSPathItem[],
+): Promise<ActionDispatchResult> {
+  const plan = partitionStageSelection(items);
+  if (plan.eligible.length === 0) {
+    const noted = describeForceCheckinBatch({
+      skippedFolders: plan.skippedFolders,
+      skippedOther: plan.skippedOther,
+      failures: [],
+    });
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.FORCE_CHECKIN_NOTHING_ELIGIBLE,
+      messageText:
+        noted ?? message(EXPLORER_MSG.FORCE_CHECKIN_NOTHING_ELIGIBLE),
+    };
+  }
+  const confirmBody = message(EXPLORER_MSG.CONFIRM_FORCE_CHECKIN_MULTI)
+    .split("{count}")
+    .join(String(plan.eligible.length));
+  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  const forcedIds: string[] = [];
+  const failures: ForceCheckinBatchFailure[] = [];
+  for (const row of plan.eligible) {
+    const id = (row.id ?? "").trim();
+    try {
+      await forceCheckInItem(id);
+      forcedIds.push(id);
+    } catch (err: unknown) {
+      const status = isApiError(err) ? err.status : undefined;
+      const text =
+        err instanceof Error
+          ? err.message
+          : status != null
+            ? `HTTP ${status}`
+            : "force check-in failed";
+      failures.push({
+        name: checkoutItemLabel(row),
+        status,
+        message: text || "force check-in failed",
+      });
+    }
+  }
+  const messageText = describeForceCheckinBatch({
+    skippedFolders: plan.skippedFolders,
+    skippedOther: plan.skippedOther,
+    failures,
+  });
+  const incomplete = failures.length > 0;
+  return {
+    kind: "rest",
+    refresh: forcedIds.length > 0,
+    messageText,
+    messageKey: incomplete
+      ? EXPLORER_MSG.FORCE_CHECKIN_BATCH_INCOMPLETE
+      : messageText
+        ? EXPLORER_MSG.FORCE_CHECKIN_SKIPPED_FOLDERS
+        : undefined,
+  };
+}
+
 /**
  * Check in every eligible page/asset. Folders are skipped. A 403 or 409
  * on one item is named and the rest of the selection still runs.
@@ -1845,6 +1960,10 @@ export async function dispatchAction(
   }
 
   if (isForceCheckinActionName(name)) {
+    const multi = ctx.selectedItems ?? [];
+    if (multi.length >= 2) {
+      return forceCheckinMultiSelection(ctx, multi);
+    }
     if (!item || isFolder(item) || !item.id) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
