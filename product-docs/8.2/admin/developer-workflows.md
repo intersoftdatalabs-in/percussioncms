@@ -157,7 +157,10 @@ flag.
 
 Setting the default does not move existing content items onto the new
 workflow. Content-type default workflow (which workflow a type uses for new
-items) stays on Content Type detail.
+items) stays on Content Type detail. The public call is
+`POST /services/workflows/{idOrName}/default` (no body). The graph treats the
+system default as a packaged workflow, so step and transition deletes stay
+off for whichever workflow currently holds the flag.
 
 ## Product path — delete a workflow (slice 21)
 
