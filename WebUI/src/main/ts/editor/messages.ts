@@ -142,6 +142,7 @@ export const EDITOR_MSG = {
   PUBLISH_FAILED: "perc.ui.editor@Could not publish this item.",
   PUBLISH_UNAVAILABLE:
     "perc.ui.editor@Publish now is only available for pages and assets.",
+  PUBLISHING_HISTORY: "perc.ui.editor@Publishing history",
   TAKE_DOWN: "perc.ui.editor@Take down",
   TAKING_DOWN: "perc.ui.editor@Taking down…",
   CONFIRM_TAKE_DOWN:

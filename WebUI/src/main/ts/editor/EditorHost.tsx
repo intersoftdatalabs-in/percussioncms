@@ -134,9 +134,11 @@ import {
   loadLinkedPagesForTakedown,
   type LinkedPageForTakedown,
 } from "../contentExplorer/itemPublish";
+import { PublishingHistoryDialog } from "../contentExplorer/PublishingHistoryDialog";
 import {
   canPublishFromEditor,
   canTakedownFromEditor,
+  canViewPublishHistoryFromEditor,
   formatEditorTakedownConfirm,
   publishEditorItem,
   resolveEditorPublishKind,
@@ -625,6 +627,7 @@ export function EditorHost({
   const [publishDone, setPublishDone] = useState(false);
   const [publishErrorKey, setPublishErrorKey] = useState<string | null>(null);
   const [publishErrorDetail, setPublishErrorDetail] = useState("");
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [takedownBusy, setTakedownBusy] = useState(false);
   const [takedownDone, setTakedownDone] = useState(false);
   const [takedownErrorKey, setTakedownErrorKey] = useState<string | null>(null);
@@ -2339,6 +2342,7 @@ export function EditorHost({
   });
   const showPublish = canPublishFromEditor(mode, publishKind);
   const showTakedown = canTakedownFromEditor(mode, publishKind);
+  const showPublishHistory = canViewPublishHistoryFromEditor(mode, publishKind);
   const showPreview = canPreviewFromEditor(mode, publishKind);
   const previewChoices = useMemo(
     () =>
@@ -2458,6 +2462,17 @@ export function EditorHost({
               onClick={() => void handleTakedown()}
             >
               {message(takedownBusy ? EDITOR_MSG.TAKING_DOWN : EDITOR_MSG.TAKE_DOWN)}
+            </button>
+          ) : null}
+          {showPublishHistory ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-publishing-history"
+              disabled={loading || payload == null}
+              onClick={() => setHistoryOpen(true)}
+            >
+              {message(EDITOR_MSG.PUBLISHING_HISTORY)}
             </button>
           ) : null}
           {showMove ? (
@@ -3214,6 +3229,12 @@ export function EditorHost({
             void handleMovePick(target);
           }}
           onCancel={() => setMoveOpen(false)}
+        />
+      ) : null}
+      {historyOpen && contentId != null ? (
+        <PublishingHistoryDialog
+          itemId={String(contentId)}
+          onClose={() => setHistoryOpen(false)}
         />
       ) : null}
       {contentId != null && !promote ? (

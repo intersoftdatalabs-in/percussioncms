@@ -19,6 +19,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   canPublishFromEditor,
   canTakedownFromEditor,
+  canViewPublishHistoryFromEditor,
   formatEditorTakedownConfirm,
   publishEditorItem,
   resolveEditorPublishKind,
@@ -132,6 +133,16 @@ describe("publishEditorItem", () => {
     await expect(publishEditorItem("42", "page")).rejects.toThrow(
       "Could not connect to publishing server",
     );
+  });
+});
+
+describe("canViewPublishHistoryFromEditor", () => {
+  it("is true in edit and view for a page or asset, not promote or none", () => {
+    expect(canViewPublishHistoryFromEditor("edit", "page")).toBe(true);
+    expect(canViewPublishHistoryFromEditor("view", "asset")).toBe(true);
+    expect(canViewPublishHistoryFromEditor("promote", "page")).toBe(false);
+    expect(canViewPublishHistoryFromEditor("edit", "none")).toBe(false);
+    expect(canViewPublishHistoryFromEditor("view", "none")).toBe(false);
   });
 });
 
