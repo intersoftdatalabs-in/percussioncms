@@ -92,6 +92,21 @@ public class PSPageChangeHandler implements IPSPageChangeListener {
   /** Logger for this class */
   public static final Logger log = LogManager.getLogger(PSPageChangeHandler.class);
 
+  /**
+   * Nested page reload can mark its transaction rollback-only after the page row is already
+   * saved. That must not be an ERROR on the create request (#4874).
+   */
+  static boolean isSilentRollback(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      if (current instanceof org.springframework.transaction.UnexpectedRollbackException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
+  }
+
   public PSPageChangeHandler() {
     // Default constructor
   }
@@ -125,10 +140,17 @@ public class PSPageChangeHandler implements IPSPageChangeListener {
         throw new Exception("Unable to find Page with id " + pageId);
       }
     } catch (Exception e) {
-      log.error(
-          "Error while finding the Page with the pageId {} in pageChanged Event Handler.",
-          pageId,
-          e);
+      if (isSilentRollback(e)) {
+        log.warn(
+            "pageChanged could not reload page {} because a nested transaction was rollback-only.",
+            pageId);
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      } else {
+        log.error(
+            "Error while finding the Page with the pageId {} in pageChanged Event Handler.",
+            pageId,
+            e);
+      }
       return;
     }
 
