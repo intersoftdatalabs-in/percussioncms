@@ -103,6 +103,11 @@ export interface ReducedActionHandlers {
   onRestore: (item: PSPathItem) => Promise<void>;
   /** Permanently purge the selected recycled item after confirm (#4763). */
   onPurge: (item: PSPathItem) => Promise<void>;
+  /**
+   * Two or more checked Recycling rows: one confirm owned by the shell
+   * (#4883). Absent hosts keep single-item purge.
+   */
+  onPurgeChecked?: () => void;
   /** Permanently empty the open recycle bin after confirm (#4762). */
   onEmptyRecycle: () => Promise<void>;
   /**
@@ -131,6 +136,11 @@ export interface ReducedActionsProps {
   hasPreviewHandler?: boolean;
   /** Fires when an action returns a server error so the shell can surface it. */
   onError?: (message: string) => void;
+  /**
+   * Detail-list checkbox selection. When two or more Recycling rows are
+   * checked, Purge uses {@link ReducedActionHandlers.onPurgeChecked}.
+   */
+  checkedItems?: readonly PSPathItem[];
 }
 
 const defaultPrompt = (msg: string, def?: string): string | null => {
@@ -150,6 +160,7 @@ export function ReducedActions({
   busy,
   hasPreviewHandler = false,
   onError,
+  checkedItems,
 }: ReducedActionsProps): React.ReactElement {
   const [pending, setPending] = useState<ReducedActionKey | null>(null);
   const [copyPickerItem, setCopyPickerItem] = useState<PSPathItem | null>(null);
@@ -264,13 +275,27 @@ export function ReducedActions({
     void runItemAction("restore", () => handlers.onRestore(item));
   }, [handlers, item, runItemAction]);
 
+  const multiPurge =
+    (checkedItems?.length ?? 0) >= 2 &&
+    Boolean(handlers.onPurgeChecked) &&
+    ((checkedItems ?? []).some((row) =>
+      isRecyclingExplorerPath(row.path ?? row.folderPath),
+    ) ||
+      isRecyclingExplorerPath(
+        folder?.path ?? folder?.folderPath ?? item?.folderPath ?? item?.path,
+      ));
+
   const handlePurge = useCallback(() => {
+    if (multiPurge && handlers.onPurgeChecked) {
+      handlers.onPurgeChecked();
+      return;
+    }
     if (!item) return;
     const confirm = handlers.confirm ?? defaultConfirm;
     const ok = confirm(message(EXPLORER_MSG.CONFIRM_PURGE));
     if (!ok) return;
     void runItemAction("purge", () => handlers.onPurge(item));
-  }, [handlers, item, runItemAction]);
+  }, [handlers, item, multiPurge, runItemAction]);
 
   const handleEmptyRecycle = useCallback(() => {
     const confirm = handlers.confirm ?? defaultConfirm;
@@ -283,6 +308,8 @@ export function ReducedActions({
     Boolean(item) &&
     itemWrite &&
     isRecyclingExplorerPath(item?.path ?? item?.folderPath);
+
+  const purgeEligible = multiPurge || restoreEligible;
 
   const emptyEligible = isRecyclingExplorerPath(
     folder?.path ?? folder?.folderPath ?? item?.folderPath ?? item?.path,
@@ -386,7 +413,7 @@ export function ReducedActions({
       >
         {message(EXPLORER_MSG.ACTION_RESTORE)}
       </button>
-      {restoreEligible ? (
+      {purgeEligible ? (
         <button
           type="button"
           style={actionButtonStyle(isBusy)}

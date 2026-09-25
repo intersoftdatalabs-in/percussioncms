@@ -93,6 +93,7 @@ import {
   deleteFolderItem,
   findItemByPath,
   moveFolderItem,
+  purgeRecycledItem,
 } from "../api/contentExplorer/pathApi";
 import { bindExplorerPathItemId } from "../api/contentExplorer/pathItemId";
 import { canOpenIaRelationships } from "./actionEnablement";
@@ -174,6 +175,7 @@ import type { ExplorerMenuCommandId } from "./menuBarModel";
 import { EXPLORER_MSG } from "./messages";
 import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
 import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
+import { PurgeConfirmDialog } from "./PurgeConfirmDialog";
 import { RecycleConfirmDialog } from "./RecycleConfirmDialog";
 import {
   copyCheckedItemsToFolder,
@@ -193,6 +195,12 @@ import {
   recycleCheckedItems,
   type MultiFolderRecycleOutcome,
 } from "./multiFolderRecycle";
+import {
+  formatMultiSelectPurgeStatus,
+  multiPurgeOutcome,
+  purgeCheckedItems,
+  type MultiSelectPurgeOutcome,
+} from "./multiSelectPurge";
 import { openInEditor } from "./openInEditor";
 import { openPreviewItem } from "./previewItem";
 import {
@@ -673,6 +681,11 @@ function ContentExplorerShellInner({
     text: string;
     outcome: MultiFolderRecycleOutcome;
   } | null>(null);
+  const [multiPurgeOpen, setMultiPurgeOpen] = useState(false);
+  const [multiPurgeStatus, setMultiPurgeStatus] = useState<{
+    text: string;
+    outcome: MultiSelectPurgeOutcome;
+  } | null>(null);
   const [clipboard, setClipboardState] = useState<Clipboard>(EMPTY_CLIPBOARD);
   const [clipboardMode, setClipboardMode] = useState<"copy" | "cut">("copy");
   /** Folder content id for security/properties (resolved from selection or path). */
@@ -811,6 +824,12 @@ function ContentExplorerShellInner({
         item: null,
       }));
       handleRefreshListAndTree();
+    },
+    onPurgeChecked: () => {
+      if (multiSelectedItemsRef.current.size >= 2) {
+        setMultiPurgeStatus(null);
+        setMultiPurgeOpen(true);
+      }
     },
     onEmptyRecycle: async () => {
       const impl =
@@ -1547,6 +1566,12 @@ function ContentExplorerShellInner({
             setMultiRecycleOpen(true);
           }
           break;
+        case "content-multi-purge":
+          if (multiSelectedItemsRef.current.size > 0) {
+            setMultiPurgeStatus(null);
+            setMultiPurgeOpen(true);
+          }
+          break;
         case "content-create-site":
           setShowSiteCreate((v) => !v);
           break;
@@ -1742,6 +1767,7 @@ function ContentExplorerShellInner({
               handlers={handlers}
               hasPreviewHandler={hasPreviewHandler}
               onError={handleActionError}
+              checkedItems={Array.from(multiSelectedItems.values())}
             />
           </div>
           <div
@@ -1963,6 +1989,45 @@ function ContentExplorerShellInner({
             });
           }}
           onCancel={() => setMultiRecycleOpen(false)}
+        />
+      ) : null}
+      {multiPurgeStatus ? (
+        <div
+          data-testid="explorer-multi-purge-result"
+          data-outcome={multiPurgeStatus.outcome}
+          role={multiPurgeStatus.outcome === "success" ? "status" : "alert"}
+          aria-live={
+            multiPurgeStatus.outcome === "success" ? "polite" : "assertive"
+          }
+          style={{
+            gridColumn: "1 / -1",
+            padding: "8px 12px",
+            background:
+              multiPurgeStatus.outcome === "success" ? "#ecfdf5" : "#fef2f2",
+            color: "#0f172a",
+          }}
+        >
+          {multiPurgeStatus.text}
+        </div>
+      ) : null}
+      {multiPurgeOpen ? (
+        <PurgeConfirmDialog
+          onConfirm={() => {
+            setMultiPurgeOpen(false);
+            const items = Array.from(multiSelectedItemsRef.current.values());
+            void purgeCheckedItems(items, (guid) => purgeRecycledItem(guid)).then(
+              (result) => {
+                setMultiPurgeStatus({
+                  text: formatMultiSelectPurgeStatus(result),
+                  outcome: multiPurgeOutcome(result),
+                });
+                if (result.purgedNames.length > 0) {
+                  setListEpoch((n) => n + 1);
+                }
+              },
+            );
+          }}
+          onCancel={() => setMultiPurgeOpen(false)}
         />
       ) : null}
       <div

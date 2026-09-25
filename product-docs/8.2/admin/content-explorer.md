@@ -509,7 +509,22 @@ Items that already recycled stay in the bin when a later item fails. The result
 is full success only when every page or asset recycled. A partial HTTP failure
 (for example **404** on one item) stays on the result as an alert and is not
 reported as full success. A selection that is only folders recycles nothing.
-This is not **Empty recycle bin**, not **Purge**, and not multi-select copy or move.
+This is not **Empty recycle bin**, not **Purge selected**, and not multi-select copy or move.
+
+### Purge selected pages and assets in Recycling
+
+**Content → Purge selected** (and the reduced-actions **Purge** button when two or
+more Recycling rows are checked) asks once, then permanently purges each checked
+**page or asset** with `DELETE /rest/folders/recycle/{guid}` — the same call as
+single-item **Purge**. **Cancel** purges nothing. Checked **folders** are not
+purged; Explorer names them in the result (for example `Skipped folders: News`).
+
+Items that already purged stay gone when a later item fails. The result is full
+success only when every checked page or asset was purged and no folder was
+selected. HTTP **403**, **404**, or **409** on one item stays on the result as
+an alert and is not reported as if the whole selection was purged. A selection
+that is only folders purges nothing. This is not **Empty recycle bin** and not
+**Recycle selected**.
 
 ## Views → My Content → Inbox
 
