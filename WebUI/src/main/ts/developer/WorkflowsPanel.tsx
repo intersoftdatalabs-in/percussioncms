@@ -10,12 +10,13 @@ import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { catalogColors, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { WorkflowCopyPanel } from "./WorkflowCopyPanel";
 import { WorkflowCreatePanel } from "./WorkflowCreatePanel";
 import { WorkflowDetailPanel } from "./WorkflowDetailPanel";
 
 /**
  * P0.17 — workflow catalog browse (SY-04) via existing workflowmanagement API,
- * plus slice 21 catalog create (POST /services/workflows).
+ * plus slice 21 catalog create (POST /services/workflows) and slice 36 copy.
  */
 export function WorkflowsPanel(): React.ReactElement {
   const [items, setItems] = useState<WorkflowDef[] | null>(null);
@@ -75,6 +76,17 @@ export function WorkflowsPanel(): React.ReactElement {
   if (selected === "new") {
     return (
       <WorkflowCreatePanel onBack={() => setSelected(null)} onCreated={handleCreated} />
+    );
+  }
+
+  if (selected != null && selected.startsWith("copy:")) {
+    const sourceName = selected.slice("copy:".length);
+    return (
+      <WorkflowCopyPanel
+        sourceName={sourceName}
+        onBack={() => setSelected(null)}
+        onCopied={handleCreated}
+      />
     );
   }
 
@@ -154,20 +166,34 @@ export function WorkflowsPanel(): React.ReactElement {
             key: `${openKey}-${index}`,
             onClick: () => setSelected(openKey),
             cells: [
-              <button
-                key="open"
-                type="button"
-                data-testid="developer-wf-open"
-                data-wf-name={openKey}
-                aria-label={`Open ${openKey}`}
-                onClick={(ev) => {
-                  ev.stopPropagation();
-                  setSelected(openKey);
-                }}
-                style={{ ...openButtonStyle, fontFamily: "monospace" }}
-              >
-                {openKey}
-              </button>,
+              <span key="open" style={{ display: "inline-flex", gap: "8px", alignItems: "center" }}>
+                <button
+                  type="button"
+                  data-testid="developer-wf-open"
+                  data-wf-name={openKey}
+                  aria-label={`Open ${openKey}`}
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    setSelected(openKey);
+                  }}
+                  style={{ ...openButtonStyle, fontFamily: "monospace" }}
+                >
+                  {openKey}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-wf-copy"
+                  data-wf-name={openKey}
+                  aria-label={`Copy ${openKey}`}
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    setSelected(`copy:${openKey}`);
+                  }}
+                  style={openButtonStyle}
+                >
+                  {DEV_MSG.WF_COPY}
+                </button>
+              </span>,
               <span key="d" style={mutedCell}>
                 {w.workflowDescription || ""}
               </span>,

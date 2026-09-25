@@ -280,6 +280,46 @@ public class WorkflowsResourceTest {
   }
 
   @Test
+  public void copyWorkflowSuccess() {
+    when(adaptor.copyWorkflow(any(), eq("Simple Workflow"), any()))
+        .thenReturn(createdSummary("Nightly Copy"));
+    WorkflowSummary out = resource.copyWorkflow("Simple Workflow", createBody("Nightly Copy"));
+    assertEquals("Nightly Copy", out.getWorkflowName());
+    verify(adaptor).copyWorkflow(any(), eq("Simple Workflow"), any());
+  }
+
+  @Test
+  public void copyWorkflowRequiresBody() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.copyWorkflow("Simple Workflow", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).copyWorkflow(any(), any(), any());
+  }
+
+  @Test
+  public void copyWorkflowDuplicateIs409() {
+    when(adaptor.copyWorkflow(any(), any(), any()))
+        .thenThrow(new WebApplicationException("Workflow already exists: Nightly Copy", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.copyWorkflow("Simple Workflow", createBody("Nightly Copy")));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void copyWorkflowMissingSourceIs404() {
+    when(adaptor.copyWorkflow(any(), any(), any()))
+        .thenThrow(new WebApplicationException("Workflow not found: Missing", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.copyWorkflow("Missing", createBody("Nightly Copy")));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void missingAdaptorReturns503OnCreate() {
     WorkflowsResource bare = new WorkflowsResource();
     UriInfo uriInfo = mock(UriInfo.class);

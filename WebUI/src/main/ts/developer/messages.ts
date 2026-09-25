@@ -1818,6 +1818,15 @@ export const DEV_MSG_KEYS = {
   WF_CT_SAVE_ERROR: "perc.ui.developer@Could not save allowed content types.",
   WF_CT_DUP: "perc.ui.developer@That content type is already in the list.",
   WF_NEW: "perc.ui.developer@New workflow",
+  WF_COPY: "perc.ui.developer@Copy",
+  WF_COPY_TITLE: "perc.ui.developer@Copy workflow",
+  WF_COPY_SOURCE: "perc.ui.developer@Source",
+  WF_COPY_HINT:
+    "perc.ui.developer@Copy includes the source steps and transitions. The new name must be unique and does not change the source.",
+  WF_COPY_SAVE: "perc.ui.developer@Copy workflow",
+  WF_COPYING: "perc.ui.developer@Copying...",
+  WF_COPIED: "perc.ui.developer@Workflow copied.",
+  WF_COPY_ERROR: "perc.ui.developer@Could not copy workflow.",
   WF_FORM_NAME: "perc.ui.developer@Name",
   WF_NAME_HINT:
     "perc.ui.developer@Letters, digits, underscore, hyphen, and space; max 50 characters.",

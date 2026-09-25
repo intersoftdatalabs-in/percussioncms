@@ -32,6 +32,7 @@ import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.IPSNodeDefinition;
 import com.percussion.services.contentmgr.PSContentMgrLocator;
 import com.percussion.services.contentmgr.data.PSContentTypeWorkflow;
+import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
@@ -108,6 +109,9 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
   @Autowired(required = false)
   private IPSSteppedWorkflowService steppedWorkflowService;
 
+  /** New workflow guids for copy. Production uses the guid manager; tests inject a fixed guid. */
+  private final WorkflowGuidFactory guidFactory;
+
   public WorkflowsAdaptor() {
     this(
         PSContentWsLocator.getContentDesignWebservice(),
@@ -132,11 +136,38 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
       IPSContentMgr contentMgr,
       BooleanSupplier adminChecker,
       IPSSteppedWorkflowService steppedWorkflowService) {
+    this(
+        designWs,
+        workflowService,
+        contentMgr,
+        adminChecker,
+        steppedWorkflowService,
+        () -> PSGuidManagerLocator.getGuidMgr().createGuid(PSTypeEnum.WORKFLOW));
+  }
+
+  /** Package-visible for copy tests that must not touch the guid manager. */
+  WorkflowsAdaptor(
+      IPSContentDesignWs designWs,
+      IPSWorkflowService workflowService,
+      IPSContentMgr contentMgr,
+      BooleanSupplier adminChecker,
+      IPSSteppedWorkflowService steppedWorkflowService,
+      WorkflowGuidFactory guidFactory) {
     this.designWs = designWs;
     this.workflowService = workflowService;
     this.contentMgr = contentMgr;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
     this.steppedWorkflowService = steppedWorkflowService;
+    this.guidFactory =
+        guidFactory != null
+            ? guidFactory
+            : () -> PSGuidManagerLocator.getGuidMgr().createGuid(PSTypeEnum.WORKFLOW);
+  }
+
+  /** Supplies a fresh workflow guid when copying. */
+  @FunctionalInterface
+  interface WorkflowGuidFactory {
+    IPSGuid newWorkflowGuid();
   }
 
   @Override
@@ -188,6 +219,29 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     requireWorkflowNameUnique(stepped, name);
     PSUiWorkflow created = saveNewWorkflow(stepped, name, body);
     return toWorkflowSummary(created, body);
+  }
+
+  @Override
+  public WorkflowSummary copyWorkflow(URI baseUri, String idOrName, WorkflowCreate body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    String name = validateWorkflowCreateName(body);
+    IPSSteppedWorkflowService stepped = requireSteppedService();
+    requireWorkflowNameUnique(stepped, name);
+    PSWorkflow source = resolveWorkflow(idOrName);
+    if (source == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    String description = body.getDescription() != null ? body.getDescription().trim() : null;
+    PSWorkflow copy =
+        WorkflowCopier.copy(source, name, guidFactory.newWorkflowGuid(), description);
+    workflowService.saveWorkflow(copy);
+    PSUiWorkflow ui = lookupUiWorkflowOptional(name);
+    WorkflowSummary summary = new WorkflowSummary();
+    summary.setWorkflowName(name);
+    summary.setWorkflowDescription(copy.getDescription() != null ? copy.getDescription() : "");
+    summary.setDefaultWorkflow(ui != null && ui.isDefaultWorkflow());
+    return summary;
   }
 
   @Override

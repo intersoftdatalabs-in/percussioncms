@@ -49,6 +49,11 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
   }
 
   @Override
+  public WorkflowSummary copyWorkflow(URI baseUri, String idOrName, WorkflowCreate body) {
+    return createWorkflow(baseUri, body);
+  }
+
+  @Override
   public WorkflowSummary createWorkflow(URI baseUri, WorkflowCreate body) {
     WorkflowSummary summary = new WorkflowSummary();
     summary.setWorkflowName(body != null && body.getName() != null ? body.getName().trim() : "");
