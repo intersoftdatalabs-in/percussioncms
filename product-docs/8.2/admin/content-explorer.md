@@ -81,8 +81,12 @@ Retry button appears only for a real execute failure — not for a request-envel
 mismatch.
 
 **Outbox**, **Recent**, and the other packaged CX views use the same execute path
-as Inbox. Do not use Developer → Views as a substitute for this Explorer tree —
-Developer is the design catalog, not the operator navigation path.
+as Inbox. Selecting one of those leaves (or any other non-Inbox custom URL view
+the catalog lists) on `spa.jsp?entry=explorer` replaces the folder list with
+result rows, an empty state, or the results error that includes the HTTP status.
+Explorer does not keep the folder list and show a message that custom URL views
+cannot be run. Do not use Developer → Views as a substitute for this Explorer
+tree — Developer is the design catalog, not the operator navigation path.
 
 If the left tree fails to load, Explorer shows an **error** in the tree panel (not a
 blank list). Typical causes are a path-service HTTP error or a session timeout.
