@@ -31,6 +31,7 @@ export type ExplorerMenuCommandId =
   | "content-clipboard-add"
   | "content-multi-copy"
   | "content-multi-move"
+  | "content-multi-recycle"
   | "content-create-site"
   | "content-site-copy"
   | "content-site-rename"
@@ -114,6 +115,13 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.MULTI_MOVE,
           ariaLabelKey: EXPLORER_MSG.MULTI_MOVE,
           testId: "explorer-multi-move",
+          disabledWhen: "noSelection",
+        },
+        {
+          id: "content-multi-recycle",
+          labelKey: EXPLORER_MSG.MULTI_RECYCLE,
+          ariaLabelKey: EXPLORER_MSG.MULTI_RECYCLE,
+          testId: "explorer-multi-recycle",
           disabledWhen: "noSelection",
         },
         {

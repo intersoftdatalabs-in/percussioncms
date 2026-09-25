@@ -88,6 +88,15 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@No pages or assets were moved",
   MULTI_MOVE_SKIPPED: "perc.ui.explorer@Skipped folders: {names}",
   MULTI_MOVE_FAILURES: "perc.ui.explorer@Move failed for: {details}",
+  MULTI_RECYCLE: "perc.ui.explorer@Recycle selected",
+  MULTI_RECYCLE_CONFIRM:
+    "perc.ui.explorer@Recycle the checked pages and assets? Folders in the selection are skipped.",
+  MULTI_RECYCLE_SUCCESS: "perc.ui.explorer@Recycled {count} item(s)",
+  MULTI_RECYCLE_PARTIAL:
+    "perc.ui.explorer@Recycled {count} item(s); some recycles failed and were not rolled back",
+  MULTI_RECYCLE_NONE: "perc.ui.explorer@No pages or assets were recycled",
+  MULTI_RECYCLE_SKIPPED: "perc.ui.explorer@Skipped folders: {names}",
+  MULTI_RECYCLE_FAILURES: "perc.ui.explorer@Recycle failed for: {details}",
   ACTION_DELETE: "perc.ui.explorer@Delete",
   ACTION_DELETE_NOT_FOUND:
     "perc.ui.explorer@The selected item was not found",

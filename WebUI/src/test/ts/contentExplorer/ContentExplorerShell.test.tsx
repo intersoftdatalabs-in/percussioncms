@@ -2137,6 +2137,104 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("recycles checked pages, names skipped folders, and keeps a partial failure (#4857)", async () => {
+    const deleteUrls: string[] = [];
+    mockFetch(async (input, init) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      const method = String(init?.method ?? "GET").toUpperCase();
+      if (method === "DELETE" && url.includes("/folders/item/")) {
+        deleteUrls.push(url);
+        if (url.includes("Missing")) {
+          return new Response("{}", {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        return new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (url.includes("deleteFolder")) {
+        deleteUrls.push("FOLDER:" + url);
+        return new Response("{}", {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "fold-1",
+                  name: "SkipMe",
+                  path: "/Assets/Src/SkipMe/",
+                  type: "folder",
+                  category: "folder",
+                  leaf: false,
+                },
+                {
+                  id: "page-ok",
+                  name: "OkPage",
+                  path: "/Assets/Src/OkPage",
+                  type: "percPage",
+                  category: "page",
+                  leaf: true,
+                },
+                {
+                  id: "page-miss",
+                  name: "Missing",
+                  path: "/Assets/Src/Missing",
+                  type: "percPage",
+                  category: "page",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 3,
+              startIndex: 0,
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Assets/Src"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-select-fold-1")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-select-fold-1"));
+    fireEvent.click(screen.getByTestId("detail-select-page-ok"));
+    fireEvent.click(screen.getByTestId("detail-select-page-miss"));
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-multi-recycle"));
+    fireEvent.click(await screen.findByTestId("explorer-recycle-ok"));
+
+    const result = await screen.findByTestId("explorer-multi-recycle-result");
+    expect(result.getAttribute("data-outcome")).toBe("partial");
+    expect(result.textContent).toContain("SkipMe");
+    expect(result.textContent).toContain("Missing");
+    expect(result.textContent).not.toContain("Recycled 2 item(s)");
+    expect(deleteUrls.filter((url) => url.includes("/folders/item/")).length).toBe(
+      2,
+    );
+    expect(deleteUrls.some((url) => url.startsWith("FOLDER:"))).toBe(false);
+    await renderA11yGate(container);
+  });
+
   it("translations toggle shows select-item hint without a content selection (#2430)", async () => {
     stubPathFetch();
     renderShell(
