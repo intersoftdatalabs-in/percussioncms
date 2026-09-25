@@ -1248,6 +1248,8 @@ export interface WorkflowGraphEdge {
   from?: string;
   to?: string;
   label?: string;
+  /** True when the transition dialog must block an empty comment. */
+  commentRequired?: boolean;
 }
 
 export interface WorkflowGraph {

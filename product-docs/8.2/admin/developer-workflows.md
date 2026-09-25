@@ -58,6 +58,19 @@ longer has transitions, is on the graph (see below).
    workflow graph** (not a blank success). Load errors (`403` / `404`) appear
    in the graph alert.
 
+## Product path — comment required on a transition (slice 38)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow.
+3. Under **Graph**, check **Comment required** on one edge.
+4. The graph reloads with that edge still checked. Clearing the box makes the
+   comment optional again.
+5. When the flag is set, the Content Editor and Explorer transition dialogs
+   block submit until the comment is not blank. Those dialogs read the flag
+   from the item's allowed transitions, not from a hard-coded trigger name.
+6. Packaged workflows do not show the checkbox (`403` on the API). Aging
+   transitions cannot store the flag (`400`). A missing transition is `404`.
+
 ## Product path — delete one transition (slice 33)
 
 1. Sign in as **Admin**.
@@ -233,6 +246,7 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Update step | `PUT /services/workflows/{idOrName}/steps/{stepName}` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
 | Read graph | `GET /services/workflows/{idOrName}/graph` (Admin; states and transitions; `packaged` true for stock or default workflows) |
 | Delete one transition | `DELETE /services/workflows/{idOrName}/transitions?from={step}&label={label}&to={step}` (Admin; does not delete steps; packaged workflows `403`; missing workflow/step/transition `404`; blank or ambiguous label `400`) |
+| Comment required | `PUT /services/workflows/{idOrName}/transitions/comment-required?from={step}&label={label}&to={step}` (`WorkflowTransitionComment` wrap `{ "commentRequired": true }`; Admin; existing transition only; packaged workflows `403`; aging transitions `400`; missing transition `404`) |
 | Delete one step | `DELETE /services/workflows/{idOrName}/steps/{stepName}` (Admin; only when no transition still uses the step; returns the updated graph; packaged workflows `403`; missing workflow or step `404`; invalid step name `400`; step still referenced `409`) |
 | List allowed content types | `GET /services/workflows/{idOrName}/allowedContentTypes` |
 | Replace allowed content types | `PUT /services/workflows/{idOrName}/allowedContentTypes` (`WorkflowContentTypes` wrap) |

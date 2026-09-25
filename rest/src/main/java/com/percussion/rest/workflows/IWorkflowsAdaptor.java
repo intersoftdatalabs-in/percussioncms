@@ -169,6 +169,24 @@ public interface IWorkflowsAdaptor {
       URI baseUri, String idOrName, String fromStep, String label, String toStep);
 
   /**
+   * Set whether an existing transition requires a comment (Admin, slice 38). Does not create or
+   * delete the transition. Editor and Explorer dialogs read the same flag from item transitions.
+   *
+   * @param fromStep source step name
+   * @param label transition label or trigger
+   * @param toStep destination step; required when the label is not unique on the source step
+   * @param commentRequired true to require a non-blank comment; false leaves the comment optional
+   * @return the graph after the update, with {@code commentRequired} on the edge
+   */
+  WorkflowGraph updateTransitionCommentRequired(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String label,
+      String toStep,
+      boolean commentRequired);
+
+  /**
    * Delete one step that has no remaining transitions (Admin, slice 34). Does not rewire
    * neighboring steps.
    *

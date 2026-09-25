@@ -8,6 +8,7 @@ import {
   deleteWorkflowStep,
   deleteWorkflowTransition,
   getWorkflowGraph,
+  updateTransitionCommentRequired,
 } from "../api/developer/workflowsApi";
 import type { WorkflowGraph, WorkflowGraphEdge } from "../api/developer/types";
 import { catalogColors } from "./catalogStyles";
@@ -59,6 +60,37 @@ export function WorkflowGraphView({
       cancelled = true;
     };
   }, [workflowName, reloadToken]);
+
+  const onToggleComment = useCallback(
+    async (edge: WorkflowGraphEdge, commentRequired: boolean) => {
+      if (!edge.from || !edge.label) {
+        return;
+      }
+      setBusy(true);
+      setError(null);
+      setNotice(null);
+      try {
+        const next = await updateTransitionCommentRequired(
+          workflowName,
+          edge.from,
+          edge.label,
+          commentRequired,
+          edge.to,
+        );
+        setGraph(next);
+        setNotice(DEV_MSG.WF_GRAPH_COMMENT_SAVED);
+      } catch (err: unknown) {
+        if (isApiError(err) && err.status === 403) {
+          setError(DEV_MSG.WF_GRAPH_DELETE_FORBIDDEN);
+        } else {
+          setError(DEV_MSG.WF_GRAPH_COMMENT_ERROR);
+        }
+      } finally {
+        setBusy(false);
+      }
+    },
+    [workflowName],
+  );
 
   const onConfirmDelete = useCallback(async () => {
     if (!pending?.from || !pending.label) {
@@ -188,6 +220,20 @@ export function WorkflowGraphView({
           {edges.map((edge, i) => (
             <li key={`${edge.from}-${edge.label}-${edge.to}-${i}`} data-testid={`developer-wf-graph-edge-${i}`}>
               {edge.from || "—"} — {edge.label || "—"} → {edge.to || "—"}
+              {!packaged && edge.from && edge.label ? (
+                <label style={{ marginLeft: 8 }}>
+                  <input
+                    type="checkbox"
+                    data-testid={`developer-wf-graph-comment-${i}`}
+                    checked={edge.commentRequired === true}
+                    disabled={busy}
+                    onChange={(ev) => {
+                      void onToggleComment(edge, ev.target.checked);
+                    }}
+                  />{" "}
+                  {DEV_MSG.WF_GRAPH_COMMENT}
+                </label>
+              ) : null}
               {!packaged && edge.from && edge.label ? (
                 <button
                   type="button"
