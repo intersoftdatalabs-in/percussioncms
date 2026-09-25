@@ -53,6 +53,21 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Could not create the folder (name in use or destination is not a folder)",
   ACTION_CREATE_FOLDER_INVALID:
     "perc.ui.explorer@Enter a folder name without path separators",
+  ACTION_CREATE_PAGE: "perc.ui.explorer@Create Page",
+  ACTION_CREATE_PAGE_NAME: "perc.ui.explorer@Page name",
+  ACTION_CREATE_PAGE_TYPE: "perc.ui.explorer@Content type",
+  ACTION_CREATE_PAGE_NEEDS_NAME: "perc.ui.explorer@Enter a page name",
+  ACTION_CREATE_PAGE_NEEDS_TYPE: "perc.ui.explorer@Choose a page content type",
+  ACTION_CREATE_PAGE_NO_TYPE:
+    "perc.ui.explorer@No page content type is available",
+  ACTION_CREATE_PAGE_INVALID:
+    "perc.ui.explorer@Enter a page name without path separators",
+  ACTION_CREATE_PAGE_NOT_FOUND:
+    "perc.ui.explorer@The destination folder was not found",
+  ACTION_CREATE_PAGE_CONFLICT:
+    "perc.ui.explorer@Could not create the page (name in use or folder is not writable)",
+  ACTION_CREATE_PAGE_NO_TEMPLATE:
+    "perc.ui.explorer@This page type has no template",
   ACTION_RENAME: "perc.ui.explorer@Rename",
   ACTION_RENAME_NOT_FOUND:
     "perc.ui.explorer@The selected item was not found",

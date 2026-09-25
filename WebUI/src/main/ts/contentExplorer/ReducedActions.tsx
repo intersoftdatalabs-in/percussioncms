@@ -39,7 +39,11 @@ import { formatEmptyRecycleError } from "./emptyRecycleErrors";
 import { formatPurgeItemError } from "./purgeItemErrors";
 import { isRecyclingExplorerPath } from "./folderPath";
 import { formatMoveItemError } from "./moveItemErrors";
+import { CreatePageDialog } from "./CreatePageDialog";
 import { formatCreateFolderError } from "./createFolderErrors";
+import { formatCreatePageError } from "./createPageErrors";
+import { createEditorItem } from "../editor/itemCreateApi";
+import { isExplorerPageType, loadPageTemplates } from "../editor/pageTemplates";
 import { isValidExplorerFolderName } from "./folderName";
 import { formatRenameItemError } from "./renameItemErrors";
 // Dual-run router (#3074): pathmanagement when flag off; RX folders REST under
@@ -69,6 +73,7 @@ export type ReducedActionKey =
   | "open"
   | "preview"
   | "createFolder"
+  | "createPage"
   | "rename"
   | "move"
   | "copy"
@@ -81,6 +86,16 @@ export interface ReducedActionHandlers {
   onOpen: (item: PSPathItem) => void | Promise<void>;
   onPreview: (item: PSPathItem) => void | Promise<void>;
   onCreateFolder: (parent: PSPathItem, name: string) => Promise<void>;
+  /**
+   * Create one page in the selected folder (name + page content type).
+   * Optional so older handler objects still compile; the dialog falls back
+   * to {@link createEditorItem}.
+   */
+  onCreatePage?: (
+    parent: PSPathItem,
+    name: string,
+    contentType: string,
+  ) => Promise<void>;
   onRename: (item: PSPathItem, newName: string) => Promise<void>;
   onMove: (item: PSPathItem, targetPath: string) => Promise<void>;
   onCopy: (item: PSPathItem, targetPath: string) => Promise<void>;
@@ -138,6 +153,7 @@ export function ReducedActions({
 }: ReducedActionsProps): React.ReactElement {
   const [pending, setPending] = useState<ReducedActionKey | null>(null);
   const [copyPickerItem, setCopyPickerItem] = useState<PSPathItem | null>(null);
+  const [createPageOpen, setCreatePageOpen] = useState(false);
   const [movePickerItem, setMovePickerItem] = useState<PSPathItem | null>(null);
 
   const itemWrite = canWrite(item) || canAdmin(item);
@@ -168,6 +184,8 @@ export function ReducedActions({
             ? formatRenameItemError(err)
             : key === "createFolder"
             ? formatCreateFolderError(err)
+            : key === "createPage"
+            ? formatCreatePageError(err)
             : formatApiError(err, message(EXPLORER_MSG.ERROR_GENERIC));
         onError?.(msg);
       } finally {
@@ -202,6 +220,13 @@ export function ReducedActions({
     }
     void runItemAction("createFolder", () => handlers.onCreateFolder(parent, name));
   }, [folder, handlers, item, onError, runItemAction]);
+
+  const handleCreatePage = useCallback(() => {
+    if (!(folder ?? item)) {
+      return;
+    }
+    setCreatePageOpen(true);
+  }, [folder, item]);
 
   const handleRename = useCallback(() => {
     if (!item) return;
@@ -309,6 +334,15 @@ export function ReducedActions({
       </button>
       <button
         type="button"
+        style={actionButtonStyle(!folderWrite || isBusy)}
+        disabled={!folderWrite || isBusy}
+        onClick={handleCreatePage}
+        data-testid="action-create-page"
+      >
+        {message(EXPLORER_MSG.ACTION_CREATE_PAGE)}
+      </button>
+      <button
+        type="button"
         style={actionButtonStyle(!item || !itemWrite || isBusy)}
         disabled={!item || !itemWrite || isBusy}
         onClick={handleRename}
@@ -372,6 +406,23 @@ export function ReducedActions({
       >
         {message(EXPLORER_MSG.ACTION_EMPTY_RECYCLE)}
       </button>
+      {createPageOpen ? (
+        <CreatePageDialog
+          busy={isBusy}
+          onCancel={() => setCreatePageOpen(false)}
+          onCreate={async (name, contentType) => {
+            const parent = folder ?? item;
+            if (!parent) {
+              return;
+            }
+            const create =
+              handlers.onCreatePage ??
+              ((p, pageName, type) => createPageInSelectedFolder(p, pageName, type));
+            await create(parent, name, contentType);
+            setCreatePageOpen(false);
+          }}
+        />
+      ) : null}
       {copyPickerItem ? (
         <CopyDestinationPickerDialog
           defaultPath={copyPickerItem.folderPath ?? "/"}
@@ -415,6 +466,27 @@ export function ReducedActions({
  * (#2733). UI grays out Preview when no handler is supplied or the selection
  * is not previewable.</p>
  */
+async function createPageInSelectedFolder(
+  parent: PSPathItem,
+  name: string,
+  contentType: string,
+): Promise<void> {
+  let templateId: string | undefined;
+  if (isExplorerPageType(contentType)) {
+    const templates = await loadPageTemplates(parent.path, contentType);
+    if (templates.length === 0) {
+      throw new Error(message(EXPLORER_MSG.ACTION_CREATE_PAGE_NO_TEMPLATE));
+    }
+    templateId = templates[0]?.id;
+  }
+  await createEditorItem({
+    contentType,
+    folderPath: parent.path,
+    name,
+    templateId,
+  });
+}
+
 export function defaultReducedActionHandlers(): ReducedActionHandlers {
   return {
     onOpen: (item) => {
@@ -434,6 +506,9 @@ export function defaultReducedActionHandlers(): ReducedActionHandlers {
     },
     onCreateFolder: async (parent, name) => {
       await addNewFolder(parent.path, name);
+    },
+    onCreatePage: async (parent, name, contentType) => {
+      await createPageInSelectedFolder(parent, name, contentType);
     },
     onRename: async (item, newName) => {
       if (isFolder(item)) {
