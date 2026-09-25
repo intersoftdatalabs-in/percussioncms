@@ -244,8 +244,9 @@ export interface ActionDispatchContext {
   onStage?: (item: PSPathItem) => Promise<void>;
   /**
    * Checkbox multi-selection. When length is 2 or more, Publish now,
-   * Stage, Take Down, Remove from Staging, and workflow transitions use
-   * one confirm for every eligible page/asset and skip folders.
+   * Stage, Take Down, Remove from Staging, Check Out, and workflow
+   * transitions use one confirm for every eligible page/asset and skip
+   * folders.
    */
   selectedItems?: readonly PSPathItem[];
   onRemoveFromStaging?: (item: PSPathItem) => Promise<void>;
@@ -536,6 +537,129 @@ export async function purgeSelectedItem(item: PSPathItem): Promise<boolean> {
     return true;
   }
   return false;
+}
+
+interface CheckoutBatchFailure {
+  name: string;
+  status?: number;
+  message: string;
+}
+
+function checkoutItemLabel(item: PSPathItem): string {
+  const name = (item.name ?? "").trim();
+  if (name) {
+    return name;
+  }
+  const id = (item.id ?? "").trim();
+  return id || "item";
+}
+
+function describeCheckoutBatch(result: {
+  skippedFolders: string[];
+  skippedOther: string[];
+  failures: CheckoutBatchFailure[];
+}): string | undefined {
+  const parts: string[] = [];
+  if (result.skippedFolders.length > 0) {
+    parts.push(
+      message(EXPLORER_MSG.CHECKOUT_SKIPPED_FOLDERS)
+        .split("{names}")
+        .join(result.skippedFolders.join(", ")),
+    );
+  }
+  if (result.skippedOther.length > 0) {
+    parts.push(
+      message(EXPLORER_MSG.CHECKOUT_SKIPPED_OTHER)
+        .split("{names}")
+        .join(result.skippedOther.join(", ")),
+    );
+  }
+  if (result.failures.length > 0) {
+    const detail = result.failures
+      .map((failure) =>
+        failure.status != null
+          ? `${failure.name} (HTTP ${failure.status})`
+          : `${failure.name} (${failure.message})`,
+      )
+      .join("; ");
+    parts.push(
+      message(EXPLORER_MSG.CHECKOUT_BATCH_INCOMPLETE)
+        .split("{detail}")
+        .join(detail),
+    );
+  }
+  if (parts.length === 0) {
+    return undefined;
+  }
+  return parts.join(" ");
+}
+
+/**
+ * Check out every eligible page/asset. Folders are skipped. A 403 or 409
+ * on one item is named and the rest of the selection still runs.
+ */
+async function checkoutMultiSelection(
+  ctx: ActionDispatchContext,
+  items: readonly PSPathItem[],
+): Promise<ActionDispatchResult> {
+  const plan = partitionStageSelection(items);
+  if (plan.eligible.length === 0) {
+    const noted = describeCheckoutBatch({
+      skippedFolders: plan.skippedFolders,
+      skippedOther: plan.skippedOther,
+      failures: [],
+    });
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.CHECKOUT_NOTHING_ELIGIBLE,
+      messageText: noted ?? message(EXPLORER_MSG.CHECKOUT_NOTHING_ELIGIBLE),
+    };
+  }
+  const confirmBody = message(EXPLORER_MSG.CONFIRM_CHECKOUT_MULTI)
+    .split("{count}")
+    .join(String(plan.eligible.length));
+  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  const checkedOutIds: string[] = [];
+  const failures: CheckoutBatchFailure[] = [];
+  for (const row of plan.eligible) {
+    const id = (row.id ?? "").trim();
+    try {
+      await checkOutItem(id);
+      checkedOutIds.push(id);
+    } catch (err: unknown) {
+      const status = isApiError(err) ? err.status : undefined;
+      const text =
+        err instanceof Error
+          ? err.message
+          : status != null
+            ? `HTTP ${status}`
+            : "checkout failed";
+      failures.push({
+        name: checkoutItemLabel(row),
+        status,
+        message: text || "checkout failed",
+      });
+    }
+  }
+  const messageText = describeCheckoutBatch({
+    skippedFolders: plan.skippedFolders,
+    skippedOther: plan.skippedOther,
+    failures,
+  });
+  const incomplete = failures.length > 0;
+  return {
+    kind: "rest",
+    refresh: checkedOutIds.length > 0,
+    messageText,
+    messageKey: incomplete
+      ? EXPLORER_MSG.CHECKOUT_BATCH_INCOMPLETE
+      : messageText
+        ? EXPLORER_MSG.CHECKOUT_SKIPPED_FOLDERS
+        : undefined,
+  };
 }
 
 async function publishMultiSelection(
@@ -1553,6 +1677,10 @@ export async function dispatchAction(
   }
 
   if (isCheckoutActionName(name)) {
+    const multi = ctx.selectedItems ?? [];
+    if (multi.length >= 2) {
+      return checkoutMultiSelection(ctx, multi);
+    }
     if (!item || isFolder(item) || !item.id) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }

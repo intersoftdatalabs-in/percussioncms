@@ -522,6 +522,16 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@You are not allowed to check out this item",
   CHECKOUT_CONFLICT:
     "perc.ui.explorer@Item is checked out to another user",
+  CONFIRM_CHECKOUT_MULTI:
+    "perc.ui.explorer@Check out {count} selected items? Folders in the selection are not checked out.",
+  CHECKOUT_SKIPPED_FOLDERS:
+    "perc.ui.explorer@Folders are not checked out: {names}",
+  CHECKOUT_SKIPPED_OTHER:
+    "perc.ui.explorer@These selected items are not pages or assets and were not checked out: {names}",
+  CHECKOUT_BATCH_INCOMPLETE:
+    "perc.ui.explorer@Not every selected item was checked out. {detail}",
+  CHECKOUT_NOTHING_ELIGIBLE:
+    "perc.ui.explorer@Nothing in the selection can be checked out. Folders are not checked out.",
   CHECKIN_FORBIDDEN:
     "perc.ui.explorer@You are not allowed to check in this item",
   CHECKIN_CONFLICT:

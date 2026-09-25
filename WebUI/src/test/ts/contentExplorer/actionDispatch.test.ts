@@ -943,6 +943,95 @@ describe("actionDispatch", () => {
     expect(checkOut).not.toHaveBeenCalled();
   });
 
+  it("multi-select Check Out confirms once and skips folders (#4835)", async () => {
+    const checkOut = vi
+      .spyOn(itemWorkflowApi, "checkOutItem")
+      .mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const page = item({ id: "42", name: "Home" });
+    const asset = item({
+      id: "44",
+      name: "Logo",
+      type: "percImageAsset",
+      category: "asset",
+    });
+    const folder = item({
+      id: "7",
+      name: "News",
+      type: "folder",
+      category: "folder",
+    });
+    const result = await dispatchAction(action({ name: "Check_Out" }), {
+      item: page,
+      selectedItems: [page, folder, asset],
+      confirm,
+    });
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(String(confirm.mock.calls[0]?.[0])).toMatch(
+      /Check out 2 selected items/i,
+    );
+    expect(checkOut).toHaveBeenCalledTimes(2);
+    expect(checkOut).toHaveBeenNthCalledWith(1, "42");
+    expect(checkOut).toHaveBeenNthCalledWith(2, "44");
+    expect(result.refresh).toBe(true);
+    expect(result.messageText).toMatch(/Folders are not checked out: News/i);
+  });
+
+  it("multi-select Check Out cancel checks out nothing (#4835)", async () => {
+    const checkOut = vi
+      .spyOn(itemWorkflowApi, "checkOutItem")
+      .mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Check_Out" }), {
+      item: item(),
+      selectedItems: [item({ id: "42" }), item({ id: "43", name: "About" })],
+      confirm: () => false,
+    });
+    expect(checkOut).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("multi-select Check Out names HTTP 409 and still checks out the other item (#4835)", async () => {
+    const checkOut = vi
+      .spyOn(itemWorkflowApi, "checkOutItem")
+      .mockImplementation(async (id: string) => {
+        if (id === "43") {
+          throw { status: 409, statusText: "Conflict", body: {} };
+        }
+      });
+    const result = await dispatchAction(action({ name: "Check_Out" }), {
+      item: item(),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About" }),
+      ],
+      confirm: () => true,
+    });
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBe(EXPLORER_MSG.CHECKOUT_BATCH_INCOMPLETE);
+    expect(result.messageText).toMatch(/About \(HTTP 409\)/i);
+    expect(result.messageText).toMatch(
+      /Not every selected item was checked out/i,
+    );
+    expect(checkOut).toHaveBeenCalledTimes(2);
+  });
+
+  it("multi-select of only folders does not check out (#4835)", async () => {
+    const checkOut = vi
+      .spyOn(itemWorkflowApi, "checkOutItem")
+      .mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Check_Out" }), {
+      item: item({ id: "7", type: "folder", category: "folder", name: "News" }),
+      selectedItems: [
+        item({ id: "7", type: "folder", category: "folder", name: "News" }),
+        item({ id: "8", type: "folder", category: "folder", name: "Blog" }),
+      ],
+      confirm: () => true,
+    });
+    expect(checkOut).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText).toMatch(/Folders are not checked out/i);
+  });
+
   it("Check Out maps HTTP 403/409", async () => {
     vi.spyOn(itemWorkflowApi, "checkOutItem")
       .mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: {} })
