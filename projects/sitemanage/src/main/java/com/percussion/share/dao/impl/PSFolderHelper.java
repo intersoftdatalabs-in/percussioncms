@@ -645,21 +645,7 @@ public class PSFolderHelper implements IPSFolderHelper {
       IPSGuid folderGuid = getParentFolderId(idMapper.getGuid(item.getId()));
       folderId = idMapper.getString(folderGuid);
     }
-    if ("percPage".equals(item.getType())) {
-      try {
-        String folderPaths[] = item.getFolderPaths().get(0).split("/");
-        // Don't enableMobile view incase in recycle bin
-        if (!item.getFolderPaths().get(0).contains(PSRecyclePathItemService.RECYCLING_ROOT_SUB)) {
-          if (folderPaths.length >= 4) {
-            IPSSite psSite = siteMgr.loadSite(folderPaths[3]);
-            item.setMobilePreviewEnabled(psSite.isMobilePreviewEnabled());
-          }
-        }
-
-      } catch (Exception e) {
-        log.error(e);
-      }
-    }
+    applyPageMobilePreview(item, siteMgr);
     if (folderId != null) {
       PSFolderPermission.Access acl = getFolderAccessLevel(folderId);
       item.setAccessLevel(acl);
@@ -1332,22 +1318,69 @@ public class PSFolderHelper implements IPSFolderHelper {
     PSItemSummaryUtils.copyProperties(sum, item);
     setFolderAccessLevel(item);
 
-    if ("percPage".equals(item.getType())) {
-      try {
-        String folderPaths[] = item.getFolderPaths().get(0).split("/");
-        // Don't enableMobile view incase in recycle bin
-        if (!item.getFolderPaths().get(0).contains(PSRecyclePathItemService.RECYCLING_ROOT_SUB)) {
-          if (folderPaths.length > 3) {
-            IPSSite psSite = siteMgr.loadSite(folderPaths[3]);
-            item.setMobilePreviewEnabled(psSite.isMobilePreviewEnabled());
-          }
-        }
-      } catch (Exception e) {
-        log.error(e);
-      }
-    }
+    applyPageMobilePreview(item, siteMgr);
 
     return item;
+  }
+
+  /**
+   * Page rows store the repository folder leaf ({@code EnterpriseInvestments}), which is not the
+   * site name ({@code Enterprise_Investments}). {@code loadSite} throws {@code PSNotFoundException}
+   * from a {@code @Transactional} site manager and marks the folder-list transaction
+   * rollback-only even when the caller catches it. {@code findSite} misses quietly.
+   */
+  /**
+   * True when the last non-empty segment of a CMS folder root equals {@code leaf}.
+   * {@code //} and {@code /} are repository separators, not OS filesystem joins.
+   * A longer name such as {@code EnterpriseInvestmentsArchive} must not match
+   * {@code EnterpriseInvestments}.
+   */
+  static boolean folderRootLeafEquals(String folderRoot, String leaf) {
+    if (folderRoot == null || leaf == null || leaf.isBlank()) {
+      return false;
+    }
+    String[] parts = folderRoot.replace('\\', '/').split("/");
+    String last = "";
+    for (String part : parts) {
+      if (part != null && !part.isBlank()) {
+        last = part;
+      }
+    }
+    return leaf.equals(last);
+  }
+
+  static void applyPageMobilePreview(PSPathItem item, IPSSiteManager siteMgr) {
+    if (item == null || siteMgr == null || !"percPage".equals(item.getType())) {
+      return;
+    }
+    if (item.getFolderPaths() == null || item.getFolderPaths().isEmpty()) {
+      return;
+    }
+    String folderPath = item.getFolderPaths().get(0);
+    if (folderPath == null
+        || folderPath.contains(PSRecyclePathItemService.RECYCLING_ROOT_SUB)) {
+      return;
+    }
+    String[] folderPaths = folderPath.split("/");
+    if (folderPaths.length < 4) {
+      return;
+    }
+    String leaf = folderPaths[3];
+    if (leaf == null || leaf.isBlank()) {
+      return;
+    }
+    IPSSite site = siteMgr.findSite(leaf);
+    if (site == null) {
+      for (IPSSite candidate : siteMgr.findAllSites()) {
+        if (candidate != null && folderRootLeafEquals(candidate.getFolderRoot(), leaf)) {
+          site = candidate;
+          break;
+        }
+      }
+    }
+    if (site != null) {
+      item.setMobilePreviewEnabled(site.isMobilePreviewEnabled());
+    }
   }
 
   @Override

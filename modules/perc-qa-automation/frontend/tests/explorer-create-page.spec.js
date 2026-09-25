@@ -113,11 +113,15 @@ test.describe("Explorer Create Page in the selected folder (#4874)", () => {
       await createBtn.click();
       await expect(dialog).toBeVisible();
       const typeSelect = page.locator('[data-testid="explorer-create-page-type"]');
-      await expect(typeSelect.locator("option").first()).toBeAttached({
-        timeout: 20_000,
-      });
-      const optionCount = await typeSelect.locator("option").count();
-      expect(optionCount, "a page content type must be listed").toBeGreaterThan(0);
+      await expect
+        .poll(
+          async () =>
+            typeSelect.locator("option").evaluateAll((els) =>
+              els.map((el) => String(el.value || "").trim()).filter(Boolean),
+            ),
+          { timeout: 20_000 },
+        )
+        .not.toEqual([]);
       await page.locator('[data-testid="explorer-create-page-name"]').fill(pageName);
 
       const createResp = page.waitForResponse(
@@ -134,7 +138,10 @@ test.describe("Explorer Create Page in the selected folder (#4874)", () => {
       const refresh = page.getByRole("button", { name: "Refresh the current folder list" });
       await refresh.click();
       const list = page.locator(`[data-testid="${CREATE_TEST_IDS.detailList}"]`);
-      await expect(list.getByText(pageName, { exact: false }), folderLoads.slice(-2).join("\n")).toBeVisible({
+      const nameCell = list.locator(`[data-testid^="detail-cell-name-"]`, {
+        hasText: pageName,
+      });
+      await expect(nameCell, folderLoads.slice(-2).join("\n")).toBeVisible({
         timeout: 20_000,
       });
 
