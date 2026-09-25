@@ -16,6 +16,7 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   getWorkflowAllowedContentTypes: vi.fn(),
   setWorkflowAllowedContentTypes: vi.fn(),
   updateWorkflow: vi.fn(),
+  setDefaultWorkflow: vi.fn(),
   deleteWorkflow: vi.fn(),
   createWorkflowStep: vi.fn(),
   updateWorkflowStep: vi.fn(),
@@ -37,6 +38,7 @@ const getWorkflowAllowedContentTypes =
 const setWorkflowAllowedContentTypes =
   workflowsApi.setWorkflowAllowedContentTypes as ReturnType<typeof vi.fn>;
 const updateWorkflowMock = workflowsApi.updateWorkflow as ReturnType<typeof vi.fn>;
+const setDefaultWorkflowMock = workflowsApi.setDefaultWorkflow as ReturnType<typeof vi.fn>;
 const deleteWorkflowMock = workflowsApi.deleteWorkflow as ReturnType<typeof vi.fn>;
 const createWorkflowStepMock = workflowsApi.createWorkflowStep as ReturnType<typeof vi.fn>;
 const updateWorkflowStepMock = workflowsApi.updateWorkflowStep as ReturnType<typeof vi.fn>;
@@ -76,6 +78,7 @@ describe("WorkflowDetailPanel", () => {
     getWorkflowAllowedContentTypes.mockReset();
     setWorkflowAllowedContentTypes.mockReset();
     updateWorkflowMock.mockReset();
+    setDefaultWorkflowMock.mockReset();
     deleteWorkflowMock.mockReset();
     createWorkflowStepMock.mockReset();
     updateWorkflowStepMock.mockReset();
@@ -344,6 +347,46 @@ describe("WorkflowDetailPanel", () => {
     expect(screen.getByTestId("developer-wf-ct-notice").getAttribute("aria-live")).toBe(
       "polite",
     );
+  });
+
+  it("hides set-default when the workflow is already default", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-default-current")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-wf-set-default")).toBeNull();
+  });
+
+  it("sets the system default and notifies the catalog", async () => {
+    getWorkflowDetail.mockResolvedValue({ ...sampleDetail, defaultWorkflow: false });
+    setDefaultWorkflowMock.mockResolvedValue({
+      workflowName: "Simple Workflow",
+      defaultWorkflow: true,
+    });
+    const onDefaultChanged = vi.fn();
+    render(
+      <WorkflowDetailPanel
+        name="Simple Workflow"
+        onBack={() => undefined}
+        onDefaultChanged={onDefaultChanged}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-set-default")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-set-default"));
+    await waitFor(() => {
+      expect(setDefaultWorkflowMock).toHaveBeenCalledWith("Simple Workflow");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-default-notice").textContent).toBe(
+        DEV_MSG.WF_DETAIL_SET_DEFAULT_SAVED,
+      );
+    });
+    expect(screen.getByTestId("developer-wf-default-flag").textContent).toContain(DEV_MSG.WF_YES);
+    expect(screen.queryByTestId("developer-wf-set-default")).toBeNull();
+    expect(onDefaultChanged).toHaveBeenCalledWith("Simple Workflow");
   });
 
   it("keeps the description save disabled until the draft differs", async () => {

@@ -52,6 +52,7 @@ import com.percussion.workflow.data.PSUiWorkflow;
 import com.percussion.workflow.data.PSUiWorkflowStep;
 import com.percussion.workflow.data.PSUiWorkflowStepRole;
 import com.percussion.workflow.data.PSUiWorkflowStepRoleTransition;
+import com.percussion.workflow.PSWorkFlowUtils;
 import com.percussion.workflow.service.IPSSteppedWorkflowService;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -64,6 +65,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import javax.jcr.RepositoryException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -108,6 +110,20 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
    */
   @Autowired(required = false)
   private IPSSteppedWorkflowService steppedWorkflowService;
+
+  /**
+   * Writes the single system default-workflow name. Production uses {@link
+   * PSWorkFlowUtils#setDefaultWorkflowName}; tests install an in-memory writer.
+   */
+  private Consumer<String> defaultWorkflowWriter = PSWorkFlowUtils::setDefaultWorkflowName;
+
+  /** Package-visible so unit tests do not touch rxworkflow.properties. */
+  void setDefaultWorkflowWriter(Consumer<String> defaultWorkflowWriter) {
+    this.defaultWorkflowWriter =
+        defaultWorkflowWriter != null
+            ? defaultWorkflowWriter
+            : PSWorkFlowUtils::setDefaultWorkflowName;
+  }
 
   /** New workflow guids for copy. Production uses the guid manager; tests inject a fixed guid. */
   private final WorkflowGuidFactory guidFactory;
@@ -270,6 +286,27 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     applyDescriptionAllowClear(resolvedName, body.getDescription());
     PSUiWorkflow refreshed = lookupUiWorkflow(resolvedName);
     return toWorkflowSummary(refreshed, resolvedName, body.getDescription());
+  }
+
+  @Override
+  public WorkflowSummary setDefaultWorkflow(URI baseUri, String idOrName) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (idOrName == null || idOrName.trim().isEmpty()) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    String resolvedName = workflow.getName();
+    defaultWorkflowWriter.accept(resolvedName);
+    PSUiWorkflow refreshed = lookupUiWorkflow(resolvedName);
+    WorkflowSummary summary = toWorkflowSummary(refreshed, resolvedName, null);
+    // The property write is the source of truth; the stepped lookup may still
+    // report the previous name until the workflow service re-reads it.
+    summary.setDefaultWorkflow(true);
+    return summary;
   }
 
   @Override

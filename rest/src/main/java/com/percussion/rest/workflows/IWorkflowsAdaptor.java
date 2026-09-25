@@ -96,6 +96,19 @@ public interface IWorkflowsAdaptor {
   WorkflowSummary updateWorkflow(URI baseUri, String idOrName, WorkflowUpdate body);
 
   /**
+   * Mark one workflow as the system default (Admin, slice 37).
+   *
+   * <p>The product stores a single default-workflow name. Setting a second workflow replaces that
+   * name so the previous workflow is no longer default. Does not rewrite content items.
+   *
+   * @param idOrName workflow name, numeric uuid, or guid string; must resolve
+   * @return the workflow summary with {@code defaultWorkflow} true
+   * @throws IllegalArgumentException when {@code idOrName} is blank
+   * @throws jakarta.ws.rs.WebApplicationException 403 non-Admin, 404 missing workflow
+   */
+  WorkflowSummary setDefaultWorkflow(URI baseUri, String idOrName);
+
+  /**
    * Delete a stepped workflow (Admin, slice 21 Developer workflow delete).
    *
    * <p>Delegates to the stepped-workflow editor (acquires and releases the workflow design lock).
