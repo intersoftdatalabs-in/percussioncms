@@ -12,6 +12,24 @@ Out of scope for spec 994 (must NOT be touched):
 
 ## Scripts
 
+### `linux-service-namespace-soak.sh` / `linux-service-namespace-soak.bat`
+
+Linux-only user+mount namespace exercise of `install-jetty-service.sh` and
+`DTSProductionService.sh` (GH-1989). Mounts private tmpfs trees over `/etc`,
+`/run`, and `/var`, and places fake `systemctl` / `chkconfig` / `service` on
+`PATH`. Proves systemd install (unit `TimeoutStartSec=1800`, enable, no
+chkconfig, no `systemctl start`), `--initd` only, uninstall with no leftover
+unit or SysV links, and init.d → uninstall → systemd reinstall. Refuses host
+uid 0. This is **not** a customer-host `journalctl` sign-off.
+
+```bash
+bash scripts/linux-service-namespace-soak.sh cms <installRoot> <evidenceDir>
+bash scripts/linux-service-namespace-soak.sh dts <installRoot> <evidenceDir>
+```
+
+Windows: `scripts\linux-service-namespace-soak.bat` exits 1 (no user namespaces).
+Maven: `LinuxServiceNamespaceSoakTest`, `DtsLinuxServiceNamespaceSoakTest`.
+
 ### `night-rtk-metrics.py` / `night-rtk-metrics.cmd`
 
 Snapshot `rtk gain -f json` and an optional **delta** for overnight token-savings
