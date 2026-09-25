@@ -23,6 +23,8 @@ import { isApiError } from "../api/client";
 import { RelationshipSummaryAuthError } from "../api/contentExplorer/relationshipsApi";
 import type { PSLocalDependencySummary } from "../api/contentExplorer/relationship";
 import type { SlotCanvas } from "../api/contentExplorer/slotRelationshipApi";
+import { parseExplorerContentId } from "../contentExplorer/menuCatalogLoad";
+import type { EditorHostMode } from "./editorHostUrl";
 
 export type RelatedContentKind = "slot" | "inline";
 
@@ -233,4 +235,21 @@ export function flattenRelatedContent(
     });
   }
   return rows;
+}
+
+/**
+ * Open follows the current host: view and promote stay view; otherwise edit.
+ */
+export function relatedItemOpenMode(
+  hostMode: EditorHostMode | null | undefined,
+): "edit" | "view" {
+  if (hostMode === "view" || hostMode === "promote") {
+    return "view";
+  }
+  return "edit";
+}
+
+/** A row with no CMS content id cannot be opened. */
+export function relatedRowCanOpen(itemId: string | null | undefined): boolean {
+  return parseExplorerContentId(itemId ?? undefined) != null;
 }

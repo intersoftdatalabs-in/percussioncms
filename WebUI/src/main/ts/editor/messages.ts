@@ -280,6 +280,8 @@ export const EDITOR_MSG = {
   RELATED_MOVE_CONFLICT:
     "perc.ui.editor@This item is not checked out to you. Reorder was not saved.",
   RELATED_MOVE_FAILED: "perc.ui.editor@Could not reorder the related item.",
+  RELATED_OPEN: "perc.ui.editor@Open",
+  RELATED_OPEN_FAILED: "perc.ui.editor@Could not open the related item.",
   NEW_ITEM: "perc.ui.editor@New item",
   CREATING: "perc.ui.editor@Creating…",
   CREATE: "perc.ui.editor@Create",

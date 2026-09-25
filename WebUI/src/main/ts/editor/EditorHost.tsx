@@ -3133,6 +3133,7 @@ export function EditorHost({
               <EditorRelatedContentPanel
                 itemId={String(contentId)}
                 readOnly={!canEdit}
+                hostMode={mode}
                 loadCanvas={loadRelatedCanvas}
                 loadLocal={loadRelatedLocal}
               />

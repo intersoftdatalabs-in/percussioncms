@@ -32,18 +32,28 @@ import {
   type SlotCanvas,
   type SlotRelationship,
 } from "../api/contentExplorer/slotRelationshipApi";
+import { parseExplorerContentId } from "../contentExplorer/menuCatalogLoad";
 import { message } from "../i18n/message";
 import {
   flattenRelatedContent,
   insertSlotChoices,
   relatedContentErrorReason,
   relatedInsertErrorReason,
+  relatedItemOpenMode,
   relatedRemoveErrorReason,
   relatedReorderEnds,
   relatedReorderErrorReason,
+  relatedRowCanOpen,
   type InsertSlotChoice,
   type RelatedContentRow,
 } from "./editorRelatedContent";
+import type { EditorHostMode } from "./editorHostUrl";
+import {
+  closeReservedWindow,
+  openEditorHost,
+  reserveEditorWindow,
+  type OpenEditorHostDeps,
+} from "./openEditorHost";
 import styles from "./EditorHost.module.css";
 import { EDITOR_MSG } from "./messages";
 
@@ -51,6 +61,8 @@ export interface EditorRelatedContentPanelProps {
   itemId: string;
   /** View / promote: list only. Insert and remove are edit actions. */
   readOnly?: boolean;
+  /** Current host mode. Open uses view for view and promote, otherwise edit. */
+  hostMode?: EditorHostMode;
   loadCanvas?: (ownerId: number) => Promise<SlotCanvas>;
   loadLocal?: (itemId: string) => Promise<PSLocalDependencySummary>;
   insertRelationship?: (request: SlotAddRequest) => Promise<SlotRelationship>;
@@ -59,6 +71,11 @@ export interface EditorRelatedContentPanelProps {
     relationshipId: number,
     direction: "UP" | "DOWN",
   ) => Promise<void>;
+  openRelatedItem?: (
+    input: { id: number; mode: "edit" | "view" },
+    deps: OpenEditorHostDeps,
+  ) => Promise<boolean>;
+  reserveRelatedWindow?: () => Window | null;
 }
 
 function insertMessageKey(reason: ReturnType<typeof relatedInsertErrorReason>): string {
@@ -99,15 +116,43 @@ function removeMessageKey(reason: ReturnType<typeof relatedRemoveErrorReason>): 
   return EDITOR_MSG.RELATED_REMOVE_FAILED;
 }
 
+function handleOpenRelated(
+  rowItemId: string,
+  hostMode: EditorHostMode,
+  reserveRelatedWindow: () => Window | null,
+  openRelatedItem: NonNullable<EditorRelatedContentPanelProps["openRelatedItem"]>,
+  setOpenErrorKey: (key: string | null) => void,
+): void {
+  const contentId = parseExplorerContentId(rowItemId);
+  if (contentId == null || !relatedRowCanOpen(rowItemId)) {
+    return;
+  }
+  const reserved = reserveRelatedWindow();
+  const mode = relatedItemOpenMode(hostMode);
+  void openRelatedItem({ id: contentId, mode }, { reservedWindow: reserved }).then(
+    (ok) => {
+      if (!ok) {
+        closeReservedWindow(reserved);
+        setOpenErrorKey(EDITOR_MSG.RELATED_OPEN_FAILED);
+        return;
+      }
+      setOpenErrorKey(null);
+    },
+  );
+}
+
 export function EditorRelatedContentPanel({
   itemId,
   readOnly = false,
+  hostMode = "edit",
   loadCanvas = fetchSlotCanvas,
   loadLocal = fetchLocal,
   insertRelationship = addSlotRelationship,
   removeRelationship = removeSlotRelationship,
   moveRelationship = (relationshipId, direction) =>
     moveSlotRelationship(relationshipId, direction),
+  openRelatedItem = openEditorHost,
+  reserveRelatedWindow = reserveEditorWindow,
 }: EditorRelatedContentPanelProps): React.ReactElement {
   const [rows, setRows] = useState<RelatedContentRow[]>([]);
   const [choices, setChoices] = useState<InsertSlotChoice[]>([]);
@@ -122,6 +167,7 @@ export function EditorRelatedContentPanel({
   const [insertDetail, setInsertDetail] = useState("");
   const [removeErrorKey, setRemoveErrorKey] = useState<string | null>(null);
   const [removeDetail, setRemoveDetail] = useState("");
+  const [openErrorKey, setOpenErrorKey] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
   const [loading, setLoading] = useState(true);
   const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -404,6 +450,15 @@ export function EditorRelatedContentPanel({
           {removeDetail ? ` ${removeDetail}` : ""}
         </div>
       ) : null}
+      {openErrorKey ? (
+        <div
+          className={styles.status}
+          role="alert"
+          data-testid="editor-related-open-error"
+        >
+          {message(openErrorKey)}
+        </div>
+      ) : null}
       {rows.length > 0 ? (
         <ul className={styles.relatedList} data-testid="editor-related-list">
           {rows.map((row) => (
@@ -415,6 +470,24 @@ export function EditorRelatedContentPanel({
             >
               <span className={styles.relatedSlot}>{row.slotLabel}</span>
               <span data-testid="editor-related-item-id">{row.itemId}</span>
+              {relatedRowCanOpen(row.itemId) ? (
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid="editor-related-open"
+                  onClick={() =>
+                    handleOpenRelated(
+                      row.itemId,
+                      hostMode,
+                      reserveRelatedWindow,
+                      openRelatedItem,
+                      setOpenErrorKey,
+                    )
+                  }
+                >
+                  {message(EDITOR_MSG.RELATED_OPEN)}
+                </button>
+              ) : null}
               {!readOnly && row.relationshipId != null && row.relationshipId > 0 ? (
                 <>
                 {relatedReorderEnds(rows, row).up ? (
