@@ -75,9 +75,14 @@ export async function stopRuntimeJob(
     return (await post<unknown>(
       `${runtimeRoot()}/jobs/${encodeURIComponent(String(jobId))}/stop`,
     )) as RuntimeJobResponse;
-  } catch {
-    // Fall back to ops stopPublishing path
-    await stopPublishing(jobId);
+  } catch (primary) {
+    // Fall back to ops stopPublishing. If that also fails, keep the design-stop
+    // error so the Runtime section can show its message.
+    try {
+      await stopPublishing(jobId);
+    } catch {
+      throw primary;
+    }
     return { jobId: Number(jobId), status: "cancelled" };
   }
 }

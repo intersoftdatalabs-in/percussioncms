@@ -177,7 +177,8 @@ export function RuntimeSection({
       setLastResult(res);
       reload();
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setLastResult(null);
+      setError(formatApiError(e, message(MSG.PUBLISH_ERROR)));
     } finally {
       setBusy(false);
     }

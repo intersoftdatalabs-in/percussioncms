@@ -210,6 +210,7 @@ describe("RuntimeSection", () => {
     await waitFor(() => {
       expect(screen.getByTestId("runtime-stop-11")).toBeTruthy();
     });
+    expect(screen.queryByTestId("runtime-stop-10")).toBeNull();
     fireEvent.click(screen.getByTestId("runtime-stop-11"));
     await waitFor(() => {
       expect(runtimeApi.stopRuntimeJob).toHaveBeenCalledWith(99);
@@ -219,5 +220,24 @@ describe("RuntimeSection", () => {
         /cancelled/i,
       );
     });
+  });
+
+  it("shows stop failure text and does not keep a last result", async () => {
+    vi.mocked(runtimeApi.stopRuntimeJob).mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "edition job 99 is not running" },
+    });
+    render(<RuntimeSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("runtime-stop-11")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("runtime-stop-11"));
+    await waitFor(() => {
+      expect(screen.getByRole("alert").textContent).toMatch(
+        /edition job 99 is not running/,
+      );
+    });
+    expect(screen.queryByTestId("runtime-job-status")).toBeNull();
   });
 });

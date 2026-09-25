@@ -131,7 +131,9 @@ From **Publish** (`spa.jsp?entry=publish&section=runtime`), choose a **site** an
 **publish server**. The Runtime list shows editions for that server. **Start** queues
 `POST …/sitemanage/publishingdesign/runtime/editions/{editionId}/start`. When a job is
 running, **Stop** posts `POST …/sitemanage/publishingdesign/runtime/jobs/{jobId}/stop`
-(falls back to ops `stopPublishing` if needed). A running edition also shows **Open job**,
+(falls back to ops `stopPublishing` if needed). An idle edition (no running job id)
+does not show **Stop**. If both stop calls fail, the Runtime error region shows the
+server message (not a successful **Last result**). A running edition also shows **Open job**,
 which switches to **Status** and opens the job-detail panel for that job id (the same panel
 as choosing the job on Status). An idle edition (no running job id) does not show **Open job**.
 **Demand publish** (same Runtime section) uses the selected edition. Enter one or

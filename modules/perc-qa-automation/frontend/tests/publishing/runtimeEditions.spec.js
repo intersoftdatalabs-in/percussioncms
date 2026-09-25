@@ -135,6 +135,7 @@ test.describe("PublishingShell Runtime start/stop", () => {
     await expect(page.getByTestId("runtime-start-10")).toBeVisible({
       timeout: 20000,
     });
+    await expect(page.getByTestId("runtime-stop-10")).toHaveCount(0);
     await page.getByTestId("runtime-start-10").click();
     await expect(page.getByTestId("runtime-job-status")).toContainText(
       /started/i,
@@ -169,6 +170,82 @@ test.describe("PublishingShell Runtime start/stop", () => {
     await expect(page.getByTestId("runtime-job-status")).toContainText(
       /cancelled/i,
     );
+    expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
+  });
+
+  test("stop failure stays on Runtime as an alert", async ({ page }) => {
+    const jsErrors = [];
+    page.on("pageerror", (err) => jsErrors.push(String(err)));
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        jsErrors.push(msg.text());
+      }
+    });
+
+    await page.route(
+      "**/services/sitemanage/publishingdesign/runtime/editions?**",
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          return route.continue();
+        }
+        return route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            {
+              editionId: "11",
+              name: "H2Demand",
+              runningJobId: 99,
+              jobStatus: "Running",
+              pubServerId: "7",
+            },
+          ]),
+        });
+      },
+    );
+    await page.route("**/services/publishmanagement/servers/**", async (route) => {
+      if (route.request().method() !== "GET") {
+        return route.continue();
+      }
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([{ serverId: "7", serverName: "LocalFS" }]),
+      });
+    });
+    await page.route(
+      "**/services/sitemanage/publishingdesign/runtime/jobs/99/stop",
+      async (route) => {
+        return route.fulfill({
+          status: 409,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "edition job 99 is not running" }),
+        });
+      },
+    );
+    await page.route(
+      "**/services/publishmanagement/servers/stopPublishing/99",
+      async (route) => {
+        return route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "ops stop failed" }),
+        });
+      },
+    );
+
+    await page.goto(
+      `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=publish&section=runtime`,
+    );
+    await expect(page.getByTestId("runtime-stop-11")).toBeVisible({
+      timeout: 30000,
+    });
+    await page.getByTestId("runtime-stop-11").click();
+    await expect(page.getByRole("alert")).toContainText(
+      /edition job 99 is not running/,
+      { timeout: 20000 },
+    );
+    await expect(page.getByTestId("runtime-job-status")).toHaveCount(0);
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
   });
 });
