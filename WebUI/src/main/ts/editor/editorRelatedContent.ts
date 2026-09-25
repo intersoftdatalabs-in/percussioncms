@@ -37,6 +37,17 @@ export interface RelatedContentRow {
   slotId?: number;
   /** Active Assembly relationship id when the row can be removed or reordered. */
   relationshipId?: number;
+  /** Current snippet template id when the row is a slot relationship. */
+  templateId?: number;
+}
+
+/** Slot rows with a relationship can change snippet template. Inline cannot. */
+export function canChangeRelatedSnippetTemplate(row: RelatedContentRow): boolean {
+  return (
+    row.kind === "slot" &&
+    Number(row.relationshipId) > 0 &&
+    Number(row.slotId) > 0
+  );
 }
 
 export type RelatedContentErrorReason = "forbidden" | "failed";
@@ -213,6 +224,7 @@ export function flattenRelatedContent(
           slotLabel,
           slotId: slot.slotId > 0 ? slot.slotId : undefined,
           relationshipId,
+          templateId: item.templateId > 0 ? item.templateId : undefined,
         });
       }
     }

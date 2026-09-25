@@ -27,11 +27,15 @@ const fetchSlotCanvas = vi.fn().mockResolvedValue({
 const fetchLocal = vi.fn().mockResolvedValue({ count: 0, links: [] });
 const addSlotRelationship = vi.fn();
 const removeSlotRelationship = vi.fn();
+const changeSlotTemplateSlot = vi.fn();
+const fetchSlotAllowedTemplates = vi.fn();
 
 vi.mock("../../../main/ts/api/contentExplorer/slotRelationshipApi", () => ({
   fetchSlotCanvas: (...args: unknown[]) => fetchSlotCanvas(...args),
   addSlotRelationship: (...args: unknown[]) => addSlotRelationship(...args),
   removeSlotRelationship: (...args: unknown[]) => removeSlotRelationship(...args),
+  changeSlotTemplateSlot: (...args: unknown[]) => changeSlotTemplateSlot(...args),
+  fetchSlotAllowedTemplates: (...args: unknown[]) => fetchSlotAllowedTemplates(...args),
 }));
 
 vi.mock("../../../main/ts/api/contentExplorer/relationshipsApi", () => ({

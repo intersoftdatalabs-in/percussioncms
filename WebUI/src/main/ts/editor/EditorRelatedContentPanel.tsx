@@ -25,16 +25,20 @@ import { fetchLocal } from "../api/contentExplorer/relationshipsApi";
 import type { PSLocalDependencySummary } from "../api/contentExplorer/relationship";
 import {
   addSlotRelationship,
+  changeSlotTemplateSlot,
+  fetchSlotAllowedTemplates,
   fetchSlotCanvas,
   moveSlotRelationship,
   removeSlotRelationship,
   type SlotAddRequest,
+  type SlotAllowedChoice,
   type SlotCanvas,
   type SlotRelationship,
 } from "../api/contentExplorer/slotRelationshipApi";
 import { parseExplorerContentId } from "../contentExplorer/menuCatalogLoad";
 import { message } from "../i18n/message";
 import {
+  canChangeRelatedSnippetTemplate,
   flattenRelatedContent,
   insertSlotChoices,
   relatedContentErrorReason,
@@ -48,6 +52,7 @@ import {
   type RelatedContentRow,
 } from "./editorRelatedContent";
 import type { EditorHostMode } from "./editorHostUrl";
+import { saveRelatedSnippetTemplate } from "./editorRelatedTemplate";
 import {
   closeReservedWindow,
   openEditorHost,
@@ -71,6 +76,15 @@ export interface EditorRelatedContentPanelProps {
     relationshipId: number,
     direction: "UP" | "DOWN",
   ) => Promise<void>;
+  /** POST template-slot. Keeps the current slot; only the snippet template changes. */
+  changeSnippetTemplate?: (
+    relationshipId: number,
+    slotId: number,
+    templateId: number,
+  ) => Promise<SlotRelationship>;
+  loadAllowedTemplates?: (
+    slotId: number,
+  ) => Promise<SlotAllowedChoice[]>;
   openRelatedItem?: (
     input: { id: number; mode: "edit" | "view" },
     deps: OpenEditorHostDeps,
@@ -104,6 +118,21 @@ function reorderMessageKey(
     return EDITOR_MSG.RELATED_MOVE_CONFLICT;
   }
   return EDITOR_MSG.RELATED_MOVE_FAILED;
+}
+
+function templateMessageKey(
+  reason: ReturnType<typeof relatedInsertErrorReason>,
+): string {
+  if (reason === "bad_request") {
+    return EDITOR_MSG.RELATED_TEMPLATE_BAD_REQUEST;
+  }
+  if (reason === "forbidden") {
+    return EDITOR_MSG.RELATED_TEMPLATE_FORBIDDEN;
+  }
+  if (reason === "not_found") {
+    return EDITOR_MSG.RELATED_TEMPLATE_NOT_FOUND;
+  }
+  return EDITOR_MSG.RELATED_TEMPLATE_FAILED;
 }
 
 function removeMessageKey(reason: ReturnType<typeof relatedRemoveErrorReason>): string {
@@ -151,6 +180,8 @@ export function EditorRelatedContentPanel({
   removeRelationship = removeSlotRelationship,
   moveRelationship = (relationshipId, direction) =>
     moveSlotRelationship(relationshipId, direction),
+  changeSnippetTemplate = changeSlotTemplateSlot,
+  loadAllowedTemplates = (slotId) => fetchSlotAllowedTemplates(slotId),
   openRelatedItem = openEditorHost,
   reserveRelatedWindow = reserveEditorWindow,
 }: EditorRelatedContentPanelProps): React.ReactElement {
@@ -168,6 +199,14 @@ export function EditorRelatedContentPanel({
   const [removeErrorKey, setRemoveErrorKey] = useState<string | null>(null);
   const [removeDetail, setRemoveDetail] = useState("");
   const [openErrorKey, setOpenErrorKey] = useState<string | null>(null);
+  const [templateRow, setTemplateRow] = useState<RelatedContentRow | null>(null);
+  const [templateChoices, setTemplateChoices] = useState<SlotAllowedChoice[]>([]);
+  const [pickedTemplate, setPickedTemplate] = useState("");
+  const [templateNotice, setTemplateNotice] = useState<string | null>(null);
+  const [templateErrorKey, setTemplateErrorKey] = useState<string | null>(null);
+  const [templateDetail, setTemplateDetail] = useState("");
+  const [templateBusy, setTemplateBusy] = useState(false);
+  const [templateSaved, setTemplateSaved] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
   const [loading, setLoading] = useState(true);
   const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -333,6 +372,69 @@ export function EditorRelatedContentPanel({
     }
   }
 
+  async function openTemplateDialog(row: RelatedContentRow): Promise<void> {
+    if (!canChangeRelatedSnippetTemplate(row) || readOnly) {
+      return;
+    }
+    setTemplateRow(row);
+    setTemplateNotice(null);
+    setTemplateErrorKey(null);
+    setTemplateDetail("");
+    setTemplateSaved(false);
+    setPickedTemplate(row.templateId != null && row.templateId > 0 ? String(row.templateId) : "");
+    setTemplateChoices([]);
+    try {
+      const choicesForSlot = await loadAllowedTemplates(Number(row.slotId));
+      setTemplateChoices(choicesForSlot);
+      setPickedTemplate((current) => {
+        if (current && choicesForSlot.some((c) => String(c.id) === current)) {
+          return current;
+        }
+        return choicesForSlot[0] ? String(choicesForSlot[0].id) : "";
+      });
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setTemplateNotice(message(EDITOR_MSG.RELATED_TEMPLATE_FAILED));
+    }
+  }
+
+  function cancelTemplateDialog(): void {
+    setTemplateRow(null);
+    setTemplateChoices([]);
+    setPickedTemplate("");
+    setTemplateNotice(null);
+  }
+
+  async function applyTemplateDialog(): Promise<void> {
+    if (templateRow == null || templateBusy) {
+      return;
+    }
+    setTemplateBusy(true);
+    setTemplateErrorKey(null);
+    setTemplateDetail("");
+    setTemplateSaved(false);
+    const result = await saveRelatedSnippetTemplate({
+      row: templateRow,
+      templateId: Number(pickedTemplate),
+      change: changeSnippetTemplate,
+    });
+    setTemplateBusy(false);
+    if (!result.ok) {
+      if (result.reason === "needs_template" || result.reason === "not_slot") {
+        setTemplateNotice(message(EDITOR_MSG.RELATED_TEMPLATE_NEEDS));
+        return;
+      }
+      setTemplateErrorKey(templateMessageKey(result.reason));
+      setTemplateDetail("");
+      return;
+    }
+    setTemplateSaved(true);
+    setTemplateRow(null);
+    setReloadToken((n) => n + 1);
+  }
+
   async function handleRemove(relationshipId: number): Promise<void> {
     if (!(relationshipId > 0)) {
       return;
@@ -450,6 +552,21 @@ export function EditorRelatedContentPanel({
           {removeDetail ? ` ${removeDetail}` : ""}
         </div>
       ) : null}
+      {templateErrorKey ? (
+        <div
+          className={styles.status}
+          role="alert"
+          data-testid="editor-related-template-error"
+        >
+          {message(templateErrorKey)}
+          {templateDetail ? ` ${templateDetail}` : ""}
+        </div>
+      ) : null}
+      {templateSaved ? (
+        <div className={styles.status} data-testid="editor-related-template-saved">
+          {message(EDITOR_MSG.RELATED_TEMPLATE_SAVED)}
+        </div>
+      ) : null}
       {openErrorKey ? (
         <div
           className={styles.status}
@@ -486,6 +603,17 @@ export function EditorRelatedContentPanel({
                   }
                 >
                   {message(EDITOR_MSG.RELATED_OPEN)}
+                </button>
+              ) : null}
+              {!readOnly && canChangeRelatedSnippetTemplate(row) ? (
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid="editor-related-change-template"
+                  disabled={templateBusy || removingId != null || movingId != null}
+                  onClick={() => void openTemplateDialog(row)}
+                >
+                  {message(EDITOR_MSG.RELATED_CHANGE_TEMPLATE)}
                 </button>
               ) : null}
               {!readOnly && row.relationshipId != null && row.relationshipId > 0 ? (
@@ -542,6 +670,53 @@ export function EditorRelatedContentPanel({
             </li>
           ))}
         </ul>
+      ) : null}
+      {templateRow ? (
+        <div
+          className={styles.form}
+          role="dialog"
+          aria-modal="true"
+          data-testid="editor-related-template-dialog"
+        >
+          <h3 className={styles.label}>{message(EDITOR_MSG.RELATED_CHANGE_TITLE)}</h3>
+          {templateNotice ? (
+            <div role="alert" data-testid="editor-related-template-notice">
+              {templateNotice}
+            </div>
+          ) : null}
+          <label className={styles.field}>
+            {message(EDITOR_MSG.RELATED_TEMPLATE_LABEL)}
+            <select
+              className={styles.input}
+              data-testid="editor-related-template-select"
+              value={pickedTemplate}
+              onChange={(e) => setPickedTemplate(e.target.value)}
+            >
+              {templateChoices.map((choice) => (
+                <option key={choice.id} value={String(choice.id)}>
+                  {choice.label || choice.name || choice.id}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            className={styles.button}
+            data-testid="editor-related-template-cancel"
+            onClick={cancelTemplateDialog}
+          >
+            {message(EDITOR_MSG.RELATED_TEMPLATE_CANCEL)}
+          </button>
+          <button
+            type="button"
+            className={styles.buttonPrimary}
+            data-testid="editor-related-template-apply"
+            disabled={templateBusy}
+            onClick={() => void applyTemplateDialog()}
+          >
+            {message(EDITOR_MSG.RELATED_TEMPLATE_APPLY)}
+          </button>
+        </div>
       ) : null}
     </section>
   );
