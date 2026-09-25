@@ -97,6 +97,7 @@ import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
+import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.system.IPSSystemWs;
@@ -415,14 +416,18 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
   public PSItemWorkflowChoices allowedWorkflows(@PathParam("id") String id) {
     try {
       rejectIfBlank("allowedWorkflows", "id", id);
-      if (contentDesignWs == null) {
+      IPSContentDesignWs designWs = contentDesignWs;
+      if (designWs == null) {
+        designWs = PSContentWsLocator.getContentDesignWebservice();
+      }
+      if (designWs == null) {
         throw new WebApplicationException(
             "Workflow catalog is not available", Response.Status.INTERNAL_SERVER_ERROR);
       }
       PSComponentSummary sum = workflowHelper.getComponentSummary(id);
       int current = sum.getWorkflowAppId();
       List<PSContentTypeWorkflow> associated =
-          contentDesignWs.loadAssociatedWorkflows(sum.getContentTypeGUID(), false, false);
+          designWs.loadAssociatedWorkflows(sum.getContentTypeGUID(), false, false);
       List<PSItemWorkflowChoice> choices = new ArrayList<>();
       if (associated != null) {
         for (PSContentTypeWorkflow row : associated) {
@@ -485,11 +490,22 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
         throw new WebApplicationException("Workflow change rejected: " + reason.name(), status);
       }
       int targetId = Integer.parseInt(workflowId.trim());
-      try {
-        checkIn(id, false);
-      } catch (PSItemWorkflowServiceException | PSDataServiceException checkInError) {
-        log.warn(
-            "Check-in before workflow change did not complete: {}", checkInError.getMessage());
+      PSComponentSummary sum = workflowHelper.getComponentSummary(id);
+      String holder = sum.getCheckoutUserName();
+      if (holder != null && !holder.isBlank()) {
+        String me = getUserName();
+        if (me == null || !holder.equals(me)) {
+          throw new WebApplicationException(
+              "Item is checked out to another user", Response.Status.CONFLICT);
+        }
+        try {
+          checkIn(id, false);
+        } catch (PSItemWorkflowServiceException | PSDataServiceException checkInError) {
+          log.error(PSExceptionUtils.getMessageForLog(checkInError));
+          throw new WebApplicationException(
+              "Could not check in the item before changing its workflow",
+              Response.Status.CONFLICT);
+        }
       }
       PSWorkflow target = workflowService.loadWorkflow(new PSGuid(PSTypeEnum.WORKFLOW, targetId));
       if (target == null || target.getStates() == null || target.getStates().isEmpty()) {

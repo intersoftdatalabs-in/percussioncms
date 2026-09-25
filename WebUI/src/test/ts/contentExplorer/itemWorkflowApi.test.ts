@@ -16,13 +16,16 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  changeItemWorkflow,
   checkInItem,
   checkOutItem,
   coerceTransitionTriggers,
   forceCheckInItem,
+  getItemWorkflowChoices,
   getItemWorkflowTransitions,
   transitionItem,
   unwrapItemStateTransition,
+  unwrapItemWorkflowChoices,
 } from "../../../main/ts/api/contentExplorer/itemWorkflowApi";
 import * as client from "../../../main/ts/api/client";
 import { PATHS } from "../../../main/ts/api/paths";
@@ -173,3 +176,67 @@ describe("itemWorkflowApi (#2732)", () => {
     expect(client.get).not.toHaveBeenCalled();
   });
 });
+
+describe("itemWorkflowApi workflow change (#4861)", () => {
+  beforeEach(() => {
+    vi.mocked(client.get).mockReset();
+    vi.mocked(client.post).mockReset();
+  });
+
+  it("unwraps a Jackson ItemWorkflowChoices envelope", () => {
+    const result = unwrapItemWorkflowChoices({
+      ItemWorkflowChoices: {
+        itemId: "42",
+        currentWorkflowId: "4",
+        choices: {
+          ItemWorkflowChoice: [
+            { id: "4", name: "Standard" },
+            { id: "7", name: "Editorial" },
+          ],
+        },
+      },
+    });
+    expect(result.itemId).toBe("42");
+    expect(result.currentWorkflowId).toBe("4");
+    expect(result.choices).toEqual([
+      { id: "4", name: "Standard" },
+      { id: "7", name: "Editorial" },
+    ]);
+  });
+
+  it("getItemWorkflowChoices loads allowedWorkflows and unwraps the catalog", async () => {
+    vi.mocked(client.get).mockResolvedValue({
+      ItemWorkflowChoices: {
+        currentWorkflowId: "4",
+        choices: [{ id: "7", name: "Editorial" }],
+      },
+    });
+    const result = await getItemWorkflowChoices("42");
+    expect(client.get).toHaveBeenCalledWith(
+      `${PATHS.ITEM_WORKFLOW_ALLOWED}${encodeURIComponent("42")}`,
+    );
+    expect(result.currentWorkflowId).toBe("4");
+    expect(result.choices).toEqual([{ id: "7", name: "Editorial" }]);
+  });
+
+  it("changeItemWorkflow posts the id and unwraps the new transitions", async () => {
+    vi.mocked(client.post).mockResolvedValue({
+      ItemStateTransition: {
+        workflowId: "7",
+        stateName: "Draft",
+        transitionTriggers: ["Submit"],
+      },
+    });
+    const result = await changeItemWorkflow("42", "7");
+    expect(client.post).toHaveBeenCalledWith(PATHS.itemWorkflowChange("42", "7"), {});
+    expect(result.workflowId).toBe("7");
+    expect(result.stateName).toBe("Draft");
+    expect(result.transitionTriggers).toEqual(["Submit"]);
+  });
+
+  it("changeItemWorkflow rejects a blank id without posting", async () => {
+    await expect(changeItemWorkflow("42", "  ")).rejects.toThrow(/requires/);
+    expect(client.post).not.toHaveBeenCalled();
+  });
+});
+
