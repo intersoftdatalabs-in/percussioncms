@@ -116,10 +116,16 @@ import {
   revisionCompareSelection,
   summarizeRevisionRow,
 } from "./editorRevisions";
+import { fetchPreviewLocation } from "../api/contentExplorer/assemblyApi";
 import {
   canPreviewFromEditor,
+  editorChosenTemplateFrameUrl,
+  editorDefaultPreviewFrameUrl,
   editorDraftIsDirty,
+  numericPreviewTemplates,
+  positivePreviewTemplateId,
   previewEditorItem,
+  PREVIEW_TEMPLATE_CURRENT,
 } from "./editorPreview";
 import {
   canPublishFromEditor,
@@ -233,6 +239,14 @@ export interface EditorHostProps {
   confirmPublish?: (body: string) => boolean;
   /** Test seam: Explorer {@code openPreviewItem} wrapper. */
   previewItem?: (itemId: string, kind: EditorPublishKind) => Promise<void>;
+  /**
+   * Test seam: {@code GET /assembly/preview-location} for a chosen template.
+   * Does not change the saved page template.
+   */
+  loadPreviewLocation?: (
+    contentId: number,
+    templateId: number,
+  ) => Promise<{ previewUrl: string }>;
   /** Test seam: confirm unsaved preview (defaults to {@code window.confirm}). */
   confirmUnsavedPreview?: (body: string) => boolean;
   /** Test seam: itemmanagement {@code newCopy}. */
@@ -494,6 +508,7 @@ export function EditorHost({
   publishItem = publishEditorItem,
   confirmPublish,
   previewItem = previewEditorItem,
+  loadPreviewLocation = fetchPreviewLocation,
   confirmUnsavedPreview,
   copyItem = createNewCopy,
   copyPromotable = createPromotableVersion,
@@ -578,6 +593,11 @@ export function EditorHost({
   const [previewDone, setPreviewDone] = useState(false);
   const [previewErrorKey, setPreviewErrorKey] = useState<string | null>(null);
   const [previewErrorDetail, setPreviewErrorDetail] = useState("");
+  const [previewTemplateId, setPreviewTemplateId] = useState(
+    PREVIEW_TEMPLATE_CURRENT,
+  );
+  const [previewFrameUrl, setPreviewFrameUrl] = useState("");
+  const [previewFrameError, setPreviewFrameError] = useState(false);
   const [copyBusy, setCopyBusy] = useState(false);
   const [copyErrorKey, setCopyErrorKey] = useState<string | null>(null);
   const [copyErrorDetail, setCopyErrorDetail] = useState("");
@@ -1310,6 +1330,9 @@ export function EditorHost({
     try {
       await previewItem(itemId, kind);
       setPreviewDone(true);
+      if (positivePreviewTemplateId(previewTemplateId) == null) {
+        setPreviewFrameUrl(editorDefaultPreviewFrameUrl(itemId, kind));
+      }
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
@@ -1318,6 +1341,34 @@ export function EditorHost({
       setPreviewErrorKey(EDITOR_MSG.PREVIEW_FAILED);
     } finally {
       setPreviewBusy(false);
+    }
+  }
+
+  async function applyPreviewTemplate(nextId: string): Promise<void> {
+    setPreviewTemplateId(nextId);
+    setPreviewFrameError(false);
+    if (contentId == null) {
+      setPreviewFrameUrl("");
+      return;
+    }
+    const kind = resolveEditorPublishKind(payload?.contentType, {
+      id: String(contentId),
+      allowedTemplateCount,
+    });
+    const templateId = positivePreviewTemplateId(nextId);
+    if (templateId == null) {
+      setPreviewFrameUrl(editorDefaultPreviewFrameUrl(String(contentId), kind));
+      return;
+    }
+    try {
+      const loc = await loadPreviewLocation(contentId, templateId);
+      setPreviewFrameUrl(editorChosenTemplateFrameUrl(loc.previewUrl));
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setPreviewFrameUrl("");
+      setPreviewFrameError(true);
     }
   }
 
@@ -2125,6 +2176,15 @@ export function EditorHost({
   });
   const showPublish = canPublishFromEditor(mode, publishKind);
   const showPreview = canPreviewFromEditor(mode, publishKind);
+  const previewChoices = useMemo(
+    () =>
+      numericPreviewTemplates(
+        pageTemplateChoices.length > 0
+          ? pageTemplateChoices
+          : templatesFromContentType(loadedAllowedTemplates ?? undefined),
+      ),
+    [pageTemplateChoices, loadedAllowedTemplates],
+  );
   const showCopy = canCopyFromEditor(mode) && contentId != null;
   const showRename = canRenameFromEditor(mode) && contentId != null;
   const showMove = canMoveFromEditor(mode) && contentId != null;
@@ -2826,6 +2886,43 @@ export function EditorHost({
                   ) : null}
                 </div>
               </div>
+            ) : null}
+            {showPreview ? (
+              <section data-testid="editor-preview-panel">
+                <label data-testid="editor-preview-template-label">
+                  {message(EDITOR_MSG.PREVIEW_TEMPLATE)}
+                  <select
+                    className={styles.input}
+                    data-testid="editor-preview-template"
+                    value={previewTemplateId}
+                    disabled={loading || payload == null}
+                    onChange={(e) => void applyPreviewTemplate(e.target.value)}
+                  >
+                    <option value={PREVIEW_TEMPLATE_CURRENT}>
+                      {message(EDITOR_MSG.PREVIEW_TEMPLATE_CURRENT)}
+                    </option>
+                    {previewChoices.map((choice) => (
+                      <option key={choice.id} value={choice.id}>
+                        {choice.name || choice.id}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {previewFrameError ? (
+                  <div className={styles.status} data-testid="editor-preview-template-error" role="alert">
+                    {message(EDITOR_MSG.PREVIEW_TEMPLATE_FAILED)}
+                  </div>
+                ) : null}
+                {previewFrameUrl ? (
+                  <iframe
+                    className={styles.form}
+                    data-testid="editor-preview-frame"
+                    data-preview-template={previewTemplateId || "current"}
+                    title={message(EDITOR_MSG.PREVIEW)}
+                    src={previewFrameUrl}
+                  />
+                ) : null}
+              </section>
             ) : null}
             {contentId != null && payload != null ? (
               <EditorRelatedContentPanel

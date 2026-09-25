@@ -311,6 +311,15 @@ unchanged and does not open a window. HTTP **403** (forbidden) and **404**
 as opened. **Promote** does not show Preview. Does not open leftover Content
 Editor HTML or an Active Assembly overlay.
 
+The same host shows a **Preview template** list when Preview is available.
+**Current template** is the default and keeps the assembled preview above
+(Page Management render for a page). Choosing another allowed template
+reloads that preview from `GET /services/assembly/preview-location`
+(`contentId` and `templateId`) into the preview frame. That choice does
+**not** change the saved page template (the separate page-template control
+still does that on save). A location that is not an assembler render URL is
+an error on the panel. Unsaved edits are still not assembled.
+
 In **Edit** mode the host also shows **New copy** and **Promotable version** for the
 already-open item (same REST as Explorer **New Copy** / **Promotable Version**).
 Confirm, then `POST /services/itemmanagement/item/newCopy/{id}` or

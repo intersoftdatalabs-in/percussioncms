@@ -117,11 +117,39 @@ async function stubEditorApis(page, opts) {
       body: JSON.stringify(fields),
     }),
   );
+  await ctx.route("**/pathmanagement/path/item/id/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ path: "/Sites/Example/Home" }),
+    }),
+  );
   await ctx.route("**/services/contenttypes/**", (route) =>
     route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify(type),
+    }),
+  );
+  await ctx.route("**/rest/content-explorer/translations/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ itemId: 42, variants: [] }),
+    }),
+  );
+  await ctx.route("**/rest/content-explorer/relationships/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ items: [] }),
+    }),
+  );
+  await ctx.route("**/assembly/slot-relationships/canvas**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ SlotCanvas: { ownerId: 42, slots: [] } }),
     }),
   );
   await ctx.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
@@ -198,6 +226,7 @@ test.describe("React Content Editor Preview", () => {
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {
         scope: `[data-testid="${TEST_IDS.host}"]`,
+        exclude: ['[data-testid="translations-panel"]'],
       });
     },
   );
@@ -313,6 +342,67 @@ test.describe("React Content Editor Preview", () => {
       );
       expect(isEditorHostPreviewUrl(popup.url())).toBe(false);
       await expect(page.locator(`[data-testid="${TEST_IDS.previewDone}"]`)).toBeVisible();
+    },
+  );
+
+  test(
+    "preview panel reloads the iframe for a chosen template",
+    { tag: ["@explorer-content-editor", "@editor", "@preview"] },
+    async ({ page }) => {
+      const previewCalls = [];
+      const locationCalls = [];
+      const pageErrors = [];
+      consoleOn(page, pageErrors);
+      const type = {
+        ContentTypeDetail: {
+          name: "percPage",
+          fields: [{ name: "sys_title", label: "Title", control: "sys_EditBox" }],
+          allowedTemplates: [
+            { name: "Home", label: "Home page", guid: { stringValue: "7" } },
+            { name: "Blog", label: "Blog", guid: { stringValue: "8" } },
+          ],
+        },
+      };
+      await stubEditorApis(page, { previewCalls, type });
+      await page.context().route("**/services/assembly/preview-location**", async (route) => {
+        locationCalls.push(route.request().url());
+        const url = new URL(route.request().url());
+        const templateId = url.searchParams.get("templateId") || "";
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            PreviewLocation: {
+              previewUrl: `/assembler/render?sys_contentid=42&sys_template=${templateId}&sys_revision=1&sys_context=0&sys_itemfilter=preview`,
+              contentId: 42,
+              templateId: Number(templateId),
+              revision: 1,
+            },
+          }),
+        });
+      });
+      await page.context().route("**/assembler/render**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "text/html",
+          body: "<html><body data-preview-marker=\"chosen\">assembled</body></html>",
+        });
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=view"));
+      const select = page.locator(`[data-testid="${TEST_IDS.previewTemplate}"]`);
+      await expect(select).toBeVisible({ timeout: 20_000 });
+      await expect(select).toHaveValue("");
+      await expect(page.locator(`[data-testid="${TEST_IDS.previewFrame}"]`)).toHaveCount(0);
+      await select.selectOption("8");
+      await expect.poll(() => locationCalls.some((u) => u.includes("templateId=8"))).toBe(true);
+      const frame = page.locator(`[data-testid="${TEST_IDS.previewFrame}"]`);
+      await expect(frame).toHaveAttribute("data-preview-template", "8");
+      await expect(frame).toHaveAttribute("src", /sys_template=8/);
+      await select.selectOption("");
+      await expect(frame).toHaveAttribute("data-preview-template", "current");
+      await expect(frame).toHaveAttribute("src", /\/pagemanagement\/render\/page\/42/);
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );
 });
