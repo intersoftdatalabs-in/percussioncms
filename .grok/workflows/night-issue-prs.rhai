@@ -1,8 +1,12 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.2.4
+// workflow_version: 2.2.5
 // Grok Build workflow meta has no version field (only name/description/when_to_use/phases).
 // Keep invocation name night-issue-prs stable; bump this header when behavior changes.
 //
+// 2.2.5 — Implementers run the Erlang skill CLI themselves before gh pr create.
+//   Do not spawn a nested Erlang agent or `grok --prompt-file`. Nested headless
+//   Grok dies on the first shell permission (erlang_not_spawned) and blocks the PR.
+//   Host Erlang leftover/peer phases still spawn their own reviewer.
 // 2.2.4 — Erlang pastes FULL mkd-code-review markdown into the PR body
 //   section "## Pre-push local code review" and writes
 //   docs/ai-generated/code-reviews/pr-<N>-erlang.md (durable). Comment
@@ -920,7 +924,7 @@ if coding_tool == "" { coding_tool = "Grok Build"; }
 if coding_tool_version == "" { coding_tool_version = "UNRESOLVED"; }
 if model_id == "" { model_id = "UNRESOLVED"; }
 let model_label = "model:" + model_id;
-let workflow_version = "2.2.4";
+let workflow_version = "2.2.5";
 log("identity: tool=" + coding_tool + " version=" + coding_tool_version + " model=" + model_id
     + " workflow_version=" + workflow_version);
 
@@ -2461,14 +2465,25 @@ for item in queue {
         work_prompt += "companions in THIS PR when the increment needs them). Not a layer slice. First slice only.\n";
             work_prompt += "IMPLEMENTATION GATES (all required before PR — priority p1–p8 does NOT relax these):\n";
             work_prompt += "A) Implement the change + behavioral unit tests for new/changed logic.\n";
-            work_prompt += "B) ERLANG IS A SUB-AGENT (HARD). Before `gh pr create`, spawn a separate sub-agent\n";
-            work_prompt += "   that loads modules/ai-shared-develop/src/main/resources/skills/erlang-review/SKILL.md\n";
-            work_prompt += "   and agents/erlang-code-review.md. That child reviews the uncommitted/branch diff.\n";
-            work_prompt += "   You (the implementer) must NOT write the Erlang review yourself.\n";
-            work_prompt += "   If the child reports bugs / missing behavioral tests / non-portable paths: fix, re-spawn,\n";
-            work_prompt += "   do not open the PR. If spawn fails: status=failed blocked=erlang_not_spawned.\n";
+            work_prompt += "B) ERLANG CLI VIA THE SKILL (HARD). Before `gh pr create`, YOU run the review.\n";
+            work_prompt += "   Do NOT spawn a sub-agent, grok --agent, or grok --prompt-file for Erlang.\n";
+            work_prompt += "   Nested headless Grok has no shell approval and dies as erlang_not_spawned.\n";
+            work_prompt += "   Read modules/ai-shared-develop/src/main/resources/skills/erlang-review/SKILL.md\n";
+            work_prompt += "   (pointer) and ~/.agents/skills/erlang/ERLANG.md, then run in this worktree:\n";
+            work_prompt += "   mkd-code-review analyze --pack percussion --format markdown --gate advisory\n";
+            work_prompt += "   --git-base origin/main --models\n";
+            work_prompt += "   /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml\n";
+            work_prompt += "   Scope is the branch diff. Do not pass the repo root as PATHS.\n";
+            work_prompt += "   If the models file is missing, omit --models and continue machine-only.\n";
+            work_prompt += "   If Ollama is down, keep machine findings; do not fail the review for an llm warn.\n";
+            work_prompt += "   Gate on in-diff bugs, missing behavioral tests, and non-portable paths only.\n";
+            work_prompt += "   Preexisting rows do not BLOCK. If the gate BLOCKs: fix, re-run the CLI, do not open the PR.\n";
+            work_prompt += "   Write the FULL markdown to docs/ai-generated/code-reviews/issue-<N>-erlang.md\n";
+            work_prompt += "   and commit it on the branch before gh pr create. Also paste it into the PR body\n";
+            work_prompt += "   under '## Pre-push local code review'.\n";
+            work_prompt += "   If mkd-code-review is not on PATH: status=failed blocked=erlang_cli_unavailable.\n";
+            work_prompt += "   Do not fall back to a nested agent. Do not invent a manual Gate: PASS.\n";
             work_prompt += "   You must NOT `gh pr review --approve` or merge your own PR. Host Erlang does that.\n";
-            work_prompt += "   If the Erlang child BLOCKS: fix on the branch, re-spawn Erlang, then open the PR.\n";
             work_prompt += "C) MAVEN BUILD GATES (HARD — never skip; never 'when practical'):\n";
             work_prompt += "   C1) For EACH changed Maven module: standalone `mvnw clean install` from the module dir\n";
             work_prompt += "       (path to repo-root mvnw). clean install MUST include test-compile + tests.\n";
