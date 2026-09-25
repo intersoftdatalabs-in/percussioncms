@@ -594,6 +594,120 @@ function describeCheckoutBatch(result: {
   return parts.join(" ");
 }
 
+interface CheckinBatchFailure {
+  name: string;
+  status?: number;
+  message: string;
+}
+
+function describeCheckinBatch(result: {
+  skippedFolders: string[];
+  skippedOther: string[];
+  failures: CheckinBatchFailure[];
+}): string | undefined {
+  const parts: string[] = [];
+  if (result.skippedFolders.length > 0) {
+    parts.push(
+      message(EXPLORER_MSG.CHECKIN_SKIPPED_FOLDERS)
+        .split("{names}")
+        .join(result.skippedFolders.join(", ")),
+    );
+  }
+  if (result.skippedOther.length > 0) {
+    parts.push(
+      message(EXPLORER_MSG.CHECKIN_SKIPPED_OTHER)
+        .split("{names}")
+        .join(result.skippedOther.join(", ")),
+    );
+  }
+  if (result.failures.length > 0) {
+    const detail = result.failures
+      .map((failure) =>
+        failure.status != null
+          ? `${failure.name} (HTTP ${failure.status})`
+          : `${failure.name} (${failure.message})`,
+      )
+      .join("; ");
+    parts.push(
+      message(EXPLORER_MSG.CHECKIN_BATCH_INCOMPLETE)
+        .split("{detail}")
+        .join(detail),
+    );
+  }
+  if (parts.length === 0) {
+    return undefined;
+  }
+  return parts.join(" ");
+}
+
+/**
+ * Check in every eligible page/asset. Folders are skipped. A 403 or 409
+ * on one item is named and the rest of the selection still runs.
+ */
+async function checkinMultiSelection(
+  ctx: ActionDispatchContext,
+  items: readonly PSPathItem[],
+): Promise<ActionDispatchResult> {
+  const plan = partitionStageSelection(items);
+  if (plan.eligible.length === 0) {
+    const noted = describeCheckinBatch({
+      skippedFolders: plan.skippedFolders,
+      skippedOther: plan.skippedOther,
+      failures: [],
+    });
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.CHECKIN_NOTHING_ELIGIBLE,
+      messageText: noted ?? message(EXPLORER_MSG.CHECKIN_NOTHING_ELIGIBLE),
+    };
+  }
+  const confirmBody = message(EXPLORER_MSG.CONFIRM_CHECKIN_MULTI)
+    .split("{count}")
+    .join(String(plan.eligible.length));
+  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  const checkedInIds: string[] = [];
+  const failures: CheckinBatchFailure[] = [];
+  for (const row of plan.eligible) {
+    const id = (row.id ?? "").trim();
+    try {
+      await checkInItem(id);
+      checkedInIds.push(id);
+    } catch (err: unknown) {
+      const status = isApiError(err) ? err.status : undefined;
+      const text =
+        err instanceof Error
+          ? err.message
+          : status != null
+            ? `HTTP ${status}`
+            : "check-in failed";
+      failures.push({
+        name: checkoutItemLabel(row),
+        status,
+        message: text || "check-in failed",
+      });
+    }
+  }
+  const messageText = describeCheckinBatch({
+    skippedFolders: plan.skippedFolders,
+    skippedOther: plan.skippedOther,
+    failures,
+  });
+  const incomplete = failures.length > 0;
+  return {
+    kind: "rest",
+    refresh: checkedInIds.length > 0,
+    messageText,
+    messageKey: incomplete
+      ? EXPLORER_MSG.CHECKIN_BATCH_INCOMPLETE
+      : messageText
+        ? EXPLORER_MSG.CHECKIN_SKIPPED_FOLDERS
+        : undefined,
+  };
+}
+
 /**
  * Check out every eligible page/asset. Folders are skipped. A 403 or 409
  * on one item is named and the rest of the selection still runs.
@@ -1704,6 +1818,10 @@ export async function dispatchAction(
   }
 
   if (isCheckinActionName(name)) {
+    const multi = ctx.selectedItems ?? [];
+    if (multi.length >= 2) {
+      return checkinMultiSelection(ctx, multi);
+    }
     if (!item || isFolder(item) || !item.id) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
