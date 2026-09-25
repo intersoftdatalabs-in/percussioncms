@@ -419,4 +419,104 @@ describe("EditorRelatedContentPanel", () => {
       expect(screen.queryByTestId("editor-related-move-up")).toBeNull();
     });
   });
+
+  it("opens a related item in the host mode and skips a row with no content id", async () => {
+    const reserved = {} as Window;
+    const reserveRelatedWindow = vi.fn(() => reserved);
+    const openRelatedItem = vi.fn().mockResolvedValue(true);
+    render(
+      <EditorRelatedContentPanel
+        itemId="42"
+        hostMode="view"
+        loadCanvas={async () => ({
+          ownerId: 42,
+          templateId: 7,
+          slots: [
+            {
+              slotId: 9,
+              name: "content",
+              label: "Content",
+              items: [
+                {
+                  relationshipId: 3,
+                  ownerId: 42,
+                  dependentId: 55,
+                  slotId: 9,
+                  templateId: 7,
+                  sortRank: 0,
+                },
+              ],
+            },
+          ],
+        })}
+        loadLocal={async () => ({
+          count: 1,
+          links: [{ targetId: "not-an-id", type: "local" }],
+        })}
+        openRelatedItem={openRelatedItem}
+        reserveRelatedWindow={reserveRelatedWindow}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getAllByTestId("editor-related-item-id").map((n) => n.textContent)).toEqual(
+        ["55", "not-an-id"],
+      );
+    });
+    expect(screen.getAllByTestId("editor-related-open")).toHaveLength(1);
+    fireEvent.click(screen.getByTestId("editor-related-open"));
+    await waitFor(() => {
+      expect(openRelatedItem).toHaveBeenCalledWith(
+        { id: 55, mode: "view" },
+        { reservedWindow: reserved },
+      );
+    });
+    expect(reserveRelatedWindow).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows an error when the reserved editor window does not open", async () => {
+    const openRelatedItem = vi.fn().mockResolvedValue(false);
+    render(
+      <EditorRelatedContentPanel
+        itemId="42"
+        hostMode="edit"
+        loadCanvas={async () => ({
+          ownerId: 42,
+          templateId: null,
+          slots: [
+            {
+              slotId: 9,
+              name: "content",
+              label: "Content",
+              items: [
+                {
+                  relationshipId: 3,
+                  ownerId: 42,
+                  dependentId: 55,
+                  slotId: 9,
+                  templateId: 7,
+                  sortRank: 0,
+                },
+              ],
+            },
+          ],
+        })}
+        loadLocal={async () => ({ count: 0, links: [] })}
+        openRelatedItem={openRelatedItem}
+        reserveRelatedWindow={() => null}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-open")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-related-open"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-open-error").textContent).toMatch(
+        /could not open/i,
+      );
+    });
+    expect(openRelatedItem).toHaveBeenCalledWith(
+      { id: 55, mode: "edit" },
+      { reservedWindow: null },
+    );
+  });
 });

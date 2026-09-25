@@ -298,6 +298,13 @@ item in a slot has no move controls. Inline local links are not reordered.
 **View** and **Promote** do not show Move up or Move down. This does not
 insert or remove associations and does not save numeric or link fields.
 
+Each related row that has a content id shows **Open**. That opens
+`spa.jsp?entry=editor` for that id in a reserved editor window (the same
+editor window helper as other editor launches). **Edit** mode opens the
+related item in edit. **View** and **Promote** open it in view, not edit.
+A row with no content id has no **Open** control and cannot be opened.
+Open does not insert, remove, or reorder the association.
+
 **Preview** is available in **View** and **Edit** for the already-open **page**
 or **asset** so authors do not need to bounce to Explorer solely to preview.
 It uses the same assembled preview as Explorer **Preview**: pages open Page

@@ -23,8 +23,10 @@ import {
   relatedContentErrorReason,
   relatedInsertErrorReason,
   relatedRemoveErrorReason,
+  relatedItemOpenMode,
   relatedReorderEnds,
   relatedReorderErrorReason,
+  relatedRowCanOpen,
 } from "../../../main/ts/editor/editorRelatedContent";
 
 describe("flattenRelatedContent", () => {
@@ -203,5 +205,21 @@ describe("relatedContentErrorReason", () => {
     expect(relatedContentErrorReason({ status: 500, statusText: "x", body: {} })).toBe(
       "failed",
     );
+  });
+});
+
+describe("related item open", () => {
+  it("opens view from view and promote, and edit otherwise", () => {
+    expect(relatedItemOpenMode("edit")).toBe("edit");
+    expect(relatedItemOpenMode(undefined)).toBe("edit");
+    expect(relatedItemOpenMode("view")).toBe("view");
+    expect(relatedItemOpenMode("promote")).toBe("view");
+  });
+
+  it("refuses a row with no content id", () => {
+    expect(relatedRowCanOpen("55")).toBe(true);
+    expect(relatedRowCanOpen("")).toBe(false);
+    expect(relatedRowCanOpen("not-an-id")).toBe(false);
+    expect(relatedRowCanOpen("0")).toBe(false);
   });
 });
