@@ -51,6 +51,39 @@ Exact wizard screens differ by platform, but the flow is consistent:
 5. Optionally install and configure the **DTS** against the same or related environment.
 6. Open the Web UI URL printed by the installer and sign in.
 
+### Linux services (systemd and init.d)
+
+Linux packages still ship **both** a native systemd unit and the classic init.d helpers.
+Do not remove the init.d path until operations has signed off a live install on that host.
+
+| Role | Install script (under the install tree) | Default unit name |
+|------|-----------------------------------------|-------------------|
+| CMS Jetty | `jetty/service/install-jetty-service.sh` | `PercussionCMS` |
+| DTS Production | `Deployment/Server/DTSProductionService.sh` | `PercussionProductionDTS` |
+| DTS Staging | `Deployment/Server/DTSStagingService.sh` | `PercussionStagingDTS` |
+
+Run the script as root. With no flag, a host that has systemd gets a native unit
+(`TimeoutStartSec=1800`, so a long upgrade start is not failed early by the unit timeout)
+and the init.d file is kept only as the start/stop helper — it is **not** also enabled with
+chkconfig. `--initd` registers only the classic SysV path and does not write a unit file.
+Do not pass `--systemd` and `--initd` together.
+
+After a systemd install:
+
+```bash
+systemctl enable --now PercussionCMS
+systemctl status PercussionCMS
+journalctl -u PercussionCMS -n 100 --no-pager
+```
+
+Uninstall with the same script's `uninstall` action. That removes the unit, `/etc/default`
+entry, init.d helper, and SysV links for that service name. To move a host from init.d-only
+to systemd, uninstall first, then install again without `--initd`.
+
+The CMS script's on-host notes are `jetty/service/README-systemd.md`. A developer
+user-namespace check (not a substitute for the commands above on a real host) lives in
+the source tree as `scripts/linux-service-namespace-soak.sh`.
+
 ### Docker / evaluation
 
 Repository `docker/` scripts and the root `docker-compose.yml` support evaluation and QA-style environments (including H2

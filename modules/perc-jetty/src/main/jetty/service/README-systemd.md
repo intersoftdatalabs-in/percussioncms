@@ -90,8 +90,13 @@ journalctl -u <ServiceName> -n 100 --no-pager
 | Preview generated unit without installing | **Manual** — copy template, substitute placeholders offline (no product `--dry-run`) |
 
 There is **no** `--dry-run` installer flag. Offline review of the template + scripts is
-the supported dry-run path (see checklist below). Live dual-ship soak is out of scope
-for packaging verification on a non-root workstation.
+the supported dry-run path (see checklist below).
+
+CI also runs a **user-namespace soak** (`scripts/linux-service-namespace-soak.sh`) that
+executes this installer against private `/etc`, `/run`, and `/var` mounts and a fake
+`systemctl`. That proves install / `--initd` / uninstall / init.d→systemd migration and
+that the rendered unit keeps `TimeoutStartSec=1800`. It does **not** replace a real
+host `systemctl start` + `journalctl` sign-off, and it does not remove init.d.
 
 ## Dry-run install checklist (no live root)
 
