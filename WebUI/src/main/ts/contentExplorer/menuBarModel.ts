@@ -32,6 +32,7 @@ export type ExplorerMenuCommandId =
   | "content-multi-copy"
   | "content-multi-move"
   | "content-multi-recycle"
+  | "content-multi-purge"
   | "content-create-site"
   | "content-site-copy"
   | "content-site-rename"
@@ -122,6 +123,13 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.MULTI_RECYCLE,
           ariaLabelKey: EXPLORER_MSG.MULTI_RECYCLE,
           testId: "explorer-multi-recycle",
+          disabledWhen: "noSelection",
+        },
+        {
+          id: "content-multi-purge",
+          labelKey: EXPLORER_MSG.MULTI_PURGE,
+          ariaLabelKey: EXPLORER_MSG.MULTI_PURGE,
+          testId: "explorer-multi-purge",
           disabledWhen: "noSelection",
         },
         {

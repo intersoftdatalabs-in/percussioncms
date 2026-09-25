@@ -84,6 +84,14 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     expect(move?.labelKey).toBe(EXPLORER_MSG.MULTI_MOVE);
   });
 
+  it("puts multi-select purge under Content, disabled without a selection (#4883)", () => {
+    const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
+    const purge = content?.items.find((i) => i.id === "content-multi-purge");
+    expect(purge?.testId).toBe("explorer-multi-purge");
+    expect(purge?.disabledWhen).toBe("noSelection");
+    expect(purge?.labelKey).toBe(EXPLORER_MSG.MULTI_PURGE);
+  });
+
   it("puts multi-select recycle under Content, disabled without a selection (#4857)", () => {
     const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
     const recycle = content?.items.find((i) => i.id === "content-multi-recycle");

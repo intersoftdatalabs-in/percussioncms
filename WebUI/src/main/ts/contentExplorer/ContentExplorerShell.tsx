@@ -174,6 +174,7 @@ import type { ExplorerMenuCommandId } from "./menuBarModel";
 import { EXPLORER_MSG } from "./messages";
 import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
 import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
+import { PurgeConfirmDialog } from "./PurgeConfirmDialog";
 import { RecycleConfirmDialog } from "./RecycleConfirmDialog";
 import {
   copyCheckedItemsToFolder,
@@ -193,6 +194,12 @@ import {
   recycleCheckedItems,
   type MultiFolderRecycleOutcome,
 } from "./multiFolderRecycle";
+import {
+  formatMultiFolderPurgeStatus,
+  multiPurgeOutcome,
+  purgeCheckedItems,
+  type MultiFolderPurgeOutcome,
+} from "./multiFolderPurge";
 import { openInEditor } from "./openInEditor";
 import { openPreviewItem } from "./previewItem";
 import {
@@ -672,6 +679,11 @@ function ContentExplorerShellInner({
   const [multiRecycleStatus, setMultiRecycleStatus] = useState<{
     text: string;
     outcome: MultiFolderRecycleOutcome;
+  } | null>(null);
+  const [multiPurgeOpen, setMultiPurgeOpen] = useState(false);
+  const [multiPurgeStatus, setMultiPurgeStatus] = useState<{
+    text: string;
+    outcome: MultiFolderPurgeOutcome;
   } | null>(null);
   const [clipboard, setClipboardState] = useState<Clipboard>(EMPTY_CLIPBOARD);
   const [clipboardMode, setClipboardMode] = useState<"copy" | "cut">("copy");
@@ -1547,6 +1559,12 @@ function ContentExplorerShellInner({
             setMultiRecycleOpen(true);
           }
           break;
+        case "content-multi-purge":
+          if (multiSelectedItemsRef.current.size > 0) {
+            setMultiPurgeStatus(null);
+            setMultiPurgeOpen(true);
+          }
+          break;
         case "content-create-site":
           setShowSiteCreate((v) => !v);
           break;
@@ -1963,6 +1981,45 @@ function ContentExplorerShellInner({
             });
           }}
           onCancel={() => setMultiRecycleOpen(false)}
+        />
+      ) : null}
+      {multiPurgeStatus ? (
+        <div
+          data-testid="explorer-multi-purge-result"
+          data-outcome={multiPurgeStatus.outcome}
+          role={multiPurgeStatus.outcome === "success" ? "status" : "alert"}
+          aria-live={
+            multiPurgeStatus.outcome === "success" ? "polite" : "assertive"
+          }
+          style={{
+            gridColumn: "1 / -1",
+            padding: "8px 12px",
+            background:
+              multiPurgeStatus.outcome === "success" ? "#ecfdf5" : "#fef2f2",
+            color: "#0f172a",
+          }}
+        >
+          {multiPurgeStatus.text}
+        </div>
+      ) : null}
+      {multiPurgeOpen ? (
+        <PurgeConfirmDialog
+          onConfirm={() => {
+            setMultiPurgeOpen(false);
+            const items = Array.from(multiSelectedItemsRef.current.values());
+            void purgeCheckedItems(items, (item) => purgeSelectedItem(item)).then(
+              (result) => {
+                setMultiPurgeStatus({
+                  text: formatMultiFolderPurgeStatus(result),
+                  outcome: multiPurgeOutcome(result),
+                });
+                if (result.purgedNames.length > 0) {
+                  setListEpoch((n) => n + 1);
+                }
+              },
+            );
+          }}
+          onCancel={() => setMultiPurgeOpen(false)}
         />
       ) : null}
       <div

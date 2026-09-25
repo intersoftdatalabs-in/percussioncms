@@ -2235,6 +2235,156 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("purges checked pages, names skipped folders, and keeps a partial failure (#4883)", async () => {
+    const purgeUrls: string[] = [];
+    mockFetch(async (input, init) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      const method = String(init?.method ?? "GET").toUpperCase();
+      if (
+        method === "DELETE" &&
+        (url.includes("/page/purge/") || url.includes("/asset/purge/"))
+      ) {
+        purgeUrls.push(url);
+        if (url.includes("page-miss")) {
+          return new Response("{}", {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        return new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "fold-1",
+                  name: "SkipMe",
+                  path: "//Folders/$System$/Recycling/SkipMe/",
+                  type: "folder",
+                  category: "folder",
+                  leaf: false,
+                },
+                {
+                  id: "page-ok",
+                  name: "OkPage",
+                  path: "//Folders/$System$/Recycling/OkPage",
+                  type: "percPage",
+                  category: "page",
+                  leaf: true,
+                },
+                {
+                  id: "page-miss",
+                  name: "Missing",
+                  path: "//Folders/$System$/Recycling/Missing",
+                  type: "percPage",
+                  category: "page",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 3,
+              startIndex: 0,
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="//Folders/$System$/Recycling"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-select-fold-1")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-select-fold-1"));
+    fireEvent.click(screen.getByTestId("detail-select-page-ok"));
+    fireEvent.click(screen.getByTestId("detail-select-page-miss"));
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-multi-purge"));
+    fireEvent.click(await screen.findByTestId("explorer-purge-ok"));
+
+    const result = await screen.findByTestId("explorer-multi-purge-result");
+    expect(result.getAttribute("data-outcome")).toBe("partial");
+    expect(result.textContent).toContain("SkipMe");
+    expect(result.textContent).toContain("Missing");
+    expect(result.textContent).not.toContain("Purged 2 item(s)");
+    expect(purgeUrls.length).toBe(2);
+    expect(purgeUrls.some((url) => url.includes("fold-1"))).toBe(false);
+    await renderA11yGate(container);
+  });
+
+  it("cancel on purge selected does not call purge (#4883)", async () => {
+    const purgeUrls: string[] = [];
+    mockFetch(async (input, init) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      const method = String(init?.method ?? "GET").toUpperCase();
+      if (method === "DELETE" && url.includes("/purge/")) {
+        purgeUrls.push(url);
+        return new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "page-ok",
+                  name: "OkPage",
+                  path: "//Folders/$System$/Recycling/OkPage",
+                  type: "percPage",
+                  category: "page",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="//Folders/$System$/Recycling"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-select-page-ok")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-select-page-ok"));
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-multi-purge"));
+    fireEvent.click(await screen.findByTestId("explorer-purge-cancel"));
+    expect(screen.queryByTestId("explorer-purge-confirm")).toBeNull();
+    expect(purgeUrls).toEqual([]);
+    expect(screen.queryByTestId("explorer-multi-purge-result")).toBeNull();
+  });
+
   it("translations toggle shows select-item hint without a content selection (#2430)", async () => {
     stubPathFetch();
     renderShell(
