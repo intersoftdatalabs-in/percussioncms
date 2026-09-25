@@ -2889,7 +2889,7 @@ export function EditorHost({
             ) : null}
             {showPreview ? (
               <section data-testid="editor-preview-panel">
-                <label className={styles.meta} data-testid="editor-preview-template-label">
+                <label data-testid="editor-preview-template-label">
                   {message(EDITOR_MSG.PREVIEW_TEMPLATE)}
                   <select
                     className={styles.input}

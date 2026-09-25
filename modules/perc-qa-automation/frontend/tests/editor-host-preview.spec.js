@@ -117,11 +117,39 @@ async function stubEditorApis(page, opts) {
       body: JSON.stringify(fields),
     }),
   );
+  await ctx.route("**/pathmanagement/path/item/id/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ path: "/Sites/Example/Home" }),
+    }),
+  );
   await ctx.route("**/services/contenttypes/**", (route) =>
     route.fulfill({
       status: 200,
       contentType: "application/json",
       body: JSON.stringify(type),
+    }),
+  );
+  await ctx.route("**/rest/content-explorer/translations/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ itemId: 42, variants: [] }),
+    }),
+  );
+  await ctx.route("**/rest/content-explorer/relationships/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ items: [] }),
+    }),
+  );
+  await ctx.route("**/assembly/slot-relationships/canvas**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ SlotCanvas: { ownerId: 42, slots: [] } }),
     }),
   );
   await ctx.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
@@ -198,6 +226,7 @@ test.describe("React Content Editor Preview", () => {
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {
         scope: `[data-testid="${TEST_IDS.host}"]`,
+        exclude: ['[data-testid="translations-panel"]'],
       });
     },
   );

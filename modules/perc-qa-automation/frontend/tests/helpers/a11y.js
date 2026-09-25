@@ -49,12 +49,13 @@ const { AxeBuilder } = require("@axe-core/playwright");
  * @param {Object} [opts]
  * @param {string} [opts.scope] CSS selector of the React component root.
  * @param {string[]} [opts.disabledRules] axe rule ids to disable (e.g. vendor chrome false-positives).
+ * @param {string[]} [opts.exclude] CSS selectors to leave out of the scan.
  * @returns {Promise<{violations: Array, completed: boolean}>} The
  *   raw violations array (filtered) plus a {@code completed} flag
  *   for the caller to print.
  */
 async function runA11yCheck(page, opts = {}) {
-  const { scope, disabledRules = [] } = opts;
+  const { scope, disabledRules = [], exclude = [] } = opts;
 
   let builder = new AxeBuilder({ page }).withTags([
     "wcag2a",
@@ -64,6 +65,9 @@ async function runA11yCheck(page, opts = {}) {
   ]);
 
   if (scope) builder = builder.include(scope);
+  for (const selector of exclude) {
+    builder = builder.exclude(selector);
+  }
 
   for (const rule of disabledRules) {
     builder = builder.disableRules([rule]);
