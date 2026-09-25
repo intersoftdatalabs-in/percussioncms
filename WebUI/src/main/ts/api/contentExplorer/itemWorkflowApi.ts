@@ -30,13 +30,24 @@
  * empty on live H2.</p>
  */
 
-import { get } from "../client";
+import { get, post } from "../client";
 import { PATHS } from "../paths";
 
 /**
  * Wire shape for {@code GET .../workflow/getTransitions/{id}}
  * ({@code PSItemStateTransition}).
  */
+export interface ItemWorkflowChoice {
+  id: string;
+  name: string;
+}
+
+export interface ItemWorkflowChoices {
+  itemId?: string;
+  currentWorkflowId?: string;
+  choices: ItemWorkflowChoice[];
+}
+
 export interface ItemStateTransition {
   itemId?: string;
   stateId?: string;
@@ -148,6 +159,93 @@ export function unwrapItemStateTransition(
  *
  * @param itemId content / component id as returned by pathmanagement
  */
+const CHOICE_ROOTS = ["ItemWorkflowChoices", "PSItemWorkflowChoices"] as const;
+
+function coerceChoices(raw: unknown): ItemWorkflowChoice[] {
+  if (raw == null) {
+    return [];
+  }
+  const list = Array.isArray(raw)
+    ? raw
+    : (() => {
+        const obj = asRecord(raw);
+        if (!obj) {
+          return [];
+        }
+        for (const key of ["ItemWorkflowChoice", "PSItemWorkflowChoice", "choice", "choices"]) {
+          if (key in obj) {
+            const inner = obj[key];
+            return Array.isArray(inner) ? inner : [inner];
+          }
+        }
+        return [];
+      })();
+  const out: ItemWorkflowChoice[] = [];
+  for (const entry of list) {
+    const row = asRecord(entry);
+    if (!row) {
+      continue;
+    }
+    const id = asOptionalString(row.id);
+    if (!id) {
+      continue;
+    }
+    out.push({ id, name: asOptionalString(row.name) ?? id });
+  }
+  return out;
+}
+
+export function unwrapItemWorkflowChoices(data: unknown): ItemWorkflowChoices {
+  const root = asRecord(data);
+  if (!root) {
+    return { choices: [] };
+  }
+  let body = root;
+  for (const name of CHOICE_ROOTS) {
+    const nested = asRecord(root[name]);
+    if (nested) {
+      body = nested;
+      break;
+    }
+  }
+  return {
+    itemId: asOptionalString(body.itemId),
+    currentWorkflowId: asOptionalString(body.currentWorkflowId),
+    choices: coerceChoices(body.choices),
+  };
+}
+
+/** Workflows associated with the item's content type. */
+export async function getItemWorkflowChoices(
+  itemId: string,
+): Promise<ItemWorkflowChoices> {
+  const id = String(itemId ?? "").trim();
+  if (!id) {
+    return { choices: [] };
+  }
+  const data = await get<unknown>(
+    `${PATHS.ITEM_WORKFLOW_ALLOWED}${encodeURIComponent(id)}`,
+  );
+  return unwrapItemWorkflowChoices(data);
+}
+
+/**
+ * Assign a different allowed workflow. HTTP errors propagate; callers must not
+ * treat them as success.
+ */
+export async function changeItemWorkflow(
+  itemId: string,
+  workflowId: string,
+): Promise<ItemStateTransition> {
+  const id = String(itemId ?? "").trim();
+  const wf = String(workflowId ?? "").trim();
+  if (!id || !wf) {
+    throw new Error("changeItemWorkflow requires itemId and workflowId");
+  }
+  const data = await post<unknown>(PATHS.itemWorkflowChange(id, wf), {});
+  return unwrapItemStateTransition(data);
+}
+
 export async function getItemWorkflowTransitions(
   itemId: string,
 ): Promise<ItemStateTransition> {

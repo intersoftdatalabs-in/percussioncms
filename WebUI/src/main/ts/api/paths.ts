@@ -814,6 +814,13 @@ export const PATHS = {
   get ITEM_WORKFLOW_TRANSITIONS() {
     return `${SERVICES_ROOT}/itemmanagement/workflow/getTransitions/`;
   },
+  /** Content-type workflows the editor may assign (#4861). */
+  get ITEM_WORKFLOW_ALLOWED() {
+    return `${SERVICES_ROOT}/itemmanagement/workflow/allowedWorkflows/`;
+  },
+  itemWorkflowChange(itemId: string, workflowId: string) {
+    return `${SERVICES_ROOT}/itemmanagement/workflow/changeWorkflow/${encodeURIComponent(itemId)}/${encodeURIComponent(workflowId)}`;
+  },
   get ITEM_WORKFLOW_CHECKIN() {
     return `${SERVICES_ROOT}/itemmanagement/workflow/checkIn/`;
   },

@@ -25,6 +25,11 @@ import styles from "./EditorHost.module.css";
 import { triggerRequiresComment } from "./editorWorkflow";
 import { EDITOR_MSG } from "./messages";
 
+export interface EditorWorkflowChoiceOption {
+  id: string;
+  name: string;
+}
+
 export interface EditorWorkflowPanelProps {
   stateName?: string;
   triggers: readonly string[];
@@ -35,6 +40,11 @@ export interface EditorWorkflowPanelProps {
   errorKey?: string | null;
   errorDetail?: string;
   commentRequiredTriggers?: readonly string[] | null;
+  workflowChoices?: readonly EditorWorkflowChoiceOption[];
+  selectedWorkflowId?: string;
+  onWorkflowIdChange?: (workflowId: string) => void;
+  onChangeWorkflow?: () => void;
+  workflowChanged?: boolean;
 }
 
 export function EditorWorkflowPanel({
@@ -47,6 +57,11 @@ export function EditorWorkflowPanel({
   errorKey,
   errorDetail,
   commentRequiredTriggers,
+  workflowChoices = [],
+  selectedWorkflowId = "",
+  onWorkflowIdChange,
+  onChangeWorkflow,
+  workflowChanged = false,
 }: EditorWorkflowPanelProps): React.ReactElement {
   return (
     <section
@@ -98,6 +113,40 @@ export function EditorWorkflowPanel({
           onChange={(e) => onCommentChange(e.target.value)}
         />
       </label>
+      {workflowChoices.length > 0 ? (
+        <div className={styles.workflowActions} data-testid="editor-workflow-change">
+          <label className={styles.field}>
+            <span className={styles.label}>{message(EDITOR_MSG.WORKFLOW_CHANGE)}</span>
+            <select
+              data-testid="editor-workflow-picker"
+              value={selectedWorkflowId}
+              disabled={busy}
+              onChange={(e) => onWorkflowIdChange?.(e.target.value)}
+            >
+              <option value="">{message(EDITOR_MSG.WORKFLOW_CHANGE_EMPTY)}</option>
+              {workflowChoices.map((choice) => (
+                <option key={choice.id} value={choice.id}>
+                  {choice.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            className={styles.button}
+            data-testid="editor-workflow-save"
+            disabled={busy}
+            onClick={() => onChangeWorkflow?.()}
+          >
+            {message(EDITOR_MSG.WORKFLOW_CHANGE_APPLY)}
+          </button>
+          {workflowChanged ? (
+            <span className={styles.meta} data-testid="editor-workflow-changed">
+              {message(EDITOR_MSG.WORKFLOW_CHANGED)}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
       {errorKey ? (
         <div
           className={styles.status}

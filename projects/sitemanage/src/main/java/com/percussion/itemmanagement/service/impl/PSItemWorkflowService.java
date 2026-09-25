@@ -43,6 +43,10 @@ import com.percussion.itemmanagement.data.PSBulkApprovalJobStatus;
 import com.percussion.itemmanagement.data.PSItemStateTransition;
 import com.percussion.itemmanagement.data.PSItemTransitionResults;
 import com.percussion.itemmanagement.data.PSItemUserInfo;
+import com.percussion.itemmanagement.data.PSItemWorkflowChoice;
+import com.percussion.itemmanagement.data.PSItemWorkflowChoices;
+import com.percussion.itemmanagement.workflow.ItemWorkflowAssignmentRules;
+import com.percussion.itemmanagement.workflow.ItemWorkflowAssignmentRules.Reason;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.pagemanagement.dao.IPSPageDao;
@@ -54,6 +58,11 @@ import com.percussion.security.PSThreadRequestUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.catalog.data.PSObjectSummary;
+import com.percussion.services.contentmgr.data.PSContentTypeWorkflow;
+import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.legacy.IPSCmsObjectMgr;
+import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.content.data.PSItemStatus;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
@@ -80,12 +89,16 @@ import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.sitemanage.dao.IPSiteDao;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.PSWebserviceUtils;
+import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
+import com.percussion.webservices.content.PSContentWsLocator;
+import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.system.IPSSystemWs;
 import jakarta.ws.rs.Consumes;
@@ -138,6 +151,10 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
   IPSSystemWs systemWs;
   private IPSRecycleService recycleService;
   private IPSAsyncJobService asyncJobService;
+
+  /** Optional so existing constructor tests stay valid; production Spring injects the design WS. */
+  @Autowired(required = false)
+  private IPSContentDesignWs contentDesignWs;
   private static final String BULK_APPROVAL_JOB_BEAN = "bulkApprovalJob";
 
   @Autowired
@@ -390,6 +407,138 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e.getMessage());
+    }
+  }
+
+  @Override
+  @GET
+  @Path("allowedWorkflows/{id}")
+  public PSItemWorkflowChoices allowedWorkflows(@PathParam("id") String id) {
+    try {
+      rejectIfBlank("allowedWorkflows", "id", id);
+      IPSContentDesignWs designWs = contentDesignWs;
+      if (designWs == null) {
+        designWs = PSContentWsLocator.getContentDesignWebservice();
+      }
+      if (designWs == null) {
+        throw new WebApplicationException(
+            "Workflow catalog is not available", Response.Status.INTERNAL_SERVER_ERROR);
+      }
+      PSComponentSummary sum = workflowHelper.getComponentSummary(id);
+      int current = sum.getWorkflowAppId();
+      List<PSContentTypeWorkflow> associated =
+          designWs.loadAssociatedWorkflows(sum.getContentTypeGUID(), false, false);
+      List<PSItemWorkflowChoice> choices = new ArrayList<>();
+      if (associated != null) {
+        for (PSContentTypeWorkflow row : associated) {
+          if (row == null || row.getWorkflowId() == null) {
+            continue;
+          }
+          int wfId = (int) row.getWorkflowId().longValue();
+          if (wfId <= 0) {
+            continue;
+          }
+          PSItemWorkflowChoice choice = new PSItemWorkflowChoice();
+          choice.setId(Integer.toString(wfId));
+          PSWorkflow wf = workflowService.loadWorkflow(row.getWorkflowId());
+          choice.setName(wf != null && wf.getName() != null ? wf.getName() : choice.getId());
+          choices.add(choice);
+        }
+      }
+      PSItemWorkflowChoices out = new PSItemWorkflowChoices();
+      out.setItemId(id);
+      out.setCurrentWorkflowId(Integer.toString(current));
+      out.setChoices(choices);
+      return out;
+    } catch (PSValidationException | PSErrorResultsException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
+    }
+  }
+
+  @Override
+  @POST
+  @Path("changeWorkflow/{id}/{workflowId}")
+  public PSItemStateTransition changeWorkflow(
+      @PathParam("id") String id, @PathParam("workflowId") String workflowId) {
+    try {
+      rejectIfBlank("changeWorkflow", "id", id);
+      PSItemWorkflowChoices catalog = allowedWorkflows(id);
+      int current = Integer.parseInt(catalog.getCurrentWorkflowId());
+      Set<Integer> allowed = new HashSet<>();
+      for (PSItemWorkflowChoice choice : catalog.getChoices()) {
+        if (choice == null || choice.getId() == null) {
+          continue;
+        }
+        try {
+          allowed.add(Integer.valueOf(choice.getId().trim()));
+        } catch (NumberFormatException ignored) {
+          // skip a catalog row that is not an id
+        }
+      }
+      Reason reason = ItemWorkflowAssignmentRules.decide(workflowId, current, allowed);
+      if (reason != Reason.OK) {
+        Response.Status status =
+            reason == Reason.FORBIDDEN || reason == Reason.UNCHANGED
+                ? Response.Status.FORBIDDEN
+                : Response.Status.BAD_REQUEST;
+        throw new WebApplicationException("Workflow change rejected: " + reason.name(), status);
+      }
+      int targetId = Integer.parseInt(workflowId.trim());
+      PSComponentSummary sum = workflowHelper.getComponentSummary(id);
+      String holder = sum.getCheckoutUserName();
+      if (holder != null && !holder.isBlank()) {
+        String me = getUserName();
+        if (me == null || !holder.equals(me)) {
+          throw new WebApplicationException(
+              "Item is checked out to another user", Response.Status.CONFLICT);
+        }
+        try {
+          checkIn(id, false);
+        } catch (PSItemWorkflowServiceException | PSDataServiceException checkInError) {
+          log.error(PSExceptionUtils.getMessageForLog(checkInError));
+          throw new WebApplicationException(
+              "Could not check in the item before changing its workflow",
+              Response.Status.CONFLICT);
+        }
+      }
+      PSWorkflow target = workflowService.loadWorkflow(new PSGuid(PSTypeEnum.WORKFLOW, targetId));
+      if (target == null || target.getStates() == null || target.getStates().isEmpty()) {
+        throw new WebApplicationException(
+            "Workflow has no states", Response.Status.BAD_REQUEST);
+      }
+      List<String> stateNames = new ArrayList<>();
+      for (PSState state : target.getStates()) {
+        if (state != null && state.getName() != null && !state.getName().isBlank()) {
+          stateNames.add(state.getName());
+        }
+      }
+      if (stateNames.isEmpty()) {
+        throw new WebApplicationException(
+            "Workflow has no states", Response.Status.BAD_REQUEST);
+      }
+      IPSCmsObjectMgr objMgr = PSCmsObjectMgrLocator.getObjectManager();
+      int contentId = ((PSLegacyGuid) idMapper.getGuid(id)).getContentId();
+      objMgr.changeWorkflowForItem(contentId, targetId, stateNames);
+      try {
+        checkOut(id);
+      } catch (RuntimeException relock) {
+        log.warn("Workflow changed but check-out was not restored: {}", relock.getMessage());
+      }
+      return getTransitions(id);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSORMException | PSValidationException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
+    } catch (RuntimeException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
     }
   }
 

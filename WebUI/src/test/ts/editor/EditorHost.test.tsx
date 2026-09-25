@@ -2179,6 +2179,17 @@ describe("EditorHost workflow transitions (#4539)", () => {
                 }
                 runTransition={extra.runTransition}
                 commentRequiredTriggers={extra.commentRequiredTriggers}
+                loadWorkflowChoices={
+                  extra.loadWorkflowChoices ??
+                  (async () => ({
+                    currentWorkflowId: "4",
+                    choices: [
+                      { id: "4", name: "Local" },
+                      { id: "7", name: "Review" },
+                    ],
+                  }))
+                }
+                changeWorkflow={extra.changeWorkflow}
               />
             }
           />
@@ -2283,6 +2294,52 @@ describe("EditorHost workflow transitions (#4539)", () => {
     });
     expect(screen.queryByTestId("editor-workflow")).toBeNull();
     expect(loadTransitions).not.toHaveBeenCalled();
+  });
+
+  it("saves a different workflow and shows the new state (#4861)", async () => {
+    const changeWorkflow = vi.fn().mockResolvedValue({
+      stateName: "Pending",
+      workflowId: "7",
+      transitionTriggers: ["Approve"],
+    });
+    renderEdit({ changeWorkflow });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-picker")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-picker"), {
+      target: { value: "7" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-save"));
+    await waitFor(() => {
+      expect(changeWorkflow).toHaveBeenCalledWith("42", "7");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-changed")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Pending/);
+    expect(screen.getByTestId("editor-workflow-trigger-Approve")).toBeTruthy();
+    expect(screen.queryByTestId("editor-workflow-trigger-Submit")).toBeNull();
+  });
+
+  it("does not claim success when the workflow is forbidden (#4861)", async () => {
+    const changeWorkflow = vi.fn().mockRejectedValue(new Error("HTTP 403"));
+    renderEdit({ changeWorkflow });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-picker")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-picker"), {
+      target: { value: "7" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-save"));
+    await waitFor(() => {
+      expect(changeWorkflow).toHaveBeenCalledWith("42", "7");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-error").textContent).toMatch(
+        /Could not change/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-workflow-changed")).toBeNull();
   });
 });
 
