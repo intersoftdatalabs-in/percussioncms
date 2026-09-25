@@ -1161,6 +1161,95 @@ describe("actionDispatch", () => {
     expect(conflict.messageKey).toBe(EXPLORER_MSG.CHECKIN_CONFLICT);
   });
 
+  it("multi-select Force Check-in confirms once and skips folders (#4873)", async () => {
+    const force = vi
+      .spyOn(itemWorkflowApi, "forceCheckInItem")
+      .mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const page = item({ id: "42", name: "Home" });
+    const asset = item({
+      id: "44",
+      name: "Logo",
+      type: "percImageAsset",
+      category: "asset",
+    });
+    const folder = item({
+      id: "7",
+      name: "News",
+      type: "folder",
+      category: "folder",
+    });
+    const result = await dispatchAction(action({ name: "Force_Checkin" }), {
+      item: page,
+      selectedItems: [page, folder, asset],
+      confirm,
+    });
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(String(confirm.mock.calls[0]?.[0])).toMatch(
+      /Force check-in 2 selected items/i,
+    );
+    expect(force).toHaveBeenCalledTimes(2);
+    expect(force).toHaveBeenNthCalledWith(1, "42");
+    expect(force).toHaveBeenNthCalledWith(2, "44");
+    expect(result.refresh).toBe(true);
+    expect(result.messageText).toMatch(/Folders are not force checked in: News/i);
+  });
+
+  it("multi-select Force Check-in cancel force-checks-in nothing (#4873)", async () => {
+    const force = vi
+      .spyOn(itemWorkflowApi, "forceCheckInItem")
+      .mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Force_Checkin" }), {
+      item: item(),
+      selectedItems: [item({ id: "42" }), item({ id: "43", name: "About" })],
+      confirm: () => false,
+    });
+    expect(force).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("multi-select Force Check-in names HTTP 409 and still force-checks-in the other item (#4873)", async () => {
+    const force = vi
+      .spyOn(itemWorkflowApi, "forceCheckInItem")
+      .mockImplementation(async (id: string) => {
+        if (id === "43") {
+          throw { status: 409, statusText: "Conflict", body: {} };
+        }
+      });
+    const result = await dispatchAction(action({ name: "Force_Checkin" }), {
+      item: item(),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About" }),
+      ],
+      confirm: () => true,
+    });
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBe(EXPLORER_MSG.FORCE_CHECKIN_BATCH_INCOMPLETE);
+    expect(result.messageText).toMatch(/About \(HTTP 409\)/i);
+    expect(result.messageText).toMatch(
+      /Not every selected item was force checked in/i,
+    );
+    expect(force).toHaveBeenCalledTimes(2);
+  });
+
+  it("multi-select of only folders does not force check in (#4873)", async () => {
+    const force = vi
+      .spyOn(itemWorkflowApi, "forceCheckInItem")
+      .mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Force_Checkin" }), {
+      item: item({ id: "7", type: "folder", category: "folder", name: "News" }),
+      selectedItems: [
+        item({ id: "7", type: "folder", category: "folder", name: "News" }),
+        item({ id: "8", type: "folder", category: "folder", name: "Blog" }),
+      ],
+      confirm: () => true,
+    });
+    expect(force).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText).toMatch(/Folders are not force checked in/i);
+  });
+
   it("classifies Force Check-in as rest", () => {
     expect(classifyAction(action({ name: "Force_Checkin" }))).toBe("rest");
   });
