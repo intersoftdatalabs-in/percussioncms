@@ -92,6 +92,14 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     expect(recycle?.labelKey).toBe(EXPLORER_MSG.MULTI_RECYCLE);
   });
 
+  it("puts multi-select purge under Content, disabled without a selection (#4883)", () => {
+    const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
+    const purge = content?.items.find((i) => i.id === "content-multi-purge");
+    expect(purge?.testId).toBe("explorer-multi-purge");
+    expect(purge?.disabledWhen).toBe("noSelection");
+    expect(purge?.labelKey).toBe(EXPLORER_MSG.MULTI_PURGE);
+  });
+
   it("Content → Search is a toggle sharing the Search panel (#2850)", () => {
     const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
     const search = content?.items.find((i) => i.id === "content-search");
