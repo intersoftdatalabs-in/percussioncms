@@ -29,12 +29,14 @@ import { get } from "../api/client";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { SERVICES_ROOT, withCmsContextPrefix } from "../api/paths";
 import {
+  buildPageRenderPreviewUrl,
   openPreviewItem,
   resolvePreviewTarget,
   type PreviewOpenDeps,
 } from "../contentExplorer/previewItem";
 import type { EditorHostMode } from "./editorHostUrl";
 import type { EditorPublishKind } from "./editorPublish";
+import type { PageTemplateChoice } from "./pageTemplates";
 
 export interface EditorPreviewDeps extends PreviewOpenDeps {
   /**
@@ -129,4 +131,68 @@ export async function previewEditorItem(
     await probe(withCmsContextPrefix(target.url));
   }
   await openPreviewItem(item, deps);
+}
+
+/** Empty select value: assembled preview of the item's current template. */
+export const PREVIEW_TEMPLATE_CURRENT = "";
+
+/** Assembly preview-location accepts a positive integer template id. */
+export function positivePreviewTemplateId(raw: string): number | null {
+  const text = raw.trim();
+  if (!/^[0-9]+$/.test(text)) {
+    return null;
+  }
+  const id = Number(text);
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    return null;
+  }
+  return id;
+}
+
+/** Drop names that cannot be passed as {@code templateId}. */
+export function numericPreviewTemplates(
+  choices: readonly PageTemplateChoice[],
+): PageTemplateChoice[] {
+  const out: PageTemplateChoice[] = [];
+  const seen = new Set<number>();
+  for (const choice of choices) {
+    const id = positivePreviewTemplateId(choice.id);
+    if (id == null || seen.has(id)) {
+      continue;
+    }
+    seen.add(id);
+    out.push({ id: String(id), name: choice.name || String(id) });
+  }
+  return out;
+}
+
+/**
+ * Default panel URL: Page Management render (current template). Assets stay
+ * on the existing window preview — their view URL is plain text, not HTML.
+ */
+export function editorDefaultPreviewFrameUrl(
+  itemId: string,
+  kind: EditorPublishKind,
+): string {
+  if (kind !== "page") {
+    return "";
+  }
+  const url = buildPageRenderPreviewUrl(itemId);
+  return url ? withCmsContextPrefix(url) : "";
+}
+
+/**
+ * Chosen-template panel URL from {@code GET /assembly/preview-location}.
+ * Rejects anything that is not the assembler render path.
+ */
+export function editorChosenTemplateFrameUrl(previewUrl: string): string {
+  const trimmed = previewUrl.trim();
+  if (!trimmed.toLowerCase().includes("/assembler/render")) {
+    throw new Error("Preview location is not an assembler URL");
+  }
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  const path = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  return withCmsContextPrefix(path);
 }

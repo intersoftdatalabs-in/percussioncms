@@ -140,6 +140,10 @@ export const EDITOR_MSG = {
   PREVIEW_FAILED: "perc.ui.editor@Could not preview this item.",
   PREVIEW_UNAVAILABLE:
     "perc.ui.editor@Preview is only available for pages and assets.",
+  PREVIEW_TEMPLATE: "perc.ui.editor@Preview template",
+  PREVIEW_TEMPLATE_CURRENT: "perc.ui.editor@Current template",
+  PREVIEW_TEMPLATE_FAILED:
+    "perc.ui.editor@Could not preview with that template.",
   CONFIRM_PREVIEW_UNSAVED:
     "perc.ui.editor@Preview the last saved revision? Unsaved edits are not included.",
   NEW_COPY: "perc.ui.editor@New copy",

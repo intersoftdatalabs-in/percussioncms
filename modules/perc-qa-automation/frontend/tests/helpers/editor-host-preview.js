@@ -32,6 +32,9 @@ const TEST_IDS = Object.freeze({
   preview: "editor-preview",
   previewDone: "editor-preview-done",
   previewError: "editor-preview-error",
+  previewPanel: "editor-preview-panel",
+  previewTemplate: "editor-preview-template",
+  previewFrame: "editor-preview-frame",
   fieldTitle: "editor-field-sys_title",
 });
 

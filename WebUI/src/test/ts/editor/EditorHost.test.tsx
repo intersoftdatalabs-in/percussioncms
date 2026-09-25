@@ -2686,6 +2686,66 @@ describe("EditorHost preview assembled item (#4568)", () => {
     expect(screen.queryByTestId("editor-preview-error")).toBeNull();
   });
 
+  it("reloads the preview frame for a chosen template without saving it", async () => {
+    const loadPreviewLocation = vi.fn().mockResolvedValue({
+      previewUrl: "/assembler/render?sys_contentid=42&sys_template=8&sys_revision=1",
+    });
+    const changeTemplate = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue({
+                  ...fields,
+                  contentType: "percPage",
+                  fields: [
+                    { name: "sys_title", value: "Home" },
+                    { name: "templateid", value: "7" },
+                  ],
+                })}
+                loadType={async () => ({
+                  fields: [{ name: "sys_title", label: "Title", readOnly: false }],
+                  allowedTemplates: [
+                    { name: "Home", label: "Home page", guid: { stringValue: "7" } },
+                    { name: "Blog", label: "Blog", guid: { stringValue: "8" } },
+                  ],
+                })}
+                loadPreviewLocation={loadPreviewLocation}
+                changeTemplate={changeTemplate}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-preview-template")).toBeTruthy();
+    });
+    const select = screen.getByTestId("editor-preview-template") as HTMLSelectElement;
+    expect(select.value).toBe("");
+    expect(screen.queryByTestId("editor-preview-frame")).toBeNull();
+    fireEvent.change(select, { target: { value: "8" } });
+    await waitFor(() => {
+      expect(loadPreviewLocation).toHaveBeenCalledWith(42, 8);
+    });
+    const frame = screen.getByTestId("editor-preview-frame");
+    expect(frame.getAttribute("src")).toContain("sys_template=8");
+    expect(frame.getAttribute("data-preview-template")).toBe("8");
+    expect(changeTemplate).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("editor-preview-template"), {
+      target: { value: "" },
+    });
+    await waitFor(() => {
+      const current = screen.getByTestId("editor-preview-frame");
+      expect(current.getAttribute("src")).toContain("/pagemanagement/render/page/42");
+      expect(current.getAttribute("data-preview-template")).toBe("current");
+    });
+  });
+
   it("confirms unsaved edits then previews the last saved revision", async () => {
     const previewItem = vi.fn().mockResolvedValue(undefined);
     const confirmUnsavedPreview = vi.fn().mockReturnValue(true);

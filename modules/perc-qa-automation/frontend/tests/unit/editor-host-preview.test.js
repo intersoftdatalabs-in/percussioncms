@@ -40,6 +40,8 @@ describe("editor-host-preview helpers (#4568)", () => {
     assert.equal(TEST_IDS.preview, "editor-preview");
     assert.equal(TEST_IDS.previewDone, "editor-preview-done");
     assert.equal(TEST_IDS.previewError, "editor-preview-error");
+    assert.equal(TEST_IDS.previewTemplate, "editor-preview-template");
+    assert.equal(TEST_IDS.previewFrame, "editor-preview-frame");
   });
 
   it("classifies page render and asset view URLs", () => {

@@ -18,8 +18,12 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   canPreviewFromEditor,
+  editorChosenTemplateFrameUrl,
+  editorDefaultPreviewFrameUrl,
   editorDraftIsDirty,
   editorPreviewPathItem,
+  numericPreviewTemplates,
+  positivePreviewTemplateId,
   previewEditorItem,
 } from "../../../main/ts/editor/editorPreview";
 
@@ -157,5 +161,40 @@ describe("previewEditorItem", () => {
       /not available/i,
     );
     expect(openWindow).not.toHaveBeenCalled();
+  });
+});
+
+describe("editor preview template panel (#4841)", () => {
+  it("keeps only positive integer template ids", () => {
+    expect(positivePreviewTemplateId("7")).toBe(7);
+    expect(positivePreviewTemplateId("0")).toBeNull();
+    expect(positivePreviewTemplateId("abc")).toBeNull();
+    expect(positivePreviewTemplateId("")).toBeNull();
+    expect(
+      numericPreviewTemplates([
+        { id: "7", name: "Home" },
+        { id: "guid-not-int", name: "Named" },
+        { id: "7", name: "Home again" },
+        { id: "8", name: "Blog" },
+      ]),
+    ).toEqual([
+      { id: "7", name: "Home" },
+      { id: "8", name: "Blog" },
+    ]);
+  });
+
+  it("uses page render for the current template and assembler URL for a choice", () => {
+    expect(editorDefaultPreviewFrameUrl("42", "page")).toContain(
+      "/pagemanagement/render/page/42",
+    );
+    expect(editorDefaultPreviewFrameUrl("99", "asset")).toBe("");
+    expect(
+      editorChosenTemplateFrameUrl(
+        "/assembler/render?sys_contentid=42&sys_template=7&sys_revision=1",
+      ),
+    ).toContain("sys_template=7");
+    expect(() => editorChosenTemplateFrameUrl("/services/not-preview")).toThrow(
+      /assembler/i,
+    );
   });
 });
