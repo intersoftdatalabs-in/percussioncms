@@ -47,4 +47,24 @@ describe("CommunityFieldWidget", () => {
     });
     expect(onChange).toHaveBeenCalledWith("20");
   });
+
+  it("is disabled when the user cannot edit", async () => {
+    const onChange = vi.fn();
+    render(
+      <CommunityFieldWidget
+        name="sys_communityid"
+        value="10"
+        readOnly
+        onChange={onChange}
+        loadCommunities={async () => [{ id: 10, name: "Default", label: "Default" }]}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByText("Default")).toBeTruthy();
+    });
+    const select = screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement;
+    expect(select.disabled).toBe(true);
+    expect(select.value).toBe("10");
+    expect(onChange).not.toHaveBeenCalled();
+  });
 });

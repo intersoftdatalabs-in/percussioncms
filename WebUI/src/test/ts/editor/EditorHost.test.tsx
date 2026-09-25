@@ -1005,6 +1005,11 @@ describe("EditorHost rich controls", () => {
     const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
     expect(saved.fields.find((f) => f.name === "keywords")?.value).toBe("events");
     expect(saved.fields.find((f) => f.name === "sys_communityid")?.value).toBe("20");
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement).value,
+      ).toBe("20");
+    });
     expect(saved.fields.find((f) => f.name === "img")).toBeUndefined();
     expect(uploadBinary).toHaveBeenCalledWith("42", "img", file);
   });

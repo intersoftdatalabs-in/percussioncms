@@ -107,4 +107,20 @@ class PSItemEditorFieldsMapperTest {
     PSItemEditorFieldsMapper.applyUpdates(item, List.of(new PSItemEditorField("sys_communityid", "20")));
     assertEquals("20", item.getFields().get("sys_communityid"));
   }
+
+  @Test
+  void fillCommunityWhenAbsentCopiesStatusIdAndKeepsExplicitValue() {
+    PSItemEditorFields missing = new PSItemEditorFields();
+    PSItemEditorFieldsMapper.fillCommunityWhenAbsent(missing, 20);
+    assertEquals("20", missing.getFields().get(0).getValue());
+
+    PSItemEditorFields cleared = new PSItemEditorFields();
+    cleared.setFields(List.of(new PSItemEditorField("sys_communityid", "")));
+    PSItemEditorFieldsMapper.fillCommunityWhenAbsent(cleared, 20);
+    assertEquals("", cleared.getFields().get(0).getValue());
+
+    PSItemEditorFields ignored = new PSItemEditorFields();
+    PSItemEditorFieldsMapper.fillCommunityWhenAbsent(ignored, 0);
+    assertTrue(ignored.getFields().isEmpty());
+  }
 }

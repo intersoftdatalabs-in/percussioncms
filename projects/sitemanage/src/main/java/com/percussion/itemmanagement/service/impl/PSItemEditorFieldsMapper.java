@@ -36,14 +36,38 @@ public final class PSItemEditorFieldsMapper {
 
   private PSItemEditorFieldsMapper() {}
 
+  public static final String COMMUNITY_FIELD = "sys_communityid";
+
   public static boolean isEditableFieldName(String name) {
     if (StringUtils.isBlank(name)) {
       return false;
     }
-    if ("sys_title".equals(name) || "sys_communityid".equals(name)) {
+    if ("sys_title".equals(name) || COMMUNITY_FIELD.equals(name)) {
       return true;
     }
     return !name.startsWith("sys_");
+  }
+
+  /**
+   * Copy the content-status community onto the editor payload when the item field map omitted
+   * {@code sys_communityid}. A present value, including blank, is left alone so an explicit clear
+   * is not replaced by the previous id. {@code communityId} &lt;= 0 is ignored.
+   */
+  public static void fillCommunityWhenAbsent(PSItemEditorFields out, int communityId) {
+    if (out == null || communityId <= 0) {
+      return;
+    }
+    List<PSItemEditorField> fields = out.getFields();
+    if (fields == null) {
+      fields = new ArrayList<>();
+      out.setFields(fields);
+    }
+    for (PSItemEditorField field : fields) {
+      if (field != null && COMMUNITY_FIELD.equals(field.getName())) {
+        return;
+      }
+    }
+    fields.add(new PSItemEditorField(COMMUNITY_FIELD, Integer.toString(communityId)));
   }
 
   public static String stringifyFieldValue(Object raw) {
