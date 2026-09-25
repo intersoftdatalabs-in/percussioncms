@@ -684,6 +684,13 @@ GADGET_DESC_DASHBOARD_CONFIG:
       JOB_ID: "perc.ui.publish.title@Job ID",
       EDITION: "perc.ui.publish.modern@Edition",
       ERROR: "perc.ui.publish.title@Error",
+      ITEMS_HEADING: "perc.ui.publish.modern@Content items",
+      ITEM_NAME: "perc.ui.publish.modern@Name",
+      ITEMS_EMPTY: "perc.ui.publish.modern@No content items for this job",
+      ITEMS_FORBIDDEN:
+        "perc.ui.publish.modern@You are not allowed to view items for this job",
+      ITEMS_NOT_FOUND: "perc.ui.publish.modern@Job items were not found",
+      ITEMS_FAILED: "perc.ui.publish.modern@Could not load items for this job",
     },
     LOGS_DETAILS: {
       JOB_ID: "perc.ui.publish.title@Job ID",
