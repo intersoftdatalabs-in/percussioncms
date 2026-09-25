@@ -275,7 +275,10 @@ export function SiteWorkspace({
     if (!selectedServer) {
       return;
     }
-    await deleteServer(siteId, selectedServer);
+    const id = selectedServer;
+    await deleteServer(siteId, id);
+    setServers((prev) => prev.filter((s) => serverIdOf(s) !== id));
+    setSelectedServer("");
     setEditorMode("closed");
     setEditServer(null);
     setDirty(false);
@@ -586,6 +589,7 @@ export function SiteWorkspace({
             type="button"
             style={buttonStyle}
             disabled={!selectedServer}
+            data-testid="publish-edit-server"
             onClick={() => void openEdit()}
           >
             {message(MSG.PUBLISH_EDIT_SERVER)}

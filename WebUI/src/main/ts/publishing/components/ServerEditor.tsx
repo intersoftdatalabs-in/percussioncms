@@ -17,7 +17,10 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { message, MSG } from "../../i18n/message";
-import { mapDeliveryServerSaveError } from "../deliveryServerSaveErrors";
+import {
+  mapDeliveryServerDeleteError,
+  mapDeliveryServerSaveError,
+} from "../deliveryServerSaveErrors";
 import {
   buttonStyle,
   errorStyle,
@@ -148,7 +151,7 @@ export function ServerEditor({
       await onDelete();
       onDirtyChange?.(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapDeliveryServerDeleteError(e));
     } finally {
       setSaving(false);
     }
@@ -285,6 +288,7 @@ export function ServerEditor({
             type="button"
             style={buttonStyle}
             disabled={saving}
+            data-testid="publish-delete-server"
             onClick={() => void handleDelete()}
           >
             {message(MSG.PUBLISH_DELETE_SERVER)}

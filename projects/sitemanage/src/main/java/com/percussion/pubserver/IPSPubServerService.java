@@ -185,10 +185,16 @@ public interface IPSPubServerService {
 
     public PSPubServerServiceException(String message) {
       super(message);
+      if (message != null && !message.isBlank()) {
+        m_overridingMessage = message;
+      }
     }
 
     public PSPubServerServiceException(String message, Throwable cause) {
       super(message, cause);
+      if (message != null && !message.isBlank()) {
+        m_overridingMessage = message;
+      }
     }
 
     public PSPubServerServiceException(Throwable cause) {

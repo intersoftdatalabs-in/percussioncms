@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -119,6 +120,40 @@ public class PSPubServerRestServiceTest {
         assertThrows(
             WebApplicationException.class,
             () -> rest.createPubServer("1", "Night", mock(PSPublishServerInfo.class)));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteServer_mapsInUseTo409() throws Exception {
+    IPSPubServerService svc = mock(IPSPubServerService.class);
+    when(svc.deleteServer(eq("1"), eq("9")))
+        .thenThrow(
+            new IPSPubServerService.PSPubServerServiceException(
+                "The server is being used by other user and cannot be deleted."));
+    PSPubServerRestService rest = new PSPubServerRestService(svc);
+    rest.setUserService(adminUsers());
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> rest.deleteServer("1", "9"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(
+        ex.getMessage() != null
+            && ex.getMessage().contains("being used by other user"),
+        ex.getMessage());
+  }
+
+  @Test
+  public void deleteServer_forbiddenWhenNotAdminOrDesigner() throws Exception {
+    IPSPubServerService svc = mock(IPSPubServerService.class);
+    PSPubServerRestService rest = new PSPubServerRestService(svc);
+    IPSUserService users = mock(IPSUserService.class);
+    PSCurrentUser editor = mock(PSCurrentUser.class);
+    when(editor.getName()).thenReturn("Editor");
+    when(users.getCurrentUser()).thenReturn(editor);
+    when(users.isAdminUser("Editor")).thenReturn(false);
+    when(users.isDesignUser("Editor")).thenReturn(false);
+    rest.setUserService(users);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> rest.deleteServer("1", "9"));
     assertEquals(403, ex.getResponse().getStatus());
   }
 
