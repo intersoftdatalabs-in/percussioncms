@@ -2514,6 +2514,206 @@ describe("EditorHost publish now (#4540)", () => {
   });
 });
 
+describe("EditorHost takedown (#4862)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function titleType() {
+    return { fields: [{ name: "sys_title", label: "Title", readOnly: false }] };
+  }
+
+  it("confirms then takes down a percPage and reports success", async () => {
+    const takedownItem = vi.fn().mockResolvedValue(true);
+    const confirmTakedown = vi.fn().mockReturnValue(true);
+    const loadTakedownLinked = vi.fn().mockResolvedValue([
+      { pagePath: "/Sites/Demo/Home" },
+    ]);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                takedownItem={takedownItem}
+                loadTakedownLinked={loadTakedownLinked}
+                confirmTakedown={confirmTakedown}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-takedown")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-takedown"));
+    await waitFor(() => {
+      expect(confirmTakedown).toHaveBeenCalled();
+    });
+    const body = String(confirmTakedown.mock.calls[0]?.[0] ?? "");
+    expect(body).toContain("/Sites/Demo/Home");
+    await waitFor(() => {
+      expect(takedownItem).toHaveBeenCalledWith(
+        "42",
+        "page",
+        [{ pagePath: "/Sites/Demo/Home" }],
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-takedown-done")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-takedown-error")).toBeNull();
+  });
+
+  it("does not call takedown when confirm is cancelled", async () => {
+    const takedownItem = vi.fn().mockResolvedValue(true);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                takedownItem={takedownItem}
+                loadTakedownLinked={async () => []}
+                confirmTakedown={() => false}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-takedown")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-takedown"));
+    await waitFor(() => {
+      expect(takedownItem).not.toHaveBeenCalled();
+    });
+    expect(screen.queryByTestId("editor-takedown-done")).toBeNull();
+  });
+
+  it("surfaces FORBIDDEN as failure, not success", async () => {
+    const takedownItem = vi.fn().mockRejectedValue(new Error("FORBIDDEN"));
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                takedownItem={takedownItem}
+                loadTakedownLinked={async () => []}
+                confirmTakedown={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-takedown")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-takedown"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-takedown-error").textContent).toMatch(
+        /FORBIDDEN/,
+      );
+    });
+    expect(screen.queryByTestId("editor-takedown-done")).toBeNull();
+  });
+
+  it("hides Take down in view mode and for a new unsaved item", async () => {
+    const takedownItem = vi.fn();
+    const { unmount } = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                takedownItem={takedownItem}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-takedown")).toBeNull();
+    unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn()}
+                loadContentTypes={async () => []}
+                takedownItem={takedownItem}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-host")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-takedown")).toBeNull();
+    expect(takedownItem).not.toHaveBeenCalled();
+  });
+
+  it("hides Take down for a folder content type", async () => {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=8&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue({
+                  contentId: "8",
+                  contentType: "Folder",
+                  name: "News",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "News" }],
+                })}
+                loadType={async () => titleType()}
+                takedownItem={vi.fn()}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-takedown")).toBeNull();
+  });
+});
+
 describe("EditorHost required field save errors (#4541)", () => {
   afterEach(() => {
     cleanup();

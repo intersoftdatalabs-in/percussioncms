@@ -24,10 +24,14 @@
  * {@code publishSelectedItem}.</p>
  */
 
-import { get } from "../api/client";
+import { get, put } from "../api/client";
+import type { LinkedPageForTakedown } from "../contentExplorer/itemPublish";
+import { linkedPagePathsForConfirm } from "../contentExplorer/itemPublish";
+import { message } from "../i18n/message";
 import { itemPublishPaths } from "../publishing/itemPublishPaths";
 import { mapPublishResponse } from "../publishing/publishActions";
 import type { EditorHostMode } from "./editorHostUrl";
+import { EDITOR_MSG } from "./messages";
 import { isExplorerPageType } from "./pageTemplates";
 
 export type EditorPublishKind = "page" | "asset" | "none";
@@ -128,6 +132,56 @@ export async function publishEditorItem(
   const preflight = mapPublishResponse(body);
   if (preflight) {
     throw new Error(preflight.message || preflight.token || "Publish failed");
+  }
+  return true;
+}
+
+/**
+ * Same eligibility as {@link canPublishFromEditor}. Folders, templates, and
+ * items with no id (new unsaved create) stay ineligible.
+ */
+export function canTakedownFromEditor(
+  mode: EditorHostMode,
+  kind: EditorPublishKind,
+): boolean {
+  return canPublishFromEditor(mode, kind);
+}
+
+/** Confirm copy for editor Take down, including linked page paths when present. */
+export function formatEditorTakedownConfirm(
+  linked: LinkedPageForTakedown[],
+): string {
+  const intro = message(EDITOR_MSG.CONFIRM_TAKE_DOWN);
+  const paths = linkedPagePathsForConfirm(linked);
+  if (paths.length === 0) {
+    return intro;
+  }
+  return `${intro}\n\n${message(EDITOR_MSG.CONFIRM_TAKE_DOWN_LINKED)}\n${paths.join("\n")}`;
+}
+
+/**
+ * Take down (unpublish) the open page or asset. Returns false when kind is
+ * none or the id is blank. Linked pages PUT the list (same as Explorer
+ * {@code takedownSelectedItem}); otherwise GET. HTTP 200 preflight failures
+ * throw and are not success.
+ */
+export async function takedownEditorItem(
+  itemId: string,
+  kind: EditorPublishKind,
+  linked: LinkedPageForTakedown[] = [],
+): Promise<boolean> {
+  const id = itemId.trim();
+  if (!id || kind === "none") {
+    return false;
+  }
+  const paths = itemPublishPaths();
+  const base = kind === "page" ? paths.pageTakedown : paths.resourceTakedown;
+  const url = `${base}/${encodeURIComponent(id)}`;
+  const body =
+    linked.length > 0 ? await put<unknown>(url, linked) : await get<unknown>(url);
+  const preflight = mapPublishResponse(body);
+  if (preflight) {
+    throw new Error(preflight.message || preflight.token || "Takedown failed");
   }
   return true;
 }

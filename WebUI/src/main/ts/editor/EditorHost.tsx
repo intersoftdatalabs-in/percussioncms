@@ -131,9 +131,16 @@ import {
   PREVIEW_TEMPLATE_CURRENT,
 } from "./editorPreview";
 import {
+  loadLinkedPagesForTakedown,
+  type LinkedPageForTakedown,
+} from "../contentExplorer/itemPublish";
+import {
   canPublishFromEditor,
+  canTakedownFromEditor,
+  formatEditorTakedownConfirm,
   publishEditorItem,
   resolveEditorPublishKind,
+  takedownEditorItem,
   type EditorPublishKind,
 } from "./editorPublish";
 import {
@@ -245,6 +252,16 @@ export interface EditorHostProps {
   publishItem?: (itemId: string, kind: EditorPublishKind) => Promise<boolean>;
   /** Test seam: confirm before Publish now (defaults to {@code window.confirm}). */
   confirmPublish?: (body: string) => boolean;
+  /** Test seam: sitemanage takedown ({@code takedown/page|resource/{id}}). */
+  takedownItem?: (
+    itemId: string,
+    kind: EditorPublishKind,
+    linked: LinkedPageForTakedown[],
+  ) => Promise<boolean>;
+  /** Test seam: linked pages listed on the takedown confirm. */
+  loadTakedownLinked?: (itemId: string) => Promise<LinkedPageForTakedown[]>;
+  /** Test seam: confirm before Take down (defaults to {@code window.confirm}). */
+  confirmTakedown?: (body: string) => boolean;
   /** Test seam: Explorer {@code openPreviewItem} wrapper. */
   previewItem?: (itemId: string, kind: EditorPublishKind) => Promise<void>;
   /**
@@ -517,6 +534,9 @@ export function EditorHost({
   commentRequiredTriggers,
   publishItem = publishEditorItem,
   confirmPublish,
+  takedownItem = takedownEditorItem,
+  loadTakedownLinked = loadLinkedPagesForTakedown,
+  confirmTakedown,
   previewItem = previewEditorItem,
   loadPreviewLocation = fetchPreviewLocation,
   confirmUnsavedPreview,
@@ -605,6 +625,10 @@ export function EditorHost({
   const [publishDone, setPublishDone] = useState(false);
   const [publishErrorKey, setPublishErrorKey] = useState<string | null>(null);
   const [publishErrorDetail, setPublishErrorDetail] = useState("");
+  const [takedownBusy, setTakedownBusy] = useState(false);
+  const [takedownDone, setTakedownDone] = useState(false);
+  const [takedownErrorKey, setTakedownErrorKey] = useState<string | null>(null);
+  const [takedownErrorDetail, setTakedownErrorDetail] = useState("");
   const [previewBusy, setPreviewBusy] = useState(false);
   const [previewDone, setPreviewDone] = useState(false);
   const [previewErrorKey, setPreviewErrorKey] = useState<string | null>(null);
@@ -1391,6 +1415,50 @@ export function EditorHost({
       setPublishErrorKey(EDITOR_MSG.PUBLISH_FAILED);
     } finally {
       setPublishBusy(false);
+    }
+  }
+
+  async function handleTakedown(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    const itemId = String(contentId);
+    const kind = resolveEditorPublishKind(payload?.contentType, {
+      id: itemId,
+      allowedTemplateCount,
+    });
+    if (!canTakedownFromEditor(mode, kind)) {
+      setTakedownDone(false);
+      setTakedownErrorDetail("");
+      setTakedownErrorKey(EDITOR_MSG.TAKEDOWN_UNAVAILABLE);
+      return;
+    }
+    const linked = await loadTakedownLinked(itemId);
+    const confirmFn =
+      confirmTakedown ??
+      ((body: string) =>
+        typeof window !== "undefined" ? window.confirm(body) : false);
+    if (!confirmFn(formatEditorTakedownConfirm(linked))) {
+      return;
+    }
+    setTakedownBusy(true);
+    setTakedownDone(false);
+    setTakedownErrorKey(null);
+    setTakedownErrorDetail("");
+    try {
+      const takenDown = await takedownItem(itemId, kind, linked);
+      if (!takenDown) {
+        setTakedownErrorKey(EDITOR_MSG.TAKEDOWN_UNAVAILABLE);
+        return;
+      }
+      setTakedownDone(true);
+    } catch (err) {
+      setTakedownErrorDetail(
+        formatApiError(err, message(EDITOR_MSG.TAKEDOWN_FAILED)),
+      );
+      setTakedownErrorKey(EDITOR_MSG.TAKEDOWN_FAILED);
+    } finally {
+      setTakedownBusy(false);
     }
   }
 
@@ -2270,6 +2338,7 @@ export function EditorHost({
     allowedTemplateCount,
   });
   const showPublish = canPublishFromEditor(mode, publishKind);
+  const showTakedown = canTakedownFromEditor(mode, publishKind);
   const showPreview = canPreviewFromEditor(mode, publishKind);
   const previewChoices = useMemo(
     () =>
@@ -2343,6 +2412,11 @@ export function EditorHost({
               {message(EDITOR_MSG.PUBLISH_DONE)}
             </span>
           ) : null}
+          {takedownDone ? (
+            <span className={styles.meta} data-testid="editor-takedown-done">
+              {message(EDITOR_MSG.TAKEDOWN_DONE)}
+            </span>
+          ) : null}
           {previewDone ? (
             <span className={styles.meta} data-testid="editor-preview-done">
               {message(EDITOR_MSG.PREVIEW_DONE)}
@@ -2373,6 +2447,17 @@ export function EditorHost({
               onClick={() => void handlePublish()}
             >
               {message(publishBusy ? EDITOR_MSG.PUBLISHING : EDITOR_MSG.PUBLISH_NOW)}
+            </button>
+          ) : null}
+          {showTakedown ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-takedown"
+              disabled={takedownBusy || loading || payload == null || saving}
+              onClick={() => void handleTakedown()}
+            >
+              {message(takedownBusy ? EDITOR_MSG.TAKING_DOWN : EDITOR_MSG.TAKE_DOWN)}
             </button>
           ) : null}
           {showMove ? (
@@ -2682,6 +2767,16 @@ export function EditorHost({
               >
                 {message(publishErrorKey)}
                 {publishErrorDetail ? ` ${publishErrorDetail}` : ""}
+              </div>
+            ) : null}
+            {takedownErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-takedown-error"
+              >
+                {message(takedownErrorKey)}
+                {takedownErrorDetail ? ` ${takedownErrorDetail}` : ""}
               </div>
             ) : null}
             {previewErrorKey ? (
