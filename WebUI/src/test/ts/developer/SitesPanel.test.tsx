@@ -15,6 +15,7 @@ vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
   createSite: vi.fn(),
   updateSite: vi.fn(),
   deleteSite: vi.fn(),
+  getSite: vi.fn(),
   getVirtualSiteProperties: vi.fn().mockResolvedValue({ virtual: false }),
   updateVirtualSiteProperties: vi.fn(),
   coerceDisplayString: (value: unknown) =>
@@ -23,6 +24,7 @@ vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
 }));
 
 const listSites = sitesApi.listSites as ReturnType<typeof vi.fn>;
+const getSite = sitesApi.getSite as ReturnType<typeof vi.fn>;
 
 describe("SitesPanel", () => {
   beforeEach(() => {
@@ -30,6 +32,8 @@ describe("SitesPanel", () => {
       message: (key: string) => key,
     };
     listSites.mockReset();
+    getSite.mockReset();
+    getSite.mockImplementation(async (name: string) => ({ name, workflowName: "Simple Workflow" }));
   });
 
   it("lists sites and opens detail from list payload", async () => {

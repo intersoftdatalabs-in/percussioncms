@@ -1347,6 +1347,8 @@ export interface SiteDef {
   canonical?: boolean;
   guid?: RestGuid;
   designGaps?: string[];
+  /** Site-folder workflow name when loaded on detail. */
+  workflowName?: string;
   /** Nested virtual.* when loaded via site detail GET (optional on list). */
   virtual?: VirtualSiteProperties;
 }

@@ -3,7 +3,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from "react";
-import { coerceDisplayString, listSites } from "../api/developer/sitesApi";
+import { coerceDisplayString, getSite, listSites } from "../api/developer/sitesApi";
 import type { SiteDef } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { catalogColors, mutedCell, openButtonStyle } from "./catalogStyles";
@@ -24,7 +24,7 @@ function siteName(s: SiteDef): string {
 
 /**
  * P0.18 — site catalog browse (SY-04) via existing GET /services/sites.
- * Detail uses list payload (resource is list-only today).
+ * Opening a row loads GET detail so workflowName survives a reload.
  */
 export function SitesPanel(): React.ReactElement {
   const [items, setItems] = useState<SiteDef[] | null>(null);
@@ -56,6 +56,22 @@ export function SitesPanel(): React.ReactElement {
       cancelled = true;
     };
   }, []);
+
+  function openSite(row: SiteDef): void {
+    setSelected(row);
+    const name = siteName(row);
+    if (!name) return;
+    getSite(name)
+      .then((detail) => {
+        setSelected((current) => {
+          if (!current || current === "new" || siteName(current) !== name) return current;
+          return detail;
+        });
+      })
+      .catch(() => {
+        /* list row remains usable when detail is unavailable */
+      });
+  }
 
   function handleCreated(created: SiteDef): void {
     reload();
@@ -180,7 +196,7 @@ export function SitesPanel(): React.ReactElement {
           if (s.isCanonical ?? s.canonical) flags.push(DEV_MSG.SITE_FLAG_CANONICAL);
           return {
             key: `${name}-${index}`,
-            onClick: () => setSelected(s),
+            onClick: () => openSite(s),
             cells: [
               <button
                 key="open"

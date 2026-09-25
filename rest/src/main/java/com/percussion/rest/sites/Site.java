@@ -84,6 +84,16 @@ public class Site {
               + " Sites. Absent/true is the default for repository sites.")
   private Boolean managedNavigation;
 
+  /**
+   * Workflow associated with the site folder ({@code sys_workflowid}). On update, a non-blank name
+   * must already exist; an unknown name is rejected and is not saved.
+   */
+  @Schema(
+      description =
+          "Workflow name associated with the site folder. On update, must name an existing"
+              + " workflow. Omit to leave the association unchanged.")
+  private String workflowName;
+
   public Site() {
     // Default constructor
   }
@@ -238,5 +248,13 @@ public class Site {
 
   public void setManagedNavigation(Boolean managedNavigation) {
     this.managedNavigation = managedNavigation;
+  }
+
+  public String getWorkflowName() {
+    return workflowName;
+  }
+
+  public void setWorkflowName(String workflowName) {
+    this.workflowName = workflowName;
   }
 }

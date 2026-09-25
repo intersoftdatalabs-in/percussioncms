@@ -18,6 +18,8 @@ package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -35,6 +37,7 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.sitemanage.data.PSSiteProperties;
 import com.percussion.sitemanage.service.IPSSiteDataService;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.junit.jupiter.api.Tag;
@@ -276,5 +279,63 @@ class SitesAdaptorCreateUpdateDeleteTest {
             WebApplicationException.class, () -> denied.deleteSiteByNameOrId("NightlySite"));
     assertEquals(403, ex.getResponse().getStatus());
     verify(siteManager, never()).deleteSite(org.mockito.ArgumentMatchers.any(IPSSite.class));
+  }
+
+  @Test
+  void update_unknownWorkflow_400_doesNotSaveSite() {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setDescription("old");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    SiteFolderWorkflowAssociation workflows = mock(SiteFolderWorkflowAssociation.class);
+    when(workflows.prepare(eq(existing), eq("Nope")))
+        .thenThrow(new WebApplicationException("Unknown workflow: Nope", Response.Status.BAD_REQUEST));
+    adaptor.setSiteWorkflowAssociation(workflows);
+
+    Site req = body("NightlySite", "should-not-save", null);
+    req.setWorkflowName("Nope");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.updateSite("NightlySite", req));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("old", existing.getDescription());
+    verify(siteManager, never()).saveSite(any());
+    verify(workflows, never()).commit(any());
+  }
+
+  @Test
+  void update_workflow_commitsAfterSaveAndReloadsName() throws PSNotFoundException {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+    SiteFolderWorkflowAssociation workflows = mock(SiteFolderWorkflowAssociation.class);
+    SiteFolderWorkflowAssociation.Assignment assignment =
+        mock(SiteFolderWorkflowAssociation.Assignment.class);
+    when(workflows.prepare(eq(existing), eq("Simple Workflow"))).thenReturn(assignment);
+    when(workflows.readName(existing)).thenReturn("Simple Workflow");
+    adaptor.setSiteWorkflowAssociation(workflows);
+
+    Site req = body("NightlySite", "kept", null);
+    req.setWorkflowName("Simple Workflow");
+    Site out = adaptor.updateSite("NightlySite", req);
+
+    assertEquals("Simple Workflow", out.getWorkflowName());
+    verify(siteManager).saveSite(existing);
+    verify(workflows).commit(assignment);
+  }
+
+  @Test
+  void update_workflow_nonAdmin_403() {
+    SiteFolderWorkflowAssociation workflows = mock(SiteFolderWorkflowAssociation.class);
+    denied.setSiteWorkflowAssociation(workflows);
+    Site req = body("NightlySite", "x", null);
+    req.setWorkflowName("Simple Workflow");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> denied.updateSite("NightlySite", req));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(workflows, never()).prepare(any(), any());
+    verify(siteManager, never()).saveSite(any());
   }
 }
