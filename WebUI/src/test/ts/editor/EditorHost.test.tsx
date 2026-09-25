@@ -2478,6 +2478,124 @@ describe("EditorHost publish now (#4540)", () => {
     expect(publishItem).not.toHaveBeenCalled();
   });
 
+  it("opens publish history for the open item without publishing (#4863)", async () => {
+    const publishItem = vi.fn();
+    vi.spyOn(global, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("/item/pubhistory/")) {
+        return new Response(
+          JSON.stringify({
+            ItemPublishingHistory: [
+              { server: "prod", operation: "publish", status: "SUCCESS" },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                publishItem={publishItem}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-publishing-history")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-publish-now")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-publishing-history"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-publishing-history-dialog")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("item-history-row").textContent).toMatch(/prod/);
+    });
+    expect(publishItem).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("explorer-publishing-history-close"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("explorer-publishing-history-dialog")).toBeNull();
+    });
+  });
+
+  it("shows an empty history state and an HTTP error without treating them as success (#4863)", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(
+      async () =>
+        new Response(JSON.stringify({ ItemPublishingHistory: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+    );
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                publishItem={vi.fn()}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-publishing-history")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-publishing-history"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-history-empty")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("item-history-error")).toBeNull();
+    cleanup();
+    vi.spyOn(global, "fetch").mockImplementation(
+      async () => new Response("missing", { status: 404, statusText: "Not Found" }),
+    );
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                publishItem={vi.fn()}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-publishing-history")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-publishing-history"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-history-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("item-history-empty")).toBeNull();
+  });
+
   it("demand-publishes percRichText as an asset", async () => {
     const publishItem = vi.fn().mockResolvedValue(true);
     render(

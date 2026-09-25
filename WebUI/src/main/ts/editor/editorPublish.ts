@@ -114,6 +114,21 @@ export function canPublishFromEditor(
 }
 
 /**
+ * Read-only publish history for an already-open page or asset.
+ * Edit and view only. Does not publish or take down. Promote, folders,
+ * templates, and unsaved items (no id) stay hidden.
+ */
+export function canViewPublishHistoryFromEditor(
+  mode: EditorHostMode,
+  kind: EditorPublishKind,
+): boolean {
+  return (
+    (mode === "edit" || mode === "view") &&
+    (kind === "page" || kind === "asset")
+  );
+}
+
+/**
  * Demand-publish the open page or asset. Returns false when kind is none
  * or the id is blank (caller shows unavailable). Throws on HTTP errors and
  * on HTTP 200 preflight failures ({@code FORBIDDEN}, {@code BADCONFIG}, …).
