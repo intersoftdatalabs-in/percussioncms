@@ -554,6 +554,69 @@ public class WorkflowsResource {
     }
   }
 
+  @PUT
+  @Path("/{idOrName}/transitions/comment-required")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Set whether a transition requires a comment",
+      description =
+          "Slice 38 Admin. Sets the comment-required flag on one existing transition. Query"
+              + " `from` is the source step and `label` is the transition label (or trigger)."
+              + " Query `to` is required when more than one transition on the source step shares"
+              + " the label. Does not create or delete the transition. Packaged default workflows"
+              + " are forbidden (403). Jackson root wrap is WorkflowTransitionComment. Editor and"
+              + " Explorer transition dialogs read this flag from item getTransitions.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated; returns the graph with commentRequired on the edge",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing body, from, or label, or the label is ambiguous, or the match is aging"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow, step, or transition not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph updateTransitionCommentRequired(
+      @PathParam("idOrName") String idOrName,
+      @QueryParam("from") String fromStep,
+      @QueryParam("label") String label,
+      @QueryParam("to") String toStep,
+      WorkflowTransitionComment body) {
+    if (body == null) {
+      throw new WebApplicationException("Workflow transition comment body is required", 400);
+    }
+    if (fromStep == null || fromStep.isBlank() || label == null || label.isBlank()) {
+      throw new WebApplicationException("from and label are required", 400);
+    }
+    try {
+      return requireAdaptor()
+          .updateTransitionCommentRequired(
+              uriInfo.getBaseUri(),
+              idOrName,
+              fromStep,
+              label,
+              toStep,
+              body.isCommentRequired());
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to update transition comment requirement ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @DELETE
   @Path("/{idOrName}/transitions")
   @Produces({MediaType.APPLICATION_JSON})

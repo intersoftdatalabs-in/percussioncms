@@ -134,6 +134,15 @@ running, **Stop** posts `POST …/sitemanage/publishingdesign/runtime/jobs/{jobI
 (falls back to ops `stopPublishing` if needed). A running edition also shows **Open job**,
 which switches to **Status** and opens the job-detail panel for that job id (the same panel
 as choosing the job on Status). An idle edition (no running job id) does not show **Open job**.
+**Demand publish** (same Runtime section) uses the selected edition. Enter one or
+more **content ids** (comma, space, or semicolon separated) and choose **Queue demand**.
+The shell posts
+`POST …/sitemanage/publishingdesign/runtime/editions/{editionId}/demand` with
+`{ "contentIds": ["…"] }` for the parsed ids. An empty id list does not call the
+server; the section shows **Select an edition and enter at least one content id**.
+HTTP errors (for example a missing folder parent) stay in the Runtime error region
+and do not switch to Status. Success shows **Last result** with status `queued`,
+the request id, and a job id when the publisher has already assigned one.
 The **Last result** status region shows
 started/cancelled (or the job state) plus job id. Listing may pass `pubServerId` so only
 editions on the selected server appear. Design edition save and Sites list filter are

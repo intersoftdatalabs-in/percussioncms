@@ -1888,7 +1888,10 @@ export const DEV_MSG_KEYS = {
   WF_GRAPH_LOADING: "perc.ui.developer@Loading workflow graph...",
   WF_GRAPH_ERROR: "perc.ui.developer@Could not load workflow graph.",
   WF_GRAPH_HINT:
-    "perc.ui.developer@States and transitions. On a custom workflow, delete one transition, or delete a step that no transition still uses. Packaged workflows stay read-only. Creating transitions stays on the workflow-admin editor.",
+    "perc.ui.developer@States and transitions. On a custom workflow, delete one transition, delete a step that no transition still uses, or mark a transition as comment required. Packaged workflows stay read-only. Creating transitions stays on the workflow-admin editor.",
+  WF_GRAPH_COMMENT: "perc.ui.developer@Comment required",
+  WF_GRAPH_COMMENT_SAVED: "perc.ui.developer@Comment requirement saved.",
+  WF_GRAPH_COMMENT_ERROR: "perc.ui.developer@Could not save the comment requirement.",
   WF_GRAPH_DELETE: "perc.ui.developer@Delete transition",
   WF_GRAPH_DELETE_CONFIRM:
     "perc.ui.developer@Delete this transition? The steps stay on the workflow.",

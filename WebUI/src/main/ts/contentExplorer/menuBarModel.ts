@@ -30,6 +30,7 @@ export type ExplorerMenuCommandId =
   | "content-search"
   | "content-clipboard-add"
   | "content-multi-copy"
+  | "content-multi-move"
   | "content-create-site"
   | "content-site-copy"
   | "content-site-rename"
@@ -106,6 +107,13 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.MULTI_COPY,
           ariaLabelKey: EXPLORER_MSG.MULTI_COPY,
           testId: "explorer-multi-copy",
+          disabledWhen: "noSelection",
+        },
+        {
+          id: "content-multi-move",
+          labelKey: EXPLORER_MSG.MULTI_MOVE,
+          ariaLabelKey: EXPLORER_MSG.MULTI_MOVE,
+          testId: "explorer-multi-move",
           disabledWhen: "noSelection",
         },
         {

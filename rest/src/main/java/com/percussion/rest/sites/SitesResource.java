@@ -106,12 +106,6 @@ public class SitesResource {
     }
   }
 
-  /**
-   * Loads a site by name or GUID string, including Virtual Site properties when set.
-   *
-   * @param nameOrId site name or GUID
-   * @return site detail
-   */
   @POST
   @Path("/")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})

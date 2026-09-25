@@ -104,6 +104,7 @@ public class WorkflowGraph {
     private String from;
     private String to;
     private String label;
+    private boolean commentRequired;
 
     public String getFrom() {
       return from;
@@ -127,6 +128,14 @@ public class WorkflowGraph {
 
     public void setLabel(String label) {
       this.label = label;
+    }
+
+    public boolean isCommentRequired() {
+      return commentRequired;
+    }
+
+    public void setCommentRequired(boolean commentRequired) {
+      this.commentRequired = commentRequired;
     }
   }
 }

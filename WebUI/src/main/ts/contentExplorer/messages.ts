@@ -79,6 +79,15 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@No pages or assets were copied",
   MULTI_COPY_SKIPPED: "perc.ui.explorer@Skipped folders: {names}",
   MULTI_COPY_FAILURES: "perc.ui.explorer@Copy failed for: {details}",
+  MULTI_MOVE: "perc.ui.explorer@Move selected to folder",
+  MULTI_MOVE_SUCCESS:
+    "perc.ui.explorer@Moved {count} item(s) to {path}",
+  MULTI_MOVE_PARTIAL:
+    "perc.ui.explorer@Moved {count} item(s) to {path}; some moves failed and were not rolled back",
+  MULTI_MOVE_NONE:
+    "perc.ui.explorer@No pages or assets were moved",
+  MULTI_MOVE_SKIPPED: "perc.ui.explorer@Skipped folders: {names}",
+  MULTI_MOVE_FAILURES: "perc.ui.explorer@Move failed for: {details}",
   ACTION_DELETE: "perc.ui.explorer@Delete",
   ACTION_DELETE_NOT_FOUND:
     "perc.ui.explorer@The selected item was not found",
