@@ -85,6 +85,17 @@ test.describe("PublishingShell Status job detail (#4789)", () => {
       }
       await route.continue();
     });
+    await page.route("**/sitemanage/pubstatus/details**", async (route) => {
+      if (route.request().method() === "POST") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ SitePublishItem: [] }),
+        });
+        return;
+      }
+      await route.continue();
+    });
     await page.route("**/stopPublishing/**", async (route) => {
       stopCalls.push(route.request().url());
       await route.fulfill({ status: 204, body: "" });

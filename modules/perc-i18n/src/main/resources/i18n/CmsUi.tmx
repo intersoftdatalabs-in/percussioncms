@@ -27534,6 +27534,25 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Edition">
       <tuv xml:lang="en-us"><seg>Edition</seg></tuv>
     </tu>
+    <!-- #4886: Status job content items. en-us only. -->
+    <tu tuid="perc.ui.publish.modern@Content items">
+      <tuv xml:lang="en-us"><seg>Content items</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Name">
+      <tuv xml:lang="en-us"><seg>Name</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@No content items for this job">
+      <tuv xml:lang="en-us"><seg>No content items for this job</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@You are not allowed to view items for this job">
+      <tuv xml:lang="en-us"><seg>You are not allowed to view items for this job</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Job items were not found">
+      <tuv xml:lang="en-us"><seg>Job items were not found</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Could not load items for this job">
+      <tuv xml:lang="en-us"><seg>Could not load items for this job</seg></tuv>
+    </tu>
     <!-- #4837: PublishingShell Runtime chrome. en-us only; Site reuses perc.ui.publish.title@Site. -->
     <tu tuid="perc.ui.publish.sections.runtime@Runtime site">
       <tuv xml:lang="en-us"><seg>Runtime site</seg></tuv>

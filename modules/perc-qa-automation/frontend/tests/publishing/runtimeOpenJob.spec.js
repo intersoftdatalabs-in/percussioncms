@@ -78,6 +78,17 @@ test.describe("PublishingShell Runtime open running job", () => {
         body: JSON.stringify([{ serverId: "7", serverName: "LocalFS" }]),
       });
     });
+    await page.route("**/sitemanage/pubstatus/details**", async (route) => {
+      if (route.request().method() === "POST") {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ SitePublishItem: [] }),
+        });
+        return;
+      }
+      return route.continue();
+    });
     await page.route("**/services/sitemanage/pubstatus/current**", async (route) => {
       if (route.request().method() !== "GET") {
         return route.continue();

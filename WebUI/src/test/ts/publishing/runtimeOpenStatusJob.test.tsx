@@ -42,6 +42,7 @@ vi.mock("@/api/publishing/runtimeApi", () => ({
 }));
 
 vi.mock("@/api/publishing/statusApi", () => ({
+  fetchLogDetails: vi.fn().mockResolvedValue({ SitePublishItem: [] }),
   fetchCurrentJobs: vi.fn().mockResolvedValue([
     {
       jobId: 99,

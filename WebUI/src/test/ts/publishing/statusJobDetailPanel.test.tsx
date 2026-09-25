@@ -20,6 +20,7 @@ import { describe, expect, it, vi } from "vitest";
 import { StatusSection } from "@/publishing/sections/StatusSection";
 
 vi.mock("@/api/publishing/statusApi", () => ({
+  fetchLogDetails: vi.fn().mockResolvedValue({ SitePublishItem: [] }),
   fetchCurrentJobs: vi.fn().mockResolvedValue([
     {
       jobId: 4789,
@@ -56,6 +57,9 @@ describe("StatusSection job detail (#4789)", () => {
       expect(screen.getByTestId("publish-status-job-4789")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("publish-status-job-4789"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-status-items-empty")).toBeTruthy();
+    });
     expect(screen.getByTestId("publish-status-detail-job-id").textContent).toBe(
       "4789",
     );
@@ -95,6 +99,9 @@ describe("StatusSection job detail (#4789)", () => {
       expect(screen.getByTestId("publish-status-job-12")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("publish-status-job-12"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-status-items-empty")).toBeTruthy();
+    });
     expect(screen.getByTestId("publish-status-detail-site").textContent).toBe("");
     expect(screen.getByTestId("publish-status-detail-edition").textContent).toBe(
       "",
@@ -125,6 +132,7 @@ describe("StatusSection job detail (#4789)", () => {
       expect(screen.getByTestId("publish-status-detail-job-id").textContent).toBe(
         "12",
       );
+      expect(screen.getByTestId("publish-status-items-empty")).toBeTruthy();
     });
     expect(screen.getByTestId("publish-status-detail-status").textContent).toBe(
       "Running",
