@@ -49,6 +49,20 @@ test.describe("PublishingShell Runtime start/stop", () => {
     });
     await expect(page.getByTestId("publish-section-runtime")).toBeVisible();
     await expect(page.getByTestId("runtime-pub-server")).toBeVisible();
+    const demandKey = "perc.ui.publish.sections.runtime@Demand publish";
+    const resolved = await page.evaluate(
+      (key) => window.I18N && window.I18N.message(key),
+      demandKey,
+    );
+    expect(resolved, "en-us catalog must resolve the demand heading key").toBe(
+      "Demand publish",
+    );
+    expect(resolved).not.toBe(demandKey);
+    await expect(page.getByTestId("runtime-demand-heading")).toHaveText(
+      resolved,
+    );
+    await expect(page.getByRole("button", { name: "Queue demand" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Refresh" })).toBeVisible();
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
   });
 

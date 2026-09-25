@@ -27534,6 +27534,85 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Edition">
       <tuv xml:lang="en-us"><seg>Edition</seg></tuv>
     </tu>
+    <!-- #4837: PublishingShell Runtime chrome. en-us only; Site reuses perc.ui.publish.title@Site. -->
+    <tu tuid="perc.ui.publish.sections.runtime@Runtime site">
+      <tuv xml:lang="en-us"><seg>Runtime site</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Publish server">
+      <tuv xml:lang="en-us"><seg>Publish server</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Runtime publish server">
+      <tuv xml:lang="en-us"><seg>Runtime publish server</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Refresh">
+      <tuv xml:lang="en-us"><seg>Refresh</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@No editions for this site">
+      <tuv xml:lang="en-us"><seg>No editions for this site</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Idle">
+      <tuv xml:lang="en-us"><seg>Idle</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Start">
+      <tuv xml:lang="en-us"><seg>Start</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Job {0}">
+      <tuv xml:lang="en-us"><seg>Job {0}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Demand publish">
+      <tuv xml:lang="en-us"><seg>Demand publish</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Selected edition: {0}. Enter content ids (comma-separated). Folder parent is resolved on the server when possible.">
+      <tuv xml:lang="en-us"><seg>Selected edition: {0}. Enter content ids (comma-separated). Folder parent is resolved on the server when possible.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@none">
+      <tuv xml:lang="en-us"><seg>none</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Content ids">
+      <tuv xml:lang="en-us"><seg>Content ids</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@e.g. 101, 102">
+      <tuv xml:lang="en-us"><seg>e.g. 101, 102</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Queue demand">
+      <tuv xml:lang="en-us"><seg>Queue demand</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Select an edition and enter at least one content id">
+      <tuv xml:lang="en-us"><seg>Select an edition and enter at least one content id</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Advanced cleanup">
+      <tuv xml:lang="en-us"><seg>Advanced cleanup</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Clear site record">
+      <tuv xml:lang="en-us"><seg>Clear site record</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Clear published site record for this site? This cannot be undone.">
+      <tuv xml:lang="en-us"><seg>Clear published site record for this site? This cannot be undone.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Purge job log by id">
+      <tuv xml:lang="en-us"><seg>Purge job log by id</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Enter a job id to purge">
+      <tuv xml:lang="en-us"><seg>Enter a job id to purge</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Purge log for job {0}?">
+      <tuv xml:lang="en-us"><seg>Purge log for job {0}?</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Purge log">
+      <tuv xml:lang="en-us"><seg>Purge log</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@Last result: {0}">
+      <tuv xml:lang="en-us"><seg>Last result: {0}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@job {0}">
+      <tuv xml:lang="en-us"><seg>job {0}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@request {0}">
+      <tuv xml:lang="en-us"><seg>request {0}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.runtime@delivered {0}">
+      <tuv xml:lang="en-us"><seg>delivered {0}</seg></tuv>
+    </tu>
     <!-- #3217: tooltip tuid is @Site navigation (MSG.NAV_ARCHITECTURE_TITLE). -->
     <tu tuid="perc.ui.architecture.modern@Site navigation">
       <tuv xml:lang="en-us"><seg>Site navigation</seg></tuv>

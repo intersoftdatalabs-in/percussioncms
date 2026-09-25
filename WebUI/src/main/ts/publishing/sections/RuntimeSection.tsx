@@ -30,6 +30,14 @@ import {
   type RuntimeJobResponse,
 } from "../../api/publishing/runtimeApi";
 import { message, MSG } from "../../i18n/message";
+
+const RT = MSG.PUBLISH.SECTIONS.RUNTIME;
+
+/** Catalog text with a single {0} replacement (works with or without I18N args). */
+export function runtimeMessage(key: string, arg?: string): string {
+  const text = message(key);
+  return arg == null ? text : text.split("{0}").join(arg);
+}
 import {
   buttonStyle,
   emptyStyle,
@@ -158,7 +166,7 @@ export function RuntimeSection(): React.ReactElement {
   async function onDemand(): Promise<void> {
     const ids = parseContentIds(demandIds);
     if (!selectedEdition || ids.length === 0) {
-      setError("Select an edition and enter at least one content id");
+      setError(message(RT.DEMAND_NEED_IDS));
       return;
     }
     setBusy(true);
@@ -178,9 +186,7 @@ export function RuntimeSection(): React.ReactElement {
       return;
     }
     if (
-      !window.confirm(
-        "Clear published site record for this site? This cannot be undone.",
-      )
+      !window.confirm(message(RT.CONFIRM_CLEAR))
     ) {
       return;
     }
@@ -198,10 +204,10 @@ export function RuntimeSection(): React.ReactElement {
 
   async function onPurgeLog(): Promise<void> {
     if (!purgeJobId.trim()) {
-      setError("Enter a job id to purge");
+      setError(message(RT.NEED_JOB_ID));
       return;
     }
-    if (!window.confirm(`Purge log for job ${purgeJobId}?`)) {
+    if (!window.confirm(runtimeMessage(RT.CONFIRM_PURGE, purgeJobId))) {
       return;
     }
     setBusy(true);
@@ -220,11 +226,11 @@ export function RuntimeSection(): React.ReactElement {
     <div data-testid="publish-section-runtime">
       <div style={toolbarStyle}>
         <label>
-          Site{" "}
+          {message(RT.SITE)}{" "}
           <select
             value={siteId}
             onChange={(e) => setSiteId(e.target.value)}
-            aria-label="Runtime site"
+            aria-label={message(RT.SITE_PICKER_ARIA)}
           >
             {sites.map((s) => (
               <option key={s.id} value={s.id}>
@@ -234,12 +240,12 @@ export function RuntimeSection(): React.ReactElement {
           </select>
         </label>
         <label>
-          Publish server{" "}
+          {message(RT.PUBLISH_SERVER)}{" "}
           <select
             data-testid="runtime-pub-server"
             value={pubServerId}
             onChange={(e) => setPubServerId(e.target.value)}
-            aria-label="Runtime publish server"
+            aria-label={message(RT.SERVER_PICKER_ARIA)}
           >
             {servers.map((s) => {
               const id = String(s.serverId ?? s.id ?? "");
@@ -252,7 +258,7 @@ export function RuntimeSection(): React.ReactElement {
           </select>
         </label>
         <button type="button" style={buttonStyle} onClick={reload} disabled={busy}>
-          Refresh
+          {message(RT.REFRESH)}
         </button>
       </div>
 
@@ -265,7 +271,7 @@ export function RuntimeSection(): React.ReactElement {
 
       <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_SECTION_RUNTIME)}</h3>
       {!loading && editions.length === 0 && (
-        <p style={emptyStyle}>No editions for this site.</p>
+        <p style={emptyStyle}>{message(RT.EDITIONS_EMPTY)}</p>
       )}
       <ul style={listStyle}>
         {editions.map((ed) => {
@@ -286,8 +292,8 @@ export function RuntimeSection(): React.ReactElement {
               </button>
               <span style={{ color: "#666", fontSize: "0.85rem" }}>
                 {canStopEdition(ed)
-                  ? `Job ${ed.runningJobId}${ed.jobStatus ? ` · ${ed.jobStatus}` : ""}`
-                  : "Idle"}
+                  ? `${runtimeMessage(RT.JOB_RUNNING, String(ed.runningJobId))}${ed.jobStatus ? ` · ${ed.jobStatus}` : ""}`
+                  : message(RT.IDLE)}
               </span>
               <button
                 type="button"
@@ -296,7 +302,7 @@ export function RuntimeSection(): React.ReactElement {
                 disabled={busy || !id}
                 onClick={() => void onStart(id)}
               >
-                Start
+                {message(RT.START)}
               </button>
               {canStopEdition(ed) && (
                 <button
@@ -315,19 +321,22 @@ export function RuntimeSection(): React.ReactElement {
       </ul>
 
       <div style={{ marginTop: 20, borderTop: "1px solid #eee", paddingTop: 12 }}>
-        <h3 style={{ fontSize: "1rem" }}>Demand publish</h3>
+        <h3 style={{ fontSize: "1rem" }} data-testid="runtime-demand-heading">
+          {message(RT.DEMAND_HEADING)}
+        </h3>
         <p style={{ fontSize: "0.85rem", color: "#666" }}>
-          Selected edition: {selectedEdition || "none"}. Enter content ids
-          (comma-separated). Folder parent is resolved on the server when
-          possible.
+          {runtimeMessage(
+            RT.DEMAND_HELP,
+            selectedEdition || message(RT.DEMAND_NONE),
+          )}
         </p>
         <div style={formRowStyle}>
-          <label htmlFor="demand-ids">Content ids</label>
+          <label htmlFor="demand-ids">{message(RT.CONTENT_IDS)}</label>
           <input
             id="demand-ids"
             value={demandIds}
             onChange={(e) => setDemandIds(e.target.value)}
-            placeholder="e.g. 101, 102"
+            placeholder={message(RT.CONTENT_IDS_PLACEHOLDER)}
           />
         </div>
         <button
@@ -336,12 +345,12 @@ export function RuntimeSection(): React.ReactElement {
           disabled={busy}
           onClick={() => void onDemand()}
         >
-          Queue demand
+          {message(RT.QUEUE_DEMAND)}
         </button>
       </div>
 
       <div style={{ marginTop: 20, borderTop: "1px solid #eee", paddingTop: 12 }}>
-        <h3 style={{ fontSize: "1rem" }}>Advanced cleanup</h3>
+        <h3 style={{ fontSize: "1rem" }}>{message(RT.ADVANCED_CLEANUP_HEADING)}</h3>
         <div style={toolbarStyle}>
           <button
             type="button"
@@ -349,11 +358,11 @@ export function RuntimeSection(): React.ReactElement {
             disabled={busy || !siteId}
             onClick={() => void onClearSite()}
           >
-            Clear site record
+            {message(RT.CLEAR_SITE)}
           </button>
         </div>
         <div style={formRowStyle}>
-          <label htmlFor="purge-job">Purge job log by id</label>
+          <label htmlFor="purge-job">{message(RT.PURGE_JOB_LOG)}</label>
           <input
             id="purge-job"
             value={purgeJobId}
@@ -366,7 +375,7 @@ export function RuntimeSection(): React.ReactElement {
           disabled={busy}
           onClick={() => void onPurgeLog()}
         >
-          Purge log
+          {message(RT.PURGE_LOG)}
         </button>
       </div>
 
@@ -376,13 +385,15 @@ export function RuntimeSection(): React.ReactElement {
           role="status"
           data-testid="runtime-job-status"
         >
-          Last result: {lastResult.status}
-          {lastResult.jobId != null ? ` · job ${lastResult.jobId}` : ""}
+          {runtimeMessage(RT.LAST_RESULT, lastResult.status ?? "")}
+          {lastResult.jobId != null
+            ? ` · ${runtimeMessage(RT.LAST_JOB, String(lastResult.jobId))}`
+            : ""}
           {lastResult.requestId != null
-            ? ` · request ${lastResult.requestId}`
+            ? ` · ${runtimeMessage(RT.LAST_REQUEST, String(lastResult.requestId))}`
             : ""}
           {lastResult.delivered != null
-            ? ` · delivered ${lastResult.delivered}`
+            ? ` · ${runtimeMessage(RT.LAST_DELIVERED, String(lastResult.delivered))}`
             : ""}
         </p>
       )}

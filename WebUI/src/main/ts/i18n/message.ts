@@ -563,16 +563,40 @@ GADGET_DESC_DASHBOARD_CONFIG:
         DAYS: "perc.ui.publish.sections.logs@Days",
       },
       RUNTIME: {
+        SITE: "perc.ui.publish.title@Site",
         SITE_PICKER_ARIA: "perc.ui.publish.sections.runtime@Runtime site",
+        PUBLISH_SERVER: "perc.ui.publish.sections.runtime@Publish server",
+        SERVER_PICKER_ARIA:
+          "perc.ui.publish.sections.runtime@Runtime publish server",
+        REFRESH: "perc.ui.publish.sections.runtime@Refresh",
         EDITIONS_EMPTY:
           "perc.ui.publish.sections.runtime@No editions for this site",
+        IDLE: "perc.ui.publish.sections.runtime@Idle",
+        START: "perc.ui.publish.sections.runtime@Start",
+        JOB_RUNNING: "perc.ui.publish.sections.runtime@Job {0}",
         DEMAND_HEADING: "perc.ui.publish.sections.runtime@Demand publish",
+        DEMAND_HELP:
+          "perc.ui.publish.sections.runtime@Selected edition: {0}. Enter content ids (comma-separated). Folder parent is resolved on the server when possible.",
+        DEMAND_NONE: "perc.ui.publish.sections.runtime@none",
         CONTENT_IDS: "perc.ui.publish.sections.runtime@Content ids",
         CONTENT_IDS_PLACEHOLDER:
           "perc.ui.publish.sections.runtime@e.g. 101, 102",
+        QUEUE_DEMAND: "perc.ui.publish.sections.runtime@Queue demand",
+        DEMAND_NEED_IDS:
+          "perc.ui.publish.sections.runtime@Select an edition and enter at least one content id",
         ADVANCED_CLEANUP_HEADING:
           "perc.ui.publish.sections.runtime@Advanced cleanup",
+        CLEAR_SITE: "perc.ui.publish.sections.runtime@Clear site record",
+        CONFIRM_CLEAR:
+          "perc.ui.publish.sections.runtime@Clear published site record for this site? This cannot be undone.",
         PURGE_JOB_LOG: "perc.ui.publish.sections.runtime@Purge job log by id",
+        NEED_JOB_ID: "perc.ui.publish.sections.runtime@Enter a job id to purge",
+        CONFIRM_PURGE: "perc.ui.publish.sections.runtime@Purge log for job {0}?",
+        PURGE_LOG: "perc.ui.publish.sections.runtime@Purge log",
+        LAST_RESULT: "perc.ui.publish.sections.runtime@Last result: {0}",
+        LAST_JOB: "perc.ui.publish.sections.runtime@job {0}",
+        LAST_REQUEST: "perc.ui.publish.sections.runtime@request {0}",
+        LAST_DELIVERED: "perc.ui.publish.sections.runtime@delivered {0}",
       },
       DESIGN: {
         SITE_PICKER_ARIA: "perc.ui.publish.sections.design@Design site",
