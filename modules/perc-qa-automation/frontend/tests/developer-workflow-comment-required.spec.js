@@ -135,10 +135,11 @@ test.describe("Developer workflow comment required (#4844)", () => {
     await expect(edgeRow).toBeVisible();
     const box = edgeRow.locator('input[type="checkbox"]');
     await expect(box).not.toBeChecked();
-    await box.check();
-    await expect(page.locator('[data-testid="developer-wf-graph-notice"]')).toBeVisible({
-      timeout: 30_000,
-    });
+    await box.click();
+    await expect(page.locator('[data-testid="developer-wf-graph-notice"]')).toContainText(
+      /Comment requirement saved/i,
+      { timeout: 30_000 },
+    );
     await expect(box).toBeChecked();
 
     await page.locator('[data-testid="developer-wf-back"]').click();
