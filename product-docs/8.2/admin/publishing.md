@@ -51,6 +51,17 @@ HTTP **403** (not Admin or Designer) and **409** (publish server name already ex
 are shown in the server editor error region — not as a successful save. Incremental / Full publish
 and Design delivery-type save are separate actions.
 
+### Delete a site delivery server (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then
+**Edit Server**. **Delete Server** asks for confirmation (**Confirm Delete Server**). Confirm calls
+`DELETE …/publishmanagement/servers/{siteId}/{serverId}`. On success the editor closes and that
+server is gone from the site list. Cancel does not call the server and leaves the list unchanged.
+
+The server cannot be deleted when it is the site default or when a publish job is using it. Those
+cases, and HTTP **403** (not Admin or Designer) or **404**, stay in the server editor error region.
+The list is not refreshed as a successful delete. Edition delete is a separate Design action.
+
 ### Incremental site publish (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then choose **Incremental**. Confirm the dialog (**Confirm Incremental Publish**). The shell calls the incremental site publish API (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), optionally with related-item approval after **Incremental preview**. Success shows **Publish Job Started** plus the job id and refreshes the site **Status** list (active jobs). Dismissing confirm does not start a job. Application-level `FORBIDDEN` / `BADCONFIG` responses are failures in the workspace error region, not success. Full site publish remains a separate **Full** action.

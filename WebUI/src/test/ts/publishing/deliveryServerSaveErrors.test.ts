@@ -16,7 +16,10 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { mapDeliveryServerSaveError } from "@/publishing/deliveryServerSaveErrors";
+import {
+  mapDeliveryServerDeleteError,
+  mapDeliveryServerSaveError,
+} from "@/publishing/deliveryServerSaveErrors";
 
 describe("mapDeliveryServerSaveError", () => {
   it("maps HTTP 403 to forbidden chrome", () => {
@@ -37,5 +40,29 @@ describe("mapDeliveryServerSaveError", () => {
         body: { message: "Cannot create server because a server named Dup already exists." },
       }),
     ).toMatch(/already exists/i);
+  });
+});
+
+describe("mapDeliveryServerDeleteError", () => {
+  it("keeps the in-use body", () => {
+    expect(
+      mapDeliveryServerDeleteError({
+        status: 409,
+        statusText: "Conflict",
+        body: {
+          message: "The server is being used by other user and cannot be deleted.",
+        },
+      }),
+    ).toMatch(/being used/i);
+  });
+
+  it("maps HTTP 403 to forbidden chrome", () => {
+    expect(
+      mapDeliveryServerDeleteError({
+        status: 403,
+        statusText: "Forbidden",
+        body: {},
+      }),
+    ).toMatch(/Forbidden|403/i);
   });
 });

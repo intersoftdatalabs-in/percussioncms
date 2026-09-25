@@ -33,3 +33,14 @@ export function mapDeliveryServerSaveError(err: unknown): string {
   }
   return formatApiError(err, message(MSG.PUBLISH_ERROR));
 }
+
+/**
+ * Map delivery-server delete failures to operator-visible text.
+ * HTTP 403 → forbidden. In-use / default-server / other HTTP bodies stay as text.
+ */
+export function mapDeliveryServerDeleteError(err: unknown): string {
+  if (isApiError(err) && err.status === 403) {
+    return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
+  }
+  return formatApiError(err, message(MSG.PUBLISH_ERROR));
+}

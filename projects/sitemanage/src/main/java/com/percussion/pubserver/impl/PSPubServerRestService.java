@@ -176,13 +176,28 @@ public class PSPubServerRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public List<PSPublishServerInfo> deleteServer(
       @PathParam("siteId") String siteId, @PathParam("serverId") String serverId) {
+    requirePubServerWrite();
     try {
       PSParameterValidationUtils.rejectIfBlank("delete", "siteName", siteId);
       PSParameterValidationUtils.rejectIfBlank("delete", "serverId", serverId);
       return new PSPublishServerInfoList(service.deleteServer(siteId, serverId));
-    } catch (IPSPubServerService.PSPubServerServiceException
-        | PSDataServiceException
-        | PSNotFoundException e) {
+    } catch (IPSPubServerService.PSPubServerServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      String msg =
+          e.getMessage() != null && !e.getMessage().isBlank()
+              ? e.getMessage()
+              : "The server cannot be deleted.";
+      throw new WebApplicationException(msg, Response.Status.CONFLICT);
+    } catch (PSNotFoundException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      String msg =
+          e.getMessage() != null && !e.getMessage().isBlank()
+              ? e.getMessage()
+              : "Not found";
+      throw new WebApplicationException(msg, Response.Status.NOT_FOUND);
+    } catch (PSDataServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e);
