@@ -398,6 +398,9 @@ public class PSItemService implements IPSItemService {
         log.debug("Could not resolve checkout user for {}", guid, e);
       }
       PSItemEditorFields out = PSItemEditorFieldsMapper.fromContentItem(item, checkoutUser);
+      if (sum != null) {
+        PSItemEditorFieldsMapper.fillCommunityWhenAbsent(out, sum.getCommunityId());
+      }
       out.setRevision(currentRevision(sum));
       return out;
     } catch (PSValidationException e) {
@@ -462,7 +465,11 @@ public class PSItemService implements IPSItemService {
         log.debug("Could not resolve checkout user after save for {}", guid, e);
       }
       PSItemEditorFields saved = PSItemEditorFieldsMapper.fromContentItem(item, checkoutUser);
-      saved.setRevision(currentRevision(after != null ? after : sum));
+      PSComponentSummary communitySource = after != null ? after : sum;
+      if (communitySource != null) {
+        PSItemEditorFieldsMapper.fillCommunityWhenAbsent(saved, communitySource.getCommunityId());
+      }
+      saved.setRevision(currentRevision(communitySource));
       return saved;
     } catch (WebApplicationException e) {
       throw e;
