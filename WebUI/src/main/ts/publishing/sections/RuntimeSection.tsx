@@ -54,6 +54,23 @@ export function canStopEdition(row: RuntimeEditionStatus): boolean {
   return (row.runningJobId ?? 0) > 0;
 }
 
+/**
+ * Job id to open on Status, or null when the edition is idle.
+ * Idle rows must not offer a link (runningJobId missing or not greater than 0).
+ */
+export function openableRunningJobId(row: RuntimeEditionStatus): string | null {
+  const id = row.runningJobId ?? 0;
+  if (!(typeof id === "number" && id > 0)) {
+    return null;
+  }
+  return String(id);
+}
+
+export interface RuntimeSectionProps {
+  /** Switch to Status job detail for a running edition job. */
+  onOpenRunningJob?: (jobId: string) => void;
+}
+
 /** Pure helper: parse demand content ids from a comma/space-separated string. */
 export function parseContentIds(raw: string): string[] {
   return raw
@@ -66,7 +83,9 @@ export function parseContentIds(raw: string): string[] {
  * Runtime / Editions: start & stop edition jobs, demand publish, site clear,
  * advanced log purge by job id.
  */
-export function RuntimeSection(): React.ReactElement {
+export function RuntimeSection({
+  onOpenRunningJob,
+}: RuntimeSectionProps = {}): React.ReactElement {
   const [sites, setSites] = useState<Array<{ name: string; id: string }>>([]);
   const [siteId, setSiteId] = useState("");
   const [servers, setServers] = useState<PublishServer[]>([]);
@@ -313,6 +332,22 @@ export function RuntimeSection(): React.ReactElement {
                   onClick={() => void onStop(ed.runningJobId!)}
                 >
                   {message(MSG.PUBLISH_STOP)}
+                </button>
+              )}
+              {openableRunningJobId(ed) != null && (
+                <button
+                  type="button"
+                  style={buttonStyle}
+                  data-testid={`runtime-open-job-${id}`}
+                  disabled={busy || onOpenRunningJob == null}
+                  onClick={() => {
+                    const jobId = openableRunningJobId(ed);
+                    if (jobId != null) {
+                      onOpenRunningJob?.(jobId);
+                    }
+                  }}
+                >
+                  {message(RT.OPEN_JOB)}
                 </button>
               )}
             </li>

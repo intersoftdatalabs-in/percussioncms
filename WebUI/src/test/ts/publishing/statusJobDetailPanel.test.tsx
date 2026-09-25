@@ -112,4 +112,25 @@ describe("StatusSection job detail (#4789)", () => {
     expect(screen.queryByTestId("publish-status-job-detail")).toBeNull();
     expect(serversApi.stopPublishing).not.toHaveBeenCalled();
   });
+
+  it("focusJob opens the matching status detail without a row click", async () => {
+    const onFocusJobClear = vi.fn();
+    render(
+      <StatusSection
+        focusJob={{ id: "12", token: 1 }}
+        onFocusJobClear={onFocusJobClear}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-status-detail-job-id").textContent).toBe(
+        "12",
+      );
+    });
+    expect(screen.getByTestId("publish-status-detail-status").textContent).toBe(
+      "Running",
+    );
+    fireEvent.click(screen.getByTestId("publish-status-job-detail-close"));
+    expect(screen.queryByTestId("publish-status-job-detail")).toBeNull();
+    expect(onFocusJobClear).toHaveBeenCalled();
+  });
 });

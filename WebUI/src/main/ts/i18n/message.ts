@@ -574,6 +574,7 @@ GADGET_DESC_DASHBOARD_CONFIG:
         IDLE: "perc.ui.publish.sections.runtime@Idle",
         START: "perc.ui.publish.sections.runtime@Start",
         JOB_RUNNING: "perc.ui.publish.sections.runtime@Job {0}",
+        OPEN_JOB: "perc.ui.publish.sections.runtime@Open job",
         DEMAND_HEADING: "perc.ui.publish.sections.runtime@Demand publish",
         DEMAND_HELP:
           "perc.ui.publish.sections.runtime@Selected edition: {0}. Enter content ids (comma-separated). Folder parent is resolved on the server when possible.",

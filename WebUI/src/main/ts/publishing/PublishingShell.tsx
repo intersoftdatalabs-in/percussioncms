@@ -89,6 +89,10 @@ function PublishingShellInner({
   const safeServerId = useMemo(() => mapIdParam(serverId), [serverId]);
   const [historyItemId, setHistoryItemId] = useState(() => mapIdParam(itemId));
   const [active, setActive] = useState<PublishSection>(start);
+  const [statusJobFocus, setStatusJobFocus] = useState<{
+    id: string;
+    token: number;
+  } | null>(null);
   const { confirmIfDirty } = useDirtyForm();
 
   useEffect(() => {
@@ -110,6 +114,18 @@ function PublishingShellInner({
       return;
     }
     setActive(next);
+  }
+
+  function openRunningJob(jobId: string): void {
+    const id = jobId.trim();
+    if (id === "") {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setStatusJobFocus({ id, token: Date.now() });
+    setActive("status");
   }
 
   return (
@@ -154,6 +170,8 @@ function PublishingShellInner({
             itemId={historyItemId}
             onItemIdChange={setHistoryItemId}
             onOpenSection={navigate}
+            focusJob={statusJobFocus}
+            onFocusJobClear={() => setStatusJobFocus(null)}
           />
         )}
         {active === "logs" && (
@@ -164,7 +182,9 @@ function PublishingShellInner({
           />
         )}
         {active === "design" && showDesign && <DesignSection />}
-        {active === "runtime" && <RuntimeSection />}
+        {active === "runtime" && (
+          <RuntimeSection onOpenRunningJob={openRunningJob} />
+        )}
       </main>
     </div>
   );
