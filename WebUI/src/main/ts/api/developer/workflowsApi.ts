@@ -539,6 +539,39 @@ export function workflowTransitionDeletePath(
   return `${PATHS.WORKFLOWS_ASSOC}/${key}/transitions?${q.toString()}`;
 }
 
+export const WORKFLOW_TRANSITION_COMMENT_ROOT = "WorkflowTransitionComment";
+
+/** PUT .../transitions/comment-required?from&label&to */
+export function workflowTransitionCommentPath(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  toStep?: string,
+): string {
+  const key = encodeURIComponent(idOrName);
+  const q = new URLSearchParams();
+  q.set("from", fromStep);
+  q.set("label", label);
+  if (toStep && toStep.trim()) {
+    q.set("to", toStep.trim());
+  }
+  return `${PATHS.WORKFLOWS_ASSOC}/${key}/transitions/comment-required?${q.toString()}`;
+}
+
+export async function updateTransitionCommentRequired(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  commentRequired: boolean,
+  toStep?: string,
+): Promise<WorkflowGraph> {
+  const payload = await put<unknown>(
+    workflowTransitionCommentPath(idOrName, fromStep, label, toStep),
+    { [WORKFLOW_TRANSITION_COMMENT_ROOT]: { commentRequired } },
+  );
+  return parseWorkflowGraph(payload);
+}
+
 export async function deleteWorkflowTransition(
   idOrName: string,
   fromStep: string,

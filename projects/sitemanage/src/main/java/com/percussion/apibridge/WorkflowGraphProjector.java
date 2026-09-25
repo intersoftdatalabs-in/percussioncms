@@ -20,6 +20,7 @@ package com.percussion.apibridge;
 import com.percussion.rest.workflows.WorkflowGraph;
 import com.percussion.services.workflow.data.PSAgingTransition;
 import com.percussion.services.workflow.data.PSState;
+import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSTransitionBase;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -126,6 +127,10 @@ public final class WorkflowGraphProjector {
       edge.setFrom(from);
       edge.setTo(to);
       edge.setLabel(label);
+      if (transition instanceof PSTransition regular) {
+        edge.setCommentRequired(
+            regular.getRequiresComment() == PSTransition.PSWorkflowCommentEnum.REQUIRED);
+      }
       edges.add(edge);
     }
   }

@@ -11,12 +11,15 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   getWorkflowGraph: vi.fn(),
   deleteWorkflowTransition: vi.fn(),
   deleteWorkflowStep: vi.fn(),
+  updateTransitionCommentRequired: vi.fn(),
 }));
 
 import * as workflowsApi from "../../../main/ts/api/developer/workflowsApi";
 
 const getWorkflowGraph = workflowsApi.getWorkflowGraph as ReturnType<typeof vi.fn>;
 const deleteWorkflowStep = workflowsApi.deleteWorkflowStep as ReturnType<typeof vi.fn>;
+const updateTransitionCommentRequired =
+  workflowsApi.updateTransitionCommentRequired as ReturnType<typeof vi.fn>;
 
 describe("WorkflowGraphView step delete", () => {
   beforeEach(() => {
@@ -25,6 +28,41 @@ describe("WorkflowGraphView step delete", () => {
     };
     getWorkflowGraph.mockReset();
     deleteWorkflowStep.mockReset();
+    updateTransitionCommentRequired.mockReset();
+  });
+
+  it("saves comment required on a custom transition", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [{ from: "Draft", to: "Review", label: "Submit", commentRequired: false }],
+    });
+    updateTransitionCommentRequired.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [{ from: "Draft", to: "Review", label: "Submit", commentRequired: true }],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    const box = await screen.findByTestId("developer-wf-graph-comment-0");
+    expect((box as HTMLInputElement).checked).toBe(false);
+    fireEvent.click(box);
+    await waitFor(() => {
+      expect(updateTransitionCommentRequired).toHaveBeenCalledWith(
+        "Nightly QA",
+        "Draft",
+        "Submit",
+        true,
+        "Review",
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
+        "Comment requirement saved",
+      );
+    });
+    expect((screen.getByTestId("developer-wf-graph-comment-0") as HTMLInputElement).checked).toBe(
+      true,
+    );
   });
 
   it("hides step delete on packaged workflows", async () => {
