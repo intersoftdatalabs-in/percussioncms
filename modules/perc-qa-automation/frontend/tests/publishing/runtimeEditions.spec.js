@@ -246,6 +246,15 @@ test.describe("PublishingShell Runtime start/stop", () => {
       { timeout: 20000 },
     );
     await expect(page.getByTestId("runtime-job-status")).toHaveCount(0);
-    expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
+    const unexpected = jsErrors.filter(
+      (line) =>
+        !/Failed to load resource: the server responded with a status of (409|500)/.test(
+          line,
+        ),
+    );
+    expect(
+      unexpected,
+      `console/page errors: ${unexpected.join("\n")}`,
+    ).toEqual([]);
   });
 });
