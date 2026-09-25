@@ -134,7 +134,11 @@ running, **Stop** posts `POST …/sitemanage/publishingdesign/runtime/jobs/{jobI
 (falls back to ops `stopPublishing` if needed). The **Last result** status region shows
 started/cancelled (or the job state) plus job id. Listing may pass `pubServerId` so only
 editions on the selected server appear. Design edition save and Sites list filter are
-separate sections.
+separate sections. Runtime chrome (site, publish server, refresh, idle, start,
+demand publish, content ids, queue demand, clear site record, purge log, and the
+related prompts) is loaded from the publishing message catalog. The default
+**en-us** pack supplies those labels; other locales fall back to that English
+until they are translated.
 
 ### Search and filter publish logs
 

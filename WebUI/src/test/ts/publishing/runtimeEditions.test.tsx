@@ -16,10 +16,17 @@
  */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+function fallback(key: string): string {
+  const at = key.lastIndexOf("@");
+  return at >= 0 ? key.slice(at + 1) : key;
+}
+import { MSG } from "@/i18n/message";
 import {
   canStopEdition,
   parseContentIds,
+  runtimeMessage,
   RuntimeSection,
 } from "@/publishing/sections/RuntimeSection";
 
@@ -57,9 +64,36 @@ describe("runtime edition helpers", () => {
   it("parseContentIds splits mixed separators", () => {
     expect(parseContentIds("1, 2;3  4")).toEqual(["1", "2", "3", "4"]);
   });
+
+  it("runtimeMessage substitutes {0} from the catalog key", () => {
+    expect(runtimeMessage(MSG.PUBLISH.SECTIONS.RUNTIME.JOB_RUNNING, "5")).toBe(
+      "Job 5",
+    );
+    expect(runtimeMessage(MSG.PUBLISH.SECTIONS.RUNTIME.CONFIRM_PURGE, "9")).toBe(
+      "Purge log for job 9?",
+    );
+  });
 });
 
 describe("RuntimeSection", () => {
+  const demandKey = MSG.PUBLISH.SECTIONS.RUNTIME.DEMAND_HEADING;
+
+  afterEach(() => {
+    delete window.I18N;
+  });
+
+  it("renders demand heading from the catalog, not a hardcoded node", () => {
+    window.I18N = {
+      message: (key: string) =>
+        key === demandKey ? "CATALOG_DEMAND_PUBLISH" : fallback(key),
+    };
+    render(<RuntimeSection />);
+    expect(screen.getByTestId("runtime-demand-heading").textContent).toBe(
+      "CATALOG_DEMAND_PUBLISH",
+    );
+    expect(screen.getByRole("button", { name: "Queue demand" })).toBeTruthy();
+  });
+
   it("mounts runtime section", () => {
     render(<RuntimeSection />);
     expect(screen.getByTestId("publish-section-runtime")).toBeTruthy();
