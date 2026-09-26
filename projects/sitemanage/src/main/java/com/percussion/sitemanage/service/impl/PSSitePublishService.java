@@ -42,6 +42,7 @@ import com.percussion.services.content.data.PSItemSummary;
 import com.percussion.services.contentchange.IPSContentChangeService;
 import com.percussion.services.contentchange.data.PSContentChangeType;
 import com.percussion.services.error.PSNotFoundException;
+import jakarta.ws.rs.WebApplicationException;
 import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
@@ -1002,6 +1003,63 @@ public class PSSitePublishService implements IPSSitePublishService {
       throw new PSIncrementalQueueStatusException(400, "Item could not be approved");
     } catch (PSDataServiceException ex) {
       throw new PSSitePublishException(ex.getMessage(), ex);
+    }
+  }
+
+  @Override
+  public void unapproveQueuedIncrementalContent(
+      String siteName, String serverName, String contentId) throws PSSitePublishException {
+    Validate.notEmpty(siteName);
+    Validate.notEmpty(serverName);
+    Validate.notEmpty(contentId);
+    if (!isPublishAllowed()) {
+      throw new PSIncrementalQueueStatusException(403, "Publish forbidden");
+    }
+    final int cid;
+    try {
+      cid = idMapper.getContentId(contentId.trim());
+    } catch (IllegalArgumentException ex) {
+      throw new PSIncrementalQueueStatusException(400, "Content id is not valid");
+    } catch (RuntimeException ex) {
+      if (ex.getCause() instanceof IllegalArgumentException) {
+        throw new PSIncrementalQueueStatusException(400, "Content id is not valid");
+      }
+      throw new PSIncrementalQueueStatusException(404, "Queued item not found");
+    }
+    final List<Integer> queued;
+    try {
+      IPSSite site = pubWs.findSite(siteName);
+      if (site == null || site.getSiteId() == null) {
+        throw new PSIncrementalQueueStatusException(404, "Site not found");
+      }
+      PSPublishServerInfo info = findPubServerInfo(siteName, serverName);
+      PSContentChangeType changeType =
+          PSPubServer.STAGING.equalsIgnoreCase(info.getServerType())
+              ? PSContentChangeType.PENDING_STAGED
+              : PSContentChangeType.PENDING_LIVE;
+      queued = contentChangeService.getChangedContent(site.getSiteId(), changeType);
+    } catch (PSIncrementalQueueStatusException ex) {
+      throw ex;
+    } catch (PSSitePublishException ex) {
+      throw new PSIncrementalQueueStatusException(404, "Publish server or site was not found");
+    } catch (IPSPubServerService.PSPubServerServiceException ex) {
+      throw new PSSitePublishException(ex.getMessage(), ex);
+    }
+    if (queued == null || !queued.contains(Integer.valueOf(cid))) {
+      throw new PSIncrementalQueueStatusException(404, "Queued item not found");
+    }
+    String guid = idMapper.getGuid(new PSLocator(cid)).toString();
+    try {
+      itemWorkflowService.transition(guid, IPSItemWorkflowService.TRANSITION_TRIGGER_REJECT);
+    } catch (WebApplicationException ex) {
+      int status = ex.getResponse() == null ? 400 : ex.getResponse().getStatus();
+      if (status == 404) {
+        throw new PSIncrementalQueueStatusException(404, "Queued item not found");
+      }
+      if (status == 403) {
+        throw new PSIncrementalQueueStatusException(403, "Publish forbidden");
+      }
+      throw new PSIncrementalQueueStatusException(400, "Item could not be unapproved");
     }
   }
 

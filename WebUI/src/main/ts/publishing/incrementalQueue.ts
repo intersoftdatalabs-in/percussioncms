@@ -22,6 +22,8 @@ export type QueueRemoveFailure = "forbidden" | "not_found" | "failed";
 
 export type QueueApproveFailure = "bad_request" | "forbidden" | "not_found" | "failed";
 
+export type QueueUnapproveFailure = QueueApproveFailure;
+
 /** Map a remove-one-item failure so 403 and 404 stay visible (not success). */
 export function queueRemoveFailure(err: unknown): QueueRemoveFailure {
   if (isApiError(err)) {
@@ -49,6 +51,11 @@ export function queueApproveFailure(err: unknown): QueueApproveFailure {
     }
   }
   return "failed";
+}
+
+/** Map an unapprove-one-item failure so 400, 403, and 404 stay visible (not success). */
+export function queueUnapproveFailure(err: unknown): QueueUnapproveFailure {
+  return queueApproveFailure(err);
 }
 
 /** Whether a reloaded queue row already carries an approved workflow marker. */
