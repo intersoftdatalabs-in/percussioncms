@@ -619,6 +619,21 @@ The spec soft-skips only when `GET /services/views` has no Inbox design view. If
 in the catalog, the Explorer leaf must run execute (`200`) and show rows or an empty
 state — a missing results region is a product defect, not a skip.
 
+### View results pages
+
+Selecting any Views leaf (Inbox, Outbox, All Content, or another catalog view) loads the
+first page of results: `startIndex` **1**, `maxResults` **50**. When that page is full, or
+the execute result’s `totalCount` says more rows remain, **Next** appears under the list.
+**Next** replaces the list with the following page (`startIndex` 51, then 101, and so on).
+**Previous** appears only when you are not on the first page and returns to the prior page.
+The first page has no **Previous**.
+
+An empty page is the end of the view, not an error: the results region shows the empty
+state and **Previous** (when you paged forward). **Next** is hidden. If a later page
+fails to load, the rows you were already looking at stay on screen and the error is shown
+above them (Retry retries that same page). A failure on the first load, before any page
+succeeded, shows only the error.
+
 ## Search panel
 
 Use **Search** from any of:

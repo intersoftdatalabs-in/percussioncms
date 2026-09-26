@@ -249,7 +249,11 @@ import {
   sidePanelsRegionStyle,
 } from "./styles";
 import { viewKey, viewLabel } from "./viewCatalog";
-import { ViewResultsPanel, type ViewRunStatus } from "./ViewResultsPanel";
+import {
+  VIEW_RESULTS_PAGE_SIZE,
+  ViewResultsPanel,
+  type ViewRunStatus,
+} from "./ViewResultsPanel";
 import { ViewsCatalogTree } from "./ViewsCatalogTree";
 import { TranslationsPanel } from "./TranslationsPanel";
 import {
@@ -594,6 +598,11 @@ function ContentExplorerShellInner({
   const [error, setError] = useState<string | null>(null);
   const [viewRun, setViewRun] = useState<ViewRunStatus | null>(null);
   const [selectedViewKey, setSelectedViewKey] = useState<string | null>(null);
+  const viewPageRef = useRef<{
+    key: string;
+    startIndex: number;
+    results: ViewExecuteResult;
+  } | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [showSecurity, setShowSecurity] = useState(false);
   const [showItemProperties, setShowItemProperties] = useState(false);
@@ -1479,20 +1488,30 @@ function ContentExplorerShellInner({
   }, []);
 
   const runSelectedView = useCallback(
-    async (view: ViewDef) => {
+    async (view: ViewDef, startIndex = 1) => {
       const key = viewKey(view);
       const label = viewLabel(view);
       if (!key) {
         return;
       }
+      const pageStart = startIndex >= 1 ? startIndex : 1;
+      const pagingSame = viewPageRef.current?.key === key;
+      if (!pagingSame) {
+        viewPageRef.current = null;
+      }
       setSelectedViewKey(key);
       setViewRun({ kind: "loading", label });
       try {
         const results = await executeView(key, {
-          startIndex: 1,
-          maxResults: 50,
+          startIndex: pageStart,
+          maxResults: VIEW_RESULTS_PAGE_SIZE,
         });
-        setViewRun({ kind: "ready", label, results });
+        const applied =
+          typeof results.startIndex === "number" && results.startIndex >= 1
+            ? results.startIndex
+            : pageStart;
+        viewPageRef.current = { key, startIndex: applied, results };
+        setViewRun({ kind: "ready", label, results, startIndex: applied });
       } catch (err: unknown) {
         const httpStatus = isApiError(err) ? err.status : undefined;
         let text = formatApiError(err, message(EXPLORER_MSG.VIEWS_RUN_ERROR));
@@ -1502,11 +1521,14 @@ function ContentExplorerShellInner({
         ) {
           text = `${text} (HTTP ${httpStatus})`;
         }
+        const kept = pagingSame ? viewPageRef.current : null;
         setViewRun({
           kind: "error",
           label,
           message: text,
           httpStatus,
+          startIndex: kept?.startIndex ?? pageStart,
+          retained: kept?.results,
         });
       }
     },
@@ -1515,11 +1537,31 @@ function ContentExplorerShellInner({
 
   const handleRetryView = useCallback(() => {
     if (viewRun == null || !selectedViewKey) return;
-    void runSelectedView({
-      name: selectedViewKey,
-      label: viewRun.label,
-    });
+    const start =
+      viewRun.kind === "ready" || viewRun.kind === "error"
+        ? (viewRun.startIndex ?? 1)
+        : 1;
+    void runSelectedView(
+      {
+        name: selectedViewKey,
+        label: viewRun.label,
+      },
+      start,
+    );
   }, [viewRun, selectedViewKey, runSelectedView]);
+
+  const handleViewPage = useCallback(
+    (nextStart: number) => {
+      if (viewRun == null || !selectedViewKey || viewRun.kind === "loading") {
+        return;
+      }
+      void runSelectedView(
+        { name: selectedViewKey, label: viewRun.label },
+        nextStart,
+      );
+    },
+    [viewRun, selectedViewKey, runSelectedView],
+  );
 
   const siteNameForCopy = useMemo(
     () =>
@@ -2196,6 +2238,20 @@ function ContentExplorerShellInner({
           onOpen={handleSearchOpen}
           onReveal={handleSearchReveal}
           onRetry={handleRetryView}
+          onNextPage={() => {
+            const start =
+              viewRun.kind === "ready" || viewRun.kind === "error"
+                ? (viewRun.startIndex ?? 1)
+                : 1;
+            handleViewPage(start + VIEW_RESULTS_PAGE_SIZE);
+          }}
+          onPreviousPage={() => {
+            const start =
+              viewRun.kind === "ready" || viewRun.kind === "error"
+                ? (viewRun.startIndex ?? 1)
+                : 1;
+            handleViewPage(Math.max(1, start - VIEW_RESULTS_PAGE_SIZE));
+          }}
         />
       ) : (
         <DetailList

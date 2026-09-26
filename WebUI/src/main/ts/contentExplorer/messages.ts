@@ -531,6 +531,9 @@ export const EXPLORER_MSG = {
   VIEWS_INBOX: "perc.ui.explorer@Inbox",
   VIEWS_INBOX_ICON: "perc.ui.explorer@Inbox view",
   VIEWS_RESULTS_REGION: "perc.ui.explorer@View results",
+  VIEWS_PAGE_REGION: "perc.ui.explorer@View results pages",
+  VIEWS_PAGE_NEXT: "perc.ui.explorer@Next",
+  VIEWS_PAGE_PREVIOUS: "perc.ui.explorer@Previous",
 
   // Server-action dispatcher (action-execution / stop Data Flow 404s)
   ACTION_EDITOR_UNAVAILABLE:

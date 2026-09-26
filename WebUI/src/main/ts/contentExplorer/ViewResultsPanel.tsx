@@ -26,16 +26,75 @@ import { message } from "../i18n/message";
 import { EXPLORER_MSG } from "./messages";
 import { listStyle } from "./styles";
 
+/** Page size sent as execute {@code maxResults} (#4930). */
+export const VIEW_RESULTS_PAGE_SIZE = 50;
+
 export type ViewRunStatus =
   | { kind: "loading"; label: string }
-  | { kind: "ready"; label: string; results: ViewExecuteResult }
-  | { kind: "error"; label: string; message: string; httpStatus?: number };
+  | {
+      kind: "ready";
+      label: string;
+      results: ViewExecuteResult;
+      /** 1-based execute startIndex for this page. Defaults to results.startIndex or 1. */
+      startIndex?: number;
+    }
+  | {
+      kind: "error";
+      label: string;
+      message: string;
+      httpStatus?: number;
+      /** Page that stayed visible when a later execute failed. */
+      startIndex?: number;
+      retained?: ViewExecuteResult;
+    };
 
 export interface ViewResultsPanelProps {
   status: ViewRunStatus;
   onOpen?: (result: PSItemProperties) => void;
   onReveal?: (result: PSItemProperties) => void;
   onRetry?: () => void;
+  onNextPage?: () => void;
+  onPreviousPage?: () => void;
+}
+
+export function viewResultsStartIndex(
+  status: ViewRunStatus,
+  results?: ViewExecuteResult,
+): number {
+  if (status.kind === "ready" || status.kind === "error") {
+    if (typeof status.startIndex === "number" && status.startIndex >= 1) {
+      return status.startIndex;
+    }
+  }
+  const fromPayload = results?.startIndex;
+  if (typeof fromPayload === "number" && fromPayload >= 1) {
+    return fromPayload;
+  }
+  return 1;
+}
+
+/**
+ * Next is offered when this page is full or {@code totalCount} says more rows remain.
+ * An empty page is the end (not an error), so Next is hidden.
+ */
+export function viewResultsHasNextPage(
+  startIndex: number,
+  results: ViewExecuteResult | null | undefined,
+  pageSize: number = VIEW_RESULTS_PAGE_SIZE,
+): boolean {
+  const len = Array.isArray(results?.children) ? results.children.length : 0;
+  if (len === 0) {
+    return false;
+  }
+  const total = results?.totalCount;
+  if (typeof total === "number") {
+    return startIndex + len - 1 < total;
+  }
+  return len >= pageSize;
+}
+
+export function viewResultsHasPreviousPage(startIndex: number): boolean {
+  return startIndex > 1;
 }
 
 export function toViewResultRows(
@@ -58,11 +117,21 @@ export function ViewResultsPanel({
   onOpen,
   onReveal,
   onRetry,
+  onNextPage,
+  onPreviousPage,
 }: ViewResultsPanelProps): React.ReactElement {
+  const shown =
+    status.kind === "ready"
+      ? status.results
+      : status.kind === "error"
+        ? status.retained
+        : undefined;
+  const startIndex = viewResultsStartIndex(status, shown);
   return (
     <section
       style={listStyle}
       data-testid="explorer-view-results"
+      data-start-index={status.kind === "loading" ? undefined : String(startIndex)}
       aria-label={message(EXPLORER_MSG.VIEWS_RESULTS_REGION)}
     >
       <header
@@ -83,7 +152,67 @@ export function ViewResultsPanel({
         onReveal={onReveal}
         onRetry={onRetry}
       />
+      {status.kind !== "loading" &&
+      shown &&
+      toViewResultRows(shown).length > 0 ? (
+        <ViewResultsPager
+          startIndex={startIndex}
+          results={shown}
+          onNextPage={onNextPage}
+          onPreviousPage={onPreviousPage}
+        />
+      ) : null}
+      {status.kind === "ready" && toViewResultRows(status.results).length === 0 ? (
+        <ViewResultsPager
+          startIndex={startIndex}
+          results={status.results}
+          onNextPage={onNextPage}
+          onPreviousPage={onPreviousPage}
+        />
+      ) : null}
     </section>
+  );
+}
+
+function ViewResultsPager(props: {
+  startIndex: number;
+  results: ViewExecuteResult;
+  onNextPage?: () => void;
+  onPreviousPage?: () => void;
+}): React.ReactElement | null {
+  const showPrev =
+    props.onPreviousPage != null && viewResultsHasPreviousPage(props.startIndex);
+  const showNext =
+    props.onNextPage != null &&
+    viewResultsHasNextPage(props.startIndex, props.results);
+  if (!showPrev && !showNext) {
+    return null;
+  }
+  return (
+    <nav
+      data-testid="explorer-view-results-pager"
+      aria-label={message(EXPLORER_MSG.VIEWS_PAGE_REGION)}
+      style={{ display: "flex", gap: 8, padding: "8px 12px" }}
+    >
+      {showPrev ? (
+        <button
+          type="button"
+          data-testid="explorer-view-results-previous"
+          onClick={() => props.onPreviousPage?.()}
+        >
+          {message(EXPLORER_MSG.VIEWS_PAGE_PREVIOUS)}
+        </button>
+      ) : null}
+      {showNext ? (
+        <button
+          type="button"
+          data-testid="explorer-view-results-next"
+          onClick={() => props.onNextPage?.()}
+        >
+          {message(EXPLORER_MSG.VIEWS_PAGE_NEXT)}
+        </button>
+      ) : null}
+    </nav>
   );
 }
 
@@ -107,25 +236,36 @@ function ViewRunBody(props: {
     );
   }
   if (status.kind === "error") {
+    const retained = toViewResultRows(status.retained);
     return (
-      <div role="alert" style={{ color: "#a00", padding: 12 }}>
-        <p
-          data-testid="explorer-view-results-error"
-          data-http-status={
-            status.httpStatus != null ? String(status.httpStatus) : undefined
-          }
-          style={{ margin: "0 0 8px 0" }}
-        >
-          {message(EXPLORER_MSG.VIEWS_RUN_ERROR)}: {status.message}
-        </p>
-        {onRetry ? (
-          <button
-            type="button"
-            data-testid="explorer-view-results-retry"
-            onClick={() => onRetry()}
+      <div>
+        <div role="alert" style={{ color: "#a00", padding: 12 }}>
+          <p
+            data-testid="explorer-view-results-error"
+            data-http-status={
+              status.httpStatus != null ? String(status.httpStatus) : undefined
+            }
+            style={{ margin: "0 0 8px 0" }}
           >
-            {message(EXPLORER_MSG.RETRY)}
-          </button>
+            {message(EXPLORER_MSG.VIEWS_RUN_ERROR)}: {status.message}
+          </p>
+          {onRetry ? (
+            <button
+              type="button"
+              data-testid="explorer-view-results-retry"
+              onClick={() => onRetry()}
+            >
+              {message(EXPLORER_MSG.RETRY)}
+            </button>
+          ) : null}
+        </div>
+        {retained.length > 0 ? (
+          <ViewResultList
+            label={status.label}
+            rows={retained}
+            onOpen={onOpen}
+            onReveal={onReveal}
+          />
         ) : null}
       </div>
     );
@@ -144,10 +284,27 @@ function ViewRunBody(props: {
     );
   }
   return (
+    <ViewResultList
+      label={status.label}
+      rows={rows}
+      onOpen={onOpen}
+      onReveal={onReveal}
+    />
+  );
+}
+
+function ViewResultList(props: {
+  label: string;
+  rows: PSItemProperties[];
+  onOpen?: (result: PSItemProperties) => void;
+  onReveal?: (result: PSItemProperties) => void;
+}): React.ReactElement {
+  const { label, rows, onOpen, onReveal } = props;
+  return (
     <ul
       data-testid="explorer-view-results-list"
       style={{ listStyle: "none", padding: "8px 12px", margin: 0 }}
-      aria-label={status.label}
+      aria-label={label}
     >
       {rows.map((r, idx) => (
         <li

@@ -17,7 +17,12 @@
 
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { ViewResultsPanel } from "../../../main/ts/contentExplorer/ViewResultsPanel";
+import {
+  VIEW_RESULTS_PAGE_SIZE,
+  ViewResultsPanel,
+  viewResultsHasNextPage,
+  viewResultsHasPreviousPage,
+} from "../../../main/ts/contentExplorer/ViewResultsPanel";
 import { renderA11yGate } from "./a11y";
 
 describe("ViewResultsPanel (#3116)", () => {
@@ -69,5 +74,80 @@ describe("ViewResultsPanel (#3116)", () => {
     );
     expect(screen.getByTestId("explorer-view-results-error")).toBeInTheDocument();
     expect(screen.getByTestId("explorer-view-results-retry")).toBeInTheDocument();
+  });
+
+  it("shows Next on a full page and Previous only after the first page (#4930)", async () => {
+    const children = Array.from({ length: VIEW_RESULTS_PAGE_SIZE }, (_, i) => ({
+      id: String(i + 1),
+      title: `Row ${i + 1}`,
+    }));
+    const onNextPage = vi.fn();
+    const onPreviousPage = vi.fn();
+    const { container, rerender } = render(
+      <ViewResultsPanel
+        status={{
+          kind: "ready",
+          label: "All",
+          startIndex: 1,
+          results: { children, totalCount: 60, startIndex: 1 },
+        }}
+        onNextPage={onNextPage}
+        onPreviousPage={onPreviousPage}
+      />,
+    );
+    expect(screen.queryByTestId("explorer-view-results-previous")).toBeNull();
+    fireEvent.click(screen.getByTestId("explorer-view-results-next"));
+    expect(onNextPage).toHaveBeenCalledTimes(1);
+    rerender(
+      <ViewResultsPanel
+        status={{
+          kind: "ready",
+          label: "All",
+          startIndex: 51,
+          results: { children: [], totalCount: 60, startIndex: 51 },
+        }}
+        onNextPage={onNextPage}
+        onPreviousPage={onPreviousPage}
+      />,
+    );
+    expect(screen.getByTestId("explorer-view-results-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("explorer-view-results-next")).toBeNull();
+    expect(screen.queryByTestId("explorer-view-results-error")).toBeNull();
+    fireEvent.click(screen.getByTestId("explorer-view-results-previous"));
+    expect(onPreviousPage).toHaveBeenCalledTimes(1);
+    expect(viewResultsHasNextPage(1, { children, totalCount: 60 })).toBe(true);
+    expect(viewResultsHasNextPage(51, { children: [], totalCount: 60 })).toBe(
+      false,
+    );
+    expect(viewResultsHasPreviousPage(1)).toBe(false);
+    expect(viewResultsHasPreviousPage(51)).toBe(true);
+    await renderA11yGate(container);
+  });
+
+  it("keeps the current page rows when execute failed (#4930)", () => {
+    render(
+      <ViewResultsPanel
+        status={{
+          kind: "error",
+          label: "All",
+          message: "HTTP 500",
+          httpStatus: 500,
+          startIndex: 1,
+          retained: {
+            children: [{ id: "1", title: "Kept" }],
+            totalCount: 80,
+            startIndex: 1,
+          },
+        }}
+        onNextPage={() => undefined}
+        onRetry={() => undefined}
+      />,
+    );
+    expect(screen.getByTestId("explorer-view-results-error").textContent).toMatch(
+      /HTTP 500/,
+    );
+    expect(screen.getByTestId("explorer-view-open-1")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-view-results-next")).toBeInTheDocument();
+    expect(screen.queryByTestId("explorer-view-results-previous")).toBeNull();
   });
 });
