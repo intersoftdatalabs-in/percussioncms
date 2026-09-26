@@ -16,8 +16,9 @@
  */
 
 /**
- * Playwright surface: #4766 / parent #4531 — PublishingShell log item
+ * Playwright surface: #4766 / #4936 / parent #4531 — PublishingShell log item
  * opens the React content editor. 403/404 stay on the log detail.
+ * A row with no content id has no Open in editor action.
  *
  * Tags: @publishing-log-open-editor @publish @smoke
  *
@@ -91,7 +92,7 @@ async function expectNoEditorPopup(popups) {
   }
 }
 
-async function stubLogs(page, fieldsStatus) {
+async function stubLogs(page, fieldsStatus, details = DETAILS) {
   await page.route("**/sitemanage/pubstatus/logs**", async (route) => {
     if (
       isPubstatusLogsUrl(route.request().url()) &&
@@ -114,7 +115,7 @@ async function stubLogs(page, fieldsStatus) {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify(DETAILS),
+        body: JSON.stringify(details),
       });
       return;
     }
@@ -226,6 +227,42 @@ test.describe("PublishingShell open log item in editor (#4766)", () => {
       /not found/i,
       { timeout: 10000 },
     );
+    expect(consoleErrors).toEqual([]);
+  });
+
+  test(`hides Open in editor when the row has no content id ${TAGS.join(" ")}`, async ({
+    page,
+  }) => {
+    const consoleErrors = [];
+    attachConsole(page, consoleErrors);
+    await stubLogs(page, 200, {
+      SitePublishItem: [
+        {
+          status: "Success",
+          operation: "publish",
+          fileName: "orphan.html",
+        },
+      ],
+    });
+    const popups = [];
+    page.on("popup", (popup) => {
+      popups.push(popup);
+    });
+
+    await page.goto(publishingLogsUrl(BASE_URL), {
+      waitUntil: "domcontentloaded",
+    });
+    await expect(page.getByTestId("publishing-shell")).toBeVisible({
+      timeout: 30000,
+    });
+    await page.getByTestId("logs-filter-apply").click();
+    await page.getByRole("button", { name: "details" }).click();
+    await expect(page.getByTestId("publish-log-details")).toBeVisible();
+    await page.getByRole("button", { name: /item details/i }).click();
+    await expect(page.getByTestId("publish-log-item-detail")).toBeVisible();
+    await expect(page.getByTestId("publish-log-open-editor")).toHaveCount(0);
+    await expect(page.getByTestId("publish-log-details")).toBeVisible();
+    expect(popups).toEqual([]);
     expect(consoleErrors).toEqual([]);
   });
 });

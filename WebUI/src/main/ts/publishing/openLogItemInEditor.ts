@@ -57,6 +57,13 @@ export interface OpenLogItemDeps {
   ) => Promise<boolean>;
 }
 
+/** True when the log row has a content id the editor can open (#4936). */
+export function logItemCanOpen(
+  contentId: string | number | null | undefined,
+): boolean {
+  return parseExplorerContentId(contentId ?? undefined) != null;
+}
+
 /** Map REST failures so 403/404 are not a successful editor open. */
 export function logItemOpenErrorReason(err: unknown): OpenLogItemReason {
   if (isApiError(err)) {

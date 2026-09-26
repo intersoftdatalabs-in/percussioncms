@@ -24,6 +24,7 @@ import {
 } from "../logDetails";
 import { reserveEditorWindow } from "../../editor/openEditorHost";
 import {
+  logItemCanOpen,
   openLogItemInEditor,
   type OpenLogItemReason,
   type OpenLogItemResult,
@@ -231,29 +232,31 @@ export function LogDetailsPanel({
               {openError}
             </p>
           )}
-          <button
-            type="button"
-            style={buttonStyle}
-            data-testid="publish-log-open-editor"
-            disabled={opening}
-            onClick={() => {
-              const reserved = reserveEditorWindow();
-              setOpening(true);
-              setOpenError(null);
-              void openItem(selected.contentid, reserved)
-                .then((result) => {
-                  if (!result.ok) {
-                    setOpenError(openFailureMessage(result.reason));
-                  }
-                })
-                .catch(() => {
-                  setOpenError(message(MSG.PUBLISH_LOG_ITEM_OPEN_FAILED));
-                })
-                .finally(() => setOpening(false));
-            }}
-          >
-            {message(MSG.PUBLISH_LOG_OPEN_EDITOR)}
-          </button>
+          {logItemCanOpen(selected.contentid) && (
+            <button
+              type="button"
+              style={buttonStyle}
+              data-testid="publish-log-open-editor"
+              disabled={opening}
+              onClick={() => {
+                const reserved = reserveEditorWindow();
+                setOpening(true);
+                setOpenError(null);
+                void openItem(selected.contentid, reserved)
+                  .then((result) => {
+                    if (!result.ok) {
+                      setOpenError(openFailureMessage(result.reason));
+                    }
+                  })
+                  .catch(() => {
+                    setOpenError(message(MSG.PUBLISH_LOG_ITEM_OPEN_FAILED));
+                  })
+                  .finally(() => setOpening(false));
+              }}
+            >
+              {message(MSG.PUBLISH_LOG_OPEN_EDITOR)}
+            </button>
+          )}
           <button
             type="button"
             style={buttonStyle}
