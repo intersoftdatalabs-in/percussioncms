@@ -29,6 +29,7 @@ vi.mock("../../../main/ts/api/architecture/sectionApi", () => ({
   loadSectionProperties: vi.fn(),
   createSiteSection: vi.fn(),
   updateSiteSection: vi.fn(),
+  deleteSiteSection: vi.fn(),
 }));
 
 vi.mock("../../../main/ts/api/home/homeApi", () => ({
@@ -39,6 +40,7 @@ const loadSectionTree = sectionApi.loadSectionTree as ReturnType<typeof vi.fn>;
 const createSiteSection = sectionApi.createSiteSection as ReturnType<typeof vi.fn>;
 const loadSectionProperties = sectionApi.loadSectionProperties as ReturnType<typeof vi.fn>;
 const updateSiteSection = sectionApi.updateSiteSection as ReturnType<typeof vi.fn>;
+const deleteSiteSection = sectionApi.deleteSiteSection as ReturnType<typeof vi.fn>;
 
 const tree = {
   id: "root",
@@ -55,6 +57,7 @@ describe("SiteNavSections", () => {
     createSiteSection.mockReset();
     loadSectionProperties.mockReset();
     updateSiteSection.mockReset();
+    deleteSiteSection.mockReset();
     (homeApi.fetchTemplatesForSectionCreate as ReturnType<typeof vi.fn>).mockReset();
     loadSectionTree.mockResolvedValue(tree);
     (homeApi.fetchTemplatesForSectionCreate as ReturnType<typeof vi.fn>).mockResolvedValue([
@@ -148,6 +151,7 @@ describe("SiteNavSections", () => {
     expect(screen.getByTestId("developer-site-nav-readonly")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-nav-add")).toBeNull();
     expect(screen.queryByTestId("developer-site-nav-rename-save")).toBeNull();
+    expect(screen.queryByTestId("developer-site-nav-delete-confirm")).toBeNull();
     expect(loadSectionTree).not.toHaveBeenCalled();
   });
 
@@ -263,6 +267,116 @@ describe("SiteNavSections", () => {
     });
     expect(screen.getByTestId("developer-site-nav-rename-notice").textContent).toBe(
       DEV_MSG.SITE_NAV_RENAMED,
+    );
+  });
+
+  it("delete cancel does not call delete", async () => {
+    loadSectionTree.mockResolvedValue({
+      ...tree,
+      children: [
+        {
+          id: "news",
+          title: "News",
+          folderPath: "//Sites/Corporate/News",
+          sectionType: "section",
+          requiresLogin: false,
+          children: [],
+        },
+      ],
+    });
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-delete-confirm");
+    fireEvent.click(screen.getByTestId("developer-site-nav-delete-cancel"));
+    expect(deleteSiteSection).not.toHaveBeenCalled();
+    expect(screen.getAllByTestId("developer-site-nav-item").map((n) => n.textContent)).toContain(
+      "News",
+    );
+  });
+
+  it("stays on the panel when delete returns 403 or 409", async () => {
+    loadSectionTree.mockResolvedValue({
+      ...tree,
+      children: [
+        {
+          id: "news",
+          title: "News",
+          folderPath: "//Sites/Corporate/News",
+          sectionType: "section",
+          requiresLogin: false,
+          children: [],
+        },
+      ],
+    });
+    deleteSiteSection.mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: "" });
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-delete-confirm");
+    fireEvent.click(screen.getByTestId("developer-site-nav-delete-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-delete-error").textContent).toContain(
+        DEV_MSG.SITE_NAV_DELETE_FORBIDDEN,
+      );
+    });
+    expect(screen.getAllByTestId("developer-site-nav-item").map((n) => n.textContent)).toContain(
+      "News",
+    );
+
+    deleteSiteSection.mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: "" });
+    fireEvent.click(screen.getByTestId("developer-site-nav-delete-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-delete-error").textContent).toContain(
+        DEV_MSG.SITE_NAV_DELETE_CONFLICT,
+      );
+    });
+    expect(loadSectionTree).toHaveBeenCalledTimes(1);
+    expect(screen.getAllByTestId("developer-site-nav-item").map((n) => n.textContent)).toContain(
+      "News",
+    );
+  });
+
+  it("confirm deletes only the selected section and reloads without it", async () => {
+    const withNews = {
+      ...tree,
+      children: [
+        {
+          id: "news",
+          title: "News",
+          folderPath: "//Sites/Corporate/News",
+          sectionType: "section",
+          requiresLogin: false,
+          children: [],
+        },
+        {
+          id: "about",
+          title: "About",
+          folderPath: "//Sites/Corporate/About",
+          sectionType: "section",
+          requiresLogin: false,
+          children: [],
+        },
+      ],
+    };
+    loadSectionTree.mockResolvedValueOnce(withNews).mockResolvedValueOnce({
+      ...tree,
+      children: [withNews.children[1]],
+    });
+    deleteSiteSection.mockResolvedValue({});
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-delete-confirm");
+    fireEvent.change(screen.getByTestId("developer-site-nav-delete-target"), {
+      target: { value: "news" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-nav-delete-confirm"));
+    await waitFor(() => {
+      expect(deleteSiteSection).toHaveBeenCalledTimes(1);
+    });
+    expect(deleteSiteSection).toHaveBeenCalledWith("news");
+    await waitFor(() => {
+      const items = screen.getAllByTestId("developer-site-nav-item").map((n) => n.textContent);
+      expect(items).not.toContain("News");
+      expect(items).toContain("About");
+    });
+    expect(screen.getByTestId("developer-site-nav-delete-notice").textContent).toBe(
+      DEV_MSG.SITE_NAV_DELETED,
     );
   });
 });

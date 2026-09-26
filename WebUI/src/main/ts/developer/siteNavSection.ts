@@ -16,8 +16,8 @@
  */
 
 /**
- * Pure helpers for Developer Sites navigation sections (#4918 add, #4919 rename).
- * Reorder, delete, and moving a section to another parent stay outside this surface.
+ * Pure helpers for Developer Sites navigation sections (#4918 add, #4919 rename, #4920 delete).
+ * Reorder and moving a section to another parent stay outside this surface.
  */
 
 import {
@@ -220,6 +220,22 @@ export function isDeveloperSectionNameTaken(
   };
   walk(root);
   return taken;
+}
+
+/** A regular or blog section the operator may delete (not the site root, not a link). */
+export interface DeveloperNavDeleteTarget {
+  id: string;
+  title: string;
+}
+
+/**
+ * Depth-first delete targets. The site root is excluded so this action cannot
+ * remove the site. External links and section links are excluded.
+ */
+export function listDeveloperDeleteTargets(root: NavTreeNode | null): DeveloperNavDeleteTarget[] {
+  return listDeveloperRenameTargets(root)
+    .filter((target) => !target.siteRoot)
+    .map((target) => ({ id: target.id, title: target.title }));
 }
 
 /**
