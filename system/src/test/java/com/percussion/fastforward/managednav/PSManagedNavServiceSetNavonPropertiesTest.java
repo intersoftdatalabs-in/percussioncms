@@ -47,6 +47,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.transaction.UnexpectedRollbackException;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Architecture section rename must save navon displaytitle without
@@ -174,6 +176,36 @@ class PSManagedNavServiceSetNavonPropertiesTest {
     verify(contentWs, times(2))
         .loadItems(anyList(), eq(false), eq(false), eq(false), eq(false));
     verify(contentWs).saveItems(anyList(), eq(false), eq(false));
+  }
+
+  @Test
+  void setNavonPropertiesDefersSaveUntilRequestCommitsWhenRowIsLocked() throws Exception {
+    TransactionSynchronizationManager.initSynchronization();
+    try {
+      doReturn(true).when(service).isNavonAlreadyCheckedOut(navonId);
+      when(contentWs.loadItems(anyList(), eq(false), eq(false), eq(false), eq(false)))
+          .thenThrow(new PSErrorResultsException())
+          .thenReturn(List.of(coreItem));
+      Map<String, String> map = new HashMap<>();
+      map.put("displaytitle", "Renamed");
+
+      assertDoesNotThrow(() -> service.setNavonProperties(navonId, map));
+
+      verify(contentWs, times(1))
+          .loadItems(anyList(), eq(false), eq(false), eq(false), eq(false));
+      verify(contentWs, never()).saveItems(anyList(), anyBoolean(), anyBoolean());
+
+      for (TransactionSynchronization sync : TransactionSynchronizationManager.getSynchronizations()) {
+        sync.afterCommit();
+      }
+
+      verify(contentWs, times(2))
+          .loadItems(anyList(), eq(false), eq(false), eq(false), eq(false));
+      verify(coreItem).setTextField("displaytitle", "Renamed");
+      verify(contentWs).saveItems(anyList(), eq(false), eq(false));
+    } finally {
+      TransactionSynchronizationManager.clearSynchronization();
+    }
   }
 
   @Test

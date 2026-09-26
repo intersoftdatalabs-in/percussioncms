@@ -693,10 +693,34 @@ public class PSManagedNavService implements IPSManagedNavService {
             || hasPrepareEditErrorResults(first)) {
           // Isolated save uses a second H2 connection. A public navon transition
           // already locked CONTENTSTATUS on the request connection (#4919).
-          log.warn(
-              "Saving navon properties on the request transaction after isolated save failed; id={}",
-              nodeId);
-          applyNavonPropertiesIsolated(nodeId, propertyMap);
+          // Saving on that same open request still uses content web services
+          // (another connection) and times out. Wait until the request commits.
+          if (org.springframework.transaction.support.TransactionSynchronizationManager
+              .isSynchronizationActive()) {
+            log.warn(
+                "Deferring navon property save until the request transaction commits; id={}",
+                nodeId);
+            org.springframework.transaction.support.TransactionSynchronizationManager
+                .registerSynchronization(
+                    new org.springframework.transaction.support.TransactionSynchronization() {
+                      @Override
+                      public void afterCommit() {
+                        runWithoutJoiningCallerTx(
+                            () -> {
+                              if (!isNavonAlreadyCheckedOut(nodeId)) {
+                                prepareForEditIsolated(nodeId);
+                              }
+                              applyNavonPropertiesIsolated(nodeId, propertyMap);
+                              return Boolean.TRUE;
+                            });
+                      }
+                    });
+          } else {
+            log.warn(
+                "Saving navon properties on the caller after isolated save failed; id={}",
+                nodeId);
+            applyNavonPropertiesIsolated(nodeId, propertyMap);
+          }
         } else {
           throw first;
         }

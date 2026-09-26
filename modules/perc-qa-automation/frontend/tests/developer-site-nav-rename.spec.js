@@ -103,12 +103,22 @@ test.describe("Developer rename navigation section (#4919)", () => {
     });
     const siteName = await openFirstEditableSite(page);
 
+    const created = `NightSec${Date.now().toString().slice(-6)}`;
+    await page.locator('[data-testid="developer-site-nav-name"]').fill(created);
+    await page.locator('[data-testid="developer-site-nav-add"]').click();
+    await expect(page.locator('[data-testid="developer-site-nav-notice"]')).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(
+      page.locator('[data-testid="developer-site-nav-item"]', { hasText: created }),
+    ).toBeVisible();
+
     const target = page.locator('[data-testid="developer-site-nav-rename-target"]');
-    const leaf = target.locator("option", { hasText: /^Mortgages$/ });
+    const leaf = target.locator("option", { hasText: created });
     await expect(leaf).toHaveCount(1, { timeout: 20_000 });
     const optionValue = await leaf.first().getAttribute("value");
     await target.selectOption(optionValue);
-    const original = "Mortgages";
+    const original = created;
     const renamed = `NightRen${Date.now().toString().slice(-6)}`;
 
     const renameName = page.locator('[data-testid="developer-site-nav-rename-name"]');
