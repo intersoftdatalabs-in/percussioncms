@@ -119,6 +119,17 @@ function searchLabel(def: SearchDef): string {
 }
 
 /**
+ * Custom URL views are listed with searches but execute on the Views tree.
+ * Custom URL searches ({@code CustomSearch}) are runnable here (#4929).
+ */
+function isCustomViewSavedSearch(def: SearchDef | null | undefined): boolean {
+  if (def?.customSearch !== true) {
+    return false;
+  }
+  return (def.type ?? "").trim().toLowerCase() === "view";
+}
+
+/**
  * Map design-search execute wire (or already-normalized results) into the
  * Explorer {@link PSSearchResults} shape used by the results list.
  */
@@ -276,7 +287,7 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
 
   function handleRunSaved(): void {
     if (!selectedDef) return;
-    if (selectedDef.customSearch) {
+    if (isCustomViewSavedSearch(selectedDef)) {
       setStatus({
         kind: "error",
         query: searchLabel(selectedDef),
@@ -341,9 +352,9 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
         runDisabled={
           status.kind === "loading" ||
           !selectedSaved ||
-          (selectedDef?.customSearch === true)
+          isCustomViewSavedSearch(selectedDef)
         }
-        selectedIsCustom={selectedDef?.customSearch === true}
+        selectedIsCustom={isCustomViewSavedSearch(selectedDef)}
       />
 
       <SearchStatusView
@@ -451,7 +462,11 @@ function SavedSearchPicker(props: {
           return (
             <option key={`${key}-${idx}`} value={key}>
               {searchLabel(def)}
-              {def.customSearch ? " (URL)" : ""}
+              {isCustomViewSavedSearch(def)
+                ? " (view URL)"
+                : def.customSearch
+                  ? " (URL)"
+                  : ""}
             </option>
           );
         })}

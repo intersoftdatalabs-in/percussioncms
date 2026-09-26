@@ -645,7 +645,11 @@ When the panel is open you can:
    (or any other standard/user search) returns matching items or an empty results page —
    not a generic I/O error. At Explorer **root** (`/`) the run is unscoped (all content the
    search allows). When a real folder such as `/Sites` is selected, the run is scoped to
-   that folder. Custom URL searches stay listed but cannot be run from Explorer.
+   that folder. A **custom URL search** (`CustomSearch`) runs through the same saved-search
+   action: matching items, or an empty results page when the URL returns no rows. HTTP 403
+   and HTTP 404 stay on the error panel (Retry is available). Leaving the picker on
+   “Select a saved search…” does not call execute. Custom URL **views** in this list are
+   not run here — open them from the Views tree. Their Run button stays disabled.
 
 Closing **Search** again (view-tools button, **View → Search**, or **Content → Search**)
 hides the panel. Revealing a result in its folder also closes the panel so the

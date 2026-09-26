@@ -226,7 +226,11 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
         await expect(select).toBeVisible();
         const runBtn = page.locator(`[data-testid="${TEST_IDS.savedRun}"]`);
         const customOpt = selectOptions.find((o) => isCustomSelectOption(o));
-        if (customOpt && customOpt.value) {
+        if (
+          customOpt &&
+          customOpt.value &&
+          /\(view URL\)\s*$/i.test(String(customOpt.text || ""))
+        ) {
           await select.selectOption(customOpt.value);
           await expect(runBtn).toBeDisabled();
         }
@@ -250,10 +254,20 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
     await expect(select).toBeVisible({ timeout: 10_000 });
 
     const runBtn = page.locator(`[data-testid="${TEST_IDS.savedRun}"]`);
-    const customOpt = selectOptions.find((o) => isCustomSelectOption(o));
-    if (customOpt && customOpt.value) {
-      await select.selectOption(customOpt.value);
+    const viewUrlOpt = selectOptions.find((o) =>
+      /\(view URL\)\s*$/i.test(String(o.text || "")),
+    );
+    if (viewUrlOpt && viewUrlOpt.value) {
+      await select.selectOption(viewUrlOpt.value);
       await expect(runBtn).toBeDisabled();
+    }
+    const searchUrlOpt = selectOptions.find((o) => {
+      const text = String(o.text || "");
+      return /\(URL\)\s*$/.test(text) && !/\(view URL\)\s*$/i.test(text);
+    });
+    if (searchUrlOpt && searchUrlOpt.value) {
+      await select.selectOption(searchUrlOpt.value);
+      await expect(runBtn).toBeEnabled();
     }
 
     const optionValues = selectOptions
