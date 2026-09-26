@@ -217,7 +217,13 @@ its in-memory active ids. A clean **Completed** job and a user-cancelled job do 
 list (use **Logs** for that history). **Filter Sites**
 narrows that table by site name or site id (case-insensitive; no extra publish request).
 Clear the field to restore the full list. When jobs are loaded but none match, Status shows
-**No jobs match this site filter**. When the server returns no jobs at all, Status still shows
+**No jobs match this site filter**. **Filter editions** narrows the same loaded list by
+edition name (case-insensitive contains; no extra publish request). Jobs that have no edition
+name stay hidden while that box is not empty. Clear **Filter editions** to restore the list
+that **Filter Sites** still shows. When jobs are loaded but none match the edition text, Status
+shows **No jobs match this edition filter** — that is an empty match, not an error. A later
+reload that returns HTTP **403** keeps Status on screen with the error; it does not replace the
+panel with a blank page. When the server returns no jobs at all, Status still shows
 **No active publishing jobs**. **Stop** is unchanged and applies only to visible running jobs.
 
 ### Job detail (Status)

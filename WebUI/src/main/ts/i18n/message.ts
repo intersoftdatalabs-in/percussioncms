@@ -171,6 +171,9 @@ export const MSG = {
   PUBLISH_SECTION_DESIGN: "perc.ui.publish.modern@Design",
   PUBLISH_SECTION_RUNTIME: "perc.ui.publish.modern@Runtime",
   PUBLISH_FILTER_SITES: "perc.ui.publish.title@Filter Sites",
+  PUBLISH_FILTER_EDITIONS: "perc.ui.publish.modern@Filter editions",
+  PUBLISH_EMPTY_EDITION_FILTER:
+    "perc.ui.publish.modern@No jobs match this edition filter. Clear the filter to see the full list.",
   PUBLISH_CARD: "perc.ui.publish.title@Card",
   PUBLISH_LIST: "perc.ui.publish.title@List",
   PUBLISH_FULL: "perc.ui.publish.title@Full",
