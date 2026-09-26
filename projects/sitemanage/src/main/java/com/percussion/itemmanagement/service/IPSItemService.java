@@ -79,6 +79,12 @@ public interface IPSItemService {
       throws PSItemServiceException;
 
   /**
+   * Removes a stored file or image field. Caller must have the item checked out.
+   * A blank field name is HTTP 400. Checkout held by someone else is HTTP 403.
+   */
+  PSItemEditorBinaryMeta clearEditorBinary(String id, String field) throws PSItemServiceException;
+
+  /**
    * Retrieves the revisions for a given page or asset.
    *
    * @param id the full id of the page or asset, must not be blank

@@ -17,6 +17,7 @@
 
 import { getCsrfToken } from "../api/csrf";
 import {
+  del,
   get,
   getBinary,
   SessionRedirectError,
@@ -172,4 +173,16 @@ export async function uploadItemEditorBinary(
     throw error;
   }
   return unwrapBinaryMeta(parsed);
+}
+
+/**
+ * Deletes the stored binary. Call only after the operator saves a clear.
+ * HTTP errors are thrown as {@link ApiError}.
+ */
+export async function clearItemEditorBinary(
+  itemId: string,
+  field: string,
+): Promise<ItemEditorBinaryMeta> {
+  const res = await del<unknown>(binaryFieldUrl(itemId, field));
+  return unwrapBinaryMeta(res);
 }

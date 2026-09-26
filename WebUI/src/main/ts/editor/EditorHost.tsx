@@ -194,7 +194,11 @@ import {
   saveItemEditorFields,
   type ItemEditorFields,
 } from "./itemFieldsApi";
-import { downloadItemEditorBinary, uploadItemEditorBinary } from "./itemBinaryApi";
+import {
+  clearItemEditorBinary,
+  downloadItemEditorBinary,
+  uploadItemEditorBinary,
+} from "./itemBinaryApi";
 import styles from "./EditorHost.module.css";
 import { normalizeEditorMode, type EditorHostMode } from "./editorHostUrl";
 import { EditorRelatedContentPanel } from "./EditorRelatedContentPanel";
@@ -244,6 +248,8 @@ export interface EditorHostProps {
     field: string,
     file: File,
   ) => Promise<unknown>;
+  /** Test seam: DELETE stored binary ({@code binary/{id}/{field}}). */
+  clearBinary?: (itemId: string, field: string) => Promise<unknown>;
   loadKeywords?: () => Promise<KeywordSummary[]>;
   loadCommunities?: () => Promise<CommunitySummary[]>;
   loadBinaryMeta?: (itemId: string, field: string) => Promise<ItemEditorBinaryMeta>;
@@ -380,6 +386,7 @@ function EditorFieldControl({
   invalid,
   onChange,
   onFile,
+  onClear,
   loadKeywords,
   loadCommunities,
   loadBinaryMeta,
@@ -391,6 +398,7 @@ function EditorFieldControl({
   invalid?: boolean;
   onChange: (name: string, value: string) => void;
   onFile: (name: string, file: File | null) => void;
+  onClear: (name: string, hadStored: boolean) => void;
   loadKeywords?: () => Promise<KeywordSummary[]>;
   loadCommunities?: () => Promise<CommunitySummary[]>;
   loadBinaryMeta?: (itemId: string, field: string) => Promise<ItemEditorBinaryMeta>;
@@ -420,6 +428,7 @@ function EditorFieldControl({
         loadMeta={loadBinaryMeta}
         downloadBinary={downloadBinary}
         onFile={(file) => onFile(row.name, file)}
+        onClear={(hadStored) => onClear(row.name, hadStored)}
       />
     );
   }
@@ -432,6 +441,7 @@ function EditorFieldControl({
         loadMeta={loadBinaryMeta}
         downloadBinary={downloadBinary}
         onFile={(file) => onFile(row.name, file)}
+        onClear={(hadStored) => onClear(row.name, hadStored)}
       />
     );
   }
@@ -564,6 +574,7 @@ export function EditorHost({
   confirmForceCheckin,
   loadType = getContentTypeDetail,
   uploadBinary = uploadItemEditorBinary,
+  clearBinary = clearItemEditorBinary,
   loadKeywords,
   loadCommunities,
   loadBinaryMeta,
@@ -645,6 +656,9 @@ export function EditorHost({
   loadItemLocationRef.current = loadItemLocation;
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [pendingFiles, setPendingFiles] = useState<Record<string, File>>({});
+  const [pendingClears, setPendingClears] = useState<Record<string, boolean>>(
+    {},
+  );
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState<string>(
     contentId == null ? linkbackWarning : "",
@@ -1022,6 +1036,36 @@ export function EditorHost({
       }
       return next;
     });
+    if (file) {
+      setPendingClears((prev) => {
+        if (!(name in prev)) {
+          return prev;
+        }
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
+  }
+
+  function markBinaryClear(name: string, hadStored: boolean): void {
+    setPendingFiles((prev) => {
+      if (!(name in prev)) {
+        return prev;
+      }
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
+    setPendingClears((prev) => {
+      const next = { ...prev };
+      if (hadStored) {
+        next[name] = true;
+      } else {
+        delete next[name];
+      }
+      return next;
+    });
   }
 
   function requiredErrorsForDraft(): Record<string, string> {
@@ -1212,7 +1256,35 @@ export function EditorHost({
         }
         throw binErr;
       }
+      for (const field of Object.keys(pendingClears)) {
+        if (pendingFiles[field]) {
+          continue;
+        }
+        try {
+          await clearBinary(itemId, field);
+        } catch (binErr) {
+          if (isSessionRedirectError(binErr)) {
+            return;
+          }
+          const binaryReason = editorBinaryErrorReason(binErr);
+          if (binaryReason === "forbidden" || binaryReason === "badRequest") {
+            setFieldErrors({
+              [field]:
+                message(
+                  binaryReason === "forbidden"
+                    ? EDITOR_MSG.FILE_CLEAR_FORBIDDEN
+                    : EDITOR_MSG.FILE_CLEAR_BAD_REQUEST,
+                ) + ` (${field})`,
+            });
+            setSaveErrorKey(null);
+            setSaveErrorDetail("");
+            return;
+          }
+          throw binErr;
+        }
+      }
       setPendingFiles({});
+      setPendingClears({});
       setPayload(savedPayload);
       setDraft(
         Object.fromEntries(
@@ -1690,7 +1762,7 @@ export function EditorHost({
       setPreviewErrorKey(EDITOR_MSG.PREVIEW_UNAVAILABLE);
       return;
     }
-    if (editorDraftIsDirty(payload?.fields, draft, pendingFiles)) {
+    if (editorDraftIsDirty(payload?.fields, draft, pendingFiles, pendingClears)) {
       const confirmFn =
         confirmUnsavedPreview ??
         ((body: string) =>
@@ -3495,6 +3567,7 @@ export function EditorHost({
                       invalid={Boolean(fieldErrors[row.name])}
                       onChange={setField}
                       onFile={setFile}
+                      onClear={markBinaryClear}
                       loadKeywords={loadKeywords}
                       loadCommunities={loadCommunities}
                       loadBinaryMeta={loadBinaryMeta}

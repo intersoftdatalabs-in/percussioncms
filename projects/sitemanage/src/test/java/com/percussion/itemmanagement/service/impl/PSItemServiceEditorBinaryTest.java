@@ -18,16 +18,20 @@ package com.percussion.itemmanagement.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.when;
 
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.cms.objectstore.PSComponentSummary;
+import com.percussion.itemmanagement.data.PSItemEditorBinaryMeta;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.pagemanagement.service.IPSTemplateService;
@@ -41,6 +45,7 @@ import com.percussion.share.dao.IPSContentItemDao;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.dao.impl.PSContentItem;
 import com.percussion.share.service.IPSIdMapper;
+import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentWs;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
@@ -77,6 +82,7 @@ class PSItemServiceEditorBinaryTest {
   @Mock private IPSManagedLinkDao linkService;
   @Mock private Attachment attachment;
   @Mock private PSComponentSummary summary;
+  @Mock private IPSGuid itemGuid;
 
   private PSItemService service;
 
@@ -217,5 +223,51 @@ class PSItemServiceEditorBinaryTest {
             WebApplicationException.class, () -> service.downloadEditorBinary("1-101-42", "img"));
     assertEquals(Response.Status.FORBIDDEN.getStatusCode(), ex.getResponse().getStatus());
     assertTrue(ex.getMessage().contains("img"));
+  }
+
+  @Test
+  void clearEditorBinaryPersistsBlankFieldAndSiblingNames() throws Exception {
+    PSContentItem item = new PSContentItem();
+    item.setId("1-101-42");
+    Map<String, Object> fields = new HashMap<>();
+    fields.put("item_file_attachment", "stored".getBytes(StandardCharsets.UTF_8));
+    fields.put("item_file_attachment_filename", "brief.pdf");
+    item.setFields(fields);
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
+    when(summary.getCheckoutUserName()).thenReturn("admin");
+    when(workflowHelper.isCheckedOutToCurrentUser(anyString())).thenReturn(true);
+    when(idMapper.getGuid(anyString())).thenReturn(itemGuid);
+    when(contentWs.prepareForEdit(nullable(IPSGuid.class))).thenReturn(null);
+    when(contentItemDao.find(anyString(), anyBoolean())).thenReturn(item);
+    when(contentItemDao.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+    PSItemEditorBinaryMeta meta = service.clearEditorBinary("42", "item_file_attachment");
+
+    assertFalse(meta.isPresent());
+    assertEquals("", item.getFields().get("item_file_attachment"));
+    assertEquals("", item.getFields().get("item_file_attachment_filename"));
+    verify(contentItemDao).save(item);
+  }
+
+  @Test
+  void clearEditorBinaryForbiddenNamesTheField() throws Exception {
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
+    when(summary.getCheckoutUserName()).thenReturn("other");
+    when(workflowHelper.isCheckedOutToCurrentUser(anyString())).thenReturn(false);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> service.clearEditorBinary("42", "item_file_attachment"));
+    assertEquals(Response.Status.FORBIDDEN.getStatusCode(), ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("item_file_attachment"));
+  }
+
+  @Test
+  void clearEditorBinaryBadRequestOnInvalidFieldName() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> service.clearEditorBinary("42", "../img"));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
   }
 }
