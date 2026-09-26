@@ -394,4 +394,20 @@ public interface IContentTypesAdaptor {
    *     already exists; {@code 403} when the caller is not Admin
    */
   ContentTypeDetail importContentType(URI baseUri, String xml);
+
+  /**
+   * Copy a content type to a new unique name, including its design fields (same document as
+   * export/import). Admin only. Does not lock or modify the source. System types that cannot be
+   * copied (Folder and Managed Navigation types) fail with a clear error.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName source content type uuid (numeric) or internal name
+   * @param newName unique internal name for the copy
+   * @return created detail, or {@code null} when the source is not found
+   * @throws IllegalArgumentException when {@code newName} is blank, contains whitespace or
+   *     wildcards, or the source is a system type that cannot be copied
+   * @throws jakarta.ws.rs.WebApplicationException {@code 409} when {@code newName} already exists;
+   *     {@code 403} when the caller is not Admin
+   */
+  ContentTypeDetail copyContentType(URI baseUri, String idOrName, String newName);
 }

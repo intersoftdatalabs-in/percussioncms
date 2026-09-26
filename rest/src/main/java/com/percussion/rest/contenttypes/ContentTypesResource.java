@@ -934,6 +934,58 @@ public class ContentTypesResource {
     }
   }
 
+  /**
+   * Copies one content type to a new unique name, including design fields. Admin only. Does not
+   * lock or change the source. Folder and Managed Navigation types cannot be copied.
+   *
+   * @param idOrName source uuid or internal name
+   * @param body Jackson root {@code ContentTypeName}; {@code name} is the new internal name
+   * @return created ContentTypeDetail
+   */
+  @POST
+  @Path("/{idOrName}/copy")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Copy a content type",
+      description =
+          "Admin. Copies one content type to a new unique name, including design fields, via"
+              + " the same ItemDefData document as export/import. Does not lock or modify the"
+              + " source. Duplicate or illegal names are 409/400. Folder and Managed Navigation"
+              + " system types cannot be copied (400). Jackson root wrap is ContentTypeName.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Copied",
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description =
+                "Invalid name, or system content type that cannot be copied (Folder, navigation)"),
+        @ApiResponse(responseCode = "403", description = "Caller is not Admin"),
+        @ApiResponse(responseCode = "404", description = "Source content type not found"),
+        @ApiResponse(responseCode = "409", description = "A content type with the new name exists"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeDetail copyContentType(
+      @PathParam("idOrName") String idOrName, ContentTypeName body) {
+    if (body == null || body.getName() == null || body.getName().trim().isEmpty()) {
+      throw new WebApplicationException("name is required", 400);
+    }
+    try {
+      ContentTypeDetail detail =
+          requireAdaptor().copyContentType(uriInfo.getBaseUri(), idOrName, body.getName());
+      if (detail == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @GET
   @Path("/{idOrName}")
   @Produces({MediaType.APPLICATION_JSON})

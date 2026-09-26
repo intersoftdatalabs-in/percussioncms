@@ -17,8 +17,10 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefinition;
+import com.percussion.cms.objectstore.PSNavNameAliases;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.design.objectstore.PSApplyWhen;
 import com.percussion.design.objectstore.PSBackEndColumn;
@@ -425,6 +427,110 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
           e.getMessage(),
           e);
       throw new IllegalStateException("Failed to import content type", e);
+    }
+  }
+
+  @Override
+  public ContentTypeDetail copyContentType(URI baseUri, String idOrName, String newName) {
+    requireAdmin();
+    String target = validateNewContentTypeName(newName);
+    assertNameUnique(target);
+    if (StringUtils.isBlank(idOrName)) {
+      return null;
+    }
+    try {
+      IPSGuid guid = resolveExistingContentTypeGuid(idOrName.trim());
+      if (guid == null) {
+        return null;
+      }
+      List<PSItemDefinition> loaded;
+      try {
+        loaded =
+            designSvc.loadContentTypes(
+                Collections.singletonList(guid), false, false, currentSession(), currentUser());
+      } catch (PSErrorResultsException e) {
+        if (isNotFoundError(e)) {
+          return null;
+        }
+        throw new IllegalStateException("Failed to copy content type", e);
+      }
+      if (loaded == null || loaded.isEmpty() || loaded.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition source = loaded.get(0);
+      if (isUncopyableSystemContentType(source)) {
+        throw new IllegalArgumentException(
+            "System content type cannot be copied: " + source.getName());
+      }
+      String xml = renameDesignXmlName(toDesignXml(source), target, source.getName());
+      return importContentType(baseUri, xml);
+    } catch (WebApplicationException | IllegalArgumentException | IllegalStateException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to copy content type {} -> {}: {}", idOrName, target, e.getMessage(), e);
+      throw new IllegalStateException("Failed to copy content type", e);
+    }
+  }
+
+  /**
+   * Folder and Managed Navigation types share product tables and must not be cloned as a new type.
+   */
+  static boolean isUncopyableSystemContentType(PSItemDefinition def) {
+    if (def == null) {
+      return false;
+    }
+    String name = StringUtils.defaultString(def.getName());
+    if ("Folder".equalsIgnoreCase(name)
+        || def.getTypeId() == PSFolder.FOLDER_CONTENT_TYPE_ID
+        || PSNavNameAliases.isNavTypeName(name)
+        || PSNavNameAliases.isWellKnownNavTypeId(def.getTypeId())) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Rewrite the summary name and any design tokens that embed {@code sourceName} (table refs,
+   * field-set names) so the copy does not reuse the source type's tables.
+   */
+  static String renameDesignXmlName(String xml, String newName, String sourceName) {
+    Element root = parseItemDefRoot(xml);
+    boolean found = false;
+    for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
+      if (child instanceof Element el && "PSXItemDefSummary".equals(el.getNodeName())) {
+        el.setAttribute("name", newName);
+        found = true;
+      }
+    }
+    if (!found) {
+      throw new IllegalArgumentException("content-type design XML is missing name");
+    }
+    if (StringUtils.isNotBlank(sourceName) && !sourceName.equals(newName)) {
+      rewriteEmbeddedTypeName(root, sourceName, newName);
+    }
+    return PSXmlDocumentBuilder.toString(root.getOwnerDocument());
+  }
+
+  private static void rewriteEmbeddedTypeName(Node node, String sourceName, String newName) {
+    if (node instanceof Element el) {
+      var attrs = el.getAttributes();
+      for (int i = 0; i < attrs.getLength(); i++) {
+        Node attr = attrs.item(i);
+        String value = attr.getNodeValue();
+        if (value != null && value.contains(sourceName)) {
+          attr.setNodeValue(value.replace(sourceName, newName));
+        }
+      }
+    }
+    for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
+      if (child.getNodeType() == Node.TEXT_NODE) {
+        String value = child.getNodeValue();
+        if (value != null && value.contains(sourceName)) {
+          child.setNodeValue(value.replace(sourceName, newName));
+        }
+      } else {
+        rewriteEmbeddedTypeName(child, sourceName, newName);
+      }
     }
   }
 
@@ -4665,7 +4771,11 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     if (isAlreadyExistsFailure(e)) {
       return new WebApplicationException("Content type already exists: " + name, 409);
     }
-    log.error("{} {}: {}", fallback, name, e.getMessage(), e);
+    if (e instanceof PSErrorsException errors) {
+      log.error("{} {}: {} errors={}", fallback, name, e.getMessage(), errors.getErrors(), e);
+    } else {
+      log.error("{} {}: {}", fallback, name, e.getMessage(), e);
+    }
     return new IllegalStateException(fallback, e);
   }
 

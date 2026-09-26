@@ -117,6 +117,28 @@ below).
    (**409**). Invalid names (blank, spaces, wildcard) cannot be submitted; if
    REST rejects them they are **400**. Non-Admin callers are **403**.
 
+## Product path — copy a content type
+
+Admins copy a type from the **Content types** catalog. The copy is a distinct
+content type (new internal name) and includes the source design fields. The
+source is not locked or changed.
+
+1. Sign in as **Admin**.
+2. Open **Developer → Content types**.
+3. Click **Copy** on the source row.
+4. Enter a unique **New name** (letters, digits, underscore, and period; no
+   spaces) and click **Copy content type**. The product calls
+   `POST /services/contenttypes/{idOrName}/copy` (Jackson root
+   `ContentTypeName`) and opens the new type.
+5. **Back to list** shows the copy in the catalog.
+6. A duplicate name is **409**. An illegal name (blank, spaces, wildcard)
+   cannot be submitted; if REST rejects it the status is **400**.
+7. **Folder** and Managed Navigation system types (**percNavon** /
+   **percNavTree** / **percNavImage** and their `rff*` aliases) cannot be
+   copied. The product returns **400** with a message that the system content
+   type cannot be copied. Non-Admin callers are **403**. Unknown sources are
+   **404**.
+
 ## Product path — rename a content type
 
 Admins rename a type from Developer Content Type **detail** after holding the
