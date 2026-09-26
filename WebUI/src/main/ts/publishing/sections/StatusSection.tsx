@@ -41,6 +41,7 @@ import {
   thStyle,
   toolbarStyle,
 } from "../publishing.styles";
+import { filterJobsByEdition } from "../statusEditionFilter";
 import { filterJobsBySite } from "../statusSiteFilter";
 import {
   nextSortState,
@@ -84,6 +85,7 @@ export function StatusSection({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [siteFilter, setSiteFilter] = useState("");
+  const [editionFilter, setEditionFilter] = useState("");
   const [sort, setSort] = useState<StatusSortState>(DEFAULT_SORT);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -109,9 +111,14 @@ export function StatusSection({
   }, [load]);
 
   const visibleJobs = useMemo(
-    () => sortJobs(filterJobsBySite(jobs, siteFilter), sort),
-    [jobs, siteFilter, sort],
+    () =>
+      sortJobs(
+        filterJobsByEdition(filterJobsBySite(jobs, siteFilter), editionFilter),
+        sort,
+      ),
+    [jobs, siteFilter, editionFilter, sort],
   );
+  const editionQuery = editionFilter.trim() !== "";
   useEffect(() => {
     const id = focusJob?.id?.trim() ?? "";
     if (id !== "") {
@@ -222,6 +229,18 @@ export function StatusSection({
             style={{ padding: "6px 10px", minWidth: 200 }}
           />
         </label>
+        <label>
+          <span className="sr-only">{message(MSG.PUBLISH_FILTER_EDITIONS)}</span>
+          <input
+            type="search"
+            data-testid="publish-status-edition-filter"
+            value={editionFilter}
+            onChange={(e) => setEditionFilter(e.target.value)}
+            placeholder={message(MSG.PUBLISH_FILTER_EDITIONS)}
+            aria-label={message(MSG.PUBLISH_FILTER_EDITIONS)}
+            style={{ padding: "6px 10px", minWidth: 200 }}
+          />
+        </label>
       </div>
       {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
       {error && (
@@ -234,7 +253,9 @@ export function StatusSection({
       )}
       {!loading && jobs.length > 0 && visibleJobs.length === 0 && (
         <p style={emptyStyle} data-testid="publish-status-empty-filter">
-          No jobs match this site filter. Clear the filter to see the full list.
+          {editionQuery
+            ? message(MSG.PUBLISH_EMPTY_EDITION_FILTER)
+            : "No jobs match this site filter. Clear the filter to see the full list."}
         </p>
       )}
       {visibleJobs.length > 0 && (
