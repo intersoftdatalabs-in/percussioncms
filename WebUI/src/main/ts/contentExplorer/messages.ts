@@ -691,6 +691,17 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Not every selected item URL was copied. {detail}",
   ACTION_COPY_URL_NOTHING:
     "perc.ui.explorer@Nothing in the selection has a URL to copy.",
+  COPY_FOLDER_PATH: "perc.ui.explorer@Copy folder path",
+  COPY_FOLDER_PATH_ARIA:
+    "perc.ui.explorer@Copy the selected folder path to the clipboard",
+  CONFIRM_COPY_FOLDER_PATH:
+    "perc.ui.explorer@Copy this folder path to the clipboard?",
+  COPY_FOLDER_PATH_SUCCESS:
+    "perc.ui.explorer@Folder path copied to the clipboard",
+  COPY_FOLDER_PATH_EMPTY:
+    "perc.ui.explorer@No folder path is available to copy",
+  COPY_FOLDER_PATH_FAILED:
+    "perc.ui.explorer@Could not copy the folder path",
 
   REVISIONS_TITLE: "perc.ui.explorer@Revisions",
   REVISIONS_PANEL_REGION: "perc.ui.explorer@Revisions panel",

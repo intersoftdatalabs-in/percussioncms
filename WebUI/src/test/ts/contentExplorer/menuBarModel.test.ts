@@ -116,6 +116,14 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     expect(search?.ariaLabelKey).toBe(EXPLORER_MSG.TOGGLE_SEARCH_ARIA);
   });
 
+  it("puts Copy folder path under Content (#4911)", () => {
+    const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
+    const copyPath = content?.items.find((i) => i.id === "content-copy-folder-path");
+    expect(copyPath?.testId).toBe("explorer-copy-folder-path");
+    expect(copyPath?.disabledWhen).toBeUndefined();
+    expect(copyPath?.labelKey).toBe(EXPLORER_MSG.COPY_FOLDER_PATH);
+  });
+
   it("puts Create Site under Content always enabled (#3002)", () => {
     const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
     const create = content?.items.find((i) => i.id === "content-create-site");

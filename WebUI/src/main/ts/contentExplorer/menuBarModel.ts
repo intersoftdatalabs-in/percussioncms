@@ -38,6 +38,7 @@ export type ExplorerMenuCommandId =
   | "content-site-copy"
   | "content-site-rename"
   | "content-subfolder-copy"
+  | "content-copy-folder-path"
   | "view-refresh"
   | "view-search"
   | "view-security"
@@ -170,6 +171,12 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           testId: "explorer-content-subfolder-copy",
           toggle: true,
           disabledWhen: "noFolderContext",
+        },
+        {
+          id: "content-copy-folder-path",
+          labelKey: EXPLORER_MSG.COPY_FOLDER_PATH,
+          ariaLabelKey: EXPLORER_MSG.COPY_FOLDER_PATH_ARIA,
+          testId: "explorer-copy-folder-path",
         },
       ],
     },
