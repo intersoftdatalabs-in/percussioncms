@@ -142,6 +142,16 @@ export const EDITOR_MSG = {
   PUBLISH_FAILED: "perc.ui.editor@Could not publish this item.",
   PUBLISH_UNAVAILABLE:
     "perc.ui.editor@Publish now is only available for pages and assets.",
+  SCHEDULE: "perc.ui.editor@Schedule",
+  SCHEDULE_LOADING: "perc.ui.editor@Loading schedule…",
+  SCHEDULE_SAVING: "perc.ui.editor@Saving schedule…",
+  SCHEDULE_DONE: "perc.ui.editor@Schedule saved.",
+  SCHEDULE_FAILED: "perc.ui.editor@Could not save the publish schedule.",
+  SCHEDULE_LOAD_FAILED: "perc.ui.editor@Could not load the publish schedule.",
+  SCHEDULE_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to change the publish schedule.",
+  SCHEDULE_INVALID:
+    "perc.ui.editor@Those publish dates are not valid. Correct them and try again.",
   STAGE: "perc.ui.editor@Stage",
   STAGING: "perc.ui.editor@Staging…",
   CONFIRM_STAGE: "perc.ui.editor@Stage this item?",

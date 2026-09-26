@@ -37,6 +37,9 @@ export interface ScheduleDatesDialogProps {
   applyCount?: number;
   onSave: (dates: ItemScheduleDates) => void;
   onCancel: () => void;
+  /** Server 400/403 (or application-level) failure; dialog stays open. */
+  serverError?: string | null;
+  busy?: boolean;
 }
 
 export function ScheduleDatesDialog({
@@ -44,6 +47,8 @@ export function ScheduleDatesDialog({
   applyCount = 1,
   onSave,
   onCancel,
+  serverError = null,
+  busy = false,
 }: ScheduleDatesDialogProps): React.ReactElement {
   const [startLocal, setStartLocal] = useState(
     serverDateToDatetimeLocal(current.startDate),
@@ -185,19 +190,20 @@ export function ScheduleDatesDialog({
             style={{ display: "block", width: "100%", marginTop: 6, padding: 6 }}
           />
         </label>
-        {error ? (
+        {error || serverError ? (
           <p
             role="alert"
             data-testid="explorer-schedule-dialog-error"
             style={{ color: "#b91c1c", fontSize: 13, margin: "8px 0 0" }}
           >
-            {error}
+            {error || serverError}
           </p>
         ) : null}
         <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginTop: 16 }}>
           <button
             type="button"
             data-testid="explorer-schedule-clear"
+            disabled={busy}
             onClick={() => {
               setStartLocal("");
               setEndLocal("");
@@ -210,11 +216,12 @@ export function ScheduleDatesDialog({
             <button
               type="button"
               data-testid="explorer-schedule-cancel"
+              disabled={busy}
               onClick={onCancel}
             >
               {message(EXPLORER_MSG.CONFIRM_CANCEL)}
             </button>
-            <button type="submit" data-testid="explorer-schedule-save">
+            <button type="submit" data-testid="explorer-schedule-save" disabled={busy}>
               {message(EXPLORER_MSG.CONFIRM_OK)}
             </button>
           </div>
