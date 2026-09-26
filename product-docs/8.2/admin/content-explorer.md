@@ -278,6 +278,15 @@ not found) stay on the panel as errors — they are not treated as a successful
 insert and the list is not cleared. **View** and **Promote** do not show the
 insert form.
 
+**Pick from folder** (same insert form) lists children of a folder path
+(`GET /services/pathmanagement/path/folder/…`, default `/Sites`). Open a
+folder row to list that path. Choose a **page** or **asset** and **Use this
+item** — that content id is written into the existing item id field. Insert
+still posts `POST /services/assembly/slot-relationships` with that id.
+**Cancel** closes the picker and does not insert and does not change an id
+already typed. Folder rows and rows with no content id cannot be used.
+Listing **403** stays in the picker. Typing an id is still allowed.
+
 In **Edit** mode each slot row that has an Active Assembly relationship id shows
 **Remove**. The host calls
 `DELETE /services/assembly/slot-relationships/{relationshipId}` and reloads the
