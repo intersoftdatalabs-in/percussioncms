@@ -27,7 +27,7 @@ import java.util.List;
  * except searchable/occurrence and <strong>local</strong> display {@code label} on PUT detail.
  * Create uses POST {@code /contenttypes/{idOrName}/fields} (held design lock); include
  * system/shared uses POST {@code .../fields/include}; delete uses DELETE {@code
- * .../fields/{fieldName}}.
+ * .../fields/{fieldName}}. Parent display order is {@code sequence} on PUT detail.
  */
 @XmlRootElement(name = "ContentTypeField")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -127,6 +127,13 @@ public class ContentTypeField {
               + " .../fields, omit to add to the parent set; a missing name creates a named"
               + " complex child field set")
   private String fieldSet;
+
+  @Schema(
+      description =
+          "Zero-based order among parent display mappings. GET returns it when a mapping"
+              + " exists. PUT detail (held lock) reorders parent fields when any sequence is"
+              + " set. Child field-set sequence is 400. Omitted leaves order unchanged.")
+  private Integer sequence;
 
   public ContentTypeField() {}
 
@@ -288,5 +295,13 @@ public class ContentTypeField {
 
   public void setFieldSet(String fieldSet) {
     this.fieldSet = fieldSet;
+  }
+
+  public Integer getSequence() {
+    return sequence;
+  }
+
+  public void setSequence(Integer sequence) {
+    this.sequence = sequence;
   }
 }

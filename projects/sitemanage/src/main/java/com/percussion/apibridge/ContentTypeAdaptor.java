@@ -141,6 +141,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -727,6 +728,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         }
       }
     }
+    assignParentFieldSequences(displayMapperOfStatic(def), fields);
     detail.setFields(fields);
     detail.setChildFieldSets(childSets);
 
@@ -793,7 +795,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
             "Local field create/delete: POST/DELETE /contenttypes/{idOrName}/fields"
                 + " (held lock). Optional fieldSet names an existing child or creates a named"
                 + " complex child. Include system/shared: POST .../fields/include (CD-04)."
-                + " Field order remains Workbench"));
+                + " Parent field order: fields[].sequence on PUT detail (held lock)."
+                + " Child field-set order remains Workbench"));
     gaps.add(
         DesignGap.of(
             "CT_SHARED_FIELD_INCLUSION",
@@ -2158,8 +2161,8 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   /**
    * Apply writable field patches ({@code searchable}, occurrence / required, local display {@code
-   * label}). Rule expressions use {@link #replaceFieldRuleExpressions}; control property
-   * names/values use {@link #replaceFieldControlProperties}.
+   * label}, parent {@code sequence}). Rule expressions use {@link #replaceFieldRuleExpressions};
+   * control property names/values use {@link #replaceFieldControlProperties}.
    */
   private void applyFieldUpdates(PSItemDefinition def, List<ContentTypeField> fields) {
     if (fields == null || fields.isEmpty()) {
@@ -2171,6 +2174,11 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
       PSField field = findField(def, patch.getName());
       if (field == null) {
+        // System-mod fields are listed on GET (getAllFields) but findFieldByName(false)
+        // skips them. Sequence-only patches still reorder the display mapping.
+        if (isSequenceOnlyPatch(patch)) {
+          continue;
+        }
         throw new WebApplicationException("Unknown field: " + patch.getName(), 404);
       }
       if (patch.getLabel() != null) {
@@ -2204,6 +2212,141 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         }
       }
     }
+    applyParentFieldOrder(def, fields);
+  }
+
+  /** True when the patch only sets parent display {@code sequence}. */
+  static boolean isSequenceOnlyPatch(ContentTypeField patch) {
+    return patch != null
+        && patch.getSequence() != null
+        && patch.getLabel() == null
+        && patch.getSearchable() == null
+        && patch.getRequired() == null
+        && StringUtils.isBlank(patch.getOccurrence());
+  }
+
+  /**
+   * Reorder parent display mappings. {@code sequence} is the zero-based index among parent field
+   * mappings (not child field sets). Omitted sequence leaves order unchanged. Child {@code
+   * fieldSet} plus sequence is 400.
+   */
+  @SuppressWarnings("unchecked")
+  static void applyParentFieldOrder(PSItemDefinition def, List<ContentTypeField> fields) {
+    if (fields == null || fields.isEmpty()) {
+      return;
+    }
+    Map<String, Integer> wanted = new HashMap<>();
+    for (ContentTypeField patch : fields) {
+      if (patch == null || patch.getSequence() == null) {
+        continue;
+      }
+      if (StringUtils.isNotBlank(patch.getFieldSet())) {
+        throw new IllegalArgumentException(
+            "Child field-set order is not writable: " + patch.getName());
+      }
+      if (StringUtils.isBlank(patch.getName())) {
+        continue;
+      }
+      if (patch.getSequence() < 0) {
+        throw new IllegalArgumentException("Field sequence must be >= 0: " + patch.getName());
+      }
+      if (wanted.put(patch.getName(), patch.getSequence()) != null) {
+        throw new IllegalArgumentException("Duplicate field in order: " + patch.getName());
+      }
+    }
+    if (wanted.isEmpty()) {
+      return;
+    }
+    java.util.Set<Integer> seen = new HashSet<>();
+    for (Integer sequence : wanted.values()) {
+      if (!seen.add(sequence)) {
+        throw new IllegalArgumentException("Duplicate field sequence: " + sequence);
+      }
+    }
+    PSDisplayMapper mapper = displayMapperOfStatic(def);
+    if (mapper == null) {
+      throw new IllegalArgumentException("Content type has no display mapper");
+    }
+    List<Integer> slots = new ArrayList<>();
+    List<PSDisplayMapping> mappings = new ArrayList<>();
+    for (int i = 0; i < mapper.size(); i++) {
+      Object entry = mapper.get(i);
+      if (!(entry instanceof PSDisplayMapping mapping)) {
+        continue;
+      }
+      if (mapping.getFieldRef() != null && wanted.containsKey(mapping.getFieldRef())) {
+        slots.add(i);
+        mappings.add(mapping);
+      }
+    }
+    if (mappings.isEmpty()) {
+      throw new IllegalArgumentException("Field has no display mapping for the requested order");
+    }
+    // Parent rows without a top-level mapping (unmapped or nested) are not reorderable.
+    Map<String, Integer> order = wanted;
+    if (mappings.size() != wanted.size()) {
+      order = new HashMap<>();
+      for (PSDisplayMapping mapping : mappings) {
+        order.put(mapping.getFieldRef(), wanted.get(mapping.getFieldRef()));
+      }
+    }
+    Map<String, Integer> sortOrder = order;
+    mappings.sort(Comparator.comparingInt(m -> sortOrder.get(m.getFieldRef())));
+    for (int i = 0; i < slots.size(); i++) {
+      mapper.setElementAt(mappings.get(i), slots.get(i));
+    }
+  }
+
+  /** Stamp parent-field {@code sequence} from display-mapper order and sort those rows. */
+  static void assignParentFieldSequences(PSDisplayMapper mapper, List<ContentTypeField> fields) {
+    if (mapper == null || fields == null || fields.isEmpty()) {
+      return;
+    }
+    Map<String, ContentTypeField> parents = new HashMap<>();
+    for (ContentTypeField field : fields) {
+      if (field == null
+          || StringUtils.isBlank(field.getName())
+          || StringUtils.isNotBlank(field.getFieldSet())) {
+        continue;
+      }
+      parents.put(field.getName(), field);
+    }
+    int sequence = 0;
+    boolean any = false;
+    for (int i = 0; i < mapper.size(); i++) {
+      Object entry = mapper.get(i);
+      if (!(entry instanceof PSDisplayMapping mapping)) {
+        continue;
+      }
+      ContentTypeField field = parents.get(mapping.getFieldRef());
+      if (field == null) {
+        continue;
+      }
+      field.setSequence(sequence++);
+      any = true;
+    }
+    if (!any) {
+      return;
+    }
+    List<ContentTypeField> ordered = new ArrayList<>();
+    List<ContentTypeField> unmappedParents = new ArrayList<>();
+    List<ContentTypeField> others = new ArrayList<>();
+    for (ContentTypeField field : fields) {
+      if (field != null
+          && StringUtils.isBlank(field.getFieldSet())
+          && field.getSequence() != null) {
+        ordered.add(field);
+      } else if (field != null && StringUtils.isBlank(field.getFieldSet())) {
+        unmappedParents.add(field);
+      } else {
+        others.add(field);
+      }
+    }
+    ordered.sort(Comparator.comparingInt(ContentTypeField::getSequence));
+    fields.clear();
+    fields.addAll(ordered);
+    fields.addAll(unmappedParents);
+    fields.addAll(others);
   }
 
   /**

@@ -233,7 +233,7 @@ export const DEV_MSG_KEYS = {
   CT_SAVE_ERROR: "perc.ui.developer@Could not save content type.",
   CT_FIELDS: "perc.ui.developer@Fields",
   CT_FIELDS_HINT:
-    "perc.ui.developer@Lock to add or delete a local field (POST/DELETE .../fields; origin always local). After lock, edit a local field display label and toggle searchable / required. Include an existing system or shared field from the picker (origin stays system/shared). Save writes while the lock is held and does not unlock.",
+    "perc.ui.developer@Lock to add or delete a local field (POST/DELETE .../fields; origin always local). After lock, edit a local field display label, move parent fields up or down, and toggle searchable / required. Include an existing system or shared field from the picker (origin stays system/shared). Save writes order and labels while the lock is held and does not unlock. Reset order discards unsaved moves. Child field sets are not reordered here. System and shared labels stay read-only.",
   CT_FIELD_LABEL_BLANK: "perc.ui.developer@Enter a display label for the local field.",
   CT_INCLUDE: "perc.ui.developer@Include system or shared field",
   CT_INCLUDE_HINT:
@@ -269,6 +269,9 @@ export const DEV_MSG_KEYS = {
   CT_FIELD_DELETED: "perc.ui.developer@Local field deleted.",
   CT_FIELD_DELETE_CONFIRM: "perc.ui.developer@Delete this local field?",
   CT_COL_ACTIONS: "perc.ui.developer@Actions",
+  CT_FIELD_MOVE_UP: "perc.ui.developer@Move up",
+  CT_FIELD_MOVE_DOWN: "perc.ui.developer@Move down",
+  CT_FIELD_ORDER_RESET: "perc.ui.developer@Reset order",
   CT_CHILD_SETS: "perc.ui.developer@Child field sets",
   CT_GAPS: "perc.ui.developer@Design gaps (not in this API yet)",
   CT_META_ENABLED: "perc.ui.developer@Enabled",

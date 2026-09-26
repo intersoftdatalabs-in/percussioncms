@@ -3147,4 +3147,85 @@ describe("ContentTypeDetailPanel", () => {
     });
     expect(screen.queryByTestId("developer-ct-field-label-sys_title")).toBeNull();
   });
+
+  it("reorders parent fields on save and reset does not write (#4894)", async () => {
+    const fields = [
+      { name: "sys_title", fieldType: "system", label: "Title:", searchable: true },
+      { name: "rx_note", fieldType: "local", label: "Note:", searchable: true },
+    ];
+    getContentTypeDetail.mockResolvedValue({ ...sampleDetail, fields });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-down-sys_title") as HTMLButtonElement).disabled).toBe(
+        true,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-down-sys_title") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    const names = () =>
+      screen.getAllByTestId("developer-ct-field-row").map((row) => row.getAttribute("data-field-name"));
+    expect(names()).toEqual(["sys_title", "rx_note"]);
+    fireEvent.click(screen.getByTestId("developer-ct-field-down-sys_title"));
+    expect(names()).toEqual(["rx_note", "sys_title"]);
+    fireEvent.click(screen.getByTestId("developer-ct-field-order-reset"));
+    expect(names()).toEqual(["sys_title", "rx_note"]);
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("developer-ct-field-down-sys_title"));
+    updateContentTypeDetail.mockImplementation(async (_id, body) => ({
+      ...sampleDetail,
+      fields: [
+        { name: "rx_note", fieldType: "local", label: "Note:", sequence: 0 },
+        { name: "sys_title", fieldType: "system", label: "Title:", sequence: 1 },
+      ],
+      label: body.label,
+      description: body.description,
+    }));
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(updateContentTypeDetail).toHaveBeenCalled();
+    });
+    const body = updateContentTypeDetail.mock.calls[0][1] as {
+      fields: Array<{ name: string; sequence?: number }>;
+    };
+    const sequences = Object.fromEntries(body.fields.map((f) => [f.name, f.sequence]));
+    expect(sequences.rx_note).toBe(0);
+    expect(sequences.sys_title).toBe(1);
+    await waitFor(() => {
+      expect(names()).toEqual(["rx_note", "sys_title"]);
+    });
+  });
+
+  it("keeps a 403 on the panel and does not revert unsaved field order (#4894)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [
+        { name: "sys_title", fieldType: "system", label: "Title:" },
+        { name: "rx_note", fieldType: "local", label: "Note:" },
+      ],
+    });
+    updateContentTypeDetail.mockRejectedValue({ status: 403, statusText: "Forbidden", body: null });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-down-sys_title") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-down-sys_title"));
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-error").textContent).toContain("403");
+    });
+    expect(
+      screen.getAllByTestId("developer-ct-field-row").map((row) => row.getAttribute("data-field-name")),
+    ).toEqual(["rx_note", "sys_title"]);
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
 });
