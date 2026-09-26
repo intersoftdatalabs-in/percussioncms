@@ -19,8 +19,11 @@ import { describe, expect, it } from "vitest";
 import type { NavTreeNode } from "../../../main/ts/api/architecture/types";
 import {
   buildDeveloperAddSectionFields,
+  buildDeveloperRenameProperties,
   isDeveloperNavSectionReadOnly,
+  isDeveloperSectionNameTaken,
   listDeveloperNavParents,
+  listDeveloperRenameTargets,
   listDeveloperSectionTitles,
   validateDeveloperSectionName,
 } from "../../../main/ts/developer/siteNavSection";
@@ -91,5 +94,27 @@ describe("siteNavSection", () => {
     expect(fields.templateId).toBe("tpl-1");
     expect(fields.folderPath.toLowerCase()).toContain("sites/corporate");
     expect(fields.sectionType).toBe("section");
+  });
+
+  it("lists rename targets and skips links", () => {
+    const targets = listDeveloperRenameTargets(root);
+    expect(targets.map((t) => t.id)).toEqual(["root", "child"]);
+    expect(targets[0].siteRoot).toBe(true);
+    expect(targets[1].siteRoot).toBe(false);
+  });
+
+  it("treats another section title as taken and keeps the current section free", () => {
+    expect(isDeveloperSectionNameTaken(root, "child", "Corporate")).toBe(true);
+    expect(isDeveloperSectionNameTaken(root, "child", "news")).toBe(false);
+    expect(isDeveloperSectionNameTaken(root, "child", "External")).toBe(true);
+  });
+
+  it("renames the display title and keeps the folder segment", () => {
+    const child = buildDeveloperRenameProperties(
+      { id: "child", title: "News", folderName: "News", siteRootSection: false },
+      "Press Room",
+    );
+    expect(child.title).toBe("Press Room");
+    expect(child.folderName).toBe("News");
   });
 });

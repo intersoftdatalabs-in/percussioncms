@@ -17,7 +17,13 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { isApiError, isSessionRedirectError } from "../api/client";
-import { createSiteSection, loadSection, loadSectionTree } from "../api/architecture/sectionApi";
+import {
+  createSiteSection,
+  loadSection,
+  loadSectionProperties,
+  loadSectionTree,
+  updateSiteSection,
+} from "../api/architecture/sectionApi";
 import type { NavTreeNode } from "../api/architecture/types";
 import type { SiteDef } from "../api/developer/types";
 import { fetchTemplatesForSectionCreate } from "../api/home/homeApi";
@@ -26,8 +32,11 @@ import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import {
   buildDeveloperAddSectionFields,
+  buildDeveloperRenameProperties,
   isDeveloperNavSectionReadOnly,
+  isDeveloperSectionNameTaken,
   listDeveloperNavParents,
+  listDeveloperRenameTargets,
   listDeveloperSectionTitles,
   validateDeveloperSectionName,
   type DeveloperNavParentOption,
@@ -43,12 +52,13 @@ const inputStyle: React.CSSProperties = {
 };
 
 /**
- * Add one navigation section (name + parent) on a Developer site.
- * Cancel does not post. Reorder and delete are not offered.
+ * Add or rename one navigation section on a Developer site.
+ * Cancel does not post. Reorder, delete, and reparent are not offered.
  */
 export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement {
   const siteName = (site.name || "").trim();
   const readOnly = isDeveloperNavSectionReadOnly(site);
+  const [treeRoot, setTreeRoot] = useState<NavTreeNode | null>(null);
   const [titles, setTitles] = useState<string[]>([]);
   const [parents, setParents] = useState<DeveloperNavParentOption[]>([]);
   const [parentId, setParentId] = useState("");
@@ -59,24 +69,41 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [renameId, setRenameId] = useState("");
+  const [renameName, setRenameName] = useState("");
+  const [renameError, setRenameError] = useState<string | null>(null);
+  const [renameNotice, setRenameNotice] = useState<string | null>(null);
+  const [renameBusy, setRenameBusy] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
+  const renameTargets = listDeveloperRenameTargets(treeRoot);
 
   const applyTree = useCallback(
     (root: NavTreeNode | null) => {
       const nextParents = listDeveloperNavParents(root, siteName);
+      const nextTargets = listDeveloperRenameTargets(root);
+      setTreeRoot(root);
       setTitles(listDeveloperSectionTitles(root));
       setParents(nextParents);
       setParentId((current) =>
         nextParents.some((p) => p.id === current) ? current : (nextParents[0]?.id ?? ""),
       );
+      setRenameId((current) => {
+        const kept = nextTargets.find((t) => t.id === current);
+        const next = kept ?? nextTargets[0];
+        setRenameName(next?.title ?? "");
+        return next?.id ?? "";
+      });
     },
     [siteName],
   );
 
   useEffect(() => {
     if (!siteName || readOnly) {
+      setTreeRoot(null);
       setTitles([]);
       setParents([]);
+      setRenameId("");
+      setRenameName("");
       return;
     }
     let cancelled = false;
@@ -107,6 +134,61 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
     setName("");
     setError(null);
     setNotice(null);
+  };
+
+  const onSelectRename = (id: string) => {
+    setRenameId(id);
+    const target = renameTargets.find((t) => t.id === id);
+    setRenameName(target?.title ?? "");
+    setRenameError(null);
+    setRenameNotice(null);
+  };
+
+  const onRenameCancel = () => {
+    const target = renameTargets.find((t) => t.id === renameId);
+    setRenameName(target?.title ?? "");
+    setRenameError(null);
+    setRenameNotice(null);
+  };
+
+  const onRename = () => {
+    setRenameError(null);
+    setRenameNotice(null);
+    const nameError = validateDeveloperSectionName(renameName);
+    if (nameError) {
+      setRenameError(DEV_MSG.SITE_NAV_INVALID);
+      return;
+    }
+    if (!renameId) {
+      setRenameError(DEV_MSG.SITE_NAV_RENAME_ERROR);
+      return;
+    }
+    const current = renameTargets.find((t) => t.id === renameId);
+    if (current && current.title === renameName.trim()) {
+      return;
+    }
+    if (isDeveloperSectionNameTaken(treeRoot, renameId, renameName)) {
+      setRenameError(DEV_MSG.SITE_NAV_RENAME_DUPLICATE);
+      return;
+    }
+    setRenameBusy(true);
+    void (async () => {
+      try {
+        const props = await loadSectionProperties(renameId);
+        await updateSiteSection(buildDeveloperRenameProperties(props, renameName));
+        setRenameNotice(DEV_MSG.SITE_NAV_RENAMED);
+        setReloadToken((n) => n + 1);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        if (isApiError(err) && err.status === 403) {
+          setRenameError(panelErrMsg(err, DEV_MSG.SITE_NAV_RENAME_FORBIDDEN));
+          return;
+        }
+        setRenameError(panelErrMsg(err, DEV_MSG.SITE_NAV_RENAME_ERROR));
+      } finally {
+        setRenameBusy(false);
+      }
+    })();
   };
 
   const onAdd = () => {
@@ -238,6 +320,66 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
             </div>
           ) : null}
           {notice ? <div data-testid="developer-site-nav-notice">{notice}</div> : null}
+          <div
+            data-testid="developer-site-nav-rename"
+            style={{ display: "grid", gap: "8px", maxWidth: "420px", marginTop: "16px" }}
+          >
+            <label>
+              {DEV_MSG.SITE_NAV_RENAME_TARGET}
+              <select
+                data-testid="developer-site-nav-rename-target"
+                value={renameId}
+                onChange={(e) => onSelectRename(e.target.value)}
+                style={inputStyle}
+                disabled={renameBusy || renameTargets.length === 0}
+              >
+                {renameTargets.map((target) => (
+                  <option key={target.id} value={target.id}>
+                    {target.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              {DEV_MSG.SITE_NAV_RENAME_NAME}
+              <input
+                data-testid="developer-site-nav-rename-name"
+                value={renameName}
+                onChange={(e) => {
+                  setRenameName(e.target.value);
+                  setRenameError(null);
+                }}
+                style={inputStyle}
+                disabled={renameBusy || renameTargets.length === 0}
+              />
+            </label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                type="button"
+                data-testid="developer-site-nav-rename-save"
+                disabled={renameBusy || renameTargets.length === 0}
+                onClick={onRename}
+              >
+                {renameBusy ? DEV_MSG.SITE_NAV_RENAMING : DEV_MSG.SITE_NAV_RENAME}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-site-nav-rename-cancel"
+                disabled={renameBusy}
+                onClick={onRenameCancel}
+              >
+                {DEV_MSG.SITE_NAV_CANCEL}
+              </button>
+            </div>
+            {renameError ? (
+              <div data-testid="developer-site-nav-rename-error" role="alert">
+                {renameError}
+              </div>
+            ) : null}
+            {renameNotice ? (
+              <div data-testid="developer-site-nav-rename-notice">{renameNotice}</div>
+            ) : null}
+          </div>
         </>
       )}
     </section>

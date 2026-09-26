@@ -16,16 +16,21 @@
  */
 
 /**
- * Pure helpers for Developer Sites "add a navigation section" (#4918).
- * Reorder and delete stay outside this surface.
+ * Pure helpers for Developer Sites navigation sections (#4918 add, #4919 rename).
+ * Reorder, delete, and moving a section to another parent stay outside this surface.
  */
 
 import {
+  applyTitleToProperties,
   canCreateChildUnder,
   mapCreateSectionDialogToFields,
   resolveCreateFolderPath,
 } from "../api/architecture/sectionMutations";
-import type { CreateSiteSectionFields, NavTreeNode } from "../api/architecture/types";
+import type {
+  CreateSiteSectionFields,
+  NavTreeNode,
+  SiteSectionPropertiesWire,
+} from "../api/architecture/types";
 import type { SiteDef } from "../api/developer/types";
 import { titleToPageFileName } from "../home/create/filenameUtils";
 
@@ -152,4 +157,80 @@ export function buildDeveloperAddSectionFields(opts: {
     },
     folderPath,
   );
+}
+
+/** A regular or blog section the operator may rename (not a link). */
+export interface DeveloperNavRenameTarget {
+  id: string;
+  title: string;
+  siteRoot: boolean;
+}
+
+const RENAMEABLE_TYPES = new Set(["section", "blog"]);
+
+/** Depth-first rename targets, including the site root section. */
+export function listDeveloperRenameTargets(root: NavTreeNode | null): DeveloperNavRenameTarget[] {
+  if (!root) {
+    return [];
+  }
+  const targets: DeveloperNavRenameTarget[] = [];
+  const walk = (node: NavTreeNode, siteRoot: boolean): void => {
+    const type = String(node.sectionType || "").toLowerCase();
+    if (node.id && RENAMEABLE_TYPES.has(type)) {
+      targets.push({
+        id: node.id,
+        title: (node.title || node.id).trim(),
+        siteRoot,
+      });
+    }
+    for (const child of node.children || []) {
+      walk(child, false);
+    }
+  };
+  walk(root, true);
+  return targets;
+}
+
+/**
+ * True when another node already uses this display name (case-insensitive).
+ * The section being renamed is excluded.
+ */
+export function isDeveloperSectionNameTaken(
+  root: NavTreeNode | null,
+  sectionId: string,
+  name: string,
+): boolean {
+  const want = name.trim().toLowerCase();
+  if (!want || !root) {
+    return false;
+  }
+  let taken = false;
+  const walk = (node: NavTreeNode): void => {
+    if (taken) {
+      return;
+    }
+    const title = (node.title || "").trim().toLowerCase();
+    if (node.id !== sectionId && title === want) {
+      taken = true;
+      return;
+    }
+    for (const child of node.children || []) {
+      walk(child);
+    }
+  };
+  walk(root);
+  return taken;
+}
+
+/**
+ * Apply a Developer rename onto loaded section properties.
+ * Only the display title changes. The folder segment stays so the section is
+ * not moved and the update does not lock the folder row while the navon
+ * title is saved.
+ */
+export function buildDeveloperRenameProperties(
+  props: SiteSectionPropertiesWire,
+  name: string,
+): SiteSectionPropertiesWire {
+  return applyTitleToProperties(props, name.trim());
 }
