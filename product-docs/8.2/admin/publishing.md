@@ -205,7 +205,8 @@ have their own text filter). From an item row, **view** then **Open in editor** 
 `GET …/itemmanagement/item/fields/{contentId}` and, on success, opens the React content editor
 for that content id (`spa.jsp?entry=editor&contentId=…&mode=edit`). HTTP **403** (not allowed)
 and **404** (item not found) stay on the log item detail as an error — they do not open a blank
-editor window. A row with no content id cannot be opened.
+editor window and the log list stays on screen. A row with no content id has no **Open in editor**
+action.
 
 ### Filter current jobs by site (Status)
 

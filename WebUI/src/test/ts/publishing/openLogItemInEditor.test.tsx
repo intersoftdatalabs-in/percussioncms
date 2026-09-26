@@ -19,6 +19,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { LogDetailsPanel } from "@/publishing/components/LogDetailsPanel";
 import {
+  logItemCanOpen,
   logItemOpenErrorReason,
   openLogItemInEditor,
 } from "@/publishing/openLogItemInEditor";
@@ -75,6 +76,9 @@ describe("openLogItemInEditor", () => {
     const result = await openLogItemInEditor(undefined, { probe });
     expect(result.reason).toBe("missing_id");
     expect(probe).not.toHaveBeenCalled();
+    expect(logItemCanOpen(undefined)).toBe(false);
+    expect(logItemCanOpen("")).toBe(false);
+    expect(logItemCanOpen(42)).toBe(true);
   });
 });
 
@@ -107,5 +111,22 @@ describe("LogDetailsPanel open in editor", () => {
       );
     });
     expect(openItem).toHaveBeenCalledWith(42, null);
+  });
+
+  it("hides Open in editor when the row has no content id", () => {
+    render(
+      <LogDetailsPanel
+        details={{
+          SitePublishItem: [
+            { status: "Success", operation: "publish", fileName: "orphan.html" },
+          ],
+        }}
+        onClose={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /item details/i }));
+    expect(screen.queryByTestId("publish-log-open-editor")).toBeNull();
+    expect(screen.getByTestId("publish-log-details")).toBeTruthy();
+    expect(screen.getByTestId("publish-log-item-detail")).toBeTruthy();
   });
 });
