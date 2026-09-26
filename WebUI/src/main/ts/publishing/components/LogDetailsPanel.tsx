@@ -18,8 +18,11 @@
 import React, { useMemo, useState } from "react";
 import { message, MSG } from "../../i18n/message";
 import {
+  copyPublishLogItemLocation,
   extractLogItems,
   filterLogItems,
+  writeClipboardText,
+  type CopyLogLocationOutcome,
   type PublishLogItem,
 } from "../logDetails";
 import { reserveEditorWindow } from "../../editor/openEditorHost";
@@ -53,6 +56,8 @@ export interface LogDetailsPanelProps {
     contentId: string | number | null | undefined,
     reservedWindow?: Window | null,
   ) => Promise<OpenLogItemResult>;
+  /** Test seam. Production uses {@link writeClipboardText}. */
+  writeLocation?: (text: string) => Promise<boolean>;
 }
 
 function openFailureMessage(reason: OpenLogItemReason): string {
@@ -77,16 +82,35 @@ export function LogDetailsPanel({
   onClose,
   openItem = (contentId, reservedWindow) =>
     openLogItemInEditor(contentId, { reservedWindow }),
+  writeLocation = writeClipboardText,
 }: LogDetailsPanelProps): React.ReactElement {
   const items = useMemo(() => extractLogItems(details), [details]);
   const [filter, setFilter] = useState("");
   const [selected, setSelected] = useState<PublishLogItem | null>(null);
   const [opening, setOpening] = useState(false);
   const [openError, setOpenError] = useState<string | null>(null);
+  const [copyNotice, setCopyNotice] = useState<CopyLogLocationOutcome | null>(
+    null,
+  );
   const filtered = useMemo(
     () => filterLogItems(items, filter),
     [items, filter],
   );
+
+  async function onCopyLocation(item: PublishLogItem): Promise<void> {
+    const outcome = await copyPublishLogItemLocation(item, writeLocation);
+    setCopyNotice(outcome);
+  }
+
+  function copyNoticeText(notice: CopyLogLocationOutcome): string {
+    if (notice.kind === "copied") {
+      return message(MSG.PUBLISH_LOCATION_COPIED);
+    }
+    if (notice.kind === "missing") {
+      return message(MSG.PUBLISH_LOCATION_MISSING);
+    }
+    return message(MSG.PUBLISH_LOCATION_CLIPBOARD_FAILED);
+  }
 
   return (
     <div data-testid="publish-log-details" style={{ marginTop: 16 }}>
@@ -183,6 +207,15 @@ export function LogDetailsPanel({
                     <td style={tdStyle}>{item.operation ?? "—"}</td>
                     <td style={tdStyle}>
                       {item.fileName ?? item.fileLocation ?? "—"}
+                      <button
+                        type="button"
+                        style={{ ...buttonStyle, marginLeft: 8 }}
+                        data-testid={`publish-log-copy-location-${idx}`}
+                        aria-label={message(MSG.PUBLISH_COPY_LOCATION)}
+                        onClick={() => void onCopyLocation(item)}
+                      >
+                        {message(MSG.PUBLISH_COPY_LOCATION)}
+                      </button>
                     </td>
                     <td style={tdStyle}>
                       {item.elapsedTime != null ? String(item.elapsedTime) : "—"}
@@ -192,6 +225,23 @@ export function LogDetailsPanel({
               })}
             </tbody>
           </table>
+          {copyNotice && (
+            <div
+              role="status"
+              data-testid="publish-log-copy-status"
+              style={{ marginTop: 8, fontSize: "0.9rem" }}
+            >
+              <span>{copyNoticeText(copyNotice)}</span>
+              <button
+                type="button"
+                style={{ ...buttonStyle, marginLeft: 8 }}
+                data-testid="publish-log-copy-dismiss"
+                onClick={() => setCopyNotice(null)}
+              >
+                {message(MSG.PUBLISH_COPY_DISMISS)}
+              </button>
+            </div>
+          )}
         </>
       )}
 

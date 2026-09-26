@@ -54,6 +54,73 @@ export function extractLogItems(details: unknown): PublishLogItem[] {
   return [];
 }
 
+function trimmedField(value: unknown): string {
+  if (value == null) {
+    return "";
+  }
+  return String(value).trim();
+}
+
+/**
+ * Text an operator copies for one log item: published location, else file name.
+ * Blank when both are missing — callers must not treat that as a successful copy.
+ */
+export function publishLogItemCopyText(item: PublishLogItem): string {
+  const location = trimmedField(item.fileLocation);
+  if (location.length > 0) {
+    return location;
+  }
+  return trimmedField(item.fileName);
+}
+
+export type CopyLogLocationOutcome =
+  | { kind: "copied"; text: string }
+  | { kind: "missing" }
+  | { kind: "clipboard" };
+
+/**
+ * Copy one item's location. Does not mutate the item or the log list.
+ * Missing text is {@code missing}; a rejected or false write is {@code clipboard}.
+ */
+export async function copyPublishLogItemLocation(
+  item: PublishLogItem,
+  writeText: (text: string) => Promise<boolean>,
+): Promise<CopyLogLocationOutcome> {
+  const text = publishLogItemCopyText(item);
+  if (!text) {
+    return { kind: "missing" };
+  }
+  let ok = false;
+  try {
+    ok = await writeText(text);
+  } catch {
+    ok = false;
+  }
+  if (!ok) {
+    return { kind: "clipboard" };
+  }
+  return { kind: "copied", text };
+}
+
+/**
+ * Clipboard API write. Returns false when the API is missing or rejects
+ * so the details panel can stay open with a named failure.
+ */
+export async function writeClipboardText(text: string): Promise<boolean> {
+  if (
+    typeof navigator === "undefined" ||
+    navigator.clipboard?.writeText == null
+  ) {
+    return false;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Client-side filter for log item table (status/operation/location/filename). */
 export function filterLogItems(
   items: PublishLogItem[],
