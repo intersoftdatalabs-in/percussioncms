@@ -629,6 +629,31 @@ public class PSNavFolderUtils {
   }
 
   /**
+   * H2 row-lock timeout while checkout updates {@code CONTENTSTATUS} on a navon
+   * that the same request already transitioned (#4919). The failed
+   * {@code prepareForEdit} rolls back and releases the lock; the caller can
+   * still {@code saveItems}.
+   */
+  static boolean isContentRowLockTimeout(Throwable ex) {
+    if (ex == null) {
+      return false;
+    }
+    for (Throwable t = ex; t != null; t = t.getCause()) {
+      String msg = t.getMessage();
+      if (msg != null) {
+        String m = msg.toLowerCase(java.util.Locale.ROOT);
+        if (m.contains("timeout trying to lock") || m.contains("lock table")) {
+          return true;
+        }
+      }
+      if (t == t.getCause()) {
+        break;
+      }
+    }
+    return false;
+  }
+
+  /**
    * FastForward / H2 sample workflows leave a new percNavon at CONTENTSTATEID 0 or
    * omit {@code sys_contentstateid} on the item def, so checkout/check-in NPEs or
    * throws {@code stateId must be > 0} (#3364 / #3672 / #3676).

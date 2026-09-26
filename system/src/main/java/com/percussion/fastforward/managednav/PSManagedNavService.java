@@ -685,12 +685,21 @@ public class PSManagedNavService implements IPSManagedNavService {
       try {
         runWithoutJoiningCallerTx(() -> applyNavonPropertiesIsolated(nodeId, propertyMap));
       } catch (RuntimeException first) {
-        if (!isUnexpectedRollback(first)) {
+        if (isUnexpectedRollback(first)) {
+          log.warn(
+              "Retrying navon property save after rollback-only transaction; id={}", nodeId);
+          runWithoutJoiningCallerTx(() -> applyNavonPropertiesIsolated(nodeId, propertyMap));
+        } else if (PSNavFolderUtils.isContentRowLockTimeout(first)
+            || hasPrepareEditErrorResults(first)) {
+          // Isolated save uses a second H2 connection. A public navon transition
+          // already locked CONTENTSTATUS on the request connection (#4919).
+          log.warn(
+              "Saving navon properties on the request transaction after isolated save failed; id={}",
+              nodeId);
+          applyNavonPropertiesIsolated(nodeId, propertyMap);
+        } else {
           throw first;
         }
-        log.warn(
-            "Retrying navon property save after rollback-only transaction; id={}", nodeId);
-        runWithoutJoiningCallerTx(() -> applyNavonPropertiesIsolated(nodeId, propertyMap));
       }
     } catch (Exception e) {
       throw new PSNavException("Failed to set properties for navon (id=" + nodeId + ").", e);
@@ -760,7 +769,9 @@ public class PSManagedNavService implements IPSManagedNavService {
             }
           });
     } catch (RuntimeException e) {
-      if (!PSNavFolderUtils.isSampleWorkflowAttachFailure(e)) {
+      if (!PSNavFolderUtils.isSampleWorkflowAttachFailure(e)
+          && !PSNavFolderUtils.isContentRowLockTimeout(e)
+          && !hasPrepareEditErrorResults(e)) {
         throw e;
       }
       log.warn("Skipping prepareForEdit for navon properties (sample workflow); id={}", nodeId, e);
@@ -787,6 +798,24 @@ public class PSManagedNavService implements IPSManagedNavService {
       }
       log.warn("Skipping releaseFromEdit after navon property save");
     }
+  }
+
+  /**
+   * {@code prepareForEdit} reports per-item failures as {@link
+   * com.percussion.webservices.PSErrorResultsException}. Those messages are often
+   * null (H2 {@code CONTENTSTATUS} lock on a public navon, #4919). The isolated
+   * transaction has rolled back, so title {@code saveItems} can still run.
+   */
+  private static boolean hasPrepareEditErrorResults(Throwable error) {
+    for (Throwable current = error; current != null; current = current.getCause()) {
+      if (current instanceof com.percussion.webservices.PSErrorResultsException) {
+        return true;
+      }
+      if (current == current.getCause()) {
+        break;
+      }
+    }
+    return false;
   }
 
   boolean isNavonAlreadyCheckedOut(IPSGuid nodeId) {

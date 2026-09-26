@@ -36,6 +36,7 @@ import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.utils.guid.IPSGuid;
+import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
 import java.util.HashMap;
@@ -118,6 +119,61 @@ class PSManagedNavServiceSetNavonPropertiesTest {
     verify(coreItem).setTextField("displaytitle", "Renamed");
     verify(contentWs).saveItems(anyList(), eq(false), eq(false));
     verify(contentWs, never()).releaseFromEdit(anyList(), anyBoolean());
+  }
+
+  @Test
+  void setNavonPropertiesSkipsPrepareOnContentLockThenSaves() throws Exception {
+    doReturn(false).when(service).isNavonAlreadyCheckedOut(navonId);
+    when(contentWs.prepareForEdit(anyList()))
+        .thenThrow(
+            new PSNavException(
+                "Failed to prepare navon for edit (id=9001).",
+                new RuntimeException(
+                    "Timeout trying to lock table \"CONTENTSTATUS\"; SQL statement:")));
+    when(contentWs.loadItems(anyList(), eq(false), eq(false), eq(false), eq(false)))
+        .thenReturn(List.of(coreItem));
+    Map<String, String> map = new HashMap<>();
+    map.put("displaytitle", "Renamed");
+
+    assertDoesNotThrow(() -> service.setNavonProperties(navonId, map));
+
+    verify(contentWs).prepareForEdit(anyList());
+    verify(coreItem).setTextField("displaytitle", "Renamed");
+    verify(contentWs).saveItems(anyList(), eq(false), eq(false));
+    verify(contentWs, never()).releaseFromEdit(anyList(), anyBoolean());
+  }
+
+  @Test
+  void setNavonPropertiesSkipsPrepareWhenErrorResultsHaveNoMessage() throws Exception {
+    doReturn(false).when(service).isNavonAlreadyCheckedOut(navonId);
+    when(contentWs.prepareForEdit(anyList()))
+        .thenThrow(new PSNavException(new PSErrorResultsException()));
+    when(contentWs.loadItems(anyList(), eq(false), eq(false), eq(false), eq(false)))
+        .thenReturn(List.of(coreItem));
+    Map<String, String> map = new HashMap<>();
+    map.put("displaytitle", "Renamed");
+
+    assertDoesNotThrow(() -> service.setNavonProperties(navonId, map));
+
+    verify(contentWs).saveItems(anyList(), eq(false), eq(false));
+    verify(contentWs, never()).releaseFromEdit(anyList(), anyBoolean());
+  }
+
+  @Test
+  void setNavonPropertiesRetriesSaveOnCallerWhenIsolatedSaveReturnsErrorResults()
+      throws Exception {
+    doReturn(true).when(service).isNavonAlreadyCheckedOut(navonId);
+    when(contentWs.loadItems(anyList(), eq(false), eq(false), eq(false), eq(false)))
+        .thenThrow(new PSErrorResultsException())
+        .thenReturn(List.of(coreItem));
+    Map<String, String> map = new HashMap<>();
+    map.put("displaytitle", "Renamed");
+
+    assertDoesNotThrow(() -> service.setNavonProperties(navonId, map));
+
+    verify(contentWs, times(2))
+        .loadItems(anyList(), eq(false), eq(false), eq(false), eq(false));
+    verify(contentWs).saveItems(anyList(), eq(false), eq(false));
   }
 
   @Test
