@@ -51,6 +51,19 @@ HTTP **403** (not Admin or Designer) and **409** (publish server name already ex
 are shown in the server editor error region — not as a successful save. Incremental / Full publish
 and Design delivery-type save are separate actions.
 
+### Copy a site delivery server (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then
+**Copy Server**. Enter a **new server name** for that same site. Confirm copies the source
+driver and non-secret connection settings (`POST …/publishmanagement/servers/{siteId}/{serverName}`,
+the same create used by **Add**). The new server appears in the site list and is not marked as
+the publish-now default. Cancel the name prompt does not call the server.
+
+A blank name is refused in the workspace (**Server name is required**) and is not a successful
+copy. A name already used on the site is HTTP **409** and stays in the workspace error region;
+the list does not gain a second server. Passwords and other secret driver properties are not
+copied and are not shown in this help. Cross-site copy and delete are separate actions.
+
 ### Delete a site delivery server (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then
