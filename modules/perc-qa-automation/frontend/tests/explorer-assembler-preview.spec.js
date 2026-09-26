@@ -183,7 +183,7 @@ test.describe("Explorer assembler preview (#4943)", () => {
       const popupPromise = page.waitForEvent("popup", { timeout: 15_000 });
       await button.click();
       const popup = await popupPromise;
-      await popup.waitForLoadState("domcontentloaded").catch(() => {});
+      await popup.waitForLoadState("domcontentloaded");
       expect(popup.url()).toContain("/assembler/render");
       await popup.close();
       await expect(shell).toHaveAttribute(
