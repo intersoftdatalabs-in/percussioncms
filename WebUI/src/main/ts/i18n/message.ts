@@ -176,6 +176,9 @@ export const MSG = {
   PUBLISH_FULL: "perc.ui.publish.title@Full",
   PUBLISH_STOP: "perc.ui.publish.title@Stop",
   PUBLISH_CONFIRM_STOP: "perc.ui.publish.modern@Confirm Stop Publish Job",
+  PUBLISH_RETRY: "perc.ui.publish.modern@Retry",
+  PUBLISH_CONFIRM_RETRY:
+    "perc.ui.publish.modern@Retry this failed publish for the same site and server?",
   PUBLISH_INCREMENTAL: "perc.ui.publish.modern@Incremental",
   PUBLISH_CONFIRM_INCREMENTAL:
     "perc.ui.publish.modern@Confirm Incremental Publish",

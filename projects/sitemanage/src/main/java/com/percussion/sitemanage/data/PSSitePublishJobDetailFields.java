@@ -43,6 +43,20 @@ public final class PSSitePublishJobDetailFields {
   }
 
   /**
+   * {@code incremental} when the edition name is an incremental publish edition; {@code full}
+   * otherwise. Blank names are omitted so the client can default.
+   */
+  public static String publishKindOrNull(String editionName) {
+    if (editionName == null || editionName.isBlank()) {
+      return null;
+    }
+    if (editionName.toUpperCase(Locale.ROOT).contains("INCREMENTAL")) {
+      return "incremental";
+    }
+    return "full";
+  }
+
+  /**
    * Error text is exposed only for a failed job, and only when the publisher supplied a message.
    */
   public static String errorTextForFailedJob(String status, String message) {

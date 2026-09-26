@@ -62,6 +62,10 @@ The server cannot be deleted when it is the site default or when a publish job i
 cases, and HTTP **403** (not Admin or Designer) or **404**, stay in the server editor error region.
 The list is not refreshed as a successful delete. Edition delete is a separate Design action.
 
+### Retry a failed status job (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open **Status**. A job whose status is **Failed** or **Completed with failures**, and that names both a site and a delivery server, shows **Retry**. Running, completed, and failed rows that omit the site or server do not. **Retry** asks for confirmation (**Retry this failed publish for the same site and server?**). Confirm starts a new publish for that site and server: incremental when the status payload's publish kind or edition name says incremental (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), otherwise a full site publish (`GET …/sitemanage/publish/{site}/{server}`). Status reloads after a job starts. Cancel does not call publish. Application-level `FORBIDDEN` and `BADCONFIG` (including HTTP 200 bodies) stay in the Status error region and are not treated as a started job. Stop remains a separate action for a running job.
+
 ### Incremental site publish (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then choose **Incremental**. Confirm the dialog (**Confirm Incremental Publish**). The shell calls the incremental site publish API (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), optionally with related-item approval after **Incremental preview**. Success shows **Publish Job Started** plus the job id and refreshes the site **Status** list (active jobs). Dismissing confirm does not start a job. Application-level `FORBIDDEN` / `BADCONFIG` responses are failures in the workspace error region, not success. Full site publish remains a separate **Full** action.

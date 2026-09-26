@@ -678,6 +678,7 @@ public class PSSitePublishStatusService implements IPSSitePublishStatusService {
         IPSEdition edition = pubSvc.loadEdition(editionId);
         if (edition != null) {
           job.setEditionName(PSSitePublishJobDetailFields.editionNameOrNull(edition.getName()));
+          job.setPublishKind(PSSitePublishJobDetailFields.publishKindOrNull(edition.getName()));
         }
       } catch (RuntimeException ex) {
         log.debug("Edition name unavailable for {}", editionId);

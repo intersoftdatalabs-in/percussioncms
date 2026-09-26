@@ -82,6 +82,12 @@ public class PSSitePublishJob extends PSAbstractDataObject {
   /** Publisher message for a failed job. Absent when the job did not fail or no message exists. */
   private String errorMessage;
 
+  /**
+   * {@code full} or {@code incremental} when the edition name identifies the publish kind. Absent
+   * when the edition could not be loaded.
+   */
+  private String publishKind;
+
   public long getJobId() {
     return jobId;
   }
@@ -208,5 +214,13 @@ public class PSSitePublishJob extends PSAbstractDataObject {
 
   public void setErrorMessage(String errorMessage) {
     this.errorMessage = errorMessage;
+  }
+
+  public Optional<String> getPublishKind() {
+    return Optional.ofNullable(publishKind);
+  }
+
+  public void setPublishKind(String publishKind) {
+    this.publishKind = publishKind;
   }
 }

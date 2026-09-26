@@ -76,6 +76,12 @@ export interface PublishingJob {
   editionName?: string;
   /** Publisher error text for a failed job, when the status API includes it. */
   errorMessage?: string;
+  /** {@code full} or {@code incremental} when the status payload includes the edition kind. */
+  publishKind?: string;
+  /** Alternate kind field some payloads use. */
+  pubType?: string;
+  /** Wire name for the delivery server ({@link PSSitePublishJob#pubServerName}). */
+  pubServerName?: string;
   [key: string]: unknown;
 }
 
