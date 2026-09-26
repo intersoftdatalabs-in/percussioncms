@@ -2500,6 +2500,193 @@ describe("EditorHost stage the open item (#4915)", () => {
   });
 });
 
+describe("EditorHost remove the open item from staging (#4916)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function titleType() {
+    return { fields: [{ name: "sys_title", label: "Title", readOnly: false }] };
+  }
+
+  it("confirms then removes a percPage from staging and reports success", async () => {
+    const removeFromStaging = vi.fn().mockResolvedValue(true);
+    const confirmRemoveFromStaging = vi.fn().mockReturnValue(true);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                removeFromStaging={removeFromStaging}
+                confirmRemoveFromStaging={confirmRemoveFromStaging}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-unstage-item")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-unstage-item"));
+    await waitFor(() => {
+      expect(confirmRemoveFromStaging).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(removeFromStaging).toHaveBeenCalledWith("42", "page");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-unstage-done")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-unstage-error")).toBeNull();
+  });
+
+  it("does not remove from staging when the confirm is cancelled", async () => {
+    const removeFromStaging = vi.fn().mockResolvedValue(true);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                removeFromStaging={removeFromStaging}
+                confirmRemoveFromStaging={() => false}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-unstage-item")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-unstage-item"));
+    await waitFor(() => {
+      expect(removeFromStaging).not.toHaveBeenCalled();
+    });
+    expect(screen.queryByTestId("editor-unstage-done")).toBeNull();
+  });
+
+  it("keeps HTTP 403 and HTTP 400 on the host and does not claim success", async () => {
+    const removeFromStaging = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 403, statusText: "Forbidden" })
+      .mockRejectedValueOnce({ status: 400, statusText: "Bad Request" });
+    const { unmount } = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                removeFromStaging={removeFromStaging}
+                confirmRemoveFromStaging={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-unstage-item")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-unstage-item"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-unstage-error").textContent).toMatch(/403/);
+    });
+    expect(screen.queryByTestId("editor-unstage-done")).toBeNull();
+    unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                removeFromStaging={removeFromStaging}
+                confirmRemoveFromStaging={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-unstage-item")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-unstage-item"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-unstage-error").textContent).toMatch(/400/);
+    });
+    expect(screen.queryByTestId("editor-unstage-done")).toBeNull();
+  });
+
+  it("hides Remove from staging for a template and in view mode", async () => {
+    const removeFromStaging = vi.fn();
+    const templateFields = { ...fields, contentType: "percTemplate" };
+    const { unmount } = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(templateFields)}
+                loadType={async () => titleType()}
+                removeFromStaging={removeFromStaging}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-unstage-item")).toBeNull();
+    unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                removeFromStaging={removeFromStaging}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-unstage-item")).toBeNull();
+    expect(removeFromStaging).not.toHaveBeenCalled();
+  });
+});
+
 describe("EditorHost publish now (#4540)", () => {
   afterEach(() => {
     cleanup();

@@ -18,11 +18,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   canPublishFromEditor,
+  canRemoveFromStagingFromEditor,
   canStageFromEditor,
   canTakedownFromEditor,
   canViewPublishHistoryFromEditor,
   formatEditorTakedownConfirm,
   publishEditorItem,
+  removeEditorItemFromStaging,
   resolveEditorPublishKind,
   stageEditorItem,
   takedownEditorItem,
@@ -215,6 +217,79 @@ describe("stageEditorItem", () => {
       }),
     );
     await expect(stageEditorItem("42", "page")).rejects.toThrow("FORBIDDEN");
+  });
+});
+
+describe("canRemoveFromStagingFromEditor", () => {
+  it("matches stage eligibility", () => {
+    expect(canRemoveFromStagingFromEditor("edit", "page")).toBe(true);
+    expect(canRemoveFromStagingFromEditor("edit", "asset")).toBe(true);
+    expect(canRemoveFromStagingFromEditor("view", "page")).toBe(false);
+    expect(canRemoveFromStagingFromEditor("promote", "asset")).toBe(false);
+    expect(canRemoveFromStagingFromEditor("edit", "none")).toBe(false);
+  });
+});
+
+describe("removeEditorItemFromStaging", () => {
+  it("GETs sitemanage takedown/page/staging for a page", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    expect(await removeEditorItemFromStaging("42", "page")).toBe(true);
+    const url = String(global.fetch.mock.calls[0]?.[0] ?? "");
+    expect(url).toContain("sitemanage/publish/takedown/page/staging/42");
+    expect(url).not.toContain("/publish/page/staging/42");
+  });
+
+  it("GETs sitemanage takedown/resource/staging for an asset", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    expect(await removeEditorItemFromStaging("99", "asset")).toBe(true);
+    expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
+      "sitemanage/publish/takedown/resource/staging/99",
+    );
+  });
+
+  it("returns false without an id or for none and does not fetch", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    expect(await removeEditorItemFromStaging("", "page")).toBe(false);
+    expect(await removeEditorItemFromStaging("42", "none")).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("throws on HTTP 403 and HTTP 400 instead of returning true", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    fetchSpy.mockResolvedValueOnce(
+      new Response("no", { status: 403, statusText: "Forbidden" }),
+    );
+    await expect(removeEditorItemFromStaging("42", "page")).rejects.toMatchObject({
+      status: 403,
+    });
+    fetchSpy.mockResolvedValueOnce(
+      new Response("bad", { status: 400, statusText: "Bad Request" }),
+    );
+    await expect(removeEditorItemFromStaging("42", "asset")).rejects.toMatchObject({
+      status: 400,
+    });
+  });
+
+  it("throws on HTTP 200 unwrapped FORBIDDEN instead of returning true", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ status: "FORBIDDEN" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(removeEditorItemFromStaging("42", "page")).rejects.toThrow(
+      "FORBIDDEN",
+    );
   });
 });
 

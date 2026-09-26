@@ -187,6 +187,44 @@ export async function stageEditorItem(
 }
 
 /**
+ * Same eligibility as {@link canStageFromEditor}. Removing from staging is
+ * not Take down and is not available in view or promote mode.
+ */
+export function canRemoveFromStagingFromEditor(
+  mode: EditorHostMode,
+  kind: EditorPublishKind,
+): boolean {
+  return canStageFromEditor(mode, kind);
+}
+
+/**
+ * Remove the open page or asset from staging via sitemanage
+ * {@code takedown/page|resource/staging/{id}}. Returns false when kind is
+ * none or the id is blank. HTTP errors and HTTP 200 preflight failures
+ * ({@code FORBIDDEN}, {@code BADCONFIG}, …) throw and are not success.
+ */
+export async function removeEditorItemFromStaging(
+  itemId: string,
+  kind: EditorPublishKind,
+): Promise<boolean> {
+  const id = itemId.trim();
+  if (!id || kind === "none") {
+    return false;
+  }
+  const paths = itemPublishPaths();
+  const base =
+    kind === "page" ? paths.pageStagingTakedown : paths.resourceStagingTakedown;
+  const body = await get<unknown>(`${base}/${encodeURIComponent(id)}`);
+  const preflight = mapPublishResponse(body);
+  if (preflight) {
+    throw new Error(
+      preflight.message || preflight.token || "Remove from staging failed",
+    );
+  }
+  return true;
+}
+
+/**
  * Same eligibility as {@link canPublishFromEditor}. Folders, templates, and
  * items with no id (new unsaved create) stay ineligible.
  */

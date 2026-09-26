@@ -149,6 +149,15 @@ export const EDITOR_MSG = {
   STAGE_FAILED: "perc.ui.editor@Could not stage this item.",
   STAGE_UNAVAILABLE:
     "perc.ui.editor@Stage is only available for saved pages and assets.",
+  REMOVE_FROM_STAGING: "perc.ui.editor@Remove from staging",
+  REMOVING_FROM_STAGING: "perc.ui.editor@Removing from staging…",
+  CONFIRM_REMOVE_FROM_STAGING:
+    "perc.ui.editor@Remove this item from staging?",
+  REMOVE_FROM_STAGING_DONE: "perc.ui.editor@Item removed from staging.",
+  REMOVE_FROM_STAGING_FAILED:
+    "perc.ui.editor@Could not remove this item from staging.",
+  REMOVE_FROM_STAGING_UNAVAILABLE:
+    "perc.ui.editor@Remove from staging is only available for saved pages and assets.",
   PUBLISHING_HISTORY: "perc.ui.editor@Publishing history",
   TAKE_DOWN: "perc.ui.editor@Take down",
   TAKING_DOWN: "perc.ui.editor@Taking down…",

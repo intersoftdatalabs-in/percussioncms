@@ -137,11 +137,13 @@ import {
 import { PublishingHistoryDialog } from "../contentExplorer/PublishingHistoryDialog";
 import {
   canPublishFromEditor,
+  canRemoveFromStagingFromEditor,
   canStageFromEditor,
   canTakedownFromEditor,
   canViewPublishHistoryFromEditor,
   formatEditorTakedownConfirm,
   publishEditorItem,
+  removeEditorItemFromStaging,
   resolveEditorPublishKind,
   stageEditorItem,
   takedownEditorItem,
@@ -260,6 +262,10 @@ export interface EditorHostProps {
   stageItem?: (itemId: string, kind: EditorPublishKind) => Promise<boolean>;
   /** Test seam: confirm before Stage (defaults to {@code window.confirm}). */
   confirmStage?: (body: string) => boolean;
+  /** Test seam: sitemanage staging takedown ({@code takedown/page|resource/staging/{id}}). */
+  removeFromStaging?: (itemId: string, kind: EditorPublishKind) => Promise<boolean>;
+  /** Test seam: confirm before Remove from staging (defaults to {@code window.confirm}). */
+  confirmRemoveFromStaging?: (body: string) => boolean;
   /** Test seam: sitemanage takedown ({@code takedown/page|resource/{id}}). */
   takedownItem?: (
     itemId: string,
@@ -544,6 +550,8 @@ export function EditorHost({
   confirmPublish,
   stageItem = stageEditorItem,
   confirmStage,
+  removeFromStaging = removeEditorItemFromStaging,
+  confirmRemoveFromStaging,
   takedownItem = takedownEditorItem,
   loadTakedownLinked = loadLinkedPagesForTakedown,
   confirmTakedown,
@@ -639,6 +647,10 @@ export function EditorHost({
   const [stageDone, setStageDone] = useState(false);
   const [stageErrorKey, setStageErrorKey] = useState<string | null>(null);
   const [stageErrorDetail, setStageErrorDetail] = useState("");
+  const [unstageBusy, setUnstageBusy] = useState(false);
+  const [unstageDone, setUnstageDone] = useState(false);
+  const [unstageErrorKey, setUnstageErrorKey] = useState<string | null>(null);
+  const [unstageErrorDetail, setUnstageErrorDetail] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [takedownBusy, setTakedownBusy] = useState(false);
   const [takedownDone, setTakedownDone] = useState(false);
@@ -1471,6 +1483,49 @@ export function EditorHost({
       setStageErrorKey(EDITOR_MSG.STAGE_FAILED);
     } finally {
       setStageBusy(false);
+    }
+  }
+
+  async function handleRemoveFromStaging(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    const itemId = String(contentId);
+    const kind = resolveEditorPublishKind(payload?.contentType, {
+      id: itemId,
+      allowedTemplateCount,
+    });
+    if (!canRemoveFromStagingFromEditor(mode, kind)) {
+      setUnstageDone(false);
+      setUnstageErrorDetail("");
+      setUnstageErrorKey(EDITOR_MSG.REMOVE_FROM_STAGING_UNAVAILABLE);
+      return;
+    }
+    const confirmFn =
+      confirmRemoveFromStaging ??
+      ((body: string) =>
+        typeof window !== "undefined" ? window.confirm(body) : false);
+    if (!confirmFn(message(EDITOR_MSG.CONFIRM_REMOVE_FROM_STAGING))) {
+      return;
+    }
+    setUnstageBusy(true);
+    setUnstageDone(false);
+    setUnstageErrorKey(null);
+    setUnstageErrorDetail("");
+    try {
+      const removed = await removeFromStaging(itemId, kind);
+      if (!removed) {
+        setUnstageErrorKey(EDITOR_MSG.REMOVE_FROM_STAGING_UNAVAILABLE);
+        return;
+      }
+      setUnstageDone(true);
+    } catch (err) {
+      setUnstageErrorDetail(
+        formatApiError(err, message(EDITOR_MSG.REMOVE_FROM_STAGING_FAILED)),
+      );
+      setUnstageErrorKey(EDITOR_MSG.REMOVE_FROM_STAGING_FAILED);
+    } finally {
+      setUnstageBusy(false);
     }
   }
 
@@ -2395,6 +2450,7 @@ export function EditorHost({
   });
   const showPublish = canPublishFromEditor(mode, publishKind);
   const showStage = canStageFromEditor(mode, publishKind);
+  const showRemoveFromStaging = canRemoveFromStagingFromEditor(mode, publishKind);
   const showTakedown = canTakedownFromEditor(mode, publishKind);
   const showPublishHistory = canViewPublishHistoryFromEditor(mode, publishKind);
   const showPreview = canPreviewFromEditor(mode, publishKind);
@@ -2475,6 +2531,11 @@ export function EditorHost({
               {message(EDITOR_MSG.STAGE_DONE)}
             </span>
           ) : null}
+          {unstageDone ? (
+            <span className={styles.meta} data-testid="editor-unstage-done">
+              {message(EDITOR_MSG.REMOVE_FROM_STAGING_DONE)}
+            </span>
+          ) : null}
           {takedownDone ? (
             <span className={styles.meta} data-testid="editor-takedown-done">
               {message(EDITOR_MSG.TAKEDOWN_DONE)}
@@ -2521,6 +2582,21 @@ export function EditorHost({
               onClick={() => void handleStage()}
             >
               {message(stageBusy ? EDITOR_MSG.STAGING : EDITOR_MSG.STAGE)}
+            </button>
+          ) : null}
+          {showRemoveFromStaging ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-unstage-item"
+              disabled={unstageBusy || loading || payload == null || saving}
+              onClick={() => void handleRemoveFromStaging()}
+            >
+              {message(
+                unstageBusy
+                  ? EDITOR_MSG.REMOVING_FROM_STAGING
+                  : EDITOR_MSG.REMOVE_FROM_STAGING,
+              )}
             </button>
           ) : null}
           {showTakedown ? (
@@ -2862,6 +2938,16 @@ export function EditorHost({
               >
                 {message(stageErrorKey)}
                 {stageErrorDetail ? ` ${stageErrorDetail}` : ""}
+              </div>
+            ) : null}
+            {unstageErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-unstage-error"
+              >
+                {message(unstageErrorKey)}
+                {unstageErrorDetail ? ` ${unstageErrorDetail}` : ""}
               </div>
             ) : null}
             {takedownErrorKey ? (

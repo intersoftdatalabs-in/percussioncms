@@ -295,3 +295,45 @@ describe("editor-host-stage helpers (#4915)", () => {
     assert.match(src, /#4915/);
   });
 });
+
+const editorUnstage = require("../helpers/editor-host-unstage");
+
+describe("editor-host-unstage helpers (#4916)", () => {
+  it("classifies staging takedown URLs and rejects live stage URLs", () => {
+    assert.equal(
+      editorUnstage.isPageStagingTakedownUrl(
+        "/Rhythmyx/services/sitemanage/publish/takedown/page/staging/42",
+      ),
+      true,
+    );
+    assert.equal(
+      editorUnstage.isPageStagingTakedownUrl(
+        "/Rhythmyx/services/sitemanage/publish/page/staging/42",
+      ),
+      false,
+    );
+    assert.equal(
+      editorUnstage.isResourceStagingTakedownUrl(
+        "/Rhythmyx/services/sitemanage/publish/takedown/resource/staging/99",
+      ),
+      true,
+    );
+    const parsed = editorUnstage.parseStagingTakedownUrl(
+      "http://cms/Rhythmyx/services/sitemanage/publish/takedown/page/staging/42",
+    );
+    assert.equal(parsed.kind, "page");
+    assert.equal(parsed.itemId, "42");
+  });
+
+  it("spec covers confirm, cancel, HTTP 400/403, and templates", () => {
+    const specPath = path.join(__dirname, "..", "editor-host-unstage.spec.js");
+    const src = fs.readFileSync(specPath, "utf8");
+    assert.match(src, /Remove this item from staging/);
+    assert.match(src, /dialog.dismiss/);
+    assert.match(src, /unstageStatus: 403/);
+    assert.match(src, /unstageStatus: 400/);
+    assert.match(src, /Could not remove this item from staging/);
+    assert.match(src, /percTemplate/);
+    assert.match(src, /#4916/);
+  });
+});
