@@ -19,7 +19,7 @@ Extension points, REST, assemblers, Virtual Sites, and building Percussion CMS 8
 - [Product page packages](id:developer-page-packages)
 - [Build from source](id:developer-build-source)
 
-Operators using **Developer → Content types** lock/save chrome: [Developer Content Types](id:admin-developer-content-types).
+Operators using **Developer → Content types** lock/save/copy chrome: [Developer Content Types](id:admin-developer-content-types).
 
 Operators using **Developer → Workflows** allowed content types, create / copy /
 update / delete chrome: [Developer Workflows](id:admin-developer-workflows).

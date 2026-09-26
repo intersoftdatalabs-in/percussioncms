@@ -20,6 +20,8 @@ import { resolveContentTypeObjectGuid } from "../api/displayFormatGuid";
 import {
   asContentTypeText,
   contentTypeSelectionKey,
+  copyContentType,
+  isValidContentTypeName,
   listContentTypes,
   unwrapContentTypeList,
 } from "../api/developer/contentTypesApi";
@@ -82,6 +84,10 @@ export function ContentTypesPanel(): React.ReactElement {
   const [items, setItems] = useState<ContentTypeSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<SelectedContentType | "new" | null>(null);
+  const [copyOf, setCopyOf] = useState<string | null>(null);
+  const [copyName, setCopyName] = useState("");
+  const [copyError, setCopyError] = useState<string | null>(null);
+  const [copying, setCopying] = useState(false);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -129,6 +135,28 @@ export function ContentTypesPanel(): React.ReactElement {
   function handleDeleted(): void {
     setSelected(null);
     void reload();
+  }
+
+  async function submitCopy(): Promise<void> {
+    if (!copyOf || !isValidContentTypeName(copyName) || copying) {
+      return;
+    }
+    setCopying(true);
+    setCopyError(null);
+    try {
+      const detail = await copyContentType(copyOf, copyName.trim());
+      if (!mountedRef.current) return;
+      setCopyOf(null);
+      setCopyName("");
+      handleCreated(detail);
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setCopyError(panelErrMsg(err, DEV_MSG.CT_COPY_ERROR));
+    } finally {
+      if (mountedRef.current) {
+        setCopying(false);
+      }
+    }
   }
 
   function handleCreated(detail: ContentTypeDetail): void {
@@ -207,6 +235,49 @@ export function ContentTypesPanel(): React.ReactElement {
         </button>
       </div>
       <ContentTypeImportWizard onImported={() => void reload()} />
+      {copyOf ? (
+        <form
+          data-testid="developer-ct-copy-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void submitCopy();
+          }}
+          style={{
+            display: "flex",
+            gap: "8px",
+            alignItems: "center",
+            flexWrap: "wrap",
+            marginBottom: "12px",
+          }}
+        >
+          <span>
+            {DEV_MSG.CT_COPY_TITLE}: <code>{copyOf}</code>
+          </span>
+          <label>
+            {DEV_MSG.CT_COPY_NAME}{" "}
+            <input
+              data-testid="developer-ct-copy-name"
+              value={copyName}
+              onChange={(event) => setCopyName(event.target.value)}
+              disabled={copying}
+            />
+          </label>
+          <button
+            type="submit"
+            data-testid="developer-ct-copy-submit"
+            disabled={copying || !isValidContentTypeName(copyName)}
+          >
+            {copying ? DEV_MSG.CT_COPYING : DEV_MSG.CT_COPY_SUBMIT}
+          </button>
+          {copyError ? (
+            <span data-testid="developer-ct-copy-error" role="alert">
+              {copyError}
+            </span>
+          ) : (
+            <span style={mutedCell}>{DEV_MSG.CT_COPY_HINT}</span>
+          )}
+        </form>
+      ) : null}
       {error ? (
         <CatalogStatus testId="developer-ct-error" error>
           {error}
@@ -224,6 +295,7 @@ export function ContentTypesPanel(): React.ReactElement {
           DEV_MSG.CT_COL_NAME,
           DEV_MSG.CT_COL_ID,
           DEV_MSG.CT_COL_DESCRIPTION,
+          DEV_MSG.CT_COPY,
         ]}
         rows={sorted.map((ct) => {
           const resolved = resolveContentTypeObjectGuid(ct);
@@ -265,6 +337,23 @@ export function ContentTypesPanel(): React.ReactElement {
               <span key="d" style={mutedCell}>
                 {asCatalogText(ct.description)}
               </span>,
+              interactive ? (
+                <button
+                  key="copy"
+                  type="button"
+                  data-testid="developer-ct-copy"
+                  data-ct-name={openKey}
+                  onClick={() => {
+                    setCopyOf(openKey);
+                    setCopyName("");
+                    setCopyError(null);
+                  }}
+                >
+                  {DEV_MSG.CT_COPY}
+                </button>
+              ) : (
+                <span key="copy-off">—</span>
+              ),
             ],
           };
         })}

@@ -448,6 +448,23 @@ export function wrapContentTypeNameForWire(
  * 400 blank/spaces/wildcard; 403 non-Admin. After success, GET by the new name is
  * 200 and GET by the previous name is 404.
  */
+/**
+ * POST /services/contenttypes/{idOrName}/copy — Admin. Copies design fields to a
+ * new unique name. Does not lock the source. 400 illegal name or uncopyable
+ * system type; 409 duplicate name; 404 unknown source; 403 non-Admin.
+ */
+export async function copyContentType(
+  idOrName: string,
+  newName: string,
+): Promise<ContentTypeDetail> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/copy`,
+    wrapContentTypeNameForWire(newName),
+  );
+  return unwrapContentTypeDetail(payload);
+}
+
 export async function renameContentType(
   idOrName: string,
   newName: string,

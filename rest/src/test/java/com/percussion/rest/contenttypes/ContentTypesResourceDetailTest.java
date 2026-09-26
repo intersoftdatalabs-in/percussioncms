@@ -683,6 +683,59 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void copyContentTypeDelegatesName() {
+    ContentTypeDetail created = new ContentTypeDetail();
+    created.setName("percPageCopy");
+    when(adaptor.copyContentType(any(), eq("percPage"), eq("percPageCopy"))).thenReturn(created);
+    ContentTypeDetail out =
+        resource.copyContentType("percPage", new ContentTypeName("percPageCopy"));
+    assertEquals("percPageCopy", out.getName());
+    verify(adaptor).copyContentType(any(), eq("percPage"), eq("percPageCopy"));
+  }
+
+  @Test
+  public void copyContentTypeBlankNameIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.copyContentType("percPage", new ContentTypeName("  ")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void copyContentTypeSystemTypeIs400() {
+    when(adaptor.copyContentType(any(), eq("Folder"), eq("FolderCopy")))
+        .thenThrow(new IllegalArgumentException("System content type cannot be copied: Folder"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.copyContentType("Folder", new ContentTypeName("FolderCopy")));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("cannot be copied"));
+  }
+
+  @Test
+  public void copyContentTypeDuplicateIs409() {
+    when(adaptor.copyContentType(any(), eq("percPage"), eq("percEvent")))
+        .thenThrow(new WebApplicationException("Content type already exists: percEvent", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.copyContentType("percPage", new ContentTypeName("percEvent")));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void copyContentTypeMissingIs404() {
+    when(adaptor.copyContentType(any(), eq("missing"), eq("percCopy"))).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.copyContentType("missing", new ContentTypeName("percCopy")));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void importContentTypeInvalidXmlIs400() {
     when(adaptor.importContentType(any(), any()))
         .thenThrow(new IllegalArgumentException("invalid content-type design XML"));

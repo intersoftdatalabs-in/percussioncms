@@ -22,6 +22,7 @@ import {
   normalizeContentTypeName,
   normalizeContentTypeStringList,
   normalizeNamedObjectRefs,
+  copyContentType,
   renameContentType,
   replaceContentTypeAllowedTemplates,
   replaceFieldControlProperties,
@@ -1235,6 +1236,37 @@ describe("createContentType / deleteContentType CD-01", () => {
     fetchMock.mockResolvedValueOnce(jsonResponse({ message: "Forbidden" }, 403));
     await expect(createContentType({ name: "qaType" })).rejects.toMatchObject({
       status: 403,
+    });
+  });
+
+  it("POSTs copy under ContentTypeName", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeDetail: { name: "percPageCopy", label: "Page" } }),
+    );
+    const saved = await copyContentType("percPage", "percPageCopy");
+    expect(saved.name).toBe("percPageCopy");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/copy`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeName: { name: "percPageCopy" },
+    });
+  });
+
+  it("copy surfaces 400 system type and 409 duplicate", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "System content type cannot be copied: Folder" }, 400),
+    );
+    await expect(copyContentType("Folder", "FolderCopy")).rejects.toMatchObject({
+      status: 400,
+    });
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ message: "Content type already exists: percEvent" }, 409),
+    );
+    await expect(copyContentType("percPage", "percEvent")).rejects.toMatchObject({
+      status: 409,
     });
   });
 
