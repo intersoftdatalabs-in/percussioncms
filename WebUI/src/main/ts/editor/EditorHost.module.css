@@ -213,7 +213,8 @@
   font-size: 13px;
 }
 
-.fileDownload {
+.fileDownload,
+.fileClear {
   font: inherit;
   font-size: 13px;
 }

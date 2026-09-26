@@ -113,6 +113,10 @@ export const EDITOR_MSG = {
     "perc.ui.editor@You are not allowed to download this field.",
   FILE_DOWNLOAD_NOT_FOUND: "perc.ui.editor@This field was not found.",
   FILE_DOWNLOAD_FAILED: "perc.ui.editor@Could not download this field.",
+  FILE_CLEAR: "perc.ui.editor@Clear",
+  FILE_CLEAR_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to clear this field.",
+  FILE_CLEAR_BAD_REQUEST: "perc.ui.editor@That field could not be cleared.",
   KEYWORD_EMPTY: "perc.ui.editor@Select a keyword",
   COMMUNITY_EMPTY: "perc.ui.editor@Select a community",
   BADGE_PROMOTE: "perc.ui.editor@Promote",

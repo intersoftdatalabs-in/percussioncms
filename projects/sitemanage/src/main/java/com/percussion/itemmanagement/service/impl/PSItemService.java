@@ -717,6 +717,52 @@ public class PSItemService implements IPSItemService {
     }
   }
 
+  /**
+   * Clears a stored file or image field. Checkout rules match
+   * {@link #saveEditorBinary}. The clear is not applied until this call; a
+   * client that only marks the field locally does not change the item.
+   */
+  @DELETE
+  @Path("binary/{id}/{field}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Override
+  public PSItemEditorBinaryMeta clearEditorBinary(
+      @PathParam("id") String id, @PathParam("field") String field)
+      throws PSItemServiceException {
+    try {
+      rejectIfBlank("clearEditorBinary", "id", id);
+      String fieldName = PSItemEditorBinarySupport.requireFieldName(field);
+      String guid = PSLegacyExtensionUtils.getGUID(id);
+      PSComponentSummary sum = workflowHelper.getComponentSummary(guid);
+      if (sum != null
+          && StringUtils.isNotBlank(sum.getCheckoutUserName())
+          && !workflowHelper.isCheckedOutToCurrentUser(guid)) {
+        throw new WebApplicationException(
+            "Not authorized to clear field " + fieldName + ".", Response.Status.FORBIDDEN);
+      }
+      IPSGuid itemGuid = idMapper.getGuid(guid);
+      PSItemStatus status = contentWs.prepareForEdit(itemGuid);
+      if (status != null && status.isDidCheckout()) {
+        waRelService.updateLocalRelationshipAsset(guid);
+      }
+      PSContentItem item = contentItemDao.find(guid, false);
+      if (item == null) {
+        throw new PSItemServiceException("The item no longer exists in the system.");
+      }
+      PSItemEditorBinarySupport.clearBinary(item, fieldName);
+      contentItemDao.save(item);
+      return PSItemEditorBinarySupport.toMeta(item, fieldName);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(e);
+    } catch (Exception e) {
+      throw new PSItemServiceException("Could not clear the binary field.", e);
+    }
+  }
+
   @POST
   @Path("create")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})

@@ -57,6 +57,38 @@ describe("FileFieldWidget", () => {
       "editor-file-download-item_file_attachment",
     )) as HTMLButtonElement;
     expect(download.disabled).toBe(false);
+    expect(screen.queryByTestId("editor-file-clear-item_file_attachment")).toBeNull();
+  });
+
+  it("marks a stored file cleared locally and does not download", async () => {
+    const onClear = vi.fn();
+    const onFile = vi.fn();
+    const downloadBinary = vi.fn();
+    render(
+      <FileFieldWidget
+        itemId="42"
+        name="item_file_attachment"
+        readOnly={false}
+        loadMeta={async () => ({
+          contentId: "42",
+          field: "item_file_attachment",
+          filename: "brief.pdf",
+          contentType: "application/pdf",
+          present: true,
+        })}
+        downloadBinary={downloadBinary}
+        onFile={onFile}
+        onClear={onClear}
+      />,
+    );
+    const clear = (await screen.findByTestId(
+      "editor-file-clear-item_file_attachment",
+    )) as HTMLButtonElement;
+    fireEvent.click(clear);
+    expect(onClear).toHaveBeenCalledWith(true);
+    expect(onFile).toHaveBeenCalledWith(null);
+    expect(downloadBinary).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-file-clear-item_file_attachment")).toBeNull();
   });
 
   it("names a field with no binary and does not save an empty file", async () => {

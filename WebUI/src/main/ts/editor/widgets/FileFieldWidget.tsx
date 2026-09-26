@@ -108,6 +108,11 @@ export interface FileFieldWidgetProps {
     storedName: string,
   ) => Promise<ItemEditorBinaryDownload>;
   onFile: (file: File | null) => void;
+  /**
+   * Local clear. {@code hadStored} is true only when a saved binary is being
+   * marked for removal. The server is not called until the host saves.
+   */
+  onClear?: (hadStored: boolean) => void;
 }
 
 export function FileFieldWidget({
@@ -119,31 +124,43 @@ export function FileFieldWidget({
   loadMeta = fetchItemEditorBinary,
   downloadBinary = downloadItemEditorBinary,
   onFile,
+  onClear,
 }: FileFieldWidgetProps): React.ReactElement {
   const [filename, setFilename] = useState("");
   const [storedName, setStoredName] = useState("");
   const [present, setPresent] = useState(false);
+  const [picked, setPicked] = useState(false);
+  const [cleared, setCleared] = useState(false);
   const [ready, setReady] = useState(false);
   const [downloadError, setDownloadError] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const nameEl = useRef<HTMLSpanElement>(null);
+  const inputEl = useRef<HTMLInputElement>(null);
+  const storedPresent = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
     void loadMeta(itemId, name)
       .then((meta) => {
         if (!cancelled) {
+          const hasStored = Boolean(meta.present);
+          storedPresent.current = hasStored;
           setFilename(displayBinaryFileName(meta.filename));
           setStoredName(displayBinaryFileName(meta.filename));
-          setPresent(Boolean(meta.present));
+          setPresent(hasStored);
+          setPicked(false);
+          setCleared(false);
           setReady(true);
         }
       })
       .catch(() => {
         if (!cancelled) {
+          storedPresent.current = false;
           setFilename("");
           setStoredName("");
           setPresent(false);
+          setPicked(false);
+          setCleared(false);
           setReady(true);
         }
       });
@@ -162,6 +179,7 @@ export function FileFieldWidget({
 
   const nameLabel =
     filename || message(preview ? EDITOR_MSG.IMAGE_NONE : EDITOR_MSG.FILE_NONE);
+  const showClear = !readOnly && ((present && !cleared) || picked);
   useEffect(() => {
     const el = nameEl.current;
     if (el) {
@@ -173,6 +191,7 @@ export function FileFieldWidget({
   return (
     <div className={styles.binary} data-testid={`editor-field-${name}`} data-editor-kind={preview ? "image" : "file"}>
       <input
+        ref={inputEl}
         className={styles.fileInput}
         data-testid={`editor-file-${name}`}
         type="file"
@@ -187,6 +206,8 @@ export function FileFieldWidget({
             setPreviewUrl(null);
           }
           if (file) {
+            setCleared(false);
+            setPicked(true);
             setFilename(displayBinaryFileName(file.name));
             onFile(file);
             if (
@@ -250,6 +271,34 @@ export function FileFieldWidget({
       >
         {message(EDITOR_MSG.FILE_DOWNLOAD)}
       </button>
+      {showClear ? (
+        <button
+          type="button"
+          className={styles.fileClear}
+          data-testid={`editor-file-clear-${name}`}
+          aria-label={message(EDITOR_MSG.FILE_CLEAR)}
+          onClick={() => {
+            const hadStored = storedPresent.current && !cleared;
+            if (previewUrl) {
+              URL.revokeObjectURL(previewUrl);
+              setPreviewUrl(null);
+            }
+            if (inputEl.current) {
+              inputEl.current.value = "";
+            }
+            setFilename("");
+            setStoredName("");
+            setPresent(false);
+            setPicked(false);
+            setCleared(true);
+            setDownloadError("");
+            onFile(null);
+            onClear?.(hadStored);
+          }}
+        >
+          {message(EDITOR_MSG.FILE_CLEAR)}
+        </button>
+      ) : null}
       {downloadError ? (
         <span
           className={styles.fieldError}

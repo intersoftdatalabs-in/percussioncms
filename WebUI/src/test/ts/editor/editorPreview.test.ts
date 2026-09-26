@@ -80,6 +80,14 @@ describe("editorDraftIsDirty", () => {
         { img: new File(["x"], "x.png") },
       ),
     ).toBe(true);
+    expect(
+      editorDraftIsDirty(
+        [{ name: "sys_title", value: "Home" }],
+        { sys_title: "Home" },
+        {},
+        { img: true },
+      ),
+    ).toBe(true);
   });
 });
 

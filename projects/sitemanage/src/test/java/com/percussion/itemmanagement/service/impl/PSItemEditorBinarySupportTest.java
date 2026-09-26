@@ -149,4 +149,24 @@ class PSItemEditorBinarySupportTest {
       assertArrayEquals(data, PSItemEditorBinarySupport.readStoredBytes(temp));
     }
   }
+
+  @Test
+  void clearBinaryWritesBlankNotNullSoSaveDropsStoredBytes() {
+    PSContentItem item = new PSContentItem();
+    Map<String, Object> fields = new HashMap<>();
+    fields.put("img", "png".getBytes(StandardCharsets.UTF_8));
+    fields.put("img_filename", "hero.png");
+    fields.put("img_type", "image/png");
+    item.setFields(fields);
+    PSItemEditorBinarySupport.clearBinary(item, "img");
+    assertEquals("", item.getFields().get("img"));
+    assertEquals("", item.getFields().get("img_filename"));
+    assertEquals("", item.getFields().get("img_ext"));
+    assertEquals("", item.getFields().get("img_type"));
+    assertEquals("", item.getFields().get("img_mime"));
+    assertFalse(PSItemEditorBinarySupport.isPresent(item.getFields().get("img")));
+    PSItemEditorBinaryMeta meta = PSItemEditorBinarySupport.toMeta(item, "img");
+    assertFalse(meta.isPresent());
+    assertEquals("", meta.getFilename());
+  }
 }

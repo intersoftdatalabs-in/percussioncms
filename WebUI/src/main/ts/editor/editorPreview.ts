@@ -84,8 +84,12 @@ export function editorDraftIsDirty(
   saved: ReadonlyArray<{ name: string; value?: unknown }> | undefined,
   draft: Record<string, string>,
   pendingFiles: Record<string, File>,
+  pendingClears?: Record<string, boolean>,
 ): boolean {
   if (Object.keys(pendingFiles).length > 0) {
+    return true;
+  }
+  if (pendingClears && Object.keys(pendingClears).length > 0) {
     return true;
   }
   if (!saved) {

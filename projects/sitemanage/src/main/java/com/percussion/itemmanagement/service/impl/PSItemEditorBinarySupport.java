@@ -261,4 +261,22 @@ public final class PSItemEditorBinarySupport {
     }
     item.setFields(fields);
   }
+
+  /**
+   * Marks a file or image field cleared. Uses a blank string, not {@code null}:
+   * content-item save keeps an existing binary when the map value is null
+   * (CMS-7974). A blank string is stored as an empty field value.
+   */
+  public static void clearBinary(PSContentItem item, String field) {
+    Map<String, Object> fields = item.getFields();
+    if (fields == null) {
+      fields = new java.util.HashMap<>();
+    }
+    fields.put(field, "");
+    fields.put(sibling(field, "_filename"), "");
+    fields.put(sibling(field, "_ext"), "");
+    fields.put(sibling(field, "_type"), "");
+    fields.put(sibling(field, "_mime"), "");
+    item.setFields(fields);
+  }
 }

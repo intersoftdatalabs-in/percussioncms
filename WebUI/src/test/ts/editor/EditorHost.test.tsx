@@ -1218,6 +1218,147 @@ describe("EditorHost rich controls", () => {
     expect(saveFields).not.toHaveBeenCalled();
   });
 
+  it("clears a stored file only when save runs", async () => {
+    const clearBinary = vi.fn().mockResolvedValue({
+      contentId: "42",
+      field: "item_file_attachment",
+      filename: "",
+      contentType: "",
+      present: false,
+    });
+    const uploadBinary = vi.fn();
+    const saveFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percFile",
+      name: "Brief",
+      checkoutUser: "admin",
+      fields: [{ name: "sys_title", value: "Brief" }],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={async () => undefined}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percFile",
+                  name: "Brief",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "Brief" }],
+                })}
+                saveFields={saveFields}
+                uploadBinary={uploadBinary}
+                clearBinary={clearBinary}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    {
+                      name: "item_file_attachment",
+                      label: "File",
+                      control: "sys_File",
+                    },
+                  ],
+                })}
+                loadBinaryMeta={async () => ({
+                  contentId: "42",
+                  field: "item_file_attachment",
+                  filename: "brief.pdf",
+                  contentType: "application/pdf",
+                  present: true,
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    const clear = await screen.findByTestId("editor-file-clear-item_file_attachment");
+    fireEvent.click(clear);
+    expect(clearBinary).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(clearBinary).toHaveBeenCalledWith("42", "item_file_attachment");
+    });
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(saveFields).toHaveBeenCalled();
+  });
+
+  it("keeps clear 403 and 400 on the field", async () => {
+    const clearBinary = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={async () => undefined}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percFile",
+                  name: "Brief",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "Brief" }],
+                })}
+                saveFields={async () => ({
+                  contentId: "42",
+                  contentType: "percFile",
+                  name: "Brief",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "Brief" }],
+                })}
+                clearBinary={clearBinary}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    {
+                      name: "item_file_attachment",
+                      label: "File",
+                      control: "sys_File",
+                    },
+                  ],
+                })}
+                loadBinaryMeta={async () => ({
+                  contentId: "42",
+                  field: "item_file_attachment",
+                  filename: "brief.pdf",
+                  contentType: "application/pdf",
+                  present: true,
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    fireEvent.click(await screen.findByTestId("editor-file-clear-item_file_attachment"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    const error = await screen.findByTestId("editor-field-error-item_file_attachment");
+    expect(error.textContent).toMatch(/not allowed to clear/i);
+    expect(error.textContent).toContain("item_file_attachment");
+    expect(screen.getByTestId("editor-form")).toBeTruthy();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+
+    clearBinary.mockRejectedValueOnce({
+      status: 400,
+      statusText: "Bad Request",
+      body: {},
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-item_file_attachment").textContent).toMatch(
+        /could not be cleared/i,
+      );
+    });
+  });
+
   it("opens the promote form without checkout", async () => {
     const checkout = vi.fn();
     render(
