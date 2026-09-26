@@ -1193,8 +1193,8 @@ public class ContentTypesResource {
         @ApiResponse(
             responseCode = "400",
             description =
-                "Invalid input (blank local field display label, or label write on"
-                    + " system/shared field)"),
+                "Invalid input (blank local field display label, label write on"
+                    + " system/shared field, or child field-set sequence)"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(
             responseCode = "404",

@@ -316,7 +316,7 @@ export type ContentTypeUpdateBody = {
   enabled?: boolean;
   fields?: Pick<
     ContentTypeFieldSummary,
-    "name" | "searchable" | "required" | "occurrence" | "label"
+    "name" | "searchable" | "required" | "occurrence" | "label" | "sequence"
   >[];
   /** Omit to leave unchanged; non-null list is a full replace. Prefer CD-08 PUT. */
   allowedWorkflows?: NamedObjectRef[];

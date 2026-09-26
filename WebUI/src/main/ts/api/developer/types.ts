@@ -70,6 +70,8 @@ export interface ContentTypeFieldSummary {
   hasOutputTranslation?: boolean;
   control?: string;
   fieldSet?: string | null;
+  /** Zero-based parent display order. Writable on PUT detail. */
+  sequence?: number;
   /** Control parameters when the content-type GET includes them (numeric min/max). */
   controlProperties?: ContentTypeControlProperty[];
 }

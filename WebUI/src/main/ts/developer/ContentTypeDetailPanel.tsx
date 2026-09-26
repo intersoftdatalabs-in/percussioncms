@@ -164,6 +164,39 @@ function contentTypeFields(detail: ContentTypeDetail | null | undefined): Conten
   return normalizeContentTypeFields(detail?.fields);
 }
 
+function parentFieldOrder(fields: ContentTypeFieldSummary[]): string[] {
+  const names: string[] = [];
+  for (const f of fields) {
+    if (f.name && !f.fieldSet) {
+      names.push(f.name);
+    }
+  }
+  return names;
+}
+
+function orderedFieldRows(
+  fields: ContentTypeFieldSummary[],
+  order: string[],
+): ContentTypeFieldSummary[] {
+  const parents = fields.filter((f) => f.name && !f.fieldSet);
+  const others = fields.filter((f) => !f.name || !!f.fieldSet);
+  const byName = new Map(parents.map((f) => [f.name as string, f]));
+  const used = new Set<string>();
+  const ordered: ContentTypeFieldSummary[] = [];
+  for (const name of order) {
+    const row = byName.get(name);
+    if (!row || used.has(name)) continue;
+    ordered.push(row);
+    used.add(name);
+  }
+  for (const row of parents) {
+    if (row.name && !used.has(row.name)) {
+      ordered.push(row);
+    }
+  }
+  return [...ordered, ...others];
+}
+
 function contentTypeChildSets(detail: ContentTypeDetail | null | undefined): string[] {
   return normalizeContentTypeStringList(detail?.childFieldSets);
 }
@@ -263,6 +296,7 @@ export function ContentTypeDetailPanel({
     null,
   );
   const [fieldDrafts, setFieldDrafts] = useState<Record<string, FieldDraft>>({});
+  const [fieldOrder, setFieldOrder] = useState<string[]>([]);
   const [workflows, setWorkflows] = useState<NamedObjectRef[]>([]);
   const [templates, setTemplates] = useState<NamedObjectRef[]>([]);
   const [newWfName, setNewWfName] = useState("");
@@ -497,6 +531,11 @@ export function ContentTypeDetailPanel({
   }, [activeKey, selectedFieldName]);
 
   const initialDrafts = toDrafts(detail?.fields);
+  const savedParentOrder = parentFieldOrder(contentTypeFields(detail));
+  const orderDirty =
+    detail != null &&
+    (savedParentOrder.length !== fieldOrder.length ||
+      savedParentOrder.some((name, i) => name !== fieldOrder[i]));
   const fieldsDirty =
     detail != null &&
     contentTypeFields(detail).some((f) => {
@@ -546,6 +585,7 @@ export function ContentTypeDetailPanel({
       enabled !== (detail.enabled !== false) ||
       searchIndexingDirty ||
       fieldsDirty ||
+      orderDirty ||
       workflowsDirty ||
       templatesDirty ||
       itemExitsDirty ||
@@ -554,7 +594,11 @@ export function ContentTypeDetailPanel({
       iconDirty);
 
   const objectGuid = resolveContentTypeObjectGuid(detail, catalogGuid);
-  const fieldRows = contentTypeFields(detail);
+  const fieldRows = orderedFieldRows(contentTypeFields(detail), fieldOrder);
+
+  useEffect(() => {
+    setFieldOrder(parentFieldOrder(contentTypeFields(detail)));
+  }, [detail]);
   const childSets = contentTypeChildSets(detail);
   const gapRows = contentTypeDesignGaps(detail).filter(
     (g) => designGapCode(g) !== "CT_SHARED_FIELD_INCLUSION",
@@ -568,6 +612,34 @@ export function ContentTypeDetailPanel({
       currentName: currentInternalName,
       nextName: nameDraft,
     });
+
+  function moveParentField(name: string, delta: number) {
+    if (!canEdit) {
+      return;
+    }
+    setFieldOrder((prev) => {
+      const index = prev.indexOf(name);
+      const nextIndex = index + delta;
+      if (index < 0 || nextIndex < 0 || nextIndex >= prev.length) {
+        return prev;
+      }
+      const next = prev.slice();
+      const [row] = next.splice(index, 1);
+      next.splice(nextIndex, 0, row);
+      return next;
+    });
+    setNotice(null);
+    setError(null);
+  }
+
+  function resetFieldOrder() {
+    if (!canEdit) {
+      return;
+    }
+    setFieldOrder(parentFieldOrder(contentTypeFields(detail)));
+    setNotice(null);
+    setError(null);
+  }
 
   function toggleField(key: string, prop: "searchable" | "required") {
     setFieldDrafts((prev) => {
@@ -1009,7 +1081,8 @@ export function ContentTypeDetailPanel({
     const bulkNeeded =
       label !== (detail.label || "") ||
       description !== (detail.description || "") ||
-      fieldsDirty;
+      fieldsDirty ||
+      orderDirty;
     if (
       !enabledDirty &&
       !searchIndexingDirty &&
@@ -1055,33 +1128,53 @@ export function ContentTypeDetailPanel({
     setNotice(null);
     let saveFallback = DEV_MSG.CT_SAVE_ERROR;
     try {
-      const fieldPatches = Object.values(fieldDrafts)
-        .filter((d) => {
-          const initial = Object.values(initialDrafts).find((i) => i.name === d.name);
-          return (
-            !initial ||
-            initial.searchable !== d.searchable ||
-            initial.required !== d.required ||
-            (d.local && initial.label !== d.label)
-          );
-        })
-        .map((d) => {
-          const initial = Object.values(initialDrafts).find((i) => i.name === d.name);
-          const patch: {
-            name: string;
-            searchable: boolean;
-            required: boolean;
-            label?: string;
-          } = {
-            name: d.name,
-            searchable: d.searchable,
-            required: d.required,
-          };
-          if (d.local && initial && initial.label !== d.label) {
-            patch.label = d.label.trim();
-          }
-          return patch;
-        });
+      const fieldPatches: Array<{
+      name: string;
+      searchable?: boolean;
+      required?: boolean;
+      label?: string;
+      sequence?: number;
+    }> = Object.values(fieldDrafts)
+      .filter((d) => {
+        const initial = Object.values(initialDrafts).find((i) => i.name === d.name);
+        return (
+          !initial ||
+          initial.searchable !== d.searchable ||
+          initial.required !== d.required ||
+          (d.local && initial.label !== d.label)
+        );
+      })
+      .map((d) => {
+        const initial = Object.values(initialDrafts).find((i) => i.name === d.name);
+        const patch: {
+          name: string;
+          searchable?: boolean;
+          required?: boolean;
+          label?: string;
+          sequence?: number;
+        } = {
+          name: d.name,
+          searchable: d.searchable,
+          required: d.required,
+        };
+        if (d.local && initial && initial.label !== d.label) {
+          patch.label = d.label.trim();
+        }
+        return patch;
+      });
+    if (orderDirty) {
+      const byName = new Map(fieldPatches.map((p) => [p.name, p]));
+      fieldOrder.forEach((name, index) => {
+        const existing = byName.get(name);
+        if (existing) {
+          existing.sequence = index;
+          return;
+        }
+        const patch = { name, sequence: index };
+        fieldPatches.push(patch);
+        byName.set(name, patch);
+      });
+    }
 
       let saved: ContentTypeDetail | null = null;
       let workflowSaved: ContentTypeDetail | undefined;
@@ -2235,6 +2328,20 @@ export function ContentTypeDetailPanel({
           <section style={{ marginBottom: "16px" }} data-testid="developer-ct-fields">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CT_FIELDS}</h3>
             <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_FIELDS_HINT}</p>
+            <button
+              type="button"
+              data-testid="developer-ct-field-order-reset"
+              aria-label={DEV_MSG.CT_FIELD_ORDER_RESET}
+              disabled={!canEdit || !orderDirty}
+              onClick={resetFieldOrder}
+              style={{
+                ...smallBtnStyle,
+                marginBottom: "8px",
+                cursor: canEdit && orderDirty ? "pointer" : "not-allowed",
+              }}
+            >
+              {DEV_MSG.CT_FIELD_ORDER_RESET}
+            </button>
             <div
               style={{
                 marginBottom: "12px",
@@ -2502,7 +2609,57 @@ export function ContentTypeDetailPanel({
                           {f.fieldSet || "—"}
                         </td>
                         <td style={{ padding: "8px" }}>
-                          {isLocal && f.name ? (
+                          {!f.fieldSet && f.name ? (
+                            <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                              <button
+                                type="button"
+                                data-testid={`developer-ct-field-up-${f.name}`}
+                                aria-label={`${DEV_MSG.CT_FIELD_MOVE_UP} ${f.name}`}
+                                disabled={
+                                  !canEdit || fieldOrder.indexOf(f.name) <= 0
+                                }
+                                onClick={() => moveParentField(f.name || "", -1)}
+                                style={{
+                                  ...smallBtnStyle,
+                                  cursor: canEdit ? "pointer" : "not-allowed",
+                                }}
+                              >
+                                {DEV_MSG.CT_FIELD_MOVE_UP}
+                              </button>
+                              <button
+                                type="button"
+                                data-testid={`developer-ct-field-down-${f.name}`}
+                                aria-label={`${DEV_MSG.CT_FIELD_MOVE_DOWN} ${f.name}`}
+                                disabled={
+                                  !canEdit ||
+                                  fieldOrder.indexOf(f.name) < 0 ||
+                                  fieldOrder.indexOf(f.name) >= fieldOrder.length - 1
+                                }
+                                onClick={() => moveParentField(f.name || "", 1)}
+                                style={{
+                                  ...smallBtnStyle,
+                                  cursor: canEdit ? "pointer" : "not-allowed",
+                                }}
+                              >
+                                {DEV_MSG.CT_FIELD_MOVE_DOWN}
+                              </button>
+                              {isLocal ? (
+                                <button
+                                  type="button"
+                                  data-testid={`developer-ct-field-delete-${f.name}`}
+                                  aria-label={`${DEV_MSG.CT_FIELD_DELETE} ${f.name}`}
+                                  disabled={!canEdit}
+                                  onClick={(ev) => requestDeleteLocalField(ev, f.name || "")}
+                                  style={{
+                                    ...smallBtnStyle,
+                                    cursor: canEdit ? "pointer" : "not-allowed",
+                                  }}
+                                >
+                                  {DEV_MSG.CT_FIELD_DELETE}
+                                </button>
+                              ) : null}
+                            </div>
+                          ) : isLocal && f.name ? (
                             <button
                               type="button"
                               data-testid={`developer-ct-field-delete-${f.name}`}

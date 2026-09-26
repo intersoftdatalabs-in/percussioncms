@@ -37,7 +37,10 @@ import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.design.objectstore.PSDisplayMapper;
+import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSField;
+import com.percussion.design.objectstore.PSUISet;
+import com.percussion.rest.contenttypes.ContentTypeDetail;
 import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.rest.contenttypes.ContentTypeDesignLockException;
 import com.percussion.rest.contenttypes.ContentTypeField;
@@ -52,6 +55,7 @@ import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import jakarta.ws.rs.WebApplicationException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -435,6 +439,95 @@ class ContentTypeAdaptorLocalFieldTest {
     when(designWs.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
         .thenReturn(List.of(def));
     when(itemDefManager.getItemDef(eq(311L), eq(PSItemDefManager.COMMUNITY_ANY))).thenReturn(def);
+  }
+
+  @Test
+  void applyParentFieldOrder_swapsParentMappingsAndLeavesOthers() {
+    PSItemDefinition def = stubDefinition();
+    ContentTypeField first = new ContentTypeField();
+    first.setName("rx_a");
+    ContentTypeField second = new ContentTypeField();
+    second.setName("rx_b");
+    ContentTypeAdaptor.addPersistableLocalField(def, first);
+    ContentTypeAdaptor.addPersistableLocalField(def, second);
+    PSDisplayMapper mapper = def.getDisplayMapper("percPage");
+    ContentTypeField moveA = new ContentTypeField();
+    moveA.setName("rx_a");
+    moveA.setSequence(1);
+    ContentTypeField moveB = new ContentTypeField();
+    moveB.setName("rx_b");
+    moveB.setSequence(0);
+    ContentTypeAdaptor.applyParentFieldOrder(def, List.of(moveA, moveB));
+    assertEquals("rx_b", ((PSDisplayMapping) mapper.get(0)).getFieldRef());
+    assertEquals("rx_a", ((PSDisplayMapping) mapper.get(1)).getFieldRef());
+    List<ContentTypeField> rows = new ArrayList<>();
+    rows.add(fieldNamed("rx_a"));
+    rows.add(fieldNamed("rx_b"));
+    ContentTypeAdaptor.assignParentFieldSequences(mapper, rows);
+    assertEquals(0, rows.get(0).getSequence());
+    assertEquals("rx_b", rows.get(0).getName());
+    assertEquals(1, rows.get(1).getSequence());
+  }
+
+  @Test
+  void applyParentFieldOrder_childSequenceIs400() {
+    PSItemDefinition def = stubDefinition();
+    ContentTypeField child = new ContentTypeField();
+    child.setName("rx_child");
+    child.setFieldSet("childset");
+    child.setSequence(0);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> ContentTypeAdaptor.applyParentFieldOrder(def, List.of(child)));
+    assertTrue(ex.getMessage().contains("Child field-set"));
+  }
+
+  @Test
+  void update_sequenceOnlySystemFieldDoesNot404() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    PSDisplayMapper mapper = def.getDisplayMapper("percPage");
+    mapper.add(new PSDisplayMapping("sys_title", new PSUISet()));
+    mapper.add(new PSDisplayMapping("rx_body", new PSUISet()));
+    stubLockedLoad(def);
+    ContentTypeField title = new ContentTypeField();
+    title.setName("sys_title");
+    title.setSequence(1);
+    ContentTypeField body = new ContentTypeField();
+    body.setName("rx_body");
+    body.setSequence(0);
+    ContentTypeDetail detail = new ContentTypeDetail();
+    detail.setFields(List.of(title, body));
+    adaptor.updateContentType(null, "311", detail);
+    assertEquals("rx_body", ((PSDisplayMapping) mapper.get(0)).getFieldRef());
+    assertEquals("sys_title", ((PSDisplayMapping) mapper.get(1)).getFieldRef());
+  }
+
+  @Test
+  void applyParentFieldOrder_duplicateSequenceIs400() {
+    PSItemDefinition def = stubDefinition();
+    ContentTypeField first = new ContentTypeField();
+    first.setName("rx_a");
+    ContentTypeField second = new ContentTypeField();
+    second.setName("rx_b");
+    ContentTypeAdaptor.addPersistableLocalField(def, first);
+    ContentTypeAdaptor.addPersistableLocalField(def, second);
+    ContentTypeField moveA = new ContentTypeField();
+    moveA.setName("rx_a");
+    moveA.setSequence(0);
+    ContentTypeField moveB = new ContentTypeField();
+    moveB.setName("rx_b");
+    moveB.setSequence(0);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ContentTypeAdaptor.applyParentFieldOrder(def, List.of(moveA, moveB)));
+  }
+
+  private static ContentTypeField fieldNamed(String name) {
+    ContentTypeField field = new ContentTypeField();
+    field.setName(name);
+    return field;
   }
 
   private PSItemDefinition stubDefinition() {
