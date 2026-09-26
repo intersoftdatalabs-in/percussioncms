@@ -37,6 +37,8 @@ import {
 } from "../../api/publishing/serversApi";
 import { fetchCurrentJobsForSite } from "../../api/publishing/statusApi";
 import { message, MSG } from "../../i18n/message";
+import { buildDeliveryServerCopy } from "../deliveryServerCopy";
+import { mapDeliveryServerCopyError } from "../deliveryServerSaveErrors";
 import { ItemPublishNowPanel } from "../components/ItemPublishNowPanel";
 import { ItemPublishingActionsMenu } from "../components/ItemPublishingActionsMenu";
 import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
@@ -269,6 +271,40 @@ export function SiteWorkspace({
     loadServers();
     setActionMessage(message(MSG.PUBLISH_SUCCESS));
     setActionState("success");
+  }
+
+  async function handleCopy(): Promise<void> {
+    if (!selectedServer) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    const requested = window.prompt(message(MSG.PUBLISH_COPY_SERVER_PROMPT));
+    if (requested == null) {
+      return;
+    }
+    if (requested.trim() === "") {
+      setActionState("error");
+      setActionMessage(message(MSG.PUBLISH_COPY_SERVER_BLANK));
+      return;
+    }
+    try {
+      const raw = await getServer(siteId, selectedServer);
+      const fromSource = buildDeliveryServerCopy(unwrapServer(raw), requested);
+      if (!fromSource.ok) {
+        setActionState("error");
+        setActionMessage(message(MSG.PUBLISH_COPY_SERVER_BLANK));
+        return;
+      }
+      await createServer(siteId, requested.trim(), fromSource.body);
+      setActionMessage(message(MSG.PUBLISH_SUCCESS));
+      setActionState("success");
+      loadServers();
+    } catch (err) {
+      setActionState("error");
+      setActionMessage(mapDeliveryServerCopyError(err));
+    }
   }
 
   async function handleDelete(): Promise<void> {
@@ -593,6 +629,15 @@ export function SiteWorkspace({
             onClick={() => void openEdit()}
           >
             {message(MSG.PUBLISH_EDIT_SERVER)}
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            disabled={!selectedServer}
+            data-testid="publish-copy-server"
+            onClick={() => void handleCopy()}
+          >
+            {message(MSG.PUBLISH_COPY_SERVER)}
           </button>
         </div>
       </div>
