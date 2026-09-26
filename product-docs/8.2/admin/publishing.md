@@ -206,7 +206,12 @@ have their own text filter). From an item row, **view** then **Open in editor** 
 for that content id (`spa.jsp?entry=editor&contentId=…&mode=edit`). HTTP **403** (not allowed)
 and **404** (item not found) stay on the log item detail as an error — they do not open a blank
 editor window and the log list stays on screen. A row with no content id has no **Open in editor**
-action.
+action. **Copy location** on an item row writes the published file location
+(or the file name when the location is blank) to the clipboard and shows
+**Location copied**. **Dismiss** clears that confirmation and does not change
+the log list or close the details. A row with neither location nor file name
+shows **No location to copy** and does not claim success. If the clipboard
+write fails, **Could not copy location** stays on the details panel.
 
 ### Filter current jobs by site (Status)
 

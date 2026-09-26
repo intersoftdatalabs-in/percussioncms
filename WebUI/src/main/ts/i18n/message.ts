@@ -187,6 +187,12 @@ export const MSG = {
     "perc.ui.publish.modern@Confirm Incremental Publish",
   PUBLISH_JOB_STARTED: "perc.ui.publish.modern@Publish Job Started",
   PUBLISH_BACK: "perc.ui.publish.modern@Back",
+  PUBLISH_COPY_LOCATION: "perc.ui.publish.modern@Copy location",
+  PUBLISH_LOCATION_COPIED: "perc.ui.publish.modern@Location copied",
+  PUBLISH_LOCATION_MISSING: "perc.ui.publish.modern@No location to copy",
+  PUBLISH_LOCATION_CLIPBOARD_FAILED:
+    "perc.ui.publish.modern@Could not copy location",
+  PUBLISH_COPY_DISMISS: "perc.ui.publish.modern@Dismiss",
   PUBLISH_EMPTY_SITES: "perc.ui.publish.modern@No Sites",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
