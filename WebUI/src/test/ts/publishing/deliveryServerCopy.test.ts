@@ -27,7 +27,7 @@ const source = {
   isDefault: true,
   properties: [
     { key: "driver", value: "FTP" },
-    { key: "folder", value: "/var/www" },
+    { key: "folder", value: "pubroot" },
     { key: "userid", value: "publish" },
     { key: "password", value: "s3cr3t" },
     { key: "securitykey", value: "sec" },
@@ -52,7 +52,7 @@ describe("buildDeliveryServerCopy", () => {
     const props = info.properties as { key: string; value: string }[];
     const map = Object.fromEntries(props.map((p) => [p.key, p.value]));
     expect(map.driver).toBe("FTP");
-    expect(map.folder).toBe("/var/www");
+    expect(map.folder).toBe("pubroot");
     expect(map.userid).toBe("publish");
     expect(map.password).toBeUndefined();
     expect(map.securitykey).toBeUndefined();
