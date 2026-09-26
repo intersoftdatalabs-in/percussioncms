@@ -118,6 +118,17 @@ async function installListing(page, listing) {
       body: JSON.stringify(listing),
     });
   });
+  // Fake content ids are not in the H2 workflow tables. Stub the menu lookup
+  // so the shell does not log a 500 while loading the multi-select toolbar.
+  await page.route("**/itemmanagement/workflow/getTransitions/**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ItemStateTransition: { transitionTriggers: [] },
+      }),
+    });
+  });
 }
 
 /**
