@@ -19,10 +19,13 @@ package com.percussion.itemmanagement.service.impl;
 import com.percussion.itemmanagement.data.PSItemEditorBinaryMeta;
 import com.percussion.share.dao.impl.PSContentItem;
 import com.percussion.util.PSPurgableTempFile;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -142,6 +145,54 @@ public final class PSItemEditorBinarySupport {
       }
     }
     return "";
+  }
+
+  /**
+   * Stored binary for a download. Empty arrays, missing files, and non-binary
+   * values are absent (not a successful empty file).
+   */
+  public static byte[] readStoredBytes(Object raw) {
+    if (raw instanceof byte[] bytes) {
+      return bytes.length == 0 ? null : Arrays.copyOf(bytes, bytes.length);
+    }
+    if (raw instanceof File file) {
+      if (!file.isFile() || file.length() == 0L) {
+        return null;
+      }
+      try {
+        byte[] data = Files.readAllBytes(file.toPath());
+        return data.length == 0 ? null : data;
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Download name. Uses the stored filename when it is non-blank; otherwise
+   * {@code field.bin}. Never returns an empty name.
+   */
+  public static String downloadFilename(String storedName, String field) {
+    if (StringUtils.isNotBlank(storedName)) {
+      return sanitizeFilename(storedName);
+    }
+    String base = StringUtils.isBlank(field) ? "download" : field.trim();
+    return base + ".bin";
+  }
+
+  /** Attachment header. Strips quotes and separators so the name stays one token. */
+  public static String contentDisposition(String filename) {
+    String raw = sanitizeFilename(filename);
+    StringBuilder safe = new StringBuilder(raw.length());
+    for (int i = 0; i < raw.length(); i++) {
+      char c = raw.charAt(i);
+      if (c == '"' || c == ';') {
+        continue;
+      }
+      safe.append(c);
+    }
+    return "attachment; filename=" + '"' + safe + '"';
   }
 
   public static boolean isPresent(Object raw) {

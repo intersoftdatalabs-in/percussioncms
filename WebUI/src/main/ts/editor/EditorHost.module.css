@@ -213,6 +213,11 @@
   font-size: 13px;
 }
 
+.fileDownload {
+  font: inherit;
+  font-size: 13px;
+}
+
 .imagePreview {
   max-width: 16rem;
   max-height: 10rem;

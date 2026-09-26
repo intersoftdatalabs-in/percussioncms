@@ -16,8 +16,10 @@
  */
 package com.percussion.itemmanagement.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -74,6 +76,14 @@ class PSItemEditorBinarySupportTest {
     assertEquals("image/png", meta.getContentType());
     assertTrue(meta.isPresent());
     assertFalse(PSItemEditorBinarySupport.isPresent(new byte[0]));
+    assertArrayEquals(new byte[] {1, 2}, PSItemEditorBinarySupport.readStoredBytes(new byte[] {1, 2}));
+    assertNull(PSItemEditorBinarySupport.readStoredBytes(new byte[0]));
+    assertEquals("hero.png", PSItemEditorBinarySupport.downloadFilename("hero.png", "img"));
+    assertEquals("img.bin", PSItemEditorBinarySupport.downloadFilename("  ", "img"));
+    assertEquals(
+        "attachment; filename=\"hero.png\"",
+        PSItemEditorBinarySupport.contentDisposition("hero.png"));
+    assertFalse(PSItemEditorBinarySupport.contentDisposition("a\"\r\n.png").contains("\r"));
   }
 
   @Test
@@ -136,6 +146,7 @@ class PSItemEditorBinarySupportTest {
       assertEquals("note.txt", item.getFields().get("item_file_attachment_filename"));
       assertEquals(".txt", item.getFields().get("item_file_attachment_ext"));
       assertEquals("text/plain", item.getFields().get("item_file_attachment_type"));
+      assertArrayEquals(data, PSItemEditorBinarySupport.readStoredBytes(temp));
     }
   }
 }

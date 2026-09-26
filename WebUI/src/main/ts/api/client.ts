@@ -400,7 +400,12 @@ export async function postText<T>(
 export async function getBinary(
   url: string,
   headers?: HeadersInit,
-): Promise<{ bytes: Uint8Array<ArrayBuffer>; contentType: string; status: number }> {
+): Promise<{
+  bytes: Uint8Array<ArrayBuffer>;
+  contentType: string;
+  contentDisposition: string;
+  status: number;
+}> {
   const response = await fetch(url, {
     method: "GET",
     headers: buildHeaders({ Accept: "*/*", ...headers }, false),
@@ -428,6 +433,10 @@ export async function getBinary(
   return {
     bytes: new Uint8Array(buf),
     contentType: response.headers.get("Content-Type") || "application/octet-stream",
+    contentDisposition:
+      response.headers.get("Content-Disposition") ||
+      response.headers.get("content-disposition") ||
+      "",
     status: response.status,
   };
 }

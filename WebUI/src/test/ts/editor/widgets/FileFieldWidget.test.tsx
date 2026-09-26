@@ -22,6 +22,7 @@ import {
   blobPreviewSrc,
   displayBinaryFileName,
   FileFieldWidget,
+  saveBinaryDownload,
 } from "../../../../main/ts/editor/widgets/FileFieldWidget";
 import { ImageFieldWidget } from "../../../../main/ts/editor/widgets/ImageFieldWidget";
 
@@ -52,6 +53,83 @@ describe("FileFieldWidget", () => {
     expect(
       (screen.getByTestId("editor-file-item_file_attachment") as HTMLInputElement).disabled,
     ).toBe(true);
+    const download = (await screen.findByTestId(
+      "editor-file-download-item_file_attachment",
+    )) as HTMLButtonElement;
+    expect(download.disabled).toBe(false);
+  });
+
+  it("names a field with no binary and does not save an empty file", async () => {
+    const downloadBinary = vi.fn();
+    render(
+      <FileFieldWidget
+        itemId="42"
+        name="img"
+        readOnly
+        loadMeta={async () => ({
+          contentId: "42",
+          field: "img",
+          filename: "",
+          contentType: "",
+          present: false,
+        })}
+        downloadBinary={downloadBinary}
+        onFile={vi.fn()}
+      />,
+    );
+    const button = await screen.findByTestId("editor-file-download-img");
+    fireEvent.click(button);
+    expect(downloadBinary).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-file-download-error-img").textContent).toContain("img");
+    expect(saveBinaryDownload(new Uint8Array(), "empty.bin")).toBe(false);
+  });
+
+  it("downloads the stored name, not an unsaved pick, and keeps 403 on the field", async () => {
+    const downloadBinary = vi.fn(async () => ({
+      filename: "stored.pdf",
+      bytes: new Uint8Array([1, 2, 3]),
+    }));
+    const onFile = vi.fn();
+    render(
+      <FileFieldWidget
+        itemId="42"
+        name="item_file_attachment"
+        readOnly={false}
+        loadMeta={async () => ({
+          contentId: "42",
+          field: "item_file_attachment",
+          filename: "stored.pdf",
+          contentType: "application/pdf",
+          present: true,
+        })}
+        downloadBinary={downloadBinary}
+        onFile={onFile}
+      />,
+    );
+    const input = (await screen.findByTestId(
+      "editor-file-item_file_attachment",
+    )) as HTMLInputElement;
+    fireEvent.change(input, {
+      target: { files: [new File(["new"], "unsaved.pdf", { type: "application/pdf" })] },
+    });
+    fireEvent.click(screen.getByTestId("editor-file-download-item_file_attachment"));
+    await waitFor(() => {
+      expect(downloadBinary).toHaveBeenCalledWith(
+        "42",
+        "item_file_attachment",
+        expect.any(String),
+      );
+    });
+    expect(downloadBinary.mock.calls[0]?.[2]).toBe("stored.pdf");
+    expect(saveBinaryDownload(new Uint8Array([9]), "stored.pdf")).toBe(true);
+
+    downloadBinary.mockRejectedValueOnce({ status: 403 });
+    fireEvent.click(screen.getByTestId("editor-file-download-item_file_attachment"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("editor-file-download-error-item_file_attachment").textContent,
+      ).toContain("item_file_attachment");
+    });
   });
 
   it("shows existing filename and reports a chosen file", async () => {

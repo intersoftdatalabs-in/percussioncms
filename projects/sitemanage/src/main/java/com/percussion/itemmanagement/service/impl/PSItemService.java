@@ -565,6 +565,75 @@ public class PSItemService implements IPSItemService {
     }
   }
 
+  /**
+   * Streams the stored binary for a file or image field. Checkout is not required
+   * (view / read-only items may download). A missing binary is HTTP 404 that names
+   * the field — not an empty body. No read assignment is HTTP 403 that names the field.
+   */
+  @GET
+  @Path("binary/{id}/{field}/content")
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  public Response downloadEditorBinary(
+      @PathParam("id") String id, @PathParam("field") String field)
+      throws PSItemServiceException {
+    try {
+      rejectIfBlank("downloadEditorBinary", "id", id);
+      String fieldName = PSItemEditorBinarySupport.requireFieldName(field);
+      String guid = PSLegacyExtensionUtils.getGUID(id);
+      try {
+        workflowHelper.getComponentSummary(guid);
+      } catch (Exception e) {
+        throw new WebApplicationException("Item not found.", Response.Status.NOT_FOUND);
+      }
+      try {
+        List<PSAssignmentTypeEnum> atypes =
+            systemService.getContentAssignmentTypes(asList(idMapper.getGuid(guid)));
+        PSAssignmentTypeEnum asmt =
+            atypes == null || atypes.isEmpty() ? PSAssignmentTypeEnum.NONE : atypes.get(0);
+        if (asmt == PSAssignmentTypeEnum.NONE) {
+          throw new WebApplicationException(
+              "Not authorized to download field " + fieldName + ".", Response.Status.FORBIDDEN);
+        }
+      } catch (WebApplicationException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new WebApplicationException(
+            "Not authorized to download field " + fieldName + ".", Response.Status.FORBIDDEN);
+      }
+      PSContentItem item = contentItemDao.find(guid, false);
+      if (item == null) {
+        throw new WebApplicationException("Item not found.", Response.Status.NOT_FOUND);
+      }
+      PSItemEditorBinaryMeta meta = PSItemEditorBinarySupport.toMeta(item, fieldName);
+      Object raw = item.getFields() == null ? null : item.getFields().get(fieldName);
+      byte[] bytes = PSItemEditorBinarySupport.readStoredBytes(raw);
+      if (bytes == null) {
+        throw new WebApplicationException(
+            "Field " + fieldName + " has no file.", Response.Status.NOT_FOUND);
+      }
+      String filename =
+          PSItemEditorBinarySupport.downloadFilename(meta.getFilename(), fieldName);
+      String type =
+          StringUtils.isBlank(meta.getContentType())
+              ? MediaType.APPLICATION_OCTET_STREAM
+              : meta.getContentType();
+      return Response.ok(bytes, type)
+          .header(
+              "Content-Disposition", PSItemEditorBinarySupport.contentDisposition(filename))
+          .build();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), Response.Status.BAD_REQUEST);
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(e);
+    } catch (PSDataServiceException e) {
+      throw new PSItemServiceException("Could not download the binary field.", e);
+    } catch (Exception e) {
+      throw new PSItemServiceException("Could not download the binary field.", e);
+    }
+  }
+
   @PUT
   @Path("binary/{id}/{field}")
   @Consumes(MediaType.MULTIPART_FORM_DATA)

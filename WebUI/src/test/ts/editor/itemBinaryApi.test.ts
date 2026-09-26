@@ -16,7 +16,12 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { unwrapBinaryMeta } from "../../../main/ts/editor/itemBinaryApi";
+import {
+  binaryContentUrl,
+  filenameFromContentDisposition,
+  resolveDownloadFilename,
+  unwrapBinaryMeta,
+} from "../../../main/ts/editor/itemBinaryApi";
 
 describe("unwrapBinaryMeta", () => {
   it("reads wrapped and flat payloads", () => {
@@ -36,5 +41,16 @@ describe("unwrapBinaryMeta", () => {
       contentType: "",
       present: true,
     });
+  });
+
+  it("prefers the stored download name and points at /content", () => {
+    expect(binaryContentUrl("42", "img")).toMatch(/\/binary\/42\/img\/content$/);
+    expect(filenameFromContentDisposition('attachment; filename="note.txt"')).toBe(
+      "note.txt",
+    );
+    expect(resolveDownloadFilename("", "stored.pdf", "item_file_attachment")).toBe(
+      "stored.pdf",
+    );
+    expect(resolveDownloadFilename("", "", "img")).toBe("img.bin");
   });
 });
