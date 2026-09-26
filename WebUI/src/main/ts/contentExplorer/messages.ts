@@ -493,6 +493,8 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Workflow transition failed",
   WORKFLOW_TRANSITION_FORBIDDEN:
     "perc.ui.explorer@You are not allowed to run this workflow transition (HTTP 403)",
+  WORKFLOW_TRANSITION_REJECTED:
+    "perc.ui.explorer@This workflow transition was rejected (HTTP 400)",
   WORKFLOW_TRANSITION_CONFLICT:
     "perc.ui.explorer@This workflow transition conflicts with the item state (HTTP 409)",
   WORKFLOW_COMMENT_REQUIRED:
