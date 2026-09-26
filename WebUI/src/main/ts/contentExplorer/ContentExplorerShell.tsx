@@ -229,6 +229,7 @@ import {
   type Selection,
 } from "./selection";
 import { isWorkflowEligibleItem } from "./workflowEligibility";
+import { copySelectedFolderPath } from "./copyFolderPath";
 import {
   isFolderIdLookupPath,
   resolveFolderPathFromSelection,
@@ -606,6 +607,11 @@ function ContentExplorerShellInner({
   const [showSiteRename, setShowSiteRename] = useState(false);
   /** Content → Subfolder Copy wizard panel (#2792 / parent #2400). */
   const [showSubfolderCopy, setShowSubfolderCopy] = useState(false);
+  const [folderPathCopyNotice, setFolderPathCopyNotice] = useState<{
+    kind: "success" | "error";
+    path: string;
+    text: string;
+  } | null>(null);
   const dismissSubfolderCopy = useCallback(() => {
     setShowSubfolderCopy(false);
   }, []);
@@ -1613,6 +1619,54 @@ function ContentExplorerShellInner({
             setShowSiteRename((v) => !v);
           }
           break;
+        case "content-copy-folder-path": {
+          const current = selectionRef.current;
+          void (async () => {
+            const result = await copySelectedFolderPath({
+              folderPath: current.folderPath,
+              itemPath: current.item?.path,
+              itemType: current.item?.type,
+              confirm: (path) =>
+                (typeof window !== "undefined" ? window.confirm : () => false)(
+                  `${message(EXPLORER_MSG.CONFIRM_COPY_FOLDER_PATH)}\n${path}`,
+                ),
+              writeClipboard: async (text) => {
+                if (
+                  typeof navigator === "undefined" ||
+                  navigator.clipboard == null
+                ) {
+                  throw new Error("clipboard");
+                }
+                await navigator.clipboard.writeText(text);
+              },
+            });
+            if (result.status === "cancelled") {
+              return;
+            }
+            if (result.status === "empty") {
+              setFolderPathCopyNotice({
+                kind: "error",
+                path: "",
+                text: message(EXPLORER_MSG.COPY_FOLDER_PATH_EMPTY),
+              });
+              return;
+            }
+            if (result.status === "failed") {
+              setFolderPathCopyNotice({
+                kind: "error",
+                path: result.path,
+                text: message(EXPLORER_MSG.COPY_FOLDER_PATH_FAILED),
+              });
+              return;
+            }
+            setFolderPathCopyNotice({
+              kind: "success",
+              path: result.path,
+              text: `${message(EXPLORER_MSG.COPY_FOLDER_PATH_SUCCESS)} ${result.path}`,
+            });
+          })();
+          break;
+        }
         case "content-subfolder-copy":
           // Only open when a folder is in context; menu item is disabled otherwise.
           if (sourceFolderPathForCopy) {
@@ -1755,6 +1809,7 @@ function ContentExplorerShellInner({
       aria-label={message(EXPLORER_MSG.TITLE)}
       data-testid="content-explorer-shell"
       data-selected-item-id={selection.item?.id != null ? String(selection.item.id) : ""}
+      data-selected-folder-path={selection.folderPath ?? ""}
       data-selected-item-kind={resolvePublishKind(selection.item)}
     >
       <header style={headerStyle}>
@@ -1782,6 +1837,17 @@ function ContentExplorerShellInner({
             onSelectFormat={setSelectedFormatKey}
             onCommand={handleMenuBarCommand}
           />
+          {folderPathCopyNotice ? (
+            <div
+              data-testid="explorer-copy-folder-path-status"
+              data-kind={folderPathCopyNotice.kind}
+              data-copied-path={folderPathCopyNotice.path}
+              role="status"
+              aria-live="polite"
+            >
+              {folderPathCopyNotice.text}
+            </div>
+          ) : null}
           <ExplorerListColumnsPanel
             folderPath={selection.folderPath}
             selectedSources={sessionColumnSources}

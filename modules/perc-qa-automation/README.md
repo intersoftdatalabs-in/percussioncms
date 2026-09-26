@@ -313,6 +313,27 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `explorer-copy-folder` (product-route Copy folder). Parent #3102.
 
+### Explorer copy the selected folder path (#4911 / parent #4530)
+
+**Content → Copy folder path** writes the CMS path of the selected folder
+(or the folder that contains the selected item) to the clipboard. Cancel and
+clipboard failure leave the selection unchanged. Distinct from Copy URL and
+from Copy folder (`POST /rest/folders/copy/folder`).
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-copy-folder-path.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-copy-folder-path.js`, `tests/unit/explorer-copy-folder-path.test.js` |
+| Tags | `@explorer-copy-folder-path` `@explorer` `@folder` `@smoke` |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-copy-folder-path.spec.js
+```
+
 ### Explorer Copy selected folder on product route (#3647 / parent #3102)
 
 H2 operator proof that **Copy** of a selected disposable folder on
