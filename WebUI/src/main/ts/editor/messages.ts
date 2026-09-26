@@ -107,6 +107,12 @@ export const EDITOR_MSG = {
     "perc.ui.editor@You are not allowed to upload an image for this item.",
   IMAGE_TOO_LARGE: "perc.ui.editor@That image is too large to upload.",
   IMAGE_BAD_REQUEST: "perc.ui.editor@That image could not be uploaded.",
+  FILE_DOWNLOAD: "perc.ui.editor@Download",
+  FILE_DOWNLOAD_EMPTY: "perc.ui.editor@This field has no file to download.",
+  FILE_DOWNLOAD_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to download this field.",
+  FILE_DOWNLOAD_NOT_FOUND: "perc.ui.editor@This field was not found.",
+  FILE_DOWNLOAD_FAILED: "perc.ui.editor@Could not download this field.",
   KEYWORD_EMPTY: "perc.ui.editor@Select a keyword",
   COMMUNITY_EMPTY: "perc.ui.editor@Select a community",
   BADGE_PROMOTE: "perc.ui.editor@Promote",

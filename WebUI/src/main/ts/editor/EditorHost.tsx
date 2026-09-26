@@ -194,7 +194,7 @@ import {
   saveItemEditorFields,
   type ItemEditorFields,
 } from "./itemFieldsApi";
-import { uploadItemEditorBinary } from "./itemBinaryApi";
+import { downloadItemEditorBinary, uploadItemEditorBinary } from "./itemBinaryApi";
 import styles from "./EditorHost.module.css";
 import { normalizeEditorMode, type EditorHostMode } from "./editorHostUrl";
 import { EditorRelatedContentPanel } from "./EditorRelatedContentPanel";
@@ -247,6 +247,12 @@ export interface EditorHostProps {
   loadKeywords?: () => Promise<KeywordSummary[]>;
   loadCommunities?: () => Promise<CommunitySummary[]>;
   loadBinaryMeta?: (itemId: string, field: string) => Promise<ItemEditorBinaryMeta>;
+  /** Test seam: stored binary GET ({@code binary/{id}/{field}/content}). */
+  downloadBinary?: (
+    itemId: string,
+    field: string,
+    storedName: string,
+  ) => Promise<{ filename: string; bytes: Uint8Array<ArrayBuffer> }>;
   /** Test seam: allowed transitions ({@code getTransitions}). */
   loadTransitions?: (itemId: string) => Promise<ItemStateTransition>;
   /** Test seam: content-type workflow catalog ({@code allowedWorkflows}). */
@@ -377,6 +383,7 @@ function EditorFieldControl({
   loadKeywords,
   loadCommunities,
   loadBinaryMeta,
+  downloadBinary,
 }: {
   row: EditorFieldRow;
   itemId: string;
@@ -387,6 +394,12 @@ function EditorFieldControl({
   loadKeywords?: () => Promise<KeywordSummary[]>;
   loadCommunities?: () => Promise<CommunitySummary[]>;
   loadBinaryMeta?: (itemId: string, field: string) => Promise<ItemEditorBinaryMeta>;
+  /** Test seam: stored binary GET ({@code binary/{id}/{field}/content}). */
+  downloadBinary?: (
+    itemId: string,
+    field: string,
+    storedName: string,
+  ) => Promise<{ filename: string; bytes: Uint8Array<ArrayBuffer> }>;
 }): React.ReactElement {
   if (row.kind === "html") {
     return (
@@ -405,6 +418,7 @@ function EditorFieldControl({
         name={row.name}
         readOnly={locked}
         loadMeta={loadBinaryMeta}
+        downloadBinary={downloadBinary}
         onFile={(file) => onFile(row.name, file)}
       />
     );
@@ -416,6 +430,7 @@ function EditorFieldControl({
         name={row.name}
         readOnly={locked}
         loadMeta={loadBinaryMeta}
+        downloadBinary={downloadBinary}
         onFile={(file) => onFile(row.name, file)}
       />
     );
@@ -552,6 +567,7 @@ export function EditorHost({
   loadKeywords,
   loadCommunities,
   loadBinaryMeta,
+  downloadBinary = downloadItemEditorBinary,
   loadTransitions = getItemWorkflowTransitions,
   loadWorkflowChoices = getItemWorkflowChoices,
   changeWorkflow = changeItemWorkflow,
@@ -3482,6 +3498,7 @@ export function EditorHost({
                       loadKeywords={loadKeywords}
                       loadCommunities={loadCommunities}
                       loadBinaryMeta={loadBinaryMeta}
+                      downloadBinary={downloadBinary}
                     />
                     {fieldErrors[row.name] ? (
                       <span

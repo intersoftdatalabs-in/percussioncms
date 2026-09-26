@@ -18,7 +18,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { message } from "../../i18n/message";
 import {
+  downloadItemEditorBinary,
   fetchItemEditorBinary,
+  type ItemEditorBinaryDownload,
   type ItemEditorBinaryMeta,
 } from "../itemBinaryApi";
 import { EDITOR_MSG } from "../messages";
@@ -42,6 +44,56 @@ export function blobPreviewSrc(url: string | null | undefined): string {
   return value.startsWith("blob:") ? value : "";
 }
 
+/**
+ * Starts a browser download of stored bytes. Empty payloads return false and
+ * do not create a file (a missing binary is an error, not a blank download).
+ */
+export function saveBinaryDownload(
+  bytes: Uint8Array<ArrayBuffer> | null | undefined,
+  filename: string,
+): boolean {
+  if (!bytes || bytes.length === 0 || typeof document === "undefined") {
+    return false;
+  }
+  const name = displayBinaryFileName(filename).trim() || "download.bin";
+  const blob = new Blob([bytes]);
+  let href = "";
+  let objectUrl: string | null = null;
+  if (typeof URL !== "undefined" && typeof URL.createObjectURL === "function") {
+    objectUrl = URL.createObjectURL(blob);
+    href = objectUrl;
+  }
+  if (!href) {
+    return false;
+  }
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = name;
+  a.rel = "noopener";
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  if (objectUrl && typeof URL.revokeObjectURL === "function") {
+    const toRevoke = objectUrl;
+    globalThis.setTimeout(() => {
+      URL.revokeObjectURL(toRevoke);
+    }, 1000);
+  }
+  return true;
+}
+
+function downloadErrorMessage(field: string, status: number | undefined): string {
+  const named = ` (${field})`;
+  if (status === 403) {
+    return message(EDITOR_MSG.FILE_DOWNLOAD_FORBIDDEN) + named;
+  }
+  if (status === 404) {
+    return message(EDITOR_MSG.FILE_DOWNLOAD_NOT_FOUND) + named;
+  }
+  return message(EDITOR_MSG.FILE_DOWNLOAD_FAILED) + named;
+}
+
 export interface FileFieldWidgetProps {
   itemId: string;
   name: string;
@@ -49,6 +101,12 @@ export interface FileFieldWidgetProps {
   accept?: string;
   preview?: boolean;
   loadMeta?: (itemId: string, field: string) => Promise<ItemEditorBinaryMeta>;
+  /** Stored bytes only. Must not return an unsaved local pick. */
+  downloadBinary?: (
+    itemId: string,
+    field: string,
+    storedName: string,
+  ) => Promise<ItemEditorBinaryDownload>;
   onFile: (file: File | null) => void;
 }
 
@@ -59,9 +117,14 @@ export function FileFieldWidget({
   accept,
   preview = false,
   loadMeta = fetchItemEditorBinary,
+  downloadBinary = downloadItemEditorBinary,
   onFile,
 }: FileFieldWidgetProps): React.ReactElement {
   const [filename, setFilename] = useState("");
+  const [storedName, setStoredName] = useState("");
+  const [present, setPresent] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [downloadError, setDownloadError] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const nameEl = useRef<HTMLSpanElement>(null);
 
@@ -71,11 +134,17 @@ export function FileFieldWidget({
       .then((meta) => {
         if (!cancelled) {
           setFilename(displayBinaryFileName(meta.filename));
+          setStoredName(displayBinaryFileName(meta.filename));
+          setPresent(Boolean(meta.present));
+          setReady(true);
         }
       })
       .catch(() => {
         if (!cancelled) {
           setFilename("");
+          setStoredName("");
+          setPresent(false);
+          setReady(true);
         }
       });
     return () => {
@@ -151,6 +220,44 @@ export function FileFieldWidget({
           src={blobPreviewSrc(previewUrl)} // codeql[js/xss-through-dom]
           alt=""
         />
+      ) : null}
+      <button
+        type="button"
+        className={styles.fileDownload}
+        data-testid={`editor-file-download-${name}`}
+        disabled={!ready}
+        aria-label={message(EDITOR_MSG.FILE_DOWNLOAD)}
+        onClick={() => {
+          setDownloadError("");
+          if (!present) {
+            setDownloadError(
+              `${message(EDITOR_MSG.FILE_DOWNLOAD_EMPTY)} (${name})`,
+            );
+            return;
+          }
+          void downloadBinary(itemId, name, storedName)
+            .then((result) => {
+              if (!saveBinaryDownload(result.bytes, result.filename || filename)) {
+                setDownloadError(
+                  `${message(EDITOR_MSG.FILE_DOWNLOAD_EMPTY)} (${name})`,
+                );
+              }
+            })
+            .catch((err: { status?: number }) => {
+              setDownloadError(downloadErrorMessage(name, err?.status));
+            });
+        }}
+      >
+        {message(EDITOR_MSG.FILE_DOWNLOAD)}
+      </button>
+      {downloadError ? (
+        <span
+          className={styles.fieldError}
+          role="alert"
+          data-testid={`editor-file-download-error-${name}`}
+        >
+          {downloadError}
+        </span>
       ) : null}
     </div>
   );

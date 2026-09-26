@@ -18,6 +18,7 @@
 import { getCsrfToken } from "../api/csrf";
 import {
   get,
+  getBinary,
   SessionRedirectError,
   type ApiError,
 } from "../api/client";
@@ -56,6 +57,72 @@ export function unwrapBinaryMeta(payload: unknown): ItemEditorBinaryMeta {
 
 export function binaryFieldUrl(itemId: string, field: string): string {
   return `${PATHS.ITEM_EDITOR_BINARY}/${encodeURIComponent(itemId)}/${encodeURIComponent(field)}`;
+}
+
+/** GET stored bytes. Distinct from metadata {@link binaryFieldUrl}. */
+export function binaryContentUrl(itemId: string, field: string): string {
+  return `${binaryFieldUrl(itemId, field)}/content`;
+}
+
+/** Filename token from Content-Disposition. Prefers {@code filename=}. */
+export function filenameFromContentDisposition(header: string): string {
+  const value = String(header ?? "");
+  const starred = /filename\*\s*=\s*[^']*''([^;]+)/i.exec(value);
+  if (starred?.[1]) {
+    try {
+      return decodeURIComponent(starred[1].trim().replace(/^"|"$/g, ""));
+    } catch {
+      return starred[1].trim().replace(/^"|"$/g, "");
+    }
+  }
+  const plain = /filename\s*=\s*("?)([^";]+)\1/i.exec(value);
+  return plain?.[2] ? plain[2].trim() : "";
+}
+
+/**
+ * Stored name when the server sent one; otherwise {@code field.bin}.
+ * Never returns a blank name.
+ */
+export function resolveDownloadFilename(
+  disposition: string,
+  storedName: string,
+  field: string,
+): string {
+  const fromHeader = filenameFromContentDisposition(disposition).trim();
+  if (fromHeader) {
+    return fromHeader;
+  }
+  const stored = String(storedName ?? "").trim();
+  if (stored) {
+    return stored;
+  }
+  const safeField = String(field ?? "").trim() || "download";
+  return `${safeField}.bin`;
+}
+
+export interface ItemEditorBinaryDownload {
+  filename: string;
+  bytes: Uint8Array<ArrayBuffer>;
+}
+
+/**
+ * Downloads the stored binary (not an unsaved local pick). HTTP errors are
+ * thrown as {@link ApiError} so the field can show 403/404.
+ */
+export async function downloadItemEditorBinary(
+  itemId: string,
+  field: string,
+  storedName = "",
+): Promise<ItemEditorBinaryDownload> {
+  const payload = await getBinary(binaryContentUrl(itemId, field));
+  return {
+    filename: resolveDownloadFilename(
+      payload.contentDisposition,
+      storedName,
+      field,
+    ),
+    bytes: payload.bytes,
+  };
 }
 
 export async function fetchItemEditorBinary(
