@@ -42,6 +42,19 @@ class PSSitePublishJobDetailFieldsTest {
   }
 
   @Test
+  void publishKindFromEditionName() {
+    assertNull(PSSitePublishJobDetailFields.publishKindOrNull(null));
+    assertNull(PSSitePublishJobDetailFields.publishKindOrNull(" "));
+    assertEquals(
+        "incremental",
+        PSSitePublishJobDetailFields.publishKindOrNull("Production_INCREMENTAL"));
+    assertEquals(
+        "incremental",
+        PSSitePublishJobDetailFields.publishKindOrNull("Staging_STAGING_INCREMENTAL"));
+    assertEquals("full", PSSitePublishJobDetailFields.publishKindOrNull("Production_PUBLISH"));
+  }
+
+  @Test
   void errorTextOnlyWhenFailedAndMessagePresent() {
     assertEquals(
         "disk full",

@@ -16,9 +16,20 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  incrementalPublishSite,
+  publishSite,
+} from "../../api/publishing/publishApi";
 import { stopPublishing } from "../../api/publishing/serversApi";
 import { fetchCurrentJobs } from "../../api/publishing/statusApi";
 import { message, MSG } from "../../i18n/message";
+import {
+  isJobRetryable,
+  jobRetryKind,
+  jobServerName,
+  mapJobRetryError,
+  mapJobRetryResponse,
+} from "../jobRetry";
 import { isJobStoppable, mapJobStopError } from "../jobStop";
 import { formatProgressLabel } from "../progressUtils";
 import {
@@ -137,6 +148,32 @@ export function StatusSection({
     }
   }
 
+  async function onRetry(job: PublishingJob): Promise<void> {
+    if (!isJobRetryable(job)) {
+      return;
+    }
+    if (!window.confirm(message(MSG.PUBLISH_CONFIRM_RETRY))) {
+      return;
+    }
+    const site = String(job.siteName ?? "").trim();
+    const server = jobServerName(job);
+    try {
+      const started =
+        jobRetryKind(job) === "incremental"
+          ? await incrementalPublishSite(site, server)
+          : await publishSite(site, server);
+      const failure = mapJobRetryResponse(started);
+      if (failure) {
+        setError(failure);
+        return;
+      }
+      setError(null);
+      load();
+    } catch (err) {
+      setError(mapJobRetryError(err));
+    }
+  }
+
   function sortTh(
     key: StatusSortKey,
     label: string,
@@ -207,6 +244,7 @@ export function StatusSection({
               {sortTh("siteName", message(MSG.PUBLISH_SECTION_SITES))}
               {sortTh("status", message(MSG.PUBLISH_SECTION_STATUS))}
               {sortTh("completedItems", message(MSG.PUBLISH_FULL))}
+              <th style={thStyle}>{message(MSG.PUBLISH_RETRY)}</th>
               <th style={thStyle}>{message(MSG.PUBLISH_STOP)}</th>
             </tr>
           </thead>
@@ -215,6 +253,7 @@ export function StatusSection({
               const id = job.jobId ?? "";
               const idText = String(id);
               const stoppable = isJobStoppable(job);
+              const retryable = isJobRetryable(job);
               return (
                 <tr key={idText || String(job.siteName ?? "")}>
                   <td style={tdStyle}>
@@ -238,6 +277,23 @@ export function StatusSection({
                   <td style={tdStyle}>{job.status ?? ""}</td>
                   <td style={tdStyle}>
                     {formatProgressLabel(job.completedItems, job.totalItems)}
+                  </td>
+                  <td style={tdStyle}>
+                    {retryable ? (
+                      <button
+                        type="button"
+                        style={buttonStyle}
+                        data-testid={`publish-retry-job-${idText}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          void onRetry(job);
+                        }}
+                      >
+                        {message(MSG.PUBLISH_RETRY)}
+                      </button>
+                    ) : (
+                      "—"
+                    )}
                   </td>
                   <td style={tdStyle}>
                     {stoppable ? (
