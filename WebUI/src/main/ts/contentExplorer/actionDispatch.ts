@@ -1539,6 +1539,9 @@ export async function dispatchAction(
       }
     } catch (err: unknown) {
       if (isApiError(err)) {
+        if (err.status === 400) {
+          return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_REJECTED };
+        }
         if (err.status === 403) {
           return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_FORBIDDEN };
         }

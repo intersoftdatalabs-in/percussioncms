@@ -2154,6 +2154,17 @@ describe("actionDispatch", () => {
     expect(runWorkflow).toHaveBeenCalledWith("42", "Submit", undefined);
   });
 
+  it("comment-required workflow cancel writes nothing (#4909)", async () => {
+    const runWorkflow = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "workflow-transition:Reject", commentRequired: true }),
+      { item: item(), runWorkflow, promptWorkflowComment: () => null },
+    );
+    expect(result.messageKey).toBe(EXPLORER_MSG.WORKFLOW_COMMENT_REQUIRED);
+    expect(result.refresh).toBeUndefined();
+    expect(runWorkflow).not.toHaveBeenCalled();
+  });
+
   it("comment-required workflow transition blocks a blank comment (#4723)", async () => {
     const runWorkflow = vi.fn();
     const result = await dispatchAction(
@@ -2265,6 +2276,21 @@ describe("actionDispatch", () => {
     expect(runWorkflow).not.toHaveBeenCalled();
     expect(result.refresh).toBeUndefined();
     expect(result.messageText).toMatch(/Folders are not transitioned/i);
+  });
+
+  it("maps workflow transition HTTP 400 without refresh (#4909)", async () => {
+    const rejected = await dispatchAction(
+      action({ name: "workflow-transition:Reject", commentRequired: true }),
+      {
+        item: item(),
+        promptWorkflowComment: () => "needs work",
+        runWorkflow: async () => {
+          throw Object.assign(new Error("bad comment"), { status: 400 });
+        },
+      },
+    );
+    expect(rejected.messageKey).toBe(EXPLORER_MSG.WORKFLOW_TRANSITION_REJECTED);
+    expect(rejected.refresh).toBeUndefined();
   });
 
   it("maps workflow transition HTTP 403 and 409 (#4723)", async () => {

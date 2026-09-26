@@ -723,17 +723,49 @@ test.describe("modern React Content Explorer - workflow transitions (#3668 / #36
       ).toContainText("comment is required", { timeout: 10_000 });
 
       requireComment = false;
+      let transitionStatus = 403;
+      const transitionUrls = [];
       await page.route("**/workflow/transitionWithComments/**", async (route) => {
+        transitionUrls.push(route.request().url());
         await route.fulfill({
-          status: 403,
+          status: transitionStatus,
           contentType: "application/json",
-          body: JSON.stringify({ message: "not allowed" }),
+          body: JSON.stringify(
+            transitionStatus === 200
+              ? { ItemTransitionResults: { itemId: listed.id || "1" } }
+              : { message: "rejected" },
+          ),
         });
       });
+      const rowTestId = await pageRow.getAttribute("data-testid");
       await transitionBtn.click({ force: true });
       await expect(
         page.locator('[data-testid="explorer-server-actions-error"]'),
       ).toContainText("HTTP 403", { timeout: 10_000 });
+      await expect(page.locator(`[data-testid="${rowTestId}"]`)).toHaveAttribute(
+        "data-selected",
+        "true",
+      );
+
+      transitionStatus = 400;
+      await transitionBtn.click({ force: true });
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toContainText("HTTP 400", { timeout: 10_000 });
+      await expect(page.locator(`[data-testid="${rowTestId}"]`)).toHaveAttribute(
+        "data-selected",
+        "true",
+      );
+
+      transitionStatus = 200;
+      await transitionBtn.click({ force: true });
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toHaveCount(0, { timeout: 10_000 });
+      expect(
+        transitionUrls.some((url) => /comment=/i.test(url)),
+        transitionUrls.join(" | "),
+      ).toBe(true);
       expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
     },
   );
