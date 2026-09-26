@@ -539,6 +539,21 @@ an alert and is not reported as if the whole selection was purged. A selection
 that is only folders purges nothing. This is not **Empty recycle bin** and not
 **Recycle selected**.
 
+### Restore selected pages, assets, and folders from Recycling
+
+**Content → Restore selected** (and the reduced-actions **Restore** button when
+two or more Recycling rows are checked) asks once, then restores each checked
+**page, asset, or folder** with `PUT /rest/folders/recycle/restore/{guid}` — the
+same call as single-item **Restore**. Each item returns to its original folder.
+**Cancel** restores nothing.
+
+Items that already restored stay restored when a later item fails. The result is
+full success only when every checked row was restored. HTTP **403**, **404**, or
+**409** on one item is named on the result (the item name plus the permission,
+not-found, or name-in-use message) and is not reported as if the whole selection
+was restored. A row with no recycled GUID is named as not found and is not a
+successful restore. This is not **Purge selected** and not **Empty recycle bin**.
+
 ## Views → My Content → Inbox
 
 Desktop Content Explorer **Inbox** is **not** a separate Content Explorer root and is **not**

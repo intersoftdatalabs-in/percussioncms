@@ -2392,6 +2392,157 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(purgeUrls).toEqual([]);
   });
 
+  it("restores checked recycling pages and folders and names a partial failure (#4884)", async () => {
+    const restoreUrls: string[] = [];
+    mockFetch(async (input, init) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      const method = String(init?.method ?? "GET").toUpperCase();
+      if (method === "PUT" && url.includes("/folders/recycle/restore/")) {
+        restoreUrls.push(url);
+        if (url.includes("guid-miss")) {
+          return new Response("{}", {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        return new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "fold-1",
+                  name: "News",
+                  path: "/Recycling/News/",
+                  type: "folder",
+                  category: "folder",
+                  leaf: false,
+                },
+                {
+                  id: "guid-ok",
+                  name: "OkPage",
+                  path: "/Recycling/OkPage",
+                  type: "percPage",
+                  category: "page",
+                  leaf: true,
+                },
+                {
+                  id: "guid-miss",
+                  name: "Missing",
+                  path: "/Recycling/Missing",
+                  type: "percPage",
+                  category: "page",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 3,
+              startIndex: 0,
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Recycling"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-select-fold-1")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-select-fold-1"));
+    fireEvent.click(screen.getByTestId("detail-select-guid-ok"));
+    fireEvent.click(screen.getByTestId("detail-select-guid-miss"));
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
+    fireEvent.click(screen.getByTestId("explorer-multi-restore"));
+    fireEvent.click(await screen.findByTestId("explorer-restore-ok"));
+
+    const result = await screen.findByTestId("explorer-multi-restore-result");
+    expect(result.getAttribute("data-outcome")).toBe("partial");
+    expect(result.getAttribute("role")).toBe("alert");
+    expect(result.textContent).toContain("Missing");
+    expect(result.textContent).not.toContain("Restored 3 item(s)");
+    expect(restoreUrls.some((url) => url.includes("fold-1"))).toBe(true);
+    expect(restoreUrls.some((url) => url.includes("guid-ok"))).toBe(true);
+    expect(restoreUrls.some((url) => url.includes("guid-miss"))).toBe(true);
+    await renderA11yGate(container);
+  });
+
+  it("cancel on multi-select restore sends no restore requests (#4884)", async () => {
+    const restoreUrls: string[] = [];
+    mockFetch(async (input, init) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      const method = String(init?.method ?? "GET").toUpperCase();
+      if (method === "PUT" && url.includes("/folders/recycle/restore/")) {
+        restoreUrls.push(url);
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "guid-a",
+                  name: "Alpha",
+                  path: "/Recycling/Alpha",
+                  type: "percPage",
+                  category: "page",
+                  leaf: true,
+                },
+                {
+                  id: "guid-b",
+                  name: "Beta",
+                  path: "/Recycling/Beta",
+                  type: "percPage",
+                  category: "page",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 2,
+              startIndex: 0,
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Recycling"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-select-guid-a")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-select-guid-a"));
+    fireEvent.click(screen.getByTestId("detail-select-guid-b"));
+    fireEvent.click(screen.getByTestId("action-restore"));
+    fireEvent.click(await screen.findByTestId("explorer-restore-cancel"));
+    expect(screen.queryByTestId("explorer-multi-restore-result")).toBeNull();
+    expect(restoreUrls).toEqual([]);
+  });
+
   it("translations toggle shows select-item hint without a content selection (#2430)", async () => {
     stubPathFetch();
     renderShell(
