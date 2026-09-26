@@ -1,0 +1,44 @@
+<!--
+Copyright (c) 2026 Intersoft Data Labs, Inc.
+Licensed under the Apache License, Version 2.0.
+-->
+
+# Pre-push local code review — PR #4923
+
+## Summary
+
+Machine analysis found **1** finding(s), **0** bug(s).
+
+## Scope
+
+- Base: origin/main
+- Head: HEAD
+- Files: 21 analyzed
+- In-diff: 0 finding(s); preexisting: 1
+- Persona: erlang 0.1.1
+- Persona source: /home/nate/.local/share/mkd/agents/erlang
+
+## Recommendation
+
+approve
+
+## Gate
+
+- Blocking bugs: 0
+- May commit/push: yes
+
+## Issues
+
+### Issue 1 -- Severity: bug
+
+- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemWorkflowService.java:969 (preexisting)
+- Rule: `paths.hardcoded_sep`
+- Tool: `paths.hardcoded_sep`
+- Pattern-id: paths.hardcoded-sep
+- Description: Possible non-portable path construction (line 969)
+- Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
+- Status: open
+
+## Erlang note
+
+In-diff gate is clean. The line 969 `/` prefix is a preexisting folder-path URL, not a filesystem join introduced by this PR, and does not block. Checkout-owner lookup returns another user's lock as HTTP 200, empty owner when not checked out, and does not call check-out. Behavioral tests cover the adaptor, `CheckoutOwnerInfo`, the resource, and the Explorer panel.
