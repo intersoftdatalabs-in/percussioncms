@@ -145,7 +145,17 @@ On the same **Navigation sections** panel (traditional site, managed navigation 
 4. Reload **Site detail**. The list shows the new name.
 5. An empty, invalid, or duplicate name stays on the panel and does not post. **400** and **403** stay on the panel; the previous name remains until a successful rename and reload.
 
-Sites with managed navigation turned off, and Virtual Sites, stay **read-only** in this section (no add or rename). Reorder and delete stay in **Navigation**, not this catalog. Full site publish stays outside this catalog.
+### Delete a navigation section
+
+On the same **Navigation sections** panel (traditional site, managed navigation on):
+
+1. Choose a section in **Section to delete**. The site root, external links, and section links are not offered. Deleting the site itself stays on **Delete** for the site, not here.
+2. Choose **Cancel** to leave the section in place. Cancel does not call delete.
+3. Choose **Confirm**. The catalog calls `DELETE /sitemanage/section/{id}` for that section only.
+4. Reload **Site detail**. The deleted section is no longer listed. Other sections remain.
+5. **403** (not Admin) and **409** (the section is still referenced) stay on the panel. The section remains in the list.
+
+Sites with managed navigation turned off, and Virtual Sites, stay **read-only** in this section (no add, rename, or delete). Reorder stays in **Navigation**, not this catalog. Full site publish stays outside this catalog.
 
 ### Configure Virtual Site source in the product UI
 

@@ -22,6 +22,7 @@ import {
   buildDeveloperRenameProperties,
   isDeveloperNavSectionReadOnly,
   isDeveloperSectionNameTaken,
+  listDeveloperDeleteTargets,
   listDeveloperNavParents,
   listDeveloperRenameTargets,
   listDeveloperSectionTitles,
@@ -101,6 +102,11 @@ describe("siteNavSection", () => {
     expect(targets.map((t) => t.id)).toEqual(["root", "child"]);
     expect(targets[0].siteRoot).toBe(true);
     expect(targets[1].siteRoot).toBe(false);
+  });
+
+  it("lists delete targets without the site root or links", () => {
+    expect(listDeveloperDeleteTargets(root).map((t) => t.id)).toEqual(["child"]);
+    expect(listDeveloperDeleteTargets(null)).toEqual([]);
   });
 
   it("treats another section title as taken and keeps the current section free", () => {

@@ -19,6 +19,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { isApiError, isSessionRedirectError } from "../api/client";
 import {
   createSiteSection,
+  deleteSiteSection,
   loadSection,
   loadSectionProperties,
   loadSectionTree,
@@ -35,6 +36,7 @@ import {
   buildDeveloperRenameProperties,
   isDeveloperNavSectionReadOnly,
   isDeveloperSectionNameTaken,
+  listDeveloperDeleteTargets,
   listDeveloperNavParents,
   listDeveloperRenameTargets,
   listDeveloperSectionTitles,
@@ -52,8 +54,8 @@ const inputStyle: React.CSSProperties = {
 };
 
 /**
- * Add or rename one navigation section on a Developer site.
- * Cancel does not post. Reorder, delete, and reparent are not offered.
+ * Add, rename, or delete one navigation section on a Developer site.
+ * Cancel does not write. Reorder and reparent are not offered. The site root is not deleted.
  */
 export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement {
   const siteName = (site.name || "").trim();
@@ -74,13 +76,19 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
   const [renameError, setRenameError] = useState<string | null>(null);
   const [renameNotice, setRenameNotice] = useState<string | null>(null);
   const [renameBusy, setRenameBusy] = useState(false);
+  const [deleteId, setDeleteId] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
   const renameTargets = listDeveloperRenameTargets(treeRoot);
+  const deleteTargets = listDeveloperDeleteTargets(treeRoot);
 
   const applyTree = useCallback(
     (root: NavTreeNode | null) => {
       const nextParents = listDeveloperNavParents(root, siteName);
       const nextTargets = listDeveloperRenameTargets(root);
+      const nextDeletes = listDeveloperDeleteTargets(root);
       setTreeRoot(root);
       setTitles(listDeveloperSectionTitles(root));
       setParents(nextParents);
@@ -93,6 +101,9 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
         setRenameName(next?.title ?? "");
         return next?.id ?? "";
       });
+      setDeleteId((current) =>
+        nextDeletes.some((t) => t.id === current) ? current : (nextDeletes[0]?.id ?? ""),
+      );
     },
     [siteName],
   );
@@ -104,6 +115,7 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
       setParents([]);
       setRenameId("");
       setRenameName("");
+      setDeleteId("");
       return;
     }
     let cancelled = false;
@@ -187,6 +199,47 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
         setRenameError(panelErrMsg(err, DEV_MSG.SITE_NAV_RENAME_ERROR));
       } finally {
         setRenameBusy(false);
+      }
+    })();
+  };
+
+  const onSelectDelete = (id: string) => {
+    setDeleteId(id);
+    setDeleteError(null);
+    setDeleteNotice(null);
+  };
+
+  const onDeleteCancel = () => {
+    setDeleteError(null);
+    setDeleteNotice(null);
+  };
+
+  const onDeleteConfirm = () => {
+    setDeleteError(null);
+    setDeleteNotice(null);
+    if (!deleteId) {
+      setDeleteError(DEV_MSG.SITE_NAV_DELETE_ERROR);
+      return;
+    }
+    setDeleteBusy(true);
+    void (async () => {
+      try {
+        await deleteSiteSection(deleteId);
+        setDeleteNotice(DEV_MSG.SITE_NAV_DELETED);
+        setReloadToken((n) => n + 1);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        if (isApiError(err) && err.status === 403) {
+          setDeleteError(panelErrMsg(err, DEV_MSG.SITE_NAV_DELETE_FORBIDDEN));
+          return;
+        }
+        if (isApiError(err) && err.status === 409) {
+          setDeleteError(panelErrMsg(err, DEV_MSG.SITE_NAV_DELETE_CONFLICT));
+          return;
+        }
+        setDeleteError(panelErrMsg(err, DEV_MSG.SITE_NAV_DELETE_ERROR));
+      } finally {
+        setDeleteBusy(false);
       }
     })();
   };
@@ -378,6 +431,53 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
             ) : null}
             {renameNotice ? (
               <div data-testid="developer-site-nav-rename-notice">{renameNotice}</div>
+            ) : null}
+          </div>
+          <div
+            data-testid="developer-site-nav-delete"
+            style={{ display: "grid", gap: "8px", maxWidth: "420px", marginTop: "16px" }}
+          >
+            <label>
+              {DEV_MSG.SITE_NAV_DELETE_TARGET}
+              <select
+                data-testid="developer-site-nav-delete-target"
+                value={deleteId}
+                onChange={(e) => onSelectDelete(e.target.value)}
+                style={inputStyle}
+                disabled={deleteBusy || deleteTargets.length === 0}
+              >
+                {deleteTargets.map((target) => (
+                  <option key={target.id} value={target.id}>
+                    {target.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                type="button"
+                data-testid="developer-site-nav-delete-confirm"
+                disabled={deleteBusy || deleteTargets.length === 0}
+                onClick={onDeleteConfirm}
+              >
+                {deleteBusy ? DEV_MSG.SITE_NAV_DELETING : DEV_MSG.SITE_NAV_DELETE_CONFIRM}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-site-nav-delete-cancel"
+                disabled={deleteBusy}
+                onClick={onDeleteCancel}
+              >
+                {DEV_MSG.SITE_NAV_CANCEL}
+              </button>
+            </div>
+            {deleteError ? (
+              <div data-testid="developer-site-nav-delete-error" role="alert">
+                {deleteError}
+              </div>
+            ) : null}
+            {deleteNotice ? (
+              <div data-testid="developer-site-nav-delete-notice">{deleteNotice}</div>
             ) : null}
           </div>
         </>

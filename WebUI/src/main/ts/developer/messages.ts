@@ -2257,10 +2257,10 @@ export const DEV_MSG_KEYS = {
   SITE_GAP_WRITE:
     "perc.ui.developer@Site create, update, and delete are available from this Developer catalog",
   SITE_GAP_PUBLISH:
-    "perc.ui.developer@Full site publish, and navigation section reorder and delete, live outside the Developer catalog",
+    "perc.ui.developer@Full site publish and navigation section reorder live outside the Developer catalog",
   SITE_NAV_TITLE: "perc.ui.developer@Navigation sections",
   SITE_NAV_HINT:
-    "perc.ui.developer@Add a section under a parent, or rename an existing section. Reorder and delete stay in Navigation.",
+    "perc.ui.developer@Add a section under a parent, rename an existing section, or delete one section after confirm. Reorder stays in Navigation.",
   SITE_NAV_RENAME_TARGET: "perc.ui.developer@Section",
   SITE_NAV_RENAME_NAME: "perc.ui.developer@New name",
   SITE_NAV_RENAME: "perc.ui.developer@Rename section",
@@ -2269,6 +2269,14 @@ export const DEV_MSG_KEYS = {
   SITE_NAV_RENAME_ERROR: "perc.ui.developer@Could not rename the section.",
   SITE_NAV_RENAME_FORBIDDEN: "perc.ui.developer@Admin role required to rename a section.",
   SITE_NAV_RENAME_DUPLICATE: "perc.ui.developer@A section with that name already exists.",
+  SITE_NAV_DELETE_TARGET: "perc.ui.developer@Section to delete",
+  SITE_NAV_DELETE_CONFIRM: "perc.ui.developer@Confirm",
+  SITE_NAV_DELETING: "perc.ui.developer@Deleting section...",
+  SITE_NAV_DELETED: "perc.ui.developer@Section deleted.",
+  SITE_NAV_DELETE_ERROR: "perc.ui.developer@Could not delete the section.",
+  SITE_NAV_DELETE_FORBIDDEN: "perc.ui.developer@Admin role required to delete a section.",
+  SITE_NAV_DELETE_CONFLICT:
+    "perc.ui.developer@This section is still referenced and was not deleted.",
   SITE_NAV_NAME: "perc.ui.developer@Section name",
   SITE_NAV_PARENT: "perc.ui.developer@Parent",
   SITE_NAV_ADD: "perc.ui.developer@Add section",
