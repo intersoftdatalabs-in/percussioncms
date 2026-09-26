@@ -49,6 +49,7 @@ import com.percussion.webservices.content.IPSContentWs;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -520,6 +521,28 @@ public class PSSitePublishServiceWebAdapter {
       @PathParam("contentId") String contentId) {
     try {
       sitePublishService.removeQueuedIncrementalContent(siteName, serverName, contentId);
+      return Response.noContent().build();
+    } catch (PSIncrementalQueueStatusException e) {
+      return Response.status(e.status()).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
+    } catch (IPSSitePublishService.PSSitePublishException e) {
+      throw new WebApplicationException(e.getMessage());
+    }
+  }
+
+  /**
+   * Approves one queued content id for incremental publish. HTTP 204 on success. The item stays on
+   * the queue. HTTP 400 when the id is not a content id or the workflow transition is rejected.
+   * HTTP 403 when publish is not allowed. HTTP 404 when the id is not queued or the site or server
+   * cannot be resolved.
+   */
+  @POST
+  @Path("/incremental/content/{name}/{server}/{contentId}/approve")
+  public Response approveQueuedIncrementalContent(
+      @PathParam("name") String siteName,
+      @PathParam("server") String serverName,
+      @PathParam("contentId") String contentId) {
+    try {
+      sitePublishService.approveQueuedIncrementalContent(siteName, serverName, contentId);
       return Response.noContent().build();
     } catch (PSIncrementalQueueStatusException e) {
       return Response.status(e.status()).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();

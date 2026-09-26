@@ -951,6 +951,61 @@ public class PSSitePublishService implements IPSSitePublishService {
   }
 
   @Override
+  public void approveQueuedIncrementalContent(
+      String siteName, String serverName, String contentId) throws PSSitePublishException {
+    Validate.notEmpty(siteName);
+    Validate.notEmpty(serverName);
+    Validate.notEmpty(contentId);
+    if (!isPublishAllowed()) {
+      throw new PSIncrementalQueueStatusException(403, "Publish forbidden");
+    }
+    final int cid;
+    try {
+      cid = idMapper.getContentId(contentId.trim());
+    } catch (IllegalArgumentException ex) {
+      throw new PSIncrementalQueueStatusException(400, "Content id is not valid");
+    } catch (RuntimeException ex) {
+      if (ex.getCause() instanceof IllegalArgumentException) {
+        throw new PSIncrementalQueueStatusException(400, "Content id is not valid");
+      }
+      throw new PSIncrementalQueueStatusException(404, "Queued item not found");
+    }
+    final PSContentChangeType changeType;
+    final List<Integer> queued;
+    try {
+      IPSSite site = pubWs.findSite(siteName);
+      if (site == null || site.getSiteId() == null) {
+        throw new PSIncrementalQueueStatusException(404, "Site not found");
+      }
+      PSPublishServerInfo info = findPubServerInfo(siteName, serverName);
+      changeType =
+          PSPubServer.STAGING.equalsIgnoreCase(info.getServerType())
+              ? PSContentChangeType.PENDING_STAGED
+              : PSContentChangeType.PENDING_LIVE;
+      queued = contentChangeService.getChangedContent(site.getSiteId(), changeType);
+    } catch (PSIncrementalQueueStatusException ex) {
+      throw ex;
+    } catch (PSSitePublishException ex) {
+      throw new PSIncrementalQueueStatusException(404, "Publish server or site was not found");
+    } catch (IPSPubServerService.PSPubServerServiceException ex) {
+      throw new PSSitePublishException(ex.getMessage(), ex);
+    }
+    if (queued == null || !queued.contains(Integer.valueOf(cid))) {
+      throw new PSIncrementalQueueStatusException(404, "Queued item not found");
+    }
+    String guid = idMapper.getGuid(new PSLocator(cid)).toString();
+    try {
+      itemWorkflowService.performApproveTransition(guid, false, null);
+    } catch (PSNotFoundException ex) {
+      throw new PSIncrementalQueueStatusException(404, "Queued item not found");
+    } catch (IPSItemWorkflowService.PSItemWorkflowServiceException ex) {
+      throw new PSIncrementalQueueStatusException(400, "Item could not be approved");
+    } catch (PSDataServiceException ex) {
+      throw new PSSitePublishException(ex.getMessage(), ex);
+    }
+  }
+
+  @Override
   public void clearQueuedIncrementalContent(String siteName, String serverName)
       throws PSSitePublishException {
     Validate.notEmpty(siteName);

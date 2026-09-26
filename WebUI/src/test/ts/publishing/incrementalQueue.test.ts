@@ -22,6 +22,8 @@ import {
   isQueueEmpty,
   queueItemId,
   queueItemLabel,
+  queueApproveFailure,
+  queueItemApproved,
   queueRemoveFailure,
 } from "@/publishing/incrementalQueue";
 
@@ -83,5 +85,22 @@ describe("incrementalQueue", () => {
       "failed",
     );
     expect(queueRemoveFailure(new Error("network"))).toBe("failed");
+  });
+
+  it("maps approve failures so 400, 403, and 404 are not success", () => {
+    expect(queueApproveFailure({ status: 400, statusText: "Bad Request", body: "" })).toBe(
+      "bad_request",
+    );
+    expect(queueApproveFailure({ status: 403, statusText: "Forbidden", body: "" })).toBe(
+      "forbidden",
+    );
+    expect(queueApproveFailure({ status: 404, statusText: "Not Found", body: "" })).toBe(
+      "not_found",
+    );
+    expect(queueApproveFailure({ status: 500, statusText: "Error", body: "" })).toBe(
+      "failed",
+    );
+    expect(queueItemApproved({ id: "301", status: "Approved" })).toBe(true);
+    expect(queueItemApproved({ id: "301", name: "Home" })).toBe(false);
   });
 });

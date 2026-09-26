@@ -17,6 +17,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  approveIncrementalQueueItem,
   clearIncrementalQueue,
   getIncrementalItems,
   getIncrementalRelatedItems,
@@ -57,6 +58,8 @@ import {
 import {
   extractQueueItems,
   isQueueEmpty,
+  queueApproveFailure,
+  queueItemApproved,
   queueItemId,
   queueItemLabel,
   queueRemoveFailure,
@@ -152,6 +155,10 @@ export function SiteWorkspace({
   const [queuePreview, setQueuePreview] = useState<unknown[]>([]);
   const [queueLoadError, setQueueLoadError] = useState<string | null>(null);
   const [queueRemoveError, setQueueRemoveError] = useState<string | null>(null);
+  const [queueApproveError, setQueueApproveError] = useState<string | null>(null);
+  const [approvedQueueIds, setApprovedQueueIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [relatedPreview, setRelatedPreview] = useState<unknown[]>([]);
   const [selectedRelated, setSelectedRelated] = useState<Set<string>>(
     new Set(),
@@ -396,6 +403,54 @@ export function SiteWorkspace({
       return message(MSG.PUBLISH_QUEUE_REMOVE_NOT_FOUND);
     }
     return message(MSG.PUBLISH_QUEUE_REMOVE_FAILED);
+  }
+
+  function queueApproveMessage(reason: ReturnType<typeof queueApproveFailure>): string {
+    if (reason === "bad_request") {
+      return message(MSG.PUBLISH_QUEUE_APPROVE_BAD_REQUEST);
+    }
+    if (reason === "forbidden") {
+      return message(MSG.PUBLISH_QUEUE_APPROVE_FORBIDDEN);
+    }
+    if (reason === "not_found") {
+      return message(MSG.PUBLISH_QUEUE_APPROVE_NOT_FOUND);
+    }
+    return message(MSG.PUBLISH_QUEUE_APPROVE_FAILED);
+  }
+
+  async function approveOneQueueItem(contentId: string): Promise<void> {
+    if (!selectedServerName || contentId === "") {
+      return;
+    }
+    if (!window.confirm(message(MSG.PUBLISH_CONFIRM_APPROVE_QUEUE_ITEM))) {
+      return;
+    }
+    setQueueApproveError(null);
+    try {
+      await approveIncrementalQueueItem(siteName, selectedServerName, contentId);
+    } catch (err) {
+      setQueueApproveError(queueApproveMessage(queueApproveFailure(err)));
+      setActionState("error");
+      return;
+    }
+    const remaining = await loadIncrementalPreview({ preserveRemoveError: true });
+    if (remaining == null) {
+      setActionState("error");
+      return;
+    }
+    const stillQueued = remaining.some((item) => queueItemId(item) === contentId);
+    if (!stillQueued) {
+      setQueueApproveError(message(MSG.PUBLISH_QUEUE_APPROVE_FAILED));
+      setActionState("error");
+      return;
+    }
+    setApprovedQueueIds((prev) => {
+      const next = new Set(prev);
+      next.add(contentId);
+      return next;
+    });
+    setActionState(successPublishState());
+    setActionMessage(message(MSG.PUBLISH_QUEUE_ITEM_APPROVED));
   }
 
   async function removeOneQueueItem(contentId: string): Promise<void> {
@@ -682,6 +737,16 @@ export function SiteWorkspace({
         </p>
       )}
 
+      {queueApproveError && (
+        <p
+          style={errorStyle}
+          role="alert"
+          data-testid="publish-incremental-queue-approve-error"
+        >
+          {queueApproveError}
+        </p>
+      )}
+
       {queueRemoveError && (
         <p
           style={errorStyle}
@@ -730,6 +795,7 @@ export function SiteWorkspace({
                 <tr>
                   <th style={thStyle}>Id</th>
                   <th style={thStyle}>Item</th>
+                  <th style={thStyle}>{message(MSG.PUBLISH_APPROVE_QUEUE_ITEM)}</th>
                   <th style={thStyle}>{message(MSG.PUBLISH_REMOVE_QUEUE_ITEM)}</th>
                 </tr>
               </thead>
@@ -744,6 +810,23 @@ export function SiteWorkspace({
                     >
                       <td style={tdStyle}>{id !== "" ? id : "—"}</td>
                       <td style={tdStyle}>{label}</td>
+                      <td style={tdStyle}>
+                        {id !== "" &&
+                          (approvedQueueIds.has(id) || queueItemApproved(item)) && (
+                            <span data-testid="publish-incremental-queue-approved">
+                              {message(MSG.PUBLISH_QUEUE_APPROVED_BADGE)}
+                            </span>
+                          )}{" "}
+                        <button
+                          type="button"
+                          style={buttonStyle}
+                          disabled={id === "" || actionState === "starting"}
+                          data-testid="publish-incremental-queue-approve"
+                          onClick={() => void approveOneQueueItem(id)}
+                        >
+                          {message(MSG.PUBLISH_APPROVE_QUEUE_ITEM)}
+                        </button>
+                      </td>
                       <td style={tdStyle}>
                         <button
                           type="button"

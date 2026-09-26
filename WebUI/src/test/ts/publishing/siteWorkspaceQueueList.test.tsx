@@ -28,6 +28,7 @@ vi.mock("@/api/publishing/publishApi", () => ({
   getIncrementalRelatedItems: vi.fn().mockResolvedValue({ items: [], totalCount: 0 }),
   removeIncrementalQueueItem: vi.fn().mockResolvedValue(undefined),
   clearIncrementalQueue: vi.fn().mockResolvedValue(undefined),
+  approveIncrementalQueueItem: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/api/publishing/serversApi", () => ({
@@ -74,6 +75,8 @@ describe("SiteWorkspace incremental queue list (#4787)", () => {
     vi.mocked(publishApi.getIncrementalRelatedItems).mockReset();
     vi.mocked(publishApi.removeIncrementalQueueItem).mockReset();
     vi.mocked(publishApi.clearIncrementalQueue).mockReset();
+    vi.mocked(publishApi.approveIncrementalQueueItem).mockReset();
+    vi.mocked(publishApi.approveIncrementalQueueItem).mockResolvedValue(undefined);
     vi.mocked(publishApi.getIncrementalRelatedItems).mockResolvedValue({
       items: [],
       totalCount: 0,
@@ -233,6 +236,94 @@ describe("SiteWorkspace incremental queue list (#4787)", () => {
       ).toMatch(/not on the incremental queue/i);
     });
     expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+  });
+
+  it("confirm approves one queued item and reloads it as approved", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [
+        { id: "301", name: "Home" },
+        { id: "88", title: "About" },
+      ],
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(2);
+    });
+    fireEvent.click(screen.getAllByTestId("publish-incremental-queue-approve")[0]);
+    await waitFor(() => {
+      expect(publishApi.approveIncrementalQueueItem).toHaveBeenCalledWith(
+        "MySite",
+        "FTP-Prod",
+        "301",
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-incremental-queue-approved").textContent).toMatch(
+        /Approved/i,
+      );
+    });
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(2);
+    expect(screen.getAllByTestId("publish-incremental-queue-row")[0].textContent).toContain(
+      "301",
+    );
+  });
+
+  it("cancel approve does not write", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [{ id: "301", name: "Home" }],
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-incremental-queue-approve")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-queue-approve"));
+    expect(publishApi.approveIncrementalQueueItem).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("publish-incremental-queue-approved")).toBeNull();
+  });
+
+  it("shows 400, 403, and 404 without claiming the item is approved", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [{ id: "301", name: "Home" }],
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-incremental-queue-approve")).toBeTruthy();
+    });
+
+    for (const [status, pattern] of [
+      [400, /could not be approved/i],
+      [403, /not allowed/i],
+      [404, /not on the incremental queue/i],
+    ] as const) {
+      vi.mocked(publishApi.approveIncrementalQueueItem).mockRejectedValueOnce({
+        status,
+        statusText: "err",
+        body: "no",
+      });
+      fireEvent.click(screen.getByTestId("publish-incremental-queue-approve"));
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("publish-incremental-queue-approve-error").textContent,
+        ).toMatch(pattern);
+      });
+      expect(screen.queryByTestId("publish-incremental-queue-approved")).toBeNull();
+      expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+    }
   });
 
   it("confirm clears the queue and reloads an empty list", async () => {

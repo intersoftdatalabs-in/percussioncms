@@ -17,7 +17,7 @@
 package com.percussion.sitemanage.service.impl;
 
 /**
- * Incremental-queue remove failure with an explicit HTTP status (403 or 404).
+ * Incremental-queue remove or approve failure with an explicit HTTP status (400, 403, or 404).
  * The publish web adapter returns that status. {@code WebApplicationException}
  * is flattened to 500 by {@code PSRuntimeExceptionMapper}.
  */

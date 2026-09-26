@@ -20,6 +20,8 @@ import type { IncrementalQueuePage } from "./types";
 
 export type QueueRemoveFailure = "forbidden" | "not_found" | "failed";
 
+export type QueueApproveFailure = "bad_request" | "forbidden" | "not_found" | "failed";
+
 /** Map a remove-one-item failure so 403 and 404 stay visible (not success). */
 export function queueRemoveFailure(err: unknown): QueueRemoveFailure {
   if (isApiError(err)) {
@@ -31,6 +33,38 @@ export function queueRemoveFailure(err: unknown): QueueRemoveFailure {
     }
   }
   return "failed";
+}
+
+/** Map an approve-one-item failure so 400, 403, and 404 stay visible (not success). */
+export function queueApproveFailure(err: unknown): QueueApproveFailure {
+  if (isApiError(err)) {
+    if (err.status === 400) {
+      return "bad_request";
+    }
+    if (err.status === 403) {
+      return "forbidden";
+    }
+    if (err.status === 404) {
+      return "not_found";
+    }
+  }
+  return "failed";
+}
+
+/** Whether a reloaded queue row already carries an approved workflow marker. */
+export function queueItemApproved(item: unknown): boolean {
+  if (item == null || typeof item !== "object") {
+    return false;
+  }
+  const obj = item as Record<string, unknown>;
+  const raw = obj.approved ?? obj.workflowState ?? obj.stateName ?? obj.status;
+  if (typeof raw === "boolean") {
+    return raw;
+  }
+  if (raw == null) {
+    return false;
+  }
+  return /approv/i.test(String(raw));
 }
 
 /** Normalize queue payload into a stable list of items. */
