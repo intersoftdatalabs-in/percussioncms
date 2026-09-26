@@ -523,4 +523,70 @@ describe("EditorRelatedContentPanel", () => {
       { reservedWindow: null },
     );
   });
+
+  it("fills the insert id from a folder page and does not insert on cancel", async () => {
+    const insertRelationship = vi.fn().mockResolvedValue({
+      relationshipId: 8,
+      ownerId: 42,
+      dependentId: 77,
+      slotId: 9,
+      templateId: 7,
+      sortRank: 0,
+    });
+    const listFolder = vi.fn().mockResolvedValue([
+      { id: "1", name: "About", path: "/Sites/About/", type: "folder" },
+      {
+        id: "1-101-77",
+        name: "About page",
+        path: "/Sites/About/index",
+        type: "page",
+      },
+    ]);
+    render(
+      <EditorRelatedContentPanel
+        itemId="42"
+        loadCanvas={async () => ({
+          ownerId: 42,
+          templateId: 7,
+          slots: [{ slotId: 9, name: "content", label: "Content", items: [] }],
+        })}
+        loadLocal={async () => ({ count: 0, links: [] })}
+        insertRelationship={insertRelationship}
+        listFolder={listFolder}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-pick")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-related-item"), {
+      target: { value: "55" },
+    });
+    fireEvent.click(screen.getByTestId("editor-related-pick"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-pick-item").getAttribute("data-content-id")).toBe(
+        "77",
+      );
+    });
+    expect(listFolder).toHaveBeenCalledWith("/Sites");
+    fireEvent.click(screen.getByTestId("editor-related-pick-cancel"));
+    expect(screen.queryByTestId("editor-related-pick-dialog")).toBeNull();
+    expect(insertRelationship).not.toHaveBeenCalled();
+    expect((screen.getByTestId("editor-related-item") as HTMLInputElement).value).toBe("55");
+    fireEvent.click(screen.getByTestId("editor-related-pick"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-pick-item")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-related-pick-item"));
+    fireEvent.click(screen.getByTestId("editor-related-pick-use"));
+    expect((screen.getByTestId("editor-related-item") as HTMLInputElement).value).toBe("77");
+    fireEvent.click(screen.getByTestId("editor-related-insert-submit"));
+    await waitFor(() => {
+      expect(insertRelationship).toHaveBeenCalledWith({
+        ownerId: 42,
+        dependentId: 77,
+        slotId: 9,
+        templateId: 7,
+      });
+    });
+  });
 });

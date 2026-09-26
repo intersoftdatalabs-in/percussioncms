@@ -35,6 +35,8 @@ import {
   type SlotCanvas,
   type SlotRelationship,
 } from "../api/contentExplorer/slotRelationshipApi";
+import { findChildren } from "../api/contentExplorer/pathApi";
+import type { PSPathItem } from "../api/contentExplorer/types";
 import { parseExplorerContentId } from "../contentExplorer/menuCatalogLoad";
 import { message } from "../i18n/message";
 import {
@@ -53,6 +55,11 @@ import {
 } from "./editorRelatedContent";
 import type { EditorHostMode } from "./editorHostUrl";
 import { saveRelatedSnippetTemplate } from "./editorRelatedTemplate";
+import {
+  RELATED_FOLDER_PICK_ROOT,
+  relatedFolderRows,
+  type RelatedFolderRow,
+} from "./editorRelatedFolderPick";
 import {
   closeReservedWindow,
   openEditorHost,
@@ -90,6 +97,8 @@ export interface EditorRelatedContentPanelProps {
     deps: OpenEditorHostDeps,
   ) => Promise<boolean>;
   reserveRelatedWindow?: () => Window | null;
+  /** Pathmanagement folder children. Pages and assets fill the item id. */
+  listFolder?: (path: string) => Promise<PSPathItem[]>;
 }
 
 function insertMessageKey(reason: ReturnType<typeof relatedInsertErrorReason>): string {
@@ -184,6 +193,7 @@ export function EditorRelatedContentPanel({
   loadAllowedTemplates = (slotId) => fetchSlotAllowedTemplates(slotId),
   openRelatedItem = openEditorHost,
   reserveRelatedWindow = reserveEditorWindow,
+  listFolder = findChildren,
 }: EditorRelatedContentPanelProps): React.ReactElement {
   const [rows, setRows] = useState<RelatedContentRow[]>([]);
   const [choices, setChoices] = useState<InsertSlotChoice[]>([]);
@@ -207,6 +217,12 @@ export function EditorRelatedContentPanel({
   const [templateDetail, setTemplateDetail] = useState("");
   const [templateBusy, setTemplateBusy] = useState(false);
   const [templateSaved, setTemplateSaved] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerPath, setPickerPath] = useState(RELATED_FOLDER_PICK_ROOT);
+  const [pickerRows, setPickerRows] = useState<RelatedFolderRow[]>([]);
+  const [pickerBusy, setPickerBusy] = useState(false);
+  const [pickerErrorKey, setPickerErrorKey] = useState<string | null>(null);
+  const [pickedId, setPickedId] = useState<number | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
   const [loading, setLoading] = useState(true);
   const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -307,6 +323,56 @@ export function EditorRelatedContentPanel({
   }, [itemId, loadCanvas, loadLocal, reloadToken]);
 
   const selected = choices.find((c) => String(c.slotId) === slotId) ?? null;
+
+  async function loadPicker(path: string): Promise<void> {
+    const next = path.trim() || RELATED_FOLDER_PICK_ROOT;
+    setPickerPath(next);
+    setPickerBusy(true);
+    setPickerErrorKey(null);
+    setPickedId(null);
+    try {
+      const children = await listFolder(next);
+      setPickerRows(relatedFolderRows(children));
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setPickerRows([]);
+      const reason = relatedContentErrorReason(err);
+      setPickerErrorKey(
+        reason === "forbidden"
+          ? EDITOR_MSG.RELATED_PICK_FORBIDDEN
+          : EDITOR_MSG.RELATED_PICK_FAILED,
+      );
+    } finally {
+      setPickerBusy(false);
+    }
+  }
+
+  function openPicker(): void {
+    setPickerOpen(true);
+    setPickerRows([]);
+    setPickedId(null);
+    setPickerErrorKey(null);
+    void loadPicker(pickerPath || RELATED_FOLDER_PICK_ROOT);
+  }
+
+  function cancelPicker(): void {
+    setPickerOpen(false);
+    setPickedId(null);
+    setPickerErrorKey(null);
+    setPickerRows([]);
+  }
+
+  function usePickedItem(): void {
+    if (pickedId == null || pickedId <= 0) {
+      return;
+    }
+    setDependentId(String(pickedId));
+    setInsertErrorKey(null);
+    setInsertDetail("");
+    cancelPicker();
+  }
 
   async function handleInsert(): Promise<void> {
     const ownerId = Number(itemId);
@@ -490,6 +556,15 @@ export function EditorRelatedContentPanel({
           <div className={styles.actions}>
             <button
               type="button"
+              className={styles.button}
+              data-testid="editor-related-pick"
+              disabled={inserting}
+              onClick={openPicker}
+            >
+              {message(EDITOR_MSG.RELATED_PICK)}
+            </button>
+            <button
+              type="button"
               className={`${styles.button} ${styles.buttonPrimary}`}
               data-testid="editor-related-insert-submit"
               disabled={inserting}
@@ -508,6 +583,106 @@ export function EditorRelatedContentPanel({
             >
               {message(insertErrorKey)}
               {insertDetail ? ` ${insertDetail}` : ""}
+            </div>
+          ) : null}
+          {pickerOpen ? (
+            <div
+              className={styles.form}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="editor-related-pick-title"
+              data-testid="editor-related-pick-dialog"
+            >
+              <h3 id="editor-related-pick-title" className={styles.label}>
+                {message(EDITOR_MSG.RELATED_PICK_TITLE)}
+              </h3>
+              <label className={styles.field}>
+                {message(EDITOR_MSG.RELATED_PICK_PATH)}
+                <input
+                  className={styles.input}
+                  data-testid="editor-related-pick-path"
+                  value={pickerPath}
+                  onChange={(e) => setPickerPath(e.target.value)}
+                />
+              </label>
+              <div className={styles.actions}>
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid="editor-related-pick-list"
+                  disabled={pickerBusy}
+                  onClick={() => void loadPicker(pickerPath)}
+                >
+                  {message(EDITOR_MSG.RELATED_PICK_LIST)}
+                </button>
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid="editor-related-pick-cancel"
+                  onClick={cancelPicker}
+                >
+                  {message(EDITOR_MSG.RELATED_TEMPLATE_CANCEL)}
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.button} ${styles.buttonPrimary}`}
+                  data-testid="editor-related-pick-use"
+                  disabled={pickedId == null}
+                  onClick={usePickedItem}
+                >
+                  {message(EDITOR_MSG.RELATED_PICK_USE)}
+                </button>
+              </div>
+              {pickerBusy ? (
+                <div className={styles.status} data-testid="editor-related-pick-loading">
+                  {message(EDITOR_MSG.RELATED_PICK_LOADING)}
+                </div>
+              ) : null}
+              {pickerErrorKey ? (
+                <div
+                  className={styles.status}
+                  role="alert"
+                  data-testid="editor-related-pick-error"
+                >
+                  {message(pickerErrorKey)}
+                </div>
+              ) : null}
+              {!pickerBusy && pickerErrorKey == null && pickerRows.length === 0 ? (
+                <div className={styles.status} data-testid="editor-related-pick-empty">
+                  {message(EDITOR_MSG.RELATED_PICK_EMPTY)}
+                </div>
+              ) : null}
+              {pickerRows.length > 0 ? (
+                <ul data-testid="editor-related-pick-list-items">
+                  {pickerRows.map((row) =>
+                    row.folder ? (
+                      <li key={row.key}>
+                        <button
+                          type="button"
+                          className={styles.button}
+                          data-testid="editor-related-pick-folder"
+                          onClick={() => void loadPicker(row.path)}
+                        >
+                          {row.name}
+                        </button>
+                      </li>
+                    ) : (
+                      <li key={row.key}>
+                        <button
+                          type="button"
+                          className={styles.button}
+                          data-testid="editor-related-pick-item"
+                          data-content-id={String(row.contentId)}
+                          aria-pressed={pickedId === row.contentId}
+                          onClick={() => setPickedId(row.contentId)}
+                        >
+                          {row.name}
+                        </button>
+                      </li>
+                    ),
+                  )}
+                </ul>
+              ) : null}
             </div>
           ) : null}
         </div>
