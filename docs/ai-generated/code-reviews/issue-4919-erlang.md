@@ -6,7 +6,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 13 analyzed
+- Files: 12 analyzed
 - In-diff: 0 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
@@ -34,11 +34,11 @@ approve
 
 ### Issue 2 -- Severity: bug
 
-- File: system/src/main/java/com/percussion/fastforward/managednav/PSManagedNavService.java:1361 (preexisting)
+- File: system/src/main/java/com/percussion/fastforward/managednav/PSManagedNavService.java:1385 (preexisting)
 - Rule: `paths.hardcoded_sep`
 - Tool: `paths.hardcoded_sep`
 - Pattern-id: paths.hardcoded-sep
-- Description: Possible non-portable path construction (line 1361)
+- Description: Possible non-portable path construction (line 1385)
 - Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
 - Status: open
 
