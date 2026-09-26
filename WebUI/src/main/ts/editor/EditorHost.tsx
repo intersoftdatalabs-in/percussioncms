@@ -149,6 +149,13 @@ import {
   takedownEditorItem,
   type EditorPublishKind,
 } from "./editorPublish";
+import { ScheduleDatesDialog } from "../contentExplorer/ScheduleDatesDialog";
+import type { ItemScheduleDates } from "../contentExplorer/itemScheduleDates";
+import {
+  editorScheduleFailureMessage,
+  loadEditorScheduleDates,
+  saveEditorScheduleDates,
+} from "./editorSchedule";
 import {
   buildEditorCreateRequest,
   canCreateFromEditor,
@@ -256,6 +263,10 @@ export interface EditorHostProps {
   commentRequiredTriggers?: readonly string[];
   /** Test seam: sitemanage demand-publish ({@code publish/page|resource/{id}}). */
   publishItem?: (itemId: string, kind: EditorPublishKind) => Promise<boolean>;
+  /** Test seam: {@code GET item/getitemdates/{id}}. */
+  loadScheduleDates?: (itemId: string) => Promise<ItemScheduleDates>;
+  /** Test seam: {@code POST item/setitemdates}. */
+  saveScheduleDates?: (dates: ItemScheduleDates) => Promise<void>;
   /** Test seam: confirm before Publish now (defaults to {@code window.confirm}). */
   confirmPublish?: (body: string) => boolean;
   /** Test seam: sitemanage stage ({@code publish/page|resource/staging/{id}}). */
@@ -547,6 +558,8 @@ export function EditorHost({
   runTransition = transitionItem,
   commentRequiredTriggers,
   publishItem = publishEditorItem,
+  loadScheduleDates = loadEditorScheduleDates,
+  saveScheduleDates = saveEditorScheduleDates,
   confirmPublish,
   stageItem = stageEditorItem,
   confirmStage,
@@ -643,6 +656,17 @@ export function EditorHost({
   const [publishDone, setPublishDone] = useState(false);
   const [publishErrorKey, setPublishErrorKey] = useState<string | null>(null);
   const [publishErrorDetail, setPublishErrorDetail] = useState("");
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleBusy, setScheduleBusy] = useState(false);
+  const [scheduleSaving, setScheduleSaving] = useState(false);
+  const [scheduleDone, setScheduleDone] = useState(false);
+  const [scheduleCurrent, setScheduleCurrent] = useState<ItemScheduleDates | null>(
+    null,
+  );
+  const [scheduleServerError, setScheduleServerError] = useState<string | null>(
+    null,
+  );
+  const [scheduleLoadError, setScheduleLoadError] = useState("");
   const [stageBusy, setStageBusy] = useState(false);
   const [stageDone, setStageDone] = useState(false);
   const [stageErrorKey, setStageErrorKey] = useState<string | null>(null);
@@ -1442,6 +1466,68 @@ export function EditorHost({
       setPublishErrorKey(EDITOR_MSG.PUBLISH_FAILED);
     } finally {
       setPublishBusy(false);
+    }
+  }
+
+  async function handleOpenSchedule(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    const itemId = String(contentId);
+    const kind = resolveEditorPublishKind(payload?.contentType, {
+      id: itemId,
+      allowedTemplateCount,
+    });
+    if (!canPublishFromEditor(mode, kind)) {
+      return;
+    }
+    setScheduleBusy(true);
+    setScheduleDone(false);
+    setScheduleLoadError("");
+    setScheduleServerError(null);
+    try {
+      const dates = await loadScheduleDates(itemId);
+      setScheduleCurrent({
+        itemId,
+        startDate: dates.startDate ?? "",
+        endDate: dates.endDate ?? "",
+        comments: dates.comments ?? "",
+      });
+      setScheduleOpen(true);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setScheduleOpen(false);
+      setScheduleLoadError(
+        editorScheduleFailureMessage(err) ||
+          message(EDITOR_MSG.SCHEDULE_LOAD_FAILED),
+      );
+    } finally {
+      setScheduleBusy(false);
+    }
+  }
+
+  async function handleSaveSchedule(dates: ItemScheduleDates): Promise<void> {
+    setScheduleSaving(true);
+    setScheduleServerError(null);
+    setScheduleDone(false);
+    setScheduleLoadError("");
+    try {
+      await saveScheduleDates(dates);
+      setScheduleCurrent(dates);
+      setScheduleOpen(false);
+      setScheduleDone(true);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setScheduleDone(false);
+      setScheduleServerError(
+        editorScheduleFailureMessage(err) || message(EDITOR_MSG.SCHEDULE_FAILED),
+      );
+    } finally {
+      setScheduleSaving(false);
     }
   }
 
@@ -2526,6 +2612,11 @@ export function EditorHost({
               {message(EDITOR_MSG.PUBLISH_DONE)}
             </span>
           ) : null}
+          {scheduleDone ? (
+            <span className={styles.meta} data-testid="editor-schedule-done">
+              {message(EDITOR_MSG.SCHEDULE_DONE)}
+            </span>
+          ) : null}
           {stageDone ? (
             <span className={styles.meta} data-testid="editor-stage-done">
               {message(EDITOR_MSG.STAGE_DONE)}
@@ -2571,6 +2662,25 @@ export function EditorHost({
               onClick={() => void handlePublish()}
             >
               {message(publishBusy ? EDITOR_MSG.PUBLISHING : EDITOR_MSG.PUBLISH_NOW)}
+            </button>
+          ) : null}
+          {showPublish ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-schedule"
+              disabled={
+                scheduleBusy ||
+                scheduleSaving ||
+                loading ||
+                payload == null ||
+                saving
+              }
+              onClick={() => void handleOpenSchedule()}
+            >
+              {message(
+                scheduleBusy ? EDITOR_MSG.SCHEDULE_LOADING : EDITOR_MSG.SCHEDULE,
+              )}
             </button>
           ) : null}
           {showStage ? (
@@ -2928,6 +3038,15 @@ export function EditorHost({
               >
                 {message(publishErrorKey)}
                 {publishErrorDetail ? ` ${publishErrorDetail}` : ""}
+              </div>
+            ) : null}
+            {scheduleLoadError ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-schedule-error"
+              >
+                {scheduleLoadError}
               </div>
             ) : null}
             {stageErrorKey ? (
@@ -3402,6 +3521,23 @@ export function EditorHost({
         <PublishingHistoryDialog
           itemId={String(contentId)}
           onClose={() => setHistoryOpen(false)}
+        />
+      ) : null}
+      {scheduleOpen && scheduleCurrent ? (
+        <ScheduleDatesDialog
+          current={scheduleCurrent}
+          busy={scheduleSaving}
+          serverError={scheduleServerError}
+          onCancel={() => {
+            if (scheduleSaving) {
+              return;
+            }
+            setScheduleOpen(false);
+            setScheduleServerError(null);
+          }}
+          onSave={(dates) => {
+            void handleSaveSchedule(dates);
+          }}
         />
       ) : null}
       {contentId != null && !promote ? (

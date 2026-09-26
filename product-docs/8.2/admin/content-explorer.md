@@ -263,6 +263,18 @@ failure: the host shows the server warning and does not treat the job as started
 **View** and **Promote** stay read-only (no Publish now). Templates and other
 non-page/non-asset types stay unavailable. Does not open the demand-publish servlet.
 
+In **Edit** mode the same page or asset also has **Schedule**. The host loads
+the current dates (`GET /services/itemmanagement/item/getitemdates/{id}`) and
+opens the schedule dialog (publish start, removal end, optional comments).
+**Cancel** closes the dialog and does not post. A publish date after the
+removal date, or the same instant for both, stays on the form and does not
+post. **Save** posts `{ ItemDates: { itemId, startDate, endDate, comments } }`
+to `POST /services/itemmanagement/item/setitemdates`. Opening **Schedule**
+again shows the saved dates. HTTP **400** and **403**, and HTTP 200 with
+application-level `FORBIDDEN`, `BADCONFIG`, or `INVALID`, keep the dialog open
+and do not show **Schedule saved.** **View** mode has no **Schedule** control.
+Explorer and PublishingShell keep their own schedule editors.
+
 The host also lists **Related content** for the open item. Slot relationships
 come from `GET /services/assembly/slot-relationships/canvas?ownerId=` and inline
 / local dependents from
