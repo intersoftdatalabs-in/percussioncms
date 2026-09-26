@@ -101,6 +101,11 @@ export interface ReducedActionHandlers {
   onCopy: (item: PSPathItem, targetPath: string) => Promise<void>;
   onDelete: (item: PSPathItem) => Promise<void>;
   onRestore: (item: PSPathItem) => Promise<void>;
+  /**
+   * Two or more checked Recycling rows: one confirm owned by the shell
+   * (#4884). Absent hosts keep single-item restore.
+   */
+  onRestoreChecked?: () => void;
   /** Permanently purge the selected recycled item after confirm (#4763). */
   onPurge: (item: PSPathItem) => Promise<void>;
   /**
@@ -138,7 +143,8 @@ export interface ReducedActionsProps {
   onError?: (message: string) => void;
   /**
    * Detail-list checkbox selection. When two or more Recycling rows are
-   * checked, Purge uses {@link ReducedActionHandlers.onPurgeChecked}.
+   * checked, Purge uses {@link ReducedActionHandlers.onPurgeChecked} and
+   * Restore uses {@link ReducedActionHandlers.onRestoreChecked}.
    */
   checkedItems?: readonly PSPathItem[];
 }
@@ -270,10 +276,24 @@ export function ReducedActions({
     void runItemAction("delete", () => handlers.onDelete(item));
   }, [handlers, item, runItemAction]);
 
+  const multiRestore =
+    (checkedItems?.length ?? 0) >= 2 &&
+    Boolean(handlers.onRestoreChecked) &&
+    ((checkedItems ?? []).some((row) =>
+      isRecyclingExplorerPath(row.path ?? row.folderPath),
+    ) ||
+      isRecyclingExplorerPath(
+        folder?.path ?? folder?.folderPath ?? item?.folderPath ?? item?.path,
+      ));
+
   const handleRestore = useCallback(() => {
+    if (multiRestore && handlers.onRestoreChecked) {
+      handlers.onRestoreChecked();
+      return;
+    }
     if (!item) return;
     void runItemAction("restore", () => handlers.onRestore(item));
-  }, [handlers, item, runItemAction]);
+  }, [handlers, item, multiRestore, runItemAction]);
 
   const multiPurge =
     (checkedItems?.length ?? 0) >= 2 &&
@@ -305,9 +325,10 @@ export function ReducedActions({
   }, [handlers, runItemAction]);
 
   const restoreEligible =
-    Boolean(item) &&
-    itemWrite &&
-    isRecyclingExplorerPath(item?.path ?? item?.folderPath);
+    multiRestore ||
+    (Boolean(item) &&
+      itemWrite &&
+      isRecyclingExplorerPath(item?.path ?? item?.folderPath));
 
   const purgeEligible = multiPurge || restoreEligible;
 

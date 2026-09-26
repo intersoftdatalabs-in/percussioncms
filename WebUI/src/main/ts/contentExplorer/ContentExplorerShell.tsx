@@ -94,6 +94,7 @@ import {
   findItemByPath,
   moveFolderItem,
   purgeRecycledItem,
+  restoreRecycledItem,
 } from "../api/contentExplorer/pathApi";
 import { bindExplorerPathItemId } from "../api/contentExplorer/pathItemId";
 import { canOpenIaRelationships } from "./actionEnablement";
@@ -177,6 +178,7 @@ import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
 import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
 import { PurgeConfirmDialog } from "./PurgeConfirmDialog";
 import { RecycleConfirmDialog } from "./RecycleConfirmDialog";
+import { RestoreConfirmDialog } from "./RestoreConfirmDialog";
 import {
   copyCheckedItemsToFolder,
   formatMultiFolderCopyStatus,
@@ -201,6 +203,12 @@ import {
   purgeCheckedItems,
   type MultiSelectPurgeOutcome,
 } from "./multiSelectPurge";
+import {
+  formatMultiSelectRestoreStatus,
+  multiRestoreOutcome,
+  restoreCheckedItems,
+  type MultiSelectRestoreOutcome,
+} from "./multiSelectRestore";
 import { openInEditor } from "./openInEditor";
 import { openPreviewItem } from "./previewItem";
 import {
@@ -686,6 +694,11 @@ function ContentExplorerShellInner({
     text: string;
     outcome: MultiSelectPurgeOutcome;
   } | null>(null);
+  const [multiRestoreOpen, setMultiRestoreOpen] = useState(false);
+  const [multiRestoreStatus, setMultiRestoreStatus] = useState<{
+    text: string;
+    outcome: MultiSelectRestoreOutcome;
+  } | null>(null);
   const [clipboard, setClipboardState] = useState<Clipboard>(EMPTY_CLIPBOARD);
   const [clipboardMode, setClipboardMode] = useState<"copy" | "cut">("copy");
   /** Folder content id for security/properties (resolved from selection or path). */
@@ -815,6 +828,12 @@ function ContentExplorerShellInner({
         item: null,
       }));
       handleRefreshListAndTree();
+    },
+    onRestoreChecked: () => {
+      if (multiSelectedItemsRef.current.size >= 2) {
+        setMultiRestoreStatus(null);
+        setMultiRestoreOpen(true);
+      }
     },
     onPurge: async (item) => {
       const impl = actionHandlers?.onPurge ?? stockReducedHandlers.onPurge;
@@ -1572,6 +1591,12 @@ function ContentExplorerShellInner({
             setMultiPurgeOpen(true);
           }
           break;
+        case "content-multi-restore":
+          if (multiSelectedItemsRef.current.size > 0) {
+            setMultiRestoreStatus(null);
+            setMultiRestoreOpen(true);
+          }
+          break;
         case "content-create-site":
           setShowSiteCreate((v) => !v);
           break;
@@ -2028,6 +2053,45 @@ function ContentExplorerShellInner({
             );
           }}
           onCancel={() => setMultiPurgeOpen(false)}
+        />
+      ) : null}
+      {multiRestoreStatus ? (
+        <div
+          data-testid="explorer-multi-restore-result"
+          data-outcome={multiRestoreStatus.outcome}
+          role={multiRestoreStatus.outcome === "success" ? "status" : "alert"}
+          aria-live={
+            multiRestoreStatus.outcome === "success" ? "polite" : "assertive"
+          }
+          style={{
+            gridColumn: "1 / -1",
+            padding: "8px 12px",
+            background:
+              multiRestoreStatus.outcome === "success" ? "#ecfdf5" : "#fef2f2",
+            color: "#0f172a",
+          }}
+        >
+          {multiRestoreStatus.text}
+        </div>
+      ) : null}
+      {multiRestoreOpen ? (
+        <RestoreConfirmDialog
+          onConfirm={() => {
+            setMultiRestoreOpen(false);
+            const items = Array.from(multiSelectedItemsRef.current.values());
+            void restoreCheckedItems(items, (guid) =>
+              restoreRecycledItem(guid),
+            ).then((result) => {
+              setMultiRestoreStatus({
+                text: formatMultiSelectRestoreStatus(result),
+                outcome: multiRestoreOutcome(result),
+              });
+              if (result.restoredNames.length > 0) {
+                setListEpoch((n) => n + 1);
+              }
+            });
+          }}
+          onCancel={() => setMultiRestoreOpen(false)}
         />
       ) : null}
       <div

@@ -121,6 +121,14 @@ export const EXPLORER_MSG = {
   MULTI_PURGE_NONE: "perc.ui.explorer@No pages or assets were purged",
   MULTI_PURGE_SKIPPED: "perc.ui.explorer@Skipped folders: {names}",
   MULTI_PURGE_FAILURES: "perc.ui.explorer@Purge failed for: {details}",
+  MULTI_RESTORE: "perc.ui.explorer@Restore selected",
+  MULTI_RESTORE_CONFIRM:
+    "perc.ui.explorer@Restore the checked pages, assets, and folders to their original folders?",
+  MULTI_RESTORE_SUCCESS: "perc.ui.explorer@Restored {count} item(s)",
+  MULTI_RESTORE_PARTIAL:
+    "perc.ui.explorer@Restored {count} item(s); the rest of the selection was not restored",
+  MULTI_RESTORE_NONE: "perc.ui.explorer@No items were restored",
+  MULTI_RESTORE_FAILURES: "perc.ui.explorer@Restore failed for: {details}",
   ACTION_DELETE: "perc.ui.explorer@Delete",
   ACTION_DELETE_NOT_FOUND:
     "perc.ui.explorer@The selected item was not found",
