@@ -45,6 +45,10 @@ export const EXPLORER_MSG = {
   ACTION_REFRESH_ARIA: "perc.ui.explorer@Refresh the current folder list",
   PREVIEW_UNAVAILABLE:
     "perc.ui.explorer@Preview is not available for this item",
+  ASSEMBLER_PREVIEW_NEEDS_PAGE:
+    "perc.ui.explorer@Select a page to open assembler preview",
+  ASSEMBLER_PREVIEW_NO_TARGET:
+    "perc.ui.explorer@This item has no assembler preview target",
   PREVIEW_OPEN_ERROR: "perc.ui.explorer@Could not open preview",
   ACTION_CREATE_FOLDER: "perc.ui.explorer@Create Folder",
   ACTION_CREATE_FOLDER_NOT_FOUND:

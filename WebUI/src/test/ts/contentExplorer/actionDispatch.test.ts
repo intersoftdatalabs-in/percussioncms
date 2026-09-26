@@ -22,6 +22,7 @@ import {
   classifyAction,
   dispatchAction,
   findMenuParentName,
+  firstPositiveTemplateId,
   isContentEditorActionUrl,
   isDataFlowActionUrl,
   parseTemplateIdFromAction,
@@ -2542,5 +2543,95 @@ describe("actionDispatch", () => {
     expect(String(openWindow.mock.calls[0]?.[0] ?? "")).not.toMatch(
       /editAsset\.jsp|itemassembly\.html/i,
     );
+  });
+
+  it("walks nested template menus for the first positive template id", () => {
+    expect(
+      firstPositiveTemplateId([
+        action({
+          name: "group",
+          children: [
+            action({
+              name: "rffPg",
+              url: "../assembler/render?sys_template=15",
+            }),
+          ],
+        }),
+      ]),
+    ).toBe(15);
+  });
+
+  it("opens assembler preview for previewslotvariant on a page", async () => {
+    const openWindow = vi.fn();
+    const onOpen = vi.fn();
+    const fetchPreview = vi.fn().mockResolvedValue({
+      previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+      contentId: 42,
+      templateId: 7,
+      revision: 1,
+    });
+    const resolveAssemblerTemplate = vi.fn().mockResolvedValue(7);
+    const result = await dispatchAction(
+      action({
+        name: "Slot_Item_Preview",
+        url: "../sys_cxSupport/previewslotvariant.html",
+      }),
+      {
+        item: item(),
+        openWindow,
+        onOpen,
+        fetchPreview,
+        resolveAssemblerTemplate,
+      },
+    );
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageKey).toBeUndefined();
+    expect(result.messageKey).not.toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+    expect(resolveAssemblerTemplate).toHaveBeenCalledWith(42);
+    expect(fetchPreview).toHaveBeenCalledWith(42, 7);
+    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain(
+      "/assembler/render",
+    );
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  it("names a folder when assembler preview has no page", async () => {
+    const openWindow = vi.fn();
+    const resolveAssemblerTemplate = vi.fn();
+    const result = await dispatchAction(
+      action({
+        name: "Qa_Assembler_Preview",
+        url: "../assembler/render",
+      }),
+      {
+        item: item({ type: "folder", id: "1", path: "/Sites" }),
+        openWindow,
+        resolveAssemblerTemplate,
+      },
+    );
+    expect(result.messageKey).toBe(EXPLORER_MSG.ASSEMBLER_PREVIEW_NEEDS_PAGE);
+    expect(result.messageKey).not.toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+    expect(result.refresh).toBeUndefined();
+    expect(openWindow).not.toHaveBeenCalled();
+    expect(resolveAssemblerTemplate).not.toHaveBeenCalled();
+  });
+
+  it("names an item with no assembler preview target and does not navigate", async () => {
+    const openWindow = vi.fn();
+    const result = await dispatchAction(
+      action({
+        name: "Qa_Assembler_Preview",
+        url: "../sys_cxSupport/previewslotvariant.html",
+      }),
+      {
+        item: item(),
+        openWindow,
+        resolveAssemblerTemplate: async () => null,
+      },
+    );
+    expect(result.messageKey).toBe(EXPLORER_MSG.ASSEMBLER_PREVIEW_NO_TARGET);
+    expect(openWindow).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
   });
 });

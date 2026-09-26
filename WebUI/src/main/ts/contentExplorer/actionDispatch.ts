@@ -23,6 +23,10 @@
  */
 
 import {
+  findAllowedTemplateMenus,
+  mapActionMenusToMenuActions,
+} from "../api/contentExplorer/actionMenuApi";
+import {
   fetchPreviewLocation,
   flushAssemblerCache,
   resetNavigation,
@@ -263,6 +267,12 @@ export interface ActionDispatchContext {
   confirm?: (body: string) => boolean;
   openWindow?: (url: string, target?: string, features?: string) => Window | null;
   fetchPreview?: typeof fetchPreviewLocation;
+  /**
+   * When a legacy assembler URL has no template id, resolve one for the
+   * selected content id. Default lists allowed template menus (not AA).
+   * Return null when the item has no preview target.
+   */
+  resolveAssemblerTemplate?: (contentId: number) => Promise<number | null>;
   runWorkflow?: (
     itemId: string,
     trigger: string,
@@ -488,6 +498,93 @@ export function parseTemplateIdFromAction(action: MenuAction): number | null {
     /* ignore */
   }
   return null;
+}
+
+/** First positive template id in a menu tree (depth-first). */
+export function firstPositiveTemplateId(
+  actions: readonly MenuAction[],
+): number | null {
+  for (const action of actions) {
+    const id = parseTemplateIdFromAction(action);
+    if (id != null) {
+      return id;
+    }
+    if (action.children && action.children.length > 0) {
+      const nested = firstPositiveTemplateId(action.children);
+      if (nested != null) {
+        return nested;
+      }
+    }
+  }
+  return null;
+}
+
+async function defaultResolveAssemblerTemplate(
+  contentId: number,
+): Promise<number | null> {
+  const menus = mapActionMenusToMenuActions(
+    await findAllowedTemplateMenus(contentId, false),
+  );
+  return firstPositiveTemplateId(menus);
+}
+
+/**
+ * Legacy {@code assembler/render} and {@code previewslotvariant} URLs.
+ * Opens a new window. Does not refresh or change the Explorer selection.
+ * Folders and items with no template are named failures (no navigation).
+ */
+async function openAssemblerPreviewForSelection(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+): Promise<ActionDispatchResult> {
+  const item = ctx.item;
+  if (!item || isFolder(item)) {
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.ASSEMBLER_PREVIEW_NEEDS_PAGE,
+    };
+  }
+  const contentId = parseExplorerContentId(item.id);
+  if (contentId == null) {
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.ASSEMBLER_PREVIEW_NO_TARGET,
+    };
+  }
+  let templateId = parseTemplateIdFromAction(action);
+  if (templateId == null) {
+    const resolve =
+      ctx.resolveAssemblerTemplate ?? defaultResolveAssemblerTemplate;
+    try {
+      templateId = await resolve(contentId);
+    } catch {
+      return { kind: "rest", messageKey: EXPLORER_MSG.PREVIEW_OPEN_ERROR };
+    }
+  }
+  if (templateId == null) {
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.ASSEMBLER_PREVIEW_NO_TARGET,
+    };
+  }
+  const fetchLoc = ctx.fetchPreview ?? fetchPreviewLocation;
+  let previewUrl = "";
+  try {
+    const loc = await fetchLoc(contentId, templateId);
+    previewUrl = loc.previewUrl;
+  } catch {
+    return { kind: "rest", messageKey: EXPLORER_MSG.PREVIEW_OPEN_ERROR };
+  }
+  const href = resolvePreviewHref(previewUrl);
+  if (!href.toLowerCase().includes("/assembler/render")) {
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.ASSEMBLER_PREVIEW_NO_TARGET,
+    };
+  }
+  const open = ctx.openWindow ?? defaultOpenWindow;
+  open(href, `percAssemblerPreview_${contentId}`);
+  return { kind: "rest" };
 }
 
 /** CMS path or site-preview URL suitable for Copy URL to Clipboard. */
@@ -1647,7 +1744,10 @@ export async function dispatchAction(
   if (kind === "legacy-file" && action.url) {
     const base =
       typeof window !== "undefined" ? window.location.href : "http://localhost/";
-    if (isDataFlowActionUrl(action.url) || isAssemblerPreviewUrl(action.url)) {
+    if (isAssemblerPreviewUrl(action.url)) {
+      return openAssemblerPreviewForSelection(action, ctx);
+    }
+    if (isDataFlowActionUrl(action.url)) {
       return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
     }
     const classified = classifyUrl(action.url, base);
@@ -2117,6 +2217,10 @@ export async function dispatchAction(
     return { kind: "rest" };
   }
 
+  if (isAssemblerPreviewUrl(action.url)) {
+    return openAssemblerPreviewForSelection(action, ctx);
+  }
+
   if (PREVIEW_PARENT_NAMES.has(name) || name === "preview") {
     if (!item || isFolder(item)) {
       return { kind: "rest", messageKey: EXPLORER_MSG.PREVIEW_UNAVAILABLE };
@@ -2126,7 +2230,7 @@ export async function dispatchAction(
     return { kind: "rest" };
   }
 
-  if (isDataFlowActionUrl(action.url) || isAssemblerPreviewUrl(action.url)) {
+  if (isDataFlowActionUrl(action.url)) {
     return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
   }
 
