@@ -125,6 +125,18 @@ named Sites. A successful HTTP 200 with Site entries — including `SiteList`, n
 `Site`/`sites`/`item` wraps, or `SiteSummary` — must populate the table (never a silent
 blank). Load failures show **Could not load sites** rather than the empty state.
 
+### Add a navigation section
+
+On **Site detail** for a traditional site that uses managed navigation:
+
+1. Open **Developer → Sites** and choose the site.
+2. In **Navigation sections**, the list shows the current tree (reload the detail to see a section that was just added).
+3. Enter a **section name** and choose a **parent** (the site root or an existing section that can hold children).
+4. Choose **Add section**. The catalog posts the existing `POST /sitemanage/section/create` (`CreateSiteSection`). The landing-page file name and URL segment are derived from the name. **Cancel** clears the name and does not post.
+5. An invalid name stays on the panel and does not post. **400** and **403** stay on the panel with an error; the section is not listed until a later successful add and reload.
+
+Sites with managed navigation turned off, and Virtual Sites, stay **read-only** in this section (no add). Reorder and delete stay in **Navigation**, not this catalog. Full site publish stays outside this catalog.
+
 ### Configure Virtual Site source in the product UI
 
 1. Sign in as an administrator (or a role that can open **Developer**).

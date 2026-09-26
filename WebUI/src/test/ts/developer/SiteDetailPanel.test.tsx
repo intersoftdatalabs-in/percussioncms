@@ -31,6 +31,10 @@ vi.mock("../../../main/ts/developer/VirtualSiteSourcePanel", () => ({
   ),
 }));
 
+vi.mock("../../../main/ts/developer/SiteNavSections", () => ({
+  SiteNavSections: () => <div data-testid="developer-site-nav-stub" />,
+}));
+
 vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   listWorkflows: vi.fn(),
 }));

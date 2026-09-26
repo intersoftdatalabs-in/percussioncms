@@ -1351,6 +1351,11 @@ export interface SiteDef {
   designGaps?: string[];
   /** Site-folder workflow name when loaded on detail. */
   workflowName?: string;
+  /**
+   * Traditional sites: {@code false} means no CMS NavTree (read-only here).
+   * Absent or true includes managed navigation. Null/omitted on Virtual Sites.
+   */
+  managedNavigation?: boolean | null;
   /** Nested virtual.* when loaded via site detail GET (optional on list). */
   virtual?: VirtualSiteProperties;
 }

@@ -23,6 +23,7 @@ import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { ObjectAclSection } from "./ObjectAclSection";
+import { SiteNavSections } from "./SiteNavSections";
 import { VirtualSiteSourcePanel } from "./VirtualSiteSourcePanel";
 
 const inputStyle: React.CSSProperties = {
@@ -275,6 +276,8 @@ export function SiteDetailPanel({
       </header>
 
       {siteKey ? <VirtualSiteSourcePanel siteName={siteKey} /> : null}
+
+      {siteKey ? <SiteNavSections site={site} /> : null}
 
       <ObjectAclSection
         objectGuid={objectGuid}
