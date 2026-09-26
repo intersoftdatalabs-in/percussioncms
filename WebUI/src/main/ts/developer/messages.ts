@@ -2231,6 +2231,12 @@ export const DEV_MSG_KEYS = {
   SITE_COL_DEFAULT_DOC: "perc.ui.developer@Default document",
   SITE_COL_EXT: "perc.ui.developer@Default file extension",
   SITE_COL_PAGE_BASED: "perc.ui.developer@Page-based",
+  SITE_COL_WORKFLOW: "perc.ui.developer@Workflow",
+  SITE_WF_PLACEHOLDER: "perc.ui.developer@Select a workflow",
+  SITE_WF_LOADING: "perc.ui.developer@Loading workflows...",
+  SITE_WF_LOAD_ERROR: "perc.ui.developer@Could not load workflows.",
+  SITE_UNKNOWN_WORKFLOW: "perc.ui.developer@Unknown workflow was not saved.",
+  SITE_NOT_FOUND: "perc.ui.developer@Site was not found.",
   SITE_FLAG_PAGE: "perc.ui.developer@Page-based",
   SITE_FLAG_CANONICAL: "perc.ui.developer@Canonical",
   SITE_YES: "perc.ui.developer@Yes",
@@ -2241,8 +2247,6 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Site create, update, and delete are available from this Developer catalog",
   SITE_GAP_PUBLISH:
     "perc.ui.developer@Full site publish and section design live outside the Developer catalog",
-  SITE_GAP_WF:
-    "perc.ui.developer@Workflow association is browsed under the Workflows catalog",
   SITE_VIRT_TITLE: "perc.ui.developer@Virtual Site source",
   SITE_VIRT_HINT:
     "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git filesystem, CSV filesystem, SQL database, HTTP JSON, object storage, RSS / Atom, iCalendar, or sitemap XML). Blank/repository keeps traditional repository content.",

@@ -150,8 +150,10 @@ public class SitesResource {
       summary = "Update a site",
       description =
           "Slice 22 Admin. Updates description, baseUrl, protocol, default document, and"
-              + " default file extension. Body name must match the path. Jackson root wrap is"
-              + " Site. Renames and section design stay outside this surface.",
+              + " default file extension. Optional workflowName sets the site-folder workflow;"
+              + " an unknown name is 400 and is not saved. Body name must match the path."
+              + " Jackson root wrap is Site. Renames and section design stay outside this"
+              + " surface.",
       responses = {
         @ApiResponse(
             responseCode = "200",

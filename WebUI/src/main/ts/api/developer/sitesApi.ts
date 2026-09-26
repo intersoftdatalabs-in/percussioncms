@@ -18,7 +18,6 @@ import type {
 /** Honest design gaps for Developer SY-04 site browse (not full site design). */
 export const SITE_DESIGN_GAPS: string[] = [
   "Full site publish and section design live outside the Developer catalog",
-  "Workflow association is browsed under the Workflows catalog",
 ];
 
 const SITE_NAME_RE = /^[A-Za-z][A-Za-z0-9_ -]{0,49}$/;
@@ -42,6 +41,8 @@ export type SiteWriteBody = {
   siteProtocol?: string;
   defaultDocument?: string;
   defaultFileExtention?: string;
+  /** Existing workflow name. Omit to leave the site-folder association unchanged. */
+  workflowName?: string;
 };
 
 export const SITE_WIRE_ROOT = "Site";
@@ -360,6 +361,13 @@ export async function listSites(): Promise<SiteDef[]> {
   return [];
 }
 
+/** GET /services/sites/{nameOrId} — detail, including workflowName when set. */
+export async function getSite(nameOrId: string): Promise<SiteDef> {
+  const key = encodeURIComponent(nameOrId.trim());
+  const payload = await get<unknown>(`${PATHS.SITES}/${key}`);
+  return unwrapSitePayload(payload);
+}
+
 /**
  * Normalize virtual properties payload (Jackson root wrap or plain DTO).
  */
@@ -622,7 +630,7 @@ export async function renameSite(nameOrId: string, newName: string): Promise<Sit
   return unwrapSitePayload(payload);
 }
 
-/** PUT /services/sites/{nameOrId} — Admin. Updates description/baseUrl/protocol/defaults. */
+/** PUT /services/sites/{nameOrId} — Admin. Updates description/baseUrl and optional workflowName. */
 export async function updateSite(
   nameOrId: string,
   body: SiteWriteBody,

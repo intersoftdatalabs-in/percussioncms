@@ -7,6 +7,7 @@ import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { SiteDef } from "../../../main/ts/api/developer/types";
 import * as sitesApi from "../../../main/ts/api/developer/sitesApi";
+import * as workflowsApi from "../../../main/ts/api/developer/workflowsApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { SiteDetailPanel } from "../../../main/ts/developer/SiteDetailPanel";
 
@@ -30,6 +31,10 @@ vi.mock("../../../main/ts/developer/VirtualSiteSourcePanel", () => ({
   ),
 }));
 
+vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
+  listWorkflows: vi.fn(),
+}));
+
 vi.mock("../../../main/ts/api/developer/sitesApi", async () => {
   const actual = await vi.importActual<typeof sitesApi>(
     "../../../main/ts/api/developer/sitesApi",
@@ -43,6 +48,7 @@ vi.mock("../../../main/ts/api/developer/sitesApi", async () => {
 
 const updateSite = sitesApi.updateSite as ReturnType<typeof vi.fn>;
 const deleteSite = sitesApi.deleteSite as ReturnType<typeof vi.fn>;
+const listWorkflows = workflowsApi.listWorkflows as ReturnType<typeof vi.fn>;
 
 const sampleSite: SiteDef = {
   name: "Corporate",
@@ -63,6 +69,11 @@ describe("SiteDetailPanel", () => {
     };
     updateSite.mockReset();
     deleteSite.mockReset();
+    listWorkflows.mockReset();
+    listWorkflows.mockResolvedValue([
+      { workflowName: "Default Workflow" },
+      { workflowName: "Simple Workflow" },
+    ]);
   });
 
   it("renders site detail from list payload and supports back", () => {
@@ -95,7 +106,7 @@ describe("SiteDetailPanel", () => {
     render(<SiteDetailPanel site={site} onBack={() => undefined} />);
     const gaps = screen.getByTestId("developer-site-gaps");
     expect(gaps.textContent).toContain(DEV_MSG.SITE_GAP_PUBLISH);
-    expect(gaps.textContent).toContain(DEV_MSG.SITE_GAP_WF);
+    expect(gaps.textContent).not.toContain("Workflow association is browsed");
     expect(gaps.textContent).not.toContain("not supported from this Developer surface");
   });
 
@@ -154,6 +165,44 @@ describe("SiteDetailPanel", () => {
     expect(screen.getByTestId("developer-site-save-notice").textContent).toBe(
       DEV_MSG.SITE_SAVED,
     );
+  });
+
+  it("saves a chosen workflow and shows it after reload payload", async () => {
+    updateSite.mockResolvedValue({
+      name: "Corporate",
+      description: "Main site",
+      baseUrl: "https://example.com",
+      workflowName: "Simple Workflow",
+    });
+    render(<SiteDetailPanel site={sampleSite} onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-workflow")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-site-workflow"), {
+      target: { value: "Simple Workflow" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-save"));
+    await waitFor(() => {
+      expect(updateSite).toHaveBeenCalledWith(
+        "Corporate",
+        expect.objectContaining({ workflowName: "Simple Workflow" }),
+      );
+    });
+    expect(
+      (screen.getByTestId("developer-site-workflow") as HTMLSelectElement).value,
+    ).toBe("Simple Workflow");
+  });
+
+  it("maps unknown workflow 400 without claiming a save", async () => {
+    updateSite.mockRejectedValue({ status: 400, statusText: "Bad Request", body: "Unknown workflow: Nope" });
+    const site = { ...sampleSite, workflowName: "Nope" };
+    render(<SiteDetailPanel site={site} onBack={() => undefined} />);
+    fireEvent.click(screen.getByTestId("developer-site-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-save-error").textContent).toContain(
+        DEV_MSG.SITE_UNKNOWN_WORKFLOW,
+      );
+    });
   });
 
   it("confirms delete then calls API", async () => {

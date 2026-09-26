@@ -129,6 +129,12 @@ public class SitesAdaptor implements ISiteAdaptor {
   /** Git remote checkout before discover; tests may inject a stub. */
   private final PSGitRemoteCheckout gitRemoteCheckout;
 
+  /**
+   * Site-folder workflow association. Null in unit tests that do not set it; Spring injects the
+   * production bean.
+   */
+  private SiteFolderWorkflowAssociation siteWorkflow;
+
   /** Functional hook for the static build (production or test double). */
   @FunctionalInterface
   interface BuildRunner {
@@ -195,10 +201,28 @@ public class SitesAdaptor implements ISiteAdaptor {
         gitRemoteCheckout != null ? gitRemoteCheckout : new PSGitRemoteCheckout();
   }
 
+  /** Spring injects the production association. Tests may call this directly. */
+  @Autowired(required = false)
+  void setSiteWorkflowAssociation(SiteFolderWorkflowAssociation siteWorkflow) {
+    this.siteWorkflow = siteWorkflow;
+  }
+
   @Override
   public SiteList findAllSites() {
     var sites = siteDataService.findAll();
-    return ApiUtils.convertSiteSummaryList(sites);
+    SiteList list = ApiUtils.convertSiteSummaryList(sites);
+    if (list != null && siteWorkflow != null) {
+      for (Site row : list) {
+        if (row == null || StringUtils.isBlank(row.getName())) {
+          continue;
+        }
+        IPSSite domain = siteManager.findSite(row.getName().trim());
+        if (domain != null) {
+          row.setWorkflowName(siteWorkflow.readName(domain));
+        }
+      }
+    }
+    return list;
   }
 
   @Override
@@ -244,10 +268,26 @@ public class SitesAdaptor implements ISiteAdaptor {
             Response.Status.BAD_REQUEST);
       }
     }
+    SiteFolderWorkflowAssociation.Assignment pendingWorkflow = null;
+    if (StringUtils.isNotBlank(request.getWorkflowName())) {
+      if (siteWorkflow == null) {
+        throw new WebApplicationException(
+            "Site workflow association is not available", Response.Status.SERVICE_UNAVAILABLE);
+      }
+      // Reject unknown workflows and a missing site folder before the site row is saved.
+      pendingWorkflow = siteWorkflow.prepare(found, request.getWorkflowName());
+    }
     try {
       IPSSite modifiable = loadModifiable(found);
       applyWritableFields(modifiable, request, false);
       siteManager.saveSite(modifiable);
+      if (pendingWorkflow != null) {
+        siteWorkflow.commit(pendingWorkflow);
+      }
+      if (StringUtils.isBlank(modifiable.getFolderRoot())
+          && StringUtils.isNotBlank(found.getFolderRoot())) {
+        modifiable.setFolderRoot(found.getFolderRoot());
+      }
       return toDetailSite(modifiable);
     } catch (PSNotFoundException e) {
       throw new WebApplicationException("Site not found: " + nameOrId, Response.Status.NOT_FOUND);
@@ -763,6 +803,9 @@ public class SitesAdaptor implements ISiteAdaptor {
     }
     ret.setVirtual(readVirtual(site));
     ret.setManagedNavigation(PSManagedNavSiteHelper.flagForNonVirtual(site));
+    if (siteWorkflow != null) {
+      ret.setWorkflowName(siteWorkflow.readName(site));
+    }
     return ret;
   }
 

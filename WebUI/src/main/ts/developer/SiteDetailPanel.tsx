@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { isApiError } from "../api/client";
 import { objectGuidString } from "../api/displayFormatGuid";
 import {
@@ -11,6 +11,7 @@ import {
   updateSite,
 } from "../api/developer/sitesApi";
 import type { SiteDef } from "../api/developer/types";
+import { listWorkflows } from "../api/developer/workflowsApi";
 import {
   catalogColors,
   backButton,
@@ -50,10 +51,13 @@ export function SiteDetailPanel({
   const gaps =
     site.designGaps && site.designGaps.length
       ? site.designGaps
-      : [DEV_MSG.SITE_GAP_PUBLISH, DEV_MSG.SITE_GAP_WF];
+      : [DEV_MSG.SITE_GAP_PUBLISH];
 
   const [description, setDescription] = useState(site.description || "");
   const [baseUrl, setBaseUrl] = useState(site.baseUrl || "");
+  const [workflowName, setWorkflowName] = useState(site.workflowName || "");
+  const [workflowOptions, setWorkflowOptions] = useState<string[]>([]);
+  const [workflowLoadError, setWorkflowLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const [saveBusy, setSaveBusy] = useState(false);
@@ -62,10 +66,34 @@ export function SiteDetailPanel({
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const inflight = useRef(false);
 
+  useEffect(() => {
+    setWorkflowName(site.workflowName || "");
+  }, [site.workflowName, siteKey]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setWorkflowLoadError(null);
+    listWorkflows()
+      .then((rows) => {
+        if (cancelled) return;
+        const names = rows
+          .map((row) => (row.workflowName || "").trim())
+          .filter((name) => name.length > 0);
+        setWorkflowOptions(Array.from(new Set(names)));
+      })
+      .catch(() => {
+        if (!cancelled) setWorkflowLoadError(DEV_MSG.SITE_WF_LOAD_ERROR);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [siteKey]);
+
   function saveFallback(err: unknown): string {
     if (isApiError(err)) {
       if (err.status === 403) return DEV_MSG.SITE_FORBIDDEN;
-      if (err.status === 400) return DEV_MSG.SITE_INVALID_NAME;
+      if (err.status === 404) return DEV_MSG.SITE_NOT_FOUND;
+      if (err.status === 400) return DEV_MSG.SITE_UNKNOWN_WORKFLOW;
     }
     return DEV_MSG.SITE_SAVE_ERROR;
   }
@@ -84,11 +112,16 @@ export function SiteDetailPanel({
     setSaveError(null);
     setSaveNotice(null);
     try {
+      const chosen = workflowName.trim();
       const saved = await updateSite(siteKey, {
         name: siteKey,
         description: description.trim(),
         baseUrl: baseUrl.trim(),
+        ...(chosen ? { workflowName: chosen } : {}),
       });
+      if (saved.workflowName) {
+        setWorkflowName(saved.workflowName);
+      }
       setSaveNotice(DEV_MSG.SITE_SAVED);
       onUpdated?.(saved);
     } catch (err: unknown) {
@@ -187,6 +220,30 @@ export function SiteDetailPanel({
           <dt>{DEV_MSG.SITE_COL_PAGE_BASED}</dt>
           <dd style={{ margin: 0 }}>
             {site.pageBasedSite ? DEV_MSG.SITE_YES : DEV_MSG.SITE_NO}
+          </dd>
+          <dt>{DEV_MSG.SITE_COL_WORKFLOW}</dt>
+          <dd style={{ margin: 0 }}>
+            <select
+              data-testid="developer-site-workflow"
+              style={inputStyle}
+              value={workflowName}
+              disabled={saveBusy || deleteBusy}
+              aria-label={DEV_MSG.SITE_COL_WORKFLOW}
+              onChange={(e) => setWorkflowName(e.target.value)}
+            >
+              <option value="">{DEV_MSG.SITE_WF_PLACEHOLDER}</option>
+              {workflowName && !workflowOptions.includes(workflowName) ? (
+                <option value={workflowName}>{workflowName}</option>
+              ) : null}
+              {workflowOptions.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+            {workflowLoadError ? (
+              <div data-testid="developer-site-workflow-error">{workflowLoadError}</div>
+            ) : null}
           </dd>
         </dl>
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "12px" }}>

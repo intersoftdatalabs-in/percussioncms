@@ -899,6 +899,10 @@ vi.mock("../../../main/ts/api/developer/sitesApi", () => ({
   createSite: vi.fn(),
   updateSite: vi.fn(),
   deleteSite: vi.fn(),
+  getSite: vi.fn().mockImplementation(async (name: string) => ({
+    name,
+    workflowName: "Simple Workflow",
+  })),
   coerceDisplayString: (value: unknown) =>
     typeof value === "string" ? value.trim() : "",
   SITE_DESIGN_GAPS: [],
