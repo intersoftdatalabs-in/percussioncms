@@ -4489,6 +4489,104 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     });
   });
 
+  it("pages view results and keeps the current page when the next execute fails (#4930)", async () => {
+    stubPathFetch();
+    const pageRows = (start: number, count: number) =>
+      Array.from({ length: count }, (_, i) => ({
+        id: String(start + i),
+        title: `Row ${start + i}`,
+        folderPath: "/Sites/Demo",
+        type: "page",
+      }));
+    const executeView = vi.fn(
+      async (_key: string, req?: { startIndex?: number }) => {
+        const start = req?.startIndex ?? 1;
+        if (start === 101) {
+          return {
+            children: [],
+            totalCount: 100,
+            startIndex: 101,
+            viewName: "View_All",
+          };
+        }
+        if (start > 1 && start !== 51) {
+          throw { status: 500, statusText: "Server Error", body: "boom" };
+        }
+        if (start === 51) {
+          return {
+            children: pageRows(51, 10),
+            totalCount: 60,
+            startIndex: 51,
+            viewName: "View_All",
+          };
+        }
+        return {
+          children: pageRows(1, 50),
+          totalCount: 60,
+          startIndex: 1,
+          viewName: "View_All",
+        };
+      },
+    );
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        listViews={async () => [
+          {
+            name: "View_All",
+            label: "All Content",
+            parentCategory: 1,
+            standardView: true,
+          },
+        ]}
+        executeView={executeView}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("explorer-views-leaf-View_All")).toBeInTheDocument(),
+    );
+    fireEvent.click(screen.getByTestId("explorer-views-leaf-View_All"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-view-results-next")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-view-results-previous")).toBeNull();
+    expect(screen.getByTestId("explorer-view-open-1")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("explorer-view-results-next"));
+    await waitFor(() => {
+      expect(executeView).toHaveBeenCalledWith("View_All", {
+        startIndex: 51,
+        maxResults: 50,
+      });
+      expect(screen.getByTestId("explorer-view-open-51")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-view-open-1")).toBeNull();
+    expect(screen.getByTestId("explorer-view-results-previous")).toBeInTheDocument();
+    expect(screen.queryByTestId("explorer-view-results-next")).toBeNull();
+    fireEvent.click(screen.getByTestId("explorer-view-results-previous"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-view-open-1")).toBeInTheDocument();
+    });
+    expect(executeView).toHaveBeenCalledWith("View_All", {
+      startIndex: 1,
+      maxResults: 50,
+    });
+    executeView.mockImplementation(async () => {
+      throw { status: 500, statusText: "Server Error", body: "boom" };
+    });
+    fireEvent.click(screen.getByTestId("explorer-view-results-next"));
+    await waitFor(() => {
+      const err = screen.getByTestId("explorer-view-results-error");
+      expect(err).toHaveAttribute("data-http-status", "500");
+    });
+    expect(screen.getByTestId("explorer-view-open-1")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-view-results")).toHaveAttribute(
+      "data-start-index",
+      "1",
+    );
+  });
+
   it("New Item host opens a content-type picker instead of an error toast (#3513)", async () => {
     stubPathFetch();
     const createItem = vi.fn().mockResolvedValue({
