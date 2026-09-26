@@ -171,6 +171,7 @@ import {
   parentExplorerTreePath,
 } from "./ExplorerTree";
 import { FolderSecurityPanel } from "./FolderSecurityPanel";
+import { CheckoutOwnerPanel } from "./CheckoutOwnerPanel";
 import { ItemPropertiesPanel } from "./ItemPropertiesPanel";
 import type { ExplorerMenuCommandId } from "./menuBarModel";
 import { EXPLORER_MSG } from "./messages";
@@ -223,6 +224,7 @@ import {
   canWrite,
   explorerMultiSelectKey,
   isFolder,
+  isPageOrAssetContentType,
   sameExplorerItemId,
   type Selection,
 } from "./selection";
@@ -1835,6 +1837,13 @@ function ContentExplorerShellInner({
               />
             </div>
           </div>
+          <CheckoutOwnerPanel
+            itemId={
+              selection.item && isPageOrAssetContentType(selection.item)
+                ? (selection.item.id ?? null)
+                : null
+            }
+          />
           {/* Always-visible refresh residual (#2733); View menu also has Refresh (#2731). */}
           <div
             style={toolRowStyle}

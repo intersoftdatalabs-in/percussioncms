@@ -47,6 +47,7 @@ import com.percussion.itemmanagement.data.PSItemWorkflowChoice;
 import com.percussion.itemmanagement.data.PSItemWorkflowChoices;
 import com.percussion.itemmanagement.workflow.ItemWorkflowAssignmentRules;
 import com.percussion.itemmanagement.workflow.ItemWorkflowAssignmentRules.Reason;
+import com.percussion.itemmanagement.service.CheckoutOwnerInfo;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.pagemanagement.dao.IPSPageDao;
@@ -942,6 +943,18 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
     } catch (PSValidationException e) {
       throw new WebApplicationException(e.getMessage());
     }
+  }
+
+  @Override
+  public PSItemUserInfo lookupCheckoutOwner(String id)
+      throws PSValidationException, PSItemWorkflowServiceException {
+    rejectIfBlank("lookupCheckoutOwner", "id", id);
+    PSComponentSummary summary = workflowHelper.getComponentSummary(id);
+    if (summary == null) {
+      throw new PSItemWorkflowServiceException("Item not found");
+    }
+    return CheckoutOwnerInfo.fromSummary(
+        id, summary.getName(), summary.getCheckoutUserName(), getUserName());
   }
 
   @GET

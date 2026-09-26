@@ -178,6 +178,15 @@ public interface IPSItemWorkflowService {
       throws PSValidationException, PSItemWorkflowServiceException;
 
   /**
+   * Read-only checkout owner for Content Explorer. Does not check the item out.
+   *
+   * @param id the item id, never blank
+   * @return user info; {@code checkOutUser} is empty when nobody holds the lock
+   */
+  PSItemUserInfo lookupCheckoutOwner(String id)
+      throws PSValidationException, PSItemWorkflowServiceException;
+
+  /**
    * Gets all approved pages which use the specified asset. An approved page is a page which is the
    * tip revision and is in an approved state (Pending, Live, Quick Edit) or which is not the tip
    * revision and is in the Quick Edit state.

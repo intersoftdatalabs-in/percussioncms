@@ -589,6 +589,13 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Item not found",
   FORCE_CHECKIN_NOT_CHECKED_OUT:
     "perc.ui.explorer@Item is not checked out",
+  CHECKOUT_OWNER_LABEL: "perc.ui.explorer@Checked out by",
+  CHECKOUT_OWNER_NONE: "perc.ui.explorer@Not checked out",
+  CHECKOUT_OWNER_LOADING: "perc.ui.explorer@Loading checkout owner",
+  CHECKOUT_OWNER_FORBIDDEN:
+    "perc.ui.explorer@You are not allowed to see who has this item checked out",
+  CHECKOUT_OWNER_FAILED:
+    "perc.ui.explorer@Could not load who has this item checked out",
   CHECKOUT_FORBIDDEN:
     "perc.ui.explorer@You are not allowed to check out this item",
   CHECKOUT_CONFLICT:

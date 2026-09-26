@@ -37,4 +37,9 @@ public class TestEditorItemLockAdaptor implements IEditorItemLockAdaptor {
   public EditorItemLockInfo checkin(URI baseUri, String itemId) {
     return new EditorItemLockInfo("stub", "", "admin", "Assignee");
   }
+
+  @Override
+  public EditorItemLockInfo lookupCheckoutOwner(URI baseUri, String itemId) {
+    return new EditorItemLockInfo("stub", "", "admin", "Reader");
+  }
 }

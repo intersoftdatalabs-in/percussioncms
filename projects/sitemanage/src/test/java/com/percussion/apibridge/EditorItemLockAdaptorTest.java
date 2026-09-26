@@ -20,6 +20,7 @@ package com.percussion.apibridge;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -118,6 +119,36 @@ class EditorItemLockAdaptorTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> adaptor.checkin(base, "42"));
     assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void lookupShowsOtherUsersLockWithoutCheckout() throws Exception {
+    when(workflow.lookupCheckoutOwner("42"))
+        .thenReturn(new PSItemUserInfo("Home", "editor", "Admin", "Reader"));
+    EditorItemLockInfo info = adaptor.lookupCheckoutOwner(base, "42");
+    assertEquals("editor", info.getCheckOutUser());
+    verify(workflow, never()).checkOut("42");
+  }
+
+  @Test
+  void lookupEmptyOwnerWhenNotCheckedOut() throws Exception {
+    when(workflow.lookupCheckoutOwner("42"))
+        .thenReturn(new PSItemUserInfo("Home", "", "Admin", "Reader"));
+    assertEquals("", adaptor.lookupCheckoutOwner(base, "42").getCheckOutUser());
+  }
+
+  @Test
+  void lookupForbiddenWhenServiceFails() throws Exception {
+    when(workflow.lookupCheckoutOwner("42"))
+        .thenThrow(new PSItemWorkflowServiceException("no session"));
+    assertThrows(NotAuthorizedException.class, () -> adaptor.lookupCheckoutOwner(base, "42"));
+  }
+
+  @Test
+  void lookupBlankIdIs400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.lookupCheckoutOwner(base, " "));
+    assertEquals(400, ex.getResponse().getStatus());
   }
 
   @Test
