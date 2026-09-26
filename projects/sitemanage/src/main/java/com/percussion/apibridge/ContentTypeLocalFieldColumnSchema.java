@@ -37,6 +37,14 @@ interface ContentTypeLocalFieldColumnSchema {
    */
   void ensureColumn(String tableName, String columnName, String fieldDataType, String dataFormat);
 
+  /**
+   * Create the local content table (with {@code CONTENTID}) when it is missing, then ensure the
+   * text column exists. Default delegates to {@link #ensureColumn} for test doubles.
+   */
+  default void ensureNewContentTypeTable(String tableName, String textColumn) {
+    ensureColumn(tableName, textColumn, "text", "50");
+  }
+
   /** Test double that performs no DDL. */
   static ContentTypeLocalFieldColumnSchema noop() {
     return (tableName, columnName, fieldDataType, dataFormat) -> {

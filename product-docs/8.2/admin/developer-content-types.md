@@ -22,6 +22,8 @@ That call persists the type (Workbench Finish). Create and save share the packed
 NODEDEF design-object id for the new type (the default editor template id `0` is
 not used as the lock or persist identity). A successful create is then
 `GET /services/contenttypes/{name}` **200** and the catalog lists the new row.
+The new type gets its own content table and a local text field named `title`
+(so the content editor can start). Add or remove fields from the detail after that.
 Duplicate or reserved system names
 (for example **Folder**) are **409**. Invalid names (blank, spaces, wildcard)
 are **400**. Non-Admin callers are **403**. Integrators can also **import** one

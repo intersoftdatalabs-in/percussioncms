@@ -271,8 +271,31 @@ public class PSContentMgr  implements IPSContentMgr
       }
       catch (Exception e)
       {
-         throw new RepositoryException("Problem loading definitions", e);
+         // NoSuchNodeTypeException is a RepositoryException. Wrapping it makes
+         // findNodeDef throw instead of returning null, so saving a brand-new
+         // content type (null lock version, no row yet) fails before insert (#4905).
+         throw loadDefinitionsFailure(e);
       }
+   }
+
+   /**
+    * Keep {@link NoSuchNodeTypeException} (and other {@link RepositoryException}s)
+    * unwrapped. Only unexpected failures become {@code Problem loading definitions}.
+    *
+    * @param e failure from a node-def load, not {@code null}
+    * @return the same repository exception, or a wrapper for non-repository failures
+    */
+   static RepositoryException loadDefinitionsFailure(Exception e)
+   {
+      if (e instanceof NoSuchNodeTypeException missing)
+      {
+         return missing;
+      }
+      if (e instanceof RepositoryException already)
+      {
+         return already;
+      }
+      return new RepositoryException("Problem loading definitions", e);
    }
 
    @Transactional

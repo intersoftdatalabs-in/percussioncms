@@ -795,8 +795,30 @@ public class PSContentTypeHelper {
     } catch (NoSuchNodeTypeException e) {
       return null;
     } catch (RepositoryException e) {
+      // Defense if a caller still wraps the missing-type exception (#4905).
+      if (isMissingNodeDefinition(e)) {
+        return null;
+      }
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * True when {@code error} is or is caused by {@link NoSuchNodeTypeException}.
+   *
+   * @param error load failure, may be {@code null}
+   * @return {@code true} when the node definition is absent
+   */
+  static boolean isMissingNodeDefinition(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      if (current instanceof NoSuchNodeTypeException) {
+        return true;
+      }
+      Throwable next = current.getCause();
+      current = next == current ? null : next;
+    }
+    return false;
   }
 
   /**
