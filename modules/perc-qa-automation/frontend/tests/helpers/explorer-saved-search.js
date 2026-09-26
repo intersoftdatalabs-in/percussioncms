@@ -200,7 +200,9 @@ function searchDefLabel(def) {
 }
 
 /**
- * True when the design search is a custom URL search (UI run button disabled).
+ * True when the design row is URL-backed ({@code customSearch}). Custom searches
+ * are runnable from Explorer; this flag still skips them when picking a
+ * standard catalog search for the older saved-search spec.
  *
  * @param {Record<string, unknown> | null | undefined} def
  * @returns {boolean}
@@ -275,7 +277,7 @@ function isCustomSelectOption(option) {
     return false;
   }
   const text = String(option.text ?? option.label ?? "").trim();
-  return /\(URL\)\s*$/.test(text);
+  return /\(URL\)\s*$/.test(text) || /\(view URL\)\s*$/i.test(text);
 }
 
 /**

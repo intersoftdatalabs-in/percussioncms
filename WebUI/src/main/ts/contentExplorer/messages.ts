@@ -345,7 +345,7 @@ export const EXPLORER_MSG = {
   SEARCH_SAVED_ERROR: "perc.ui.explorer@Could not load saved searches",
   SEARCH_SAVED_RETRY: "perc.ui.explorer@Retry loading saved searches",
   SEARCH_SAVED_CUSTOM_UNSUPPORTED:
-    "perc.ui.explorer@Custom URL searches cannot be run from Explorer",
+    "perc.ui.explorer@Custom URL views cannot be run from the saved-search list",
   DISPLAY_FORMAT_LABEL: "perc.ui.explorer@Display format",
   DISPLAY_FORMAT_DEFAULT: "perc.ui.explorer@Default columns",
   /** Non-fatal catalog load failure — selector stays mounted (#3208). */

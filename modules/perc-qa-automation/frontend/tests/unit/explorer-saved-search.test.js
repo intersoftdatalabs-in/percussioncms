@@ -153,6 +153,7 @@ describe("explorer-saved-search helpers (#2507)", () => {
 
   it("pickRunnableSelectOption skips placeholder and custom URL options", () => {
     assert.equal(isCustomSelectOption({ text: "Inbox (URL)" }), true);
+    assert.equal(isCustomSelectOption({ text: "Outbox (view URL)" }), true);
     assert.equal(isCustomSelectOption({ text: "All" }), false);
     assert.equal(pickRunnableSelectOption([]), null);
     assert.equal(

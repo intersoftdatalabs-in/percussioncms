@@ -470,8 +470,48 @@ describe("SearchPanel", () => {
       });
     });
 
-    it("blocks custom URL searches with a clear error", async () => {
-      const executeSavedSearch = vi.fn();
+    it("runs a custom URL saved search and shows rows or an empty list", async () => {
+      const executeSavedSearch = vi.fn().mockResolvedValue({
+        children: [],
+        totalCount: 0,
+        startIndex: 1,
+        searchName: "Custom URL",
+      });
+      render(
+        <SearchPanel
+          listSavedSearches={readyCatalog()}
+          executeSavedSearch={executeSavedSearch}
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
+      });
+      expect(
+        (screen.getByTestId("search-panel-saved-run") as HTMLButtonElement).disabled,
+      ).toBe(true);
+      fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+      expect(executeSavedSearch).not.toHaveBeenCalled();
+      fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
+        target: { value: "Custom URL" },
+      });
+      expect(
+        (screen.getByTestId("search-panel-saved-run") as HTMLButtonElement).disabled,
+      ).toBe(false);
+      fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+      await waitFor(() => {
+        expect(executeSavedSearch).toHaveBeenCalledTimes(1);
+      });
+      expect(executeSavedSearch.mock.calls[0]?.[0]).toBe("Custom URL");
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-empty")).toBeTruthy();
+      });
+    });
+
+    it("keeps HTTP 403 and 404 on the error panel", async () => {
+      const executeSavedSearch = vi
+        .fn()
+        .mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: null })
+        .mockRejectedValueOnce({ status: 404, statusText: "Not Found", body: null });
       render(
         <SearchPanel
           listSavedSearches={readyCatalog()}
@@ -484,10 +524,45 @@ describe("SearchPanel", () => {
       fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
         target: { value: "Custom URL" },
       });
-      // Run is disabled for custom; force onRun path via enabling then click is blocked
+      fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-error").textContent).toMatch(/HTTP 403/);
+      });
+      fireEvent.click(screen.getByTestId("search-panel-retry"));
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-error").textContent).toMatch(/HTTP 404/);
+      });
+      expect(screen.queryByTestId("search-panel-empty")).toBeNull();
+      expect(screen.queryByTestId("search-panel-results")).toBeNull();
+    });
+
+    it("does not run a custom URL view from the saved-search list", async () => {
+      const executeSavedSearch = vi.fn();
+      render(
+        <SearchPanel
+          listSavedSearches={readyCatalog([
+            {
+              name: "Outbox",
+              label: "Outbox",
+              type: "View",
+              customSearch: true,
+            },
+          ])}
+          executeSavedSearch={executeSavedSearch}
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
+        target: { value: "Outbox" },
+      });
       expect(
         (screen.getByTestId("search-panel-saved-run") as HTMLButtonElement).disabled,
       ).toBe(true);
+      expect(screen.getByTestId("search-panel-saved-select").textContent).toMatch(
+        /view URL/,
+      );
       expect(executeSavedSearch).not.toHaveBeenCalled();
     });
 

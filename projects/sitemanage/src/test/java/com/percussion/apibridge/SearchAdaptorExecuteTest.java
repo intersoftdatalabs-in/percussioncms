@@ -16,6 +16,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,7 +34,10 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.BeforeEach;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -174,15 +178,102 @@ class SearchAdaptorExecuteTest {
   }
 
   @Test
-  void executeSearch_customUrlThrows400Style() throws Exception {
+  void executeSearch_customViewStillRejected() throws Exception {
+    PSSearch customView = mockSearch("Outbox", false, false);
+    when(customView.isCustomView()).thenReturn(true);
+    when(customView.isCustomSearch()).thenReturn(false);
+    stubLoadedSearches(List.of(customView));
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.executeSearch("Outbox", new SearchExecuteRequest()));
+    assertTrue(ex.getMessage().toLowerCase().contains("view"));
+    verify(adaptor, never()).runCustomUrlSearch(any(), any());
+  }
+
+  @Test
+  void executeSearch_customUrlSearchReturnsRowsOrEmpty() throws Exception {
     PSSearch custom = mockSearch("Custom", true, false);
+    when(custom.getUrl()).thenReturn("../sys_cxViews/inbox.xml");
+    when(custom.getDisplayFormatId()).thenReturn("0-1-1");
+    when(custom.getMaximumResultSize()).thenReturn(25);
+    stubLoadedSearches(List.of(custom));
+    doReturn(List.of(item("1", "Inbox row"))).when(adaptor).runCustomUrlSearch(any(), any());
+
+    SearchExecuteResult out = adaptor.executeSearch("Custom", new SearchExecuteRequest());
+    assertNotNull(out);
+    assertEquals("Custom", out.getSearchName());
+    assertEquals(1, out.getChildren().size());
+    assertEquals("Inbox row", out.getChildren().get(0).getTitle());
+    verify(adaptor, never()).runDesignSearch(any());
+
+    doReturn(List.of()).when(adaptor).runCustomUrlSearch(any(), any());
+    SearchExecuteResult empty = adaptor.executeSearch("Custom", new SearchExecuteRequest());
+    assertNotNull(empty);
+    assertTrue(empty.getChildren().isEmpty());
+    assertEquals(0, empty.getTotalCount());
+  }
+
+  @Test
+  void executeSearch_customUrlBlankUrlIs400() throws Exception {
+    PSSearch custom = mockSearch("Custom", true, false);
+    when(custom.getUrl()).thenReturn("   ");
     stubLoadedSearches(List.of(custom));
 
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
             () -> adaptor.executeSearch("Custom", new SearchExecuteRequest()));
-    assertTrue(ex.getMessage().toLowerCase().contains("custom"));
+    assertEquals(SearchAdaptor.CUSTOM_SEARCH_URL_REQUIRED, ex.getMessage());
+  }
+
+  @Test
+  void runCustomUrlSearch_resolvesResourceAndCaps() throws Exception {
+    PSSearch design = mockSearch("Custom", true, false);
+    when(design.getUrl()).thenReturn("../my_custom_app/foo.xml");
+    when(design.getMaximumResultSize()).thenReturn(1);
+    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    doReturn(doc).when(adaptor).fetchCustomSearchDocument("my_custom_app/foo");
+    doReturn(List.of(item("1", "A"), item("2", "B")))
+        .when(adaptor)
+        .mapCustomSearchDocument(doc);
+
+    List<SearchResultItem> out = adaptor.runCustomUrlSearch(design, new SearchExecuteRequest());
+    assertEquals(1, out.size());
+    assertEquals("A", out.get(0).getTitle());
+    verify(adaptor).fetchCustomSearchDocument("my_custom_app/foo");
+  }
+
+  @Test
+  void mapCustomSearchDocument_mapsContentIdsAndSkipsBlank() throws Exception {
+    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    Element root = doc.createElement("Search");
+    doc.appendChild(root);
+    Element blank = doc.createElement("Item");
+    blank.setAttribute("sys_contentid", "  ");
+    root.appendChild(blank);
+    Element ok = doc.createElement("Item");
+    ok.setAttribute("sys_contentid", "42");
+    root.appendChild(ok);
+
+    SearchResultItem mapped = item("guid-42", "Hit");
+    doReturn(mapped).when(adaptor).mapContentIdToSearchItem("42");
+
+    List<SearchResultItem> out = adaptor.mapCustomSearchDocument(doc);
+    assertEquals(1, out.size());
+    assertEquals("guid-42", out.get(0).getId());
+    assertTrue(adaptor.mapCustomSearchDocument(null).isEmpty());
+  }
+
+  @Test
+  void resolveCustomSearchResource_rejectsTraversal() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SearchAdaptor.resolveCustomSearchResource("../myApp/../../etc/passwd"));
+    assertEquals(
+        "sys_cxViews/inbox",
+        SearchAdaptor.resolveCustomSearchResource("../sys_cxViews/inbox.xml"));
   }
 
   @Test

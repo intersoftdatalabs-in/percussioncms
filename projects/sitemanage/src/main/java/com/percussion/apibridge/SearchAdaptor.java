@@ -18,6 +18,9 @@ import com.percussion.search.IPSExecutableSearch;
 import com.percussion.search.IPSSearchResultRow;
 import com.percussion.search.PSExecutableSearchFactory;
 import com.percussion.search.PSWSSearchResponse;
+import com.percussion.data.PSInternalRequestCallException;
+import com.percussion.server.PSInternalRequest;
+import com.percussion.server.PSServer;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;
@@ -53,6 +56,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * CX search definition catalog (UI-06 list/detail/write, UI-08 field criteria) plus design-search
@@ -66,6 +72,12 @@ public class SearchAdaptor implements ISearchAdaptor {
   private static final Logger log = LogManager.getLogger(SearchAdaptor.class);
 
   static final String ADMIN_REQUIRED = "Admin role required to create, update, or delete searches";
+
+  /** Explicit 400 when a custom URL search has no usable {@code url}. */
+  static final String CUSTOM_SEARCH_URL_REQUIRED = "Custom URL search requires a non-blank url";
+
+  /** Explicit 400 when {@code url} is not a relative classic application path. */
+  static final String CUSTOM_SEARCH_URL_INVALID = "Invalid custom search URL";
 
   /** Product default page size when design max is unset/unlimited and client omits maxResults. */
   static final int DEFAULT_PAGE_SIZE = 25;
@@ -298,16 +310,20 @@ public class SearchAdaptor implements ISearchAdaptor {
       if (design == null) {
         return null;
       }
-      if (design.isCustomSearch() || design.isCustomView()) {
+      if (design.isCustomView()) {
         throw new IllegalArgumentException(
-            "Custom URL searches cannot be executed via this endpoint");
+            "Custom URL views cannot be executed via the search endpoint");
       }
 
-      // Clone so folder/max overrides do not dirty a shared design instance
-      PSSearch search = (PSSearch) design.clone();
-      applyExecuteOverrides(search, effective);
-
-      List<SearchResultItem> allItems = runDesignSearch(search);
+      List<SearchResultItem> allItems;
+      if (design.isCustomSearch()) {
+        allItems = runCustomUrlSearch(design, effective);
+      } else {
+        // Clone so folder/max overrides do not dirty a shared design instance
+        PSSearch search = (PSSearch) design.clone();
+        applyExecuteOverrides(search, effective);
+        allItems = runDesignSearch(search);
+      }
       sortItems(allItems, effective.getSortColumn(), effective.getSortOrder());
 
       int startIndex = effective.getStartIndex() != null ? effective.getStartIndex() : 1;
@@ -445,6 +461,110 @@ public class SearchAdaptor implements ISearchAdaptor {
   }
 
   /**
+   * Execute a custom URL search by invoking the path-safe classic application resource and mapping
+   * {@code Item/@sys_contentid} rows. Package-visible for spies. Folder scope from the execute
+   * request is not applied — the URL owns the query (#4929).
+   */
+  List<SearchResultItem> runCustomUrlSearch(PSSearch design, SearchExecuteRequest request)
+      throws Exception {
+    String resource = resolveCustomSearchResource(design != null ? design.getUrl() : null);
+    Document doc = fetchCustomSearchDocument(resource);
+    List<SearchResultItem> items = mapCustomSearchDocument(doc);
+    int cap = resolveCustomSearchCap(design, request);
+    if (cap > 0 && items.size() > cap) {
+      return new ArrayList<>(items.subList(0, cap));
+    }
+    return items;
+  }
+
+  static int resolveCustomSearchCap(PSSearch design, SearchExecuteRequest request) {
+    if (request != null && request.getMaxResults() != null && request.getMaxResults() >= 1) {
+      return request.getMaxResults();
+    }
+    if (design != null && design.getMaximumResultSize() > 0) {
+      return design.getMaximumResultSize();
+    }
+    return DEFAULT_PAGE_SIZE;
+  }
+
+  /**
+   * Same path rules as custom views ({@link ViewAdaptor#resolveCustomViewResource}). Search-specific
+   * 400 text so Explorer does not tell the operator this is a view.
+   */
+  static String resolveCustomSearchResource(String rawUrl) {
+    try {
+      return ViewAdaptor.resolveCustomViewResource(rawUrl);
+    } catch (IllegalArgumentException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "";
+      if (msg.toLowerCase(Locale.ROOT).contains("non-blank")
+          || msg.toLowerCase(Locale.ROOT).contains("requires")) {
+        throw new IllegalArgumentException(CUSTOM_SEARCH_URL_REQUIRED);
+      }
+      throw new IllegalArgumentException(CUSTOM_SEARCH_URL_INVALID);
+    }
+  }
+
+  /**
+   * Invoke the classic app resource. Package-visible so tests can stub without a live CMS request
+   * context.
+   */
+  Document fetchCustomSearchDocument(String resource) {
+    var request = PSWebserviceUtils.getRequest();
+    if (request == null) {
+      throw new WebApplicationException(
+          "Search execute backend unavailable (no request context)",
+          Response.Status.SERVICE_UNAVAILABLE);
+    }
+    PSInternalRequest internal = PSServer.getInternalRequest(resource, request, null, true);
+    if (internal == null) {
+      throw new WebApplicationException(
+          "Custom search resource is not available: " + resource,
+          Response.Status.SERVICE_UNAVAILABLE);
+    }
+    try {
+      return internal.getResultDoc();
+    } catch (PSInternalRequestCallException e) {
+      log.error("Failed to execute custom search {}", resource, e);
+      throw new WebApplicationException(
+          "Custom search backend failed: " + resource, Response.Status.SERVICE_UNAVAILABLE);
+    }
+  }
+
+  List<SearchResultItem> mapCustomSearchDocument(Document doc) {
+    List<SearchResultItem> out = new ArrayList<>();
+    if (doc == null) {
+      return out;
+    }
+    NodeList rows = doc.getElementsByTagName("Item");
+    for (int i = 0; i < rows.getLength(); i++) {
+      if (!(rows.item(i) instanceof Element itemEl)) {
+        continue;
+      }
+      String contentId = itemEl.getAttribute("sys_contentid");
+      if (StringUtils.isBlank(contentId)) {
+        continue;
+      }
+      SearchResultItem mapped = mapContentIdToSearchItem(contentId.trim());
+      if (mapped != null) {
+        out.add(mapped);
+      }
+    }
+    return out;
+  }
+
+  /** Map a content id from a custom-URL document onto an Explorer search row. */
+  SearchResultItem mapContentIdToSearchItem(String contentId) {
+    if (StringUtils.isBlank(contentId)) {
+      return null;
+    }
+    SearchResultItem item = new SearchResultItem();
+    item.setId(contentId.trim());
+    item.setName(contentId.trim());
+    item.setTitle(contentId.trim());
+    return enrichSearchItem(item, contentId.trim());
+  }
+
+  /**
    * Execute the design {@link PSSearch} via the local executable search path (operators preserved).
    * Package-visible for unit tests that subclass/spy can override.
    */
@@ -489,7 +609,16 @@ public class SearchAdaptor implements ISearchAdaptor {
     item.setName(title);
     item.setTitle(title);
     item.setType(type);
+    return enrichSearchItem(item, contentId.trim());
+  }
 
+  /**
+   * Resolve content id to Explorer id / folder / type. Returns {@code null} when the id is not
+   * numeric or the item is not in a folder. Keeps a partial row when enrichment fails after a
+   * numeric id.
+   */
+  SearchResultItem enrichSearchItem(SearchResultItem item, String contentId) {
+    String title = item.getTitle();
     try {
       var myGuid = PSGuidUtils.makeGuid(Integer.parseInt(contentId.trim()), PSTypeEnum.LEGACY_CONTENT);
       String stringId = idMapper.getString(myGuid);
@@ -516,14 +645,14 @@ public class SearchAdaptor implements ISearchAdaptor {
       log.debug("Skipping non-numeric content id from search row: {}", contentId);
       return null;
     } catch (Exception e) {
-      // Keep partial row so execute still returns engine hits when enrichment fails.
-      // Expected gaps (checked/service) stay DEBUG; unexpected runtime at WARN for ops.
       if (e instanceof RuntimeException) {
         log.warn("Could not enrich search result for content id {}: {}", contentId, e.toString());
       } else {
         log.debug("Could not enrich search result for content id {}: {}", contentId, e.toString());
       }
-      item.setId(contentId);
+      if (StringUtils.isBlank(item.getId())) {
+        item.setId(contentId);
+      }
     }
     return item;
   }
@@ -672,7 +801,8 @@ public class SearchAdaptor implements ISearchAdaptor {
     d.setParentCategory(s.getParentCategory());
     d.setMaximumResultSize(s.getMaximumResultSize());
     d.setUserSearch(s.isUserSearch());
-    // Custom views are URL-backed like custom searches — picker must not execute them.
+    // Custom views share the flag so the saved-search picker can tell them from
+    // CustomSearch rows (views execute on /services/views, not this endpoint).
     d.setCustomSearch(s.isCustomSearch() || s.isCustomView());
     d.setStandardSearch(s.isStandardSearch());
     d.setUserCustomizable(s.isUserCustomizable());
