@@ -194,7 +194,7 @@ async function assertConsoleClean(page, pageErrors, consoleErrors) {
   );
   expect(relatedConsole, relatedConsole.join("\n")).toEqual([]);
   await expectNoSeriousA11yViolations(page, {
-    scope: '[data-testid="editor-host"]',
+    scope: '[data-testid="editor-related-panel"]',
   });
 }
 
