@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { del, get } from "../client";
+import { del, get, post } from "../client";
 import { PATHS } from "../paths";
 import type { IncrementalQueuePage } from "./types";
 
@@ -95,6 +95,21 @@ export async function clearIncrementalQueue(
   const url =
     `${PATHS.INCREMENTAL_LIST}${encodeSeg(siteName)}/${encodeSeg(serverName)}`;
   await del<void>(url);
+}
+
+/**
+ * Approve one content id already on the incremental queue (HTTP 204).
+ * The item stays queued. 400, 403, and 404 are thrown as {@link ApiError}.
+ */
+export async function approveIncrementalQueueItem(
+  siteName: string,
+  serverName: string,
+  contentId: string,
+): Promise<void> {
+  const url =
+    `${PATHS.INCREMENTAL_LIST}${encodeSeg(siteName)}/${encodeSeg(serverName)}/` +
+    `${encodeSeg(contentId)}/approve`;
+  await post<void>(url);
 }
 
 /** Paged incremental related-items queue. */
