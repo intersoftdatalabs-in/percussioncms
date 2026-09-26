@@ -19,6 +19,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   approveIncrementalQueueItem,
   clearIncrementalQueue,
+  unapproveIncrementalQueueItem,
   getIncrementalItems,
   getIncrementalRelatedItems,
   incrementalPublishSite,
@@ -60,6 +61,7 @@ import {
   isQueueEmpty,
   queueApproveFailure,
   queueItemApproved,
+  queueUnapproveFailure,
   queueItemId,
   queueItemLabel,
   queueRemoveFailure,
@@ -156,6 +158,9 @@ export function SiteWorkspace({
   const [queueLoadError, setQueueLoadError] = useState<string | null>(null);
   const [queueRemoveError, setQueueRemoveError] = useState<string | null>(null);
   const [queueApproveError, setQueueApproveError] = useState<string | null>(null);
+  const [queueUnapproveError, setQueueUnapproveError] = useState<string | null>(
+    null,
+  );
   const [approvedQueueIds, setApprovedQueueIds] = useState<Set<string>>(
     new Set(),
   );
@@ -418,6 +423,21 @@ export function SiteWorkspace({
     return message(MSG.PUBLISH_QUEUE_APPROVE_FAILED);
   }
 
+  function queueUnapproveMessage(
+    reason: ReturnType<typeof queueUnapproveFailure>,
+  ): string {
+    if (reason === "bad_request") {
+      return message(MSG.PUBLISH_QUEUE_UNAPPROVE_BAD_REQUEST);
+    }
+    if (reason === "forbidden") {
+      return message(MSG.PUBLISH_QUEUE_UNAPPROVE_FORBIDDEN);
+    }
+    if (reason === "not_found") {
+      return message(MSG.PUBLISH_QUEUE_UNAPPROVE_NOT_FOUND);
+    }
+    return message(MSG.PUBLISH_QUEUE_UNAPPROVE_FAILED);
+  }
+
   async function approveOneQueueItem(contentId: string): Promise<void> {
     if (!selectedServerName || contentId === "") {
       return;
@@ -451,6 +471,41 @@ export function SiteWorkspace({
     });
     setActionState(successPublishState());
     setActionMessage(message(MSG.PUBLISH_QUEUE_ITEM_APPROVED));
+  }
+
+  async function unapproveOneQueueItem(contentId: string): Promise<void> {
+    if (!selectedServerName || contentId === "") {
+      return;
+    }
+    if (!window.confirm(message(MSG.PUBLISH_CONFIRM_UNAPPROVE_QUEUE_ITEM))) {
+      return;
+    }
+    setQueueUnapproveError(null);
+    try {
+      await unapproveIncrementalQueueItem(siteName, selectedServerName, contentId);
+    } catch (err) {
+      setQueueUnapproveError(queueUnapproveMessage(queueUnapproveFailure(err)));
+      setActionState("error");
+      return;
+    }
+    const remaining = await loadIncrementalPreview({ preserveRemoveError: true });
+    if (remaining == null) {
+      setActionState("error");
+      return;
+    }
+    const row = remaining.find((item) => queueItemId(item) === contentId);
+    if (row == null || queueItemApproved(row)) {
+      setQueueUnapproveError(message(MSG.PUBLISH_QUEUE_UNAPPROVE_FAILED));
+      setActionState("error");
+      return;
+    }
+    setApprovedQueueIds((prev) => {
+      const next = new Set(prev);
+      next.delete(contentId);
+      return next;
+    });
+    setActionState(successPublishState());
+    setActionMessage(message(MSG.PUBLISH_QUEUE_ITEM_UNAPPROVED));
   }
 
   async function removeOneQueueItem(contentId: string): Promise<void> {
@@ -747,6 +802,16 @@ export function SiteWorkspace({
         </p>
       )}
 
+      {queueUnapproveError && (
+        <p
+          style={errorStyle}
+          role="alert"
+          data-testid="publish-incremental-queue-unapprove-error"
+        >
+          {queueUnapproveError}
+        </p>
+      )}
+
       {queueRemoveError && (
         <p
           style={errorStyle}
@@ -796,6 +861,7 @@ export function SiteWorkspace({
                   <th style={thStyle}>Id</th>
                   <th style={thStyle}>Item</th>
                   <th style={thStyle}>{message(MSG.PUBLISH_APPROVE_QUEUE_ITEM)}</th>
+                  <th style={thStyle}>{message(MSG.PUBLISH_UNAPPROVE_QUEUE_ITEM)}</th>
                   <th style={thStyle}>{message(MSG.PUBLISH_REMOVE_QUEUE_ITEM)}</th>
                 </tr>
               </thead>
@@ -826,6 +892,20 @@ export function SiteWorkspace({
                         >
                           {message(MSG.PUBLISH_APPROVE_QUEUE_ITEM)}
                         </button>
+                      </td>
+                      <td style={tdStyle}>
+                        {id !== "" &&
+                          (approvedQueueIds.has(id) || queueItemApproved(item)) && (
+                            <button
+                              type="button"
+                              style={buttonStyle}
+                              disabled={actionState === "starting"}
+                              data-testid="publish-incremental-queue-unapprove"
+                              onClick={() => void unapproveOneQueueItem(id)}
+                            >
+                              {message(MSG.PUBLISH_UNAPPROVE_QUEUE_ITEM)}
+                            </button>
+                          )}
                       </td>
                       <td style={tdStyle}>
                         <button

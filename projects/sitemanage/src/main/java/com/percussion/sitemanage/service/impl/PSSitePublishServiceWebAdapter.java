@@ -552,6 +552,28 @@ public class PSSitePublishServiceWebAdapter {
   }
 
   /**
+   * Removes approval from one queued content id. HTTP 204 on success. The item stays on the queue.
+   * HTTP 400 when the id is not a content id or the reject transition is rejected. HTTP 403 when
+   * publish is not allowed or the transition is forbidden. HTTP 404 when the id is not queued or
+   * the site or server cannot be resolved.
+   */
+  @POST
+  @Path("/incremental/content/{name}/{server}/{contentId}/unapprove")
+  public Response unapproveQueuedIncrementalContent(
+      @PathParam("name") String siteName,
+      @PathParam("server") String serverName,
+      @PathParam("contentId") String contentId) {
+    try {
+      sitePublishService.unapproveQueuedIncrementalContent(siteName, serverName, contentId);
+      return Response.noContent().build();
+    } catch (PSIncrementalQueueStatusException e) {
+      return Response.status(e.status()).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
+    } catch (IPSSitePublishService.PSSitePublishException e) {
+      throw new WebApplicationException(e.getMessage());
+    }
+  }
+
+  /**
    * Get a paged list of items that are unapproved but related to the items that are queued for
    * incremental publish items
    *

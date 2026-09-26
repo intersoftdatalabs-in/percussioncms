@@ -112,6 +112,21 @@ export async function approveIncrementalQueueItem(
   await post<void>(url);
 }
 
+/**
+ * Remove approval from one content id already on the incremental queue (HTTP 204).
+ * The item stays queued. 400, 403, and 404 are thrown as {@link ApiError}.
+ */
+export async function unapproveIncrementalQueueItem(
+  siteName: string,
+  serverName: string,
+  contentId: string,
+): Promise<void> {
+  const url =
+    `${PATHS.INCREMENTAL_LIST}${encodeSeg(siteName)}/${encodeSeg(serverName)}/` +
+    `${encodeSeg(contentId)}/unapprove`;
+  await post<void>(url);
+}
+
 /** Paged incremental related-items queue. */
 export async function getIncrementalRelatedItems(
   siteName: string,

@@ -126,6 +126,19 @@ public interface IPSSitePublishService {
   void approveQueuedIncrementalContent(String siteName, String serverName, String contentId)
       throws PSSitePublishException;
 
+  /**
+   * Removes approval from one content id that is already on the site incremental queue. The item
+   * stays queued.
+   *
+   * @param siteName site name, not blank
+   * @param serverName publish server name, not blank
+   * @param contentId content id or item GUID string, not blank
+   * @throws PSSitePublishException when the queue cannot be read or the transition fails
+   *     unexpectedly
+   */
+  void unapproveQueuedIncrementalContent(String siteName, String serverName, String contentId)
+      throws PSSitePublishException;
+
   /** Exception thrown when an error occurs attempting to publish a site. */
   class PSSitePublishException extends PSDataServiceException {
     private static final long serialVersionUID = 1L;

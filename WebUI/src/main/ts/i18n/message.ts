@@ -213,6 +213,18 @@ export const MSG = {
     "perc.ui.publish.modern@This item is not on the incremental queue",
   PUBLISH_QUEUE_APPROVE_FAILED:
     "perc.ui.publish.modern@Could not approve the queued item",
+  PUBLISH_UNAPPROVE_QUEUE_ITEM: "perc.ui.publish.modern@Unapprove",
+  PUBLISH_CONFIRM_UNAPPROVE_QUEUE_ITEM:
+    "perc.ui.publish.modern@Remove approval from this queued item?",
+  PUBLISH_QUEUE_ITEM_UNAPPROVED: "perc.ui.publish.modern@Approval removed",
+  PUBLISH_QUEUE_UNAPPROVE_BAD_REQUEST:
+    "perc.ui.publish.modern@This queued item could not be unapproved",
+  PUBLISH_QUEUE_UNAPPROVE_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to remove approval from this queued item",
+  PUBLISH_QUEUE_UNAPPROVE_NOT_FOUND:
+    "perc.ui.publish.modern@This item is not on the incremental queue",
+  PUBLISH_QUEUE_UNAPPROVE_FAILED:
+    "perc.ui.publish.modern@Could not remove approval from the queued item",
   PUBLISH_CLEAR_QUEUE: "perc.ui.publish.modern@Clear queue",
   PUBLISH_CONFIRM_CLEAR_QUEUE:
     "perc.ui.publish.modern@Clear the incremental queue for this site and server?",

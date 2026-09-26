@@ -24,6 +24,7 @@ import {
   queueItemLabel,
   queueApproveFailure,
   queueItemApproved,
+  queueUnapproveFailure,
   queueRemoveFailure,
 } from "@/publishing/incrementalQueue";
 
@@ -102,5 +103,20 @@ describe("incrementalQueue", () => {
     );
     expect(queueItemApproved({ id: "301", status: "Approved" })).toBe(true);
     expect(queueItemApproved({ id: "301", name: "Home" })).toBe(false);
+  });
+
+  it("maps unapprove failures so 400, 403, and 404 are not success", () => {
+    expect(queueUnapproveFailure({ status: 400, statusText: "Bad Request", body: "" })).toBe(
+      "bad_request",
+    );
+    expect(queueUnapproveFailure({ status: 403, statusText: "Forbidden", body: "" })).toBe(
+      "forbidden",
+    );
+    expect(queueUnapproveFailure({ status: 404, statusText: "Not Found", body: "" })).toBe(
+      "not_found",
+    );
+    expect(queueUnapproveFailure({ status: 500, statusText: "Error", body: "" })).toBe(
+      "failed",
+    );
   });
 });

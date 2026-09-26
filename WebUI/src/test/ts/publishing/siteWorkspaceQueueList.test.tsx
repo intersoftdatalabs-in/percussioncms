@@ -29,6 +29,7 @@ vi.mock("@/api/publishing/publishApi", () => ({
   removeIncrementalQueueItem: vi.fn().mockResolvedValue(undefined),
   clearIncrementalQueue: vi.fn().mockResolvedValue(undefined),
   approveIncrementalQueueItem: vi.fn().mockResolvedValue(undefined),
+  unapproveIncrementalQueueItem: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/api/publishing/serversApi", () => ({
@@ -77,6 +78,8 @@ describe("SiteWorkspace incremental queue list (#4787)", () => {
     vi.mocked(publishApi.clearIncrementalQueue).mockReset();
     vi.mocked(publishApi.approveIncrementalQueueItem).mockReset();
     vi.mocked(publishApi.approveIncrementalQueueItem).mockResolvedValue(undefined);
+    vi.mocked(publishApi.unapproveIncrementalQueueItem).mockReset();
+    vi.mocked(publishApi.unapproveIncrementalQueueItem).mockResolvedValue(undefined);
     vi.mocked(publishApi.getIncrementalRelatedItems).mockResolvedValue({
       items: [],
       totalCount: 0,
@@ -289,6 +292,105 @@ describe("SiteWorkspace incremental queue list (#4787)", () => {
     fireEvent.click(screen.getByTestId("publish-incremental-queue-approve"));
     expect(publishApi.approveIncrementalQueueItem).not.toHaveBeenCalled();
     expect(screen.queryByTestId("publish-incremental-queue-approved")).toBeNull();
+  });
+
+  it("confirm unapproves one queued item and reloads it without the badge", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(publishApi.getIncrementalItems)
+      .mockResolvedValueOnce({
+        items: [
+          { id: "301", name: "Home", status: "Approved" },
+          { id: "88", title: "About", status: "Approved" },
+        ],
+      })
+      .mockResolvedValueOnce({
+        items: [
+          { id: "301", name: "Home" },
+          { id: "88", title: "About", status: "Approved" },
+        ],
+      });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-incremental-queue-unapprove")).toHaveLength(2);
+    });
+    fireEvent.click(screen.getAllByTestId("publish-incremental-queue-unapprove")[0]);
+    await waitFor(() => {
+      expect(publishApi.unapproveIncrementalQueueItem).toHaveBeenCalledWith(
+        "MySite",
+        "FTP-Prod",
+        "301",
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-action-message").textContent).toMatch(
+        /Approval removed/i,
+      );
+    });
+    expect(screen.getAllByTestId("publish-incremental-queue-approved")).toHaveLength(1);
+    expect(screen.getAllByTestId("publish-incremental-queue-row")[0].textContent).toContain(
+      "301",
+    );
+    expect(screen.getAllByTestId("publish-incremental-queue-row")[1].textContent).toMatch(
+      /Approved/i,
+    );
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(2);
+  });
+
+  it("cancel unapprove does not write", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [{ id: "301", name: "Home", status: "Approved" }],
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-incremental-queue-unapprove")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-queue-unapprove"));
+    expect(publishApi.unapproveIncrementalQueueItem).not.toHaveBeenCalled();
+    expect(screen.getByTestId("publish-incremental-queue-approved")).toBeTruthy();
+  });
+
+  it("shows 400, 403, and 404 without clearing approval", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [{ id: "301", name: "Home", status: "Approved" }],
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-incremental-queue-unapprove")).toBeTruthy();
+    });
+
+    for (const [status, pattern] of [
+      [400, /could not be unapproved/i],
+      [403, /not allowed/i],
+      [404, /not on the incremental queue/i],
+    ] as const) {
+      vi.mocked(publishApi.unapproveIncrementalQueueItem).mockRejectedValueOnce({
+        status,
+        statusText: "err",
+        body: "no",
+      });
+      fireEvent.click(screen.getByTestId("publish-incremental-queue-unapprove"));
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("publish-incremental-queue-unapprove-error").textContent,
+        ).toMatch(pattern);
+      });
+      expect(screen.getByTestId("publish-incremental-queue-approved")).toBeTruthy();
+      expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+    }
   });
 
   it("shows 400, 403, and 404 without claiming the item is approved", async () => {
