@@ -26,7 +26,9 @@ import { SiteNavSections } from "../../../main/ts/developer/SiteNavSections";
 vi.mock("../../../main/ts/api/architecture/sectionApi", () => ({
   loadSectionTree: vi.fn(),
   loadSection: vi.fn(),
+  loadSectionProperties: vi.fn(),
   createSiteSection: vi.fn(),
+  updateSiteSection: vi.fn(),
 }));
 
 vi.mock("../../../main/ts/api/home/homeApi", () => ({
@@ -35,6 +37,8 @@ vi.mock("../../../main/ts/api/home/homeApi", () => ({
 
 const loadSectionTree = sectionApi.loadSectionTree as ReturnType<typeof vi.fn>;
 const createSiteSection = sectionApi.createSiteSection as ReturnType<typeof vi.fn>;
+const loadSectionProperties = sectionApi.loadSectionProperties as ReturnType<typeof vi.fn>;
+const updateSiteSection = sectionApi.updateSiteSection as ReturnType<typeof vi.fn>;
 
 const tree = {
   id: "root",
@@ -49,6 +53,8 @@ describe("SiteNavSections", () => {
   beforeEach(() => {
     loadSectionTree.mockReset();
     createSiteSection.mockReset();
+    loadSectionProperties.mockReset();
+    updateSiteSection.mockReset();
     (homeApi.fetchTemplatesForSectionCreate as ReturnType<typeof vi.fn>).mockReset();
     loadSectionTree.mockResolvedValue(tree);
     (homeApi.fetchTemplatesForSectionCreate as ReturnType<typeof vi.fn>).mockResolvedValue([
@@ -141,6 +147,122 @@ describe("SiteNavSections", () => {
     render(<SiteNavSections site={{ name: "System", managedNavigation: false }} />);
     expect(screen.getByTestId("developer-site-nav-readonly")).toBeTruthy();
     expect(screen.queryByTestId("developer-site-nav-add")).toBeNull();
+    expect(screen.queryByTestId("developer-site-nav-rename-save")).toBeNull();
     expect(loadSectionTree).not.toHaveBeenCalled();
+  });
+
+  it("rename cancel restores the old name and does not post", async () => {
+    render(<SiteNavSections site={{ name: "Corporate", managedNavigation: true }} />);
+    await screen.findByTestId("developer-site-nav-rename-save");
+    expect((screen.getByTestId("developer-site-nav-rename-name") as HTMLInputElement).value).toBe(
+      "Corporate",
+    );
+    fireEvent.change(screen.getByTestId("developer-site-nav-rename-name"), {
+      target: { value: "Holdings" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-nav-rename-cancel"));
+    expect(updateSiteSection).not.toHaveBeenCalled();
+    expect(loadSectionProperties).not.toHaveBeenCalled();
+    expect((screen.getByTestId("developer-site-nav-rename-name") as HTMLInputElement).value).toBe(
+      "Corporate",
+    );
+  });
+
+  it("keeps an invalid or duplicate rename on the panel", async () => {
+    loadSectionTree.mockResolvedValue({
+      ...tree,
+      children: [
+        {
+          id: "news",
+          title: "News",
+          folderPath: "//Sites/Corporate/News",
+          sectionType: "section",
+          requiresLogin: false,
+          children: [],
+        },
+      ],
+    });
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-rename-save");
+    fireEvent.change(screen.getByTestId("developer-site-nav-rename-target"), {
+      target: { value: "news" },
+    });
+    fireEvent.change(screen.getByTestId("developer-site-nav-rename-name"), {
+      target: { value: "!!!" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-nav-rename-save"));
+    expect(updateSiteSection).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-site-nav-rename-error").textContent).toBe(
+      DEV_MSG.SITE_NAV_INVALID,
+    );
+
+    fireEvent.change(screen.getByTestId("developer-site-nav-rename-name"), {
+      target: { value: "Corporate" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-nav-rename-save"));
+    expect(updateSiteSection).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-site-nav-rename-error").textContent).toBe(
+      DEV_MSG.SITE_NAV_RENAME_DUPLICATE,
+    );
+  });
+
+  it("stays on the panel when rename returns 400 or 403", async () => {
+    loadSectionProperties.mockResolvedValue({
+      id: "root",
+      title: "Corporate",
+      folderName: "Corporate",
+      siteRootSection: true,
+    });
+    updateSiteSection.mockRejectedValueOnce({ status: 400, statusText: "Bad Request", body: "bad" });
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-rename-save");
+    fireEvent.change(screen.getByTestId("developer-site-nav-rename-name"), {
+      target: { value: "Holdings" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-nav-rename-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-rename-error").textContent).toContain("bad");
+    });
+    expect(screen.getByTestId("developer-site-nav")).toBeTruthy();
+
+    updateSiteSection.mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: "" });
+    fireEvent.click(screen.getByTestId("developer-site-nav-rename-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-rename-error").textContent).toContain(
+        DEV_MSG.SITE_NAV_RENAME_FORBIDDEN,
+      );
+    });
+  });
+
+  it("posts rename and shows the new title after reload", async () => {
+    loadSectionProperties.mockResolvedValue({
+      id: "root",
+      title: "Corporate",
+      folderName: "Corporate",
+      siteRootSection: true,
+    });
+    updateSiteSection.mockResolvedValue({});
+    loadSectionTree.mockResolvedValueOnce(tree).mockResolvedValueOnce({
+      ...tree,
+      title: "Holdings",
+    });
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-rename-save");
+    fireEvent.change(screen.getByTestId("developer-site-nav-rename-name"), {
+      target: { value: "Holdings" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-nav-rename-save"));
+    await waitFor(() => {
+      expect(updateSiteSection).toHaveBeenCalledTimes(1);
+    });
+    expect(updateSiteSection.mock.calls[0][0].title).toBe("Holdings");
+    expect(updateSiteSection.mock.calls[0][0].folderName).toBe("Corporate");
+    await waitFor(() => {
+      const items = screen.getAllByTestId("developer-site-nav-item").map((n) => n.textContent);
+      expect(items).toContain("Holdings");
+    });
+    expect(screen.getByTestId("developer-site-nav-rename-notice").textContent).toBe(
+      DEV_MSG.SITE_NAV_RENAMED,
+    );
   });
 });

@@ -135,7 +135,17 @@ On **Site detail** for a traditional site that uses managed navigation:
 4. Choose **Add section**. The catalog posts the existing `POST /sitemanage/section/create` (`CreateSiteSection`). The landing-page file name and URL segment are derived from the name. **Cancel** clears the name and does not post.
 5. An invalid name stays on the panel and does not post. **400** and **403** stay on the panel with an error; the section is not listed until a later successful add and reload.
 
-Sites with managed navigation turned off, and Virtual Sites, stay **read-only** in this section (no add). Reorder and delete stay in **Navigation**, not this catalog. Full site publish stays outside this catalog.
+### Rename a navigation section
+
+On the same **Navigation sections** panel (traditional site, managed navigation on):
+
+1. Choose an existing section in **Section** (the site root or a regular or blog section — not an external link or section link).
+2. Enter a **new name**. **Cancel** restores the current name and does not post.
+3. Choose **Rename section**. The catalog loads `GET /sitemanage/section/properties/{id}` and posts `POST /sitemanage/section/update` (`SiteSectionProperties`). The navigation **display title** changes. The folder path stays the same, and the section is not moved to another parent.
+4. Reload **Site detail**. The list shows the new name.
+5. An empty, invalid, or duplicate name stays on the panel and does not post. **400** and **403** stay on the panel; the previous name remains until a successful rename and reload.
+
+Sites with managed navigation turned off, and Virtual Sites, stay **read-only** in this section (no add or rename). Reorder and delete stay in **Navigation**, not this catalog. Full site publish stays outside this catalog.
 
 ### Configure Virtual Site source in the product UI
 

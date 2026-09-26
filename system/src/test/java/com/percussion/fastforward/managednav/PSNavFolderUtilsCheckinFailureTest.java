@@ -54,6 +54,13 @@ class PSNavFolderUtilsCheckinFailureTest {
         PSNavFolderUtils.isSampleWorkflowCheckinFailure(
             new IllegalStateException("Field sys_contentstateid not found")));
     assertFalse(PSNavFolderUtils.isSampleWorkflowAttachFailure(new PSNavException("duplicate")));
+    assertTrue(
+        PSNavFolderUtils.isContentRowLockTimeout(
+            new PSNavException(
+                "Failed to prepare navon for edit",
+                new RuntimeException("Timeout trying to lock table \"CONTENTSTATUS\""))));
+    assertFalse(PSNavFolderUtils.isContentRowLockTimeout(new PSNavException("duplicate")));
+    assertFalse(PSNavFolderUtils.isContentRowLockTimeout(null));
   }
 
   @Test
