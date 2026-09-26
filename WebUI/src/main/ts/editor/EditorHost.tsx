@@ -137,11 +137,13 @@ import {
 import { PublishingHistoryDialog } from "../contentExplorer/PublishingHistoryDialog";
 import {
   canPublishFromEditor,
+  canStageFromEditor,
   canTakedownFromEditor,
   canViewPublishHistoryFromEditor,
   formatEditorTakedownConfirm,
   publishEditorItem,
   resolveEditorPublishKind,
+  stageEditorItem,
   takedownEditorItem,
   type EditorPublishKind,
 } from "./editorPublish";
@@ -254,6 +256,10 @@ export interface EditorHostProps {
   publishItem?: (itemId: string, kind: EditorPublishKind) => Promise<boolean>;
   /** Test seam: confirm before Publish now (defaults to {@code window.confirm}). */
   confirmPublish?: (body: string) => boolean;
+  /** Test seam: sitemanage stage ({@code publish/page|resource/staging/{id}}). */
+  stageItem?: (itemId: string, kind: EditorPublishKind) => Promise<boolean>;
+  /** Test seam: confirm before Stage (defaults to {@code window.confirm}). */
+  confirmStage?: (body: string) => boolean;
   /** Test seam: sitemanage takedown ({@code takedown/page|resource/{id}}). */
   takedownItem?: (
     itemId: string,
@@ -536,6 +542,8 @@ export function EditorHost({
   commentRequiredTriggers,
   publishItem = publishEditorItem,
   confirmPublish,
+  stageItem = stageEditorItem,
+  confirmStage,
   takedownItem = takedownEditorItem,
   loadTakedownLinked = loadLinkedPagesForTakedown,
   confirmTakedown,
@@ -627,6 +635,10 @@ export function EditorHost({
   const [publishDone, setPublishDone] = useState(false);
   const [publishErrorKey, setPublishErrorKey] = useState<string | null>(null);
   const [publishErrorDetail, setPublishErrorDetail] = useState("");
+  const [stageBusy, setStageBusy] = useState(false);
+  const [stageDone, setStageDone] = useState(false);
+  const [stageErrorKey, setStageErrorKey] = useState<string | null>(null);
+  const [stageErrorDetail, setStageErrorDetail] = useState("");
   const [historyOpen, setHistoryOpen] = useState(false);
   const [takedownBusy, setTakedownBusy] = useState(false);
   const [takedownDone, setTakedownDone] = useState(false);
@@ -1418,6 +1430,47 @@ export function EditorHost({
       setPublishErrorKey(EDITOR_MSG.PUBLISH_FAILED);
     } finally {
       setPublishBusy(false);
+    }
+  }
+
+  async function handleStage(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    const itemId = String(contentId);
+    const kind = resolveEditorPublishKind(payload?.contentType, {
+      id: itemId,
+      allowedTemplateCount,
+    });
+    if (!canStageFromEditor(mode, kind)) {
+      setStageDone(false);
+      setStageErrorDetail("");
+      setStageErrorKey(EDITOR_MSG.STAGE_UNAVAILABLE);
+      return;
+    }
+    const confirmFn =
+      confirmStage ??
+      ((body: string) =>
+        typeof window !== "undefined" ? window.confirm(body) : false);
+    if (!confirmFn(message(EDITOR_MSG.CONFIRM_STAGE))) {
+      return;
+    }
+    setStageBusy(true);
+    setStageDone(false);
+    setStageErrorKey(null);
+    setStageErrorDetail("");
+    try {
+      const staged = await stageItem(itemId, kind);
+      if (!staged) {
+        setStageErrorKey(EDITOR_MSG.STAGE_UNAVAILABLE);
+        return;
+      }
+      setStageDone(true);
+    } catch (err) {
+      setStageErrorDetail(formatApiError(err, message(EDITOR_MSG.STAGE_FAILED)));
+      setStageErrorKey(EDITOR_MSG.STAGE_FAILED);
+    } finally {
+      setStageBusy(false);
     }
   }
 
@@ -2341,6 +2394,7 @@ export function EditorHost({
     allowedTemplateCount,
   });
   const showPublish = canPublishFromEditor(mode, publishKind);
+  const showStage = canStageFromEditor(mode, publishKind);
   const showTakedown = canTakedownFromEditor(mode, publishKind);
   const showPublishHistory = canViewPublishHistoryFromEditor(mode, publishKind);
   const showPreview = canPreviewFromEditor(mode, publishKind);
@@ -2416,6 +2470,11 @@ export function EditorHost({
               {message(EDITOR_MSG.PUBLISH_DONE)}
             </span>
           ) : null}
+          {stageDone ? (
+            <span className={styles.meta} data-testid="editor-stage-done">
+              {message(EDITOR_MSG.STAGE_DONE)}
+            </span>
+          ) : null}
           {takedownDone ? (
             <span className={styles.meta} data-testid="editor-takedown-done">
               {message(EDITOR_MSG.TAKEDOWN_DONE)}
@@ -2451,6 +2510,17 @@ export function EditorHost({
               onClick={() => void handlePublish()}
             >
               {message(publishBusy ? EDITOR_MSG.PUBLISHING : EDITOR_MSG.PUBLISH_NOW)}
+            </button>
+          ) : null}
+          {showStage ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-stage-item"
+              disabled={stageBusy || loading || payload == null || saving}
+              onClick={() => void handleStage()}
+            >
+              {message(stageBusy ? EDITOR_MSG.STAGING : EDITOR_MSG.STAGE)}
             </button>
           ) : null}
           {showTakedown ? (
@@ -2782,6 +2852,16 @@ export function EditorHost({
               >
                 {message(publishErrorKey)}
                 {publishErrorDetail ? ` ${publishErrorDetail}` : ""}
+              </div>
+            ) : null}
+            {stageErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-stage-error"
+              >
+                {message(stageErrorKey)}
+                {stageErrorDetail ? ` ${stageErrorDetail}` : ""}
               </div>
             ) : null}
             {takedownErrorKey ? (

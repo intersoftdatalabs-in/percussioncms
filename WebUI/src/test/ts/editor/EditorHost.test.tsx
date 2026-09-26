@@ -2343,6 +2343,163 @@ describe("EditorHost workflow transitions (#4539)", () => {
   });
 });
 
+describe("EditorHost stage the open item (#4915)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function titleType() {
+    return { fields: [{ name: "sys_title", label: "Title", readOnly: false }] };
+  }
+
+  it("confirms then stages a percPage and reports success", async () => {
+    const stageItem = vi.fn().mockResolvedValue(true);
+    const confirmStage = vi.fn().mockReturnValue(true);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                stageItem={stageItem}
+                confirmStage={confirmStage}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-stage-item")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-stage-item"));
+    await waitFor(() => {
+      expect(confirmStage).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(stageItem).toHaveBeenCalledWith("42", "page");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-stage-done")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-stage-error")).toBeNull();
+  });
+
+  it("does not stage when the confirm is cancelled", async () => {
+    const stageItem = vi.fn().mockResolvedValue(true);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                stageItem={stageItem}
+                confirmStage={() => false}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-stage-item")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-stage-item"));
+    await waitFor(() => {
+      expect(stageItem).not.toHaveBeenCalled();
+    });
+    expect(screen.queryByTestId("editor-stage-done")).toBeNull();
+  });
+
+  it("keeps HTTP 403 on the host and does not claim success", async () => {
+    const stageItem = vi.fn().mockRejectedValue({ status: 403, statusText: "Forbidden" });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                stageItem={stageItem}
+                confirmStage={() => true}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-stage-item")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-stage-item"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-stage-error").textContent).toMatch(/403/);
+    });
+    expect(screen.queryByTestId("editor-stage-done")).toBeNull();
+  });
+
+  it("hides Stage for a template and in view mode", async () => {
+    const stageItem = vi.fn();
+    const templateFields = { ...fields, contentType: "percTemplate" };
+    const { unmount } = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(templateFields)}
+                loadType={async () => titleType()}
+                stageItem={stageItem}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-stage-item")).toBeNull();
+    unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => titleType()}
+                stageItem={stageItem}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-stage-item")).toBeNull();
+    expect(stageItem).not.toHaveBeenCalled();
+  });
+});
+
 describe("EditorHost publish now (#4540)", () => {
   afterEach(() => {
     cleanup();

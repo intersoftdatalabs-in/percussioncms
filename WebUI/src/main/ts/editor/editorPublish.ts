@@ -152,6 +152,41 @@ export async function publishEditorItem(
 }
 
 /**
+ * Same eligibility as {@link canPublishFromEditor}. Templates, folders, and
+ * unsaved items (no id) stay hidden. View and promote stay read-only.
+ */
+export function canStageFromEditor(
+  mode: EditorHostMode,
+  kind: EditorPublishKind,
+): boolean {
+  return canPublishFromEditor(mode, kind);
+}
+
+/**
+ * Stage the open page or asset via sitemanage
+ * {@code publish/page|resource/staging/{id}}. Returns false when kind is
+ * none or the id is blank. HTTP errors and HTTP 200 preflight failures
+ * ({@code FORBIDDEN}, {@code BADCONFIG}, …) throw and are not success.
+ */
+export async function stageEditorItem(
+  itemId: string,
+  kind: EditorPublishKind,
+): Promise<boolean> {
+  const id = itemId.trim();
+  if (!id || kind === "none") {
+    return false;
+  }
+  const paths = itemPublishPaths();
+  const base = kind === "page" ? paths.pageStaging : paths.resourceStaging;
+  const body = await get<unknown>(`${base}/${encodeURIComponent(id)}`);
+  const preflight = mapPublishResponse(body);
+  if (preflight) {
+    throw new Error(preflight.message || preflight.token || "Stage failed");
+  }
+  return true;
+}
+
+/**
  * Same eligibility as {@link canPublishFromEditor}. Folders, templates, and
  * items with no id (new unsaved create) stay ineligible.
  */
