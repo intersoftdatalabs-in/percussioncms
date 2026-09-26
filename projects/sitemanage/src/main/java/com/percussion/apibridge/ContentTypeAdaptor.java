@@ -59,6 +59,8 @@ import com.percussion.design.objectstore.PSRule;
 import com.percussion.design.objectstore.PSSearchProperties;
 import com.percussion.design.objectstore.PSSharedFieldGroup;
 import com.percussion.design.objectstore.PSSystemValidationException;
+import com.percussion.design.objectstore.PSTableRef;
+import com.percussion.design.objectstore.PSTableSet;
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.PSUIDefinition;
@@ -354,6 +356,13 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         if (def.getContentEditor() != null) {
           def.getContentEditor().setContentType(keepTypeId);
         }
+      }
+      // Empty default template cannot start: main_editor needs one local mapping (#4905).
+      ensureNewContentTypeHasLocalField(def);
+      PSField seeded = findField(def, NEW_CONTENT_TYPE_TITLE_FIELD);
+      if (seeded != null) {
+        localFieldColumnSchema.ensureNewContentTypeTable(
+            physicalTableName(tableForLocalField(def, seeded)), columnNameOf(seeded));
       }
       // Workbench Finish: persist the new type and release the create lock.
       designSvc.saveContentTypes(Collections.singletonList(def), true, session, user);
@@ -3441,6 +3450,62 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
    * mapping ({@code sys_EditBox}). Optional {@code fieldSet} targets or creates a named complex
    * child. Package-visible for unit tests.
    */
+  /** Default local field seeded so a new content type's editor can start (#4905). */
+  static final String NEW_CONTENT_TYPE_TITLE_FIELD = "title";
+
+  /**
+   * The stock {@code sys_Default.xml} editor has an empty {@code main_editor}. Saving it fails
+   * validation ({@code No mappings were supplied}). Point the dummy table at a per-type table and
+   * add one text field before the first save. No-op when the definition already has a local field
+   * or is a test double without an editor.
+   */
+  static void ensureNewContentTypeHasLocalField(PSItemDefinition def) {
+    if (def == null || def.getContentEditor() == null || def.getFieldSet() == null) {
+      return;
+    }
+    PSField[] existing = def.getFieldSet().getAllFields();
+    if (existing != null) {
+      for (PSField field : existing) {
+        if (field != null && field.getType() == PSField.TYPE_LOCAL) {
+          return;
+        }
+      }
+    }
+    String tableName = columnNameForField(StringUtils.defaultIfBlank(def.getName(), "CONTENTTYPE"));
+    retargetDummyContentTable(def, tableName);
+    ContentTypeField body = new ContentTypeField();
+    body.setName(NEW_CONTENT_TYPE_TITLE_FIELD);
+    body.setLabel("Title");
+    addPersistableLocalField(def, body);
+  }
+
+  static void retargetDummyContentTable(PSItemDefinition def, String tableName) {
+    if (def == null
+        || def.getContentEditor() == null
+        || !(def.getContentEditor().getPipe() instanceof PSContentEditorPipe pipe)
+        || pipe.getLocator() == null) {
+      return;
+    }
+    java.util.Iterator<?> sets = pipe.getLocator().getTableSets();
+    while (sets.hasNext()) {
+      Object next = sets.next();
+      if (!(next instanceof PSTableSet set)) {
+        continue;
+      }
+      java.util.Iterator<?> refs = set.getTableRefs();
+      while (refs.hasNext()) {
+        Object refObj = refs.next();
+        if (!(refObj instanceof PSTableRef ref)) {
+          continue;
+        }
+        if ("psx_dummy".equalsIgnoreCase(ref.getName())) {
+          ref.setName(tableName);
+          ref.setAlias(tableName);
+        }
+      }
+    }
+  }
+
   static PSField addPersistableLocalField(PSItemDefinition def, ContentTypeField body) {
     if (def == null) {
       throw new IllegalArgumentException("content type is required");

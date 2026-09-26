@@ -147,6 +147,80 @@ final class JdbcContentTypeLocalFieldColumnSchema implements ContentTypeLocalFie
   }
 
   @Override
+  public void ensureNewContentTypeTable(String tableName, String textColumn) {
+    String table = requireIdent(tableName, "table");
+    String column = requireIdent(textColumn, "column");
+    withConnection(
+        conn -> {
+          if (tableExists(conn, table)) {
+            return;
+          }
+          String type = nativeType(conn, PSField.DT_TEXT, "50");
+          String sql =
+              createContentTableSql(
+                  databaseProduct(conn),
+                  tableRef(conn, table),
+                  column,
+                  type,
+                  isSqlServer(databaseProduct(conn), conn));
+          log.info("Creating content-type table: {}", sql);
+          try (Statement st = conn.createStatement()) {
+            st.execute(sql);
+          }
+          flushTableMetaData(conn, table);
+        });
+    ensureColumn(table, column, PSField.DT_TEXT, "50");
+  }
+
+  static String createContentTableSql(
+      String product, String tableSql, String column, String columnType, boolean sqlServer) {
+    if (isOracle(product == null ? "" : product)) {
+      return "CREATE TABLE "
+          + tableSql
+          + " (CONTENTID NUMBER(10) NOT NULL, REVISIONID NUMBER(10) NOT NULL, "
+          + column
+          + " "
+          + columnType
+          + ")";
+    }
+    if (sqlServer) {
+      return "CREATE TABLE "
+          + tableSql
+          + " (CONTENTID INT NOT NULL, REVISIONID INT NOT NULL, "
+          + column
+          + " "
+          + columnType
+          + " NULL)";
+    }
+    return "CREATE TABLE "
+        + tableSql
+        + " (CONTENTID INTEGER NOT NULL, REVISIONID INTEGER NOT NULL, "
+        + column
+        + " "
+        + columnType
+        + ")";
+  }
+
+  static boolean tableExists(Connection conn, String table) throws SQLException {
+    DatabaseMetaData md = conn.getMetaData();
+    String catalog = conn.getCatalog();
+    for (String schema : schemaCandidates(md, safeSchema(conn))) {
+      for (String tbl : identCases(table)) {
+        try (ResultSet rs = md.getTables(catalog, schema, tbl, new String[] {"TABLE"})) {
+          if (rs.next()) {
+            return true;
+          }
+        } catch (SQLException e) {
+          if (schema != null) {
+            throw e;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  @Override
   public void ensureColumn(
       String tableName, String columnName, String fieldDataType, String dataFormat) {
     String table = requireIdent(tableName, "table");
