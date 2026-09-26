@@ -255,3 +255,43 @@ describe("editor-host-publish helpers (#4540)", () => {
     assert.match(src, /publish\/resource/);
   });
 });
+
+const editorStage = require("../helpers/editor-host-stage");
+
+describe("editor-host-stage helpers (#4915)", () => {
+  it("classifies page vs resource staging URLs", () => {
+    assert.equal(
+      editorStage.isPageStageUrl(
+        "/Rhythmyx/services/sitemanage/publish/page/staging/42",
+      ),
+      true,
+    );
+    assert.equal(
+      editorStage.isPageStageUrl("/Rhythmyx/services/sitemanage/publish/page/42"),
+      false,
+    );
+    assert.equal(
+      editorStage.isResourceStageUrl(
+        "/Rhythmyx/services/sitemanage/publish/resource/staging/99",
+      ),
+      true,
+    );
+    const parsed = editorStage.parseStageUrl(
+      "http://cms/Rhythmyx/services/sitemanage/publish/page/staging/42",
+    );
+    assert.equal(parsed.kind, "page");
+    assert.equal(parsed.itemId, "42");
+  });
+
+  it("spec covers confirm, cancel, HTTP 400/403, and templates", () => {
+    const specPath = path.join(__dirname, "..", "editor-host-stage.spec.js");
+    const src = fs.readFileSync(specPath, "utf8");
+    assert.match(src, /Stage this item/);
+    assert.match(src, /dialog.dismiss/);
+    assert.match(src, /stageStatus: 403/);
+    assert.match(src, /stageStatus: 400/);
+    assert.match(src, /Could not stage this item/);
+    assert.match(src, /percTemplate/);
+    assert.match(src, /#4915/);
+  });
+});

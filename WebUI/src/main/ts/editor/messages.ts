@@ -142,6 +142,13 @@ export const EDITOR_MSG = {
   PUBLISH_FAILED: "perc.ui.editor@Could not publish this item.",
   PUBLISH_UNAVAILABLE:
     "perc.ui.editor@Publish now is only available for pages and assets.",
+  STAGE: "perc.ui.editor@Stage",
+  STAGING: "perc.ui.editor@Staging…",
+  CONFIRM_STAGE: "perc.ui.editor@Stage this item?",
+  STAGE_DONE: "perc.ui.editor@Item staged.",
+  STAGE_FAILED: "perc.ui.editor@Could not stage this item.",
+  STAGE_UNAVAILABLE:
+    "perc.ui.editor@Stage is only available for saved pages and assets.",
   PUBLISHING_HISTORY: "perc.ui.editor@Publishing history",
   TAKE_DOWN: "perc.ui.editor@Take down",
   TAKING_DOWN: "perc.ui.editor@Taking down…",

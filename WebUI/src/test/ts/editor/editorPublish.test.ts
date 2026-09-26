@@ -18,11 +18,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   canPublishFromEditor,
+  canStageFromEditor,
   canTakedownFromEditor,
   canViewPublishHistoryFromEditor,
   formatEditorTakedownConfirm,
   publishEditorItem,
   resolveEditorPublishKind,
+  stageEditorItem,
   takedownEditorItem,
 } from "../../../main/ts/editor/editorPublish";
 
@@ -133,6 +135,86 @@ describe("publishEditorItem", () => {
     await expect(publishEditorItem("42", "page")).rejects.toThrow(
       "Could not connect to publishing server",
     );
+  });
+});
+
+describe("canStageFromEditor", () => {
+  it("is true only in edit mode for a page or asset", () => {
+    expect(canStageFromEditor("edit", "page")).toBe(true);
+    expect(canStageFromEditor("edit", "asset")).toBe(true);
+    expect(canStageFromEditor("view", "page")).toBe(false);
+    expect(canStageFromEditor("promote", "asset")).toBe(false);
+    expect(canStageFromEditor("edit", "none")).toBe(false);
+  });
+
+  it("does not offer stage for a template", () => {
+    expect(
+      canStageFromEditor(
+        "edit",
+        resolveEditorPublishKind("percTemplate", { id: "42" }),
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("stageEditorItem", () => {
+  it("GETs sitemanage publish/page/staging for a page", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    expect(await stageEditorItem("42", "page")).toBe(true);
+    const url = String(global.fetch.mock.calls[0]?.[0] ?? "");
+    expect(url).toContain("sitemanage/publish/page/staging/42");
+    expect(url).not.toMatch(/\/publish\/page\/42$/);
+  });
+
+  it("GETs sitemanage publish/resource/staging for an asset", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    expect(await stageEditorItem("99", "asset")).toBe(true);
+    expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
+      "sitemanage/publish/resource/staging/99",
+    );
+  });
+
+  it("returns false without an id or for none and does not fetch", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    expect(await stageEditorItem("", "page")).toBe(false);
+    expect(await stageEditorItem("42", "none")).toBe(false);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("throws on HTTP 403 and HTTP 400 instead of returning true", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    fetchSpy.mockResolvedValueOnce(
+      new Response("no", { status: 403, statusText: "Forbidden" }),
+    );
+    await expect(stageEditorItem("42", "page")).rejects.toMatchObject({
+      status: 403,
+    });
+    fetchSpy.mockResolvedValueOnce(
+      new Response("bad", { status: 400, statusText: "Bad Request" }),
+    );
+    await expect(stageEditorItem("42", "asset")).rejects.toMatchObject({
+      status: 400,
+    });
+  });
+
+  it("throws on HTTP 200 unwrapped FORBIDDEN instead of returning true", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ status: "FORBIDDEN" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(stageEditorItem("42", "page")).rejects.toThrow("FORBIDDEN");
   });
 });
 
