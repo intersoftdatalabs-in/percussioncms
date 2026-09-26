@@ -2211,7 +2211,7 @@ export const DEV_MSG_KEYS = {
   SITE_BIND_ERROR:
     "perc.ui.developer@Sites API returned entries but none had a usable name. Check GET /services/sites JSON bind.",
   SITE_HINT:
-    "perc.ui.developer@Site definitions for association browse (SY-04). Create, open, update, or delete a site. Full section design and publish stay outside this catalog.",
+    "perc.ui.developer@Site definitions for association browse (SY-04). Create, open, update, or delete a site. Add a navigation section from site detail. Reorder, delete, and full publish stay outside this catalog.",
   SITE_NEW: "perc.ui.developer@New site",
   SITE_FORM_NAME: "perc.ui.developer@Name",
   SITE_FORM_DESCRIPTION: "perc.ui.developer@Description",
@@ -2257,7 +2257,25 @@ export const DEV_MSG_KEYS = {
   SITE_GAP_WRITE:
     "perc.ui.developer@Site create, update, and delete are available from this Developer catalog",
   SITE_GAP_PUBLISH:
-    "perc.ui.developer@Full site publish and section design live outside the Developer catalog",
+    "perc.ui.developer@Full site publish, and navigation section reorder and delete, live outside the Developer catalog",
+  SITE_NAV_TITLE: "perc.ui.developer@Navigation sections",
+  SITE_NAV_HINT:
+    "perc.ui.developer@Add a section under a parent. Reorder and delete stay in Navigation.",
+  SITE_NAV_NAME: "perc.ui.developer@Section name",
+  SITE_NAV_PARENT: "perc.ui.developer@Parent",
+  SITE_NAV_ADD: "perc.ui.developer@Add section",
+  SITE_NAV_ADDING: "perc.ui.developer@Adding section...",
+  SITE_NAV_CANCEL: "perc.ui.developer@Cancel",
+  SITE_NAV_ADDED: "perc.ui.developer@Section added.",
+  SITE_NAV_ERROR: "perc.ui.developer@Could not add the section.",
+  SITE_NAV_INVALID: "perc.ui.developer@Enter a valid section name.",
+  SITE_NAV_FORBIDDEN: "perc.ui.developer@Admin role required to add a section.",
+  SITE_NAV_READONLY:
+    "perc.ui.developer@This site does not use managed navigation. Sections stay read-only.",
+  SITE_NAV_EMPTY: "perc.ui.developer@No navigation sections yet.",
+  SITE_NAV_LOADING: "perc.ui.developer@Loading navigation sections...",
+  SITE_NAV_LOAD_ERROR: "perc.ui.developer@Could not load navigation sections.",
+  SITE_NAV_LIST: "perc.ui.developer@Sections on this site",
   SITE_VIRT_TITLE: "perc.ui.developer@Virtual Site source",
   SITE_VIRT_HINT:
     "perc.ui.developer@Configure whether this Site reads content from the repository or from a Virtual Site adapter (Git filesystem, CSV filesystem, SQL database, HTTP JSON, object storage, RSS / Atom, iCalendar, or sitemap XML). Blank/repository keeps traditional repository content.",
