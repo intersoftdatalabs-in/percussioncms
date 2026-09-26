@@ -27,6 +27,12 @@ public interface IEditorItemLockAdaptor {
   EditorItemLockInfo checkin(URI baseUri, String itemId);
 
   /**
+   * Read who holds the checkout. Does not check the item out. HTTP 403 is a failure; a lock held
+   * by another user is a successful result.
+   */
+  EditorItemLockInfo lookupCheckoutOwner(URI baseUri, String itemId);
+
+  /**
    * Check in with an optional revision comment. A blank comment is the same as {@link
    * #checkin(URI, String)}.
    */

@@ -839,6 +839,10 @@ export const PATHS = {
     }
     return `${base}?comment=${encodeURIComponent(trimmed)}`;
   },
+  /** Read-only checkout owner (#4910). Does not check the item out. */
+  editorItemCheckoutOwner(itemId: string) {
+    return `${REST_ROOT}/editor/items/${encodeURIComponent(itemId)}/checkout-owner`;
+  },
   get ITEM_WORKFLOW_FORCE_CHECKOUT() {
     return `${SERVICES_ROOT}/itemmanagement/workflow/forceCheckOut/`;
   },

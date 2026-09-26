@@ -103,6 +103,22 @@ class EditorItemLockResourceTest {
   }
 
   @Test
+  void lookupDelegatesOtherUser() {
+    EditorItemLockInfo info = new EditorItemLockInfo("Home", "editor", "Admin", "Reader");
+    when(adaptor.lookupCheckoutOwner(any(), eq("42"))).thenReturn(info);
+    assertEquals("editor", resource.lookupCheckoutOwner("42").getCheckOutUser());
+  }
+
+  @Test
+  void lookupPropagates403() {
+    when(adaptor.lookupCheckoutOwner(any(), eq("42")))
+        .thenThrow(new WebApplicationException("forbidden", 403));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.lookupCheckoutOwner("42"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
   void missingAdaptorIs503() {
     EditorItemLockResource bare = new EditorItemLockResource();
     bare.setUriInfo(uriInfo);

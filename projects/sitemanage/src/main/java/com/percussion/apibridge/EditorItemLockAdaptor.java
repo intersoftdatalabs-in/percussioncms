@@ -66,6 +66,18 @@ public class EditorItemLockAdaptor implements IEditorItemLockAdaptor {
   }
 
   @Override
+  public EditorItemLockInfo lookupCheckoutOwner(URI baseUri, String itemId) {
+    requireId(itemId);
+    try {
+      return map(workflow.lookupCheckoutOwner(itemId));
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSItemWorkflowServiceException | PSValidationException e) {
+      throw new NotAuthorizedException();
+    }
+  }
+
+  @Override
   public EditorItemLockInfo checkin(URI baseUri, String itemId) {
     return checkin(baseUri, itemId, null);
   }

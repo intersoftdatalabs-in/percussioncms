@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -44,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * <pre>
  *   POST /Rhythmyx/rest/editor/items/{id}/checkout
  *   POST /Rhythmyx/rest/editor/items/{id}/checkin
+ *   GET  /Rhythmyx/rest/editor/items/{id}/checkout-owner
  * </pre>
  *
  * <p>HTTP <strong>403</strong> (not allowed) and <strong>409</strong> (held by another user / not
@@ -96,6 +98,33 @@ public class EditorItemLockResource {
       throw e;
     } catch (Exception e) {
       log.error("checkout failed: {}", e.getMessage(), e);
+      throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @GET
+  @Path("/{id}/checkout-owner")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Read who has the item checked out",
+      description =
+          "Does not check the item out. Empty checkOutUser means nobody holds the lock. "
+              + "A lock held by another user is success. 403 is a failure.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Checkout owner, or empty when not checked out",
+            content = @Content(schema = @Schema(implementation = EditorItemLockInfo.class))),
+        @ApiResponse(responseCode = "400", description = "Missing item id"),
+        @ApiResponse(responseCode = "403", description = "Lookup not allowed")
+      })
+  public EditorItemLockInfo lookupCheckoutOwner(@PathParam("id") String id) {
+    try {
+      return requireAdaptor().lookupCheckoutOwner(uriInfo.getBaseUri(), id);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("checkout owner lookup failed: {}", e.getMessage(), e);
       throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
     }
   }
