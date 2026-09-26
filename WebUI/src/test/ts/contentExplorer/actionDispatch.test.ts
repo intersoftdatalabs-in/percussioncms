@@ -519,6 +519,68 @@ describe("actionDispatch", () => {
     expect(written.toLowerCase()).toContain("/sites/demo/home");
   });
 
+  it("multi-select Copy URL writes one URL per line and names folders", async () => {
+    const writeClipboard = vi.fn().mockResolvedValue(undefined);
+    const page = item({ id: "42", name: "Home", path: "/Sites/Demo/Home" });
+    const asset = item({
+      id: "9",
+      name: "Logo",
+      path: "/Assets/uploads/logo.png",
+      type: "percImageAsset",
+      category: "asset",
+    });
+    const folder = item({
+      id: "7",
+      name: "News",
+      path: "/Sites/Demo/News",
+      type: "folder",
+      category: "folder",
+      leaf: false,
+    });
+    const result = await dispatchAction(
+      action({ name: "Copy_URL_to_Clipboard" }),
+      {
+        item: page,
+        selectedItems: [page, asset, folder],
+        writeClipboard,
+      },
+    );
+    expect(result.kind).toBe("client");
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_COPY_URL_SKIPPED_FOLDERS);
+    expect(result.messageText).toMatch(/News/);
+    const written = String(writeClipboard.mock.calls[0]?.[0] ?? "");
+    const lines = written.split("\n");
+    expect(lines).toHaveLength(2);
+    expect(lines[0].toLowerCase()).toContain("/sites/demo/home");
+    expect(lines[1].toLowerCase()).toContain("/assets/uploads/logo.png");
+    expect(written.toLowerCase()).not.toContain("/sites/demo/news");
+  });
+
+  it("multi-select Copy URL names an empty URL and is not full success", async () => {
+    const writeClipboard = vi.fn().mockResolvedValue(undefined);
+    const page = item({ id: "42", name: "Home", path: "/Sites/Demo/Home" });
+    const blank = item({
+      id: "44",
+      name: "Orphan",
+      path: "   ",
+      type: "percPage",
+    });
+    const result = await dispatchAction(
+      action({ name: "Copy_URL_to_Clipboard" }),
+      {
+        item: page,
+        selectedItems: [page, blank],
+        writeClipboard,
+      },
+    );
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_COPY_URL_BATCH_INCOMPLETE);
+    expect(result.messageText).toMatch(/Orphan/);
+    expect(result.messageText).toMatch(/Not every selected item URL was copied/i);
+    const written = String(writeClipboard.mock.calls[0]?.[0] ?? "");
+    expect(written.split("\n")).toHaveLength(1);
+    expect(written.toLowerCase()).toContain("/sites/demo/home");
+  });
+
   it("classifies remaining P1 names even when the catalog still has Data Flow URLs", () => {
     expect(
       classifyAction(

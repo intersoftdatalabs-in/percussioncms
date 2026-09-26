@@ -244,9 +244,9 @@ export interface ActionDispatchContext {
   onStage?: (item: PSPathItem) => Promise<void>;
   /**
    * Checkbox multi-selection. When length is 2 or more, Publish now,
-   * Stage, Take Down, Remove from Staging, Check Out, and workflow
-   * transitions use one confirm for every eligible page/asset and skip
-   * folders.
+   * Stage, Take Down, Remove from Staging, Check Out, workflow
+   * transitions, and Copy URL use one action for every eligible page or
+   * asset and skip folders.
    */
   selectedItems?: readonly PSPathItem[];
   onRemoveFromStaging?: (item: PSPathItem) => Promise<void>;
@@ -497,6 +497,82 @@ export function resolveCopyableItemUrl(item: PSPathItem): string {
     return site;
   }
   return normalizeCmsPath(item.path);
+}
+
+function fillCopyUrlTemplate(key: string, names: readonly string[]): string {
+  return message(key).split("{names}").join(names.join(", "));
+}
+
+/**
+ * Copy every non-folder URL, one per line. Folders are named and skipped.
+ * An item with no URL is named and the batch is not full success.
+ */
+async function copyUrlMultiSelection(
+  ctx: ActionDispatchContext,
+  items: readonly PSPathItem[],
+): Promise<ActionDispatchResult> {
+  const folders: string[] = [];
+  const empty: string[] = [];
+  const urls: string[] = [];
+  for (const row of items) {
+    if (isFolder(row)) {
+      folders.push(checkoutItemLabel(row));
+      continue;
+    }
+    const url = resolveCopyableItemUrl(row);
+    if (!url) {
+      empty.push(checkoutItemLabel(row));
+      continue;
+    }
+    urls.push(url);
+  }
+  const folderNote =
+    folders.length > 0
+      ? fillCopyUrlTemplate(EXPLORER_MSG.ACTION_COPY_URL_SKIPPED_FOLDERS, folders)
+      : "";
+  const emptyNote =
+    empty.length > 0
+      ? fillCopyUrlTemplate(EXPLORER_MSG.ACTION_COPY_URL_EMPTY_ITEMS, empty)
+      : "";
+  const detail = [folderNote, emptyNote].filter(Boolean).join(" ");
+  if (urls.length === 0) {
+    return {
+      kind: "client",
+      messageKey: EXPLORER_MSG.ACTION_COPY_URL_NOTHING,
+      messageText: detail || message(EXPLORER_MSG.ACTION_COPY_URL_NOTHING),
+    };
+  }
+  const write =
+    ctx.writeClipboard ??
+    (async (text: string) => {
+      if (typeof navigator === "undefined" || !navigator.clipboard) {
+        throw new Error("clipboard");
+      }
+      await navigator.clipboard.writeText(text);
+    });
+  try {
+    await write(urls.join("\n"));
+  } catch {
+    return { kind: "client", messageKey: EXPLORER_MSG.ACTION_COPY_URL_FAILED };
+  }
+  if (empty.length > 0) {
+    const incomplete = message(EXPLORER_MSG.ACTION_COPY_URL_BATCH_INCOMPLETE)
+      .split("{detail}")
+      .join(detail);
+    return {
+      kind: "client",
+      messageKey: EXPLORER_MSG.ACTION_COPY_URL_BATCH_INCOMPLETE,
+      messageText: incomplete,
+    };
+  }
+  if (folders.length > 0) {
+    return {
+      kind: "client",
+      messageKey: EXPLORER_MSG.ACTION_COPY_URL_SKIPPED_FOLDERS,
+      messageText: folderNote,
+    };
+  }
+  return { kind: "client" };
 }
 
 function resolvePreviewHref(previewUrl: string): string {
@@ -1706,6 +1782,10 @@ export async function dispatchAction(
   }
 
   if (name === "copy_url_to_clipboard") {
+    const multi = ctx.selectedItems ?? [];
+    if (multi.length >= 2) {
+      return copyUrlMultiSelection(ctx, multi);
+    }
     if (!item || isFolder(item)) {
       return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }

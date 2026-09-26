@@ -674,6 +674,14 @@ export const EXPLORER_MSG = {
   ACTION_COPY_URL_SUCCESS: "perc.ui.explorer@Item URL copied to the clipboard",
   ACTION_COPY_URL_FAILED: "perc.ui.explorer@Could not copy the item URL",
   ACTION_COPY_URL_EMPTY: "perc.ui.explorer@No URL is available for this item",
+  ACTION_COPY_URL_SKIPPED_FOLDERS:
+    "perc.ui.explorer@Folders are not copied: {names}",
+  ACTION_COPY_URL_EMPTY_ITEMS:
+    "perc.ui.explorer@No URL is available for: {names}",
+  ACTION_COPY_URL_BATCH_INCOMPLETE:
+    "perc.ui.explorer@Not every selected item URL was copied. {detail}",
+  ACTION_COPY_URL_NOTHING:
+    "perc.ui.explorer@Nothing in the selection has a URL to copy.",
 
   REVISIONS_TITLE: "perc.ui.explorer@Revisions",
   REVISIONS_PANEL_REGION: "perc.ui.explorer@Revisions panel",
