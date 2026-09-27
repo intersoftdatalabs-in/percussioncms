@@ -179,8 +179,11 @@ and do not switch to Status. Success shows **Last result** with status `queued`,
 the request id, and a job id when the publisher has already assigned one.
 The **Last result** status region shows
 started/cancelled (or the job state) plus job id. Listing may pass `pubServerId` so only
-editions on the selected server appear. Design edition save and Sites list filter are
-separate sections. Runtime chrome (site, publish server, refresh, idle, start,
+editions on the selected server appear. **Filter editions by name** narrows that
+loaded list (case-insensitive substring). Clearing the filter shows every edition
+again. No name match is an empty state, not an error; start and stop errors stay
+in the alert. **Start** and **Stop** still act only on the edition whose button
+you use. Design edition save and Sites list filter are separate sections. Runtime chrome (site, publish server, refresh, idle, start,
 demand publish, content ids, queue demand, clear site record, purge log, and the
 related prompts) is loaded from the publishing message catalog. The default
 **en-us** pack supplies those labels; other locales fall back to that English

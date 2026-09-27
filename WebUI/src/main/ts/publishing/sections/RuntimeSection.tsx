@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { formatApiError } from "../../api/client";
 import { fetchSites } from "../../api/home/homeApi";
 import { listServers } from "../../api/publishing/serversApi";
@@ -31,14 +31,6 @@ import {
   type RuntimeJobResponse,
 } from "../../api/publishing/runtimeApi";
 import { message, MSG } from "../../i18n/message";
-
-const RT = MSG.PUBLISH.SECTIONS.RUNTIME;
-
-/** Catalog text with a single {0} replacement (works with or without I18N args). */
-export function runtimeMessage(key: string, arg?: string): string {
-  const text = message(key);
-  return arg == null ? text : text.split("{0}").join(arg);
-}
 import {
   buttonStyle,
   emptyStyle,
@@ -49,6 +41,14 @@ import {
   primaryButtonStyle,
   toolbarStyle,
 } from "../publishing.styles";
+
+const RT = MSG.PUBLISH.SECTIONS.RUNTIME;
+
+/** Catalog text with a single {0} replacement (works with or without I18N args). */
+export function runtimeMessage(key: string, arg?: string): string {
+  const text = message(key);
+  return arg == null ? text : text.split("{0}").join(arg);
+}
 
 /** Pure helper for tests: whether stop is available for a row. */
 export function canStopEdition(row: RuntimeEditionStatus): boolean {
@@ -72,6 +72,21 @@ export interface RuntimeSectionProps {
   onOpenRunningJob?: (jobId: string) => void;
 }
 
+/**
+ * Client-side name filter for the already-loaded runtime edition list.
+ * Blank query returns every row. Match is a case-insensitive substring of name.
+ */
+export function filterRuntimeEditionsByName(
+  editions: RuntimeEditionStatus[],
+  filter: string,
+): RuntimeEditionStatus[] {
+  const q = filter.trim().toLowerCase();
+  if (!q) {
+    return editions;
+  }
+  return editions.filter((ed) => (ed.name ?? "").toLowerCase().includes(q));
+}
+
 /** Pure helper: parse demand content ids from a comma/space-separated string. */
 export function parseContentIds(raw: string): string[] {
   return raw
@@ -92,6 +107,7 @@ export function RuntimeSection({
   const [servers, setServers] = useState<PublishServer[]>([]);
   const [pubServerId, setPubServerId] = useState("");
   const [editions, setEditions] = useState<RuntimeEditionStatus[]>([]);
+  const [nameFilter, setNameFilter] = useState("");
   const [selectedEdition, setSelectedEdition] = useState("");
   const [demandIds, setDemandIds] = useState("");
   const [purgeJobId, setPurgeJobId] = useState("");
@@ -154,6 +170,11 @@ export function RuntimeSection({
   useEffect(() => {
     reload();
   }, [siteId, pubServerId]);
+
+  const visibleEditions = useMemo(
+    () => filterRuntimeEditionsByName(editions, nameFilter),
+    [editions, nameFilter],
+  );
 
   async function onStart(editionId: string): Promise<void> {
     setBusy(true);
@@ -282,6 +303,20 @@ export function RuntimeSection({
         <button type="button" style={buttonStyle} onClick={reload} disabled={busy}>
           {message(RT.REFRESH)}
         </button>
+        <label>
+          <span className="sr-only">
+            {message(MSG.PUBLISH_FILTER_RUNTIME_EDITIONS)}
+          </span>
+          <input
+            type="search"
+            data-testid="runtime-edition-filter"
+            value={nameFilter}
+            onChange={(e) => setNameFilter(e.target.value)}
+            placeholder={message(MSG.PUBLISH_FILTER_RUNTIME_EDITIONS)}
+            aria-label={message(MSG.PUBLISH_FILTER_RUNTIME_EDITIONS)}
+            style={{ padding: "6px 10px", minWidth: 200 }}
+          />
+        </label>
       </div>
 
       {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
@@ -293,10 +328,17 @@ export function RuntimeSection({
 
       <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_SECTION_RUNTIME)}</h3>
       {!loading && editions.length === 0 && (
-        <p style={emptyStyle}>{message(RT.EDITIONS_EMPTY)}</p>
+        <p style={emptyStyle} data-testid="runtime-editions-empty">
+          {message(RT.EDITIONS_EMPTY)}
+        </p>
+      )}
+      {!loading && editions.length > 0 && visibleEditions.length === 0 && (
+        <p style={emptyStyle} data-testid="runtime-editions-filter-empty">
+          {message(MSG.PUBLISH_EMPTY_RUNTIME_NAME_FILTER)}
+        </p>
       )}
       <ul style={listStyle}>
-        {editions.map((ed) => {
+        {visibleEditions.map((ed) => {
           const id = String(ed.editionId ?? "");
           const selected = id === selectedEdition;
           return (
