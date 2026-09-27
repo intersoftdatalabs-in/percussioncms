@@ -27,6 +27,7 @@ import {
   isDeveloperNavSectionReadOnly,
   isDeveloperSectionNameTaken,
   listDeveloperDeleteTargets,
+  listDeveloperExternalLinks,
   listDeveloperNavParents,
   listDeveloperRenameTargets,
   listDeveloperReparentParents,
@@ -133,6 +134,8 @@ describe("siteNavSection", () => {
   });
 
   it("lists titles and only parents that can host a child", () => {
+    expect(listDeveloperExternalLinks(root).map((link) => link.id)).toEqual(["link"]);
+    expect(listDeveloperExternalLinks(null)).toEqual([]);
     expect(listDeveloperSectionTitles(root)).toEqual(["Corporate", "News", "External"]);
     const parents = listDeveloperNavParents(root, "Corporate");
     expect(parents.map((p) => p.id)).toEqual(["root", "child"]);
