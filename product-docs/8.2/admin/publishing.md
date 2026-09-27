@@ -64,6 +64,17 @@ name), **403** (not allowed), and **409** (name already exists or a copy is in
 progress) stay on the workspace with an error. The source title does not change.
 Copy of one delivery server, rename, and delete are separate actions.
 
+### Delete the open site (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card, then **Delete site**.
+**Delete** sends `DELETE /services/sites/{nameOrId}` only after you confirm.
+On success the shell leaves the site workspace and refreshes the sites list so
+the deleted site is gone. **Cancel** closes the confirm panel and does not call
+DELETE. HTTP **403** (not Admin), **404** (site already gone), and **409**
+(the site is still in use) stay on the workspace with an error and do not
+claim the site was deleted. Rename, copy, and delivery-server delete are
+separate actions.
+
 ### Search the Sites list (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), the **Sites** section lists sites as cards (or a list).

@@ -47,6 +47,7 @@ import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
 import { ItemStagePanel } from "../components/ItemStagePanel";
 import { ItemTakedownPanel } from "../components/ItemTakedownPanel";
 import { CopySitePanel } from "../components/CopySitePanel";
+import { DeleteSitePanel } from "../components/DeleteSitePanel";
 import { RenameSitePanel } from "../components/RenameSitePanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
@@ -104,6 +105,8 @@ export interface SiteWorkspaceProps {
   onRenamed?: (newName: string) => void;
   /** New site name after a successful copy. The open site is not renamed. */
   onCopied?: (copyName: string) => void;
+  /** After a successful delete the parent leaves the workspace and refreshes. */
+  onDeleted?: () => void;
   onBack: () => void;
 }
 
@@ -153,6 +156,7 @@ export function SiteWorkspace({
   existingSiteNames = [],
   onRenamed,
   onCopied,
+  onDeleted,
   onBack,
 }: SiteWorkspaceProps): React.ReactElement {
   const siteName = site.name;
@@ -163,6 +167,7 @@ export function SiteWorkspace({
   const [selectedServer, setSelectedServer] = useState(initialServerId);
   const [renaming, setRenaming] = useState(false);
   const [copying, setCopying] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [actionState, setActionState] = useState<PublishActionState>("idle");
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [jobs, setJobs] = useState<PublishingJob[]>([]);
@@ -720,6 +725,7 @@ export function SiteWorkspace({
           data-testid="publish-site-rename-open"
           onClick={() => {
             setCopying(false);
+            setDeleting(false);
             setRenaming(true);
           }}
         >
@@ -731,10 +737,23 @@ export function SiteWorkspace({
           data-testid="publish-site-copy-open"
           onClick={() => {
             setRenaming(false);
+            setDeleting(false);
             setCopying(true);
           }}
         >
           {message(MSG.PUBLISH_COPY_SITE)}
+        </button>
+        <button
+          type="button"
+          style={buttonStyle}
+          data-testid="publish-site-delete-open"
+          onClick={() => {
+            setRenaming(false);
+            setCopying(false);
+            setDeleting(true);
+          }}
+        >
+          {message(MSG.PUBLISH_DELETE_SITE)}
         </button>
       </div>
 
@@ -758,6 +777,17 @@ export function SiteWorkspace({
           onCopied={(copyName) => {
             setCopying(false);
             onCopied?.(copyName);
+          }}
+        />
+      ) : null}
+
+      {deleting ? (
+        <DeleteSitePanel
+          siteName={siteName ?? ""}
+          onCancel={() => setDeleting(false)}
+          onDeleted={() => {
+            setDeleting(false);
+            onDeleted?.();
           }}
         />
       ) : null}
