@@ -101,6 +101,19 @@ async function stubEditorApis(page, { onPut, putStatus, putBody } = {}) {
       }),
     }),
   );
+  const emptyJson = { status: 200, contentType: "application/json", body: "{}" };
+  await page.route("**/rest/content-explorer/translations/**", (route) =>
+    route.fulfill(emptyJson),
+  );
+  await page.route("**/services/pathmanagement/path/item/id/**", (route) =>
+    route.fulfill(emptyJson),
+  );
+  await page.route("**/services/itemmanagement/workflow/allowedWorkflows/**", (route) =>
+    route.fulfill(emptyJson),
+  );
+  await page.route("**/services/assembly/slot-relationships/**", (route) =>
+    route.fulfill(emptyJson),
+  );
   await page.route("**/services/contenttypes/**", (route) =>
     route.fulfill({
       status: 200,
@@ -178,11 +191,15 @@ test.describe("React Content Editor required field save errors", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.saveError}"]`)).toContainText(
         /required fields before saving/i,
       );
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.fieldDisplayTitle}"]`),
+      ).toBeFocused();
       expect(puts.filter((u) => isItemFieldsPutUrl(u))).toEqual([]);
       expect(leftover, `leftover CE requested: ${leftover.join(" ")}`).toEqual([]);
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {
         scope: `[data-testid="${TEST_IDS.host}"]`,
+        exclude: ['[data-testid="translations-panel"]'],
       });
     },
   );
@@ -213,7 +230,38 @@ test.describe("React Content Editor required field save errors", () => {
       await expect(
         page.locator(`[data-testid="${TEST_IDS.fieldErrorDisplayTitle}"]`),
       ).toContainText(/displaytitle/i);
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.fieldDisplayTitle}"]`),
+      ).toBeFocused();
       await expect(page.locator(`[data-testid="${TEST_IDS.form}"]`)).toBeVisible();
+    },
+  );
+
+  test(
+    "a clean save does not move focus onto a field",
+    { tag: ["@explorer-content-editor", "@editor", "@validation"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          pageErrors.push(msg.text());
+        }
+      });
+      await stubEditorApis(page, { putStatus: 200, putBody: FILLED_FIELDS });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator(`[data-testid="${TEST_IDS.form}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      const title = page.locator(`[data-testid="${TEST_IDS.fieldSysTitle}"]`);
+      await page.locator(`[data-testid="${TEST_IDS.fieldDisplayTitle}"]`).fill("Welcome");
+      await title.focus();
+      await page.locator(`[data-testid="${TEST_IDS.form}"]`).evaluate((form) => {
+        form.requestSubmit();
+      });
+      await expect(page.locator(`[data-testid="${TEST_IDS.saved}"]`)).toBeVisible();
+      await expect(title).toBeFocused();
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );
 

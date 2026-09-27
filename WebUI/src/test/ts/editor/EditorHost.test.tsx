@@ -3367,6 +3367,46 @@ describe("EditorHost required field save errors (#4541)", () => {
     );
     expect(screen.getByTestId("editor-form")).toBeTruthy();
     expect(saveFields).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(
+      screen.getByTestId("editor-field-displaytitle"),
+    );
+  });
+
+  it("focuses the first empty required field, not a later one", async () => {
+    const scroll = vi.fn();
+    HTMLElement.prototype.scrollIntoView = scroll;
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue({
+                  ...fields,
+                  fields: [
+                    { name: "sys_title", value: "" },
+                    { name: "displaytitle", value: "" },
+                  ],
+                })}
+                saveFields={vi.fn()}
+                loadType={async () => requiredType}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByTestId("editor-field-sys_title"));
+    });
+    expect(scroll).toHaveBeenCalled();
+    expect(screen.getByTestId("editor-field-error-displaytitle")).toBeTruthy();
   });
 
   it("maps a save 400 onto the named field and keeps the form", async () => {
@@ -3409,6 +3449,41 @@ describe("EditorHost required field save errors (#4541)", () => {
     expect(screen.getByTestId("editor-save-error")).toBeTruthy();
     expect(screen.getByTestId("editor-form")).toBeTruthy();
     expect(screen.queryByTestId("editor-error")).toBeNull();
+    expect(document.activeElement).toBe(
+      screen.getByTestId("editor-field-displaytitle"),
+    );
+  });
+
+  it("does not move focus onto a field after a clean save", async () => {
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                saveFields={saveFields}
+                loadType={async () => requiredType}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    const title = screen.getByTestId("editor-field-sys_title");
+    title.focus();
+    fireEvent.submit(screen.getByTestId("editor-form"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    expect(document.activeElement).toBe(title);
+    expect(saveFields).toHaveBeenCalled();
   });
 
   it("blocks check-in when a required field is empty", async () => {

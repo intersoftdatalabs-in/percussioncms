@@ -240,10 +240,13 @@ panel is shown in **Edit** mode only.  **Required** fields (content-type
 `required` flag or occurrence `required` / `oneOrMore` from
 `GET /services/contenttypes/{type}`) show a marker on the field row. Saving with
 an empty required field keeps the form on screen and shows an inline error on
-that row — the host does not PUT a partial save. HTTP **400** from
+that row — the host does not PUT a partial save. Keyboard focus moves to the
+first invalid row (form order) and that row is scrolled into view. The inline
+error text stays. A successful save does not move focus. HTTP **400** from
 `PUT /services/itemmanagement/item/fields/{id}` is mapped onto the named field
 when the error body includes that field (`errorData`, `field`, `fieldName`, or a
-quoted name in the message). **Check In** is blocked while required fields are
+quoted name in the message). When that 400 names a field, focus moves to that
+row the same way. **Check In** is blocked while required fields are
 still empty. In **Edit** mode the host also shows a
 **Workflow** region: the current state name and buttons for each allowed transition
 from `GET /services/itemmanagement/workflow/getTransitions/{id}`. Enter an optional
