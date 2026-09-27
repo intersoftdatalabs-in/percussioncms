@@ -41,6 +41,8 @@ import type { PSExplorerRelationshipEdge } from "../../api/contentExplorer/relat
 import {
   fetchNodeSummary,
   fetchRelationshipEdges,
+  removableOwnedEdges,
+  removeAllOwnedRelationshipEdges,
   removeRelationshipEdge,
 } from "../../api/contentExplorer/relationshipsApi";
 
@@ -120,7 +122,10 @@ export function RelationshipsView(
   const itemId = relationshipSummaryItemId(item.id);
   const [reloadToken, setReloadToken] = React.useState(0);
   const [confirmId, setConfirmId] = React.useState<number | null>(null);
-  const [removedNotice, setRemovedNotice] = React.useState(false);
+  const [confirmAll, setConfirmAll] = React.useState(false);
+  const [removedNotice, setRemovedNotice] = React.useState<"one" | "all" | null>(
+    null,
+  );
   const [removeError, setRemoveError] = React.useState<string | null>(null);
   const [removing, setRemoving] = React.useState(false);
   const [edges, setEdges] = React.useState<PSExplorerRelationshipEdge[]>([]);
@@ -139,12 +144,12 @@ export function RelationshipsView(
       // instead (per the bot review on PR #1410).
       setState({ kind: "auth" });
       setEdges([]);
-      setRemovedNotice(false);
+      setRemovedNotice(null);
       return;
     }
     setState({ kind: "loading" });
     setConfirmId(null);
-    setRemoveError(null);
+    setConfirmAll(false);
     loadServerSummary(itemId)
       .then(async (summary) => {
         if (!alive) return;
@@ -183,6 +188,11 @@ export function RelationshipsView(
     };
   }, [itemId, loadServerSummary, loadEdges, reloadToken]);
 
+  React.useEffect(() => {
+    setRemoveError(null);
+    setRemovedNotice(null);
+  }, [itemId]);
+
   function statusOf(err: unknown): number | undefined {
     if (err && typeof err === "object" && "status" in err) {
       const status = (err as { status: unknown }).status;
@@ -203,16 +213,41 @@ export function RelationshipsView(
     if (!itemId || removing) return;
     setRemoving(true);
     setRemoveError(null);
-    setRemovedNotice(false);
+    setRemovedNotice(null);
     try {
       await removeEdge(itemId, relationshipId);
       setConfirmId(null);
-      setRemovedNotice(true);
+      setRemovedNotice("one");
       setReloadToken((n) => n + 1);
     } catch (err: unknown) {
-      setRemovedNotice(false);
+      setRemovedNotice(null);
       setRemoveError(removeFailureMessage(err));
       setConfirmId(null);
+    } finally {
+      setRemoving(false);
+    }
+  }
+
+  async function confirmRemoveAll(): Promise<void> {
+    if (!itemId || removing) return;
+    const targets = removableOwnedEdges(edges);
+    if (targets.length === 0) {
+      setConfirmAll(false);
+      return;
+    }
+    setRemoving(true);
+    setRemoveError(null);
+    setRemovedNotice(null);
+    try {
+      await removeAllOwnedRelationshipEdges(itemId, edges, removeEdge);
+      setConfirmAll(false);
+      setRemovedNotice("all");
+      setReloadToken((n) => n + 1);
+    } catch (err: unknown) {
+      setRemovedNotice(null);
+      setRemoveError(removeFailureMessage(err));
+      setConfirmAll(false);
+      setReloadToken((n) => n + 1);
     } finally {
       setRemoving(false);
     }
@@ -321,13 +356,40 @@ export function RelationshipsView(
           {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_DO)}
         </h3>
         {removedNotice ? (
-          <p role="status" data-testid="relationships-removed">
-            {message(EXPLORER_MSG.RELATIONSHIPS_REMOVED)}
+          <p
+            role="status"
+            data-testid={
+              removedNotice === "all"
+                ? "relationships-removed-all"
+                : "relationships-removed"
+            }
+          >
+            {message(
+              removedNotice === "all"
+                ? EXPLORER_MSG.RELATIONSHIPS_REMOVED_ALL
+                : EXPLORER_MSG.RELATIONSHIPS_REMOVED,
+            )}
           </p>
         ) : null}
         {removeError ? (
           <p role="alert" data-testid="relationships-remove-error">
             {removeError}
+          </p>
+        ) : null}
+        {removableOwnedEdges(edges).length > 0 ? (
+          <p>
+            <button
+              type="button"
+              data-testid="relationships-remove-all"
+              onClick={() => {
+                setRemovedNotice(null);
+                setRemoveError(null);
+                setConfirmId(null);
+                setConfirmAll(true);
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_ALL)}
+            </button>
           </p>
         ) : null}
         {edges.length === 0 ? (
@@ -351,21 +413,55 @@ export function RelationshipsView(
                 }}
               >
                 <span>{edge.label}</span>
-                <button
-                  type="button"
-                  data-testid={`relationships-remove-${edge.relationshipId}`}
-                  onClick={() => {
-                    setRemovedNotice(false);
-                    setRemoveError(null);
-                    setConfirmId(edge.relationshipId);
-                  }}
-                >
-                  {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE)}
-                </button>
+                {removableOwnedEdges([edge]).length === 0 ? (
+                  <span data-testid={`relationships-folder-${edge.relationshipId}`}>
+                    {edge.category}
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    data-testid={`relationships-remove-${edge.relationshipId}`}
+                    onClick={() => {
+                      setRemovedNotice(null);
+                      setRemoveError(null);
+                      setConfirmAll(false);
+                      setConfirmId(edge.relationshipId);
+                    }}
+                  >
+                    {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE)}
+                  </button>
+                )}
               </li>
             ))}
           </ul>
         )}
+        {confirmAll ? (
+          <div
+            role="dialog"
+            aria-modal="true"
+            data-testid="relationships-remove-all-dialog"
+            style={{ marginTop: 8, padding: 8, border: "1px solid #ccc" }}
+          >
+            <p>{message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_ALL_CONFIRM)}</p>
+            <button
+              type="button"
+              data-testid="relationships-remove-all-cancel"
+              onClick={() => setConfirmAll(false)}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_CANCEL)}
+            </button>
+            <button
+              type="button"
+              data-testid="relationships-remove-all-confirm"
+              disabled={removing}
+              onClick={() => {
+                void confirmRemoveAll();
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_ALL)}
+            </button>
+          </div>
+        ) : null}
         {confirmId != null ? (
           <div
             role="dialog"
