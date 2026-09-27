@@ -691,6 +691,15 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Publish and removal dates cannot be the same",
   SCHEDULE_DATE_RANGE:
     "perc.ui.explorer@Enter a valid date range. Removal must be after publish.",
+  CLEAR_SCHEDULE_TITLE: "perc.ui.explorer@Clear scheduled dates",
+  CLEAR_SCHEDULE_BODY:
+    "perc.ui.explorer@Clear publish and removal dates for this item?",
+  CLEAR_SCHEDULE_CONFIRM: "perc.ui.explorer@Clear dates",
+  CLEAR_SCHEDULE_CURRENT: "perc.ui.explorer@Current dates",
+  CLEAR_SCHEDULE_NONE: "perc.ui.explorer@This item has no scheduled dates.",
+  CLEAR_SCHEDULE_SINGLE:
+    "perc.ui.explorer@Clear scheduled dates applies to one selected page or asset.",
+  CLEAR_SCHEDULE_FAILED: "perc.ui.explorer@Could not clear scheduled dates.",
   ACTION_COPY_URL_SUCCESS: "perc.ui.explorer@Item URL copied to the clipboard",
   ACTION_COPY_URL_FAILED: "perc.ui.explorer@Could not copy the item URL",
   ACTION_COPY_URL_EMPTY: "perc.ui.explorer@No URL is available for this item",

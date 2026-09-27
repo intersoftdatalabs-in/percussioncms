@@ -22,7 +22,7 @@
  * {@code itemPublishPaths} + {@code itemScheduleDatesApi} (#4537).
  */
 
-import { get, post } from "../api/client";
+import { formatApiError, get, post } from "../api/client";
 import { asJsonRecord } from "../api/jsonList";
 import { SERVICES_ROOT } from "../api/paths";
 import type { PSPathItem } from "../api/contentExplorer/types";
@@ -44,6 +44,14 @@ const SCHEDULE_ACTION_KEYS: ReadonlySet<string> = new Set([
   "schedule_publish",
 ]);
 
+const CLEAR_SCHEDULE_ACTION_KEYS: ReadonlySet<string> = new Set([
+  "clear_scheduled_dates",
+  "clear_schedule_dates",
+]);
+
+const ROW_START_KEYS = ["startdate", "sys_contentstartdate", "publishdate"];
+const ROW_END_KEYS = ["enddate", "sys_contentexpirydate", "removaldate"];
+
 function actionNameKey(name: string | undefined | null): string {
   return (name ?? "").replace(/[\s-]/g, "_").toLowerCase();
 }
@@ -51,6 +59,49 @@ function actionNameKey(name: string | undefined | null): string {
 /** Catalog / toolbar names for Explorer Schedule (Finder “Schedule”). */
 export function isScheduleActionName(name: string | undefined | null): boolean {
   return SCHEDULE_ACTION_KEYS.has(actionNameKey(name));
+}
+
+/** One-item clear of both publish and removal dates (#4968). Not Schedule. */
+export function isClearScheduledDatesActionName(
+  name: string | undefined | null,
+): boolean {
+  return CLEAR_SCHEDULE_ACTION_KEYS.has(actionNameKey(name));
+}
+
+function displayProp(item: PSPathItem, keys: readonly string[]): string {
+  const props = item.displayProperties;
+  if (!props || typeof props !== "object") {
+    return "";
+  }
+  for (const [key, value] of Object.entries(props)) {
+    if (!keys.includes(key.toLowerCase())) {
+      continue;
+    }
+    if (value == null) {
+      continue;
+    }
+    const text = String(value).trim();
+    if (text) {
+      return text;
+    }
+  }
+  return "";
+}
+
+/** Dates shown on a folder-list row when the path payload includes them. */
+export function rowScheduleDates(item: PSPathItem): {
+  startDate: string;
+  endDate: string;
+} {
+  return {
+    startDate: displayProp(item, ROW_START_KEYS),
+    endDate: displayProp(item, ROW_END_KEYS),
+  };
+}
+
+/** Message for a failed clear. HTTP 400/403/409 stay failures, not success. */
+export function clearScheduleFailureMessage(err: unknown): string {
+  return formatApiError(err, message(EXPLORER_MSG.CLEAR_SCHEDULE_FAILED));
 }
 
 function itemDatesRoot(root = SERVICES_ROOT): {
