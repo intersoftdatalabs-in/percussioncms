@@ -17,6 +17,15 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
+
+const findChildren = vi.hoisted(() => vi.fn());
+
+vi.mock("../../../main/ts/api/contentExplorer/pathApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/contentExplorer/pathApi")>();
+  return { ...actual, findChildren };
+});
+
 import {
   formatTakedownConfirmBody,
   isPublishingHistoryActionName,
@@ -27,6 +36,7 @@ import {
   loadLinkedPagesForTakedown,
   parseLinkedPagesForTakedown,
   describePublishBatch,
+  publishSelectedFolder,
   publishSelectedItem,
   publishSelectedItems,
   removeFromStagingSelectedItem,
@@ -39,6 +49,7 @@ import {
 } from "../../../main/ts/contentExplorer/itemPublish";
 
 afterEach(() => {
+  findChildren.mockReset();
   vi.restoreAllMocks();
 });
 
@@ -163,6 +174,82 @@ describe("publishSelectedItem", () => {
     await expect(publishSelectedItem(item())).rejects.toThrow(
       "Could not connect to publishing server",
     );
+  });
+
+  it("publishes direct children of a folder and skips nested folders", async () => {
+    findChildren.mockResolvedValue([
+      item({ id: "42", name: "Home" }),
+      item({
+        id: "8",
+        name: "Nested",
+        path: "/Sites/Demo/News/Nested",
+        type: "folder",
+        leaf: false,
+      }),
+      item({
+        id: "77",
+        name: "base",
+        path: "/Design/Templates/base",
+        type: "percTemplate",
+        category: "template",
+      }),
+      item({
+        id: "99",
+        name: "logo",
+        path: "/Assets/logo.png",
+        type: "percImageAsset",
+      }),
+    ]);
+    vi.spyOn(global, "fetch").mockImplementation(
+      async () =>
+        new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+    );
+    const result = await publishSelectedFolder(
+      item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+    );
+    expect(findChildren).toHaveBeenCalledWith("/Sites/Demo/News");
+    expect(result.publishedIds).toEqual(["42", "99"]);
+    expect(result.skippedFolders).toEqual(["Nested"]);
+    expect(result.skippedOther).toEqual(["base"]);
+    const urls = vi.mocked(global.fetch).mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("/publish/page/42"))).toBe(true);
+    expect(urls.some((url) => url.includes("/publish/resource/99"))).toBe(true);
+  });
+
+  it("records FORBIDDEN on a folder child and does not count it published", async () => {
+    findChildren.mockResolvedValue([item({ id: "42", name: "Home" })]);
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ status: "BADCONFIG" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await publishSelectedFolder(
+      item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+    );
+    expect(result.publishedIds).toEqual([]);
+    expect(result.failures[0]?.message).toMatch(/BADCONFIG/);
+  });
+
+  it("does not list children for a non-folder", async () => {
+    const result = await publishSelectedFolder(item());
+    expect(findChildren).not.toHaveBeenCalled();
+    expect(result.publishedIds).toEqual([]);
   });
 
   it("publishes each eligible item and records a 403 without stopping the batch", async () => {

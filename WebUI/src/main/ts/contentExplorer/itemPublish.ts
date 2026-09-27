@@ -29,6 +29,7 @@
  */
 
 import { get, isApiError, put } from "../api/client";
+import { findChildren } from "../api/contentExplorer/pathApi";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { asObjectArray } from "../api/jsonList";
 import { itemPublishPaths } from "../publishing/itemPublishPaths";
@@ -285,6 +286,63 @@ export async function publishSelectedItem(item: PSPathItem): Promise<boolean> {
     return true;
   }
   return false;
+}
+
+/**
+ * Demand-publish pages and assets that are direct children of a folder.
+ * Nested folders are skipped (publish those folders separately). An empty
+ * folder publishes nothing. Application-level preflight failures are
+ * recorded and do not count as a started job.
+ */
+export async function publishSelectedFolder(
+  folder: PSPathItem,
+): Promise<PublishBatchResult> {
+  const path = normalizeCmsPath(folder.path ?? "");
+  if (!isFolder(folder) || !path) {
+    return {
+      publishedIds: [],
+      skippedFolders: [],
+      skippedOther: [],
+      failures: [],
+    };
+  }
+  const children = await findChildren(path);
+  const publishedIds: string[] = [];
+  const skippedFolders: string[] = [];
+  const skippedOther: string[] = [];
+  const failures: StageItemFailure[] = [];
+  const seen = new Set<string>();
+  for (const child of children) {
+    const id = (child.id ?? "").trim();
+    const key = id || `name:${stageItemLabel(child)}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    if (isFolder(child)) {
+      skippedFolders.push(stageItemLabel(child));
+      continue;
+    }
+    if (!id || resolvePublishKind(child) === "none") {
+      skippedOther.push(stageItemLabel(child));
+      continue;
+    }
+    try {
+      const published = await publishSelectedItem(child);
+      if (!published) {
+        failures.push({
+          id,
+          name: stageItemLabel(child),
+          message: "not published",
+        });
+      } else {
+        publishedIds.push(id);
+      }
+    } catch (err: unknown) {
+      failures.push(failureFromPublish(child, err));
+    }
+  }
+  return { publishedIds, skippedFolders, skippedOther, failures };
 }
 
 export interface PublishBatchResult {

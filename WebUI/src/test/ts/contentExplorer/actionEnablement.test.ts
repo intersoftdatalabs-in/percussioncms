@@ -298,7 +298,7 @@ describe("filterEnabledMenuActions", () => {
     expect(filtered[0]).not.toBe(input[0]);
   });
 
-  it("hides toolbar Publish Now until a page or asset is selected (#3467)", () => {
+  it("hides toolbar Publish Now until a page, asset, or folder is selected (#3467)", () => {
     const actions: MenuAction[] = [
       leaf({ name: "open" }),
       leaf({ name: "Publish_Now", label: "Publish Now" }),
@@ -313,7 +313,7 @@ describe("filterEnabledMenuActions", () => {
         path: "/Sites",
         type: "folder",
       }).map((a) => a.name),
-    ).toEqual(["open"]);
+    ).toEqual(["open", "Publish_Now"]);
     expect(
       filterToolbarActions(actions, BASE, {
         id: "42",
@@ -339,7 +339,7 @@ describe("filterEnabledMenuActions", () => {
     ).toBe(true);
   });
 
-  it("hides context-menu Publish Now for folders and shows it for a page (#3467)", () => {
+  it("shows context-menu Publish Now for a folder and a page (#4945)", () => {
     const actions: MenuAction[] = [
       leaf({ name: "open" }),
       leaf({ name: "Publish_Now", label: "Publish Now" }),
@@ -360,7 +360,7 @@ describe("filterEnabledMenuActions", () => {
     };
     expect(
       filterContextMenuActions(actions, BASE, folder).map((a) => a.name),
-    ).toEqual(["open"]);
+    ).toEqual(["open", "Publish_Now"]);
     expect(
       filterContextMenuActions(actions, BASE, page).map((a) => a.name),
     ).toEqual([
@@ -391,7 +391,7 @@ describe("filterEnabledMenuActions", () => {
         path: "/Sites",
         type: "folder",
       }).map((a) => a.name),
-    ).toEqual(["open"]);
+    ).toEqual(["open", "Publish_Now"]);
     expect(
       filterToolbarActions(actions, BASE, {
         id: "42",
@@ -479,7 +479,7 @@ describe("filterEnabledMenuActions", () => {
         path: "/Sites",
         type: "folder",
       }).map((a) => a.name),
-    ).toEqual(["open"]);
+    ).toEqual(["open", "Publish_Now"]);
     expect(
       filterToolbarActions(actions, BASE, {
         id: "42",
@@ -562,7 +562,7 @@ describe("filterEnabledMenuActions", () => {
         path: "/Sites",
         type: "folder",
       }).map((a) => a.name),
-    ).toEqual(["open"]);
+    ).toEqual(["open", "Publish_Now"]);
     expect(
       filterToolbarActions(actions, BASE, {
         id: "42",

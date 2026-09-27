@@ -17,6 +17,15 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { MenuAction, PSPathItem } from "../../../main/ts/api/contentExplorer/types";
+
+const findChildren = vi.hoisted(() => vi.fn());
+
+vi.mock("../../../main/ts/api/contentExplorer/pathApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/contentExplorer/pathApi")>();
+  return { ...actual, findChildren };
+});
+
 import * as itemWorkflowApi from "../../../main/ts/api/contentExplorer/itemWorkflowApi";
 import {
   classifyAction,
@@ -52,6 +61,7 @@ function action(overrides: Partial<MenuAction> = {}): MenuAction {
 
 describe("actionDispatch", () => {
   afterEach(() => {
+    findChildren.mockReset();
     vi.restoreAllMocks();
   });
 
@@ -999,22 +1009,110 @@ describe("actionDispatch", () => {
     );
   });
 
-  it("Publish Now on a Sites folder asks for a content item and does not publish", async () => {
-    const onPublish = vi.fn();
-    const result = await dispatchAction(action({ name: "Publish_Now" }), {
-      item: item({
-        id: "1",
-        name: "Sites",
-        path: "/Sites",
+  it("Publish Now on a folder confirms then publishes direct page and asset children", async () => {
+    findChildren.mockResolvedValue([
+      item({ id: "42", name: "Home" }),
+      item({
+        id: "8",
+        name: "Nested",
+        path: "/Sites/Demo/Nested",
         type: "folder",
         leaf: false,
       }),
-      onPublish,
+      item({
+        id: "99",
+        name: "logo",
+        path: "/Assets/logo.png",
+        type: "percImageAsset",
+      }),
+    ]);
+    vi.spyOn(global, "fetch").mockImplementation(
+      async () =>
+        new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+    );
+    const confirm = vi.fn().mockReturnValue(true);
+    const result = await dispatchAction(action({ name: "Publish_Now" }), {
+      item: item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      confirm,
+    });
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(String(confirm.mock.calls[0]?.[0] ?? "")).toContain(
+      "Publish the pages and assets in this folder",
+    );
+    expect(findChildren).toHaveBeenCalledWith("/Sites/Demo/News");
+    expect(result.refresh).toBe(true);
+    expect(result.messageText ?? "").toMatch(/Folders are not published: Nested/);
+    const urls = vi.mocked(global.fetch).mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("/publish/page/42"))).toBe(true);
+    expect(urls.some((url) => url.includes("/publish/resource/99"))).toBe(true);
+    expect(urls.some((url) => url.includes("/publish/page/8"))).toBe(false);
+  });
+
+  it("folder Publish Now cancel lists nothing and publishes nothing", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const result = await dispatchAction(action({ name: "Publish_Now" }), {
+      item: item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      confirm: () => false,
+    });
+    expect(findChildren).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("folder Publish Now preflight failure does not refresh", async () => {
+    findChildren.mockResolvedValue([item({ id: "42", name: "Home" })]);
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ status: "FORBIDDEN" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await dispatchAction(action({ name: "Publish_Now" }), {
+      item: item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
       confirm: () => true,
     });
-    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(result.refresh).toBe(false);
+    expect(result.messageText ?? "").toMatch(/FORBIDDEN/);
+    expect(result.messageKey).toBe(EXPLORER_MSG.PUBLISH_BATCH_INCOMPLETE);
+  });
+
+  it("empty folder Publish Now does not pretend a job started", async () => {
+    findChildren.mockResolvedValue([]);
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const result = await dispatchAction(action({ name: "Publish_Now" }), {
+      item: item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      confirm: () => true,
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
     expect(result.refresh).toBeUndefined();
-    expect(onPublish).not.toHaveBeenCalled();
+    expect(result.messageKey).toBe(EXPLORER_MSG.PUBLISH_FOLDER_EMPTY);
   });
 
   it("classifies Check Out and Check In as rest", () => {
