@@ -37,6 +37,7 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { rowScheduleDates } from "./itemScheduleDates";
 import {
   isNumericDisplayFormatId,
   paginatedFolder,
@@ -539,6 +540,10 @@ export function DetailList({
             const folderOpen = folderish && selected;
             const itemName =
               explorerSiteDisplayName(item) || item.name || "";
+            const scheduleOnRow = rowScheduleDates(item);
+            const scheduleLabel = [scheduleOnRow.startDate, scheduleOnRow.endDate]
+              .filter((part) => part.length > 0)
+              .join(" – ");
             return (
               <tr
                 key={idKey}
@@ -546,6 +551,8 @@ export function DetailList({
                 data-item-id={idKey}
                 data-row-kind={folderish ? "folder" : "item"}
                 data-item-name={itemName}
+                data-schedule-start={scheduleOnRow.startDate || undefined}
+                data-schedule-end={scheduleOnRow.endDate || undefined}
                 data-item-type={item.type ?? ""}
                 data-previewable={isPreviewableItem(item) ? "true" : "false"}
                 data-selected={selected ? "true" : undefined}
@@ -642,6 +649,12 @@ export function DetailList({
                     title={renderDisplayFormatCell(c, item)}
                   >
                     {renderDisplayFormatCell(c, item)}
+                    {c === "name" && scheduleLabel ? (
+                      <span data-testid={`detail-schedule-dates-${idKey}`}>
+                        {" "}
+                        {scheduleLabel}
+                      </span>
+                    ) : null}
                   </td>
                 ))}
               </tr>

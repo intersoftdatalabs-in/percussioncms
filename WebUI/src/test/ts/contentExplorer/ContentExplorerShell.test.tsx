@@ -532,6 +532,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       screen.queryByTestId("action-toolbar-item-Schedule"),
     ).not.toBeInTheDocument();
     expect(
+      screen.queryByTestId("action-toolbar-item-Clear_Scheduled_Dates"),
+    ).not.toBeInTheDocument();
+    expect(
       screen.queryByTestId("action-toolbar-item-Publishing_History"),
     ).not.toBeInTheDocument();
     expect(screen.getByTestId("content-explorer-shell")).toHaveAttribute(
@@ -559,6 +562,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       ).toBeInTheDocument();
       expect(
         screen.getByTestId("action-toolbar-item-Schedule"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("action-toolbar-item-Clear_Scheduled_Dates"),
       ).toBeInTheDocument();
       expect(
         screen.getByTestId("action-toolbar-item-Publishing_History"),

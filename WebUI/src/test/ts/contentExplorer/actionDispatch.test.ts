@@ -2220,6 +2220,56 @@ describe("actionDispatch", () => {
     expect(onSchedule).not.toHaveBeenCalled();
   });
 
+  it("Clear scheduled dates confirms empty dates and refreshes", async () => {
+    const confirmClearScheduledDates = vi.fn().mockResolvedValue(true);
+    const result = await dispatchAction(
+      action({ name: "Clear_Scheduled_Dates" }),
+      { item: item(), confirmClearScheduledDates },
+    );
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(confirmClearScheduledDates).toHaveBeenCalledTimes(1);
+  });
+
+  it("Clear scheduled dates cancel does not refresh", async () => {
+    const confirmClearScheduledDates = vi.fn().mockResolvedValue(false);
+    const result = await dispatchAction(
+      action({ name: "Clear_Scheduled_Dates" }),
+      { item: item(), confirmClearScheduledDates },
+    );
+    expect(result.refresh).toBeUndefined();
+    expect(confirmClearScheduledDates).toHaveBeenCalledTimes(1);
+  });
+
+  it("Clear scheduled dates does not write for a folder or a multi-select", async () => {
+    const confirmClearScheduledDates = vi.fn();
+    const folder = await dispatchAction(
+      action({ name: "Clear_Scheduled_Dates" }),
+      {
+        item: item({
+          id: "1",
+          name: "Sites",
+          path: "/Sites",
+          type: "folder",
+          leaf: false,
+        }),
+        confirmClearScheduledDates,
+      },
+    );
+    expect(folder.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    const multi = await dispatchAction(
+      action({ name: "Clear_Scheduled_Dates" }),
+      {
+        item: item(),
+        selectedItems: [item(), item({ id: "43", path: "/Sites/Demo/About" })],
+        confirmClearScheduledDates,
+      },
+    );
+    expect(multi.messageKey).toBe(EXPLORER_MSG.CLEAR_SCHEDULE_SINGLE);
+    expect(multi.refresh).toBeUndefined();
+    expect(confirmClearScheduledDates).not.toHaveBeenCalled();
+  });
+
   it("Schedule on a template stays unavailable", async () => {
     const result = await dispatchAction(action({ name: "Schedule" }), {
       item: item({

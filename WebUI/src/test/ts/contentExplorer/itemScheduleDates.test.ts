@@ -22,7 +22,10 @@ import {
   datetimeLocalToServerDate,
   formatServerScheduleDate,
   getItemScheduleDates,
+  clearScheduleFailureMessage,
+  isClearScheduledDatesActionName,
   isScheduleActionName,
+  rowScheduleDates,
   parseItemScheduleDates,
   parseServerScheduleDate,
   formatScheduleBatchFailure,
@@ -330,5 +333,35 @@ describe("get/set schedule dates", () => {
     expect(isScheduleActionName("Schedule")).toBe(true);
     expect(isScheduleActionName("schedule dates")).toBe(true);
     expect(isScheduleActionName("Publish_Now")).toBe(false);
+    expect(isScheduleActionName("Clear_Scheduled_Dates")).toBe(false);
+    expect(isClearScheduledDatesActionName("Clear scheduled dates")).toBe(true);
+    expect(isClearScheduledDatesActionName("Schedule")).toBe(false);
+  });
+
+  it("reads schedule dates from the row display properties", () => {
+    expect(
+      rowScheduleDates(
+        item({
+          displayProperties: {
+            startDate: "09/18/2026 09:00 am",
+            endDate: "09/19/2026 10:00 am",
+          },
+        }),
+      ),
+    ).toEqual({
+      startDate: "09/18/2026 09:00 am",
+      endDate: "09/19/2026 10:00 am",
+    });
+    expect(rowScheduleDates(item())).toEqual({ startDate: "", endDate: "" });
+  });
+
+  it("clearScheduleFailureMessage keeps HTTP 403 text", () => {
+    expect(
+      clearScheduleFailureMessage({
+        status: 403,
+        statusText: "Forbidden",
+        body: { message: "not allowed" },
+      }),
+    ).toMatch(/not allowed|HTTP 403/i);
   });
 });

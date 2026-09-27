@@ -58,7 +58,10 @@ import {
   isTakedownActionName,
   resolvePublishKind,
 } from "./itemPublish";
-import { isScheduleActionName } from "./itemScheduleDates";
+import {
+  isClearScheduledDatesActionName,
+  isScheduleActionName,
+} from "./itemScheduleDates";
 import { isFolder } from "./selection";
 
 /** Where the filtered menu will be rendered. */
@@ -325,6 +328,20 @@ export function isToolbarScheduleHidden(
 }
 
 /**
+ * Clear scheduled dates is item-scoped like Schedule. Folders stay hidden.
+ * Multi-select clear is not this action.
+ */
+export function isToolbarClearScheduleHidden(
+  action: MenuAction,
+  selectionItem: PSPathItem | null | undefined,
+): boolean {
+  if (!isClearScheduledDatesActionName(action.name)) {
+    return false;
+  }
+  return resolvePublishKind(selectionItem ?? null) === "none";
+}
+
+/**
  * Publishing History is item-scoped like Publish Now.
  */
 export function isToolbarPublishingHistoryHidden(
@@ -386,6 +403,14 @@ export const EXPLORER_SCHEDULE_ACTION: MenuAction = {
   name: "Schedule",
   label: "Schedule",
   sortRank: 10_030,
+  menuType: "MENUITEM",
+};
+
+/** Injected clear of both dates for one page or asset (#4968). */
+export const EXPLORER_CLEAR_SCHEDULE_ACTION: MenuAction = {
+  name: "Clear_Scheduled_Dates",
+  label: "Clear scheduled dates",
+  sortRank: 10_035,
   menuType: "MENUITEM",
 };
 
@@ -501,6 +526,18 @@ export function withExplorerScheduleAction(
     selectionItem,
     isScheduleActionName,
     EXPLORER_SCHEDULE_ACTION,
+  );
+}
+
+export function withExplorerClearScheduleAction(
+  actions: MenuAction[],
+  selectionItem: PSPathItem | null | undefined,
+): MenuAction[] {
+  return injectPublishItemAction(
+    actions,
+    selectionItem,
+    isClearScheduledDatesActionName,
+    EXPLORER_CLEAR_SCHEDULE_ACTION,
   );
 }
 
@@ -665,6 +702,9 @@ export function filterEnabledMenuActions(
     if (isToolbarScheduleHidden(action, ctx.selectionItem)) {
       continue;
     }
+    if (isToolbarClearScheduleHidden(action, ctx.selectionItem)) {
+      continue;
+    }
     if (isToolbarPublishingHistoryHidden(action, ctx.selectionItem)) {
       continue;
     }
@@ -695,15 +735,18 @@ export function filterToolbarActions(
     withExplorerForceCheckinAction(
       withExplorerCheckoutActions(
         withExplorerPublishingHistoryAction(
-          withExplorerScheduleAction(
-            withExplorerStagingActions(
-              withExplorerTakedownAction(
-                filterEnabledMenuActions(actions, {
-                  surface: "toolbar",
-                  baseHref,
+          withExplorerClearScheduleAction(
+            withExplorerScheduleAction(
+              withExplorerStagingActions(
+                withExplorerTakedownAction(
+                  filterEnabledMenuActions(actions, {
+                    surface: "toolbar",
+                    baseHref,
+                    selectionItem,
+                    isAdmin,
+                  }),
                   selectionItem,
-                  isAdmin,
-                }),
+                ),
                 selectionItem,
               ),
               selectionItem,
@@ -735,15 +778,18 @@ export function filterContextMenuActions(
     withExplorerForceCheckinAction(
       withExplorerCheckoutActions(
         withExplorerPublishingHistoryAction(
-          withExplorerScheduleAction(
-            withExplorerStagingActions(
-              withExplorerTakedownAction(
-                filterEnabledMenuActions(actions, {
-                  surface: "contextmenu",
-                  baseHref,
+          withExplorerClearScheduleAction(
+            withExplorerScheduleAction(
+              withExplorerStagingActions(
+                withExplorerTakedownAction(
+                  filterEnabledMenuActions(actions, {
+                    surface: "contextmenu",
+                    baseHref,
+                    selectionItem,
+                    isAdmin,
+                  }),
                   selectionItem,
-                  isAdmin,
-                }),
+                ),
                 selectionItem,
               ),
               selectionItem,

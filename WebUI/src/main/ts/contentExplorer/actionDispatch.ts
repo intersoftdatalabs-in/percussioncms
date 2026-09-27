@@ -75,9 +75,11 @@ import {
 import {
   formatScheduleBatchFailure,
   getItemScheduleDates,
+  isClearScheduledDatesActionName,
   isScheduleActionName,
   publishableScheduleTargets,
   scheduleSelectedItems,
+  setItemScheduleDates,
   type ItemScheduleDates,
   type ScheduleBatchResult,
   type ScheduleItemFailure,
@@ -262,6 +264,12 @@ export interface ActionDispatchContext {
     current: ItemScheduleDates,
     options?: { applyCount: number },
   ) => Promise<ItemScheduleDates | null>;
+  /**
+   * Opens the clear-dates dialog. Resolves true only after empty dates
+   * were saved. Cancel and HTTP 400/403/409 resolve false (dialog stays
+   * open on those errors; the shell must not treat them as success).
+   */
+  confirmClearScheduledDates?: (item: PSPathItem) => Promise<boolean>;
   /** Parent menu name when the user activated a child (AA vs Preview). */
   parentName?: string;
   writeClipboard?: (text: string) => Promise<void>;
@@ -415,6 +423,7 @@ export function classifyAction(action: MenuAction): ActionKind {
     isStageActionName(name) ||
     isRemoveFromStagingActionName(name) ||
     isScheduleActionName(name) ||
+    isClearScheduledDatesActionName(name) ||
     isForceCheckinActionName(name) ||
     isCheckoutActionName(name) ||
     isCheckinActionName(name)
@@ -2161,6 +2170,36 @@ export async function dispatchAction(
         refresh: batch.saved > 0,
       };
     }
+    return { kind: "rest", refresh: true };
+  }
+
+  if (isClearScheduledDatesActionName(name)) {
+    const checked = ctx.selectedItems ?? [];
+    if (checked.length >= 2) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.CLEAR_SCHEDULE_SINGLE };
+    }
+    if (!item || isFolder(item) || resolvePublishKind(item) === "none") {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    if (ctx.confirmClearScheduledDates) {
+      const cleared = await ctx.confirmClearScheduledDates(item);
+      if (!cleared) {
+        return { kind: "rest" };
+      }
+      return { kind: "rest", refresh: true };
+    }
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CLEAR_SCHEDULE_BODY,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    await setItemScheduleDates({
+      itemId: String(item.id ?? "").trim(),
+      startDate: "",
+      endDate: "",
+      comments: "",
+    });
     return { kind: "rest", refresh: true };
   }
 

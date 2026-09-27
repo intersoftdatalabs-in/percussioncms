@@ -135,6 +135,7 @@ import { clampContextMenuPosition } from "./contextMenuPosition";
 import { TemplatePickerDialog } from "./TemplatePickerDialog";
 import { ContentTypePickerDialog } from "./ContentTypePickerDialog";
 import { PublishingHistoryDialog } from "./PublishingHistoryDialog";
+import { ClearScheduledDatesDialog } from "./ClearScheduledDatesDialog";
 import { ScheduleDatesDialog } from "./ScheduleDatesDialog";
 import type { ItemScheduleDates } from "./itemScheduleDates";
 import {
@@ -667,6 +668,12 @@ function ContentExplorerShellInner({
   const [schedulePicker, setSchedulePicker] =
     useState<SchedulePickerSession | null>(null);
   const schedulePickerRef = useRef<SchedulePickerSession | null>(null);
+  const [clearScheduleItem, setClearScheduleItem] = useState<PSPathItem | null>(
+    null,
+  );
+  const clearScheduleResolveRef = useRef<((cleared: boolean) => void) | null>(
+    null,
+  );
   const [publishingHistoryItem, setPublishingHistoryItem] =
     useState<PSPathItem | null>(null);
   /**
@@ -1259,6 +1266,26 @@ function ContentExplorerShellInner({
     [],
   );
 
+  const confirmClearScheduledDates = useCallback((item: PSPathItem) => {
+    return new Promise<boolean>((resolve) => {
+      const previous = clearScheduleResolveRef.current;
+      clearScheduleResolveRef.current = resolve;
+      setClearScheduleItem(item);
+      if (previous) {
+        previous(false);
+      }
+    });
+  }, []);
+
+  const finishClearSchedule = useCallback((cleared: boolean) => {
+    const resolve = clearScheduleResolveRef.current;
+    clearScheduleResolveRef.current = null;
+    setClearScheduleItem(null);
+    if (resolve) {
+      resolve(cleared);
+    }
+  }, []);
+
   const finishSchedulePicker = useCallback((dates: ItemScheduleDates | null) => {
     const current = schedulePickerRef.current;
     schedulePickerRef.current = null;
@@ -1286,6 +1313,11 @@ function ContentExplorerShellInner({
       const scheduleCurrent = schedulePickerRef.current;
       schedulePickerRef.current = null;
       settleSchedulePickerSession(scheduleCurrent, null);
+      const clearResolve = clearScheduleResolveRef.current;
+      clearScheduleResolveRef.current = null;
+      if (clearResolve) {
+        clearResolve(false);
+      }
     };
   }, []);
 
@@ -1403,6 +1435,7 @@ function ContentExplorerShellInner({
             pickPageTemplate,
             pickContentType,
             pickScheduleDates,
+            confirmClearScheduledDates,
             loadContentTypes,
             slot,
             addToSlot,
@@ -1453,6 +1486,7 @@ function ContentExplorerShellInner({
       pickPageTemplate,
       pickContentType,
       pickScheduleDates,
+      confirmClearScheduledDates,
       loadContentTypes,
       slot,
       addToSlot,
@@ -2711,6 +2745,12 @@ function ContentExplorerShellInner({
           applyCount={schedulePicker.applyCount}
           onSave={(dates) => finishSchedulePicker(dates)}
           onCancel={() => finishSchedulePicker(null)}
+        />
+      ) : null}
+      {clearScheduleItem ? (
+        <ClearScheduledDatesDialog
+          item={clearScheduleItem}
+          onDone={finishClearSchedule}
         />
       ) : null}
       {publishingHistoryItem ? (

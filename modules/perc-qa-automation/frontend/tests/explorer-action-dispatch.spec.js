@@ -819,4 +819,203 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       );
     },
   );
+
+  test(
+    "Clear scheduled dates confirms empty dates, cancel does not write, folder hides the action",
+    { tag: ["@explorer-action-dispatch", "@explorer", "@explorer-clear-schedule"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      const posted = [];
+      let cleared = false;
+      await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+        const start = cleared ? "" : "09/18/2026 09:00 am";
+        const end = cleared ? "" : "09/19/2026 10:00 am";
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "1",
+                  name: "Sites",
+                  path: "/Sites",
+                  type: "folder",
+                  category: "folder",
+                  leaf: false,
+                },
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "percPage",
+                  category: "page",
+                  accessLevel: "WRITE",
+                  leaf: true,
+                  displayProperties: { startDate: start, endDate: end },
+                },
+              ],
+              childrenCount: 2,
+              startIndex: 0,
+            },
+          }),
+        });
+      });
+      await page.route("**/itemmanagement/item/getitemdates/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemDates: {
+              itemId: "42",
+              startDate: "09/18/2026 09:00 am",
+              endDate: "09/19/2026 10:00 am",
+              comments: "",
+            },
+          }),
+        });
+      });
+      await page.route("**/itemmanagement/item/setitemdates**", async (route) => {
+        const body = route.request().postDataJSON();
+        posted.push(body);
+        cleared = true;
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ ItemDates: body?.ItemDates ?? {} }),
+        });
+      });
+
+      await page.goto(explorerSpaUrl(BASE_URL));
+      await page.waitForLoadState("networkidle");
+      const folder = page.locator('[data-testid="detail-row-1"][data-row-kind="folder"]');
+      await expect(folder).toBeVisible({ timeout: 20_000 });
+      await folder.click();
+      await expect(
+        page.locator('[data-testid="action-toolbar-item-Clear_Scheduled_Dates"]'),
+      ).toHaveCount(0);
+
+      const home = page.locator('[data-testid="detail-row-42"][data-row-kind="item"]');
+      await expect(home).toBeVisible();
+      await expect(page.locator('[data-testid="detail-schedule-dates-42"]')).toContainText(
+        "09/18/2026 09:00 am",
+      );
+      await home.click();
+      const clear = page.locator(
+        '[data-testid="action-toolbar-item-Clear_Scheduled_Dates"]',
+      );
+      await expect(clear).toBeVisible({ timeout: 15_000 });
+      await clear.click();
+      await expect(page.locator('[data-testid="explorer-clear-schedule-dialog"]')).toBeVisible();
+      await page.locator('[data-testid="explorer-clear-schedule-cancel"]').click();
+      expect(posted).toEqual([]);
+      await expect(page.locator('[data-testid="detail-schedule-dates-42"]')).toBeVisible();
+
+      await clear.click();
+      await expect(page.locator('[data-testid="explorer-clear-schedule-current"]')).toContainText(
+        "09/18/2026 09:00 am",
+      );
+      await page.locator('[data-testid="explorer-clear-schedule-confirm"]').click();
+      await expect(page.locator('[data-testid="explorer-clear-schedule-dialog"]')).toHaveCount(0, {
+        timeout: 10_000,
+      });
+      await expect(page.locator('[data-testid="detail-schedule-dates-42"]')).toHaveCount(0, {
+        timeout: 10_000,
+      });
+      expect(posted).toHaveLength(1);
+      expect(posted[0]?.ItemDates?.startDate ?? "").toBe("");
+      expect(posted[0]?.ItemDates?.endDate ?? "").toBe("");
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
+    "Clear scheduled dates keeps HTTP 400, 403, and 409 on the dialog",
+    { tag: ["@explorer-action-dispatch", "@explorer", "@explorer-clear-schedule"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      let status = 400;
+      await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "percPage",
+                  category: "page",
+                  accessLevel: "WRITE",
+                  leaf: true,
+                  displayProperties: {
+                    startDate: "09/18/2026 09:00 am",
+                    endDate: "09/19/2026 10:00 am",
+                  },
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+          }),
+        });
+      });
+      await page.route("**/itemmanagement/item/getitemdates/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemDates: {
+              itemId: "42",
+              startDate: "09/18/2026 09:00 am",
+              endDate: "09/19/2026 10:00 am",
+            },
+          }),
+        });
+      });
+      await page.route("**/itemmanagement/item/setitemdates**", async (route) => {
+        await route.fulfill({
+          status,
+          contentType: "application/json",
+          body: JSON.stringify({ message: `blocked ${status}` }),
+        });
+      });
+
+      await page.goto(explorerSpaUrl(BASE_URL));
+      await page.waitForLoadState("networkidle");
+      const home = page.locator('[data-testid="detail-row-42"]');
+      await expect(home).toBeVisible({ timeout: 20_000 });
+      await home.click();
+      const clear = page.locator(
+        '[data-testid="action-toolbar-item-Clear_Scheduled_Dates"]',
+      );
+      for (const code of [400, 403, 409]) {
+        status = code;
+        await clear.click();
+        await expect(
+          page.locator('[data-testid="explorer-clear-schedule-dialog"]'),
+        ).toBeVisible();
+        await page.locator('[data-testid="explorer-clear-schedule-confirm"]').click();
+        const alert = page.locator('[data-testid="explorer-clear-schedule-error"]');
+        await expect(alert).toBeVisible({ timeout: 10_000 });
+        await expect(alert).toContainText(new RegExp(`blocked ${code}|HTTP ${code}`, "i"));
+        await expect(page.locator('[data-testid="detail-schedule-dates-42"]')).toBeVisible();
+        await page.locator('[data-testid="explorer-clear-schedule-cancel"]').click();
+        await expect(
+          page.locator('[data-testid="explorer-clear-schedule-dialog"]'),
+        ).toHaveCount(0);
+      }
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
 });
