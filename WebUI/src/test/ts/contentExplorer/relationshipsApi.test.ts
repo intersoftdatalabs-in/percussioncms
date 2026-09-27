@@ -46,6 +46,20 @@ describe("relationshipsApi", () => {
     await expect(fetchOutgoing("999")).rejects.toMatchObject({ status: 404 });
   });
 
+  it("attaches HTTP status on a 404 so the viewer can name it", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("missing", { status: 404 })),
+    );
+    try {
+      await fetchNodeSummary("999999");
+      throw new Error("expected 404");
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error);
+      expect((err as { status?: number }).status).toBe(404);
+    }
+  });
+
   it("throws RelationshipSummaryAuthError on 403", async () => {
     vi.stubGlobal(
       "fetch",

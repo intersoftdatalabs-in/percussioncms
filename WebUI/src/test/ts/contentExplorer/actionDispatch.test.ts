@@ -25,6 +25,7 @@ import {
   firstPositiveTemplateId,
   isContentEditorActionUrl,
   isDataFlowActionUrl,
+  isWhereUsedAction,
   parseTemplateIdFromAction,
 } from "../../../main/ts/contentExplorer/actionDispatch";
 import { EXPLORER_MSG } from "../../../main/ts/contentExplorer/messages";
@@ -503,6 +504,50 @@ describe("actionDispatch", () => {
     );
     expect(result.kind).toBe("client");
     expect(onShowDependencies).toHaveBeenCalledTimes(1);
+  });
+
+  it("where-used Data Flow URL opens dependencies instead of unavailable (#4944)", async () => {
+    const whereUsed = action({
+      name: "Custom_Where_Used",
+      url: "../sys_cxDependencyTree/dependencytree.html",
+    });
+    expect(isDataFlowActionUrl(whereUsed.url)).toBe(true);
+    expect(isWhereUsedAction(whereUsed)).toBe(true);
+    expect(classifyAction(whereUsed)).toBe("client");
+    const onShowDependencies = vi.fn();
+    const result = await dispatchAction(whereUsed, {
+      item: item(),
+      onShowDependencies,
+    });
+    expect(result.messageKey).toBeUndefined();
+    expect(onShowDependencies).toHaveBeenCalledTimes(1);
+  });
+
+  it("where-used on a folder names the error and does not open the panel (#4944)", async () => {
+    const onShowDependencies = vi.fn();
+    const result = await dispatchAction(
+      action({
+        name: "Where_Used",
+        url: "../sys_cxDependencyTree/dependencytree.html",
+      }),
+      {
+        item: item({ type: "folder", id: undefined }),
+        onShowDependencies,
+      },
+    );
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(onShowDependencies).not.toHaveBeenCalled();
+  });
+
+  it("other Data Flow URLs stay unavailable", () => {
+    expect(
+      classifyAction(
+        action({
+          name: "Compare",
+          url: "../sys_Compare/compare.html",
+        }),
+      ),
+    ).toBe("unavailable");
   });
 
   it("Copy URL writes the site preview URL", async () => {

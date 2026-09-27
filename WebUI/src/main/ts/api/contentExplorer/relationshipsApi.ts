@@ -70,9 +70,11 @@ async function fetchOne<T>(path: string, signal?: AbortSignal): Promise<T> {
     );
   }
   if (!res.ok) {
-    throw new Error(
+    const err = new Error(
       `Relationship summary request failed: ${res.status} ${res.statusText}`,
     );
+    (err as Error & { status: number }).status = res.status;
+    throw err;
   }
   return (await res.json()) as T;
 }

@@ -331,6 +331,34 @@ export function isDataFlowActionUrl(url: string | undefined | null): boolean {
   return DATA_FLOW_PATH_MARKERS.some((m) => u.includes(m));
 }
 
+const WHERE_USED_NAMES = new Set([
+  "item_viewdependents",
+  "where_used",
+  "item_whereused",
+  "item_where_used",
+  "view_where_used",
+]);
+
+/**
+ * Classic Impact Analysis / where-used. The catalog URL is Data Flow
+ * {@code sys_cxDependencyTree/dependencytree.html}, which {@link isDataFlowActionUrl}
+ * also matches. That URL must open the Explorer dependencies panel, not the
+ * generic "not available" toast. Other Data Flow URLs stay unavailable.
+ */
+export function isWhereUsedAction(
+  action: Pick<MenuAction, "name" | "url">,
+): boolean {
+  if (WHERE_USED_NAMES.has(normalizeActionName(action.name))) {
+    return true;
+  }
+  const url = action.url;
+  if (url == null) {
+    return false;
+  }
+  const u = url.trim().toLowerCase().replace(/\\/g, "/");
+  return u.includes("sys_cxdependencytree") || u.includes("dependencytree.html");
+}
+
 export function isContentEditorActionUrl(url: string | undefined | null): boolean {
   if (url == null) {
     return false;
@@ -398,6 +426,9 @@ export function classifyAction(action: MenuAction): ActionKind {
     isNewItemHostName(action.parentName)
   ) {
     return "rest";
+  }
+  if (isWhereUsedAction(action)) {
+    return "client";
   }
   if (isDataFlowActionUrl(action.url)) {
     return "unavailable";
@@ -1783,7 +1814,7 @@ export async function dispatchAction(
     return { kind: "client" };
   }
 
-  if (name === "item_viewdependents") {
+  if (isWhereUsedAction(action)) {
     if (!item || isFolder(item) || parseExplorerContentId(item.id) == null) {
       return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
