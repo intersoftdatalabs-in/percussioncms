@@ -231,6 +231,7 @@ import {
 } from "./selection";
 import { isWorkflowEligibleItem } from "./workflowEligibility";
 import { copySelectedFolderPath } from "./copyFolderPath";
+import { copySelectedItemGuid } from "./copyItemGuid";
 import {
   isFolderIdLookupPath,
   resolveFolderPathFromSelection,
@@ -620,6 +621,12 @@ function ContentExplorerShellInner({
   const [folderPathCopyNotice, setFolderPathCopyNotice] = useState<{
     kind: "success" | "error";
     path: string;
+    text: string;
+  } | null>(null);
+  const [itemGuidCopyNotice, setItemGuidCopyNotice] = useState<{
+    kind: "success" | "error";
+    guid: string;
+    reason: string;
     text: string;
   } | null>(null);
   const dismissSubfolderCopy = useCallback(() => {
@@ -1752,6 +1759,70 @@ function ContentExplorerShellInner({
           })();
           break;
         }
+        case "content-copy-item-guid": {
+          const current = selectionRef.current;
+          void (async () => {
+            const result = await copySelectedItemGuid({
+              item: current.item,
+              writeClipboard: async (text) => {
+                if (
+                  typeof navigator === "undefined" ||
+                  navigator.clipboard == null
+                ) {
+                  throw new Error("clipboard");
+                }
+                await navigator.clipboard.writeText(text);
+              },
+            });
+            if (result.status === "none") {
+              setItemGuidCopyNotice({
+                kind: "error",
+                guid: "",
+                reason: "none",
+                text: message(EXPLORER_MSG.COPY_ITEM_GUID_NONE),
+              });
+              return;
+            }
+            if (result.status === "folder") {
+              setItemGuidCopyNotice({
+                kind: "error",
+                guid: "",
+                reason: "folder",
+                text: message(EXPLORER_MSG.COPY_ITEM_GUID_FOLDER)
+                  .split("{name}")
+                  .join(result.name),
+              });
+              return;
+            }
+            if (result.status === "no-id") {
+              setItemGuidCopyNotice({
+                kind: "error",
+                guid: "",
+                reason: "no-id",
+                text: message(EXPLORER_MSG.COPY_ITEM_GUID_NO_ID)
+                  .split("{name}")
+                  .join(result.name),
+              });
+              return;
+            }
+            if (result.status === "failed") {
+              setItemGuidCopyNotice({
+                kind: "error",
+                guid: result.guid,
+                reason: "clipboard",
+                text: message(EXPLORER_MSG.COPY_ITEM_GUID_FAILED),
+              });
+              return;
+            }
+            setItemGuidCopyNotice({
+              kind: "success",
+              guid: result.guid,
+              reason: "",
+              text: `${message(EXPLORER_MSG.COPY_ITEM_GUID_SUCCESS)} ${result.guid}`,
+            });
+          })();
+          break;
+        }
         case "content-subfolder-copy":
           // Only open when a folder is in context; menu item is disabled otherwise.
           if (sourceFolderPathForCopy) {
@@ -1931,6 +2002,18 @@ function ContentExplorerShellInner({
               aria-live="polite"
             >
               {folderPathCopyNotice.text}
+            </div>
+          ) : null}
+          {itemGuidCopyNotice ? (
+            <div
+              data-testid="explorer-copy-item-guid-status"
+              data-kind={itemGuidCopyNotice.kind}
+              data-copied-guid={itemGuidCopyNotice.guid}
+              data-reason={itemGuidCopyNotice.reason}
+              role="status"
+              aria-live="polite"
+            >
+              {itemGuidCopyNotice.text}
             </div>
           ) : null}
           <ExplorerListColumnsPanel
