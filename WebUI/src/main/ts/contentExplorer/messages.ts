@@ -72,6 +72,19 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Could not create the page (name in use or folder is not writable)",
   ACTION_CREATE_PAGE_NO_TEMPLATE:
     "perc.ui.explorer@This page type has no template",
+  ACTION_CREATE_ASSET: "perc.ui.explorer@Create Asset",
+  ACTION_CREATE_ASSET_NAME: "perc.ui.explorer@Asset name",
+  ACTION_CREATE_ASSET_TYPE: "perc.ui.explorer@Asset type",
+  ACTION_CREATE_ASSET_NEEDS_NAME: "perc.ui.explorer@Enter an asset name",
+  ACTION_CREATE_ASSET_NEEDS_TYPE: "perc.ui.explorer@Choose an asset type",
+  ACTION_CREATE_ASSET_NO_TYPE:
+    "perc.ui.explorer@No asset type is available",
+  ACTION_CREATE_ASSET_INVALID:
+    "perc.ui.explorer@Enter an asset name without path separators",
+  ACTION_CREATE_ASSET_NOT_FOUND:
+    "perc.ui.explorer@The destination folder was not found",
+  ACTION_CREATE_ASSET_CONFLICT:
+    "perc.ui.explorer@Could not create the asset (name in use or folder is not writable)",
   ACTION_RENAME: "perc.ui.explorer@Rename",
   ACTION_RENAME_NOT_FOUND:
     "perc.ui.explorer@The selected item was not found",
