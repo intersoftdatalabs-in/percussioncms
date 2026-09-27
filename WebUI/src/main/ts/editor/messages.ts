@@ -200,6 +200,15 @@ export const EDITOR_MSG = {
     "perc.ui.editor@Could not preview with that template.",
   CONFIRM_PREVIEW_UNSAVED:
     "perc.ui.editor@Preview the last saved revision? Unsaved edits are not included.",
+  OPEN_FOLDER: "perc.ui.editor@Open folder",
+  OPENING_FOLDER: "perc.ui.editor@Opening folder…",
+  OPEN_FOLDER_NONE:
+    "perc.ui.editor@This item is not in a folder, so Explorer was not opened.",
+  OPEN_FOLDER_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to open this item's folder.",
+  OPEN_FOLDER_NOT_FOUND:
+    "perc.ui.editor@This item was not found. Explorer was not opened.",
+  OPEN_FOLDER_FAILED: "perc.ui.editor@Could not open this item's folder.",
   NEW_COPY: "perc.ui.editor@New copy",
   PROMOTABLE_VERSION: "perc.ui.editor@Promotable version",
   COPYING: "perc.ui.editor@Creating copy…",
