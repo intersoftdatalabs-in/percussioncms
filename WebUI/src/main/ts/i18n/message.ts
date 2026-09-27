@@ -219,6 +219,11 @@ export const MSG = {
   PUBLISH_RENAME_SITE_FORBIDDEN:
     "perc.ui.publish.modern@You are not allowed to rename this site",
   PUBLISH_RENAME_SITE_ERROR: "perc.ui.publish.modern@Could not rename the site",
+  PUBLISH_COPY_SITE: "perc.ui.publish.modern@Copy site",
+  PUBLISH_COPY_SITE_SAVE: "perc.ui.publish.modern@Copy",
+  PUBLISH_COPY_SITE_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to copy this site",
+  PUBLISH_COPY_SITE_ERROR: "perc.ui.publish.modern@Could not copy the site",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",

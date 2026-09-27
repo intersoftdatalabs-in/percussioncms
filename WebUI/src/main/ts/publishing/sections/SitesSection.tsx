@@ -151,6 +151,14 @@ export function SitesSection({
             ),
           );
         }}
+        onCopied={(copyName) => {
+          setSites((prev) => {
+            if (prev.some((s) => s.name.toLowerCase() === copyName.toLowerCase())) {
+              return prev;
+            }
+            return [...prev, { name: copyName, id: copyName, siteId: copyName }];
+          });
+        }}
         onBack={() => setSelectedKey("")}
       />
     );

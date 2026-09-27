@@ -46,6 +46,7 @@ import { ItemPublishingActionsMenu } from "../components/ItemPublishingActionsMe
 import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
 import { ItemStagePanel } from "../components/ItemStagePanel";
 import { ItemTakedownPanel } from "../components/ItemTakedownPanel";
+import { CopySitePanel } from "../components/CopySitePanel";
 import { RenameSitePanel } from "../components/RenameSitePanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
@@ -98,9 +99,11 @@ export interface SiteWorkspaceProps {
   initialServerId?: string;
   itemId?: string;
   onItemIdChange?: (itemId: string) => void;
-  /** Other site names so a duplicate rename is refused before POST. */
+  /** Other site names so a duplicate rename or copy is refused before POST. */
   existingSiteNames?: readonly string[];
   onRenamed?: (newName: string) => void;
+  /** New site name after a successful copy. The open site is not renamed. */
+  onCopied?: (copyName: string) => void;
   onBack: () => void;
 }
 
@@ -149,6 +152,7 @@ export function SiteWorkspace({
   onItemIdChange,
   existingSiteNames = [],
   onRenamed,
+  onCopied,
   onBack,
 }: SiteWorkspaceProps): React.ReactElement {
   const siteName = site.name;
@@ -158,6 +162,7 @@ export function SiteWorkspace({
   const [servers, setServers] = useState<PublishServer[]>([]);
   const [selectedServer, setSelectedServer] = useState(initialServerId);
   const [renaming, setRenaming] = useState(false);
+  const [copying, setCopying] = useState(false);
   const [actionState, setActionState] = useState<PublishActionState>("idle");
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [jobs, setJobs] = useState<PublishingJob[]>([]);
@@ -713,9 +718,23 @@ export function SiteWorkspace({
           type="button"
           style={buttonStyle}
           data-testid="publish-site-rename-open"
-          onClick={() => setRenaming(true)}
+          onClick={() => {
+            setCopying(false);
+            setRenaming(true);
+          }}
         >
           {message(MSG.PUBLISH_RENAME_SITE)}
+        </button>
+        <button
+          type="button"
+          style={buttonStyle}
+          data-testid="publish-site-copy-open"
+          onClick={() => {
+            setRenaming(false);
+            setCopying(true);
+          }}
+        >
+          {message(MSG.PUBLISH_COPY_SITE)}
         </button>
       </div>
 
@@ -727,6 +746,18 @@ export function SiteWorkspace({
           onRenamed={(newName) => {
             setRenaming(false);
             onRenamed?.(newName);
+          }}
+        />
+      ) : null}
+
+      {copying ? (
+        <CopySitePanel
+          sourceName={siteName ?? ""}
+          existingNames={existingSiteNames}
+          onCancel={() => setCopying(false)}
+          onCopied={(copyName) => {
+            setCopying(false);
+            onCopied?.(copyName);
           }}
         />
       ) : null}
