@@ -260,15 +260,22 @@ function actionNameKey(name: string | undefined | null): string {
 }
 
 /**
- * Publish Now is item-scoped on toolbar and context menu. Folder-only
- * catalogs still include it; hiding it here keeps Sites from looking
- * publishable (#3467).
+ * Publish Now stays hidden with no selection and for non-page/non-asset
+ * types (#3467). A folder with a path is publishable: confirm then
+ * demand-publishes that folder's pages and assets (#4945).
  */
 export function isToolbarPublishNowHidden(
   action: MenuAction,
   selectionItem: PSPathItem | null | undefined,
 ): boolean {
   if (actionNameKey(action.name) !== "publish_now") {
+    return false;
+  }
+  if (
+    selectionItem &&
+    isFolder(selectionItem) &&
+    (selectionItem.path ?? "").trim()
+  ) {
     return false;
   }
   return resolvePublishKind(selectionItem ?? null) === "none";

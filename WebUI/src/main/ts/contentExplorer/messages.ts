@@ -568,6 +568,10 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Permanently delete this item from the system?",
   CONFIRM_PUBLISH_NOW:
     "perc.ui.explorer@Publish this item now?",
+  CONFIRM_PUBLISH_FOLDER:
+    "perc.ui.explorer@Publish the pages and assets in this folder now? Nested folders are not included.",
+  PUBLISH_FOLDER_EMPTY:
+    "perc.ui.explorer@This folder has no pages or assets to publish.",
   CONFIRM_PUBLISH_NOW_MULTI:
     "perc.ui.explorer@Publish {count} selected items now? Folders in the selection are not published.",
   PUBLISH_SKIPPED_FOLDERS:

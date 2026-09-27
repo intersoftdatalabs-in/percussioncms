@@ -52,6 +52,7 @@ import {
   isStageActionName,
   isTakedownActionName,
   loadLinkedPagesForTakedown,
+  publishSelectedFolder,
   publishSelectedItem,
   publishSelectedItems,
   describePublishBatch,
@@ -1095,6 +1096,47 @@ async function checkoutMultiSelection(
   };
 }
 
+async function publishFolderSelection(
+  ctx: ActionDispatchContext,
+  folder: PSPathItem,
+): Promise<ActionDispatchResult> {
+  const path = (folder.path ?? "").trim();
+  if (!path) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_FOLDER };
+  }
+  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(
+    EXPLORER_MSG.CONFIRM_PUBLISH_FOLDER,
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  const result = await publishSelectedFolder(folder);
+  const nothing =
+    result.publishedIds.length === 0 &&
+    result.failures.length === 0 &&
+    result.skippedFolders.length === 0 &&
+    result.skippedOther.length === 0;
+  if (nothing) {
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.PUBLISH_FOLDER_EMPTY,
+      messageText: message(EXPLORER_MSG.PUBLISH_FOLDER_EMPTY),
+    };
+  }
+  const messageText = describePublishBatch(result);
+  const incomplete = result.failures.length > 0;
+  return {
+    kind: "rest",
+    refresh: result.publishedIds.length > 0,
+    messageText,
+    messageKey: incomplete
+      ? EXPLORER_MSG.PUBLISH_BATCH_INCOMPLETE
+      : messageText
+        ? EXPLORER_MSG.PUBLISH_SKIPPED_FOLDERS
+        : undefined,
+  };
+}
+
 async function publishMultiSelection(
   ctx: ActionDispatchContext,
   items: readonly PSPathItem[],
@@ -1970,8 +2012,11 @@ export async function dispatchAction(
     if (multi.length >= 2) {
       return publishMultiSelection(ctx, multi);
     }
-    if (!item || isFolder(item)) {
+    if (!item) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    if (isFolder(item)) {
+      return publishFolderSelection(ctx, item);
     }
     const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
       EXPLORER_MSG.CONFIRM_PUBLISH_NOW,

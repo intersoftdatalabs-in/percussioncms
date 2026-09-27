@@ -3465,11 +3465,14 @@ host; cancel does not call DELETE. **View** mode has no Recycle control.
 ## Item publish now (Explorer)
 
 Explorer **Publish Now** uses the existing sitemanage demand-publish GETs (same as classic Finder).
-It does not open `/publisher/demandpublishing`. The operator must select a page or asset
-row first — a Sites-folder selection does not publish. A 200 body whose `status` is
+It does not open `/publisher/demandpublishing`. A page or asset is published by id.
+A folder is not a new publish resource: Explorer lists direct children with
+`GET /services/pathmanagement/path/folder/{path}` and then calls the page or asset
+publish GET for each child. Nested folders are skipped. A 200 body whose `status` is
 `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` (plain or wrapped as
 `SitePublishResponse`) is a preflight failure, not a started job. Explorer surfaces that
-warning in the Server actions error region.
+warning in the Server actions error region and does not refresh as if the job started
+when no child publish succeeded.
 
 | Method | Path | Purpose |
 |--------|------|---------|
