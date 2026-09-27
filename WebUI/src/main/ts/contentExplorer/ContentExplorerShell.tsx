@@ -790,6 +790,15 @@ function ContentExplorerShellInner({
       await impl(parent, name, contentType);
       handleRefreshList();
     },
+    onCreateAsset: async (parent, name, contentType) => {
+      const impl =
+        actionHandlers?.onCreateAsset ?? stockReducedHandlers.onCreateAsset;
+      if (!impl) {
+        return;
+      }
+      await impl(parent, name, contentType);
+      handleRefreshList();
+    },
     // Product Delete must recycle via pathmanagement deleteFolder (flag off)
     // and refresh list + tree so the name disappears without View → Refresh
     // (#3646). Clear the deleted row so Delete does not stay armed.

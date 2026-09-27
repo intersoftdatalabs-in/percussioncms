@@ -39,7 +39,9 @@ import { formatEmptyRecycleError } from "./emptyRecycleErrors";
 import { formatPurgeItemError } from "./purgeItemErrors";
 import { isRecyclingExplorerPath } from "./folderPath";
 import { formatMoveItemError } from "./moveItemErrors";
+import { CreateAssetDialog } from "./CreateAssetDialog";
 import { CreatePageDialog } from "./CreatePageDialog";
+import { formatCreateAssetError } from "./createAssetErrors";
 import { formatCreateFolderError } from "./createFolderErrors";
 import { formatCreatePageError } from "./createPageErrors";
 import { createEditorItem } from "../editor/itemCreateApi";
@@ -74,6 +76,7 @@ export type ReducedActionKey =
   | "preview"
   | "createFolder"
   | "createPage"
+  | "createAsset"
   | "rename"
   | "move"
   | "copy"
@@ -92,6 +95,15 @@ export interface ReducedActionHandlers {
    * to {@link createEditorItem}.
    */
   onCreatePage?: (
+    parent: PSPathItem,
+    name: string,
+    contentType: string,
+  ) => Promise<void>;
+  /**
+   * Create one asset in the selected folder (name + asset content type).
+   * Optional so older handler objects still compile.
+   */
+  onCreateAsset?: (
     parent: PSPathItem,
     name: string,
     contentType: string,
@@ -171,6 +183,7 @@ export function ReducedActions({
   const [pending, setPending] = useState<ReducedActionKey | null>(null);
   const [copyPickerItem, setCopyPickerItem] = useState<PSPathItem | null>(null);
   const [createPageOpen, setCreatePageOpen] = useState(false);
+  const [createAssetOpen, setCreateAssetOpen] = useState(false);
   const [movePickerItem, setMovePickerItem] = useState<PSPathItem | null>(null);
 
   const itemWrite = canWrite(item) || canAdmin(item);
@@ -203,6 +216,8 @@ export function ReducedActions({
             ? formatCreateFolderError(err)
             : key === "createPage"
             ? formatCreatePageError(err)
+            : key === "createAsset"
+            ? formatCreateAssetError(err)
             : formatApiError(err, message(EXPLORER_MSG.ERROR_GENERIC));
         onError?.(msg);
       } finally {
@@ -243,6 +258,13 @@ export function ReducedActions({
       return;
     }
     setCreatePageOpen(true);
+  }, [folder, item]);
+
+  const handleCreateAsset = useCallback(() => {
+    if (!(folder ?? item)) {
+      return;
+    }
+    setCreateAssetOpen(true);
   }, [folder, item]);
 
   const handleRename = useCallback(() => {
@@ -391,6 +413,15 @@ export function ReducedActions({
       </button>
       <button
         type="button"
+        style={actionButtonStyle(!folderWrite || isBusy)}
+        disabled={!folderWrite || isBusy}
+        onClick={handleCreateAsset}
+        data-testid="action-create-asset"
+      >
+        {message(EXPLORER_MSG.ACTION_CREATE_ASSET)}
+      </button>
+      <button
+        type="button"
         style={actionButtonStyle(!item || !itemWrite || isBusy)}
         disabled={!item || !itemWrite || isBusy}
         onClick={handleRename}
@@ -471,6 +502,23 @@ export function ReducedActions({
           }}
         />
       ) : null}
+      {createAssetOpen ? (
+        <CreateAssetDialog
+          busy={isBusy}
+          onCancel={() => setCreateAssetOpen(false)}
+          onCreate={async (name, contentType) => {
+            const parent = folder ?? item;
+            if (!parent) {
+              return;
+            }
+            const create =
+              handlers.onCreateAsset ??
+              ((p, assetName, type) => createAssetInSelectedFolder(p, assetName, type));
+            await create(parent, name, contentType);
+            setCreateAssetOpen(false);
+          }}
+        />
+      ) : null}
       {copyPickerItem ? (
         <CopyDestinationPickerDialog
           defaultPath={copyPickerItem.folderPath ?? "/"}
@@ -535,6 +583,21 @@ async function createPageInSelectedFolder(
   });
 }
 
+async function createAssetInSelectedFolder(
+  parent: PSPathItem,
+  name: string,
+  contentType: string,
+): Promise<void> {
+  if (isExplorerPageType(contentType)) {
+    throw new Error(message(EXPLORER_MSG.ACTION_CREATE_ASSET_NEEDS_TYPE));
+  }
+  await createEditorItem({
+    contentType,
+    folderPath: parent.path,
+    name,
+  });
+}
+
 export function defaultReducedActionHandlers(): ReducedActionHandlers {
   return {
     onOpen: (item) => {
@@ -557,6 +620,9 @@ export function defaultReducedActionHandlers(): ReducedActionHandlers {
     },
     onCreatePage: async (parent, name, contentType) => {
       await createPageInSelectedFolder(parent, name, contentType);
+    },
+    onCreateAsset: async (parent, name, contentType) => {
+      await createAssetInSelectedFolder(parent, name, contentType);
     },
     onRename: async (item, newName) => {
       if (isFolder(item)) {
