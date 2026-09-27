@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatApiError } from "../../api/client";
 import { fetchSites } from "../../api/home/homeApi";
 import { listServers } from "../../api/publishing/serversApi";
@@ -113,8 +113,10 @@ export function RuntimeSection({
   const [purgeJobId, setPurgeJobId] = useState("");
   const [lastResult, setLastResult] = useState<RuntimeJobResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
+  const editionLoadGen = useRef(0);
 
   useEffect(() => {
     fetchSites()
@@ -128,24 +130,41 @@ export function RuntimeSection({
           setSiteId(mapped[0].id);
         }
       })
-      .catch(() => setError(message(MSG.PUBLISH_ERROR)));
+      .catch(() => setLoadError(message(MSG.PUBLISH_ERROR)));
   }, []);
 
   const reload = useCallback(() => {
     if (!siteId) {
       return;
     }
+    // Edition refresh must not dismiss demand/start/stop validation. A late
+    // publish-server response re-enters this callback and used to setError(null)
+    // after Queue demand had already reported an empty content-id list.
+    const gen = ++editionLoadGen.current;
     setLoading(true);
-    setError(null);
+    setLoadError(null);
     listRuntimeEditions(siteId, pubServerId || undefined)
       .then((list) => {
+        if (gen !== editionLoadGen.current) {
+          return;
+        }
         setEditions(list);
         if (list.length > 0 && !selectedEdition) {
           setSelectedEdition(String(list[0].editionId ?? ""));
         }
       })
-      .catch(() => setError(message(MSG.PUBLISH_ERROR)))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (gen !== editionLoadGen.current) {
+          return;
+        }
+        setLoadError(message(MSG.PUBLISH_ERROR));
+      })
+      .finally(() => {
+        if (gen !== editionLoadGen.current) {
+          return;
+        }
+        setLoading(false);
+      });
   }, [siteId, pubServerId, selectedEdition]);
 
   useEffect(() => {
@@ -320,9 +339,9 @@ export function RuntimeSection({
       </div>
 
       {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
-      {error && (
+      {(error ?? loadError) && (
         <p style={errorStyle} role="alert">
-          {error}
+          {error ?? loadError}
         </p>
       )}
 

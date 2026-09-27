@@ -229,6 +229,8 @@ The shell posts
 `POST …/sitemanage/publishingdesign/runtime/editions/{editionId}/demand` with
 `{ "contentIds": ["…"] }` for the parsed ids. An empty id list does not call the
 server; the section shows **Select an edition and enter at least one content id**.
+That validation message stays if the publish-server list finishes loading after
+**Queue demand** (the edition reload does not clear it).
 HTTP errors (for example a missing folder parent) stay in the Runtime error region
 and do not switch to Status. Success shows **Last result** with status `queued`,
 the request id, and a job id when the publisher has already assigned one.

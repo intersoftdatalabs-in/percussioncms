@@ -165,4 +165,73 @@ test.describe("PublishingShell Runtime demand content ids", () => {
       `console/page errors: ${unexpected.join("\n")}`,
     ).toEqual([]);
   });
+
+  test("empty content-id alert stays after a late publish-server response", async ({
+    page,
+  }) => {
+    const jsErrors = trackJsErrors(page);
+    await page.route(
+      "**/services/sitemanage/publishingdesign/runtime/editions?**",
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          return route.continue();
+        }
+        return route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            {
+              editionId: "10",
+              name: "H2Full",
+              runningJobId: 0,
+              pubServerId: "7",
+            },
+          ]),
+        });
+      },
+    );
+    let releaseServers = () => {};
+    const serversGate = new Promise((resolve) => {
+      releaseServers = resolve;
+    });
+    await page.route("**/services/publishmanagement/servers/**", async (route) => {
+      if (route.request().method() !== "GET") {
+        return route.continue();
+      }
+      await serversGate;
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([{ serverId: "7", serverName: "LocalFS" }]),
+      });
+    });
+    let demandCalls = 0;
+    await page.route(
+      "**/services/sitemanage/publishingdesign/runtime/editions/*/demand",
+      async (route) => {
+        demandCalls += 1;
+        return route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ status: "queued" }),
+        });
+      },
+    );
+
+    await page.goto(
+      `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=publish&section=runtime`,
+    );
+    await expect(page.getByTestId("publish-section-runtime")).toContainText(
+      "Selected edition: 10",
+      { timeout: 30000 },
+    );
+    await page.getByTestId("runtime-demand-submit").click();
+    await expect(page.getByRole("alert")).toContainText(/at least one content id/i);
+    releaseServers();
+    await expect(page.getByRole("alert")).toContainText(/at least one content id/i, {
+      timeout: 10000,
+    });
+    expect(demandCalls).toBe(0);
+    expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
+  });
 });

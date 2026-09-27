@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 function fallback(key: string): string {
@@ -23,6 +23,7 @@ function fallback(key: string): string {
   return at >= 0 ? key.slice(at + 1) : key;
 }
 import { MSG } from "@/i18n/message";
+import { listServers } from "@/api/publishing/serversApi";
 import {
   canStopEdition,
   filterRuntimeEditionsByName,
@@ -188,6 +189,38 @@ describe("RuntimeSection", () => {
     expect(screen.getByRole("alert").textContent).toMatch(
       /at least one content id/i,
     );
+    expect(screen.queryByTestId("runtime-job-status")).toBeNull();
+  });
+
+  it("keeps the empty content-id alert when the publish-server list arrives late", async () => {
+    let resolveServers: (
+      rows: Array<{ serverId: string; serverName: string }>,
+    ) => void = () => {};
+    vi.mocked(listServers).mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveServers = resolve;
+        }),
+    );
+    render(<RuntimeSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-section-runtime").textContent).toMatch(
+        /Selected edition: 10/,
+      );
+    });
+    fireEvent.click(screen.getByTestId("runtime-demand-submit"));
+    expect(screen.getByRole("alert").textContent).toMatch(
+      /at least one content id/i,
+    );
+    await act(async () => {
+      resolveServers([{ serverId: "7", serverName: "LocalFS" }]);
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("alert").textContent).toMatch(
+        /at least one content id/i,
+      );
+    });
+    expect(runtimeApi.demandPublish).not.toHaveBeenCalled();
     expect(screen.queryByTestId("runtime-job-status")).toBeNull();
   });
 
