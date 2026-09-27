@@ -212,3 +212,33 @@ export async function removeRelationshipEdge(
     `${BASE_PATH}/${encodeURIComponent(itemId)}/edges/${relationshipId}`,
   );
 }
+
+/** Folder membership is not an owned content relationship (#4988). */
+export function isFolderRelationshipCategory(category: string): boolean {
+  const normalized = category.trim().toLowerCase();
+  return normalized === "rs_folder" || normalized === "folder";
+}
+
+/** Edges the panel may delete. Folder rows are left in place. */
+export function removableOwnedEdges(
+  edges: readonly PSExplorerRelationshipEdge[],
+): PSExplorerRelationshipEdge[] {
+  return edges.filter((edge) => !isFolderRelationshipCategory(edge.category));
+}
+
+/**
+ * Deletes every owned non-folder relationship, in list order.
+ * The first HTTP failure rejects so the caller must not claim full success.
+ */
+export async function removeAllOwnedRelationshipEdges(
+  itemId: string,
+  edges: readonly PSExplorerRelationshipEdge[],
+  remove: (
+    itemId: string,
+    relationshipId: number,
+  ) => Promise<void> = removeRelationshipEdge,
+): Promise<void> {
+  for (const edge of removableOwnedEdges(edges)) {
+    await remove(itemId, edge.relationshipId);
+  }
+}

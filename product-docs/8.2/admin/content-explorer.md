@@ -808,8 +808,14 @@ From the **View** menu you can also toggle:
   relationship. **Remove relationship** calls
   `DELETE /Rhythmyx/rest/content-explorer/relationships/{contentId}/edges/{relationshipId}`
   and refreshes the list only after HTTP 204. HTTP **400**, **403**, and
-  **409** stay on the panel and do not show *Relationship removed*. Folder
-  membership is not listed. A folder with no page or asset selected keeps
+  **409** stay on the panel and do not show *Relationship removed*.
+  **Remove all relationships** asks once, then deletes every owned non-folder
+  row with the same DELETE. **Cancel** deletes nothing. The panel shows
+  *Relationships removed* and none of those rows only when every delete
+  succeeds. If any call returns HTTP **400**, **403**, or **409**, the panel
+  shows the error and does not claim that every relationship was removed.
+  A folder row (`rs_folder` / `folder`), if present, has no Remove control and
+  is left in place. Folder membership is otherwise not listed. A folder with no page or asset selected keeps
   the select-item hint and does not claim a relationship was removed. This
   panel does not create relationships. When the
   item has relationship buckets, taxonomy nodes, local links, or Active

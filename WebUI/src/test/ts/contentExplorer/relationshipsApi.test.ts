@@ -13,6 +13,7 @@ import {
   fetchNodeSummary,
   fetchOutgoing,
   fetchRelationshipEdges,
+  removeAllOwnedRelationshipEdges,
   removeRelationshipEdge,
   RelationshipSummaryAuthError,
 } from "../../../main/ts/api/contentExplorer/relationshipsApi";
@@ -119,6 +120,71 @@ describe("relationshipsApi", () => {
       (call) => call[1] && (call[1] as RequestInit).method === "DELETE",
     );
     expect(String(deleteCall?.[0])).toContain("/relationships/42/edges/7");
+  });
+
+  it("deletes every owned edge and skips folder rows (#4988)", async () => {
+    const remove = vi.fn().mockResolvedValue(undefined);
+    await removeAllOwnedRelationshipEdges(
+      "42",
+      [
+        {
+          relationshipId: 7,
+          configName: "Translation",
+          category: "rs_translation",
+          dependentId: 9,
+          label: "Translation -> 9",
+        },
+        {
+          relationshipId: 8,
+          configName: "Folder",
+          category: "rs_folder",
+          dependentId: 3,
+          label: "Folder",
+        },
+        {
+          relationshipId: 11,
+          configName: "Active Assembly",
+          category: "rs_aa",
+          dependentId: 4,
+          label: "AA -> 4",
+        },
+      ],
+      remove,
+    );
+    expect(remove.mock.calls).toEqual([
+      ["42", 7],
+      ["42", 11],
+    ]);
+  });
+
+  it("does not claim a full delete when a later edge returns 409 (#4988)", async () => {
+    const remove = vi
+      .fn()
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce({ status: 409 });
+    await expect(
+      removeAllOwnedRelationshipEdges(
+        "42",
+        [
+          {
+            relationshipId: 7,
+            configName: "Translation",
+            category: "rs_translation",
+            dependentId: 9,
+            label: "Translation -> 9",
+          },
+          {
+            relationshipId: 11,
+            configName: "Active Assembly",
+            category: "rs_aa",
+            dependentId: 4,
+            label: "AA -> 4",
+          },
+        ],
+        remove,
+      ),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(remove).toHaveBeenCalledTimes(2);
   });
 
   it("rejects a non-positive relationship id before DELETE", async () => {

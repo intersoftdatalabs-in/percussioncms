@@ -236,4 +236,144 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-removed")).toBeNull();
     expect(screen.getByTestId("relationships-edge-7")).toBeTruthy();
   });
+
+  it("cancel leaves every owned relationship (#4988)", async () => {
+    const remove = vi.fn();
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [
+          {
+            relationshipId: 7,
+            configName: "Translation",
+            category: "rs_translation",
+            dependentId: 9,
+            label: "Translation -> 9",
+          },
+          {
+            relationshipId: 3,
+            configName: "Folder",
+            category: "rs_folder",
+            dependentId: 1,
+            label: "Folder",
+          },
+        ]}
+        removeEdge={remove}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-remove-all")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-remove-all"));
+    fireEvent.click(screen.getByTestId("relationships-remove-all-cancel"));
+    expect(remove).not.toHaveBeenCalled();
+    expect(screen.getByTestId("relationships-edge-7")).toBeTruthy();
+    expect(screen.getByTestId("relationships-folder-3")).toBeTruthy();
+    expect(screen.queryByTestId("relationships-removed-all")).toBeNull();
+  });
+
+  it("confirm removes every owned relationship and keeps the folder row (#4988)", async () => {
+    const remove = vi.fn().mockResolvedValue(undefined);
+    let edges = [
+      {
+        relationshipId: 7,
+        configName: "Translation",
+        category: "rs_translation",
+        dependentId: 9,
+        label: "Translation -> 9",
+      },
+      {
+        relationshipId: 11,
+        configName: "Active Assembly",
+        category: "rs_aa",
+        dependentId: 4,
+        label: "AA -> 4",
+      },
+      {
+        relationshipId: 3,
+        configName: "Folder",
+        category: "rs_folder",
+        dependentId: 1,
+        label: "Folder",
+      },
+    ];
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => edges}
+        removeEdge={async (itemId, relationshipId) => {
+          await remove(itemId, relationshipId);
+          edges = edges.filter((edge) => edge.relationshipId !== relationshipId);
+        }}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-11")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-remove-all"));
+    fireEvent.click(screen.getByTestId("relationships-remove-all-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-removed-all")).toBeTruthy(),
+    );
+    expect(remove.mock.calls).toEqual([
+      ["42", 7],
+      ["42", 11],
+    ]);
+    await waitFor(() =>
+      expect(screen.queryByTestId("relationships-edge-7")).toBeNull(),
+    );
+    expect(screen.queryByTestId("relationships-edge-11")).toBeNull();
+    expect(screen.getByTestId("relationships-folder-3")).toBeTruthy();
+  });
+
+  it("HTTP 409 on a later row does not claim every relationship was removed (#4988)", async () => {
+    const remove = vi
+      .fn()
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce({ status: 409 });
+    let edges = [
+      {
+        relationshipId: 7,
+        configName: "Translation",
+        category: "rs_translation",
+        dependentId: 9,
+        label: "Translation -> 9",
+      },
+      {
+        relationshipId: 11,
+        configName: "Active Assembly",
+        category: "rs_aa",
+        dependentId: 4,
+        label: "AA -> 4",
+      },
+    ];
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => edges}
+        removeEdge={async (itemId, relationshipId) => {
+          await remove(itemId, relationshipId);
+          if (relationshipId === 7) {
+            edges = edges.filter((edge) => edge.relationshipId !== 7);
+          }
+        }}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-11")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-remove-all"));
+    fireEvent.click(screen.getByTestId("relationships-remove-all-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-remove-error")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-removed-all")).toBeNull();
+    await waitFor(() =>
+      expect(screen.queryByTestId("relationships-edge-7")).toBeNull(),
+    );
+    expect(screen.getByTestId("relationships-edge-11")).toBeTruthy();
+  });
 });
