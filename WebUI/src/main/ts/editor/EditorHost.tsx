@@ -21,7 +21,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import {
   getContentTypeDetail,
   listContentTypes,
@@ -88,6 +88,11 @@ import {
   moveEditorItemToFolder,
   parentFolderOfItemPath,
 } from "./editorMove";
+import {
+  explorerRouteForItemPath,
+  openFolderNotice,
+  type OpenFolderNotice,
+} from "./editorOpenFolder";
 import {
   canRecycleFromEditor,
   editorRecycleErrorReason,
@@ -323,6 +328,8 @@ export interface EditorHostProps {
   renameItem?: (itemPath: string, newName: string) => Promise<void>;
   /** Test seam: pathmanagement item path for the open content id. */
   loadItemLocation?: (itemId: string) => Promise<{ path: string }>;
+  /** Test seam: navigate to the React explorer route (defaults to the router). */
+  openExplorer?: (href: string) => void;
   /** Test seam: {@code POST /rest/folders/move/item}. */
   moveItem?: (itemPath: string, targetFolderPath: string) => Promise<void>;
   /** Test seam: pathmanagement lookup of the open item. */
@@ -605,6 +612,7 @@ export function EditorHost({
   renameItem = async (itemPath: string, newName: string) => {
     await renameFolderItem({ itemPath, newName });
   },
+  openExplorer,
   loadItemLocation = async (itemId: string) => {
     const item = await findItemById(itemId);
     const path = editorItemPathFromLookup(item);
@@ -632,6 +640,7 @@ export function EditorHost({
   loadTemplates = loadPageTemplates,
   changeTemplate = changePageTemplate,
 }: EditorHostProps = {}): React.ReactElement {
+  const navigate = useNavigate();
   const [params, setSearchParams] = useSearchParams();
   const contentId = parsePositiveInt(params.get("contentId"));
   const mode: EditorHostMode = normalizeEditorMode(params.get("mode"));
@@ -719,6 +728,9 @@ export function EditorHost({
   );
   const [previewFrameUrl, setPreviewFrameUrl] = useState("");
   const [previewFrameError, setPreviewFrameError] = useState(false);
+  const [folderBusy, setFolderBusy] = useState(false);
+  const [folderErrorKey, setFolderErrorKey] = useState<string | null>(null);
+  const [folderErrorDetail, setFolderErrorDetail] = useState("");
   const [copyBusy, setCopyBusy] = useState(false);
   const [copyErrorKey, setCopyErrorKey] = useState<string | null>(null);
   const [copyErrorDetail, setCopyErrorDetail] = useState("");
@@ -1884,6 +1896,47 @@ export function EditorHost({
     }
   }
 
+  function folderErrorKeyFor(notice: OpenFolderNotice): string {
+    if (notice === "missing") {
+      return EDITOR_MSG.OPEN_FOLDER_NONE;
+    }
+    if (notice === "forbidden") {
+      return EDITOR_MSG.OPEN_FOLDER_FORBIDDEN;
+    }
+    if (notice === "not_found") {
+      return EDITOR_MSG.OPEN_FOLDER_NOT_FOUND;
+    }
+    return EDITOR_MSG.OPEN_FOLDER_FAILED;
+  }
+
+  async function handleOpenFolder(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    setFolderBusy(true);
+    setFolderErrorKey(null);
+    setFolderErrorDetail("");
+    try {
+      const located = await loadItemLocation(String(contentId));
+      const href = explorerRouteForItemPath(located?.path);
+      if (!href) {
+        setFolderErrorKey(EDITOR_MSG.OPEN_FOLDER_NONE);
+        return;
+      }
+      (openExplorer ?? ((next: string) => navigate(next)))(href);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      const notice = openFolderNotice(err);
+      const errorKey = folderErrorKeyFor(notice);
+      setFolderErrorKey(errorKey);
+      setFolderErrorDetail(formatApiError(err, message(errorKey)));
+    } finally {
+      setFolderBusy(false);
+    }
+  }
+
   async function handleCopyToFolderOpen(): Promise<void> {
     if (contentId == null) {
       return;
@@ -2638,6 +2691,7 @@ export function EditorHost({
     [pageTemplateChoices, loadedAllowedTemplates],
   );
   const showCopy = canCopyFromEditor(mode) && contentId != null;
+  const showOpenFolder = contentId != null;
   const showRename = canRenameFromEditor(mode) && contentId != null;
   const showMove = canMoveFromEditor(mode) && contentId != null;
   const showRecycle = canRecycleFromEditor(mode) && contentId != null;
@@ -2856,6 +2910,17 @@ export function EditorHost({
               onClick={() => void handleRename()}
             >
               {message(renameBusy ? EDITOR_MSG.RENAMING : EDITOR_MSG.RENAME)}
+            </button>
+          ) : null}
+          {showOpenFolder ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-open-folder"
+              disabled={folderBusy || loading || payload == null}
+              onClick={() => void handleOpenFolder()}
+            >
+              {message(folderBusy ? EDITOR_MSG.OPENING_FOLDER : EDITOR_MSG.OPEN_FOLDER)}
             </button>
           ) : null}
           {showCopy ? (
@@ -3185,6 +3250,16 @@ export function EditorHost({
               >
                 {message(renameErrorKey)}
                 {renameErrorDetail ? ` ${renameErrorDetail}` : ""}
+              </div>
+            ) : null}
+            {folderErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-open-folder-error"
+              >
+                {message(folderErrorKey)}
+                {folderErrorDetail ? ` ${folderErrorDetail}` : ""}
               </div>
             ) : null}
             {copyErrorKey ? (
