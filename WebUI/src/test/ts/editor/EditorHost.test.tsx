@@ -25,7 +25,10 @@ import {
   fieldValueAsString,
   mergeEditorRows,
 } from "../../../main/ts/editor/EditorHost";
-import type { ItemEditorFields } from "../../../main/ts/editor/itemFieldsApi";
+import {
+  visibleEditorRevision,
+  type ItemEditorFields,
+} from "../../../main/ts/editor/itemFieldsApi";
 
 const fields: ItemEditorFields = {
   contentId: "42",
@@ -38,6 +41,17 @@ const fields: ItemEditorFields = {
     { name: "displaytitle", value: "Welcome" },
   ],
 };
+
+describe("visibleEditorRevision", () => {
+  it("keeps a positive integer and hides missing or fake ids", () => {
+    expect(visibleEditorRevision(4)).toBe(4);
+    expect(visibleEditorRevision("7")).toBe(7);
+    expect(visibleEditorRevision(0)).toBeUndefined();
+    expect(visibleEditorRevision("")).toBeUndefined();
+    expect(visibleEditorRevision(undefined)).toBeUndefined();
+    expect(visibleEditorRevision(1.5)).toBeUndefined();
+  });
+});
 
 describe("EditorHost", () => {
   afterEach(() => {
@@ -117,6 +131,7 @@ describe("EditorHost", () => {
     });
     expect(checkout).toHaveBeenCalledWith("42");
     expect(screen.getByTestId("editor-content-type").textContent).toContain("percPage");
+    expect(screen.getByTestId("editor-revision").textContent).toMatch(/Revision 2/);
     fireEvent.change(screen.getByTestId("editor-field-displaytitle"), {
       target: { value: "Updated" },
     });
@@ -127,6 +142,120 @@ describe("EditorHost", () => {
     const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
     expect(saved.fields.find((f) => f.name === "displaytitle")?.value).toBe("Updated");
     expect(saved.revision).toBe(2);
+  });
+
+  it("shows the loaded revision and updates it from a successful save", async () => {
+    const loadFields = vi.fn().mockResolvedValue(fields);
+    const saveFields = vi.fn().mockResolvedValue({ ...fields, revision: 5 });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue({
+                  checkOutUser: "admin",
+                  currentUser: "admin",
+                })}
+                loadFields={loadFields}
+                saveFields={saveFields}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-revision").textContent).toMatch(/Revision 2/);
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-revision").textContent).toMatch(/Revision 5/);
+    });
+  });
+
+  it("hides the revision badge when the payload has no revision", async () => {
+    const { revision: _ignored, ...withoutRevision } = fields;
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                loadFields={vi.fn().mockResolvedValue(withoutRevision)}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-revision")).toBeNull();
+  });
+
+  it("does not show a revision when load returns 404", async () => {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                loadFields={vi.fn().mockRejectedValue({ status: 404, message: "missing" })}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-revision")).toBeNull();
+  });
+
+  it("refreshes the revision badge after check-in when reload returns a new id", async () => {
+    const loadFields = vi
+      .fn()
+      .mockResolvedValueOnce(fields)
+      .mockResolvedValueOnce({ ...fields, revision: 6, checkoutUser: "" });
+    vi.spyOn(window, "close").mockImplementation(() => undefined);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue({
+                  checkOutUser: "admin",
+                  currentUser: "admin",
+                })}
+                checkin={vi.fn().mockResolvedValue(undefined)}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-revision").textContent).toMatch(/Revision 2/);
+    });
+    fireEvent.click(screen.getByTestId("editor-checkin"));
+    fireEvent.click(screen.getByTestId("editor-checkin-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-revision").textContent).toMatch(/Revision 6/);
+    });
+    expect(loadFields).toHaveBeenCalledTimes(2);
   });
 
   it("does not checkout in view mode", async () => {

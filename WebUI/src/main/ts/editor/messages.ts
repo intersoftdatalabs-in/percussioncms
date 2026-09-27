@@ -20,6 +20,7 @@ export const EDITOR_MSG = {
   BADGE_EDIT: "perc.ui.editor@Edit",
   BADGE_VIEW: "perc.ui.editor@View",
   CONTENT_ID: "perc.ui.editor@Content",
+  REVISION: "perc.ui.editor@Revision",
   TYPE_LABEL: "perc.ui.editor@Type",
   PAGE_TEMPLATE: "perc.ui.editor@Page template",
   CHECKOUT: "perc.ui.editor@Checked out to",

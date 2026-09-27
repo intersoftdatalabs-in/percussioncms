@@ -199,6 +199,7 @@ import {
   checkoutEditorItem,
   fetchItemEditorFields,
   saveItemEditorFields,
+  visibleEditorRevision,
   type ItemEditorFields,
 } from "./itemFieldsApi";
 import {
@@ -938,6 +939,7 @@ export function EditorHost({
         }
       } catch (err) {
         if (!cancelled) {
+          setPayload(null);
           setErrorDetail(err instanceof Error ? err.message : String(err));
           setErrorKey(EDITOR_MSG.LOAD_FAILED);
         }
@@ -2544,6 +2546,12 @@ export function EditorHost({
       setCheckinPrompt(false);
       setCheckinComment("");
       setLockUser("");
+      try {
+        const refreshed = await loadFields(String(contentId));
+        setPayload(refreshed);
+      } catch {
+        // A failed reload must not invent a revision id.
+      }
       if (typeof window !== "undefined") {
         window.close();
       }
@@ -2833,6 +2841,11 @@ export function EditorHost({
         {contentId != null ? (
           <span className={styles.meta} data-testid="editor-content-id">
             {message(EDITOR_MSG.CONTENT_ID)} {contentId}
+          </span>
+        ) : null}
+        {visibleEditorRevision(payload?.revision) != null ? (
+          <span className={styles.meta} data-testid="editor-revision">
+            {message(EDITOR_MSG.REVISION)} {visibleEditorRevision(payload?.revision)}
           </span>
         ) : null}
         {payload?.contentType ? (

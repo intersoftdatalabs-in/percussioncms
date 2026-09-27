@@ -45,25 +45,36 @@ function asRecord(value: unknown): Record<string, unknown> | null {
   return null;
 }
 
+/**
+ * CMS tip revision shown in the editor header. Zero, blank, and non-integers
+ * are omitted so a missing payload cannot look like a real revision id.
+ */
+export function visibleEditorRevision(value: unknown): number | undefined {
+  const raw =
+    typeof value === "number"
+      ? value
+      : typeof value === "string" && value.trim()
+        ? Number(value)
+        : Number.NaN;
+  if (!Number.isInteger(raw) || raw <= 0) {
+    return undefined;
+  }
+  return raw;
+}
+
 function unwrapFields(payload: unknown): ItemEditorFields {
   const root = asRecord(payload);
   const body =
     asRecord(root?.ItemEditorFields ?? root?.itemEditorFields) ?? root ?? {};
   const rawFields = body.fields ?? body.Fields;
   const list = Array.isArray(rawFields) ? rawFields : [];
-  const rawRev = body.revision ?? body.Revision;
-  const revision =
-    typeof rawRev === "number"
-      ? rawRev
-      : typeof rawRev === "string" && rawRev.trim()
-        ? Number(rawRev)
-        : 0;
+  const revision = visibleEditorRevision(body.revision ?? body.Revision);
   return {
     contentId: String(body.contentId ?? body.ContentId ?? ""),
     contentType: String(body.contentType ?? body.ContentType ?? ""),
     name: String(body.name ?? body.Name ?? ""),
     checkoutUser: String(body.checkoutUser ?? body.CheckoutUser ?? ""),
-    revision: Number.isFinite(revision) ? revision : 0,
+    ...(revision != null ? { revision } : {}),
     fields: list
       .map((row) => {
         const rec = asRecord(row);
