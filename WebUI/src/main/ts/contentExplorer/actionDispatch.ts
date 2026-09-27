@@ -73,12 +73,15 @@ import {
   type TakedownBatchResult,
 } from "./itemPublish";
 import {
+  clearScheduledDatesOnSelection,
+  describeClearScheduleSelection,
   formatScheduleBatchFailure,
   getItemScheduleDates,
   isClearScheduledDatesActionName,
   isScheduleActionName,
   publishableScheduleTargets,
   scheduleSelectedItems,
+  skippedClearFolderNames,
   setItemScheduleDates,
   type ItemScheduleDates,
   type ScheduleBatchResult,
@@ -2176,7 +2179,39 @@ export async function dispatchAction(
   if (isClearScheduledDatesActionName(name)) {
     const checked = ctx.selectedItems ?? [];
     if (checked.length >= 2) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.CLEAR_SCHEDULE_SINGLE };
+      const targets = publishableScheduleTargets(checked);
+      const folderNames = skippedClearFolderNames(checked);
+      if (targets.length === 0) {
+        const noted =
+          folderNames.length > 0
+            ? message(EXPLORER_MSG.CLEAR_SCHEDULE_SKIPPED_FOLDERS)
+                .split("{names}")
+                .join(folderNames.join(", "))
+            : undefined;
+        return {
+          kind: "rest",
+          messageKey: EXPLORER_MSG.CLEAR_SCHEDULE_NOTHING,
+          messageText: noted ?? message(EXPLORER_MSG.CLEAR_SCHEDULE_NOTHING),
+        };
+      }
+      const confirmBody = message(EXPLORER_MSG.CONFIRM_CLEAR_SCHEDULE_MULTI)
+        .split("{count}")
+        .join(String(targets.length));
+      const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
+      if (!ok) {
+        return { kind: "rest" };
+      }
+      const cleared = await clearScheduledDatesOnSelection(checked);
+      const described = describeClearScheduleSelection(cleared);
+      if (cleared.saved === 0 && cleared.failures.length === 0) {
+        return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+      }
+      return {
+        kind: "rest",
+        refresh: described.refresh,
+        messageText: described.messageText,
+        messageKey: described.messageKey,
+      };
     }
     if (!item || isFolder(item) || resolvePublishKind(item) === "none") {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };

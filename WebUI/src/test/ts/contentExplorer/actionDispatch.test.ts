@@ -2241,7 +2241,7 @@ describe("actionDispatch", () => {
     expect(confirmClearScheduledDates).toHaveBeenCalledTimes(1);
   });
 
-  it("Clear scheduled dates does not write for a folder or a multi-select", async () => {
+  it("Clear scheduled dates does not write for a folder", async () => {
     const confirmClearScheduledDates = vi.fn();
     const folder = await dispatchAction(
       action({ name: "Clear_Scheduled_Dates" }),
@@ -2257,17 +2257,93 @@ describe("actionDispatch", () => {
       },
     );
     expect(folder.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
-    const multi = await dispatchAction(
+    expect(confirmClearScheduledDates).not.toHaveBeenCalled();
+  });
+
+  it("Clear scheduled dates uses one confirm for every checked page", async () => {
+    const bodies: unknown[] = [];
+    vi.spyOn(global, "fetch").mockImplementation(async (_url, init) => {
+      bodies.push(JSON.parse(String(init?.body ?? "{}")));
+      return new Response(JSON.stringify({ status: "SUCCESS" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    const confirm = vi.fn().mockReturnValue(true);
+    const confirmClearScheduledDates = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Clear_Scheduled_Dates" }),
+      {
+        item: item({ id: "42", name: "Home" }),
+        selectedItems: [
+          item({ id: "42", name: "Home" }),
+          item({
+            id: "1",
+            name: "Sites",
+            path: "/Sites",
+            type: "folder",
+            leaf: false,
+          }),
+          item({ id: "43", name: "About", path: "/Sites/Demo/About" }),
+        ],
+        confirm,
+        confirmClearScheduledDates,
+      },
+    );
+    expect(confirmClearScheduledDates).not.toHaveBeenCalled();
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(String(confirm.mock.calls[0]?.[0])).toMatch(/2 selected/);
+    expect(result.refresh).toBe(true);
+    expect(result.messageText).toMatch(/Folders are not cleared: Sites/);
+    expect(bodies).toEqual([
+      { ItemDates: { itemId: "42", startDate: "", endDate: "", comments: "" } },
+      { ItemDates: { itemId: "43", startDate: "", endDate: "", comments: "" } },
+    ]);
+  });
+
+  it("Clear scheduled dates cancel on a multi-selection writes nothing", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const result = await dispatchAction(
       action({ name: "Clear_Scheduled_Dates" }),
       {
         item: item(),
         selectedItems: [item(), item({ id: "43", path: "/Sites/Demo/About" })],
-        confirmClearScheduledDates,
+        confirm: () => false,
       },
     );
-    expect(multi.messageKey).toBe(EXPLORER_MSG.CLEAR_SCHEDULE_SINGLE);
-    expect(multi.refresh).toBeUndefined();
-    expect(confirmClearScheduledDates).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("Clear scheduled dates multi-select HTTP 403 is not full success", async () => {
+    vi.spyOn(global, "fetch")
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ status: "SUCCESS" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: "forbidden" }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+    const result = await dispatchAction(
+      action({ name: "Clear_Scheduled_Dates" }),
+      {
+        item: item({ id: "42", name: "Home" }),
+        selectedItems: [
+          item({ id: "42", name: "Home" }),
+          item({ id: "43", name: "About", path: "/Sites/Demo/About" }),
+        ],
+        confirm: () => true,
+      },
+    );
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBe(EXPLORER_MSG.CLEAR_SCHEDULE_PARTIAL);
+    expect(result.messageText).toMatch(/About/);
+    expect(result.messageText).toMatch(/403|forbidden/i);
   });
 
   it("Schedule on a template stays unavailable", async () => {

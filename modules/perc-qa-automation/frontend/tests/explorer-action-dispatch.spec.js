@@ -934,6 +934,112 @@ test.describe("modern React Content Explorer — action dispatch", () => {
   );
 
   test(
+    "Clear scheduled dates on a multi-selection uses one confirm, skips folders, and keeps HTTP 409",
+    { tag: ["@explorer-action-dispatch", "@explorer", "@explorer-clear-schedule"] },
+    async ({ page }) => {
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      const posted = [];
+      const confirms = [];
+      page.on("dialog", (dialog) => {
+        confirms.push(dialog.message());
+        if (confirms.length === 1) {
+          void dialog.dismiss();
+          return;
+        }
+        void dialog.accept();
+      });
+      await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "1",
+                  name: "Sites",
+                  path: "/Sites",
+                  type: "folder",
+                  category: "folder",
+                  leaf: false,
+                },
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "percPage",
+                  category: "page",
+                  accessLevel: "WRITE",
+                  leaf: true,
+                },
+                {
+                  id: "43",
+                  name: "About",
+                  path: "/Sites/Demo/About",
+                  type: "percPage",
+                  category: "page",
+                  accessLevel: "WRITE",
+                  leaf: true,
+                },
+              ],
+              childrenCount: 3,
+              startIndex: 0,
+            },
+          }),
+        });
+      });
+      await page.route("**/itemmanagement/item/setitemdates**", async (route) => {
+        const body = route.request().postDataJSON();
+        const id = body?.ItemDates?.itemId;
+        posted.push(body);
+        if (id === "43") {
+          await route.fulfill({
+            status: 409,
+            contentType: "application/json",
+            body: JSON.stringify({ message: "checked out" }),
+          });
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ ItemDates: body?.ItemDates ?? {} }),
+        });
+      });
+
+      await page.goto(explorerSpaUrl(BASE_URL));
+      await page.waitForLoadState("networkidle");
+      const home = page.locator('[data-testid="detail-row-42"][data-row-kind="item"]');
+      await expect(home).toBeVisible({ timeout: 20_000 });
+      await home.click();
+      await page.locator('[data-testid="detail-select-1"]').check();
+      await page.locator('[data-testid="detail-select-42"]').check();
+      await page.locator('[data-testid="detail-select-43"]').check();
+      const clear = page.locator(
+        '[data-testid="action-toolbar-item-Clear_Scheduled_Dates"]',
+      );
+      await expect(clear).toBeVisible({ timeout: 15_000 });
+      await clear.click();
+      await expect(page.locator('[data-testid="explorer-clear-schedule-dialog"]')).toHaveCount(0);
+      expect(posted).toEqual([]);
+      expect(confirms[0] ?? "").toMatch(/2 selected|not cleared/i);
+
+      await clear.click();
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toContainText(/Sites|not cleared|About|409|checked out/i, { timeout: 10_000 });
+      expect(posted.map((body) => body?.ItemDates?.itemId).sort()).toEqual(["42", "43"]);
+      expect(posted.every((body) => (body?.ItemDates?.startDate ?? "") === "")).toBe(true);
+      expect(posted.every((body) => (body?.ItemDates?.endDate ?? "") === "")).toBe(true);
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
     "Clear scheduled dates keeps HTTP 400, 403, and 409 on the dialog",
     { tag: ["@explorer-action-dispatch", "@explorer", "@explorer-clear-schedule"] },
     async ({ page }) => {
