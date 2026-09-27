@@ -23,6 +23,8 @@ import {
   formatServerScheduleDate,
   getItemScheduleDates,
   clearScheduleFailureMessage,
+  clearScheduledDatesOnSelection,
+  describeClearScheduleSelection,
   isClearScheduledDatesActionName,
   isScheduleActionName,
   rowScheduleDates,
@@ -363,5 +365,65 @@ describe("get/set schedule dates", () => {
         body: { message: "not allowed" },
       }),
     ).toMatch(/not allowed|HTTP 403/i);
+  });
+
+  it("clears empty dates on each page and names a skipped folder", async () => {
+    const bodies: unknown[] = [];
+    vi.spyOn(global, "fetch").mockImplementation(async (_url, init) => {
+      bodies.push(JSON.parse(String(init?.body ?? "{}")));
+      return new Response(JSON.stringify({ status: "SUCCESS" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    const folder = item({
+      id: "1",
+      name: "Sites",
+      path: "/Sites",
+      type: "folder",
+      leaf: false,
+    });
+    const result = await clearScheduledDatesOnSelection([
+      folder,
+      item({ id: "42", name: "Home" }),
+      item({ id: "43", name: "About", path: "/Sites/Demo/About" }),
+    ]);
+    expect(result.saved).toBe(2);
+    expect(result.failures).toEqual([]);
+    expect(result.skippedFolderNames).toEqual(["Sites"]);
+    expect(bodies).toEqual([
+      { ItemDates: { itemId: "42", startDate: "", endDate: "", comments: "" } },
+      { ItemDates: { itemId: "43", startDate: "", endDate: "", comments: "" } },
+    ]);
+    expect(describeClearScheduleSelection(result).messageText).toMatch(/Sites/);
+    expect(describeClearScheduleSelection(result).refresh).toBe(true);
+  });
+
+  it("does not treat a per-item HTTP 409 as a full clear", async () => {
+    vi.spyOn(global, "fetch")
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ status: "SUCCESS" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: "checked out" }), {
+          status: 409,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+    const result = await clearScheduledDatesOnSelection([
+      item({ id: "42", name: "Home" }),
+      item({ id: "43", name: "About", path: "/Sites/Demo/About" }),
+    ]);
+    expect(result.saved).toBe(1);
+    expect(result.failures).toHaveLength(1);
+    expect(result.failures[0]?.name).toBe("About");
+    expect(result.failures[0]?.message).toMatch(/409|checked out/i);
+    const described = describeClearScheduleSelection(result);
+    expect(described.messageKey).toBe(EXPLORER_MSG.CLEAR_SCHEDULE_PARTIAL);
+    expect(described.messageText).toMatch(/About/);
+    expect(described.refresh).toBe(true);
   });
 });

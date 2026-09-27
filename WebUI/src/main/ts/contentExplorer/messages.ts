@@ -726,6 +726,14 @@ export const EXPLORER_MSG = {
   CLEAR_SCHEDULE_NONE: "perc.ui.explorer@This item has no scheduled dates.",
   CLEAR_SCHEDULE_SINGLE:
     "perc.ui.explorer@Clear scheduled dates applies to one selected page or asset.",
+  CONFIRM_CLEAR_SCHEDULE_MULTI:
+    "perc.ui.explorer@Clear start and end publish dates on {count} selected pages and assets? Folders in the selection are not cleared.",
+  CLEAR_SCHEDULE_SKIPPED_FOLDERS:
+    "perc.ui.explorer@Folders are not cleared: {names}",
+  CLEAR_SCHEDULE_PARTIAL:
+    "perc.ui.explorer@Publish dates were not cleared for every selected item. {detail}",
+  CLEAR_SCHEDULE_NOTHING:
+    "perc.ui.explorer@Nothing in the selection can have scheduled dates cleared. Folders are not cleared.",
   CLEAR_SCHEDULE_FAILED: "perc.ui.explorer@Could not clear scheduled dates.",
   ACTION_COPY_URL_SUCCESS: "perc.ui.explorer@Item URL copied to the clipboard",
   ACTION_COPY_URL_FAILED: "perc.ui.explorer@Could not copy the item URL",

@@ -22,7 +22,7 @@
  * {@code itemPublishPaths} + {@code itemScheduleDatesApi} (#4537).
  */
 
-import { formatApiError, get, post } from "../api/client";
+import { formatApiError, get, isApiError, post } from "../api/client";
 import { asJsonRecord } from "../api/jsonList";
 import { SERVICES_ROOT } from "../api/paths";
 import type { PSPathItem } from "../api/contentExplorer/types";
@@ -30,6 +30,7 @@ import { message } from "../i18n/message";
 import { mapPublishResponse } from "../publishing/publishActions";
 import { EXPLORER_MSG } from "./messages";
 import { resolvePublishKind } from "./itemPublish";
+import { isFolder } from "./selection";
 
 export interface ItemScheduleDates {
   itemId: string;
@@ -61,7 +62,7 @@ export function isScheduleActionName(name: string | undefined | null): boolean {
   return SCHEDULE_ACTION_KEYS.has(actionNameKey(name));
 }
 
-/** One-item clear of both publish and removal dates (#4968). Not Schedule. */
+/** Clear of both publish and removal dates (#4968, multi-select #4987). Not Schedule. */
 export function isClearScheduledDatesActionName(
   name: string | undefined | null,
 ): boolean {
@@ -351,7 +352,104 @@ function failureMessage(err: unknown): string {
   if (err instanceof Error && err.message.trim()) {
     return err.message.trim();
   }
+  if (isApiError(err)) {
+    return formatApiError(err, "Schedule failed");
+  }
   return "Schedule failed";
+}
+
+/** Folder labels skipped by a clear. Duplicate names are listed once. */
+export function skippedClearFolderNames(items: readonly PSPathItem[]): string[] {
+  const names: string[] = [];
+  const seen = new Set<string>();
+  for (const item of items) {
+    if (!isFolder(item)) {
+      continue;
+    }
+    const label =
+      (item.name ?? "").trim() ||
+      (item.path ?? "").trim() ||
+      (item.id ?? "").trim();
+    if (!label || seen.has(label)) {
+      continue;
+    }
+    seen.add(label);
+    names.push(label);
+  }
+  return names;
+}
+
+export interface ClearScheduleSelectionResult {
+  saved: number;
+  failures: ScheduleItemFailure[];
+  skippedFolderNames: string[];
+}
+
+/**
+ * Empty start and end on every publishable row. Reuses {@link setItemScheduleDates}.
+ * A per-item HTTP or application-level failure does not stop the rest.
+ */
+export async function clearScheduledDatesOnSelection(
+  items: readonly PSPathItem[],
+): Promise<ClearScheduleSelectionResult> {
+  const targets = publishableScheduleTargets(items);
+  const failures: ScheduleItemFailure[] = [];
+  let saved = 0;
+  for (const item of targets) {
+    const id = (item.id ?? "").trim();
+    try {
+      await setItemScheduleDates({
+        itemId: id,
+        startDate: "",
+        endDate: "",
+        comments: "",
+      });
+      saved += 1;
+    } catch (err: unknown) {
+      failures.push({
+        id,
+        name: (item.name ?? "").trim() || id,
+        message: clearScheduleFailureMessage(err),
+      });
+    }
+  }
+  return {
+    saved,
+    failures,
+    skippedFolderNames: skippedClearFolderNames(items),
+  };
+}
+
+/** Operator text when folders were skipped or a clear was not complete. */
+export function describeClearScheduleSelection(
+  result: ClearScheduleSelectionResult,
+): { messageText?: string; messageKey?: string; refresh: boolean } {
+  const parts: string[] = [];
+  if (result.skippedFolderNames.length > 0) {
+    parts.push(
+      message(EXPLORER_MSG.CLEAR_SCHEDULE_SKIPPED_FOLDERS)
+        .split("{names}")
+        .join(result.skippedFolderNames.join(", ")),
+    );
+  }
+  if (result.failures.length > 0) {
+    const detail = result.failures
+      .map((failure) => `${failure.name} (${failure.message})`)
+      .join("; ");
+    parts.push(
+      message(EXPLORER_MSG.CLEAR_SCHEDULE_PARTIAL).split("{detail}").join(detail),
+    );
+  }
+  return {
+    messageText: parts.length > 0 ? parts.join(" ") : undefined,
+    messageKey:
+      result.failures.length > 0
+        ? EXPLORER_MSG.CLEAR_SCHEDULE_PARTIAL
+        : result.skippedFolderNames.length > 0
+          ? EXPLORER_MSG.CLEAR_SCHEDULE_SKIPPED_FOLDERS
+          : undefined,
+    refresh: result.saved > 0,
+  };
 }
 
 /**

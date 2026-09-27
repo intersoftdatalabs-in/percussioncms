@@ -328,8 +328,8 @@ export function isToolbarScheduleHidden(
 }
 
 /**
- * Clear scheduled dates is item-scoped like Schedule. Folders stay hidden.
- * Multi-select clear is not this action.
+ * Clear scheduled dates is item-scoped like Schedule. A folder highlight
+ * stays hidden. Two or more checked pages still run one clear.
  */
 export function isToolbarClearScheduleHidden(
   action: MenuAction,
