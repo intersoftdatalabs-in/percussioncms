@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0.
 
 # Erlang review — PR 4967
 
-Re-review of head `b08dfaf6e79f0b6d51e9af2271b57d14646f0c56` (after the recycle/copy/create prompt fix). CLI: `mkd-code-review` 0.1.18, `--pack percussion --gate advisory --git-base origin/main`.
+Re-review of head `ac69171f108d82b93f621b9616b2ed0a84e4926a` (discarded binary picks cleared before a later save). CLI: `mkd-code-review` 0.1.18, `--pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`.
 
 ## Summary
 
@@ -15,7 +15,7 @@ Machine analysis found **1** finding(s), **1** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 2 analyzed
+- Files: 7 analyzed
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 
@@ -41,17 +41,10 @@ request-changes
 
 ## Erlang (re-review)
 
-Machine issue 1 is a **false positive**. `allowLeave()` before `recycleItem` (`EditorHost.tsx:2269`), `copyItem` (`:1888`), and `createItem` (`:2355`) is the correct order: Cancel must not delete, copy, or create. Calling the prompt after those calls would reintroduce the bug fixed in `160e939fe9`.
+Machine issue 1 is a **false positive**. `EditorHost.tsx:1865` is `copyErrorKeyFor`, not a leave check. `allowLeave()` before `recycleItem` (`handleRecycle`), `copyItem` (`handleCopy`), and `createItem` (`handleCreate`) is the correct order: Cancel must not delete, copy, or create. Calling the prompt after those calls would reintroduce the bug fixed in `160e939fe9`.
 
-Host gate: **request-changes**. One in-diff bug remains. Do not merge.
+The prior blocking bug is fixed. `allowLeave` (`EditorHost.tsx:1938`) calls `discardUnsavedEdits` (`:1925`) only after confirm, which clears `pendingFiles` and `pendingClears`, resets `draft` from the loaded payload, and bumps `discardEpoch` so file widgets remount. The field-load effect (`:818`) also clears both maps when `contentId` or `readOnly` changes, so a confirmed mode change or item switch cannot leave a binary for a later save. `EditorHost.leaveDirty.test.tsx` covers confirm-on-mode-change for a pending upload and a pending clear; a following save does not call `uploadBinary` or `clearBinary`.
 
-### Bug — confirming discard does not drop a pending file or clear
+Host gate: **approve**. No in-diff bug remains. Do not merge until required checks on this head are green.
 
-- File: `WebUI/src/main/ts/editor/EditorHost.tsx:1919` (`allowLeave`), `:1945` (`handleModeChange`), `:873` / `:944` (field-load effect)
-- `editorDraftIsDirty` (`editorPreview.ts:83`) treats `pendingFiles` and `pendingClears` as unsaved edits. Confirm on Edit/View or another item only calls `allowLeave()` then `setSearchParams`.
-- The load effect depends on `contentId` and `readOnly`, so a mode change or item switch refetches fields and `setDraft`s server values (`:873`). It never calls `setPendingFiles({})` or `setPendingClears({})`. Those clear only after a successful save (`:1318`) or, for files only, after restore (`:2699`).
-- Confirm on View therefore keeps the picked file name. `editorDraftIsDirty` stays true, and a later Save uploads or clears that binary. The dialog says the edits will be discarded. The same stale binary can ride onto a switched item that shares the field name.
-- `EditorHost.leaveDirty.test.tsx:185` covers cancel-keeps-the-file. `:125` covers confirm-switches-mode-without-PUT. Neither asserts that confirm clears the pending file or clear.
-- Clear `pendingFiles` and `pendingClears` on the confirmed leave path (mode change and same-instance item switch) before navigation, and assert the file name is gone and a following save does not upload it.
-
-Recommendation: do not merge.
+Recommendation: approve.
