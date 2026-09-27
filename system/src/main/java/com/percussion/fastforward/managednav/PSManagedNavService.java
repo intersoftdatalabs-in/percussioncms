@@ -232,10 +232,15 @@ public class PSManagedNavService implements IPSManagedNavService {
 
     List<PSItemStatus> statuses = null;
     try {
-      statuses = contentWs.prepareForEdit(Collections.singletonList(targetId));
+      // Joining prepareForEdit deadlocks H2 (checkout vs check-in on CONTENTSTATUS)
+      // and NPEs on sample rffNavTree. Isolated prepare rolls back on that failure
+      // so the folder move can still run (#4957, same class as #3797 / #4919).
+      statuses = prepareForEditIsolated(targetId);
       PSComponentSummary sum =
           cmsMgr.loadComponentSummary(((PSLegacyGuid) targetId).getContentId());
-      targetId = new PSLegacyGuid(sum.getHeadLocator());
+      if (sum != null && sum.getHeadLocator() != null) {
+        targetId = new PSLegacyGuid(sum.getHeadLocator());
+      }
       PSAaRelationship rel = getChildNavonRelationship(srcId, targetId);
       if (rel != null) {
         List<IPSGuid> targetChildList = findChildNavonIds(targetId);
@@ -254,7 +259,7 @@ public class PSManagedNavService implements IPSManagedNavService {
         moveNavonAndFolder(
             (PSLegacyGuid) srcId, (PSLegacyGuid) srcParentId, (PSLegacyGuid) targetId, index);
       }
-    } catch (PSErrorResultsException e) {
+    } catch (RuntimeException e) {
       PSNavException ne =
           new PSNavException(
               NavigationErrorCodes.NAVIGATION_SERVICE_FAILED_TO_MOVE_SOURCE_NAVON_TO_TARGET,
@@ -262,9 +267,9 @@ public class PSManagedNavService implements IPSManagedNavService {
               e);
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      throw (ne);
+      throw ne;
     } finally {
-      if (statuses != null) contentWs.releaseFromEdit(statuses, false);
+      releaseFromEditIsolated(statuses);
     }
   }
 

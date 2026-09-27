@@ -115,35 +115,34 @@ test.describe("Developer reparent navigation section (#4957)", () => {
       timeout: 20_000,
     });
     const siteName = await openFirstEditableSite(page);
-    const stamp = Date.now().toString().slice(-6);
-    const moving = `ChildMove${stamp}`;
-    const newParent = `ParentHold${stamp}`;
-    const name = page.locator('[data-testid="developer-site-nav-name"]');
-    async function addSection(sectionName) {
-      await name.fill(sectionName);
-      const created = page.waitForResponse(
-        (res) =>
-          res.request().method() === "POST" && res.url().includes("/section/create"),
-        { timeout: 60_000 },
-      );
-      await page.locator('[data-testid="developer-site-nav-add"]').click();
-      const response = await created;
-      expect(response.status(), await response.text()).toBe(200);
-      await expect(
-        page.locator('[data-testid="developer-site-nav-item"]', { hasText: sectionName }),
-      ).toBeVisible({ timeout: 20_000 });
-    }
-    await addSection(newParent);
-    await addSection(moving);
+    await expect(page.locator('[data-testid="developer-site-nav-item"]').first()).toBeVisible({
+      timeout: 20_000,
+    });
+    await page.waitForLoadState("networkidle");
+    const rows = await page.locator('[data-testid="developer-site-nav-item"]').evaluateAll((nodes) =>
+      nodes.map((node) => ({
+        id: node.getAttribute("data-section-id") || "",
+        parentId: node.getAttribute("data-parent-id") || "",
+        title: (node.textContent || "").trim(),
+      })),
+    );
+    const root = rows.find((row) => row.parentId === "");
+    expect(root, "site root row").toBeTruthy();
+    const moving = rows.find((row) => row.parentId && row.parentId === root.id);
+    expect(moving, "non-root section").toBeTruthy();
+    const newParent = rows.find(
+      (row) => row.id && row.id !== moving.id && row.id !== moving.parentId && row.id !== root.id,
+    );
+    expect(newParent, "different parent").toBeTruthy();
 
     const target = page.locator('[data-testid="developer-site-nav-reparent-target"]');
     const parentSelect = page.locator('[data-testid="developer-site-nav-reparent-parent"]');
-    async function choose(select, sectionName) {
-      const id = await page
-        .locator('[data-testid="developer-site-nav-item"]', { hasText: sectionName })
-        .first()
-        .getAttribute("data-section-id");
-      expect(id, sectionName).toBeTruthy();
+    const targetValues = await target.locator("option").evaluateAll((options) =>
+      options.map((option) => option.getAttribute("value")),
+    );
+    expect(targetValues).not.toContain(root.id);
+
+    async function choose(select, id) {
       await select.evaluate((el, value) => {
         const proto = Object.getOwnPropertyDescriptor(
           window.HTMLSelectElement.prototype,
@@ -153,16 +152,15 @@ test.describe("Developer reparent navigation section (#4957)", () => {
         el.dispatchEvent(new Event("change", { bubbles: true }));
       }, id);
       await expect(select).toHaveValue(id);
-      return id;
     }
-    await choose(target, moving);
-    const sameParent = await parentSelect.inputValue();
+    await choose(target, moving.id);
+    await expect(parentSelect).toHaveValue(moving.parentId);
     await page.locator('[data-testid="developer-site-nav-reparent-cancel"]').click();
     await page.locator('[data-testid="developer-site-nav-reparent-confirm"]').click();
     expect(moves).toBe(0);
-    expect(await parentOf(page, moving)).toBe(sameParent);
+    expect(await parentOf(page, moving.title)).toBe(moving.parentId);
 
-    const newParentId = await choose(parentSelect, newParent);
+    await choose(parentSelect, newParent.id);
     await page.locator('[data-testid="developer-site-nav-reparent-confirm"]').click();
     const error = page.locator('[data-testid="developer-site-nav-reparent-error"]');
     const notice = page.locator('[data-testid="developer-site-nav-reparent-notice"]');
@@ -171,14 +169,14 @@ test.describe("Developer reparent navigation section (#4957)", () => {
       throw new Error(`reparent failed: ${await error.innerText()}`);
     }
     expect(moves).toBe(1);
-    let after = sameParent;
+    let after = moving.parentId;
     try {
       await expect
         .poll(async () => {
-          after = await parentOf(page, moving);
+          after = await parentOf(page, moving.title);
           return after;
         }, { timeout: 20_000 })
-        .not.toBe(sameParent);
+        .toBe(newParent.id);
     } catch (err) {
       throw new Error(
         `${err && err.message ? err.message : err} status ${moveStatus} body ${moveBody} selected ${await target.locator("option:checked").textContent()} after ${after}`,
@@ -192,9 +190,9 @@ test.describe("Developer reparent navigation section (#4957)", () => {
       .first()
       .click();
     await expect(
-      page.locator('[data-testid="developer-site-nav-item"]', { hasText: moving }),
+      page.locator('[data-testid="developer-site-nav-item"]', { hasText: moving.title }),
     ).toBeVisible({ timeout: 20_000 });
-    expect(await parentOf(page, moving)).toBe(newParentId);
+    expect(await parentOf(page, moving.title)).toBe(newParent.id);
     guards.assertClean();
   });
 });
