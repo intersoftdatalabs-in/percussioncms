@@ -59,6 +59,8 @@ import { mergeEditorRows, type EditorFieldRow } from "./controlKinds";
 import {
   collectInvalidDateFieldErrors,
   collectRequiredFieldErrors,
+  firstInvalidEditorFieldName,
+  focusInvalidEditorField,
   mapSaveApiErrorToFieldErrors,
 } from "./editorFieldErrors";
 import { collectUnsafeHtmlFieldErrors } from "./htmlField";
@@ -685,6 +687,7 @@ export function EditorHost({
   const [saveErrorKey, setSaveErrorKey] = useState<string | null>(null);
   const [saveErrorDetail, setSaveErrorDetail] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const focusInvalidRef = useRef<Record<string, string> | null>(null);
   const [workflowTriggers, setWorkflowTriggers] = useState<string[]>([]);
   const [workflowState, setWorkflowState] = useState<string>("");
   const [workflowComment, setWorkflowComment] = useState("");
@@ -1052,6 +1055,31 @@ export function EditorHost({
       }));
   }, [payload, draft, schema]);
 
+  useEffect(() => {
+    const errors = focusInvalidRef.current;
+    if (!errors) {
+      return;
+    }
+    const name = firstInvalidEditorFieldName(
+      rows.map((row) => row.name),
+      errors,
+    );
+    if (!name) {
+      focusInvalidRef.current = null;
+      return;
+    }
+    if (focusInvalidEditorField(name)) {
+      focusInvalidRef.current = null;
+    }
+  }, [fieldErrors, rows]);
+
+  function queueFocusFirstInvalid(errors: Record<string, string>): void {
+    if (Object.keys(errors).length === 0) {
+      return;
+    }
+    focusInvalidRef.current = errors;
+  }
+
   function setField(name: string, value: string): void {
     setDraft((prev) => ({ ...prev, [name]: value }));
     setFieldErrors((prev) => {
@@ -1138,7 +1166,9 @@ export function EditorHost({
       message(EDITOR_MSG.FIELD_INVALID_DATE),
     );
     if (Object.keys(missing).length > 0) {
-      setFieldErrors({ ...invalidDates, ...missing });
+      const errors = { ...invalidDates, ...missing };
+      queueFocusFirstInvalid(errors);
+      setFieldErrors(errors);
       setSaveErrorKey(EDITOR_MSG.REQUIRED_SAVE);
       setSaving(false);
       return;
@@ -1306,14 +1336,18 @@ export function EditorHost({
           }
           const binaryReason = editorBinaryErrorReason(binErr);
           if (binaryReason === "forbidden" || binaryReason === "badRequest") {
-            setFieldErrors({
+            const errors = {
               [field]:
                 message(
                   binaryReason === "forbidden"
                     ? EDITOR_MSG.FILE_CLEAR_FORBIDDEN
                     : EDITOR_MSG.FILE_CLEAR_BAD_REQUEST,
                 ) + ` (${field})`,
-            });
+            };
+            if (binaryReason === "badRequest") {
+              queueFocusFirstInvalid(errors);
+            }
+            setFieldErrors(errors);
             setSaveErrorKey(null);
             setSaveErrorDetail("");
             return;
@@ -1424,6 +1458,12 @@ export function EditorHost({
               ? EDITOR_MSG.LINK_FORBIDDEN
               : EDITOR_MSG.LINK_BAD_REQUEST,
         );
+      }
+      if (
+        saveReason === "badRequest" &&
+        Object.keys(mapped.fieldErrors).length > 0
+      ) {
+        queueFocusFirstInvalid(mapped.fieldErrors);
       }
       setFieldErrors(mapped.fieldErrors);
       setSaveErrorKey(

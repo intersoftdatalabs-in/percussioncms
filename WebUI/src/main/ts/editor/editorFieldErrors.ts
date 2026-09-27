@@ -93,6 +93,53 @@ export function collectRequiredFieldErrors(
   return out;
 }
 
+/** First row (form order) that has a non-empty field error, or null. */
+export function firstInvalidEditorFieldName(
+  fieldNamesInOrder: readonly string[],
+  errors: Record<string, string>,
+): string | null {
+  for (const name of fieldNamesInOrder) {
+    const text = errors[name];
+    if (typeof text === "string" && text.length > 0) {
+      return name;
+    }
+  }
+  return null;
+}
+
+const FOCUSABLE_IN_ROW =
+  "input:not([type='hidden']):not([disabled]), textarea:not([disabled]), select:not([disabled])";
+
+function cssAttrEscape(value: string): string {
+  if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
+    return CSS.escape(value);
+  }
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+/**
+ * Focus the first editable control in the named editor row and scroll it into view.
+ * Returns false when the row is not in the document (caller may retry after paint).
+ */
+export function focusInvalidEditorField(fieldName: string): boolean {
+  if (typeof document === "undefined" || !fieldName) {
+    return false;
+  }
+  const row = document.querySelector(
+    `[data-testid="editor-field-row-${cssAttrEscape(fieldName)}"]`,
+  );
+  if (!(row instanceof HTMLElement)) {
+    return false;
+  }
+  const found = row.querySelector(FOCUSABLE_IN_ROW);
+  const target = found instanceof HTMLElement ? found : row;
+  target.focus();
+  if (typeof target.scrollIntoView === "function") {
+    target.scrollIntoView({ block: "nearest" });
+  }
+  return true;
+}
+
 function isDateKind(kind: EditorWidgetKind): kind is EditorDateKind {
   return kind === "date" || kind === "datetime";
 }

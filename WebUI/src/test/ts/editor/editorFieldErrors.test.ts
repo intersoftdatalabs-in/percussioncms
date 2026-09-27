@@ -19,6 +19,7 @@ import { describe, expect, it } from "vitest";
 import {
   collectInvalidDateFieldErrors,
   collectRequiredFieldErrors,
+  firstInvalidEditorFieldName,
   isEmptyEditorFieldValue,
   mapSaveApiErrorToFieldErrors,
 } from "../../../main/ts/editor/editorFieldErrors";
@@ -48,6 +49,24 @@ describe("collectRequiredFieldErrors", () => {
       "This field is required.",
     );
     expect(errors).toEqual({ sys_title: "This field is required." });
+  });
+});
+
+describe("firstInvalidEditorFieldName", () => {
+  it("returns the first row in form order that has an error", () => {
+    expect(
+      firstInvalidEditorFieldName(["sys_title", "displaytitle", "body"], {
+        displaytitle: "bad",
+        body: "also",
+      }),
+    ).toBe("displaytitle");
+  });
+
+  it("returns null when no named row has an error", () => {
+    expect(firstInvalidEditorFieldName(["sys_title"], {})).toBeNull();
+    expect(
+      firstInvalidEditorFieldName(["sys_title"], { other: "x" }),
+    ).toBeNull();
   });
 });
 

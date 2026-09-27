@@ -27,8 +27,10 @@ const TEST_IDS = Object.freeze({
   host: "editor-host",
   form: "editor-form",
   save: "editor-save",
+  saved: "editor-saved",
   checkin: "editor-checkin",
   saveError: "editor-save-error",
+  fieldSysTitle: "editor-field-sys_title",
   fieldDisplayTitle: "editor-field-displaytitle",
   fieldErrorDisplayTitle: "editor-field-error-displaytitle",
 });
