@@ -329,6 +329,20 @@ export const EXPLORER_MSG = {
   RELATIONSHIPS_PANEL_REGION: "perc.ui.explorer@IA relationships panel",
   RELATIONSHIPS_SELECT_ITEM:
     "perc.ui.explorer@Select a content item to view IA relationships.",
+  RELATIONSHIPS_REMOVE: "perc.ui.explorer@Remove",
+  RELATIONSHIPS_REMOVE_CONFIRM:
+    "perc.ui.explorer@Remove this relationship from the selected item?",
+  RELATIONSHIPS_REMOVE_CANCEL: "perc.ui.explorer@Cancel",
+  RELATIONSHIPS_REMOVE_DO: "perc.ui.explorer@Remove relationship",
+  RELATIONSHIPS_REMOVED: "perc.ui.explorer@Relationship removed.",
+  RELATIONSHIPS_REMOVE_EMPTY:
+    "perc.ui.explorer@No removable relationships for this item.",
+  RELATIONSHIPS_REMOVE_FAILED_400:
+    "perc.ui.explorer@The relationship could not be removed.",
+  RELATIONSHIPS_REMOVE_FAILED_403:
+    "perc.ui.explorer@You do not have permission to remove this relationship.",
+  RELATIONSHIPS_REMOVE_FAILED_409:
+    "perc.ui.explorer@This relationship cannot be removed.",
   // US5 P-Search / search panel (FR-017, FR-018, SC-005)
   SEARCH_TITLE: "perc.ui.explorer@Search",
   SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",

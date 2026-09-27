@@ -17,6 +17,7 @@
 
 package com.percussion.rest.relationsummary;
 
+import com.percussion.share.relationship.data.PSExplorerRelationshipList;
 import com.percussion.share.relationship.data.PSLocalDependencySummary;
 import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
 import com.percussion.share.relationship.data.PSRelationshipSummary;
@@ -66,6 +67,16 @@ public class RelationshipSummaryTestAdaptor implements IRelationshipSummaryAdapt
   @Override
   public PSNodeRelationshipSummary summary(URI baseURI, String itemId) {
     return new PSNodeRelationshipSummary();
+  }
+
+  @Override
+  public PSExplorerRelationshipList listEdges(URI baseURI, String itemId) {
+    return new PSExplorerRelationshipList();
+  }
+
+  @Override
+  public void removeEdge(URI baseURI, String itemId, int relationshipId) {
+    // Stub for the shared Spring harness. Behavioral coverage is Mockito.
   }
 
   private static PSRelationshipSummary emptyRelationshipSummary() {

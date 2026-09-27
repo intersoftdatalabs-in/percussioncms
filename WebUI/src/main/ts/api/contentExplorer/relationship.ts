@@ -74,6 +74,18 @@ export interface PSNodeRelationshipSummary {
 export type RelationshipDimension =
   "outgoing" | "incoming" | "aa" | "taxonomy" | "local" | "reverse";
 
+export interface PSExplorerRelationshipEdge {
+  relationshipId: number;
+  configName: string;
+  category: string;
+  dependentId: number;
+  label: string;
+}
+
+export interface PSExplorerRelationshipList {
+  items: PSExplorerRelationshipEdge[];
+}
+
 export const RELATIONSHIP_DIMENSIONS: readonly RelationshipDimension[] = [
   "outgoing",
   "incoming",

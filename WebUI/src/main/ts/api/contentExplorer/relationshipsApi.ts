@@ -32,7 +32,10 @@
  *   /Rhythmyx/rest/content-explorer/relationships/{itemId}/summary
  * </pre>
  */
+import { del } from "../client";
 import type {
+  PSExplorerRelationshipEdge,
+  PSExplorerRelationshipList,
   PSLocalDependencySummary,
   PSNodeRelationshipSummary,
   PSRelationshipSummary,
@@ -153,4 +156,59 @@ export async function fetchAllDimensions(itemId: string, signal?: AbortSignal) {
     fetchReverse(itemId, signal),
   ]);
   return { outgoing, incoming, taxonomy, local, reverse };
+}
+
+function unwrapEdges(raw: unknown): PSExplorerRelationshipEdge[] {
+  if (!raw || typeof raw !== "object") {
+    return [];
+  }
+  const record = raw as Record<string, unknown>;
+  const body =
+    record.PSExplorerRelationshipList &&
+    typeof record.PSExplorerRelationshipList === "object"
+      ? (record.PSExplorerRelationshipList as Record<string, unknown>)
+      : record;
+  const items = body.items;
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items.map((row) => {
+    const rec = row as Record<string, unknown>;
+    const relationshipId = Number(rec.relationshipId);
+    if (!Number.isFinite(relationshipId) || relationshipId <= 0) {
+      throw Object.assign(new Error("relationshipId is missing"), { status: 400 });
+    }
+    return {
+      relationshipId,
+      configName: String(rec.configName ?? ""),
+      category: String(rec.category ?? ""),
+      dependentId: Number(rec.dependentId ?? 0),
+      label: String(rec.label ?? ""),
+    };
+  });
+}
+
+export async function fetchRelationshipEdges(
+  itemId: string,
+  signal?: AbortSignal,
+): Promise<PSExplorerRelationshipEdge[]> {
+  const raw = await fetchOne<PSExplorerRelationshipList | Record<string, unknown>>(
+    `${BASE_PATH}/${encodeURIComponent(itemId)}/edges`,
+    signal,
+  );
+  return unwrapEdges(raw);
+}
+
+export async function removeRelationshipEdge(
+  itemId: string,
+  relationshipId: number,
+): Promise<void> {
+  if (!(Number.isFinite(relationshipId) && relationshipId > 0)) {
+    throw Object.assign(new Error("relationshipId must be a positive id"), {
+      status: 400,
+    });
+  }
+  await del<void>(
+    `${BASE_PATH}/${encodeURIComponent(itemId)}/edges/${relationshipId}`,
+  );
 }
