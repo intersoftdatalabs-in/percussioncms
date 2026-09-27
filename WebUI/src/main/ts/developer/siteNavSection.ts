@@ -17,14 +17,17 @@
 
 /**
  * Pure helpers for Developer Sites navigation sections
- * (#4918 add, #4919 rename, #4920 delete, #4956 same-parent reorder).
- * Moving a section under a different parent stays outside this surface.
+ * (#4918 add, #4919 rename, #4920 delete, #4956 same-parent reorder,
+ * #4957 reparent under a different parent).
  */
 
 import {
   applyTitleToProperties,
+  buildReparentMove,
   buildSiblingReorderMove,
   canCreateChildUnder,
+  findSiblingPlacement,
+  isValidMoveTargetParent,
   mapCreateSectionDialogToFields,
   resolveCreateFolderPath,
 } from "../api/architecture/sectionMutations";
@@ -244,6 +247,66 @@ export function listDeveloperDeleteTargets(root: NavTreeNode | null): DeveloperN
 /** Same-parent reorder targets. The site root and links are not offered. */
 export function listDeveloperReorderTargets(root: NavTreeNode | null): DeveloperNavDeleteTarget[] {
   return listDeveloperDeleteTargets(root);
+}
+
+/** Sections that may move under a different parent. The site root is excluded. */
+export function listDeveloperReparentTargets(root: NavTreeNode | null): DeveloperNavDeleteTarget[] {
+  return listDeveloperReorderTargets(root);
+}
+
+/**
+ * Parents that may receive {@code sectionId}. Includes the current parent
+ * (confirm must not write that choice) and rejects the section itself and
+ * its descendants.
+ */
+export function listDeveloperReparentParents(
+  root: NavTreeNode | null,
+  sectionId: string,
+): DeveloperNavParentOption[] {
+  const id = sectionId.trim();
+  if (!root || !id || id === root.id) {
+    return [];
+  }
+  const options: DeveloperNavParentOption[] = [];
+  const walk = (node: NavTreeNode): void => {
+    if (isValidMoveTargetParent(root, id, node.id)) {
+      options.push({
+        id: node.id,
+        title: (node.title || node.id).trim(),
+        node,
+      });
+    }
+    for (const child of node.children || []) {
+      walk(child);
+    }
+  };
+  walk(root);
+  return options;
+}
+
+/**
+ * Move one non-root section under a different parent (append).
+ * Returns null for the site root, a link, a missing id, the current parent,
+ * or a parent that would cycle.
+ */
+export function buildDeveloperReparent(
+  root: NavTreeNode | null,
+  sectionId: string,
+  targetParentId: string,
+): MoveSiteSectionFields | null {
+  const id = sectionId.trim();
+  const target = targetParentId.trim();
+  if (!root || !id || !target || id === root.id) {
+    return null;
+  }
+  if (!listDeveloperReparentTargets(root).some((item) => item.id === id)) {
+    return null;
+  }
+  const place = findSiblingPlacement(root, id);
+  if (!place || place.parent.id === target) {
+    return null;
+  }
+  return buildReparentMove(root, id, target, 0);
 }
 
 /**

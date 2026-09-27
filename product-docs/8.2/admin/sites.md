@@ -165,7 +165,17 @@ On the same **Navigation sections** panel (traditional site, managed navigation 
 4. The list refreshes. Reload **Site detail**. The new sibling order remains.
 5. **403** and **409** stay on the panel and do not show a success notice. The previous order remains until a successful move and reload. A section already first cannot move up; a section already last cannot move down.
 
-Sites with managed navigation turned off, and Virtual Sites, stay **read-only** in this section (no add, rename, delete, or reorder). Moving a section under a different parent stays in **Navigation**. Full site publish stays outside this catalog.
+### Move a navigation section under a different parent
+
+On the same **Navigation sections** panel (traditional site, managed navigation on):
+
+1. Choose a section in **Section to move**. The site root, external links, and section links are not offered.
+2. **New parent** starts as the current parent. Choosing that parent again, or **Cancel**, does not post.
+3. Choose a different parent in the same site (not the section itself and not one of its children), then **Move under parent**. The catalog posts `POST /sitemanage/section/move` and places the section first under that parent.
+4. The list refreshes (`data-parent-id` on each row). Reload **Site detail**. The section stays under the new parent.
+5. **403**, **409**, and **404** stay on the panel and do not show a success notice. The previous parent remains until a successful move and reload.
+
+Sites with managed navigation turned off, and Virtual Sites, stay **read-only** in this section (no add, rename, delete, reorder, or reparent). Full site publish stays outside this catalog.
 
 ### Configure Virtual Site source in the product UI
 

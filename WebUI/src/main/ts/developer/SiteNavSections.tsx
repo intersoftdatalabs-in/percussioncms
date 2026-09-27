@@ -35,17 +35,40 @@ import { DEV_MSG } from "./messages";
 import {
   buildDeveloperAddSectionFields,
   buildDeveloperRenameProperties,
+  buildDeveloperReparent,
   buildDeveloperSiblingReorder,
   isDeveloperNavSectionReadOnly,
   isDeveloperSectionNameTaken,
   listDeveloperDeleteTargets,
   listDeveloperNavParents,
   listDeveloperRenameTargets,
+  listDeveloperReparentParents,
   listDeveloperReorderTargets,
   listDeveloperSectionTitles,
   validateDeveloperSectionName,
   type DeveloperNavParentOption,
 } from "./siteNavSection";
+import { findSiblingPlacement } from "../api/architecture/sectionMutations";
+
+function navRows(
+  root: NavTreeNode | null,
+): { id: string; title: string; parentId: string }[] {
+  const rows: { id: string; title: string; parentId: string }[] = [];
+  if (!root) {
+    return rows;
+  }
+  const walk = (node: NavTreeNode, parentId: string): void => {
+    const title = (node.title || "").trim();
+    if (title) {
+      rows.push({ id: node.id, title, parentId });
+    }
+    for (const child of node.children || []) {
+      walk(child, node.id);
+    }
+  };
+  walk(root, "");
+  return rows;
+}
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
@@ -57,9 +80,10 @@ const inputStyle: React.CSSProperties = {
 };
 
 /**
- * Add, rename, or delete one navigation section on a Developer site.
+ * Add, rename, delete, reorder, or reparent one navigation section on a Developer site.
  * Cancel does not write. Same-parent reorder is one step up or down.
- * Reparenting under a different parent is not offered. The site root is not deleted or reordered.
+ * Reparent confirm moves one non-root section under a different parent.
+ * The site root is not deleted, reordered, or reparented.
  */
 export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement {
   const siteName = (site.name || "").trim();
@@ -88,10 +112,17 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
   const [reorderError, setReorderError] = useState<string | null>(null);
   const [reorderNotice, setReorderNotice] = useState<string | null>(null);
   const [reorderBusy, setReorderBusy] = useState(false);
+  const [reparentId, setReparentId] = useState("");
+  const [reparentParentId, setReparentParentId] = useState("");
+  const [reparentError, setReparentError] = useState<string | null>(null);
+  const [reparentNotice, setReparentNotice] = useState<string | null>(null);
+  const [reparentBusy, setReparentBusy] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
   const renameTargets = listDeveloperRenameTargets(treeRoot);
   const deleteTargets = listDeveloperDeleteTargets(treeRoot);
   const reorderTargets = listDeveloperReorderTargets(treeRoot);
+  const reparentTargets = listDeveloperReorderTargets(treeRoot);
+  const reparentParents = listDeveloperReparentParents(treeRoot, reparentId);
   const canMoveUp = buildDeveloperSiblingReorder(treeRoot, reorderId, "up") != null;
   const canMoveDown = buildDeveloperSiblingReorder(treeRoot, reorderId, "down") != null;
 
@@ -119,6 +150,20 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
       setReorderId((current) =>
         nextReorders.some((t) => t.id === current) ? current : (nextReorders[0]?.id ?? ""),
       );
+      setReparentId((current) => {
+        const next = nextReorders.some((t) => t.id === current)
+          ? current
+          : (nextReorders[0]?.id ?? "");
+        setReparentParentId((parent) => {
+          const options = listDeveloperReparentParents(root, next);
+          if (options.some((option) => option.id === parent)) {
+            return parent;
+          }
+          const place = findSiblingPlacement(root, next);
+          return place?.parent.id ?? options[0]?.id ?? "";
+        });
+        return next;
+      });
     },
     [siteName],
   );
@@ -132,6 +177,8 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
       setRenameName("");
       setDeleteId("");
       setReorderId("");
+      setReparentId("");
+      setReparentParentId("");
       return;
     }
     let cancelled = false;
@@ -271,6 +318,53 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
     setReorderNotice(null);
   };
 
+  const onSelectReparent = (id: string) => {
+    setReparentId(id);
+    const place = findSiblingPlacement(treeRoot, id);
+    setReparentParentId(place?.parent.id ?? "");
+    setReparentError(null);
+    setReparentNotice(null);
+  };
+
+  const onReparentCancel = () => {
+    setReparentError(null);
+    setReparentNotice(null);
+  };
+
+  const onReparent = () => {
+    setReparentError(null);
+    setReparentNotice(null);
+    const fields = buildDeveloperReparent(treeRoot, reparentId, reparentParentId);
+    if (!fields) {
+      return;
+    }
+    setReparentBusy(true);
+    void (async () => {
+      try {
+        await moveSiteSection(fields);
+        setReparentNotice(DEV_MSG.SITE_NAV_REPARENTED);
+        setReloadToken((n) => n + 1);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        if (isApiError(err) && err.status === 403) {
+          setReparentError(panelErrMsg(err, DEV_MSG.SITE_NAV_REPARENT_FORBIDDEN));
+          return;
+        }
+        if (isApiError(err) && err.status === 409) {
+          setReparentError(panelErrMsg(err, DEV_MSG.SITE_NAV_REPARENT_CONFLICT));
+          return;
+        }
+        if (isApiError(err) && err.status === 404) {
+          setReparentError(panelErrMsg(err, DEV_MSG.SITE_NAV_REPARENT_MISSING));
+          return;
+        }
+        setReparentError(panelErrMsg(err, DEV_MSG.SITE_NAV_REPARENT_ERROR));
+      } finally {
+        setReparentBusy(false);
+      }
+    })();
+  };
+
   const onReorder = (direction: "up" | "down") => {
     setReorderError(null);
     setReorderNotice(null);
@@ -367,9 +461,14 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
               <p data-testid="developer-site-nav-empty">{DEV_MSG.SITE_NAV_EMPTY}</p>
             ) : (
               <ul>
-                {titles.map((title, index) => (
-                  <li key={`${title}-${index}`} data-testid="developer-site-nav-item">
-                    {title}
+                {navRows(treeRoot).map((row) => (
+                  <li
+                    key={row.id}
+                    data-testid="developer-site-nav-item"
+                    data-section-id={row.id}
+                    data-parent-id={row.parentId}
+                  >
+                    {row.title}
                   </li>
                 ))}
               </ul>
@@ -590,6 +689,73 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
             ) : null}
             {reorderNotice ? (
               <div data-testid="developer-site-nav-reorder-notice">{reorderNotice}</div>
+            ) : null}
+          </div>
+          <div
+            data-testid="developer-site-nav-reparent"
+            style={{ display: "grid", gap: "8px", maxWidth: "420px", marginTop: "16px" }}
+          >
+            <label>
+              {DEV_MSG.SITE_NAV_REPARENT_TARGET}
+              <select
+                data-testid="developer-site-nav-reparent-target"
+                value={reparentId}
+                onChange={(e) => onSelectReparent(e.target.value)}
+                style={inputStyle}
+                disabled={reparentBusy || reparentTargets.length === 0}
+              >
+                {reparentTargets.map((target) => (
+                  <option key={target.id} value={target.id}>
+                    {target.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              {DEV_MSG.SITE_NAV_REPARENT_PARENT}
+              <select
+                data-testid="developer-site-nav-reparent-parent"
+                value={reparentParentId}
+                onChange={(e) => {
+                  setReparentParentId(e.target.value);
+                  setReparentError(null);
+                  setReparentNotice(null);
+                }}
+                style={inputStyle}
+                disabled={reparentBusy || reparentParents.length === 0}
+              >
+                {reparentParents.map((parent) => (
+                  <option key={parent.id} value={parent.id}>
+                    {parent.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                type="button"
+                data-testid="developer-site-nav-reparent-confirm"
+                disabled={reparentBusy || reparentTargets.length === 0}
+                onClick={onReparent}
+              >
+                {reparentBusy ? DEV_MSG.SITE_NAV_REPARENTING : DEV_MSG.SITE_NAV_REPARENT}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-site-nav-reparent-cancel"
+                disabled={reparentBusy}
+                onClick={onReparentCancel}
+              >
+                {DEV_MSG.SITE_NAV_CANCEL}
+              </button>
+            </div>
+            {reparentError ? (
+              <div data-testid="developer-site-nav-reparent-error" role="alert">
+                {reparentError}
+              </div>
+            ) : null}
+            {reparentNotice ? (
+              <div data-testid="developer-site-nav-reparent-notice">{reparentNotice}</div>
             ) : null}
           </div>
         </>
