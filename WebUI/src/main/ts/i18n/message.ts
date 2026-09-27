@@ -246,6 +246,19 @@ export const MSG = {
     "perc.ui.publish.modern@The site description conflicts with another change",
   PUBLISH_SITE_DESCRIPTION_ERROR:
     "perc.ui.publish.modern@Could not save the site description",
+  PUBLISH_SITE_BASE_URL: "perc.ui.publish.modern@Base URL",
+  PUBLISH_EDIT_SITE_BASE_URL: "perc.ui.publish.modern@Edit base URL",
+  PUBLISH_SITE_BASE_URL_SAVED: "perc.ui.publish.modern@Site base URL saved",
+  PUBLISH_SITE_BASE_URL_INVALID:
+    "perc.ui.publish.modern@Enter an absolute http or https base URL. An empty or invalid URL is not saved",
+  PUBLISH_SITE_BASE_URL_BAD:
+    "perc.ui.publish.modern@The site base URL was not accepted",
+  PUBLISH_SITE_BASE_URL_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to edit this site base URL",
+  PUBLISH_SITE_BASE_URL_CONFLICT:
+    "perc.ui.publish.modern@The site base URL conflicts with another change",
+  PUBLISH_SITE_BASE_URL_ERROR:
+    "perc.ui.publish.modern@Could not save the site base URL",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",
