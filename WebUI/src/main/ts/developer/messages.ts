@@ -2211,7 +2211,7 @@ export const DEV_MSG_KEYS = {
   SITE_BIND_ERROR:
     "perc.ui.developer@Sites API returned entries but none had a usable name. Check GET /services/sites JSON bind.",
   SITE_HINT:
-    "perc.ui.developer@Site definitions for association browse (SY-04). Create, open, update, or delete a site. Add a navigation section from site detail. Reorder, delete, and full publish stay outside this catalog.",
+    "perc.ui.developer@Site definitions for association browse (SY-04). Create, open, update, or delete a site. Add, rename, reorder, or delete a navigation section from site detail. Full publish stays outside this catalog.",
   SITE_NEW: "perc.ui.developer@New site",
   SITE_FORM_NAME: "perc.ui.developer@Name",
   SITE_FORM_DESCRIPTION: "perc.ui.developer@Description",
@@ -2257,10 +2257,10 @@ export const DEV_MSG_KEYS = {
   SITE_GAP_WRITE:
     "perc.ui.developer@Site create, update, and delete are available from this Developer catalog",
   SITE_GAP_PUBLISH:
-    "perc.ui.developer@Full site publish and navigation section reorder live outside the Developer catalog",
+    "perc.ui.developer@Full site publish stays outside the Developer catalog",
   SITE_NAV_TITLE: "perc.ui.developer@Navigation sections",
   SITE_NAV_HINT:
-    "perc.ui.developer@Add a section under a parent, rename an existing section, or delete one section after confirm. Reorder stays in Navigation.",
+    "perc.ui.developer@Add a section under a parent, rename an existing section, delete one section after confirm, or move a non-root section up or down among its siblings. Moving a section under a different parent stays in Navigation.",
   SITE_NAV_RENAME_TARGET: "perc.ui.developer@Section",
   SITE_NAV_RENAME_NAME: "perc.ui.developer@New name",
   SITE_NAV_RENAME: "perc.ui.developer@Rename section",
@@ -2277,6 +2277,15 @@ export const DEV_MSG_KEYS = {
   SITE_NAV_DELETE_FORBIDDEN: "perc.ui.developer@Admin role required to delete a section.",
   SITE_NAV_DELETE_CONFLICT:
     "perc.ui.developer@This section is still referenced and was not deleted.",
+  SITE_NAV_REORDER_TARGET: "perc.ui.developer@Section to reorder",
+  SITE_NAV_MOVE_UP: "perc.ui.developer@Move up",
+  SITE_NAV_MOVE_DOWN: "perc.ui.developer@Move down",
+  SITE_NAV_MOVING: "perc.ui.developer@Reordering section...",
+  SITE_NAV_MOVED: "perc.ui.developer@Section order updated.",
+  SITE_NAV_REORDER_ERROR: "perc.ui.developer@Could not reorder the section.",
+  SITE_NAV_REORDER_FORBIDDEN: "perc.ui.developer@Admin role required to reorder a section.",
+  SITE_NAV_REORDER_CONFLICT:
+    "perc.ui.developer@This section could not be reordered and the order was not changed.",
   SITE_NAV_NAME: "perc.ui.developer@Section name",
   SITE_NAV_PARENT: "perc.ui.developer@Parent",
   SITE_NAV_ADD: "perc.ui.developer@Add section",
