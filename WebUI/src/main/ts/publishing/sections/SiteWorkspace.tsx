@@ -46,6 +46,7 @@ import { ItemPublishingActionsMenu } from "../components/ItemPublishingActionsMe
 import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
 import { ItemStagePanel } from "../components/ItemStagePanel";
 import { ItemTakedownPanel } from "../components/ItemTakedownPanel";
+import { RenameSitePanel } from "../components/RenameSitePanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
 import { useDirtyForm } from "../dirtyFormContext";
@@ -97,6 +98,9 @@ export interface SiteWorkspaceProps {
   initialServerId?: string;
   itemId?: string;
   onItemIdChange?: (itemId: string) => void;
+  /** Other site names so a duplicate rename is refused before POST. */
+  existingSiteNames?: readonly string[];
+  onRenamed?: (newName: string) => void;
   onBack: () => void;
 }
 
@@ -143,6 +147,8 @@ export function SiteWorkspace({
   initialServerId = "",
   itemId,
   onItemIdChange,
+  existingSiteNames = [],
+  onRenamed,
   onBack,
 }: SiteWorkspaceProps): React.ReactElement {
   const siteName = site.name;
@@ -151,6 +157,7 @@ export function SiteWorkspace({
 
   const [servers, setServers] = useState<PublishServer[]>([]);
   const [selectedServer, setSelectedServer] = useState(initialServerId);
+  const [renaming, setRenaming] = useState(false);
   const [actionState, setActionState] = useState<PublishActionState>("idle");
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [jobs, setJobs] = useState<PublishingJob[]>([]);
@@ -667,7 +674,9 @@ export function SiteWorkspace({
           <button type="button" style={buttonStyle} onClick={closeEditor}>
             {message(MSG.PUBLISH_BACK)}
           </button>
-          <h2 style={{ margin: 0, fontSize: "1.1rem" }}>{siteName}</h2>
+          <h2 style={{ margin: 0, fontSize: "1.1rem" }} data-testid="publish-site-title">
+            {siteName}
+          </h2>
         </div>
         <ServerEditor
           siteId={siteId}
@@ -697,8 +706,30 @@ export function SiteWorkspace({
         >
           {message(MSG.PUBLISH_BACK)}
         </button>
-        <h2 style={{ margin: 0, fontSize: "1.1rem" }}>{siteName}</h2>
+        <h2 style={{ margin: 0, fontSize: "1.1rem" }} data-testid="publish-site-title">
+          {siteName}
+        </h2>
+        <button
+          type="button"
+          style={buttonStyle}
+          data-testid="publish-site-rename-open"
+          onClick={() => setRenaming(true)}
+        >
+          {message(MSG.PUBLISH_RENAME_SITE)}
+        </button>
       </div>
+
+      {renaming ? (
+        <RenameSitePanel
+          currentName={siteName ?? ""}
+          existingNames={existingSiteNames}
+          onCancel={() => setRenaming(false)}
+          onRenamed={(newName) => {
+            setRenaming(false);
+            onRenamed?.(newName);
+          }}
+        />
+      ) : null}
 
       <ItemPublishingActionsMenu
         itemId={itemId}

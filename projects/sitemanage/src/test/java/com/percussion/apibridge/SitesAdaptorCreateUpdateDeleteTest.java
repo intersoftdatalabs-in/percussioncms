@@ -185,10 +185,33 @@ class SitesAdaptorCreateUpdateDeleteTest {
   }
 
   @Test
+  void rename_withoutFolderRoot_savesNameOnly() throws Exception {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 7));
+    existing.setFolderRoot(null);
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.findSite("RenamedSite")).thenReturn(null);
+    PSSite modifiable = new PSSite();
+    modifiable.setName("NightlySite");
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(modifiable);
+    IPSSiteDataService data = mock(IPSSiteDataService.class);
+    adaptor.setSiteDataService(data);
+
+    Site out = adaptor.renameSite("NightlySite", "RenamedSite");
+
+    assertEquals("RenamedSite", out.getName());
+    assertEquals("RenamedSite", modifiable.getName());
+    verify(siteManager).saveSite(modifiable);
+    verify(data, never()).getSiteProperties(any());
+  }
+
+  @Test
   void rename_persistsViaSiteDataService() throws Exception {
     PSSite existing = new PSSite();
     existing.setName("NightlySite");
     existing.setGUID(new PSGuid(PSTypeEnum.SITE, 7));
+    existing.setFolderRoot("//Sites/NightlySite");
     when(siteManager.findSite("NightlySite")).thenReturn(existing);
     when(siteManager.findSite("RenamedSite")).thenReturn(null);
     IPSSiteDataService data = mock(IPSSiteDataService.class);
@@ -213,6 +236,7 @@ class SitesAdaptorCreateUpdateDeleteTest {
     PSSite existing = new PSSite();
     existing.setName("NightlySite");
     existing.setGUID(new PSGuid(PSTypeEnum.SITE, 7));
+    existing.setFolderRoot("//Sites/NightlySite");
     when(siteManager.findSite("NightlySite")).thenReturn(existing);
     IPSSiteDataService data = mock(IPSSiteDataService.class);
     PSSiteProperties props = new PSSiteProperties();
@@ -237,6 +261,7 @@ class SitesAdaptorCreateUpdateDeleteTest {
   void rename_existingFolder_409() throws Exception {
     PSSite existing = new PSSite();
     existing.setName("NightlySite");
+    existing.setFolderRoot("//Sites/NightlySite");
     when(siteManager.findSite("NightlySite")).thenReturn(existing);
     when(siteManager.findSite("TakenFolder")).thenReturn(null);
     IPSSiteDataService data = mock(IPSSiteDataService.class);

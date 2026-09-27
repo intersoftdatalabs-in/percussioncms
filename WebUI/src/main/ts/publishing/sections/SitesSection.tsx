@@ -141,6 +141,16 @@ export function SitesSection({
         initialServerId={initialServerId}
         itemId={itemId}
         onItemIdChange={onItemIdChange}
+        existingSiteNames={sites.map((s) => s.name)}
+        onRenamed={(newName) => {
+          setSites((prev) =>
+            prev.map((s) =>
+              siteKey(s) === selectedKey || s.name === selectedKey
+                ? { ...s, name: newName }
+                : s,
+            ),
+          );
+        }}
         onBack={() => setSelectedKey("")}
       />
     );
