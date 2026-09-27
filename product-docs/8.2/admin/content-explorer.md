@@ -207,7 +207,13 @@ blank. A value the host cannot parse is blocked before PUT and shown on that row
 the named field. In **View** mode the pickers are read-only (disabled); Save is hidden.
 
 Save stays on itemmanagement (`PUT /services/itemmanagement/item/fields/{id}`).
-The GET/PUT field payload includes a **revision** (CMS tip). Saving from the
+The GET/PUT field payload includes a **revision** (CMS tip). The editor header
+shows that id as **Revision** after the item loads. A successful save replaces
+the badge with the revision returned by the PUT. A successful check-in reloads
+fields and updates the badge when that GET returns a new id. If the payload has
+no revision, or the id is blank or not a positive integer, the badge is hidden
+— the host does not show `0` or another stand-in. HTTP **403** and **404** on
+load clear the item and do not invent a revision. Saving from the
 React Content Editor sends that revision. If the item was saved again in the
 meantime, the PUT returns HTTP **409** and the host shows **This item was
 saved with a newer revision. Reload and try again.** — 409 is not treated as
