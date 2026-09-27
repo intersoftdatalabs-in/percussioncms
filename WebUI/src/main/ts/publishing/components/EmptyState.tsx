@@ -23,6 +23,7 @@ export interface EmptyStateProps {
   nextAction?: string;
   actionLabel?: string;
   onAction?: () => void;
+  actionTestId?: string;
   testId?: string;
 }
 
@@ -32,6 +33,7 @@ export function EmptyState({
   nextAction,
   actionLabel,
   onAction,
+  actionTestId,
   testId = "publish-empty-state",
 }: EmptyStateProps): React.ReactElement {
   return (
@@ -41,7 +43,12 @@ export function EmptyState({
         <p style={{ margin: "0 0 12px", color: "#555" }}>{nextAction}</p>
       )}
       {actionLabel && onAction && (
-        <button type="button" style={primaryButtonStyle} onClick={onAction}>
+        <button
+          type="button"
+          style={primaryButtonStyle}
+          onClick={onAction}
+          data-testid={actionTestId}
+        >
           {actionLabel}
         </button>
       )}

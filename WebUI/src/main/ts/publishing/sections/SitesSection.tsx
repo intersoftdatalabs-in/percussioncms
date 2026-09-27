@@ -18,7 +18,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { fetchSites } from "../../api/home/homeApi";
 import type { SiteSummary } from "../../api/home/types";
+import type { SiteDef } from "../../api/developer/types";
 import { message, MSG } from "../../i18n/message";
+import { CreateSitePanel } from "../components/CreateSitePanel";
 import { EmptyState } from "../components/EmptyState";
 import {
   buttonStyle,
@@ -47,7 +49,14 @@ function toPublishSite(s: SiteSummary): PublishSiteSummary {
     name: s.name,
     id: s.id,
     siteId: s.siteId ?? s.id,
+    folderPath: s.folderPath,
   };
+}
+
+/** Publish-server APIs require a numeric site id, not the site name. */
+function hasNumericSiteId(site: PublishSiteSummary): boolean {
+  const raw = site.siteId ?? site.id;
+  return raw != null && /^\d+$/.test(String(raw).trim());
 }
 
 export function SitesSection({
@@ -62,6 +71,7 @@ export function SitesSection({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedKey, setSelectedKey] = useState(initialSiteId);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,6 +109,31 @@ export function SitesSection({
     [sites, selectedKey],
   );
 
+  async function openCreatedSite(created: SiteDef): Promise<void> {
+    const name = (created.name ?? "").trim();
+    if (!name) {
+      setError(message(MSG.PUBLISH_CREATE_SITE_ERROR));
+      return;
+    }
+    try {
+      const list = (await fetchSites()).map(toPublishSite);
+      setSites(list);
+      const match = list.find(
+        (site) => site.name.toLowerCase() === name.toLowerCase(),
+      );
+      if (!match || !hasNumericSiteId(match)) {
+        setCreating(false);
+        setError(message(MSG.PUBLISH_CREATE_SITE_OPEN_FAILED));
+        return;
+      }
+      setError(null);
+      setCreating(false);
+      setSelectedKey(siteKey(match));
+    } catch {
+      setError(message(MSG.PUBLISH_CREATE_SITE_OPEN_FAILED));
+    }
+  }
+
   if (selectedSite) {
     return (
       <SiteWorkspace
@@ -129,6 +164,14 @@ export function SitesSection({
         <button
           type="button"
           style={buttonStyle}
+          data-testid="publish-sites-create"
+          onClick={() => setCreating(true)}
+        >
+          {message(MSG.PUBLISH_CREATE_SITE)}
+        </button>
+        <button
+          type="button"
+          style={buttonStyle}
           onClick={() => setViewMode(nextViewMode(viewMode))}
           aria-label={
             viewMode === "card"
@@ -142,6 +185,14 @@ export function SitesSection({
         </button>
       </div>
 
+      {creating && (
+        <CreateSitePanel
+          existingNames={sites.map((site) => site.name)}
+          onCancel={() => setCreating(false)}
+          onCreated={openCreatedSite}
+        />
+      )}
+
       {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
       {error && (
         <p style={errorStyle} role="alert">
@@ -153,9 +204,12 @@ export function SitesSection({
           title={message(MSG.PUBLISH_EMPTY_SITES)}
           nextAction={
             filter.trim()
-              ? "No sites match this search. Clear the filter to see the full list."
-              : "Create or import a site, then return here to configure publish servers."
+              ? message(MSG.PUBLISH_EMPTY_SITES_FILTER_NEXT)
+              : message(MSG.PUBLISH_EMPTY_SITES_NEXT)
           }
+          actionLabel={message(MSG.PUBLISH_CREATE_SITE)}
+          onAction={() => setCreating(true)}
+          actionTestId="publish-empty-sites-create"
           testId={
             filter.trim() ? "publish-empty-sites-filter" : "publish-empty-sites"
           }

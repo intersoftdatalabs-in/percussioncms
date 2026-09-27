@@ -198,6 +198,22 @@ export const MSG = {
     "perc.ui.publish.modern@Could not copy location",
   PUBLISH_COPY_DISMISS: "perc.ui.publish.modern@Dismiss",
   PUBLISH_EMPTY_SITES: "perc.ui.publish.modern@No Sites",
+  PUBLISH_EMPTY_SITES_NEXT:
+    "perc.ui.publish.modern@Create a site, then return here to configure publish servers.",
+  PUBLISH_EMPTY_SITES_FILTER_NEXT:
+    "perc.ui.publish.modern@No sites match this search. Clear the filter to see the full list.",
+  PUBLISH_CREATE_SITE: "perc.ui.publish.modern@Create site",
+  PUBLISH_CREATE_SITE_NAME: "perc.ui.publish.modern@Site name",
+  PUBLISH_CREATE_SITE_SAVE: "perc.ui.publish.modern@Create",
+  PUBLISH_CREATE_SITE_CANCEL: "perc.ui.publish.modern@Cancel",
+  PUBLISH_CREATE_SITE_DUPLICATE:
+    "perc.ui.publish.modern@A site with that name already exists",
+  PUBLISH_CREATE_SITE_INVALID: "perc.ui.publish.modern@Enter a valid site name",
+  PUBLISH_CREATE_SITE_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to create a site",
+  PUBLISH_CREATE_SITE_ERROR: "perc.ui.publish.modern@Could not create the site",
+  PUBLISH_CREATE_SITE_OPEN_FAILED:
+    "perc.ui.publish.modern@The site was created but could not be opened",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",

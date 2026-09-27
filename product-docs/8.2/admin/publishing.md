@@ -31,6 +31,16 @@ channels (static files, FTP, database, custom locations).
 
 Directory / Faculty Directory pages list people by **query** (organization and department on `percPerson`), not by unlinking members from the Directory asset. After a person is correctly non-matching, use full site publish or an explicit page publish, then purge CDN if disk HTML is clean but HTTP is stale. Procedure: [Faculty Directory membership and publish](id:admin-faculty-directory).
 
+### Create a site (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), the **Sites** toolbar **Create site** button (and the
+same action on the empty sites state) opens a name panel. **Create** posts `POST /services/sites`
+with a `Site` body whose **name** is required. A successful create opens that site's workspace
+so servers can be configured. **Cancel**, a blank name, and a name already on the list do not
+call the server and do not open a workspace. HTTP **400** (invalid name), **403** (not Admin),
+and **409** (name already exists) stay on the sites list with an error and do not open a
+workspace. Rename and copy of an existing site are separate actions.
+
 ### Search the Sites list (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), the **Sites** section lists sites as cards (or a list).
