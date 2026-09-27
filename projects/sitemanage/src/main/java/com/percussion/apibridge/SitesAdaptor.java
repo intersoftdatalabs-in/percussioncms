@@ -311,7 +311,10 @@ public class SitesAdaptor implements ISiteAdaptor {
               + "'.",
           Response.Status.CONFLICT);
     }
-    if (siteDataService == null) {
+    // A site created from the Publishing shell has no folder root yet. The full
+    // site-data rename looks up a navon from that folder and NPEs. Persist the
+    // name on the site row until a folder exists.
+    if (siteDataService == null || StringUtils.isBlank(found.getFolderRoot())) {
       try {
         IPSSite modifiable = loadModifiable(found);
         modifiable.setName(normalized);

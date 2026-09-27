@@ -39,7 +39,18 @@ with a `Site` body whose **name** is required. A successful create opens that si
 so servers can be configured. **Cancel**, a blank name, and a name already on the list do not
 call the server and do not open a workspace. HTTP **400** (invalid name), **403** (not Admin),
 and **409** (name already exists) stay on the sites list with an error and do not open a
-workspace. Rename and copy of an existing site are separate actions.
+workspace. Copy of an existing site is a separate action.
+
+### Rename the open site (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card, then **Rename site**.
+**Rename** posts `POST /services/sites/{name}/rename` with a `RenameSiteRequest` body.
+On success the workspace title shows the new name, and **Back** lists that name on the
+sites cards. A site that does not yet have a site folder still renames the site record.
+A site that already has a folder also updates that folder and navigation name. **Cancel**, a blank or unchanged name, and a name already used by another
+site do not call the server and leave the title unchanged. HTTP **400** (invalid name),
+**403** (not Admin), and **409** (name already exists) stay on the workspace with an
+error. The title does not change. Create and copy are separate actions.
 
 ### Search the Sites list (Publishing shell)
 

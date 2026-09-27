@@ -214,6 +214,11 @@ export const MSG = {
   PUBLISH_CREATE_SITE_ERROR: "perc.ui.publish.modern@Could not create the site",
   PUBLISH_CREATE_SITE_OPEN_FAILED:
     "perc.ui.publish.modern@The site was created but could not be opened",
+  PUBLISH_RENAME_SITE: "perc.ui.publish.modern@Rename site",
+  PUBLISH_RENAME_SITE_SAVE: "perc.ui.publish.modern@Rename",
+  PUBLISH_RENAME_SITE_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to rename this site",
+  PUBLISH_RENAME_SITE_ERROR: "perc.ui.publish.modern@Could not rename the site",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",
