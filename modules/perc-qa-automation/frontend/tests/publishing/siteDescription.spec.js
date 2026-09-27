@@ -116,7 +116,9 @@ test.describe("PublishingShell edit the open site description", () => {
     await expect(page.getByTestId("publish-site-description")).toHaveText(next);
     await expect(page.getByTestId("publish-site-description-saved")).toBeVisible();
 
-    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.goto(`${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=publish`, {
+      waitUntil: "domcontentloaded",
+    });
     await expect(page.getByTestId("publish-section-sites")).toBeVisible({
       timeout: 20000,
     });
