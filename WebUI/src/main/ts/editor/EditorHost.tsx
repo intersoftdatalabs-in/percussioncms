@@ -316,6 +316,11 @@ export interface EditorHostProps {
   ) => Promise<{ previewUrl: string }>;
   /** Test seam: confirm unsaved preview (defaults to {@code window.confirm}). */
   confirmUnsavedPreview?: (body: string) => boolean;
+  /**
+   * Test seam: confirm leaving with unsaved field edits (defaults to
+   * {@code window.confirm}). Cancel stays. Confirm does not save.
+   */
+  confirmLeaveUnsaved?: (body: string) => boolean;
   /** Test seam: itemmanagement {@code newCopy}. */
   copyItem?: (itemId: string) => Promise<ItemCopyResult>;
   /** Test seam: itemmanagement {@code promotableVersion}. */
@@ -605,6 +610,7 @@ export function EditorHost({
   previewItem = previewEditorItem,
   loadPreviewLocation = fetchPreviewLocation,
   confirmUnsavedPreview,
+  confirmLeaveUnsaved,
   copyItem = createNewCopy,
   copyPromotable = createPromotableVersion,
   confirmCopy,
@@ -668,6 +674,7 @@ export function EditorHost({
   const [pendingClears, setPendingClears] = useState<Record<string, boolean>>(
     {},
   );
+  const [discardEpoch, setDiscardEpoch] = useState(0);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState<string>(
     contentId == null ? linkbackWarning : "",
@@ -795,6 +802,25 @@ export function EditorHost({
   }, []);
 
   useEffect(() => {
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (
+        !editorDraftIsDirty(payload?.fields, draft, pendingFiles, pendingClears)
+      ) {
+        return;
+      }
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [payload, draft, pendingFiles, pendingClears]);
+
+  useEffect(() => {
+    // Drop binaries from the previous item or mode. A confirmed leave and a
+    // contentId change share this effect; leaving them set lets a later save
+    // upload or clear a file the operator already discarded.
+    setPendingFiles({});
+    setPendingClears({});
     if (contentId == null || promote) {
       return;
     }
@@ -1865,6 +1891,9 @@ export function EditorHost({
     if (!confirmFn(message(confirmKey))) {
       return;
     }
+    if (!allowLeave()) {
+      return;
+    }
     setCopyBusy(true);
     setCopyErrorKey(null);
     setCopyErrorDetail("");
@@ -1880,10 +1909,7 @@ export function EditorHost({
         setCopyErrorDetail("Copy result was missing item id");
         return;
       }
-      const next = new URLSearchParams(params);
-      next.set("contentId", String(nextId));
-      next.set("mode", "edit");
-      setSearchParams(next);
+      switchOpenItem(nextId, "edit", true);
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
@@ -1894,6 +1920,62 @@ export function EditorHost({
     } finally {
       setCopyBusy(false);
     }
+  }
+
+  function discardUnsavedEdits(): void {
+    setPendingFiles({});
+    setPendingClears({});
+    setDiscardEpoch((epoch) => epoch + 1);
+    if (payload) {
+      setDraft(
+        Object.fromEntries(
+          payload.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
+        ),
+      );
+    }
+  }
+
+  function allowLeave(): boolean {
+    if (!editorDraftIsDirty(payload?.fields, draft, pendingFiles, pendingClears)) {
+      return true;
+    }
+    const confirmFn =
+      confirmLeaveUnsaved ??
+      ((body: string) =>
+        typeof window !== "undefined" ? window.confirm(body) : false);
+    if (!confirmFn(message(EDITOR_MSG.CONFIRM_LEAVE_UNSAVED))) {
+      return false;
+    }
+    discardUnsavedEdits();
+    return true;
+  }
+
+  function switchOpenItem(
+    nextId: number,
+    nextMode: string,
+    leaveAlreadyConfirmed = false,
+  ): void {
+    if (!leaveAlreadyConfirmed && !allowLeave()) {
+      return;
+    }
+    const next = new URLSearchParams(params);
+    next.set("contentId", String(nextId));
+    next.set("mode", nextMode);
+    next.delete("warningMessage");
+    setSearchParams(next);
+  }
+
+  function handleModeChange(): void {
+    if (contentId == null || promote) {
+      return;
+    }
+    if (!allowLeave()) {
+      return;
+    }
+    const next = new URLSearchParams(params);
+    next.set("mode", mode === "view" ? "edit" : "view");
+    next.delete("warningMessage");
+    setSearchParams(next);
   }
 
   function folderErrorKeyFor(notice: OpenFolderNotice): string {
@@ -1911,6 +1993,9 @@ export function EditorHost({
 
   async function handleOpenFolder(): Promise<void> {
     if (contentId == null) {
+      return;
+    }
+    if (!allowLeave()) {
       return;
     }
     setFolderBusy(true);
@@ -2204,6 +2289,9 @@ export function EditorHost({
     if (!confirmFn(message(EDITOR_MSG.CONFIRM_RECYCLE))) {
       return;
     }
+    if (!allowLeave()) {
+      return;
+    }
     setRecycleBusy(true);
     setRecycleDone(false);
     setRecycleErrorKey(null);
@@ -2287,6 +2375,9 @@ export function EditorHost({
       setCreateErrorKey(EDITOR_MSG.CREATE_INCOMPLETE);
       return;
     }
+    if (!allowLeave()) {
+      return;
+    }
     setCreateBusy(true);
     setCreateErrorKey(null);
     setCreateErrorDetail("");
@@ -2298,12 +2389,8 @@ export function EditorHost({
         setCreateErrorDetail("Create result was missing item id");
         return;
       }
-      const next = new URLSearchParams(params);
-      next.set("contentId", String(nextId));
-      next.set("mode", "edit");
-      next.delete("warningMessage");
       setCreateOpen(false);
-      setSearchParams(next);
+      switchOpenItem(nextId, "edit", true);
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
@@ -3039,11 +3126,25 @@ export function EditorHost({
               {message(EDITOR_MSG.NEW_ITEM)}
             </button>
           ) : null}
+          {contentId != null && !promote ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-mode"
+              disabled={loading}
+              onClick={handleModeChange}
+            >
+              {message(mode === "view" ? EDITOR_MSG.BADGE_EDIT : EDITOR_MSG.BADGE_VIEW)}
+            </button>
+          ) : null}
           <button
             type="button"
             className={styles.button}
             data-testid="editor-close"
             onClick={() => {
+              if (!allowLeave()) {
+                return;
+              }
               if (typeof window !== "undefined") {
                 window.close();
               }
@@ -3621,7 +3722,7 @@ export function EditorHost({
               >
                 {rows.map((row) => (
                   <label
-                    key={row.name}
+                    key={`${row.name}:${discardEpoch}`}
                     className={styles.field}
                     data-testid={`editor-field-row-${row.name}`}
                     data-required={row.required ? "true" : "false"}
@@ -3715,11 +3816,7 @@ export function EditorHost({
             if (!nextId || nextId === contentId) {
               return;
             }
-            const next = new URLSearchParams(params);
-            next.set("contentId", String(nextId));
-            next.set("mode", mode === "view" ? "view" : "edit");
-            next.delete("warningMessage");
-            setSearchParams(next);
+            switchOpenItem(nextId, mode === "view" ? "view" : "edit");
           }}
           onCreated={(result) => {
             const created = result.created ?? [];
@@ -3730,11 +3827,7 @@ export function EditorHost({
             if (nextId === contentId) {
               return;
             }
-            const next = new URLSearchParams(params);
-            next.set("contentId", String(nextId));
-            next.set("mode", "edit");
-            next.delete("warningMessage");
-            setSearchParams(next);
+            switchOpenItem(nextId, "edit");
           }}
         />
       ) : null}

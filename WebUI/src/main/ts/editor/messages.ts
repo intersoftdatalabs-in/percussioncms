@@ -200,6 +200,8 @@ export const EDITOR_MSG = {
     "perc.ui.editor@Could not preview with that template.",
   CONFIRM_PREVIEW_UNSAVED:
     "perc.ui.editor@Preview the last saved revision? Unsaved edits are not included.",
+  CONFIRM_LEAVE_UNSAVED:
+    "perc.ui.editor@Leave without saving? Unsaved edits will be discarded.",
   OPEN_FOLDER: "perc.ui.editor@Open folder",
   OPENING_FOLDER: "perc.ui.editor@Opening folder…",
   OPEN_FOLDER_NONE:
