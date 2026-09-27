@@ -19,6 +19,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { get, isApiError, isSessionRedirectError, post } from "../api/client";
 import { PATHS } from "../api/paths";
 import {
+  createExternalLinkSection,
   createSiteSection,
   deleteSiteSection,
   loadSection,
@@ -36,6 +37,7 @@ import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import {
   buildDeveloperAddSectionFields,
+  buildDeveloperExternalLinkFields,
   buildDeveloperRenameProperties,
   buildDeveloperReparent,
   buildDeveloperSiblingReorder,
@@ -54,7 +56,11 @@ import {
   validateDeveloperSectionName,
   type DeveloperNavParentOption,
 } from "./siteNavSection";
-import { findSiblingPlacement } from "../api/architecture/sectionMutations";
+import {
+  findSiblingPlacement,
+  validateExternalUrl,
+  validateSectionTitle,
+} from "../api/architecture/sectionMutations";
 
 function navRows(
   root: NavTreeNode | null,
@@ -130,6 +136,12 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
   const [reparentError, setReparentError] = useState<string | null>(null);
   const [reparentNotice, setReparentNotice] = useState<string | null>(null);
   const [reparentBusy, setReparentBusy] = useState(false);
+  const [extTitle, setExtTitle] = useState("");
+  const [extUrl, setExtUrl] = useState("");
+  const [extTarget, setExtTarget] = useState("_self");
+  const [extError, setExtError] = useState<string | null>(null);
+  const [extNotice, setExtNotice] = useState<string | null>(null);
+  const [extBusy, setExtBusy] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
   const renameTargets = listDeveloperRenameTargets(treeRoot);
   const templateTargets = listDeveloperTemplateTargets(treeRoot);
@@ -548,6 +560,66 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
     })();
   };
 
+  const onExtCancel = () => {
+    setExtTitle("");
+    setExtUrl("");
+    setExtTarget("_self");
+    setExtError(null);
+    setExtNotice(null);
+  };
+
+  const onAddExternal = () => {
+    setExtError(null);
+    setExtNotice(null);
+    if (validateSectionTitle(extTitle) || validateExternalUrl(extUrl)) {
+      setExtError(DEV_MSG.SITE_NAV_EXT_INVALID);
+      return;
+    }
+    const parent = parents.find((p) => p.id === parentId) ?? parents[0];
+    setExtBusy(true);
+    void (async () => {
+      try {
+        let loadedFolderPath: string | null = null;
+        if (parent?.node && !parent.node.folderPath?.trim() && parent.node.id) {
+          const loaded = await loadSection(parent.node.id);
+          loadedFolderPath = loaded.folderPath ?? null;
+        }
+        await createExternalLinkSection(
+          buildDeveloperExternalLinkFields({
+            title: extTitle,
+            url: extUrl,
+            target: extTarget,
+            siteName,
+            parent: parent?.node ?? null,
+            loadedFolderPath,
+          }),
+        );
+        setExtTitle("");
+        setExtUrl("");
+        setExtTarget("_self");
+        setExtNotice(DEV_MSG.SITE_NAV_EXT_ADDED);
+        setReloadToken((n) => n + 1);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        if (isApiError(err) && err.status === 400) {
+          setExtError(panelErrMsg(err, DEV_MSG.SITE_NAV_EXT_BAD_REQUEST));
+          return;
+        }
+        if (isApiError(err) && err.status === 403) {
+          setExtError(panelErrMsg(err, DEV_MSG.SITE_NAV_EXT_FORBIDDEN));
+          return;
+        }
+        if (isApiError(err) && err.status === 409) {
+          setExtError(panelErrMsg(err, DEV_MSG.SITE_NAV_EXT_CONFLICT));
+          return;
+        }
+        setExtError(panelErrMsg(err, DEV_MSG.SITE_NAV_EXT_ERROR));
+      } finally {
+        setExtBusy(false);
+      }
+    })();
+  };
+
   return (
     <section data-testid="developer-site-nav" style={{ marginTop: "16px" }}>
       <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SITE_NAV_TITLE}</h3>
@@ -636,6 +708,79 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
             </div>
           ) : null}
           {notice ? <div data-testid="developer-site-nav-notice">{notice}</div> : null}
+          <div
+            data-testid="developer-site-nav-external"
+            style={{ display: "grid", gap: "8px", maxWidth: "420px", marginTop: "16px" }}
+          >
+            <div style={{ fontSize: "0.95rem", fontWeight: 600 }}>{DEV_MSG.SITE_NAV_EXT_TITLE}</div>
+            <label>
+              {DEV_MSG.SITE_NAV_EXT_NAME}
+              <input
+                data-testid="developer-site-nav-ext-title"
+                value={extTitle}
+                onChange={(e) => {
+                  setExtTitle(e.target.value);
+                  setExtError(null);
+                }}
+                style={inputStyle}
+                disabled={extBusy}
+              />
+            </label>
+            <label>
+              {DEV_MSG.SITE_NAV_EXT_URL}
+              <input
+                data-testid="developer-site-nav-ext-url"
+                value={extUrl}
+                onChange={(e) => {
+                  setExtUrl(e.target.value);
+                  setExtError(null);
+                }}
+                style={inputStyle}
+                disabled={extBusy}
+              />
+            </label>
+            <label>
+              {DEV_MSG.SITE_NAV_EXT_TARGET}
+              <select
+                data-testid="developer-site-nav-ext-target"
+                value={extTarget}
+                onChange={(e) => setExtTarget(e.target.value)}
+                style={inputStyle}
+                disabled={extBusy}
+              >
+                <option value="_self">{DEV_MSG.SITE_NAV_EXT_TARGET_SELF}</option>
+                <option value="_blank">{DEV_MSG.SITE_NAV_EXT_TARGET_BLANK}</option>
+                <option value="_top">{DEV_MSG.SITE_NAV_EXT_TARGET_TOP}</option>
+                <option value="_parent">{DEV_MSG.SITE_NAV_EXT_TARGET_PARENT}</option>
+              </select>
+            </label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                type="button"
+                data-testid="developer-site-nav-ext-add"
+                disabled={extBusy}
+                onClick={onAddExternal}
+              >
+                {extBusy ? DEV_MSG.SITE_NAV_EXT_ADDING : DEV_MSG.SITE_NAV_EXT_ADD}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-site-nav-ext-cancel"
+                disabled={extBusy}
+                onClick={onExtCancel}
+              >
+                {DEV_MSG.SITE_NAV_CANCEL}
+              </button>
+            </div>
+            {extError ? (
+              <div data-testid="developer-site-nav-ext-error" role="alert">
+                {extError}
+              </div>
+            ) : null}
+            {extNotice ? (
+              <div data-testid="developer-site-nav-ext-notice">{extNotice}</div>
+            ) : null}
+          </div>
           <div
             data-testid="developer-site-nav-rename"
             style={{ display: "grid", gap: "8px", maxWidth: "420px", marginTop: "16px" }}

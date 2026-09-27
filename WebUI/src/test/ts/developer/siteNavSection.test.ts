@@ -16,9 +16,11 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { buildCreateExternalLinkBody } from "../../../main/ts/api/architecture/sectionMutations";
 import type { NavTreeNode } from "../../../main/ts/api/architecture/types";
 import {
   buildDeveloperAddSectionFields,
+  buildDeveloperExternalLinkFields,
   buildDeveloperRenameProperties,
   buildDeveloperReparent,
   buildDeveloperSiblingReorder,
@@ -99,6 +101,35 @@ describe("siteNavSection", () => {
       false,
     );
     expect(isDeveloperNavSectionReadOnly({ name: "Corporate" })).toBe(false);
+  });
+
+  it("builds a CreateExternalLinkSection body from title, URL, target, and parent", () => {
+    const fields = buildDeveloperExternalLinkFields({
+      title: " Partner ",
+      url: " https://partner.example ",
+      target: "javascript:alert(1)",
+      siteName: "Corporate",
+      parent: root,
+    });
+    expect(fields.target).toBe("_self");
+    expect(buildCreateExternalLinkBody(fields)).toEqual({
+      CreateExternalLinkSection: {
+        externalUrl: "https://partner.example",
+        linkTitle: "Partner",
+        folderPath: "//Sites/Corporate",
+        sectionType: "externallink",
+        target: "_self",
+      },
+    });
+    expect(
+      buildDeveloperExternalLinkFields({
+        title: "Docs",
+        url: "https://docs.example",
+        target: "_blank",
+        siteName: "Corporate",
+        parent: root.children[0],
+      }).target,
+    ).toBe("_blank");
   });
 
   it("lists titles and only parents that can host a child", () => {

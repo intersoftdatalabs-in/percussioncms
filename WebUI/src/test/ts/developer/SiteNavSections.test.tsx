@@ -31,6 +31,7 @@ vi.mock("../../../main/ts/api/architecture/sectionApi", () => ({
   updateSiteSection: vi.fn(),
   deleteSiteSection: vi.fn(),
   moveSiteSection: vi.fn(),
+  createExternalLinkSection: vi.fn(),
 }));
 
 vi.mock("../../../main/ts/api/home/homeApi", () => ({
@@ -43,6 +44,7 @@ const loadSectionProperties = sectionApi.loadSectionProperties as ReturnType<typ
 const updateSiteSection = sectionApi.updateSiteSection as ReturnType<typeof vi.fn>;
 const deleteSiteSection = sectionApi.deleteSiteSection as ReturnType<typeof vi.fn>;
 const moveSiteSection = sectionApi.moveSiteSection as ReturnType<typeof vi.fn>;
+const createExternalLinkSection = sectionApi.createExternalLinkSection as ReturnType<typeof vi.fn>;
 
 const tree = {
   id: "root",
@@ -61,6 +63,7 @@ describe("SiteNavSections", () => {
     updateSiteSection.mockReset();
     deleteSiteSection.mockReset();
     moveSiteSection.mockReset();
+    createExternalLinkSection.mockReset();
     (homeApi.fetchTemplatesForSectionCreate as ReturnType<typeof vi.fn>).mockReset();
     loadSectionTree.mockResolvedValue(tree);
     (homeApi.fetchTemplatesForSectionCreate as ReturnType<typeof vi.fn>).mockResolvedValue([
@@ -155,6 +158,7 @@ describe("SiteNavSections", () => {
     expect(screen.queryByTestId("developer-site-nav-add")).toBeNull();
     expect(screen.queryByTestId("developer-site-nav-rename-save")).toBeNull();
     expect(screen.queryByTestId("developer-site-nav-delete-confirm")).toBeNull();
+    expect(screen.queryByTestId("developer-site-nav-ext-add")).toBeNull();
     expect(loadSectionTree).not.toHaveBeenCalled();
   });
 
@@ -566,5 +570,124 @@ describe("SiteNavSections", () => {
     });
     expect(screen.queryByTestId("developer-site-nav-reparent-notice")).toBeNull();
     expect(loadSectionTree).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not post an external link on cancel or empty title or URL", async () => {
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-ext-add");
+    fireEvent.change(screen.getByTestId("developer-site-nav-ext-title"), {
+      target: { value: "Partner" },
+    });
+    fireEvent.change(screen.getByTestId("developer-site-nav-ext-url"), {
+      target: { value: "https://partner.example" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-nav-ext-cancel"));
+    expect(createExternalLinkSection).not.toHaveBeenCalled();
+    expect((screen.getByTestId("developer-site-nav-ext-title") as HTMLInputElement).value).toBe("");
+    expect((screen.getByTestId("developer-site-nav-ext-url") as HTMLInputElement).value).toBe("");
+
+    fireEvent.click(screen.getByTestId("developer-site-nav-ext-add"));
+    expect(createExternalLinkSection).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-site-nav-ext-error").textContent).toBe(
+      DEV_MSG.SITE_NAV_EXT_INVALID,
+    );
+    expect(screen.queryByTestId("developer-site-nav-ext-notice")).toBeNull();
+
+    fireEvent.change(screen.getByTestId("developer-site-nav-ext-title"), {
+      target: { value: "Partner" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-nav-ext-add"));
+    expect(createExternalLinkSection).not.toHaveBeenCalled();
+  });
+
+  it("keeps 400, 403, and 409 on the external link form", async () => {
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-ext-add");
+    fireEvent.change(screen.getByTestId("developer-site-nav-ext-title"), {
+      target: { value: "Partner" },
+    });
+    fireEvent.change(screen.getByTestId("developer-site-nav-ext-url"), {
+      target: { value: "https://partner.example" },
+    });
+    fireEvent.change(screen.getByTestId("developer-site-nav-ext-target"), {
+      target: { value: "_blank" },
+    });
+    createExternalLinkSection.mockRejectedValueOnce({
+      status: 400,
+      statusText: "Bad Request",
+      body: "bad",
+    });
+    fireEvent.click(screen.getByTestId("developer-site-nav-ext-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-ext-error").textContent).toContain("bad");
+    });
+    expect(screen.queryByTestId("developer-site-nav-ext-notice")).toBeNull();
+    expect((screen.getByTestId("developer-site-nav-ext-title") as HTMLInputElement).value).toBe(
+      "Partner",
+    );
+
+    createExternalLinkSection.mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: "" });
+    fireEvent.click(screen.getByTestId("developer-site-nav-ext-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-ext-error").textContent).toContain(
+        DEV_MSG.SITE_NAV_EXT_FORBIDDEN,
+      );
+    });
+
+    createExternalLinkSection.mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: "" });
+    fireEvent.click(screen.getByTestId("developer-site-nav-ext-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-ext-error").textContent).toContain(
+        DEV_MSG.SITE_NAV_EXT_CONFLICT,
+      );
+    });
+    expect(screen.queryByTestId("developer-site-nav-ext-notice")).toBeNull();
+  });
+
+  it("posts CreateExternalLinkSection and lists the new title", async () => {
+    createExternalLinkSection.mockResolvedValue({ id: "ext-1" });
+    loadSectionTree.mockResolvedValueOnce(tree).mockResolvedValueOnce({
+      ...tree,
+      children: [
+        {
+          id: "ext-1",
+          title: "Partner",
+          folderPath: null,
+          sectionType: "externallink",
+          requiresLogin: false,
+          children: [],
+        },
+      ],
+    });
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-ext-add");
+    fireEvent.change(screen.getByTestId("developer-site-nav-ext-title"), {
+      target: { value: "Partner" },
+    });
+    fireEvent.change(screen.getByTestId("developer-site-nav-ext-url"), {
+      target: { value: "https://partner.example" },
+    });
+    fireEvent.change(screen.getByTestId("developer-site-nav-ext-target"), {
+      target: { value: "_blank" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-nav-ext-add"));
+    await waitFor(() => {
+      expect(createExternalLinkSection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          linkTitle: "Partner",
+          externalUrl: "https://partner.example",
+          folderPath: "//Sites/Corporate",
+          sectionType: "externallink",
+          target: "_blank",
+        }),
+      );
+    });
+    await waitFor(() => {
+      const items = screen.getAllByTestId("developer-site-nav-item").map((n) => n.textContent);
+      expect(items).toContain("Partner");
+    });
+    expect(screen.getByTestId("developer-site-nav-ext-notice").textContent).toBe(
+      DEV_MSG.SITE_NAV_EXT_ADDED,
+    );
   });
 });

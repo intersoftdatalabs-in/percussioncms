@@ -32,6 +32,7 @@ import {
   resolveCreateFolderPath,
 } from "../api/architecture/sectionMutations";
 import type {
+  CreateExternalLinkFields,
   CreateSiteSectionFields,
   MoveSiteSectionFields,
   NavTreeNode,
@@ -163,6 +164,31 @@ export function buildDeveloperAddSectionFields(opts: {
     },
     folderPath,
   );
+}
+
+const EXTERNAL_TARGETS = new Set(["_self", "_blank", "_top", "_parent"]);
+
+/**
+ * Map title, URL, and window target onto {@code CreateExternalLinkSection} fields.
+ * The parent folder path is the same path a regular section create would use.
+ */
+export function buildDeveloperExternalLinkFields(opts: {
+  title: string;
+  url: string;
+  target: string;
+  siteName: string;
+  parent: NavTreeNode | null;
+  loadedFolderPath?: string | null;
+}): CreateExternalLinkFields {
+  const rawTarget = opts.target.trim();
+  const target = EXTERNAL_TARGETS.has(rawTarget) ? rawTarget : "_self";
+  return {
+    externalUrl: opts.url.trim(),
+    linkTitle: opts.title.trim(),
+    folderPath: resolveCreateFolderPath(opts.parent, opts.loadedFolderPath, opts.siteName),
+    sectionType: "externallink",
+    target,
+  };
 }
 
 /** A regular or blog section the operator may rename (not a link). */
