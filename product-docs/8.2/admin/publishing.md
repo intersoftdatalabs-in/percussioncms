@@ -50,7 +50,19 @@ sites cards. A site that does not yet have a site folder still renames the site 
 A site that already has a folder also updates that folder and navigation name. **Cancel**, a blank or unchanged name, and a name already used by another
 site do not call the server and leave the title unchanged. HTTP **400** (invalid name),
 **403** (not Admin), and **409** (name already exists) stay on the workspace with an
-error. The title does not change. Create and copy are separate actions.
+error. The title does not change. Create is a separate action.
+
+### Copy the open site (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card, then **Copy site**.
+**Copy** posts `POST /services/sitemanage/site/copy` with a `SiteCopyRequest` body
+(`srcSite` is the open site, `copySite` is the new name). On success the workspace
+title stays the source name. **Back** lists both the source and the new site.
+**Cancel**, a blank or illegal name, the source name itself, and a name already on
+the sites list do not call the server and do not add a card. HTTP **400** (invalid
+name), **403** (not allowed), and **409** (name already exists or a copy is in
+progress) stay on the workspace with an error. The source title does not change.
+Copy of one delivery server, rename, and delete are separate actions.
 
 ### Search the Sites list (Publishing shell)
 
