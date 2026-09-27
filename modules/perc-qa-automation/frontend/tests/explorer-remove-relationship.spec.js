@@ -61,6 +61,14 @@ async function listWaitReady(page) {
 }
 
 async function selectFirstContentItem(page) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const opened = await selectFirstContentItemOnce(page);
+    if (opened) return true;
+  }
+  return false;
+}
+
+async function selectFirstContentItemOnce(page) {
   const root = page.locator(
     '[data-testid="explorer-tree"] [data-testid="tree-node-/Sites/"], [data-testid="explorer-tree"] [data-testid="tree-node-/Sites"]',
   );
