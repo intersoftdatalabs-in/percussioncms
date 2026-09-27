@@ -237,4 +237,94 @@ describe("EditorHost leave with unsaved edits", () => {
     });
     expect(saveFields).not.toHaveBeenCalled();
   });
+
+  it("cancel on recycle keeps the item and does not delete it", async () => {
+    const recycleItem = vi.fn().mockResolvedValue(undefined);
+    const resolveRecycleTarget = vi.fn().mockResolvedValue({
+      path: "//Sites/Demo/Home",
+      type: "percPage",
+    });
+    renderEdit({
+      recycleItem,
+      resolveRecycleTarget,
+      confirmRecycle: () => true,
+      confirmLeaveUnsaved: () => false,
+    });
+    await dirtyTitle();
+    fireEvent.click(screen.getByTestId("editor-recycle"));
+    expect(recycleItem).not.toHaveBeenCalled();
+    expect(resolveRecycleTarget).not.toHaveBeenCalled();
+    expect(
+      (screen.getByTestId("editor-field-sys_title") as HTMLInputElement).value,
+    ).toBe("Draft title");
+    expect(screen.getByTestId("editor-content-id").textContent).toMatch(/42/);
+  });
+
+  it("confirm on recycle deletes only after the leave prompt", async () => {
+    const recycleItem = vi.fn().mockResolvedValue(undefined);
+    const resolveRecycleTarget = vi.fn().mockResolvedValue({
+      path: "//Sites/Demo/Home",
+      type: "percPage",
+    });
+    const confirmLeaveUnsaved = vi.fn().mockReturnValue(true);
+    renderEdit({
+      recycleItem,
+      resolveRecycleTarget,
+      confirmRecycle: () => true,
+      confirmLeaveUnsaved,
+    });
+    await dirtyTitle();
+    fireEvent.click(screen.getByTestId("editor-recycle"));
+    await waitFor(() => {
+      expect(recycleItem).toHaveBeenCalledWith("//Sites/Demo/Home");
+    });
+    expect(confirmLeaveUnsaved).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-content-id")).toBeNull();
+    });
+  });
+
+  it("cancel on new copy does not copy", async () => {
+    const copyItem = vi.fn().mockResolvedValue({ itemId: "99" });
+    renderEdit({
+      copyItem,
+      confirmCopy: () => true,
+      confirmLeaveUnsaved: () => false,
+    });
+    await dirtyTitle();
+    fireEvent.click(screen.getByTestId("editor-new-copy"));
+    expect(copyItem).not.toHaveBeenCalled();
+    expect(
+      (screen.getByTestId("editor-field-sys_title") as HTMLInputElement).value,
+    ).toBe("Draft title");
+  });
+
+  it("cancel on new item does not create", async () => {
+    const createItem = vi.fn().mockResolvedValue({ itemId: "77" });
+    renderEdit({
+      createItem,
+      confirmLeaveUnsaved: () => false,
+      loadContentTypes: vi.fn().mockResolvedValue([
+        { name: "percPage", label: "Page" },
+      ]),
+    });
+    await dirtyTitle();
+    fireEvent.click(screen.getByTestId("editor-new-item"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("editor-create-type").querySelector('option[value="percPage"]'),
+      ).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-create-type"), {
+      target: { value: "percPage" },
+    });
+    fireEvent.change(screen.getByTestId("editor-create-folder"), {
+      target: { value: "/Sites/Demo" },
+    });
+    fireEvent.click(screen.getByTestId("editor-create-submit"));
+    expect(createItem).not.toHaveBeenCalled();
+    expect(
+      (screen.getByTestId("editor-field-sys_title") as HTMLInputElement).value,
+    ).toBe("Draft title");
+  });
 });

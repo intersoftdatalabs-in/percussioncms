@@ -1885,6 +1885,9 @@ export function EditorHost({
     if (!confirmFn(message(confirmKey))) {
       return;
     }
+    if (!allowLeave()) {
+      return;
+    }
     setCopyBusy(true);
     setCopyErrorKey(null);
     setCopyErrorDetail("");
@@ -1900,7 +1903,7 @@ export function EditorHost({
         setCopyErrorDetail("Copy result was missing item id");
         return;
       }
-      switchOpenItem(nextId, "edit");
+      switchOpenItem(nextId, "edit", true);
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
@@ -1924,8 +1927,12 @@ export function EditorHost({
     return confirmFn(message(EDITOR_MSG.CONFIRM_LEAVE_UNSAVED));
   }
 
-  function switchOpenItem(nextId: number, nextMode: string): void {
-    if (!allowLeave()) {
+  function switchOpenItem(
+    nextId: number,
+    nextMode: string,
+    leaveAlreadyConfirmed = false,
+  ): void {
+    if (!leaveAlreadyConfirmed && !allowLeave()) {
       return;
     }
     const next = new URLSearchParams(params);
@@ -2259,6 +2266,9 @@ export function EditorHost({
     if (!confirmFn(message(EDITOR_MSG.CONFIRM_RECYCLE))) {
       return;
     }
+    if (!allowLeave()) {
+      return;
+    }
     setRecycleBusy(true);
     setRecycleDone(false);
     setRecycleErrorKey(null);
@@ -2274,9 +2284,6 @@ export function EditorHost({
       }
       await recycleItem(resolved.path);
       setRecycleDone(true);
-      if (!allowLeave()) {
-        return;
-      }
       const next = new URLSearchParams(params);
       next.delete("contentId");
       next.set("mode", "view");
@@ -2345,6 +2352,9 @@ export function EditorHost({
       setCreateErrorKey(EDITOR_MSG.CREATE_INCOMPLETE);
       return;
     }
+    if (!allowLeave()) {
+      return;
+    }
     setCreateBusy(true);
     setCreateErrorKey(null);
     setCreateErrorDetail("");
@@ -2357,7 +2367,7 @@ export function EditorHost({
         return;
       }
       setCreateOpen(false);
-      switchOpenItem(nextId, "edit");
+      switchOpenItem(nextId, "edit", true);
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
