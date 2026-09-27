@@ -340,3 +340,53 @@ export function buildDeveloperRenameProperties(
 ): SiteSectionPropertiesWire {
   return applyTitleToProperties(props, name.trim());
 }
+
+/** Regular or blog sections whose landing-page template can change. */
+export function listDeveloperTemplateTargets(root: NavTreeNode | null): DeveloperNavRenameTarget[] {
+  return listDeveloperRenameTargets(root);
+}
+
+/** Jackson body for {@code POST /sitemanage/section/landingTemplate}. */
+export function buildSectionLandingTemplateBody(
+  sectionId: string,
+  templateId: string,
+): { SectionLandingTemplate: { sectionId: string; templateId: string } } {
+  return {
+    SectionLandingTemplate: {
+      sectionId: sectionId.trim(),
+      templateId: templateId.trim(),
+    },
+  };
+}
+
+/** True only when the operator picked a non-blank template that differs from the loaded one. */
+export function landingTemplateSavePosts(loadedTemplateId: string, selectedTemplateId: string): boolean {
+  const next = selectedTemplateId.trim();
+  if (!next) {
+    return false;
+  }
+  return next !== loadedTemplateId.trim();
+}
+
+/**
+ * Unwrap {@code SectionLandingTemplate} or a flat body.
+ * Returns null when the payload has no template id field.
+ */
+export function parseSectionLandingTemplate(
+  data: unknown,
+): { sectionId: string; templateId: string } | null {
+  if (!data || typeof data !== "object") {
+    return null;
+  }
+  const record = data as Record<string, unknown>;
+  const nested = record.SectionLandingTemplate;
+  const body =
+    nested && typeof nested === "object" ? (nested as Record<string, unknown>) : record;
+  if (!("templateId" in body) && !("sectionId" in body)) {
+    return null;
+  }
+  return {
+    sectionId: typeof body.sectionId === "string" ? body.sectionId : "",
+    templateId: typeof body.templateId === "string" ? body.templateId : "",
+  };
+}

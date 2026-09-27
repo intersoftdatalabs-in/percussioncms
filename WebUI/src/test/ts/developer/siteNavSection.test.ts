@@ -30,6 +30,10 @@ import {
   listDeveloperReparentParents,
   listDeveloperReorderTargets,
   listDeveloperSectionTitles,
+  listDeveloperTemplateTargets,
+  buildSectionLandingTemplateBody,
+  landingTemplateSavePosts,
+  parseSectionLandingTemplate,
   validateDeveloperSectionName,
 } from "../../../main/ts/developer/siteNavSection";
 
@@ -60,6 +64,23 @@ const root: NavTreeNode = {
 };
 
 describe("siteNavSection", () => {
+  it("posts a landing template only when the selection changed", () => {
+    expect(listDeveloperTemplateTargets(root).map((t) => t.id)).toEqual(["root", "child"]);
+    expect(landingTemplateSavePosts("tpl-a", "tpl-a")).toBe(false);
+    expect(landingTemplateSavePosts("tpl-a", "  ")).toBe(false);
+    expect(landingTemplateSavePosts("tpl-a", "tpl-b")).toBe(true);
+    expect(buildSectionLandingTemplateBody(" child ", " tpl-b ")).toEqual({
+      SectionLandingTemplate: { sectionId: "child", templateId: "tpl-b" },
+    });
+    expect(
+      parseSectionLandingTemplate({
+        SectionLandingTemplate: { sectionId: "child", templateId: "tpl-b" },
+      })?.templateId,
+    ).toBe("tpl-b");
+    expect(parseSectionLandingTemplate({ templateId: "tpl-a" })?.templateId).toBe("tpl-a");
+    expect(parseSectionLandingTemplate(null)).toBeNull();
+  });
+
   it("rejects an empty or illegal section name and accepts a plain name", () => {
     expect(validateDeveloperSectionName("  ")).toBe("empty");
     expect(validateDeveloperSectionName("!!!")).toBe("invalid");

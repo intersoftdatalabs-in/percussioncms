@@ -19,6 +19,7 @@ package com.percussion.sitemanage.service.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSComponentSummary;
@@ -53,6 +55,7 @@ import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.sitemanage.dao.IPSiteDao;
 import com.percussion.sitemanage.data.PSMoveSiteSection;
+import com.percussion.sitemanage.data.PSSectionLandingTemplate;
 import com.percussion.sitemanage.data.PSSiteSection;
 import org.springframework.transaction.UnexpectedRollbackException;
 import com.percussion.sitemanage.data.PSSiteSectionProperties;
@@ -62,6 +65,7 @@ import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.publishing.IPSPublishingWs;
 import java.util.Collections;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -261,5 +265,59 @@ class PSSiteSectionServiceUpdateRenameTest {
     service.move(req);
 
     verify(navService).moveNavon(src, parent, parent, 1);
+  }
+
+  @Test
+  void changeLandingTemplate_updatesColumnWithoutLoadingPage() throws Exception {
+    IPSGuid navon = new PSLegacyGuid(42, 1);
+    IPSGuid folderId = new PSLegacyGuid(8, -1);
+    PSFolder folder = new PSFolder("about", 8, 1001, 1, "");
+    when(idMapper.getGuid("42-1-1")).thenReturn(navon);
+    when(folderHelper.getParentFolderId(navon)).thenReturn(folderId);
+    when(contentSrv.loadFolder(folderId, false)).thenReturn(folder);
+    when(pageDaoHelper.updateCurrentRevisionTemplate(77, "tpl-b")).thenReturn(1);
+    when(navService.getLandingPageFromNavnode(navon)).thenReturn(new PSLegacyGuid(77, 3));
+
+    PSSectionLandingTemplate saved = service.changeSectionLandingTemplate("42-1-1", "tpl-b");
+
+    assertEquals("42-1-1", saved.getSectionId());
+    assertEquals("tpl-b", saved.getTemplateId());
+    assertEquals("tpl-b", folder.getPropertyValue("sectionLandingTemplate"));
+    verify(contentSrv).saveFolder(folder);
+    verifyNoInteractions(pageDao);
+  }
+
+  @Test
+  void loadLandingTemplate_readsCurrentRevisionColumn() throws Exception {
+    IPSGuid navon = new PSLegacyGuid(42, 1);
+    IPSGuid folderId = new PSLegacyGuid(8, -1);
+    PSFolder folder = new PSFolder("about", 8, 1001, 1, "");
+    folder.setProperty("sectionLandingTemplate", "tpl-a");
+    when(idMapper.getGuid("42-1-1")).thenReturn(navon);
+    when(folderHelper.getParentFolderId(navon)).thenReturn(folderId);
+    when(contentSrv.loadFolder(folderId, false)).thenReturn(folder);
+
+    PSSectionLandingTemplate loaded = service.loadSectionLandingTemplate("42-1-1");
+
+    assertEquals("tpl-a", loaded.getTemplateId());
+    verifyNoInteractions(pageDao);
+  }
+
+  @Test
+  void changeLandingTemplate_blankIs400_missingLandingIs404() throws Exception {
+    PSSiteSectionService.PSSectionLandingTemplateStatus blank =
+        assertThrows(
+            PSSiteSectionService.PSSectionLandingTemplateStatus.class,
+            () -> service.changeSectionLandingTemplate("42-1-1", "  "));
+    assertEquals(400, blank.httpStatus());
+
+    when(idMapper.getGuid("missing")).thenReturn(null);
+    when(folderHelper.getParentFolderId(org.mockito.ArgumentMatchers.<IPSGuid>isNull())).thenReturn(null);
+    PSSiteSectionService.PSSectionLandingTemplateStatus missing =
+        assertThrows(
+            PSSiteSectionService.PSSectionLandingTemplateStatus.class,
+            () -> service.loadSectionLandingTemplate("missing"));
+    assertEquals(404, missing.httpStatus());
+    verifyNoInteractions(pageDao);
   }
 }

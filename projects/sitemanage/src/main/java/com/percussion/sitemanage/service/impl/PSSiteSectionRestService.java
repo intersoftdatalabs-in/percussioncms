@@ -41,6 +41,7 @@ import com.percussion.sitemanage.data.PSSiteBlogProperties;
 import com.percussion.sitemanage.data.PSSiteBlogPropertiesList;
 import com.percussion.sitemanage.data.PSSiteSection;
 import com.percussion.sitemanage.data.PSSiteSectionList;
+import com.percussion.sitemanage.data.PSSectionLandingTemplate;
 import com.percussion.sitemanage.data.PSSiteSectionProperties;
 import com.percussion.sitemanage.data.PSUpdateSectionLink;
 import com.percussion.sitemanage.service.IPSSiteSectionService;
@@ -51,6 +52,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
@@ -219,6 +221,33 @@ public class PSSiteSectionRestService {
     } catch (PSValidationException | IPSSiteSectionService.PSSiteSectionException e) {
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw e;
+    }
+  }
+
+  @GET
+  @Path("/landingTemplate/{id}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSSectionLandingTemplate loadLandingTemplate(@PathParam("id") String id) {
+    try {
+      return siteSectionService.loadSectionLandingTemplate(id);
+    } catch (PSSiteSectionService.PSSectionLandingTemplateStatus e) {
+      throw new WebApplicationException(e.getMessage(), e.httpStatus());
+    }
+  }
+
+  @POST
+  @Path("/landingTemplate")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSSectionLandingTemplate changeLandingTemplate(PSSectionLandingTemplate request) {
+    try {
+      if (request == null) {
+        throw new WebApplicationException("template is required", 400);
+      }
+      return siteSectionService.changeSectionLandingTemplate(
+          request.getSectionId(), request.getTemplateId());
+    } catch (PSSiteSectionService.PSSectionLandingTemplateStatus e) {
+      throw new WebApplicationException(e.getMessage(), e.httpStatus());
     }
   }
 

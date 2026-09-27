@@ -99,4 +99,23 @@ public interface IPSPageDaoHelper {
    * @return map of content ID to link text, never {@code null}, may be empty.
    */
   Map<String, String> findLinkTextForCurrentRevisionOfPages(List<Integer> pages);
+
+  /**
+   * Sets {@code TEMPLATEID} on the current revision of one page without loading the percPage item.
+   * Item load constructs child tables such as PercPage_lobs and can mark the H2 transaction
+   * rollback-only.
+   *
+   * @param contentId page content id, must be &gt; 0
+   * @param templateId template id to store, must not be blank
+   * @return rows updated; {@code 0} when the current revision row is missing
+   */
+  int updateCurrentRevisionTemplate(int contentId, String templateId);
+
+  /**
+   * Latest non-blank {@code TEMPLATEID} for a page when the current-revision row is empty.
+   *
+   * @param contentId page content id
+   * @return template id, or {@code null} when none is stored
+   */
+  String findLatestTemplateId(int contentId);
 }
