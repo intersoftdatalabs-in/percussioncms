@@ -1143,6 +1143,214 @@ describe("EditorHost rich controls", () => {
     expect(uploadBinary).toHaveBeenCalledWith("42", "img", file);
   });
 
+  it("saves a keyword choice, shows it again, and does not PUT on close", async () => {
+    let stored = "news";
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => {
+      const next = body.fields.find((field) => field.name === "keywords")?.value ?? stored;
+      stored = next;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 2,
+        fields: body.fields,
+      };
+    });
+    const keywords = async () => [
+      {
+        value: "keywords",
+        choices: [
+          { value: "news", label: "News" },
+          { value: "events", label: "Events" },
+        ],
+      },
+    ];
+    const loadFields = vi.fn().mockImplementation(async () => ({
+      contentId: "42",
+      contentType: "percEvent",
+      name: "Home",
+      checkoutUser: "admin",
+      revision: 2,
+      fields: [
+        { name: "sys_title", value: "Home" },
+        { name: "keywords", value: stored },
+      ],
+    }));
+    const host = (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={loadFields}
+        saveFields={saveFields}
+        loadType={async () => ({
+          fields: [
+            { name: "sys_title", label: "Title", control: "sys_EditBox" },
+            { name: "keywords", label: "Keywords", control: "sys_DropDownSingle" },
+          ],
+        })}
+        loadKeywords={keywords}
+        confirmLeaveUnsaved={() => true}
+      />
+    );
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={host} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-keywords")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "Events" })).toBeTruthy();
+    });
+    const select = screen.getByTestId("editor-field-keywords") as HTMLSelectElement;
+    expect(select.getAttribute("data-editor-kind")).toBe("keyword");
+    expect(select.value).toBe("news");
+    fireEvent.change(select, { target: { value: "events" } });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-keywords") as HTMLSelectElement).value).toBe(
+        "news",
+      );
+    });
+    fireEvent.change(screen.getByTestId("editor-field-keywords"), {
+      target: { value: "events" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalledTimes(1);
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "keywords")?.value).toBe("events");
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-keywords") as HTMLSelectElement).value).toBe(
+        "events",
+      );
+    });
+    expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={host} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-keywords") as HTMLSelectElement).value).toBe(
+        "events",
+      );
+    });
+  });
+
+  it("keeps keyword HTTP 400 and 403 on the field and does not claim success", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percEvent",
+                  name: "Home",
+                  checkoutUser: "admin",
+                  fields: [{ name: "keywords", value: "news" }],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    { name: "keywords", label: "Keywords", control: "sys_DropDownSingle" },
+                  ],
+                })}
+                loadKeywords={async () => [
+                  {
+                    value: "keywords",
+                    choices: [
+                      { value: "news", label: "News" },
+                      { value: "events", label: "Events" },
+                    ],
+                  },
+                ]}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-keywords")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-keywords"), {
+      target: { value: "events" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-keywords").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-keywords").textContent).toMatch(
+        /not allowed/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(/not allowed/i);
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("keeps a keyword field read-only in view mode", async () => {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn()}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percEvent",
+                  name: "Home",
+                  checkoutUser: "",
+                  fields: [{ name: "keywords", value: "news" }],
+                })}
+                loadType={async () => ({
+                  fields: [
+                    { name: "keywords", label: "Keywords", control: "sys_DropDownSingle" },
+                  ],
+                })}
+                loadKeywords={async () => [
+                  {
+                    value: "keywords",
+                    choices: [{ value: "news", label: "News" }],
+                  },
+                ]}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    const select = screen.getByTestId("editor-field-keywords") as HTMLSelectElement;
+    expect(select.disabled).toBe(true);
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+  });
+
   it("maps file-field upload 403 and 413 as errors, not success", async () => {
     const loadFields = vi.fn().mockResolvedValue({
       contentId: "42",

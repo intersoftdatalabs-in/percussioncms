@@ -1461,6 +1461,32 @@ export function EditorHost({
               : EDITOR_MSG.LINK_BAD_REQUEST,
         );
       }
+      const keywordNames = rows
+        .filter((row) => row.kind === "keyword")
+        .map((row) => row.name);
+      const namedKeyword = Object.keys(mapped.fieldErrors).some((name) =>
+        keywordNames.includes(name),
+      );
+      const keywordStatus = saveReason === "forbidden" || saveReason === "badRequest";
+      const keywordMapped =
+        !html400 &&
+        !long400 &&
+        !number400 &&
+        !linkMapped &&
+        keywordStatus &&
+        (namedKeyword ||
+          (Object.keys(mapped.fieldErrors).length === 0 && keywordNames.length === 1));
+      if (
+        keywordMapped &&
+        Object.keys(mapped.fieldErrors).length === 0 &&
+        keywordNames.length === 1
+      ) {
+        mapped.fieldErrors[keywordNames[0]] = message(
+          saveReason === "forbidden"
+            ? EDITOR_MSG.KEYWORD_FORBIDDEN
+            : EDITOR_MSG.KEYWORD_BAD_REQUEST,
+        );
+      }
       if (
         saveReason === "badRequest" &&
         Object.keys(mapped.fieldErrors).length > 0
@@ -1481,7 +1507,11 @@ export function EditorHost({
                   ? EDITOR_MSG.LINK_FORBIDDEN
                   : linkMapped
                     ? EDITOR_MSG.LINK_BAD_REQUEST
-                    : EDITOR_MSG.SAVE_FAILED,
+                    : keywordMapped && saveReason === "forbidden"
+                      ? EDITOR_MSG.KEYWORD_FORBIDDEN
+                      : keywordMapped
+                        ? EDITOR_MSG.KEYWORD_BAD_REQUEST
+                        : EDITOR_MSG.SAVE_FAILED,
       );
       setSaveErrorDetail(mapped.banner === fallback ? "" : mapped.banner);
     } finally {
