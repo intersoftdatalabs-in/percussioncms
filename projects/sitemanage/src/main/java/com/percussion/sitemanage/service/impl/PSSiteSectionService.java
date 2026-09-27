@@ -1442,6 +1442,170 @@ public class PSSiteSectionService implements IPSSiteSectionService {
   }
 
   /**
+   * HTTP status for a landing-template read or write that must stay on the panel (400/404). 403 is
+   * produced by the section security filter when the caller is not Admin.
+   */
+  public static final class PSSectionLandingTemplateStatus extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+    private final int httpStatus;
+
+    public PSSectionLandingTemplateStatus(int httpStatus, String message) {
+      super(message);
+      this.httpStatus = httpStatus;
+    }
+
+    public int httpStatus() {
+      return httpStatus;
+    }
+  }
+
+  /**
+   * Current landing-page template for a section. Does not load the percPage item.
+   *
+   * @param sectionId navigation section id, not blank
+   * @return section id and template id (template may be blank when the column is empty)
+   */
+  public PSSectionLandingTemplate loadSectionLandingTemplate(String sectionId) {
+    String fromFolder = readSectionLandingTemplateProperty(sectionId);
+    if (fromFolder != null && !fromFolder.isBlank()) {
+      return landingTemplate(sectionId.trim(), fromFolder);
+    }
+    int contentId = landingPageContentId(sectionId);
+    String templateId = "";
+    java.util.Map<String, String> found =
+        pageDaoHelper.findTemplateUsedByCurrentRevisionOfPages(java.util.List.of(contentId));
+    if (found != null) {
+      String value = found.get(Integer.toString(contentId));
+      if (value != null && !value.isBlank()) {
+        templateId = value;
+      }
+    }
+    if (templateId.isBlank()) {
+      String latest = pageDaoHelper.findLatestTemplateId(contentId);
+      if (latest != null && !latest.isBlank()) {
+        templateId = latest;
+      }
+    }
+    return landingTemplate(sectionId.trim(), templateId);
+  }
+
+  /**
+   * Persists a different (or the same) landing-page template on the current revision.
+   *
+   * @param sectionId navigation section id, not blank
+   * @param templateId template id, not blank
+   */
+  public PSSectionLandingTemplate changeSectionLandingTemplate(String sectionId, String templateId) {
+    if (templateId == null || templateId.isBlank()) {
+      throw new PSSectionLandingTemplateStatus(400, "templateId is required");
+    }
+    String saved = templateId.trim();
+    writeSectionLandingTemplateProperty(sectionId, saved);
+    try {
+      int contentId = landingPageContentId(sectionId);
+      pageDaoHelper.updateCurrentRevisionTemplate(contentId, saved);
+    } catch (PSSectionLandingTemplateStatus e) {
+      if (e.httpStatus() != 404) {
+        throw e;
+      }
+    } catch (RuntimeException e) {
+      log.warn(
+          "CT_PAGE template update skipped for section {}. Error: {}",
+          sectionId,
+          PSExceptionUtils.getMessageForLog(e));
+    }
+    return landingTemplate(sectionId.trim(), saved);
+  }
+
+  private static final String SECTION_LANDING_TEMPLATE_PROP = "sectionLandingTemplate";
+
+  private String readSectionLandingTemplateProperty(String sectionId) {
+    PSFolder folder = sectionFolder(sectionId);
+    if (folder == null) {
+      return null;
+    }
+    return folder.getPropertyValue(SECTION_LANDING_TEMPLATE_PROP);
+  }
+
+  private void writeSectionLandingTemplateProperty(String sectionId, String templateId) {
+    PSFolder folder = sectionFolder(sectionId);
+    if (folder == null) {
+      throw new PSSectionLandingTemplateStatus(404, "Section folder was not found");
+    }
+    folder.setProperty(SECTION_LANDING_TEMPLATE_PROP, templateId);
+    try {
+      contentSrv.saveFolder(folder);
+    } catch (Exception e) {
+      throw new PSSectionLandingTemplateStatus(400, "Could not save the section template");
+    }
+  }
+
+  private PSFolder sectionFolder(String sectionId) {
+    if (sectionId == null || sectionId.isBlank()) {
+      throw new PSSectionLandingTemplateStatus(400, "section id is required");
+    }
+    IPSGuid navon;
+    try {
+      navon = idMapper.getGuid(sectionId.trim());
+    } catch (RuntimeException e) {
+      throw new PSSectionLandingTemplateStatus(404, "Section was not found");
+    }
+    if (navon == null) {
+      throw new PSSectionLandingTemplateStatus(404, "Section was not found");
+    }
+    IPSGuid folderId;
+    try {
+      folderId = folderHelper.getParentFolderId(navon);
+    } catch (Exception e) {
+      throw new PSSectionLandingTemplateStatus(404, "Section folder was not found");
+    }
+    if (folderId == null) {
+      return null;
+    }
+    try {
+      return contentSrv.loadFolder(folderId, false);
+    } catch (Exception e) {
+      throw new PSSectionLandingTemplateStatus(404, "Section folder was not found");
+    }
+  }
+
+  private static PSSectionLandingTemplate landingTemplate(String sectionId, String templateId) {
+    PSSectionLandingTemplate body = new PSSectionLandingTemplate();
+    body.setSectionId(sectionId);
+    body.setTemplateId(templateId);
+    return body;
+  }
+
+  /**
+   * Content id of the landing page linked from the navon. Relationship lookup only — never
+   * {@code pageDao.find}.
+   */
+  private int landingPageContentId(String sectionId) {
+    if (sectionId == null || sectionId.isBlank()) {
+      throw new PSSectionLandingTemplateStatus(400, "section id is required");
+    }
+    IPSGuid navon;
+    try {
+      navon = idMapper.getGuid(sectionId.trim());
+    } catch (RuntimeException e) {
+      throw new PSSectionLandingTemplateStatus(404, "Section was not found");
+    }
+    if (navon == null) {
+      throw new PSSectionLandingTemplateStatus(404, "Section was not found");
+    }
+    IPSGuid page;
+    try {
+      page = navSrv.getLandingPageFromNavnode(navon);
+    } catch (RuntimeException e) {
+      throw new PSSectionLandingTemplateStatus(404, "Landing page was not found");
+    }
+    if (!(page instanceof PSLegacyGuid legacy) || legacy.getContentId() <= 0) {
+      throw new PSSectionLandingTemplateStatus(404, "Landing page was not found");
+    }
+    return legacy.getContentId();
+  }
+
+  /**
    * Sets the link title for the landing page of the specified navigation node.
    *
    * @param navonId the ID of the navigation node in question, assumed not blank.

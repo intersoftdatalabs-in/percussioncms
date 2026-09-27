@@ -376,6 +376,59 @@ public class PSPageDaoHelper implements IPSPageDaoHelper {
 
   @Override
   @Transactional(noRollbackFor = Exception.class)
+  public String findLatestTemplateId(int contentId) {
+    if (contentId <= 0) {
+      return null;
+    }
+    var sess = getSession();
+    try {
+      String sql =
+          "SELECT TEMPLATEID FROM "
+              + qualifyTableName(PAGE_TABLE)
+              + " WHERE CONTENTID = :contentid AND TEMPLATEID IS NOT NULL "
+              + "ORDER BY REVISIONID DESC";
+      org.hibernate.query.NativeQuery<?> query =
+          sess.createNativeQuery(sql).setMaxResults(1);
+      query.setParameter("contentid", contentId);
+      Object value = query.uniqueResult();
+      if (value == null) {
+        return null;
+      }
+      String text = value.toString().trim();
+      return text.isEmpty() ? null : text;
+    } catch (SQLException e) {
+      log.error("Failed to get the fully qualified table name for '{}'", PAGE_TABLE);
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSRuntimeException(e);
+    }
+  }
+
+  @Override
+  @Transactional(noRollbackFor = Exception.class)
+  public int updateCurrentRevisionTemplate(int contentId, String templateId) {
+    if (contentId <= 0 || templateId == null || templateId.isBlank()) {
+      return 0;
+    }
+    var sess = getSession();
+    try {
+      String page = qualifyTableName(PAGE_TABLE);
+      String sql =
+          "UPDATE "
+              + page
+              + " SET TEMPLATEID = :template WHERE CONTENTID = :contentid";
+      org.hibernate.query.NativeQuery<?> query = sess.createNativeQuery(sql);
+      query.setParameter(TEMPLATE_PARAM, templateId.trim());
+      query.setParameter("contentid", contentId);
+      return query.executeUpdate();
+    } catch (SQLException e) {
+      log.error(ERROR_QUALIFY, PAGE_TABLE, CONTENT_TABLE);
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSRuntimeException(e);
+    }
+  }
+
+  @Override
+  @Transactional(noRollbackFor = Exception.class)
   public Collection<Integer> getContentIdsForFetchingByStatus(
       PSSearchCriteria criteria, List<Integer> contentIDs) {
     var sess = getSession();

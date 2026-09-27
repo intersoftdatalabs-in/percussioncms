@@ -16,7 +16,8 @@
  */
 
 import React, { useCallback, useEffect, useState } from "react";
-import { isApiError, isSessionRedirectError } from "../api/client";
+import { get, isApiError, isSessionRedirectError, post } from "../api/client";
+import { PATHS } from "../api/paths";
 import {
   createSiteSection,
   deleteSiteSection,
@@ -29,6 +30,7 @@ import {
 import type { NavTreeNode } from "../api/architecture/types";
 import type { SiteDef } from "../api/developer/types";
 import { fetchTemplatesForSectionCreate } from "../api/home/homeApi";
+import type { TemplateSummary } from "../api/home/types";
 import { catalogColors } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -37,7 +39,11 @@ import {
   buildDeveloperRenameProperties,
   buildDeveloperReparent,
   buildDeveloperSiblingReorder,
+  buildSectionLandingTemplateBody,
   isDeveloperNavSectionReadOnly,
+  landingTemplateSavePosts,
+  listDeveloperTemplateTargets,
+  parseSectionLandingTemplate,
   isDeveloperSectionNameTaken,
   listDeveloperDeleteTargets,
   listDeveloperNavParents,
@@ -94,6 +100,13 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
   const [parentId, setParentId] = useState("");
   const [name, setName] = useState("");
   const [templateId, setTemplateId] = useState("");
+  const [templates, setTemplates] = useState<TemplateSummary[]>([]);
+  const [tplSectionId, setTplSectionId] = useState("");
+  const [tplLoaded, setTplLoaded] = useState("");
+  const [tplSelected, setTplSelected] = useState("");
+  const [tplError, setTplError] = useState<string | null>(null);
+  const [tplNotice, setTplNotice] = useState<string | null>(null);
+  const [tplBusy, setTplBusy] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -119,6 +132,7 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
   const [reparentBusy, setReparentBusy] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
   const renameTargets = listDeveloperRenameTargets(treeRoot);
+  const templateTargets = listDeveloperTemplateTargets(treeRoot);
   const deleteTargets = listDeveloperDeleteTargets(treeRoot);
   const reorderTargets = listDeveloperReorderTargets(treeRoot);
   const reparentTargets = listDeveloperReorderTargets(treeRoot);
@@ -144,6 +158,9 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
         setRenameName(next?.title ?? "");
         return next?.id ?? "";
       });
+      setTplSectionId((current) =>
+        nextTargets.some((t) => t.id === current) ? current : (nextTargets[0]?.id ?? ""),
+      );
       setDeleteId((current) =>
         nextDeletes.some((t) => t.id === current) ? current : (nextDeletes[0]?.id ?? ""),
       );
@@ -175,6 +192,10 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
       setParents([]);
       setRenameId("");
       setRenameName("");
+      setTplSectionId("");
+      setTplLoaded("");
+      setTplSelected("");
+      setTemplates([]);
       setDeleteId("");
       setReorderId("");
       setReparentId("");
@@ -192,6 +213,7 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
         ]);
         if (cancelled) return;
         applyTree(root);
+        setTemplates(templates);
         setTemplateId(templates[0]?.id ?? "");
       } catch (err) {
         if (cancelled || isSessionRedirectError(err)) return;
@@ -204,6 +226,91 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
       cancelled = true;
     };
   }, [siteName, readOnly, reloadToken, applyTree]);
+
+  useEffect(() => {
+    if (!tplSectionId || readOnly) {
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const payload = await get<unknown>(
+          `${PATHS.SECTION}/landingTemplate/${encodeURIComponent(tplSectionId)}`,
+        );
+        if (cancelled) return;
+        const parsed = parseSectionLandingTemplate(payload);
+        const current = parsed?.templateId ?? "";
+        setTplLoaded(current);
+        setTplSelected(current);
+        setTplError(null);
+      } catch (err) {
+        if (cancelled || isSessionRedirectError(err)) return;
+        setTplLoaded("");
+        setTplSelected("");
+        if (isApiError(err) && err.status === 404) {
+          setTplError(panelErrMsg(err, DEV_MSG.SITE_NAV_TEMPLATE_MISSING));
+          return;
+        }
+        if (isApiError(err) && err.status === 403) {
+          setTplError(panelErrMsg(err, DEV_MSG.SITE_NAV_TEMPLATE_FORBIDDEN));
+          return;
+        }
+        if (isApiError(err) && err.status === 400) {
+          setTplError(panelErrMsg(err, DEV_MSG.SITE_NAV_TEMPLATE_BAD));
+          return;
+        }
+        setTplError(panelErrMsg(err, DEV_MSG.SITE_NAV_TEMPLATE_ERROR));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tplSectionId, readOnly, reloadToken]);
+
+  const onTemplateCancel = () => {
+    setTplSelected(tplLoaded);
+    setTplError(null);
+    setTplNotice(null);
+  };
+
+  const onSaveTemplate = () => {
+    setTplError(null);
+    setTplNotice(null);
+    if (!landingTemplateSavePosts(tplLoaded, tplSelected)) {
+      return;
+    }
+    setTplBusy(true);
+    void (async () => {
+      try {
+        const payload = await post<unknown>(
+          `${PATHS.SECTION}/landingTemplate`,
+          buildSectionLandingTemplateBody(tplSectionId, tplSelected),
+        );
+        const parsed = parseSectionLandingTemplate(payload);
+        const saved = parsed?.templateId || tplSelected.trim();
+        setTplLoaded(saved);
+        setTplSelected(saved);
+        setTplNotice(DEV_MSG.SITE_NAV_TEMPLATE_SAVED);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        if (isApiError(err) && err.status === 403) {
+          setTplError(panelErrMsg(err, DEV_MSG.SITE_NAV_TEMPLATE_FORBIDDEN));
+          return;
+        }
+        if (isApiError(err) && err.status === 404) {
+          setTplError(panelErrMsg(err, DEV_MSG.SITE_NAV_TEMPLATE_MISSING));
+          return;
+        }
+        if (isApiError(err) && err.status === 400) {
+          setTplError(panelErrMsg(err, DEV_MSG.SITE_NAV_TEMPLATE_BAD));
+          return;
+        }
+        setTplError(panelErrMsg(err, DEV_MSG.SITE_NAV_TEMPLATE_ERROR));
+      } finally {
+        setTplBusy(false);
+      }
+    })();
+  };
 
   const onCancel = () => {
     setName("");
@@ -587,6 +694,81 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
             ) : null}
             {renameNotice ? (
               <div data-testid="developer-site-nav-rename-notice">{renameNotice}</div>
+            ) : null}
+          </div>
+          <div
+            data-testid="developer-site-nav-template"
+            style={{ display: "grid", gap: "8px", maxWidth: "420px", marginTop: "16px" }}
+          >
+            <label>
+              {DEV_MSG.SITE_NAV_TEMPLATE_TARGET}
+              <select
+                data-testid="developer-site-nav-template-target"
+                value={tplSectionId}
+                onChange={(e) => {
+                  setTplSectionId(e.target.value);
+                  setTplError(null);
+                  setTplNotice(null);
+                }}
+                style={inputStyle}
+                disabled={tplBusy || templateTargets.length === 0}
+              >
+                {templateTargets.map((target) => (
+                  <option key={target.id} value={target.id}>
+                    {target.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              {DEV_MSG.SITE_NAV_TEMPLATE}
+              <select
+                data-testid="developer-site-nav-template-id"
+                data-loaded-template={tplLoaded}
+                value={tplSelected}
+                onChange={(e) => {
+                  setTplSelected(e.target.value);
+                  setTplError(null);
+                }}
+                style={inputStyle}
+                disabled={tplBusy || templateTargets.length === 0}
+              >
+                {!tplSelected ? <option value="">—</option> : null}
+                {tplSelected && !templates.some((t) => t.id === tplSelected) ? (
+                  <option value={tplSelected}>{tplSelected}</option>
+                ) : null}
+                {templates.map((template) => (
+                  <option key={template.id} value={template.id}>
+                    {template.name || template.id}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                type="button"
+                data-testid="developer-site-nav-template-save"
+                disabled={tplBusy || templateTargets.length === 0}
+                onClick={onSaveTemplate}
+              >
+                {tplBusy ? DEV_MSG.SITE_NAV_TEMPLATE_SAVING : DEV_MSG.SITE_NAV_TEMPLATE_SAVE}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-site-nav-template-cancel"
+                disabled={tplBusy}
+                onClick={onTemplateCancel}
+              >
+                {DEV_MSG.SITE_NAV_CANCEL}
+              </button>
+            </div>
+            {tplError ? (
+              <div data-testid="developer-site-nav-template-error" role="alert">
+                {tplError}
+              </div>
+            ) : null}
+            {tplNotice ? (
+              <div data-testid="developer-site-nav-template-notice">{tplNotice}</div>
             ) : null}
           </div>
           <div

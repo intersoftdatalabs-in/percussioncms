@@ -145,6 +145,17 @@ On the same **Navigation sections** panel (traditional site, managed navigation 
 4. Reload **Site detail**. The list shows the new name.
 5. An empty, invalid, or duplicate name stays on the panel and does not post. **400** and **403** stay on the panel; the previous name remains until a successful rename and reload.
 
+### Change a navigation section template
+
+On the same **Navigation sections** panel (traditional site, managed navigation on):
+
+1. Choose a section in **Section template** (the site root or a regular or blog section — not an external link or section link).
+2. The catalog loads `GET /sitemanage/section/landingTemplate/{id}` and shows the landing-page template. That read uses the current revision `TEMPLATEID` column. It does not open the page item.
+3. Choose a different **Landing page template**. **Cancel** restores the loaded template and does not post.
+4. Choose **Save template**. The catalog posts `POST /sitemanage/section/landingTemplate` (`SectionLandingTemplate`) with the section id and template id. Saving the template that is already assigned does not post.
+5. Reload **Site detail** and choose the same section. The landing-page template is the one just saved.
+6. **400**, **403**, and **404** stay on the panel. The previous template remains until a successful save and reload.
+
 ### Delete a navigation section
 
 On the same **Navigation sections** panel (traditional site, managed navigation on):
