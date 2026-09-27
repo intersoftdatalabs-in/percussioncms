@@ -2260,7 +2260,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Full site publish stays outside the Developer catalog",
   SITE_NAV_TITLE: "perc.ui.developer@Navigation sections",
   SITE_NAV_HINT:
-    "perc.ui.developer@Add a section under a parent, rename an existing section, delete one section after confirm, or move a non-root section up or down among its siblings. Moving a section under a different parent stays in Navigation.",
+    "perc.ui.developer@Add a section under a parent, rename an existing section, delete one section after confirm, move a non-root section up or down among its siblings, or move it under a different parent in the same site.",
   SITE_NAV_RENAME_TARGET: "perc.ui.developer@Section",
   SITE_NAV_RENAME_NAME: "perc.ui.developer@New name",
   SITE_NAV_RENAME: "perc.ui.developer@Rename section",
@@ -2286,6 +2286,16 @@ export const DEV_MSG_KEYS = {
   SITE_NAV_REORDER_FORBIDDEN: "perc.ui.developer@Admin role required to reorder a section.",
   SITE_NAV_REORDER_CONFLICT:
     "perc.ui.developer@This section could not be reordered and the order was not changed.",
+  SITE_NAV_REPARENT_TARGET: "perc.ui.developer@Section to move",
+  SITE_NAV_REPARENT_PARENT: "perc.ui.developer@New parent",
+  SITE_NAV_REPARENT: "perc.ui.developer@Move under parent",
+  SITE_NAV_REPARENTING: "perc.ui.developer@Moving section...",
+  SITE_NAV_REPARENTED: "perc.ui.developer@Section moved under the new parent.",
+  SITE_NAV_REPARENT_ERROR: "perc.ui.developer@Could not move the section.",
+  SITE_NAV_REPARENT_FORBIDDEN: "perc.ui.developer@Admin role required to move a section.",
+  SITE_NAV_REPARENT_CONFLICT:
+    "perc.ui.developer@This section could not be moved and the parent was not changed.",
+  SITE_NAV_REPARENT_MISSING: "perc.ui.developer@The section or parent was not found.",
   SITE_NAV_NAME: "perc.ui.developer@Section name",
   SITE_NAV_PARENT: "perc.ui.developer@Parent",
   SITE_NAV_ADD: "perc.ui.developer@Add section",

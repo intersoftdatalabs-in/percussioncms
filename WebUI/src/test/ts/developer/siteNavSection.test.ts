@@ -20,12 +20,14 @@ import type { NavTreeNode } from "../../../main/ts/api/architecture/types";
 import {
   buildDeveloperAddSectionFields,
   buildDeveloperRenameProperties,
+  buildDeveloperReparent,
   buildDeveloperSiblingReorder,
   isDeveloperNavSectionReadOnly,
   isDeveloperSectionNameTaken,
   listDeveloperDeleteTargets,
   listDeveloperNavParents,
   listDeveloperRenameTargets,
+  listDeveloperReparentParents,
   listDeveloperReorderTargets,
   listDeveloperSectionTitles,
   validateDeveloperSectionName,
@@ -137,6 +139,52 @@ describe("siteNavSection", () => {
       targetId: "root",
       sourceParentId: "root",
       targetIndex: 1,
+    });
+  });
+
+  it("reparents under a different parent and refuses root, same parent, and cycles", () => {
+    const tree: NavTreeNode = {
+      ...root,
+      children: [
+        {
+          ...root.children[0],
+          children: [
+            {
+              id: "story",
+              title: "Story",
+              folderPath: "//Sites/Corporate/News/Story",
+              sectionType: "section",
+              requiresLogin: false,
+              children: [],
+            },
+          ],
+        },
+        {
+          id: "about",
+          title: "About",
+          folderPath: "//Sites/Corporate/About",
+          sectionType: "section",
+          requiresLogin: false,
+          children: [],
+        },
+        root.children[1],
+      ],
+    };
+    expect(listDeveloperReparentParents(tree, "story").map((p) => p.id)).toEqual([
+      "root",
+      "child",
+      "about",
+    ]);
+    expect(listDeveloperReparentParents(tree, "root")).toEqual([]);
+    expect(buildDeveloperReparent(tree, "root", "about")).toBeNull();
+    expect(buildDeveloperReparent(tree, "story", "child")).toBeNull();
+    expect(buildDeveloperReparent(tree, "story", "story")).toBeNull();
+    expect(buildDeveloperReparent(tree, "link", "about")).toBeNull();
+    expect(buildDeveloperReparent(tree, "story", "about")).toEqual({
+      sourceId: "story",
+      targetId: "about",
+      sourceParentId: "child",
+      targetIndex: 0,
     });
   });
 

@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -95,10 +96,30 @@ class PSManagedNavServiceSameParentMoveTest {
 
     try {
       service.moveNavon(src, srcParent, target, 0);
-    } catch (RuntimeException ignored) {
-      // prepareForEdit / loadComponentSummary not stubbed — reparent path
+    } catch (Throwable ignored) {
+      // nav config is not started — reparent must not use the same-parent shortcut
     }
 
+    verify(service, never()).rearrangeSameParentChild(any(), any(), anyInt());
+  }
+
+  @Test
+  void moveNavonReparentUsesIsolatedPrepareNotJoiningCheckout() throws Exception {
+    IPSGuid src = new PSLegacyGuid(11, 1);
+    IPSGuid srcParent = new PSLegacyGuid(10, -1);
+    IPSGuid target = new PSLegacyGuid(20, 1);
+    doReturn(null).when(service).prepareForEditIsolated(target);
+    doNothing().when(service).rearrangeSameParentChild(any(), any(), anyInt());
+
+    try {
+      service.moveNavon(src, srcParent, target, 0);
+    } catch (Throwable ignored) {
+      // folder move is not stubbed; checkout must not join the caller TX
+    }
+
+    verify(service).prepareForEditIsolated(target);
+    verify(contentWs, never()).prepareForEdit(anyList());
+    verify(contentWs, never()).releaseFromEdit(anyList(), anyBoolean());
     verify(service, never()).rearrangeSameParentChild(any(), any(), anyInt());
   }
 }

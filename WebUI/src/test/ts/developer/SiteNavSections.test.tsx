@@ -481,4 +481,90 @@ describe("SiteNavSections", () => {
     expect(loadSectionTree).toHaveBeenCalledTimes(1);
     expect(screen.queryByTestId("developer-site-nav-reorder-notice")).toBeNull();
   });
+
+  it("cancel and the current parent do not reparent", async () => {
+    loadSectionTree.mockResolvedValue(twoChildTree());
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-reparent-confirm");
+    const sections = screen
+      .getByTestId("developer-site-nav-reparent-target")
+      .querySelectorAll("option");
+    expect(Array.from(sections).map((o) => o.getAttribute("value"))).toEqual(["news", "about"]);
+    expect(
+      (screen.getByTestId("developer-site-nav-reparent-parent") as HTMLSelectElement).value,
+    ).toBe("root");
+    fireEvent.click(screen.getByTestId("developer-site-nav-reparent-cancel"));
+    fireEvent.click(screen.getByTestId("developer-site-nav-reparent-confirm"));
+    expect(moveSiteSection).not.toHaveBeenCalled();
+  });
+
+  it("confirm moves a section under a different parent and refreshes the list", async () => {
+    const start = twoChildTree();
+    const moved = {
+      ...start,
+      children: [
+        {
+          ...start.children[1],
+          children: [start.children[0]],
+        },
+      ],
+    };
+    loadSectionTree.mockResolvedValueOnce(start).mockResolvedValueOnce(moved);
+    moveSiteSection.mockResolvedValue({});
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-reparent-confirm");
+    fireEvent.change(screen.getByTestId("developer-site-nav-reparent-parent"), {
+      target: { value: "about" },
+    });
+    fireEvent.click(screen.getByTestId("developer-site-nav-reparent-confirm"));
+    await waitFor(() => {
+      expect(moveSiteSection).toHaveBeenCalledWith({
+        sourceId: "news",
+        targetId: "about",
+        sourceParentId: "root",
+        targetIndex: 0,
+      });
+    });
+    await waitFor(() => {
+      const news = screen
+        .getAllByTestId("developer-site-nav-item")
+        .find((node) => node.textContent === "News");
+      expect(news?.getAttribute("data-parent-id")).toBe("about");
+    });
+    expect(screen.getByTestId("developer-site-nav-reparent-notice").textContent).toBe(
+      DEV_MSG.SITE_NAV_REPARENTED,
+    );
+  });
+
+  it("stays on the panel when reparent returns 403, 409, or 404", async () => {
+    loadSectionTree.mockResolvedValue(twoChildTree());
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-reparent-confirm");
+    fireEvent.change(screen.getByTestId("developer-site-nav-reparent-parent"), {
+      target: { value: "about" },
+    });
+    moveSiteSection.mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: "" });
+    fireEvent.click(screen.getByTestId("developer-site-nav-reparent-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-reparent-error").textContent).toContain(
+        DEV_MSG.SITE_NAV_REPARENT_FORBIDDEN,
+      );
+    });
+    moveSiteSection.mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: "" });
+    fireEvent.click(screen.getByTestId("developer-site-nav-reparent-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-reparent-error").textContent).toContain(
+        DEV_MSG.SITE_NAV_REPARENT_CONFLICT,
+      );
+    });
+    moveSiteSection.mockRejectedValueOnce({ status: 404, statusText: "Not Found", body: "" });
+    fireEvent.click(screen.getByTestId("developer-site-nav-reparent-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-reparent-error").textContent).toContain(
+        DEV_MSG.SITE_NAV_REPARENT_MISSING,
+      );
+    });
+    expect(screen.queryByTestId("developer-site-nav-reparent-notice")).toBeNull();
+    expect(loadSectionTree).toHaveBeenCalledTimes(1);
+  });
 });
