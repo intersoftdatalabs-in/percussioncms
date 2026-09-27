@@ -235,6 +235,17 @@ export const MSG = {
   PUBLISH_DELETE_SITE_CONFLICT:
     "perc.ui.publish.modern@This site could not be deleted because it is still in use",
   PUBLISH_DELETE_SITE_ERROR: "perc.ui.publish.modern@Could not delete the site",
+  PUBLISH_SITE_DESCRIPTION: "perc.ui.publish.modern@Description",
+  PUBLISH_EDIT_SITE_DESCRIPTION: "perc.ui.publish.modern@Edit description",
+  PUBLISH_SITE_DESCRIPTION_SAVED: "perc.ui.publish.modern@Site description saved",
+  PUBLISH_SITE_DESCRIPTION_BAD:
+    "perc.ui.publish.modern@The site description was not accepted",
+  PUBLISH_SITE_DESCRIPTION_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to edit this site description",
+  PUBLISH_SITE_DESCRIPTION_CONFLICT:
+    "perc.ui.publish.modern@The site description conflicts with another change",
+  PUBLISH_SITE_DESCRIPTION_ERROR:
+    "perc.ui.publish.modern@Could not save the site description",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",

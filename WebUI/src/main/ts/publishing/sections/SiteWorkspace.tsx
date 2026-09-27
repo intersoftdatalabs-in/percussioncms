@@ -49,6 +49,7 @@ import { ItemTakedownPanel } from "../components/ItemTakedownPanel";
 import { CopySitePanel } from "../components/CopySitePanel";
 import { DeleteSitePanel } from "../components/DeleteSitePanel";
 import { RenameSitePanel } from "../components/RenameSitePanel";
+import { SiteDescriptionPanel } from "../components/SiteDescriptionPanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
 import { useDirtyForm } from "../dirtyFormContext";
@@ -791,6 +792,8 @@ export function SiteWorkspace({
           }}
         />
       ) : null}
+
+      <SiteDescriptionPanel siteName={siteName ?? ""} />
 
       <ItemPublishingActionsMenu
         itemId={itemId}
