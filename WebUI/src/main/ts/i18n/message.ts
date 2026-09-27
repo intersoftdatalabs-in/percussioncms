@@ -224,6 +224,17 @@ export const MSG = {
   PUBLISH_COPY_SITE_FORBIDDEN:
     "perc.ui.publish.modern@You are not allowed to copy this site",
   PUBLISH_COPY_SITE_ERROR: "perc.ui.publish.modern@Could not copy the site",
+  PUBLISH_DELETE_SITE: "perc.ui.publish.modern@Delete site",
+  PUBLISH_DELETE_SITE_CONFIRM:
+    "perc.ui.publish.modern@Delete this site? This cannot be undone.",
+  PUBLISH_DELETE_SITE_SAVE: "perc.ui.publish.modern@Delete",
+  PUBLISH_DELETE_SITE_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to delete this site",
+  PUBLISH_DELETE_SITE_NOT_FOUND:
+    "perc.ui.publish.modern@This site was not found",
+  PUBLISH_DELETE_SITE_CONFLICT:
+    "perc.ui.publish.modern@This site could not be deleted because it is still in use",
+  PUBLISH_DELETE_SITE_ERROR: "perc.ui.publish.modern@Could not delete the site",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",

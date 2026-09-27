@@ -159,6 +159,23 @@ export function SitesSection({
             return [...prev, { name: copyName, id: copyName, siteId: copyName }];
           });
         }}
+        onDeleted={() => {
+          const goneKey = selectedKey;
+          const goneName = selectedSite.name;
+          setSelectedKey("");
+          setSites((prev) =>
+            prev.filter(
+              (s) => siteKey(s) !== goneKey && s.name !== goneName && s.name !== goneKey,
+            ),
+          );
+          void fetchSites()
+            .then((list) => {
+              setSites(list.map(toPublishSite));
+            })
+            .catch(() => {
+              setError(message(MSG.PUBLISH_ERROR));
+            });
+        }}
         onBack={() => setSelectedKey("")}
       />
     );
