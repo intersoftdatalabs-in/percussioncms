@@ -5,6 +5,8 @@ Licensed under the Apache License, Version 2.0.
 
 # Erlang review — PR 4967
 
+Re-review after erlang-fix. Head `160e939fe9f7311b5428e3726e0eac17b3b8a24b`.
+
 ## Summary
 
 Machine analysis found **0** finding(s), **0** bug(s).
@@ -13,7 +15,7 @@ Machine analysis found **0** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 6 analyzed
+- Files: 7 analyzed
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 
@@ -30,16 +32,19 @@ approve
 
 _No issues._
 
-## Erlang (host)
+## Erlang (re-review)
 
-Machine gate: 0 in-diff bugs. Host override: **request-changes**.
+Machine gate: 0 in-diff bugs. Prior host finding (leave prompt after recycle/copy/create) is **fixed** on this head: `allowLeave()` runs before `recycleItem`, `copyItem`, and `createItem`.
 
-### Bug — recycle prompts after the item is already deleted
+Host override: **request-changes**. One in-diff bug remains.
 
-- File: `WebUI/src/main/ts/editor/EditorHost.tsx:2275`
-- `handleRecycle` confirms recycle, `await recycleItem(...)`, sets recycle done, and only then calls `allowLeave()`.
-- Cancel on the unsaved-edits dialog is specified to stay with the draft, but the item is already recycled. The operator cannot keep the item, and the editor remains open on a deleted id.
-- Confirm-discard must run **before** `recycleItem` (and before the recycle confirm is the safer order). Do not navigate-only after a successful delete.
-- `switchOpenItem` after a successful New item / Copy has the same late prompt (create/copy already committed). Fix those the same way if the draft should block the action.
+### Bug — confirming discard does not drop a pending file or clear
+
+- File: `WebUI/src/main/ts/editor/EditorHost.tsx` (`allowLeave` / `handleModeChange` / field-load effect)
+- `editorDraftIsDirty` treats `pendingFiles` and `pendingClears` as unsaved edits, and the new Edit/View control calls `allowLeave()` before `setSearchParams`.
+- The load effect depends on `readOnly`, so a mode change refetches fields and `setDraft`s server values, but it never calls `setPendingFiles({})` or `setPendingClears({})` (those clear only after a successful save, or pending files only after restore).
+- Confirm on View therefore keeps the picked file name, `editorDraftIsDirty` stays true, and a later Save uploads or clears that binary. The dialog says the edits will be discarded.
+- `EditorHost.leaveDirty.test.tsx` covers cancel-keeps-the-file and confirm-switches-mode-without-PUT. It does not assert that confirm clears the pending file.
+- Clear `pendingFiles` and `pendingClears` on the confirmed leave path (mode change and any same-instance item switch) before navigation, and assert the file name is gone and a following save does not upload it.
 
 Recommendation: do not merge.
