@@ -7,7 +7,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  */
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import {
   RelationshipsView,
@@ -141,5 +141,99 @@ describe("RelationshipsView", () => {
       ),
     );
     expect(loader).not.toHaveBeenCalled();
+  });
+
+  it("cancel leaves the relationship (#4969)", async () => {
+    const remove = vi.fn();
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [
+          {
+            relationshipId: 7,
+            configName: "Translation",
+            category: "rs_translation",
+            dependentId: 9,
+            label: "Translation -> 9",
+          },
+        ]}
+        removeEdge={remove}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-remove-7"));
+    fireEvent.click(screen.getByTestId("relationships-remove-cancel"));
+    expect(remove).not.toHaveBeenCalled();
+    expect(screen.getByTestId("relationships-edge-7")).toBeTruthy();
+    expect(screen.queryByTestId("relationships-removed")).toBeNull();
+  });
+
+  it("confirm removes the relationship and refreshes the list (#4969)", async () => {
+    const remove = vi.fn().mockResolvedValue(undefined);
+    let edges = [
+      {
+        relationshipId: 7,
+        configName: "Translation",
+        category: "rs_translation",
+        dependentId: 9,
+        label: "Translation -> 9",
+      },
+    ];
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => edges}
+        removeEdge={async (itemId, relationshipId) => {
+          await remove(itemId, relationshipId);
+          edges = [];
+        }}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-remove-7"));
+    fireEvent.click(screen.getByTestId("relationships-remove-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-removed")).toBeTruthy(),
+    );
+    expect(remove).toHaveBeenCalledWith("42", 7);
+    await waitFor(() =>
+      expect(screen.queryByTestId("relationships-edge-7")).toBeNull(),
+    );
+  });
+
+  it("HTTP 409 stays on the panel and does not claim success (#4969)", async () => {
+    const remove = vi.fn().mockRejectedValue({ status: 409 });
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [
+          {
+            relationshipId: 7,
+            configName: "Translation",
+            category: "rs_translation",
+            dependentId: 9,
+            label: "Translation -> 9",
+          },
+        ]}
+        removeEdge={remove}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-remove-7"));
+    fireEvent.click(screen.getByTestId("relationships-remove-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-remove-error")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-removed")).toBeNull();
+    expect(screen.getByTestId("relationships-edge-7")).toBeTruthy();
   });
 });

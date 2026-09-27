@@ -16,12 +16,17 @@
 package com.percussion.rest.relationsummary;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.share.relationship.data.PSExplorerRelationshipList;
 import com.percussion.share.relationship.data.PSLocalDependencySummary;
 import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
 import com.percussion.share.relationship.data.PSRelationshipSummary;
 import com.percussion.share.relationship.data.PSTaxonomySummary;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
@@ -51,7 +56,9 @@ class RelationshipSummaryResourceTest {
   void init() {
     resource = new RelationshipSummaryResource(adaptor);
     resource.setUriInfo(uriInfo);
-    when(uriInfo.getBaseUri()).thenReturn(UriBuilder.fromUri("http://localhost/api").build());
+    lenient()
+        .when(uriInfo.getBaseUri())
+        .thenReturn(UriBuilder.fromUri("http://localhost/api").build());
   }
 
   @Test
@@ -107,5 +114,29 @@ class RelationshipSummaryResourceTest {
     Response resp = resource.summary("node-1");
     assertEquals(200, resp.getStatus());
     assertEquals(consolidated, resp.getEntity());
+  }
+
+  @Test
+  void removeEdgeReturns204() {
+    Response resp = resource.removeEdge("42", 7);
+    assertEquals(204, resp.getStatus());
+    verify(adaptor).removeEdge(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq("42"), org.mockito.ArgumentMatchers.eq(7));
+  }
+
+  @Test
+  void removeEdgeRejectsNonPositiveId() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.removeEdge("42", 0));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void edgesReturnsList() {
+    PSExplorerRelationshipList list = new PSExplorerRelationshipList();
+    when(adaptor.listEdges(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq("42")))
+        .thenReturn(list);
+    Response resp = resource.edges("42");
+    assertEquals(200, resp.getStatus());
+    assertEquals(list, resp.getEntity());
   }
 }

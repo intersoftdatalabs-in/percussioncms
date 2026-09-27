@@ -15,6 +15,7 @@
  */
 package com.percussion.rest.relationsummary;
 
+import com.percussion.share.relationship.data.PSExplorerRelationshipList;
 import com.percussion.share.relationship.data.PSLocalDependencySummary;
 import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
 import com.percussion.share.relationship.data.PSRelationshipSummary;
@@ -24,6 +25,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -180,5 +182,47 @@ public class RelationshipSummaryResource {
     URI base = uriInfo == null ? null : uriInfo.getBaseUri();
     PSNodeRelationshipSummary body = adaptor.summary(base, itemId);
     return Response.ok(body).build();
+  }
+
+  @GET
+  @Path("/{itemId}/edges")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Removable relationships for the selected item",
+      description =
+          "Lists non-folder relationships owned by the item. Folder membership is omitted.")
+  @ApiResponse(responseCode = "200", description = "OK")
+  @ApiResponse(responseCode = "400", description = "Item id is blank")
+  @ApiResponse(responseCode = "403", description = "Caller cannot read the item")
+  @ApiResponse(responseCode = "404", description = "Item was not found")
+  public Response edges(
+      @Parameter(name = "itemId", required = true) @PathParam("itemId") String itemId) {
+    URI base = uriInfo == null ? null : uriInfo.getBaseUri();
+    PSExplorerRelationshipList body = adaptor.listEdges(base, itemId);
+    return Response.ok(body).build();
+  }
+
+  @DELETE
+  @Path("/{itemId}/edges/{relationshipId}")
+  @Operation(
+      summary = "Remove one relationship from the selected item",
+      description =
+          "Deletes one relationship only when it is owned by the selected item and is not a"
+              + " folder membership. Does not report success on 400, 403, or 409.")
+  @ApiResponse(responseCode = "204", description = "Removed")
+  @ApiResponse(responseCode = "400", description = "Missing relationship id")
+  @ApiResponse(responseCode = "403", description = "Not allowed")
+  @ApiResponse(responseCode = "404", description = "Relationship was not found")
+  @ApiResponse(responseCode = "409", description = "Relationship cannot be removed")
+  public Response removeEdge(
+      @Parameter(name = "itemId", required = true) @PathParam("itemId") String itemId,
+      @Parameter(name = "relationshipId", required = true) @PathParam("relationshipId")
+          int relationshipId) {
+    if (relationshipId <= 0) {
+      throw new jakarta.ws.rs.WebApplicationException("relationshipId is required", 400);
+    }
+    URI base = uriInfo == null ? null : uriInfo.getBaseUri();
+    adaptor.removeEdge(base, itemId, relationshipId);
+    return Response.noContent().build();
   }
 }

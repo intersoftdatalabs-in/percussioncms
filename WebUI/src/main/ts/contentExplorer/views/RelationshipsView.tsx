@@ -37,13 +37,22 @@ import { message } from "../../i18n/message";
 import { EXPLORER_MSG } from "../messages";
 import { composeFromServerSummary, labelFor } from "./dependencyModel";
 import { parseExplorerContentId } from "../../api/contentExplorer/pathItemId";
-import { fetchNodeSummary } from "../../api/contentExplorer/relationshipsApi";
+import type { PSExplorerRelationshipEdge } from "../../api/contentExplorer/relationship";
+import {
+  fetchNodeSummary,
+  fetchRelationshipEdges,
+  removeRelationshipEdge,
+} from "../../api/contentExplorer/relationshipsApi";
 
 export interface RelationshipsViewProps {
   item: DependencyItemShared;
   aaLinkCount?: number;
   /** Optional injection seam for tests: pre-loads the consolidated server summary. */
   loadServerSummary?: (itemId: string) => Promise<PSNodeRelationshipSummary>;
+  /** Optional injection seam: removable relationships owned by the item. */
+  loadEdges?: (itemId: string) => Promise<PSExplorerRelationshipEdge[]>;
+  /** Optional injection seam: delete one owned relationship. */
+  removeEdge?: (itemId: string, relationshipId: number) => Promise<void>;
   /** Optional injection seam for tests: summarises server-shape with AA-link count. */
   composeSummary?: (
     item: DependencyItemShared,
@@ -100,6 +109,8 @@ export function RelationshipsView(
     item,
     aaLinkCount = 0,
     loadServerSummary = defaultLoadServerSummary,
+    loadEdges = fetchRelationshipEdges,
+    removeEdge = removeRelationshipEdge,
     composeSummary,
     ariaLabel,
     className,
@@ -107,6 +118,12 @@ export function RelationshipsView(
   const summarise = composeSummary ?? defaultComposeSummary;
 
   const itemId = relationshipSummaryItemId(item.id);
+  const [reloadToken, setReloadToken] = React.useState(0);
+  const [confirmId, setConfirmId] = React.useState<number | null>(null);
+  const [removedNotice, setRemovedNotice] = React.useState(false);
+  const [removeError, setRemoveError] = React.useState<string | null>(null);
+  const [removing, setRemoving] = React.useState(false);
+  const [edges, setEdges] = React.useState<PSExplorerRelationshipEdge[]>([]);
   const [state, setState] = React.useState<
     | { kind: "loading" }
     | { kind: "ok"; summary: PSNodeRelationshipSummary }
@@ -121,12 +138,28 @@ export function RelationshipsView(
       // would 404 on the empty path segment. Render the auth placeholder
       // instead (per the bot review on PR #1410).
       setState({ kind: "auth" });
+      setEdges([]);
+      setRemovedNotice(false);
       return;
     }
     setState({ kind: "loading" });
+    setConfirmId(null);
+    setRemoveError(null);
     loadServerSummary(itemId)
-      .then((summary) => {
+      .then(async (summary) => {
         if (!alive) return;
+        let nextEdges: PSExplorerRelationshipEdge[] = [];
+        try {
+          nextEdges = await loadEdges(itemId);
+        } catch (edgeErr: unknown) {
+          if (!alive) return;
+          setEdges([]);
+          setRemoveError(removeFailureMessage(edgeErr));
+          setState({ kind: "ok", summary });
+          return;
+        }
+        if (!alive) return;
+        setEdges(nextEdges);
         setState({ kind: "ok", summary });
       })
       .catch((err: unknown) => {
@@ -148,7 +181,42 @@ export function RelationshipsView(
     return () => {
       alive = false;
     };
-  }, [itemId, loadServerSummary]);
+  }, [itemId, loadServerSummary, loadEdges, reloadToken]);
+
+  function statusOf(err: unknown): number | undefined {
+    if (err && typeof err === "object" && "status" in err) {
+      const status = (err as { status: unknown }).status;
+      return typeof status === "number" ? status : undefined;
+    }
+    return undefined;
+  }
+
+  function removeFailureMessage(err: unknown): string {
+    const status = statusOf(err);
+    if (status === 400) return message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_FAILED_400);
+    if (status === 403) return message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_FAILED_403);
+    if (status === 409) return message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_FAILED_409);
+    return err instanceof Error ? err.message : String(err);
+  }
+
+  async function confirmRemove(relationshipId: number): Promise<void> {
+    if (!itemId || removing) return;
+    setRemoving(true);
+    setRemoveError(null);
+    setRemovedNotice(false);
+    try {
+      await removeEdge(itemId, relationshipId);
+      setConfirmId(null);
+      setRemovedNotice(true);
+      setReloadToken((n) => n + 1);
+    } catch (err: unknown) {
+      setRemovedNotice(false);
+      setRemoveError(removeFailureMessage(err));
+      setConfirmId(null);
+    } finally {
+      setRemoving(false);
+    }
+  }
 
   if (state.kind === "loading") {
     return (
@@ -248,6 +316,84 @@ export function RelationshipsView(
           </li>
         ))}
       </ul>
+      <div data-testid="relationships-remove-section" style={{ marginTop: 12 }}>
+        <h3 style={{ fontSize: "0.95rem", margin: "0 0 8px 0" }}>
+          {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_DO)}
+        </h3>
+        {removedNotice ? (
+          <p role="status" data-testid="relationships-removed">
+            {message(EXPLORER_MSG.RELATIONSHIPS_REMOVED)}
+          </p>
+        ) : null}
+        {removeError ? (
+          <p role="alert" data-testid="relationships-remove-error">
+            {removeError}
+          </p>
+        ) : null}
+        {edges.length === 0 ? (
+          <p data-testid="relationships-remove-empty">
+            {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_EMPTY)}
+          </p>
+        ) : (
+          <ul
+            data-testid="relationships-edge-list"
+            style={{ listStyle: "none", padding: 0, margin: 0 }}
+          >
+            {edges.map((edge) => (
+              <li
+                key={edge.relationshipId}
+                data-testid={`relationships-edge-${edge.relationshipId}`}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 8,
+                  padding: "4px 0",
+                }}
+              >
+                <span>{edge.label}</span>
+                <button
+                  type="button"
+                  data-testid={`relationships-remove-${edge.relationshipId}`}
+                  onClick={() => {
+                    setRemovedNotice(false);
+                    setRemoveError(null);
+                    setConfirmId(edge.relationshipId);
+                  }}
+                >
+                  {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE)}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        {confirmId != null ? (
+          <div
+            role="dialog"
+            aria-modal="true"
+            data-testid="relationships-remove-dialog"
+            style={{ marginTop: 8, padding: 8, border: "1px solid #ccc" }}
+          >
+            <p>{message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_CONFIRM)}</p>
+            <button
+              type="button"
+              data-testid="relationships-remove-cancel"
+              onClick={() => setConfirmId(null)}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_CANCEL)}
+            </button>
+            <button
+              type="button"
+              data-testid="relationships-remove-confirm"
+              disabled={removing}
+              onClick={() => {
+                void confirmRemove(confirmId);
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_DO)}
+            </button>
+          </div>
+        ) : null}
+      </div>
       <details style={{ marginTop: 12 }}>
         <summary>Supplementary links</summary>
         <ul

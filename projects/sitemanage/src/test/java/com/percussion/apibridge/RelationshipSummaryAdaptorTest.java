@@ -25,6 +25,9 @@ import com.percussion.share.relationship.data.PSLocalDependencySummary;
 import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
 import com.percussion.share.relationship.data.PSRelationshipSummary;
 import com.percussion.share.relationship.data.PSTaxonomySummary;
+import com.percussion.share.relationship.data.PSExplorerRelationshipEdge;
+import com.percussion.share.relationship.service.ExplorerRelationshipAction;
+import com.percussion.share.relationship.service.IPSExplorerRelationshipRemoveService;
 import com.percussion.share.relationship.service.IPSRelationshipSummaryService;
 import com.percussion.share.relationship.service.RelationshipSummaryAbsence;
 import jakarta.ws.rs.WebApplicationException;
@@ -59,6 +62,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class RelationshipSummaryAdaptorTest {
 
   @Mock private IPSRelationshipSummaryService service;
+  @Mock private IPSExplorerRelationshipRemoveService removeService;
 
   private RelationshipSummaryAdaptor adaptor;
 
@@ -66,6 +70,7 @@ class RelationshipSummaryAdaptorTest {
   void init() {
     MockitoAnnotations.openMocks(this);
     adaptor = new RelationshipSummaryAdaptor(service);
+    adaptor.setRemoveService(removeService);
   }
 
   @Test
@@ -168,5 +173,31 @@ class RelationshipSummaryAdaptorTest {
             WebApplicationException.class,
             () -> adaptor.summary(URI.create("http://localhost/api"), "999999"));
     assertEquals(Response.Status.NOT_FOUND.getStatusCode(), ex.getResponse().getStatus());
+  }
+
+  @Test
+  void removeEdgeMapsConflictTo409() {
+    when(removeService.removeOwned("42", 7))
+        .thenReturn(
+            ExplorerRelationshipAction.of(
+                ExplorerRelationshipAction.Status.CONFLICT,
+                "Relationship does not belong to the selected item"));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.removeEdge(URI.create("http://localhost/api"), "42", 7));
+
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void listEdgesReturnsRows() {
+    when(removeService.listOwned("42"))
+        .thenReturn(
+            ExplorerRelationshipAction.listed(
+                java.util.List.of(new PSExplorerRelationshipEdge(7, "Translation", "rs_translation", 9, "Translation -> 9"))));
+
+    assertEquals(7, adaptor.listEdges(URI.create("http://localhost/api"), "42").getItems().get(0).getRelationshipId());
   }
 }

@@ -795,7 +795,17 @@ From the **View** menu you can also toggle:
   Relationships** or **View → Dependencies** then mounts the matching panel
   (loading, results, or empty). **Dependencies** calls
   `GET /Rhythmyx/rest/content-explorer/relationships/{contentId}/summary`
-  (read-only; this view does not create or delete relationships). When the
+  (read-only; that view does not create or delete relationships). **IA
+  Relationships** uses the same summary and lists removable rows from
+  `GET /Rhythmyx/rest/content-explorer/relationships/{contentId}/edges`.
+  **Remove** on one row asks for confirmation. **Cancel** leaves the
+  relationship. **Remove relationship** calls
+  `DELETE /Rhythmyx/rest/content-explorer/relationships/{contentId}/edges/{relationshipId}`
+  and refreshes the list only after HTTP 204. HTTP **400**, **403**, and
+  **409** stay on the panel and do not show *Relationship removed*. Folder
+  membership is not listed. A folder with no page or asset selected keeps
+  the select-item hint and does not claim a relationship was removed. This
+  panel does not create relationships. When the
   item has relationship buckets, taxonomy nodes, local links, or Active
   Assembly links, those edges are listed. When every count is zero the panel
   says **No known dependencies for this item** — that is not a successful

@@ -12,6 +12,8 @@ import { describe, expect, it, vi, afterEach } from "vitest";
 import {
   fetchNodeSummary,
   fetchOutgoing,
+  fetchRelationshipEdges,
+  removeRelationshipEdge,
   RelationshipSummaryAuthError,
 } from "../../../main/ts/api/contentExplorer/relationshipsApi";
 import type { PSRelationshipSummary } from "../../../main/ts/api/contentExplorer/relationship";
@@ -86,5 +88,42 @@ describe("relationshipsApi", () => {
     );
     const result = await fetchNodeSummary("node-1");
     expect(result).toEqual(consolidated);
+  });
+
+  it("lists removable edges and deletes one by id", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (init?.method === "DELETE") {
+        return new Response(null, { status: 204 });
+      }
+      return new Response(
+        JSON.stringify({
+          items: [
+            {
+              relationshipId: 7,
+              configName: "Translation",
+              category: "rs_translation",
+              dependentId: 9,
+              label: "Translation -> 9",
+            },
+          ],
+        }),
+        { status: 200 },
+      );
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const edges = await fetchRelationshipEdges("42");
+    expect(edges[0].relationshipId).toBe(7);
+    await removeRelationshipEdge("42", 7);
+    const deleteCall = fetchMock.mock.calls.find(
+      (call) => call[1] && (call[1] as RequestInit).method === "DELETE",
+    );
+    expect(String(deleteCall?.[0])).toContain("/relationships/42/edges/7");
+  });
+
+  it("rejects a non-positive relationship id before DELETE", async () => {
+    await expect(removeRelationshipEdge("42", 0)).rejects.toMatchObject({
+      status: 400,
+    });
   });
 });

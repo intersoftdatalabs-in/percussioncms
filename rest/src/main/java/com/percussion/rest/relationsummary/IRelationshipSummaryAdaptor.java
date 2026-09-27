@@ -15,6 +15,7 @@
  */
 package com.percussion.rest.relationsummary;
 
+import com.percussion.share.relationship.data.PSExplorerRelationshipList;
 import com.percussion.share.relationship.data.PSLocalDependencySummary;
 import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
 import com.percussion.share.relationship.data.PSRelationshipSummary;
@@ -48,4 +49,13 @@ public interface IRelationshipSummaryAdaptor {
   PSRelationshipSummary reverse(URI baseURI, String itemId);
 
   PSNodeRelationshipSummary summary(URI baseURI, String itemId);
+
+  /** Removable relationships owned by the item. Throws 400/403/404. */
+  PSExplorerRelationshipList listEdges(URI baseURI, String itemId);
+
+  /**
+   * Deletes one relationship owned by the item. Throws 400/403/404/409. Does not report success
+   * when the relationship belongs to a different item or is a folder membership.
+   */
+  void removeEdge(URI baseURI, String itemId, int relationshipId);
 }

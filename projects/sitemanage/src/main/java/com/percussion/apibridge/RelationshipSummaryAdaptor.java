@@ -16,10 +16,13 @@
 package com.percussion.apibridge;
 
 import com.percussion.rest.relationsummary.IRelationshipSummaryAdaptor;
+import com.percussion.share.relationship.data.PSExplorerRelationshipList;
 import com.percussion.share.relationship.data.PSLocalDependencySummary;
 import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
 import com.percussion.share.relationship.data.PSRelationshipSummary;
 import com.percussion.share.relationship.data.PSTaxonomySummary;
+import com.percussion.share.relationship.service.ExplorerRelationshipAction;
+import com.percussion.share.relationship.service.IPSExplorerRelationshipRemoveService;
 import com.percussion.share.relationship.service.IPSRelationshipSummaryService;
 import com.percussion.share.relationship.service.RelationshipSummaryAbsence;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -43,10 +46,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class RelationshipSummaryAdaptor implements IRelationshipSummaryAdaptor {
 
   private final IPSRelationshipSummaryService service;
+  private IPSExplorerRelationshipRemoveService removeService;
 
   @Autowired
   public RelationshipSummaryAdaptor(IPSRelationshipSummaryService service) {
     this.service = service;
+  }
+
+  @Autowired(required = false)
+  public void setRemoveService(IPSExplorerRelationshipRemoveService removeService) {
+    this.removeService = removeService;
   }
 
   @Override
@@ -110,5 +119,45 @@ public class RelationshipSummaryAdaptor implements IRelationshipSummaryAdaptor {
   /** Unknown or unresolvable item id. Not an empty graph and not a permission denial. */
   private static WebApplicationException notFound(String message) {
     return new WebApplicationException(message, Response.Status.NOT_FOUND);
+  }
+
+  @Override
+  public PSExplorerRelationshipList listEdges(URI baseURI, String itemId) {
+    ExplorerRelationshipAction action = requireRemove().listOwned(itemId);
+    if (action.getStatus() == ExplorerRelationshipAction.Status.LISTED) {
+      return new PSExplorerRelationshipList(action.getEdges());
+    }
+    throw statusException(action);
+  }
+
+  @Override
+  public void removeEdge(URI baseURI, String itemId, int relationshipId) {
+    ExplorerRelationshipAction action = requireRemove().removeOwned(itemId, relationshipId);
+    if (action.getStatus() != ExplorerRelationshipAction.Status.REMOVED) {
+      throw statusException(action);
+    }
+  }
+
+  private IPSExplorerRelationshipRemoveService requireRemove() {
+    if (removeService == null) {
+      throw new WebApplicationException("Relationship remove is not configured", 503);
+    }
+    return removeService;
+  }
+
+  private static WebApplicationException statusException(ExplorerRelationshipAction action) {
+    int status =
+        switch (action.getStatus()) {
+          case BAD_REQUEST -> 400;
+          case FORBIDDEN -> 403;
+          case NOT_FOUND -> 404;
+          case CONFLICT -> 409;
+          default -> 500;
+        };
+    String message = action.getMessage();
+    if (message == null || message.isBlank()) {
+      message = "Relationship request failed";
+    }
+    return new WebApplicationException(message, status);
   }
 }
