@@ -277,4 +277,113 @@ test.describe("React Content Editor keyword field", () => {
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );
+
+  test(
+    "clears a saved keyword on save; close without save does not PUT; view has no clear",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      let keyword = "news";
+      const fieldPuts = [];
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          const text = msg.text();
+          if (text.includes("Failed to load resource")) {
+            return;
+          }
+          pageErrors.push(text);
+        }
+      });
+      await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/editor/items/**/checkout", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemStateTransition: {
+              itemId: "42",
+              stateName: "Draft",
+              transitionTriggers: [],
+            },
+          }),
+        }),
+      );
+      await page.route("**/rest/content-explorer/translations/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ itemId: 42, locale: "en-us", variants: [] }),
+        }),
+      );
+      await page.route("**/services/keywords**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(KEYWORDS),
+        }),
+      );
+      await page.route("**/services/contenttypes/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(TYPE),
+        }),
+      );
+      await page.route("**/services/itemmanagement/item/fields/**", async (route) => {
+        if (route.request().method() === "PUT") {
+          const body = route.request().postData() || "";
+          fieldPuts.push(body);
+          const match = body.match(/"name"\s*:\s*"keywords"\s*,\s*"value"\s*:\s*"([^"]*)"/);
+          if (match) {
+            keyword = match[1];
+          }
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(fieldsPayload(keyword)),
+        });
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      const clear = page.locator('[data-testid="editor-keyword-clear-keywords"]');
+      await expect(clear).toBeVisible({ timeout: 20_000 });
+      await clear.click();
+      await expect(page.locator('[data-testid="editor-field-keywords"]')).toHaveValue("");
+      page.once("dialog", (dialog) => dialog.accept());
+      await page.locator('[data-testid="editor-close"]').click();
+      await page.waitForTimeout(300);
+      expect(fieldPuts).toEqual([]);
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator('[data-testid="editor-field-keywords"]')).toHaveValue("news", {
+        timeout: 20_000,
+      });
+      await page.locator('[data-testid="editor-keyword-clear-keywords"]').click();
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect.poll(() => fieldPuts.length).toBeGreaterThan(0);
+      expect(fieldPuts[0]).toMatch(/"name"\s*:\s*"keywords"\s*,\s*"value"\s*:\s*""/);
+      await expect(page.locator('[data-testid="editor-field-keywords"]')).toHaveValue("");
+      await expect(page.locator('[data-testid="editor-keyword-clear-keywords"]')).toHaveCount(0);
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator('[data-testid="editor-field-keywords"]')).toHaveValue("", {
+        timeout: 20_000,
+      });
+      await expect(page.locator('[data-testid="editor-keyword-clear-keywords"]')).toHaveCount(0);
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=view"));
+      await expect(page.locator('[data-testid="editor-field-keywords"]')).toBeDisabled({
+        timeout: 20_000,
+      });
+      await expect(page.locator('[data-testid="editor-keyword-clear-keywords"]')).toHaveCount(0);
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
 });
