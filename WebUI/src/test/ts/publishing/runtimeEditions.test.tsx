@@ -25,6 +25,7 @@ function fallback(key: string): string {
 import { MSG } from "@/i18n/message";
 import {
   canStopEdition,
+  filterRuntimeEditionsByName,
   openableRunningJobId,
   parseContentIds,
   runtimeMessage,
@@ -70,6 +71,17 @@ describe("runtime edition helpers", () => {
 
   it("parseContentIds splits mixed separators", () => {
     expect(parseContentIds("1, 2;3  4")).toEqual(["1", "2", "3", "4"]);
+  });
+
+  it("filterRuntimeEditionsByName matches name only", () => {
+    const rows = [
+      { editionId: "10", name: "Full Publish" },
+      { editionId: "11", name: "Demand" },
+    ];
+    expect(filterRuntimeEditionsByName(rows, "")).toHaveLength(2);
+    expect(filterRuntimeEditionsByName(rows, "  ")).toHaveLength(2);
+    expect(filterRuntimeEditionsByName(rows, "full")).toEqual([rows[0]]);
+    expect(filterRuntimeEditionsByName(rows, "zzz")).toEqual([]);
   });
 
   it("runtimeMessage substitutes {0} from the catalog key", () => {
@@ -239,5 +251,54 @@ describe("RuntimeSection", () => {
       );
     });
     expect(screen.queryByTestId("runtime-job-status")).toBeNull();
+  });
+
+  it("filters editions by name and restores them when cleared", async () => {
+    render(<RuntimeSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("runtime-start-10")).toBeTruthy();
+      expect(screen.getByTestId("runtime-start-11")).toBeTruthy();
+    });
+    const filter = screen.getByTestId("runtime-edition-filter");
+    fireEvent.change(filter, { target: { value: "full" } });
+    expect(screen.queryByTestId("runtime-start-11")).toBeNull();
+    expect(screen.getByTestId("runtime-start-10")).toBeTruthy();
+    fireEvent.change(filter, { target: { value: "" } });
+    expect(screen.getByTestId("runtime-start-11")).toBeTruthy();
+  });
+
+  it("shows an empty state when no edition name matches", async () => {
+    render(<RuntimeSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("runtime-start-10")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("runtime-edition-filter"), {
+      target: { value: "missing" },
+    });
+    expect(screen.getByTestId("runtime-editions-filter-empty").textContent).toMatch(
+      /no editions match/i,
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.queryByTestId("runtime-start-10")).toBeNull();
+  });
+
+  it("keeps a start error visible while the name filter changes", async () => {
+    vi.mocked(runtimeApi.startEditionJob).mockRejectedValueOnce(
+      new Error("edition 10 refused"),
+    );
+    render(<RuntimeSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("runtime-start-10")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("runtime-start-10"));
+    await waitFor(() => {
+      expect(screen.getByRole("alert").textContent).toMatch(/edition 10 refused/);
+    });
+    fireEvent.change(screen.getByTestId("runtime-edition-filter"), {
+      target: { value: "demand" },
+    });
+    expect(screen.getByRole("alert").textContent).toMatch(/edition 10 refused/);
+    expect(screen.queryByTestId("runtime-start-10")).toBeNull();
+    expect(screen.getByTestId("runtime-start-11")).toBeTruthy();
   });
 });

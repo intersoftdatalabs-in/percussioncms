@@ -257,4 +257,72 @@ test.describe("PublishingShell Runtime start/stop", () => {
       `console/page errors: ${unexpected.join("\n")}`,
     ).toEqual([]);
   });
+
+  test("filters runtime editions by name and clears back to the full list", async ({
+    page,
+  }) => {
+    const jsErrors = [];
+    page.on("pageerror", (err) => jsErrors.push(String(err)));
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        jsErrors.push(msg.text());
+      }
+    });
+
+    await page.route(
+      "**/services/sitemanage/publishingdesign/runtime/editions?**",
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          return route.continue();
+        }
+        return route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            {
+              editionId: "10",
+              name: "H2Full",
+              runningJobId: 0,
+              pubServerId: "7",
+            },
+            {
+              editionId: "11",
+              name: "H2Demand",
+              runningJobId: 0,
+              pubServerId: "7",
+            },
+          ]),
+        });
+      },
+    );
+    await page.route("**/services/publishmanagement/servers/**", async (route) => {
+      if (route.request().method() !== "GET") {
+        return route.continue();
+      }
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([{ serverId: "7", serverName: "LocalFS" }]),
+      });
+    });
+
+    await page.goto(
+      `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=publish&section=runtime`,
+    );
+    await expect(page.getByTestId("runtime-start-10")).toBeVisible({
+      timeout: 30000,
+    });
+    await expect(page.getByTestId("runtime-start-11")).toBeVisible();
+    const filter = page.getByTestId("runtime-edition-filter");
+    await filter.fill("demand");
+    await expect(page.getByTestId("runtime-start-10")).toHaveCount(0);
+    await expect(page.getByTestId("runtime-start-11")).toBeVisible();
+    await filter.fill("no-such-edition");
+    await expect(page.getByTestId("runtime-editions-filter-empty")).toBeVisible();
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    await filter.fill("");
+    await expect(page.getByTestId("runtime-start-10")).toBeVisible();
+    await expect(page.getByTestId("runtime-start-11")).toBeVisible();
+    expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
+  });
 });
