@@ -674,6 +674,7 @@ export function EditorHost({
   const [pendingClears, setPendingClears] = useState<Record<string, boolean>>(
     {},
   );
+  const [discardEpoch, setDiscardEpoch] = useState(0);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState<string>(
     contentId == null ? linkbackWarning : "",
@@ -815,6 +816,11 @@ export function EditorHost({
   }, [payload, draft, pendingFiles, pendingClears]);
 
   useEffect(() => {
+    // Drop binaries from the previous item or mode. A confirmed leave and a
+    // contentId change share this effect; leaving them set lets a later save
+    // upload or clear a file the operator already discarded.
+    setPendingFiles({});
+    setPendingClears({});
     if (contentId == null || promote) {
       return;
     }
@@ -1916,6 +1922,19 @@ export function EditorHost({
     }
   }
 
+  function discardUnsavedEdits(): void {
+    setPendingFiles({});
+    setPendingClears({});
+    setDiscardEpoch((epoch) => epoch + 1);
+    if (payload) {
+      setDraft(
+        Object.fromEntries(
+          payload.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
+        ),
+      );
+    }
+  }
+
   function allowLeave(): boolean {
     if (!editorDraftIsDirty(payload?.fields, draft, pendingFiles, pendingClears)) {
       return true;
@@ -1924,7 +1943,11 @@ export function EditorHost({
       confirmLeaveUnsaved ??
       ((body: string) =>
         typeof window !== "undefined" ? window.confirm(body) : false);
-    return confirmFn(message(EDITOR_MSG.CONFIRM_LEAVE_UNSAVED));
+    if (!confirmFn(message(EDITOR_MSG.CONFIRM_LEAVE_UNSAVED))) {
+      return false;
+    }
+    discardUnsavedEdits();
+    return true;
   }
 
   function switchOpenItem(
@@ -3699,7 +3722,7 @@ export function EditorHost({
               >
                 {rows.map((row) => (
                   <label
-                    key={row.name}
+                    key={`${row.name}:${discardEpoch}`}
                     className={styles.field}
                     data-testid={`editor-field-row-${row.name}`}
                     data-required={row.required ? "true" : "false"}

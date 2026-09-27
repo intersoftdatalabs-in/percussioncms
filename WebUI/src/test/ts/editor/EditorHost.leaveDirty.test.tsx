@@ -212,6 +212,92 @@ describe("EditorHost leave with unsaved edits", () => {
     );
   });
 
+  it("confirm on mode change drops a pending file so a later save does not upload it", async () => {
+    const saveFields = vi.fn().mockImplementation(async () => fields);
+    const uploadBinary = vi.fn().mockResolvedValue(undefined);
+    const clearBinary = vi.fn().mockResolvedValue(undefined);
+    renderEdit({
+      saveFields,
+      uploadBinary,
+      clearBinary,
+      confirmLeaveUnsaved: () => true,
+      loadType: vi.fn().mockResolvedValue({
+        fields: [
+          { name: "sys_title", label: "Title" },
+          { name: "item_file_attachment", label: "File", control: "sys_file" },
+        ],
+      }),
+      loadBinaryMeta: vi.fn().mockResolvedValue({ present: false, filename: "" }),
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-item_file_attachment")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-file-item_file_attachment"), {
+      target: {
+        files: [new File(["bytes"], "notes.txt", { type: "text/plain" })],
+      },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toMatch(
+        /notes\.txt/,
+      );
+    });
+    fireEvent.click(screen.getByTestId("editor-mode"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-mode").textContent).toMatch(/Edit/i);
+    });
+    fireEvent.click(screen.getByTestId("editor-mode"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(clearBinary).not.toHaveBeenCalled();
+  });
+
+  it("confirm on mode change drops a pending clear so a later save does not delete the binary", async () => {
+    const saveFields = vi.fn().mockImplementation(async () => fields);
+    const uploadBinary = vi.fn().mockResolvedValue(undefined);
+    const clearBinary = vi.fn().mockResolvedValue(undefined);
+    renderEdit({
+      saveFields,
+      uploadBinary,
+      clearBinary,
+      confirmLeaveUnsaved: () => true,
+      loadType: vi.fn().mockResolvedValue({
+        fields: [
+          { name: "sys_title", label: "Title" },
+          { name: "item_file_attachment", label: "File", control: "sys_file" },
+        ],
+      }),
+      loadBinaryMeta: vi.fn().mockResolvedValue({
+        present: true,
+        filename: "stored.bin",
+      }),
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-clear-item_file_attachment")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-file-clear-item_file_attachment"));
+    fireEvent.click(screen.getByTestId("editor-mode"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-mode").textContent).toMatch(/Edit/i);
+    });
+    fireEvent.click(screen.getByTestId("editor-mode"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    expect(clearBinary).not.toHaveBeenCalled();
+    expect(uploadBinary).not.toHaveBeenCalled();
+  });
+
   it("confirm switches to another item without a PUT", async () => {
     const saveFields = vi.fn();
     const loadFields = vi.fn().mockImplementation(async (id: string) => ({
