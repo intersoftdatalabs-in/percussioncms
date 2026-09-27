@@ -64,6 +64,17 @@ name), **403** (not allowed), and **409** (name already exists or a copy is in
 progress) stay on the workspace with an error. The source title does not change.
 Copy of one delivery server, rename, and delete are separate actions.
 
+### Edit the open site description (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card. The workspace shows the
+site **Description** loaded from `GET /services/sites/{nameOrId}`. **Edit description**
+opens a form. **Save** sends `PUT /services/sites/{nameOrId}` with the site name and
+the trimmed description only (base URL and other fields are not sent). The workspace
+shows the saved text. **Cancel**, and **Save** when the text is unchanged (including
+a blank description that was already blank), do not call PUT. HTTP **400**, **403**,
+and **409** stay on the form with an error and do not show a saved notice. Rename,
+copy, delete, and base URL edits are separate actions.
+
 ### Delete the open site (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, then **Delete site**.
