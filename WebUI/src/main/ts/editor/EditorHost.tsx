@@ -316,6 +316,11 @@ export interface EditorHostProps {
   ) => Promise<{ previewUrl: string }>;
   /** Test seam: confirm unsaved preview (defaults to {@code window.confirm}). */
   confirmUnsavedPreview?: (body: string) => boolean;
+  /**
+   * Test seam: confirm leaving with unsaved field edits (defaults to
+   * {@code window.confirm}). Cancel stays. Confirm does not save.
+   */
+  confirmLeaveUnsaved?: (body: string) => boolean;
   /** Test seam: itemmanagement {@code newCopy}. */
   copyItem?: (itemId: string) => Promise<ItemCopyResult>;
   /** Test seam: itemmanagement {@code promotableVersion}. */
@@ -605,6 +610,7 @@ export function EditorHost({
   previewItem = previewEditorItem,
   loadPreviewLocation = fetchPreviewLocation,
   confirmUnsavedPreview,
+  confirmLeaveUnsaved,
   copyItem = createNewCopy,
   copyPromotable = createPromotableVersion,
   confirmCopy,
@@ -793,6 +799,20 @@ export function EditorHost({
   useEffect(() => {
     document.title = message(EDITOR_MSG.TITLE);
   }, []);
+
+  useEffect(() => {
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (
+        !editorDraftIsDirty(payload?.fields, draft, pendingFiles, pendingClears)
+      ) {
+        return;
+      }
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [payload, draft, pendingFiles, pendingClears]);
 
   useEffect(() => {
     if (contentId == null || promote) {
@@ -1880,10 +1900,7 @@ export function EditorHost({
         setCopyErrorDetail("Copy result was missing item id");
         return;
       }
-      const next = new URLSearchParams(params);
-      next.set("contentId", String(nextId));
-      next.set("mode", "edit");
-      setSearchParams(next);
+      switchOpenItem(nextId, "edit");
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
@@ -1894,6 +1911,41 @@ export function EditorHost({
     } finally {
       setCopyBusy(false);
     }
+  }
+
+  function allowLeave(): boolean {
+    if (!editorDraftIsDirty(payload?.fields, draft, pendingFiles, pendingClears)) {
+      return true;
+    }
+    const confirmFn =
+      confirmLeaveUnsaved ??
+      ((body: string) =>
+        typeof window !== "undefined" ? window.confirm(body) : false);
+    return confirmFn(message(EDITOR_MSG.CONFIRM_LEAVE_UNSAVED));
+  }
+
+  function switchOpenItem(nextId: number, nextMode: string): void {
+    if (!allowLeave()) {
+      return;
+    }
+    const next = new URLSearchParams(params);
+    next.set("contentId", String(nextId));
+    next.set("mode", nextMode);
+    next.delete("warningMessage");
+    setSearchParams(next);
+  }
+
+  function handleModeChange(): void {
+    if (contentId == null || promote) {
+      return;
+    }
+    if (!allowLeave()) {
+      return;
+    }
+    const next = new URLSearchParams(params);
+    next.set("mode", mode === "view" ? "edit" : "view");
+    next.delete("warningMessage");
+    setSearchParams(next);
   }
 
   function folderErrorKeyFor(notice: OpenFolderNotice): string {
@@ -1911,6 +1963,9 @@ export function EditorHost({
 
   async function handleOpenFolder(): Promise<void> {
     if (contentId == null) {
+      return;
+    }
+    if (!allowLeave()) {
       return;
     }
     setFolderBusy(true);
@@ -2219,6 +2274,9 @@ export function EditorHost({
       }
       await recycleItem(resolved.path);
       setRecycleDone(true);
+      if (!allowLeave()) {
+        return;
+      }
       const next = new URLSearchParams(params);
       next.delete("contentId");
       next.set("mode", "view");
@@ -2298,12 +2356,8 @@ export function EditorHost({
         setCreateErrorDetail("Create result was missing item id");
         return;
       }
-      const next = new URLSearchParams(params);
-      next.set("contentId", String(nextId));
-      next.set("mode", "edit");
-      next.delete("warningMessage");
       setCreateOpen(false);
-      setSearchParams(next);
+      switchOpenItem(nextId, "edit");
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
@@ -3039,11 +3093,25 @@ export function EditorHost({
               {message(EDITOR_MSG.NEW_ITEM)}
             </button>
           ) : null}
+          {contentId != null && !promote ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-mode"
+              disabled={loading}
+              onClick={handleModeChange}
+            >
+              {message(mode === "view" ? EDITOR_MSG.BADGE_EDIT : EDITOR_MSG.BADGE_VIEW)}
+            </button>
+          ) : null}
           <button
             type="button"
             className={styles.button}
             data-testid="editor-close"
             onClick={() => {
+              if (!allowLeave()) {
+                return;
+              }
               if (typeof window !== "undefined") {
                 window.close();
               }
@@ -3715,11 +3783,7 @@ export function EditorHost({
             if (!nextId || nextId === contentId) {
               return;
             }
-            const next = new URLSearchParams(params);
-            next.set("contentId", String(nextId));
-            next.set("mode", mode === "view" ? "view" : "edit");
-            next.delete("warningMessage");
-            setSearchParams(next);
+            switchOpenItem(nextId, mode === "view" ? "view" : "edit");
           }}
           onCreated={(result) => {
             const created = result.created ?? [];
@@ -3730,11 +3794,7 @@ export function EditorHost({
             if (nextId === contentId) {
               return;
             }
-            const next = new URLSearchParams(params);
-            next.set("contentId", String(nextId));
-            next.set("mode", "edit");
-            next.delete("warningMessage");
-            setSearchParams(next);
+            switchOpenItem(nextId, "edit");
           }}
         />
       ) : null}
