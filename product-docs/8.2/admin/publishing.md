@@ -75,6 +75,18 @@ a blank description that was already blank), do not call PUT. HTTP **400**, **40
 and **409** stay on the form with an error and do not show a saved notice. Rename,
 copy, delete, and base URL edits are separate actions.
 
+### Edit the open site protocol (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card. The workspace shows the
+site **Protocol** (`http` or `https`) loaded from `GET /services/sites/{nameOrId}`.
+**Edit protocol** opens a form. **Save** sends `PUT /services/sites/{nameOrId}` with
+the site name and `siteProtocol` only (description, base URL, and other fields are
+not sent). The workspace shows the saved protocol, including after you leave and
+reopen the site. **Cancel**, **Save** when the protocol is unchanged, and any value
+other than `http` or `https` do not call PUT and do not show a saved notice. HTTP
+**400**, **403**, and **409** stay on the form with an error and do not show a saved
+notice. Description, base URL, rename, copy, and delete are separate actions.
+
 ### Edit the open site base URL (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card. The workspace shows the
