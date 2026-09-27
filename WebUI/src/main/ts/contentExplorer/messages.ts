@@ -761,6 +761,18 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@No folder path is available to copy",
   COPY_FOLDER_PATH_FAILED:
     "perc.ui.explorer@Could not copy the folder path",
+  COPY_ITEM_GUID: "perc.ui.explorer@Copy item id",
+  COPY_ITEM_GUID_ARIA:
+    "perc.ui.explorer@Copy the selected item content id to the clipboard",
+  COPY_ITEM_GUID_SUCCESS:
+    "perc.ui.explorer@Item id copied to the clipboard",
+  COPY_ITEM_GUID_NONE:
+    "perc.ui.explorer@Select a page or asset to copy its content id",
+  COPY_ITEM_GUID_FOLDER:
+    "perc.ui.explorer@Folders are not copied: {name}",
+  COPY_ITEM_GUID_NO_ID:
+    "perc.ui.explorer@No content id is available for {name}",
+  COPY_ITEM_GUID_FAILED: "perc.ui.explorer@Could not copy the item id",
 
   REVISIONS_TITLE: "perc.ui.explorer@Revisions",
   REVISIONS_PANEL_REGION: "perc.ui.explorer@Revisions panel",

@@ -334,6 +334,27 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   npm run test:surface -- --path tests/explorer-copy-folder-path.spec.js
 ```
 
+### Explorer copy the selected item id (#4989 / parent #4530)
+
+**Content → Copy item id** writes the content id (GUID) of the selected page
+or asset to the clipboard. No selection does not write the clipboard. A folder
+is named and is not success. Clipboard failure is visible and does not change
+the selection. Distinct from Copy folder path (#4911) and Copy URL.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/explorer-copy-item-guid.spec.js` |
+| Helpers / unit | `frontend/tests/helpers/explorer-copy-item-guid.js`, `tests/unit/explorer-copy-item-guid.test.js` |
+| Tags | `@explorer-copy-item-guid` `@explorer` `@smoke` |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/explorer-copy-item-guid.spec.js
+```
+
 ### Explorer Copy selected folder on product route (#3647 / parent #3102)
 
 H2 operator proof that **Copy** of a selected disposable folder on
