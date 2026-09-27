@@ -16,18 +16,21 @@
  */
 
 /**
- * Pure helpers for Developer Sites navigation sections (#4918 add, #4919 rename, #4920 delete).
- * Reorder and moving a section to another parent stay outside this surface.
+ * Pure helpers for Developer Sites navigation sections
+ * (#4918 add, #4919 rename, #4920 delete, #4956 same-parent reorder).
+ * Moving a section under a different parent stays outside this surface.
  */
 
 import {
   applyTitleToProperties,
+  buildSiblingReorderMove,
   canCreateChildUnder,
   mapCreateSectionDialogToFields,
   resolveCreateFolderPath,
 } from "../api/architecture/sectionMutations";
 import type {
   CreateSiteSectionFields,
+  MoveSiteSectionFields,
   NavTreeNode,
   SiteSectionPropertiesWire,
 } from "../api/architecture/types";
@@ -236,6 +239,30 @@ export function listDeveloperDeleteTargets(root: NavTreeNode | null): DeveloperN
   return listDeveloperRenameTargets(root)
     .filter((target) => !target.siteRoot)
     .map((target) => ({ id: target.id, title: target.title }));
+}
+
+/** Same-parent reorder targets. The site root and links are not offered. */
+export function listDeveloperReorderTargets(root: NavTreeNode | null): DeveloperNavDeleteTarget[] {
+  return listDeveloperDeleteTargets(root);
+}
+
+/**
+ * One-step same-parent reorder for a non-root section.
+ * Returns null for the site root, a link, a missing id, or a step past either end.
+ */
+export function buildDeveloperSiblingReorder(
+  root: NavTreeNode | null,
+  sectionId: string,
+  direction: "up" | "down",
+): MoveSiteSectionFields | null {
+  const id = sectionId.trim();
+  if (!root || !id || id === root.id) {
+    return null;
+  }
+  if (!listDeveloperReorderTargets(root).some((target) => target.id === id)) {
+    return null;
+  }
+  return buildSiblingReorderMove(root, id, direction);
 }
 
 /**

@@ -23,6 +23,7 @@ import {
   loadSection,
   loadSectionProperties,
   loadSectionTree,
+  moveSiteSection,
   updateSiteSection,
 } from "../api/architecture/sectionApi";
 import type { NavTreeNode } from "../api/architecture/types";
@@ -34,11 +35,13 @@ import { DEV_MSG } from "./messages";
 import {
   buildDeveloperAddSectionFields,
   buildDeveloperRenameProperties,
+  buildDeveloperSiblingReorder,
   isDeveloperNavSectionReadOnly,
   isDeveloperSectionNameTaken,
   listDeveloperDeleteTargets,
   listDeveloperNavParents,
   listDeveloperRenameTargets,
+  listDeveloperReorderTargets,
   listDeveloperSectionTitles,
   validateDeveloperSectionName,
   type DeveloperNavParentOption,
@@ -55,7 +58,8 @@ const inputStyle: React.CSSProperties = {
 
 /**
  * Add, rename, or delete one navigation section on a Developer site.
- * Cancel does not write. Reorder and reparent are not offered. The site root is not deleted.
+ * Cancel does not write. Same-parent reorder is one step up or down.
+ * Reparenting under a different parent is not offered. The site root is not deleted or reordered.
  */
 export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement {
   const siteName = (site.name || "").trim();
@@ -80,15 +84,23 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
+  const [reorderId, setReorderId] = useState("");
+  const [reorderError, setReorderError] = useState<string | null>(null);
+  const [reorderNotice, setReorderNotice] = useState<string | null>(null);
+  const [reorderBusy, setReorderBusy] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
   const renameTargets = listDeveloperRenameTargets(treeRoot);
   const deleteTargets = listDeveloperDeleteTargets(treeRoot);
+  const reorderTargets = listDeveloperReorderTargets(treeRoot);
+  const canMoveUp = buildDeveloperSiblingReorder(treeRoot, reorderId, "up") != null;
+  const canMoveDown = buildDeveloperSiblingReorder(treeRoot, reorderId, "down") != null;
 
   const applyTree = useCallback(
     (root: NavTreeNode | null) => {
       const nextParents = listDeveloperNavParents(root, siteName);
       const nextTargets = listDeveloperRenameTargets(root);
       const nextDeletes = listDeveloperDeleteTargets(root);
+      const nextReorders = listDeveloperReorderTargets(root);
       setTreeRoot(root);
       setTitles(listDeveloperSectionTitles(root));
       setParents(nextParents);
@@ -104,6 +116,9 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
       setDeleteId((current) =>
         nextDeletes.some((t) => t.id === current) ? current : (nextDeletes[0]?.id ?? ""),
       );
+      setReorderId((current) =>
+        nextReorders.some((t) => t.id === current) ? current : (nextReorders[0]?.id ?? ""),
+      );
     },
     [siteName],
   );
@@ -116,6 +131,7 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
       setRenameId("");
       setRenameName("");
       setDeleteId("");
+      setReorderId("");
       return;
     }
     let cancelled = false;
@@ -240,6 +256,47 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
         setDeleteError(panelErrMsg(err, DEV_MSG.SITE_NAV_DELETE_ERROR));
       } finally {
         setDeleteBusy(false);
+      }
+    })();
+  };
+
+  const onSelectReorder = (id: string) => {
+    setReorderId(id);
+    setReorderError(null);
+    setReorderNotice(null);
+  };
+
+  const onReorderCancel = () => {
+    setReorderError(null);
+    setReorderNotice(null);
+  };
+
+  const onReorder = (direction: "up" | "down") => {
+    setReorderError(null);
+    setReorderNotice(null);
+    const fields = buildDeveloperSiblingReorder(treeRoot, reorderId, direction);
+    if (!fields) {
+      return;
+    }
+    setReorderBusy(true);
+    void (async () => {
+      try {
+        await moveSiteSection(fields);
+        setReorderNotice(DEV_MSG.SITE_NAV_MOVED);
+        setReloadToken((n) => n + 1);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        if (isApiError(err) && err.status === 403) {
+          setReorderError(panelErrMsg(err, DEV_MSG.SITE_NAV_REORDER_FORBIDDEN));
+          return;
+        }
+        if (isApiError(err) && err.status === 409) {
+          setReorderError(panelErrMsg(err, DEV_MSG.SITE_NAV_REORDER_CONFLICT));
+          return;
+        }
+        setReorderError(panelErrMsg(err, DEV_MSG.SITE_NAV_REORDER_ERROR));
+      } finally {
+        setReorderBusy(false);
       }
     })();
   };
@@ -478,6 +535,61 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
             ) : null}
             {deleteNotice ? (
               <div data-testid="developer-site-nav-delete-notice">{deleteNotice}</div>
+            ) : null}
+          </div>
+          <div
+            data-testid="developer-site-nav-reorder"
+            style={{ display: "grid", gap: "8px", maxWidth: "420px", marginTop: "16px" }}
+          >
+            <label>
+              {DEV_MSG.SITE_NAV_REORDER_TARGET}
+              <select
+                data-testid="developer-site-nav-reorder-target"
+                value={reorderId}
+                onChange={(e) => onSelectReorder(e.target.value)}
+                style={inputStyle}
+                disabled={reorderBusy || reorderTargets.length === 0}
+              >
+                {reorderTargets.map((target) => (
+                  <option key={target.id} value={target.id}>
+                    {target.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                type="button"
+                data-testid="developer-site-nav-move-up"
+                disabled={reorderBusy || !canMoveUp}
+                onClick={() => onReorder("up")}
+              >
+                {reorderBusy ? DEV_MSG.SITE_NAV_MOVING : DEV_MSG.SITE_NAV_MOVE_UP}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-site-nav-move-down"
+                disabled={reorderBusy || !canMoveDown}
+                onClick={() => onReorder("down")}
+              >
+                {reorderBusy ? DEV_MSG.SITE_NAV_MOVING : DEV_MSG.SITE_NAV_MOVE_DOWN}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-site-nav-reorder-cancel"
+                disabled={reorderBusy}
+                onClick={onReorderCancel}
+              >
+                {DEV_MSG.SITE_NAV_CANCEL}
+              </button>
+            </div>
+            {reorderError ? (
+              <div data-testid="developer-site-nav-reorder-error" role="alert">
+                {reorderError}
+              </div>
+            ) : null}
+            {reorderNotice ? (
+              <div data-testid="developer-site-nav-reorder-notice">{reorderNotice}</div>
             ) : null}
           </div>
         </>

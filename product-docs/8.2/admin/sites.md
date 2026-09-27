@@ -155,7 +155,17 @@ On the same **Navigation sections** panel (traditional site, managed navigation 
 4. Reload **Site detail**. The deleted section is no longer listed. Other sections remain.
 5. **403** (not Admin) and **409** (the section is still referenced) stay on the panel. The section remains in the list.
 
-Sites with managed navigation turned off, and Virtual Sites, stay **read-only** in this section (no add, rename, or delete). Reorder stays in **Navigation**, not this catalog. Full site publish stays outside this catalog.
+### Reorder a navigation section
+
+On the same **Navigation sections** panel (traditional site, managed navigation on):
+
+1. Choose a section in **Section to reorder**. The site root, external links, and section links are not offered.
+2. Choose **Cancel** to leave the order unchanged. Cancel does not call move.
+3. Choose **Move up** or **Move down**. The catalog posts `POST /sitemanage/section/move` with the same parent and the neighboring index (one step). The parent does not change.
+4. The list refreshes. Reload **Site detail**. The new sibling order remains.
+5. **403** and **409** stay on the panel and do not show a success notice. The previous order remains until a successful move and reload. A section already first cannot move up; a section already last cannot move down.
+
+Sites with managed navigation turned off, and Virtual Sites, stay **read-only** in this section (no add, rename, delete, or reorder). Moving a section under a different parent stays in **Navigation**. Full site publish stays outside this catalog.
 
 ### Configure Virtual Site source in the product UI
 

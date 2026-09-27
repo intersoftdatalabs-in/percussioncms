@@ -30,6 +30,7 @@ vi.mock("../../../main/ts/api/architecture/sectionApi", () => ({
   createSiteSection: vi.fn(),
   updateSiteSection: vi.fn(),
   deleteSiteSection: vi.fn(),
+  moveSiteSection: vi.fn(),
 }));
 
 vi.mock("../../../main/ts/api/home/homeApi", () => ({
@@ -41,6 +42,7 @@ const createSiteSection = sectionApi.createSiteSection as ReturnType<typeof vi.f
 const loadSectionProperties = sectionApi.loadSectionProperties as ReturnType<typeof vi.fn>;
 const updateSiteSection = sectionApi.updateSiteSection as ReturnType<typeof vi.fn>;
 const deleteSiteSection = sectionApi.deleteSiteSection as ReturnType<typeof vi.fn>;
+const moveSiteSection = sectionApi.moveSiteSection as ReturnType<typeof vi.fn>;
 
 const tree = {
   id: "root",
@@ -58,6 +60,7 @@ describe("SiteNavSections", () => {
     loadSectionProperties.mockReset();
     updateSiteSection.mockReset();
     deleteSiteSection.mockReset();
+    moveSiteSection.mockReset();
     (homeApi.fetchTemplatesForSectionCreate as ReturnType<typeof vi.fn>).mockReset();
     loadSectionTree.mockResolvedValue(tree);
     (homeApi.fetchTemplatesForSectionCreate as ReturnType<typeof vi.fn>).mockResolvedValue([
@@ -378,5 +381,104 @@ describe("SiteNavSections", () => {
     expect(screen.getByTestId("developer-site-nav-delete-notice").textContent).toBe(
       DEV_MSG.SITE_NAV_DELETED,
     );
+  });
+
+  function twoChildTree() {
+    return {
+      ...tree,
+      children: [
+        {
+          id: "news",
+          title: "News",
+          folderPath: "//Sites/Corporate/News",
+          sectionType: "section",
+          requiresLogin: false,
+          children: [],
+        },
+        {
+          id: "about",
+          title: "About",
+          folderPath: "//Sites/Corporate/About",
+          sectionType: "section",
+          requiresLogin: false,
+          children: [],
+        },
+      ],
+    };
+  }
+
+  it("does not offer the site root and cancel does not move", async () => {
+    loadSectionTree.mockResolvedValue(twoChildTree());
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-move-down");
+    const options = screen.getByTestId("developer-site-nav-reorder-target").querySelectorAll("option");
+    expect(Array.from(options).map((o) => o.getAttribute("value"))).toEqual(["news", "about"]);
+    fireEvent.click(screen.getByTestId("developer-site-nav-reorder-cancel"));
+    expect(moveSiteSection).not.toHaveBeenCalled();
+    expect(screen.getAllByTestId("developer-site-nav-item").map((n) => n.textContent)).toEqual([
+      "Corporate",
+      "News",
+      "About",
+    ]);
+  });
+
+  it("move down persists sibling order and refreshes the list", async () => {
+    const start = twoChildTree();
+    const swapped = {
+      ...start,
+      children: [start.children[1], start.children[0]],
+    };
+    loadSectionTree.mockResolvedValueOnce(start).mockResolvedValueOnce(swapped);
+    moveSiteSection.mockResolvedValue({});
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-move-down");
+    fireEvent.click(screen.getByTestId("developer-site-nav-move-down"));
+    await waitFor(() => {
+      expect(moveSiteSection).toHaveBeenCalledTimes(1);
+    });
+    expect(moveSiteSection).toHaveBeenCalledWith({
+      sourceId: "news",
+      targetId: "root",
+      sourceParentId: "root",
+      targetIndex: 1,
+    });
+    await waitFor(() => {
+      expect(screen.getAllByTestId("developer-site-nav-item").map((n) => n.textContent)).toEqual([
+        "Corporate",
+        "About",
+        "News",
+      ]);
+    });
+    expect(screen.getByTestId("developer-site-nav-reorder-notice").textContent).toBe(
+      DEV_MSG.SITE_NAV_MOVED,
+    );
+  });
+
+  it("stays on the panel when reorder returns 403 or 409", async () => {
+    loadSectionTree.mockResolvedValue(twoChildTree());
+    moveSiteSection.mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: "" });
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-move-down");
+    fireEvent.click(screen.getByTestId("developer-site-nav-move-down"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-reorder-error").textContent).toContain(
+        DEV_MSG.SITE_NAV_REORDER_FORBIDDEN,
+      );
+    });
+    expect(screen.getAllByTestId("developer-site-nav-item").map((n) => n.textContent)).toEqual([
+      "Corporate",
+      "News",
+      "About",
+    ]);
+
+    moveSiteSection.mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: "" });
+    fireEvent.click(screen.getByTestId("developer-site-nav-move-down"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-reorder-error").textContent).toContain(
+        DEV_MSG.SITE_NAV_REORDER_CONFLICT,
+      );
+    });
+    expect(loadSectionTree).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("developer-site-nav-reorder-notice")).toBeNull();
   });
 });

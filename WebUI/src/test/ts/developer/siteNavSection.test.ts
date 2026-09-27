@@ -20,11 +20,13 @@ import type { NavTreeNode } from "../../../main/ts/api/architecture/types";
 import {
   buildDeveloperAddSectionFields,
   buildDeveloperRenameProperties,
+  buildDeveloperSiblingReorder,
   isDeveloperNavSectionReadOnly,
   isDeveloperSectionNameTaken,
   listDeveloperDeleteTargets,
   listDeveloperNavParents,
   listDeveloperRenameTargets,
+  listDeveloperReorderTargets,
   listDeveloperSectionTitles,
   validateDeveloperSectionName,
 } from "../../../main/ts/developer/siteNavSection";
@@ -107,6 +109,35 @@ describe("siteNavSection", () => {
   it("lists delete targets without the site root or links", () => {
     expect(listDeveloperDeleteTargets(root).map((t) => t.id)).toEqual(["child"]);
     expect(listDeveloperDeleteTargets(null)).toEqual([]);
+  });
+
+  it("reorders a non-root sibling and refuses the site root and links", () => {
+    const tree: NavTreeNode = {
+      ...root,
+      children: [
+        root.children[0],
+        {
+          id: "about",
+          title: "About",
+          folderPath: "//Sites/Corporate/About",
+          sectionType: "section",
+          requiresLogin: false,
+          children: [],
+        },
+        root.children[1],
+      ],
+    };
+    expect(listDeveloperReorderTargets(tree).map((t) => t.id)).toEqual(["child", "about"]);
+    expect(listDeveloperReorderTargets(null)).toEqual([]);
+    expect(buildDeveloperSiblingReorder(tree, "root", "down")).toBeNull();
+    expect(buildDeveloperSiblingReorder(tree, "link", "up")).toBeNull();
+    expect(buildDeveloperSiblingReorder(tree, "child", "up")).toBeNull();
+    expect(buildDeveloperSiblingReorder(tree, "child", "down")).toEqual({
+      sourceId: "child",
+      targetId: "root",
+      sourceParentId: "root",
+      targetIndex: 1,
+    });
   });
 
   it("treats another section title as taken and keeps the current section free", () => {

@@ -17,7 +17,7 @@ import type {
 
 /** Honest design gaps for Developer SY-04 site browse (not full site design). */
 export const SITE_DESIGN_GAPS: string[] = [
-  "Full site publish and navigation section reorder live outside the Developer catalog",
+  "Full site publish stays outside the Developer catalog",
 ];
 
 const SITE_NAME_RE = /^[A-Za-z][A-Za-z0-9_ -]{0,49}$/;
