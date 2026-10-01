@@ -21,6 +21,8 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.share.relationship.data.PSExplorerRelationshipCreate;
+import com.percussion.share.relationship.data.PSExplorerRelationshipEdge;
 import com.percussion.share.relationship.data.PSExplorerRelationshipList;
 import com.percussion.share.relationship.data.PSLocalDependencySummary;
 import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
@@ -127,6 +129,32 @@ class RelationshipSummaryResourceTest {
   void removeEdgeRejectsNonPositiveId() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> resource.removeEdge("42", 0));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void addEdgeReturns201() {
+    PSExplorerRelationshipCreate body = new PSExplorerRelationshipCreate("9", "Translation");
+    PSExplorerRelationshipEdge edge =
+        new PSExplorerRelationshipEdge(11, "Translation", "rs_translation", 9, "Translation -> 9");
+    when(adaptor.addEdge(
+            org.mockito.ArgumentMatchers.any(),
+            org.mockito.ArgumentMatchers.eq("42"),
+            org.mockito.ArgumentMatchers.any()))
+        .thenReturn(edge);
+
+    Response resp = resource.addEdge("42", body);
+
+    assertEquals(201, resp.getStatus());
+    assertEquals(edge, resp.getEntity());
+  }
+
+  @Test
+  void addEdgeRejectsBlankTarget() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.addEdge("42", new PSExplorerRelationshipCreate(" ", "Translation")));
     assertEquals(400, ex.getResponse().getStatus());
   }
 

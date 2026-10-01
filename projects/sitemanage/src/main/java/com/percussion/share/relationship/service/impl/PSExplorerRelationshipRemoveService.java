@@ -142,6 +142,83 @@ public class PSExplorerRelationshipRemoveService implements IPSExplorerRelations
     return ExplorerRelationshipAction.removed();
   }
 
+  @Override
+  public ExplorerRelationshipAction addOwned(String itemId, String targetItemId, String configName) {
+    if (configName == null || configName.isBlank()) {
+      return ExplorerRelationshipAction.of(
+          ExplorerRelationshipAction.Status.BAD_REQUEST, "configName is required");
+    }
+    if (isFolderConfigName(configName)) {
+      return ExplorerRelationshipAction.of(
+          ExplorerRelationshipAction.Status.CONFLICT,
+          "Folder relationships cannot be added from this panel");
+    }
+    if (targetItemId == null || targetItemId.isBlank()) {
+      return ExplorerRelationshipAction.of(
+          ExplorerRelationshipAction.Status.BAD_REQUEST, "targetItemId is required");
+    }
+    Resolved owner = resolve(itemId);
+    if (owner.failure != null) {
+      return owner.failure;
+    }
+    Resolved target = resolve(targetItemId.trim());
+    if (target.failure != null) {
+      return target.failure;
+    }
+    if (owner.contentId == target.contentId) {
+      return ExplorerRelationshipAction.of(
+          ExplorerRelationshipAction.Status.CONFLICT, "An item cannot own a relationship to itself");
+    }
+    try {
+      PSRelationship created =
+          systemWs.createRelationship(configName.trim(), owner.guid, target.guid);
+      if (created == null || isFolder(created)) {
+        return ExplorerRelationshipAction.of(
+            ExplorerRelationshipAction.Status.CONFLICT,
+            "Folder relationships cannot be added from this panel");
+      }
+      if (isActiveAssembly(created)) {
+        return ExplorerRelationshipAction.of(
+            ExplorerRelationshipAction.Status.CONFLICT,
+            "Active Assembly relationships cannot be added from this panel");
+      }
+      systemWs.saveRelationships(Collections.singletonList(created));
+      return ExplorerRelationshipAction.created(toEdge(created));
+    } catch (PSErrorsException | PSErrorException e) {
+      if (isAccessDenied(e)) {
+        return ExplorerRelationshipAction.of(
+            ExplorerRelationshipAction.Status.FORBIDDEN,
+            "You do not have permission to add this relationship");
+      }
+      return ExplorerRelationshipAction.of(
+          ExplorerRelationshipAction.Status.CONFLICT,
+          safeMessage(e, "The relationship could not be added"));
+    } catch (RuntimeException e) {
+      if (isAccessDenied(e)) {
+        return ExplorerRelationshipAction.of(
+            ExplorerRelationshipAction.Status.FORBIDDEN,
+            "You do not have permission to add this relationship");
+      }
+      throw e;
+    } catch (Exception e) {
+      if (isAccessDenied(e)) {
+        return ExplorerRelationshipAction.of(
+            ExplorerRelationshipAction.Status.FORBIDDEN,
+            "You do not have permission to add this relationship");
+      }
+      return ExplorerRelationshipAction.of(
+          ExplorerRelationshipAction.Status.CONFLICT,
+          safeMessage(e, "The relationship could not be added"));
+    }
+  }
+
+  static boolean isFolderConfigName(String name) {
+    String normalized = name.trim().toLowerCase(Locale.ROOT);
+    return normalized.equals(PSRelationshipConfig.CATEGORY_FOLDER)
+        || normalized.equals("folder")
+        || normalized.equals("folder content");
+  }
+
   private List<PSRelationship> loadOwned(int contentId) {
     PSRelationshipFilter filter = new PSRelationshipFilter();
     filter.setOwnerId(contentId);
@@ -209,7 +286,7 @@ public class PSExplorerRelationshipRemoveService implements IPSExplorerRelations
             ExplorerRelationshipAction.of(
                 ExplorerRelationshipAction.Status.NOT_FOUND, "Item was not found"));
       }
-      return Resolved.ok(guid.getUUID());
+      return Resolved.ok(guid);
     } catch (RuntimeException e) {
       if (isAccessDenied(e)) {
         return Resolved.failed(
@@ -261,19 +338,21 @@ public class PSExplorerRelationshipRemoveService implements IPSExplorerRelations
 
   private static final class Resolved {
     final int contentId;
+    final IPSGuid guid;
     final ExplorerRelationshipAction failure;
 
-    private Resolved(int contentId, ExplorerRelationshipAction failure) {
+    private Resolved(int contentId, IPSGuid guid, ExplorerRelationshipAction failure) {
       this.contentId = contentId;
+      this.guid = guid;
       this.failure = failure;
     }
 
-    static Resolved ok(int contentId) {
-      return new Resolved(contentId, null);
+    static Resolved ok(IPSGuid guid) {
+      return new Resolved(guid.getUUID(), guid, null);
     }
 
     static Resolved failed(ExplorerRelationshipAction failure) {
-      return new Resolved(0, failure);
+      return new Resolved(0, null, failure);
     }
   }
 }

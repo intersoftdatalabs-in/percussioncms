@@ -21,12 +21,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Outcome of listing or removing one Explorer relationship. Never null. */
+/** Outcome of listing, adding, or removing one Explorer relationship. Never null. */
 public final class ExplorerRelationshipAction {
 
   public enum Status {
     LISTED,
     REMOVED,
+    CREATED,
     BAD_REQUEST,
     FORBIDDEN,
     NOT_FOUND,
@@ -50,6 +51,11 @@ public final class ExplorerRelationshipAction {
 
   public static ExplorerRelationshipAction removed() {
     return new ExplorerRelationshipAction(Status.REMOVED, "", Collections.emptyList());
+  }
+
+  public static ExplorerRelationshipAction created(PSExplorerRelationshipEdge edge) {
+    return new ExplorerRelationshipAction(
+        Status.CREATED, "", edge == null ? List.of() : List.of(edge));
   }
 
   public static ExplorerRelationshipAction of(Status status, String message) {

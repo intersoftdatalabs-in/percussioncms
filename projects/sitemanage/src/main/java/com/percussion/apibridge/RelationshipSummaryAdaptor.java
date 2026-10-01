@@ -16,6 +16,8 @@
 package com.percussion.apibridge;
 
 import com.percussion.rest.relationsummary.IRelationshipSummaryAdaptor;
+import com.percussion.share.relationship.data.PSExplorerRelationshipCreate;
+import com.percussion.share.relationship.data.PSExplorerRelationshipEdge;
 import com.percussion.share.relationship.data.PSExplorerRelationshipList;
 import com.percussion.share.relationship.data.PSLocalDependencySummary;
 import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
@@ -136,6 +138,22 @@ public class RelationshipSummaryAdaptor implements IRelationshipSummaryAdaptor {
     if (action.getStatus() != ExplorerRelationshipAction.Status.REMOVED) {
       throw statusException(action);
     }
+  }
+
+  @Override
+  public PSExplorerRelationshipEdge addEdge(
+      URI baseURI, String itemId, PSExplorerRelationshipCreate request) {
+    String target = request == null ? "" : request.getTargetItemId();
+    String config = request == null ? "" : request.getConfigName();
+    ExplorerRelationshipAction action = requireRemove().addOwned(itemId, target, config);
+    if (action.getStatus() != ExplorerRelationshipAction.Status.CREATED
+        || action.getEdges().isEmpty()) {
+      if (action.getStatus() == ExplorerRelationshipAction.Status.CREATED) {
+        throw new WebApplicationException("Relationship was not created", 500);
+      }
+      throw statusException(action);
+    }
+    return action.getEdges().get(0);
   }
 
   private IPSExplorerRelationshipRemoveService requireRemove() {

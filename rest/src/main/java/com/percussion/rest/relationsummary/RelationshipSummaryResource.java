@@ -15,6 +15,8 @@
  */
 package com.percussion.rest.relationsummary;
 
+import com.percussion.share.relationship.data.PSExplorerRelationshipCreate;
+import com.percussion.share.relationship.data.PSExplorerRelationshipEdge;
 import com.percussion.share.relationship.data.PSExplorerRelationshipList;
 import com.percussion.share.relationship.data.PSLocalDependencySummary;
 import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
@@ -25,8 +27,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -224,5 +228,34 @@ public class RelationshipSummaryResource {
     URI base = uriInfo == null ? null : uriInfo.getBaseUri();
     adaptor.removeEdge(base, itemId, relationshipId);
     return Response.noContent().build();
+  }
+
+  @POST
+  @Path("/{itemId}/edges")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Add one owned relationship from the selected item",
+      description =
+          "Creates one non-folder relationship owned by the selected item. Does not report"
+              + " success on 400, 403, or 409. Folder relationship types are refused.")
+  @ApiResponse(responseCode = "201", description = "Created")
+  @ApiResponse(responseCode = "400", description = "Missing target or relationship type")
+  @ApiResponse(responseCode = "403", description = "Not allowed")
+  @ApiResponse(responseCode = "404", description = "Item was not found")
+  @ApiResponse(responseCode = "409", description = "Relationship cannot be added")
+  public Response addEdge(
+      @Parameter(name = "itemId", required = true) @PathParam("itemId") String itemId,
+      PSExplorerRelationshipCreate body) {
+    if (body == null
+        || body.getTargetItemId() == null
+        || body.getTargetItemId().isBlank()
+        || body.getConfigName() == null
+        || body.getConfigName().isBlank()) {
+      throw new jakarta.ws.rs.WebApplicationException("targetItemId and configName are required", 400);
+    }
+    URI base = uriInfo == null ? null : uriInfo.getBaseUri();
+    PSExplorerRelationshipEdge created = adaptor.addEdge(base, itemId, body);
+    return Response.status(Response.Status.CREATED).entity(created).build();
   }
 }

@@ -32,7 +32,7 @@
  *   /Rhythmyx/rest/content-explorer/relationships/{itemId}/summary
  * </pre>
  */
-import { del } from "../client";
+import { del, post } from "../client";
 import type {
   PSExplorerRelationshipEdge,
   PSExplorerRelationshipList,
@@ -197,6 +197,44 @@ export async function fetchRelationshipEdges(
     signal,
   );
   return unwrapEdges(raw);
+}
+
+export async function addRelationshipEdge(
+  itemId: string,
+  targetItemId: string,
+  configName: string,
+): Promise<PSExplorerRelationshipEdge> {
+  const target = targetItemId.trim();
+  const typeName = configName.trim();
+  if (!target || !typeName) {
+    throw Object.assign(new Error("target and relationship type are required"), {
+      status: 400,
+    });
+  }
+  if (isFolderRelationshipCategory(typeName)) {
+    throw Object.assign(new Error("Folder relationships cannot be added"), {
+      status: 409,
+    });
+  }
+  const raw = await post<PSExplorerRelationshipEdge | Record<string, unknown>>(
+    `${BASE_PATH}/${encodeURIComponent(itemId)}/edges`,
+    { targetItemId: target, configName: typeName },
+  );
+  const record =
+    raw && typeof raw === "object" && "PSExplorerRelationshipEdge" in raw
+      ? (raw.PSExplorerRelationshipEdge as Record<string, unknown>)
+      : (raw as Record<string, unknown>);
+  const relationshipId = Number(record?.relationshipId);
+  if (!Number.isFinite(relationshipId) || relationshipId <= 0) {
+    throw Object.assign(new Error("relationship was not created"), { status: 409 });
+  }
+  return {
+    relationshipId,
+    configName: String(record.configName ?? typeName),
+    category: String(record.category ?? ""),
+    dependentId: Number(record.dependentId ?? 0),
+    label: String(record.label ?? ""),
+  };
 }
 
 export async function removeRelationshipEdge(

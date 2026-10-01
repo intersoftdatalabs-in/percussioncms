@@ -15,6 +15,8 @@
  */
 package com.percussion.rest.relationsummary;
 
+import com.percussion.share.relationship.data.PSExplorerRelationshipCreate;
+import com.percussion.share.relationship.data.PSExplorerRelationshipEdge;
 import com.percussion.share.relationship.data.PSExplorerRelationshipList;
 import com.percussion.share.relationship.data.PSLocalDependencySummary;
 import com.percussion.share.relationship.data.PSNodeRelationshipSummary;
@@ -58,4 +60,10 @@ public interface IRelationshipSummaryAdaptor {
    * when the relationship belongs to a different item or is a folder membership.
    */
   void removeEdge(URI baseURI, String itemId, int relationshipId);
+
+  /**
+   * Creates one non-folder relationship owned by the item. Throws 400/403/404/409. The returned
+   * edge is the saved relationship; callers must not treat an exception as success.
+   */
+  PSExplorerRelationshipEdge addEdge(URI baseURI, String itemId, PSExplorerRelationshipCreate request);
 }

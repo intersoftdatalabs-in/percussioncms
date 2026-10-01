@@ -376,4 +376,119 @@ describe("RelationshipsView", () => {
     );
     expect(screen.getByTestId("relationships-edge-11")).toBeTruthy();
   });
+
+  it("cancel does not add a relationship (#5036)", async () => {
+    const add = vi.fn();
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => []}
+        addEdge={add}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-view")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+    fireEvent.click(screen.getByTestId("relationships-add"));
+    fireEvent.change(screen.getByTestId("relationships-add-target"), {
+      target: { value: "9" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-add-cancel"));
+    expect(add).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-added")).toBeNull();
+  });
+
+  it("confirm adds one relationship and shows it only after success (#5036)", async () => {
+    const created = {
+      relationshipId: 11,
+      configName: "Translation",
+      category: "rs_translation",
+      dependentId: 9,
+      label: "Translation -> 9",
+    };
+    let edges: typeof created[] = [];
+    const add = vi.fn().mockImplementation(async () => {
+      edges = [created];
+      return created;
+    });
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => edges}
+        addEdge={add}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-add")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-edge-11")).toBeNull();
+    fireEvent.click(screen.getByTestId("relationships-add"));
+    fireEvent.change(screen.getByTestId("relationships-add-target"), {
+      target: { value: "9" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-add-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-added")).toBeTruthy(),
+    );
+    expect(add).toHaveBeenCalledWith("42", "9", "Translation");
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-11")).toBeTruthy(),
+    );
+  });
+
+  it("HTTP 409 does not claim a relationship was added (#5036)", async () => {
+    const add = vi.fn().mockRejectedValue(Object.assign(new Error("no"), { status: 409 }));
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => []}
+        addEdge={add}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-add")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-add"));
+    fireEvent.change(screen.getByTestId("relationships-add-target"), {
+      target: { value: "9" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-add-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-add-error")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-added")).toBeNull();
+    expect(screen.queryByTestId("relationships-edge-11")).toBeNull();
+  });
+
+  it("a folder relationship type does not call the server (#5036)", async () => {
+    const add = vi.fn();
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => []}
+        addEdge={add}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-add")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-add"));
+    fireEvent.change(screen.getByTestId("relationships-add-target"), {
+      target: { value: "9" },
+    });
+    fireEvent.change(screen.getByTestId("relationships-add-type"), {
+      target: { value: "rs_folder" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-add-confirm"));
+    expect(add).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-added")).toBeNull();
+    expect(screen.getByTestId("relationships-add-error")).toBeTruthy();
+  });
 });

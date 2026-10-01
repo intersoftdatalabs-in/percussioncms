@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -123,6 +124,56 @@ class PSExplorerRelationshipRemoveServiceTest {
   void blankItemIsBadRequestAndDoesNotDelete() {
     ExplorerRelationshipAction action = service.removeOwned("  ", 7);
     assertEquals(ExplorerRelationshipAction.Status.BAD_REQUEST, action.getStatus());
+  }
+
+  @Test
+  void addCreatesOwnedNonFolderRelationship() throws Exception {
+    IPSGuid targetGuid = org.mockito.Mockito.mock(IPSGuid.class);
+    when(idMapper.getGuid("42")).thenReturn(itemGuid);
+    when(idMapper.getGuid("9")).thenReturn(targetGuid);
+    when(itemGuid.getUUID()).thenReturn(42);
+    when(targetGuid.getUUID()).thenReturn(9);
+    PSRelationship created = edge(11, 42, 9, "Translation", "rs_translation");
+    when(systemWs.createRelationship("Translation", itemGuid, targetGuid)).thenReturn(created);
+
+    ExplorerRelationshipAction action = service.addOwned("42", "9", "Translation");
+
+    assertEquals(ExplorerRelationshipAction.Status.CREATED, action.getStatus());
+    assertEquals(11, action.getEdges().get(0).getRelationshipId());
+    verify(systemWs).saveRelationships(anyList());
+  }
+
+  @Test
+  void addRefusesFolderTypeWithoutSaving() throws Exception {
+    ExplorerRelationshipAction action = service.addOwned("42", "9", "rs_folder");
+
+    assertEquals(ExplorerRelationshipAction.Status.CONFLICT, action.getStatus());
+    verify(systemWs, never()).createRelationship(anyString(), any(), any());
+    verify(systemWs, never()).saveRelationships(anyList());
+  }
+
+  @Test
+  void addBlankTargetIsBadRequest() {
+    ExplorerRelationshipAction action = service.addOwned("42", "  ", "Translation");
+    assertEquals(ExplorerRelationshipAction.Status.BAD_REQUEST, action.getStatus());
+  }
+
+  @Test
+  void addSaveFailureIsConflict() throws Exception {
+    IPSGuid targetGuid = org.mockito.Mockito.mock(IPSGuid.class);
+    when(idMapper.getGuid("42")).thenReturn(itemGuid);
+    when(idMapper.getGuid("9")).thenReturn(targetGuid);
+    when(itemGuid.getUUID()).thenReturn(42);
+    when(targetGuid.getUUID()).thenReturn(9);
+    PSRelationship created = edge(11, 42, 9, "Translation", "rs_translation");
+    when(systemWs.createRelationship("Translation", itemGuid, targetGuid)).thenReturn(created);
+    org.mockito.Mockito.doThrow(new com.percussion.webservices.PSErrorsException())
+        .when(systemWs)
+        .saveRelationships(anyList());
+
+    ExplorerRelationshipAction action = service.addOwned("42", "9", "Translation");
+
+    assertEquals(ExplorerRelationshipAction.Status.CONFLICT, action.getStatus());
   }
 
   @Test
