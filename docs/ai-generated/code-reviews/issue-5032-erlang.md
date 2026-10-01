@@ -1,12 +1,12 @@
 ## Summary
 
-Machine analysis found **0** finding(s), **0** bug(s).
+Machine analysis found **0** finding(s), **0** bug(s). LLM skipped (machine_only_mode)
 
 ## Scope
 
 - Base: origin/main
 - Head: HEAD
-- Files: 13 analyzed
+- Files: 14 analyzed
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 
@@ -22,3 +22,4 @@ approve
 ## Issues
 
 _No issues._
+
