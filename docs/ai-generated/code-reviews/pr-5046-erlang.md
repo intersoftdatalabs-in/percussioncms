@@ -10,19 +10,30 @@ You may obtain a copy of the License at
 
 # Erlang review PR 5046
 
-Independent review (not the author). Persona: erlang 0.1.1.
+Status: cli report captured. Independent re-review after erlang-fix (not the author).
+Persona: erlang 0.1.1. Persona source: ~/.local/share/mkd/agents/erlang.
 CLI: mkd-code-review 0.1.18, pack percussion, gate advisory, base origin/main.
-Machine gate is clean. Erlang blocks on a persist-then-reject bug the metrics pass did not see.
+Head reviewed: 3b0c7d9167fa4206cbb1bd739164f5a1bff4acfb.
+Ollama dev-coder failed with CUDA OOM; machine findings kept. Not a merge block.
+
+## Erlang interpretation
+
+Recommendation: **approve**. In-diff blocking bugs: 0.
+
+The earlier persist-then-reject bug is fixed on this head. `addOwned` calls `deletePersisted` when `createRelationship` returns a folder or Active Assembly row, and again when the follow-up `saveRelationships` throws. Tests `addDeletesPersistedFolderReturnedByCreate`, `addDeletesPersistedActiveAssemblyReturnedByCreate`, and `addSaveFailureIsConflict` assert the delete. The UI sets "Relationship added" only after `addEdge` resolves, and a non-positive id is thrown as a failure. Adaptor maps non-CREATED statuses to 400/403/404/409.
+
+Non-blocking: `addOwned` is over the cognitive complexity cap (suggestion). `deletePersisted` swallows a second delete failure so the API still returns conflict rather than success; that does not claim the row was added.
+
 
 ## Summary
 
-Machine analysis found **1** finding(s), **0** bug(s).
+Machine analysis found **2** finding(s), **0** bug(s).
 
 ## Scope
 
 - Base: origin/main
 - Head: HEAD
-- Files: 18 analyzed
+- Files: 19 analyzed
 - In-diff: 1 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
@@ -43,22 +54,16 @@ approve
 - File: projects/sitemanage/src/main/java/com/percussion/share/relationship/service/impl/PSExplorerRelationshipRemoveService.java:145 (in-diff)
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
-- Description: Function `addOwned` cognitive=17 (max 15), cyclomatic=18 (max 15)
+- Description: Function `addOwned` cognitive=19 (max 15), cyclomatic=21 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
 
-## Erlang
+### Issue 2 -- Severity: suggestion
 
-Recommendation: **request-changes**. In-diff blocking bugs: 1.
+- File: review
+- Rule: `llm.error`
+- Tool: `llm`
+- Description: model `ollama-dev-coder` failed: http: status 500 Internal Server Error body {"error":{"message":"llama-server process has terminated: exit status 1: cudaMalloc failed: out of memory\nalloc_tensor_range: failed to allocate CUDA0 buffer of size 5064192000\nerror loading model: unable to allocate CUDA0 buffer","type":"api_error","param":null,"code":null}}
 
-### Bug — file:line
+- Status: open
 
-`projects/sitemanage/src/main/java/com/percussion/share/relationship/service/impl/PSExplorerRelationshipRemoveService.java:173`
-
-`IPSSystemWs.createRelationship` (`PSSystemWs.java` around the `saveRelationship` call) already persists the new relationship before it returns. `addOwned` then rejects folder category and Active Assembly rows (lines 175-184) and returns CONFLICT without deleting that row. A later `saveRelationships` failure (lines 185-194) also returns CONFLICT after the first save has already committed when `createRelationship` runs in its own transaction.
-
-Effect: the panel says the relationship was not added, but the row exists. Active Assembly type names are not refused before create. The name denylist does not cover every config whose category is `rs_folder`.
-
-The unit test `addSaveFailureIsConflict` mocks `createRelationship` as non-persisting, so it does not catch this.
-
-Fix: refuse folder category and Active Assembly from the relationship config **before** any save, and do not call a second save that can disagree with a row `createRelationship` already stored. Add a behavioral test that a refused type is not left saved.
