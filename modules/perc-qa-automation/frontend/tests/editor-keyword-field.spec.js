@@ -192,6 +192,87 @@ test.describe("React Content Editor keyword field", () => {
   );
 
   test(
+    "rejects a keyword value outside the loaded catalog and still saves a catalog choice",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      const fieldPuts = [];
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          const text = msg.text();
+          if (text.includes("Failed to load resource")) {
+            return;
+          }
+          pageErrors.push(text);
+        }
+      });
+      await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/editor/items/**/checkout", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemStateTransition: { itemId: "42", stateName: "Draft", transitionTriggers: [] },
+          }),
+        }),
+      );
+      await page.route("**/rest/content-explorer/translations/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ itemId: 42, locale: "en-us", variants: [] }),
+        }),
+      );
+      await page.route("**/services/keywords**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(KEYWORDS),
+        }),
+      );
+      await page.route("**/services/contenttypes/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(TYPE),
+        }),
+      );
+      await page.route("**/services/itemmanagement/item/fields/**", async (route) => {
+        if (route.request().method() === "PUT") {
+          fieldPuts.push(route.request().postData() || "");
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(fieldsPayload("legacy")),
+        });
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      const select = page.locator('[data-testid="editor-field-keywords"]');
+      await expect(select).toBeVisible({ timeout: 20_000 });
+      await expect(select.locator('option[value="events"]')).toHaveCount(1);
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect(page.locator('[data-testid="editor-field-error-keywords"]')).toContainText(
+        "Keywords",
+      );
+      expect(fieldPuts).toEqual([]);
+
+      await select.selectOption("events");
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect.poll(() => fieldPuts.length).toBeGreaterThan(0);
+      expect(fieldPuts[0]).toMatch(/"name"\s*:\s*"keywords"\s*,\s*"value"\s*:\s*"events"/);
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
     "keeps HTTP 400 and 403 on the keyword field",
     { tag: ["@explorer-content-editor", "@editor"] },
     async ({ page }) => {
