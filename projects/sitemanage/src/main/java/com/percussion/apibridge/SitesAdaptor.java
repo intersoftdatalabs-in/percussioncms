@@ -1287,6 +1287,26 @@ public class SitesAdaptor implements ISiteAdaptor {
     if (StringUtils.isNotBlank(request.getDefaultFileExtention())) {
       target.setDefaultFileExtension(request.getDefaultFileExtention().trim());
     }
+    if (request.isCanonicalDistSpecified()) {
+      target.setCanonicalDist(normalizeCanonicalDist(request.getCanonicalDist()));
+    }
+  }
+
+  /**
+   * Canonical URL destination is only {@code pages} or {@code sections}. Blank and any other value
+   * are rejected; the stored value is the lowercase token.
+   */
+  static String normalizeCanonicalDist(String raw) {
+    if (StringUtils.isBlank(raw)) {
+      throw new WebApplicationException(
+          "canonicalDist must be pages or sections", Response.Status.BAD_REQUEST);
+    }
+    String value = raw.trim().toLowerCase(Locale.ROOT);
+    if (!"pages".equals(value) && !"sections".equals(value)) {
+      throw new WebApplicationException(
+          "canonicalDist must be pages or sections", Response.Status.BAD_REQUEST);
+    }
+    return value;
   }
 
   /**

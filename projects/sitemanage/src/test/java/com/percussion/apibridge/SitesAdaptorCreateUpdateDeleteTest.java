@@ -136,6 +136,65 @@ class SitesAdaptorCreateUpdateDeleteTest {
   }
 
   @Test
+  void update_omittedCanonicalDist_leavesStoredValue() throws PSNotFoundException {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setCanonicalDist("sections");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+
+    Site req = body("NightlySite", "new desc", null);
+    adaptor.updateSite("NightlySite", req);
+
+    assertEquals("sections", existing.getCanonicalDist());
+    assertEquals(false, req.isCanonicalDistSpecified());
+  }
+
+  @Test
+  void update_canonicalDist_persistsPagesOrSections() throws PSNotFoundException {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setCanonicalDist("pages");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+
+    Site req = body("NightlySite", null, null);
+    req.setCanonicalDist(" Sections ");
+    Site out = adaptor.updateSite("NightlySite", req);
+
+    assertEquals("sections", existing.getCanonicalDist());
+    assertEquals("sections", out.getCanonicalDist());
+    verify(siteManager).saveSite(existing);
+  }
+
+  @Test
+  void update_blankOrUnknownCanonicalDist_400() {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setCanonicalDist("sections");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+
+    Site blank = body("NightlySite", null, null);
+    blank.setCanonicalDist("  ");
+    WebApplicationException blankEx =
+        assertThrows(WebApplicationException.class, () -> adaptor.updateSite("NightlySite", blank));
+    assertEquals(400, blankEx.getResponse().getStatus());
+
+    Site unknown = body("NightlySite", null, null);
+    unknown.setCanonicalDist("files");
+    WebApplicationException unknownEx =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.updateSite("NightlySite", unknown));
+    assertEquals(400, unknownEx.getResponse().getStatus());
+    assertEquals("sections", existing.getCanonicalDist());
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
   void update_nameMismatch_400() {
     PSSite existing = new PSSite();
     existing.setName("NightlySite");

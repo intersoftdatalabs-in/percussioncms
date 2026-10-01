@@ -1344,6 +1344,8 @@ export interface SiteDef {
   siteProtocol?: string;
   defaultDocument?: string;
   defaultFileExtention?: string;
+  /** Canonical URL destination ({@code pages} or {@code sections}). */
+  canonicalDist?: string;
   pageBasedSite?: boolean;
   isCanonical?: boolean;
   canonical?: boolean;

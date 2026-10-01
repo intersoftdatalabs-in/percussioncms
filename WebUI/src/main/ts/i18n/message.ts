@@ -302,6 +302,21 @@ export const MSG = {
     "perc.ui.publish.modern@The site default file extension conflicts with another change",
   PUBLISH_SITE_FILE_EXTENSION_ERROR:
     "perc.ui.publish.modern@Could not save the site default file extension",
+  PUBLISH_SITE_CANONICAL_DIST: "perc.ui.publish.modern@Canonical distribution",
+  PUBLISH_EDIT_SITE_CANONICAL_DIST:
+    "perc.ui.publish.modern@Edit canonical distribution",
+  PUBLISH_SITE_CANONICAL_DIST_SAVED:
+    "perc.ui.publish.modern@Site canonical distribution saved",
+  PUBLISH_SITE_CANONICAL_DIST_INVALID:
+    "perc.ui.publish.modern@Choose pages or sections. Any other value is not saved",
+  PUBLISH_SITE_CANONICAL_DIST_BAD:
+    "perc.ui.publish.modern@The site canonical distribution was not accepted",
+  PUBLISH_SITE_CANONICAL_DIST_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to edit this site canonical distribution",
+  PUBLISH_SITE_CANONICAL_DIST_CONFLICT:
+    "perc.ui.publish.modern@The site canonical distribution conflicts with another change",
+  PUBLISH_SITE_CANONICAL_DIST_ERROR:
+    "perc.ui.publish.modern@Could not save the site canonical distribution",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",
