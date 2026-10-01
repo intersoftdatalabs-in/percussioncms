@@ -39,8 +39,10 @@ import { composeFromServerSummary, labelFor } from "./dependencyModel";
 import { parseExplorerContentId } from "../../api/contentExplorer/pathItemId";
 import type { PSExplorerRelationshipEdge } from "../../api/contentExplorer/relationship";
 import {
+  addRelationshipEdge,
   fetchNodeSummary,
   fetchRelationshipEdges,
+  isFolderRelationshipCategory,
   removableOwnedEdges,
   removeAllOwnedRelationshipEdges,
   removeRelationshipEdge,
@@ -55,6 +57,12 @@ export interface RelationshipsViewProps {
   loadEdges?: (itemId: string) => Promise<PSExplorerRelationshipEdge[]>;
   /** Optional injection seam: delete one owned relationship. */
   removeEdge?: (itemId: string, relationshipId: number) => Promise<void>;
+  /** Optional injection seam: create one owned non-folder relationship. */
+  addEdge?: (
+    itemId: string,
+    targetItemId: string,
+    configName: string,
+  ) => Promise<PSExplorerRelationshipEdge>;
   /** Optional injection seam for tests: summarises server-shape with AA-link count. */
   composeSummary?: (
     item: DependencyItemShared,
@@ -113,6 +121,7 @@ export function RelationshipsView(
     loadServerSummary = defaultLoadServerSummary,
     loadEdges = fetchRelationshipEdges,
     removeEdge = removeRelationshipEdge,
+    addEdge = addRelationshipEdge,
     composeSummary,
     ariaLabel,
     className,
@@ -126,8 +135,14 @@ export function RelationshipsView(
   const [removedNotice, setRemovedNotice] = React.useState<"one" | "all" | null>(
     null,
   );
+  const [addedNotice, setAddedNotice] = React.useState(false);
   const [removeError, setRemoveError] = React.useState<string | null>(null);
+  const [addError, setAddError] = React.useState<string | null>(null);
   const [removing, setRemoving] = React.useState(false);
+  const [adding, setAdding] = React.useState(false);
+  const [addOpen, setAddOpen] = React.useState(false);
+  const [addTarget, setAddTarget] = React.useState("");
+  const [addType, setAddType] = React.useState("Translation");
   const [edges, setEdges] = React.useState<PSExplorerRelationshipEdge[]>([]);
   const [state, setState] = React.useState<
     | { kind: "loading" }
@@ -145,11 +160,14 @@ export function RelationshipsView(
       setState({ kind: "auth" });
       setEdges([]);
       setRemovedNotice(null);
+      setAddedNotice(false);
+      setAddOpen(false);
       return;
     }
     setState({ kind: "loading" });
     setConfirmId(null);
     setConfirmAll(false);
+    setAddOpen(false);
     loadServerSummary(itemId)
       .then(async (summary) => {
         if (!alive) return;
@@ -190,7 +208,9 @@ export function RelationshipsView(
 
   React.useEffect(() => {
     setRemoveError(null);
+    setAddError(null);
     setRemovedNotice(null);
+    setAddedNotice(false);
   }, [itemId]);
 
   function statusOf(err: unknown): number | undefined {
@@ -207,6 +227,44 @@ export function RelationshipsView(
     if (status === 403) return message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_FAILED_403);
     if (status === 409) return message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_FAILED_409);
     return err instanceof Error ? err.message : String(err);
+  }
+
+  function addFailureMessage(err: unknown): string {
+    const status = statusOf(err);
+    if (status === 400) return message(EXPLORER_MSG.RELATIONSHIPS_ADD_FAILED_400);
+    if (status === 403) return message(EXPLORER_MSG.RELATIONSHIPS_ADD_FAILED_403);
+    if (status === 409) return message(EXPLORER_MSG.RELATIONSHIPS_ADD_FAILED_409);
+    return err instanceof Error ? err.message : String(err);
+  }
+
+  async function confirmAdd(): Promise<void> {
+    if (!itemId || adding) return;
+    const target = addTarget.trim();
+    const typeName = addType.trim();
+    if (!target || !typeName || isFolderRelationshipCategory(typeName)) {
+      setAddedNotice(false);
+      setAddError(
+        isFolderRelationshipCategory(typeName)
+          ? message(EXPLORER_MSG.RELATIONSHIPS_ADD_FAILED_409)
+          : message(EXPLORER_MSG.RELATIONSHIPS_ADD_FAILED_400),
+      );
+      return;
+    }
+    setAdding(true);
+    setAddError(null);
+    setAddedNotice(false);
+    try {
+      await addEdge(itemId, target, typeName);
+      setAddOpen(false);
+      setAddTarget("");
+      setAddedNotice(true);
+      setReloadToken((n) => n + 1);
+    } catch (err: unknown) {
+      setAddedNotice(false);
+      setAddError(addFailureMessage(err));
+    } finally {
+      setAdding(false);
+    }
   }
 
   async function confirmRemove(relationshipId: number): Promise<void> {
@@ -351,6 +409,74 @@ export function RelationshipsView(
           </li>
         ))}
       </ul>
+      <div data-testid="relationships-add-section" style={{ marginTop: 12 }}>
+        <h3 style={{ fontSize: "0.95rem", margin: "0 0 8px 0" }}>
+          {message(EXPLORER_MSG.RELATIONSHIPS_ADD)}
+        </h3>
+        {addedNotice ? (
+          <p role="status" data-testid="relationships-added">
+            {message(EXPLORER_MSG.RELATIONSHIPS_ADDED)}
+          </p>
+        ) : null}
+        {addError ? (
+          <p role="alert" data-testid="relationships-add-error">
+            {addError}
+          </p>
+        ) : null}
+        <button
+          type="button"
+          data-testid="relationships-add"
+          onClick={() => {
+            setAddedNotice(false);
+            setAddError(null);
+            setAddOpen(true);
+          }}
+        >
+          {message(EXPLORER_MSG.RELATIONSHIPS_ADD)}
+        </button>
+        {addOpen ? (
+          <div
+            role="dialog"
+            aria-modal="true"
+            data-testid="relationships-add-dialog"
+            style={{ marginTop: 8, padding: 8, border: "1px solid #ccc" }}
+          >
+            <label>
+              {message(EXPLORER_MSG.RELATIONSHIPS_ADD_TARGET)}
+              <input
+                data-testid="relationships-add-target"
+                value={addTarget}
+                onChange={(event) => setAddTarget(event.target.value)}
+              />
+            </label>
+            <label>
+              {message(EXPLORER_MSG.RELATIONSHIPS_ADD_TYPE)}
+              <input
+                data-testid="relationships-add-type"
+                value={addType}
+                onChange={(event) => setAddType(event.target.value)}
+              />
+            </label>
+            <button
+              type="button"
+              data-testid="relationships-add-cancel"
+              onClick={() => setAddOpen(false)}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_CANCEL)}
+            </button>
+            <button
+              type="button"
+              data-testid="relationships-add-confirm"
+              disabled={adding}
+              onClick={() => {
+                void confirmAdd();
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_ADD_DO)}
+            </button>
+          </div>
+        ) : null}
+      </div>
       <div data-testid="relationships-remove-section" style={{ marginTop: 12 }}>
         <h3 style={{ fontSize: "0.95rem", margin: "0 0 8px 0" }}>
           {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_DO)}

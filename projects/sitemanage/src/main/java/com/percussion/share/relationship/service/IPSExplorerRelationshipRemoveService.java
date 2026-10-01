@@ -17,7 +17,7 @@
 package com.percussion.share.relationship.service;
 
 /**
- * Lists and deletes one non-folder relationship owned by a selected Explorer item.
+ * Lists, adds, and deletes one non-folder relationship owned by a selected Explorer item.
  *
  * <p>Sibling of {@link IPSRelationshipSummaryService}, which stays read-only.
  */
@@ -26,4 +26,11 @@ public interface IPSExplorerRelationshipRemoveService {
   ExplorerRelationshipAction listOwned(String itemId);
 
   ExplorerRelationshipAction removeOwned(String itemId, int relationshipId);
+
+  /**
+   * Creates one non-folder relationship owned by {@code itemId} and pointing at {@code
+   * targetItemId}. Folder types are refused. Does not report success on a bad request, a missing
+   * item, a permission failure, or a save conflict.
+   */
+  ExplorerRelationshipAction addOwned(String itemId, String targetItemId, String configName);
 }

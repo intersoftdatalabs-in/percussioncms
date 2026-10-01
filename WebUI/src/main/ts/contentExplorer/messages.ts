@@ -360,6 +360,17 @@ export const EXPLORER_MSG = {
   RELATIONSHIPS_REMOVE_ALL_CONFIRM:
     "perc.ui.explorer@Remove every owned relationship on the selected item? Folder relationships stay.",
   RELATIONSHIPS_REMOVED_ALL: "perc.ui.explorer@Relationships removed.",
+  RELATIONSHIPS_ADD: "perc.ui.explorer@Add relationship",
+  RELATIONSHIPS_ADD_TARGET: "perc.ui.explorer@Target item id",
+  RELATIONSHIPS_ADD_TYPE: "perc.ui.explorer@Relationship type",
+  RELATIONSHIPS_ADD_DO: "perc.ui.explorer@Add relationship",
+  RELATIONSHIPS_ADDED: "perc.ui.explorer@Relationship added.",
+  RELATIONSHIPS_ADD_FAILED_400:
+    "perc.ui.explorer@The relationship could not be added.",
+  RELATIONSHIPS_ADD_FAILED_403:
+    "perc.ui.explorer@You do not have permission to add this relationship.",
+  RELATIONSHIPS_ADD_FAILED_409:
+    "perc.ui.explorer@This relationship cannot be added.",
   // US5 P-Search / search panel (FR-017, FR-018, SC-005)
   SEARCH_TITLE: "perc.ui.explorer@Search",
   SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",

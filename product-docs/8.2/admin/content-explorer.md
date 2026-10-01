@@ -826,8 +826,17 @@ From the **View** menu you can also toggle:
   shows the error and does not claim that every relationship was removed.
   A folder row (`rs_folder` / `folder`), if present, has no Remove control and
   is left in place. Folder membership is otherwise not listed. A folder with no page or asset selected keeps
-  the select-item hint and does not claim a relationship was removed. This
-  panel does not create relationships. When the
+  the select-item hint and does not claim a relationship was removed or added.
+  **Add relationship** asks for a target content id and a non-folder relationship
+  type (for example **Translation**). **Cancel** does not call the server.
+  **Add relationship** in the dialog calls
+  `POST /Rhythmyx/rest/content-explorer/relationships/{contentId}/edges`
+  with `targetItemId` and `configName`. The new row appears in the list, and
+  the panel says *Relationship added.*, only after HTTP **201**. HTTP **400**,
+  **403**, and **409** stay on the panel and do not show *Relationship added*.
+  Folder relationship types are refused. An empty selection or a folder
+  selection keeps the select-item hint and does not claim a relationship was
+  added. When the
   item has relationship buckets, taxonomy nodes, local links, or Active
   Assembly links, those edges are listed. When every count is zero the panel
   says **No known dependencies for this item** — that is not a successful

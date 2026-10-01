@@ -192,6 +192,43 @@ class RelationshipSummaryAdaptorTest {
   }
 
   @Test
+  void addEdgeReturnsCreatedRow() {
+    when(removeService.addOwned("42", "9", "Translation"))
+        .thenReturn(
+            ExplorerRelationshipAction.created(
+                new PSExplorerRelationshipEdge(11, "Translation", "rs_translation", 9, "Translation -> 9")));
+
+    PSExplorerRelationshipEdge edge =
+        adaptor.addEdge(
+            URI.create("http://localhost/api"),
+            "42",
+            new com.percussion.share.relationship.data.PSExplorerRelationshipCreate(
+                "9", "Translation"));
+
+    assertEquals(11, edge.getRelationshipId());
+  }
+
+  @Test
+  void addEdgeMapsForbiddenTo403() {
+    when(removeService.addOwned("42", "9", "Translation"))
+        .thenReturn(
+            ExplorerRelationshipAction.of(
+                ExplorerRelationshipAction.Status.FORBIDDEN, "not allowed"));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.addEdge(
+                    URI.create("http://localhost/api"),
+                    "42",
+                    new com.percussion.share.relationship.data.PSExplorerRelationshipCreate(
+                        "9", "Translation")));
+
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
   void listEdgesReturnsRows() {
     when(removeService.listOwned("42"))
         .thenReturn(
