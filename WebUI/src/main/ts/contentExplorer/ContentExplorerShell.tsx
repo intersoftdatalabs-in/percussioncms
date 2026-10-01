@@ -657,6 +657,10 @@ function ContentExplorerShellInner({
   const [actionInvokeError, setActionInvokeError] = useState<string | null>(
     null,
   );
+  /** Shown only after flush-cache returns ok. Cleared on cancel, error, or another action. */
+  const [flushCacheStatus, setFlushCacheStatus] = useState<string | null>(
+    null,
+  );
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
   const [slotPickerOpen, setSlotPickerOpen] = useState(false);
   const slotPickerRef = useRef<SlotDependentPickerSession | null>(null);
@@ -1464,9 +1468,16 @@ function ContentExplorerShellInner({
             pickSlotCreate,
             pickSlotTemplateSlot,
           });
-          if (result.messageText || result.messageKey) {
+          if (result.outcome === "success") {
             const msg =
               result.messageText ?? message(result.messageKey ?? "");
+            setFlushCacheStatus(msg);
+            setError(null);
+            setActionInvokeError(null);
+          } else if (result.messageText || result.messageKey) {
+            const msg =
+              result.messageText ?? message(result.messageKey ?? "");
+            setFlushCacheStatus(null);
             setActionInvokeError(msg);
             // Keep Sites-folder "select a content item first" off the
             // generic banner so Publish Now failures mount
@@ -1477,6 +1488,7 @@ function ContentExplorerShellInner({
               setError(null);
             }
           } else {
+            setFlushCacheStatus(null);
             setError(null);
             setActionInvokeError(null);
           }
@@ -1488,6 +1500,7 @@ function ContentExplorerShellInner({
             err,
             message(EXPLORER_MSG.ERROR_GENERIC),
           );
+          setFlushCacheStatus(null);
           setActionInvokeError(msg);
           setError(msg);
         }
@@ -2044,6 +2057,17 @@ function ContentExplorerShellInner({
               {message(EXPLORER_MSG.SERVER_ACTIONS_LABEL)}
             </span>
             <div style={{ flex: "1 1 auto", minWidth: 0 }}>
+              {flushCacheStatus ? (
+                <div
+                  data-testid="explorer-flush-cache-status"
+                  data-kind="success"
+                  role="status"
+                  aria-live="polite"
+                  style={{ color: "#166534", fontSize: "0.85rem", padding: "4px 0" }}
+                >
+                  {flushCacheStatus}
+                </div>
+              ) : null}
               {menuLoadError || actionInvokeError ? (
                 <div
                   data-testid="explorer-server-actions-error"

@@ -142,6 +142,12 @@ export function isWebExecutableLeaf(
   if (isClientHandledAction(action)) {
     return true;
   }
+  // Catalog still points Flush Cache at sys_uiSupport/flushcache.html.
+  // Explorer runs POST /assembly/flush-cache instead, so the leaf stays visible.
+  const name = (action.name ?? "").replace(/[\s-]/g, "_").toLowerCase();
+  if (name === "flush_cache") {
+    return true;
+  }
   return !isDesktopOnlyActionUrl(action.url, baseHref);
 }
 

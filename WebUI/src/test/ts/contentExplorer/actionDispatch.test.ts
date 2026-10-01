@@ -711,6 +711,8 @@ describe("actionDispatch", () => {
       confirm,
     });
     expect(result.kind).toBe("rest");
+    expect(result.outcome).toBe("success");
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_FLUSH_OK);
     expect(confirm).toHaveBeenCalled();
     expect(flushCache).toHaveBeenCalledTimes(1);
   });
@@ -724,7 +726,43 @@ describe("actionDispatch", () => {
     });
     expect(flushCache).not.toHaveBeenCalled();
     expect(result.kind).toBe("rest");
+    expect(result.outcome).toBeUndefined();
+    expect(result.messageKey).toBeUndefined();
   });
+
+  it("Flush Cache ok false is not success", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ ok: false, message: "Assembler cache is locked" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await dispatchAction(action({ name: "Flush_Cache" }), {
+      item: item(),
+      confirm: () => true,
+    });
+    expect(result.outcome).toBeUndefined();
+    expect(result.messageKey).not.toBe(EXPLORER_MSG.ACTION_FLUSH_OK);
+    expect(result.messageText).toBe("Assembler cache is locked");
+  });
+
+  it.each([400, 403, 409])(
+    "Flush Cache HTTP %s does not report success",
+    async (status) => {
+      vi.spyOn(global, "fetch").mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: "no" }), {
+          status,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+      await expect(
+        dispatchAction(action({ name: "Flush_Cache" }), {
+          item: item(),
+          confirm: () => true,
+        }),
+      ).rejects.toMatchObject({ status });
+    },
+  );
 
   it("Nav Reset confirms then resets", async () => {
     const resetNav = vi.fn().mockResolvedValue(undefined);

@@ -70,6 +70,31 @@ describe("assembly cache and nav reset", () => {
     );
   });
 
+  it("flushAssemblerCache treats ok false as failure", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ ok: false, message: "locked" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await flushAssemblerCache();
+    expect(result.ok).toBe(false);
+    expect(result.message).toBe("locked");
+  });
+
+  it.each([400, 403, 409])(
+    "flushAssemblerCache rejects HTTP %s",
+    async (status) => {
+      vi.spyOn(global, "fetch").mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: "no" }), {
+          status,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+      await expect(flushAssemblerCache()).rejects.toMatchObject({ status });
+    },
+  );
+
   it("resetNavigation POSTs nav-reset", async () => {
     vi.spyOn(global, "fetch").mockResolvedValueOnce(
       new Response(JSON.stringify({ ok: true }), {

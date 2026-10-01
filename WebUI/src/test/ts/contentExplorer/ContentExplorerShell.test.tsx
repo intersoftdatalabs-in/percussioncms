@@ -1465,6 +1465,135 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(screen.getByRole("alert").textContent).not.toBe(
       EXPLORER_MSG.ERROR_GENERIC,
     );
+    expect(screen.queryByTestId("explorer-flush-cache-status")).toBeNull();
+  });
+
+  it("flush cache shows success only after HTTP 200 ok", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("flush-cache")) {
+        return new Response(
+          JSON.stringify({ ok: true, message: "Assembler cache flushed" }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response(
+        JSON.stringify({
+          PagedItemList: { childrenInPage: [], childrenCount: 0, startIndex: 0 },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => [
+          {
+            name: "Flush_Cache",
+            label: "Flush Cache",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("action-toolbar-item-Flush_Cache")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Flush_Cache"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-flush-cache-status")).toHaveTextContent(
+        "Assembler cache flushed",
+      );
+    });
+    expect(screen.queryByTestId("explorer-server-actions-error")).toBeNull();
+  });
+
+  it.each([400, 403, 409])(
+    "flush cache HTTP %s does not claim success",
+    async (status) => {
+      expect([400, 403, 409]).toContain(status);
+      mockFetch(async (input) => {
+        const url = typeof input === "string" ? input : (input as Request).url;
+        if (url.includes("flush-cache")) {
+          return new Response(JSON.stringify({ message: "refused" }), {
+            status,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+        return new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      });
+      vi.spyOn(window, "confirm").mockReturnValue(true);
+      renderShell(
+        <ContentExplorerShell
+          loadDisplayFormats={async () => []}
+          loadMenuActions={async () => [
+            {
+              name: "Flush_Cache",
+              label: "Flush Cache",
+              sortRank: 1,
+              menuType: "MENUITEM",
+            },
+          ]}
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("action-toolbar-item-Flush_Cache")).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByTestId("action-toolbar-item-Flush_Cache"));
+      await waitFor(() => {
+        expect(screen.getByTestId("explorer-server-actions-error")).toHaveTextContent(
+          "refused",
+        );
+      });
+      expect(screen.queryByTestId("explorer-flush-cache-status")).toBeNull();
+      expect(screen.getByTestId("explorer-server-actions-error").textContent).not.toMatch(
+        /Assembler cache flushed/,
+      );
+    },
+  );
+
+  it("flush cache cancel does not call the server", async () => {
+    const fetchMock = mockFetch(async () => {
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+    renderShell(
+      <ContentExplorerShell
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => [
+          {
+            name: "Flush_Cache",
+            label: "Flush Cache",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("action-toolbar-item-Flush_Cache")).toBeInTheDocument();
+    });
+    const callsBefore = fetchMock.mock.calls.length;
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Flush_Cache"));
+    await waitFor(() => {
+      expect(window.confirm).toHaveBeenCalled();
+    });
+    const flushCalls = fetchMock.mock.calls.filter((call) => {
+      const input = call[0];
+      const url = typeof input === "string" ? input : (input as Request).url;
+      return String(url).includes("flush-cache");
+    });
+    expect(flushCalls).toHaveLength(0);
+    expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(callsBefore);
+    expect(screen.queryByTestId("explorer-flush-cache-status")).toBeNull();
   });
 
   it("activating a pathmanagement Folder stays in Explorer browse (#3330)", async () => {

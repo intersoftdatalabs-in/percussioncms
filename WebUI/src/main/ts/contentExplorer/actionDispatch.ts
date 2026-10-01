@@ -325,6 +325,12 @@ export interface ActionDispatchResult {
   messageKey?: string;
   /** Already-resolved operator text (batch stage details). Prefer over messageKey. */
   messageText?: string;
+  /**
+   * {@code success} is operator confirmation after the call returned ok.
+   * Failures stay on {@code messageKey} / {@code messageText} without this flag
+   * so the shell does not claim the assembler cache was flushed.
+   */
+  outcome?: "success";
   refresh?: boolean;
 }
 
@@ -1920,12 +1926,27 @@ export async function dispatchAction(
     if (!ok) {
       return { kind: "rest" };
     }
+    let flushedOk = true;
+    let failureDetail = "";
     if (ctx.flushCache) {
       await ctx.flushCache();
     } else {
-      await flushAssemblerCache();
+      const flushed = await flushAssemblerCache();
+      flushedOk = flushed.ok;
+      failureDetail = flushed.message.trim();
     }
-    return { kind: "rest" };
+    if (!flushedOk) {
+      return {
+        kind: "rest",
+        messageText: failureDetail || undefined,
+        messageKey: failureDetail ? undefined : EXPLORER_MSG.ACTION_FLUSH_FAILED,
+      };
+    }
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.ACTION_FLUSH_OK,
+      outcome: "success",
+    };
   }
 
   if (name === "navreset") {
