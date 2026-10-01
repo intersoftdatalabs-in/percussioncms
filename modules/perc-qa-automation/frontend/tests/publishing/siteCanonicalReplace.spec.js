@@ -69,9 +69,8 @@ test.describe("PublishingShell toggle canonical URL replace", () => {
       timeout: 30000,
     });
     const shown = page.getByTestId("publish-site-canonical-replace");
-    await expect(shown).toBeVisible();
+    await expect(shown).toHaveText(/^(yes|no)$/, { timeout: 20000 });
     const before = ((await shown.textContent()) || "").trim().toLowerCase();
-    expect(before === "yes" || before === "no").toBeTruthy();
 
     const putsBeforeCancel = putCalls;
     await page.getByTestId("publish-site-canonical-replace-edit").click();
