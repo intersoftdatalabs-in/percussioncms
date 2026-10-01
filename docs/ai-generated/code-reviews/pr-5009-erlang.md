@@ -11,9 +11,9 @@ Licensed under the Apache License, Version 2.0.
 - Persona source: ~/.local/share/mkd/agents/erlang
 - Status: mkd-code-review 0.1.18, pack percussion, --gate advisory, --git-base origin/main, --models models.ollama-dev-coder.toml
 - PR: https://github.com/intersoftdatalabs-in/percussioncms/pull/5009
-- Base: origin/main
-- Head: a0931068f24d7aeaa1f9c1920d4613c1b1d70082
-- Reviewed: published PR head
+- Base: origin/main (`a6f548cd531d5ad72cfc8d8c32b22e9aa0bf593d`)
+- Head: 49f113a110cd4553a62253925aec07c019f3e8f2
+- Reviewed: published PR head (worktree `.kilo/worktrees/pr-5009-erlang-fix`)
 
 ## CLI stdout (`mkd-code-review analyze --format markdown`)
 
@@ -46,10 +46,12 @@ _No issues._
 
 Request changes. Do not merge.
 
-Machine pack found no in-diff static bug. Commit `a0931068f24d` always calls `clearValues()` before `addValue` (`PSCoreItem.java` lines 1004-1006). That does not change `no_externalurl`. Parent fields are extracted with `isMultiValue` false (`PSItemDefExtractor.processFieldSet` starts at line 54 with `false`; the flag is true only for `TYPE_SIMPLE_CHILD`, line 144). `PSItemConverterUtils` sets the same flag only when the root field set is `TYPE_SIMPLE_CHILD`. Navon `no_externalurl` is a parent local field (`percNavon.itemDef.contentType`, `multiValuedType="delimited"`), so the loaded field is not multi-value. `PSItemField.addValue` already clears the value list when `isMultiValue()` is false (`PSItemField.java` lines 141-142) and then stores the new value. An extra `clearValues()` before that call is a no-op on this field. Create and update still persist the same single value they persisted before this commit, so `GET /sitemanage/section/{id}` can still omit `externalLinkUrl`.
+Machine pack found no in-diff static bug. Required checks on this head are green (CodeQL, product-docs smoke, QA wiring). That is not enough.
 
-`PSCoreItemSetTextFieldTest.setTextFieldReplacesParentDelimitedField` builds `new PSItemField(..., false)` (lines 40-42) and asserts one replacement string (lines 51-55). `addValue` already does that when the flag is false, so this test passes on the pre-fix `setTextField` that never calls `clearValues()`. `setTextFieldReplacesSimpleChildMultiValue` (line 59, flag `true`) is the only test that needs the new clear, and that is not how `no_externalurl` is built.
+`PSCoreItem.setTextField` (`system/src/main/java/com/percussion/cms/objectstore/PSCoreItem.java` lines 1004-1006) calls `clearValues()` then `addValue`. Parent fields are built with `isMultiValue` false (`PSItemDefExtractor` constructor line 54; `true` only for `TYPE_SIMPLE_CHILD`, lines 142-144). `PSItemField.addValue` already clears the value list when `isMultiValue()` is false (`PSItemField.java` lines 141-142) and then stores the new value. The extra `clearValues()` does not change `no_externalurl`.
 
-The edit panel still reads `externalLinkUrl` from GET. Surface Playwright on the earlier head failed because that property was absent after create. CI on `a0931068` at review time: Detect language changes, QA wiring, and product-docs smoke still in progress. Pending is not a pass. The writer no-op blocks even if those jobs later go green.
+`PSCoreItemSetTextFieldTest.setTextFieldReplacesParentDelimitedField` builds `new PSItemField(..., false)` (lines 40-42) and asserts a single replacement string (lines 51-55). `addValue` already does that when the flag is false, so the test passes on `setTextField` that never calls `clearValues()`. `setTextFieldReplacesSimpleChildMultiValue` (flag `true`) is the only test that needs the new clear, and that is not how parent `no_externalurl` is built.
+
+`PSManagedNavService.applyNavonPropertyMap` (line 776) is the create and update writer. Both still persist the same single value they persisted before `a0931068`. The PR test plan records that surface Playwright failed because `GET /sitemanage/section/{id}` omits `externalLinkUrl` after a create that returned 200. This head does not re-run that spec, and the new unit test does not load a navon or assert the GET property. The edit panel still reads `externalLinkUrl` from GET, so the saved URL still cannot be shown.
 
 > Co-Authored by Grok Build 1.0.46 using grok-4.6 with agent night-issue-prs-erlang.
