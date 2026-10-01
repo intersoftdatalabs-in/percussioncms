@@ -824,6 +824,7 @@ export const EXPLORER_MSG = {
   CONFIRM_PROMOTABLE:
     "perc.ui.explorer@Create a promotable version of this item in the same folder?",
   ACTION_FLUSH_OK: "perc.ui.explorer@Assembler cache flushed",
+  ACTION_FLUSH_FAILED: "perc.ui.explorer@Could not flush the assembler cache",
   ACTION_NAV_RESET_OK: "perc.ui.explorer@Managed navigation reset",
   ACTION_NEW_COPY_OK: "perc.ui.explorer@New copy created",
   ACTION_NEW_COPY_REJECTED:

@@ -110,6 +110,15 @@ describe("isDesktopOnlyActionUrl / isWebExecutableLeaf", () => {
       ),
     ).toBe(true);
     expect(isWebExecutableLeaf(leaf({ name: "client-only" }), BASE)).toBe(true);
+    expect(
+      isWebExecutableLeaf(
+        leaf({
+          name: "Flush_Cache",
+          url: "../sys_uiSupport/flushcache.html",
+        }),
+        BASE,
+      ),
+    ).toBe(true);
   });
 });
 
