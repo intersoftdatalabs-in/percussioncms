@@ -132,9 +132,13 @@ public class PSSiteSection extends PSAbstractPersistantObject implements IPSFold
 
   /**
    * @return external link URL, may be null if not set. Meaningful only for external link sections.
+   *     <p>Returned as a plain string so site-section JSON includes {@code externalLinkUrl}. An
+   *     {@code Optional} getter is omitted by the sitemanage mapper, so GET section hid the URL
+   *     after a successful create (#4985).
    */
-  public Optional<String> getExternalLinkUrl() {
-    return Optional.ofNullable(externalLinkUrl);
+  @XmlElement(name = "externalLinkUrl")
+  public String getExternalLinkUrl() {
+    return externalLinkUrl;
   }
 
   /**

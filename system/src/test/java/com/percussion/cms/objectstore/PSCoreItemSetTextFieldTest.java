@@ -28,9 +28,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
- * External-link navon {@code no_externalurl} is a parent delimited field. {@link
- * PSItemDefExtractor} builds parent fields with {@code isMultiValue} false, not the simple-child
- * flag. {@code setTextField} must still replace a blank starter (#4985).
+ * External-link navon {@code no_externalurl} is a parent field. {@link PSItemDefExtractor} builds
+ * parent fields with {@code isMultiValue} false, so {@link
+ * com.percussion.cms.objectstore.PSItemField#addValue} already replaces the single value.
+ * {@code clearValues} is required only for simple-child multi-value fields. Lookup must also
+ * accept {@code no_externalUrl} (#4985).
  */
 class PSCoreItemSetTextFieldTest {
 
@@ -85,6 +87,23 @@ class PSCoreItemSetTextFieldTest {
     item.setTextField("displaytitle", "Edited");
 
     assertEquals(List.of("Edited"), valueStrings(field));
+  }
+
+  @Test
+  void setTextFieldMatchesExternalUrlIgnoreCase() throws Exception {
+    PSItemField field =
+        new PSItemField(
+            new PSField(PSField.TYPE_LOCAL, "no_externalUrl", null), new PSUISet(), false);
+    field.addValue(new PSTextValue(""));
+    PSItemDefinition itemDef = PSFieldFinderUtilTest.loadItemDefinition("PSFieldFinderUtilTest1.xml");
+    PSCoreItem item = new PSCoreItem(itemDef);
+    Method addField = PSCoreItem.class.getDeclaredMethod("addField", PSItemField.class);
+    addField.setAccessible(true);
+    addField.invoke(item, field);
+
+    item.setTextField("no_externalurl", "https://example.com/edited");
+
+    assertEquals(List.of("https://example.com/edited"), valueStrings(field));
   }
 
   private static List<String> valueStrings(PSItemField field) throws Exception {

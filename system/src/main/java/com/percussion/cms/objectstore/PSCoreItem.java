@@ -986,12 +986,14 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Sets the text field value for the specified field name if it exists. Replaces every value
-   * already stored on the field. Parent delimited fields such as {@code no_externalurl} are not
-   * {@link PSItemField#isMultiValue()} ({@link PSItemDefExtractor} passes {@code false} for parent
-   * fields). {@link PSItemField#addValue} appends only when that flag is true, and content-editor
-   * save plus JCR {@code Property.getString()} keep the first value, so a blank starter hides the
-   * URL. Clear first for every field so the flag does not decide whether the new value is stored.
+   * Sets the text field value for the specified field name if it exists.
+   *
+   * <p>Parent fields such as {@code no_externalurl} are not {@link PSItemField#isMultiValue()}
+   * ({@link PSItemDefExtractor} passes {@code false}). {@link PSItemField#addValue} already
+   * replaces the single value in that case, so an extra {@link PSItemField#clearValues()} does not
+   * change what is stored. Simple-child fields are multi-value and {@code addValue} appends, so
+   * those are cleared first. Lookup is case-insensitive when the exact submit name misses ({@code
+   * no_externalurl} vs {@code no_externalUrl}).
    *
    * @param fieldName the field name, may not be blank.
    * @param value the new value of the field, may be blank.
@@ -1001,8 +1003,20 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
       throw new IllegalArgumentException("fieldName may not be blank");
 
     PSItemField textFld = getFieldByName(fieldName);
+    if (textFld == null) {
+      Iterator<PSItemField> fields = getAllFields();
+      while (fields.hasNext()) {
+        PSItemField candidate = fields.next();
+        if (candidate.getName() != null && candidate.getName().equalsIgnoreCase(fieldName)) {
+          textFld = candidate;
+          break;
+        }
+      }
+    }
     if (textFld != null) {
-      textFld.clearValues();
+      if (textFld.isMultiValue()) {
+        textFld.clearValues();
+      }
       textFld.addValue(new PSTextValue(value));
     }
   }

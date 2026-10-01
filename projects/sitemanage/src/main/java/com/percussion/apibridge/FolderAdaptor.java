@@ -541,7 +541,7 @@ public class FolderAdaptor implements IFolderAdaptor {
         }
       } else if (sectionType == PSSectionTypeEnum.externallink) {
         sectionInfo.setType(sectionType.name());
-        sectionInfo.setExternalLinkUrl(ApiUtils.orNull(section.getExternalLinkUrl()));
+        sectionInfo.setExternalLinkUrl(section.getExternalLinkUrl());
       }
     }
   }
@@ -803,7 +803,7 @@ public class FolderAdaptor implements IFolderAdaptor {
       } else if (currentSection.getSectionType() == PSSectionTypeEnum.externallink) {
         PSCreateExternalLinkSection req = new PSCreateExternalLinkSection();
         req.setCssClassNames(ApiUtils.orNull(currentSection.getCssClassNames()));
-        req.setExternalUrl(ApiUtils.orNull(currentSection.getExternalLinkUrl()));
+        req.setExternalUrl(currentSection.getExternalLinkUrl());
         req.setFolderPath(currentSection.getFolderPath());
         req.setLinkTitle(currentSection.getTitle());
         req.setSectionType(PSSectionTypeEnum.externallink);

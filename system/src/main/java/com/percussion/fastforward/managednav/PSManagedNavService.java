@@ -76,6 +76,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -646,8 +651,9 @@ public class PSManagedNavService implements IPSManagedNavService {
     Node node = navNodes.get(0);
     try {
       for (String name : propertyNames) {
-        if (node.hasProperty(name)) {
-          propertyMap.put(name, node.getProperty("rx:" + name).getString());
+        String value = readNavonProperty(node, name);
+        if (value != null) {
+          propertyMap.put(name, value);
         }
       }
     } catch (Exception e) {
@@ -656,6 +662,92 @@ public class PSManagedNavService implements IPSManagedNavService {
       throw new PSNavException(e);
     }
     return propertyMap;
+  }
+
+  /**
+   * Read one navon field for {@link #getNavonProperties}. Matches {@code rx:} names
+   * case-insensitively ({@code no_externalurl} / {@code no_externalUrl}). Multi-value properties
+   * and {@code ;}-delimited external-url columns return the first non-blank token so a blank
+   * starter does not hide {@code externalLinkUrl} (#4985).
+   */
+  static String readNavonProperty(Node node, String name) throws RepositoryException {
+    Property property = resolveNavonProperty(node, name);
+    if (property == null) {
+      return null;
+    }
+    String raw = readPropertyText(property);
+    if (raw == null) {
+      return null;
+    }
+    if (name != null && name.toLowerCase().contains("externalurl") && raw.indexOf(';') >= 0) {
+      return firstNonBlankToken(raw);
+    }
+    return raw;
+  }
+
+  private static Property resolveNavonProperty(Node node, String name) throws RepositoryException {
+    if (node.hasProperty(name)) {
+      return node.getProperty(name);
+    }
+    String rx = name.startsWith("rx:") ? name : "rx:" + name;
+    if (!rx.equals(name) && node.hasProperty(rx)) {
+      return node.getProperty(rx);
+    }
+    PropertyIterator properties = node.getProperties();
+    while (properties.hasNext()) {
+      Property candidate = properties.nextProperty();
+      String candidateName = candidate.getName();
+      if (candidateName != null
+          && (candidateName.equalsIgnoreCase(name) || candidateName.equalsIgnoreCase(rx))) {
+        return candidate;
+      }
+    }
+    return null;
+  }
+
+  private static String readPropertyText(Property property) throws RepositoryException {
+    try {
+      if (property.isMultiple()) {
+        return firstNonBlankValue(property.getValues());
+      }
+      return property.getString();
+    } catch (ValueFormatException singleValued) {
+      try {
+        return firstNonBlankValue(property.getValues());
+      } catch (ValueFormatException multiValued) {
+        return property.getString();
+      }
+    }
+  }
+
+  private static String firstNonBlankValue(Value[] values) throws RepositoryException {
+    String fallback = null;
+    if (values == null) {
+      return null;
+    }
+    for (Value value : values) {
+      String text = value == null ? null : value.getString();
+      if (text != null && !text.isBlank()) {
+        return text;
+      }
+      if (fallback == null) {
+        fallback = text == null ? "" : text;
+      }
+    }
+    return fallback;
+  }
+
+  private static String firstNonBlankToken(String raw) {
+    String fallback = null;
+    for (String part : raw.split(";", -1)) {
+      if (part != null && !part.isBlank()) {
+        return part;
+      }
+      if (fallback == null) {
+        fallback = part;
+      }
+    }
+    return fallback;
   }
 
   /*
