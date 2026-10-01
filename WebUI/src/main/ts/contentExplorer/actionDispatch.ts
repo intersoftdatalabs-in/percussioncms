@@ -476,6 +476,16 @@ export function isNewItemAction(
   action: MenuAction,
   parentName?: string,
 ): boolean {
+  // The Create menu also hosts New Copy, promotable version, and translate.
+  // Those names are not content-type leaves (#5006).
+  const name = normalizeActionName(action.name);
+  if (
+    name === "workflow_newversion" ||
+    name === "edit_promotableversion" ||
+    name === "translate"
+  ) {
+    return false;
+  }
   if (isNewItemHostActionName(action.name)) {
     return true;
   }
@@ -1934,7 +1944,10 @@ export async function dispatchAction(
   }
 
   if (name === "workflow_newversion") {
-    if (!item || isFolder(item) || !item.id) {
+    // Same-folder itemmanagement new copy (#5006). Folders, sites, and a
+    // blank selection are not a copy. HTTP 400/403/409 stay errors: no refresh.
+    const copyId = item?.id == null ? "" : String(item.id).trim();
+    if (!item || isFolder(item) || copyId.length === 0) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
     const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
@@ -1943,10 +1956,34 @@ export async function dispatchAction(
     if (!ok) {
       return { kind: "rest" };
     }
-    if (ctx.createCopy) {
-      await ctx.createCopy(String(item.id));
-    } else {
-      await createNewCopy(String(item.id));
+    try {
+      if (ctx.createCopy) {
+        await ctx.createCopy(copyId);
+      } else {
+        await createNewCopy(copyId);
+      }
+    } catch (err: unknown) {
+      if (isApiError(err)) {
+        if (err.status === 400) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.ACTION_NEW_COPY_REJECTED,
+          };
+        }
+        if (err.status === 403) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.ACTION_NEW_COPY_FORBIDDEN,
+          };
+        }
+        if (err.status === 409) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.ACTION_NEW_COPY_CONFLICT,
+          };
+        }
+      }
+      throw err;
     }
     return { kind: "rest", refresh: true };
   }

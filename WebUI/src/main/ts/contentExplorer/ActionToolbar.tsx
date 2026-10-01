@@ -140,8 +140,16 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
   const baseId = useId();
 
   useEffect(() => {
-    setOpenMenu(null);
-  }, [props.actions]);
+    // A selection refresh replaces the actions array while a menu is open.
+    // Keep that menu when its parent is still present so the click is not
+    // detached mid-activation (#5006). Close it when the parent is gone.
+    setOpenMenu((prev) => {
+      if (!prev) {
+        return null;
+      }
+      return actions.some((a) => a.name === prev) ? prev : null;
+    });
+  }, [actions]);
 
   useEffect(() => {
     if (!openMenu) return;

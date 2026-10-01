@@ -739,13 +739,140 @@ describe("actionDispatch", () => {
 
   it("New Copy confirms then copies", async () => {
     const createCopy = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
     const result = await dispatchAction(
       action({ name: "Workflow_NewVersion" }),
-      { item: item(), createCopy, confirm: () => true },
+      { item: item(), createCopy, confirm },
     );
     expect(result.kind).toBe("rest");
     expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBeUndefined();
+    expect(confirm).toHaveBeenCalledWith(EXPLORER_MSG.CONFIRM_NEW_COPY);
     expect(createCopy).toHaveBeenCalledWith("42");
+  });
+
+  it("New Copy under the Create menu copies instead of creating a content type", async () => {
+    const createCopy = vi.fn().mockResolvedValue(undefined);
+    const createItem = vi.fn();
+    const result = await dispatchAction(
+      action({
+        name: "Workflow_NewVersion",
+        parentName: "Create",
+        url: "../sys_cxSupport/contenteditorurls.html?sys_command=relate&sys_relationshiptype=NewCopy",
+      }),
+      {
+        item: item(),
+        folderPath: "/Sites/Demo",
+        parentName: "Create",
+        createCopy,
+        createItem,
+        confirm: () => true,
+      },
+    );
+    expect(createItem).not.toHaveBeenCalled();
+    expect(createCopy).toHaveBeenCalledWith("42");
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBeUndefined();
+  });
+
+  it("New Copy on an asset confirms then copies", async () => {
+    const createCopy = vi.fn().mockResolvedValue(undefined);
+    const result = await dispatchAction(
+      action({ name: "Workflow_NewVersion" }),
+      {
+        item: item({
+          id: "1-101-88",
+          name: "Logo",
+          type: "percImage",
+          category: "asset",
+          path: "/Assets/uploads/logo.png",
+        }),
+        createCopy,
+        confirm: () => true,
+      },
+    );
+    expect(result.refresh).toBe(true);
+    expect(createCopy).toHaveBeenCalledWith("1-101-88");
+  });
+
+  it("New Copy on a folder or site does not copy or refresh", async () => {
+    const createCopy = vi.fn();
+    const folder = await dispatchAction(
+      action({ name: "Workflow_NewVersion" }),
+      {
+        item: item({
+          id: "7",
+          name: "News",
+          type: "Folder",
+          category: "folder",
+          path: "/Sites/Demo/News/",
+        }),
+        createCopy,
+        confirm: () => true,
+      },
+    );
+    expect(createCopy).not.toHaveBeenCalled();
+    expect(folder.refresh).toBeUndefined();
+    expect(folder.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+
+    const site = await dispatchAction(
+      action({ name: "Workflow_NewVersion" }),
+      {
+        item: item({
+          id: "3",
+          name: "Demo",
+          type: "site",
+          category: "site",
+          path: "/Sites/Demo/",
+        }),
+        createCopy,
+        confirm: () => true,
+      },
+    );
+    expect(createCopy).not.toHaveBeenCalled();
+    expect(site.refresh).toBeUndefined();
+    expect(site.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+  });
+
+  it("New Copy with no selection or a blank id does not copy", async () => {
+    const createCopy = vi.fn();
+    const empty = await dispatchAction(
+      action({ name: "Workflow_NewVersion" }),
+      { item: null, createCopy, confirm: () => true },
+    );
+    expect(createCopy).not.toHaveBeenCalled();
+    expect(empty.refresh).toBeUndefined();
+    expect(empty.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+
+    const blank = await dispatchAction(
+      action({ name: "Workflow_NewVersion" }),
+      { item: item({ id: "  " }), createCopy, confirm: () => true },
+    );
+    expect(createCopy).not.toHaveBeenCalled();
+    expect(blank.refresh).toBeUndefined();
+    expect(blank.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+  });
+
+  it("New Copy HTTP 400, 403, and 409 do not refresh", async () => {
+    const cases: Array<[number, string]> = [
+      [400, EXPLORER_MSG.ACTION_NEW_COPY_REJECTED],
+      [403, EXPLORER_MSG.ACTION_NEW_COPY_FORBIDDEN],
+      [409, EXPLORER_MSG.ACTION_NEW_COPY_CONFLICT],
+    ];
+    for (const [status, messageKey] of cases) {
+      const createCopy = vi.fn().mockRejectedValue({
+        status,
+        statusText: "no",
+        body: { message: "denied" },
+      });
+      const result = await dispatchAction(
+        action({ name: "Workflow_NewVersion" }),
+        { item: item(), createCopy, confirm: () => true },
+      );
+      expect(createCopy).toHaveBeenCalledTimes(1);
+      expect(result.refresh).toBeUndefined();
+      expect(result.messageKey).toBe(messageKey);
+    }
   });
 
   it("Promotable Version confirms then creates", async () => {

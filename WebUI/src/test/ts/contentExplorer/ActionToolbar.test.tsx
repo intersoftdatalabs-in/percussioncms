@@ -110,6 +110,38 @@ describe("ActionToolbar", () => {
     );
   });
 
+  it("keeps an open menu when a refresh still includes that parent (#5006)", () => {
+    const menu = (label: string): MenuAction[] => [
+      {
+        name: "Create",
+        label: "Create",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          {
+            name: "Workflow_NewVersion",
+            label,
+            sortRank: 0,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+    ];
+    const onInvoke = vi.fn();
+    const view = render(
+      <ActionToolbar actions={menu("New Copy")} onInvoke={onInvoke} />,
+    );
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Create"));
+    expect(screen.getByTestId("action-toolbar-item-Workflow_NewVersion")).toBeTruthy();
+    view.rerender(<ActionToolbar actions={menu("New Copy")} onInvoke={onInvoke} />);
+    expect(screen.getByTestId("action-toolbar-menu-Create")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Workflow_NewVersion"));
+    expect(onInvoke).toHaveBeenCalledWith(
+      "Workflow_NewVersion",
+      expect.objectContaining({ name: "Workflow_NewVersion", parentName: "Create" }),
+    );
+  });
+
   it("does not dump multi-level MENU grandchildren as top-level toolbar buttons (#2730)", () => {
     const nested: MenuAction[] = [
       {
