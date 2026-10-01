@@ -51,6 +51,7 @@ import { DeleteSitePanel } from "../components/DeleteSitePanel";
 import { RenameSitePanel } from "../components/RenameSitePanel";
 import { SiteBaseUrlPanel } from "../components/SiteBaseUrlPanel";
 import { SiteDescriptionPanel } from "../components/SiteDescriptionPanel";
+import { SiteProtocolPanel } from "../components/SiteProtocolPanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
 import { useDirtyForm } from "../dirtyFormContext";
@@ -795,6 +796,7 @@ export function SiteWorkspace({
       ) : null}
 
       <SiteDescriptionPanel siteName={siteName ?? ""} />
+      <SiteProtocolPanel siteName={siteName ?? ""} />
       <SiteBaseUrlPanel siteName={siteName ?? ""} />
 
       <ItemPublishingActionsMenu

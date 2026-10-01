@@ -246,6 +246,19 @@ export const MSG = {
     "perc.ui.publish.modern@The site description conflicts with another change",
   PUBLISH_SITE_DESCRIPTION_ERROR:
     "perc.ui.publish.modern@Could not save the site description",
+  PUBLISH_SITE_PROTOCOL: "perc.ui.publish.modern@Protocol",
+  PUBLISH_EDIT_SITE_PROTOCOL: "perc.ui.publish.modern@Edit protocol",
+  PUBLISH_SITE_PROTOCOL_SAVED: "perc.ui.publish.modern@Site protocol saved",
+  PUBLISH_SITE_PROTOCOL_INVALID:
+    "perc.ui.publish.modern@Choose http or https. Any other value is not saved",
+  PUBLISH_SITE_PROTOCOL_BAD:
+    "perc.ui.publish.modern@The site protocol was not accepted",
+  PUBLISH_SITE_PROTOCOL_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to edit this site protocol",
+  PUBLISH_SITE_PROTOCOL_CONFLICT:
+    "perc.ui.publish.modern@The site protocol conflicts with another change",
+  PUBLISH_SITE_PROTOCOL_ERROR:
+    "perc.ui.publish.modern@Could not save the site protocol",
   PUBLISH_SITE_BASE_URL: "perc.ui.publish.modern@Base URL",
   PUBLISH_EDIT_SITE_BASE_URL: "perc.ui.publish.modern@Edit base URL",
   PUBLISH_SITE_BASE_URL_SAVED: "perc.ui.publish.modern@Site base URL saved",
