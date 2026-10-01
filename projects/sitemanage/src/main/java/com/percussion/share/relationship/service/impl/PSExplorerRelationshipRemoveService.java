@@ -172,17 +172,22 @@ public class PSExplorerRelationshipRemoveService implements IPSExplorerRelations
     try {
       PSRelationship created =
           systemWs.createRelationship(configName.trim(), owner.guid, target.guid);
-      if (created == null || isFolder(created)) {
-        return ExplorerRelationshipAction.of(
-            ExplorerRelationshipAction.Status.CONFLICT,
-            "Folder relationships cannot be added from this panel");
+      // createRelationship already persists the row. Rejected types and a failed
+      // follow-up save must delete that row so CONFLICT does not leave it stored.
+      if (created == null || isFolder(created) || isActiveAssembly(created)) {
+        deletePersisted(created);
+        String message =
+            created != null && isActiveAssembly(created)
+                ? "Active Assembly relationships cannot be added from this panel"
+                : "Folder relationships cannot be added from this panel";
+        return ExplorerRelationshipAction.of(ExplorerRelationshipAction.Status.CONFLICT, message);
       }
-      if (isActiveAssembly(created)) {
-        return ExplorerRelationshipAction.of(
-            ExplorerRelationshipAction.Status.CONFLICT,
-            "Active Assembly relationships cannot be added from this panel");
+      try {
+        systemWs.saveRelationships(Collections.singletonList(created));
+      } catch (Exception saveFailed) {
+        deletePersisted(created);
+        throw saveFailed;
       }
-      systemWs.saveRelationships(Collections.singletonList(created));
       return ExplorerRelationshipAction.created(toEdge(created));
     } catch (PSErrorsException | PSErrorException e) {
       if (isAccessDenied(e)) {
@@ -209,6 +214,26 @@ public class PSExplorerRelationshipRemoveService implements IPSExplorerRelations
       return ExplorerRelationshipAction.of(
           ExplorerRelationshipAction.Status.CONFLICT,
           safeMessage(e, "The relationship could not be added"));
+    }
+  }
+
+  /**
+   * Best-effort delete of a row {@link IPSSystemWs#createRelationship} already saved. Failures are
+   * swallowed so the caller can still return conflict instead of success.
+   */
+  private void deletePersisted(PSRelationship created) {
+    if (created == null || created.getId() <= 0) {
+      return;
+    }
+    try {
+      IPSGuid guid = guids.relationship(created.getId());
+      if (isActiveAssembly(created)) {
+        contentWs.deleteContentRelations(Collections.singletonList(guid));
+      } else {
+        systemWs.deleteRelationships(Collections.singletonList(guid));
+      }
+    } catch (Exception ignored) {
+      // The add still fails closed. A second failure here must not report success.
     }
   }
 

@@ -174,6 +174,43 @@ class PSExplorerRelationshipRemoveServiceTest {
     ExplorerRelationshipAction action = service.addOwned("42", "9", "Translation");
 
     assertEquals(ExplorerRelationshipAction.Status.CONFLICT, action.getStatus());
+    verify(systemWs).deleteRelationships(anyList());
+  }
+
+  @Test
+  void addDeletesPersistedFolderReturnedByCreate() throws Exception {
+    IPSGuid targetGuid = org.mockito.Mockito.mock(IPSGuid.class);
+    when(idMapper.getGuid("42")).thenReturn(itemGuid);
+    when(idMapper.getGuid("9")).thenReturn(targetGuid);
+    when(itemGuid.getUUID()).thenReturn(42);
+    when(targetGuid.getUUID()).thenReturn(9);
+    PSRelationship created = edge(12, 42, 9, "CustomLink", PSRelationshipConfig.CATEGORY_FOLDER);
+    when(systemWs.createRelationship("CustomLink", itemGuid, targetGuid)).thenReturn(created);
+
+    ExplorerRelationshipAction action = service.addOwned("42", "9", "CustomLink");
+
+    assertEquals(ExplorerRelationshipAction.Status.CONFLICT, action.getStatus());
+    verify(systemWs).deleteRelationships(anyList());
+    verify(systemWs, never()).saveRelationships(anyList());
+  }
+
+  @Test
+  void addDeletesPersistedActiveAssemblyReturnedByCreate() throws Exception {
+    IPSGuid targetGuid = org.mockito.Mockito.mock(IPSGuid.class);
+    when(idMapper.getGuid("42")).thenReturn(itemGuid);
+    when(idMapper.getGuid("9")).thenReturn(targetGuid);
+    when(itemGuid.getUUID()).thenReturn(42);
+    when(targetGuid.getUUID()).thenReturn(9);
+    PSRelationship created = edge(13, 42, 9, "ActiveAssembly", "rs_activeassembly");
+    when(created.getConfig().isActiveAssemblyRelationship()).thenReturn(true);
+    when(systemWs.createRelationship("ActiveAssembly", itemGuid, targetGuid)).thenReturn(created);
+
+    ExplorerRelationshipAction action = service.addOwned("42", "9", "ActiveAssembly");
+
+    assertEquals(ExplorerRelationshipAction.Status.CONFLICT, action.getStatus());
+    verify(contentWs).deleteContentRelations(anyList());
+    verify(systemWs, never()).saveRelationships(anyList());
+    verify(systemWs, never()).deleteRelationships(anyList());
   }
 
   @Test
