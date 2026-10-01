@@ -879,11 +879,101 @@ describe("actionDispatch", () => {
     const createPromotable = vi.fn().mockResolvedValue(undefined);
     const result = await dispatchAction(
       action({ name: "Edit_PromotableVersion" }),
-      { item: item(), createPromotable, confirm: () => true },
+      {
+        item: item({
+          id: "1-101-88",
+          name: "Logo",
+          type: "percImage",
+          category: "asset",
+          path: "/Assets/uploads/logo.png",
+        }),
+        createPromotable,
+        confirm: () => true,
+      },
     );
     expect(result.kind).toBe("rest");
     expect(result.refresh).toBe(true);
-    expect(createPromotable).toHaveBeenCalledWith("42");
+    expect(createPromotable).toHaveBeenCalledWith("1-101-88");
+  });
+
+  it("Promotable Version on a folder or site does not create or refresh", async () => {
+    const createPromotable = vi.fn();
+    const folder = await dispatchAction(
+      action({ name: "Edit_PromotableVersion" }),
+      {
+        item: item({
+          id: "7",
+          name: "News",
+          type: "Folder",
+          category: "folder",
+          path: "/Sites/Demo/News/",
+        }),
+        createPromotable,
+        confirm: () => true,
+      },
+    );
+    expect(createPromotable).not.toHaveBeenCalled();
+    expect(folder.refresh).toBeUndefined();
+    expect(folder.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+
+    const site = await dispatchAction(
+      action({ name: "Edit_PromotableVersion" }),
+      {
+        item: item({
+          id: "3",
+          name: "Demo",
+          type: "site",
+          category: "site",
+          path: "/Sites/Demo/",
+        }),
+        createPromotable,
+        confirm: () => true,
+      },
+    );
+    expect(createPromotable).not.toHaveBeenCalled();
+    expect(site.refresh).toBeUndefined();
+    expect(site.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+  });
+
+  it("Promotable Version with no selection or a blank id does not create", async () => {
+    const createPromotable = vi.fn();
+    const empty = await dispatchAction(
+      action({ name: "Edit_PromotableVersion" }),
+      { item: null, createPromotable, confirm: () => true },
+    );
+    expect(createPromotable).not.toHaveBeenCalled();
+    expect(empty.refresh).toBeUndefined();
+    expect(empty.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+
+    const blank = await dispatchAction(
+      action({ name: "Edit_PromotableVersion" }),
+      { item: item({ id: "  " }), createPromotable, confirm: () => true },
+    );
+    expect(createPromotable).not.toHaveBeenCalled();
+    expect(blank.refresh).toBeUndefined();
+    expect(blank.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+  });
+
+  it("Promotable Version HTTP 400, 403, and 409 do not refresh", async () => {
+    const cases: Array<[number, string]> = [
+      [400, EXPLORER_MSG.ACTION_PROMOTABLE_REJECTED],
+      [403, EXPLORER_MSG.ACTION_PROMOTABLE_FORBIDDEN],
+      [409, EXPLORER_MSG.ACTION_PROMOTABLE_CONFLICT],
+    ];
+    for (const [status, messageKey] of cases) {
+      const createPromotable = vi.fn().mockRejectedValue({
+        status,
+        statusText: "no",
+        body: { message: "denied" },
+      });
+      const result = await dispatchAction(
+        action({ name: "Edit_PromotableVersion" }),
+        { item: item(), createPromotable, confirm: () => true },
+      );
+      expect(createPromotable).toHaveBeenCalledTimes(1);
+      expect(result.refresh).toBeUndefined();
+      expect(result.messageKey).toBe(messageKey);
+    }
   });
 
   it("New Copy cancel does not copy", async () => {

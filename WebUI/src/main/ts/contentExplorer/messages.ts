@@ -833,4 +833,10 @@ export const EXPLORER_MSG = {
   ACTION_NEW_COPY_CONFLICT:
     "perc.ui.explorer@A new copy conflicts with the item state (HTTP 409)",
   ACTION_PROMOTABLE_OK: "perc.ui.explorer@Promotable version created",
+  ACTION_PROMOTABLE_REJECTED:
+    "perc.ui.explorer@Could not create a promotable version (HTTP 400)",
+  ACTION_PROMOTABLE_FORBIDDEN:
+    "perc.ui.explorer@You are not allowed to create a promotable version (HTTP 403)",
+  ACTION_PROMOTABLE_CONFLICT:
+    "perc.ui.explorer@A promotable version conflicts with the item state (HTTP 409)",
 } as const;
