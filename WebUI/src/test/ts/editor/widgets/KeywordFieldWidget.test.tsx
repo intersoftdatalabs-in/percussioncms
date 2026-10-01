@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { KeywordSummary } from "../../../../main/ts/api/developer/types";
@@ -134,6 +134,32 @@ describe("keywordChoicesForField", () => {
 describe("KeywordFieldWidget", () => {
   afterEach(() => {
     cleanup();
+  });
+
+  it("does not publish choices when the catalog request fails", async () => {
+    const onChoices = vi.fn();
+    const started = vi.fn();
+    render(
+      <KeywordFieldWidget
+        name="keywords"
+        value="legacy"
+        readOnly={false}
+        onChange={vi.fn()}
+        onChoices={onChoices}
+        loadKeywords={async () => {
+          started();
+          throw new Error("catalog down");
+        }}
+      />,
+    );
+    await waitFor(() => {
+      expect(started).toHaveBeenCalled();
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.getByTestId("editor-field-keywords")).toBeTruthy();
+    expect(onChoices).not.toHaveBeenCalled();
   });
 
   it("renders choices and reports the selected value", async () => {

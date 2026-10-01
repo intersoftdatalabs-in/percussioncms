@@ -124,7 +124,10 @@ export interface KeywordFieldWidgetProps {
   readOnly: boolean;
   onChange: (value: string) => void;
   loadKeywords?: () => Promise<KeywordSummary[]>;
-  /** Fired once the catalog request settles (including an empty catalog). */
+  /**
+   * Fired when a catalog request succeeds, including an empty catalog.
+   * A rejected load does not publish choices.
+   */
   onChoices?: (options: KeywordOption[]) => void;
 }
 
@@ -152,9 +155,11 @@ export function KeywordFieldWidget({
         }
       })
       .catch(() => {
+        // A failed load is not an empty catalog. Leave choices unpublished
+        // so Save is not blocked for values that could not be checked.
         if (!cancelled) {
           setKeywords([]);
-          setLoaded(true);
+          setLoaded(false);
         }
       });
     return () => {

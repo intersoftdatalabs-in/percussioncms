@@ -1206,6 +1206,68 @@ describe("EditorHost rich controls", () => {
     expect(sent.fields.find((field) => field.name === "keywords")?.value).toBe("events");
   });
 
+  it("still PUTs when the keyword catalog fails to load", async () => {
+    const saveFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percEvent",
+      name: "Home",
+      checkoutUser: "admin",
+      fields: [
+        { name: "sys_title", value: "Home edited" },
+        { name: "keywords", value: "legacy" },
+      ],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percEvent",
+                  name: "Home",
+                  checkoutUser: "admin",
+                  revision: 1,
+                  fields: [
+                    { name: "sys_title", value: "Home" },
+                    { name: "keywords", value: "legacy" },
+                  ],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    { name: "keywords", label: "Keywords", control: "sys_DropDownSingle" },
+                  ],
+                })}
+                loadKeywords={async () => {
+                  throw new Error("catalog down");
+                }}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-sys_title")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-sys_title"), {
+      target: { value: "Home edited" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalledTimes(1);
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "sys_title")?.value).toBe("Home edited");
+    expect(sent.fields.find((field) => field.name === "keywords")?.value).toBe("legacy");
+    expect(screen.queryByTestId("editor-field-error-keywords")).toBeNull();
+  });
+
   it("saves a keyword choice, shows it again, and does not PUT on close", async () => {
     let stored = "news";
     const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => {
