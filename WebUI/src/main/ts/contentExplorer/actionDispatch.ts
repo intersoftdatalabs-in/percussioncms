@@ -1989,7 +1989,10 @@ export async function dispatchAction(
   }
 
   if (name === "edit_promotableversion") {
-    if (!item || isFolder(item) || !item.id) {
+    // Same-folder itemmanagement promotable version (#5007). Folders, sites,
+    // and a blank selection are not a version. HTTP 400/403/409 stay errors.
+    const versionId = item?.id == null ? "" : String(item.id).trim();
+    if (!item || isFolder(item) || versionId.length === 0) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
     const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
@@ -1998,10 +2001,34 @@ export async function dispatchAction(
     if (!ok) {
       return { kind: "rest" };
     }
-    if (ctx.createPromotable) {
-      await ctx.createPromotable(String(item.id));
-    } else {
-      await createPromotableVersion(String(item.id));
+    try {
+      if (ctx.createPromotable) {
+        await ctx.createPromotable(versionId);
+      } else {
+        await createPromotableVersion(versionId);
+      }
+    } catch (err: unknown) {
+      if (isApiError(err)) {
+        if (err.status === 400) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.ACTION_PROMOTABLE_REJECTED,
+          };
+        }
+        if (err.status === 403) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.ACTION_PROMOTABLE_FORBIDDEN,
+          };
+        }
+        if (err.status === 409) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.ACTION_PROMOTABLE_CONFLICT,
+          };
+        }
+      }
+      throw err;
     }
     return { kind: "rest", refresh: true };
   }
