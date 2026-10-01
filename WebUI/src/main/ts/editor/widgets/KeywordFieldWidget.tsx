@@ -114,23 +114,38 @@ export function KeywordFieldWidget({
     () => keywordChoicesForField(keywords, name),
     [keywords, name],
   );
+  const selected = catalogText(value);
+  const showClear = !readOnly && selected.length > 0;
 
   return (
-    <select
-      className={`${styles.input} ${readOnly ? styles.readonly : ""}`}
-      data-testid={`editor-field-${name}`}
-      data-editor-kind="keyword"
-      name={name}
-      value={catalogText(value)}
-      disabled={readOnly}
-      onChange={(e) => onChange(e.target.value)}
-    >
-      <option value="">{message(EDITOR_MSG.KEYWORD_EMPTY)}</option>
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
+    <div className={styles.linkRow}>
+      <select
+        className={`${styles.input} ${readOnly ? styles.readonly : ""}`}
+        data-testid={`editor-field-${name}`}
+        data-editor-kind="keyword"
+        name={name}
+        value={selected}
+        disabled={readOnly}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <option value="">{message(EDITOR_MSG.KEYWORD_EMPTY)}</option>
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      {showClear ? (
+        <button
+          type="button"
+          className={styles.button}
+          data-testid={`editor-keyword-clear-${name}`}
+          aria-label={message(EDITOR_MSG.KEYWORD_CLEAR)}
+          onClick={() => onChange("")}
+        >
+          {message(EDITOR_MSG.KEYWORD_CLEAR)}
+        </button>
+      ) : null}
+    </div>
   );
 }

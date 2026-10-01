@@ -143,4 +143,42 @@ describe("KeywordFieldWidget", () => {
     const select = screen.getByTestId("editor-field-keywords") as HTMLSelectElement;
     expect(select.value).toBe("7");
   });
+
+  it("clears a chosen keyword locally and hides clear when empty or read-only", async () => {
+    const onChange = vi.fn();
+    const view = render(
+      <KeywordFieldWidget
+        name="keywords"
+        value="news"
+        readOnly={false}
+        onChange={onChange}
+        loadKeywords={async () => catalog}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-keyword-clear-keywords")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-keyword-clear-keywords"));
+    expect(onChange).toHaveBeenCalledWith("");
+    view.rerender(
+      <KeywordFieldWidget
+        name="keywords"
+        value=""
+        readOnly={false}
+        onChange={onChange}
+        loadKeywords={async () => catalog}
+      />,
+    );
+    expect(screen.queryByTestId("editor-keyword-clear-keywords")).toBeNull();
+    view.rerender(
+      <KeywordFieldWidget
+        name="keywords"
+        value="news"
+        readOnly
+        onChange={onChange}
+        loadKeywords={async () => catalog}
+      />,
+    );
+    expect(screen.queryByTestId("editor-keyword-clear-keywords")).toBeNull();
+  });
 });

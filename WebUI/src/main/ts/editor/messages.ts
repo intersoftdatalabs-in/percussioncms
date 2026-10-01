@@ -119,6 +119,7 @@ export const EDITOR_MSG = {
     "perc.ui.editor@You are not allowed to clear this field.",
   FILE_CLEAR_BAD_REQUEST: "perc.ui.editor@That field could not be cleared.",
   KEYWORD_EMPTY: "perc.ui.editor@Select a keyword",
+  KEYWORD_CLEAR: "perc.ui.editor@Clear keyword",
   KEYWORD_BAD_REQUEST: "perc.ui.editor@That keyword could not be saved.",
   KEYWORD_FORBIDDEN:
     "perc.ui.editor@You are not allowed to save that keyword.",

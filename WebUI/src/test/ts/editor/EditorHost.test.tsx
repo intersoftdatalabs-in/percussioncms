@@ -1348,7 +1348,130 @@ describe("EditorHost rich controls", () => {
     });
     const select = screen.getByTestId("editor-field-keywords") as HTMLSelectElement;
     expect(select.disabled).toBe(true);
+    expect(screen.queryByTestId("editor-keyword-clear-keywords")).toBeNull();
     expect(screen.queryByTestId("editor-save")).toBeNull();
+  });
+
+  it("clears a keyword on save, does not PUT on close, and keeps 400 and 403 on the field", async () => {
+    let stored = "news";
+    const saveFields = vi
+      .fn()
+      .mockImplementationOnce(async () => {
+        throw { status: 400, body: { message: "rejected" } };
+      })
+      .mockImplementationOnce(async () => {
+        throw { status: 403, body: { message: "denied" } };
+      })
+      .mockImplementation(async (_id: string, body: ItemEditorFields) => {
+        const next = body.fields.find((field) => field.name === "keywords")?.value ?? stored;
+        stored = next;
+        return {
+          contentId: "42",
+          contentType: "percEvent",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 2,
+          fields: body.fields,
+        };
+      });
+    const host = (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percEvent",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 2,
+          fields: [
+            { name: "sys_title", value: "Home" },
+            { name: "keywords", value: stored },
+          ],
+        })}
+        saveFields={saveFields}
+        loadType={async () => ({
+          fields: [
+            { name: "sys_title", label: "Title", control: "sys_EditBox" },
+            { name: "keywords", label: "Keywords", control: "sys_DropDownSingle" },
+          ],
+        })}
+        loadKeywords={async () => [
+          {
+            value: "keywords",
+            choices: [
+              { value: "news", label: "News" },
+              { value: "events", label: "Events" },
+            ],
+          },
+        ]}
+        confirmLeaveUnsaved={() => true}
+      />
+    );
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={host} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-keyword-clear-keywords")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-keyword-clear-keywords"));
+    expect((screen.getByTestId("editor-field-keywords") as HTMLSelectElement).value).toBe("");
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    view.unmount();
+    const again = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={host} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-keywords") as HTMLSelectElement).value).toBe(
+        "news",
+      );
+    });
+    fireEvent.click(screen.getByTestId("editor-keyword-clear-keywords"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-keywords").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-keywords").textContent).toMatch(
+        /not allowed/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalledTimes(3);
+    });
+    const sent = saveFields.mock.calls[2][1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "keywords")?.value).toBe("");
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-keywords") as HTMLSelectElement).value).toBe("");
+    });
+    expect(screen.queryByTestId("editor-keyword-clear-keywords")).toBeNull();
+    expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    again.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={host} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-keywords") as HTMLSelectElement).value).toBe("");
+    });
+    expect(screen.queryByTestId("editor-keyword-clear-keywords")).toBeNull();
   });
 
   it("maps file-field upload 403 and 413 as errors, not success", async () => {
