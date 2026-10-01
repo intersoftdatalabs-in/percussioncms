@@ -17,11 +17,13 @@
 
 package com.percussion.rest.sites;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 /**
  * Represents a Site in Percussion CMS. Sunny Sal: "Site ka hero, URL ka zero!"
@@ -60,6 +62,13 @@ public class Site {
   private String defaultDocument = "index.html";
 
   private String canonicalDist = "pages";
+
+  /**
+   * True only when {@link #setCanonicalDist(String)} ran. The field initializer is {@code pages},
+   * so an omitted JSON property must not be treated as an explicit write (partial site PUT).
+   */
+  private transient boolean canonicalDistSpecified;
+
   private boolean canonicalReplace = true;
   private boolean pageBasedSite = false;
   private Guid guid;
@@ -208,6 +217,14 @@ public class Site {
 
   public void setCanonicalDist(String canonicalDist) {
     this.canonicalDist = canonicalDist;
+    this.canonicalDistSpecified = true;
+  }
+
+  /** Whether the client included {@code canonicalDist} (setter), not the Java default. */
+  @JsonIgnore
+  @XmlTransient
+  public boolean isCanonicalDistSpecified() {
+    return canonicalDistSpecified;
   }
 
   public boolean isCanonicalReplace() {

@@ -50,6 +50,7 @@ import { CopySitePanel } from "../components/CopySitePanel";
 import { DeleteSitePanel } from "../components/DeleteSitePanel";
 import { RenameSitePanel } from "../components/RenameSitePanel";
 import { SiteBaseUrlPanel } from "../components/SiteBaseUrlPanel";
+import { SiteCanonicalDistPanel } from "../components/SiteCanonicalDistPanel";
 import { SiteDefaultDocumentPanel } from "../components/SiteDefaultDocumentPanel";
 import { SiteFileExtensionPanel } from "../components/SiteFileExtensionPanel";
 import { SiteDescriptionPanel } from "../components/SiteDescriptionPanel";
@@ -802,6 +803,7 @@ export function SiteWorkspace({
       <SiteBaseUrlPanel siteName={siteName ?? ""} />
       <SiteDefaultDocumentPanel siteName={siteName ?? ""} />
       <SiteFileExtensionPanel siteName={siteName ?? ""} />
+      <SiteCanonicalDistPanel siteName={siteName ?? ""} />
 
       <ItemPublishingActionsMenu
         itemId={itemId}

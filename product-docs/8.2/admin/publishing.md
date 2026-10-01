@@ -129,6 +129,24 @@ does not return **400** for blank). HTTP **400**, **403**, and **409** stay on t
 form with an error and do not show a saved notice. Protocol, default document,
 description, base URL, rename, copy, and delete are separate actions.
 
+### Edit the open site canonical distribution (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card. The workspace shows the
+site **Canonical distribution** (`pages` or `sections`) loaded from
+`GET /services/sites/{nameOrId}` (the wire field is `canonicalDist`). **Edit canonical
+distribution** opens a form. **Save** sends `PUT /services/sites/{nameOrId}` with the
+site name and `canonicalDist` only (description, base URL, protocol, and other fields
+are not sent). The value must be `pages` or `sections`. The workspace shows the saved
+value, including after you leave and reopen the site. **Cancel**, **Save** when the
+value is unchanged, and a blank or unsupported value do not call PUT and do not show a
+saved notice. When `canonicalDist` is present on update, a blank or unsupported value
+is **400** and does not change the stored value. Omitting the field leaves the stored
+value unchanged (the wire default of `pages` is not an implicit write). HTTP **400**,
+**403**, and **409** stay on the form with an error and do not show a saved notice.
+Protocol, default document, default file extension, description, base URL, rename,
+copy, and delete are separate actions. The canonical replace flag is a separate
+setting.
+
 ### Delete the open site (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, then **Delete site**.

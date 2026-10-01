@@ -41,6 +41,8 @@ export type SiteWriteBody = {
   siteProtocol?: string;
   defaultDocument?: string;
   defaultFileExtention?: string;
+  /** Canonical URL destination: pages or sections. */
+  canonicalDist?: string;
   /** Existing workflow name. Omit to leave the site-folder association unchanged. */
   workflowName?: string;
 };
