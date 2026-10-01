@@ -5,8 +5,9 @@ Licensed under the Apache License, Version 2.0.
 
 # PR 5025 Erlang review
 
-Status: cli report captured. Independent gate: request-changes.
+Status: cli report captured. Independent gate: approve.
 Reviewer did not author the change.
+Re-review after the failed-catalog save fix (`f39ecc8be8`).
 
 ## Summary
 
@@ -16,7 +17,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 8 analyzed
+- Files: 7 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
@@ -29,8 +30,6 @@ approve
 
 - Blocking bugs: 0
 - May commit/push: yes
-
-Machine short-circuit does not see the failed-catalog save block below. Erlang gate overrides to request-changes.
 
 ## Issues
 
@@ -45,16 +44,8 @@ Machine short-circuit does not see the failed-catalog save block below. Erlang g
 
 ## Erlang notes
 
-### Bug — failed keyword load blocks the whole save
+Preexisting `EditorHost` cognitive complexity is not in-diff and does not block.
 
-- File: `WebUI/src/main/ts/editor/widgets/KeywordFieldWidget.tsx:154`
-- Also: `WebUI/src/main/ts/editor/widgets/KeywordFieldWidget.tsx:170`
-- Also: `WebUI/src/main/ts/editor/EditorHost.tsx` save path that calls `collectKeywordOutsideCatalogErrors` and returns before PUT.
+The prior block is fixed: a rejected `loadKeywords()` sets `loaded` false and does not publish choices, so Save is not treated as an empty catalog. Behavioral coverage: `KeywordFieldWidget` does not call `onChoices` on failure; EditorHost still PUTs the stored keyword. A successful catalog still rejects a value that is not a choice and still allows an empty clear. Product-docs and Playwright companion remain in the diff.
 
-`loadKeywords()` `.catch` sets `keywords` to `[]` and `loaded` to true. The following effect reports those empty options. `keywordValueOutsideCatalog` treats a defined empty choice list as an authoritative catalog, so every non-empty keyword draft is "outside" the catalog. EditorHost then sets field errors and returns without PUT, including when the operator only changed another field.
-
-A rejected catalog request is not a loaded catalog. Leave choices unset on failure (same as "not loaded yet") so save is not blocked, or surface a load error that does not pretend the catalog is empty. An empty **successful** response may still reject values that are not choices. Add a behavioral test: `loadKeywords` rejects, a stored keyword remains, Save still PUTs.
-
-Happy-path rejection of `legacy` vs catalog `events`, empty clear, product-docs sentence, and Playwright companion are otherwise in place. Preexisting EditorHost complexity is not the block.
-
-Recommendation: request-changes. Do not merge.
+Recommendation: approve. May merge.
