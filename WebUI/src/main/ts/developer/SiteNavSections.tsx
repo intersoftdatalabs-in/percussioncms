@@ -26,6 +26,7 @@ import {
   loadSectionProperties,
   loadSectionTree,
   moveSiteSection,
+  updateExternalLink,
   updateSiteSection,
 } from "../api/architecture/sectionApi";
 import type { NavTreeNode } from "../api/architecture/types";
@@ -38,6 +39,7 @@ import { DEV_MSG } from "./messages";
 import {
   buildDeveloperAddSectionFields,
   buildDeveloperExternalLinkFields,
+  listDeveloperExternalLinks,
   buildDeveloperRenameProperties,
   buildDeveloperReparent,
   buildDeveloperSiblingReorder,
@@ -64,15 +66,20 @@ import {
 
 function navRows(
   root: NavTreeNode | null,
-): { id: string; title: string; parentId: string }[] {
-  const rows: { id: string; title: string; parentId: string }[] = [];
+): { id: string; title: string; parentId: string; external: boolean }[] {
+  const rows: { id: string; title: string; parentId: string; external: boolean }[] = [];
   if (!root) {
     return rows;
   }
   const walk = (node: NavTreeNode, parentId: string): void => {
     const title = (node.title || "").trim();
     if (title) {
-      rows.push({ id: node.id, title, parentId });
+      rows.push({
+        id: node.id,
+        title,
+        parentId,
+        external: String(node.sectionType || "").toLowerCase() === "externallink",
+      });
     }
     for (const child of node.children || []) {
       walk(child, node.id);
@@ -142,6 +149,17 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
   const [extError, setExtError] = useState<string | null>(null);
   const [extNotice, setExtNotice] = useState<string | null>(null);
   const [extBusy, setExtBusy] = useState(false);
+  const [extUrls, setExtUrls] = useState<Record<string, string>>({});
+  const [editExtId, setEditExtId] = useState("");
+  const [editUrl, setEditUrl] = useState("");
+  const [editTarget, setEditTarget] = useState("_self");
+  const [editTitle, setEditTitle] = useState("");
+  const [editFolder, setEditFolder] = useState("");
+  const [editCss, setEditCss] = useState("");
+  const [editSnapshot, setEditSnapshot] = useState({ url: "", target: "_self" });
+  const [editExtError, setEditExtError] = useState<string | null>(null);
+  const [editExtNotice, setEditExtNotice] = useState<string | null>(null);
+  const [editExtBusy, setEditExtBusy] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
   const renameTargets = listDeveloperRenameTargets(treeRoot);
   const templateTargets = listDeveloperTemplateTargets(treeRoot);
@@ -149,6 +167,7 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
   const reorderTargets = listDeveloperReorderTargets(treeRoot);
   const reparentTargets = listDeveloperReorderTargets(treeRoot);
   const reparentParents = listDeveloperReparentParents(treeRoot, reparentId);
+  const externalLinks = listDeveloperExternalLinks(treeRoot);
   const canMoveUp = buildDeveloperSiblingReorder(treeRoot, reorderId, "up") != null;
   const canMoveDown = buildDeveloperSiblingReorder(treeRoot, reorderId, "down") != null;
 
@@ -238,6 +257,79 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
       cancelled = true;
     };
   }, [siteName, readOnly, reloadToken, applyTree]);
+
+  useEffect(() => {
+    const links = listDeveloperExternalLinks(treeRoot);
+    setEditExtId((current) =>
+      links.some((link) => link.id === current) ? current : (links[0]?.id ?? ""),
+    );
+  }, [treeRoot]);
+
+  useEffect(() => {
+    if (readOnly || !treeRoot) {
+      setExtUrls({});
+      return;
+    }
+    const links = listDeveloperExternalLinks(treeRoot);
+    if (links.length === 0) {
+      setExtUrls({});
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const entries = await Promise.all(
+        links.map(async (link) => {
+          try {
+            const loaded = await loadSection(link.id);
+            return [link.id, (loaded.externalLinkUrl || "").trim()] as const;
+          } catch (err) {
+            if (isSessionRedirectError(err)) {
+              return [link.id, ""] as const;
+            }
+            return [link.id, ""] as const;
+          }
+        }),
+      );
+      if (cancelled) return;
+      const next: Record<string, string> = {};
+      for (const [id, url] of entries) {
+        next[id] = url;
+      }
+      setExtUrls(next);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [treeRoot, readOnly, reloadToken]);
+
+  useEffect(() => {
+    if (!editExtId || readOnly) {
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const loaded = await loadSection(editExtId);
+        if (cancelled) return;
+        const url = (loaded.externalLinkUrl || "").trim();
+        const target = (loaded.target || "_self").trim() || "_self";
+        const picked = listDeveloperExternalLinks(treeRoot).find((link) => link.id === editExtId);
+        setEditTitle((loaded.title || picked?.title || "").trim());
+        setEditFolder((loaded.folderPath || "").trim());
+        setEditCss(loaded.cssClassNames ? String(loaded.cssClassNames) : "");
+        setEditUrl(url);
+        setEditTarget(target);
+        setEditSnapshot({ url, target });
+        setEditExtError(null);
+      } catch (err) {
+        if (cancelled || isSessionRedirectError(err)) return;
+        setEditExtError(panelErrMsg(err, DEV_MSG.SITE_NAV_EXT_EDIT_ERROR));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [editExtId, readOnly, reloadToken, treeRoot]);
 
   useEffect(() => {
     if (!tplSectionId || readOnly) {
@@ -620,6 +712,60 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
     })();
   };
 
+  const onEditExtCancel = () => {
+    setEditUrl(editSnapshot.url);
+    setEditTarget(editSnapshot.target);
+    setEditExtError(null);
+    setEditExtNotice(null);
+  };
+
+  const onSaveExternal = () => {
+    setEditExtError(null);
+    setEditExtNotice(null);
+    if (!editExtId || validateExternalUrl(editUrl) || !/^https?:\/\//i.test(editUrl.trim())) {
+      setEditExtError(DEV_MSG.SITE_NAV_EXT_EDIT_INVALID);
+      return;
+    }
+    const link = externalLinks.find((item) => item.id === editExtId);
+    const parent = findSiblingPlacement(treeRoot, editExtId)?.parent ?? treeRoot;
+    setEditExtBusy(true);
+    void (async () => {
+      try {
+        const fields = buildDeveloperExternalLinkFields({
+          title: editTitle || link?.title || "",
+          url: editUrl,
+          target: editTarget,
+          siteName,
+          parent,
+          loadedFolderPath: editFolder || null,
+        });
+        await updateExternalLink(editExtId, {
+          ...fields,
+          ...(editCss.trim() ? { cssClassNames: editCss.trim() } : {}),
+        });
+        setEditExtNotice(DEV_MSG.SITE_NAV_EXT_EDIT_SAVED);
+        setReloadToken((n) => n + 1);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        if (isApiError(err) && err.status === 400) {
+          setEditExtError(panelErrMsg(err, DEV_MSG.SITE_NAV_EXT_EDIT_BAD_REQUEST));
+          return;
+        }
+        if (isApiError(err) && err.status === 403) {
+          setEditExtError(panelErrMsg(err, DEV_MSG.SITE_NAV_EXT_EDIT_FORBIDDEN));
+          return;
+        }
+        if (isApiError(err) && err.status === 409) {
+          setEditExtError(panelErrMsg(err, DEV_MSG.SITE_NAV_EXT_EDIT_CONFLICT));
+          return;
+        }
+        setEditExtError(panelErrMsg(err, DEV_MSG.SITE_NAV_EXT_EDIT_ERROR));
+      } finally {
+        setEditExtBusy(false);
+      }
+    })();
+  };
+
   return (
     <section data-testid="developer-site-nav" style={{ marginTop: "16px" }}>
       <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.SITE_NAV_TITLE}</h3>
@@ -646,8 +792,12 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
                     data-testid="developer-site-nav-item"
                     data-section-id={row.id}
                     data-parent-id={row.parentId}
+                    data-external-url={row.external ? extUrls[row.id] || "" : undefined}
                   >
                     {row.title}
+                    {row.external && extUrls[row.id] ? (
+                      <span data-testid="developer-site-nav-item-url"> {extUrls[row.id]}</span>
+                    ) : null}
                   </li>
                 ))}
               </ul>
@@ -779,6 +929,83 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
             ) : null}
             {extNotice ? (
               <div data-testid="developer-site-nav-ext-notice">{extNotice}</div>
+            ) : null}
+            <div style={{ fontSize: "0.95rem", fontWeight: 600, marginTop: "8px" }}>
+              {DEV_MSG.SITE_NAV_EXT_EDIT_HEADING}
+            </div>
+            <label>
+              {DEV_MSG.SITE_NAV_EXT_EDIT_PICK}
+              <select
+                data-testid="developer-site-nav-ext-edit-target"
+                value={editExtId}
+                onChange={(e) => {
+                  setEditExtId(e.target.value);
+                  setEditExtError(null);
+                  setEditExtNotice(null);
+                }}
+                style={inputStyle}
+                disabled={editExtBusy || externalLinks.length === 0}
+              >
+                {externalLinks.map((link) => (
+                  <option key={link.id} value={link.id}>
+                    {link.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              {DEV_MSG.SITE_NAV_EXT_URL}
+              <input
+                data-testid="developer-site-nav-ext-edit-url"
+                value={editUrl}
+                onChange={(e) => {
+                  setEditUrl(e.target.value);
+                  setEditExtError(null);
+                }}
+                style={inputStyle}
+                disabled={editExtBusy || externalLinks.length === 0}
+              />
+            </label>
+            <label>
+              {DEV_MSG.SITE_NAV_EXT_TARGET}
+              <select
+                data-testid="developer-site-nav-ext-edit-window"
+                value={editTarget}
+                onChange={(e) => setEditTarget(e.target.value)}
+                style={inputStyle}
+                disabled={editExtBusy || externalLinks.length === 0}
+              >
+                <option value="_self">{DEV_MSG.SITE_NAV_EXT_TARGET_SELF}</option>
+                <option value="_blank">{DEV_MSG.SITE_NAV_EXT_TARGET_BLANK}</option>
+                <option value="_top">{DEV_MSG.SITE_NAV_EXT_TARGET_TOP}</option>
+                <option value="_parent">{DEV_MSG.SITE_NAV_EXT_TARGET_PARENT}</option>
+              </select>
+            </label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                type="button"
+                data-testid="developer-site-nav-ext-edit-save"
+                disabled={editExtBusy || externalLinks.length === 0}
+                onClick={onSaveExternal}
+              >
+                {editExtBusy ? DEV_MSG.SITE_NAV_EXT_EDIT_SAVING : DEV_MSG.SITE_NAV_EXT_EDIT_SAVE}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-site-nav-ext-edit-cancel"
+                disabled={editExtBusy || externalLinks.length === 0}
+                onClick={onEditExtCancel}
+              >
+                {DEV_MSG.SITE_NAV_CANCEL}
+              </button>
+            </div>
+            {editExtError ? (
+              <div data-testid="developer-site-nav-ext-edit-error" role="alert">
+                {editExtError}
+              </div>
+            ) : null}
+            {editExtNotice ? (
+              <div data-testid="developer-site-nav-ext-edit-notice">{editExtNotice}</div>
             ) : null}
           </div>
           <div

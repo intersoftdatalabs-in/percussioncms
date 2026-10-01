@@ -27,6 +27,7 @@ import {
   buildSiblingReorderMove,
   canCreateChildUnder,
   findSiblingPlacement,
+  isExternalLinkType,
   isValidMoveTargetParent,
   mapCreateSectionDialogToFields,
   resolveCreateFolderPath,
@@ -189,6 +190,35 @@ export function buildDeveloperExternalLinkFields(opts: {
     sectionType: "externallink",
     target,
   };
+}
+
+/** One existing external navigation link the operator may edit. */
+export interface DeveloperExternalLinkTarget {
+  id: string;
+  title: string;
+}
+
+/** Depth-first external links (not regular sections or section links). */
+export function listDeveloperExternalLinks(
+  root: NavTreeNode | null,
+): DeveloperExternalLinkTarget[] {
+  if (!root) {
+    return [];
+  }
+  const links: DeveloperExternalLinkTarget[] = [];
+  const walk = (node: NavTreeNode): void => {
+    if (node.id && isExternalLinkType(node.sectionType)) {
+      links.push({
+        id: node.id,
+        title: (node.title || node.id).trim(),
+      });
+    }
+    for (const child of node.children || []) {
+      walk(child);
+    }
+  };
+  walk(root);
+  return links;
 }
 
 /** A regular or blog section the operator may rename (not a link). */
