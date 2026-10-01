@@ -48,7 +48,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** Validator class used by the {@link PSValidationJob} for all dependency validation. */
-@SuppressWarnings(value = {"unchecked"})
 public class PSDependencyValidator {
   /**
    * Construct a dependency validator will all required parameters.
