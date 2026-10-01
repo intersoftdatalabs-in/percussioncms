@@ -1,6 +1,6 @@
 ## Summary
 
-Machine analysis found **0** finding(s), **0** bug(s). LLM skipped (machine_only_mode)
+Machine analysis found **0** finding(s), **0** bug(s).
 
 ## Scope
 
