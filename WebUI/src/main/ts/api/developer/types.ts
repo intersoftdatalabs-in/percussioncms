@@ -1346,6 +1346,8 @@ export interface SiteDef {
   defaultFileExtention?: string;
   /** Canonical URL destination ({@code pages} or {@code sections}). */
   canonicalDist?: string;
+  /** When true, canonical URLs replace the rendered location. */
+  canonicalReplace?: boolean;
   pageBasedSite?: boolean;
   isCanonical?: boolean;
   canonical?: boolean;

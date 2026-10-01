@@ -317,6 +317,20 @@ export const MSG = {
     "perc.ui.publish.modern@The site canonical distribution conflicts with another change",
   PUBLISH_SITE_CANONICAL_DIST_ERROR:
     "perc.ui.publish.modern@Could not save the site canonical distribution",
+  PUBLISH_SITE_CANONICAL_REPLACE:
+    "perc.ui.publish.modern@Replace rendered location with canonical URL",
+  PUBLISH_EDIT_SITE_CANONICAL_REPLACE:
+    "perc.ui.publish.modern@Edit canonical URL replace",
+  PUBLISH_SITE_CANONICAL_REPLACE_SAVED:
+    "perc.ui.publish.modern@Site canonical URL replace saved",
+  PUBLISH_SITE_CANONICAL_REPLACE_BAD:
+    "perc.ui.publish.modern@The site canonical URL replace setting was not accepted",
+  PUBLISH_SITE_CANONICAL_REPLACE_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to edit this site canonical URL replace setting",
+  PUBLISH_SITE_CANONICAL_REPLACE_CONFLICT:
+    "perc.ui.publish.modern@The site canonical URL replace setting conflicts with another change",
+  PUBLISH_SITE_CANONICAL_REPLACE_ERROR:
+    "perc.ui.publish.modern@Could not save the site canonical URL replace setting",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",

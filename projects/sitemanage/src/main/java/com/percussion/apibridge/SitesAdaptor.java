@@ -1290,6 +1290,9 @@ public class SitesAdaptor implements ISiteAdaptor {
     if (request.isCanonicalDistSpecified()) {
       target.setCanonicalDist(normalizeCanonicalDist(request.getCanonicalDist()));
     }
+    if (request.isCanonicalReplaceSpecified()) {
+      target.setCanonicalReplace(request.isCanonicalReplace());
+    }
   }
 
   /**

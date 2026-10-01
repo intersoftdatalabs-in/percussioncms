@@ -17,6 +17,7 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -192,6 +193,40 @@ class SitesAdaptorCreateUpdateDeleteTest {
     assertEquals(400, unknownEx.getResponse().getStatus());
     assertEquals("sections", existing.getCanonicalDist());
     verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void update_omittedCanonicalReplace_leavesStoredValue() throws PSNotFoundException {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setCanonicalReplace(false);
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+
+    Site req = body("NightlySite", "new desc", null);
+    adaptor.updateSite("NightlySite", req);
+
+    assertFalse(existing.isCanonicalReplace());
+    assertFalse(req.isCanonicalReplaceSpecified());
+  }
+
+  @Test
+  void update_canonicalReplace_persistsBoolean() throws PSNotFoundException {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setCanonicalReplace(true);
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+
+    Site req = body("NightlySite", null, null);
+    req.setCanonicalReplace(false);
+    Site out = adaptor.updateSite("NightlySite", req);
+
+    assertFalse(existing.isCanonicalReplace());
+    assertFalse(out.isCanonicalReplace());
+    verify(siteManager).saveSite(existing);
   }
 
   @Test

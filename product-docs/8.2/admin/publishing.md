@@ -147,6 +147,22 @@ Protocol, default document, default file extension, description, base URL, renam
 copy, and delete are separate actions. The canonical replace flag is a separate
 setting.
 
+### Toggle canonical URL replace (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card. The workspace shows
+whether canonical URLs replace the rendered location (**yes** or **no**), loaded from
+`GET /services/sites/{nameOrId}` (the wire field is `canonicalReplace`). **Edit canonical
+URL replace** opens a checkbox. **Save** sends `PUT /services/sites/{nameOrId}` with the
+site name and `canonicalReplace` only (description, base URL, `canonicalDist`, and other
+fields are not sent). The workspace shows **yes** or **no** for the saved boolean,
+including after you leave and reopen the site. The saved notice appears only after that
+PUT succeeds. **Cancel** restores the previous value and does not call PUT. **Save** when
+the checkbox matches the loaded value does not call PUT and does not show a saved notice.
+Omitting `canonicalReplace` on update leaves the stored boolean unchanged (the wire
+default of `true` is not an implicit write). HTTP **400**, **403**, and **409** stay on
+the form with an error and do not show a saved notice. Canonical distribution, protocol,
+default document, description, base URL, rename, copy, and delete are separate actions.
+
 ### Delete the open site (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, then **Delete site**.
