@@ -110,6 +110,16 @@ test.describe("React Content Editor date calendar fields", () => {
           }),
         }),
       );
+      await page.route("**/rest/content-explorer/translations/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ itemId: 42, locale: "en-us", variants: [] }),
+        }),
+      );
+      await page.route("**/services/assembly/**", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "[]" }),
+      );
       await page.route("**/services/itemmanagement/item/fields/**", async (route) => {
         if (route.request().method() === "PUT") {
           fieldPuts.push(route.request().postData() || "");
@@ -160,6 +170,7 @@ test.describe("React Content Editor date calendar fields", () => {
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="editor-host"]',
+        exclude: ['[data-testid="translations-panel"]'],
       });
 
       await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=view"));
@@ -169,6 +180,196 @@ test.describe("React Content Editor date calendar fields", () => {
       const viewDate = page.locator('[data-testid="editor-field-sys_contentstartdate"]');
       await expect(viewDate).toBeDisabled();
       await expect(page.locator('[data-testid="editor-save"]')).toHaveCount(0);
+    },
+  );
+
+  test(
+    "clears optional date and datetime on save; cancel, required, and 400/403/409 do not succeed",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      const fieldPuts = [];
+      const pageErrors = [];
+      let start = "2026-01-01";
+      let eventAt = "2026-01-01 09:00:00";
+      let startRequired = false;
+      let failStatus = 0;
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          const text = msg.text();
+          if (text.includes("Failed to load resource")) {
+            return;
+          }
+          pageErrors.push(text);
+        }
+      });
+      await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/editor/items/**/checkout", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemStateTransition: {
+              itemId: "42",
+              stateName: "Draft",
+              transitionTriggers: [],
+            },
+          }),
+        }),
+      );
+      await page.route("**/rest/content-explorer/translations/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ itemId: 42, locale: "en-us", variants: [] }),
+        }),
+      );
+      await page.route("**/services/assembly/**", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "[]" }),
+      );
+      await page.route("**/services/itemmanagement/item/fields/**", async (route) => {
+        if (route.request().method() === "PUT") {
+          const body = route.request().postData() || "";
+          fieldPuts.push(body);
+          if (failStatus === 400 || failStatus === 403 || failStatus === 409) {
+            const status = failStatus;
+            failStatus = 0;
+            await route.fulfill({
+              status,
+              contentType: "application/json",
+              body: JSON.stringify({ Error: { message: "date rejected" } }),
+            });
+            return;
+          }
+          const startMatch = body.match(
+            /"name"\s*:\s*"sys_contentstartdate"\s*,\s*"value"\s*:\s*"([^"]*)"/,
+          );
+          const eventMatch = body.match(/"name"\s*:\s*"event_at"\s*,\s*"value"\s*:\s*"([^"]*)"/);
+          if (startMatch) {
+            start = startMatch[1];
+          }
+          if (eventMatch) {
+            eventAt = eventMatch[1];
+          }
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemEditorFields: {
+              contentId: "42",
+              contentType: "percEvent",
+              name: "Event",
+              checkoutUser: "admin",
+              revision: 4,
+              fields: [
+                { name: "sys_title", value: "Event" },
+                { name: "sys_contentstartdate", value: start },
+                { name: "event_at", value: eventAt },
+              ],
+            },
+          }),
+        });
+      });
+      await page.route("**/services/contenttypes/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ContentTypeDetail: {
+              name: "percEvent",
+              fields: [
+                { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                {
+                  name: "sys_contentstartdate",
+                  label: "Start",
+                  control: "sys_CalendarSimple",
+                  required: startRequired,
+                },
+                {
+                  name: "event_at",
+                  label: "Event at",
+                  control: "sys_CalendarSimple",
+                  dataType: "datetime",
+                },
+              ],
+            },
+          }),
+        }),
+      );
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator('[data-testid="editor-date-clear-sys_contentstartdate"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.locator('[data-testid="editor-date-clear-sys_contentstartdate"]').click();
+      page.once("dialog", (dialog) => dialog.dismiss());
+      await page.locator('[data-testid="editor-close"]').click();
+      await page.waitForTimeout(300);
+      expect(fieldPuts).toEqual([]);
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator('[data-testid="editor-field-sys_contentstartdate"]')).toHaveValue(
+        "2026-01-01",
+        { timeout: 20_000 },
+      );
+      await page.locator('[data-testid="editor-date-clear-sys_contentstartdate"]').click();
+      await page.locator('[data-testid="editor-date-clear-event_at"]').click();
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect.poll(() => fieldPuts.length).toBeGreaterThan(0);
+      expect(fieldPuts[0]).toMatch(/"name"\s*:\s*"sys_contentstartdate"\s*,\s*"value"\s*:\s*""/);
+      expect(fieldPuts[0]).toMatch(/"name"\s*:\s*"event_at"\s*,\s*"value"\s*:\s*""/);
+      await expect(page.locator('[data-testid="editor-saved"]')).toBeVisible();
+      await expect(page.locator('[data-testid="editor-field-sys_contentstartdate"]')).toHaveValue("");
+      await expect(page.locator('[data-testid="editor-field-event_at"]')).toHaveValue("");
+      await expect(page.locator('[data-testid="editor-date-clear-sys_contentstartdate"]')).toHaveCount(0);
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator('[data-testid="editor-field-sys_contentstartdate"]')).toHaveValue("", {
+        timeout: 20_000,
+      });
+      await expect(page.locator('[data-testid="editor-field-event_at"]')).toHaveValue("");
+
+      start = "2026-01-01";
+      eventAt = "2026-01-01 09:00:00";
+      startRequired = true;
+      fieldPuts.length = 0;
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator('[data-testid="editor-date-clear-sys_contentstartdate"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.locator('[data-testid="editor-date-clear-sys_contentstartdate"]').click();
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect(page.locator('[data-testid="editor-field-error-sys_contentstartdate"]')).toBeVisible();
+      expect(fieldPuts).toEqual([]);
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+
+      startRequired = false;
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator('[data-testid="editor-date-clear-sys_contentstartdate"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.locator('[data-testid="editor-date-clear-sys_contentstartdate"]').click();
+      const putsBeforeErrors = fieldPuts.length;
+      failStatus = 400;
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect.poll(() => fieldPuts.length).toBeGreaterThan(putsBeforeErrors);
+      await expect(page.locator('[data-testid="editor-save-error"]')).toBeVisible();
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+      failStatus = 403;
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect.poll(() => fieldPuts.length).toBeGreaterThan(putsBeforeErrors + 1);
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+      failStatus = 409;
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect(page.locator('[data-testid="editor-save-error"]')).toContainText(/revision/i);
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );
 });

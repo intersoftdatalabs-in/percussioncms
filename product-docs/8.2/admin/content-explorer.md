@@ -198,14 +198,23 @@ content-type **Control** names from `GET /services/contenttypes/{type}` onto wid
 | `sys_communityid` | Community picker | Same fields API. The list is `GET /services/communities/find`. Saving writes the selected community id; reopening the item shows that id. **View** mode, a checkout held by someone else, and a read-only community control disable the picker and hide Save. |
 | `sys_File` / file asset fields | File upload and **Clear** | `PUT /services/itemmanagement/item/binary/{id}/{field}` (multipart `file`) replaces the file. **Clear** then **Save** calls `DELETE` on that same path and removes the stored file; **Clear** alone does not. Leaving the editor without save keeps the stored file. The item must be checked out to you. **View** mode disables the file input and hides **Clear**. HTTP **403** (not allowed / checked out to someone else), **400** (invalid field), and **413** (file too large, 50 MiB) stay on that field — they are not a successful save. |
 | Image controls (`sys_webImageFX`, `img`, names containing `image`) | Image upload with local preview and **Clear** | Same binary PUT and the same **Clear** then **Save** DELETE. The payload must be an image (`image/*` MIME or a known image extension). Non-image files return HTTP **400**. **View** mode disables the file input and hides **Clear**. HTTP **403** / **400** / **413** stay on that field — they are not a successful save. |
-| `sys_CalendarSimple` and other date controls | Date picker (`type=date`) | Same fields API — `yyyy-MM-dd` |
-| Datetime / timestamp controls (`dataType` datetime) | Date-time picker (`type=datetime-local`) | Same fields API — `yyyy-MM-dd HH:mm:ss` |
+| `sys_CalendarSimple` and other date controls | Date picker (`type=date`) with **Clear date** | Same fields API — `yyyy-MM-dd`. **Clear date** then **Save** writes a blank value. **Clear date** alone does not. |
+| Datetime / timestamp controls (`dataType` datetime) | Date-time picker (`type=datetime-local`) with **Clear date** | Same fields API — `yyyy-MM-dd HH:mm:ss`. **Clear date** then **Save** writes a blank value. **Clear date** alone does not. |
 
-Date and datetime widgets are **not** free-text boxes. Empty optional dates save as
-blank. A value the host cannot parse is blocked before PUT and shown on that row
-(`Enter a valid date.`). HTTP **400** from
-`PUT /services/itemmanagement/item/fields/{id}` for an invalid date is mapped onto
-the named field. In **View** mode the pickers are read-only (disabled); Save is hidden.
+Date and datetime widgets are **not** free-text boxes. **Clear date** empties an
+optional date or datetime. **Save** persists that blank on
+`PUT /services/itemmanagement/item/fields/{id}`; reopening the item shows the
+picker empty and hides **Clear date**. **Close** (or another leave) with the
+clear still unsaved asks first. **Cancel** stays on the form and does not call
+the server, so a reload still shows the previous date. A required date cannot
+be cleared: Save stays on the form with **This field is required.** and does
+not claim success. A value the host cannot parse is blocked before PUT and
+shown on that row (`Enter a valid date.`). HTTP **400** and **403** from the
+fields PUT are mapped onto that date when the error names it, or when it is
+the only date or datetime field. HTTP **409** (newer revision) shows the stale
+revision message. None of those statuses is a successful save. In **View**
+mode the pickers are read-only (disabled), **Clear date** is hidden, and Save
+is hidden.
 
 Save stays on itemmanagement (`PUT /services/itemmanagement/item/fields/{id}`).
 The GET/PUT field payload includes a **revision** (CMS tip). The editor header

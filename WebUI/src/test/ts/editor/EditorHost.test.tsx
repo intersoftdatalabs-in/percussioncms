@@ -2138,6 +2138,218 @@ describe("EditorHost date calendar fields (#4569)", () => {
   });
 });
 
+describe("EditorHost clear optional date (#5039)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function dateHost(opts: {
+    saveFields: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    startDate?: string;
+    eventAt?: string;
+    startRequired?: boolean;
+    onlyStart?: boolean;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const startDate = opts.startDate ?? "2026-01-01";
+    const eventAt = opts.eventAt ?? "2026-01-01 09:00:00";
+    const fields = [
+      { name: "sys_title", value: "Event" },
+      { name: "sys_contentstartdate", value: startDate },
+    ];
+    if (!opts.onlyStart) {
+      fields.push({ name: "event_at", value: eventAt });
+    }
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percEvent",
+          name: "Event",
+          checkoutUser: "admin",
+          revision: 3,
+          fields,
+        })}
+        saveFields={opts.saveFields}
+        loadType={async () => ({
+          fields: [
+            { name: "sys_title", label: "Title", control: "sys_EditBox" },
+            {
+              name: "sys_contentstartdate",
+              label: "Start",
+              control: "sys_CalendarSimple",
+              required: opts.startRequired === true,
+            },
+            ...(opts.onlyStart
+              ? []
+              : [
+                  {
+                    name: "event_at",
+                    label: "Event at",
+                    control: "sys_CalendarSimple",
+                    dataType: "datetime",
+                  },
+                ]),
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  it("saves cleared optional date and datetime and shows them empty after reload", async () => {
+    let start = "2026-01-01";
+    let eventAt = "2026-01-01 09:00:00";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      start = body.fields.find((f) => f.name === "sys_contentstartdate")?.value ?? start;
+      eventAt = body.fields.find((f) => f.name === "event_at")?.value ?? eventAt;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Event",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const host = dateHost({ saveFields, startDate: start, eventAt });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={host} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-date-clear-sys_contentstartdate")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-date-clear-sys_contentstartdate"));
+    fireEvent.click(screen.getByTestId("editor-date-clear-event_at"));
+    expect(
+      (screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement).value,
+    ).toBe("");
+    expect((screen.getByTestId("editor-field-event_at") as HTMLInputElement).value).toBe("");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "sys_contentstartdate")?.value).toBe("");
+    expect(sent.fields.find((f) => f.name === "event_at")?.value).toBe("");
+    expect(screen.queryByTestId("editor-date-clear-sys_contentstartdate")).toBeNull();
+    expect(screen.queryByTestId("editor-date-clear-event_at")).toBeNull();
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={dateHost({ saveFields, startDate: start, eventAt })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement).value,
+      ).toBe("");
+    });
+    expect((screen.getByTestId("editor-field-event_at") as HTMLInputElement).value).toBe("");
+  });
+
+  it("does not save when Close cancels an unsaved date clear", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={dateHost({ saveFields, confirmLeaveUnsaved: () => false })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-date-clear-sys_contentstartdate")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-date-clear-sys_contentstartdate"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(
+      (screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement).value,
+    ).toBe("");
+  });
+
+  it("does not claim success when a required date is cleared", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={dateHost({ saveFields, startRequired: true })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-date-clear-sys_contentstartdate")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-date-clear-sys_contentstartdate"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_contentstartdate").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not claim success for HTTP 400, 403, or 409 on a date save", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={dateHost({
+              saveFields,
+              onlyStart: true,
+            })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-date-clear-sys_contentstartdate")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-date-clear-event_at")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-date-clear-sys_contentstartdate"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_contentstartdate").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_contentstartdate").textContent).toMatch(
+        /not allowed/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/newer revision/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(3);
+  });
+});
+
 describe("EditorHost HTML field save (#4680)", () => {
   afterEach(() => {
     cleanup();

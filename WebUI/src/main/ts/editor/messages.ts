@@ -120,6 +120,9 @@ export const EDITOR_MSG = {
   FILE_CLEAR_BAD_REQUEST: "perc.ui.editor@That field could not be cleared.",
   KEYWORD_EMPTY: "perc.ui.editor@Select a keyword",
   KEYWORD_CLEAR: "perc.ui.editor@Clear keyword",
+  DATE_CLEAR: "perc.ui.editor@Clear date",
+  DATE_BAD_REQUEST: "perc.ui.editor@That date could not be saved.",
+  DATE_FORBIDDEN: "perc.ui.editor@You are not allowed to save that date.",
   KEYWORD_NOT_IN_CATALOG:
     "perc.ui.editor@{0} is not one of the keyword catalog choices.",
   KEYWORD_INVALID_SAVE:

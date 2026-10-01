@@ -37,4 +37,56 @@ describe("DateFieldWidget", () => {
     fireEvent.change(input, { target: { value: "2026-09-18" } });
     expect(onChange).toHaveBeenCalledWith("2026-09-18");
   });
+
+  it("clears a date and a datetime and hides Clear date when empty or read-only", () => {
+    const onChange = vi.fn();
+    const view = render(
+      <DateFieldWidget
+        name="sys_contentstartdate"
+        value="2026-01-01"
+        kind="date"
+        readOnly={false}
+        onChange={onChange}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("editor-date-clear-sys_contentstartdate"));
+    expect(onChange).toHaveBeenCalledWith("");
+    view.unmount();
+
+    const datetime = render(
+      <DateFieldWidget
+        name="event_at"
+        value="2026-01-01 09:00:00"
+        kind="datetime"
+        readOnly={false}
+        onChange={onChange}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("editor-date-clear-event_at"));
+    expect(onChange).toHaveBeenLastCalledWith("");
+    datetime.unmount();
+
+    const empty = render(
+      <DateFieldWidget
+        name="event_at"
+        value=""
+        kind="datetime"
+        readOnly={false}
+        onChange={onChange}
+      />,
+    );
+    expect(screen.queryByTestId("editor-date-clear-event_at")).toBeNull();
+    empty.unmount();
+
+    render(
+      <DateFieldWidget
+        name="sys_contentstartdate"
+        value="2026-01-01"
+        kind="date"
+        readOnly
+        onChange={onChange}
+      />,
+    );
+    expect(screen.queryByTestId("editor-date-clear-sys_contentstartdate")).toBeNull();
+  });
 });
