@@ -67,6 +67,56 @@ async function listEpoch(page) {
 }
 
 /**
+ * One snapshot of detail rows. Reading attributes together avoids
+ * {@code locator.nth(i).getAttribute} waiting out the test timeout when a
+ * refresh shrinks the list (#5028).
+ *
+ * @param {import("@playwright/test").Locator} rows
+ * @returns {Promise<{ id: string, name: string }[]>}
+ */
+async function detailRowMeta(rows) {
+  return rows.evaluateAll((els) =>
+    els.map((el) => ({
+      id: el.getAttribute("data-testid") || "",
+      name: (el.getAttribute("data-item-name") || "").trim(),
+    })),
+  );
+}
+
+/**
+ * @param {import("@playwright/test").Page} page
+ * @returns {Promise<string>}
+ */
+async function detailSignature(page) {
+  const rows = page.locator(
+    `[data-testid="${TEST_IDS.detailList}"] tbody tr[data-testid^="detail-row-"]`,
+  );
+  const meta = await detailRowMeta(rows);
+  return meta.map((row) => row.id).join("|");
+}
+
+/**
+ * Folder open does not bump {@code data-list-epoch}. Wait until the detail
+ * rows change so the walk is not scored against the parent listing (#5028).
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {import("@playwright/test").Locator} row
+ * @param {string} beforeSignature
+ */
+async function openDetailFolder(page, row, beforeSignature) {
+  const icon = row.locator('[data-testid^="detail-folder-icon-"]');
+  if ((await icon.count()) > 0) {
+    await icon.first().click({ force: true });
+  } else {
+    await row.dblclick({ force: true });
+  }
+  await expect
+    .poll(async () => detailSignature(page), { timeout: 15_000 })
+    .not.toBe(beforeSignature);
+  await listReady(page);
+}
+
+/**
  * @param {import("@playwright/test").Page} page
  * @param {"page"|"asset"} kind
  */
@@ -88,11 +138,8 @@ async function selectFirstContentItem(page, kind) {
     await toggle.click({ force: true });
   }
   const list = page.locator(`[data-testid="${TEST_IDS.detailList}"]`);
-  const childNodes = tree.locator(
-    `[data-testid^="tree-node-/${rootName}/"]:not([data-testid="tree-node-/${rootName}/"])`,
-  );
   const seenFolderIds = new Set();
-  for (let depth = 0; depth < 16; depth += 1) {
+  for (let depth = 0; depth < 8; depth += 1) {
     const itemRow = list.locator(
       'tbody tr[data-testid^="detail-row-"][data-row-kind="item"]:not([aria-disabled="true"])',
     );
@@ -106,49 +153,21 @@ async function selectFirstContentItem(page, kind) {
         })
         .toBeGreaterThan(0);
     } catch {
-      // Listing stayed empty; try a tree child below.
+      return false;
     }
     if ((await itemRow.count()) > 0) {
       await itemRow.first().click({ force: true });
       return true;
     }
-    /** @type {{ id: string, name: string }[]} */
-    const folderMeta = [];
-    const folderCount = await folders.count();
-    for (let i = 0; i < folderCount; i += 1) {
-      const row = folders.nth(i);
-      const id = (await row.getAttribute("data-testid")) || "";
-      const name = ((await row.locator("td").first().innerText().catch(() => "")) || "").trim();
-      folderMeta.push({ id, name });
-    }
+    const folderMeta = await detailRowMeta(folders);
     const chosen = pickContentFolderIndex(folderMeta, kind, seenFolderIds);
-    if (chosen >= 0) {
-      const folderRow = folders.nth(chosen);
-      const id = folderMeta[chosen].id;
-      if (id) seenFolderIds.add(id);
-      const icon = folderRow.locator('[data-testid^="detail-folder-icon-"]');
-      if ((await icon.count()) > 0) {
-        await icon.first().click({ force: true });
-      } else {
-        await folderRow.dblclick({ force: true });
-      }
-      await listReady(page);
-      continue;
+    if (chosen < 0) {
+      return false;
     }
-    let openedTree = false;
-    const nodeCount = await childNodes.count();
-    for (let i = 0; i < nodeCount; i += 1) {
-      const node = childNodes.nth(i);
-      const id = (await node.getAttribute("data-testid")) || "";
-      if (!id || seenFolderIds.has(id)) continue;
-      seenFolderIds.add(id);
-      await node.click({ force: true });
-      await listReady(page);
-      openedTree = true;
-      break;
-    }
-    if (openedTree) continue;
-    return false;
+    const id = folderMeta[chosen].id;
+    if (id) seenFolderIds.add(id);
+    const beforeSignature = await detailSignature(page);
+    await openDetailFolder(page, folders.nth(chosen), beforeSignature);
   }
   return false;
 }
