@@ -40,6 +40,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -88,12 +89,12 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
       throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
-    // Check for app deps
+    // Check for app deps. getRequiredApplications() is Iterator<PSExtensionRef>, not
+    // application-name strings; the deployer id is the extension name.
     PSDependencyHandler handler =
         getDependencyHandler(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
-    Iterator apps = def.getRequiredApplications();
-    while (apps.hasNext()) {
-      PSDependency appDep = handler.getDependency(tok, (String) apps.next());
+    for (String appId : requiredApplicationIds(def.getRequiredApplications())) {
+      PSDependency appDep = handler.getDependency(tok, appId);
       if (appDep != null) {
         if (appDep.getDependencyType() == PSDependency.TYPE_SHARED) {
           appDep.setIsAssociation(false);
@@ -135,9 +136,9 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
       fileList.add(defDepFile);
 
       // add classes, jars etc if stored with extension
-      Iterator files = m_extMgr.getExtensionFiles(ref);
+      Iterator<URL> files = extensionFiles(m_extMgr.getExtensionFiles(ref));
       while (files.hasNext()) {
-        URL url = (URL) files.next();
+        URL url = files.next();
         if (url.getProtocol().equalsIgnoreCase("FILE")) {
           // need to get real path
           File codeBase = m_extMgr.getCodeBase(def);
@@ -145,15 +146,15 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
           if (!file.exists()) continue;
 
           // may be a directory, take what's below.
-          Iterator subFiles;
+          Iterator<File> subFiles;
           if (file.isDirectory()) {
-            List subList = new ArrayList();
+            List<File> subList = new ArrayList<>();
             catalogFiles(file, subList);
             subFiles = subList.iterator();
           } else subFiles = PSIteratorUtils.iterator(file);
 
           while (subFiles.hasNext()) {
-            File subFile = (File) subFiles.next();
+            File subFile = subFiles.next();
             PSDependencyFile depFile =
                 new PSDependencyFile(
                     PSDependencyFile.TYPE_EXTENSION_RESOURCE,
@@ -189,10 +190,10 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
 
     // get file data
     Document defDoc = null;
-    List resourceFiles = new ArrayList();
-    Iterator files = archive.getFiles(dep);
+    List<PSMimeContentAdapter> resourceFiles = new ArrayList<>();
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
     while (files.hasNext()) {
-      PSDependencyFile file = (PSDependencyFile) files.next();
+      PSDependencyFile file = files.next();
 
       // process files
       if (file.getType() == PSDependencyFile.TYPE_EXTENSION_DEF_XML) {
@@ -251,9 +252,9 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
     // get all extensions
     List<PSDependency> deps = new ArrayList<>();
     try {
-      Iterator exts = m_extMgr.getExtensionNames(null, null, null, null);
+      Iterator<PSExtensionRef> exts = m_extMgr.getExtensionNames(null, null, null, null);
       while (exts.hasNext()) {
-        PSExtensionRef ref = (PSExtensionRef) exts.next();
+        PSExtensionRef ref = exts.next();
 
         PSDependency dep = createDependency(m_def, ref.getFQN(), ref.getExtensionName());
 
@@ -307,7 +308,7 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
   private void addRequiredClasses(PSDependency dep) throws PSDeployException {
     try {
       PSExtensionRef ref = new PSExtensionRef(dep.getDependencyId());
-      Iterator files = m_extMgr.getExtensionFiles(ref);
+      Iterator<URL> files = extensionFiles(m_extMgr.getExtensionFiles(ref));
       if (!files.hasNext()) {
         // no files, so need to add classes as required
         IPSExtensionDef def = m_extMgr.getExtensionDef(ref);
@@ -333,7 +334,7 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -390,13 +391,50 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
    * @param dir Valid file reference to a directory, assumed not <code>null</code>.
    * @param files List to which files are added, assumed not <code>null</code>.
    */
-  private void catalogFiles(File dir, List files) {
+  private void catalogFiles(File dir, List<File> files) {
     File[] subFiles = dir.listFiles();
-    for (int i = 0; i < subFiles.length; i++) {
-      File subFile = subFiles[i];
+    if (subFiles == null) {
+      return;
+    }
+    for (File subFile : subFiles) {
       if (subFile.isDirectory()) catalogFiles(subFile, files);
       else files.add(subFile);
     }
+  }
+
+  /**
+   * Application dependency ids for the required applications on an extension. {@link
+   * com.percussion.extension.IPSExtensionDef#getRequiredApplications()} yields {@link
+   * PSExtensionRef} values; the deployer application id is {@link PSExtensionRef#getExtensionName()}
+   * (the simple name), not the fully qualified ref.
+   *
+   * @param apps required-application refs, may be {@code null} (treated as none)
+   * @return dependency ids, never {@code null}
+   */
+  static List<String> requiredApplicationIds(Iterator<PSExtensionRef> apps) {
+    if (apps == null) {
+      return List.of();
+    }
+    List<String> ids = new ArrayList<>();
+    while (apps.hasNext()) {
+      PSExtensionRef app = apps.next();
+      if (app == null) {
+        continue;
+      }
+      String name = app.getExtensionName();
+      if (name != null && !name.isBlank()) {
+        ids.add(name);
+      }
+    }
+    return ids;
+  }
+
+  /**
+   * {@link IPSExtensionManager#getExtensionFiles(PSExtensionRef)} is documented to return {@code
+   * null} when the extension has no resource files.
+   */
+  static Iterator<URL> extensionFiles(Iterator<URL> files) {
+    return files == null ? Collections.emptyIterator() : files;
   }
 
   /**
@@ -429,9 +467,6 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler {
   private IPSExtensionManager m_extMgr;
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
-
-  static {
-    ms_childTypes.add(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
-  }
+  private static final List<String> ms_childTypes =
+      List.of(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
 }
