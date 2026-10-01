@@ -99,6 +99,20 @@ and an empty or invalid URL do not call PUT and do not show a saved notice. HTTP
 **400**, **403**, and **409** stay on the form with an error and do not show a saved
 notice. Description, rename, copy, and delete are separate actions.
 
+### Edit the open site default document (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card. The workspace shows the
+site **Default document** loaded from `GET /services/sites/{nameOrId}`. **Edit default
+document** opens a form. **Save** sends `PUT /services/sites/{nameOrId}` with the site
+name and the trimmed default document only (description, base URL, and other fields
+are not sent). The workspace shows the saved value, including after you leave and
+reopen the site. **Cancel**, **Save** when the value is unchanged, and an empty value
+do not call PUT and do not show a saved notice. The site update contract ignores a
+blank default document (it does not clear the stored value and does not return
+**400** for blank). HTTP **400**, **403**, and **409** stay on the form with an error
+and do not show a saved notice. Protocol, default file extension, description, base
+URL, rename, copy, and delete are separate actions.
+
 ### Delete the open site (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, then **Delete site**.
