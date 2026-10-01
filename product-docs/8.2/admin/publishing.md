@@ -110,8 +110,24 @@ reopen the site. **Cancel**, **Save** when the value is unchanged, and an empty 
 do not call PUT and do not show a saved notice. The site update contract ignores a
 blank default document (it does not clear the stored value and does not return
 **400** for blank). HTTP **400**, **403**, and **409** stay on the form with an error
-and do not show a saved notice. Protocol, default file extension, description, base
+and do not show a saved notice. Protocol, description, base
 URL, rename, copy, and delete are separate actions.
+
+### Edit the open site default file extension (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card. The workspace shows the
+site **Default file extension** loaded from `GET /services/sites/{nameOrId}` (the wire
+field is `defaultFileExtention`). **Edit default file extension** opens a form.
+**Save** sends `PUT /services/sites/{nameOrId}` with the site name and the normalized
+extension only (description, base URL, default document, and other fields are not
+sent). A leading dot is dropped; the value must be 1–16 letters or digits (for
+example `html`). The workspace shows the saved extension, including after you leave
+and reopen the site. **Cancel**, **Save** when the extension is unchanged, and an
+empty or invalid extension do not call PUT and do not show a saved notice. The site
+update contract ignores a blank extension (it does not clear the stored value and
+does not return **400** for blank). HTTP **400**, **403**, and **409** stay on the
+form with an error and do not show a saved notice. Protocol, default document,
+description, base URL, rename, copy, and delete are separate actions.
 
 ### Delete the open site (Publishing shell)
 

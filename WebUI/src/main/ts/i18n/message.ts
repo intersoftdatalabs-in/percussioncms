@@ -286,6 +286,22 @@ export const MSG = {
     "perc.ui.publish.modern@The site default document conflicts with another change",
   PUBLISH_SITE_DEFAULT_DOCUMENT_ERROR:
     "perc.ui.publish.modern@Could not save the site default document",
+  PUBLISH_SITE_FILE_EXTENSION: "perc.ui.publish.modern@Default file extension",
+  PUBLISH_EDIT_SITE_FILE_EXTENSION: "perc.ui.publish.modern@Edit default file extension",
+  PUBLISH_SITE_FILE_EXTENSION_SAVED:
+    "perc.ui.publish.modern@Site default file extension saved",
+  PUBLISH_SITE_FILE_EXTENSION_EMPTY:
+    "perc.ui.publish.modern@Enter a default file extension. An empty value is not saved",
+  PUBLISH_SITE_FILE_EXTENSION_INVALID:
+    "perc.ui.publish.modern@Enter a file extension of letters and digits only. An invalid extension is not saved",
+  PUBLISH_SITE_FILE_EXTENSION_BAD:
+    "perc.ui.publish.modern@The site default file extension was not accepted",
+  PUBLISH_SITE_FILE_EXTENSION_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to edit this site default file extension",
+  PUBLISH_SITE_FILE_EXTENSION_CONFLICT:
+    "perc.ui.publish.modern@The site default file extension conflicts with another change",
+  PUBLISH_SITE_FILE_EXTENSION_ERROR:
+    "perc.ui.publish.modern@Could not save the site default file extension",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",
