@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { listKeywords } from "../../api/developer/keywordsApi";
 import type { KeywordChoiceSummary, KeywordSummary } from "../../api/developer/types";
 import { message } from "../../i18n/message";
@@ -75,12 +75,57 @@ export function keywordChoicesForField(
   return options;
 }
 
+/**
+ * Empty draft is an allowed clear (not this check). A value is outside the
+ * catalog only after choices have loaded and none match.
+ */
+export function keywordValueOutsideCatalog(
+  value: string,
+  choices: readonly KeywordOption[] | undefined,
+): boolean {
+  if (!choices) {
+    return false;
+  }
+  const text = catalogText(value);
+  if (!text) {
+    return false;
+  }
+  return !choices.some((choice) => choice.value === text);
+}
+
+export function collectKeywordOutsideCatalogErrors(
+  rows: readonly { name: string; kind: string; label: string; value: string }[],
+  choicesByField: Readonly<Record<string, readonly KeywordOption[] | undefined>>,
+  messageFor: (fieldLabel: string) => string,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const row of rows) {
+    if (row.kind !== "keyword") {
+      continue;
+    }
+    if (!keywordValueOutsideCatalog(row.value, choicesByField[row.name])) {
+      continue;
+    }
+    const label = catalogText(row.label) || row.name;
+    out[row.name] = messageFor(label);
+  }
+  return out;
+}
+
+/** Substitute {@code {0}} when the TMX runtime did not format arguments. */
+export function keywordOutsideCatalogMessage(fieldLabel: string): string {
+  const raw = message(EDITOR_MSG.KEYWORD_NOT_IN_CATALOG, [fieldLabel]);
+  return raw.includes("{0}") ? raw.split("{0}").join(fieldLabel) : raw;
+}
+
 export interface KeywordFieldWidgetProps {
   name: string;
   value: string;
   readOnly: boolean;
   onChange: (value: string) => void;
   loadKeywords?: () => Promise<KeywordSummary[]>;
+  /** Fired once the catalog request settles (including an empty catalog). */
+  onChoices?: (options: KeywordOption[]) => void;
 }
 
 export function KeywordFieldWidget({
@@ -89,20 +134,27 @@ export function KeywordFieldWidget({
   readOnly,
   onChange,
   loadKeywords = () => listKeywords(true),
+  onChoices,
 }: KeywordFieldWidgetProps): React.ReactElement {
   const [keywords, setKeywords] = useState<KeywordSummary[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const onChoicesRef = useRef(onChoices);
+  onChoicesRef.current = onChoices;
 
   useEffect(() => {
     let cancelled = false;
+    setLoaded(false);
     void loadKeywords()
       .then((rows) => {
         if (!cancelled) {
           setKeywords(rows);
+          setLoaded(true);
         }
       })
       .catch(() => {
         if (!cancelled) {
           setKeywords([]);
+          setLoaded(true);
         }
       });
     return () => {
@@ -114,6 +166,12 @@ export function KeywordFieldWidget({
     () => keywordChoicesForField(keywords, name),
     [keywords, name],
   );
+
+  useEffect(() => {
+    if (loaded) {
+      onChoicesRef.current?.(options);
+    }
+  }, [loaded, options]);
   const selected = catalogText(value);
   const showClear = !readOnly && selected.length > 0;
 

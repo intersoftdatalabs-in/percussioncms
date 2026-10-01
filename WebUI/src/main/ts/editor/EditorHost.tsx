@@ -225,7 +225,12 @@ import { CommunityFieldWidget } from "./widgets/CommunityFieldWidget";
 import { FileFieldWidget } from "./widgets/FileFieldWidget";
 import { HtmlFieldWidget } from "./widgets/HtmlFieldWidget";
 import { ImageFieldWidget } from "./widgets/ImageFieldWidget";
-import { KeywordFieldWidget } from "./widgets/KeywordFieldWidget";
+import {
+  collectKeywordOutsideCatalogErrors,
+  KeywordFieldWidget,
+  keywordOutsideCatalogMessage,
+  type KeywordOption,
+} from "./widgets/KeywordFieldWidget";
 import { PromoteForm } from "./widgets/PromoteForm";
 
 export { mergeEditorRows } from "./controlKinds";
@@ -403,6 +408,7 @@ function EditorFieldControl({
   onFile,
   onClear,
   loadKeywords,
+  onKeywordChoices,
   loadCommunities,
   loadBinaryMeta,
   downloadBinary,
@@ -415,6 +421,7 @@ function EditorFieldControl({
   onFile: (name: string, file: File | null) => void;
   onClear: (name: string, hadStored: boolean) => void;
   loadKeywords?: () => Promise<KeywordSummary[]>;
+  onKeywordChoices?: (name: string, options: KeywordOption[]) => void;
   loadCommunities?: () => Promise<CommunitySummary[]>;
   loadBinaryMeta?: (itemId: string, field: string) => Promise<ItemEditorBinaryMeta>;
   /** Test seam: stored binary GET ({@code binary/{id}/{field}/content}). */
@@ -467,6 +474,11 @@ function EditorFieldControl({
         value={fieldValueAsString(row.value)}
         readOnly={locked}
         loadKeywords={loadKeywords}
+        onChoices={
+          onKeywordChoices
+            ? (options) => onKeywordChoices(row.name, options)
+            : undefined
+        }
         onChange={(value) => onChange(row.name, value)}
       />
     );
@@ -688,6 +700,10 @@ export function EditorHost({
   const [saveErrorKey, setSaveErrorKey] = useState<string | null>(null);
   const [saveErrorDetail, setSaveErrorDetail] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const keywordChoicesRef = useRef<Record<string, KeywordOption[]>>({});
+  const reportKeywordChoices = (name: string, options: KeywordOption[]): void => {
+    keywordChoicesRef.current[name] = options;
+  };
   const focusInvalidRef = useRef<Record<string, string> | null>(null);
   const [workflowTriggers, setWorkflowTriggers] = useState<string[]>([]);
   const [workflowState, setWorkflowState] = useState<string>("");
@@ -1238,6 +1254,23 @@ export function EditorHost({
     if (Object.keys(invalidLinks).length > 0) {
       setFieldErrors(invalidLinks);
       setSaveErrorKey(EDITOR_MSG.LINK_INVALID_SAVE);
+      setSaving(false);
+      return;
+    }
+    const outsideKeywords = collectKeywordOutsideCatalogErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        label: row.label,
+        value: fieldValueAsString(draft[row.name] ?? row.value),
+      })),
+      keywordChoicesRef.current,
+      keywordOutsideCatalogMessage,
+    );
+    if (Object.keys(outsideKeywords).length > 0) {
+      queueFocusFirstInvalid(outsideKeywords);
+      setFieldErrors(outsideKeywords);
+      setSaveErrorKey(EDITOR_MSG.KEYWORD_INVALID_SAVE);
       setSaving(false);
       return;
     }
@@ -3828,6 +3861,7 @@ export function EditorHost({
                       onFile={setFile}
                       onClear={markBinaryClear}
                       loadKeywords={loadKeywords}
+                      onKeywordChoices={reportKeywordChoices}
                       loadCommunities={loadCommunities}
                       loadBinaryMeta={loadBinaryMeta}
                       downloadBinary={downloadBinary}

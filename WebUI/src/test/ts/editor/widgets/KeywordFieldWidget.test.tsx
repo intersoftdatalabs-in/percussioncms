@@ -21,7 +21,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { KeywordSummary } from "../../../../main/ts/api/developer/types";
 import {
   catalogText,
+  collectKeywordOutsideCatalogErrors,
   keywordChoicesForField,
+  keywordOutsideCatalogMessage,
+  keywordValueOutsideCatalog,
   KeywordFieldWidget,
 } from "../../../../main/ts/editor/widgets/KeywordFieldWidget";
 
@@ -42,6 +45,41 @@ describe("catalogText", () => {
     expect(catalogText({ value: 7 })).toBe("7");
     expect(catalogText({ label: "Keywords" })).toBe("Keywords");
     expect(catalogText(null)).toBe("");
+  });
+});
+
+describe("keywordValueOutsideCatalog", () => {
+  const choices = [
+    { value: "news", label: "News" },
+    { value: "events", label: "Events" },
+  ];
+
+  it("allows an empty clear and a loaded catalog choice", () => {
+    expect(keywordValueOutsideCatalog("", choices)).toBe(false);
+    expect(keywordValueOutsideCatalog("  ", choices)).toBe(false);
+    expect(keywordValueOutsideCatalog("events", choices)).toBe(false);
+    expect(keywordValueOutsideCatalog("news", undefined)).toBe(false);
+  });
+
+  it("rejects a non-empty value that is not a loaded choice", () => {
+    expect(keywordValueOutsideCatalog("legacy", choices)).toBe(true);
+    const errors = collectKeywordOutsideCatalogErrors(
+      [
+        { name: "keywords", kind: "keyword", label: "Keywords", value: "legacy" },
+        { name: "sys_title", kind: "text", label: "Title", value: "Home" },
+      ],
+      { keywords: choices },
+      keywordOutsideCatalogMessage,
+    );
+    expect(errors.keywords).toMatch(/Keywords/);
+    expect(errors.sys_title).toBeUndefined();
+    expect(
+      collectKeywordOutsideCatalogErrors(
+        [{ name: "keywords", kind: "keyword", label: "Keywords", value: "events" }],
+        { keywords: choices },
+        keywordOutsideCatalogMessage,
+      ),
+    ).toEqual({});
   });
 });
 
