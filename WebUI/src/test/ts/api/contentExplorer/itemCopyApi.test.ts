@@ -51,6 +51,20 @@ describe("itemCopyApi", () => {
     );
   });
 
+  it("createNewCopy rejects HTTP 400, 403, and 409 without a result", async () => {
+    const fetchMock = vi.spyOn(global, "fetch");
+    for (const status of [400, 403, 409]) {
+      fetchMock.mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: "no" }), {
+          status,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+      await expect(createNewCopy("42")).rejects.toMatchObject({ status });
+    }
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
   it("createPromotableVersion POSTs the promotable path", async () => {
     vi.spyOn(global, "fetch").mockResolvedValueOnce(
       new Response(JSON.stringify({ itemId: "100", promotable: true }), {

@@ -826,5 +826,11 @@ export const EXPLORER_MSG = {
   ACTION_FLUSH_OK: "perc.ui.explorer@Assembler cache flushed",
   ACTION_NAV_RESET_OK: "perc.ui.explorer@Managed navigation reset",
   ACTION_NEW_COPY_OK: "perc.ui.explorer@New copy created",
+  ACTION_NEW_COPY_REJECTED:
+    "perc.ui.explorer@Could not create a new copy (HTTP 400)",
+  ACTION_NEW_COPY_FORBIDDEN:
+    "perc.ui.explorer@You are not allowed to create a new copy (HTTP 403)",
+  ACTION_NEW_COPY_CONFLICT:
+    "perc.ui.explorer@A new copy conflicts with the item state (HTTP 409)",
   ACTION_PROMOTABLE_OK: "perc.ui.explorer@Promotable version created",
 } as const;
