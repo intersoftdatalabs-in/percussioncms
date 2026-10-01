@@ -1520,6 +1520,33 @@ export function EditorHost({
             : EDITOR_MSG.KEYWORD_BAD_REQUEST,
         );
       }
+      const dateNames = rows
+        .filter((row) => row.kind === "date" || row.kind === "datetime")
+        .map((row) => row.name);
+      const namedDate = Object.keys(mapped.fieldErrors).some((name) =>
+        dateNames.includes(name),
+      );
+      const dateStatus = saveReason === "forbidden" || saveReason === "badRequest";
+      const dateMapped =
+        !html400 &&
+        !long400 &&
+        !number400 &&
+        !linkMapped &&
+        !keywordMapped &&
+        dateStatus &&
+        (namedDate ||
+          (Object.keys(mapped.fieldErrors).length === 0 && dateNames.length === 1));
+      if (
+        dateMapped &&
+        Object.keys(mapped.fieldErrors).length === 0 &&
+        dateNames.length === 1
+      ) {
+        mapped.fieldErrors[dateNames[0]] = message(
+          saveReason === "forbidden"
+            ? EDITOR_MSG.DATE_FORBIDDEN
+            : EDITOR_MSG.DATE_BAD_REQUEST,
+        );
+      }
       if (
         saveReason === "badRequest" &&
         Object.keys(mapped.fieldErrors).length > 0
@@ -1544,7 +1571,11 @@ export function EditorHost({
                       ? EDITOR_MSG.KEYWORD_FORBIDDEN
                       : keywordMapped
                         ? EDITOR_MSG.KEYWORD_BAD_REQUEST
-                        : EDITOR_MSG.SAVE_FAILED,
+                        : dateMapped && saveReason === "forbidden"
+                          ? EDITOR_MSG.DATE_FORBIDDEN
+                          : dateMapped
+                            ? EDITOR_MSG.DATE_BAD_REQUEST
+                            : EDITOR_MSG.SAVE_FAILED,
       );
       setSaveErrorDetail(mapped.banner === fallback ? "" : mapped.banner);
     } finally {

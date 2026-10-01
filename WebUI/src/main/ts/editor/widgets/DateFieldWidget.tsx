@@ -16,12 +16,14 @@
  */
 
 import React from "react";
+import { message } from "../../i18n/message";
 import styles from "../EditorHost.module.css";
 import {
   fromWidgetValue,
   toWidgetValue,
   type EditorDateKind,
 } from "../dateField";
+import { EDITOR_MSG } from "../messages";
 
 export interface DateFieldWidgetProps {
   name: string;
@@ -46,19 +48,33 @@ export function DateFieldWidget({
   onChange,
 }: DateFieldWidgetProps): React.ReactElement {
   const widget = toWidgetValue(kind, value);
+  const showClear = !readOnly && widget.length > 0;
   return (
-    <input
-      className={`${styles.input} ${readOnly ? styles.readonly : ""}`}
-      data-testid={`editor-field-${name}`}
-      data-editor-kind={kind}
-      type={kind === "datetime" ? "datetime-local" : "date"}
-      name={name}
-      value={widget}
-      readOnly={readOnly}
-      disabled={readOnly}
-      aria-invalid={invalid ? true : undefined}
-      aria-required={required ? true : undefined}
-      onChange={(e) => onChange(fromWidgetValue(kind, e.target.value))}
-    />
+    <div className={styles.linkRow}>
+      <input
+        className={`${styles.input} ${readOnly ? styles.readonly : ""}`}
+        data-testid={`editor-field-${name}`}
+        data-editor-kind={kind}
+        type={kind === "datetime" ? "datetime-local" : "date"}
+        name={name}
+        value={widget}
+        readOnly={readOnly}
+        disabled={readOnly}
+        aria-invalid={invalid ? true : undefined}
+        aria-required={required ? true : undefined}
+        onChange={(e) => onChange(fromWidgetValue(kind, e.target.value))}
+      />
+      {showClear ? (
+        <button
+          type="button"
+          className={styles.button}
+          data-testid={`editor-date-clear-${name}`}
+          aria-label={message(EDITOR_MSG.DATE_CLEAR)}
+          onClick={() => onChange("")}
+        >
+          {message(EDITOR_MSG.DATE_CLEAR)}
+        </button>
+      ) : null}
+    </div>
   );
 }
