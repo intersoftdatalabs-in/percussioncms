@@ -37,6 +37,7 @@ const {
   isKnownExplorerNewCopyConsoleNoise,
   isNewCopyHttpFailure,
   isNewCopySuccess,
+  pickContentFolderIndex,
 } = require("./helpers/explorer-new-copy");
 
 const TAGS = ["@explorer-new-copy", "@explorer", "@smoke"];
@@ -90,23 +91,41 @@ async function selectFirstContentItem(page, kind) {
   const childNodes = tree.locator(
     `[data-testid^="tree-node-/${rootName}/"]:not([data-testid="tree-node-/${rootName}/"])`,
   );
-  for (let depth = 0; depth < 8; depth += 1) {
+  const seenFolderIds = new Set();
+  for (let depth = 0; depth < 16; depth += 1) {
     const itemRow = list.locator(
       'tbody tr[data-testid^="detail-row-"][data-row-kind="item"]:not([aria-disabled="true"])',
     );
+    const folders = list.locator(
+      'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]:not([aria-disabled="true"])',
+    );
+    try {
+      await expect
+        .poll(async () => (await itemRow.count()) + (await folders.count()), {
+          timeout: 20_000,
+        })
+        .toBeGreaterThan(0);
+    } catch {
+      // Listing stayed empty; try a tree child below.
+    }
     if ((await itemRow.count()) > 0) {
       await itemRow.first().click({ force: true });
       return true;
     }
-    const folders = list.locator(
-      'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]:not([aria-disabled="true"])',
-    );
-    const preferred =
-      kind === "page"
-        ? folders.filter({ hasText: /\bPages\b/ }).first()
-        : folders.first();
-    if ((await folders.count()) > 0) {
-      const folderRow = (await preferred.count()) > 0 ? preferred : folders.first();
+    /** @type {{ id: string, name: string }[]} */
+    const folderMeta = [];
+    const folderCount = await folders.count();
+    for (let i = 0; i < folderCount; i += 1) {
+      const row = folders.nth(i);
+      const id = (await row.getAttribute("data-testid")) || "";
+      const name = ((await row.locator("td").first().innerText().catch(() => "")) || "").trim();
+      folderMeta.push({ id, name });
+    }
+    const chosen = pickContentFolderIndex(folderMeta, kind, seenFolderIds);
+    if (chosen >= 0) {
+      const folderRow = folders.nth(chosen);
+      const id = folderMeta[chosen].id;
+      if (id) seenFolderIds.add(id);
       const icon = folderRow.locator('[data-testid^="detail-folder-icon-"]');
       if ((await icon.count()) > 0) {
         await icon.first().click({ force: true });
@@ -116,18 +135,20 @@ async function selectFirstContentItem(page, kind) {
       await listReady(page);
       continue;
     }
-    if ((await childNodes.count()) > depth) {
-      await childNodes.nth(depth).click({ force: true });
+    let openedTree = false;
+    const nodeCount = await childNodes.count();
+    for (let i = 0; i < nodeCount; i += 1) {
+      const node = childNodes.nth(i);
+      const id = (await node.getAttribute("data-testid")) || "";
+      if (!id || seenFolderIds.has(id)) continue;
+      seenFolderIds.add(id);
+      await node.click({ force: true });
       await listReady(page);
-      continue;
+      openedTree = true;
+      break;
     }
-    try {
-      await expect(folders.first().or(itemRow.first()).or(childNodes.first())).toBeVisible({
-        timeout: 8_000,
-      });
-    } catch {
-      return false;
-    }
+    if (openedTree) continue;
+    return false;
   }
   return false;
 }

@@ -85,6 +85,41 @@ function isKnownExplorerNewCopyConsoleNoise(text) {
   );
 }
 
+/**
+ * Next detail-list folder to open while looking for a content item.
+ * Page walks prefer a folder whose name is exactly {@code Pages}. Rows
+ * already opened ({@code seenIds}) are skipped so a path cell that merely
+ * contains "Pages" cannot pin the walk on one folder (#5023).
+ *
+ * @param {readonly { id?: string, name?: string }[]} rows
+ * @param {"page"|"asset"} kind
+ * @param {ReadonlySet<string> | readonly string[] | null | undefined} seenIds
+ * @returns {number} index into {@code rows}, or -1
+ */
+function pickContentFolderIndex(rows, kind, seenIds) {
+  const seen =
+    seenIds instanceof Set ? seenIds : new Set(seenIds || []);
+  const list = Array.isArray(rows) ? rows : [];
+  /** @type {{ index: number, id: string, name: string }[]} */
+  const usable = [];
+  for (let index = 0; index < list.length; index += 1) {
+    const row = list[index];
+    if (!row) continue;
+    const id = String(row.id || "").trim();
+    if (!id || seen.has(id)) continue;
+    usable.push({
+      index,
+      id,
+      name: String(row.name || "").trim(),
+    });
+  }
+  if (kind === "page") {
+    const pages = usable.find((row) => /^pages$/i.test(row.name));
+    if (pages) return pages.index;
+  }
+  return usable.length > 0 ? usable[0].index : -1;
+}
+
 module.exports = {
   TEST_IDS,
   explorerNewCopyUrl,
@@ -92,4 +127,5 @@ module.exports = {
   isNewCopySuccess,
   isNewCopyHttpFailure,
   isKnownExplorerNewCopyConsoleNoise,
+  pickContentFolderIndex,
 };

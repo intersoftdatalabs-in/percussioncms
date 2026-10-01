@@ -24,6 +24,7 @@ const {
   isItemNewCopyUrl,
   isNewCopyHttpFailure,
   isNewCopySuccess,
+  pickContentFolderIndex,
 } = require("../helpers/explorer-new-copy");
 
 describe("explorer new copy helpers (#5006)", () => {
@@ -71,5 +72,18 @@ describe("explorer new copy helpers (#5006)", () => {
       true,
     );
     assert.equal(isNewCopyHttpFailure("Select a content item first", 400), false);
+  });
+
+  it("opens an unvisited Pages folder before a path that only mentions Pages", () => {
+    const rows = [
+      { id: "site", name: "Corporate" },
+      { id: "decoy", name: "Notes" },
+      { id: "pages", name: "Pages" },
+    ];
+    assert.equal(pickContentFolderIndex(rows, "page", []), 2);
+    assert.equal(pickContentFolderIndex(rows, "page", ["pages"]), 0);
+    assert.equal(pickContentFolderIndex(rows, "asset", []), 0);
+    assert.equal(pickContentFolderIndex(rows, "page", ["site", "decoy", "pages"]), -1);
+    assert.equal(pickContentFolderIndex([{ id: "", name: "Pages" }], "page", []), -1);
   });
 });
