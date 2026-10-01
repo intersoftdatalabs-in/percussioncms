@@ -12,20 +12,21 @@ Licensed under the Apache License, Version 2.0.
 - Status: mkd-code-review 0.1.18, pack percussion, --gate advisory, --git-base origin/main, --models models.ollama-dev-coder.toml
 - PR: https://github.com/intersoftdatalabs-in/percussioncms/pull/5009
 - Base: origin/main (`a6f548cd531d5ad72cfc8d8c32b22e9aa0bf593d`)
-- Head: 49f113a110cd4553a62253925aec07c019f3e8f2
+- Head: 2f7baa9e213109671f4d05fe6e5c27aee0fc4f31
 - Reviewed: published PR head (worktree `.kilo/worktrees/pr-5009-erlang-fix`)
 
 ## CLI stdout (`mkd-code-review analyze --format markdown`)
 
 ## Summary
 
-Machine analysis found **0** finding(s), **0** bug(s).
+Machine analysis found **3** finding(s), **0** bug(s).
 
 ## Scope
 
 - Base: origin/main
 - Head: HEAD
-- Files: 11 analyzed
+- Files: 19 analyzed
+- In-diff: 0 finding(s); preexisting: 3
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 
@@ -40,18 +41,41 @@ approve
 
 ## Issues
 
-_No issues._
+### Issue 1 -- Severity: bug
+
+- File: WebUI/src/main/ts/contentExplorer/actionDispatch.ts:1691 (preexisting)
+- Rule: `complexity.cognitive`
+- Tool: `arborist-metrics`
+- Description: Function `dispatchAction` cognitive=338 (max 15), cyclomatic=209 (max 15)
+- Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
+- Status: open
+
+### Issue 2 -- Severity: suggestion
+
+- File: deployer/src/main/java/com/percussion/deployer/server/dependencies/PSExitDefDependencyHandler.java:109 (preexisting)
+- Rule: `complexity.cognitive`
+- Tool: `arborist-metrics`
+- Description: Function `getDependencyFiles` cognitive=19 (max 15), cyclomatic=11 (max 15)
+- Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
+- Status: open
+
+### Issue 3 -- Severity: suggestion
+
+- File: deployer/src/main/java/com/percussion/deployer/server/dependencies/PSExitDefDependencyHandler.java:176 (preexisting)
+- Rule: `complexity.cognitive`
+- Tool: `arborist-metrics`
+- Description: Function `installDependencyFiles` cognitive=19 (max 15), cyclomatic=16 (max 15)
+- Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
+- Status: open
 
 ### Erlang judgment (peer)
 
-Request changes. Do not merge.
+Approve. Prior blocking findings on `2f7baa9e` are closed. Do not merge on this snapshot: CodeQL `Analyze (java-kotlin)` and `Analyze (javascript-typescript)` were still in progress. Preexisting complexity rows are out of diff and do not block.
 
-Machine pack found no in-diff static bug. Required checks on this head are green (CodeQL, product-docs smoke, QA wiring). That is not enough.
+`PSCoreItem.setTextField` now clears before `addValue` only when `PSItemField.isMultiValue()` is true. Parent `no_externalurl` stays `isMultiValue` false, so `PSItemField.addValue` already replaces the single value. The extra clear is no longer the claimed fix. Case-insensitive lookup covers `no_externalurl` vs `no_externalUrl` (`PSCoreItemSetTextFieldTest.setTextFieldMatchesExternalUrlIgnoreCase`).
 
-`PSCoreItem.setTextField` (`system/src/main/java/com/percussion/cms/objectstore/PSCoreItem.java` lines 1004-1006) calls `clearValues()` then `addValue`. Parent fields are built with `isMultiValue` false (`PSItemDefExtractor` constructor line 54; `true` only for `TYPE_SIMPLE_CHILD`, lines 142-144). `PSItemField.addValue` already clears the value list when `isMultiValue()` is false (`PSItemField.java` lines 141-142) and then stores the new value. The extra `clearValues()` does not change `no_externalurl`.
+GET section omission is the read path, not another clear on write. `PSManagedNavService.getNavonProperties` used `hasProperty(name)` then `getProperty("rx:" + name)`, which misses assembly name `rx:no_externalUrl` (`PSNavonNodeInvocationHandler`). `readNavonProperty` resolves the `rx:` name and a case-insensitive property scan. `PSManagedNavServiceReadNavonPropertyTest` covers that name, a blank `;` starter, and a multi-value blank-then-URL. `PSSiteSection.getExternalLinkUrl` is a `String` with `@XmlElement`, and `PSSiteSectionExternalLinkUrlJsonTest` asserts the sitemanage mapper emits `externalLinkUrl` (an `Optional` getter was dropped by `NON_NULL` / the JAXB introspector). `FolderAdaptor` passes that string through without `ApiUtils.orNull`.
 
-`PSCoreItemSetTextFieldTest.setTextFieldReplacesParentDelimitedField` builds `new PSItemField(..., false)` (lines 40-42) and asserts a single replacement string (lines 51-55). `addValue` already does that when the flag is false, so the test passes on `setTextField` that never calls `clearValues()`. `setTextFieldReplacesSimpleChildMultiValue` (flag `true`) is the only test that needs the new clear, and that is not how parent `no_externalurl` is built.
-
-`PSManagedNavService.applyNavonPropertyMap` (line 776) is the create and update writer. Both still persist the same single value they persisted before `a0931068`. The PR test plan records that surface Playwright failed because `GET /sitemanage/section/{id}` omits `externalLinkUrl` after a create that returned 200. This head does not re-run that spec, and the new unit test does not load a navon or assert the GET property. The edit panel still reads `externalLinkUrl` from GET, so the saved URL still cannot be shown.
+Suggestion, not a gate: `firstNonBlankToken` splits any `*externalurl*` value on `;`. A single URL that itself contains `;` is truncated. That matches a `;`-delimited column, not a general URL parser.
 
 > Co-Authored by Grok Build 1.0.46 using grok-4.6 with agent night-issue-prs-erlang.
