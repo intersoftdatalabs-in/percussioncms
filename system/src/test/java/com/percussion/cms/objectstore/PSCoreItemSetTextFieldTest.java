@@ -27,25 +27,48 @@ import java.util.Iterator;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-/** External-link navon fields must replace a blank multi-value, not append (#4985). */
+/**
+ * External-link navon {@code no_externalurl} is a parent delimited field. {@link
+ * PSItemDefExtractor} builds parent fields with {@code isMultiValue} false, not the simple-child
+ * flag. {@code setTextField} must still replace a blank starter (#4985).
+ */
 class PSCoreItemSetTextFieldTest {
 
   @Test
-  void setTextFieldReplacesExistingMultiValue() throws Exception {
+  void setTextFieldReplacesParentDelimitedField() throws Exception {
+    // false matches PSItemDefExtractor parent fields, not TYPE_SIMPLE_CHILD.
     PSItemField field =
-        new PSItemField(new PSField(PSField.TYPE_LOCAL, "no_externalurl", null), new PSUISet(), true);
+        new PSItemField(
+            new PSField(PSField.TYPE_LOCAL, "no_externalurl", null), new PSUISet(), false);
     field.addValue(new PSTextValue(""));
-    PSItemDefinition def = PSFieldFinderUtilTest.loadItemDefinition("PSFieldFinderUtilTest1.xml");
-    PSCoreItem item = new PSCoreItem(def);
+    PSItemDefinition itemDef = PSFieldFinderUtilTest.loadItemDefinition("PSFieldFinderUtilTest1.xml");
+    PSCoreItem item = new PSCoreItem(itemDef);
     Method addField = PSCoreItem.class.getDeclaredMethod("addField", PSItemField.class);
     addField.setAccessible(true);
     addField.invoke(item, field);
 
+    assertEquals(false, field.isMultiValue());
     item.setTextField("no_externalurl", "https://example.com/edited");
     assertEquals(List.of("https://example.com/edited"), valueStrings(field));
 
     item.setTextField("no_externalurl", "https://example.com/again");
     assertEquals(List.of("https://example.com/again"), valueStrings(field));
+  }
+
+  @Test
+  void setTextFieldReplacesSimpleChildMultiValue() throws Exception {
+    PSItemField field =
+        new PSItemField(new PSField(PSField.TYPE_LOCAL, "keywords", null), new PSUISet(), true);
+    field.addValue(new PSTextValue(""));
+    field.addValue(new PSTextValue("old"));
+    PSItemDefinition itemDef = PSFieldFinderUtilTest.loadItemDefinition("PSFieldFinderUtilTest1.xml");
+    PSCoreItem item = new PSCoreItem(itemDef);
+    Method addField = PSCoreItem.class.getDeclaredMethod("addField", PSItemField.class);
+    addField.setAccessible(true);
+    addField.invoke(item, field);
+
+    item.setTextField("keywords", "new");
+    assertEquals(List.of("new"), valueStrings(field));
   }
 
   @Test

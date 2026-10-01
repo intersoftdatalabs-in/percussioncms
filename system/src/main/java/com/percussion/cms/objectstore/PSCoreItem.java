@@ -986,8 +986,12 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
   }
 
   /**
-   * Sets the text field value for the specified field name if it exists. Replaces any values
-   * already stored on a multi-value field instead of appending.
+   * Sets the text field value for the specified field name if it exists. Replaces every value
+   * already stored on the field. Parent delimited fields such as {@code no_externalurl} are not
+   * {@link PSItemField#isMultiValue()} ({@link PSItemDefExtractor} passes {@code false} for parent
+   * fields). {@link PSItemField#addValue} appends only when that flag is true, and content-editor
+   * save plus JCR {@code Property.getString()} keep the first value, so a blank starter hides the
+   * URL. Clear first for every field so the flag does not decide whether the new value is stored.
    *
    * @param fieldName the field name, may not be blank.
    * @param value the new value of the field, may be blank.
@@ -998,11 +1002,7 @@ public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
 
     PSItemField textFld = getFieldByName(fieldName);
     if (textFld != null) {
-      // Delimited fields (no_externalurl) are multi-value, so addValue appends.
-      // Save and JCR getString keep the first value; a blank starter hides the URL.
-      if (textFld.isMultiValue()) {
-        textFld.clearValues();
-      }
+      textFld.clearValues();
       textFld.addValue(new PSTextValue(value));
     }
   }
