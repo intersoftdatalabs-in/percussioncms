@@ -40,6 +40,7 @@ import {
   buildDeveloperAddSectionFields,
   buildDeveloperExternalLinkFields,
   listDeveloperExternalLinks,
+  resolveDeveloperExternalLinkDelete,
   buildDeveloperRenameProperties,
   buildDeveloperReparent,
   buildDeveloperSiblingReorder,
@@ -160,6 +161,10 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
   const [editExtError, setEditExtError] = useState<string | null>(null);
   const [editExtNotice, setEditExtNotice] = useState<string | null>(null);
   const [editExtBusy, setEditExtBusy] = useState(false);
+  const [delExtId, setDelExtId] = useState("");
+  const [delExtError, setDelExtError] = useState<string | null>(null);
+  const [delExtNotice, setDelExtNotice] = useState<string | null>(null);
+  const [delExtBusy, setDelExtBusy] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
   const renameTargets = listDeveloperRenameTargets(treeRoot);
   const templateTargets = listDeveloperTemplateTargets(treeRoot);
@@ -168,6 +173,9 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
   const reparentTargets = listDeveloperReorderTargets(treeRoot);
   const reparentParents = listDeveloperReparentParents(treeRoot, reparentId);
   const externalLinks = listDeveloperExternalLinks(treeRoot);
+  const delExtSelected = externalLinks.some((link) => link.id === delExtId)
+    ? delExtId
+    : (externalLinks[0]?.id ?? "");
   const canMoveUp = buildDeveloperSiblingReorder(treeRoot, reorderId, "up") != null;
   const canMoveDown = buildDeveloperSiblingReorder(treeRoot, reorderId, "down") != null;
 
@@ -473,6 +481,42 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
         setRenameError(panelErrMsg(err, DEV_MSG.SITE_NAV_RENAME_ERROR));
       } finally {
         setRenameBusy(false);
+      }
+    })();
+  };
+
+  const onDeleteExtCancel = () => {
+    setDelExtError(null);
+    setDelExtNotice(null);
+  };
+
+  const onDeleteExtConfirm = () => {
+    setDelExtError(null);
+    setDelExtNotice(null);
+    const id = resolveDeveloperExternalLinkDelete(treeRoot, delExtSelected);
+    if (!id) {
+      setDelExtError(DEV_MSG.SITE_NAV_EXT_DELETE_REFUSED);
+      return;
+    }
+    setDelExtBusy(true);
+    void (async () => {
+      try {
+        await deleteSiteSection(id);
+        setDelExtNotice(DEV_MSG.SITE_NAV_EXT_DELETED);
+        setReloadToken((n) => n + 1);
+      } catch (err) {
+        if (isSessionRedirectError(err)) return;
+        if (isApiError(err) && err.status === 403) {
+          setDelExtError(panelErrMsg(err, DEV_MSG.SITE_NAV_EXT_DELETE_FORBIDDEN));
+          return;
+        }
+        if (isApiError(err) && err.status === 409) {
+          setDelExtError(panelErrMsg(err, DEV_MSG.SITE_NAV_EXT_DELETE_CONFLICT));
+          return;
+        }
+        setDelExtError(panelErrMsg(err, DEV_MSG.SITE_NAV_EXT_DELETE_ERROR));
+      } finally {
+        setDelExtBusy(false);
       }
     })();
   };
@@ -1006,6 +1050,55 @@ export function SiteNavSections({ site }: { site: SiteDef }): React.ReactElement
             ) : null}
             {editExtNotice ? (
               <div data-testid="developer-site-nav-ext-edit-notice">{editExtNotice}</div>
+            ) : null}
+            <div style={{ fontSize: "0.95rem", fontWeight: 600, marginTop: "8px" }}>
+              {DEV_MSG.SITE_NAV_EXT_DELETE_HEADING}
+            </div>
+            <label>
+              {DEV_MSG.SITE_NAV_EXT_DELETE_PICK}
+              <select
+                data-testid="developer-site-nav-ext-delete-target"
+                value={delExtSelected}
+                onChange={(e) => {
+                  setDelExtId(e.target.value);
+                  setDelExtError(null);
+                  setDelExtNotice(null);
+                }}
+                style={inputStyle}
+                disabled={delExtBusy || externalLinks.length === 0}
+              >
+                {externalLinks.map((link) => (
+                  <option key={link.id} value={link.id}>
+                    {link.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                type="button"
+                data-testid="developer-site-nav-ext-delete-confirm"
+                disabled={delExtBusy || externalLinks.length === 0}
+                onClick={onDeleteExtConfirm}
+              >
+                {delExtBusy ? DEV_MSG.SITE_NAV_EXT_DELETING : DEV_MSG.SITE_NAV_EXT_DELETE_CONFIRM}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-site-nav-ext-delete-cancel"
+                disabled={delExtBusy || externalLinks.length === 0}
+                onClick={onDeleteExtCancel}
+              >
+                {DEV_MSG.SITE_NAV_CANCEL}
+              </button>
+            </div>
+            {delExtError ? (
+              <div data-testid="developer-site-nav-ext-delete-error" role="alert">
+                {delExtError}
+              </div>
+            ) : null}
+            {delExtNotice ? (
+              <div data-testid="developer-site-nav-ext-delete-notice">{delExtNotice}</div>
             ) : null}
           </div>
           <div

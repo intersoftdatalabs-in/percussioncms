@@ -221,6 +221,22 @@ export function listDeveloperExternalLinks(
   return links;
 }
 
+/**
+ * Id to delete when {@code sectionId} is an external link on this tree.
+ * Section and blog nodes return null so this action cannot remove them.
+ */
+export function resolveDeveloperExternalLinkDelete(
+  root: NavTreeNode | null,
+  sectionId: string,
+): string | null {
+  const id = sectionId.trim();
+  if (!id || !root) {
+    return null;
+  }
+  const hit = listDeveloperExternalLinks(root).find((link) => link.id === id);
+  return hit ? hit.id : null;
+}
+
 /** A regular or blog section the operator may rename (not a link). */
 export interface DeveloperNavRenameTarget {
   id: string;

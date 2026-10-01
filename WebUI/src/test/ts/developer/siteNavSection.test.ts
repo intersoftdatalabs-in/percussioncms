@@ -28,6 +28,7 @@ import {
   isDeveloperSectionNameTaken,
   listDeveloperDeleteTargets,
   listDeveloperExternalLinks,
+  resolveDeveloperExternalLinkDelete,
   listDeveloperNavParents,
   listDeveloperRenameTargets,
   listDeveloperReparentParents,
@@ -166,6 +167,29 @@ describe("siteNavSection", () => {
   it("lists delete targets without the site root or links", () => {
     expect(listDeveloperDeleteTargets(root).map((t) => t.id)).toEqual(["child"]);
     expect(listDeveloperDeleteTargets(null)).toEqual([]);
+  });
+
+  it("resolves an external link delete and refuses section and blog ids", () => {
+    const blog: NavTreeNode = {
+      ...root,
+      children: [
+        ...root.children,
+        {
+          id: "blog",
+          title: "Journal",
+          folderPath: "//Sites/Corporate/Journal",
+          sectionType: "blog",
+          requiresLogin: false,
+          children: [],
+        },
+      ],
+    };
+    expect(resolveDeveloperExternalLinkDelete(blog, "link")).toBe("link");
+    expect(resolveDeveloperExternalLinkDelete(blog, " child ")).toBeNull();
+    expect(resolveDeveloperExternalLinkDelete(blog, "blog")).toBeNull();
+    expect(resolveDeveloperExternalLinkDelete(blog, "root")).toBeNull();
+    expect(resolveDeveloperExternalLinkDelete(null, "link")).toBeNull();
+    expect(resolveDeveloperExternalLinkDelete(blog, "  ")).toBeNull();
   });
 
   it("reorders a non-root sibling and refuses the site root and links", () => {

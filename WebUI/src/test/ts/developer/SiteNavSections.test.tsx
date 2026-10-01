@@ -825,4 +825,75 @@ describe("SiteNavSections", () => {
       DEV_MSG.SITE_NAV_EXT_EDIT_SAVED,
     );
   });
+
+  it("does not delete an external link on cancel and omits section options", async () => {
+    loadSectionTree.mockResolvedValue(extTree);
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-site-nav-ext-delete-target") as HTMLSelectElement).value,
+      ).toBe("ext-1");
+    });
+    const options = Array.from(
+      (screen.getByTestId("developer-site-nav-ext-delete-target") as HTMLSelectElement).options,
+    ).map((o) => o.value);
+    expect(options).toEqual(["ext-1"]);
+    fireEvent.click(screen.getByTestId("developer-site-nav-ext-delete-cancel"));
+    expect(deleteSiteSection).not.toHaveBeenCalled();
+    expect(
+      screen.getAllByTestId("developer-site-nav-item").some((n) =>
+        (n.textContent || "").includes("Partner"),
+      ),
+    ).toBe(true);
+    expect(screen.queryByTestId("developer-site-nav-ext-delete-notice")).toBeNull();
+  });
+
+  it("keeps 403 and 409 on the external link delete panel", async () => {
+    loadSectionTree.mockResolvedValue(extTree);
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-ext-delete-confirm");
+    deleteSiteSection.mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: "" });
+    fireEvent.click(screen.getByTestId("developer-site-nav-ext-delete-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-ext-delete-error").textContent).toContain(
+        DEV_MSG.SITE_NAV_EXT_DELETE_FORBIDDEN,
+      );
+    });
+    expect(screen.queryByTestId("developer-site-nav-ext-delete-notice")).toBeNull();
+    expect(
+      screen.getAllByTestId("developer-site-nav-item").some((n) =>
+        (n.textContent || "").includes("Partner"),
+      ),
+    ).toBe(true);
+
+    deleteSiteSection.mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: "" });
+    fireEvent.click(screen.getByTestId("developer-site-nav-ext-delete-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-ext-delete-error").textContent).toContain(
+        DEV_MSG.SITE_NAV_EXT_DELETE_CONFLICT,
+      );
+    });
+    expect(screen.queryByTestId("developer-site-nav-ext-delete-notice")).toBeNull();
+  });
+
+  it("deletes one external link and drops it after reload", async () => {
+    loadSectionTree.mockResolvedValueOnce(extTree);
+    loadSectionTree.mockResolvedValueOnce({ ...tree, children: [] });
+    deleteSiteSection.mockResolvedValue(undefined);
+    render(<SiteNavSections site={{ name: "Corporate" }} />);
+    await screen.findByTestId("developer-site-nav-ext-delete-confirm");
+    fireEvent.click(screen.getByTestId("developer-site-nav-ext-delete-confirm"));
+    await waitFor(() => {
+      expect(deleteSiteSection).toHaveBeenCalledWith("ext-1");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-site-nav-ext-delete-notice").textContent).toBe(
+        DEV_MSG.SITE_NAV_EXT_DELETED,
+      );
+    });
+    await waitFor(() => {
+      const items = screen.queryAllByTestId("developer-site-nav-item").map((n) => n.textContent || "");
+      expect(items.some((text) => text.includes("Partner"))).toBe(false);
+    });
+  });
 });
