@@ -272,6 +272,20 @@ export const MSG = {
     "perc.ui.publish.modern@The site base URL conflicts with another change",
   PUBLISH_SITE_BASE_URL_ERROR:
     "perc.ui.publish.modern@Could not save the site base URL",
+  PUBLISH_SITE_DEFAULT_DOCUMENT: "perc.ui.publish.modern@Default document",
+  PUBLISH_EDIT_SITE_DEFAULT_DOCUMENT: "perc.ui.publish.modern@Edit default document",
+  PUBLISH_SITE_DEFAULT_DOCUMENT_SAVED:
+    "perc.ui.publish.modern@Site default document saved",
+  PUBLISH_SITE_DEFAULT_DOCUMENT_EMPTY:
+    "perc.ui.publish.modern@Enter a default document. An empty value is not saved",
+  PUBLISH_SITE_DEFAULT_DOCUMENT_BAD:
+    "perc.ui.publish.modern@The site default document was not accepted",
+  PUBLISH_SITE_DEFAULT_DOCUMENT_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to edit this site default document",
+  PUBLISH_SITE_DEFAULT_DOCUMENT_CONFLICT:
+    "perc.ui.publish.modern@The site default document conflicts with another change",
+  PUBLISH_SITE_DEFAULT_DOCUMENT_ERROR:
+    "perc.ui.publish.modern@Could not save the site default document",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",
