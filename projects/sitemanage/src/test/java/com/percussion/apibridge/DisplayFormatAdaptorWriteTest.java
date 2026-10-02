@@ -130,6 +130,42 @@ class DisplayFormatAdaptorWriteTest {
   }
 
   @Test
+  void create_persistsInitialColumns() throws Exception {
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    when(designWs.createDisplayFormats(eq(List.of("MyFmt")), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(nativeDf));
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+
+    DisplayFormat body = new DisplayFormat();
+    body.setName("MyFmt");
+    DisplayFormatColumnList cols = new DisplayFormatColumnList();
+    DisplayFormatColumn title = new DisplayFormatColumn();
+    title.setSource("sys_title");
+    title.setDisplayName("Title");
+    title.setPosition(0);
+    DisplayFormatColumn workflow = new DisplayFormatColumn();
+    workflow.setSource("sys_workflow");
+    workflow.setDisplayName("Workflow");
+    workflow.setPosition(1);
+    cols.add(title);
+    cols.add(workflow);
+    body.setColumns(cols);
+
+    adaptor.createDisplayFormat(body);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PSDisplayFormat>> saved = ArgumentCaptor.forClass(List.class);
+    verify(designWs)
+        .saveDisplayFormats(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
+    PSDisplayFormat persisted = saved.getValue().get(0);
+    assertEquals(2, persisted.getColumnContainer().size());
+    assertEquals("sys_title", ((PSDisplayColumn) persisted.getColumnContainer().get(0)).getSource());
+    assertEquals(
+        "sys_workflow",
+        ((PSDisplayColumn) persisted.getColumnContainer().get(1)).getSource());
+  }
+
+  @Test
   void create_duplicateName_is409BeforeCreate() throws Exception {
     IPSCatalogSummary existing = mock(IPSCatalogSummary.class);
     when(existing.getName()).thenReturn("MyFmt");

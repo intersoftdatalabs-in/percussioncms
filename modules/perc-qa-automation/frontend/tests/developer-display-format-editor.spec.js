@@ -163,6 +163,9 @@ test.describe("Developer display format editor (#4086 / UI-05)", () => {
     await expect(saveBtn).toBeDisabled();
 
     await page.locator('[data-testid="developer-df-name"]').fill(formatName);
+    await expect(
+      page.locator('[data-testid="developer-df-column-row-0"]'),
+    ).toHaveAttribute("data-df-column-source", "sys_title");
     await page.locator('[data-testid="developer-df-label"]').fill(formatLabel);
     await page.locator('[data-testid="developer-df-description"]').fill("SPA UI-05 create");
     await expect(saveBtn).toBeEnabled();
@@ -193,6 +196,42 @@ test.describe("Developer display format editor (#4086 / UI-05)", () => {
     await expect(page.locator('[data-testid="developer-df-name"]')).toHaveValue(formatName);
     await expect(page.locator('[data-testid="developer-df-delete"]')).toBeVisible();
 
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
+  test("cancel and a blank name do not create a display format", async ({ page }) => {
+    test.setTimeout(120_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    await openDisplayFormatsCatalog(page);
+
+    const formatName = uniqueDisplayFormatName("qa5044");
+    let posts = 0;
+    page.on("request", (req) => {
+      if (
+        req.method() === "POST" &&
+        /\/services\/displayformats\/?$/.test(req.url())
+      ) {
+        posts += 1;
+      }
+    });
+
+    await page.locator('[data-testid="developer-df-new"]').click();
+    await expect(page.locator('[data-testid="developer-df-detail"]')).toBeVisible();
+    const saveBtn = page.locator('[data-testid="developer-df-save"]');
+    await expect(saveBtn).toBeDisabled();
+    await page.locator('[data-testid="developer-df-name"]').fill("   ");
+    await expect(saveBtn).toBeDisabled();
+    await page.locator('[data-testid="developer-df-name"]').fill(formatName);
+    await expect(saveBtn).toBeEnabled();
+    await page.locator('[data-testid="developer-df-cancel"]').click();
+    await expect(page.locator('[data-testid="developer-df-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(
+      page.locator(`[data-testid="developer-df-open"][data-df-name="${formatName}"]`),
+    ).toHaveCount(0);
+    expect(posts).toBe(0);
     assertConsoleClean(pageErrors, consoleErrors);
   });
 

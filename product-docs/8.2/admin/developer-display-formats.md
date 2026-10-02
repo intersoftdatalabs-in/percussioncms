@@ -28,14 +28,19 @@ allowed communities.
 2. Open **Developer → Display Formats**, or deep-link
    `spa.jsp?entry=developer&section=display-formats`.
 3. Click **New display format**. Enter a **name**. Save stays disabled until
-   the name is valid (no spaces, no `*` / `%`, no `/` or `..`). Optional:
-   label and description.
-4. Click **Save**. A duplicate name is **409** and the editor shows that the
-   display format already exists. An invalid name is **400**. A non-Admin
-   session is **403**. After a successful create, the name field is read-only
-   and the catalog lists the new format. `GET /services/displayformats/{name}`
-   returns that user format (not **404**, and not a packaged format such as
-   **By_Author**).
+   the name is valid (no spaces, no `*` / `%`, no `/` or `..`) and at least one
+   column is present. A blank name does not save. The create form starts with
+   **Content Title** (`sys_title`). Optional: label, description, and extra
+   columns from the field list. **Cancel** returns to the catalog and does not
+   create the format.
+4. Click **Save**. The POST body includes the name and the column list. A
+   duplicate name is **409** and the editor shows that the display format
+   already exists. An invalid name is **400**. A non-Admin session is **403**.
+   Those errors do not add a catalog row and do not show the saved notice.
+   After a successful create, the name field is read-only and the catalog
+   lists the new format (including its columns) only then.
+   `GET /services/displayformats/{name}` returns that user format (not **404**,
+   and not a packaged format such as **By_Author**).
 5. Optional: change label or description and **Save** again.
 6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    REST `DELETE /services/displayformats/{name}` returns **204**; a following

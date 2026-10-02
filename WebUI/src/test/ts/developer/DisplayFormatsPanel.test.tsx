@@ -44,6 +44,7 @@ const listDisplayFormats = displayFormatsApi.listDisplayFormats as ReturnType<ty
 const getDisplayFormatDetail = displayFormatsApi.getDisplayFormatDetail as ReturnType<
   typeof vi.fn
 >;
+const createDisplayFormat = displayFormatsApi.createDisplayFormat as ReturnType<typeof vi.fn>;
 
 const sampleFormat = {
   name: "Default",
@@ -67,6 +68,7 @@ describe("DisplayFormatsPanel", () => {
     };
     listDisplayFormats.mockReset();
     getDisplayFormatDetail.mockReset();
+    createDisplayFormat.mockReset();
   });
 
   it("lists display formats and opens detail", async () => {
@@ -139,7 +141,88 @@ describe("DisplayFormatsPanel", () => {
     fireEvent.click(screen.getByTestId("developer-df-new"));
     expect(screen.getByTestId("developer-df-detail")).toBeTruthy();
     expect(screen.getByTestId("developer-df-save")).toBeDisabled();
+    expect(screen.getByTestId("developer-df-columns-table").textContent).toContain("sys_title");
     expect(getDisplayFormatDetail).not.toHaveBeenCalled();
+  });
+
+  it("cancel does not create and does not add a catalog row", async () => {
+    listDisplayFormats.mockResolvedValue([]);
+    render(<DisplayFormatsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-new"));
+    fireEvent.change(screen.getByTestId("developer-df-name"), {
+      target: { value: "GhostFmt" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-cancel"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-empty")).toBeTruthy();
+    });
+    expect(createDisplayFormat).not.toHaveBeenCalled();
+    expect(screen.queryByText("GhostFmt")).toBeNull();
+    expect(listDisplayFormats).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the new display format in the catalog only after create succeeds", async () => {
+    listDisplayFormats
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ name: "QAFmt", label: "QA Format", columns: [] }]);
+    createDisplayFormat.mockResolvedValue({
+      name: "QAFmt",
+      label: "QA Format",
+      columns: [{ source: "sys_title", displayName: "Content Title", position: 0 }],
+    });
+    render(<DisplayFormatsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-new"));
+    fireEvent.change(screen.getByTestId("developer-df-name"), {
+      target: { value: "QAFmt" },
+    });
+    expect(screen.queryByTestId("developer-df-table")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-df-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-editor-notice").textContent).toBe(DEV_MSG.DF_SAVED);
+    });
+    expect(screen.queryByTestId("developer-df-table")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-df-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-table").textContent).toContain("QAFmt");
+    });
+    expect(createDisplayFormat).toHaveBeenCalledTimes(1);
+    expect(listDisplayFormats).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not list a display format when create returns 409", async () => {
+    listDisplayFormats.mockResolvedValue([]);
+    createDisplayFormat.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Display format already exists: QAFmt" },
+    });
+    render(<DisplayFormatsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-new"));
+    fireEvent.change(screen.getByTestId("developer-df-name"), {
+      target: { value: "QAFmt" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-detail-error").textContent).toContain(
+        DEV_MSG.DF_DUPLICATE,
+      );
+    });
+    expect(screen.queryByTestId("developer-df-editor-notice")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-df-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-empty")).toBeTruthy();
+    });
+    expect(screen.queryByText("QAFmt")).toBeNull();
+    expect(listDisplayFormats).toHaveBeenCalledTimes(1);
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {
