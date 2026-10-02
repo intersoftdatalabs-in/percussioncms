@@ -539,7 +539,7 @@ export const DEV_MSG_KEYS = {
   SLOT_EMPTY: "perc.ui.developer@No slots returned.",
   SLOT_ERROR: "perc.ui.developer@Could not load slots.",
   SLOT_HINT:
-    "perc.ui.developer@Create or delete assembly slots (Admin). Name is unique and cannot contain spaces. Lock an existing slot to edit finder, relationship, and finder arguments.",
+    "perc.ui.developer@Create, rename, or delete assembly slots (Admin). Name is unique and cannot contain spaces. The catalog shows a new name only after a successful save. Lock an existing slot to edit finder, relationship, and finder arguments.",
   SLOT_NEW: "perc.ui.developer@New slot",
   SLOT_COL_LABEL: "perc.ui.developer@Label",
   SLOT_COL_NAME: "perc.ui.developer@Name",
@@ -553,7 +553,8 @@ export const DEV_MSG_KEYS = {
   SLOT_FORM_TYPE: "perc.ui.developer@Slot type",
   SLOT_TYPE_REGULAR: "perc.ui.developer@REGULAR",
   SLOT_TYPE_INLINE: "perc.ui.developer@INLINE",
-  SLOT_NAME_READONLY: "perc.ui.developer@Name cannot be changed after the slot is created.",
+  SLOT_NAME_READONLY: "perc.ui.developer@System slot names cannot be changed.",
+  SLOT_RENAME_SYSTEM: "perc.ui.developer@System slot names cannot be changed.",
   SLOT_NAME_INVALID: "perc.ui.developer@Slot name is required, cannot contain spaces, and cannot contain wildcards.",
   SLOT_TYPE_INVALID: "perc.ui.developer@Slot type must be REGULAR or INLINE.",
   SLOT_SAVE: "perc.ui.developer@Save slot",

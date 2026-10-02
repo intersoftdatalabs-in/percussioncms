@@ -157,9 +157,17 @@ function deleteFallback(err: unknown, systemSlot: boolean | undefined): string {
 function updateSaveFallback(err: unknown): string {
   if (!isApiError(err)) return DEV_MSG.SLOT_SAVE_ERROR;
   if (err.status === 403) return DEV_MSG.SLOT_FORBIDDEN;
-  if (err.status === 409) return DEV_MSG.SLOT_LOCK_REQUIRED;
+  if (err.status === 409) {
+    const msg = extractRestErrorMessage(err.body) || "";
+    if (/already exists/i.test(msg)) return DEV_MSG.SLOT_DUPLICATE;
+    if (/system slot/i.test(msg)) return DEV_MSG.SLOT_RENAME_SYSTEM;
+    return DEV_MSG.SLOT_LOCK_REQUIRED;
+  }
   if (err.status === 400) {
     const msg = extractRestErrorMessage(err.body) || "";
+    if (/name is required|cannot contain whitespace|must not contain wildcards/i.test(msg)) {
+      return DEV_MSG.SLOT_NAME_INVALID;
+    }
     if (/invalid finder|extension name not valid/i.test(msg)) {
       return DEV_MSG.SLOT_FINDER_INVALID;
     }
@@ -249,7 +257,7 @@ export function SlotDetailPanel({
     };
   }, [idOrName]);
 
-  const writeKey = idOrName || createdKey || name.trim();
+  const writeKey = createdKey || idOrName || name.trim();
   const initialAssocs = cloneAssociations(detail?.associations);
   const finderArgs = mapFromArgRows(argRows);
   const putPreview =
@@ -257,6 +265,7 @@ export function SlotDetailPanel({
       ? buildSlotUpdateBody({
           label,
           description,
+          name,
           associations,
           finderName,
           relationshipName,
@@ -266,15 +275,21 @@ export function SlotDetailPanel({
       : null;
   const finderDirty = putPreview != null && slotFinderWriteRequested(putPreview);
   const assocDirty = putPreview != null && slotAssociationWriteRequested(putPreview);
+  const loadedName = detail?.name || "";
+  const nameDirty = detail != null && name.trim() !== loadedName.trim();
+  const nameInvalid =
+    nameDirty &&
+    (!name.trim() || /\s/.test(name) || name.includes("*") || name.includes("%"));
   const dirty =
     detail != null &&
-    (label !== (detail.label || "") ||
+    (nameDirty ||
+      label !== (detail.label || "") ||
       description !== (detail.description || "") ||
       !slotAssociationsEqual(associations, initialAssocs) ||
       finderDirty);
   const canSave = isNew
     ? !busy && isSlotCreateReady({ name, slotType })
-    : !busy && dirty;
+    : !busy && dirty && !nameInvalid && !(nameDirty && detail?.systemSlot);
 
   function removeAssociation(index: number) {
     if (!heldLock) return;
@@ -370,6 +385,17 @@ export function SlotDetailPanel({
     }
   }
 
+  function revertDraftName(): void {
+    if (!isNew && detail?.name) {
+      setName(detail.name);
+    }
+  }
+
+  async function handleCancel() {
+    revertDraftName();
+    await handleBack();
+  }
+
   async function handleBack() {
     if (heldLockRef.current && writeKey) {
       try {
@@ -388,6 +414,16 @@ export function SlotDetailPanel({
     if (!isNew && (finderDirty || assocDirty) && !heldLock) {
       setError(DEV_MSG.SLOT_LOCK_REQUIRED);
       return;
+    }
+    if (!isNew && nameDirty) {
+      if (detail?.systemSlot) {
+        setError(DEV_MSG.SLOT_RENAME_SYSTEM);
+        return;
+      }
+      if (nameInvalid) {
+        setError(DEV_MSG.SLOT_NAME_INVALID);
+        return;
+      }
     }
     inflight.current = true;
     setBusy(true);
@@ -414,6 +450,8 @@ export function SlotDetailPanel({
       setDetail(nextDetail);
       if (isNew) {
         setCreatedKey(saved.name || name.trim());
+      } else if (saved.name && saved.name !== idOrName) {
+        setCreatedKey(saved.name);
       }
       setName(saved.name || name);
       setLabel(saved.label || label);
@@ -560,7 +598,10 @@ export function SlotDetailPanel({
               {title}
             </h2>
             {!isNew && detail ? (
-              <div style={{ fontFamily: "monospace", color: catalogColors.muted }}>
+              <div
+                data-testid="developer-slot-committed-name"
+                style={{ fontFamily: "monospace", color: catalogColors.muted }}
+              >
                 {detail.name}
                 {detail.guid?.stringValue ? ` · ${detail.guid.stringValue}` : ""}
               </div>
@@ -574,11 +615,11 @@ export function SlotDetailPanel({
                 data-testid="developer-slot-name"
                 style={{ ...inputStyle, fontFamily: "monospace" }}
                 value={name}
-                disabled={!isNew || busy}
+                disabled={busy || (!isNew && !!detail?.systemSlot)}
                 onChange={(e) => setName(e.target.value)}
                 autoComplete="off"
               />
-              {!isNew ? (
+              {!isNew && detail?.systemSlot ? (
                 <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
                   {DEV_MSG.SLOT_NAME_READONLY}
                 </span>
@@ -971,7 +1012,7 @@ export function SlotDetailPanel({
               type="button"
               data-testid="developer-slot-cancel"
               disabled={busy}
-              onClick={() => void handleBack()}
+              onClick={() => void handleCancel()}
               style={{
                 padding: "8px 16px",
                 background: "transparent",

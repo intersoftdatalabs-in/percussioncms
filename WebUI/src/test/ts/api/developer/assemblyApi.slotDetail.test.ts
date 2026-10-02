@@ -341,8 +341,34 @@ describe("buildSlotUpdateBody finder omit / clear (#4059)", () => {
     expect(body).not.toHaveProperty("relationshipName");
     expect(body).not.toHaveProperty("finderArguments");
     expect(body).not.toHaveProperty("associations");
+    expect(body).not.toHaveProperty("name");
     expect(slotFinderWriteRequested(body)).toBe(false);
     expect(slotAssociationWriteRequested(body)).toBe(false);
+  });
+
+  it("includes name only when the slot is renamed (#5043)", () => {
+    const renamed = buildSlotUpdateBody({
+      label: "List",
+      description: "List slot",
+      name: "qaRenamed",
+      associations: [],
+      finderName: "sys_SlotContentFinder",
+      relationshipName: "Active Assembly",
+      finderArguments: { template: "rffSnTitle" },
+      initial: finderInitial,
+    });
+    expect(renamed.name).toBe("qaRenamed");
+    const same = buildSlotUpdateBody({
+      label: "List",
+      description: "List slot",
+      name: "rffList",
+      associations: [],
+      finderName: "sys_SlotContentFinder",
+      relationshipName: "Active Assembly",
+      finderArguments: { template: "rffSnTitle" },
+      initial: { ...finderInitial, name: "rffList" },
+    });
+    expect(same).not.toHaveProperty("name");
   });
 
   it("includes associations by name when they change (#4462)", () => {

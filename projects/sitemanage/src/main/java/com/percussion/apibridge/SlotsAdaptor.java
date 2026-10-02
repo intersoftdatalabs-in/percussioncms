@@ -237,11 +237,18 @@ public class SlotsAdaptor implements ISlotsAdaptor {
         }
         return null;
       }
+      String previousName = StringUtils.defaultString(slot.getName());
+      applySlotRename(slot, body);
       applyMutableSlotUpdates(slot, body);
       // Design writes keep the held lock (clients unlock via POST .../unlock). Label-only
-      // updates continue to acquire+release in one request.
+      // updates continue to acquire+release in one request. Rename is a properties write.
       designWs.saveSlots(Collections.singletonList(slot), !designWrite, session, user);
-      IPSTemplateSlot reloaded = resolveSlot(trimmed, false);
+      String reloadKey = trimmed;
+      String renamed = StringUtils.defaultString(slot.getName());
+      if (StringUtils.isNotBlank(renamed) && !renamed.equalsIgnoreCase(previousName)) {
+        reloadKey = renamed;
+      }
+      IPSTemplateSlot reloaded = resolveSlot(reloadKey, false);
       return reloaded != null ? toDetail(reloaded) : toDetail(slot);
     } catch (IllegalArgumentException | IllegalStateException | WebApplicationException e) {
       throw e;
@@ -796,6 +803,38 @@ public class SlotsAdaptor implements ISlotsAdaptor {
         && (body.getFinderName() != null
             || body.getRelationshipName() != null
             || body.getFinderArguments() != null);
+  }
+
+  /**
+   * Persists a user-slot name change. Unchanged names are a no-op. System slots, blank names,
+   * whitespace, wildcards, and collisions fail before {@code saveSlots}.
+   */
+  private void applySlotRename(IPSTemplateSlot slot, SlotDetail body) {
+    if (body.getName() == null) {
+      return;
+    }
+    String next = body.getName().trim();
+    String current = StringUtils.defaultString(slot.getName());
+    if (next.equals(current)) {
+      return;
+    }
+    requireAdmin();
+    if (StringUtils.isBlank(next)) {
+      throw new IllegalArgumentException("name is required");
+    }
+    if (containsWhitespace(body.getName())) {
+      throw new IllegalArgumentException("name cannot contain whitespace");
+    }
+    if (next.contains("*") || next.contains("%")) {
+      throw new IllegalArgumentException("name must not contain wildcards");
+    }
+    if (slot.isSystemSlot()) {
+      throw new WebApplicationException("System slots cannot be renamed: " + current, 409);
+    }
+    if (!next.equalsIgnoreCase(current)) {
+      assertNameUnique(next);
+    }
+    slot.setName(next);
   }
 
   private void applyMutableSlotUpdates(IPSTemplateSlot slot, SlotDetail body) {
