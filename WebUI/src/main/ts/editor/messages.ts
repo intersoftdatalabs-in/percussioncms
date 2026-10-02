@@ -90,6 +90,8 @@ export const EDITOR_MSG = {
   NUMBER_INVALID_SAVE:
     "perc.ui.editor@Correct the number fields before saving.",
   NUMBER_BAD_REQUEST: "perc.ui.editor@That number could not be saved.",
+  NUMBER_FORBIDDEN: "perc.ui.editor@You are not allowed to save that number.",
+  NUMBER_CLEAR: "perc.ui.editor@Clear number",
   LINK_INVALID: "perc.ui.editor@Enter a content id or a site path.",
   LINK_INVALID_SAVE:
     "perc.ui.editor@Correct the link fields before saving.",

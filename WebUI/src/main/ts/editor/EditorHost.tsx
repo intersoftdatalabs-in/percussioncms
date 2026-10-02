@@ -547,19 +547,33 @@ function EditorFieldControl({
     );
   }
   if (row.kind === "number") {
+    const showClear = !locked && row.value.length > 0;
     return (
-      <input
-        className={`${styles.input} ${locked ? styles.readonly : ""}`}
-        data-testid={`editor-field-${row.name}`}
-        data-editor-kind="number"
-        name={row.name}
-        inputMode={row.numericInteger === false ? "decimal" : "numeric"}
-        value={row.value}
-        readOnly={locked}
-        aria-invalid={invalid ? true : undefined}
-        aria-required={row.required ? true : undefined}
-        onChange={(e) => onChange(row.name, e.target.value)}
-      />
+      <div className={styles.linkRow}>
+        <input
+          className={`${styles.input} ${locked ? styles.readonly : ""}`}
+          data-testid={`editor-field-${row.name}`}
+          data-editor-kind="number"
+          name={row.name}
+          inputMode={row.numericInteger === false ? "decimal" : "numeric"}
+          value={row.value}
+          readOnly={locked}
+          aria-invalid={invalid ? true : undefined}
+          aria-required={row.required ? true : undefined}
+          onChange={(e) => onChange(row.name, e.target.value)}
+        />
+        {showClear ? (
+          <button
+            type="button"
+            className={styles.button}
+            data-testid={`editor-number-clear-${row.name}`}
+            aria-label={message(EDITOR_MSG.NUMBER_CLEAR)}
+            onClick={() => onChange(row.name, "")}
+          >
+            {message(EDITOR_MSG.NUMBER_CLEAR)}
+          </button>
+        ) : null}
+      </div>
     );
   }
   if (row.kind === "longtext") {
@@ -1494,18 +1508,25 @@ export function EditorHost({
       const namedNumber = Object.keys(mapped.fieldErrors).some((name) =>
         numberNames.includes(name),
       );
-      const number400 =
+      const numberStatus =
+        saveReasonEarly === "badRequest" || saveReasonEarly === "forbidden";
+      const numberMapped =
         !html400 &&
-        !long400 &&
-        editorSaveErrorReason(err) === "badRequest" &&
+        !longMapped &&
+        numberStatus &&
         (namedNumber ||
           (Object.keys(mapped.fieldErrors).length === 0 && numberNames.length === 1));
+      const number400 = numberMapped && saveReasonEarly === "badRequest";
       if (
-        number400 &&
+        numberMapped &&
         Object.keys(mapped.fieldErrors).length === 0 &&
         numberNames.length === 1
       ) {
-        mapped.fieldErrors[numberNames[0]] = message(EDITOR_MSG.NUMBER_BAD_REQUEST);
+        mapped.fieldErrors[numberNames[0]] = message(
+          saveReasonEarly === "forbidden"
+            ? EDITOR_MSG.NUMBER_FORBIDDEN
+            : EDITOR_MSG.NUMBER_BAD_REQUEST,
+        );
       }
       const linkNames = rows
         .filter((row) => row.kind === "link")
@@ -1599,6 +1620,8 @@ export function EditorHost({
             ? EDITOR_MSG.LONGTEXT_FORBIDDEN
             : long400
               ? EDITOR_MSG.LONGTEXT_BAD_REQUEST
+              : numberMapped && saveReason === "forbidden"
+                ? EDITOR_MSG.NUMBER_FORBIDDEN
               : number400
               ? EDITOR_MSG.NUMBER_BAD_REQUEST
               : linkMapped && saveReason === "notFound"

@@ -3316,7 +3316,215 @@ describe("EditorHost HTML field save (#4680)", () => {
     });
     const input = screen.getByTestId("editor-field-qty") as HTMLInputElement;
     expect(input.readOnly).toBe(true);
+    expect(screen.queryByTestId("editor-number-clear-qty")).toBeNull();
     expect(screen.queryByTestId("editor-save")).toBeNull();
+  });
+
+describe("EditorHost clear optional number (#5070)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function numberHost(opts: {
+    saveFields: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    qty?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [
+            { name: "sys_title", value: "Home" },
+            { name: "qty", value: opts.qty ?? "4" },
+          ],
+        })}
+        saveFields={opts.saveFields}
+        loadType={async () => ({
+          fields: [
+            { name: "sys_title", label: "Title", control: "sys_EditBox" },
+            {
+              name: "qty",
+              label: "Quantity",
+              control: "sys_Number",
+              dataType: "integer",
+              required: opts.required === true,
+              controlProperties: [
+                { name: "minimum", value: "0" },
+                { name: "maximum", value: "10" },
+              ],
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  it("saves a cleared optional number and shows it empty after reload", async () => {
+    let qty = "4";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      qty = body.fields.find((f) => f.name === "qty")?.value ?? qty;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={numberHost({ saveFields, qty })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-number-clear-qty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-number-clear-qty"));
+    expect((screen.getByTestId("editor-field-qty") as HTMLInputElement).value).toBe("");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "qty")?.value).toBe("");
+    expect(screen.queryByTestId("editor-number-clear-qty")).toBeNull();
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={numberHost({ saveFields, qty })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-qty") as HTMLInputElement).value).toBe("");
+    });
+  });
+
+  it("does not save when Close cancels an unsaved number clear", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={numberHost({ saveFields, confirmLeaveUnsaved: () => false })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-number-clear-qty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-number-clear-qty"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not claim success when a required number is cleared", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={numberHost({ saveFields, required: true })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-number-clear-qty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-number-clear-qty"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not claim success for non-numeric or out-of-range values", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={numberHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-qty")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-qty"), { target: { value: "abc" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/valid number/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.change(screen.getByTestId("editor-field-qty"), { target: { value: "11" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/range/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not claim success for HTTP 400, 403, or 409 on a number clear", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={numberHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-number-clear-qty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-number-clear-qty"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/could not be saved/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/not allowed/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/newer revision/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(3);
+  });
+});
+
+});
+
+describe("EditorHost page link fields", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
   });
 
   it("saves and clears a page link without calling save for an invalid target", async () => {
