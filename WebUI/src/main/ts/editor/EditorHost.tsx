@@ -563,18 +563,32 @@ function EditorFieldControl({
     );
   }
   if (row.kind === "longtext") {
+    const showClear = !locked && row.value.length > 0;
     return (
-      <textarea
-        className={`${styles.textarea} ${locked ? styles.readonly : ""}`}
-        data-testid={`editor-field-${row.name}`}
-        data-editor-kind="longtext"
-        name={row.name}
-        value={row.value}
-        readOnly={locked}
-        aria-invalid={invalid ? true : undefined}
-        aria-required={row.required ? true : undefined}
-        onChange={(e) => onChange(row.name, e.target.value)}
-      />
+      <div className={styles.linkRow}>
+        <textarea
+          className={`${styles.textarea} ${locked ? styles.readonly : ""}`}
+          data-testid={`editor-field-${row.name}`}
+          data-editor-kind="longtext"
+          name={row.name}
+          value={row.value}
+          readOnly={locked}
+          aria-invalid={invalid ? true : undefined}
+          aria-required={row.required ? true : undefined}
+          onChange={(e) => onChange(row.name, e.target.value)}
+        />
+        {showClear ? (
+          <button
+            type="button"
+            className={styles.button}
+            data-testid={`editor-longtext-clear-${row.name}`}
+            aria-label={message(EDITOR_MSG.LONGTEXT_CLEAR)}
+            onClick={() => onChange(row.name, "")}
+          >
+            {message(EDITOR_MSG.LONGTEXT_CLEAR)}
+          </button>
+        ) : null}
+      </div>
     );
   }
   return (
@@ -1453,17 +1467,26 @@ export function EditorHost({
       const namedLong = Object.keys(mapped.fieldErrors).some((name) =>
         longNames.includes(name),
       );
-      const long400 =
+      const saveReasonEarly = editorSaveErrorReason(err);
+      const longStatus =
+        saveReasonEarly === "badRequest" || saveReasonEarly === "forbidden";
+      const long400 = !html400 && saveReasonEarly === "badRequest" && (namedLong ||
+        (Object.keys(mapped.fieldErrors).length === 0 && longNames.length === 1));
+      const longMapped =
         !html400 &&
-        editorSaveErrorReason(err) === "badRequest" &&
+        longStatus &&
         (namedLong ||
           (Object.keys(mapped.fieldErrors).length === 0 && longNames.length === 1));
       if (
-        long400 &&
+        longMapped &&
         Object.keys(mapped.fieldErrors).length === 0 &&
         longNames.length === 1
       ) {
-        mapped.fieldErrors[longNames[0]] = message(EDITOR_MSG.LONGTEXT_BAD_REQUEST);
+        mapped.fieldErrors[longNames[0]] = message(
+          saveReasonEarly === "forbidden"
+            ? EDITOR_MSG.LONGTEXT_FORBIDDEN
+            : EDITOR_MSG.LONGTEXT_BAD_REQUEST,
+        );
       }
       const numberNames = rows
         .filter((row) => row.kind === "number")
@@ -1572,9 +1595,11 @@ export function EditorHost({
       setSaveErrorKey(
         html400
           ? EDITOR_MSG.HTML_BAD_REQUEST
-          : long400
-            ? EDITOR_MSG.LONGTEXT_BAD_REQUEST
-            : number400
+          : longMapped && saveReason === "forbidden"
+            ? EDITOR_MSG.LONGTEXT_FORBIDDEN
+            : long400
+              ? EDITOR_MSG.LONGTEXT_BAD_REQUEST
+              : number400
               ? EDITOR_MSG.NUMBER_BAD_REQUEST
               : linkMapped && saveReason === "notFound"
                 ? EDITOR_MSG.LINK_NOT_FOUND
