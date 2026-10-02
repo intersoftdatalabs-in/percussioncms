@@ -432,13 +432,27 @@ function EditorFieldControl({
   ) => Promise<{ filename: string; bytes: Uint8Array<ArrayBuffer> }>;
 }): React.ReactElement {
   if (row.kind === "html") {
+    const showClear = !locked && row.value.length > 0;
     return (
-      <HtmlFieldWidget
-        name={row.name}
-        value={row.value}
-        readOnly={locked}
-        onChange={(value) => onChange(row.name, value)}
-      />
+      <div className={styles.linkRow}>
+        <HtmlFieldWidget
+          name={row.name}
+          value={row.value}
+          readOnly={locked}
+          onChange={(value) => onChange(row.name, value)}
+        />
+        {showClear ? (
+          <button
+            type="button"
+            className={styles.button}
+            data-testid={`editor-html-clear-${row.name}`}
+            aria-label={message(EDITOR_MSG.HTML_CLEAR)}
+            onClick={() => onChange(row.name, "")}
+          >
+            {message(EDITOR_MSG.HTML_CLEAR)}
+          </button>
+        ) : null}
+      </div>
     );
   }
   if (row.kind === "file") {
@@ -1464,16 +1478,23 @@ export function EditorHost({
       const namedHtml = Object.keys(mapped.fieldErrors).some((name) =>
         htmlNames.includes(name),
       );
-      const html400 =
-        editorSaveErrorReason(err) === "badRequest" &&
+      const htmlReason = editorSaveErrorReason(err);
+      const htmlStatus = htmlReason === "badRequest" || htmlReason === "forbidden";
+      const htmlMapped =
+        htmlStatus &&
         (namedHtml ||
           (Object.keys(mapped.fieldErrors).length === 0 && htmlNames.length === 1));
+      const html400 = htmlMapped && htmlReason === "badRequest";
       if (
-        html400 &&
+        htmlMapped &&
         Object.keys(mapped.fieldErrors).length === 0 &&
         htmlNames.length === 1
       ) {
-        mapped.fieldErrors[htmlNames[0]] = message(EDITOR_MSG.HTML_BAD_REQUEST);
+        mapped.fieldErrors[htmlNames[0]] = message(
+          htmlReason === "forbidden"
+            ? EDITOR_MSG.HTML_FORBIDDEN
+            : EDITOR_MSG.HTML_BAD_REQUEST,
+        );
       }
       const longNames = rows
         .filter((row) => row.kind === "longtext")
@@ -1614,7 +1635,9 @@ export function EditorHost({
       }
       setFieldErrors(mapped.fieldErrors);
       setSaveErrorKey(
-        html400
+        htmlMapped && saveReason === "forbidden"
+          ? EDITOR_MSG.HTML_FORBIDDEN
+          : html400
           ? EDITOR_MSG.HTML_BAD_REQUEST
           : longMapped && saveReason === "forbidden"
             ? EDITOR_MSG.LONGTEXT_FORBIDDEN

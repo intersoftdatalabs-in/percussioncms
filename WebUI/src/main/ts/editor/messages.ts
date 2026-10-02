@@ -75,6 +75,8 @@ export const EDITOR_MSG = {
   HTML_UNSAFE:
     "perc.ui.editor@That HTML contains script or event markup that cannot be saved.",
   HTML_BAD_REQUEST: "perc.ui.editor@That HTML could not be saved.",
+  HTML_FORBIDDEN: "perc.ui.editor@You are not allowed to save that HTML.",
+  HTML_CLEAR: "perc.ui.editor@Clear HTML",
   HTML_INVALID_SAVE:
     "perc.ui.editor@Correct the HTML fields before saving.",
   LONGTEXT_INVALID:
