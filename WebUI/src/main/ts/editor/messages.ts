@@ -108,6 +108,8 @@ export const EDITOR_MSG = {
     "perc.ui.editor@You are not allowed to upload an image for this item.",
   IMAGE_TOO_LARGE: "perc.ui.editor@That image is too large to upload.",
   IMAGE_BAD_REQUEST: "perc.ui.editor@That image could not be uploaded.",
+  IMAGE_CONFLICT: "perc.ui.editor@That image was not replaced.",
+  FILE_CONFLICT: "perc.ui.editor@That file was not replaced.",
   FILE_DOWNLOAD: "perc.ui.editor@Download",
   FILE_DOWNLOAD_EMPTY: "perc.ui.editor@This field has no file to download.",
   FILE_DOWNLOAD_FORBIDDEN:

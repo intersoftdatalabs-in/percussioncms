@@ -225,6 +225,10 @@ export function FileFieldWidget({
               }
             }
           } else {
+            setPicked(false);
+            setFilename(
+              storedPresent.current && !cleared ? storedName : "",
+            );
             onFile(null);
           }
         }}

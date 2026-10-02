@@ -690,6 +690,8 @@ export function EditorHost({
     {},
   );
   const [discardEpoch, setDiscardEpoch] = useState(0);
+  /** Remounts file/image widgets after a saved replace so meta reload shows the new name. */
+  const [binaryEpoch, setBinaryEpoch] = useState(0);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState<string>(
     contentId == null ? linkbackWarning : "",
@@ -1357,6 +1359,14 @@ export function EditorHost({
           setSaveErrorDetail("");
           return;
         }
+        if (binaryReason === "conflict") {
+          setFieldErrors({});
+          setSaveErrorKey(
+            imageUpload ? EDITOR_MSG.IMAGE_CONFLICT : EDITOR_MSG.FILE_CONFLICT,
+          );
+          setSaveErrorDetail("");
+          return;
+        }
         throw binErr;
       }
       for (const field of Object.keys(pendingClears)) {
@@ -1390,8 +1400,13 @@ export function EditorHost({
           throw binErr;
         }
       }
+      const replacedBinary =
+        Object.keys(pendingFiles).length > 0 || Object.keys(pendingClears).length > 0;
       setPendingFiles({});
       setPendingClears({});
+      if (replacedBinary) {
+        setBinaryEpoch((epoch) => epoch + 1);
+      }
       setPayload(savedPayload);
       setDraft(
         Object.fromEntries(
@@ -3869,7 +3884,9 @@ export function EditorHost({
               >
                 {rows.map((row) => (
                   <label
-                    key={`${row.name}:${discardEpoch}`}
+                    key={`${row.name}:${discardEpoch}:${
+                      row.kind === "file" || row.kind === "image" ? binaryEpoch : 0
+                    }`}
                     className={styles.field}
                     data-testid={`editor-field-row-${row.name}`}
                     data-required={row.required ? "true" : "false"}

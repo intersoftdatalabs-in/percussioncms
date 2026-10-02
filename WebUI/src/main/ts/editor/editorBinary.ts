@@ -16,8 +16,8 @@
  */
 
 /**
- * EditorHost file-field PUT error mapping (#4678). HTTP 403 / 400 / 413 are
- * not treated as a successful upload.
+ * EditorHost file-field PUT error mapping (#4678, image replace #5040).
+ * HTTP 400 / 403 / 409 / 413 are not a successful upload or replace.
  */
 
 import { isApiError } from "../api/client";
@@ -26,6 +26,7 @@ export type EditorBinaryErrorReason =
   | "forbidden"
   | "tooLarge"
   | "badRequest"
+  | "conflict"
   | "failed";
 
 export function editorBinaryErrorReason(err: unknown): EditorBinaryErrorReason {
@@ -40,6 +41,9 @@ export function editorBinaryErrorReason(err: unknown): EditorBinaryErrorReason {
   }
   if (err.status === 400) {
     return "badRequest";
+  }
+  if (err.status === 409) {
+    return "conflict";
   }
   return "failed";
 }
