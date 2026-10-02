@@ -799,6 +799,38 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@No folder path is available to copy",
   COPY_FOLDER_PATH_FAILED:
     "perc.ui.explorer@Could not copy the folder path",
+  SET_WORKFLOW: "perc.ui.explorer@Set workflow",
+  SET_WORKFLOW_ARIA:
+    "perc.ui.explorer@Set the workflow on the selected page or asset",
+  SET_WORKFLOW_TITLE: "perc.ui.explorer@Set workflow",
+  SET_WORKFLOW_LABEL: "perc.ui.explorer@Workflow",
+  SET_WORKFLOW_CURRENT: "perc.ui.explorer@current",
+  SET_WORKFLOW_SAVE: "perc.ui.explorer@Save workflow",
+  SET_WORKFLOW_CANCEL: "perc.ui.explorer@Cancel",
+  SET_WORKFLOW_SAVED: "perc.ui.explorer@Workflow saved",
+  SET_WORKFLOW_EMPTY:
+    "perc.ui.explorer@Select a page or asset before setting its workflow",
+  SET_WORKFLOW_FOLDER: "perc.ui.explorer@Folders are not assigned a workflow",
+  SET_WORKFLOW_MULTI:
+    "perc.ui.explorer@Set workflow applies to one selected page or asset",
+  SET_WORKFLOW_NOT_ITEM:
+    "perc.ui.explorer@Only a page or asset can have its workflow set",
+  SET_WORKFLOW_NO_ID:
+    "perc.ui.explorer@No content id is available to set a workflow",
+  SET_WORKFLOW_NONE:
+    "perc.ui.explorer@This item has no workflows that can be assigned",
+  SET_WORKFLOW_UNCHANGED:
+    "perc.ui.explorer@Choose a different workflow. The current workflow is not saved again",
+  SET_WORKFLOW_FORBIDDEN:
+    "perc.ui.explorer@That workflow is not allowed for this item",
+  SET_WORKFLOW_BLANK: "perc.ui.explorer@Choose a workflow before saving",
+  SET_WORKFLOW_HTTP_400:
+    "perc.ui.explorer@Could not set the workflow (HTTP 400)",
+  SET_WORKFLOW_HTTP_403:
+    "perc.ui.explorer@You are not allowed to set this workflow (HTTP 403)",
+  SET_WORKFLOW_HTTP_409:
+    "perc.ui.explorer@This item could not change workflow (HTTP 409)",
+  SET_WORKFLOW_FAILED: "perc.ui.explorer@Could not set the workflow",
   COPY_ITEM_GUID: "perc.ui.explorer@Copy item id",
   COPY_ITEM_GUID_ARIA:
     "perc.ui.explorer@Copy the selected item content id to the clipboard",
