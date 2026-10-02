@@ -62,4 +62,20 @@ class PSSitePublishServiceExplorerApproveClientTextTest {
             WebApplicationException.class, () -> adapter.approveExplorerItemToIncrementalQueue("301"));
     assertFalse(String.valueOf(thrown.getMessage()).contains(SECRET));
   }
+
+  @Test
+  void unapproveStatusBodyUsesFixedTextNotExceptionMessage() throws Exception {
+    IPSSitePublishService publishService = mock(IPSSitePublishService.class);
+    doThrow(new PSIncrementalQueueStatusException(409, SECRET))
+        .when(publishService)
+        .unapproveExplorerItemOnIncrementalQueue("301");
+    PSSitePublishServiceWebAdapter adapter = new PSSitePublishServiceWebAdapter(publishService);
+
+    Response response = adapter.unapproveExplorerItemOnIncrementalQueue("301");
+
+    assertEquals(409, response.getStatus());
+    String body = String.valueOf(response.getEntity());
+    assertFalse(body.contains(SECRET));
+    assertFalse(body.contains("jdbc"));
+  }
 }

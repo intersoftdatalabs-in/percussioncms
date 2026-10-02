@@ -148,6 +148,16 @@ public interface IPSSitePublishService {
    */
   void approveExplorerItemToIncrementalQueue(String contentId) throws PSSitePublishException;
 
+  /**
+   * Removes approval from one Explorer page or asset that is already on the incremental queue for
+   * a site the item belongs to. The item stays queued. The caller must not treat a status exception
+   * as success.
+   *
+   * @param contentId content id or item GUID string, not blank
+   * @throws PSSitePublishException when the reject transition fails unexpectedly
+   */
+  void unapproveExplorerItemOnIncrementalQueue(String contentId) throws PSSitePublishException;
+
   /** Exception thrown when an error occurs attempting to publish a site. */
   class PSSitePublishException extends PSDataServiceException {
     private static final long serialVersionUID = 1L;

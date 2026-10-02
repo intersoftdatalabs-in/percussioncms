@@ -35,7 +35,10 @@ import {
   createNewCopy,
   createPromotableVersion,
 } from "../api/contentExplorer/itemCopyApi";
-import { approveSelectedItemToIncrementalQueue } from "../api/contentExplorer/incrementalApproveApi";
+import {
+  approveSelectedItemToIncrementalQueue,
+  unapproveSelectedItemOnIncrementalQueue,
+} from "../api/contentExplorer/incrementalApproveApi";
 import { del, isApiError } from "../api/client";
 import { PATHS } from "../api/paths";
 import {
@@ -198,6 +201,7 @@ const P1_REST_NAMES = new Set([
   "workflow_newversion",
   "edit_promotableversion",
   "approve_incremental",
+  "unapprove_incremental",
 ]);
 
 const DATA_FLOW_PATH_MARKERS = [
@@ -243,6 +247,7 @@ export interface ActionDispatchContext {
   createCopy?: (itemId: string) => Promise<void>;
   createPromotable?: (itemId: string) => Promise<void>;
   approveIncremental?: (itemId: string) => Promise<void>;
+  unapproveIncremental?: (itemId: string) => Promise<void>;
   createItem?: typeof createEditorItem;
   loadPageTemplates?: typeof loadPageTemplates;
   pickPageTemplate?: (
@@ -337,6 +342,8 @@ export interface ActionDispatchResult {
   refresh?: boolean;
   /** Item id the list may mark approved only after the server accepts it. */
   approvedItemId?: string;
+  /** Item id whose approved mark is cleared only after the server accepts unapprove. */
+  unapprovedItemId?: string;
 }
 
 export function normalizeActionName(name: string | undefined | null): string {
@@ -2031,6 +2038,71 @@ export async function dispatchAction(
       outcome: "success",
       messageKey: EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_OK,
       approvedItemId: approveId,
+    };
+  }
+
+  if (name === "unapprove_incremental") {
+    const unapproveId = item?.id == null ? "" : String(item.id).trim();
+    const folderName = (item?.name ?? item?.path ?? "folder").trim() || "folder";
+    if (item && isFolder(item)) {
+      return {
+        kind: "rest",
+        messageText: `${message(EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_FOLDER)}: ${folderName}`,
+      };
+    }
+    if (!item || unapproveId.length === 0) {
+      return {
+        kind: "rest",
+        messageText: `${message(EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_EMPTY)}`,
+      };
+    }
+    if (resolvePublishKind(item) === "none") {
+      return {
+        kind: "rest",
+        messageText: `${message(EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_NOT_ITEM)}: ${folderName}`,
+      };
+    }
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CONFIRM_UNAPPROVE_INCREMENTAL,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    try {
+      if (ctx.unapproveIncremental) {
+        await ctx.unapproveIncremental(unapproveId);
+      } else {
+        await unapproveSelectedItemOnIncrementalQueue(unapproveId);
+      }
+    } catch (err: unknown) {
+      if (isApiError(err)) {
+        if (err.status === 400) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_REJECTED,
+          };
+        }
+        if (err.status === 403) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_FORBIDDEN,
+          };
+        }
+        if (err.status === 409) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_CONFLICT,
+          };
+        }
+      }
+      throw err;
+    }
+    return {
+      kind: "rest",
+      refresh: true,
+      outcome: "success",
+      messageKey: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_OK,
+      unapprovedItemId: unapproveId,
     };
   }
 

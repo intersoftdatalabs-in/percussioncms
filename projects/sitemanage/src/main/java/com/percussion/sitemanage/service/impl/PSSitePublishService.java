@@ -1129,6 +1129,65 @@ public class PSSitePublishService implements IPSSitePublishService {
   }
 
   @Override
+  public void unapproveExplorerItemOnIncrementalQueue(String contentId)
+      throws PSSitePublishException {
+    Validate.notEmpty(contentId);
+    if (!isPublishAllowed()) {
+      throw new PSIncrementalQueueStatusException(403, "Publish forbidden");
+    }
+    final int cid;
+    try {
+      cid = idMapper.getContentId(contentId.trim());
+    } catch (RuntimeException ex) {
+      throw new PSIncrementalQueueStatusException(400, "Content id is not valid");
+    }
+    final IPSGuid guid = idMapper.getGuid(new PSLocator(cid));
+    final List<IPSSite> sites;
+    try {
+      sites = pubWs.getItemSites(guid);
+    } catch (RuntimeException ex) {
+      throw new PSIncrementalQueueStatusException(400, "Item is not on a site");
+    }
+    if (sites == null || sites.isEmpty()) {
+      throw new PSIncrementalQueueStatusException(400, "Item is not on a site");
+    }
+    boolean onQueue = false;
+    for (IPSSite site : sites) {
+      if (site == null || site.getSiteId() == null) {
+        continue;
+      }
+      List<Integer> queued;
+      try {
+        queued =
+            contentChangeService.getChangedContent(
+                site.getSiteId(), PSContentChangeType.PENDING_LIVE);
+      } catch (RuntimeException ex) {
+        throw new PSIncrementalQueueStatusException(400, "Item is not on the incremental queue");
+      }
+      if (queued != null && queued.contains(Integer.valueOf(cid))) {
+        onQueue = true;
+        break;
+      }
+    }
+    if (!onQueue) {
+      throw new PSIncrementalQueueStatusException(400, "Item is not on the incremental queue");
+    }
+    final String guidText = guid.toString();
+    try {
+      itemWorkflowService.transition(guidText, IPSItemWorkflowService.TRANSITION_TRIGGER_REJECT);
+    } catch (WebApplicationException ex) {
+      int status = ex.getResponse() == null ? 400 : ex.getResponse().getStatus();
+      if (status == 403) {
+        throw new PSIncrementalQueueStatusException(403, "Publish forbidden");
+      }
+      if (status == 409) {
+        throw new PSIncrementalQueueStatusException(409, "Item could not be unapproved");
+      }
+      throw new PSIncrementalQueueStatusException(400, "Item could not be unapproved");
+    }
+  }
+
+  @Override
   public void clearQueuedIncrementalContent(String siteName, String serverName)
       throws PSSitePublishException {
     Validate.notEmpty(siteName);

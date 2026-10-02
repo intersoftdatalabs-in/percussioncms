@@ -40,6 +40,19 @@ A selection that is not a page or asset is named the same way. HTTP **400**
 errors and do not mark the row approved. This is not unapprove, not remove from
 the queue, and not PublishingShell incremental publish.
 
+**Unapprove on incremental** is always on the same toolbar. It asks **Unapprove
+this page or asset on the incremental publish queue?** Confirm posts
+`POST /services/sitemanage/publish/incremental/explorer/{contentId}/unapprove`.
+The server rejects the workflow transition only when the item is already on the
+live incremental queue for a site it belongs to. The item stays on the queue.
+The **Approved** mark is removed only after HTTP 204. Cancel does not call the
+server. An empty selection or a folder is named in the toolbar error and does
+not call unapprove. HTTP **400** (invalid id, not on a site, not on the queue,
+or the reject transition was rejected), **403** (publish not allowed), and
+**409** (item state blocked the transition) stay as errors and do not clear
+**Approved**. This is not approve, and it does not remove the item from the
+queue.
+
 ## Left-hand roots (Sites, Folders, Assets, Design, Recycling)
 
 The Explorer **tree** lists the standard top-level containers returned by the CMS path
