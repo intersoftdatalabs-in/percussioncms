@@ -22,7 +22,7 @@ import {
 } from "../../../main/ts/editor/editorBinary";
 
 describe("editorBinaryErrorReason", () => {
-  it("maps 403, 413, and 400", () => {
+  it("maps 403, 413, 400, and 409", () => {
     expect(
       editorBinaryErrorReason({ status: 403, statusText: "Forbidden", body: {} }),
     ).toBe("forbidden");
@@ -36,6 +36,9 @@ describe("editorBinaryErrorReason", () => {
     expect(
       editorBinaryErrorReason({ status: 400, statusText: "Bad Request", body: {} }),
     ).toBe("badRequest");
+    expect(
+      editorBinaryErrorReason({ status: 409, statusText: "Conflict", body: {} }),
+    ).toBe("conflict");
   });
 
   it("maps other statuses to failed", () => {

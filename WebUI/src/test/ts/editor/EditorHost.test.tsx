@@ -1803,6 +1803,240 @@ describe("EditorHost rich controls", () => {
     expect(saveFields).not.toHaveBeenCalled();
   });
 
+  it("replaces a stored image on save and shows the reloaded name", async () => {
+    let metaReads = 0;
+    const uploadBinary = vi.fn().mockResolvedValue({
+      contentId: "42",
+      field: "img",
+      filename: "new.png",
+      contentType: "image/png",
+      present: true,
+    });
+    const saveFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percImage",
+      name: "Hero",
+      checkoutUser: "admin",
+      fields: [{ name: "sys_title", value: "Hero" }],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={async () => undefined}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percImage",
+                  name: "Hero",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "Hero" }],
+                })}
+                saveFields={saveFields}
+                uploadBinary={uploadBinary}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    { name: "img", label: "Image", control: "sys_webImageFX" },
+                  ],
+                })}
+                loadBinaryMeta={async () => {
+                  metaReads += 1;
+                  return {
+                    contentId: "42",
+                    field: "img",
+                    filename: metaReads === 1 ? "old.png" : "new.png",
+                    contentType: "image/png",
+                    present: true,
+                  };
+                }}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-img").textContent).toBe("old.png");
+    });
+    const next = new File(["y"], "new.png", { type: "image/png" });
+    fireEvent.change(screen.getByTestId("editor-file-img"), {
+      target: { files: [next] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    expect(uploadBinary).toHaveBeenCalledWith("42", "img", next);
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-img").textContent).toBe("new.png");
+    });
+  });
+
+  it("does not upload when Close is cancelled after an image pick", async () => {
+    const uploadBinary = vi.fn();
+    const saveFields = vi.fn();
+    const confirmLeave = vi.fn().mockReturnValue(false);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={async () => undefined}
+                confirmLeaveUnsaved={confirmLeave}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percImage",
+                  name: "Hero",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "Hero" }],
+                })}
+                saveFields={saveFields}
+                uploadBinary={uploadBinary}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    { name: "img", label: "Image", control: "sys_webImageFX" },
+                  ],
+                })}
+                loadBinaryMeta={async () => ({
+                  contentId: "42",
+                  field: "img",
+                  filename: "old.png",
+                  contentType: "image/png",
+                  present: true,
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-img").textContent).toBe("old.png");
+    });
+    fireEvent.change(screen.getByTestId("editor-file-img"), {
+      target: { files: [new File(["y"], "new.png", { type: "image/png" })] },
+    });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(confirmLeave).toHaveBeenCalled();
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not replace an image on an empty selection or HTTP 400/403/409", async () => {
+    const uploadBinary = vi.fn().mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: {},
+    });
+    const saveFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percImage",
+      name: "Hero",
+      checkoutUser: "admin",
+      fields: [{ name: "sys_title", value: "Hero" }],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={async () => undefined}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percImage",
+                  name: "Hero",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "Hero" }],
+                })}
+                saveFields={saveFields}
+                uploadBinary={uploadBinary}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    { name: "img", label: "Image", control: "sys_webImageFX" },
+                  ],
+                })}
+                loadBinaryMeta={async () => ({
+                  contentId: "42",
+                  field: "img",
+                  filename: "old.png",
+                  contentType: "image/png",
+                  present: true,
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-img").textContent).toBe("old.png");
+    });
+    fireEvent.change(screen.getByTestId("editor-file-img"), {
+      target: { files: [] },
+    });
+    expect(screen.getByTestId("editor-file-name-img").textContent).toBe("old.png");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-file-name-img").textContent).toBe("old.png");
+
+    const next = new File(["y"], "new.png", { type: "image/png" });
+    fireEvent.change(screen.getByTestId("editor-file-img"), {
+      target: { files: [next] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+        /could not be uploaded/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+
+    uploadBinary.mockRejectedValueOnce({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
+    fireEvent.change(screen.getByTestId("editor-file-img"), {
+      target: { files: [next] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+        /not allowed to upload an image/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+
+    uploadBinary.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: {},
+    });
+    fireEvent.change(screen.getByTestId("editor-file-img"), {
+      target: { files: [next] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+        /was not replaced/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
   it("clears a stored file only when save runs", async () => {
     const clearBinary = vi.fn().mockResolvedValue({
       contentId: "42",
