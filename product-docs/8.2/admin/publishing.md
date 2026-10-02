@@ -147,6 +147,24 @@ the stored path. A path already used by another site is HTTP **409**. HTTP **400
 Protocol, file extension, description, base URL, rename, copy, and delete are
 separate actions.
 
+### Set the open site default workflow (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card. The workspace shows
+the site **Default workflow** loaded from `GET /services/sites/{nameOrId}` (the
+wire field is `workflowName`). **Edit default workflow** opens a list filled from
+`GET /services/workflowmanagement/workflows/metadata`. **Save** sends
+`PUT /services/sites/{nameOrId}` with the site name and that catalog
+`workflowName` only (description, folder root, and other fields are not sent).
+The workspace shows the saved workflow name, including after you leave and
+reopen the site. The saved notice appears only after that PUT succeeds.
+**Cancel**, **Save** when the name is unchanged, and an empty choice do not call
+PUT and do not show a saved notice. A name that is not in the catalog is not
+sent. An unknown workflow name on the server is HTTP **400** and does not change
+the folder workflow. HTTP **400**, **403**, and **409** stay on the form with an
+error and do not show a saved notice. The site must already have a site folder;
+this action sets the folder workflow. It does not edit workflow transitions.
+Folder root, the page-based flag, and site delete are separate actions.
+
 ### Edit the open site canonical distribution (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card. The workspace shows the
