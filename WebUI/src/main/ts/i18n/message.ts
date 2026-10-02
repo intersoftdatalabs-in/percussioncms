@@ -314,6 +314,21 @@ export const MSG = {
     "perc.ui.publish.modern@The site default file extension conflicts with another change",
   PUBLISH_SITE_FILE_EXTENSION_ERROR:
     "perc.ui.publish.modern@Could not save the site default file extension",
+  PUBLISH_SITE_FOLDER_ROOT: "perc.ui.publish.modern@Folder root",
+  PUBLISH_EDIT_SITE_FOLDER_ROOT: "perc.ui.publish.modern@Edit folder root",
+  PUBLISH_SITE_FOLDER_ROOT_SAVED: "perc.ui.publish.modern@Site folder root saved",
+  PUBLISH_SITE_FOLDER_ROOT_EMPTY:
+    "perc.ui.publish.modern@Enter a folder root. An empty path is not saved",
+  PUBLISH_SITE_FOLDER_ROOT_INVALID:
+    "perc.ui.publish.modern@Enter a folder path that starts with / and has no . or .. segments. An invalid path is not saved",
+  PUBLISH_SITE_FOLDER_ROOT_BAD:
+    "perc.ui.publish.modern@The site folder root was not accepted",
+  PUBLISH_SITE_FOLDER_ROOT_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to edit this site folder root",
+  PUBLISH_SITE_FOLDER_ROOT_CONFLICT:
+    "perc.ui.publish.modern@The site folder root conflicts with another change",
+  PUBLISH_SITE_FOLDER_ROOT_ERROR:
+    "perc.ui.publish.modern@Could not save the site folder root",
   PUBLISH_SITE_CANONICAL_DIST: "perc.ui.publish.modern@Canonical distribution",
   PUBLISH_EDIT_SITE_CANONICAL_DIST:
     "perc.ui.publish.modern@Edit canonical distribution",

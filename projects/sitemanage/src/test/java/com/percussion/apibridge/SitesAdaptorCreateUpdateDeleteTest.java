@@ -305,6 +305,87 @@ class SitesAdaptorCreateUpdateDeleteTest {
   }
 
   @Test
+  void update_folderRoot_persistsNormalizedPath() throws PSNotFoundException {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setFolderRoot("//Sites/Old");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+
+    Site req = body("NightlySite", null, null);
+    req.setFolderRoot("\\\\Sites\\Nightly");
+    Site out = adaptor.updateSite("NightlySite", req);
+
+    assertEquals("//Sites/Nightly", existing.getFolderRoot());
+    assertEquals("//Sites/Nightly", out.getFolderRoot());
+    verify(siteManager).saveSite(existing);
+  }
+
+  @Test
+  void update_omittedFolderRoot_leavesStoredPath() throws PSNotFoundException {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setFolderRoot("//Sites/Keep");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+
+    Site req = body("NightlySite", "new desc", null);
+    Site out = adaptor.updateSite("NightlySite", req);
+
+    assertEquals("//Sites/Keep", existing.getFolderRoot());
+    assertEquals("//Sites/Keep", out.getFolderRoot());
+  }
+
+  @Test
+  void update_blankOrUnsafeFolderRoot_400() throws PSNotFoundException {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setFolderRoot("//Sites/Keep");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+
+    Site blank = body("NightlySite", null, null);
+    blank.setFolderRoot("  ");
+    WebApplicationException blankEx =
+        assertThrows(WebApplicationException.class, () -> adaptor.updateSite("NightlySite", blank));
+    assertEquals(400, blankEx.getResponse().getStatus());
+
+    Site unsafe = body("NightlySite", null, null);
+    unsafe.setFolderRoot("//Sites/../etc");
+    WebApplicationException unsafeEx =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.updateSite("NightlySite", unsafe));
+    assertEquals(400, unsafeEx.getResponse().getStatus());
+    assertEquals("//Sites/Keep", existing.getFolderRoot());
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void update_folderRootUsedByAnotherSite_409() {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setFolderRoot("//Sites/Nightly");
+    PSSite other = new PSSite();
+    other.setName("OtherSite");
+    other.setGUID(new PSGuid(PSTypeEnum.SITE, 7));
+    other.setFolderRoot("//sites/taken");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.findAllSites()).thenReturn(java.util.List.of(existing, other));
+
+    Site req = body("NightlySite", null, null);
+    req.setFolderRoot("//Sites/Taken");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.updateSite("NightlySite", req));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals("//Sites/Nightly", existing.getFolderRoot());
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
   void update_nameMismatch_400() {
     PSSite existing = new PSSite();
     existing.setName("NightlySite");

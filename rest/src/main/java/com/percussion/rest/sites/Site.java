@@ -226,6 +226,25 @@ public class Site {
     this.defaultDocument = defaultDocument;
   }
 
+  /**
+   * CMS folder path for this site (for example {@code //Sites/Name}). On update, a present value
+   * replaces the stored path. It does not create or move the folder. Blank and unsafe paths are
+   * rejected. Omit the property to leave the stored path unchanged.
+   */
+  @Schema(
+      description =
+          "CMS folder path for the site. Omit on update to leave unchanged. Blank or unsafe paths"
+              + " are rejected. Does not move folder items.")
+  private String folderRoot;
+
+  public String getFolderRoot() {
+    return folderRoot;
+  }
+
+  public void setFolderRoot(String folderRoot) {
+    this.folderRoot = folderRoot;
+  }
+
   public String getCanonicalDist() {
     return canonicalDist;
   }

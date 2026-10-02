@@ -1344,6 +1344,8 @@ export interface SiteDef {
   siteProtocol?: string;
   defaultDocument?: string;
   defaultFileExtention?: string;
+  /** CMS folder path stored on the site. Does not move folder items. */
+  folderRoot?: string;
   /**
    * Extra markup stored for the site head. Returned as text. The Publishing shell
    * must not insert it into the document.

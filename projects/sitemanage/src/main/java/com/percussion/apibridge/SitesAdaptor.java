@@ -268,6 +268,9 @@ public class SitesAdaptor implements ISiteAdaptor {
             Response.Status.BAD_REQUEST);
       }
     }
+    if (request.getFolderRoot() != null) {
+      rejectFolderRootConflict(found, normalizeFolderRoot(request.getFolderRoot()));
+    }
     SiteFolderWorkflowAssociation.Assignment pendingWorkflow = null;
     if (StringUtils.isNotBlank(request.getWorkflowName())) {
       if (siteWorkflow == null) {
@@ -795,6 +798,7 @@ public class SitesAdaptor implements ISiteAdaptor {
     ret.setCanonicalReplace(site.isCanonicalReplace());
     ret.setPageBasedSite(site.isPageBased());
     ret.setDefaultDocument(site.getDefaultDocument());
+    ret.setFolderRoot(site.getFolderRoot());
     ret.setSiteProtocol(site.getSiteProtocol());
     ret.setOverrideSystemFoundation(site.isOverrideSystemFoundation());
     ret.setOverrideSystemJQuery(site.isOverrideSystemJQuery());
@@ -1294,6 +1298,9 @@ public class SitesAdaptor implements ISiteAdaptor {
     if (StringUtils.isNotBlank(request.getDefaultFileExtention())) {
       target.setDefaultFileExtension(request.getDefaultFileExtention().trim());
     }
+    if (request.getFolderRoot() != null) {
+      target.setFolderRoot(normalizeFolderRoot(request.getFolderRoot()));
+    }
     if (request.isCanonicalDistSpecified()) {
       target.setCanonicalDist(normalizeCanonicalDist(request.getCanonicalDist()));
     }
@@ -1303,6 +1310,86 @@ public class SitesAdaptor implements ISiteAdaptor {
     if (request.isPageBasedSiteSpecified()) {
       target.setPageBased(request.isPageBasedSite());
     }
+  }
+
+  /**
+   * CMS folder path stored on the site row. Backslashes become {@code /}. The value must start
+   * with {@code /} (a leading {@code //} is kept), contain at least one name, and must not contain
+   * empty, {@code .}, or {@code ..} segments. This does not create or move the folder.
+   */
+  static String normalizeFolderRoot(String raw) {
+    if (raw == null) {
+      throw new WebApplicationException("Folder root is required", Response.Status.BAD_REQUEST);
+    }
+    String path = raw.trim().replace('\\', '/');
+    if (path.isEmpty()) {
+      throw new WebApplicationException("Folder root is required", Response.Status.BAD_REQUEST);
+    }
+    if (path.length() > 1024 || !isSafeFolderRoot(path)) {
+      throw new WebApplicationException(
+          "Folder root must be a CMS path starting with / and must not contain '.' or '..'"
+              + " segments",
+          Response.Status.BAD_REQUEST);
+    }
+    return path;
+  }
+
+  private static boolean isSafeFolderRoot(String path) {
+    for (int i = 0; i < path.length(); i++) {
+      char c = path.charAt(i);
+      if (c < 0x20 || c == 0x7f) {
+        return false;
+      }
+    }
+    if (!path.startsWith("/")) {
+      return false;
+    }
+    boolean doubled = path.startsWith("//");
+    String rest = doubled ? path.substring(2) : path.substring(1);
+    if (rest.isEmpty() || rest.endsWith("/")) {
+      return false;
+    }
+    for (String part : rest.split("/", -1)) {
+      if (part.isEmpty() || ".".equals(part) || "..".equals(part)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private void rejectFolderRootConflict(IPSSite found, String normalized) {
+    List<IPSSite> all;
+    try {
+      all = siteManager.findAllSites();
+    } catch (RuntimeException e) {
+      log.debug("Could not list sites to check folder root: {}", e.getMessage());
+      return;
+    }
+    if (all == null) {
+      return;
+    }
+    for (IPSSite other : all) {
+      if (other == null || sameSite(found, other) || StringUtils.isBlank(other.getFolderRoot())) {
+        continue;
+      }
+      String otherPath;
+      try {
+        otherPath = normalizeFolderRoot(other.getFolderRoot());
+      } catch (WebApplicationException ignored) {
+        continue;
+      }
+      if (otherPath.equalsIgnoreCase(normalized)) {
+        throw new WebApplicationException(
+            "Folder root is already used by another site", Response.Status.CONFLICT);
+      }
+    }
+  }
+
+  private static boolean sameSite(IPSSite left, IPSSite right) {
+    if (left.getGUID() != null && left.getGUID().equals(right.getGUID())) {
+      return true;
+    }
+    return left.getName() != null && left.getName().equalsIgnoreCase(right.getName());
   }
 
   /**
