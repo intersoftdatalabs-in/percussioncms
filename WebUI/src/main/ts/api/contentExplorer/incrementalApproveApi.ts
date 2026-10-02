@@ -53,3 +53,19 @@ export async function unapproveSelectedItemOnIncrementalQueue(
   }
   await post(explorerIncrementalUnapproveUrl(id));
 }
+
+/** Explorer remove of one queued page or asset (#5058). */
+export function explorerIncrementalRemoveUrl(contentId: string): string {
+  const id = String(contentId ?? "").trim();
+  return `${SERVICES_ROOT}/sitemanage/publish/incremental/explorer/${encodeURIComponent(id)}/remove`;
+}
+
+export async function removeSelectedItemFromIncrementalQueue(
+  contentId: string,
+): Promise<void> {
+  const id = String(contentId ?? "").trim();
+  if (!id) {
+    throw new Error("removeSelectedItemFromIncrementalQueue requires contentId");
+  }
+  await post(explorerIncrementalRemoveUrl(id));
+}

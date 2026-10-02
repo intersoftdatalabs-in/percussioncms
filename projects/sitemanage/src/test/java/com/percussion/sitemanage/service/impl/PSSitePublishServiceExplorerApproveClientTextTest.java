@@ -78,4 +78,20 @@ class PSSitePublishServiceExplorerApproveClientTextTest {
     assertFalse(body.contains(SECRET));
     assertFalse(body.contains("jdbc"));
   }
+
+  @Test
+  void removeStatusBodyUsesFixedTextNotExceptionMessage() throws Exception {
+    IPSSitePublishService publishService = mock(IPSSitePublishService.class);
+    doThrow(new PSIncrementalQueueStatusException(409, SECRET))
+        .when(publishService)
+        .removeExplorerItemFromIncrementalQueue("301");
+    PSSitePublishServiceWebAdapter adapter = new PSSitePublishServiceWebAdapter(publishService);
+
+    Response response = adapter.removeExplorerItemFromIncrementalQueue("301");
+
+    assertEquals(409, response.getStatus());
+    String body = String.valueOf(response.getEntity());
+    assertFalse(body.contains(SECRET));
+    assertFalse(body.contains("jdbc"));
+  }
 }

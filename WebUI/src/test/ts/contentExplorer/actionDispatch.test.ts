@@ -3286,4 +3286,75 @@ describe("actionDispatch", () => {
       expect(result.messageKey).toBeTruthy();
     }
   });
+
+  it("names an empty selection and does not remove from the incremental queue", async () => {
+    const removeIncremental = vi.fn();
+    const result = await dispatchAction(action({ name: "remove_incremental" }), {
+      item: null,
+      removeIncremental,
+    });
+    expect(result.messageText).toMatch(/select a page or asset/i);
+    expect(result.removedItemId).toBeUndefined();
+    expect(result.outcome).toBeUndefined();
+    expect(removeIncremental).not.toHaveBeenCalled();
+  });
+
+  it("names a folder and does not remove from the incremental queue", async () => {
+    const removeIncremental = vi.fn();
+    const result = await dispatchAction(action({ name: "remove_incremental" }), {
+      item: item({ name: "Pages", type: "folder", category: "folder" }),
+      removeIncremental,
+    });
+    expect(result.messageText).toMatch(/folders are not removed/i);
+    expect(result.messageText).toContain("Pages");
+    expect(removeIncremental).not.toHaveBeenCalled();
+  });
+
+  it("does not call remove when confirm is cancelled or several items are selected", async () => {
+    const removeIncremental = vi.fn();
+    const cancelled = await dispatchAction(action({ name: "remove_incremental" }), {
+      item: item(),
+      confirm: () => false,
+      removeIncremental,
+    });
+    expect(cancelled.outcome).toBeUndefined();
+    const multi = await dispatchAction(action({ name: "remove_incremental" }), {
+      item: item(),
+      selectedItems: [item({ id: "1" }), item({ id: "2", name: "Other" })],
+      confirm: () => true,
+      removeIncremental,
+    });
+    expect(multi.messageText).toMatch(/one selected page or asset/i);
+    expect(multi.outcome).toBeUndefined();
+    expect(removeIncremental).not.toHaveBeenCalled();
+  });
+
+  it("reports removed only after the server accepts it", async () => {
+    const removeIncremental = vi.fn(async () => undefined);
+    const result = await dispatchAction(action({ name: "remove_incremental" }), {
+      item: item({ id: "42" }),
+      confirm: () => true,
+      removeIncremental,
+    });
+    expect(removeIncremental).toHaveBeenCalledWith("42");
+    expect(result.outcome).toBe("success");
+    expect(result.removedItemId).toBe("42");
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_OK);
+  });
+
+  it("does not mark remove success for HTTP 400, 403, or 409", async () => {
+    for (const status of [400, 403, 409]) {
+      const removeIncremental = vi.fn(async () => {
+        throw { status, statusText: "no", body: "" };
+      });
+      const result = await dispatchAction(action({ name: "remove_incremental" }), {
+        item: item(),
+        confirm: () => true,
+        removeIncremental,
+      });
+      expect(result.outcome).toBeUndefined();
+      expect(result.removedItemId).toBeUndefined();
+      expect(result.messageKey).toBeTruthy();
+    }
+  });
 });

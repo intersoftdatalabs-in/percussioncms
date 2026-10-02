@@ -1188,6 +1188,58 @@ public class PSSitePublishService implements IPSSitePublishService {
   }
 
   @Override
+  public void removeExplorerItemFromIncrementalQueue(String contentId)
+      throws PSSitePublishException {
+    Validate.notEmpty(contentId);
+    if (!isPublishAllowed()) {
+      throw new PSIncrementalQueueStatusException(403, "Publish forbidden");
+    }
+    final int cid;
+    try {
+      cid = idMapper.getContentId(contentId.trim());
+    } catch (RuntimeException ex) {
+      throw new PSIncrementalQueueStatusException(400, "Content id is not valid");
+    }
+    final IPSGuid guid = idMapper.getGuid(new PSLocator(cid));
+    final List<IPSSite> sites;
+    try {
+      sites = pubWs.getItemSites(guid);
+    } catch (RuntimeException ex) {
+      throw new PSIncrementalQueueStatusException(400, "Item is not on a site");
+    }
+    if (sites == null || sites.isEmpty()) {
+      throw new PSIncrementalQueueStatusException(400, "Item is not on a site");
+    }
+    boolean removed = false;
+    for (IPSSite site : sites) {
+      if (site == null || site.getSiteId() == null) {
+        continue;
+      }
+      for (PSContentChangeType changeType :
+          List.of(PSContentChangeType.PENDING_LIVE, PSContentChangeType.PENDING_STAGED)) {
+        List<Integer> queued;
+        try {
+          queued = contentChangeService.getChangedContent(site.getSiteId(), changeType);
+        } catch (RuntimeException ex) {
+          throw new PSIncrementalQueueStatusException(409, "Item could not be removed");
+        }
+        if (queued == null || !queued.contains(Integer.valueOf(cid))) {
+          continue;
+        }
+        try {
+          contentChangeService.deleteChangeEvents(site.getSiteId(), cid, changeType);
+        } catch (RuntimeException ex) {
+          throw new PSIncrementalQueueStatusException(409, "Item could not be removed");
+        }
+        removed = true;
+      }
+    }
+    if (!removed) {
+      throw new PSIncrementalQueueStatusException(400, "Item is not on the incremental queue");
+    }
+  }
+
+  @Override
   public void clearQueuedIncrementalContent(String siteName, String serverName)
       throws PSSitePublishException {
     Validate.notEmpty(siteName);

@@ -460,6 +460,14 @@ export const EXPLORER_UNAPPROVE_INCREMENTAL_ACTION: MenuAction = {
   menuType: "MENUITEM",
 };
 
+/** Always available so a folder or empty selection can be named (#5058). */
+export const EXPLORER_REMOVE_INCREMENTAL_ACTION: MenuAction = {
+  name: "remove_incremental",
+  label: "Remove from incremental queue",
+  sortRank: 10_062,
+  menuType: "MENUITEM",
+};
+
 /** Injected when a page/asset is selected (#4699). */
 export const EXPLORER_CHECKIN_ACTION: MenuAction = {
   name: "Check_In",
@@ -478,14 +486,19 @@ export function withExplorerApproveIncrementalAction(
   })
     ? actions
     : [...actions, { ...EXPLORER_APPROVE_INCREMENTAL_ACTION }];
+  const withUnapprove = menuHasMatchingAction(withApprove, (name) => {
+    return normalized(name) === "unapprove_incremental";
+  })
+    ? withApprove
+    : [...withApprove, { ...EXPLORER_UNAPPROVE_INCREMENTAL_ACTION }];
   if (
-    menuHasMatchingAction(withApprove, (name) => {
-      return normalized(name) === "unapprove_incremental";
+    menuHasMatchingAction(withUnapprove, (name) => {
+      return normalized(name) === "remove_incremental";
     })
   ) {
-    return withApprove;
+    return withUnapprove;
   }
-  return [...withApprove, { ...EXPLORER_UNAPPROVE_INCREMENTAL_ACTION }];
+  return [...withUnapprove, { ...EXPLORER_REMOVE_INCREMENTAL_ACTION }];
 }
 
 function menuHasMatchingAction(
