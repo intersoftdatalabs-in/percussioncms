@@ -56,6 +56,7 @@ import { SiteCanonicalReplacePanel } from "../components/SiteCanonicalReplacePan
 import { SitePageBasedPanel } from "../components/SitePageBasedPanel";
 import { SiteDefaultDocumentPanel } from "../components/SiteDefaultDocumentPanel";
 import { SiteFileExtensionPanel } from "../components/SiteFileExtensionPanel";
+import { SiteFolderRootPanel } from "../components/SiteFolderRootPanel";
 import { SiteDescriptionPanel } from "../components/SiteDescriptionPanel";
 import { SiteProtocolPanel } from "../components/SiteProtocolPanel";
 import { ServerEditor } from "../components/ServerEditor";
@@ -802,6 +803,7 @@ export function SiteWorkspace({
       ) : null}
 
       <SiteDescriptionPanel siteName={siteName ?? ""} />
+      <SiteFolderRootPanel siteName={siteName ?? ""} />
       <SiteProtocolPanel siteName={siteName ?? ""} />
       <SiteBaseUrlPanel siteName={siteName ?? ""} />
       <SiteDefaultDocumentPanel siteName={siteName ?? ""} />

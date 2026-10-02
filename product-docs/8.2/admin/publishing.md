@@ -129,6 +129,24 @@ does not return **400** for blank). HTTP **400**, **403**, and **409** stay on t
 form with an error and do not show a saved notice. Protocol, default document,
 description, base URL, rename, copy, and delete are separate actions.
 
+### Edit the open site folder root (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card. The workspace shows the
+site **Folder root** loaded from `GET /services/sites/{nameOrId}`. **Edit folder root**
+opens a form. **Save** sends `PUT /services/sites/{nameOrId}` with the site name and
+`folderRoot` only (description, base URL, and other fields are not sent). Backslashes
+are stored as `/`. The path must start with `/` (a leading `//` is kept, as in
+`//Sites/Name`), must include at least one folder name, and must not contain empty,
+`.` , or `..` segments. The workspace shows the saved path, including after you leave
+and reopen the site. This updates the path stored on the site record. It does not
+create the folder and it does not move items. **Cancel**, **Save** when the path is
+unchanged, and an empty or invalid path do not call PUT and do not show a saved
+notice. A blank or unsafe path sent to the server is HTTP **400** and does not change
+the stored path. A path already used by another site is HTTP **409**. HTTP **400**,
+**403**, and **409** stay on the form with an error and do not show a saved notice.
+Protocol, file extension, description, base URL, rename, copy, and delete are
+separate actions.
+
 ### Edit the open site canonical distribution (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card. The workspace shows the

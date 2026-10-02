@@ -41,6 +41,8 @@ export type SiteWriteBody = {
   siteProtocol?: string;
   defaultDocument?: string;
   defaultFileExtention?: string;
+  /** CMS folder path. Omit to leave the stored path unchanged. */
+  folderRoot?: string;
   /** Canonical URL destination: pages or sections. */
   canonicalDist?: string;
   /** When true, canonical URLs replace the rendered location. Omit to leave stored. */
@@ -248,6 +250,7 @@ const SITE_SIGNAL_KEYS = [
   "canonicalReplace",
   "description",
   "defaultFileExtention",
+  "folderRoot",
 ] as const;
 
 const NAME_ONLY_KEYS = new Set(["name", "label", "id"]);
