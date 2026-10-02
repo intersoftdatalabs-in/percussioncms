@@ -47,6 +47,11 @@ export type SiteWriteBody = {
   canonicalReplace?: boolean;
   /** Existing workflow name. Omit to leave the site-folder association unchanged. */
   workflowName?: string;
+  /**
+   * Additional head markup stored as text. Omit to leave the stored value unchanged.
+   * Empty string clears it. The Publishing shell does not execute this markup.
+   */
+  siteAdditionalHeadContent?: string;
 };
 
 export const SITE_WIRE_ROOT = "Site";
@@ -635,7 +640,7 @@ export async function renameSite(nameOrId: string, newName: string): Promise<Sit
   return unwrapSitePayload(payload);
 }
 
-/** PUT /services/sites/{nameOrId} — Admin. Updates description/baseUrl and optional workflowName. */
+/** PUT /services/sites/{nameOrId} — Admin. Updates description, base URL, additional head content, and optional workflowName. */
 export async function updateSite(
   nameOrId: string,
   body: SiteWriteBody,

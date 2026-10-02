@@ -1344,6 +1344,11 @@ export interface SiteDef {
   siteProtocol?: string;
   defaultDocument?: string;
   defaultFileExtention?: string;
+  /**
+   * Extra markup stored for the site head. Returned as text. The Publishing shell
+   * must not insert it into the document.
+   */
+  siteAdditionalHeadContent?: string;
   /** Canonical URL destination ({@code pages} or {@code sections}). */
   canonicalDist?: string;
   /** When true, canonical URLs replace the rendered location. */

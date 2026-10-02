@@ -163,6 +163,19 @@ default of `true` is not an implicit write). HTTP **400**, **403**, and **409** 
 the form with an error and do not show a saved notice. Canonical distribution, protocol,
 default document, description, base URL, rename, copy, and delete are separate actions.
 
+### Edit additional head content (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card. The workspace shows
+**Additional head content** loaded from `GET /services/sites/{nameOrId}` as plain
+text. The shell does not insert or run that markup. **Edit additional head content**
+opens a form. **Save** sends `PUT /services/sites/{nameOrId}` with the site name and
+`siteAdditionalHeadContent` only (description, base URL, canonical settings, and
+other fields are not sent). A blank value clears the stored content. The workspace
+shows the saved text, including after you leave and reopen the site. **Cancel**, and
+**Save** when the text is unchanged (including content that was already blank), do
+not call PUT. HTTP **400**, **403**, and **409** stay on the form with an error and
+do not show a saved notice. Before-body and after-body snippets are not edited here.
+
 ### Delete the open site (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, then **Delete site**.
