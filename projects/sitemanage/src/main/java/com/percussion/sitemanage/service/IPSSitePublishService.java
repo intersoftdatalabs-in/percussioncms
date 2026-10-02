@@ -139,6 +139,15 @@ public interface IPSSitePublishService {
   void unapproveQueuedIncrementalContent(String siteName, String serverName, String contentId)
       throws PSSitePublishException;
 
+  /**
+   * Approves one Explorer page or asset and records it on the incremental queue for each site the
+   * item belongs to. The caller must not treat a status exception as success.
+   *
+   * @param contentId content id or item GUID string, not blank
+   * @throws PSSitePublishException when approval fails unexpectedly
+   */
+  void approveExplorerItemToIncrementalQueue(String contentId) throws PSSitePublishException;
+
   /** Exception thrown when an error occurs attempting to publish a site. */
   class PSSitePublishException extends PSDataServiceException {
     private static final long serialVersionUID = 1L;

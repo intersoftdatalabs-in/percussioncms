@@ -857,6 +857,22 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Flush the assembler cache for all items?",
   CONFIRM_NAV_RESET:
     "perc.ui.explorer@Reload managed navigation configuration?",
+  CONFIRM_APPROVE_INCREMENTAL:
+    "perc.ui.explorer@Approve this page or asset onto the incremental publish queue?",
+  ACTION_APPROVE_INCREMENTAL_OK:
+    "perc.ui.explorer@Approved onto the incremental queue",
+  ACTION_APPROVE_INCREMENTAL_EMPTY:
+    "perc.ui.explorer@Select a page or asset before approving it onto the incremental queue",
+  ACTION_APPROVE_INCREMENTAL_FOLDER:
+    "perc.ui.explorer@Folders are not approved onto the incremental queue",
+  ACTION_APPROVE_INCREMENTAL_NOT_ITEM:
+    "perc.ui.explorer@Only a page or asset can be approved onto the incremental queue",
+  ACTION_APPROVE_INCREMENTAL_REJECTED:
+    "perc.ui.explorer@Could not approve this item onto the incremental queue (HTTP 400)",
+  ACTION_APPROVE_INCREMENTAL_FORBIDDEN:
+    "perc.ui.explorer@You are not allowed to approve this item (HTTP 403)",
+  ACTION_APPROVE_INCREMENTAL_CONFLICT:
+    "perc.ui.explorer@This item could not be approved onto the incremental queue (HTTP 409)",
   CONFIRM_NEW_COPY:
     "perc.ui.explorer@Create a new copy of this item in the same folder?",
   CONFIRM_PROMOTABLE:

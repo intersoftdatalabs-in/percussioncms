@@ -574,6 +574,32 @@ public class PSSitePublishServiceWebAdapter {
   }
 
   /**
+   * Approves one Explorer page or asset onto the incremental queue for each site the item belongs
+   * to. HTTP 204 on success. HTTP 400 when the id is not a content id, the item is not on a site,
+   * or the workflow transition is rejected. HTTP 403 when publish is not allowed. HTTP 409 when
+   * shared assets block approval.
+   */
+  @POST
+  @Path("/incremental/explorer/{contentId}/approve")
+  public Response approveExplorerItemToIncrementalQueue(@PathParam("contentId") String contentId) {
+    try {
+      sitePublishService.approveExplorerItemToIncrementalQueue(contentId);
+      return Response.noContent().build();
+    } catch (PSIncrementalQueueStatusException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return Response.status(e.status())
+          .entity(e.clientStatusText())
+          .type(MediaType.TEXT_PLAIN)
+          .build();
+    } catch (IPSSitePublishService.PSSitePublishException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException("Item could not be approved");
+    }
+  }
+
+  /**
    * Get a paged list of items that are unapproved but related to the items that are queued for
    * incremental publish items
    *

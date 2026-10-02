@@ -444,6 +444,14 @@ export const EXPLORER_CHECKOUT_ACTION: MenuAction = {
   menuType: "MENUITEM",
 };
 
+/** Always available so a folder or empty selection can be named (#5056). */
+export const EXPLORER_APPROVE_INCREMENTAL_ACTION: MenuAction = {
+  name: "approve_incremental",
+  label: "Approve for incremental",
+  sortRank: 10_060,
+  menuType: "MENUITEM",
+};
+
 /** Injected when a page/asset is selected (#4699). */
 export const EXPLORER_CHECKIN_ACTION: MenuAction = {
   name: "Check_In",
@@ -451,6 +459,20 @@ export const EXPLORER_CHECKIN_ACTION: MenuAction = {
   sortRank: 10_046,
   menuType: "MENUITEM",
 };
+
+export function withExplorerApproveIncrementalAction(
+  actions: MenuAction[],
+): MenuAction[] {
+  if (
+    menuHasMatchingAction(actions, (name) => {
+      return (name ?? "").replace(/[\s-]/g, "_").toLowerCase() ===
+        "approve_incremental";
+    })
+  ) {
+    return actions;
+  }
+  return [...actions, { ...EXPLORER_APPROVE_INCREMENTAL_ACTION }];
+}
 
 function menuHasMatchingAction(
   actions: MenuAction[],

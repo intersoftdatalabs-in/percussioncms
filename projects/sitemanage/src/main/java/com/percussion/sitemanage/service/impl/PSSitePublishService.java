@@ -39,7 +39,9 @@ import com.percussion.rx.publisher.IPSPublisherJobStatus.State;
 import com.percussion.rx.publisher.data.PSDemandWork;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.content.data.PSItemSummary;
+import com.percussion.itemmanagement.data.PSItemTransitionResults;
 import com.percussion.services.contentchange.IPSContentChangeService;
+import com.percussion.services.contentchange.data.PSContentChangeEvent;
 import com.percussion.services.contentchange.data.PSContentChangeType;
 import com.percussion.services.error.PSNotFoundException;
 import jakarta.ws.rs.WebApplicationException;
@@ -1060,6 +1062,69 @@ public class PSSitePublishService implements IPSSitePublishService {
         throw new PSIncrementalQueueStatusException(403, "Publish forbidden");
       }
       throw new PSIncrementalQueueStatusException(400, "Item could not be unapproved");
+    }
+  }
+
+  @Override
+  public void approveExplorerItemToIncrementalQueue(String contentId) throws PSSitePublishException {
+    Validate.notEmpty(contentId);
+    if (!isPublishAllowed()) {
+      throw new PSIncrementalQueueStatusException(403, "Publish forbidden");
+    }
+    final int cid;
+    try {
+      cid = idMapper.getContentId(contentId.trim());
+    } catch (IllegalArgumentException ex) {
+      throw new PSIncrementalQueueStatusException(400, "Content id is not valid");
+    } catch (RuntimeException ex) {
+      if (ex.getCause() instanceof IllegalArgumentException) {
+        throw new PSIncrementalQueueStatusException(400, "Content id is not valid");
+      }
+      throw new PSIncrementalQueueStatusException(400, "Content id is not valid");
+    }
+    final IPSGuid guid = idMapper.getGuid(new PSLocator(cid));
+    final List<IPSSite> sites;
+    try {
+      sites = pubWs.getItemSites(guid);
+    } catch (RuntimeException ex) {
+      throw new PSIncrementalQueueStatusException(400, "Item is not on a site");
+    }
+    if (sites == null || sites.isEmpty()) {
+      throw new PSIncrementalQueueStatusException(400, "Item is not on a site");
+    }
+    final String guidText = guid.toString();
+    final PSItemTransitionResults results;
+    try {
+      results = itemWorkflowService.performApproveTransition(guidText, false, null);
+    } catch (PSNotFoundException ex) {
+      throw new PSIncrementalQueueStatusException(400, "Item could not be approved");
+    } catch (IPSItemWorkflowService.PSItemWorkflowServiceException ex) {
+      String message = ex.getMessage() == null ? "" : ex.getMessage().toLowerCase();
+      if (message.contains("permission") || message.contains("forbidden")) {
+        throw new PSIncrementalQueueStatusException(403, "Publish forbidden");
+      }
+      if (message.contains("checked out") || message.contains("conflict")) {
+        throw new PSIncrementalQueueStatusException(409, "Item could not be approved");
+      }
+      throw new PSIncrementalQueueStatusException(400, "Item could not be approved");
+    } catch (PSDataServiceException ex) {
+      throw new PSSitePublishException(ex.getMessage(), ex);
+    }
+    if (results != null
+        && results.getFailedAssets() != null
+        && !results.getFailedAssets().isEmpty()) {
+      throw new PSIncrementalQueueStatusException(409, "Item could not be approved");
+    }
+    for (IPSSite site : sites) {
+      if (site == null || site.getSiteId() == null) {
+        throw new PSIncrementalQueueStatusException(400, "Item is not on a site");
+      }
+      try {
+        contentChangeService.contentChanged(
+            new PSContentChangeEvent(cid, PSContentChangeType.PENDING_LIVE, site.getSiteId()));
+      } catch (PSDataServiceException ex) {
+        throw new PSIncrementalQueueStatusException(400, "Item could not be approved");
+      }
     }
   }
 

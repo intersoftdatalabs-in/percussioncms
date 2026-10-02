@@ -27,6 +27,19 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | **Views → My Content → Inbox** | Assignment list (not a top-level Explorer root — see below) |
 | **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface |
 
+**Approve for incremental** is always on the server-actions toolbar. It asks
+**Approve this page or asset onto the incremental publish queue?** Confirm posts
+`POST /services/sitemanage/publish/incremental/explorer/{contentId}/approve`.
+The server runs the Approve workflow transition, then records the item on the
+incremental queue for each site the item belongs to. The list shows **Approved**
+on that row only after HTTP 204. Cancel does not call the server. An empty
+selection or a folder is named in the toolbar error and does not call approve.
+A selection that is not a page or asset is named the same way. HTTP **400**
+(invalid id, item not on a site, or the transition was rejected), **403**
+(publish not allowed), and **409** (shared assets blocked approval) stay as
+errors and do not mark the row approved. This is not unapprove, not remove from
+the queue, and not PublishingShell incremental publish.
+
 ## Left-hand roots (Sites, Folders, Assets, Design, Recycling)
 
 The Explorer **tree** lists the standard top-level containers returned by the CMS path
