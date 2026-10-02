@@ -35,4 +35,17 @@ public class PSIncrementalQueueStatusException extends RuntimeException {
   public int status() {
     return status;
   }
+
+  /**
+   * Fixed HTTP body for this status. Does not return {@link #getMessage()}, so callers cannot echo
+   * exception detail to a client (CodeQL {@code java/error-message-exposure}).
+   */
+  public String clientStatusText() {
+    return switch (status) {
+      case 403 -> "Publish forbidden";
+      case 404 -> "Not found";
+      case 409 -> "Item could not be approved";
+      default -> "Request could not be completed";
+    };
+  }
 }
