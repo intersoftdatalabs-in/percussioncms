@@ -70,6 +70,14 @@ public class Site {
   private transient boolean canonicalDistSpecified;
 
   private boolean canonicalReplace = true;
+
+  /**
+   * True only when {@link #setCanonicalReplace(boolean)} ran. The field initializer is {@code
+   * true}, so an omitted JSON property must not be treated as an explicit write (partial site
+   * PUT).
+   */
+  private transient boolean canonicalReplaceSpecified;
+
   private boolean pageBasedSite = false;
   private Guid guid;
 
@@ -233,6 +241,14 @@ public class Site {
 
   public void setCanonicalReplace(boolean canonicalReplace) {
     this.canonicalReplace = canonicalReplace;
+    this.canonicalReplaceSpecified = true;
+  }
+
+  /** Whether the client included {@code canonicalReplace} (setter), not the Java default. */
+  @JsonIgnore
+  @XmlTransient
+  public boolean isCanonicalReplaceSpecified() {
+    return canonicalReplaceSpecified;
   }
 
   public boolean isPageBasedSite() {

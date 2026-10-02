@@ -43,6 +43,8 @@ export type SiteWriteBody = {
   defaultFileExtention?: string;
   /** Canonical URL destination: pages or sections. */
   canonicalDist?: string;
+  /** When true, canonical URLs replace the rendered location. Omit to leave stored. */
+  canonicalReplace?: boolean;
   /** Existing workflow name. Omit to leave the site-folder association unchanged. */
   workflowName?: string;
 };
@@ -236,6 +238,7 @@ const SITE_SIGNAL_KEYS = [
   "defaultDocument",
   "siteProtocol",
   "canonicalDist",
+  "canonicalReplace",
   "description",
   "defaultFileExtention",
 ] as const;
