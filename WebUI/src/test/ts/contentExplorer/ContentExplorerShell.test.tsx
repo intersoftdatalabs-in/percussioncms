@@ -2774,6 +2774,187 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     );
   });
 
+  it("confirms an existing translation variant into the editor (#5037)", async () => {
+    const opened: string[] = [];
+    const originalOpen = window.open;
+    window.open = vi.fn((url?: string | URL) => {
+      const href = String(url ?? "");
+      opened.push(href);
+      return {
+        closed: false,
+        location: {
+          assign: (next: string) => {
+            opened.push(String(next));
+          },
+        },
+        focus: () => undefined,
+        close: () => undefined,
+      } as unknown as Window;
+    });
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/itemmanagement/item/fields/")) {
+        return new Response(JSON.stringify({ Item: { fields: [] } }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (url.includes("/content-explorer/translations/")) {
+        return new Response(
+          JSON.stringify({
+            itemId: 708,
+            locale: "en-us",
+            variants: [
+              { contentId: 900, locale: "fr-fr", role: "translation", revision: 1 },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "1-101-708",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    try {
+      renderShell(
+        <ContentExplorerShell
+          initialPath="/Sites/Demo"
+          loadDisplayFormats={async () => []}
+          loadMenuActions={async () => []}
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("detail-row-1-101-708")).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByTestId("detail-row-1-101-708"));
+      openViewMenu();
+      fireEvent.click(screen.getByTestId("explorer-toggle-translations"));
+      await waitFor(() => {
+        expect(screen.getByTestId("translations-open-variant-900")).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByTestId("translations-open-variant-900"));
+      expect(
+        await screen.findByTestId("explorer-open-variant-confirm"),
+      ).toBeInTheDocument();
+      fireEvent.click(screen.getByTestId("explorer-open-variant-cancel"));
+      expect(screen.queryByTestId("explorer-open-variant-confirm")).toBeNull();
+      expect(screen.queryByTestId("explorer-open-variant-status")).toBeNull();
+      expect(opened.some((url) => url.includes("entry=editor"))).toBe(false);
+
+      fireEvent.click(screen.getByTestId("translations-open-variant-900"));
+      fireEvent.click(await screen.findByTestId("explorer-open-variant-ok"));
+      await waitFor(() => {
+        expect(screen.getByTestId("explorer-open-variant-status")).toHaveTextContent(
+          /opened the translation variant/i,
+        );
+      });
+      expect(opened.some((url) => url.includes("entry=editor"))).toBe(true);
+      expect(opened.some((url) => /contentId=900/.test(url))).toBe(true);
+    } finally {
+      window.open = originalOpen;
+    }
+  });
+
+  it("does not open a translation variant on HTTP 404 (#5037)", async () => {
+    const opened: string[] = [];
+    const originalOpen = window.open;
+    window.open = vi.fn((url?: string | URL) => {
+      opened.push(String(url ?? ""));
+      return {
+        closed: false,
+        close: () => undefined,
+        location: { assign: (next: string) => opened.push(String(next)) },
+        focus: () => undefined,
+      } as unknown as Window;
+    });
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/itemmanagement/item/fields/")) {
+        return new Response("missing", { status: 404 });
+      }
+      if (url.includes("/content-explorer/translations/")) {
+        return new Response(
+          JSON.stringify({
+            itemId: 708,
+            locale: "en-us",
+            variants: [
+              { contentId: 900, locale: "fr-fr", role: "translation", revision: 1 },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "1-101-708",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    try {
+      renderShell(
+        <ContentExplorerShell
+          initialPath="/Sites/Demo"
+          loadDisplayFormats={async () => []}
+          loadMenuActions={async () => []}
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("detail-row-1-101-708")).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByTestId("detail-row-1-101-708"));
+      openViewMenu();
+      fireEvent.click(screen.getByTestId("explorer-toggle-translations"));
+      fireEvent.click(await screen.findByTestId("translations-open-variant-900"));
+      fireEvent.click(await screen.findByTestId("explorer-open-variant-ok"));
+      const error = await screen.findByTestId("explorer-open-variant-error");
+      expect(error).toHaveTextContent(/HTTP 404/);
+      expect(screen.queryByTestId("explorer-open-variant-status")).toBeNull();
+      expect(opened.some((url) => url.includes("entry=editor"))).toBe(false);
+    } finally {
+      window.open = originalOpen;
+    }
+  });
+
   it("Content → Site Copy mounts wizard with source from /Sites/<name> (#2767)", async () => {
     stubPathFetch();
     const { container } = renderShell(

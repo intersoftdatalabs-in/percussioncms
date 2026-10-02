@@ -526,6 +526,21 @@ export const EXPLORER_MSG = {
   TRANSLATIONS_CONFLICT:
     "perc.ui.explorer@A translation already exists for that locale",
   TRANSLATIONS_OPEN_VARIANT: "perc.ui.explorer@Open locale copy",
+  TRANSLATIONS_OPEN_CONFIRM:
+    "perc.ui.explorer@Open this translation variant in the editor?",
+  TRANSLATIONS_OPEN_CANCEL: "perc.ui.explorer@Cancel",
+  TRANSLATIONS_OPENED:
+    "perc.ui.explorer@Opened the translation variant in the editor",
+  TRANSLATIONS_OPEN_NO_VARIANT:
+    "perc.ui.explorer@No translation variant to open",
+  TRANSLATIONS_OPEN_FOLDER:
+    "perc.ui.explorer@Folders are not opened as translation variants",
+  TRANSLATIONS_OPEN_FORBIDDEN:
+    "perc.ui.explorer@You do not have permission to open this translation variant (HTTP 403)",
+  TRANSLATIONS_OPEN_NOT_FOUND:
+    "perc.ui.explorer@This translation variant was not found (HTTP 404)",
+  TRANSLATIONS_OPEN_FAILED:
+    "perc.ui.explorer@Could not open this translation variant",
   TRANSLATIONS_COL_OPEN: "perc.ui.explorer@Open",
   TRANSLATIONS_CREATE_SUCCESS_SINGULAR:
     "perc.ui.explorer@Created 1 translation variant",

@@ -869,8 +869,13 @@ Open **View → Translations** after selecting a **page or asset** in the list (
 
 The panel shows **this item’s current locale** and **related locale variants**, and lets
 an authorized user **Create variants** for catalog locales the item does not already
-have. Each variant row includes **Open locale copy**, which opens that locale’s
-content item in the editor. Create-variant maps HTTP **403** (not allowed), **404**
+have. Each variant row includes **Open locale copy**. Confirm **Open this translation
+variant in the editor?** to open that existing locale copy in the React editor
+(`spa.jsp?entry=editor`). **Cancel**, or a row with no variant, does not open a
+window. Explorer checks the variant (`GET /services/itemmanagement/item/fields/{id}`)
+before navigating. HTTP **403** and **404** stay in the translations panel and are
+not a successful open. A **folder** is not opened as a translation variant.
+Create-variant maps HTTP **403** (not allowed), **404**
 (source item missing), and **409** (that locale copy already exists). Explorer list rows identify items with a Percussion content id. Page and asset
 rows expose that id as a GUID (`host-type-uuid`, for example `16777215-101-551`) on
 the row — the same key Translations GET accepts. The panel sends that **full GUID** on

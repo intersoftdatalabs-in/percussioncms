@@ -258,6 +258,9 @@ import {
 } from "./ViewResultsPanel";
 import { ViewsCatalogTree } from "./ViewsCatalogTree";
 import { TranslationsPanel } from "./TranslationsPanel";
+import { OpenTranslationVariantDialog } from "./OpenTranslationVariantDialog";
+import { openTranslationVariantInEditor } from "./openTranslationVariantInEditor";
+import { reserveEditorWindow } from "../editor/openEditorHost";
 import {
   RevisionsPanel,
   type RevisionsPanelTab,
@@ -611,6 +614,17 @@ function ContentExplorerShellInner({
   const [itemPropertiesReadOnly, setItemPropertiesReadOnly] = useState(false);
   const [showClipboard, setShowClipboard] = useState(false);
   const [showTranslations, setShowTranslations] = useState(false);
+  const [variantPrompt, setVariantPrompt] = useState<{
+    contentId: number;
+    locale: string;
+  } | null>(null);
+  const [variantOpenBusy, setVariantOpenBusy] = useState(false);
+  const [variantOpenError, setVariantOpenError] = useState<string | null>(
+    null,
+  );
+  const [variantOpenNotice, setVariantOpenNotice] = useState<string | null>(
+    null,
+  );
   /** Content → Create Site wizard panel (#3002 / parent #2989). */
   const [showSiteCreate, setShowSiteCreate] = useState(false);
   /** Content → Site Copy wizard panel (#2767 / parent #2400). */
@@ -2557,16 +2571,103 @@ function ContentExplorerShellInner({
                 setListEpoch((n) => n + 1);
               }}
               onOpenVariant={(contentId, locale) => {
-                onOpenItem({
-                  id: String(contentId),
-                  name: locale?.trim() || String(contentId),
-                  path: selection.item?.path ?? "",
-                  type: selection.item?.type ?? "item",
+                setVariantOpenNotice(null);
+                setVariantOpenError(null);
+                if (!selection.item || isFolder(selection.item)) {
+                  setVariantOpenError(
+                    message(EXPLORER_MSG.TRANSLATIONS_OPEN_FOLDER),
+                  );
+                  return;
+                }
+                if (
+                  contentId == null ||
+                  !Number.isFinite(contentId) ||
+                  contentId <= 0
+                ) {
+                  setVariantOpenError(
+                    message(EXPLORER_MSG.TRANSLATIONS_OPEN_NO_VARIANT),
+                  );
+                  return;
+                }
+                setVariantPrompt({
+                  contentId,
+                  locale: locale?.trim() ?? "",
                 });
               }}
             />
+            {variantOpenError ? (
+              <p
+                role="alert"
+                data-testid="explorer-open-variant-error"
+                style={{ margin: "8px 0 0" }}
+              >
+                {variantOpenError}
+              </p>
+            ) : null}
+            {variantOpenNotice ? (
+              <p
+                role="status"
+                data-testid="explorer-open-variant-status"
+                style={{ margin: "8px 0 0" }}
+              >
+                {variantOpenNotice}
+              </p>
+            ) : null}
           </section>
         )}
+      {variantPrompt ? (
+        <OpenTranslationVariantDialog
+          localeLabel={variantPrompt.locale || String(variantPrompt.contentId)}
+          busy={variantOpenBusy}
+          onCancel={() => {
+            if (variantOpenBusy) {
+              return;
+            }
+            setVariantPrompt(null);
+            setVariantOpenNotice(null);
+            setVariantOpenError(null);
+          }}
+          onConfirm={() => {
+            const pending = variantPrompt;
+            if (!pending || variantOpenBusy) {
+              return;
+            }
+            setVariantOpenBusy(true);
+            const reserved = reserveEditorWindow();
+            const selected = selection.item;
+            void openTranslationVariantInEditor(
+              {
+                contentId: pending.contentId,
+                folder: !selected || isFolder(selected),
+              },
+              { reservedWindow: reserved },
+            ).then((result) => {
+              setVariantOpenBusy(false);
+              setVariantPrompt(null);
+              if (result.ok) {
+                setVariantOpenError(null);
+                setVariantOpenNotice(message(EXPLORER_MSG.TRANSLATIONS_OPENED));
+                return;
+              }
+              setVariantOpenNotice(null);
+              const key =
+                result.reason === "forbidden"
+                  ? EXPLORER_MSG.TRANSLATIONS_OPEN_FORBIDDEN
+                  : result.reason === "not_found"
+                    ? EXPLORER_MSG.TRANSLATIONS_OPEN_NOT_FOUND
+                    : result.reason === "folder"
+                      ? EXPLORER_MSG.TRANSLATIONS_OPEN_FOLDER
+                      : result.reason === "no_variant"
+                        ? EXPLORER_MSG.TRANSLATIONS_OPEN_NO_VARIANT
+                        : EXPLORER_MSG.TRANSLATIONS_OPEN_FAILED;
+              const text = message(key);
+              setVariantOpenError(
+                result.detail ? `${text} ${result.detail}` : text,
+              );
+            });
+          }}
+        />
+      ) : null}
       {showTranslations &&
         !(
           selection.item &&
