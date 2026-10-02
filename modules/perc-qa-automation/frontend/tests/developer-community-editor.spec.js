@@ -93,7 +93,33 @@ function assertConsoleClean(pageErrors, consoleErrors) {
   ).toEqual([]);
 }
 
-test.describe("Developer community editor (#4077 / SE-01)", () => {
+test.describe("Developer community editor (#4077 / #5042)", () => {
+  test("cancel does not create a community", async ({ page }) => {
+    test.setTimeout(90_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    const posts = [];
+    page.on("request", (req) => {
+      if (req.method() === "POST" && /\/communities\/bulk(?:\?|$)/.test(req.url())) {
+        posts.push(req.url());
+      }
+    });
+    await loginAsAdmin(page);
+    await openCommunitiesCatalog(page);
+
+    const name = uniqueCommunityName();
+    await page.locator('[data-testid="developer-comm-new"]').click();
+    await expect(page.locator('[data-testid="developer-comm-detail"]')).toBeVisible();
+    await page.locator('[data-testid="developer-comm-name"]').fill(name);
+    await page.locator('[data-testid="developer-comm-cancel"]').click();
+    await expect(page.locator('[data-testid="developer-comm-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator(`[data-comm-name="${name}"]`)).toHaveCount(0);
+    expect(posts, `unexpected create POST: ${posts.join(" | ")}`).toEqual([]);
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
   test("Admin can create a uniquely named community and delete it", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);

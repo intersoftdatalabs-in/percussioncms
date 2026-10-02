@@ -27,6 +27,8 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => 
 });
 
 const listCommunities = assemblyApi.listCommunities as ReturnType<typeof vi.fn>;
+const createCommunity = assemblyApi.createCommunity as ReturnType<typeof vi.fn>;
+const getCommunityDetail = assemblyApi.getCommunityDetail as ReturnType<typeof vi.fn>;
 
 describe("CommunitiesPanel", () => {
   beforeEach(() => {
@@ -34,6 +36,8 @@ describe("CommunitiesPanel", () => {
       message: (key: string) => key,
     };
     listCommunities.mockReset();
+    createCommunity.mockReset();
+    getCommunityDetail.mockReset();
   });
 
   it("lists communities on success", async () => {
@@ -77,6 +81,72 @@ describe("CommunitiesPanel", () => {
     expect(screen.getByTestId("developer-comm-detail")).toBeTruthy();
     expect(screen.getByTestId("developer-comm-create")).toBeTruthy();
     expect(screen.getByTestId("developer-comm-name")).toBeTruthy();
+  });
+
+  it("cancel does not create and does not add a catalog row", async () => {
+    listCommunities.mockResolvedValue([]);
+    render(<CommunitiesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-new"));
+    fireEvent.change(screen.getByTestId("developer-comm-name"), {
+      target: { value: "Ghost Community" },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-cancel"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-empty")).toBeTruthy();
+    });
+    expect(createCommunity).not.toHaveBeenCalled();
+    expect(screen.queryByText("Ghost Community")).toBeNull();
+    expect(listCommunities).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the new community in the catalog only after create succeeds", async () => {
+    listCommunities
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          id: 9,
+          name: "QA Community",
+          label: "QA Community",
+          description: "",
+          guid: { stringValue: "0-13-9", longValue: 9 },
+        },
+      ]);
+    createCommunity.mockResolvedValue({
+      name: "QA Community",
+      id: 9,
+      guid: { stringValue: "0-13-9", longValue: 9 },
+    });
+    getCommunityDetail.mockResolvedValue({
+      name: "QA Community",
+      id: 9,
+      guid: { stringValue: "0-13-9", longValue: 9 },
+      roleList: [],
+    });
+    render(<CommunitiesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-new")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-new"));
+    fireEvent.change(screen.getByTestId("developer-comm-name"), {
+      target: { value: "QA Community" },
+    });
+    expect(screen.queryByTestId("developer-comm-table")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-comm-create"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-notice").textContent).toContain(
+        DEV_MSG.COMM_CREATED,
+      );
+    });
+    expect(screen.queryByTestId("developer-comm-table")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-comm-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table").textContent).toContain("QA Community");
+    });
+    expect(createCommunity).toHaveBeenCalledWith("QA Community");
+    expect(listCommunities).toHaveBeenCalledTimes(2);
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

@@ -362,6 +362,18 @@ describe("CommunityDetailPanel", () => {
     expect(screen.queryByTestId("developer-comm-roles-save")).toBeNull();
   });
 
+  it("cancel returns without calling create", () => {
+    const onBack = vi.fn();
+    render(<CommunityDetailPanel idOrName={null} onBack={onBack} />);
+    fireEvent.change(screen.getByTestId("developer-comm-name"), {
+      target: { value: "Never Saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-cancel"));
+    expect(onBack).toHaveBeenCalledTimes(1);
+    expect(createCommunity).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-comm-detail-notice")).toBeNull();
+  });
+
   it("disables create until the name is non-blank", () => {
     render(<CommunityDetailPanel idOrName={null} onBack={() => undefined} />);
     const create = screen.getByTestId("developer-comm-create") as HTMLButtonElement;
@@ -429,7 +441,10 @@ describe("CommunityDetailPanel", () => {
       statusText: "Forbidden",
       body: { message: "Admin role required" },
     });
-    render(<CommunityDetailPanel idOrName={null} onBack={() => undefined} />);
+    const onSaved = vi.fn();
+    render(
+      <CommunityDetailPanel idOrName={null} onBack={() => undefined} onSaved={onSaved} />,
+    );
     fireEvent.change(screen.getByTestId("developer-comm-name"), {
       target: { value: "QA Community" },
     });
@@ -440,6 +455,8 @@ describe("CommunityDetailPanel", () => {
     expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
       DEV_MSG.COMM_FORBIDDEN,
     );
+    expect(onSaved).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-comm-detail-notice")).toBeNull();
   });
 
   it("creates a community and keeps role-association chrome", async () => {
