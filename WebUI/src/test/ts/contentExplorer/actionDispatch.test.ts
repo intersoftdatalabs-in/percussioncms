@@ -3158,4 +3158,68 @@ describe("actionDispatch", () => {
     expect(openWindow).not.toHaveBeenCalled();
     expect(result.refresh).toBeUndefined();
   });
+
+  it("names an empty selection and does not approve onto the incremental queue", async () => {
+    const approveIncremental = vi.fn();
+    const result = await dispatchAction(action({ name: "approve_incremental" }), {
+      item: null,
+      approveIncremental,
+    });
+    expect(result.messageText).toMatch(/select a page or asset/i);
+    expect(result.approvedItemId).toBeUndefined();
+    expect(result.outcome).toBeUndefined();
+    expect(approveIncremental).not.toHaveBeenCalled();
+  });
+
+  it("names a folder and does not approve onto the incremental queue", async () => {
+    const approveIncremental = vi.fn();
+    const result = await dispatchAction(action({ name: "approve_incremental" }), {
+      item: item({ name: "Pages", type: "folder", category: "folder" }),
+      approveIncremental,
+    });
+    expect(result.messageText).toMatch(/folders are not approved/i);
+    expect(result.messageText).toContain("Pages");
+    expect(approveIncremental).not.toHaveBeenCalled();
+  });
+
+  it("does not call approve when confirm is cancelled", async () => {
+    const approveIncremental = vi.fn();
+    const result = await dispatchAction(action({ name: "approve_incremental" }), {
+      item: item(),
+      confirm: () => false,
+      approveIncremental,
+    });
+    expect(result.outcome).toBeUndefined();
+    expect(result.approvedItemId).toBeUndefined();
+    expect(approveIncremental).not.toHaveBeenCalled();
+  });
+
+  it("marks the item approved only after the server accepts it", async () => {
+    const approveIncremental = vi.fn(async () => undefined);
+    const result = await dispatchAction(action({ name: "approve_incremental" }), {
+      item: item({ id: "42" }),
+      confirm: () => true,
+      approveIncremental,
+    });
+    expect(approveIncremental).toHaveBeenCalledWith("42");
+    expect(result.outcome).toBe("success");
+    expect(result.approvedItemId).toBe("42");
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_OK);
+  });
+
+  it("does not mark success for HTTP 400, 403, or 409", async () => {
+    for (const status of [400, 403, 409]) {
+      const approveIncremental = vi.fn(async () => {
+        throw { status, statusText: "no", body: "" };
+      });
+      const result = await dispatchAction(action({ name: "approve_incremental" }), {
+        item: item(),
+        confirm: () => true,
+        approveIncremental,
+      });
+      expect(result.outcome).toBeUndefined();
+      expect(result.approvedItemId).toBeUndefined();
+      expect(result.messageKey).toBeTruthy();
+    }
+  });
 });

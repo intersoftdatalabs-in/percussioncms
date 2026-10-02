@@ -125,6 +125,7 @@ import {
 import {
   filterContextMenuActions,
   filterToolbarActions,
+  withExplorerApproveIncrementalAction,
 } from "./actionEnablement";
 import { ActionToolbar } from "./ActionToolbar";
 import { ClipboardPanel } from "./clipboard/ClipboardPanel";
@@ -672,6 +673,9 @@ function ContentExplorerShellInner({
     null,
   );
   /** Shown only after flush-cache returns ok. Cleared on cancel, error, or another action. */
+  const [approvedIncrementalIds, setApprovedIncrementalIds] = useState<
+    ReadonlySet<string>
+  >(() => new Set());
   const [flushCacheStatus, setFlushCacheStatus] = useState<string | null>(
     null,
   );
@@ -1002,11 +1006,13 @@ function ContentExplorerShellInner({
         // Toolbar surface: drop desktop-only URLs and CONTEXTMENU roots (#2849).
         const merged = mergeWorkflowMenuActions(base ?? [], workflow);
         setMenuActions(
-          filterToolbarActions(
-            merged,
-            undefined,
-            selection.item,
-            bootstrap.isAdmin === true,
+          withExplorerApproveIncrementalAction(
+            filterToolbarActions(
+              merged,
+              undefined,
+              selection.item,
+              bootstrap.isAdmin === true,
+            ),
           ),
         );
         setMenuLoadError(null);
@@ -1216,11 +1222,13 @@ function ContentExplorerShellInner({
             height: window.innerHeight,
           });
           setContextMenu({
-            actions: filterContextMenuActions(
-              merged,
-              undefined,
-              item,
-              bootstrap.isAdmin === true,
+            actions: withExplorerApproveIncrementalAction(
+              filterContextMenuActions(
+                merged,
+                undefined,
+                item,
+                bootstrap.isAdmin === true,
+              ),
             ),
             x: pos.x,
             y: pos.y,
@@ -1486,6 +1494,14 @@ function ContentExplorerShellInner({
             const msg =
               result.messageText ?? message(result.messageKey ?? "");
             setFlushCacheStatus(msg);
+            if (result.approvedItemId) {
+              const approvedId = result.approvedItemId;
+              setApprovedIncrementalIds((prev) => {
+                const next = new Set(prev);
+                next.add(approvedId);
+                return next;
+              });
+            }
             setError(null);
             setActionInvokeError(null);
           } else if (result.messageText || result.messageKey) {
@@ -2429,6 +2445,7 @@ function ContentExplorerShellInner({
           onItemContextMenu={handleItemContextMenu}
           selectedItemIds={multiSelectedIds}
           onToggleSelectItem={handleToggleSelectItem}
+          approvedIncrementalIds={approvedIncrementalIds}
         />
       )}
       {hasOpenSidePanel ? (

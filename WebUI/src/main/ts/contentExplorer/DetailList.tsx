@@ -327,6 +327,11 @@ export interface DetailListProps {
   selectedItemIds?: ReadonlySet<string>;
   /** Fires when the user toggles a row's checkbox. */
   onToggleSelectItem?: (item: PSPathItem, next: boolean) => void;
+  /**
+   * Item ids approved onto the incremental queue. The badge is shown only
+   * after the server accepts the approve call (#5056).
+   */
+  approvedIncrementalIds?: ReadonlySet<string>;
 }
 
 export function DetailList({
@@ -339,6 +344,7 @@ export function DetailList({
   onItemContextMenu,
   selectedItemIds,
   onToggleSelectItem,
+  approvedIncrementalIds,
 }: DetailListProps): React.ReactElement {
   const [page, setPage] = useState(0);
   const [data, setData] = useState<PSPagedResult | null>(null);
@@ -540,6 +546,10 @@ export function DetailList({
             const folderOpen = folderish && selected;
             const itemName =
               explorerSiteDisplayName(item) || item.name || "";
+            const incrementalApproved =
+              approvedIncrementalIds?.has(idKey) === true ||
+              (item.id != null &&
+                approvedIncrementalIds?.has(String(item.id)) === true);
             const scheduleOnRow = rowScheduleDates(item);
             const scheduleLabel = [scheduleOnRow.startDate, scheduleOnRow.endDate]
               .filter((part) => part.length > 0)
@@ -555,6 +565,9 @@ export function DetailList({
                 data-schedule-end={scheduleOnRow.endDate || undefined}
                 data-item-type={item.type ?? ""}
                 data-previewable={isPreviewableItem(item) ? "true" : "false"}
+                data-incremental-approved={
+                  incrementalApproved ? "true" : undefined
+                }
                 data-selected={selected ? "true" : undefined}
                 data-checked={isChecked ? "true" : undefined}
                 data-finder-mime={
@@ -649,6 +662,14 @@ export function DetailList({
                     title={renderDisplayFormatCell(c, item)}
                   >
                     {renderDisplayFormatCell(c, item)}
+                    {c === "name" && incrementalApproved ? (
+                      <span
+                        data-testid={`detail-incremental-approved-${idKey}`}
+                      >
+                        {" "}
+                        Approved
+                      </span>
+                    ) : null}
                     {c === "name" && scheduleLabel ? (
                       <span data-testid={`detail-schedule-dates-${idKey}`}>
                         {" "}
