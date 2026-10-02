@@ -25,7 +25,7 @@
  * <p>Coverage:</p>
  * <ul>
  *   <li>REST: Sites or Assets parent exists on H2 (no skip)</li>
- *   <li>UI: ReducedActions Rename → pathmanagement renameFolder HTTP 200</li>
+ *   <li>UI: ReducedActions Rename opens a dialog. Cancel and a blank name do not POST. Confirm → pathmanagement renameFolder HTTP 200</li>
  *   <li>UI: new name appears in detail-list (and tree when expanded)</li>
  *   <li>Must not POST content-explorer/folders (flag off)</li>
  * </ul>
@@ -235,9 +235,31 @@ test.describe("Explorer Rename folder on product route (#3645 / #3102)", () => {
           `Rename must be enabled for ${liveFolder.name} on the product route`,
         ).toBeEnabled();
 
-        page.once("dialog", async (dialog) => {
-          await dialog.accept(newName);
+        let renamePosts = 0;
+        page.on("request", (req) => {
+          if (
+            req.method() !== "OPTIONS" &&
+            isPathmanagementRenameFolderUrl(req.url())
+          ) {
+            renamePosts += 1;
+          }
         });
+
+        await renameBtn.click();
+        const nameInput = page.getByTestId("folder-rename-name");
+        await expect(nameInput).toBeVisible({ timeout: 10_000 });
+        await nameInput.fill("   ");
+        await page.getByTestId("folder-rename-submit").click();
+        await expect(page.getByTestId("folder-rename-error")).toBeVisible();
+        expect(renamePosts, "blank folder rename must not POST").toBe(0);
+        await page.getByTestId("folder-rename-cancel").click();
+        await expect(page.getByTestId("explorer-folder-rename")).toHaveCount(0);
+        await expect(seedRow).toBeVisible();
+        expect(renamePosts, "cancel must not POST").toBe(0);
+
+        await renameBtn.click();
+        await expect(page.getByTestId("folder-rename-name")).toBeVisible();
+        await page.getByTestId("folder-rename-name").fill(newName);
 
         const renameRespPromise = page.waitForResponse(
           (res) =>
@@ -246,7 +268,7 @@ test.describe("Explorer Rename folder on product route (#3645 / #3102)", () => {
           { timeout: 30_000 },
         );
 
-        await renameBtn.click();
+        await page.getByTestId("folder-rename-submit").click();
         const renameResp = await renameRespPromise;
         expect(
           isRenameFolderSuccessStatus(renameResp.status()),

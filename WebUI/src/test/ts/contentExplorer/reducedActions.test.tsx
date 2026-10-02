@@ -308,24 +308,97 @@ describe("ReducedActions", () => {
     expect(calls.onPurge).toHaveLength(0);
   });
 
-  it("fires onRename when the user enters a new name via the prompt helper (#3645)", async () => {
+  it("renames a selected folder only after confirm (#5038)", async () => {
     const { handlers, calls } = makeHandlers();
-    handlers.prompt = () => "Renamed";
     render(
       <ReducedActions
-        item={FOLDER}
-        folder={FOLDER}
+        item={{ ...FOLDER, path: "/Assets/Foo" }}
+        folder={{ ...FOLDER, path: "/Assets" }}
+        handlers={handlers}
+        siblingFolderNames={["Foo", "Taken"]}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-rename"));
+    expect(screen.getByTestId("explorer-folder-rename")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("folder-rename-cancel"));
+    expect(calls.onRename).toHaveLength(0);
+    expect(screen.queryByTestId("explorer-folder-rename")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("action-rename"));
+    fireEvent.change(screen.getByTestId("folder-rename-name"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("folder-rename-submit"));
+    expect(calls.onRename).toHaveLength(0);
+    expect(screen.getByTestId("folder-rename-error")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByTestId("folder-rename-name"), {
+      target: { value: "taken" },
+    });
+    fireEvent.click(screen.getByTestId("folder-rename-submit"));
+    expect(calls.onRename).toHaveLength(0);
+
+    fireEvent.change(screen.getByTestId("folder-rename-name"), {
+      target: { value: "Renamed" },
+    });
+    fireEvent.click(screen.getByTestId("folder-rename-submit"));
+    await waitFor(() => expect(calls.onRename).toHaveLength(1));
+    expect(calls.onRename[0]).toMatchObject({
+      item: { path: "/Assets/Foo", name: "Foo" },
+      newName: "Renamed",
+    });
+  });
+
+  it("does not rename a site root with folder rename (#5038)", () => {
+    const { handlers, calls } = makeHandlers();
+    const errors: string[] = [];
+    const site: PSPathItem = {
+      id: "s-1",
+      path: "/Sites/Demo",
+      name: "Demo",
+      type: "site",
+      accessLevel: "ADMIN",
+    };
+    render(
+      <ReducedActions
+        item={site}
+        folder={null}
+        handlers={handlers}
+        onError={(m) => errors.push(m)}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-rename"));
+    expect(calls.onRename).toHaveLength(0);
+    expect(screen.queryByTestId("explorer-folder-rename")).not.toBeInTheDocument();
+    expect(errors.join(" ")).toMatch(/Rename Site/i);
+  });
+
+  it("keeps the folder rename dialog open on HTTP 409 (#5038)", async () => {
+    const { handlers, calls } = makeHandlers();
+    const folder = { ...FOLDER, path: "/Assets/Foo" };
+    handlers.onRename = async () => {
+      calls.onRename.push({ item: folder, newName: "Clash" });
+      throw { status: 409, statusText: "Conflict", body: null };
+    };
+    render(
+      <ReducedActions
+        item={folder}
+        folder={folder}
         handlers={handlers}
         onError={() => undefined}
       />,
     );
-    expect(screen.getByTestId("action-rename")).toBeEnabled();
     fireEvent.click(screen.getByTestId("action-rename"));
-    await waitFor(() => expect(calls.onRename).toHaveLength(1));
-    expect(calls.onRename[0]).toMatchObject({
-      item: FOLDER,
-      newName: "Renamed",
+    fireEvent.change(screen.getByTestId("folder-rename-name"), {
+      target: { value: "Clash" },
     });
+    fireEvent.click(screen.getByTestId("folder-rename-submit"));
+    await waitFor(() =>
+      expect(screen.getByTestId("folder-rename-error")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("explorer-folder-rename")).toBeInTheDocument();
+    expect(calls.onRename).toHaveLength(1);
   });
 
   it("fires onCreateFolder when the user enters a name via the prompt helper", async () => {

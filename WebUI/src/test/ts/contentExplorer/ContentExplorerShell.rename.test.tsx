@@ -42,7 +42,7 @@ function renderShell(ui: ReactElement) {
 
 const OLD_FOLDER = {
   id: "f-3645",
-  path: "/Sites/OldFolder",
+  path: "/Sites/Demo/OldFolder",
   name: "OldFolder",
   type: "folder",
   accessLevel: "WRITE" as const,
@@ -50,7 +50,7 @@ const OLD_FOLDER = {
 
 const RENAMED_FOLDER = {
   ...OLD_FOLDER,
-  path: "/Sites/qa3645",
+  path: "/Sites/Demo/qa3645",
   name: "qa3645",
 };
 
@@ -90,14 +90,11 @@ describe("ContentExplorerShell rename folder (#3645)", {
 
     const { container } = renderShell(
       <ContentExplorerShell
-        initialPath="/Sites"
+        initialPath="/Sites/Demo"
         loadDisplayFormats={async () => []}
         loadMenuActions={async () => []}
         loadWorkflowMenuActions={async () => null}
         listViews={async () => []}
-        actionHandlers={{
-          prompt: () => "qa3645",
-        }}
       />,
     );
 
@@ -116,6 +113,10 @@ describe("ContentExplorerShell rename folder (#3645)", {
     );
     expect(renameBtn).toBeEnabled();
     fireEvent.click(renameBtn);
+    fireEvent.change(screen.getByTestId("folder-rename-name"), {
+      target: { value: "qa3645" },
+    });
+    fireEvent.click(screen.getByTestId("folder-rename-submit"));
 
     await waitFor(
       () => {
@@ -128,7 +129,7 @@ describe("ContentExplorerShell rename folder (#3645)", {
     expect(renamed).toBe(true);
     await waitFor(
       () => {
-        expect(screen.getByTestId("tree-node-/Sites/qa3645")).toBeInTheDocument();
+        expect(screen.getByTestId("tree-node-/Sites/Demo/qa3645")).toBeInTheDocument();
       },
       { timeout: 8_000 },
     );

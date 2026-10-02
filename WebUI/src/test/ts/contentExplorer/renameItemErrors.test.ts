@@ -21,6 +21,12 @@ import { EXPLORER_MSG } from "../../../main/ts/contentExplorer/messages";
 import { message } from "../../../main/ts/i18n/message";
 
 describe("formatRenameItemError (#4636)", () => {
+  it("maps HTTP 400 to an invalid name (#5038)", () => {
+    expect(
+      formatRenameItemError({ status: 400, statusText: "Bad Request", body: {} }),
+    ).toBe(message(EXPLORER_MSG.ACTION_RENAME_INVALID));
+  });
+
   it("maps HTTP 403 to permission denied", () => {
     expect(
       formatRenameItemError({ status: 403, statusText: "Forbidden", body: {} }),

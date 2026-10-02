@@ -90,6 +90,18 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@The selected item was not found",
   ACTION_RENAME_CONFLICT:
     "perc.ui.explorer@Could not rename the item (name in use, locked, or not an item)",
+  ACTION_RENAME_INVALID: "perc.ui.explorer@That name is not valid",
+  FOLDER_RENAME_TITLE: "perc.ui.explorer@Rename folder",
+  FOLDER_RENAME_NAME: "perc.ui.explorer@New folder name",
+  FOLDER_RENAME_SUBMIT: "perc.ui.explorer@Rename",
+  FOLDER_RENAME_CANCEL: "perc.ui.explorer@Cancel",
+  FOLDER_RENAME_BLANK: "perc.ui.explorer@Enter a folder name",
+  FOLDER_RENAME_INVALID:
+    "perc.ui.explorer@Enter a folder name without path separators",
+  FOLDER_RENAME_COLLISION:
+    "perc.ui.explorer@A folder with that name is already in this folder",
+  FOLDER_RENAME_USE_SITE:
+    "perc.ui.explorer@Use Rename Site to rename a site. Folder Rename does not rename sites.",
   ACTION_MOVE: "perc.ui.explorer@Move",
   MOVE_DEST_TITLE: "perc.ui.explorer@Move to folder",
   MOVE_DEST_LABEL: "perc.ui.explorer@Destination folder path",
