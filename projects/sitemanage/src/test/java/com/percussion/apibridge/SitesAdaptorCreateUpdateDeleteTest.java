@@ -19,6 +19,7 @@ package com.percussion.apibridge;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -265,6 +266,41 @@ class SitesAdaptorCreateUpdateDeleteTest {
 
     assertFalse(existing.isCanonicalReplace());
     assertFalse(out.isCanonicalReplace());
+    verify(siteManager).saveSite(existing);
+  }
+
+  @Test
+  void update_omittedPageBased_leavesStoredValue() throws PSNotFoundException {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setPageBased(true);
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+
+    Site req = body("NightlySite", "new desc", null);
+    Site out = adaptor.updateSite("NightlySite", req);
+
+    assertTrue(existing.isPageBased());
+    assertFalse(req.isPageBasedSiteSpecified());
+    assertTrue(out.isPageBasedSite());
+  }
+
+  @Test
+  void update_pageBased_persistsBoolean() throws PSNotFoundException {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setPageBased(true);
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+
+    Site req = body("NightlySite", null, null);
+    req.setPageBasedSite(false);
+    Site out = adaptor.updateSite("NightlySite", req);
+
+    assertFalse(existing.isPageBased());
+    assertFalse(out.isPageBasedSite());
     verify(siteManager).saveSite(existing);
   }
 

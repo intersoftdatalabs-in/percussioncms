@@ -79,6 +79,13 @@ public class Site {
   private transient boolean canonicalReplaceSpecified;
 
   private boolean pageBasedSite = false;
+
+  /**
+   * True only when {@link #setPageBasedSite(boolean)} ran. The field initializer is {@code false},
+   * so an omitted JSON property must not be treated as an explicit write (partial site PUT).
+   */
+  private transient boolean pageBasedSiteSpecified;
+
   private Guid guid;
 
   /**
@@ -257,6 +264,14 @@ public class Site {
 
   public void setPageBasedSite(boolean pageBasedSite) {
     this.pageBasedSite = pageBasedSite;
+    this.pageBasedSiteSpecified = true;
+  }
+
+  /** Whether the client included {@code pageBasedSite} (setter), not the Java default. */
+  @JsonIgnore
+  @XmlTransient
+  public boolean isPageBasedSiteSpecified() {
+    return pageBasedSiteSpecified;
   }
 
   public Guid getGuid() {

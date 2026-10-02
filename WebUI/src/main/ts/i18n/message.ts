@@ -343,6 +343,17 @@ export const MSG = {
     "perc.ui.publish.modern@The site canonical URL replace setting conflicts with another change",
   PUBLISH_SITE_CANONICAL_REPLACE_ERROR:
     "perc.ui.publish.modern@Could not save the site canonical URL replace setting",
+  PUBLISH_SITE_PAGE_BASED: "perc.ui.publish.modern@Page-based",
+  PUBLISH_EDIT_SITE_PAGE_BASED: "perc.ui.publish.modern@Edit page-based",
+  PUBLISH_SITE_PAGE_BASED_SAVED: "perc.ui.publish.modern@Site page-based setting saved",
+  PUBLISH_SITE_PAGE_BASED_BAD:
+    "perc.ui.publish.modern@The site page-based setting was not accepted",
+  PUBLISH_SITE_PAGE_BASED_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to edit the site page-based setting",
+  PUBLISH_SITE_PAGE_BASED_CONFLICT:
+    "perc.ui.publish.modern@The site page-based setting conflicts with another change",
+  PUBLISH_SITE_PAGE_BASED_ERROR:
+    "perc.ui.publish.modern@Could not save the site page-based setting",
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",

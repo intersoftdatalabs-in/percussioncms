@@ -45,6 +45,8 @@ export type SiteWriteBody = {
   canonicalDist?: string;
   /** When true, canonical URLs replace the rendered location. Omit to leave stored. */
   canonicalReplace?: boolean;
+  /** When true, the site is page-based. Omit to leave the stored flag unchanged. */
+  pageBasedSite?: boolean;
   /** Existing workflow name. Omit to leave the site-folder association unchanged. */
   workflowName?: string;
   /**
