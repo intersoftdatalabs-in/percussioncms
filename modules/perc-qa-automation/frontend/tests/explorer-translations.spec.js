@@ -777,4 +777,145 @@ test.describe("modern React Content Explorer — translations (P-Trans #2430)", 
       ).toEqual([]);
     },
   );
+
+  test(
+    "open an existing translation variant after confirm (#5037)",
+    { tag: ["@explorer-translations", "@p-trans"] },
+    async ({ page, request }) => {
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+
+      const shell = page.locator('[data-testid="content-explorer-shell"]');
+      await expect(shell).toBeVisible({ timeout: 15_000 });
+      const listed = await findGuidListedItemViaRest(request);
+      expect(listed, "H2 QA must list a content item").toBeTruthy();
+      const restGuid = guidFromPathItem(listed);
+      expect(restGuid).toMatch(/^\d+-\d+-\d+$/);
+      const itemPath = resolveExplorerListPath(listed) || listed.path || "";
+      await openCmsFolderWalk(page, parentFolderCmsPath(itemPath));
+      const list = page.locator('[data-testid="detail-list"]');
+      let row = list.locator(
+        `[data-testid="detail-row-${restGuid}"], [data-item-id="${restGuid}"]`,
+      );
+      if ((await row.count()) === 0) {
+        await openFolderByName(page, "Corporate Investments");
+        await openFolderByName(page, "Pages");
+        row = list.locator(
+          `[data-testid="detail-row-${restGuid}"], [data-item-id="${restGuid}"]`,
+        );
+      }
+      if ((await row.count()) === 0) {
+        const anyGuid = await guidIdFromItemRows(page);
+        expect(anyGuid, "list must show a GUID content row").toMatch(
+          /^\d+-\d+-\d+$/,
+        );
+        row = list.locator(`[data-testid="detail-row-${anyGuid}"]`);
+        await selectGuidRow(row.first(), anyGuid, page);
+      } else {
+        await selectGuidRow(row.first(), restGuid, page);
+      }
+
+      const numericId = Number(String(restGuid).split("-").pop());
+      expect(numericId).toBeGreaterThan(0);
+      await page.route("**/rest/content-explorer/translations/**", async (route) => {
+        if (route.request().method() !== "GET") {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            itemId: numericId,
+            locale: "en-us",
+            variants: [
+              {
+                contentId: numericId,
+                locale: "fr-fr",
+                role: "translation",
+                revision: 1,
+              },
+            ],
+          }),
+        });
+      });
+
+      await page.locator('[data-testid="explorer-menu-view"]').click();
+      await page.locator('[data-testid="explorer-toggle-translations"]').click();
+
+      const panel = page.locator('[data-testid="translations-panel"]');
+      await expect(panel).toBeVisible({ timeout: 15_000 });
+      await expect(panel).toHaveAttribute("data-testid-state", "ok", {
+        timeout: 20_000,
+      });
+
+      const openBtn = page.locator(
+        `[data-testid="translations-open-variant-${numericId}"]`,
+      );
+      await expect(openBtn).toBeVisible();
+
+      await openBtn.first().click();
+      await expect(
+        page.locator('[data-testid="explorer-open-variant-confirm"]'),
+      ).toBeVisible();
+      await page.locator('[data-testid="explorer-open-variant-cancel"]').click();
+      await expect(
+        page.locator('[data-testid="explorer-open-variant-confirm"]'),
+      ).toHaveCount(0);
+      await expect(
+        page.locator('[data-testid="explorer-open-variant-status"]'),
+      ).toHaveCount(0);
+
+      await page.route("**/itemmanagement/item/fields/**", async (route) => {
+        await route.fulfill({
+          status: 404,
+          contentType: "text/plain",
+          body: "missing",
+        });
+      });
+      await openBtn.first().click();
+      await page.locator('[data-testid="explorer-open-variant-ok"]').click();
+      await expect(
+        page.locator('[data-testid="explorer-open-variant-error"]'),
+      ).toContainText(/HTTP 404/);
+      await expect(
+        page.locator('[data-testid="explorer-open-variant-status"]'),
+      ).toHaveCount(0);
+      await page.unroute("**/itemmanagement/item/fields/**");
+      await page.route("**/itemmanagement/item/fields/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemEditorFields: {
+              contentId: String(numericId),
+              contentType: "percPage",
+              name: "Home",
+              fields: [],
+            },
+          }),
+        });
+      });
+
+      const popupPromise = page.waitForEvent("popup", { timeout: 20_000 });
+      await openBtn.first().click();
+      await page.locator('[data-testid="explorer-open-variant-ok"]').click();
+      const outcome = page.locator(
+        '[data-testid="explorer-open-variant-status"], [data-testid="explorer-open-variant-error"]',
+      );
+      await expect(outcome).toBeVisible({ timeout: 20_000 });
+      const outcomeText = (await outcome.innerText()).trim();
+      expect(outcomeText, outcomeText).toMatch(/opened the translation variant/i);
+      const popup = await popupPromise;
+      await expect(popup).toHaveURL(/entry=editor|\/cm\/app\/editor\?/, {
+        timeout: 20_000,
+      });
+      await expect(popup).toHaveURL(new RegExp(`contentId=${numericId}`));
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+      await popup.close();
+    },
+  );
 });
