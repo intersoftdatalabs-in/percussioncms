@@ -1,33 +1,25 @@
 ## Summary
 
-Machine analysis found **1** finding(s), **1** bug(s). LLM skipped (hard_pattern)
+Machine analysis found **0** finding(s), **0** bug(s).
 
 ## Scope
 
 - Base: origin/main
 - Head: HEAD
-- Files: 9 analyzed
-- In-diff: 1 finding(s); preexisting: 0
+- Files: 10 analyzed
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
-request-changes
+approve
 
 ## Gate
 
-- Blocking bugs: 1
+- Blocking bugs: 0
 - May commit/push: yes
 
 ## Issues
 
-### Issue 1 -- Severity: bug
-
-- File: modules/perc-qa-automation/frontend/tests/explorer-set-workflow.spec.js:108 (in-diff)
-- Rule: `patterns.hard_gate`
-- Tool: `patterns`
-- Pattern-id: tests.empty-catch
-- Description: Empty catch block swallows failures (line 108)
-- Status: open
+_No issues._
 

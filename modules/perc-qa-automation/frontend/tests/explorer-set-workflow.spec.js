@@ -101,11 +101,10 @@ async function selectFirstContentItem(page) {
     }
     await root.first().click();
     await listReady(page);
-    await page
-      .locator('[data-testid="detail-list"] tbody tr')
-      .first()
-      .waitFor({ timeout: 20_000 })
-      .catch(() => {});
+    const firstRow = page.locator('[data-testid="detail-list"] tbody tr').first();
+    if ((await firstRow.count()) > 0) {
+      await firstRow.waitFor({ timeout: 20_000 });
+    }
     for (let depth = 0; depth < 6; depth += 1) {
       const itemRow = page.locator(
         '[data-testid="detail-list"] tbody tr[data-testid^="detail-row-"][data-row-kind="item"]:not([aria-disabled="true"])',
