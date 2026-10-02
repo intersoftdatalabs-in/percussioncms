@@ -23,10 +23,10 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("../helpers/auth");
+const { loginAsAdmin, BASE_URL, adminBasicAuthHeaders } = require("../helpers/auth");
 
-function workflowNames(payload) {
-  const rows = [];
+function siteNames(payload) {
+  const names = [];
   const visit = (node) => {
     if (!node) {
       return;
@@ -38,36 +38,14 @@ function workflowNames(payload) {
     if (typeof node !== "object") {
       return;
     }
-    if (typeof node.workflowName === "string" && node.workflowName.trim()) {
-      rows.push(node.workflowName.trim());
-    }
-    Object.values(node).forEach(visit);
-  };
-  visit(payload);
-  return [...new Set(rows)];
-}
-
-function siteRows(payload) {
-  const rows = [];
-  const visit = (node) => {
-    if (!node) {
-      return;
-    }
-    if (Array.isArray(node)) {
-      node.forEach(visit);
-      return;
-    }
-    if (typeof node !== "object") {
-      return;
-    }
-    if (typeof node.name === "string" && (node.folderRoot || node.workflowName || node.baseUrl)) {
-      rows.push(node);
+    if (typeof node.name === "string" && node.name.trim() && (node.baseUrl || node.guid)) {
+      names.push(node.name.trim());
       return;
     }
     Object.values(node).forEach(visit);
   };
   visit(payload);
-  return rows;
+  return [...new Set(names)];
 }
 
 test.describe("PublishingShell set the open site default workflow", () => {
@@ -95,28 +73,39 @@ test.describe("PublishingShell set the open site default workflow", () => {
       jsErrors.push(text);
     });
 
-    const wfRes = await page.request.get(
-      `${BASE_URL}/Rhythmyx/services/workflowmanagement/workflows/metadata`,
-    );
-    expect(wfRes.ok(), `workflow catalog HTTP ${wfRes.status()}`).toBeTruthy();
-    const catalog = workflowNames(await wfRes.json());
-    expect(catalog.length, "H2 workflow catalog").toBeGreaterThan(0);
+    const headers = {
+      ...adminBasicAuthHeaders(),
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    };
+    const next = `NightWf${Date.now().toString().slice(-6)}`;
+    const createdWf = await page.request.post(`${BASE_URL}/Rhythmyx/services/workflows`, {
+      headers,
+      data: { WorkflowCreate: { name: next, description: "Publishing shell slice 5061" } },
+    });
+    expect(createdWf.status(), await createdWf.text()).toBe(200);
 
-    const sitesRes = await page.request.get(`${BASE_URL}/Rhythmyx/services/sites`);
+    const sitesRes = await page.request.get(`${BASE_URL}/Rhythmyx/services/sites`, {
+      headers,
+    });
     expect(sitesRes.ok(), `sites HTTP ${sitesRes.status()}`).toBeTruthy();
-    const sites = siteRows(await sitesRes.json()).filter(
-      (site) => typeof site.folderRoot === "string" && site.folderRoot.trim(),
-    );
-    const target = sites.find((site) =>
-      catalog.some(
-        (name) => name.toLowerCase() !== String(site.workflowName || "").trim().toLowerCase(),
-      ),
-    );
-    expect(target, "sample site with a folder and an alternate workflow").toBeTruthy();
-    const siteName = target.name;
-    const next = catalog.find(
-      (name) => name.toLowerCase() !== String(target.workflowName || "").trim().toLowerCase(),
-    );
+    let siteName = "";
+    for (const name of siteNames(await sitesRes.json())) {
+      const detail = await page.request.get(
+        `${BASE_URL}/Rhythmyx/services/sites/${encodeURIComponent(name)}`,
+        { headers },
+      );
+      if (!detail.ok()) {
+        continue;
+      }
+      const body = await detail.json();
+      const site = body.Site || body.site || body;
+      if (typeof site.folderRoot === "string" && site.folderRoot.trim()) {
+        siteName = name;
+        break;
+      }
+    }
+    expect(siteName, "sample site with a folder root").toBeTruthy();
 
     let putCalls = 0;
     page.on("request", (req) => {
