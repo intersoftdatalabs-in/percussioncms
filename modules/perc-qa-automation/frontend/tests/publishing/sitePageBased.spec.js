@@ -69,7 +69,7 @@ test.describe("PublishingShell set the open site page-based flag", () => {
       timeout: 30000,
     });
     const shown = page.getByTestId("publish-site-page-based");
-    await expect(shown).toBeVisible();
+    await expect(shown).toHaveText(/^(yes|no)$/);
     const before = ((await shown.textContent()) || "").trim().toLowerCase();
 
     const putsBeforeCancel = putCalls;
