@@ -873,6 +873,22 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@You are not allowed to approve this item (HTTP 403)",
   ACTION_APPROVE_INCREMENTAL_CONFLICT:
     "perc.ui.explorer@This item could not be approved onto the incremental queue (HTTP 409)",
+  CONFIRM_UNAPPROVE_INCREMENTAL:
+    "perc.ui.explorer@Unapprove this page or asset on the incremental publish queue?",
+  ACTION_UNAPPROVE_INCREMENTAL_OK:
+    "perc.ui.explorer@Unapproved on the incremental queue",
+  ACTION_UNAPPROVE_INCREMENTAL_EMPTY:
+    "perc.ui.explorer@Select a page or asset before unapproving it on the incremental queue",
+  ACTION_UNAPPROVE_INCREMENTAL_FOLDER:
+    "perc.ui.explorer@Folders are not unapproved on the incremental queue",
+  ACTION_UNAPPROVE_INCREMENTAL_NOT_ITEM:
+    "perc.ui.explorer@Only a page or asset on the incremental queue can be unapproved",
+  ACTION_UNAPPROVE_INCREMENTAL_REJECTED:
+    "perc.ui.explorer@Could not unapprove this item on the incremental queue (HTTP 400)",
+  ACTION_UNAPPROVE_INCREMENTAL_FORBIDDEN:
+    "perc.ui.explorer@You are not allowed to unapprove this item (HTTP 403)",
+  ACTION_UNAPPROVE_INCREMENTAL_CONFLICT:
+    "perc.ui.explorer@This item could not be unapproved on the incremental queue (HTTP 409)",
   CONFIRM_NEW_COPY:
     "perc.ui.explorer@Create a new copy of this item in the same folder?",
   CONFIRM_PROMOTABLE:

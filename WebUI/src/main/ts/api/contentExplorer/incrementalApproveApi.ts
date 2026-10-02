@@ -37,3 +37,19 @@ export async function approveSelectedItemToIncrementalQueue(
   }
   await post(explorerIncrementalApproveUrl(id));
 }
+
+/** Explorer unapprove of one queued page or asset (#5057). */
+export function explorerIncrementalUnapproveUrl(contentId: string): string {
+  const id = String(contentId ?? "").trim();
+  return `${SERVICES_ROOT}/sitemanage/publish/incremental/explorer/${encodeURIComponent(id)}/unapprove`;
+}
+
+export async function unapproveSelectedItemOnIncrementalQueue(
+  contentId: string,
+): Promise<void> {
+  const id = String(contentId ?? "").trim();
+  if (!id) {
+    throw new Error("unapproveSelectedItemOnIncrementalQueue requires contentId");
+  }
+  await post(explorerIncrementalUnapproveUrl(id));
+}

@@ -3222,4 +3222,68 @@ describe("actionDispatch", () => {
       expect(result.messageKey).toBeTruthy();
     }
   });
+
+  it("names an empty selection and does not unapprove on the incremental queue", async () => {
+    const unapproveIncremental = vi.fn();
+    const result = await dispatchAction(action({ name: "unapprove_incremental" }), {
+      item: null,
+      unapproveIncremental,
+    });
+    expect(result.messageText).toMatch(/select a page or asset/i);
+    expect(result.unapprovedItemId).toBeUndefined();
+    expect(result.outcome).toBeUndefined();
+    expect(unapproveIncremental).not.toHaveBeenCalled();
+  });
+
+  it("names a folder and does not unapprove on the incremental queue", async () => {
+    const unapproveIncremental = vi.fn();
+    const result = await dispatchAction(action({ name: "unapprove_incremental" }), {
+      item: item({ name: "Pages", type: "folder", category: "folder" }),
+      unapproveIncremental,
+    });
+    expect(result.messageText).toMatch(/folders are not unapproved/i);
+    expect(result.messageText).toContain("Pages");
+    expect(unapproveIncremental).not.toHaveBeenCalled();
+  });
+
+  it("does not call unapprove when confirm is cancelled", async () => {
+    const unapproveIncremental = vi.fn();
+    const result = await dispatchAction(action({ name: "unapprove_incremental" }), {
+      item: item(),
+      confirm: () => false,
+      unapproveIncremental,
+    });
+    expect(result.outcome).toBeUndefined();
+    expect(result.unapprovedItemId).toBeUndefined();
+    expect(unapproveIncremental).not.toHaveBeenCalled();
+  });
+
+  it("clears the approved mark only after the server accepts unapprove", async () => {
+    const unapproveIncremental = vi.fn(async () => undefined);
+    const result = await dispatchAction(action({ name: "unapprove_incremental" }), {
+      item: item({ id: "42" }),
+      confirm: () => true,
+      unapproveIncremental,
+    });
+    expect(unapproveIncremental).toHaveBeenCalledWith("42");
+    expect(result.outcome).toBe("success");
+    expect(result.unapprovedItemId).toBe("42");
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_OK);
+  });
+
+  it("does not mark unapprove success for HTTP 400, 403, or 409", async () => {
+    for (const status of [400, 403, 409]) {
+      const unapproveIncremental = vi.fn(async () => {
+        throw { status, statusText: "no", body: "" };
+      });
+      const result = await dispatchAction(action({ name: "unapprove_incremental" }), {
+        item: item(),
+        confirm: () => true,
+        unapproveIncremental,
+      });
+      expect(result.outcome).toBeUndefined();
+      expect(result.unapprovedItemId).toBeUndefined();
+      expect(result.messageKey).toBeTruthy();
+    }
+  });
 });

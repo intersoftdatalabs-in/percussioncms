@@ -1502,6 +1502,14 @@ function ContentExplorerShellInner({
                 return next;
               });
             }
+            if (result.unapprovedItemId) {
+              const unapprovedId = result.unapprovedItemId;
+              setApprovedIncrementalIds((prev) => {
+                const next = new Set(prev);
+                next.delete(unapprovedId);
+                return next;
+              });
+            }
             setError(null);
             setActionInvokeError(null);
           } else if (result.messageText || result.messageKey) {
