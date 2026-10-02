@@ -22,7 +22,8 @@ COMMUNITY ACL entries stay on object detail panels (for example content types).
    `spa.jsp?entry=developer&section=communities`.
 3. Click **New community**. Enter a **name** (required, unique,
    case-insensitive). Spaces are allowed. Create stays disabled until the
-   name is non-blank after trim.
+   name is non-blank after trim. **Cancel** returns to the catalog and does
+   not call the server; the typed name is not added.
 4. Click **Create community**. A duplicate name is **409** and the editor
    shows that the community already exists. A blank name is **400**. A
    non-Admin session is **403**. After a successful create, the catalog
