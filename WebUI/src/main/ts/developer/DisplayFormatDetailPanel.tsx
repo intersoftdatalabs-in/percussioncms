@@ -55,6 +55,7 @@ import {
   isPackagedDisplayFormat,
   isSysTitleColumn,
   isValidColumnSource,
+  SYS_TITLE_SOURCE,
   moveDisplayFormatColumn,
   reindexColumns,
   removeDisplayFormatColumn,
@@ -176,6 +177,16 @@ export function DisplayFormatDetailPanel({
     };
   }, [idOrName]);
 
+  useEffect(() => {
+    if (idOrName != null) {
+      return;
+    }
+    const seeded = addDisplayFormatColumn([], SYS_TITLE_SOURCE);
+    setDraftColumns(seeded);
+    setSortSource(SYS_TITLE_SOURCE);
+    setAddSource(catalogFieldsNotInUse(seeded)[0]?.source || "");
+  }, [idOrName]);
+
   const loadedName = normalizeDisplayFormatName(detail?.name || detail?.internalName || idOrName || "");
   const loadedLabel = detail?.label || detail?.displayName || "";
   const loadedDescription = detail?.description || "";
@@ -184,7 +195,10 @@ export function DisplayFormatDetailPanel({
     normalizeDisplayFormatName(name) !== loadedName ||
     label !== loadedLabel ||
     description !== loadedDescription;
-  const canSave = !busy && dirty && isDisplayFormatWriteReady({ isNew, name });
+  const hasCreateColumn =
+    !isNew || draftColumns.some((c) => isValidColumnSource(c.source));
+  const canSave =
+    !busy && dirty && isDisplayFormatWriteReady({ isNew, name }) && hasCreateColumn;
   const writeKey = idOrName || createdKey || normalizeDisplayFormatName(name);
   const loadedColumns = useMemo(
     () => (detail != null ? reindexColumns(normalizeColumns(detail.columns)) : []),
@@ -241,13 +255,26 @@ export function DisplayFormatDetailPanel({
   }, [communityCatalog, loadedCommunityMap]);
 
   function writeBody(): DisplayFormatWriteBody {
-    return {
+    const body: DisplayFormatWriteBody = {
       name: isNew
         ? normalizeDisplayFormatName(name)
         : detail?.name || detail?.internalName || normalizeDisplayFormatName(name),
       label,
       description,
     };
+    if (isNew) {
+      const persistedColumns = reindexColumns(draftColumns);
+      const defaultSource = defaultSortSource(persistedColumns, sortSource);
+      const sortCol = persistedColumns.find(
+        (c) => columnSourceKey(c.source) === columnSourceKey(defaultSource),
+      );
+      const ascending = sortCol != null ? isColumnAscendingSort(sortCol) : true;
+      body.columns = persistedColumns;
+      body.sortedColumnNames = defaultSource || undefined;
+      body.ascendingSort = ascending;
+      body.descendingSort = !ascending;
+    }
+    return body;
   }
 
   function saveFallback(err: unknown): string {
@@ -342,7 +369,7 @@ export function DisplayFormatDetailPanel({
   }
 
   function handleAddColumn(): void {
-    if (packaged || busy || isNew || !isValidColumnSource(addSource)) {
+    if (packaged || busy || !isValidColumnSource(addSource)) {
       return;
     }
     const next = addDisplayFormatColumn(draftColumns, addSource);
@@ -352,7 +379,7 @@ export function DisplayFormatDetailPanel({
   }
 
   function handleRemoveColumn(index: number): void {
-    if (packaged || busy || isNew) {
+    if (packaged || busy) {
       return;
     }
     const next = removeDisplayFormatColumn(draftColumns, index);
@@ -361,14 +388,14 @@ export function DisplayFormatDetailPanel({
   }
 
   function handleSetDefaultSort(source: string): void {
-    if (packaged || busy || isNew || !isValidColumnSource(source)) {
+    if (packaged || busy || !isValidColumnSource(source)) {
       return;
     }
     setSortSource(source);
   }
 
   function handleSetSortDirection(source: string, ascending: boolean): void {
-    if (packaged || busy || isNew) {
+    if (packaged || busy) {
       return;
     }
     setDraftColumns(applyColumnSortDirection(draftColumns, source, ascending));
@@ -647,7 +674,7 @@ export function DisplayFormatDetailPanel({
             ) : null}
           </div>
 
-          {detail ? (
+          {isNew || detail ? (
             <>
               <section data-testid="developer-df-columns">
                 <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.DF_COLUMNS}</h3>
@@ -854,6 +881,7 @@ export function DisplayFormatDetailPanel({
                     >
                       {DEV_MSG.DF_COLUMNS_ADD}
                     </button>
+                    {!isNew ? (
                     <button
                       type="button"
                       data-testid="developer-df-columns-save"
@@ -871,10 +899,13 @@ export function DisplayFormatDetailPanel({
                     >
                       {busy ? DEV_MSG.DF_COLUMNS_SAVING : DEV_MSG.DF_COLUMNS_SAVE}
                     </button>
+                    ) : null}
                   </div>
                 ) : null}
               </section>
 
+              {detail ? (
+              <>
               <section style={{ marginTop: "16px" }} data-testid="developer-df-communities">
                 <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.DF_COMMUNITIES}</h3>
                 <p
@@ -953,6 +984,8 @@ export function DisplayFormatDetailPanel({
                 objectKind="display-format"
                 testIdPrefix="developer-df-acl"
               />
+              </>
+              ) : null}
             </>
           ) : null}
         </>

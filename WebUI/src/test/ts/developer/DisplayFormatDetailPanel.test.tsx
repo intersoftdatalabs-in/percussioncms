@@ -247,6 +247,46 @@ describe("DisplayFormatDetailPanel", () => {
     );
   });
 
+  it("cancel does not create", () => {
+    const onBack = vi.fn();
+    render(<DisplayFormatDetailPanel idOrName={null} onBack={onBack} />);
+    fireEvent.change(screen.getByTestId("developer-df-name"), {
+      target: { value: "GhostFmt" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-cancel"));
+    expect(onBack).toHaveBeenCalledTimes(1);
+    expect(createDisplayFormat).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-df-editor-notice")).toBeNull();
+  });
+
+  it("posts an added column with the create", async () => {
+    createDisplayFormat.mockResolvedValue({
+      name: "MyFmt",
+      label: "MyFmt",
+      columns: [
+        { source: "sys_title", displayName: "Content Title", position: 0 },
+        { source: "sys_workflow", displayName: "Workflow", position: 1 },
+      ],
+    });
+    render(<DisplayFormatDetailPanel idOrName={null} onBack={() => undefined} />);
+    expect(screen.getByTestId("developer-df-columns-table").textContent).toContain("sys_title");
+    expect(screen.queryByTestId("developer-df-columns-save")).toBeNull();
+    fireEvent.change(screen.getByTestId("developer-df-column-source"), {
+      target: { value: "sys_workflow" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-column-add"));
+    fireEvent.change(screen.getByTestId("developer-df-name"), {
+      target: { value: "MyFmt" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-save"));
+    await waitFor(() => {
+      expect(createDisplayFormat).toHaveBeenCalled();
+    });
+    const body = createDisplayFormat.mock.calls[0][0] as { columns: { source: string }[] };
+    expect(body.columns.map((c) => c.source)).toEqual(["sys_title", "sys_workflow"]);
+    expect(screen.getByTestId("developer-df-editor-notice").textContent).toBe(DEV_MSG.DF_SAVED);
+  });
+
   it("disables save until the name is valid on create", () => {
     render(<DisplayFormatDetailPanel idOrName={null} onBack={() => undefined} />);
     const save = screen.getByTestId("developer-df-save") as HTMLButtonElement;
@@ -343,6 +383,7 @@ describe("DisplayFormatDetailPanel", () => {
     expect(screen.getByTestId("developer-df-detail-error").textContent).toContain(
       "Admin role required",
     );
+    expect(screen.queryByTestId("developer-df-editor-notice")).toBeNull();
   });
 
   it("does not POST create twice when save is clicked twice", async () => {
@@ -400,6 +441,7 @@ describe("DisplayFormatDetailPanel", () => {
         name: "MyFmt",
         label: "My Format",
         description: "Created via SPA",
+        columns: [expect.objectContaining({ source: "sys_title" })],
       }),
     );
     expect(screen.getByTestId("developer-df-editor-notice").textContent).toBe(DEV_MSG.DF_SAVED);
