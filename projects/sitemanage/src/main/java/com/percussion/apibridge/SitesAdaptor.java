@@ -1362,11 +1362,16 @@ public class SitesAdaptor implements ISiteAdaptor {
     try {
       all = siteManager.findAllSites();
     } catch (RuntimeException e) {
-      log.debug("Could not list sites to check folder root: {}", e.getMessage());
-      return;
+      log.warn("Could not list sites to check folder root: {}", e.getMessage());
+      throw new WebApplicationException(
+          "Could not verify that the folder root is unique",
+          Response.Status.SERVICE_UNAVAILABLE);
     }
     if (all == null) {
-      return;
+      log.warn("Site list was null; refusing to save an unverified folder root");
+      throw new WebApplicationException(
+          "Could not verify that the folder root is unique",
+          Response.Status.SERVICE_UNAVAILABLE);
     }
     for (IPSSite other : all) {
       if (other == null || sameSite(found, other) || StringUtils.isBlank(other.getFolderRoot())) {

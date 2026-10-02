@@ -31,6 +31,7 @@ import com.percussion.rest.sites.Site;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.utils.guid.IPSGuid;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.fastforward.managednav.PSNavException;
@@ -383,6 +384,44 @@ class SitesAdaptorCreateUpdateDeleteTest {
     assertEquals(409, ex.getResponse().getStatus());
     assertEquals("//Sites/Nightly", existing.getFolderRoot());
     verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void update_folderRoot_whenSiteListFails_503() {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setFolderRoot("//Sites/Nightly");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.findAllSites()).thenThrow(new IllegalStateException("catalog down"));
+
+    Site req = body("NightlySite", null, null);
+    req.setFolderRoot("//Sites/Other");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.updateSite("NightlySite", req));
+    assertEquals(503, ex.getResponse().getStatus());
+    assertEquals("//Sites/Nightly", existing.getFolderRoot());
+    verify(siteManager, never()).saveSite(any());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+  }
+
+  @Test
+  void update_folderRoot_whenSiteListNull_503() {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setFolderRoot("//Sites/Nightly");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.findAllSites()).thenReturn(null);
+
+    Site req = body("NightlySite", null, null);
+    req.setFolderRoot("//Sites/Other");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.updateSite("NightlySite", req));
+    assertEquals(503, ex.getResponse().getStatus());
+    assertEquals("//Sites/Nightly", existing.getFolderRoot());
+    verify(siteManager, never()).saveSite(any());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
   }
 
   @Test
