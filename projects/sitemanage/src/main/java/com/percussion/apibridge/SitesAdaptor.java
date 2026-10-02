@@ -793,6 +793,7 @@ public class SitesAdaptor implements ISiteAdaptor {
     ret.setCanonical(site.isCanonical());
     ret.setCanonicalDist(site.getCanonicalDist());
     ret.setCanonicalReplace(site.isCanonicalReplace());
+    ret.setPageBasedSite(site.isPageBased());
     ret.setDefaultDocument(site.getDefaultDocument());
     ret.setSiteProtocol(site.getSiteProtocol());
     ret.setOverrideSystemFoundation(site.isOverrideSystemFoundation());
@@ -1298,6 +1299,9 @@ public class SitesAdaptor implements ISiteAdaptor {
     }
     if (request.isCanonicalReplaceSpecified()) {
       target.setCanonicalReplace(request.isCanonicalReplace());
+    }
+    if (request.isPageBasedSiteSpecified()) {
+      target.setPageBased(request.isPageBasedSite());
     }
   }
 
