@@ -19,12 +19,17 @@ package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,10 +43,12 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.assembly.IPSAssemblyDesignWs;
+import jakarta.ws.rs.WebApplicationException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -175,5 +182,121 @@ class SlotsAdaptorDesignWsTest {
     assertEquals("3", layoutCap.getValue().get(PSSlotLayoutStyles.KEY_COLUMNS));
     assertEquals("updated-root", stylesCap.getValue().get(PSSlotLayoutStyles.KEY_ROOTCLASS));
     verify(designWs).saveSlots(anyList(), eq(true), eq("test-session"), eq("test-user"));
+  }
+
+  @Test
+  void updateSlot_renamesUserSlotAndReloadsByNewName() throws Exception {
+    IPSAssemblyDesignWs designWs = mock(IPSAssemblyDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.SLOT, 21L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    when(sum.getName()).thenReturn("rffList");
+
+    AtomicReference<String> name = new AtomicReference<>("rffList");
+    IPSTemplateSlot slot = mock(IPSTemplateSlot.class);
+    when(slot.getName()).thenAnswer(inv -> name.get());
+    when(slot.getLabel()).thenReturn("List");
+    when(slot.getGUID()).thenReturn(guid);
+    when(slot.isSystemSlot()).thenReturn(false);
+    doAnswer(
+            inv -> {
+              name.set(inv.getArgument(0));
+              return null;
+            })
+        .when(slot)
+        .setName(anyString());
+
+    when(designWs.findSlots(eq("rffList"), isNull())).thenReturn(List.of(sum));
+    when(designWs.findSlots(eq("qaRenamed"), isNull())).thenReturn(List.of());
+    when(designWs.loadSlots(anyList(), eq(true), eq(false), any(), any())).thenReturn(List.of(slot));
+    when(designWs.loadSlots(anyList(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(slot));
+
+    SlotDetail body = new SlotDetail();
+    body.setName("qaRenamed");
+    SlotDetail updated = new SlotsAdaptor(designWs).updateSlot(null, "rffList", body);
+
+    assertNotNull(updated);
+    assertEquals("qaRenamed", updated.getName());
+    verify(slot).setName("qaRenamed");
+    verify(designWs).saveSlots(anyList(), eq(true), eq("test-session"), eq("test-user"));
+    verify(designWs, atLeastOnce()).findSlots(eq("qaRenamed"), isNull());
+  }
+
+  @Test
+  void updateSlot_rejectsSystemSlotRename() throws Exception {
+    IPSAssemblyDesignWs designWs = mock(IPSAssemblyDesignWs.class);
+    IPSTemplateSlot slot = userSlot(designWs, "sys_inline", true);
+    SlotDetail body = new SlotDetail();
+    body.setName("renamedSys");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> new SlotsAdaptor(designWs).updateSlot(null, "sys_inline", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(slot, never()).setName(anyString());
+    verify(designWs, never()).saveSlots(anyList(), eq(true), any(), any());
+  }
+
+  @Test
+  void updateSlot_rejectsBlankAndWildcardRename() throws Exception {
+    IPSAssemblyDesignWs designWs = mock(IPSAssemblyDesignWs.class);
+    userSlot(designWs, "rffList", false);
+    SlotsAdaptor adaptor = new SlotsAdaptor(designWs);
+    SlotDetail blank = new SlotDetail();
+    blank.setName("   ");
+    assertThrows(IllegalArgumentException.class, () -> adaptor.updateSlot(null, "rffList", blank));
+    SlotDetail wild = new SlotDetail();
+    wild.setName("qa*slot");
+    assertThrows(IllegalArgumentException.class, () -> adaptor.updateSlot(null, "rffList", wild));
+    verify(designWs, never()).saveSlots(anyList(), eq(true), any(), any());
+  }
+
+  @Test
+  void updateSlot_rejectsRenameCollision() throws Exception {
+    IPSAssemblyDesignWs designWs = mock(IPSAssemblyDesignWs.class);
+    userSlot(designWs, "rffList", false);
+    IPSCatalogSummary taken = mock(IPSCatalogSummary.class);
+    when(taken.getName()).thenReturn("takenSlot");
+    when(designWs.findSlots(eq("takenSlot"), isNull())).thenReturn(List.of(taken));
+    SlotDetail body = new SlotDetail();
+    body.setName("takenSlot");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> new SlotsAdaptor(designWs).updateSlot(null, "rffList", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(designWs, never()).saveSlots(anyList(), eq(true), any(), any());
+  }
+
+  @Test
+  void updateSlot_renameRequiresAdmin() throws Exception {
+    IPSAssemblyDesignWs designWs = mock(IPSAssemblyDesignWs.class);
+    userSlot(designWs, "rffList", false);
+    SlotDetail body = new SlotDetail();
+    body.setName("qaRenamed");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> new SlotsAdaptor(designWs, () -> false).updateSlot(null, "rffList", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(designWs, never()).saveSlots(anyList(), eq(true), any(), any());
+  }
+
+  private static IPSTemplateSlot userSlot(
+      IPSAssemblyDesignWs designWs, String slotName, boolean system) throws Exception {
+    IPSGuid guid = new PSGuid(PSTypeEnum.SLOT, 30L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    when(sum.getName()).thenReturn(slotName);
+    IPSTemplateSlot slot = mock(IPSTemplateSlot.class);
+    when(slot.getName()).thenReturn(slotName);
+    when(slot.getGUID()).thenReturn(guid);
+    when(slot.isSystemSlot()).thenReturn(system);
+    when(designWs.findSlots(eq(slotName), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadSlots(anyList(), eq(true), eq(false), any(), any())).thenReturn(List.of(slot));
+    when(designWs.loadSlots(anyList(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(slot));
+    return slot;
   }
 }

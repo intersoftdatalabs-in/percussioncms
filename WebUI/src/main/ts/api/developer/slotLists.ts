@@ -159,6 +159,7 @@ export type SlotUpdateBody = Partial<
     | "associations"
     | "slotLayout"
     | "slotStyles"
+    | "name"
     | "finderName"
     | "relationshipName"
     | "finderArguments"
@@ -251,6 +252,8 @@ export function slotAssociationsEqual(
 export function buildSlotUpdateBody(opts: {
   label: string;
   description: string;
+  /** When set and different from the loaded name, the PUT renames the slot. */
+  name?: string;
   associations: SlotAssociationSummary[];
   finderName: string;
   relationshipName: string;
@@ -261,6 +264,13 @@ export function buildSlotUpdateBody(opts: {
     label: opts.label.trim(),
     description: opts.description.trim(),
   };
+  if (opts.name != null) {
+    const nextName = opts.name.trim();
+    const initialName = (opts.initial.name || "").trim();
+    if (nextName !== initialName) {
+      body.name = nextName;
+    }
+  }
   const initialAssocs = normalizeSlotAssociations(opts.initial.associations);
   if (!slotAssociationsEqual(opts.associations, initialAssocs)) {
     body.associations = mapAssociationsForWire(opts.associations) ?? [];

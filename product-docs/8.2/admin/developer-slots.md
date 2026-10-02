@@ -1,7 +1,7 @@
 ---
 id: admin-developer-slots
 title: Developer Slots
-description: Create, delete, and edit assembly slot finder, relationship, arguments, and named content-type/template associations from Developer Slots chrome
+description: Create, rename, delete, and edit assembly slot finder, relationship, arguments, and named content-type/template associations from Developer Slots chrome
 version: "8.2"
 order: 44
 tags: [admin, developer, slots]
@@ -10,9 +10,11 @@ tags: [admin, developer, slots]
 # Developer Slots
 
 **Developer → Slots** lists assembly slot definitions (label, unique name, and
-description). Admins can **create** a slot and **delete** a non-system slot
-from this chrome. Label and description can still be saved on an existing slot
-without a design lock.
+description). Admins can **create** a slot, **rename** a non-system slot, and
+**delete** a non-system slot from this chrome. Label, description, and name
+can be saved on an existing user slot without a design lock. The catalog and
+the committed name show the new name only after a successful save. **Cancel**
+discards a typed name and does not call the server.
 
 After **Lock**, Admins can edit **finder**, **relationship**, **finder
 arguments**, and **content-type / template associations** (by **name** or GUID)
@@ -73,9 +75,23 @@ associations. Unlock releases the design session without saving.
    are omitted on a properties-only save so they are not wiped.
 5. Click **Unlock** when finished.
 
+## Product path — rename
+
+1. Open an existing **non-system** slot. The name field is editable. A
+   **system** slot name stays read-only.
+2. Type a new name (unique, no spaces, no `*` or `%` wildcards). The committed
+   name under the title stays the previous name until save succeeds.
+3. Click **Save slot**. The catalog row uses the new name when you return to
+   the list. A duplicate name is **409**. A blank, whitespace, or wildcard
+   name is **400** and is not saved. A system-slot rename is **409**. A
+   non-Admin session is **403**. None of those responses show **Slot saved**.
+4. Click **Cancel** (or **Back**) before save to keep the previous name. Cancel
+   does not send the rename.
+
 ## Limits
 
-- Name is immutable after create.
+- System slot names cannot be renamed. User slot names can, with the same
+  uniqueness rules as create.
 - Create does not write finder, relationship, finder arguments, or associations.
 - Finder and association writes require a lock you already hold. The save
   request does not acquire or steal the lock.

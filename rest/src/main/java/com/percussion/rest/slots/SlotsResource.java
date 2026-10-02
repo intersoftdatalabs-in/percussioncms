@@ -160,16 +160,18 @@ public class SlotsResource {
         @ApiResponse(
             responseCode = "400",
             description =
-                "Invalid input, finder extension, relationship type, or unknown association pair"),
+                "Invalid input, slot name, finder extension, relationship type, or unknown"
+                    + " association pair"),
         @ApiResponse(
             responseCode = "403",
-            description = "Admin role required for finder or association write"),
+            description =
+                "Admin role required to rename a slot or to write finder or associations"),
         @ApiResponse(responseCode = "404", description = "Slot not found"),
         @ApiResponse(
             responseCode = "409",
             description =
-                "Finder or association write requires a held lock; unlocked or locked by another"
-                    + " user"),
+                "Name already exists, system slot cannot be renamed, or finder/association write"
+                    + " requires a held lock"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public SlotDetail updateSlot(@PathParam("idOrName") String idOrName, SlotDetail body) {

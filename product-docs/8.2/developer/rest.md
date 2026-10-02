@@ -350,7 +350,7 @@ Assembly **slots** used by **Developer → Slots** are exposed under `/services/
 |--------|------|---------|
 | `GET` | `/services/slots` | List slot summaries (label, name, description) |
 | `GET` | `/services/slots/{idOrName}` | Design detail (finder, associations, `designGaps`) |
-| `PUT` | `/services/slots/{idOrName}` | Update label, description, layout/styles, and (Admin, held lock) associations / `finderName` / `relationshipName` / `finderArguments` |
+| `PUT` | `/services/slots/{idOrName}` | Update label, description, layout/styles; **Admin** rename via `name`; and (Admin, held lock) associations / `finderName` / `relationshipName` / `finderArguments` |
 | `POST` | `/services/slots/{idOrName}/lock` | **Admin.** Acquire a design-session lock (does not steal) |
 | `POST` | `/services/slots/{idOrName}/unlock` | **Admin.** Release a lock owned by the current user/session |
 | `POST` | `/services/slots` | **Admin.** Create a slot (`IPSAssemblyDesignWs.createSlots` then `saveSlots`) |
@@ -384,7 +384,15 @@ each side (guid wins when both are present). Unknown content-type or template is
 Unknown slot is **404**. Unlocked or locked-by-another-user is **409**. Non-Admin is
 **403**. Following GET round-trips names. Omit `associations` to leave the list unchanged.
 
-**Developer → Slots** catalog create and non-system delete use `POST /services/slots` and
+**Rename (user slots):** Admin `PUT /services/slots/{idOrName}` with a different `name`
+renames the slot. The response and a following `GET /services/slots/{newName}` use the
+new name. Omit `name`, or send the current name, to leave it unchanged. Blank, whitespace,
+or wildcard (`*` / `%`) names are **400**. A name that already exists is **409**. System
+slots cannot be renamed (**409**). Non-Admin is **403**. Rename does not require a design
+lock and does not show success when the PUT fails. **Developer → Slots** shows the new
+name only after that PUT succeeds; **Cancel** does not call the server.
+
+**Developer → Slots** catalog create, rename, and non-system delete use `POST`, `PUT`, and
 `DELETE /services/slots/{idOrName}`. Finder / relationship / arguments and named
 associations are editable on slot detail after **Lock** — see [Developer Slots](id:admin-developer-slots).
 Detail `designGaps` no longer includes `SLOT_FINDER_RELATIONSHIP_WRITE` or

@@ -93,7 +93,7 @@ function assertConsoleClean(pageErrors, consoleErrors) {
   ).toEqual([]);
 }
 
-test.describe("Developer slot editor (#4056 / AS-01)", () => {
+test.describe("Developer slot editor (#4056 / #5043)", () => {
   test("Admin can create a uniquely named slot and delete it", async ({ page }) => {
     test.setTimeout(120_000);
     const { pageErrors, consoleErrors } = attachConsoleGuards(page);
@@ -122,7 +122,7 @@ test.describe("Developer slot editor (#4056 / AS-01)", () => {
       throw new Error(`Create failed: ${(await saveError.innerText()).trim()}`);
     }
 
-    await expect(page.locator('[data-testid="developer-slot-name"]')).toBeDisabled({
+    await expect(page.locator('[data-testid="developer-slot-name"]')).toBeEnabled({
       timeout: 20_000,
     });
     await expect(page.locator('[data-testid="developer-slot-name"]')).toHaveValue(name);
@@ -182,6 +182,68 @@ test.describe("Developer slot editor (#4056 / AS-01)", () => {
       await page.locator('[data-testid="developer-slot-delete"]').click();
       await confirmDeveloperCatalogDelete(page);
     }
+
+    assertConsoleClean(pageErrors, consoleErrors);
+  });
+
+  test("Admin can rename a user slot; cancel does not save (#5043)", async ({ page }) => {
+    test.setTimeout(120_000);
+    const { pageErrors, consoleErrors } = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    await openSlotsCatalog(page);
+
+    const name = uniqueSlotName();
+    const renamed = `${name}r`;
+    await page.locator('[data-testid="developer-slot-new"]').click();
+    await page.locator('[data-testid="developer-slot-name"]').fill(name);
+    await page.locator('[data-testid="developer-slot-label"]').fill(`QA rename ${name}`);
+    await page.locator('[data-testid="developer-slot-save"]').click();
+    await expect(page.locator('[data-testid="developer-slot-detail-notice"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await page.locator('[data-testid="developer-slot-back"]').click();
+    await expect(page.locator(`[data-slot-name="${name}"]`)).toBeVisible({ timeout: 20_000 });
+    await page.locator(`[data-slot-name="${name}"]`).click();
+    await expect(page.locator('[data-testid="developer-slot-committed-name"]')).toContainText(
+      name,
+    );
+
+    let slotPuts = 0;
+    const onRequest = (req) => {
+      if (req.method() === "PUT" && /\/slots\//.test(req.url())) {
+        slotPuts += 1;
+      }
+    };
+    page.on("request", onRequest);
+    await page.locator('[data-testid="developer-slot-name"]').fill(renamed);
+    await expect(page.locator('[data-testid="developer-slot-committed-name"]')).toContainText(
+      name,
+    );
+    await page.locator('[data-testid="developer-slot-cancel"]').click();
+    page.off("request", onRequest);
+    expect(slotPuts).toBe(0);
+    await expect(page.locator(`[data-slot-name="${name}"]`)).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(`[data-slot-name="${renamed}"]`)).toHaveCount(0);
+
+    await page.locator(`[data-slot-name="${name}"]`).click();
+    await page.locator('[data-testid="developer-slot-name"]').fill("bad name");
+    await expect(page.locator('[data-testid="developer-slot-save"]')).toBeDisabled();
+    await page.locator('[data-testid="developer-slot-name"]').fill(renamed);
+    await expect(page.locator('[data-testid="developer-slot-save"]')).toBeEnabled();
+    await page.locator('[data-testid="developer-slot-save"]').click();
+    await expect(page.locator('[data-testid="developer-slot-committed-name"]')).toContainText(
+      renamed,
+      { timeout: 20_000 },
+    );
+    await expect(page.locator('[data-testid="developer-slot-detail-notice"]')).toBeVisible();
+    await page.locator('[data-testid="developer-slot-back"]').click();
+    await expect(page.locator(`[data-slot-name="${renamed}"]`)).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(`[data-slot-name="${name}"]`)).toHaveCount(0);
+
+    await page.locator(`[data-slot-name="${renamed}"]`).click();
+    await page.locator('[data-testid="developer-slot-delete"]').click();
+    await confirmDeveloperCatalogDelete(page);
+    await expect(page.locator(`[data-slot-name="${renamed}"]`)).toHaveCount(0);
 
     assertConsoleClean(pageErrors, consoleErrors);
   });

@@ -770,4 +770,128 @@ describe("SlotDetailPanel", () => {
       DEV_MSG.SLOT_ASSOC_UNKNOWN,
     );
   });
+
+  it("renames a user slot only after a successful save (#5043)", async () => {
+    await renderLoadedSlot();
+    expect(
+      (screen.getByTestId("developer-slot-name") as HTMLInputElement).disabled,
+    ).toBe(false);
+    expect(screen.getByTestId("developer-slot-committed-name").textContent).toContain(
+      "rffList",
+    );
+    updateSlotDetail.mockResolvedValue({ ...sampleDetail, name: "qaRenamed" });
+    fireEvent.change(screen.getByTestId("developer-slot-name"), {
+      target: { value: "qaRenamed" },
+    });
+    expect(screen.getByTestId("developer-slot-committed-name").textContent).toContain(
+      "rffList",
+    );
+    fireEvent.click(screen.getByTestId("developer-slot-save"));
+    await waitFor(() => {
+      expect(updateSlotDetail).toHaveBeenCalledWith(
+        "rffList",
+        expect.objectContaining({ name: "qaRenamed" }),
+      );
+    });
+    expect(screen.getByTestId("developer-slot-committed-name").textContent).toContain(
+      "qaRenamed",
+    );
+    expect((screen.getByTestId("developer-slot-name") as HTMLInputElement).value).toBe(
+      "qaRenamed",
+    );
+    expect(screen.getByTestId("developer-slot-detail-notice").textContent).toBe(
+      DEV_MSG.SLOT_SAVED,
+    );
+  });
+
+  it("cancel reverts a draft name and does not PUT (#5043)", async () => {
+    const onBack = vi.fn();
+    const onSaved = vi.fn();
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    render(
+      <SlotDetailPanel idOrName="rffList" onBack={onBack} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-name")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-slot-name"), {
+      target: { value: "qaRenamed" },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-cancel"));
+    expect(updateSlotDetail).not.toHaveBeenCalled();
+    expect(onSaved).not.toHaveBeenCalled();
+    expect(onBack).toHaveBeenCalled();
+  });
+
+  it("does not PUT a blank or wildcard rename (#5043)", async () => {
+    await renderLoadedSlot();
+    fireEvent.change(screen.getByTestId("developer-slot-name"), {
+      target: { value: "   " },
+    });
+    expect(
+      (screen.getByTestId("developer-slot-save") as HTMLButtonElement).disabled,
+    ).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-slot-name"), {
+      target: { value: "qa*slot" },
+    });
+    expect(
+      (screen.getByTestId("developer-slot-save") as HTMLButtonElement).disabled,
+    ).toBe(true);
+    expect(updateSlotDetail).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-slot-committed-name").textContent).toContain(
+      "rffList",
+    );
+  });
+
+  it("does not claim success on rename 409, 403, or 400 (#5043)", async () => {
+    await renderLoadedSlot();
+    const onSaved = vi.fn();
+    const cases = [
+      { status: 409, message: "Slot already exists: taken", text: DEV_MSG.SLOT_DUPLICATE },
+      { status: 403, message: "Admin role required", text: DEV_MSG.SLOT_FORBIDDEN },
+      { status: 400, message: "name cannot contain whitespace", text: DEV_MSG.SLOT_NAME_INVALID },
+      {
+        status: 409,
+        message: "System slots cannot be renamed: sys_inline",
+        text: DEV_MSG.SLOT_RENAME_SYSTEM,
+      },
+    ];
+    for (const c of cases) {
+      updateSlotDetail.mockRejectedValue({
+        status: c.status,
+        statusText: "err",
+        body: { message: c.message },
+      });
+      fireEvent.change(screen.getByTestId("developer-slot-name"), {
+        target: { value: "qaRenamed" },
+      });
+      fireEvent.click(screen.getByTestId("developer-slot-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-slot-detail-error").textContent).toContain(
+          c.text,
+        );
+      });
+      expect(screen.queryByTestId("developer-slot-detail-notice")).toBeNull();
+      expect(screen.getByTestId("developer-slot-committed-name").textContent).toContain(
+        "rffList",
+      );
+    }
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it("keeps system slot names read-only (#5043)", async () => {
+    getSlotDetail.mockResolvedValue({
+      ...sampleDetail,
+      name: "sys_inline_link",
+      systemSlot: true,
+    });
+    render(<SlotDetailPanel idOrName="sys_inline_link" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-name")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("developer-slot-name") as HTMLInputElement).disabled,
+    ).toBe(true);
+    expect(screen.getByText(DEV_MSG.SLOT_NAME_READONLY)).toBeTruthy();
+  });
 });
