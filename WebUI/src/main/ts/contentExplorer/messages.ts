@@ -889,6 +889,24 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@You are not allowed to unapprove this item (HTTP 403)",
   ACTION_UNAPPROVE_INCREMENTAL_CONFLICT:
     "perc.ui.explorer@This item could not be unapproved on the incremental queue (HTTP 409)",
+  CONFIRM_REMOVE_INCREMENTAL:
+    "perc.ui.explorer@Remove this page or asset from the incremental publish queue?",
+  ACTION_REMOVE_INCREMENTAL_OK:
+    "perc.ui.explorer@Removed from the incremental queue",
+  ACTION_REMOVE_INCREMENTAL_EMPTY:
+    "perc.ui.explorer@Select a page or asset before removing it from the incremental queue",
+  ACTION_REMOVE_INCREMENTAL_FOLDER:
+    "perc.ui.explorer@Folders are not removed from the incremental queue",
+  ACTION_REMOVE_INCREMENTAL_NOT_ITEM:
+    "perc.ui.explorer@Only a page or asset on the incremental queue can be removed",
+  ACTION_REMOVE_INCREMENTAL_MULTI:
+    "perc.ui.explorer@Remove from the incremental queue applies to one selected page or asset",
+  ACTION_REMOVE_INCREMENTAL_REJECTED:
+    "perc.ui.explorer@Could not remove this item from the incremental queue (HTTP 400)",
+  ACTION_REMOVE_INCREMENTAL_FORBIDDEN:
+    "perc.ui.explorer@You are not allowed to remove this item from the incremental queue (HTTP 403)",
+  ACTION_REMOVE_INCREMENTAL_CONFLICT:
+    "perc.ui.explorer@This item could not be removed from the incremental queue (HTTP 409)",
   CONFIRM_NEW_COPY:
     "perc.ui.explorer@Create a new copy of this item in the same folder?",
   CONFIRM_PROMOTABLE:

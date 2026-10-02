@@ -37,6 +37,7 @@ import {
 } from "../api/contentExplorer/itemCopyApi";
 import {
   approveSelectedItemToIncrementalQueue,
+  removeSelectedItemFromIncrementalQueue,
   unapproveSelectedItemOnIncrementalQueue,
 } from "../api/contentExplorer/incrementalApproveApi";
 import { del, isApiError } from "../api/client";
@@ -202,6 +203,7 @@ const P1_REST_NAMES = new Set([
   "edit_promotableversion",
   "approve_incremental",
   "unapprove_incremental",
+  "remove_incremental",
 ]);
 
 const DATA_FLOW_PATH_MARKERS = [
@@ -248,6 +250,7 @@ export interface ActionDispatchContext {
   createPromotable?: (itemId: string) => Promise<void>;
   approveIncremental?: (itemId: string) => Promise<void>;
   unapproveIncremental?: (itemId: string) => Promise<void>;
+  removeIncremental?: (itemId: string) => Promise<void>;
   createItem?: typeof createEditorItem;
   loadPageTemplates?: typeof loadPageTemplates;
   pickPageTemplate?: (
@@ -344,6 +347,8 @@ export interface ActionDispatchResult {
   approvedItemId?: string;
   /** Item id whose approved mark is cleared only after the server accepts unapprove. */
   unapprovedItemId?: string;
+  /** Item id removed from the queue only after the server accepts the remove. */
+  removedItemId?: string;
 }
 
 export function normalizeActionName(name: string | undefined | null): string {
@@ -2103,6 +2108,78 @@ export async function dispatchAction(
       outcome: "success",
       messageKey: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_OK,
       unapprovedItemId: unapproveId,
+    };
+  }
+
+  if (name === "remove_incremental") {
+    const removeId = item?.id == null ? "" : String(item.id).trim();
+    const folderName = (item?.name ?? item?.path ?? "folder").trim() || "folder";
+    const checked = ctx.selectedItems ?? [];
+    if (checked.length >= 2) {
+      return {
+        kind: "rest",
+        messageText: message(EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_MULTI),
+      };
+    }
+    if (item && isFolder(item)) {
+      return {
+        kind: "rest",
+        messageText: `${message(EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_FOLDER)}: ${folderName}`,
+      };
+    }
+    if (!item || removeId.length === 0) {
+      return {
+        kind: "rest",
+        messageText: `${message(EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_EMPTY)}`,
+      };
+    }
+    if (resolvePublishKind(item) === "none") {
+      return {
+        kind: "rest",
+        messageText: `${message(EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_NOT_ITEM)}: ${folderName}`,
+      };
+    }
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      EXPLORER_MSG.CONFIRM_REMOVE_INCREMENTAL,
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
+    try {
+      if (ctx.removeIncremental) {
+        await ctx.removeIncremental(removeId);
+      } else {
+        await removeSelectedItemFromIncrementalQueue(removeId);
+      }
+    } catch (err: unknown) {
+      if (isApiError(err)) {
+        if (err.status === 400) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_REJECTED,
+          };
+        }
+        if (err.status === 403) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_FORBIDDEN,
+          };
+        }
+        if (err.status === 409) {
+          return {
+            kind: "rest",
+            messageKey: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_CONFLICT,
+          };
+        }
+      }
+      throw err;
+    }
+    return {
+      kind: "rest",
+      refresh: true,
+      outcome: "success",
+      messageKey: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_OK,
+      removedItemId: removeId,
     };
   }
 

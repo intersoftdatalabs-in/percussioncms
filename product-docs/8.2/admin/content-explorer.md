@@ -53,6 +53,19 @@ or the reject transition was rejected), **403** (publish not allowed), and
 **Approved**. This is not approve, and it does not remove the item from the
 queue.
 
+**Remove from incremental queue** is always on the same toolbar. It asks
+**Remove this page or asset from the incremental publish queue?** Confirm posts
+`POST /services/sitemanage/publish/incremental/explorer/{contentId}/remove`.
+The server deletes that content id from the live and staging incremental queues
+for each site the item belongs to, and only when the id is already queued.
+Success is shown only after HTTP 204, and any **Approved** mark on that row is
+cleared. Cancel does not call the server. An empty selection, a folder, or more
+than one selected item is named in the toolbar error and does not call remove.
+HTTP **400** (invalid id, not on a site, or not queued), **403** (publish not
+allowed), and **409** (the queue could not be updated) stay as errors and do
+not claim the item was removed. This is not approve, not unapprove, and not
+PublishingShell clear-queue.
+
 ## Left-hand roots (Sites, Folders, Assets, Design, Recycling)
 
 The Explorer **tree** lists the standard top-level containers returned by the CMS path

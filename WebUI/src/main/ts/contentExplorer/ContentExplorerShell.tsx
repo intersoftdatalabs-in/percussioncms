@@ -1510,6 +1510,14 @@ function ContentExplorerShellInner({
                 return next;
               });
             }
+            if (result.removedItemId) {
+              const removedId = result.removedItemId;
+              setApprovedIncrementalIds((prev) => {
+                const next = new Set(prev);
+                next.delete(removedId);
+                return next;
+              });
+            }
             setError(null);
             setActionInvokeError(null);
           } else if (result.messageText || result.messageKey) {
