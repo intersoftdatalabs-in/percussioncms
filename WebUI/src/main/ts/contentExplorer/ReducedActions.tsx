@@ -41,6 +41,7 @@ import { isRecyclingExplorerPath } from "./folderPath";
 import { formatMoveItemError } from "./moveItemErrors";
 import { CreateAssetDialog } from "./CreateAssetDialog";
 import { CreatePageDialog } from "./CreatePageDialog";
+import { FolderRenameDialog } from "./FolderRenameDialog";
 import { formatCreateAssetError } from "./createAssetErrors";
 import { formatCreateFolderError } from "./createFolderErrors";
 import { formatCreatePageError } from "./createPageErrors";
@@ -67,6 +68,7 @@ import {
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
 import { isPreviewableItem } from "./previewItem";
+import { isExplorerSiteRootItem } from "./sitePath";
 import { canAdmin, canWrite, isFolder } from "./selection";
 import { actionButtonStyle, actionsBarStyle } from "./styles";
 import { EXPLORER_MSG } from "./messages";
@@ -159,6 +161,12 @@ export interface ReducedActionsProps {
    * Restore uses {@link ReducedActionHandlers.onRestoreChecked}.
    */
   checkedItems?: readonly PSPathItem[];
+  /**
+   * Other folder names in the open folder. Used to reject a colliding
+   * folder rename before the server call. The selected folder's own name
+   * is ignored.
+   */
+  siblingFolderNames?: readonly string[];
 }
 
 const defaultPrompt = (msg: string, def?: string): string | null => {
@@ -179,11 +187,13 @@ export function ReducedActions({
   hasPreviewHandler = false,
   onError,
   checkedItems,
+  siblingFolderNames,
 }: ReducedActionsProps): React.ReactElement {
   const [pending, setPending] = useState<ReducedActionKey | null>(null);
   const [copyPickerItem, setCopyPickerItem] = useState<PSPathItem | null>(null);
   const [createPageOpen, setCreatePageOpen] = useState(false);
   const [createAssetOpen, setCreateAssetOpen] = useState(false);
+  const [renameFolderItem, setRenameFolderItem] = useState<PSPathItem | null>(null);
   const [movePickerItem, setMovePickerItem] = useState<PSPathItem | null>(null);
 
   const itemWrite = canWrite(item) || canAdmin(item);
@@ -269,6 +279,14 @@ export function ReducedActions({
 
   const handleRename = useCallback(() => {
     if (!item) return;
+    if (isExplorerSiteRootItem(item)) {
+      onError?.(message(EXPLORER_MSG.FOLDER_RENAME_USE_SITE));
+      return;
+    }
+    if (isFolder(item)) {
+      setRenameFolderItem(item);
+      return;
+    }
     const prompt = handlers.prompt ?? defaultPrompt;
     const newName = prompt(
       message(EXPLORER_MSG.PROMPT_NEW_NAME),
@@ -276,7 +294,7 @@ export function ReducedActions({
     );
     if (!newName || newName === item.name) return;
     void runItemAction("rename", () => handlers.onRename(item, newName));
-  }, [handlers, item, runItemAction]);
+  }, [handlers, item, onError, runItemAction]);
 
   const handleMove = useCallback(() => {
     if (!item) return;
@@ -485,6 +503,18 @@ export function ReducedActions({
       >
         {message(EXPLORER_MSG.ACTION_EMPTY_RECYCLE)}
       </button>
+      {renameFolderItem ? (
+        <FolderRenameDialog
+          currentName={renameFolderItem.name ?? ""}
+          takenNames={siblingFolderNames}
+          busy={isBusy}
+          onCancel={() => setRenameFolderItem(null)}
+          onRename={async (newName) => {
+            await handlers.onRename(renameFolderItem, newName);
+            setRenameFolderItem(null);
+          }}
+        />
+      ) : null}
       {createPageOpen ? (
         <CreatePageDialog
           busy={isBusy}

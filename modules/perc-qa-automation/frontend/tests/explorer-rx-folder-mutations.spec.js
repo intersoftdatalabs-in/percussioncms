@@ -189,7 +189,7 @@ test.describe("Explorer RX folder mutations flag-on no-skip (#3654 / #3102)", ()
 
       const createName = uniqueRxFolderName("qa3654c");
       const renameName = uniqueRxFolderName("qa3654n");
-      /** @type {"create" | "rename" | "delete"} */
+      /** @type {"create" | "delete"} */
       let dialogPhase = "create";
       /** @type {string | null} */
       let createdId = null;
@@ -198,10 +198,10 @@ test.describe("Explorer RX folder mutations flag-on no-skip (#3654 / #3102)", ()
       page.on("dialog", async (dialog) => {
         if (dialogPhase === "create") {
           await dialog.accept(createName);
-        } else if (dialogPhase === "rename") {
-          await dialog.accept(renameName);
-        } else {
+        } else if (dialogPhase === "delete") {
           await dialog.accept();
+        } else {
+          await dialog.dismiss();
         }
       });
 
@@ -317,13 +317,17 @@ test.describe("Explorer RX folder mutations flag-on no-skip (#3654 / #3102)", ()
           `Rename must be enabled for ${createName}`,
         ).toBeEnabled();
 
-        dialogPhase = "rename";
         const renameRespPromise = page.waitForResponse(
           (res) =>
             isRxFolderByIdUrl(res.url()) && res.request().method() === "PUT",
           { timeout: 30_000 },
         );
         await renameBtn.click();
+        await expect(page.getByTestId("folder-rename-name")).toBeVisible({
+          timeout: 10_000,
+        });
+        await page.getByTestId("folder-rename-name").fill(renameName);
+        await page.getByTestId("folder-rename-submit").click();
         const renameResp = await renameRespPromise;
         expect(
           isRxFolderMutationSuccessStatus(renameResp.status()),

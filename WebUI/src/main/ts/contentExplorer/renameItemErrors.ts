@@ -22,6 +22,9 @@ import { EXPLORER_MSG } from "./messages";
 /** Maps rename/item HTTP 403/404/409 so Explorer never treats a failed rename as success. */
 export function formatRenameItemError(err: unknown): string {
   if (isApiError(err)) {
+    if (err.status === 400) {
+      return message(EXPLORER_MSG.ACTION_RENAME_INVALID);
+    }
     if (err.status === 403) {
       return message(EXPLORER_MSG.PERMISSION_DENIED);
     }
