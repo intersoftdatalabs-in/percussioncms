@@ -49,6 +49,7 @@ import { ItemTakedownPanel } from "../components/ItemTakedownPanel";
 import { CopySitePanel } from "../components/CopySitePanel";
 import { DeleteSitePanel } from "../components/DeleteSitePanel";
 import { RenameSitePanel } from "../components/RenameSitePanel";
+import { SiteAdditionalHeadPanel } from "../components/SiteAdditionalHeadPanel";
 import { SiteBaseUrlPanel } from "../components/SiteBaseUrlPanel";
 import { SiteCanonicalDistPanel } from "../components/SiteCanonicalDistPanel";
 import { SiteCanonicalReplacePanel } from "../components/SiteCanonicalReplacePanel";
@@ -806,6 +807,7 @@ export function SiteWorkspace({
       <SiteFileExtensionPanel siteName={siteName ?? ""} />
       <SiteCanonicalDistPanel siteName={siteName ?? ""} />
       <SiteCanonicalReplacePanel siteName={siteName ?? ""} />
+      <SiteAdditionalHeadPanel siteName={siteName ?? ""} />
 
       <ItemPublishingActionsMenu
         itemId={itemId}

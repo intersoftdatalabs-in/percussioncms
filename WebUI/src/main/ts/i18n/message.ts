@@ -272,6 +272,18 @@ export const MSG = {
     "perc.ui.publish.modern@The site base URL conflicts with another change",
   PUBLISH_SITE_BASE_URL_ERROR:
     "perc.ui.publish.modern@Could not save the site base URL",
+  PUBLISH_SITE_ADDITIONAL_HEAD: "perc.ui.publish.modern@Additional head content",
+  PUBLISH_EDIT_SITE_ADDITIONAL_HEAD: "perc.ui.publish.modern@Edit additional head content",
+  PUBLISH_SITE_ADDITIONAL_HEAD_SAVED:
+    "perc.ui.publish.modern@Additional head content saved",
+  PUBLISH_SITE_ADDITIONAL_HEAD_BAD:
+    "perc.ui.publish.modern@The additional head content was not accepted",
+  PUBLISH_SITE_ADDITIONAL_HEAD_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to edit additional head content",
+  PUBLISH_SITE_ADDITIONAL_HEAD_CONFLICT:
+    "perc.ui.publish.modern@The additional head content conflicts with another change",
+  PUBLISH_SITE_ADDITIONAL_HEAD_ERROR:
+    "perc.ui.publish.modern@Could not save the additional head content",
   PUBLISH_SITE_DEFAULT_DOCUMENT: "perc.ui.publish.modern@Default document",
   PUBLISH_EDIT_SITE_DEFAULT_DOCUMENT: "perc.ui.publish.modern@Edit default document",
   PUBLISH_SITE_DEFAULT_DOCUMENT_SAVED:

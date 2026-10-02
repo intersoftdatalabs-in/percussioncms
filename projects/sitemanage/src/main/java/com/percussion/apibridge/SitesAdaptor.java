@@ -1267,7 +1267,9 @@ public class SitesAdaptor implements ISiteAdaptor {
 
   /**
    * Apply Developer-catalog writable fields. On create, missing optionals stay unset; on update,
-   * a non-null field replaces the stored value (empty string clears description/baseUrl).
+   * a non-null field replaces the stored value (empty string clears description, baseUrl, and
+   * additional head content). Omitted additional head content is left unchanged so a description
+   * or base URL PUT does not wipe it. Markup is stored as text and is not executed here.
    */
   static void applyWritableFields(IPSSite target, Site request, boolean create) {
     if (request.getDescription() != null) {
@@ -1277,6 +1279,10 @@ public class SitesAdaptor implements ISiteAdaptor {
     }
     if (request.getBaseUrl() != null) {
       target.setBaseUrl(request.getBaseUrl().trim());
+    }
+    if (request.getSiteAdditionalHeadContent() != null) {
+      String head = request.getSiteAdditionalHeadContent().trim();
+      target.setSiteAdditionalHeadContent(head);
     }
     if (StringUtils.isNotBlank(request.getSiteProtocol())) {
       target.setSiteProtocol(request.getSiteProtocol().trim());

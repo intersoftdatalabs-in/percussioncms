@@ -137,6 +137,45 @@ class SitesAdaptorCreateUpdateDeleteTest {
   }
 
   @Test
+  void update_additionalHead_persistsTrimmedAndBlankClears() throws PSNotFoundException {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setDescription("keep");
+    existing.setSiteAdditionalHeadContent("<meta name=\"old\">");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+
+    Site req = body("NightlySite", null, null);
+    req.setSiteAdditionalHeadContent("  <meta name=\"new\">  ");
+    Site out = adaptor.updateSite("NightlySite", req);
+    assertEquals("<meta name=\"new\">", out.getSiteAdditionalHeadContent());
+    assertEquals("<meta name=\"new\">", existing.getSiteAdditionalHeadContent());
+    assertEquals("keep", existing.getDescription());
+
+    Site clear = body("NightlySite", null, null);
+    clear.setSiteAdditionalHeadContent("   ");
+    Site cleared = adaptor.updateSite("NightlySite", clear);
+    assertEquals("", cleared.getSiteAdditionalHeadContent());
+    assertEquals("", existing.getSiteAdditionalHeadContent());
+  }
+
+  @Test
+  void update_omittedAdditionalHeadLeavesStored() throws PSNotFoundException {
+    PSSite existing = new PSSite();
+    existing.setName("NightlySite");
+    existing.setGUID(new PSGuid(PSTypeEnum.SITE, 42));
+    existing.setSiteAdditionalHeadContent("<meta name=\"keep\">");
+    when(siteManager.findSite("NightlySite")).thenReturn(existing);
+    when(siteManager.loadSiteModifiable(existing.getGUID())).thenReturn(existing);
+
+    Site req = body("NightlySite", "new desc", null);
+    adaptor.updateSite("NightlySite", req);
+    assertEquals("<meta name=\"keep\">", existing.getSiteAdditionalHeadContent());
+    assertEquals("new desc", existing.getDescription());
+  }
+
+  @Test
   void update_omittedCanonicalDist_leavesStoredValue() throws PSNotFoundException {
     PSSite existing = new PSSite();
     existing.setName("NightlySite");
