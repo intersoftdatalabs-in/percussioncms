@@ -329,6 +329,22 @@ export const MSG = {
     "perc.ui.publish.modern@The site folder root conflicts with another change",
   PUBLISH_SITE_FOLDER_ROOT_ERROR:
     "perc.ui.publish.modern@Could not save the site folder root",
+  PUBLISH_SITE_DEFAULT_WORKFLOW: "perc.ui.publish.modern@Default workflow",
+  PUBLISH_EDIT_SITE_DEFAULT_WORKFLOW: "perc.ui.publish.modern@Edit default workflow",
+  PUBLISH_SITE_DEFAULT_WORKFLOW_CHOOSE: "perc.ui.publish.modern@Choose a workflow",
+  PUBLISH_SITE_DEFAULT_WORKFLOW_SAVED: "perc.ui.publish.modern@Site default workflow saved",
+  PUBLISH_SITE_DEFAULT_WORKFLOW_EMPTY:
+    "perc.ui.publish.modern@Choose a workflow. An empty choice is not saved",
+  PUBLISH_SITE_DEFAULT_WORKFLOW_UNKNOWN:
+    "perc.ui.publish.modern@Choose a workflow from the catalog. An unknown workflow is not saved",
+  PUBLISH_SITE_DEFAULT_WORKFLOW_BAD:
+    "perc.ui.publish.modern@The site default workflow was not accepted",
+  PUBLISH_SITE_DEFAULT_WORKFLOW_FORBIDDEN:
+    "perc.ui.publish.modern@You are not allowed to edit this site default workflow",
+  PUBLISH_SITE_DEFAULT_WORKFLOW_CONFLICT:
+    "perc.ui.publish.modern@The site default workflow conflicts with another change",
+  PUBLISH_SITE_DEFAULT_WORKFLOW_ERROR:
+    "perc.ui.publish.modern@Could not save the site default workflow",
   PUBLISH_SITE_CANONICAL_DIST: "perc.ui.publish.modern@Canonical distribution",
   PUBLISH_EDIT_SITE_CANONICAL_DIST:
     "perc.ui.publish.modern@Edit canonical distribution",
