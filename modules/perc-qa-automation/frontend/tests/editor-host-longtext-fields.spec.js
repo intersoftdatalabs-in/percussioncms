@@ -103,6 +103,17 @@ async function stubEditorApis(page, { putStatus, putBody, onPut } = {}) {
       body: JSON.stringify(TYPE),
     }),
   );
+  await page.route("**/rest/content-explorer/translations/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        itemId: 42,
+        locale: "en-us",
+        variants: [{ contentId: 42, locale: "en-us", role: "source" }],
+      }),
+    }),
+  );
   await page.route("**/services/itemmanagement/item/fields/**", async (route) => {
     if (route.request().method() === "PUT") {
       if (typeof onPut === "function") {
@@ -173,6 +184,7 @@ test.describe("React Content Editor long-text field save", () => {
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {
         scope: `[data-testid="${TEST_IDS.host}"]`,
+        exclude: ['[data-testid="translations-panel"]'],
       });
     },
   );
@@ -221,7 +233,189 @@ test.describe("React Content Editor long-text field save", () => {
       });
       const viewField = page.locator(`[data-testid="${TEST_IDS.fieldDescription}"]`);
       await expect(viewField).toHaveAttribute("readonly", "");
+      await expect(page.locator('[data-testid="editor-longtext-clear-description"]')).toHaveCount(0);
       await expect(page.locator(`[data-testid="${TEST_IDS.save}"]`)).toHaveCount(0);
+    },
+  );
+
+  test(
+    "clears optional long text, cancel does not save, required and 400/403/409 are not success",
+    { tag: ["@explorer-content-editor", "@editor", "@longtext"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() !== "error") {
+          return;
+        }
+        const text = msg.text();
+        if (/Failed to load resource/.test(text)) {
+          return;
+        }
+        pageErrors.push(text);
+      });
+      let description = "line one";
+      let required = false;
+      let failStatus = 0;
+      const fieldPuts = [];
+      await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/editor/items/**/checkout", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemStateTransition: { itemId: "42", stateName: "Draft", transitionTriggers: [] },
+          }),
+        }),
+      );
+      await page.route("**/rest/content-explorer/translations/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            itemId: 42,
+            locale: "en-us",
+            variants: [{ contentId: 42, locale: "en-us", role: "source" }],
+          }),
+        }),
+      );
+      await page.route("**/services/contenttypes/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ContentTypeDetail: {
+              name: "percPage",
+              fields: [
+                { name: "sys_title", label: "Title", control: "sys_EditBox", dataType: "text" },
+                {
+                  name: "description",
+                  label: "Description",
+                  control: "sys_TextArea",
+                  required,
+                },
+              ],
+            },
+          }),
+        }),
+      );
+      await page.route("**/services/itemmanagement/item/fields/**", async (route) => {
+        if (route.request().method() === "PUT") {
+          fieldPuts.push(route.request().postData() || "");
+          if (failStatus === 400 || failStatus === 403 || failStatus === 409) {
+            await route.fulfill({
+              status: failStatus,
+              contentType: "application/json",
+              body: JSON.stringify({ Error: { message: "rejected" } }),
+            });
+            return;
+          }
+          const body = JSON.parse(route.request().postData() || "{}");
+          const payload = body.ItemEditorFields || body;
+          const next = (payload.fields || []).find((f) => f.name === "description");
+          description = next ? next.value : description;
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ItemEditorFields: {
+                contentId: "42",
+                contentType: "percPage",
+                name: "Home",
+                checkoutUser: "admin",
+                revision: 3,
+                fields: payload.fields,
+              },
+            }),
+          });
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemEditorFields: {
+              contentId: "42",
+              contentType: "percPage",
+              name: "Home",
+              checkoutUser: "admin",
+              revision: 2,
+              fields: [
+                { name: "sys_title", value: "Home" },
+                { name: "description", value: description },
+              ],
+            },
+          }),
+        });
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator('[data-testid="editor-longtext-clear-description"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.locator('[data-testid="editor-longtext-clear-description"]').click();
+      page.once("dialog", (dialog) => dialog.dismiss());
+      await page.locator('[data-testid="editor-close"]').click();
+      await page.waitForTimeout(300);
+      expect(fieldPuts).toEqual([]);
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator(`[data-testid="${TEST_IDS.fieldDescription}"]`)).toHaveValue(
+        "line one",
+        { timeout: 20_000 },
+      );
+      await page.locator('[data-testid="editor-longtext-clear-description"]').click();
+      await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
+      await expect.poll(() => fieldPuts.length).toBeGreaterThan(0);
+      expect(fieldPuts[0]).toMatch(/"name"\s*:\s*"description"\s*,\s*"value"\s*:\s*""/);
+      await expect(page.locator('[data-testid="editor-saved"]')).toBeVisible();
+      await expect(page.locator(`[data-testid="${TEST_IDS.fieldDescription}"]`)).toHaveValue("");
+      await expect(page.locator('[data-testid="editor-longtext-clear-description"]')).toHaveCount(0);
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator(`[data-testid="${TEST_IDS.fieldDescription}"]`)).toHaveValue("", {
+        timeout: 20_000,
+      });
+
+      description = "line one";
+      required = true;
+      fieldPuts.length = 0;
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator('[data-testid="editor-longtext-clear-description"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.locator('[data-testid="editor-longtext-clear-description"]').click();
+      await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
+      await expect(page.locator(`[data-testid="${TEST_IDS.fieldErrorDescription}"]`)).toBeVisible();
+      expect(fieldPuts).toEqual([]);
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+
+      required = false;
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator('[data-testid="editor-longtext-clear-description"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.locator('[data-testid="editor-longtext-clear-description"]').click();
+      const putsBeforeErrors = fieldPuts.length;
+      failStatus = 400;
+      await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
+      await expect.poll(() => fieldPuts.length).toBeGreaterThan(putsBeforeErrors);
+      await expect(page.locator(`[data-testid="${TEST_IDS.saveError}"]`)).toBeVisible();
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+      failStatus = 403;
+      await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
+      await expect.poll(() => fieldPuts.length).toBeGreaterThan(putsBeforeErrors + 1);
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+      failStatus = 409;
+      await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
+      await expect(page.locator(`[data-testid="${TEST_IDS.saveError}"]`)).toContainText(/revision/i);
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );
 });

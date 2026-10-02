@@ -2975,7 +2975,175 @@ describe("EditorHost HTML field save (#4680)", () => {
     });
     const area = screen.getByTestId("editor-field-description") as HTMLTextAreaElement;
     expect(area.readOnly).toBe(true);
+    expect(screen.queryByTestId("editor-longtext-clear-description")).toBeNull();
     expect(screen.queryByTestId("editor-save")).toBeNull();
+  });
+
+  function longTextHost(opts: {
+    saveFields: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    value?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const value = opts.value ?? "line one";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 2,
+          fields: [
+            { name: "sys_title", value: "Home" },
+            { name: "description", value },
+          ],
+        })}
+        saveFields={opts.saveFields}
+        loadType={async () => ({
+          fields: [
+            { name: "sys_title", label: "Title", control: "sys_EditBox", dataType: "text" },
+            {
+              name: "description",
+              label: "Description",
+              control: "sys_TextArea",
+              required: opts.required === true,
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  it("saves a cleared optional long-text field and shows it empty after reload", async () => {
+    let stored = "line one";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      stored = body.fields.find((f) => f.name === "description")?.value ?? stored;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 3,
+        fields: body.fields,
+      };
+    });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={longTextHost({ saveFields, value: stored })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-longtext-clear-description")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-longtext-clear-description"));
+    expect((screen.getByTestId("editor-field-description") as HTMLTextAreaElement).value).toBe("");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "description")?.value).toBe("");
+    expect(screen.queryByTestId("editor-longtext-clear-description")).toBeNull();
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={longTextHost({ saveFields, value: stored })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-description") as HTMLTextAreaElement).value).toBe(
+        "",
+      );
+    });
+  });
+
+  it("does not save when Close cancels an unsaved long-text clear", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={longTextHost({ saveFields, confirmLeaveUnsaved: () => false })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-longtext-clear-description")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-longtext-clear-description"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-description") as HTMLTextAreaElement).value).toBe("");
+  });
+
+  it("does not claim success when required long text is cleared", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={longTextHost({ saveFields, required: true })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-longtext-clear-description")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-longtext-clear-description"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-description").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not claim success for HTTP 400, 403, or 409 on a long-text clear", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={longTextHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-longtext-clear-description")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-longtext-clear-description"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-description").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-description").textContent).toMatch(
+        /not allowed/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/newer revision/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(3);
   });
 
   it("saves an in-range sys_Number and blocks non-numeric input", async () => {
