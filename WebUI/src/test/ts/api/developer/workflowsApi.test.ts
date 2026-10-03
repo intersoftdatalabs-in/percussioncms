@@ -17,6 +17,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createWorkflow,
+  createWorkflowAgingTransition,
   deleteWorkflow,
   deleteWorkflowStep,
   createWorkflowTransition,
@@ -25,6 +26,7 @@ import {
   workflowStepDeletePath,
   workflowTransitionDeletePath,
   getWorkflowAllowedContentTypes,
+  isPositiveMinuteInterval,
   isValidWorkflowName,
   isWorkflowCreateReady,
   normalizeWorkflowName,
@@ -650,6 +652,55 @@ describe("workflow transition write API (slice 31)", () => {
     );
     await expect(
       createWorkflowTransition("Nightly QA", { from: "Draft", to: "Review", label: "Submit" }),
+    ).rejects.toMatchObject({ status: 409 });
+  });
+
+  it("POSTs a wrapped absolute aging transition and parses the aging edge", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          packaged: false,
+          nodes: [{ name: "Draft" }, { name: "Review" }],
+          edges: [
+            { from: "Draft", to: "Review", label: "Aging 15", aging: true, intervalMinutes: 15 },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await createWorkflowAgingTransition("Nightly QA", {
+      from: "Draft",
+      to: "Review",
+      intervalMinutes: 15,
+    });
+    expect(graph.edges?.[0]?.aging).toBe(true);
+    expect(graph.edges?.[0]?.intervalMinutes).toBe(15);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/aging-transitions");
+    expect(String(init.body)).toContain("WorkflowAgingTransitionWrite");
+    expect(String(init.body)).toContain("15");
+    expect(isPositiveMinuteInterval("15")).toBe(true);
+    expect(isPositiveMinuteInterval("0")).toBe(false);
+    expect(isPositiveMinuteInterval("-3")).toBe(false);
+    expect(isPositiveMinuteInterval("")).toBe(false);
+    expect(isPositiveMinuteInterval("1.5")).toBe(false);
+  });
+
+  it("propagates 409 when the aging transition already exists", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "exists" }), {
+        status: 409,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(
+      createWorkflowAgingTransition("Nightly QA", {
+        from: "Draft",
+        to: "Review",
+        intervalMinutes: 15,
+      }),
     ).rejects.toMatchObject({ status: 409 });
   });
 

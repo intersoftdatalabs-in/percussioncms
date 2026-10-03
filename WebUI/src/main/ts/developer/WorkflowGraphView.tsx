@@ -5,10 +5,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { isApiError } from "../api/client";
 import {
+  createWorkflowAgingTransition,
   createWorkflowTransition,
   deleteWorkflowStep,
   deleteWorkflowTransition,
   getWorkflowGraph,
+  isPositiveMinuteInterval,
   isValidWorkflowName,
   updateTransitionCommentRequired,
   updateWorkflowTransition,
@@ -20,7 +22,8 @@ import { DEV_MSG } from "./messages";
 
 /**
  * State/transition graph for one workflow (slice 32 read, slice 31 transition write,
- * slice 33 transition delete, slice 34 step delete). Packaged workflows stay read-only.
+ * slice 33 transition delete, slice 34 step delete, slice 57 absolute aging create).
+ * Packaged workflows stay read-only. Aging edges are not comment-required.
  */
 
 type TransitionIdentity = { from: string; label: string; to: string };
@@ -40,6 +43,9 @@ export function WorkflowGraphView({
   const [toStep, setToStep] = useState("");
   const [labelText, setLabelText] = useState("");
   const [editing, setEditing] = useState<TransitionIdentity | null>(null);
+  const [agingFrom, setAgingFrom] = useState("");
+  const [agingTo, setAgingTo] = useState("");
+  const [agingMinutes, setAgingMinutes] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -49,6 +55,9 @@ export function WorkflowGraphView({
     setLabelText("");
     setFromStep("");
     setToStep("");
+    setAgingFrom("");
+    setAgingTo("");
+    setAgingMinutes("");
     getWorkflowGraph(workflowName)
       .then((g) => {
         if (!cancelled) {
@@ -83,6 +92,8 @@ export function WorkflowGraphView({
       .filter((name): name is string => !!name && name.trim().length > 0);
     setFromStep((prev) => (prev && names.includes(prev) ? prev : (names[0] ?? "")));
     setToStep((prev) => (prev && names.includes(prev) ? prev : (names[1] ?? names[0] ?? "")));
+    setAgingFrom((prev) => (prev && names.includes(prev) ? prev : (names[0] ?? "")));
+    setAgingTo((prev) => (prev && names.includes(prev) ? prev : ""));
   }, [graph, editing]);
 
   const onSaveTransition = useCallback(async () => {
@@ -129,6 +140,51 @@ export function WorkflowGraphView({
       setBusy(false);
     }
   }, [editing, fromStep, graph, labelText, toStep, workflowName]);
+
+  const onCancelAging = useCallback(() => {
+    setAgingTo("");
+    setAgingMinutes("");
+    setError(null);
+  }, []);
+
+  const onAddAging = useCallback(async () => {
+    const names = (graph?.nodes ?? [])
+      .map((node) => node.name)
+      .filter((name): name is string => !!name && name.trim().length > 0);
+    const from = agingFrom || names[0] || "";
+    const to = agingTo.trim();
+    if (!isValidWorkflowName(from) || !isValidWorkflowName(to) || !isPositiveMinuteInterval(agingMinutes)) {
+      setError(DEV_MSG.WF_AGING_INVALID);
+      setNotice(null);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const next = await createWorkflowAgingTransition(workflowName, {
+        from: from.trim(),
+        to,
+        intervalMinutes: Number(agingMinutes.trim()),
+      });
+      setGraph(next);
+      setNotice(DEV_MSG.WF_AGING_SAVED);
+      setAgingMinutes("");
+      setReloadToken((n) => n + 1);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 403) {
+        setError(DEV_MSG.WF_AGING_FORBIDDEN);
+      } else if (isApiError(err) && err.status === 409) {
+        setError(DEV_MSG.WF_AGING_CONFLICT);
+      } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
+        setError(DEV_MSG.WF_AGING_BAD);
+      } else {
+        setError(DEV_MSG.WF_AGING_ERROR);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [agingFrom, agingMinutes, agingTo, graph, workflowName]);
 
   const onToggleComment = useCallback(
     async (edge: WorkflowGraphEdge, commentRequired: boolean) => {
@@ -223,7 +279,8 @@ export function WorkflowGraphView({
   }, [pendingStep, workflowName]);
 
   const nodes = graph?.nodes ?? [];
-  const edges = graph?.edges ?? [];
+  const edges = (graph?.edges ?? []).filter((edge) => edge.aging !== true);
+  const agingEdges = (graph?.edges ?? []).filter((edge) => edge.aging === true);
   const packaged = graph?.packaged === true;
   const stepNames = nodes
     .map((node) => node.name)
@@ -326,6 +383,71 @@ export function WorkflowGraphView({
           ) : null}
         </form>
       ) : null}
+      {canWrite ? (
+        <form
+          data-testid="developer-wf-aging-form"
+          style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "end", marginBottom: "8px" }}
+          onSubmit={(ev) => {
+            ev.preventDefault();
+            void onAddAging();
+          }}
+        >
+          <label>
+            {DEV_MSG.WF_AGING_FROM}
+            <select
+              data-testid="developer-wf-aging-from"
+              value={agingFrom || stepNames[0] || ""}
+              disabled={busy}
+              onChange={(ev) => setAgingFrom(ev.target.value)}
+            >
+              {stepNames.map((name) => (
+                <option key={`aging-from-${name}`} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {DEV_MSG.WF_AGING_TO}
+            <select
+              data-testid="developer-wf-aging-to"
+              value={agingTo}
+              disabled={busy}
+              onChange={(ev) => setAgingTo(ev.target.value)}
+            >
+              <option value="">{DEV_MSG.WF_AGING_TO_BLANK}</option>
+              {stepNames.map((name) => (
+                <option key={`aging-to-${name}`} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {DEV_MSG.WF_AGING_MINUTES}
+            <input
+              data-testid="developer-wf-aging-minutes"
+              inputMode="numeric"
+              value={agingMinutes}
+              disabled={busy}
+              onChange={(ev) => setAgingMinutes(ev.target.value)}
+            />
+          </label>
+          <button type="submit" data-testid="developer-wf-aging-add" disabled={busy}>
+            {DEV_MSG.WF_AGING_ADD}
+          </button>
+          <button
+            type="button"
+            data-testid="developer-wf-aging-cancel"
+            disabled={busy}
+            onClick={() => {
+              onCancelAging();
+            }}
+          >
+            {DEV_MSG.WF_AGING_CANCEL}
+          </button>
+        </form>
+      ) : null}
       {nodes.length > 0 ? (
         <div
           data-testid="developer-wf-graph-nodes"
@@ -416,6 +538,25 @@ export function WorkflowGraphView({
             </li>
           ))}
         </ul>
+      ) : null}
+      {agingEdges.length > 0 ? (
+        <div data-testid="developer-wf-aging">
+          <h4 style={{ fontSize: "0.95rem", marginBottom: "4px" }}>{DEV_MSG.WF_AGING_TITLE}</h4>
+          <ul data-testid="developer-wf-aging-edges" style={{ margin: 0, paddingLeft: "1.2rem" }}>
+            {agingEdges.map((edge, i) => (
+              <li
+                key={`aging-${edge.from}-${edge.label}-${edge.to}-${i}`}
+                data-testid={`developer-wf-aging-edge-${i}`}
+                data-from={edge.from || ""}
+                data-to={edge.to || ""}
+                data-interval={edge.intervalMinutes ?? ""}
+              >
+                {edge.from || "—"} — {edge.label || "—"} → {edge.to || "—"}
+                {typeof edge.intervalMinutes === "number" ? ` (${edge.intervalMinutes} minutes)` : ""}
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
       <CatalogConfirmDialog
         open={pending != null}

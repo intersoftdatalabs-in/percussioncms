@@ -671,6 +671,66 @@ public class WorkflowsResource {
     }
   }
 
+  @POST
+  @Path("/{idOrName}/aging-transitions")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Create one absolute aging transition",
+      description =
+          "Slice 57 Admin. Inserts one absolute aging transition between two existing steps."
+              + " Body from, to, and a positive intervalMinutes (minutes, IPSAgingTransition"
+              + " setInterval) are required. Does not create steps, change an existing interval,"
+              + " or set comment-required. A duplicate absolute aging edge for that from, to, and"
+              + " interval is 409. Packaged default workflows are forbidden (403). Jackson root"
+              + " wrap is WorkflowAgingTransitionWrite.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created; returns the updated graph including the aging edge",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing body, blank from or to, or a non-positive interval"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow or step not found"),
+        @ApiResponse(responseCode = "409", description = "That absolute aging transition already exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph createAbsoluteAgingTransition(
+      @PathParam("idOrName") String idOrName, WorkflowAgingTransitionWrite body) {
+    if (body == null) {
+      throw new WebApplicationException("Workflow aging transition body is required", 400);
+    }
+    if (body.getFrom() == null
+        || body.getFrom().isBlank()
+        || body.getTo() == null
+        || body.getTo().isBlank()) {
+      throw new WebApplicationException("from and to are required", 400);
+    }
+    if (body.getIntervalMinutes() <= 0) {
+      throw new WebApplicationException("interval must be a positive number of minutes", 400);
+    }
+    try {
+      return requireAdaptor()
+          .createAbsoluteAgingTransition(uriInfo.getBaseUri(), idOrName, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to create aging transition ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @PUT
   @Path("/{idOrName}/transitions")
   @Consumes({MediaType.APPLICATION_JSON})

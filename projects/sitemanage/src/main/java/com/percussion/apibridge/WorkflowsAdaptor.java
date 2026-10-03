@@ -21,6 +21,7 @@ import com.percussion.rest.Guid;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.rest.workflows.IWorkflowsAdaptor;
 import com.percussion.rest.workflows.WorkflowContentTypesDesignLockException;
+import com.percussion.rest.workflows.WorkflowAgingTransitionWrite;
 import com.percussion.rest.workflows.WorkflowCreate;
 import com.percussion.rest.workflows.WorkflowGraph;
 import com.percussion.rest.workflows.WorkflowStepWrite;
@@ -490,6 +491,38 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     int after = workflow.getStates() == null ? 0 : workflow.getStates().size();
     if (after != stepCount) {
       throw new IllegalStateException("Creating a transition must not add or delete steps");
+    }
+    workflowService.saveWorkflow(workflow);
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
+  public WorkflowGraph createAbsoluteAgingTransition(
+      URI baseUri, String idOrName, WorkflowAgingTransitionWrite body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("Workflow aging transition body is required");
+    }
+    if (body.getIntervalMinutes() <= 0) {
+      throw new IllegalArgumentException("interval must be a positive number of minutes");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    int stepCount = states.size();
+    WorkflowTransitionWriter.createAbsoluteAging(
+        states,
+        body.getFrom(),
+        body.getTo(),
+        body.getIntervalMinutes(),
+        source -> allocateTransition(workflow, source));
+    int after = workflow.getStates() == null ? 0 : workflow.getStates().size();
+    if (after != stepCount) {
+      throw new IllegalStateException("Creating an aging transition must not add or delete steps");
     }
     workflowService.saveWorkflow(workflow);
     return getWorkflowGraph(baseUri, idOrName);

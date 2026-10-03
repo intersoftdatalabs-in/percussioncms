@@ -18,6 +18,7 @@
 package com.percussion.apibridge;
 
 import com.percussion.services.workflow.data.PSAgingTransition;
+import com.percussion.services.workflow.data.PSAgingTransition.PSAgingTypeEnum;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSTransitionBase;
@@ -30,8 +31,9 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Creates or updates one regular workflow transition between existing steps. Does not add or
- * delete states. Aging edges can be retargeted or relabeled but are not created here.
+ * Creates or updates one workflow transition between existing steps. Does not add or delete
+ * states. Absolute aging creates go through {@link #createAbsoluteAging}; comment-required is not
+ * used for aging.
  */
 public final class WorkflowTransitionWriter {
 
@@ -78,6 +80,79 @@ public final class WorkflowTransitionWriter {
       fresh.setApprovals(1);
     }
     source.addTransition(fresh);
+  }
+
+  /**
+   * Inserts one absolute aging transition. Interval is minutes. Does not add a regular transition
+   * and does not add or delete states.
+   */
+  public static void createAbsoluteAging(
+      List<PSState> states,
+      String fromStep,
+      String toStep,
+      long intervalMinutes,
+      TransitionFactory factory) {
+    if (factory == null) {
+      throw new IllegalStateException("Transition id factory is required");
+    }
+    if (intervalMinutes <= 0) {
+      throw new IllegalArgumentException("interval must be a positive number of minutes");
+    }
+    String from = requireName(fromStep, "from");
+    String to = requireName(toStep, "to");
+    String label = absoluteAgingLabel(intervalMinutes);
+    Index index = index(states);
+    PSState source = requireStep(index, from);
+    PSState dest = requireStep(index, to);
+    if (sameEdge(source, label, dest.getName(), index.names)
+        || sameAbsoluteInterval(source, dest.getStateId(), intervalMinutes)) {
+      throw new WebApplicationException("Workflow aging transition already exists: " + label, 409);
+    }
+    PSTransition allocated = factory.allocate(source);
+    if (allocated == null) {
+      throw new IllegalStateException("Could not allocate a workflow transition id");
+    }
+    PSAgingTransition aging = new PSAgingTransition();
+    aging.setGUID(allocated.getGUID());
+    long workflowId = allocated.getWorkflowId();
+    if (workflowId == 0) {
+      workflowId = source.getWorkflowId();
+    }
+    aging.setWorkflowId(workflowId);
+    aging.setStateId(source.getStateId());
+    aging.setToState(dest.getStateId());
+    aging.setType(PSAgingTypeEnum.ABSOLUTE);
+    aging.setInterval(intervalMinutes);
+    aging.setLabel(label);
+    aging.setTrigger(label);
+    if (StringUtils.isBlank(aging.getDescription())) {
+      aging.setDescription(label);
+    }
+    source.addAgingTransition(aging);
+  }
+
+  static String absoluteAgingLabel(long intervalMinutes) {
+    String label = "Aging " + intervalMinutes;
+    if (label.length() > NAME_MAX) {
+      throw new IllegalArgumentException("interval is too large");
+    }
+    return label;
+  }
+
+  private static boolean sameAbsoluteInterval(PSState source, long toStateId, long intervalMinutes) {
+    for (PSAgingTransition existing : copyAging(source)) {
+      if (existing == null || existing.getToState() != toStateId) {
+        continue;
+      }
+      if (existing.getInterval() != intervalMinutes) {
+        continue;
+      }
+      PSAgingTypeEnum type = existing.getAgingTypeEnum();
+      if (type == null || type == PSAgingTypeEnum.ABSOLUTE) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public static void update(

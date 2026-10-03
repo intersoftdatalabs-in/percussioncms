@@ -1923,7 +1923,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_AFTER_LABEL: "perc.ui.developer@Insert after",
   WF_STEP_ROLES_LABEL: "perc.ui.developer@Roles (comma-separated)",
   WF_STEP_HINT:
-    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. Custom workflows can add or update one transition between existing steps, delete one transition, or delete a step that no longer has transitions.",
+    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. Custom workflows can add or update one transition between existing steps, add one absolute aging transition in minutes, delete one transition, or delete a step that no longer has transitions.",
   WF_STEP_SAVED: "perc.ui.developer@Workflow step saved.",
   WF_STEP_ERROR: "perc.ui.developer@Could not save workflow step.",
   WF_STEP_INVALID:
@@ -1938,7 +1938,7 @@ export const DEV_MSG_KEYS = {
   WF_GRAPH_LOADING: "perc.ui.developer@Loading workflow graph...",
   WF_GRAPH_ERROR: "perc.ui.developer@Could not load workflow graph.",
   WF_GRAPH_HINT:
-    "perc.ui.developer@States and transitions. On a custom workflow, add or update one transition between existing steps, delete one transition, delete a step that no transition still uses, or mark a transition as comment required. Packaged workflows stay read-only.",
+    "perc.ui.developer@States and transitions. On a custom workflow, add or update one transition between existing steps, add one absolute aging transition in minutes, delete one transition, delete a step that no transition still uses, or mark a transition as comment required. Packaged workflows stay read-only.",
   WF_GRAPH_COMMENT: "perc.ui.developer@Comment required",
   WF_GRAPH_COMMENT_SAVED: "perc.ui.developer@Comment requirement saved.",
   WF_GRAPH_COMMENT_ERROR: "perc.ui.developer@Could not save the comment requirement.",
@@ -1968,6 +1968,23 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@A transition with that label already goes to that step.",
   WF_GRAPH_WRITE_INVALID:
     "perc.ui.developer@Transition label must be 1–50 characters: letters, digits, space, hyphen, or underscore.",
+  WF_AGING_TITLE: "perc.ui.developer@Aging transitions",
+  WF_AGING_FROM: "perc.ui.developer@Aging from step",
+  WF_AGING_TO: "perc.ui.developer@Aging to step",
+  WF_AGING_TO_BLANK: "perc.ui.developer@Select a step",
+  WF_AGING_MINUTES: "perc.ui.developer@Interval (minutes)",
+  WF_AGING_ADD: "perc.ui.developer@Add aging transition",
+  WF_AGING_CANCEL: "perc.ui.developer@Cancel",
+  WF_AGING_SAVED: "perc.ui.developer@Aging transition saved.",
+  WF_AGING_ERROR: "perc.ui.developer@Could not add the aging transition.",
+  WF_AGING_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_AGING_BAD:
+    "perc.ui.developer@That aging transition could not be saved. Check the steps and a positive interval in minutes.",
+  WF_AGING_CONFLICT:
+    "perc.ui.developer@An absolute aging transition with that interval already goes to that step.",
+  WF_AGING_INVALID:
+    "perc.ui.developer@Choose an existing destination step and a positive interval in minutes.",
   WF_STEP_DELETE: "perc.ui.developer@Delete step",
   WF_STEP_DELETE_CONFIRM:
     "perc.ui.developer@Delete this step? It is removed only when no transition still uses it.",
@@ -1980,7 +1997,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Role assignment and aging intervals stay on the workflow-admin editor. Custom workflows can add, update, or delete one transition between existing steps.",
+    "perc.ui.developer@Role assignment stays on the workflow-admin editor. Custom workflows can add one absolute aging transition in minutes. Changing or deleting that interval, and repeated or system-field aging, stay outside this surface.",
   WF_GAP_WRITE:
     "perc.ui.developer@Workflow update / delete is not supported from this Developer surface",
   WF_GAP_CT:

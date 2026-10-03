@@ -105,6 +105,10 @@ public class WorkflowGraph {
     private String to;
     private String label;
     private boolean commentRequired;
+    /** True when this edge is an aging transition, not a regular workflow transition. */
+    private boolean aging;
+    /** Minutes on an absolute or repeated aging transition. Omitted for regular edges. */
+    private Long intervalMinutes;
 
     public String getFrom() {
       return from;
@@ -136,6 +140,22 @@ public class WorkflowGraph {
 
     public void setCommentRequired(boolean commentRequired) {
       this.commentRequired = commentRequired;
+    }
+
+    public boolean isAging() {
+      return aging;
+    }
+
+    public void setAging(boolean aging) {
+      this.aging = aging;
+    }
+
+    public Long getIntervalMinutes() {
+      return intervalMinutes;
+    }
+
+    public void setIntervalMinutes(Long intervalMinutes) {
+      this.intervalMinutes = intervalMinutes;
     }
   }
 }
