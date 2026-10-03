@@ -315,9 +315,26 @@ A blank name stays in the editor (**Name is required**) and is not posted. A nam
 the name is too long), **403** (not Admin or Designer), and **409** (edition name already
 exists) stay in the edition editor error region. The list does not gain a row for those
 failures. Opening an existing edition and saving it is an update
-(`PUT …/sitemanage/publishingdesign/editions/{editionId}`) on the same form. Content-list
-association and Runtime start/stop are separate Design/Runtime actions. Copying an edition
-is described below.
+(`PUT …/sitemanage/publishingdesign/editions/{editionId}`) on the same form. Associating a
+content list is described below. Copying an edition and Runtime start/stop are separate
+actions.
+
+### Associate a content list with an edition (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
+Open an existing edition (not **Add edition**). Under **Associated content lists**, choose
+one **content list** and one **delivery context**, then **Associate**.
+
+The shell posts `POST …/sitemanage/publishingdesign/editions/{editionId}/contentlists` with an
+`editionContentList` body (`contentListId` and `deliveryContextId`). The content list name
+appears under **Associated content lists** only after that call succeeds. Leaving either the
+content list or the delivery context blank shows **Select content list and delivery context**
+and does not call the server. The associated list stays unchanged.
+
+HTTP **400** (content list or delivery context missing), **403** (not Admin or Designer), and
+**409** (that content list is already associated with this edition) stay in the edition editor
+error region. Those responses do not add the content list to the associated list. Removing an
+association, creating an edition, and creating a content list are separate actions.
 
 ### Copy a publish edition (Design)
 

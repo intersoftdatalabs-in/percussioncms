@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   associateContentList,
   copyEdition,
@@ -32,6 +32,7 @@ import {
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
 import {
+  mapEditionContentListAssociateError,
   mapEditionCopyError,
   mapEditionDeleteError,
   mapEditionSaveError,
@@ -82,6 +83,8 @@ export function EditionEditor({
   const [saving, setSaving] = useState(false);
   const [copySiteId, setCopySiteId] = useState(siteId);
   const [copyName, setCopyName] = useState("");
+  /** Bumps when an associate succeeds so an in-flight list reload cannot wipe the new row. */
+  const assocLoadGen = useRef(0);
 
   useEffect(() => {
     setName(edition?.name ?? "");
@@ -94,9 +97,21 @@ export function EditionEditor({
       setAssoc([]);
       return;
     }
-    listEditionContentLists(edition.editionId)
-      .then(setAssoc)
-      .catch(() => setAssoc([]));
+    const gen = assocLoadGen.current;
+    const editionId = edition.editionId;
+    listEditionContentLists(editionId)
+      .then((rows) => {
+        if (assocLoadGen.current !== gen) {
+          return;
+        }
+        setAssoc(rows);
+      })
+      .catch(() => {
+        if (assocLoadGen.current !== gen) {
+          return;
+        }
+        setAssoc([]);
+      });
   }
 
   useEffect(() => {
@@ -109,12 +124,7 @@ export function EditionEditor({
     }
     listContentLists().then(setAllLists).catch(() => setAllLists([]));
     listContexts()
-      .then((c) => {
-        setContexts(c);
-        if (c.length > 0) {
-          setPickCtx(String(c[0].contextId ?? ""));
-        }
-      })
+      .then(setContexts)
       .catch(() => setContexts([]));
   }, [edition?.editionId]);
 
@@ -215,19 +225,52 @@ export function EditionEditor({
   }
 
   async function handleAssociate(): Promise<void> {
-    if (!edition?.editionId || !pickCl || !pickCtx) {
-      setError("Select content list and delivery context");
+    if (!edition?.editionId) {
       return;
     }
+    if (!pickCl.trim() || !pickCtx.trim()) {
+      setError(message(MSG.PUBLISH.DESIGN.EDITIONS.NEED_LIST_AND_CONTEXT));
+      return;
+    }
+    setSaving(true);
     setError(null);
     try {
-      await associateContentList(edition.editionId, {
+      const created = await associateContentList(edition.editionId, {
         contentListId: pickCl,
         deliveryContextId: pickCtx,
       });
-      reloadAssoc();
+      assocLoadGen.current += 1;
+      const id =
+        (typeof created.contentListId === "string" &&
+          created.contentListId.trim()) ||
+        (typeof created.contentListId === "number" &&
+        Number.isFinite(created.contentListId)
+          ? String(created.contentListId)
+          : pickCl);
+      const known = allLists.find((row) => row.contentListId === pickCl);
+      const createdName =
+        typeof created.name === "string" ? created.name.trim() : "";
+      setAssoc((prev) => {
+        if (prev.some((row) => row.contentListId === id)) {
+          return prev;
+        }
+        return [
+          ...prev,
+          {
+            contentListId: id,
+            name: createdName || known?.name,
+            listType: created.listType ?? known?.listType,
+            description: created.description,
+            generator: created.generator,
+            url: created.url,
+          },
+        ];
+      });
+      setPickCl("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapEditionContentListAssociateError(e));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -282,11 +325,13 @@ export function EditionEditor({
 
       {edition?.editionId && (
         <div style={{ marginTop: 12 }}>
-          <h4>Associated content lists</h4>
+          <h4>{message(MSG.PUBLISH.DESIGN.EDITIONS.ASSOCIATED_LISTS)}</h4>
           {assoc.length === 0 ? (
-            <p style={{ color: "#666" }}>None</p>
+            <p style={{ color: "#666" }} data-testid="edition-assoc-empty">
+              {message(MSG.PUBLISH.DESIGN.EDITIONS.ASSOCIATED_LISTS_NONE)}
+            </p>
           ) : (
-            <ul style={listStyle}>
+            <ul style={listStyle} data-testid="edition-assoc-list">
               {assoc.map((c) => (
                 <li key={c.contentListId ?? c.name} style={listItemStyle}>
                   <span>
@@ -307,31 +352,52 @@ export function EditionEditor({
             </ul>
           )}
           <div style={toolbarStyle}>
+            <label htmlFor="ed-assoc-cl">
+              {message(MSG.PUBLISH.DESIGN.EDITIONS.SELECT_LIST)}
+            </label>
             <select
+              id="ed-assoc-cl"
+              data-testid="edition-assoc-content-list"
               value={pickCl}
               onChange={(e) => setPickCl(e.target.value)}
-              aria-label="Content list to associate"
+              aria-label={message(MSG.PUBLISH.DESIGN.EDITIONS.ASSOCIATE_LIST_ARIA)}
             >
-              <option value="">Select content list</option>
+              <option value="">
+                {message(MSG.PUBLISH.DESIGN.EDITIONS.SELECT_LIST)}
+              </option>
               {available.map((l) => (
                 <option key={l.contentListId} value={l.contentListId}>
                   {l.name}
                 </option>
               ))}
             </select>
+            <label htmlFor="ed-assoc-ctx">
+              {message(MSG.PUBLISH.DESIGN.EDITIONS.SELECT_CONTEXT)}
+            </label>
             <select
+              id="ed-assoc-ctx"
+              data-testid="edition-assoc-context"
               value={pickCtx}
               onChange={(e) => setPickCtx(e.target.value)}
-              aria-label="Delivery context"
+              aria-label={message(MSG.PUBLISH.DESIGN.EDITIONS.DELIVERY_CONTEXT_ARIA)}
             >
+              <option value="">
+                {message(MSG.PUBLISH.DESIGN.EDITIONS.SELECT_CONTEXT)}
+              </option>
               {contexts.map((c) => (
-                <option key={c.contextId} value={c.contextId}>
+                <option key={c.contextId} value={String(c.contextId ?? "")}>
                   {c.name}
                 </option>
               ))}
             </select>
-            <button type="button" style={buttonStyle} onClick={() => void handleAssociate()}>
-              Associate
+            <button
+              type="button"
+              data-testid="edition-associate"
+              style={buttonStyle}
+              disabled={saving}
+              onClick={() => void handleAssociate()}
+            >
+              {message(MSG.PUBLISH.DESIGN.EDITIONS.ASSOCIATE)}
             </button>
           </div>
         </div>

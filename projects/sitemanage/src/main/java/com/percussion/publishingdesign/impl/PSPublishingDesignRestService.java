@@ -97,6 +97,8 @@ public class PSPublishingDesignRestService {
   static final String EDITION_NAME_TOO_LONG =
       "Edition name must be 100 characters or fewer";
   static final String CONTENT_LIST_NAME_CONFLICT = "Content list name already exists";
+  static final String CONTENT_LIST_ALREADY_ASSOCIATED =
+      "Content list is already associated with this edition";
   static final String DELIVERY_TYPE_NAME_CONFLICT = "Delivery type name already exists";
   static final String LOCATION_SCHEME_NAME_CONFLICT = "Location scheme name already exists";
   static final String CONTEXT_NAME_CONFLICT = "Publishing context name already exists";
@@ -724,6 +726,7 @@ public class PSPublishingDesignRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSContentListSummary associateContentList(
       @PathParam("editionId") String editionId, PSEditionContentListAssoc body) {
+    requireDesignWrite();
     requireNonBlank(editionId, "editionId");
     if (body == null || isBlank(body.getContentListId()) || isBlank(body.getDeliveryContextId())) {
       throw badRequest("contentListId and deliveryContextId are required");
@@ -733,6 +736,16 @@ public class PSPublishingDesignRestService {
       publisherService.loadEdition(edGuid); // existence
       IPSGuid clGuid = toContentListGuid(body.getContentListId());
       IPSContentList cl = publisherService.loadContentList(clGuid);
+      List<IPSEditionContentList> existingLinks = publisherService.loadEditionContentLists(edGuid);
+      if (existingLinks != null) {
+        for (IPSEditionContentList link : existingLinks) {
+          if (link != null
+              && link.getContentListId() != null
+              && link.getContentListId().longValue() == clGuid.longValue()) {
+            throw conflict(CONTENT_LIST_ALREADY_ASSOCIATED);
+          }
+        }
+      }
       IPSEditionContentList newLink = publisherService.createEditionContentList();
       if (!(newLink instanceof PSEditionContentList pcl)) {
         throw new WebApplicationException(

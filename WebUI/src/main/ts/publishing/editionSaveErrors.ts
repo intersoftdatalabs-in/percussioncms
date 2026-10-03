@@ -83,3 +83,33 @@ export function mapEditionDeleteError(err: unknown): string {
   }
   return formatApiError(err, message(MSG.PUBLISH_ERROR));
 }
+
+/**
+ * Map edition content-list association failures to operator-visible text.
+ * HTTP 400 → missing ids; HTTP 403 → forbidden; HTTP 409 → already associated.
+ * Plain {@link ApiError} objects are not {@code Error} instances — do not use
+ * {@code e.message} or a failed associate looks like a generic miss.
+ */
+export function mapEditionContentListAssociateError(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
+    }
+    if (err.status === 409) {
+      return formatApiError(
+        err,
+        message(MSG.PUBLISH.DESIGN.EDITIONS.ASSOCIATE_CONFLICT),
+      );
+    }
+    if (err.status === 400) {
+      return formatApiError(
+        err,
+        message(MSG.PUBLISH.DESIGN.EDITIONS.ASSOCIATE_FAILED),
+      );
+    }
+  }
+  return formatApiError(
+    err,
+    message(MSG.PUBLISH.DESIGN.EDITIONS.ASSOCIATE_FAILED),
+  );
+}
