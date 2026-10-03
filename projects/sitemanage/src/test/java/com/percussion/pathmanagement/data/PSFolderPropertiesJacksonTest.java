@@ -16,6 +16,7 @@
  */
 package com.percussion.pathmanagement.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.pathmanagement.data.PSFolderPermission.Principal;
@@ -59,5 +60,17 @@ class PSFolderPropertiesJacksonTest {
     assertTrue(json.contains("ROLE") || json.contains("Role"), json);
     assertTrue(json.contains("en-us"), json);
     assertTrue(json.contains("FolderList"), json);
+  }
+
+  @Test
+  void readsNumericCommunityIdFromWrappedSaveBody() {
+    ObjectMapper mapper = new JacksonContextResolver().getContext(PSFolderProperties.class);
+    String json =
+        "{\"FolderProperties\":{\"id\":\"16777215-101-703\",\"name\":\"CI\","
+            + "\"communityId\":12,\"permission\":{\"accessLevel\":\"ADMIN\"}}}";
+    PSFolderProperties props = mapper.readValue(json, PSFolderProperties.class);
+    assertEquals(12, props.getCommunityId());
+    assertEquals("16777215-101-703", props.getId());
+    assertEquals("CI", props.getName());
   }
 }

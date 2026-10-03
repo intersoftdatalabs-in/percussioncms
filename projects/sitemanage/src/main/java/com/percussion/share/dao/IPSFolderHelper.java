@@ -19,6 +19,7 @@ package com.percussion.share.dao;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderProperties;
+import com.percussion.pathmanagement.data.PSFolderCommunityCatalog;
 import com.percussion.pathmanagement.data.PSFolderWorkflowCatalog;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.pathmanagement.service.IPSPathService;
@@ -589,6 +590,17 @@ public interface IPSFolderHelper {
    * True when {@code workflowId} is a positive id in {@link #listFolderWorkflowCatalog()}.
    */
   boolean isAssignableFolderWorkflow(int workflowId);
+
+  /**
+   * Communities that may be stored on a folder. Never {@code null}. An empty choice list means none
+   * are assignable (#5105). Not the item community allow-list.
+   */
+  PSFolderCommunityCatalog listFolderCommunityCatalog();
+
+  /**
+   * True when {@code communityId} is a positive id in {@link #listFolderCommunityCatalog()}.
+   */
+  boolean isAssignableFolderCommunity(int communityId);
 
   /**
    * Saves the specified folder properties.

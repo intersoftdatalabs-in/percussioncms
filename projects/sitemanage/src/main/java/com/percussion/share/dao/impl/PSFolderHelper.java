@@ -43,6 +43,8 @@ import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.designmanagement.service.IPSFileSystemService.PSInvalidCharacterInFolderNameException;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.pagemanagement.service.IPSPageService;
+import com.percussion.pathmanagement.data.PSFolderCommunityCatalog;
+import com.percussion.pathmanagement.data.PSFolderCommunityChoice;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderPermission.Access;
 import com.percussion.pathmanagement.data.PSFolderProperties;
@@ -68,6 +70,9 @@ import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.services.publisher.IPSPublisherService;
+import com.percussion.services.security.IPSBackEndRoleMgr;
+import com.percussion.services.security.PSRoleMgrLocator;
+import com.percussion.services.security.data.PSCommunity;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.system.IPSSystemService;
@@ -547,6 +552,41 @@ public class PSFolderHelper implements IPSFolderHelper {
       return false;
     }
     return FolderWorkflowCatalogRules.contains(listFolderWorkflowCatalog(), workflowId);
+  }
+
+  @Override
+  public PSFolderCommunityCatalog listFolderCommunityCatalog() {
+    try {
+      IPSBackEndRoleMgr roles = PSRoleMgrLocator.getBackEndRoleManager();
+      if (roles == null) {
+        return FolderCommunityCatalogRules.fromChoices(null);
+      }
+      List<PSCommunity> communities = roles.findCommunitiesByName(null);
+      List<PSFolderCommunityChoice> raw = new ArrayList<>();
+      if (communities != null) {
+        for (PSCommunity community : communities) {
+          if (community == null) {
+            continue;
+          }
+          PSFolderCommunityChoice choice = new PSFolderCommunityChoice();
+          choice.setId(Long.toString(community.getId()));
+          choice.setName(community.getName());
+          raw.add(choice);
+        }
+      }
+      return FolderCommunityCatalogRules.fromChoices(raw);
+    } catch (RuntimeException ex) {
+      log.debug("Could not catalog communities for folder assignment: {}", ex.toString());
+      return FolderCommunityCatalogRules.fromChoices(null);
+    }
+  }
+
+  @Override
+  public boolean isAssignableFolderCommunity(int communityId) {
+    if (communityId <= 0) {
+      return false;
+    }
+    return FolderCommunityCatalogRules.contains(listFolderCommunityCatalog(), communityId);
   }
 
   @Override

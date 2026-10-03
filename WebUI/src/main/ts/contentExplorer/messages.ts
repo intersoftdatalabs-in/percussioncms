@@ -868,6 +868,43 @@ export const EXPLORER_MSG = {
   SET_FOLDER_WORKFLOW_FAILED: "perc.ui.explorer@Could not set the folder workflow",
   SET_FOLDER_WORKFLOW_MISMATCH:
     "perc.ui.explorer@The folder workflow did not change after refresh",
+  SET_FOLDER_COMMUNITY: "perc.ui.explorer@Set folder community",
+  SET_FOLDER_COMMUNITY_ARIA:
+    "perc.ui.explorer@Set the community on the selected folder",
+  SET_FOLDER_COMMUNITY_TITLE: "perc.ui.explorer@Set folder community",
+  SET_FOLDER_COMMUNITY_LABEL: "perc.ui.explorer@Folder community",
+  SET_FOLDER_COMMUNITY_CURRENT: "perc.ui.explorer@current",
+  SET_FOLDER_COMMUNITY_SAVE: "perc.ui.explorer@Save folder community",
+  SET_FOLDER_COMMUNITY_CANCEL: "perc.ui.explorer@Cancel",
+  SET_FOLDER_COMMUNITY_SAVED: "perc.ui.explorer@Folder community saved",
+  SET_FOLDER_COMMUNITY_EMPTY:
+    "perc.ui.explorer@Select a folder before setting its community",
+  SET_FOLDER_COMMUNITY_PAGE:
+    "perc.ui.explorer@Pages are not given a folder community",
+  SET_FOLDER_COMMUNITY_ASSET:
+    "perc.ui.explorer@Assets are not given a folder community",
+  SET_FOLDER_COMMUNITY_NOT_FOLDER:
+    "perc.ui.explorer@Only a folder can have its folder community set",
+  SET_FOLDER_COMMUNITY_MULTI:
+    "perc.ui.explorer@Set folder community applies to one selected folder",
+  SET_FOLDER_COMMUNITY_NO_ID:
+    "perc.ui.explorer@No folder id is available to set a community",
+  SET_FOLDER_COMMUNITY_NONE:
+    "perc.ui.explorer@No communities are available to assign to this folder",
+  SET_FOLDER_COMMUNITY_UNCHANGED:
+    "perc.ui.explorer@Choose a different community. The current folder community is not saved again",
+  SET_FOLDER_COMMUNITY_FORBIDDEN:
+    "perc.ui.explorer@That community is not in the folder community catalog",
+  SET_FOLDER_COMMUNITY_BLANK: "perc.ui.explorer@Choose a community before saving",
+  SET_FOLDER_COMMUNITY_HTTP_400:
+    "perc.ui.explorer@Could not set the folder community (HTTP 400)",
+  SET_FOLDER_COMMUNITY_HTTP_403:
+    "perc.ui.explorer@You are not allowed to set this folder community (HTTP 403)",
+  SET_FOLDER_COMMUNITY_HTTP_409:
+    "perc.ui.explorer@This folder community could not be saved (HTTP 409)",
+  SET_FOLDER_COMMUNITY_FAILED: "perc.ui.explorer@Could not set the folder community",
+  SET_FOLDER_COMMUNITY_MISMATCH:
+    "perc.ui.explorer@The folder community did not change after refresh",
   SET_COMMUNITY: "perc.ui.explorer@Set community",
   SET_COMMUNITY_ARIA:
     "perc.ui.explorer@Set the community on the selected page or asset",

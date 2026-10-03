@@ -151,6 +151,13 @@ import {
   type SetFolderWorkflowCatalog,
 } from "./setFolderWorkflow";
 import type { FolderWorkflowChoice } from "../api/contentExplorer/folderWorkflowApi";
+import { SetFolderCommunityDialog } from "./SetFolderCommunityDialog";
+import {
+  loadSetFolderCommunityCatalog,
+  saveSetFolderCommunity,
+  type SetFolderCommunityCatalog,
+} from "./setFolderCommunity";
+import type { FolderCommunityChoice } from "../api/contentExplorer/folderCommunityApi";
 import type { PSFolderProperties } from "../api/contentExplorer/types";
 import { SetCommunityDialog } from "./SetCommunityDialog";
 import {
@@ -692,6 +699,21 @@ function ContentExplorerShellInner({
     folderId: string;
     currentId: string;
     choices: FolderWorkflowChoice[];
+    props: PSFolderProperties;
+    busy: boolean;
+    error: string;
+  } | null>(null);
+  const [setFolderCommunityNotice, setSetFolderCommunityNotice] = useState<{
+    kind: "success" | "error";
+    reason: string;
+    communityId: string;
+    communityName: string;
+    text: string;
+  } | null>(null);
+  const [setFolderCommunityDialog, setSetFolderCommunityDialog] = useState<{
+    folderId: string;
+    currentId: string;
+    choices: FolderCommunityChoice[];
     props: PSFolderProperties;
     busy: boolean;
     error: string;
@@ -2084,6 +2106,72 @@ function ContentExplorerShellInner({
           })();
           break;
         }
+        case "content-set-folder-community": {
+          const current = selectionRef.current;
+          const selectedCount = multiSelectedItemsRef.current.size;
+          void (async () => {
+            setSetFolderCommunityNotice(null);
+            setSetFolderCommunityDialog(null);
+            const catalog: SetFolderCommunityCatalog = await loadSetFolderCommunityCatalog({
+              item: current.item,
+              selectedCount,
+            });
+            if (catalog.status === "blocked") {
+              const key =
+                catalog.reason === "page"
+                  ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_PAGE
+                  : catalog.reason === "asset"
+                    ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_ASSET
+                    : catalog.reason === "not-folder"
+                      ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_NOT_FOLDER
+                      : catalog.reason === "multi"
+                        ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_MULTI
+                        : catalog.reason === "no-id"
+                          ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_NO_ID
+                          : EXPLORER_MSG.SET_FOLDER_COMMUNITY_EMPTY;
+              const text = catalog.name
+                ? `${message(key)}: ${catalog.name}`
+                : message(key);
+              setSetFolderCommunityNotice({
+                kind: "error",
+                reason: catalog.reason,
+                communityId: "",
+                communityName: "",
+                text,
+              });
+              return;
+            }
+            if (catalog.status === "none" || catalog.status === "http") {
+              const httpKey =
+                catalog.status === "http" && catalog.http === 400
+                  ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_400
+                  : catalog.status === "http" && catalog.http === 403
+                    ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_403
+                    : catalog.status === "http" && catalog.http === 409
+                      ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_409
+                      : catalog.status === "http"
+                        ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_FAILED
+                        : EXPLORER_MSG.SET_FOLDER_COMMUNITY_NONE;
+              setSetFolderCommunityNotice({
+                kind: "error",
+                reason: catalog.status === "http" ? `http-${catalog.http}` : "none",
+                communityId: "",
+                communityName: "",
+                text: message(httpKey),
+              });
+              return;
+            }
+            setSetFolderCommunityDialog({
+              folderId: catalog.folderId,
+              currentId: catalog.currentId,
+              choices: catalog.choices,
+              props: catalog.props,
+              busy: false,
+              error: "",
+            });
+          })();
+          break;
+        }
         case "content-set-community": {
           const current = selectionRef.current;
           const selectedCount = multiSelectedItemsRef.current.size;
@@ -2433,6 +2521,19 @@ function ContentExplorerShellInner({
               aria-live="polite"
             >
               {setFolderWorkflowNotice.text}
+            </div>
+          ) : null}
+          {setFolderCommunityNotice ? (
+            <div
+              data-testid="explorer-set-folder-community-status"
+              data-kind={setFolderCommunityNotice.kind}
+              data-reason={setFolderCommunityNotice.reason}
+              data-community-id={setFolderCommunityNotice.communityId}
+              data-community-name={setFolderCommunityNotice.communityName}
+              role="status"
+              aria-live="polite"
+            >
+              {setFolderCommunityNotice.text}
             </div>
           ) : null}
           {setCommunityNotice ? (
@@ -3501,6 +3602,67 @@ function ContentExplorerShellInner({
                               ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_409
                               : EXPLORER_MSG.SET_FOLDER_WORKFLOW_FAILED;
               setSetFolderWorkflowDialog({
+                ...dialog,
+                busy: false,
+                error: message(key),
+              });
+            })();
+          }}
+        />
+      ) : null}
+      {setFolderCommunityDialog ? (
+        <SetFolderCommunityDialog
+          choices={setFolderCommunityDialog.choices}
+          currentId={setFolderCommunityDialog.currentId}
+          busy={setFolderCommunityDialog.busy}
+          error={setFolderCommunityDialog.error}
+          onCancel={() => {
+            if (!setFolderCommunityDialog.busy) {
+              setSetFolderCommunityDialog(null);
+            }
+          }}
+          onSave={(communityId) => {
+            const dialog = setFolderCommunityDialog;
+            void (async () => {
+              setSetFolderCommunityDialog({ ...dialog, busy: true, error: "" });
+              const saved = await saveSetFolderCommunity({
+                folderId: dialog.folderId,
+                props: dialog.props,
+                selectedId: communityId,
+                currentId: dialog.currentId,
+                allowedIds: dialog.choices.map((row) => row.id),
+                communityName:
+                  dialog.choices.find((row) => row.id === communityId)?.name ?? communityId,
+              });
+              if (saved.status === "saved") {
+                setSetFolderCommunityDialog(null);
+                setSetFolderCommunityNotice({
+                  kind: "success",
+                  reason: "",
+                  communityId: saved.communityId,
+                  communityName: saved.communityName,
+                  text: `${message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_SAVED)} ${saved.communityName}`,
+                });
+                setListEpoch((n) => n + 1);
+                return;
+              }
+              const key =
+                saved.status === "gate" && saved.reason === "unchanged"
+                  ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_UNCHANGED
+                  : saved.status === "gate" && saved.reason === "forbidden"
+                    ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_FORBIDDEN
+                    : saved.status === "gate" && saved.reason === "blank"
+                      ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_BLANK
+                      : saved.status === "mismatch"
+                        ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_MISMATCH
+                        : saved.status === "http" && saved.http === 400
+                          ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_400
+                          : saved.status === "http" && saved.http === 403
+                            ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_403
+                            : saved.status === "http" && saved.http === 409
+                              ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_409
+                              : EXPLORER_MSG.SET_FOLDER_COMMUNITY_FAILED;
+              setSetFolderCommunityDialog({
                 ...dialog,
                 busy: false,
                 error: message(key),

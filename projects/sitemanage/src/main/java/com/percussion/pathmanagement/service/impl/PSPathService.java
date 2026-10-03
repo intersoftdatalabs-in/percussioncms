@@ -24,6 +24,7 @@ import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
+import com.percussion.pathmanagement.data.PSFolderCommunityCatalog;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderProperties;
 import com.percussion.pathmanagement.data.PSFolderWorkflowCatalog;
@@ -220,6 +221,18 @@ public class PSPathService extends PSDispatchingPathService
     return catalog == null ? new PSFolderWorkflowCatalog() : catalog;
   }
 
+  /**
+   * Community id and name catalog for Explorer folder assignment (#5105). Not the item allow-list
+   * used by Set community on a page or asset.
+   */
+  @GET
+  @Path("/folderCommunityCatalog")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSFolderCommunityCatalog folderCommunityCatalog() {
+    PSFolderCommunityCatalog catalog = folderHelper.listFolderCommunityCatalog();
+    return catalog == null ? new PSFolderCommunityCatalog() : catalog;
+  }
+
   @POST
   @Path("/saveFolderProperties")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -261,6 +274,14 @@ public class PSPathService extends PSDispatchingPathService
         && !folderHelper.isAssignableFolderWorkflow(props.getWorkflowId())) {
       throw new WebApplicationException(
           "Workflow is not in the folder workflow catalog", Response.Status.BAD_REQUEST);
+    }
+
+    // communityId <= 0 leaves callers that omit a community alone. A positive id that is not in
+    // the folder community catalog must not be written (#5105).
+    if (props.getCommunityId() > 0
+        && !folderHelper.isAssignableFolderCommunity(props.getCommunityId())) {
+      throw new WebApplicationException(
+          "Community is not in the folder community catalog", Response.Status.BAD_REQUEST);
     }
 
     List<IPSSite> sites = publishingWs.getItemSites(idMapper.getGuid(props.getId()));

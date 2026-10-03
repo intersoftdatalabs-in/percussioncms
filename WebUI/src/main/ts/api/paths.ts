@@ -484,6 +484,10 @@ export const PATHS = {
   get PATH_FOLDER_WORKFLOW_CATALOG() {
     return `${SERVICES_ROOT}/pathmanagement/path/folderWorkflowCatalog`;
   },
+  /** Community id catalog for Explorer folder assignment (#5105). */
+  get PATH_FOLDER_COMMUNITY_CATALOG() {
+    return `${SERVICES_ROOT}/pathmanagement/path/folderCommunityCatalog`;
+  },
   get PATH_VALIDATE() {
     return `${SERVICES_ROOT}/pathmanagement/path/validate`;
   },
