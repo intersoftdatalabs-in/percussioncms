@@ -21,7 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.publishingdesign.data.PSContentListSummary;
@@ -47,6 +50,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -156,7 +160,37 @@ class PSPublishingDesignRestServiceTest {
     PSEditionSummary created = service.createEdition(body);
     assertEquals("NewEd", created.getName());
     assertEquals("11", created.getEditionId());
-    org.mockito.Mockito.verify(publisherService).saveEdition(edition);
+    assertEquals("42", created.getSiteId());
+    InOrder order = inOrder(edition);
+    order.verify(edition).setComment("c");
+    order.verify(edition).setSiteId(siteGuid);
+    order.verify(edition).setName("NewEd");
+    verify(publisherService).saveEdition(edition);
+  }
+
+  @Test
+  void createEdition_blankName_400() {
+    PSEditionSummary body = new PSEditionSummary();
+    body.setName("   ");
+    body.setSiteId("42");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.createEdition(body));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(publisherService, never()).createEdition();
+    verify(publisherService, never()).saveEdition(any());
+  }
+
+  @Test
+  void createEdition_nameTooLong_400() {
+    PSEditionSummary body = new PSEditionSummary();
+    body.setName("N".repeat(PSPublishingDesignRestService.MAX_EDITION_NAME_LENGTH + 1));
+    body.setSiteId("42");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.createEdition(body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains(PSPublishingDesignRestService.EDITION_NAME_TOO_LONG));
+    verify(publisherService, never()).createEdition();
+    verify(publisherService, never()).saveEdition(any());
   }
 
   @Test
@@ -202,6 +236,22 @@ class PSPublishingDesignRestServiceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> service.updateEdition("11", body));
     assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void updateEdition_nameTooLong_400() throws Exception {
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    IPSEdition loaded = mock(IPSEdition.class);
+    when(publisherService.loadEditionModifiable(editionGuid)).thenReturn(loaded);
+
+    PSEditionSummary body = new PSEditionSummary();
+    body.setName("N".repeat(PSPublishingDesignRestService.MAX_EDITION_NAME_LENGTH + 1));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateEdition("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(publisherService, never()).findEditionByName(any());
+    verify(publisherService, never()).saveEdition(any());
   }
 
   @Test
