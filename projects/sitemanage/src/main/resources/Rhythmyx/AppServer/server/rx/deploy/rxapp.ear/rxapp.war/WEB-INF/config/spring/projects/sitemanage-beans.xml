@@ -776,6 +776,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <jaxrs:serviceBeans>
             <ref bean="workflowRestService"/>
             <ref bean="itemRestService"/>
+            <ref bean="itemCommunityRestService"/>
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json"/>

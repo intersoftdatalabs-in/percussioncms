@@ -821,6 +821,13 @@ export const PATHS = {
   itemWorkflowChange(itemId: string, workflowId: string) {
     return `${SERVICES_ROOT}/itemmanagement/workflow/changeWorkflow/${encodeURIComponent(itemId)}/${encodeURIComponent(workflowId)}`;
   },
+  /** Communities Explorer may assign to one page or asset (#5077). */
+  get ITEM_COMMUNITY_ALLOWED() {
+    return `${SERVICES_ROOT}/itemmanagement/item/community/allowed/`;
+  },
+  itemCommunityChange(itemId: string, communityId: string) {
+    return `${SERVICES_ROOT}/itemmanagement/item/community/change/${encodeURIComponent(itemId)}/${encodeURIComponent(communityId)}`;
+  },
   get ITEM_WORKFLOW_CHECKIN() {
     return `${SERVICES_ROOT}/itemmanagement/workflow/checkIn/`;
   },

@@ -831,6 +831,38 @@ export const EXPLORER_MSG = {
   SET_WORKFLOW_HTTP_409:
     "perc.ui.explorer@This item could not change workflow (HTTP 409)",
   SET_WORKFLOW_FAILED: "perc.ui.explorer@Could not set the workflow",
+  SET_COMMUNITY: "perc.ui.explorer@Set community",
+  SET_COMMUNITY_ARIA:
+    "perc.ui.explorer@Set the community on the selected page or asset",
+  SET_COMMUNITY_TITLE: "perc.ui.explorer@Set community",
+  SET_COMMUNITY_LABEL: "perc.ui.explorer@Community",
+  SET_COMMUNITY_CURRENT: "perc.ui.explorer@current",
+  SET_COMMUNITY_SAVE: "perc.ui.explorer@Save community",
+  SET_COMMUNITY_CANCEL: "perc.ui.explorer@Cancel",
+  SET_COMMUNITY_SAVED: "perc.ui.explorer@Community saved",
+  SET_COMMUNITY_EMPTY:
+    "perc.ui.explorer@Select a page or asset before setting its community",
+  SET_COMMUNITY_FOLDER: "perc.ui.explorer@Folders are not assigned a community",
+  SET_COMMUNITY_MULTI:
+    "perc.ui.explorer@Set community applies to one selected page or asset",
+  SET_COMMUNITY_NOT_ITEM:
+    "perc.ui.explorer@Only a page or asset can have its community set",
+  SET_COMMUNITY_NO_ID:
+    "perc.ui.explorer@No content id is available to set a community",
+  SET_COMMUNITY_NONE:
+    "perc.ui.explorer@This item has no communities that can be assigned",
+  SET_COMMUNITY_UNCHANGED:
+    "perc.ui.explorer@Choose a different community. The current community is not saved again",
+  SET_COMMUNITY_FORBIDDEN:
+    "perc.ui.explorer@That community is not allowed for this item",
+  SET_COMMUNITY_BLANK: "perc.ui.explorer@Choose a community before saving",
+  SET_COMMUNITY_HTTP_400:
+    "perc.ui.explorer@Could not set the community (HTTP 400)",
+  SET_COMMUNITY_HTTP_403:
+    "perc.ui.explorer@You are not allowed to set this community (HTTP 403)",
+  SET_COMMUNITY_HTTP_409:
+    "perc.ui.explorer@This item could not change community (HTTP 409)",
+  SET_COMMUNITY_FAILED: "perc.ui.explorer@Could not set the community",
   COPY_ITEM_GUID: "perc.ui.explorer@Copy item id",
   COPY_ITEM_GUID_ARIA:
     "perc.ui.explorer@Copy the selected item content id to the clipboard",
