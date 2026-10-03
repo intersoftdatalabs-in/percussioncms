@@ -335,7 +335,21 @@ to edit the copy. A blank new name is stored as the source name plus `_copy`.
 HTTP **400** (source edition or target site missing) and **403** (not Admin or Designer) stay
 in the edition editor error region. The list is not refreshed as a successful copy. HTTP
 **409** (the new name already exists) stays in that same error region. Creating an edition
-from scratch and deleting an edition are separate actions.
+from scratch is a separate action. Deleting an edition is described below.
+
+### Delete a publish edition (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
+Open an existing edition (not **Add edition**). **Delete** asks for confirmation
+(**Delete this design object? This cannot be undone.**). Confirm calls
+`DELETE …/sitemanage/publishingdesign/editions/{editionId}`. On success the editor
+closes and that edition is gone from the site's edition list. Cancel does not call
+the server and leaves the list unchanged.
+
+An edition with a running publish job is not deleted. HTTP **409** (**Edition is in use**),
+**403** (not Admin or Designer), and **400** (edition id missing) stay in the edition
+editor error region. The list is not refreshed as a successful delete. Creating an
+edition, copying an edition, and stopping a running job are separate actions.
 
 ### Save a content list (Design)
 

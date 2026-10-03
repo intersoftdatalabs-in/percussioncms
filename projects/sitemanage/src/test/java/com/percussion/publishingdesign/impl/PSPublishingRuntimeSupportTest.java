@@ -68,6 +68,23 @@ class PSPublishingRuntimeSupportTest {
   }
 
   @Test
+  void runningJobId_returnsActiveJob() {
+    when(rxPublisherService.getEditionJobId(editionGuid)).thenReturn(55L);
+    assertEquals(55L, support.runningJobId(editionGuid));
+  }
+
+  @Test
+  void runningJobId_idleIsZero() {
+    when(rxPublisherService.getEditionJobId(editionGuid)).thenReturn(0L);
+    assertEquals(0L, support.runningJobId(editionGuid));
+  }
+
+  @Test
+  void runningJobId_nullGuidIsIdle() {
+    assertEquals(0L, support.runningJobId(null));
+  }
+
+  @Test
   void listRuntimeEditions_includesJobId() {
     when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.SITE))).thenReturn(siteGuid);
     IPSEdition edition = mock(IPSEdition.class);

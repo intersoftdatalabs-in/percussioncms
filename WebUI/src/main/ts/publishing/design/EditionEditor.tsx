@@ -31,7 +31,11 @@ import {
   type EditionSummary,
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
-import { mapEditionCopyError, mapEditionSaveError } from "../editionSaveErrors";
+import {
+  mapEditionCopyError,
+  mapEditionDeleteError,
+  mapEditionSaveError,
+} from "../editionSaveErrors";
 import {
   buttonStyle,
   errorStyle,
@@ -163,11 +167,12 @@ export function EditionEditor({
       return;
     }
     setSaving(true);
+    setError(null);
     try {
       await deleteEdition(edition.editionId);
       onSaved();
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapEditionDeleteError(e));
     } finally {
       setSaving(false);
     }
@@ -390,6 +395,7 @@ export function EditionEditor({
         {edition?.editionId && (
           <button
             type="button"
+            data-testid="edition-delete"
             style={buttonStyle}
             disabled={saving}
             onClick={() => void handleDelete()}

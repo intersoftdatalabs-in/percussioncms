@@ -16,7 +16,10 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { mapEditionSaveError } from "@/publishing/editionSaveErrors";
+import {
+  mapEditionDeleteError,
+  mapEditionSaveError,
+} from "@/publishing/editionSaveErrors";
 
 describe("mapEditionSaveError", () => {
   it("maps HTTP 403 to forbidden chrome", () => {
@@ -49,5 +52,43 @@ describe("mapEditionSaveError", () => {
     expect(
       mapEditionSaveError({ status: 400, statusText: "Bad Request", body: {} }),
     ).toMatch(/400|Bad Request/i);
+  });
+});
+
+describe("mapEditionDeleteError", () => {
+  it("maps HTTP 409 to the edition-in-use message", () => {
+    expect(
+      mapEditionDeleteError({
+        status: 409,
+        statusText: "Conflict",
+        body: { message: "Edition is in use" },
+      }),
+    ).toBe("Edition is in use");
+  });
+
+  it("maps HTTP 409 without a body to edition in use", () => {
+    expect(
+      mapEditionDeleteError({ status: 409, statusText: "Conflict", body: {} }),
+    ).toMatch(/Edition is in use|409/i);
+  });
+
+  it("maps HTTP 403 to forbidden chrome", () => {
+    expect(
+      mapEditionDeleteError({
+        status: 403,
+        statusText: "Forbidden",
+        body: { message: "Admin or Designer role required to save a publish edition" },
+      }),
+    ).toMatch(/Admin or Designer|403|Forbidden/i);
+  });
+
+  it("maps HTTP 400 body message", () => {
+    expect(
+      mapEditionDeleteError({
+        status: 400,
+        statusText: "Bad Request",
+        body: { message: "editionId is required" },
+      }),
+    ).toBe("editionId is required");
   });
 });

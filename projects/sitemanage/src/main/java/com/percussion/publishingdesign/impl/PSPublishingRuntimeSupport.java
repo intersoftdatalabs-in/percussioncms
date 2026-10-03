@@ -137,6 +137,19 @@ public class PSPublishingRuntimeSupport {
     return out;
   }
 
+  /**
+   * Active publish job id for an edition, or {@code 0} when the edition is idle.
+   *
+   * @param editionGuid edition to inspect; {@code null} is idle
+   */
+  public long runningJobId(IPSGuid editionGuid) {
+    if (editionGuid == null) {
+      return 0L;
+    }
+    requireRx();
+    return rxPublisherService.getEditionJobId(editionGuid);
+  }
+
   public PSRuntimeJobResponse startEdition(String editionId) {
     requireNonBlank(editionId, "editionId");
     requireRx();
