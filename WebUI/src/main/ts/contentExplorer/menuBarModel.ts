@@ -43,6 +43,7 @@ export type ExplorerMenuCommandId =
   | "content-set-workflow"
   | "content-set-folder-workflow"
   | "content-set-folder-community"
+  | "content-set-folder-locale"
   | "content-set-community"
   | "content-mobile-preview"
   | "view-refresh"
@@ -207,6 +208,12 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.SET_FOLDER_COMMUNITY,
           ariaLabelKey: EXPLORER_MSG.SET_FOLDER_COMMUNITY_ARIA,
           testId: "explorer-set-folder-community",
+        },
+        {
+          id: "content-set-folder-locale",
+          labelKey: EXPLORER_MSG.SET_FOLDER_LOCALE,
+          ariaLabelKey: EXPLORER_MSG.SET_FOLDER_LOCALE_ARIA,
+          testId: "explorer-set-folder-locale",
         },
         {
           id: "content-set-community",

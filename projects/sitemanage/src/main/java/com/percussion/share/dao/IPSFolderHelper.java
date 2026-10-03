@@ -20,6 +20,7 @@ import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderProperties;
 import com.percussion.pathmanagement.data.PSFolderCommunityCatalog;
+import com.percussion.pathmanagement.data.PSFolderLocaleCatalog;
 import com.percussion.pathmanagement.data.PSFolderWorkflowCatalog;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.pathmanagement.service.IPSPathService;
@@ -601,6 +602,18 @@ public interface IPSFolderHelper {
    * True when {@code communityId} is a positive id in {@link #listFolderCommunityCatalog()}.
    */
   boolean isAssignableFolderCommunity(int communityId);
+
+  /**
+   * Locales that may be stored on a folder (language string such as {@code en-us}). Never {@code
+   * null}. An empty choice list means none are assignable (#5106). Not an item translation list.
+   */
+  PSFolderLocaleCatalog listFolderLocaleCatalog();
+
+  /**
+   * True when {@code localeCode} is a non-blank code in {@link #listFolderLocaleCatalog()}
+   * (case-insensitive).
+   */
+  boolean isAssignableFolderLocale(String localeCode);
 
   /**
    * Saves the specified folder properties.

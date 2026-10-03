@@ -488,6 +488,10 @@ export const PATHS = {
   get PATH_FOLDER_COMMUNITY_CATALOG() {
     return `${SERVICES_ROOT}/pathmanagement/path/folderCommunityCatalog`;
   },
+  /** Locale code catalog for Explorer folder assignment (#5106). */
+  get PATH_FOLDER_LOCALE_CATALOG() {
+    return `${SERVICES_ROOT}/pathmanagement/path/folderLocaleCatalog`;
+  },
   get PATH_VALIDATE() {
     return `${SERVICES_ROOT}/pathmanagement/path/validate`;
   },

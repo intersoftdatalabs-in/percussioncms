@@ -245,4 +245,93 @@ class PSPathServiceSaveFolderPropertiesValidationTest {
     verify(folderHelper).saveFolderProperties(props);
     verify(folderHelper, never()).isAssignableFolderCommunity(anyInt());
   }
+
+  @Test
+  void unknownLocale_mapsToHttp400AndDoesNotSave() throws Exception {
+    PSFolderProperties stored = new PSFolderProperties();
+    stored.setId("16777215-101-703");
+    stored.setName("Design");
+    stored.setLocale("en-us");
+    PSFolderProperties props = new PSFolderProperties();
+    props.setId("16777215-101-703");
+    props.setName("Design");
+    props.setLocale("zz-zz");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(folderHelper.isAssignableFolderLocale("zz-zz")).thenReturn(false);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveFolderProperties(props));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+    verify(folderHelper, never()).saveFolderProperties(any(PSFolderProperties.class));
+    verify(publishingWs, never()).getItemSites(any());
+  }
+
+  @Test
+  void catalogLocale_stillDelegatesToFolderHelper() throws Exception {
+    PSFolderProperties stored = new PSFolderProperties();
+    stored.setId("16777215-101-703");
+    stored.setName("Design");
+    stored.setLocale("en-us");
+    PSFolderProperties props = new PSFolderProperties();
+    props.setId("16777215-101-703");
+    props.setName("Design");
+    props.setLocale("fr-fr");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(folderHelper.isAssignableFolderLocale("fr-fr")).thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    verify(folderHelper).saveFolderProperties(props);
+  }
+
+  @Test
+  void unchangedLocale_doesNotRequireCatalog() throws Exception {
+    PSFolderProperties stored = new PSFolderProperties();
+    stored.setId("16777215-101-703");
+    stored.setName("Design");
+    stored.setLocale("en-us");
+    PSFolderProperties props = new PSFolderProperties();
+    props.setId("16777215-101-703");
+    props.setName("Design");
+    props.setLocale("EN-US");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    verify(folderHelper).saveFolderProperties(props);
+    verify(folderHelper, never()).isAssignableFolderLocale(anyString());
+  }
+
+  @Test
+  void blankLocale_doesNotRequireCatalog() throws Exception {
+    PSFolderProperties stored = new PSFolderProperties();
+    stored.setId("16777215-101-703");
+    stored.setName("Design");
+    stored.setLocale("fr-fr");
+    PSFolderProperties props = new PSFolderProperties();
+    props.setId("16777215-101-703");
+    props.setName("Design");
+    props.setLocale("  ");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    verify(folderHelper).saveFolderProperties(props);
+    verify(folderHelper, never()).isAssignableFolderLocale(anyString());
+  }
 }
