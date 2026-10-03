@@ -154,7 +154,7 @@ public class PSPublishingDesignRestService {
     this.designWriteAllowed = designWriteAllowed;
   }
 
-  /** Test hook: when set, overrides the runtime running-job lookup used by delete. */
+  /** Test hook: when set, overrides the runtime running-job lookup (delete and disassociate). */
   void setEditionRunningJobId(ToLongFunction<IPSGuid> editionRunningJobId) {
     this.editionRunningJobId = editionRunningJobId;
   }
@@ -779,18 +779,25 @@ public class PSPublishingDesignRestService {
   @Path("/editions/{editionId}/contentlists/{contentListId}")
   public void disassociateContentList(
       @PathParam("editionId") String editionId, @PathParam("contentListId") String contentListId) {
+    requireDesignWrite();
     requireNonBlank(editionId, "editionId");
     requireNonBlank(contentListId, "contentListId");
     try {
       IPSGuid edGuid = toEditionGuid(editionId);
+      // Same in-use rule as edition delete: a running job keeps the association.
+      rejectEditionInUse(edGuid);
       IPSGuid clGuid = toContentListGuid(contentListId);
       List<IPSEditionContentList> links = publisherService.loadEditionContentLists(edGuid);
       boolean removed = false;
-      for (IPSEditionContentList link : links) {
-        if (link.getContentListId() != null
-            && link.getContentListId().longValue() == clGuid.longValue()) {
-          publisherService.deleteEditionContentList(link);
-          removed = true;
+      if (links != null) {
+        for (IPSEditionContentList link : links) {
+          if (link == null || link.getContentListId() == null) {
+            continue;
+          }
+          if (link.getContentListId().longValue() == clGuid.longValue()) {
+            publisherService.deleteEditionContentList(link);
+            removed = true;
+          }
         }
       }
       if (!removed) {

@@ -334,7 +334,27 @@ and does not call the server. The associated list stays unchanged.
 HTTP **400** (content list or delivery context missing), **403** (not Admin or Designer), and
 **409** (that content list is already associated with this edition) stay in the edition editor
 error region. Those responses do not add the content list to the associated list. Removing an
-association, creating an edition, and creating a content list are separate actions.
+association is described below. Creating an edition and creating a content list are separate
+actions.
+
+### Remove a content list from an edition (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
+Open an existing edition (not **Add edition**). Under **Associated content lists**, **Remove**
+on one row asks for confirmation (**Remove this content list from the edition? The content
+list itself is not deleted.**).
+
+Confirm calls
+`DELETE …/sitemanage/publishingdesign/editions/{editionId}/contentlists/{contentListId}`.
+That content list disappears from **Associated content lists** only after the call succeeds.
+Other associated lists on the same edition stay. Cancel does not call the server and leaves
+the association in place. This does not delete the content list definition.
+
+An edition with a running publish job does not lose the association. A publish job that has
+already finished does not block removal. HTTP **400** (edition or content list id missing),
+**403** (not Admin or Designer), and **409** (**Edition is in use**) stay in the edition
+editor error region. Those responses do not remove the row. Associating a content list,
+deleting the content list definition, and deleting the edition are separate actions.
 
 ### Copy a publish edition (Design)
 

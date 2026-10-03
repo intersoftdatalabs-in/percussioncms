@@ -33,6 +33,7 @@ import {
 import { message, MSG } from "../../i18n/message";
 import {
   mapEditionContentListAssociateError,
+  mapEditionContentListDisassociateError,
   mapEditionCopyError,
   mapEditionDeleteError,
   mapEditionSaveError,
@@ -275,17 +276,28 @@ export function EditionEditor({
   }
 
   async function handleDisassociate(clId: string): Promise<void> {
-    if (!edition?.editionId) {
+    if (!edition?.editionId || !clId.trim() || saving) {
       return;
     }
-    if (!window.confirm(message(MSG.PUBLISH_CONFIRM_DELETE_DESIGN))) {
+    if (
+      !window.confirm(message(MSG.PUBLISH.DESIGN.EDITIONS.CONFIRM_REMOVE_LIST))
+    ) {
       return;
     }
+    setSaving(true);
+    setError(null);
     try {
       await disassociateContentList(edition.editionId, clId);
-      reloadAssoc();
+      // Drop only this row after DELETE succeeds. A list reload that fails must
+      // not clear every association, and an in-flight list must not restore it.
+      assocLoadGen.current += 1;
+      setAssoc((prev) =>
+        prev.filter((row) => String(row.contentListId ?? "") !== clId),
+      );
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapEditionContentListDisassociateError(e));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -341,10 +353,12 @@ export function EditionEditor({
                   {c.contentListId && (
                     <button
                       type="button"
+                      data-testid={`edition-disassociate-${c.contentListId}`}
                       style={buttonStyle}
-                      onClick={() => void handleDisassociate(c.contentListId!)}
+                      disabled={saving}
+                      onClick={() => void handleDisassociate(String(c.contentListId))}
                     >
-                      Remove
+                      {message(MSG.PUBLISH.DESIGN.EDITIONS.REMOVE)}
                     </button>
                   )}
                 </li>

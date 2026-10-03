@@ -861,6 +861,11 @@ GADGET_DESC_DASHBOARD_CONFIG:
           "perc.ui.publish.design.editions@Could not associate the content list",
         ASSOCIATE_CONFLICT:
           "perc.ui.publish.design.editions@Content list is already associated with this edition",
+        REMOVE: "perc.ui.publish.design.editions@Remove",
+        CONFIRM_REMOVE_LIST:
+          "perc.ui.publish.design.editions@Remove this content list from the edition? The content list itself is not deleted.",
+        REMOVE_FAILED:
+          "perc.ui.publish.design.editions@Could not remove the content list from the edition",
         COPY_TO_SITE_HEADING: "perc.ui.publish.design.editions@Copy to site",
         TARGET_SITE: "perc.ui.publish.design.editions@Target site",
       },
