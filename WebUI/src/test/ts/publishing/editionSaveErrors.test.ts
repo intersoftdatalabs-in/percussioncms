@@ -34,4 +34,20 @@ describe("mapEditionSaveError", () => {
       }),
     ).toBe("Edition name already exists");
   });
+
+  it("maps HTTP 400 body message for an invalid name", () => {
+    expect(
+      mapEditionSaveError({
+        status: 400,
+        statusText: "Bad Request",
+        body: { message: "Edition name must be 100 characters or fewer" },
+      }),
+    ).toBe("Edition name must be 100 characters or fewer");
+  });
+
+  it("maps HTTP 400 without a body to a visible status", () => {
+    expect(
+      mapEditionSaveError({ status: 400, statusText: "Bad Request", body: {} }),
+    ).toMatch(/400|Bad Request/i);
+  });
 });

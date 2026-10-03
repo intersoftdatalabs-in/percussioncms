@@ -302,17 +302,22 @@ From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish s
 
 **Clear queue** (shown when the preview has at least one row) asks for confirmation, then calls `DELETE …/sitemanage/publish/incremental/content/{site}/{server}` with no content id. Confirm deletes the incremental queue for that site and server (live or staging) and reloads the list. An empty reload shows the empty-queue message. If the server still returns rows, those rows stay and the workspace says some items are still queued. Cancel does not call the server. HTTP **403** and **404** (site or server not found) stay on the workspace as errors; this is not incremental publish and not remove-one-row.
 
-### Save a publish edition (Design)
+### Create a publish edition (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
-Pick a site and **Add edition** (or open an existing edition). Enter a **name** (required),
-optional comment and priority (1–5), then **Save**. The shell posts
-`POST …/sitemanage/publishingdesign/editions` (create) or
-`PUT …/sitemanage/publishingdesign/editions/{editionId}` (update).
+The site selector is the open site. **Add edition** starts a new edition for that site.
+Enter a **name** (required, at most 100 characters) and optional comment and priority (1–5),
+then **Save**. The shell posts `POST …/sitemanage/publishingdesign/editions` with the open
+site id. On success the editor closes and the new edition appears in that site's edition list.
 
-HTTP **403** (not Admin or Designer) and **409** (edition name already exists) are shown in the
-edition editor error region — not as a successful save. Content-list association and
-Runtime start/stop are separate Design/Runtime actions. Copying an edition is described below.
+A blank name stays in the editor (**Name is required**) and is not posted. A name longer than
+100 characters stays in the editor and is not posted. HTTP **400** (name or site missing, or
+the name is too long), **403** (not Admin or Designer), and **409** (edition name already
+exists) stay in the edition editor error region. The list does not gain a row for those
+failures. Opening an existing edition and saving it is an update
+(`PUT …/sitemanage/publishingdesign/editions/{editionId}`) on the same form. Content-list
+association and Runtime start/stop are separate Design/Runtime actions. Copying an edition
+is described below.
 
 ### Copy a publish edition (Design)
 

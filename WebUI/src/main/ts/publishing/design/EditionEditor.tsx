@@ -115,15 +115,26 @@ export function EditionEditor({
   }, [edition?.editionId]);
 
   async function handleSave(): Promise<void> {
-    if (!name.trim()) {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
       setError("Name is required");
+      return;
+    }
+    // RXEDITION.DISPLAYTITLE is VARCHAR(100). Reject before POST so the operator
+    // sees the limit instead of a database 500.
+    if (trimmedName.length > 100) {
+      setError("Edition name must be 100 characters or fewer");
+      return;
+    }
+    if (!siteId.trim()) {
+      setError("name and siteId are required");
       return;
     }
     setSaving(true);
     setError(null);
     try {
       const body: EditionSummary = {
-        name: name.trim(),
+        name: trimmedName,
         comment,
         priority,
         siteId,

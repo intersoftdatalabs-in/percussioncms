@@ -23,7 +23,9 @@ import { message, MSG } from "../i18n/message";
 
 /**
  * Map edition create/update failures to operator-visible text.
- * HTTP 403 → forbidden; HTTP 409 → duplicate name.
+ * HTTP 400 → invalid name or missing site; HTTP 403 → forbidden; HTTP 409 → duplicate name.
+ * Plain {@link ApiError} objects are not {@code Error} instances — do not use
+ * {@code e.message} or the shell shows a generic failure (or nothing useful).
  */
 export function mapEditionSaveError(err: unknown): string {
   if (isApiError(err)) {
@@ -32,6 +34,9 @@ export function mapEditionSaveError(err: unknown): string {
     }
     if (err.status === 409) {
       return formatApiError(err, message(MSG.PUBLISH_EDITION_NAME_CONFLICT));
+    }
+    if (err.status === 400) {
+      return formatApiError(err, message(MSG.PUBLISH_ERROR));
     }
   }
   return formatApiError(err, message(MSG.PUBLISH_ERROR));

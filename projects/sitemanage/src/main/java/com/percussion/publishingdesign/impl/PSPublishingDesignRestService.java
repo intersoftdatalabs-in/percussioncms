@@ -88,6 +88,11 @@ public class PSPublishingDesignRestService {
   static final String DESIGN_WRITE_FORBIDDEN =
       "Admin or Designer role required to save a publish edition";
   static final String EDITION_NAME_CONFLICT = "Edition name already exists";
+  /** Matches {@code RXEDITION.DISPLAYTITLE} VARCHAR(100). */
+  static final int MAX_EDITION_NAME_LENGTH = 100;
+
+  static final String EDITION_NAME_TOO_LONG =
+      "Edition name must be 100 characters or fewer";
   static final String CONTENT_LIST_NAME_CONFLICT = "Content list name already exists";
   static final String DELIVERY_TYPE_NAME_CONFLICT = "Delivery type name already exists";
   static final String LOCATION_SCHEME_NAME_CONFLICT = "Location scheme name already exists";
@@ -194,8 +199,12 @@ public class PSPublishingDesignRestService {
     if (body == null || isBlank(body.getName()) || isBlank(body.getSiteId())) {
       throw badRequest("name and siteId are required");
     }
+    String trimmedName = body.getName().trim();
+    if (trimmedName.length() > MAX_EDITION_NAME_LENGTH) {
+      throw badRequest(EDITION_NAME_TOO_LONG);
+    }
     try {
-      requireUniqueEditionName(body.getName().trim(), null);
+      requireUniqueEditionName(trimmedName, null);
       IPSEdition edition = publisherService.createEdition();
       applyEditionFields(edition, body, true);
       publisherService.saveEdition(edition);
@@ -221,7 +230,11 @@ public class PSPublishingDesignRestService {
     try {
       IPSEdition edition = publisherService.loadEditionModifiable(toEditionGuid(editionId));
       if (!isBlank(body.getName())) {
-        requireUniqueEditionName(body.getName().trim(), editionId);
+        String trimmedName = body.getName().trim();
+        if (trimmedName.length() > MAX_EDITION_NAME_LENGTH) {
+          throw badRequest(EDITION_NAME_TOO_LONG);
+        }
+        requireUniqueEditionName(trimmedName, editionId);
       }
       applyEditionFields(edition, body, false);
       publisherService.saveEdition(edition);
@@ -1101,10 +1114,13 @@ public class PSPublishingDesignRestService {
   // ---- Mapping helpers ----
 
   private void applyEditionFields(IPSEdition edition, PSEditionSummary body, boolean isCreate) {
-    if (!isBlank(body.getName())) {
-      edition.setName(body.getName().trim());
-    } else if (isCreate) {
-      throw badRequest("name is required");
+    String trimmedName = body.getName() == null ? null : body.getName().trim();
+    if (isBlank(trimmedName)) {
+      if (isCreate) {
+        throw badRequest("name is required");
+      }
+    } else if (trimmedName.length() > MAX_EDITION_NAME_LENGTH) {
+      throw badRequest(EDITION_NAME_TOO_LONG);
     }
     if (body.getComment() != null) {
       edition.setComment(body.getComment());
@@ -1116,6 +1132,11 @@ public class PSPublishingDesignRestService {
       IPSEdition.Priority p =
           IPSEdition.Priority.findByValue(body.getPriority()).orElse(IPSEdition.Priority.MEDIUM);
       edition.setPriority(p);
+    }
+    // setName writes the visible display title. Apply it last so site assignment
+    // cannot replace the title the operator typed (same class as edition copy).
+    if (!isBlank(trimmedName)) {
+      edition.setName(trimmedName);
     }
   }
 
