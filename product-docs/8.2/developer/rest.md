@@ -505,7 +505,9 @@ Existing role get / list / create-update / delete remain:
 |--------|------|---------|
 | `GET` | `/services/roles/{roleName}` | Load one role |
 | `GET` | `/services/roles/list/{pattern}` | Find roles by pattern |
-| `PUT` | `/services/roles/` | Create or update a role |
+| `PUT` | `/services/roles/?create=true` | Create a role (does not update an existing name) |
+| `PUT` | `/services/roles/?update=true` | Update an existing role's description only (404 if missing; does not change members) |
+| `PUT` | `/services/roles/` | Create a role that is not defined, or update the description of one that is |
 | `DELETE` | `/services/roles/{roleName}` | Delete a role |
 
 ## Item filters (design catalog)

@@ -31,11 +31,13 @@ vi.mock("../../../main/ts/api/developer/rolesApi", async (importOriginal) => {
     ...actual,
     browseRoles: vi.fn(),
     createRole: vi.fn(),
+    updateRoleDescription: vi.fn(),
   };
 });
 
 const browseRoles = rolesApi.browseRoles as ReturnType<typeof vi.fn>;
 const createRole = rolesApi.createRole as ReturnType<typeof vi.fn>;
+const updateRoleDescription = rolesApi.updateRoleDescription as ReturnType<typeof vi.fn>;
 
 describe("RolesPanel", () => {
   beforeEach(() => {
@@ -44,6 +46,7 @@ describe("RolesPanel", () => {
     };
     browseRoles.mockReset();
     createRole.mockReset();
+    updateRoleDescription.mockReset();
   });
 
   it("lists roles grouped by community / workflow / unassigned", async () => {
@@ -318,6 +321,134 @@ describe("RolesPanel", () => {
     });
     expect(document.querySelector('[data-role-name="NightRole"]')).toBeNull();
     expect(screen.queryByTestId("developer-roles-create-notice")).toBeNull();
+    expect(browseRoles).toHaveBeenCalledTimes(1);
+  });
+
+  function authorCatalog(description = "Authors content") {
+    return {
+      roles: [
+        {
+          name: "Author",
+          description,
+          groups: ["workflow"],
+          communities: [],
+          workflows: ["Simple Workflow"],
+        },
+      ],
+    };
+  }
+
+  it("cancel does not update the description", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    fireEvent.change(screen.getByTestId("developer-roles-edit-description"), {
+      target: { value: "Not saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-edit-cancel"));
+    expect(updateRoleDescription).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
+    expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+      "Authors content",
+    );
+    expect(screen.queryByTestId("developer-roles-edit-notice")).toBeNull();
+  });
+
+  it("shows the new description only after save reloads", async () => {
+    browseRoles
+      .mockResolvedValueOnce(authorCatalog("Authors content"))
+      .mockResolvedValueOnce(authorCatalog("Updated copy"));
+    let resolveSave: (value: { name: string; description?: string }) => void = () => {};
+    updateRoleDescription.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+        "Authors content",
+      );
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    fireEvent.change(screen.getByTestId("developer-roles-edit-description"), {
+      target: { value: "Updated copy" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-edit-save"));
+    expect(updateRoleDescription).toHaveBeenCalledWith({
+      name: "Author",
+      description: "Updated copy",
+    });
+    expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+      "Authors content",
+    );
+    expect(screen.queryByTestId("developer-roles-edit-notice")).toBeNull();
+    resolveSave({ name: "Author", description: "Updated copy" });
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+        "Updated copy",
+      );
+    });
+    expect(screen.getByTestId("developer-roles-edit-notice").textContent).toBe(
+      DEV_MSG.ROLES_EDIT_SAVED,
+    );
+    expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
+    expect(browseRoles).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not claim a description change on HTTP 400, 403, or 404", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    updateRoleDescription.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: null,
+    });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    fireEvent.change(screen.getByTestId("developer-roles-edit-description"), {
+      target: { value: "Rejected" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-edit-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-edit-error").textContent).toContain("(400)");
+    });
+    expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+      "Authors content",
+    );
+    expect(screen.queryByTestId("developer-roles-edit-notice")).toBeNull();
+    expect(browseRoles).toHaveBeenCalledTimes(1);
+
+    updateRoleDescription.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: null,
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-edit-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-edit-error").textContent).toContain("(403)");
+    });
+    expect(screen.queryByTestId("developer-roles-edit-notice")).toBeNull();
+
+    updateRoleDescription.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: null,
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-edit-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-edit-error").textContent).toContain("(404)");
+    });
+    expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+      "Authors content",
+    );
+    expect(screen.queryByTestId("developer-roles-edit-notice")).toBeNull();
     expect(browseRoles).toHaveBeenCalledTimes(1);
   });
 });

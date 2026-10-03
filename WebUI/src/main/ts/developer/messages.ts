@@ -702,7 +702,21 @@ export const DEV_MSG_KEYS = {
   ROLES_EMPTY: "perc.ui.developer@No roles returned.",
   ROLES_ERROR: "perc.ui.developer@Could not load roles catalog.",
   ROLES_HINT:
-    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role with a name and description. Membership edits, description edits, and delete are not done here.",
+    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role and edit one role's description. Membership edits and delete are not done here.",
+  ROLES_EDIT_TITLE: "perc.ui.developer@Edit role description",
+  ROLES_EDIT_NAME: "perc.ui.developer@Role name",
+  ROLES_EDIT_DESCRIPTION: "perc.ui.developer@Description",
+  ROLES_EDIT_SAVE: "perc.ui.developer@Save description",
+  ROLES_EDIT_CANCEL: "perc.ui.developer@Cancel",
+  ROLES_EDIT_HINT:
+    "perc.ui.developer@Saves the description only. The role name and its members stay the same. Cancel does not call the server.",
+  ROLES_EDIT_SAVED: "perc.ui.developer@Role description saved.",
+  ROLES_EDIT_ERROR: "perc.ui.developer@Could not save the role description.",
+  ROLES_EDIT_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to update a role description.",
+  ROLES_EDIT_INVALID: "perc.ui.developer@The description was not saved.",
+  ROLES_EDIT_NOT_FOUND:
+    "perc.ui.developer@That role was not found. The description was not saved.",
   ROLES_CREATE: "perc.ui.developer@Create role",
   ROLES_CREATE_TITLE: "perc.ui.developer@New role",
   ROLES_CREATE_NAME: "perc.ui.developer@Role name",

@@ -22,9 +22,11 @@ import {
   isRoleCreateReady,
   normalizeRoleBrowseGroupFilter,
   roleCreateUrl,
+  roleUpdateDescriptionUrl,
   rolesInBrowseGroup,
   unwrapCreatedRole,
   unwrapRoleBrowseCatalog,
+  updateRoleDescription,
 } from "../../../../main/ts/api/developer/rolesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -308,5 +310,67 @@ describe("createRole", () => {
     await expect(createRole({ name: "NightRole" })).rejects.toMatchObject({
       status: 403,
     });
+  });
+});
+
+describe("updateRoleDescription", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      statusText: status === 200 ? "OK" : "Error",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("does not PUT a blank name", async () => {
+    await expect(updateRoleDescription({ name: "  " })).rejects.toThrow(/required/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("PUTs update=true with the trimmed description and no users", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ Role: { name: "Author", description: "Updated" } }),
+    );
+    const saved = await updateRoleDescription({
+      name: " Author ",
+      description: " Updated ",
+    });
+    expect(saved).toEqual({ name: "Author", description: "Updated" });
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(String(url)).toBe(roleUpdateDescriptionUrl());
+    expect(String(url)).not.toContain("create=true");
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(String(init.body))).toEqual({
+      Role: { name: "Author", description: "Updated" },
+    });
+  });
+
+  it("sends an empty description to clear", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ name: "Author" }));
+    await updateRoleDescription({ name: "Author", description: "   " });
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(JSON.parse(String(init.body))).toEqual({
+      Role: { name: "Author", description: "" },
+    });
+  });
+
+  it("rejects HTTP 400, 403, and 404 without returning a role", async () => {
+    for (const status of [400, 403, 404]) {
+      fetchMock.mockResolvedValueOnce(jsonResponse({ message: "no" }, status));
+      await expect(
+        updateRoleDescription({ name: "Author", description: "Nope" }),
+      ).rejects.toMatchObject({ status });
+    }
   });
 });

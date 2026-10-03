@@ -27,7 +27,14 @@ public interface IRoleAdaptor {
   /** Gets a role by name. */
   Role getRole(URI baseUri, String roleName) throws BackendException;
 
-  /** Updates a role. */
+  /**
+   * Updates an existing role's description only. Membership, home page, and name are left as
+   * stored. Does not create a missing role and does not rename.
+   *
+   * @throws jakarta.ws.rs.WebApplicationException 400 when the name is blank or the description is
+   *     longer than 255 characters, or when the role service rejects the update; 403 when the
+   *     caller is not Admin; 404 when no role has that exact name
+   */
   Role updateRole(URI baseUri, Role role);
 
   /**
