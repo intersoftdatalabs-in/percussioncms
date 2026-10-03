@@ -123,4 +123,32 @@ class PSItemEditorFieldsMapperTest {
     PSItemEditorFieldsMapper.fillCommunityWhenAbsent(ignored, 0);
     assertTrue(ignored.getFields().isEmpty());
   }
+
+  @Test
+  void communityClearIsBlankOnlyAndEmptyOptionIsKept() {
+    assertFalse(PSItemEditorFieldsMapper.isCommunityClear(null));
+    assertFalse(PSItemEditorFieldsMapper.isCommunityClear(List.of()));
+    assertFalse(
+        PSItemEditorFieldsMapper.isCommunityClear(List.of(new PSItemEditorField("sys_title", ""))));
+    assertFalse(
+        PSItemEditorFieldsMapper.isCommunityClear(
+            List.of(new PSItemEditorField("sys_communityid", "20"))));
+    assertTrue(
+        PSItemEditorFieldsMapper.isCommunityClear(
+            List.of(new PSItemEditorField("sys_communityid", ""))));
+    assertTrue(
+        PSItemEditorFieldsMapper.isCommunityClear(
+            List.of(new PSItemEditorField("sys_communityid", "  "))));
+
+    PSItemEditorFields empty = new PSItemEditorFields();
+    PSItemEditorFieldsMapper.presentEmptyCommunity(empty);
+    assertEquals("", empty.getFields().get(0).getValue());
+    PSItemEditorFieldsMapper.presentEmptyCommunity(empty);
+    assertEquals(1, empty.getFields().size());
+
+    PSItemEditorFields kept = new PSItemEditorFields();
+    kept.setFields(List.of(new PSItemEditorField("sys_communityid", "")));
+    PSItemEditorFieldsMapper.presentEmptyCommunity(kept);
+    assertEquals("", kept.getFields().get(0).getValue());
+  }
 }

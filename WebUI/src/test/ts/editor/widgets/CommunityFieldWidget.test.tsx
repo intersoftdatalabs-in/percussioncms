@@ -67,4 +67,24 @@ describe("CommunityFieldWidget", () => {
     expect(select.value).toBe("10");
     expect(onChange).not.toHaveBeenCalled();
   });
+
+  it("reports the empty community option", async () => {
+    const onChange = vi.fn();
+    render(
+      <CommunityFieldWidget
+        name="sys_communityid"
+        value="10"
+        readOnly={false}
+        onChange={onChange}
+        loadCommunities={async () => [{ id: 10, name: "Default", label: "Default" }]}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByText("Default")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-sys_communityid"), {
+      target: { value: "" },
+    });
+    expect(onChange).toHaveBeenCalledWith("");
+  });
 });

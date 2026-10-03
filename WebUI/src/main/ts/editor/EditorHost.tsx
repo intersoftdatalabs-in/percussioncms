@@ -1629,6 +1629,34 @@ export function EditorHost({
             : EDITOR_MSG.DATE_BAD_REQUEST,
         );
       }
+      const communityNames = rows
+        .filter((row) => row.kind === "community")
+        .map((row) => row.name);
+      const namedCommunity = Object.keys(mapped.fieldErrors).some((name) =>
+        communityNames.includes(name),
+      );
+      const communityStatus = saveReason === "forbidden" || saveReason === "badRequest";
+      const communityMapped =
+        !html400 &&
+        !long400 &&
+        !number400 &&
+        !linkMapped &&
+        !keywordMapped &&
+        !dateMapped &&
+        communityStatus &&
+        (namedCommunity ||
+          (Object.keys(mapped.fieldErrors).length === 0 && communityNames.length === 1));
+      if (
+        communityMapped &&
+        Object.keys(mapped.fieldErrors).length === 0 &&
+        communityNames.length === 1
+      ) {
+        mapped.fieldErrors[communityNames[0]] = message(
+          saveReason === "forbidden"
+            ? EDITOR_MSG.COMMUNITY_FORBIDDEN
+            : EDITOR_MSG.COMMUNITY_BAD_REQUEST,
+        );
+      }
       if (
         saveReason === "badRequest" &&
         Object.keys(mapped.fieldErrors).length > 0
@@ -1663,7 +1691,11 @@ export function EditorHost({
                           ? EDITOR_MSG.DATE_FORBIDDEN
                           : dateMapped
                             ? EDITOR_MSG.DATE_BAD_REQUEST
-                            : EDITOR_MSG.SAVE_FAILED,
+                            : communityMapped && saveReason === "forbidden"
+                              ? EDITOR_MSG.COMMUNITY_FORBIDDEN
+                              : communityMapped
+                                ? EDITOR_MSG.COMMUNITY_BAD_REQUEST
+                                : EDITOR_MSG.SAVE_FAILED,
       );
       setSaveErrorDetail(mapped.banner === fallback ? "" : mapped.banner);
     } finally {
