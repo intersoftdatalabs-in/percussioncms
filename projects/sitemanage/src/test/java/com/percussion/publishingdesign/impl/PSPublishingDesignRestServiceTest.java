@@ -629,6 +629,80 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void disassociateContentList_removesOnlyMatchingLink() throws Exception {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    service.setEditionRunningJobId(guid -> 0L);
+    when(contentListGuid.longValue()).thenReturn(5L);
+
+    IPSEditionContentList match = mock(IPSEditionContentList.class);
+    IPSGuid matchId = mock(IPSGuid.class);
+    when(match.getContentListId()).thenReturn(matchId);
+    when(matchId.longValue()).thenReturn(5L);
+
+    IPSEditionContentList other = mock(IPSEditionContentList.class);
+    IPSGuid otherId = mock(IPSGuid.class);
+    when(other.getContentListId()).thenReturn(otherId);
+    when(otherId.longValue()).thenReturn(8L);
+    when(publisherService.loadEditionContentLists(editionGuid)).thenReturn(List.of(match, other));
+
+    service.disassociateContentList("1", "5");
+    verify(publisherService).deleteEditionContentList(match);
+    verify(publisherService, never()).deleteEditionContentList(other);
+  }
+
+  @Test
+  void disassociateContentList_blankId_400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> service.disassociateContentList("1", " "));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(publisherService, never()).deleteEditionContentList(any());
+    verify(publisherService, never()).loadEditionContentLists(any());
+  }
+
+  @Test
+  void disassociateContentList_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> service.disassociateContentList("1", "5"));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains(PSPublishingDesignRestService.DESIGN_WRITE_FORBIDDEN));
+    verify(publisherService, never()).deleteEditionContentList(any());
+    verify(publisherService, never()).loadEditionContentLists(any());
+  }
+
+  @Test
+  void disassociateContentList_running_409() throws Exception {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    service.setEditionRunningJobId(guid -> 55L);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> service.disassociateContentList("1", "5"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains(PSPublishingDesignRestService.EDITION_IN_USE));
+    verify(publisherService, never()).deleteEditionContentList(any());
+    verify(publisherService, never()).loadEditionContentLists(any());
+  }
+
+  @Test
+  void disassociateContentList_missing_404() throws Exception {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    service.setEditionRunningJobId(guid -> 0L);
+    when(publisherService.loadEditionContentLists(editionGuid)).thenReturn(List.of());
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> service.disassociateContentList("1", "5"));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(publisherService, never()).deleteEditionContentList(any());
+  }
+
+  @Test
   void copyEdition_requiresSourceAndTarget() {
     com.percussion.publishingdesign.data.PSCopyEditionRequest req =
         new com.percussion.publishingdesign.data.PSCopyEditionRequest();
