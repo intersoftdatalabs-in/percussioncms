@@ -16,7 +16,8 @@
  */
 
 /**
- * EditorHost file-field PUT error mapping (#4678, image replace #5040).
+ * EditorHost file-field PUT error mapping (#4678, image replace #5040,
+ * stored non-image file replace #5090).
  * HTTP 400 / 403 / 409 / 413 are not a successful upload or replace.
  */
 

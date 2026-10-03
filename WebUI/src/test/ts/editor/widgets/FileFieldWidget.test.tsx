@@ -192,6 +192,49 @@ describe("FileFieldWidget", () => {
     expect(onFile).toHaveBeenCalledWith(file);
   });
 
+  it("restores the stored file name when the selection is empty", async () => {
+    const onFile = vi.fn();
+    const downloadBinary = vi.fn();
+    render(
+      <FileFieldWidget
+        itemId="42"
+        name="item_file_attachment"
+        readOnly={false}
+        loadMeta={async () => ({
+          contentId: "42",
+          field: "item_file_attachment",
+          filename: "brief.pdf",
+          contentType: "application/pdf",
+          present: true,
+        })}
+        downloadBinary={downloadBinary}
+        onFile={onFile}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+        "brief.pdf",
+      );
+    });
+    const input = screen.getByTestId("editor-file-item_file_attachment") as HTMLInputElement;
+    fireEvent.change(input, {
+      target: { files: [new File(["y"], "next.pdf", { type: "application/pdf" })] },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+        "next.pdf",
+      );
+    });
+    fireEvent.change(input, { target: { files: [] } });
+    expect(onFile).toHaveBeenLastCalledWith(null);
+    expect(downloadBinary).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+        "brief.pdf",
+      );
+    });
+  });
+
   it("image widget accepts image files", async () => {
     render(
       <ImageFieldWidget

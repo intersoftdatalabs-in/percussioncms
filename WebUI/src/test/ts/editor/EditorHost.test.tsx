@@ -2037,6 +2037,272 @@ describe("EditorHost rich controls", () => {
     expect(screen.queryByTestId("editor-saved")).toBeNull();
   });
 
+  it("replaces a stored file on save and shows the reloaded name", async () => {
+    let replaced = false;
+    const next = new File(["y"], "next.pdf", { type: "application/pdf" });
+    const uploadBinary = vi.fn().mockImplementation(async () => {
+      replaced = true;
+      return {
+        contentId: "42",
+        field: "item_file_attachment",
+        filename: "next.pdf",
+        contentType: "application/pdf",
+        present: true,
+      };
+    });
+    const saveFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percFile",
+      name: "Brief",
+      checkoutUser: "admin",
+      fields: [{ name: "sys_title", value: "Brief" }],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={async () => undefined}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percFile",
+                  name: "Brief",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "Brief" }],
+                })}
+                saveFields={saveFields}
+                uploadBinary={uploadBinary}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    {
+                      name: "item_file_attachment",
+                      label: "File",
+                      control: "sys_File",
+                    },
+                  ],
+                })}
+                loadBinaryMeta={async () => ({
+                  contentId: "42",
+                  field: "item_file_attachment",
+                  filename: replaced ? "next.pdf" : "brief.pdf",
+                  contentType: "application/pdf",
+                  present: true,
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+        "brief.pdf",
+      );
+    });
+    fireEvent.change(screen.getByTestId("editor-file-item_file_attachment"), {
+      target: { files: [next] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    expect(uploadBinary).toHaveBeenCalledWith("42", "item_file_attachment", next);
+    expect(saveFields).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+        "next.pdf",
+      );
+    });
+  });
+
+  it("does not replace a stored file when Close is cancelled", async () => {
+    const uploadBinary = vi.fn();
+    const saveFields = vi.fn();
+    const confirmLeave = vi.fn().mockReturnValue(false);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={async () => undefined}
+                confirmLeaveUnsaved={confirmLeave}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percFile",
+                  name: "Brief",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "Brief" }],
+                })}
+                saveFields={saveFields}
+                uploadBinary={uploadBinary}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    {
+                      name: "item_file_attachment",
+                      label: "File",
+                      control: "sys_File",
+                    },
+                  ],
+                })}
+                loadBinaryMeta={async () => ({
+                  contentId: "42",
+                  field: "item_file_attachment",
+                  filename: "brief.pdf",
+                  contentType: "application/pdf",
+                  present: true,
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+        "brief.pdf",
+      );
+    });
+    fireEvent.change(screen.getByTestId("editor-file-item_file_attachment"), {
+      target: { files: [new File(["y"], "next.pdf", { type: "application/pdf" })] },
+    });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(confirmLeave).toHaveBeenCalled();
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+      "next.pdf",
+    );
+  });
+
+  it("does not replace a file on an empty selection or HTTP 400/403/409", async () => {
+    const uploadBinary = vi.fn().mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: {},
+    });
+    const saveFields = vi.fn().mockResolvedValue({
+      contentId: "42",
+      contentType: "percFile",
+      name: "Brief",
+      checkoutUser: "admin",
+      fields: [{ name: "sys_title", value: "Brief" }],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={async () => undefined}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percFile",
+                  name: "Brief",
+                  checkoutUser: "admin",
+                  fields: [{ name: "sys_title", value: "Brief" }],
+                })}
+                saveFields={saveFields}
+                uploadBinary={uploadBinary}
+                loadType={async () => ({
+                  fields: [
+                    { name: "sys_title", label: "Title", control: "sys_EditBox" },
+                    {
+                      name: "item_file_attachment",
+                      label: "File",
+                      control: "sys_File",
+                    },
+                  ],
+                })}
+                loadBinaryMeta={async () => ({
+                  contentId: "42",
+                  field: "item_file_attachment",
+                  filename: "brief.pdf",
+                  contentType: "application/pdf",
+                  present: true,
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+        "brief.pdf",
+      );
+    });
+    fireEvent.change(screen.getByTestId("editor-file-item_file_attachment"), {
+      target: { files: [] },
+    });
+    expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+      "brief.pdf",
+    );
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+      "brief.pdf",
+    );
+
+    const next = new File(["y"], "next.pdf", { type: "application/pdf" });
+    fireEvent.change(screen.getByTestId("editor-file-item_file_attachment"), {
+      target: { files: [next] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+        /could not be uploaded/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-save-error").textContent).not.toMatch(/image/i);
+
+    uploadBinary.mockRejectedValueOnce({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
+    fireEvent.change(screen.getByTestId("editor-file-item_file_attachment"), {
+      target: { files: [next] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+        /not allowed to upload a file/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+
+    uploadBinary.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+      body: {},
+    });
+    fireEvent.change(screen.getByTestId("editor-file-item_file_attachment"), {
+      target: { files: [next] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+        /was not replaced/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+      "next.pdf",
+    );
+  });
+
   it("clears a stored file only when save runs", async () => {
     const clearBinary = vi.fn().mockResolvedValue({
       contentId: "42",
