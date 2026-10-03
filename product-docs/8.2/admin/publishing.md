@@ -319,8 +319,9 @@ Runtime start/stop are separate Design/Runtime actions. Copying an edition is de
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
 Open an existing edition (not **Add edition**). Under **Copy to site**, choose the **target
 site** — the site you are already viewing, or another site — and an optional **new name**.
-**Copy edition** posts `POST …/sitemanage/publishingdesign/editions/copy` with the source
-edition id, the target site id, the optional name, and content-list associations copied.
+**Copy edition** posts `POST …/sitemanage/publishingdesign/editions/copy` with a
+`copyEditionRequest` body (source edition id, target site id, optional new name, and
+whether content-list associations are copied).
 
 On success the editor closes. The Design edition list for the **target** site shows the new
 edition (the site selector switches when the target is not the current site). Open that row

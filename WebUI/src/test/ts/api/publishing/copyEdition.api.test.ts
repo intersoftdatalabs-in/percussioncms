@@ -47,10 +47,12 @@ describe("copyEdition", () => {
     expect(postMock).toHaveBeenCalledWith(
       expect.stringMatching(/\/sitemanage\/publishingdesign\/editions\/copy$/),
       {
-        sourceEditionId: "7",
-        targetSiteId: "9",
-        newName: "NightCopy",
-        copyContentLists: true,
+        copyEditionRequest: {
+          sourceEditionId: "7",
+          targetSiteId: "9",
+          newName: "NightCopy",
+          copyContentLists: true,
+        },
       },
     );
     expect(copied).toEqual({
