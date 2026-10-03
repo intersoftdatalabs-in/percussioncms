@@ -31,8 +31,6 @@ const {
   explorerSetCommunityUrl,
   isKnownExplorerSetCommunityConsoleNoise,
   folderListingPhase,
-  listingNavigationSettled,
-  isPaginatedFolderListingUrl,
 } = require("./helpers/explorer-set-community");
 const { openContentMenu } = require("./helpers/explorer-sites-list-create");
 
@@ -110,40 +108,30 @@ async function listReady(page) {
  */
 async function activateForListing(page, target, opts = {}) {
   const before = await listingSignature(page);
-  let listingResponseSeen = false;
-  const onResponse = (res) => {
-    try {
-      if (isPaginatedFolderListingUrl(res.url(), res.request().method())) {
-        listingResponseSeen = true;
-      }
-    } catch {
-      // Ignore responses whose request is already disposed.
-    }
-  };
-  page.on("response", onResponse);
   try {
     if (opts.dblclick) {
       await target.dblclick({ force: true });
     } else {
       await target.click({ force: true });
     }
+    // Idle "No items in this folder" is also empty. A real folder open
+    // changes the row signature. Do not treat that idle empty as success.
     await expect
       .poll(
         async () => {
           const phase = await readListingPhase(page);
           const signature = await listingSignature(page);
-          return listingNavigationSettled(before, phase, signature, listingResponseSeen)
-            ? "settled"
-            : "pending";
+          if (phase === "loading" || !signature.startsWith("rows:")) {
+            return "pending";
+          }
+          return signature !== before ? "settled" : "pending";
         },
-        { timeout: 20_000 },
+        { timeout: 15_000 },
       )
       .toBe("settled");
     return true;
   } catch {
     return false;
-  } finally {
-    page.off("response", onResponse);
   }
 }
 
@@ -181,11 +169,11 @@ async function selectFirstContentItem(page) {
     if ((await root.count()) === 0) {
       continue;
     }
-    const label = treeNodeLabel(root.first());
-    const openedRoot = await activateForListing(
-      page,
-      (await label.count()) > 0 ? label : root.first(),
-    );
+    const row = root.first().locator('[role="treeitem"]').first();
+    let openedRoot = false;
+    for (let attempt = 0; attempt < 2 && !openedRoot; attempt += 1) {
+      openedRoot = await activateForListing(page, row);
+    }
     if (!openedRoot) {
       continue;
     }
