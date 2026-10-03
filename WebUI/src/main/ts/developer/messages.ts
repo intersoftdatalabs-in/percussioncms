@@ -1885,7 +1885,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_AFTER_LABEL: "perc.ui.developer@Insert after",
   WF_STEP_ROLES_LABEL: "perc.ui.developer@Roles (comma-separated)",
   WF_STEP_HINT:
-    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. Custom workflows can delete one transition, or delete a step that no longer has transitions. Creating transitions stays on the workflow-admin editor.",
+    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. Custom workflows can add or update one transition between existing steps, delete one transition, or delete a step that no longer has transitions.",
   WF_STEP_SAVED: "perc.ui.developer@Workflow step saved.",
   WF_STEP_ERROR: "perc.ui.developer@Could not save workflow step.",
   WF_STEP_INVALID:
@@ -1900,7 +1900,7 @@ export const DEV_MSG_KEYS = {
   WF_GRAPH_LOADING: "perc.ui.developer@Loading workflow graph...",
   WF_GRAPH_ERROR: "perc.ui.developer@Could not load workflow graph.",
   WF_GRAPH_HINT:
-    "perc.ui.developer@States and transitions. On a custom workflow, delete one transition, delete a step that no transition still uses, or mark a transition as comment required. Packaged workflows stay read-only. Creating transitions stays on the workflow-admin editor.",
+    "perc.ui.developer@States and transitions. On a custom workflow, add or update one transition between existing steps, delete one transition, delete a step that no transition still uses, or mark a transition as comment required. Packaged workflows stay read-only.",
   WF_GRAPH_COMMENT: "perc.ui.developer@Comment required",
   WF_GRAPH_COMMENT_SAVED: "perc.ui.developer@Comment requirement saved.",
   WF_GRAPH_COMMENT_ERROR: "perc.ui.developer@Could not save the comment requirement.",
@@ -1913,6 +1913,23 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
   WF_GRAPH_DELETE_BAD:
     "perc.ui.developer@That transition could not be deleted. Check the step names and try again.",
+  WF_GRAPH_WRITE_ADD: "perc.ui.developer@Add transition",
+  WF_GRAPH_WRITE_SAVE: "perc.ui.developer@Save transition",
+  WF_GRAPH_WRITE_EDIT: "perc.ui.developer@Edit transition",
+  WF_GRAPH_WRITE_CANCEL: "perc.ui.developer@Cancel",
+  WF_GRAPH_WRITE_FROM: "perc.ui.developer@From step",
+  WF_GRAPH_WRITE_TO: "perc.ui.developer@To step",
+  WF_GRAPH_WRITE_LABEL: "perc.ui.developer@Transition label",
+  WF_GRAPH_WRITE_SAVED: "perc.ui.developer@Transition saved.",
+  WF_GRAPH_WRITE_ERROR: "perc.ui.developer@Could not save workflow transition.",
+  WF_GRAPH_WRITE_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_GRAPH_WRITE_BAD:
+    "perc.ui.developer@That transition could not be saved. Check the step names and label.",
+  WF_GRAPH_WRITE_CONFLICT:
+    "perc.ui.developer@A transition with that label already goes to that step.",
+  WF_GRAPH_WRITE_INVALID:
+    "perc.ui.developer@Transition label must be 1–50 characters: letters, digits, space, hyphen, or underscore.",
   WF_STEP_DELETE: "perc.ui.developer@Delete step",
   WF_STEP_DELETE_CONFIRM:
     "perc.ui.developer@Delete this step? It is removed only when no transition still uses it.",
@@ -1925,7 +1942,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Creating transitions stays on the workflow-admin editor. Custom workflows can delete one existing transition, or a step that no transition still uses.",
+    "perc.ui.developer@Role assignment and aging intervals stay on the workflow-admin editor. Custom workflows can add, update, or delete one transition between existing steps.",
   WF_GAP_WRITE:
     "perc.ui.developer@Workflow update / delete is not supported from this Developer surface",
   WF_GAP_CT:

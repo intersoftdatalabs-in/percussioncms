@@ -187,6 +187,35 @@ public interface IWorkflowsAdaptor {
       boolean commentRequired);
 
   /**
+   * Create one transition between existing steps (Admin, slice 31). Does not create steps.
+   *
+   * @param body {@code from}, {@code to}, and {@code label}; both steps must already exist
+   * @return the graph after the insert
+   * @throws IllegalArgumentException when a name is blank or invalid
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow or
+   *     step, 409 when that from/label/to edge already exists
+   */
+  WorkflowGraph createWorkflowTransition(URI baseUri, String idOrName, WorkflowTransitionWrite body);
+
+  /**
+   * Update the label and/or destination of one existing transition (Admin, slice 31). Does not
+   * move the source step and does not create steps.
+   *
+   * @param fromStep source step name
+   * @param label current label or trigger
+   * @param toStep current destination; required when the label is not unique on the source step
+   * @param body new {@code label} and {@code to}
+   * @return the graph after the update
+   */
+  WorkflowGraph updateWorkflowTransition(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String label,
+      String toStep,
+      WorkflowTransitionWrite body);
+
+  /**
    * Delete one step that has no remaining transitions (Admin, slice 34). Does not rewire
    * neighboring steps.
    *

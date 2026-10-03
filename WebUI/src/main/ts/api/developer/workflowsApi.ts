@@ -10,7 +10,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Creating transitions stays on the workflow-admin editor. Custom workflows can delete one existing transition from the graph.",
+  "Role assignment and aging intervals stay on the workflow-admin editor. Custom workflows can add, update, or delete one transition between existing steps.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -580,6 +580,49 @@ export async function deleteWorkflowTransition(
 ): Promise<WorkflowGraph> {
   const payload = await del<unknown>(
     workflowTransitionDeletePath(idOrName, fromStep, label, toStep),
+  );
+  return parseWorkflowGraph(payload);
+}
+
+export const WORKFLOW_TRANSITION_WRITE_ROOT = "WorkflowTransitionWrite";
+
+/** Writable fields for POST/PUT .../workflows/{id}/transitions (slice 31). */
+export type WorkflowTransitionWriteBody = {
+  from?: string;
+  to: string;
+  label: string;
+};
+
+export function wrapWorkflowTransitionWriteForWire(
+  body: WorkflowTransitionWriteBody,
+): Record<string, WorkflowTransitionWriteBody> {
+  return { [WORKFLOW_TRANSITION_WRITE_ROOT]: body };
+}
+
+/** POST /services/workflows/{id}/transitions — one edge between existing steps. */
+export async function createWorkflowTransition(
+  idOrName: string,
+  body: WorkflowTransitionWriteBody,
+): Promise<WorkflowGraph> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/transitions`,
+    wrapWorkflowTransitionWriteForWire(body),
+  );
+  return parseWorkflowGraph(payload);
+}
+
+/** PUT .../transitions?from&label&to — relabel or retarget one existing edge. */
+export async function updateWorkflowTransition(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  toStep: string | undefined,
+  body: WorkflowTransitionWriteBody,
+): Promise<WorkflowGraph> {
+  const payload = await put<unknown>(
+    workflowTransitionDeletePath(idOrName, fromStep, label, toStep),
+    wrapWorkflowTransitionWriteForWire(body),
   );
   return parseWorkflowGraph(payload);
 }

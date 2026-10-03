@@ -23,6 +23,7 @@ import com.percussion.rest.workflows.WorkflowCreate;
 import com.percussion.rest.workflows.WorkflowGraph;
 import com.percussion.rest.workflows.WorkflowStepWrite;
 import com.percussion.rest.workflows.WorkflowSummary;
+import com.percussion.rest.workflows.WorkflowTransitionWrite;
 import com.percussion.rest.workflows.WorkflowUpdate;
 import java.net.URI;
 import java.util.List;
@@ -107,6 +108,23 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
   @Override
   public WorkflowGraph deleteWorkflowTransition(
       URI baseUri, String idOrName, String fromStep, String label, String toStep) {
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
+  public WorkflowGraph createWorkflowTransition(
+      URI baseUri, String idOrName, WorkflowTransitionWrite body) {
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
+  public WorkflowGraph updateWorkflowTransition(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String label,
+      String toStep,
+      WorkflowTransitionWrite body) {
     return getWorkflowGraph(baseUri, idOrName);
   }
 

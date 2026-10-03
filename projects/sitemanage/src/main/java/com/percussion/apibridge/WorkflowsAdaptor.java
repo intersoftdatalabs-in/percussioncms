@@ -25,6 +25,7 @@ import com.percussion.rest.workflows.WorkflowCreate;
 import com.percussion.rest.workflows.WorkflowGraph;
 import com.percussion.rest.workflows.WorkflowStepWrite;
 import com.percussion.rest.workflows.WorkflowSummary;
+import com.percussion.rest.workflows.WorkflowTransitionWrite;
 import com.percussion.rest.workflows.WorkflowUpdate;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -37,6 +38,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSState;
+import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -462,6 +464,77 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     }
     workflowService.saveWorkflow(workflow);
     return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
+  public WorkflowGraph createWorkflowTransition(
+      URI baseUri, String idOrName, WorkflowTransitionWrite body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("Workflow transition body is required");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    int stepCount = states.size();
+    WorkflowTransitionWriter.create(
+        states,
+        body.getFrom(),
+        body.getTo(),
+        body.getLabel(),
+        source -> allocateTransition(workflow, source));
+    int after = workflow.getStates() == null ? 0 : workflow.getStates().size();
+    if (after != stepCount) {
+      throw new IllegalStateException("Creating a transition must not add or delete steps");
+    }
+    workflowService.saveWorkflow(workflow);
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
+  public WorkflowGraph updateWorkflowTransition(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String label,
+      String toStep,
+      WorkflowTransitionWrite body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("Workflow transition body is required");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    int stepCount = states.size();
+    WorkflowTransitionWriter.update(
+        states, fromStep, label, toStep, body.getLabel(), body.getTo());
+    int after = workflow.getStates() == null ? 0 : workflow.getStates().size();
+    if (after != stepCount) {
+      throw new IllegalStateException("Updating a transition must not add or delete steps");
+    }
+    workflowService.saveWorkflow(workflow);
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  private PSTransition allocateTransition(PSWorkflow workflow, PSState source) {
+    IPSGuid wfGuid = workflow.getGUID();
+    if (wfGuid == null) {
+      throw new IllegalStateException("Workflow has no id");
+    }
+    PSTransition created = workflowService.createTransition(wfGuid, source.getGUID());
+    if (created == null) {
+      throw new IllegalStateException("Could not allocate a workflow transition id");
+    }
+    return created;
   }
 
   @Override
