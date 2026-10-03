@@ -24,9 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.rest.Status;
 import jakarta.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.List;
@@ -113,6 +116,33 @@ public class RolesResourceBrowseTest {
     WebApplicationException delete =
         assertThrows(WebApplicationException.class, () -> bare.deleteRole("Author"));
     assertEquals(503, delete.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteReturnsOkStatus() throws Exception {
+    Status status = resource.deleteRole("Author");
+    assertEquals(200, status.getStatusCode());
+    assertEquals("OK", status.getMessage());
+    verify(adaptor).deleteRole(isNull(), eq("Author"));
+  }
+
+  @Test
+  public void deleteRethrows400403409() throws Exception {
+    for (int code : new int[] {400, 403, 409}) {
+      doThrow(new WebApplicationException("refused", code))
+          .when(adaptor)
+          .deleteRole(isNull(), eq("Author"));
+      WebApplicationException ex =
+          assertThrows(WebApplicationException.class, () -> resource.deleteRole("Author"));
+      assertEquals(code, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  public void deleteBlankNameIs400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteRole("  "));
+    assertEquals(400, ex.getResponse().getStatus());
   }
 
   @Test

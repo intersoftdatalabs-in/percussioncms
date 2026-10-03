@@ -32,12 +32,14 @@ vi.mock("../../../main/ts/api/developer/rolesApi", async (importOriginal) => {
     browseRoles: vi.fn(),
     createRole: vi.fn(),
     updateRoleDescription: vi.fn(),
+    deleteRole: vi.fn(),
   };
 });
 
 const browseRoles = rolesApi.browseRoles as ReturnType<typeof vi.fn>;
 const createRole = rolesApi.createRole as ReturnType<typeof vi.fn>;
 const updateRoleDescription = rolesApi.updateRoleDescription as ReturnType<typeof vi.fn>;
+const deleteRole = rolesApi.deleteRole as ReturnType<typeof vi.fn>;
 
 describe("RolesPanel", () => {
   beforeEach(() => {
@@ -47,6 +49,7 @@ describe("RolesPanel", () => {
     browseRoles.mockReset();
     createRole.mockReset();
     updateRoleDescription.mockReset();
+    deleteRole.mockReset();
   });
 
   it("lists roles grouped by community / workflow / unassigned", async () => {
@@ -449,6 +452,116 @@ describe("RolesPanel", () => {
       "Authors content",
     );
     expect(screen.queryByTestId("developer-roles-edit-notice")).toBeNull();
+    expect(browseRoles).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not delete a system role and cancel does not call the server", async () => {
+    browseRoles.mockResolvedValue({
+      roles: [
+        {
+          name: "Author",
+          description: "Authors content",
+          groups: ["workflow"],
+          communities: [],
+          workflows: ["Simple Workflow"],
+        },
+        {
+          name: "Default",
+          groups: ["unassigned"],
+          communities: [],
+          workflows: [],
+        },
+      ],
+    });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Default"]')).toBeTruthy();
+    });
+    const systemDelete = document.querySelector(
+      '[data-testid="developer-roles-delete"][data-role-name="Default"]',
+    ) as HTMLButtonElement;
+    expect(systemDelete.disabled).toBe(true);
+    fireEvent.click(systemDelete);
+    expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
+    expect(deleteRole).not.toHaveBeenCalled();
+
+    fireEvent.click(
+      document.querySelector(
+        '[data-testid="developer-roles-delete"][data-role-name="Author"]',
+      ) as Element,
+    );
+    expect(screen.getByTestId("developer-catalog-confirm-body").textContent).toContain(
+      "Author",
+    );
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    expect(deleteRole).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
+    expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    expect(screen.queryByTestId("developer-roles-delete-notice")).toBeNull();
+  });
+
+  it("drops the catalog row only after delete succeeds", async () => {
+    browseRoles
+      .mockResolvedValueOnce(authorCatalog())
+      .mockResolvedValueOnce({ roles: [] });
+    let resolveDelete: () => void = () => {};
+    deleteRole.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveDelete = resolve;
+        }),
+    );
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(
+      document.querySelector(
+        '[data-testid="developer-roles-delete"][data-role-name="Author"]',
+      ) as Element,
+    );
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    expect(deleteRole).toHaveBeenCalledWith("Author");
+    expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    expect(screen.queryByTestId("developer-roles-delete-notice")).toBeNull();
+    resolveDelete();
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeNull();
+    });
+    expect(screen.getByTestId("developer-roles-delete-notice").textContent).toBe(
+      DEV_MSG.ROLES_DELETED,
+    );
+    expect(screen.queryByTestId("developer-roles-delete-error")).toBeNull();
+    expect(browseRoles).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not claim a delete on HTTP 400, 403, or 409", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+
+    for (const status of [400, 403, 409]) {
+      deleteRole.mockRejectedValue({
+        status,
+        statusText: "Error",
+        body: null,
+      });
+      fireEvent.click(
+        document.querySelector(
+          '[data-testid="developer-roles-delete"][data-role-name="Author"]',
+        ) as Element,
+      );
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-roles-delete-error").textContent).toContain(
+          `(${status})`,
+        );
+      });
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+      expect(screen.queryByTestId("developer-roles-delete-notice")).toBeNull();
+    }
     expect(browseRoles).toHaveBeenCalledTimes(1);
   });
 });

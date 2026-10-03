@@ -15,12 +15,18 @@
  * limitations under the License.
  */
 
-import { get, put } from "../client";
+import { del, get, put } from "../client";
 import { asJsonRecord, asStringArray } from "../jsonList";
 import { PATHS } from "../paths";
 
 /** Workbench Security Design SE-03 navigator folders. */
 export const ROLE_BROWSE_GROUPS = ["community", "workflow", "unassigned"] as const;
+
+/**
+ * Roles the role service refuses to delete ({@code PSRoleService.SYSTEM_ROLES}).
+ * Comparison is case-insensitive.
+ */
+export const SYSTEM_ROLE_NAMES = ["System", "Default"] as const;
 
 export type RoleBrowseGroupKey = (typeof ROLE_BROWSE_GROUPS)[number];
 
@@ -190,6 +196,34 @@ export type RoleCreateResult = {
 /** Blank and whitespace-only names are rejected before the request. */
 export function isRoleCreateReady(name: string | null | undefined): boolean {
   return typeof name === "string" && name.trim().length > 0;
+}
+
+/** True for {@link SYSTEM_ROLE_NAMES}. Blank is not a system role. */
+export function isSystemRoleName(name: string | null | undefined): boolean {
+  if (typeof name !== "string") return false;
+  const trimmed = name.trim().toLowerCase();
+  if (!trimmed) return false;
+  return SYSTEM_ROLE_NAMES.some((system) => system.toLowerCase() === trimmed);
+}
+
+/** DELETE /services/roles/{roleName}. The name is encoded once. */
+export function roleDeleteUrl(name: string): string {
+  return `${PATHS.ROLES}/${encodeURIComponent(name.trim())}`;
+}
+
+/**
+ * DELETE /services/roles/{roleName}. Blank names and system roles throw before fetch.
+ * HTTP 400, 403, and 409 reject; this function does not resolve for those.
+ */
+export async function deleteRole(name: string): Promise<void> {
+  const trimmed = typeof name === "string" ? name.trim() : "";
+  if (!isRoleCreateReady(trimmed)) {
+    throw new Error("Role name is required");
+  }
+  if (isSystemRoleName(trimmed)) {
+    throw new Error("Cannot delete system role");
+  }
+  await del<unknown>(roleDeleteUrl(trimmed));
 }
 
 /** PUT /services/roles/?create=true — always the create path, never an update. */

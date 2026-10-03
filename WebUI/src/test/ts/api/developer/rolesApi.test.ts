@@ -19,9 +19,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   browseRoles,
   createRole,
+  deleteRole,
   isRoleCreateReady,
+  isSystemRoleName,
   normalizeRoleBrowseGroupFilter,
   roleCreateUrl,
+  roleDeleteUrl,
   roleUpdateDescriptionUrl,
   rolesInBrowseGroup,
   unwrapCreatedRole,
@@ -371,6 +374,57 @@ describe("updateRoleDescription", () => {
       await expect(
         updateRoleDescription({ name: "Author", description: "Nope" }),
       ).rejects.toMatchObject({ status });
+    }
+  });
+});
+
+describe("deleteRole", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      statusText: status === 200 ? "OK" : "Error",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("recognizes system roles case-insensitively", () => {
+    expect(isSystemRoleName("System")).toBe(true);
+    expect(isSystemRoleName(" default ")).toBe(true);
+    expect(isSystemRoleName("Author")).toBe(false);
+    expect(isSystemRoleName("  ")).toBe(false);
+  });
+
+  it("does not DELETE a blank name or a system role", async () => {
+    await expect(deleteRole("  ")).rejects.toThrow(/required/);
+    await expect(deleteRole("Default")).rejects.toThrow(/system role/);
+    await expect(deleteRole("system")).rejects.toThrow(/system role/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("DELETEs the encoded role name", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ statusCode: 200, message: "OK" }));
+    await deleteRole(" Night Role ");
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(String(url)).toBe(roleDeleteUrl("Night Role"));
+    expect(String(url)).toBe(`${PATHS.ROLES}/Night%20Role`);
+    expect(init.method).toBe("DELETE");
+  });
+
+  it("rejects HTTP 400, 403, and 409", async () => {
+    for (const status of [400, 403, 409]) {
+      fetchMock.mockResolvedValueOnce(jsonResponse({ message: "no" }, status));
+      await expect(deleteRole("Author")).rejects.toMatchObject({ status });
     }
   });
 });

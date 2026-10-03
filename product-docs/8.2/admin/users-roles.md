@@ -103,8 +103,10 @@ See [Developer Communities](id:admin-developer-communities).
 Security Design catalog of system roles grouped by **Community**,
 **Workflow**, or **Unassigned** (Workbench SE-03). Admins can filter groups,
 inspect which communities/workflows include each role, create a role with a
-name and description, and edit one existing role's description. It does **not**
-replace **Admin → Roles** membership editing, delete, or community **Save roles**.
+name and description, edit one existing role's description, and delete one
+non-system role after confirming. **System** and **Default** cannot be deleted
+here. It does **not** replace **Admin → Roles** membership editing or community
+**Save roles**.
 
 See [Developer Roles](id:admin-developer-roles).
 

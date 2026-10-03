@@ -1,7 +1,7 @@
 ---
 id: admin-developer-roles
 title: Developer Roles
-description: Browse CMS security roles, create a role, and update one role's description
+description: Browse CMS security roles, create a role, update one description, and delete one role
 version: "8.2"
 order: 46
 tags: [admin, developer, roles, security]
@@ -19,13 +19,14 @@ It mirrors the classic Workbench **Security Design → Roles** navigator folders
 | **Unassigned** | Role is in neither community nor workflow membership |
 
 A role that is both community- and workflow-assigned appears under **both** groups.
-An Admin can **create** one role (name and description) and **edit the description**
-of one existing role from this catalog.
-This chrome does **not** delete a role or change membership —
+An Admin can **create** one role (name and description), **edit the description**
+of one existing role, and **delete** one existing role from this catalog.
+**System** and **Default** cannot be deleted.
+This chrome does **not** change membership —
 use **Admin → Roles** for user membership and **Developer → Communities** detail for
 community role association. Packaged roles such as Admin and Designer are not
-created by this form. If the server rejects a description change (including a
-restricted system role), the catalog keeps the previous description.
+created by this form. If the server rejects a description change or a delete,
+the catalog keeps the previous row.
 
 ## Product path — browse
 
@@ -55,8 +56,7 @@ error. An empty catalog is a valid **200** with no rows.
    until the server returns success, then the catalog reloads.
 6. The existing role service also adds the new role to workflows, so the row
    appears under **Workflow** (and under **Community** only if a community
-   already includes that name). Delete and member changes are not part of this
-   form.
+   already includes that name). Member changes are not part of this form.
 
 HTTP **400** (blank, invalid, or duplicate name) and **403** (not Admin) leave
 the form in an error state. The catalog does not show the role as created.
@@ -80,11 +80,32 @@ rejects the update), **403** (not Admin), and **404** (the role no longer
 exists) leave the form in an error state. The catalog row keeps the previous
 description. `update=true` does not create a missing role.
 
+## Product path — delete a role
+
+1. Sign in as **Admin**.
+2. Open **Developer → Roles** and wait for the catalog.
+3. On a role row, choose **Delete**. **System** and **Default** do not offer
+   delete (the control stays disabled) and are not sent to the server.
+4. **Cancel** closes the confirm dialog and does not call the server. The row
+   stays.
+5. Choose **Delete** in the dialog. The catalog does not drop the row until
+   the server returns success, then the catalog reloads.
+6. Delete removes the CMS role only. If the role is a directory group, the CMS
+   link is removed and the group stays in the remote directory. Members of the
+   CMS role are removed from that role. The role is also removed from workflows.
+
+HTTP **400** (blank name or a system role), **403** (not Admin), and **409**
+(the role would leave a user unable to log in, or a workflow still assigns the
+role) leave an error on the catalog. The row stays. The panel does not say the
+role was deleted.
+
 ## Limits
 
 - Create is name and description only. Description save changes the description
-  only. Membership CRUD remains on **Admin → Roles** and community **Save roles**.
-- This form does not change the home page or delete a role.
+  only. Delete removes one CMS role. Membership CRUD remains on **Admin → Roles**
+  and community **Save roles**.
+- This form does not change the home page.
+- **System** and **Default** cannot be deleted.
 - A duplicate name is rejected. It does not update the existing role.
 - LocalContent (internal) workflow assignments are excluded from the workflow
   column, matching Workbench.
@@ -101,6 +122,7 @@ The chrome calls:
 | Filtered | `GET /services/roles/catalog?group=community\|workflow\|unassigned` |
 | Create | `PUT /services/roles/?create=true` with a `Role` object: `name` (required) and optional `description` |
 | Update description | `PUT /services/roles/?update=true` with a `Role` object: `name` (required) and `description` (blank clears) |
+| Delete | `DELETE /services/roles/{roleName}` |
 
 Create always uses the role create service (`create=true`). It does not update
 an existing role. A blank name is **400**. A caller who is not Admin is **403**.
@@ -110,6 +132,10 @@ It does not change members or the role name. A description longer than 255
 characters is **400**. Without `create=true` or `update=true`, `PUT` still
 creates a role that is not already defined and updates the description of a
 role that is. Do not send both `create=true` and `update=true` (**400**).
+Delete is **Admin** only (**403** otherwise). **System** and **Default** are
+**400**. A missing name is **404**. A role that would strand a user, or that a
+workflow still assigns beyond reader, is **409** and is not deleted. A
+directory group loses only the CMS link.
 
 Integrator notes: [REST API](id:developer-rest) (Roles browse catalog). Related
 chrome: [Developer Communities](id:admin-developer-communities),
