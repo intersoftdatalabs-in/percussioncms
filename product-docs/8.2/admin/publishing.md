@@ -311,8 +311,26 @@ optional comment and priority (1–5), then **Save**. The shell posts
 `PUT …/sitemanage/publishingdesign/editions/{editionId}` (update).
 
 HTTP **403** (not Admin or Designer) and **409** (edition name already exists) are shown in the
-edition editor error region — not as a successful save. Content-list association, copy, and
-Runtime start/stop are separate Design/Runtime actions.
+edition editor error region — not as a successful save. Content-list association and
+Runtime start/stop are separate Design/Runtime actions. Copying an edition is described below.
+
+### Copy a publish edition (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
+Open an existing edition (not **Add edition**). Under **Copy to site**, choose the **target
+site** — the site you are already viewing, or another site — and an optional **new name**.
+**Copy edition** posts `POST …/sitemanage/publishingdesign/editions/copy` with a
+`copyEditionRequest` body (source edition id, target site id, optional new name, and
+whether content-list associations are copied).
+
+On success the editor closes. The Design edition list for the **target** site shows the new
+edition (the site selector switches when the target is not the current site). Open that row
+to edit the copy. A blank new name is stored as the source name plus `_copy`.
+
+HTTP **400** (source edition or target site missing) and **403** (not Admin or Designer) stay
+in the edition editor error region. The list is not refreshed as a successful copy. HTTP
+**409** (the new name already exists) stays in that same error region. Creating an edition
+from scratch and deleting an edition are separate actions.
 
 ### Save a content list (Design)
 

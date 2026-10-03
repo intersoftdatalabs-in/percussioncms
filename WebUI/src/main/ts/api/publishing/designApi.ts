@@ -161,13 +161,22 @@ export async function deleteEdition(editionId: string | number): Promise<void> {
   );
 }
 
+/** JAXB root wrap expected by sitemanage {@code PSCopyEditionRequest}. */
+function wrapCopyEdition(body: CopyEditionRequest): {
+  copyEditionRequest: CopyEditionRequest;
+} {
+  return { copyEditionRequest: body };
+}
+
 export async function copyEdition(
   request: CopyEditionRequest,
 ): Promise<EditionSummary> {
-  return (await post<unknown>(
-    `${designRoot()}/editions/copy`,
-    request,
-  )) as EditionSummary;
+  return unwrapEdition(
+    await post<unknown>(
+      `${designRoot()}/editions/copy`,
+      wrapCopyEdition(request),
+    ),
+  );
 }
 
 export async function listEditionContentLists(

@@ -36,3 +36,24 @@ export function mapEditionSaveError(err: unknown): string {
   }
   return formatApiError(err, message(MSG.PUBLISH_ERROR));
 }
+
+/**
+ * Map edition copy failures to operator-visible text.
+ * HTTP 400 → bad request; HTTP 403 → forbidden; HTTP 409 → duplicate name.
+ * Plain {@link ApiError} objects are not {@code Error} instances — do not use
+ * {@code e.message} or the shell shows a generic failure (or nothing useful).
+ */
+export function mapEditionCopyError(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
+    }
+    if (err.status === 409) {
+      return formatApiError(err, message(MSG.PUBLISH_EDITION_NAME_CONFLICT));
+    }
+    if (err.status === 400) {
+      return formatApiError(err, message(MSG.PUBLISH_ERROR));
+    }
+  }
+  return formatApiError(err, message(MSG.PUBLISH_ERROR));
+}
