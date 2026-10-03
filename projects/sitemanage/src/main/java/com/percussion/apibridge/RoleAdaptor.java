@@ -26,6 +26,7 @@ import com.percussion.rest.roles.Role;
 import com.percussion.rest.roles.RoleBrowseCatalog;
 import com.percussion.rest.roles.RoleBrowseEntry;
 import com.percussion.rest.roles.RoleBrowseGroup;
+import com.percussion.role.data.PSRole;
 import com.percussion.role.service.impl.PSRoleService;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.security.data.PSCommunity;
@@ -46,6 +47,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -71,6 +73,13 @@ public class RoleAdaptor implements IRoleAdaptor {
   static final String ADMIN_REQUIRED = "Admin role required to browse the roles catalog";
 
   static final String ADMIN_REQUIRED_CREATE = "Admin role required to create a role";
+
+  static final String ADMIN_REQUIRED_UPDATE = "Admin role required to update a role description";
+
+  static final int DESCRIPTION_MAX_LENGTH = 255;
+
+  static final String DESCRIPTION_TOO_LONG =
+      "The maximum length of a role description is 255 characters.";
 
   private final PSRoleService roleService;
   private final IPSSecurityDesignWs securityDesignWs;
@@ -122,13 +131,66 @@ public class RoleAdaptor implements IRoleAdaptor {
     }
   }
 
+  /**
+   * Admin description edit. Copies the stored users and home page so an empty wire user list
+   * cannot clear membership, and never sets {@code oldName} (no rename). Missing roles are 404,
+   * not creates.
+   */
   @Override
   public Role updateRole(URI baseURI, Role role) {
+    requireAdmin(ADMIN_REQUIRED_UPDATE);
+    if (role == null || StringUtils.isBlank(role.getName())) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
+    role.setName(role.getName().trim());
+    var description = normalizeDescription(role.getDescription());
+    if (!roleExists(baseURI, role.getName())) {
+      throw new WebApplicationException("Role not found", 404);
+    }
     try {
-      return ApiUtils.convertRole(roleService.update(ApiUtils.convertRole(role)));
+      var existing = roleService.find(new PSStringWrapper(role.getName()));
+      if (existing == null || StringUtils.isBlank(existing.getName())) {
+        throw new WebApplicationException("Role not found", 404);
+      }
+      var toUpdate = new PSRole();
+      toUpdate.setName(existing.getName());
+      toUpdate.setDescription(description);
+      toUpdate.setHomepage(existing.getHomepage());
+      toUpdate.setUsers(existing.getUsers());
+      var updated = roleService.update(toUpdate);
+      var wire = ApiUtils.convertRole(updated);
+      if (wire == null || StringUtils.isBlank(wire.getName())) {
+        throw new WebApplicationException("Role update returned no role", 500);
+      }
+      return wire;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSValidationException e) {
+      var status = isNotFound(e) ? 404 : 400;
+      throw new WebApplicationException(validationMessage(e), status);
     } catch (PSDataServiceException e) {
       throw new WebApplicationException(e);
     }
+  }
+
+  /** Trim; blank becomes null (clear). Longer than {@link #DESCRIPTION_MAX_LENGTH} is HTTP 400. */
+  private static String normalizeDescription(String description) {
+    if (description == null) {
+      return null;
+    }
+    var trimmed = description.trim();
+    if (trimmed.isEmpty()) {
+      return null;
+    }
+    if (trimmed.length() > DESCRIPTION_MAX_LENGTH) {
+      throw new WebApplicationException(DESCRIPTION_TOO_LONG, 400);
+    }
+    return trimmed;
+  }
+
+  private static boolean isNotFound(PSValidationException e) {
+    var message = e.getMessage();
+    return message != null && message.toLowerCase(Locale.ROOT).contains("not found");
   }
 
   /**
@@ -230,8 +292,14 @@ public class RoleAdaptor implements IRoleAdaptor {
         }
         String name = summary.getName();
         roleNames.add(name);
-        if (StringUtils.isNotBlank(summary.getDescription())) {
-          descriptions.put(name, summary.getDescription());
+        // Design-object summaries do not store a description (PSRole#getDescription is
+        // always null). Create and update persist the text on the backend role.
+        String description = summary.getDescription();
+        if (StringUtils.isBlank(description)) {
+          description = storedRoleDescription(name);
+        }
+        if (StringUtils.isNotBlank(description)) {
+          descriptions.put(name, description.trim());
         }
         if (summary.getGUID() != null) {
           roleIdToName.put(summary.getGUID().longValue(), name);
@@ -284,6 +352,23 @@ public class RoleAdaptor implements IRoleAdaptor {
       catalog.setGroup(filter.getWireValue());
     }
     return catalog;
+  }
+
+  /**
+   * Backend-role description for a catalog name. A missing role or a service failure leaves the
+   * catalog row in place with no description rather than failing the browse.
+   */
+  private String storedRoleDescription(String name) {
+    if (roleService == null || StringUtils.isBlank(name)) {
+      return null;
+    }
+    try {
+      var found = roleService.find(new PSStringWrapper(name));
+      return found == null ? null : found.getDescription();
+    } catch (PSDataServiceException | RuntimeException e) {
+      log.debug("Role '{}' has no stored description: {}", name, e.getMessage());
+      return null;
+    }
   }
 
   /**

@@ -102,9 +102,9 @@ See [Developer Communities](id:admin-developer-communities).
 **Developer → Roles** (deep link `spa.jsp?entry=developer&section=roles`) is the
 Security Design catalog of system roles grouped by **Community**,
 **Workflow**, or **Unassigned** (Workbench SE-03). Admins can filter groups,
-inspect which communities/workflows include each role, and create a role with a
-name and description. It does **not** replace **Admin → Roles** membership
-editing, description edits, delete, or community **Save roles**.
+inspect which communities/workflows include each role, create a role with a
+name and description, and edit one existing role's description. It does **not**
+replace **Admin → Roles** membership editing, delete, or community **Save roles**.
 
 See [Developer Roles](id:admin-developer-roles).
 

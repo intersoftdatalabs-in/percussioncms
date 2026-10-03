@@ -129,30 +129,37 @@ public class RolesResource {
   }
 
   /**
-   * Create or update a role.
+   * Create a role, or update an existing role's description.
    *
    * <p>{@code create=true} always uses {@link IRoleAdaptor#createRole} (role service create). A
-   * name that is not already defined also uses create. An existing name is updated only when
-   * {@code create} is not true — a create payload must not clear members.
+   * name that is not already defined also uses create. {@code update=true} always uses {@link
+   * IRoleAdaptor#updateRole} and does not create a missing role. An existing name is updated only
+   * when {@code create} is not true — a create payload must not clear members. Description update
+   * does not change membership or rename the role.
    */
   @PUT
   @Path("/")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
-      summary = "Create or update a Role",
+      summary = "Create a role or update its description",
       description =
           "Creates a role via adaptor createRole / role service create when create=true, or when"
-              + " the name is not already defined. Updates an existing role only when create is"
-              + " not true. Blank name is 400. Create requires the Admin role (403). A duplicate"
-              + " create is 400 and does not update. Returns the resulting Role.",
+              + " the name is not already defined and update is not true. update=true changes the"
+              + " description of an existing role only (members and name stay as stored) and is"
+              + " 404 when the role is missing. Blank name is 400. Create and description update"
+              + " require the Admin role (403). A duplicate create is 400 and does not update. A"
+              + " description longer than 255 characters is 400. Returns the resulting Role.",
       responses = {
         @ApiResponse(
             responseCode = "200",
             description = "OK",
             content = @Content(schema = @Schema(implementation = Role.class))),
-        @ApiResponse(responseCode = "400", description = "Blank or invalid role name"),
-        @ApiResponse(responseCode = "403", description = "Admin role required to create a role"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Blank name, invalid role, or description longer than 255 characters"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Role not found (update=true)"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
@@ -163,13 +170,27 @@ public class RolesResource {
               name = "create")
           @QueryParam("create")
           Boolean create,
+      @Parameter(
+              description =
+                  "When true, update the description of an existing role. Missing names are 404"
+                      + " and are not created. Cannot be combined with create=true.",
+              name = "update")
+          @QueryParam("update")
+          Boolean update,
       @Parameter(description = "The body containing a JSON payload", name = "body") Role role) {
     if (role == null || isBlank(role.getName())) {
       throw new WebApplicationException("Role name is required", 400);
     }
+    if (Boolean.TRUE.equals(create) && Boolean.TRUE.equals(update)) {
+      throw new WebApplicationException("Specify create or update, not both", 400);
+    }
     role.setName(role.getName().trim());
     var base = uriInfo != null ? uriInfo.getBaseUri() : null;
     try {
+      // Explicit description update must not fall through to create when the role is gone.
+      if (Boolean.TRUE.equals(update)) {
+        return requireAdaptor().updateRole(base, role);
+      }
       // New names and explicit creates must not fall through to updateRole (empty users would
       // clear membership).
       if (Boolean.TRUE.equals(create) || !requireAdaptor().roleExists(base, role.getName())) {

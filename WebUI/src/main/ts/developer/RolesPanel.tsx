@@ -23,6 +23,7 @@ import {
   isRoleCreateReady,
   ROLE_BROWSE_GROUPS,
   rolesInBrowseGroup,
+  updateRoleDescription,
   type RoleBrowseEntry,
   type RoleBrowseGroupKey,
 } from "../api/developer/rolesApi";
@@ -99,16 +100,33 @@ function createFailureMessage(err: unknown): string {
   return panelErrMsg(err, DEV_MSG.ROLES_CREATE_ERROR);
 }
 
+function editFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.ROLES_EDIT_FORBIDDEN);
+    }
+    if (err.status === 404) {
+      return panelErrMsg(err, DEV_MSG.ROLES_EDIT_NOT_FOUND);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.ROLES_EDIT_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.ROLES_EDIT_ERROR);
+}
+
 function RoleGroupSection({
   group,
   roles,
   expanded,
   onToggle,
+  onOpenRole,
 }: {
   group: RoleBrowseGroupKey;
   roles: RoleBrowseEntry[];
   expanded: boolean;
   onToggle: () => void;
+  onOpenRole: (role: RoleBrowseEntry) => void;
 }): React.ReactElement {
   const label = groupLabel(group);
   return (
@@ -147,11 +165,16 @@ function RoleGroupSection({
               rows={roles.map((r, index) => ({
                 key: r.name || `role-${group}-${index}`,
                 dataAttrs: { "data-role-name": r.name },
+                onClick: () => onOpenRole(r),
                 cells: [
                   <span key="n" style={monoCell}>
                     {r.name}
                   </span>,
-                  <span key="d" style={mutedCell}>
+                  <span
+                    key="d"
+                    style={mutedCell}
+                    data-role-description={r.name}
+                  >
                     {r.description || ""}
                   </span>,
                   <span key="c" style={mutedCell}>
@@ -172,8 +195,9 @@ function RoleGroupSection({
 
 /**
  * SE-03 Roles catalog grouped by community / workflow / unassigned.
- * Admins create one role (name + description) via PUT ?create=true.
- * The catalog reloads only after create succeeds. Membership edits stay out of scope.
+ * Admins create one role (name + description) via PUT ?create=true, and edit
+ * one existing role's description via PUT ?update=true. The catalog reloads
+ * only after create or description save succeeds. Membership edits stay out of scope.
  */
 export function RolesPanel(): React.ReactElement {
   const [catalog, setCatalog] = useState<RoleBrowseEntry[] | null>(null);
@@ -189,8 +213,14 @@ export function RolesPanel(): React.ReactElement {
   const [createError, setCreateError] = useState<string | null>(null);
   const [createNotice, setCreateNotice] = useState<string | null>(null);
   const [createBusy, setCreateBusy] = useState(false);
+  const [editName, setEditName] = useState<string | null>(null);
+  const [editDescription, setEditDescription] = useState("");
+  const [editError, setEditError] = useState<string | null>(null);
+  const [editNotice, setEditNotice] = useState<string | null>(null);
+  const [editBusy, setEditBusy] = useState(false);
   const mountedRef = useRef(true);
   const createInflight = useRef(false);
+  const editInflight = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -246,9 +276,14 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function openCreate() {
+    if (editBusy) return;
+    setEditName(null);
+    setEditError(null);
+    setEditDescription("");
     setCreating(true);
     setCreateError(null);
     setCreateNotice(null);
+    setEditNotice(null);
     setDraftName("");
     setDraftDescription("");
   }
@@ -259,6 +294,26 @@ export function RolesPanel(): React.ReactElement {
     setCreateError(null);
     setDraftName("");
     setDraftDescription("");
+  }
+
+  function openEdit(role: RoleBrowseEntry) {
+    if (createBusy || editBusy || !role.name) return;
+    setCreating(false);
+    setCreateError(null);
+    setCreateNotice(null);
+    setEditError(null);
+    setEditNotice(null);
+    if (editName !== role.name) {
+      setEditDescription(role.description ?? "");
+      setEditName(role.name);
+    }
+  }
+
+  function cancelEdit() {
+    if (editBusy) return;
+    setEditName(null);
+    setEditError(null);
+    setEditDescription("");
   }
 
   async function handleCreate(): Promise<void> {
@@ -298,7 +353,36 @@ export function RolesPanel(): React.ReactElement {
     }
   }
 
+  async function handleEdit(): Promise<void> {
+    if (!editName || editInflight.current) {
+      return;
+    }
+    editInflight.current = true;
+    setEditBusy(true);
+    setEditError(null);
+    setEditNotice(null);
+    const name = editName.trim();
+    const description = editDescription.trim();
+    try {
+      await updateRoleDescription({ name, description });
+      if (!mountedRef.current) return;
+      setEditName(null);
+      setEditDescription("");
+      setEditNotice(DEV_MSG.ROLES_EDIT_SAVED);
+      await reload();
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setEditError(editFailureMessage(err));
+    } finally {
+      editInflight.current = false;
+      if (mountedRef.current) {
+        setEditBusy(false);
+      }
+    }
+  }
+
   const canCreate = !createBusy && isRoleCreateReady(draftName);
+  const canSaveDescription = !editBusy && editName != null && editName.trim().length > 0;
 
   if (error) {
     return (
@@ -322,6 +406,95 @@ export function RolesPanel(): React.ReactElement {
         <div data-testid="developer-roles-create-notice" style={{ color: "#276749", marginBottom: "12px" }}>
           {createNotice}
         </div>
+      ) : null}
+      {editNotice ? (
+        <div data-testid="developer-roles-edit-notice" style={{ color: "#276749", marginBottom: "12px" }}>
+          {editNotice}
+        </div>
+      ) : null}
+      {editName ? (
+        <form
+          data-testid="developer-roles-edit-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void handleEdit();
+          }}
+          style={{
+            marginBottom: "16px",
+            padding: "12px",
+            border: `1px solid ${catalogColors.softBorder}`,
+            borderRadius: "4px",
+          }}
+        >
+          {editError ? (
+            <div role="alert" data-testid="developer-roles-edit-error" style={errorAlert}>
+              {editError}
+            </div>
+          ) : null}
+          <h2 style={{ margin: "0 0 12px" }} data-testid="developer-roles-edit-title">
+            {DEV_MSG.ROLES_EDIT_TITLE}
+          </h2>
+          <p style={{ color: catalogColors.muted, margin: "0 0 12px", fontSize: "0.9rem" }}>
+            {DEV_MSG.ROLES_EDIT_HINT}
+          </p>
+          <div style={fieldStyle}>
+            <label htmlFor="developer-roles-edit-name">{DEV_MSG.ROLES_EDIT_NAME}</label>
+            <input
+              id="developer-roles-edit-name"
+              data-testid="developer-roles-edit-name"
+              style={{ ...inputStyle, fontFamily: "monospace" }}
+              value={editName}
+              readOnly
+              disabled={editBusy}
+            />
+          </div>
+          <div style={fieldStyle}>
+            <label htmlFor="developer-roles-edit-description">
+              {DEV_MSG.ROLES_EDIT_DESCRIPTION}
+            </label>
+            <input
+              id="developer-roles-edit-description"
+              data-testid="developer-roles-edit-description"
+              style={inputStyle}
+              value={editDescription}
+              disabled={editBusy}
+              onChange={(event) => setEditDescription(event.target.value)}
+            />
+          </div>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <button
+              type="submit"
+              data-testid="developer-roles-edit-save"
+              aria-label={DEV_MSG.ROLES_EDIT_SAVE}
+              disabled={!canSaveDescription}
+              style={{
+                padding: "8px 16px",
+                background: canSaveDescription ? catalogColors.accent : catalogColors.disabled,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: canSaveDescription ? "pointer" : "not-allowed",
+              }}
+            >
+              {DEV_MSG.ROLES_EDIT_SAVE}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-roles-edit-cancel"
+              disabled={editBusy}
+              onClick={cancelEdit}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              {DEV_MSG.ROLES_EDIT_CANCEL}
+            </button>
+          </div>
+        </form>
       ) : null}
       {creating ? (
         <form
@@ -407,7 +580,7 @@ export function RolesPanel(): React.ReactElement {
             </button>
           </div>
         </form>
-      ) : (
+      ) : editName ? null : (
         <div style={{ marginBottom: "16px" }}>
           <button
             type="button"
@@ -473,6 +646,7 @@ export function RolesPanel(): React.ReactElement {
               roles={grouped[g]}
               expanded={expanded.has(g)}
               onToggle={() => toggleGroup(g)}
+              onOpenRole={openEdit}
             />
           ))}
         </div>

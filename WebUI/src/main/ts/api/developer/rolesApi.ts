@@ -247,3 +247,29 @@ export async function createRole(input: RoleCreateBody): Promise<RoleCreateResul
   const payload = await put<unknown>(roleCreateUrl(), wrapRoleCreateForWire(body));
   return unwrapCreatedRole(payload);
 }
+
+/** PUT /services/roles/?update=true — description of an existing role, never a create. */
+export function roleUpdateDescriptionUrl(): string {
+  return `${PATHS.ROLES}/?update=true`;
+}
+
+/**
+ * PUT /services/roles/?update=true — Admin description edit.
+ * Does not send users (the server keeps stored members). A blank description clears.
+ * HTTP 400, 403, and 404 reject; this function does not return a role for those.
+ */
+export async function updateRoleDescription(
+  input: RoleCreateBody,
+): Promise<RoleCreateResult> {
+  const name = input.name.trim();
+  if (!isRoleCreateReady(name)) {
+    throw new Error("Role name is required");
+  }
+  const description = input.description?.trim() ?? "";
+  const body: RoleCreateBody = { name, description };
+  const payload = await put<unknown>(
+    roleUpdateDescriptionUrl(),
+    wrapRoleCreateForWire(body),
+  );
+  return unwrapCreatedRole(payload);
+}

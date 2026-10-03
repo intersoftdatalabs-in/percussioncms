@@ -32,7 +32,9 @@ import com.percussion.itemmanagement.service.impl.PSWorkflowHelper;
 import com.percussion.rest.roles.RoleBrowseCatalog;
 import com.percussion.rest.roles.RoleBrowseEntry;
 import com.percussion.rest.roles.RoleBrowseGroup;
+import com.percussion.role.data.PSRole;
 import com.percussion.role.service.impl.PSRoleService;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.services.workflow.IPSWorkflowService;
@@ -119,6 +121,36 @@ class RoleAdaptorBrowseTest {
     assertEquals(List.of(RoleBrowseGroup.UNASSIGNED.getWireValue()), orphan.getGroups());
     assertTrue(orphan.getCommunities().isEmpty());
     assertTrue(orphan.getWorkflows().isEmpty());
+  }
+
+  @Test
+  void browse_fillsDescriptionFromStoredRoleWhenSummaryIsBlank() throws Exception {
+    IPSGuid authorGuid = guid(101);
+    IPSCatalogSummary authorSum = roleSummary("Author", null, authorGuid);
+    when(securityDesignWs.findRoles(isNull())).thenReturn(List.of(authorSum));
+    when(securityDesignWs.findCommunities(isNull())).thenReturn(List.of());
+    when(workflowService.findWorkflowsByName(null)).thenReturn(List.of());
+    PSRole stored = new PSRole();
+    stored.setName("Author");
+    stored.setDescription("  Authors content  ");
+    when(roleService.find(any())).thenReturn(stored);
+
+    RoleBrowseCatalog catalog = adaptor.browseRoles(null, null);
+    assertEquals("Authors content", byName(catalog, "Author").getDescription());
+  }
+
+  @Test
+  void browse_keepsRoleWhenStoredDescriptionLookupFails() throws Exception {
+    IPSGuid authorGuid = guid(101);
+    IPSCatalogSummary authorSum = roleSummary("Author", " ", authorGuid);
+    when(securityDesignWs.findRoles(isNull())).thenReturn(List.of(authorSum));
+    when(securityDesignWs.findCommunities(isNull())).thenReturn(List.of());
+    when(workflowService.findWorkflowsByName(null)).thenReturn(List.of());
+    when(roleService.find(any())).thenThrow(new PSDataServiceException("db down"));
+
+    RoleBrowseCatalog catalog = adaptor.browseRoles(null, null);
+    RoleBrowseEntry author = byName(catalog, "Author");
+    assertNull(author.getDescription());
   }
 
   @Test
