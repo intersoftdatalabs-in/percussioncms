@@ -21,7 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,6 +40,7 @@ import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.services.error.PSNotFoundException;
+import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.linkmanagement.IPSManagedLinkDao;
 import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.publisher.IPSPublisherService;
@@ -47,6 +51,7 @@ import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.dao.impl.PSContentItem;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSValidationException;
+import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentWs;
 import jakarta.ws.rs.WebApplicationException;
@@ -57,6 +62,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -82,6 +88,7 @@ class PSItemServiceSaveEditorFieldsTest {
   @Mock private IPSNotificationService notificationService;
   @Mock private IPSPublisherService pubService;
   @Mock private IPSManagedLinkDao linkService;
+  @Mock private IPSCmsObjectMgr cmsObjectMgr;
   @Mock private PSComponentSummary summary;
   @Mock private IPSGuid guid;
 
@@ -105,6 +112,7 @@ class PSItemServiceSaveEditorFieldsTest {
             notificationService,
             pubService,
             linkService);
+    service.setCmsObjectMgr(cmsObjectMgr);
   }
 
   @Test
@@ -337,5 +345,139 @@ class PSItemServiceSaveEditorFieldsTest {
     when(summary.getCurrentLocator()).thenReturn(new PSLocator(7, 4));
     assertEquals(4, PSItemService.currentRevision(summary));
     assertEquals(0, PSItemService.currentRevision(null));
+  }
+
+  @Test
+  void blankCommunityClearsContentStatusAndReturnsEmptyOption() throws Exception {
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
+    when(summary.getCurrentLocator()).thenReturn(new PSLocator(42, 2));
+    when(summary.getCheckoutUserName()).thenReturn("admin");
+    when(summary.getCommunityId()).thenReturn(10);
+    when(summary.getContentId()).thenReturn(42);
+    when(workflowHelper.isCheckedOutToCurrentUser(anyString())).thenReturn(true);
+    when(idMapper.getGuid(anyString())).thenReturn(guid);
+    when(contentWs.prepareForEdit(guid)).thenReturn(null);
+    PSContentItem item = new PSContentItem();
+    item.setId("42");
+    item.setType("percPage");
+    item.setName("Home");
+    HashMap<String, Object> fields = new HashMap<>();
+    fields.put("sys_communityid", "10");
+    item.setFields(fields);
+    when(contentItemDao.find(anyString(), anyBoolean())).thenReturn(item);
+
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(2);
+    req.setFields(List.of(new PSItemEditorField("sys_communityid", "")));
+
+    PSItemEditorFields saved = service.saveEditorFields("42", req);
+    assertEquals("", item.getFields().get("sys_communityid"));
+    assertEquals(
+        "",
+        saved.getFields().stream()
+            .filter(field -> "sys_communityid".equals(field.getName()))
+            .findFirst()
+            .orElseThrow()
+            .getValue());
+    verify(summary).setCommunityId(0);
+    InOrder order = inOrder(cmsObjectMgr, contentItemDao);
+    order.verify(cmsObjectMgr).saveComponentSummaries(anyList());
+    order.verify(cmsObjectMgr).evictComponentSummaries(List.of(42));
+    order.verify(contentItemDao).save(item);
+  }
+
+  @Test
+  void selectedCommunityDoesNotClearContentStatus() throws Exception {
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
+    when(summary.getCurrentLocator()).thenReturn(new PSLocator(42, 2));
+    when(summary.getCheckoutUserName()).thenReturn("admin");
+    when(summary.getCommunityId()).thenReturn(10);
+    when(workflowHelper.isCheckedOutToCurrentUser(anyString())).thenReturn(true);
+    when(idMapper.getGuid(anyString())).thenReturn(guid);
+    when(contentWs.prepareForEdit(guid)).thenReturn(null);
+    PSContentItem item = new PSContentItem();
+    item.setId("42");
+    item.setType("percPage");
+    item.setName("Home");
+    item.setFields(new HashMap<>());
+    when(contentItemDao.find(anyString(), anyBoolean())).thenReturn(item);
+
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(2);
+    req.setFields(List.of(new PSItemEditorField("sys_communityid", "20")));
+
+    PSItemEditorFields saved = service.saveEditorFields("42", req);
+    assertEquals("20", item.getFields().get("sys_communityid"));
+    assertEquals(
+        "20",
+        saved.getFields().stream()
+            .filter(field -> "sys_communityid".equals(field.getName()))
+            .findFirst()
+            .orElseThrow()
+            .getValue());
+    verify(cmsObjectMgr, never()).saveComponentSummaries(anyList());
+    verify(summary, never()).setCommunityId(anyInt());
+  }
+
+  @Test
+  void communityClearOrmFailureIsConflict() throws Exception {
+    PSComponentSummary stored =
+        new PSComponentSummary(42, 2, 2, 2, PSComponentSummary.TYPE_ITEM, "Home", 1L, -1);
+    stored.setCommunityId(10);
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(stored);
+    when(idMapper.getGuid(anyString())).thenReturn(guid);
+    when(contentWs.prepareForEdit(guid)).thenReturn(null);
+    PSContentItem item = new PSContentItem();
+    item.setId("42");
+    item.setType("percPage");
+    item.setName("Home");
+    HashMap<String, Object> fields = new HashMap<>();
+    fields.put("sys_communityid", "10");
+    item.setFields(fields);
+    when(contentItemDao.find(anyString(), anyBoolean())).thenReturn(item);
+    doAnswer(
+            invocation -> {
+              List<?> rows = invocation.getArgument(0);
+              assertEquals(1, rows.size());
+              assertEquals(0, ((PSComponentSummary) rows.get(0)).getCommunityId());
+              throw new PSORMException("locked");
+            })
+        .when(cmsObjectMgr)
+        .saveComponentSummaries(anyList());
+
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(2);
+    req.setFields(List.of(new PSItemEditorField("sys_communityid", "")));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveEditorFields("42", req));
+    assertEquals(Response.Status.CONFLICT.getStatusCode(), ex.getResponse().getStatus());
+    assertEquals("10", item.getFields().get("sys_communityid"));
+    assertEquals(10, stored.getCommunityId());
+    verify(contentItemDao, never()).save(any());
+    verify(cmsObjectMgr, never()).evictComponentSummaries(anyList());
+  }
+
+  @Test
+  void unassignedCommunityReloadsAsEmptyOption() throws Exception {
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
+    when(summary.getCommunityId()).thenReturn(0);
+    when(summary.getCheckoutUserName()).thenReturn("");
+    when(summary.getCurrentLocator()).thenReturn(new PSLocator(42, 2));
+    PSContentItem item = new PSContentItem();
+    item.setId("42");
+    item.setType("percPage");
+    item.setName("Home");
+    item.setFields(new HashMap<>());
+    when(contentItemDao.find(anyString(), anyBoolean())).thenReturn(item);
+
+    PSItemEditorFields loaded = service.getEditorFields("42");
+    assertEquals(
+        "",
+        loaded.getFields().stream()
+            .filter(field -> "sys_communityid".equals(field.getName()))
+            .findFirst()
+            .orElseThrow()
+            .getValue());
   }
 }

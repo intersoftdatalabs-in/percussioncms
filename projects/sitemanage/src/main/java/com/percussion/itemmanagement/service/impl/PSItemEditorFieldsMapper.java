@@ -49,6 +49,47 @@ public final class PSItemEditorFieldsMapper {
   }
 
   /**
+   * True when the editor PUT includes {@code sys_communityid} with a blank value. That is the
+   * empty community option (clear), not a community id change.
+   */
+  public static boolean isCommunityClear(List<PSItemEditorField> updates) {
+    if (updates == null || updates.isEmpty()) {
+      return false;
+    }
+    boolean seen = false;
+    String value = null;
+    for (PSItemEditorField update : updates) {
+      if (update == null || !COMMUNITY_FIELD.equals(update.getName())) {
+        continue;
+      }
+      seen = true;
+      value = update.getValue();
+    }
+    return seen && StringUtils.isBlank(value);
+  }
+
+  /**
+   * Add {@code sys_communityid} as an empty string when the payload omitted it. A present value,
+   * including blank, is left alone. Used after a clear so reload shows the empty option.
+   */
+  public static void presentEmptyCommunity(PSItemEditorFields out) {
+    if (out == null) {
+      return;
+    }
+    List<PSItemEditorField> fields = out.getFields();
+    if (fields == null) {
+      fields = new ArrayList<>();
+      out.setFields(fields);
+    }
+    for (PSItemEditorField field : fields) {
+      if (field != null && COMMUNITY_FIELD.equals(field.getName())) {
+        return;
+      }
+    }
+    fields.add(new PSItemEditorField(COMMUNITY_FIELD, ""));
+  }
+
+  /**
    * Copy the content-status community onto the editor payload when the item field map omitted
    * {@code sys_communityid}. A present value, including blank, is left alone so an explicit clear
    * is not replaced by the previous id. {@code communityId} &lt;= 0 is ignored.

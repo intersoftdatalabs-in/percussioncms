@@ -70,6 +70,8 @@ import com.percussion.services.contentchange.data.PSContentChangeEvent;
 import com.percussion.services.contentchange.data.PSContentChangeType;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.PSGuidUtils;
+import com.percussion.services.legacy.IPSCmsObjectMgr;
+import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.linkmanagement.IPSManagedLinkDao;
 import com.percussion.services.linkmanagement.data.PSManagedLink;
@@ -105,6 +107,7 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.share.validation.PSValidationErrorsBuilder;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.webservices.PSErrorException;
@@ -186,6 +189,8 @@ public class PSItemService implements IPSItemService {
   IPSNotificationService notificationService;
   IPSPublisherService pubService;
   IPSManagedLinkDao linkService;
+  /** When null, the CMS object manager locator writes a cleared item community. */
+  private IPSCmsObjectMgr cmsObjectMgr;
   @Autowired IPSPublishingWs publishingWs;
   IPSPageService pageService;
   @Autowired IPSContentChangeService changeService;
@@ -195,6 +200,56 @@ public class PSItemService implements IPSItemService {
   /** Package-visible for unit tests. */
   void setRecycleService(IPSRecycleService recycleService) {
     this.recycleService = recycleService;
+  }
+
+  /** Package-visible so editor community-clear tests do not touch the object-manager locator. */
+  void setCmsObjectMgr(IPSCmsObjectMgr cmsObjectMgr) {
+    this.cmsObjectMgr = cmsObjectMgr;
+  }
+
+  /**
+   * Community id {@code 0} is an explicit clear: the editor must show the empty option. A positive
+   * id is copied only when the field was omitted. {@code -1} (visible to all communities) is left
+   * unchanged.
+   */
+  private static void applyCommunityOnRead(PSItemEditorFields out, int communityId) {
+    if (communityId == 0) {
+      PSItemEditorFieldsMapper.presentEmptyCommunity(out);
+      return;
+    }
+    PSItemEditorFieldsMapper.fillCommunityWhenAbsent(out, communityId);
+  }
+
+  /**
+   * Persist the empty community option onto {@code CONTENTSTATUS.COMMUNITYID} before {@code
+   * sys_communityid} is written. Id {@code 0} means unassigned so a later GET does not refill the
+   * previous community. {@code PSContentItemDao.save} commits when it returns and this service is
+   * not transactional, so the summary must be saved first. HTTP 409 when the summary cannot be
+   * saved — the in-memory id is restored and the content item is left unchanged.
+   */
+  private void persistClearedCommunity(PSComponentSummary target) {
+    if (target.getCommunityId() == 0) {
+      return;
+    }
+    int previous = target.getCommunityId();
+    target.setCommunityId(0);
+    IPSCmsObjectMgr mgr = cmsObjectMgr();
+    try {
+      mgr.saveComponentSummaries(List.of(target));
+    } catch (PSORMException e) {
+      target.setCommunityId(previous);
+      throw new WebApplicationException(
+          e.getMessage() == null ? "Could not clear the item community." : e.getMessage(),
+          Response.Status.CONFLICT);
+    } catch (RuntimeException e) {
+      target.setCommunityId(previous);
+      throw e;
+    }
+    mgr.evictComponentSummaries(List.of(target.getContentId()));
+  }
+
+  private IPSCmsObjectMgr cmsObjectMgr() {
+    return cmsObjectMgr != null ? cmsObjectMgr : PSCmsObjectMgrLocator.getObjectManager();
   }
 
   @Autowired(required = false)
@@ -399,7 +454,7 @@ public class PSItemService implements IPSItemService {
       }
       PSItemEditorFields out = PSItemEditorFieldsMapper.fromContentItem(item, checkoutUser);
       if (sum != null) {
-        PSItemEditorFieldsMapper.fillCommunityWhenAbsent(out, sum.getCommunityId());
+        applyCommunityOnRead(out, sum.getCommunityId());
       }
       out.setRevision(currentRevision(sum));
       return out;
@@ -452,6 +507,18 @@ public class PSItemService implements IPSItemService {
       if (item == null) {
         throw new PSItemServiceException("The item no longer exists in the system.");
       }
+      boolean clearCommunity = PSItemEditorFieldsMapper.isCommunityClear(req.getFields());
+      PSComponentSummary communityTarget = sum;
+      if (clearCommunity && communityTarget == null) {
+        try {
+          communityTarget = workflowHelper.getComponentSummary(guid);
+        } catch (Exception e) {
+          log.debug("Could not resolve item summary before clearing community for {}", guid, e);
+        }
+      }
+      if (clearCommunity && communityTarget != null) {
+        persistClearedCommunity(communityTarget);
+      }
       PSItemEditorFieldsMapper.applyUpdates(item, req.getFields());
       contentItemDao.save(item);
       String checkoutUser = "";
@@ -466,9 +533,12 @@ public class PSItemService implements IPSItemService {
       }
       PSItemEditorFields saved = PSItemEditorFieldsMapper.fromContentItem(item, checkoutUser);
       PSComponentSummary communitySource = after != null ? after : sum;
-      if (communitySource != null) {
-        PSItemEditorFieldsMapper.fillCommunityWhenAbsent(saved, communitySource.getCommunityId());
+      int communityId = communitySource == null ? -1 : communitySource.getCommunityId();
+      if (clearCommunity) {
+        // The summary mock (and a failed read-back) may still report the previous id.
+        communityId = 0;
       }
+      applyCommunityOnRead(saved, communityId);
       saved.setRevision(currentRevision(communitySource));
       return saved;
     } catch (WebApplicationException e) {

@@ -140,6 +140,9 @@ export const EDITOR_MSG = {
   KEYWORD_FORBIDDEN:
     "perc.ui.editor@You are not allowed to save that keyword.",
   COMMUNITY_EMPTY: "perc.ui.editor@Select a community",
+  COMMUNITY_BAD_REQUEST: "perc.ui.editor@That community could not be saved.",
+  COMMUNITY_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to save that community.",
   BADGE_PROMOTE: "perc.ui.editor@Promote",
   PROMOTE: "perc.ui.editor@Promote revision",
   PROMOTE_HINT:

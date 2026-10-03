@@ -6825,3 +6825,184 @@ describe("EditorHost rename open item (#4791)", () => {
     expect(screen.queryByTestId("editor-compare-table")).toBeNull();
   });
 });
+
+describe("EditorHost clear community (#5091)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function communityHost(opts: {
+    saveFields: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    communityId?: string;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percEvent",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 2,
+          fields: [
+            { name: "sys_title", value: "Home" },
+            { name: "sys_communityid", value: opts.communityId ?? "10" },
+          ],
+        })}
+        saveFields={opts.saveFields}
+        loadType={async () => ({
+          fields: [
+            { name: "sys_title", label: "Title", control: "sys_EditBox" },
+            { name: "sys_communityid", label: "Community", control: "sys_DropDownSingle" },
+          ],
+        })}
+        loadCommunities={async () => [
+          { id: 10, name: "Default", label: "Default" },
+          { id: 20, name: "Enterprise", label: "Enterprise" },
+        ]}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  it("saves an empty community and shows the empty option after reload", async () => {
+    let communityId = "10";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      communityId =
+        body.fields.find((field) => field.name === "sys_communityid")?.value ?? communityId;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 3,
+        fields: body.fields,
+      };
+    });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={communityHost({ saveFields, communityId })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "Enterprise" })).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-sys_communityid"), {
+      target: { value: "" },
+    });
+    expect((screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement).value).toBe(
+      "",
+    );
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "sys_communityid")?.value).toBe("");
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={communityHost({ saveFields, communityId })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement).value,
+      ).toBe("");
+    });
+  });
+
+  it("does not PUT when Close cancels an unsaved community clear", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={communityHost({ saveFields, confirmLeaveUnsaved: () => false })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "Default" })).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-sys_communityid"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement).value).toBe(
+      "",
+    );
+  });
+
+  it("does not offer a community change in view mode", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route path="/editor" element={communityHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "Default" })).toBeTruthy();
+    });
+    const select = screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement;
+    expect(select.disabled).toBe(true);
+    expect(select.value).toBe("10");
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not claim success for HTTP 400, 403, or 409 on a community clear", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={communityHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "Enterprise" })).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-sys_communityid"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_communityid").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_communityid").textContent).toMatch(
+        /not allowed/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/newer revision/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(3);
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "sys_communityid")?.value).toBe("");
+  });
+});
