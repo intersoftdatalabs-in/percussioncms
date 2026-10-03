@@ -32,6 +32,8 @@ import com.percussion.publishingdesign.data.PSDeliveryTypeSummary;
 import com.percussion.publishingdesign.data.PSEditionSummary;
 import com.percussion.publishingdesign.data.PSContextSummary;
 import com.percussion.publishingdesign.data.PSLocationSchemeSummary;
+import com.percussion.rx.publisher.IPSPublisherJobStatus;
+import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.IPSGuidManager;
@@ -222,6 +224,48 @@ class PSPublishingDesignRestServiceTest {
 
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> service.deleteEdition("11"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains(PSPublishingDesignRestService.EDITION_IN_USE));
+    verify(publisherService, never()).loadEdition(any());
+    verify(publisherService, never()).deleteEdition(any());
+  }
+
+  @Test
+  void deleteEdition_finishedJobStillInMemory_deletes() throws Exception {
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    IPSRxPublisherService rx = mock(IPSRxPublisherService.class);
+    when(rx.getEditionJobId(editionGuid)).thenReturn(55L);
+    IPSPublisherJobStatus status = mock(IPSPublisherJobStatus.class);
+    when(rx.getPublishingJobStatus(55L)).thenReturn(status);
+    when(status.getState()).thenReturn(IPSPublisherJobStatus.State.COMPLETED);
+    PSPublishingRuntimeSupport runtime =
+        new PSPublishingRuntimeSupport(publisherService, guidManager, rx, null, null);
+    PSPublishingDesignRestService wired =
+        new PSPublishingDesignRestService(publisherService, guidManager, null, runtime);
+    wired.setDesignWriteAllowed(() -> true);
+    IPSEdition edition = mock(IPSEdition.class);
+    when(publisherService.loadEdition(editionGuid)).thenReturn(edition);
+
+    wired.deleteEdition("11");
+    verify(publisherService).deleteEdition(edition);
+  }
+
+  @Test
+  void deleteEdition_activeJobViaRuntime_409() {
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    IPSRxPublisherService rx = mock(IPSRxPublisherService.class);
+    when(rx.getEditionJobId(editionGuid)).thenReturn(55L);
+    IPSPublisherJobStatus status = mock(IPSPublisherJobStatus.class);
+    when(rx.getPublishingJobStatus(55L)).thenReturn(status);
+    when(status.getState()).thenReturn(IPSPublisherJobStatus.State.WORKING);
+    PSPublishingRuntimeSupport runtime =
+        new PSPublishingRuntimeSupport(publisherService, guidManager, rx, null, null);
+    PSPublishingDesignRestService wired =
+        new PSPublishingDesignRestService(publisherService, guidManager, null, runtime);
+    wired.setDesignWriteAllowed(() -> true);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> wired.deleteEdition("11"));
     assertEquals(409, ex.getResponse().getStatus());
     assertTrue(ex.getMessage().contains(PSPublishingDesignRestService.EDITION_IN_USE));
     verify(publisherService, never()).loadEdition(any());

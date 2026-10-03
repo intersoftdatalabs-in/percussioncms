@@ -1372,8 +1372,9 @@ public class PSPublishingDesignRestService {
 
   /**
    * Refuse delete while a publish job is active for the edition (HTTP 409).
-   * Idle ({@code 0}) is allowed. A missing runtime lookup is treated as idle so
-   * unit tests that do not install runtime support can still delete.
+   * Idle ({@code 0}) is allowed, including a finished job still retained until reap.
+   * A missing runtime lookup is treated as idle so unit tests that do not install
+   * runtime support can still delete.
    */
   private void rejectEditionInUse(IPSGuid editionGuid) {
     long jobId;

@@ -15,7 +15,14 @@ Licensed under the Apache License, Version 2.0.
 - Head: 3511651dfc1c6e826ec197133149d6483c6e2e8e
 - Files analyzed: 12
 
-Independent of the author. Machine gate is advisory and did not see this bug. Erlang gate: **request-changes**. Do not merge.
+Independent of the author. The first pass requested changes (finished job still 409). The fix pass below clears that bug. Erlang gate after the fix: **approve**. Do not self-approve on GitHub.
+
+## Re-review after the finished-job fix
+
+- `runningJobId` treats a terminal job status as idle (`State.isTerminal()`, same predicate as `PSPublishingJob.isFinished()`). `getEditionJobId` is unchanged so the runtime list can still show a completed job.
+- Unknown job id (`IllegalStateException`) is idle. A status lookup that fails for another reason stays in use.
+- Tests: finished and cancelled job ids return 0; an active `WORKING` job still returns the id; delete through `PSPublishingRuntimeSupport` deletes a completed job and 409s a working job.
+- CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --fail-on-bug --diff` (working tree vs `origin/main`). 13 files, 0 in-diff bugs, 1 preexisting `listRuntimeEditions` complexity suggestion. May commit/push: yes.
 
 ## CLI stdout (`mkd-code-review analyze --format markdown`)
 
@@ -64,9 +71,9 @@ approve
 
 ## Recommendation
 
-request-changes
+request-changes (first pass only; cleared by the re-review above)
 
 ## Gate
 
-- Blocking bugs: 1
-- May commit/push: no
+- Blocking bugs: 1 on the first pass; 0 after `runningJobId` ignores a terminal job
+- May commit/push: yes, after the finished-job fix

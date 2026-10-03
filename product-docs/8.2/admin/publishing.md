@@ -346,7 +346,9 @@ Open an existing edition (not **Add edition**). **Delete** asks for confirmation
 closes and that edition is gone from the site's edition list. Cancel does not call
 the server and leaves the list unchanged.
 
-An edition with a running publish job is not deleted. HTTP **409** (**Edition is in use**),
+An edition with a running publish job is not deleted. A publish job that has already
+finished does not block delete, even while the server still remembers that job.
+HTTP **409** (**Edition is in use**),
 **403** (not Admin or Designer), and **400** (edition id missing) stay in the edition
 editor error region. The list is not refreshed as a successful delete. Creating an
 edition, copying an edition, and stopping a running job are separate actions.

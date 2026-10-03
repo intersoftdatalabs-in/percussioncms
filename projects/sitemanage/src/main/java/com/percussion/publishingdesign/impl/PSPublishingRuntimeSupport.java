@@ -140,6 +140,9 @@ public class PSPublishingRuntimeSupport {
   /**
    * Active publish job id for an edition, or {@code 0} when the edition is idle.
    *
+   * <p>{@code getEditionJobId} also returns a finished job the publisher has not reaped yet. A
+   * terminal status is idle, matching {@code PSPublishingJob#isFinished()}. {@code null} is idle.
+   *
    * @param editionGuid edition to inspect; {@code null} is idle
    */
   public long runningJobId(IPSGuid editionGuid) {
@@ -147,7 +150,30 @@ public class PSPublishingRuntimeSupport {
       return 0L;
     }
     requireRx();
-    return rxPublisherService.getEditionJobId(editionGuid);
+    long jobId = rxPublisherService.getEditionJobId(editionGuid);
+    if (jobId <= 0L) {
+      return 0L;
+    }
+    try {
+      IPSPublisherJobStatus status = rxPublisherService.getPublishingJobStatus(jobId);
+      if (status != null && status.getState() != null && status.getState().isTerminal()) {
+        return 0L;
+      }
+    } catch (IllegalStateException e) {
+      // Unknown job id means the publisher already dropped it.
+      log.debug(
+          "Publish job {} is no longer known; treating the edition as idle: {}",
+          jobId,
+          PSExceptionUtils.getMessageForLog(e));
+      return 0L;
+    } catch (RuntimeException e) {
+      // A live job must stay in use when its status cannot be read.
+      log.debug(
+          "Unable to load status for publish job {}; treating it as still in use: {}",
+          jobId,
+          PSExceptionUtils.getMessageForLog(e));
+    }
+    return jobId;
   }
 
   public PSRuntimeJobResponse startEdition(String editionId) {
