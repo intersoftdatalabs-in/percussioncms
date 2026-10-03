@@ -247,6 +247,7 @@ import {
 import { isWorkflowEligibleItem } from "./workflowEligibility";
 import { copySelectedFolderPath } from "./copyFolderPath";
 import { copySelectedItemGuid } from "./copyItemGuid";
+import { openMobilePreview } from "./mobilePreview";
 import {
   isFolderIdLookupPath,
   resolveFolderPathFromSelection,
@@ -671,6 +672,12 @@ function ContentExplorerShellInner({
     choices: ItemWorkflowChoice[];
     busy: boolean;
     error: string;
+  } | null>(null);
+  const [mobilePreviewNotice, setMobilePreviewNotice] = useState<{
+    kind: "opened" | "error";
+    reason: string;
+    url: string;
+    text: string;
   } | null>(null);
   const [setCommunityNotice, setSetCommunityNotice] = useState<{
     kind: "success" | "error";
@@ -2052,6 +2059,74 @@ function ContentExplorerShellInner({
           })();
           break;
         }
+        case "content-mobile-preview": {
+          const current = selectionRef.current;
+          const result = openMobilePreview({
+            item: current.item,
+            openWindow: (url, target) => {
+              if (typeof window === "undefined") {
+                return null;
+              }
+              return window.open(url, target ?? "_blank");
+            },
+          });
+          if (result.status === "opened") {
+            setMobilePreviewNotice({
+              kind: "opened",
+              reason: "",
+              url: result.url,
+              text: message(EXPLORER_MSG.MOBILE_PREVIEW_OPENED),
+            });
+            break;
+          }
+          if (result.status === "none") {
+            setMobilePreviewNotice({
+              kind: "error",
+              reason: "none",
+              url: "",
+              text: message(EXPLORER_MSG.MOBILE_PREVIEW_NONE),
+            });
+            break;
+          }
+          if (result.status === "folder") {
+            setMobilePreviewNotice({
+              kind: "error",
+              reason: "folder",
+              url: "",
+              text: message(EXPLORER_MSG.MOBILE_PREVIEW_FOLDER)
+                .split("{name}")
+                .join(result.name),
+            });
+            break;
+          }
+          if (result.status === "not-page") {
+            setMobilePreviewNotice({
+              kind: "error",
+              reason: "not-page",
+              url: "",
+              text: message(EXPLORER_MSG.MOBILE_PREVIEW_NOT_PAGE)
+                .split("{name}")
+                .join(result.name),
+            });
+            break;
+          }
+          if (result.status === "no-target") {
+            setMobilePreviewNotice({
+              kind: "error",
+              reason: "no-target",
+              url: "",
+              text: message(EXPLORER_MSG.MOBILE_PREVIEW_NO_TARGET),
+            });
+            break;
+          }
+          setMobilePreviewNotice({
+            kind: "error",
+            reason: "blocked",
+            url: result.url,
+            text: message(EXPLORER_MSG.MOBILE_PREVIEW_BLOCKED),
+          });
+          break;
+        }
         case "content-subfolder-copy":
           // Only open when a folder is in context; menu item is disabled otherwise.
           if (sourceFolderPathForCopy) {
@@ -2269,6 +2344,18 @@ function ContentExplorerShellInner({
               aria-live="polite"
             >
               {setCommunityNotice.text}
+            </div>
+          ) : null}
+          {mobilePreviewNotice ? (
+            <div
+              data-testid="explorer-mobile-preview-status"
+              data-kind={mobilePreviewNotice.kind}
+              data-reason={mobilePreviewNotice.reason}
+              data-preview-url={mobilePreviewNotice.url}
+              role="status"
+              aria-live="polite"
+            >
+              {mobilePreviewNotice.text}
             </div>
           ) : null}
           <ExplorerListColumnsPanel

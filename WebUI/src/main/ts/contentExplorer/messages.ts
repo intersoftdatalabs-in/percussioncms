@@ -863,6 +863,20 @@ export const EXPLORER_MSG = {
   SET_COMMUNITY_HTTP_409:
     "perc.ui.explorer@This item could not change community (HTTP 409)",
   SET_COMMUNITY_FAILED: "perc.ui.explorer@Could not set the community",
+  MOBILE_PREVIEW: "perc.ui.explorer@Mobile preview",
+  MOBILE_PREVIEW_ARIA:
+    "perc.ui.explorer@Open a mobile preview of the selected page",
+  MOBILE_PREVIEW_OPENED: "perc.ui.explorer@Mobile preview opened",
+  MOBILE_PREVIEW_NONE:
+    "perc.ui.explorer@Select a page to open mobile preview",
+  MOBILE_PREVIEW_FOLDER:
+    "perc.ui.explorer@Folders do not open a mobile preview: {name}",
+  MOBILE_PREVIEW_NOT_PAGE:
+    "perc.ui.explorer@Mobile preview is only available for a page: {name}",
+  MOBILE_PREVIEW_NO_TARGET:
+    "perc.ui.explorer@This page has no mobile preview target",
+  MOBILE_PREVIEW_BLOCKED:
+    "perc.ui.explorer@Could not open the mobile preview window",
   COPY_ITEM_GUID: "perc.ui.explorer@Copy item id",
   COPY_ITEM_GUID_ARIA:
     "perc.ui.explorer@Copy the selected item content id to the clipboard",

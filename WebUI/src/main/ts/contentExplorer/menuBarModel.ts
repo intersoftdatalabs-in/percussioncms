@@ -42,6 +42,7 @@ export type ExplorerMenuCommandId =
   | "content-copy-item-guid"
   | "content-set-workflow"
   | "content-set-community"
+  | "content-mobile-preview"
   | "view-refresh"
   | "view-search"
   | "view-security"
@@ -198,6 +199,12 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.SET_COMMUNITY,
           ariaLabelKey: EXPLORER_MSG.SET_COMMUNITY_ARIA,
           testId: "explorer-set-community",
+        },
+        {
+          id: "content-mobile-preview",
+          labelKey: EXPLORER_MSG.MOBILE_PREVIEW,
+          ariaLabelKey: EXPLORER_MSG.MOBILE_PREVIEW_ARIA,
+          testId: "explorer-mobile-preview",
         },
       ],
     },

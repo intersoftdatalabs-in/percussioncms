@@ -132,6 +132,15 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     expect(setCommunity?.labelKey).toBe(EXPLORER_MSG.SET_COMMUNITY);
   });
 
+  it("puts Mobile preview under Content (#5078)", () => {
+    const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
+    const mobile = content?.items.find((i) => i.id === "content-mobile-preview");
+    expect(mobile?.testId).toBe("explorer-mobile-preview");
+    expect(mobile?.disabledWhen).toBeUndefined();
+    expect(mobile?.labelKey).toBe(EXPLORER_MSG.MOBILE_PREVIEW);
+    expect(mobile?.ariaLabelKey).toBe(EXPLORER_MSG.MOBILE_PREVIEW_ARIA);
+  });
+
   it("puts Copy item id under Content (#4989)", () => {
     const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
     const copyGuid = content?.items.find((i) => i.id === "content-copy-item-guid");
