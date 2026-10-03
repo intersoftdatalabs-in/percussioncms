@@ -26,6 +26,7 @@ import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderProperties;
+import com.percussion.pathmanagement.data.PSFolderWorkflowCatalog;
 import com.percussion.pathmanagement.data.PSItemByWfStateRequest;
 import com.percussion.pathmanagement.data.PSMoveFolderItem;
 import com.percussion.pathmanagement.data.PSPathItem;
@@ -207,6 +208,18 @@ public class PSPathService extends PSDispatchingPathService
     }
   }
 
+  /**
+   * Workflow id and name catalog for Explorer folder assignment (#5104). Not the content-type
+   * allow-list used by item Set workflow.
+   */
+  @GET
+  @Path("/folderWorkflowCatalog")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSFolderWorkflowCatalog folderWorkflowCatalog() {
+    PSFolderWorkflowCatalog catalog = folderHelper.listFolderWorkflowCatalog();
+    return catalog == null ? new PSFolderWorkflowCatalog() : catalog;
+  }
+
   @POST
   @Path("/saveFolderProperties")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -240,6 +253,14 @@ public class PSPathService extends PSDispatchingPathService
     if (!folderHelper.hasFolderPermission(props.getId(), PSFolderPermission.Access.ADMIN)) {
       throw new WebApplicationException(
           "Not authorized to save folder ACL", Response.Status.FORBIDDEN);
+    }
+
+    // workflowId <= 0 leaves the stored workflow alone (including the clear sentinel). A positive
+    // id that is not in the catalog must not be written (#5104).
+    if (props.getWorkflowId() > 0
+        && !folderHelper.isAssignableFolderWorkflow(props.getWorkflowId())) {
+      throw new WebApplicationException(
+          "Workflow is not in the folder workflow catalog", Response.Status.BAD_REQUEST);
     }
 
     List<IPSSite> sites = publishingWs.getItemSites(idMapper.getGuid(props.getId()));

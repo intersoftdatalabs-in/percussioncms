@@ -152,4 +152,41 @@ class PSPathServiceSaveFolderPropertiesValidationTest {
     assertEquals(Response.Status.FORBIDDEN.getStatusCode(), ex.getResponse().getStatus());
     verify(folderHelper, never()).saveFolderProperties(any(PSFolderProperties.class));
   }
+
+  @Test
+  void unknownWorkflow_mapsToHttp400AndDoesNotSave() throws Exception {
+    PSFolderProperties props = new PSFolderProperties();
+    props.setId("16777215-101-703");
+    props.setName("Design");
+    props.setWorkflowId(99);
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(props);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(folderHelper.isAssignableFolderWorkflow(99)).thenReturn(false);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveFolderProperties(props));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+    verify(folderHelper, never()).saveFolderProperties(any(PSFolderProperties.class));
+    verify(publishingWs, never()).getItemSites(any());
+  }
+
+  @Test
+  void catalogWorkflow_stillDelegatesToFolderHelper() throws Exception {
+    PSFolderProperties props = new PSFolderProperties();
+    props.setId("16777215-101-703");
+    props.setName("Design");
+    props.setWorkflowId(5);
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(props);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(folderHelper.isAssignableFolderWorkflow(5)).thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    verify(folderHelper).saveFolderProperties(props);
+  }
 }
