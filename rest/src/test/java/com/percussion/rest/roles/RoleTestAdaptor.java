@@ -41,6 +41,11 @@ public class RoleTestAdaptor implements IRoleAdaptor {
   }
 
   @Override
+  public boolean roleExists(URI baseUri, String roleName) {
+    return false;
+  }
+
+  @Override
   public void deleteRole(URI baseURI, String roleName) {
     // No-op for test adaptor
   }

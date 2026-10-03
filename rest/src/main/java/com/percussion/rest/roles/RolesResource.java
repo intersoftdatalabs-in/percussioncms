@@ -128,24 +128,66 @@ public class RolesResource {
     return new Status(retCode, message);
   }
 
-  /** Create or update a Role. */
+  /**
+   * Create or update a role.
+   *
+   * <p>{@code create=true} always uses {@link IRoleAdaptor#createRole} (role service create). A
+   * name that is not already defined also uses create. An existing name is updated only when
+   * {@code create} is not true — a create payload must not clear members.
+   */
   @PUT
   @Path("/")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
       summary = "Create or update a Role",
-      description = "Creates or Updates the specified Role. Returns the resulting Role.",
+      description =
+          "Creates a role via adaptor createRole / role service create when create=true, or when"
+              + " the name is not already defined. Updates an existing role only when create is"
+              + " not true. Blank name is 400. Create requires the Admin role (403). A duplicate"
+              + " create is 400 and does not update. Returns the resulting Role.",
       responses = {
-        @ApiResponse(responseCode = "500", description = "Error"),
         @ApiResponse(
             responseCode = "200",
             description = "OK",
-            content = @Content(schema = @Schema(implementation = Role.class)))
+            content = @Content(schema = @Schema(implementation = Role.class))),
+        @ApiResponse(responseCode = "400", description = "Blank or invalid role name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required to create a role"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
       })
   public Role updateRole(
+      @Parameter(
+              description =
+                  "When true, always create. Duplicate names are 400 and are not updated.",
+              name = "create")
+          @QueryParam("create")
+          Boolean create,
       @Parameter(description = "The body containing a JSON payload", name = "body") Role role) {
-    return requireAdaptor().updateRole(uriInfo.getBaseUri(), role);
+    if (role == null || isBlank(role.getName())) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
+    role.setName(role.getName().trim());
+    var base = uriInfo != null ? uriInfo.getBaseUri() : null;
+    try {
+      // New names and explicit creates must not fall through to updateRole (empty users would
+      // clear membership).
+      if (Boolean.TRUE.equals(create) || !requireAdaptor().roleExists(base, role.getName())) {
+        return requireAdaptor().createRole(base, role);
+      }
+      return requireAdaptor().updateRole(base, role);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (BackendException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      var message = e.getMessage() != null ? e.getMessage() : "Could not save role";
+      throw new WebApplicationException(message, 500);
+    }
+  }
+
+  private static boolean isBlank(String value) {
+    return value == null || value.trim().isEmpty();
   }
 
   /** Find available roles on the system by % wild card pattern. */

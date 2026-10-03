@@ -121,9 +121,15 @@ public class PSRole extends PSAbstractNamedObject {
     this.oldName = oldName;
   }
 
+  /**
+   * Field copy. Do not call {@code super.clone()}: the WAR can load {@code perc-system}'s {@code
+   * PSAbstractDataObject}, which has no {@code clone()}, so {@code Object.clone()} throws {@code
+   * CloneNotSupportedException} after the role is already persisted.
+   */
   @Override
   public PSRole clone() throws CloneNotSupportedException {
-    var role = (PSRole) super.clone();
+    var role = new PSRole();
+    role.setName(this.getName());
     role.setDescription(this.getDescription());
     role.setHomepage(this.getHomepage());
     role.setOldName(this.getOldName());

@@ -30,8 +30,22 @@ public interface IRoleAdaptor {
   /** Updates a role. */
   Role updateRole(URI baseUri, Role role);
 
-  /** Creates a role. */
+  /**
+   * Creates a role via the role service create path.
+   *
+   * @throws jakarta.ws.rs.WebApplicationException 400 when the name is blank or rejected by role
+   *     validation (including a duplicate name); 403 when the caller is not Admin
+   */
   Role createRole(URI baseUri, Role role) throws BackendException;
+
+  /**
+   * Whether a role with this exact name is already defined.
+   *
+   * @param roleName role name; blank is never defined
+   * @return {@code true} when the security catalog has that exact name
+   * @throws jakarta.ws.rs.WebApplicationException 500 when the catalog lookup fails
+   */
+  boolean roleExists(URI baseUri, String roleName);
 
   /** Deletes a role by name. */
   void deleteRole(URI baseUri, String roleName) throws BackendException;

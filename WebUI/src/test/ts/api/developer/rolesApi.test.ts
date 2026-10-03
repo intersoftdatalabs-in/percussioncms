@@ -18,8 +18,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   browseRoles,
+  createRole,
+  isRoleCreateReady,
   normalizeRoleBrowseGroupFilter,
+  roleCreateUrl,
   rolesInBrowseGroup,
+  unwrapCreatedRole,
   unwrapRoleBrowseCatalog,
 } from "../../../../main/ts/api/developer/rolesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
@@ -94,6 +98,31 @@ describe("unwrapRoleBrowseCatalog", () => {
         workflows: [],
       },
     ]);
+  });
+
+  it("unwraps the live RoleBrowseCatalog envelope and one-item lists", () => {
+    const catalog = unwrapRoleBrowseCatalog({
+      RoleBrowseCatalog: {
+        roles: [
+          {
+            groups: "workflow",
+            name: "Nr1",
+            workflows: "Default Workflow",
+          },
+          {
+            communities: "Default",
+            groups: ["community", "workflow"],
+            name: "RxPublisher",
+            workflows: ["Simple Workflow", "Standard Workflow"],
+          },
+        ],
+      },
+    });
+    expect(catalog.roles.map((r) => r.name)).toEqual(["Nr1", "RxPublisher"]);
+    expect(catalog.roles[0].groups).toEqual(["workflow"]);
+    expect(catalog.roles[0].workflows).toEqual(["Default Workflow"]);
+    expect(catalog.roles[1].communities).toEqual(["Default"]);
+    expect(catalog.roles[1].groups).toEqual(["community", "workflow"]);
   });
 
   it("returns empty catalog for null / unknown shapes", () => {
@@ -185,5 +214,99 @@ describe("browseRoles", () => {
     expect(String(fetchMock.mock.calls[0]?.[0])).toBe(
       `${PATHS.ROLES_CATALOG}?group=unassigned`,
     );
+  });
+});
+
+describe("isRoleCreateReady", () => {
+  it("rejects blank names", () => {
+    expect(isRoleCreateReady("")).toBe(false);
+    expect(isRoleCreateReady("   ")).toBe(false);
+    expect(isRoleCreateReady(null)).toBe(false);
+    expect(isRoleCreateReady(undefined)).toBe(false);
+    expect(isRoleCreateReady("NightRole")).toBe(true);
+  });
+});
+
+describe("unwrapCreatedRole", () => {
+  it("accepts a flat role and a Role envelope", () => {
+    expect(unwrapCreatedRole({ name: "NightRole", description: "Editors" })).toEqual({
+      name: "NightRole",
+      description: "Editors",
+    });
+    expect(unwrapCreatedRole({ Role: { name: " NightRole " } })).toEqual({
+      name: "NightRole",
+      description: undefined,
+    });
+  });
+
+  it("rejects an empty body", () => {
+    expect(() => unwrapCreatedRole(null)).toThrow(/empty/);
+    expect(() => unwrapCreatedRole({ description: "x" })).toThrow(/name/);
+  });
+});
+
+describe("createRole", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      statusText: status === 200 ? "OK" : "Error",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("does not PUT a blank name", async () => {
+    await expect(createRole({ name: "   " })).rejects.toThrow(/required/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("PUTs create=true and trims the body", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ name: "NightRole", description: "Editors" }),
+    );
+    const created = await createRole({
+      name: " NightRole ",
+      description: " Editors ",
+    });
+    expect(created).toEqual({ name: "NightRole", description: "Editors" });
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(String(url)).toBe(roleCreateUrl());
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(String(init.body))).toEqual({
+      Role: { name: "NightRole", description: "Editors" },
+    });
+  });
+
+  it("omits a blank description", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ name: "NightRole" }));
+    await createRole({ name: "NightRole", description: "  " });
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(JSON.parse(String(init.body))).toEqual({
+      Role: { name: "NightRole" },
+    });
+  });
+
+  it("rejects HTTP 400 without returning a role", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "invalid" }, 400));
+    await expect(createRole({ name: "NightRole" })).rejects.toMatchObject({
+      status: 400,
+    });
+  });
+
+  it("rejects HTTP 403 without returning a role", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ message: "forbidden" }, 403));
+    await expect(createRole({ name: "NightRole" })).rejects.toMatchObject({
+      status: 403,
+    });
   });
 });
