@@ -444,6 +444,44 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void copyEdition_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+    com.percussion.publishingdesign.data.PSCopyEditionRequest req =
+        new com.percussion.publishingdesign.data.PSCopyEditionRequest();
+    req.setSourceEditionId("7");
+    req.setTargetSiteId("42");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.copyEdition(req));
+    assertEquals(403, ex.getResponse().getStatus());
+    org.mockito.Mockito.verify(publisherService, org.mockito.Mockito.never()).createEdition();
+  }
+
+  @Test
+  void copyEdition_duplicateName_409() throws Exception {
+    when(guidManager.makeGuid(eq("7"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    IPSEdition source = mock(IPSEdition.class);
+    when(publisherService.loadEdition(editionGuid)).thenReturn(source);
+    IPSEdition existing = mock(IPSEdition.class);
+    IPSGuid existingGuid = mock(IPSGuid.class);
+    when(existing.getGUID()).thenReturn(existingGuid);
+    when(existingGuid.getUUID()).thenReturn(99);
+    when(publisherService.findEditionByName("Taken")).thenReturn(existing);
+
+    com.percussion.publishingdesign.data.PSCopyEditionRequest req =
+        new com.percussion.publishingdesign.data.PSCopyEditionRequest();
+    req.setSourceEditionId("7");
+    req.setTargetSiteId("42");
+    req.setNewName("Taken");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.copyEdition(req));
+    assertEquals(409, ex.getResponse().getStatus());
+    org.mockito.Mockito.verify(publisherService, org.mockito.Mockito.never()).createEdition();
+    org.mockito.Mockito.verify(publisherService, org.mockito.Mockito.never()).saveEdition(any());
+  }
+
+  @Test
   void copyEdition_happyPathWithoutContentLists() throws Exception {
     when(guidManager.makeGuid(eq("7"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
     when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.SITE))).thenReturn(siteGuid);

@@ -260,6 +260,7 @@ public class PSPublishingDesignRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSEditionSummary copyEdition(PSCopyEditionRequest request) {
+    requireDesignWrite();
     if (request == null
         || isBlank(request.getSourceEditionId())
         || isBlank(request.getTargetSiteId())) {
@@ -267,9 +268,10 @@ public class PSPublishingDesignRestService {
     }
     try {
       IPSEdition source = publisherService.loadEdition(toEditionGuid(request.getSourceEditionId()));
-      IPSEdition copy = publisherService.createEdition();
       String newName =
           isBlank(request.getNewName()) ? source.getName() + "_copy" : request.getNewName().trim();
+      requireUniqueEditionName(newName, null);
+      IPSEdition copy = publisherService.createEdition();
       copy.setName(newName);
       copy.setComment(source.getComment());
       if (source.getEditionType() != null) {

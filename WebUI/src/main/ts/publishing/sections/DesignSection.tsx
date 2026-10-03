@@ -27,7 +27,7 @@ import { message, MSG } from "../../i18n/message";
 import { ContentListEditor } from "../design/ContentListEditor";
 import { ContextsPanel } from "../design/ContextsPanel";
 import { DeliveryTypesPanel } from "../design/DeliveryTypesPanel";
-import { EditionEditor } from "../design/EditionEditor";
+import { EditionEditor, type EditionCopiedInfo } from "../design/EditionEditor";
 import { SiteDesignPanel } from "../design/SiteDesignPanel";
 import {
   buttonStyle,
@@ -121,6 +121,15 @@ export function DesignSection(): React.ReactElement {
             setEditionEdit(null);
             reloadEditions();
           }}
+          onCopied={(info: EditionCopiedInfo) => {
+            setEditionEdit(null);
+            const target = info.targetSiteId.trim();
+            if (target && target !== siteId) {
+              setSiteId(target);
+              return;
+            }
+            reloadEditions();
+          }}
         />
       </div>
     );
@@ -212,6 +221,11 @@ export function DesignSection(): React.ReactElement {
               <li key={e.editionId ?? e.name} style={listItemStyle}>
                 <button
                   type="button"
+                  data-testid={
+                    e.editionId
+                      ? `design-edition-${e.editionId}`
+                      : "design-edition-unnamed"
+                  }
                   style={buttonStyle}
                   onClick={() => setEditionEdit(e)}
                 >

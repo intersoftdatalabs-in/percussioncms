@@ -31,7 +31,7 @@ import {
   type EditionSummary,
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
-import { mapEditionSaveError } from "../editionSaveErrors";
+import { mapEditionCopyError, mapEditionSaveError } from "../editionSaveErrors";
 import {
   buttonStyle,
   errorStyle,
@@ -42,11 +42,19 @@ import {
   toolbarStyle,
 } from "../publishing.styles";
 
+/** Result of a successful copy, so Design can show the new row on the target site. */
+export interface EditionCopiedInfo {
+  targetSiteId: string;
+  name?: string;
+}
+
 export interface EditionEditorProps {
   siteId: string;
   edition: EditionSummary | null;
   sites: Array<{ name: string; id: string }>;
   onSaved: () => void;
+  /** When set, a successful copy uses this instead of {@link onSaved}. */
+  onCopied?: (info: EditionCopiedInfo) => void;
   onCancel: () => void;
 }
 
@@ -55,6 +63,7 @@ export function EditionEditor({
   edition,
   sites,
   onSaved,
+  onCopied,
   onCancel,
 }: EditionEditorProps): React.ReactElement {
   const [name, setName] = useState(edition?.name ?? "");
@@ -157,18 +166,33 @@ export function EditionEditor({
     if (!edition?.editionId) {
       return;
     }
+    if (!copySiteId.trim()) {
+      setError(
+        mapEditionCopyError({
+          status: 400,
+          statusText: "Bad Request",
+          body: { message: "sourceEditionId and targetSiteId are required" },
+        }),
+      );
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
-      await copyEdition({
+      const copied = await copyEdition({
         sourceEditionId: edition.editionId,
         targetSiteId: copySiteId,
         newName: copyName.trim() || undefined,
         copyContentLists: true,
       });
-      onSaved();
+      const shownName = copied.name?.trim() || copyName.trim() || undefined;
+      if (onCopied) {
+        onCopied({ targetSiteId: copySiteId, name: shownName });
+      } else {
+        onSaved();
+      }
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapEditionCopyError(e));
     } finally {
       setSaving(false);
     }
@@ -324,6 +348,7 @@ export function EditionEditor({
           </div>
           <button
             type="button"
+            data-testid="edition-copy"
             style={buttonStyle}
             disabled={saving}
             onClick={() => void handleCopy()}

@@ -164,10 +164,9 @@ export async function deleteEdition(editionId: string | number): Promise<void> {
 export async function copyEdition(
   request: CopyEditionRequest,
 ): Promise<EditionSummary> {
-  return (await post<unknown>(
-    `${designRoot()}/editions/copy`,
-    request,
-  )) as EditionSummary;
+  return unwrapEdition(
+    await post<unknown>(`${designRoot()}/editions/copy`, request),
+  );
 }
 
 export async function listEditionContentLists(
