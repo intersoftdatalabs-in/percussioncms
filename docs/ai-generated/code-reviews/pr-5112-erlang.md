@@ -3,16 +3,17 @@ Copyright (c) 2026 Intersoft Data Labs, Inc.
 Licensed under the Apache License, Version 2.0.
 -->
 
-# Erlang review — PR #5112
+# Erlang review — PR #5112 (re-review after partial-clear fix)
 
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 - Status: mkd-code-review 0.1.18, pack percussion, gate advisory
-- Base: origin/main
-- Head: e2fad49851 (report regenerated on this head; machine scope is this branch)
+- Base: merge-base with origin/main (`d1d9ba90bd`)
 - Branch: fix/issue-5091-editor-clear-community
-- Recommendation: request-changes (machine in-diff bugs: 0; Erlang blocking bug: 1)
+- Recommendation: approve (machine in-diff bugs: 0; prior blocking bug fixed)
 - LLM: ollama-dev-coder OOM (cudaMalloc); machine findings kept
+
+The prior request-changes bug is fixed. `saveEditorFields` persists `CONTENTSTATUS` community id 0 before `contentItemDao.save`. `PSORMException` still maps to HTTP 409, restores the previous in-memory community id, and does not write blank `sys_communityid`. `communityClearOrmFailureIsConflict` asserts the field stayed at the previous id and that the item is not saved.
 
 ## Pre-push local code review
 
@@ -22,8 +23,8 @@ Machine analysis found **9** finding(s), **0** bug(s).
 
 ## Scope
 
-- Base: origin/main
-- Head: HEAD
+- Base: (unspecified)
+- Head: (unspecified)
 - Files: 12 analyzed
 - In-diff: 0 finding(s); preexisting: 8
 - Persona: erlang 0.1.1
@@ -52,70 +53,70 @@ approve
 
 ### Issue 2 -- Severity: bug
 
-- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:2052 (preexisting)
+- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:2067 (preexisting)
 - Rule: `paths.hardcoded_sep`
 - Tool: `paths.hardcoded_sep`
 - Pattern-id: paths.hardcoded-sep
-- Description: Possible non-portable path construction (line 2052)
+- Description: Possible non-portable path construction (line 2067)
 - Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
 - Status: open
 
 ### Issue 3 -- Severity: bug
 
-- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:2187 (preexisting)
+- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:2202 (preexisting)
 - Rule: `paths.hardcoded_sep`
 - Tool: `paths.hardcoded_sep`
 - Pattern-id: paths.hardcoded-sep
-- Description: Possible non-portable path construction (line 2187)
+- Description: Possible non-portable path construction (line 2202)
 - Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
 - Status: open
 
 ### Issue 4 -- Severity: bug
 
-- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:2188 (preexisting)
+- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:2203 (preexisting)
 - Rule: `paths.hardcoded_sep`
 - Tool: `paths.hardcoded_sep`
 - Pattern-id: paths.hardcoded-sep
-- Description: Possible non-portable path construction (line 2188)
+- Description: Possible non-portable path construction (line 2203)
 - Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
 - Status: open
 
 ### Issue 5 -- Severity: bug
 
-- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:2192 (preexisting)
+- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:2207 (preexisting)
 - Rule: `paths.hardcoded_sep`
 - Tool: `paths.hardcoded_sep`
 - Pattern-id: paths.hardcoded-sep
-- Description: Possible non-portable path construction (line 2192)
+- Description: Possible non-portable path construction (line 2207)
 - Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
 - Status: open
 
 ### Issue 6 -- Severity: bug
 
-- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:2193 (preexisting)
+- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:2208 (preexisting)
 - Rule: `paths.hardcoded_sep`
 - Tool: `paths.hardcoded_sep`
 - Pattern-id: paths.hardcoded-sep
-- Description: Possible non-portable path construction (line 2193)
+- Description: Possible non-portable path construction (line 2208)
 - Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
 - Status: open
 
 ### Issue 7 -- Severity: bug
 
-- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:2199 (preexisting)
+- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:2214 (preexisting)
 - Rule: `paths.hardcoded_sep`
 - Tool: `paths.hardcoded_sep`
 - Pattern-id: paths.hardcoded-sep
-- Description: Possible non-portable path construction (line 2199)
+- Description: Possible non-portable path construction (line 2214)
 - Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
 - Status: open
 
 ### Issue 8 -- Severity: suggestion
 
-- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:461 (preexisting)
+- File: projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:468 (preexisting)
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
-- Description: Function `saveEditorFields` cognitive=21 (max 15), cyclomatic=24 (max 15)
+- Description: Function `saveEditorFields` cognitive=24 (max 15), cyclomatic=27 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
 
@@ -128,25 +129,10 @@ approve
 
 - Status: open
 
-## Erlang gate (reviewer)
+## Erlang gate (fix follow-up)
 
-Machine gate: 12 files, in-diff findings 0, blocking bugs 0. Preexisting path and complexity rows do not block. Ollama `dev-coder` CUDA OOM is not a defect in this diff. The machine recommendation is approve. Erlang does not agree.
+Machine gate: 12 files, in-diff findings 0, blocking bugs 0. Preexisting path-separator rows and `saveEditorFields` complexity do not block. Ollama `dev-coder` CUDA OOM is not a defect in this diff.
 
-Recommendation: **request-changes**. One blocking bug.
+The partial community clear is fixed in `persistClearedCommunity` and the call in `saveEditorFields` that now runs before `contentItemDao.save`. `communityClearOrmFailureIsConflict` covers the rollback.
 
-### Bug — partial community clear (blocking)
-
-- File: `projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemService.java:504` (field save) and `:228` (`persistClearedCommunity`)
-- Also: `projects/sitemanage/src/main/java/com/percussion/itemmanagement/service/impl/PSItemEditorFieldsMapper.java:107` (`fillCommunityWhenAbsent` keeps a present blank)
-- `saveEditorFields` calls `contentItemDao.save(item)` before `persistClearedCommunity`. `PSContentItemDao` is `@Transactional` and `PSItemService` is not, so the blank `sys_communityid` commits when `save` returns. The summary write uses `IPSCmsObjectMgr.saveComponentSummaries` on another session. `PSORMException` becomes HTTP 409, but the content-item field is already blank.
-- `setCommunityId(0)` runs before that save (`PSItemService.java:232`). `evictComponentSummaries` runs only after success, so a failed save leaves a cached summary at community id 0 while `CONTENTSTATUS` is unchanged.
-- Reload calls `applyCommunityOnRead`. A non-zero summary id uses `fillCommunityWhenAbsent`, which returns when `sys_communityid` is already present, including blank. The editor shows the empty option after a failed clear.
-- `communityClearOrmFailureIsConflict` asserts the 409 and does not assert the content-item field stayed at the previous id.
-
-Fix: persist `CONTENTSTATUS` community id 0 first, and do not write the blank field unless that save succeeds. On failure, put the previous id back on the in-memory summary. Add a unit test that a thrown `saveComponentSummaries` leaves the item `sys_communityid` unchanged.
-
-### Suggestion (not blocking)
-
-- `WebUI/src/main/ts/editor/EditorHost.tsx:1639` — a generic HTTP 400/403 with no field name is attached to `sys_communityid` when it is the only community field and no earlier mapper claimed the error. Same cascade as date/keyword, but community is on almost every type, so an unrelated save failure can read as a community error.
-
-Tests, product-docs, and the Playwright surface spec are present for the happy path. No rule-file diff. No new non-portable filesystem path joins.
+Suggestion (not blocking, unchanged): `EditorHost.tsx` can attribute a generic HTTP 400/403 to the only community field.

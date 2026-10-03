@@ -23,7 +23,8 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -61,6 +62,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -378,9 +380,10 @@ class PSItemServiceSaveEditorFieldsTest {
             .orElseThrow()
             .getValue());
     verify(summary).setCommunityId(0);
-    verify(cmsObjectMgr).saveComponentSummaries(anyList());
-    verify(cmsObjectMgr).evictComponentSummaries(List.of(42));
-    verify(contentItemDao).save(item);
+    InOrder order = inOrder(cmsObjectMgr, contentItemDao);
+    order.verify(cmsObjectMgr).saveComponentSummaries(anyList());
+    order.verify(cmsObjectMgr).evictComponentSummaries(List.of(42));
+    order.verify(contentItemDao).save(item);
   }
 
   @Test
@@ -418,20 +421,29 @@ class PSItemServiceSaveEditorFieldsTest {
 
   @Test
   void communityClearOrmFailureIsConflict() throws Exception {
-    when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
-    when(summary.getCurrentLocator()).thenReturn(new PSLocator(42, 2));
-    when(summary.getCheckoutUserName()).thenReturn("admin");
-    when(summary.getCommunityId()).thenReturn(10);
-    when(workflowHelper.isCheckedOutToCurrentUser(anyString())).thenReturn(true);
+    PSComponentSummary stored =
+        new PSComponentSummary(42, 2, 2, 2, PSComponentSummary.TYPE_ITEM, "Home", 1L, -1);
+    stored.setCommunityId(10);
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(stored);
     when(idMapper.getGuid(anyString())).thenReturn(guid);
     when(contentWs.prepareForEdit(guid)).thenReturn(null);
     PSContentItem item = new PSContentItem();
     item.setId("42");
     item.setType("percPage");
     item.setName("Home");
-    item.setFields(new HashMap<>());
+    HashMap<String, Object> fields = new HashMap<>();
+    fields.put("sys_communityid", "10");
+    item.setFields(fields);
     when(contentItemDao.find(anyString(), anyBoolean())).thenReturn(item);
-    doThrow(new PSORMException("locked")).when(cmsObjectMgr).saveComponentSummaries(anyList());
+    doAnswer(
+            invocation -> {
+              List<?> rows = invocation.getArgument(0);
+              assertEquals(1, rows.size());
+              assertEquals(0, ((PSComponentSummary) rows.get(0)).getCommunityId());
+              throw new PSORMException("locked");
+            })
+        .when(cmsObjectMgr)
+        .saveComponentSummaries(anyList());
 
     PSItemEditorFields req = new PSItemEditorFields();
     req.setRevision(2);
@@ -440,6 +452,10 @@ class PSItemServiceSaveEditorFieldsTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> service.saveEditorFields("42", req));
     assertEquals(Response.Status.CONFLICT.getStatusCode(), ex.getResponse().getStatus());
+    assertEquals("10", item.getFields().get("sys_communityid"));
+    assertEquals(10, stored.getCommunityId());
+    verify(contentItemDao, never()).save(any());
+    verify(cmsObjectMgr, never()).evictComponentSummaries(anyList());
   }
 
   @Test
