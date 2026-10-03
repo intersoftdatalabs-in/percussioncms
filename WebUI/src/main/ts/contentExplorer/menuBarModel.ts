@@ -40,6 +40,7 @@ export type ExplorerMenuCommandId =
   | "content-subfolder-copy"
   | "content-copy-folder-path"
   | "content-copy-item-guid"
+  | "content-set-workflow"
   | "view-refresh"
   | "view-search"
   | "view-security"
@@ -184,6 +185,12 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.COPY_ITEM_GUID,
           ariaLabelKey: EXPLORER_MSG.COPY_ITEM_GUID_ARIA,
           testId: "explorer-copy-item-guid",
+        },
+        {
+          id: "content-set-workflow",
+          labelKey: EXPLORER_MSG.SET_WORKFLOW,
+          ariaLabelKey: EXPLORER_MSG.SET_WORKFLOW_ARIA,
+          testId: "explorer-set-workflow",
         },
       ],
     },

@@ -137,6 +137,13 @@ import { TemplatePickerDialog } from "./TemplatePickerDialog";
 import { ContentTypePickerDialog } from "./ContentTypePickerDialog";
 import { PublishingHistoryDialog } from "./PublishingHistoryDialog";
 import { ClearScheduledDatesDialog } from "./ClearScheduledDatesDialog";
+import { SetWorkflowDialog } from "./SetWorkflowDialog";
+import {
+  loadSetWorkflowCatalog,
+  saveSetWorkflow,
+  type SetWorkflowCatalog,
+} from "./setItemWorkflow";
+import type { ItemWorkflowChoice } from "../api/contentExplorer/itemWorkflowApi";
 import { ScheduleDatesDialog } from "./ScheduleDatesDialog";
 import type { ItemScheduleDates } from "./itemScheduleDates";
 import {
@@ -643,6 +650,20 @@ function ContentExplorerShellInner({
     guid: string;
     reason: string;
     text: string;
+  } | null>(null);
+  const [setWorkflowNotice, setSetWorkflowNotice] = useState<{
+    kind: "success" | "error";
+    reason: string;
+    workflowId: string;
+    workflowName: string;
+    text: string;
+  } | null>(null);
+  const [setWorkflowDialog, setSetWorkflowDialog] = useState<{
+    itemId: string;
+    currentId: string;
+    choices: ItemWorkflowChoice[];
+    busy: boolean;
+    error: string;
   } | null>(null);
   const dismissSubfolderCopy = useCallback(() => {
     setShowSubfolderCopy(false);
@@ -1882,6 +1903,70 @@ function ContentExplorerShellInner({
           })();
           break;
         }
+        case "content-set-workflow": {
+          const current = selectionRef.current;
+          const selectedCount = multiSelectedItemsRef.current.size;
+          void (async () => {
+            setSetWorkflowNotice(null);
+            setSetWorkflowDialog(null);
+            const catalog: SetWorkflowCatalog = await loadSetWorkflowCatalog({
+              item: current.item,
+              selectedCount,
+            });
+            if (catalog.status === "blocked") {
+              const key =
+                catalog.reason === "folder"
+                  ? EXPLORER_MSG.SET_WORKFLOW_FOLDER
+                  : catalog.reason === "multi"
+                    ? EXPLORER_MSG.SET_WORKFLOW_MULTI
+                    : catalog.reason === "not-item"
+                      ? EXPLORER_MSG.SET_WORKFLOW_NOT_ITEM
+                      : catalog.reason === "no-id"
+                        ? EXPLORER_MSG.SET_WORKFLOW_NO_ID
+                        : EXPLORER_MSG.SET_WORKFLOW_EMPTY;
+              const text =
+                catalog.reason === "folder" && catalog.name
+                  ? `${message(key)}: ${catalog.name}`
+                  : message(key);
+              setSetWorkflowNotice({
+                kind: "error",
+                reason: catalog.reason,
+                workflowId: "",
+                workflowName: "",
+                text,
+              });
+              return;
+            }
+            if (catalog.status === "none" || catalog.status === "http") {
+              const httpKey =
+                catalog.status === "http" && catalog.http === 400
+                  ? EXPLORER_MSG.SET_WORKFLOW_HTTP_400
+                  : catalog.status === "http" && catalog.http === 403
+                    ? EXPLORER_MSG.SET_WORKFLOW_HTTP_403
+                    : catalog.status === "http" && catalog.http === 409
+                      ? EXPLORER_MSG.SET_WORKFLOW_HTTP_409
+                      : catalog.status === "http"
+                        ? EXPLORER_MSG.SET_WORKFLOW_FAILED
+                        : EXPLORER_MSG.SET_WORKFLOW_NONE;
+              setSetWorkflowNotice({
+                kind: "error",
+                reason: catalog.status === "http" ? `http-${catalog.http}` : "none",
+                workflowId: "",
+                workflowName: "",
+                text: message(httpKey),
+              });
+              return;
+            }
+            setSetWorkflowDialog({
+              itemId: catalog.itemId,
+              currentId: catalog.currentId,
+              choices: catalog.choices,
+              busy: false,
+              error: "",
+            });
+          })();
+          break;
+        }
         case "content-subfolder-copy":
           // Only open when a folder is in context; menu item is disabled otherwise.
           if (sourceFolderPathForCopy) {
@@ -2073,6 +2158,19 @@ function ContentExplorerShellInner({
               aria-live="polite"
             >
               {itemGuidCopyNotice.text}
+            </div>
+          ) : null}
+          {setWorkflowNotice ? (
+            <div
+              data-testid="explorer-set-workflow-status"
+              data-kind={setWorkflowNotice.kind}
+              data-reason={setWorkflowNotice.reason}
+              data-workflow-id={setWorkflowNotice.workflowId}
+              data-workflow-name={setWorkflowNotice.workflowName}
+              role="status"
+              aria-live="polite"
+            >
+              {setWorkflowNotice.text}
             </div>
           ) : null}
           <ExplorerListColumnsPanel
@@ -3001,6 +3099,65 @@ function ContentExplorerShellInner({
         <ClearScheduledDatesDialog
           item={clearScheduleItem}
           onDone={finishClearSchedule}
+        />
+      ) : null}
+      {setWorkflowDialog ? (
+        <SetWorkflowDialog
+          choices={setWorkflowDialog.choices}
+          currentId={setWorkflowDialog.currentId}
+          busy={setWorkflowDialog.busy}
+          error={setWorkflowDialog.error}
+          onCancel={() => {
+            if (!setWorkflowDialog.busy) {
+              setSetWorkflowDialog(null);
+            }
+          }}
+          onSave={(workflowId) => {
+            const dialog = setWorkflowDialog;
+            void (async () => {
+              setSetWorkflowDialog({ ...dialog, busy: true, error: "" });
+              const saved = await saveSetWorkflow({
+                itemId: dialog.itemId,
+                selectedId: workflowId,
+                currentId: dialog.currentId,
+                allowedIds: dialog.choices.map((row) => row.id),
+              });
+              if (saved.status === "saved") {
+                const name =
+                  dialog.choices.find((row) => row.id === saved.workflowId)?.name ??
+                  saved.workflowId;
+                setSetWorkflowDialog(null);
+                setSetWorkflowNotice({
+                  kind: "success",
+                  reason: "",
+                  workflowId: saved.workflowId,
+                  workflowName: name,
+                  text: `${message(EXPLORER_MSG.SET_WORKFLOW_SAVED)} ${name}`,
+                });
+                setListEpoch((n) => n + 1);
+                return;
+              }
+              const key =
+                saved.status === "gate" && saved.reason === "unchanged"
+                  ? EXPLORER_MSG.SET_WORKFLOW_UNCHANGED
+                  : saved.status === "gate" && saved.reason === "forbidden"
+                    ? EXPLORER_MSG.SET_WORKFLOW_FORBIDDEN
+                    : saved.status === "gate" && saved.reason === "blank"
+                      ? EXPLORER_MSG.SET_WORKFLOW_BLANK
+                      : saved.status === "http" && saved.http === 400
+                        ? EXPLORER_MSG.SET_WORKFLOW_HTTP_400
+                        : saved.status === "http" && saved.http === 403
+                          ? EXPLORER_MSG.SET_WORKFLOW_HTTP_403
+                          : saved.status === "http" && saved.http === 409
+                            ? EXPLORER_MSG.SET_WORKFLOW_HTTP_409
+                            : EXPLORER_MSG.SET_WORKFLOW_FAILED;
+              setSetWorkflowDialog({
+                ...dialog,
+                busy: false,
+                error: message(key),
+              });
+            })();
+          }}
         />
       ) : null}
       {publishingHistoryItem ? (
