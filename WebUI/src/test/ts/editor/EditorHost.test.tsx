@@ -2850,6 +2850,202 @@ describe("EditorHost clear optional date (#5039)", () => {
   });
 });
 
+describe("EditorHost save datetime (#5092)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function datetimeHost(opts: {
+    saveFields: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    eventAt?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const eventAt = opts.eventAt ?? "2026-01-01 09:00:00";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percEvent",
+          name: "Event",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [
+            { name: "sys_title", value: "Event" },
+            { name: "event_at", value: eventAt },
+          ],
+        })}
+        saveFields={opts.saveFields}
+        loadType={async () => ({
+          fields: [
+            { name: "sys_title", label: "Title", control: "sys_EditBox" },
+            {
+              name: "event_at",
+              label: "Event at",
+              control: "sys_CalendarSimple",
+              dataType: "datetime",
+              required: opts.required === true,
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  it("saves a datetime-local value and shows the same date and time after reload", async () => {
+    let eventAt = "2026-01-01 09:00:00";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      eventAt = body.fields.find((f) => f.name === "event_at")?.value ?? eventAt;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Event",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={datetimeHost({ saveFields, eventAt })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-event_at") as HTMLInputElement).value,
+      ).toBe("2026-01-01T09:00");
+    });
+    const input = screen.getByTestId("editor-field-event_at") as HTMLInputElement;
+    expect(input.getAttribute("data-editor-kind")).toBe("datetime");
+    expect(input.type).toBe("datetime-local");
+    fireEvent.change(input, { target: { value: "2026-09-18T14:30" } });
+    expect((screen.getByTestId("editor-field-event_at") as HTMLInputElement).value).toBe(
+      "2026-09-18T14:30",
+    );
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "event_at")?.value).toBe("2026-09-18 14:30:00");
+    expect((screen.getByTestId("editor-field-event_at") as HTMLInputElement).value).toBe(
+      "2026-09-18T14:30",
+    );
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={datetimeHost({ saveFields, eventAt })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-event_at") as HTMLInputElement).value).toBe(
+        "2026-09-18T14:30",
+      );
+    });
+  });
+
+  it("does not save when Close cancels an unsaved datetime change", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={datetimeHost({ saveFields, confirmLeaveUnsaved: () => false })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-event_at") as HTMLInputElement).value,
+      ).toBe("2026-01-01T09:00");
+    });
+    fireEvent.change(screen.getByTestId("editor-field-event_at"), {
+      target: { value: "2026-09-18T14:30" },
+    });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-event_at") as HTMLInputElement).value).toBe(
+      "2026-09-18T14:30",
+    );
+  });
+
+  it("does not claim success when a required datetime is cleared", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={datetimeHost({ saveFields, required: true })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-date-clear-event_at")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-date-clear-event_at"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-event_at").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not claim success for HTTP 400, 403, or 409 on a datetime save", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={datetimeHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-event_at") as HTMLInputElement).value,
+      ).toBe("2026-01-01T09:00");
+    });
+    fireEvent.change(screen.getByTestId("editor-field-event_at"), {
+      target: { value: "2026-09-18T14:30" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-event_at").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-event_at").textContent).toMatch(
+        /not allowed/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/newer revision/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(3);
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "event_at")?.value).toBe("2026-09-18 14:30:00");
+  });
+});
+
 describe("EditorHost HTML field save (#4680)", () => {
   afterEach(() => {
     cleanup();

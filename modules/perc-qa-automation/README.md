@@ -529,7 +529,9 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 H2 operator proof that `sys_CalendarSimple` and datetime content-type controls
 render native date / datetime-local widgets on `spa.jsp?entry=editor`, persist
 through `PUT /services/itemmanagement/item/fields/{id}`, and stay read-only in
-**View** mode.
+**View** mode. Saving a datetime-local value (#5092) persists
+`yyyy-MM-dd HH:mm:ss` and a reload shows the same date and time. Cancel, a
+required blank datetime, and HTTP 400/403/409 do not claim success.
 
 | Item | Value |
 |------|--------|
