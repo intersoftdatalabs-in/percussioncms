@@ -144,6 +144,13 @@ import {
   type SetWorkflowCatalog,
 } from "./setItemWorkflow";
 import type { ItemWorkflowChoice } from "../api/contentExplorer/itemWorkflowApi";
+import { SetCommunityDialog } from "./SetCommunityDialog";
+import {
+  loadSetCommunityCatalog,
+  saveSetCommunity,
+  type SetCommunityCatalog,
+} from "./setItemCommunity";
+import type { ItemCommunityChoice } from "../api/contentExplorer/itemCommunityApi";
 import { ScheduleDatesDialog } from "./ScheduleDatesDialog";
 import type { ItemScheduleDates } from "./itemScheduleDates";
 import {
@@ -662,6 +669,20 @@ function ContentExplorerShellInner({
     itemId: string;
     currentId: string;
     choices: ItemWorkflowChoice[];
+    busy: boolean;
+    error: string;
+  } | null>(null);
+  const [setCommunityNotice, setSetCommunityNotice] = useState<{
+    kind: "success" | "error";
+    reason: string;
+    communityId: string;
+    communityName: string;
+    text: string;
+  } | null>(null);
+  const [setCommunityDialog, setSetCommunityDialog] = useState<{
+    itemId: string;
+    currentId: string;
+    choices: ItemCommunityChoice[];
     busy: boolean;
     error: string;
   } | null>(null);
@@ -1967,6 +1988,70 @@ function ContentExplorerShellInner({
           })();
           break;
         }
+        case "content-set-community": {
+          const current = selectionRef.current;
+          const selectedCount = multiSelectedItemsRef.current.size;
+          void (async () => {
+            setSetCommunityNotice(null);
+            setSetCommunityDialog(null);
+            const catalog: SetCommunityCatalog = await loadSetCommunityCatalog({
+              item: current.item,
+              selectedCount,
+            });
+            if (catalog.status === "blocked") {
+              const key =
+                catalog.reason === "folder"
+                  ? EXPLORER_MSG.SET_COMMUNITY_FOLDER
+                  : catalog.reason === "multi"
+                    ? EXPLORER_MSG.SET_COMMUNITY_MULTI
+                    : catalog.reason === "not-item"
+                      ? EXPLORER_MSG.SET_COMMUNITY_NOT_ITEM
+                      : catalog.reason === "no-id"
+                        ? EXPLORER_MSG.SET_COMMUNITY_NO_ID
+                        : EXPLORER_MSG.SET_COMMUNITY_EMPTY;
+              const text =
+                catalog.reason === "folder" && catalog.name
+                  ? `${message(key)}: ${catalog.name}`
+                  : message(key);
+              setSetCommunityNotice({
+                kind: "error",
+                reason: catalog.reason,
+                communityId: "",
+                communityName: "",
+                text,
+              });
+              return;
+            }
+            if (catalog.status === "none" || catalog.status === "http") {
+              const httpKey =
+                catalog.status === "http" && catalog.http === 400
+                  ? EXPLORER_MSG.SET_COMMUNITY_HTTP_400
+                  : catalog.status === "http" && catalog.http === 403
+                    ? EXPLORER_MSG.SET_COMMUNITY_HTTP_403
+                    : catalog.status === "http" && catalog.http === 409
+                      ? EXPLORER_MSG.SET_COMMUNITY_HTTP_409
+                      : catalog.status === "http"
+                        ? EXPLORER_MSG.SET_COMMUNITY_FAILED
+                        : EXPLORER_MSG.SET_COMMUNITY_NONE;
+              setSetCommunityNotice({
+                kind: "error",
+                reason: catalog.status === "http" ? `http-${catalog.http}` : "none",
+                communityId: "",
+                communityName: "",
+                text: message(httpKey),
+              });
+              return;
+            }
+            setSetCommunityDialog({
+              itemId: catalog.itemId,
+              currentId: catalog.currentId,
+              choices: catalog.choices,
+              busy: false,
+              error: "",
+            });
+          })();
+          break;
+        }
         case "content-subfolder-copy":
           // Only open when a folder is in context; menu item is disabled otherwise.
           if (sourceFolderPathForCopy) {
@@ -2171,6 +2256,19 @@ function ContentExplorerShellInner({
               aria-live="polite"
             >
               {setWorkflowNotice.text}
+            </div>
+          ) : null}
+          {setCommunityNotice ? (
+            <div
+              data-testid="explorer-set-community-status"
+              data-kind={setCommunityNotice.kind}
+              data-reason={setCommunityNotice.reason}
+              data-community-id={setCommunityNotice.communityId}
+              data-community-name={setCommunityNotice.communityName}
+              role="status"
+              aria-live="polite"
+            >
+              {setCommunityNotice.text}
             </div>
           ) : null}
           <ExplorerListColumnsPanel
@@ -3152,6 +3250,65 @@ function ContentExplorerShellInner({
                             ? EXPLORER_MSG.SET_WORKFLOW_HTTP_409
                             : EXPLORER_MSG.SET_WORKFLOW_FAILED;
               setSetWorkflowDialog({
+                ...dialog,
+                busy: false,
+                error: message(key),
+              });
+            })();
+          }}
+        />
+      ) : null}
+      {setCommunityDialog ? (
+        <SetCommunityDialog
+          choices={setCommunityDialog.choices}
+          currentId={setCommunityDialog.currentId}
+          busy={setCommunityDialog.busy}
+          error={setCommunityDialog.error}
+          onCancel={() => {
+            if (!setCommunityDialog.busy) {
+              setSetCommunityDialog(null);
+            }
+          }}
+          onSave={(communityId) => {
+            const dialog = setCommunityDialog;
+            void (async () => {
+              setSetCommunityDialog({ ...dialog, busy: true, error: "" });
+              const saved = await saveSetCommunity({
+                itemId: dialog.itemId,
+                selectedId: communityId,
+                currentId: dialog.currentId,
+                allowedIds: dialog.choices.map((row) => row.id),
+              });
+              if (saved.status === "saved") {
+                const name =
+                  dialog.choices.find((row) => row.id === saved.communityId)?.name ??
+                  saved.communityId;
+                setSetCommunityDialog(null);
+                setSetCommunityNotice({
+                  kind: "success",
+                  reason: "",
+                  communityId: saved.communityId,
+                  communityName: name,
+                  text: `${message(EXPLORER_MSG.SET_COMMUNITY_SAVED)} ${name}`,
+                });
+                setListEpoch((n) => n + 1);
+                return;
+              }
+              const key =
+                saved.status === "gate" && saved.reason === "unchanged"
+                  ? EXPLORER_MSG.SET_COMMUNITY_UNCHANGED
+                  : saved.status === "gate" && saved.reason === "forbidden"
+                    ? EXPLORER_MSG.SET_COMMUNITY_FORBIDDEN
+                    : saved.status === "gate" && saved.reason === "blank"
+                      ? EXPLORER_MSG.SET_COMMUNITY_BLANK
+                      : saved.status === "http" && saved.http === 400
+                        ? EXPLORER_MSG.SET_COMMUNITY_HTTP_400
+                        : saved.status === "http" && saved.http === 403
+                          ? EXPLORER_MSG.SET_COMMUNITY_HTTP_403
+                          : saved.status === "http" && saved.http === 409
+                            ? EXPLORER_MSG.SET_COMMUNITY_HTTP_409
+                            : EXPLORER_MSG.SET_COMMUNITY_FAILED;
+              setSetCommunityDialog({
                 ...dialog,
                 busy: false,
                 error: message(key),

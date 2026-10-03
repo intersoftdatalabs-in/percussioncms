@@ -124,6 +124,14 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     expect(copyPath?.labelKey).toBe(EXPLORER_MSG.COPY_FOLDER_PATH);
   });
 
+  it("puts Set community under Content (#5077)", () => {
+    const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
+    const setCommunity = content?.items.find((i) => i.id === "content-set-community");
+    expect(setCommunity?.testId).toBe("explorer-set-community");
+    expect(setCommunity?.disabledWhen).toBeUndefined();
+    expect(setCommunity?.labelKey).toBe(EXPLORER_MSG.SET_COMMUNITY);
+  });
+
   it("puts Copy item id under Content (#4989)", () => {
     const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
     const copyGuid = content?.items.find((i) => i.id === "content-copy-item-guid");
