@@ -40,6 +40,7 @@ import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.publisher.IPSContentList;
 import com.percussion.services.publisher.IPSDeliveryType;
 import com.percussion.services.publisher.IPSEdition;
+import com.percussion.services.publisher.IPSEditionContentList;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.sitemgr.IPSLocationScheme;
 import com.percussion.services.sitemgr.IPSPublishingContext;
@@ -569,6 +570,7 @@ class PSPublishingDesignRestServiceTest {
     when(publisherService.createEditionContentList()).thenReturn(link);
     when(editionGuid.longValue()).thenReturn(1L);
     when(contentListGuid.longValue()).thenReturn(5L);
+    when(publisherService.loadEditionContentLists(editionGuid)).thenReturn(List.of());
 
     com.percussion.publishingdesign.data.PSEditionContentListAssoc body =
         new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
@@ -579,6 +581,51 @@ class PSPublishingDesignRestServiceTest {
     PSContentListSummary result = service.associateContentList("1", body);
     assertEquals("Home Pages", result.getName());
     org.mockito.Mockito.verify(publisherService).saveEditionContentList(link);
+  }
+
+  @Test
+  void associateContentList_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+    com.percussion.publishingdesign.data.PSEditionContentListAssoc body =
+        new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
+    body.setContentListId("5");
+    body.setDeliveryContextId("9");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.associateContentList("1", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(publisherService, never()).loadEdition(any());
+    verify(publisherService, never()).saveEditionContentList(any());
+  }
+
+  @Test
+  void associateContentList_alreadyAssociated_409() throws Exception {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    when(publisherService.loadEdition(editionGuid)).thenReturn(mock(IPSEdition.class));
+
+    IPSContentList cl = mock(IPSContentList.class);
+    when(publisherService.loadContentList(contentListGuid)).thenReturn(cl);
+    when(contentListGuid.longValue()).thenReturn(5L);
+
+    IPSEditionContentList existing = mock(IPSEditionContentList.class);
+    IPSGuid existingCl = mock(IPSGuid.class);
+    when(existing.getContentListId()).thenReturn(existingCl);
+    when(existingCl.longValue()).thenReturn(5L);
+    when(publisherService.loadEditionContentLists(editionGuid)).thenReturn(List.of(existing));
+
+    com.percussion.publishingdesign.data.PSEditionContentListAssoc body =
+        new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
+    body.setContentListId("5");
+    body.setDeliveryContextId("9");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.associateContentList("1", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.CONTENT_LIST_ALREADY_ASSOCIATED, ex.getMessage());
+    verify(publisherService, never()).saveEditionContentList(any());
+    verify(publisherService, never()).createEditionContentList();
   }
 
   @Test

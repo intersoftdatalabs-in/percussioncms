@@ -189,14 +189,27 @@ export async function listEditionContentLists(
   );
 }
 
+/** JAXB root wrap expected by sitemanage {@code PSEditionContentListAssoc}. */
+function wrapEditionContentList(body: EditionContentListAssoc): {
+  editionContentList: EditionContentListAssoc;
+} {
+  return { editionContentList: body };
+}
+
+/**
+ * POST associate. HTTP 400 missing ids; 403 non-Admin/Designer; 409 already associated.
+ * Body must be the {@code editionContentList} root — a flat object does not bind.
+ */
 export async function associateContentList(
   editionId: string | number,
   body: EditionContentListAssoc,
 ): Promise<ContentListSummary> {
-  return (await post<unknown>(
-    `${designRoot()}/editions/${encodeURIComponent(String(editionId))}/contentlists`,
-    body,
-  )) as ContentListSummary;
+  return unwrapContentList(
+    await post<unknown>(
+      `${designRoot()}/editions/${encodeURIComponent(String(editionId))}/contentlists`,
+      wrapEditionContentList(body),
+    ),
+  );
 }
 
 export async function disassociateContentList(
@@ -222,11 +235,44 @@ export async function getContentList(
   )) as ContentListSummary;
 }
 
-function unwrapContentList(data: unknown): ContentListSummary {
-  if (data && typeof data === "object" && "contentList" in (data as object)) {
-    return (data as { contentList: ContentListSummary }).contentList;
+function contentListIdText(value: unknown): string | undefined {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed || undefined;
   }
-  return data as ContentListSummary;
+  // Jackson sometimes emits a numeric guid for this string field (#5107).
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+  return undefined;
+}
+
+function unwrapContentList(data: unknown): ContentListSummary {
+  const record =
+    data && typeof data === "object"
+      ? (data as Record<string, unknown>)
+      : undefined;
+  const nested = record?.contentList;
+  const source =
+    nested && typeof nested === "object" && !Array.isArray(nested)
+      ? (nested as Record<string, unknown>)
+      : record;
+  if (!source) {
+    return {};
+  }
+  const name = source.name;
+  const description = source.description;
+  const listType = source.listType;
+  const generator = source.generator;
+  const url = source.url;
+  return {
+    contentListId: contentListIdText(source.contentListId),
+    name: typeof name === "string" ? name : undefined,
+    description: typeof description === "string" ? description : undefined,
+    listType: typeof listType === "string" ? listType : undefined,
+    generator: typeof generator === "string" ? generator : undefined,
+    url: typeof url === "string" ? url : undefined,
+  };
 }
 
 /** JAXB/Jackson root wrap expected by sitemanage {@code PSContentListSummary}. */

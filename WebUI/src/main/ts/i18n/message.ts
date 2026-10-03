@@ -851,8 +851,16 @@ GADGET_DESC_DASHBOARD_CONFIG:
         ASSOCIATE_LIST_ARIA:
           "perc.ui.publish.design.editions@Content list to associate",
         SELECT_LIST: "perc.ui.publish.design.editions@Select content list",
+        SELECT_CONTEXT: "perc.ui.publish.design.editions@Select delivery context",
         DELIVERY_CONTEXT_ARIA:
           "perc.ui.publish.design.editions@Delivery context",
+        ASSOCIATE: "perc.ui.publish.design.editions@Associate",
+        NEED_LIST_AND_CONTEXT:
+          "perc.ui.publish.design.editions@Select content list and delivery context",
+        ASSOCIATE_FAILED:
+          "perc.ui.publish.design.editions@Could not associate the content list",
+        ASSOCIATE_CONFLICT:
+          "perc.ui.publish.design.editions@Content list is already associated with this edition",
         COPY_TO_SITE_HEADING: "perc.ui.publish.design.editions@Copy to site",
         TARGET_SITE: "perc.ui.publish.design.editions@Target site",
       },
