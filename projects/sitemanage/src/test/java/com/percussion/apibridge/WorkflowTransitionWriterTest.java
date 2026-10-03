@@ -204,6 +204,81 @@ class WorkflowTransitionWriterTest {
     assertEquals(2L, updated.getToState());
   }
 
+  @Test
+  void createsAbsoluteAgingWithoutAddingARegularTransition() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    long before = ids.get();
+
+    WorkflowTransitionWriter.createAbsoluteAging(
+        List.of(draft, review), "Draft", "Review", 15, this::allocate);
+
+    assertEquals(before + 1, ids.get());
+    assertEquals(0, draft.getTransitions().size());
+    assertEquals(1, draft.getAgingTransitions().size());
+    PSAgingTransition created = draft.getAgingTransitions().get(0);
+    assertEquals(15L, created.getInterval());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.ABSOLUTE, created.getAgingTypeEnum());
+    assertEquals("Aging 15", created.getLabel());
+    assertEquals("Aging 15", created.getTrigger());
+    assertEquals(2L, created.getToState());
+    assertEquals(1L, created.getStateId());
+  }
+
+  @Test
+  void nonPositiveIntervalDoesNotAllocate() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    long before = ids.get();
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                WorkflowTransitionWriter.createAbsoluteAging(
+                    List.of(draft, review), "Draft", "Review", 0, this::allocate));
+    assertTrue(ex.getMessage().contains("positive"));
+    assertEquals(before, ids.get());
+    assertEquals(0, draft.getAgingTransitions().size());
+  }
+
+  @Test
+  void blankDestinationIsRejected() {
+    PSState draft = state(1, "Draft");
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            WorkflowTransitionWriter.createAbsoluteAging(
+                List.of(draft, state(2, "Review")), "Draft", " ", 15, this::allocate));
+    assertEquals(0, draft.getAgingTransitions().size());
+  }
+
+  @Test
+  void duplicateAbsoluteIntervalIs409() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    WorkflowTransitionWriter.createAbsoluteAging(
+        List.of(draft, review), "Draft", "Review", 15, this::allocate);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowTransitionWriter.createAbsoluteAging(
+                    List.of(draft, review), "Draft", "Review", 15, this::allocate));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(1, draft.getAgingTransitions().size());
+  }
+
+  @Test
+  void missingStepIs404() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowTransitionWriter.createAbsoluteAging(
+                    List.of(state(1, "Draft")), "Draft", "Review", 15, this::allocate));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
   private PSTransition allocate(PSState source) {
     PSTransition transition = new PSTransition();
     transition.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_TRANSITION, ids.incrementAndGet()));

@@ -10,7 +10,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Role assignment and aging intervals stay on the workflow-admin editor. Custom workflows can add, update, or delete one transition between existing steps.",
+  "Role assignment stays on the workflow-admin editor. Custom workflows can add one absolute aging transition in minutes. Changing or deleting that interval, and repeated or system-field aging, stay outside this surface.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -597,6 +597,50 @@ export function wrapWorkflowTransitionWriteForWire(
   body: WorkflowTransitionWriteBody,
 ): Record<string, WorkflowTransitionWriteBody> {
   return { [WORKFLOW_TRANSITION_WRITE_ROOT]: body };
+}
+
+export const WORKFLOW_AGING_TRANSITION_WRITE_ROOT = "WorkflowAgingTransitionWrite";
+
+/** Writable fields for POST .../workflows/{id}/aging-transitions (slice 57). */
+export type WorkflowAgingTransitionWriteBody = {
+  from: string;
+  to: string;
+  intervalMinutes: number;
+};
+
+/** Positive whole minutes. Rejects blank, zero, negatives, and non-integers. */
+export function isPositiveMinuteInterval(raw: string | number | null | undefined): boolean {
+  if (typeof raw === "number") {
+    return Number.isSafeInteger(raw) && raw > 0;
+  }
+  if (typeof raw !== "string") {
+    return false;
+  }
+  const text = raw.trim();
+  if (!/^[1-9]\d*$/.test(text)) {
+    return false;
+  }
+  const minutes = Number(text);
+  return Number.isSafeInteger(minutes) && minutes > 0;
+}
+
+export function wrapWorkflowAgingTransitionWriteForWire(
+  body: WorkflowAgingTransitionWriteBody,
+): Record<string, WorkflowAgingTransitionWriteBody> {
+  return { [WORKFLOW_AGING_TRANSITION_WRITE_ROOT]: body };
+}
+
+/** POST /services/workflows/{id}/aging-transitions — one absolute aging edge. */
+export async function createWorkflowAgingTransition(
+  idOrName: string,
+  body: WorkflowAgingTransitionWriteBody,
+): Promise<WorkflowGraph> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/aging-transitions`,
+    wrapWorkflowAgingTransitionWriteForWire(body),
+  );
+  return parseWorkflowGraph(payload);
 }
 
 /** POST /services/workflows/{id}/transitions — one edge between existing steps. */

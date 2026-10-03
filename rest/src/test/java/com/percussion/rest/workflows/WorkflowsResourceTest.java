@@ -699,6 +699,84 @@ public class WorkflowsResourceTest {
     assertEquals(409, ex.getResponse().getStatus());
   }
 
+  private static WorkflowAgingTransitionWrite agingBody(String from, String to, long minutes) {
+    WorkflowAgingTransitionWrite body = new WorkflowAgingTransitionWrite();
+    body.setFrom(from);
+    body.setTo(to);
+    body.setIntervalMinutes(minutes);
+    return body;
+  }
+
+  @Test
+  public void createAgingTransitionSuccess() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Nightly QA");
+    when(adaptor.createAbsoluteAgingTransition(any(), eq("Nightly QA"), any())).thenReturn(graph);
+    WorkflowGraph out =
+        resource.createAbsoluteAgingTransition("Nightly QA", agingBody("Draft", "Review", 15));
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor).createAbsoluteAgingTransition(any(), eq("Nightly QA"), any());
+  }
+
+  @Test
+  public void createAgingTransitionRequiresBody() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createAbsoluteAgingTransition("Nightly QA", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).createAbsoluteAgingTransition(any(), any(), any());
+  }
+
+  @Test
+  public void createAgingTransitionBlankDestinationIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createAbsoluteAgingTransition("Nightly QA", agingBody("Draft", " ", 15)));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).createAbsoluteAgingTransition(any(), any(), any());
+  }
+
+  @Test
+  public void createAgingTransitionNonPositiveIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createAbsoluteAgingTransition("Nightly QA", agingBody("Draft", "Review", 0)));
+    assertEquals(400, ex.getResponse().getStatus());
+    WebApplicationException negative =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createAbsoluteAgingTransition("Nightly QA", agingBody("Draft", "Review", -5)));
+    assertEquals(400, negative.getResponse().getStatus());
+    verify(adaptor, never()).createAbsoluteAgingTransition(any(), any(), any());
+  }
+
+  @Test
+  public void createAgingTransitionPackagedIs403() {
+    when(adaptor.createAbsoluteAgingTransition(any(), any(), any()))
+        .thenThrow(new WebApplicationException("packaged", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.createAbsoluteAgingTransition(
+                    "Default Workflow", agingBody("Draft", "Review", 15)));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createAgingTransitionConflictIs409() {
+    when(adaptor.createAbsoluteAgingTransition(any(), any(), any()))
+        .thenThrow(new WebApplicationException("exists", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createAbsoluteAgingTransition("Nightly QA", agingBody("Draft", "Review", 15)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
   private static WorkflowTransitionWrite transitionBody(String from, String to, String label) {
     WorkflowTransitionWrite body = new WorkflowTransitionWrite();
     body.setFrom(from);

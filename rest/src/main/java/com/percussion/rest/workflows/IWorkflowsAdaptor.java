@@ -198,6 +198,19 @@ public interface IWorkflowsAdaptor {
   WorkflowGraph createWorkflowTransition(URI baseUri, String idOrName, WorkflowTransitionWrite body);
 
   /**
+   * Create one absolute aging transition between existing steps (Admin, slice 57). Does not create
+   * steps, change an existing interval, or set comment-required.
+   *
+   * @param body {@code from}, {@code to}, and a positive {@code intervalMinutes}
+   * @return the graph after the insert, including the new aging edge
+   * @throws IllegalArgumentException when a name is blank or the interval is not positive
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow or
+   *     step, 409 when that absolute aging edge already exists
+   */
+  WorkflowGraph createAbsoluteAgingTransition(
+      URI baseUri, String idOrName, WorkflowAgingTransitionWrite body);
+
+  /**
    * Update the label and/or destination of one existing transition (Admin, slice 31). Does not
    * move the source step and does not create steps.
    *

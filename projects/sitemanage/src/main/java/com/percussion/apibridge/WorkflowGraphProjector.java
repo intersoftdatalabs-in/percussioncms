@@ -119,7 +119,8 @@ public final class WorkflowGraphProjector {
       if (label.isEmpty()) {
         label = "to " + to;
       }
-      String key = (from + "|" + label + "|" + to).toLowerCase(Locale.ROOT);
+      String kind = transition instanceof PSAgingTransition ? "aging" : "transition";
+      String key = (from + "|" + kind + "|" + label + "|" + to).toLowerCase(Locale.ROOT);
       if (!seenEdges.add(key)) {
         continue;
       }
@@ -127,7 +128,10 @@ public final class WorkflowGraphProjector {
       edge.setFrom(from);
       edge.setTo(to);
       edge.setLabel(label);
-      if (transition instanceof PSTransition regular) {
+      if (transition instanceof PSAgingTransition aging) {
+        edge.setAging(true);
+        edge.setIntervalMinutes(aging.getInterval());
+      } else if (transition instanceof PSTransition regular) {
         edge.setCommentRequired(
             regular.getRequiresComment() == PSTransition.PSWorkflowCommentEnum.REQUIRED);
       }

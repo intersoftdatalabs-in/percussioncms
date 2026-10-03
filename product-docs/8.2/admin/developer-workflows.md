@@ -20,10 +20,11 @@ overwrite.
 Workflow renaming stays outside this chrome. **Developer → Workflows** detail
 shows a step list and a graph of states and transitions
 (`GET .../workflows/{id}/graph`). On a **custom** workflow an Admin can
-**add or update one transition** between existing steps, **delete one
-transition**, or **delete one step** that no transition still uses. Role
-assignment, aging intervals, and writes on packaged workflows stay outside
-this chrome.
+**add or update one transition** between existing steps, **add one absolute
+aging transition** (interval in minutes), **delete one transition**, or
+**delete one step** that no transition still uses. Role assignment, changing
+or deleting an aging interval, repeated or system-field aging, and writes on
+packaged workflows stay outside this chrome.
 The graph badge says **Packaged workflow** for Default Workflow, Simple
 Workflow, Local Content, and any workflow the server marks as the default;
 other workflows show **Custom workflow**. Missing workflows (`404`) and
@@ -83,6 +84,31 @@ The public calls are `POST /services/workflows/{idOrName}/transitions` with a
 `WorkflowTransitionWrite` body (`from`, `to`, `label`) and
 `PUT /services/workflows/{idOrName}/transitions?from={step}&label={label}&to={step}`
 with a `WorkflowTransitionWrite` body (`label` and `to` are the new values).
+
+## Product path — add an absolute aging transition (slice 57)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow (not Default
+   Workflow, Simple Workflow, or Local Content, and not the system default).
+3. Under **Graph**, in **Aging transitions**, choose **Aging from step**,
+   choose **Aging to step** (both steps must already exist), enter a positive
+   **Interval (minutes)**, and click **Add aging transition**.
+4. The new row appears only after the server accepts it
+   (`from — Aging {minutes} → to`, with the minute count). Reopening the
+   workflow shows the same row. **Cancel** clears the draft and does not call
+   the server.
+5. A blank destination or a blank, zero, or negative interval is rejected in
+   the form and does not show a saved notice. Packaged workflows do not show
+   the form (`403` on the API). A missing workflow or step is `404`. An
+   absolute aging transition that already uses that from, to, and interval is
+   `409`. HTTP `400`, `403`, and `409` do not show the saved notice.
+6. This does not create steps, change an existing aging interval, delete an
+   aging transition, or assign roles. Comment required does not apply to
+   aging transitions.
+
+The public call is `POST /services/workflows/{idOrName}/aging-transitions`
+with a `WorkflowAgingTransitionWrite` body (`from`, `to`, and a positive
+`intervalMinutes`). The interval unit is minutes.
 
 ## Product path — comment required on a transition (slice 38)
 
