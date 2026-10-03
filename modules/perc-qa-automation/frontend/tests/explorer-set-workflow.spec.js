@@ -30,6 +30,8 @@ const {
   TEST_IDS,
   explorerSetWorkflowUrl,
   isKnownExplorerSetWorkflowConsoleNoise,
+  folderListingPhase,
+  listingNavigationSettled,
 } = require("./helpers/explorer-set-workflow");
 const { openContentMenu } = require("./helpers/explorer-sites-list-create");
 
@@ -62,8 +64,75 @@ async function openExplorer(page) {
   return jsErrors;
 }
 
+const DETAIL_ROWS =
+  '[data-testid="detail-list"] tbody tr[data-testid^="detail-row-"]';
+
+async function readListingPhase(page) {
+  const listVisible =
+    (await page.locator(`[data-testid="${TEST_IDS.detailList}"]`).count()) > 0;
+  const rowCount = await page.locator(DETAIL_ROWS).count();
+  const emptyVisible =
+    (await page
+      .locator('[data-testid="detail-list"] [data-testid="detail-list-empty"]')
+      .count()) > 0;
+  return folderListingPhase({ listVisible, rowCount, emptyVisible });
+}
+
+async function listingSignature(page) {
+  const rows = page.locator(DETAIL_ROWS);
+  const count = await rows.count();
+  if (count === 0) {
+    const empty = await page
+      .locator('[data-testid="detail-list"] [data-testid="detail-list-empty"]')
+      .count();
+    return empty > 0 ? "empty" : "none";
+  }
+  const take = Math.min(count, 4);
+  const ids = [];
+  for (let i = 0; i < take; i += 1) {
+    ids.push((await rows.nth(i).getAttribute("data-testid")) || "");
+  }
+  return `rows:${count}:${ids.join("|")}`;
+}
+
 async function listReady(page) {
-  await page.locator(`[data-testid="${TEST_IDS.detailList}"]`).waitFor({ timeout: 20_000 });
+  await expect
+    .poll(async () => readListingPhase(page), { timeout: 20_000 })
+    .not.toBe("loading");
+}
+
+/**
+ * Click or double-click a folder control and wait until paginatedFolder
+ * replaces the previous paint. Resolves false when the listing never settles
+ * so the caller can try another root instead of treating a loading list as empty.
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {import("@playwright/test").Locator} target
+ * @param {{ dblclick?: boolean }} [opts]
+ * @returns {Promise<boolean>}
+ */
+async function activateForListing(page, target, opts = {}) {
+  const before = await listingSignature(page);
+  if (opts.dblclick) {
+    await target.dblclick({ force: true });
+  } else {
+    await target.click({ force: true });
+  }
+  try {
+    await expect
+      .poll(
+        async () => {
+          const phase = await readListingPhase(page);
+          const signature = await listingSignature(page);
+          return listingNavigationSettled(before, phase, signature) ? "settled" : "pending";
+        },
+        { timeout: 20_000 },
+      )
+      .toBe("settled");
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function openFirstFolderRow(page) {
@@ -75,12 +144,9 @@ async function openFirstFolderRow(page) {
   }
   const icon = folderRow.first().locator('[data-testid^="detail-folder-icon-"]');
   if ((await icon.count()) > 0) {
-    await icon.first().click();
-  } else {
-    await folderRow.first().dblclick({ force: true });
+    return activateForListing(page, icon.first());
   }
-  await listReady(page);
-  return true;
+  return activateForListing(page, folderRow.first(), { dblclick: true });
 }
 
 async function selectFirstContentItem(page) {
@@ -99,11 +165,9 @@ async function selectFirstContentItem(page) {
     if ((await root.count()) === 0) {
       continue;
     }
-    await root.first().click();
-    await listReady(page);
-    const firstRow = page.locator('[data-testid="detail-list"] tbody tr').first();
-    if ((await firstRow.count()) > 0) {
-      await firstRow.waitFor({ timeout: 20_000 });
+    const openedRoot = await activateForListing(page, root.first());
+    if (!openedRoot) {
+      continue;
     }
     for (let depth = 0; depth < 6; depth += 1) {
       const itemRow = page.locator(

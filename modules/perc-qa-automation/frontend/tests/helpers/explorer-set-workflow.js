@@ -49,8 +49,70 @@ function isKnownExplorerSetWorkflowConsoleNoise(text) {
   );
 }
 
+/**
+ * Detail list phase for Explorer folder navigation (#5086).
+ *
+ * <p>A mounted {@code detail-list} with no rows and no
+ * {@code detail-list-empty} marker is still loading (DetailList renders
+ * the loading copy without either marker). Callers must not treat that
+ * as "no selectable page".</p>
+ *
+ * @param {{ listVisible?: boolean, rowCount?: number, emptyVisible?: boolean }} [state]
+ * @returns {"loading"|"empty"|"ready"}
+ */
+function folderListingPhase(state = {}) {
+  if (!state.listVisible) {
+    return "loading";
+  }
+  if ((state.rowCount || 0) > 0) {
+    return "ready";
+  }
+  if (state.emptyVisible) {
+    return "empty";
+  }
+  return "loading";
+}
+
+/**
+ * True once a folder click has replaced the previous listing.
+ * A still-loading list, or the same row signature as before the click,
+ * is not settled — cold H2 keeps the previous (often empty) paint until
+ * {@code paginatedFolder} returns (#5086).
+ *
+ * @param {string} beforeSignature
+ * @param {"loading"|"empty"|"ready"|string} phase
+ * @param {string} signature
+ * @returns {boolean}
+ */
+function listingNavigationSettled(beforeSignature, phase, signature) {
+  if (phase === "loading") {
+    return false;
+  }
+  const next = String(signature || "");
+  if (!next || next === "none") {
+    return false;
+  }
+  return next !== String(beforeSignature || "");
+}
+
+/**
+ * GET pathmanagement paginated folder listing (not folder properties).
+ * @param {string} url
+ * @param {string} [method]
+ * @returns {boolean}
+ */
+function isPaginatedFolderListingUrl(url, method = "GET") {
+  if (String(method || "GET").toUpperCase() !== "GET") {
+    return false;
+  }
+  return String(url || "").includes("/pathmanagement/path/paginatedFolder/");
+}
+
 module.exports = {
   TEST_IDS,
   explorerSetWorkflowUrl,
   isKnownExplorerSetWorkflowConsoleNoise,
+  folderListingPhase,
+  listingNavigationSettled,
+  isPaginatedFolderListingUrl,
 };
