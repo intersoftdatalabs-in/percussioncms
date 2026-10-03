@@ -617,6 +617,121 @@ public class WorkflowsResource {
     }
   }
 
+  @POST
+  @Path("/{idOrName}/transitions")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Create one workflow transition",
+      description =
+          "Slice 31 Admin. Inserts one transition between two existing steps. Body from, to,"
+              + " and label are required. Does not create steps. A duplicate from/label/to edge"
+              + " is 409. Packaged default workflows are forbidden (403). Jackson root wrap is"
+              + " WorkflowTransitionWrite.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Created; returns the updated graph",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(responseCode = "400", description = "Missing body or invalid from, to, or label"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow or step not found"),
+        @ApiResponse(responseCode = "409", description = "That transition already exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph createWorkflowTransition(
+      @PathParam("idOrName") String idOrName, WorkflowTransitionWrite body) {
+    if (body == null) {
+      throw new WebApplicationException("Workflow transition body is required", 400);
+    }
+    if (body.getFrom() == null
+        || body.getFrom().isBlank()
+        || body.getTo() == null
+        || body.getTo().isBlank()
+        || body.getLabel() == null
+        || body.getLabel().isBlank()) {
+      throw new WebApplicationException("from, to, and label are required", 400);
+    }
+    try {
+      return requireAdaptor().createWorkflowTransition(uriInfo.getBaseUri(), idOrName, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to create workflow transition ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/transitions")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Update one workflow transition",
+      description =
+          "Slice 31 Admin. Changes the label and destination of one existing transition. Query"
+              + " from and label identify the edge; query to is required when the label is not"
+              + " unique on the source step. Body label and to are the new values. Does not move"
+              + " the source step or create steps. Packaged default workflows are forbidden (403)."
+              + " Jackson root wrap is WorkflowTransitionWrite.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated; returns the graph",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing body, from, or label, or the label is ambiguous, or a name is invalid"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow, step, or transition not found"),
+        @ApiResponse(responseCode = "409", description = "The new from/label/to edge already exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph updateWorkflowTransition(
+      @PathParam("idOrName") String idOrName,
+      @QueryParam("from") String fromStep,
+      @QueryParam("label") String label,
+      @QueryParam("to") String toStep,
+      WorkflowTransitionWrite body) {
+    if (body == null) {
+      throw new WebApplicationException("Workflow transition body is required", 400);
+    }
+    if (fromStep == null || fromStep.isBlank() || label == null || label.isBlank()) {
+      throw new WebApplicationException("from and label are required", 400);
+    }
+    if (body.getTo() == null || body.getTo().isBlank() || body.getLabel() == null || body.getLabel().isBlank()) {
+      throw new WebApplicationException("label and to are required", 400);
+    }
+    try {
+      return requireAdaptor()
+          .updateWorkflowTransition(
+              uriInfo.getBaseUri(), idOrName, fromStep, label, toStep, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to update workflow transition ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @DELETE
   @Path("/{idOrName}/transitions")
   @Produces({MediaType.APPLICATION_JSON})

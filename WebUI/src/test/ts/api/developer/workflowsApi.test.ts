@@ -19,7 +19,9 @@ import {
   createWorkflow,
   deleteWorkflow,
   deleteWorkflowStep,
+  createWorkflowTransition,
   deleteWorkflowTransition,
+  updateWorkflowTransition,
   workflowStepDeletePath,
   workflowTransitionDeletePath,
   getWorkflowAllowedContentTypes,
@@ -572,6 +574,98 @@ describe("workflow transition delete API (slice 33)", () => {
     await expect(
       deleteWorkflowTransition("Nightly QA", "Draft", "Missing", "Review"),
     ).rejects.toMatchObject({ status: 404 });
+  });
+});
+
+describe("workflow transition write API (slice 31)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("POSTs a wrapped transition and parses the graph", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          packaged: false,
+          nodes: [{ name: "Draft" }, { name: "Review" }],
+          edges: [{ from: "Draft", to: "Review", label: "Send" }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await createWorkflowTransition("Nightly QA", {
+      from: "Draft",
+      to: "Review",
+      label: "Send",
+    });
+    expect(graph.edges?.[0]?.label).toBe("Send");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/transitions");
+    expect(String(init.body)).toContain("WorkflowTransitionWrite");
+    expect(String(init.body)).toContain("Send");
+  });
+
+  it("PUTs the new label and destination on the transition query", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          packaged: false,
+          nodes: [],
+          edges: [{ from: "Draft", to: "Pending", label: "Send" }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await updateWorkflowTransition("Nightly QA", "Draft", "Submit", "Review", {
+      to: "Pending",
+      label: "Send",
+    });
+    expect(graph.edges?.[0]?.to).toBe("Pending");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain("/transitions?");
+    const q = new URLSearchParams(url.split("?")[1]);
+    expect(q.get("from")).toBe("Draft");
+    expect(q.get("label")).toBe("Submit");
+    expect(q.get("to")).toBe("Review");
+  });
+
+  it("propagates 409 when the edge already exists", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "exists" }), {
+        status: 409,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(
+      createWorkflowTransition("Nightly QA", { from: "Draft", to: "Review", label: "Submit" }),
+    ).rejects.toMatchObject({ status: 409 });
+  });
+
+  it("propagates 400 when the label is invalid", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "invalid" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(
+      updateWorkflowTransition("Nightly QA", "Draft", "Submit", "Review", {
+        to: "Review",
+        label: "Bad!",
+      }),
+    ).rejects.toMatchObject({ status: 400 });
   });
 });
 

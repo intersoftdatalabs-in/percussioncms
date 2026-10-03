@@ -699,6 +699,121 @@ public class WorkflowsResourceTest {
     assertEquals(409, ex.getResponse().getStatus());
   }
 
+  private static WorkflowTransitionWrite transitionBody(String from, String to, String label) {
+    WorkflowTransitionWrite body = new WorkflowTransitionWrite();
+    body.setFrom(from);
+    body.setTo(to);
+    body.setLabel(label);
+    return body;
+  }
+
+  @Test
+  public void createWorkflowTransitionSuccess() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Nightly QA");
+    when(adaptor.createWorkflowTransition(any(), eq("Nightly QA"), any())).thenReturn(graph);
+    WorkflowGraph out =
+        resource.createWorkflowTransition("Nightly QA", transitionBody("Draft", "Review", "Send"));
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor).createWorkflowTransition(any(), eq("Nightly QA"), any());
+  }
+
+  @Test
+  public void createWorkflowTransitionRequiresBody() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.createWorkflowTransition("Nightly QA", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).createWorkflowTransition(any(), any(), any());
+  }
+
+  @Test
+  public void createWorkflowTransitionBlankIs400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createWorkflowTransition("Nightly QA", transitionBody("Draft", " ", "Send")));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).createWorkflowTransition(any(), any(), any());
+  }
+
+  @Test
+  public void createWorkflowTransitionInvalidIs400() {
+    when(adaptor.createWorkflowTransition(any(), any(), any()))
+        .thenThrow(new IllegalArgumentException("Invalid character in label"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createWorkflowTransition("Nightly QA", transitionBody("Draft", "Review", "Send")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createWorkflowTransitionPackagedIs403() {
+    when(adaptor.createWorkflowTransition(any(), any(), any()))
+        .thenThrow(new WebApplicationException("packaged", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.createWorkflowTransition(
+                    "Default Workflow", transitionBody("Draft", "Review", "Send")));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateWorkflowTransitionSuccess() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Nightly QA");
+    when(adaptor.updateWorkflowTransition(
+            any(), eq("Nightly QA"), eq("Draft"), eq("Submit"), eq("Review"), any()))
+        .thenReturn(graph);
+    WorkflowGraph out =
+        resource.updateWorkflowTransition(
+            "Nightly QA", "Draft", "Submit", "Review", transitionBody(null, "Pending", "Send"));
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor)
+        .updateWorkflowTransition(any(), eq("Nightly QA"), eq("Draft"), eq("Submit"), eq("Review"), any());
+  }
+
+  @Test
+  public void updateWorkflowTransitionRequiresIdentity() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.updateWorkflowTransition(
+                    "Nightly QA", " ", "Submit", "Review", transitionBody(null, "Pending", "Send")));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).updateWorkflowTransition(any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  public void updateWorkflowTransitionAmbiguousIs400() {
+    when(adaptor.updateWorkflowTransition(any(), any(), any(), any(), any(), any()))
+        .thenThrow(new IllegalArgumentException("specify to"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.updateWorkflowTransition(
+                    "Nightly QA", "Draft", "Submit", null, transitionBody(null, "Pending", "Send")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void updateWorkflowTransitionMissingIs404() {
+    when(adaptor.updateWorkflowTransition(any(), any(), any(), any(), any(), any()))
+        .thenThrow(new WebApplicationException("missing", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.updateWorkflowTransition(
+                    "Missing", "Draft", "Submit", "Review", transitionBody(null, "Pending", "Send")));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
   @Test
   public void deleteStepInvalidNameIs400() {
     when(adaptor.deleteWorkflowStep(any(), any(), any()))

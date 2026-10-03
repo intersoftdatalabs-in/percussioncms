@@ -12,6 +12,10 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   deleteWorkflowTransition: vi.fn(),
   deleteWorkflowStep: vi.fn(),
   updateTransitionCommentRequired: vi.fn(),
+  createWorkflowTransition: vi.fn(),
+  updateWorkflowTransition: vi.fn(),
+  isValidWorkflowName: (name: string | null | undefined) =>
+    !!name && name.trim().length > 0 && name.trim().length <= 50 && /^[\s\w-]+$/.test(name.trim()),
 }));
 
 import * as workflowsApi from "../../../main/ts/api/developer/workflowsApi";
@@ -20,6 +24,8 @@ const getWorkflowGraph = workflowsApi.getWorkflowGraph as ReturnType<typeof vi.f
 const deleteWorkflowStep = workflowsApi.deleteWorkflowStep as ReturnType<typeof vi.fn>;
 const updateTransitionCommentRequired =
   workflowsApi.updateTransitionCommentRequired as ReturnType<typeof vi.fn>;
+const createWorkflowTransition = workflowsApi.createWorkflowTransition as ReturnType<typeof vi.fn>;
+const updateWorkflowTransition = workflowsApi.updateWorkflowTransition as ReturnType<typeof vi.fn>;
 
 describe("WorkflowGraphView step delete", () => {
   beforeEach(() => {
@@ -29,6 +35,126 @@ describe("WorkflowGraphView step delete", () => {
     getWorkflowGraph.mockReset();
     deleteWorkflowStep.mockReset();
     updateTransitionCommentRequired.mockReset();
+    createWorkflowTransition.mockReset();
+    updateWorkflowTransition.mockReset();
+  });
+
+  it("adds a transition between existing steps and does not call update", async () => {
+    const initial = {
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [{ from: "Draft", to: "Review", label: "Submit", commentRequired: false }],
+    };
+    const updated = {
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        { from: "Draft", to: "Review", label: "Submit", commentRequired: false },
+        { from: "Draft", to: "Review", label: "Send", commentRequired: false },
+      ],
+    };
+    let current = initial;
+    getWorkflowGraph.mockImplementation(async () => current);
+    createWorkflowTransition.mockImplementation(async () => {
+      current = updated;
+      return updated;
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    const label = await screen.findByTestId("developer-wf-transition-label");
+    fireEvent.change(label, { target: { value: "Send" } });
+    fireEvent.click(screen.getByTestId("developer-wf-transition-add"));
+    await waitFor(() => {
+      expect(createWorkflowTransition).toHaveBeenCalledWith("Nightly QA", {
+        from: "Draft",
+        to: "Review",
+        label: "Send",
+      });
+    });
+    expect(updateWorkflowTransition).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain("Transition saved");
+    });
+  });
+
+  it("updates the selected transition label and destination", async () => {
+    const initial = {
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }, { name: "Pending" }],
+      edges: [{ from: "Draft", to: "Review", label: "Submit" }],
+    };
+    const updated = {
+      packaged: false,
+      nodes: initial.nodes,
+      edges: [{ from: "Draft", to: "Pending", label: "Send" }],
+    };
+    let current = initial;
+    getWorkflowGraph.mockImplementation(async () => current);
+    updateWorkflowTransition.mockImplementation(async () => {
+      current = updated;
+      return updated;
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    fireEvent.click(await screen.findByTestId("developer-wf-graph-edit-0"));
+    fireEvent.change(screen.getByTestId("developer-wf-transition-label"), {
+      target: { value: "Send" },
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-transition-to"), {
+      target: { value: "Pending" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-transition-save"));
+    await waitFor(() => {
+      expect(updateWorkflowTransition).toHaveBeenCalledWith(
+        "Nightly QA",
+        "Draft",
+        "Submit",
+        "Review",
+        { to: "Pending", label: "Send" },
+      );
+    });
+    expect(createWorkflowTransition).not.toHaveBeenCalled();
+  });
+
+  it("cancel edit does not post", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [{ from: "Draft", to: "Review", label: "Submit" }],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    fireEvent.click(await screen.findByTestId("developer-wf-graph-edit-0"));
+    fireEvent.click(screen.getByTestId("developer-wf-transition-cancel"));
+    expect(screen.queryByTestId("developer-wf-transition-save")).toBeNull();
+    expect(updateWorkflowTransition).not.toHaveBeenCalled();
+    expect(createWorkflowTransition).not.toHaveBeenCalled();
+  });
+
+  it("hides the transition form on packaged workflows", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: true,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [{ from: "Draft", to: "Review", label: "Submit" }],
+    });
+    render(<WorkflowGraphView workflowName="Default Workflow" />);
+    await screen.findByTestId("developer-wf-graph-edge-0");
+    expect(screen.queryByTestId("developer-wf-transition-form")).toBeNull();
+    expect(screen.queryByTestId("developer-wf-graph-edit-0")).toBeNull();
+  });
+
+  it("maps 403 on create to the packaged message", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [],
+    });
+    createWorkflowTransition.mockRejectedValue({ status: 403, message: "forbidden" });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    fireEvent.change(await screen.findByTestId("developer-wf-transition-label"), {
+      target: { value: "Send" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-transition-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-error").textContent).toMatch(/Packaged or default/i);
+    });
   });
 
   it("saves comment required on a custom transition", async () => {

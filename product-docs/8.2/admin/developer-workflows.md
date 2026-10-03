@@ -20,9 +20,10 @@ overwrite.
 Workflow renaming stays outside this chrome. **Developer → Workflows** detail
 shows a step list and a graph of states and transitions
 (`GET .../workflows/{id}/graph`). On a **custom** workflow an Admin can
-**delete one transition** between existing steps, or **delete one step** that
-no transition still uses. Creating transitions, and deletes on packaged
-workflows, stay outside this chrome.
+**add or update one transition** between existing steps, **delete one
+transition**, or **delete one step** that no transition still uses. Role
+assignment, aging intervals, and writes on packaged workflows stay outside
+this chrome.
 The graph badge says **Packaged workflow** for Default Workflow, Simple
 Workflow, Local Content, and any workflow the server marks as the default;
 other workflows show **Custom workflow**. Missing workflows (`404`) and
@@ -41,8 +42,8 @@ non-Admin callers (`403`) surface as section alerts — not a blank success body
    success table). Load errors (`403` / `404`) appear in the detail alert.
 
 This is a catalog preview of steps. Adding or renaming steps remains on the
-detail form for custom workflows. Creating transitions remains on the
-workflow-admin editor. Deleting one existing transition, or a step that no
+detail form for custom workflows. Adding or updating one transition between
+existing steps, deleting one existing transition, or deleting a step that no
 longer has transitions, is on the graph (see below).
 
 ## Product path — browse the graph
@@ -57,6 +58,31 @@ longer has transitions, is on the graph (see below).
 5. If the workflow has no states, the section shows **No states in this
    workflow graph** (not a blank success). Load errors (`403` / `404`) appear
    in the graph alert.
+
+## Product path — add or update a transition (slice 31)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow (not Default
+   Workflow, Simple Workflow, or Local Content, and not the system default).
+3. Under **Graph**, choose **From step**, enter a **Transition label**, choose
+   **To step**, and click **Add transition**. Both steps must already exist.
+   The new edge appears (`from — label → to`). Reopening the workflow shows
+   the same edge.
+4. Click **Edit transition** on that edge, change the label and/or **To
+   step**, and click **Save transition**. The previous edge is gone and the
+   updated edge remains after reload. **Cancel** does not call the server.
+5. The source step does not move. This does not create or delete steps, and
+   it does not edit role assignment or aging intervals.
+6. Packaged workflows do not show the form (`403` on the API). A missing
+   workflow or step is `404`. A blank or invalid label, or a label that
+   matches more than one edge without `to` on update, is `400`. An edge that
+   already uses that from / label / to is `409`. Non-Admin callers receive
+   `403`.
+
+The public calls are `POST /services/workflows/{idOrName}/transitions` with a
+`WorkflowTransitionWrite` body (`from`, `to`, `label`) and
+`PUT /services/workflows/{idOrName}/transitions?from={step}&label={label}&to={step}`
+with a `WorkflowTransitionWrite` body (`label` and `to` are the new values).
 
 ## Product path — comment required on a transition (slice 38)
 
@@ -150,8 +176,9 @@ The public call is `POST /services/workflows/{idOrName}/copy` with a
    workflow (`404`), or non-Admin callers (`403`) appear in the section
    alert.
 
-Renaming, step / transitions / roles editing, and full graph design stay
-on the workflow-admin editor — this chrome updates only the description.
+Renaming and role assignment stay on the workflow-admin editor — this
+description field updates only the description. Step and transition edits
+are on the detail form and graph.
 
 ## Product path — set the system default (slice 37)
 
@@ -219,13 +246,15 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 - Add or rename a **step** on a custom (non-packaged) workflow from the
   detail panel. Packaged **Default Workflow**, **Simple Workflow**, and
   **Local Content** stay protected (`403`). Invalid names return `400`.
-  Creating transitions stays on the workflow-admin editor. Deleting one
+  Adding one transition between existing steps is `POST
+  .../workflows/{idOrName}/transitions`. Updating that transition's label or
+  destination is `PUT .../workflows/{idOrName}/transitions`. Deleting one
   existing transition on a custom workflow is `DELETE
   .../workflows/{idOrName}/transitions`. Deleting one step that no transition
   still uses is `DELETE .../workflows/{idOrName}/steps/{stepName}` (`409` when
   a transition still references the step).
-- Workflow rename and full graph design (states, transitions, roles) are
-  not in this chrome; they stay on the workflow-admin editor.
+- Workflow rename, role assignment, and aging intervals are not in this
+  chrome; they stay on the workflow-admin editor.
 - Object ACL is not available on workflow detail (no workflow GUID in this
   release).
 - Association save requires Admin and the SY-06 REST surface
@@ -245,6 +274,8 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Create step | `POST /services/workflows/{idOrName}/steps` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
 | Update step | `PUT /services/workflows/{idOrName}/steps/{stepName}` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
 | Read graph | `GET /services/workflows/{idOrName}/graph` (Admin; states and transitions; `packaged` true for stock or default workflows) |
+| Create one transition | `POST /services/workflows/{idOrName}/transitions` (`WorkflowTransitionWrite` wrap: required `from`, `to`, `label`; both steps must exist; duplicate edge `409`; packaged workflows `403`; missing step `404`; invalid name `400`) |
+| Update one transition | `PUT /services/workflows/{idOrName}/transitions?from={step}&label={label}&to={step}` (`WorkflowTransitionWrite` wrap: new `label` and `to`; does not move the source step; ambiguous label `400`; missing transition `404`; colliding edge `409`; packaged workflows `403`) |
 | Delete one transition | `DELETE /services/workflows/{idOrName}/transitions?from={step}&label={label}&to={step}` (Admin; does not delete steps; packaged workflows `403`; missing workflow/step/transition `404`; blank or ambiguous label `400`) |
 | Comment required | `PUT /services/workflows/{idOrName}/transitions/comment-required?from={step}&label={label}&to={step}` (`WorkflowTransitionComment` wrap `{ "commentRequired": true }`; Admin; existing transition only; packaged workflows `403`; aging transitions `400`; missing transition `404`) |
 | Delete one step | `DELETE /services/workflows/{idOrName}/steps/{stepName}` (Admin; only when no transition still uses the step; returns the updated graph; packaged workflows `403`; missing workflow or step `404`; invalid step name `400`; step still referenced `409`) |
