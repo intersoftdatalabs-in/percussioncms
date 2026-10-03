@@ -29,6 +29,8 @@ const {
   TEST_IDS,
   folderListingPhase,
   listingNavigationSettled,
+  listingAlreadySelectable,
+  unchangedListingUsable,
   isPaginatedFolderListingUrl,
 } = require("../helpers/explorer-set-workflow");
 
@@ -62,6 +64,25 @@ describe("explorer set workflow listing (#5086)", () => {
     assert.equal(listingNavigationSettled("none", "empty", "empty", false), false);
     assert.equal(listingNavigationSettled("none", "empty", "empty", true), true);
     assert.equal(listingNavigationSettled("empty", "empty", "empty", true), false);
+  });
+
+  it("treats an already-open row listing as selectable (#5096)", () => {
+    assert.equal(listingAlreadySelectable("ready", "rows:2:detail-row-1|detail-row-2"), true);
+    assert.equal(listingAlreadySelectable("empty", "empty"), false);
+    assert.equal(listingAlreadySelectable("loading", "none"), false);
+    assert.equal(listingAlreadySelectable("ready", "none"), false);
+    assert.equal(listingAlreadySelectable("ready", ""), false);
+  });
+
+  it("keeps an unchanged ready listing only when this click started no GET (#5096)", () => {
+    const rows = "rows:2:detail-row-1|detail-row-2";
+    assert.equal(unchangedListingUsable(false, "ready", rows, rows), true);
+    assert.equal(unchangedListingUsable(true, "ready", rows, rows), false);
+    assert.equal(unchangedListingUsable(false, "empty", "empty", "empty"), false);
+    assert.equal(
+      unchangedListingUsable(false, "ready", "rows:1:detail-row-9", rows),
+      false,
+    );
   });
 
   it("matches only GET paginatedFolder listings", () => {

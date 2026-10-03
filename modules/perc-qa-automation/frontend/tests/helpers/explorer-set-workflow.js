@@ -113,6 +113,39 @@ function listingNavigationSettled(
 }
 
 /**
+ * A ready detail list that already has rows can be walked for a page or
+ * asset. Idle empty and the loading paint are not selectable (#5096).
+ *
+ * @param {"loading"|"empty"|"ready"|string} phase
+ * @param {string} signature
+ * @returns {boolean}
+ */
+function listingAlreadySelectable(phase, signature) {
+  return phase === "ready" && String(signature || "").startsWith("rows:");
+}
+
+/**
+ * A click that does not change the signature still leaves a usable listing
+ * when no paginatedFolder GET started and rows are already on screen.
+ * A ready listing with a GET in flight is the previous folder (#5096).
+ *
+ * @param {boolean} requestStarted
+ * @param {"loading"|"empty"|"ready"|string} phase
+ * @param {string} signature
+ * @param {string} beforeSignature
+ * @returns {boolean}
+ */
+function unchangedListingUsable(requestStarted, phase, signature, beforeSignature) {
+  if (requestStarted) {
+    return false;
+  }
+  if (String(signature || "") !== String(beforeSignature || "")) {
+    return false;
+  }
+  return listingAlreadySelectable(phase, signature);
+}
+
+/**
  * GET pathmanagement paginated folder listing (not folder properties).
  * @param {string} url
  * @param {string} [method]
@@ -131,5 +164,7 @@ module.exports = {
   isKnownExplorerSetWorkflowConsoleNoise,
   folderListingPhase,
   listingNavigationSettled,
+  listingAlreadySelectable,
+  unchangedListingUsable,
   isPaginatedFolderListingUrl,
 };

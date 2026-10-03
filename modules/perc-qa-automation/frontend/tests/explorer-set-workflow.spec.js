@@ -32,6 +32,7 @@ const {
   isKnownExplorerSetWorkflowConsoleNoise,
   folderListingPhase,
   listingNavigationSettled,
+  unchangedListingUsable,
   isPaginatedFolderListingUrl,
 } = require("./helpers/explorer-set-workflow");
 const { openContentMenu } = require("./helpers/explorer-sites-list-create");
@@ -67,6 +68,12 @@ async function openExplorer(page) {
 
 const DETAIL_ROWS =
   '[data-testid="detail-list"] tbody tr[data-testid^="detail-row-"]';
+const FOLDER_ROWS =
+  '[data-testid="detail-list"] tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]:not([aria-disabled="true"])';
+const ITEM_ROWS =
+  '[data-testid="detail-list"] tbody tr[data-testid^="detail-row-"][data-row-kind="item"]:not([aria-disabled="true"])';
+/** Grace before an unchanged ready listing counts as this click (#5096). */
+const UNCHANGED_LISTING_GRACE_MS = 2_000;
 
 async function readListingPhase(page) {
   const listVisible =
@@ -109,25 +116,47 @@ async function listReady(page) {
  *
  * Empty is accepted only after a paginatedFolder GET observed for this click.
  * The idle {@code !folderPath} paint is also {@code detail-list-empty} (#5089).
+ * In-flight GETs that started before the click do not count, and an already
+ * open ready listing is usable when this click starts no GET (#5096).
  *
  * @param {import("@playwright/test").Page} page
  * @param {import("@playwright/test").Locator} target
- * @param {{ dblclick?: boolean }} [opts]
+ * @param {{ dblclick?: boolean, requireChange?: boolean }} [opts]
  * @returns {Promise<boolean>}
  */
 async function activateForListing(page, target, opts = {}) {
+  try {
+    await listReady(page);
+  } catch {
+    return false;
+  }
   const before = await listingSignature(page);
+  const startedRequests = new Set();
+  let requestStarted = false;
   let listingResponseSeen = false;
+  const onRequest = (req) => {
+    try {
+      if (isPaginatedFolderListingUrl(req.url(), req.method())) {
+        startedRequests.add(req);
+        requestStarted = true;
+      }
+    } catch {
+      // Ignore requests that are already disposed.
+    }
+  };
   const onResponse = (res) => {
     try {
-      if (isPaginatedFolderListingUrl(res.url(), res.request().method())) {
+      const req = res.request();
+      if (startedRequests.has(req) && isPaginatedFolderListingUrl(res.url(), req.method())) {
         listingResponseSeen = true;
       }
     } catch {
       // Ignore responses whose request is already disposed.
     }
   };
+  page.on("request", onRequest);
   page.on("response", onResponse);
+  const startedAt = Date.now();
   try {
     if (opts.dblclick) {
       await target.dblclick({ force: true });
@@ -139,17 +168,31 @@ async function activateForListing(page, target, opts = {}) {
         async () => {
           const phase = await readListingPhase(page);
           const signature = await listingSignature(page);
-          return listingNavigationSettled(before, phase, signature, listingResponseSeen)
-            ? "settled"
-            : "pending";
+          if (listingNavigationSettled(before, phase, signature, listingResponseSeen)) {
+            return "settled";
+          }
+          if (
+            Date.now() - startedAt >= UNCHANGED_LISTING_GRACE_MS &&
+            unchangedListingUsable(requestStarted, phase, signature, before)
+          ) {
+            return "settled";
+          }
+          return "pending";
         },
         { timeout: 20_000 },
       )
       .toBe("settled");
+    if (opts.requireChange) {
+      const after = await listingSignature(page);
+      if (after === before) {
+        return false;
+      }
+    }
     return true;
   } catch {
     return false;
   } finally {
+    page.off("request", onRequest);
     page.off("response", onResponse);
   }
 }
@@ -165,18 +208,98 @@ function treeNodeLabel(root) {
   return root.locator('[role="treeitem"] span:not([data-testid^="tree-toggle-"])').first();
 }
 
-async function openFirstFolderRow(page) {
-  const folderRow = page.locator(
-    '[data-testid="detail-list"] tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]:not([aria-disabled="true"])',
+/**
+ * Folder-icon (or row double-click) target. Prefer the Sites row when the
+ * repository root is showing; otherwise the first folder (#5096).
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {number} [index] used when Sites is not the row to open
+ * @returns {Promise<{ target: import("@playwright/test").Locator, dblclick: boolean } | null>}
+ */
+async function folderOpenTarget(page, index = 0) {
+  const sites = page.locator(
+    `${FOLDER_ROWS}[data-item-name="Sites"], ${FOLDER_ROWS}[data-testid="detail-row-/Sites/"], ${FOLDER_ROWS}[data-testid="detail-row-/Sites"]`,
   );
-  if ((await folderRow.count()) === 0) {
+  const folders = page.locator(FOLDER_ROWS);
+  const count = await folders.count();
+  if (count === 0 || index >= count) {
+    return null;
+  }
+  const row = index === 0 && (await sites.count()) > 0 ? sites.first() : folders.nth(index);
+  const icon = row.locator('[data-testid^="detail-folder-icon-"]');
+  if ((await icon.count()) > 0) {
+    return { target: icon.first(), dblclick: false };
+  }
+  return { target: row, dblclick: true };
+}
+
+/**
+ * @param {import("@playwright/test").Page} page
+ * @param {number} [index]
+ * @returns {Promise<boolean>}
+ */
+async function openFolderAt(page, index = 0) {
+  const choice = await folderOpenTarget(page, index);
+  if (!choice) {
     return false;
   }
-  const icon = folderRow.first().locator('[data-testid^="detail-folder-icon-"]');
-  if ((await icon.count()) > 0) {
-    return activateForListing(page, icon.first());
+  return activateForListing(page, choice.target, {
+    dblclick: choice.dblclick,
+    requireChange: true,
+  });
+}
+
+/**
+ * @param {import("@playwright/test").Page} page
+ * @returns {Promise<boolean>}
+ */
+async function clickFirstItem(page) {
+  const itemRow = page.locator(ITEM_ROWS);
+  if ((await itemRow.count()) === 0) {
+    return false;
   }
-  return activateForListing(page, folderRow.first(), { dblclick: true });
+  await itemRow.first().click({ force: true, timeout: 10_000 });
+  return true;
+}
+
+/**
+ * Descend the detail list that is already on screen. A tree click that
+ * paints site rows on the poll timeout must not be discarded for Assets
+ * (#5096).
+ *
+ * @param {import("@playwright/test").Page} page
+ * @returns {Promise<boolean>}
+ */
+async function walkListingForItem(page) {
+  for (let depth = 0; depth < 6; depth += 1) {
+    if (await clickFirstItem(page)) {
+      return true;
+    }
+    const before = await listingSignature(page);
+    let opened = await openFolderAt(page, 0);
+    let after = await listingSignature(page);
+    // A poll can time out as the new rows paint. Keep that listing (#5096).
+    if (after !== before && after.startsWith("rows:")) {
+      opened = true;
+    } else if (!opened || after === before) {
+      const folderCount = await page.locator(FOLDER_ROWS).count();
+      opened = false;
+      const tries = Math.min(folderCount, 3);
+      for (let i = 1; i < tries && !opened; i += 1) {
+        opened = await openFolderAt(page, i);
+        after = await listingSignature(page);
+        if (after !== before && (opened || after.startsWith("rows:"))) {
+          opened = true;
+          break;
+        }
+        opened = false;
+      }
+    }
+    if (!opened) {
+      return false;
+    }
+  }
+  return false;
 }
 
 async function selectFirstContentItem(page) {
@@ -187,6 +310,14 @@ async function selectFirstContentItem(page) {
       )
       .first(),
   ).toBeVisible({ timeout: 30_000 });
+  try {
+    await listReady(page);
+  } catch {
+    // An empty or slow first paint can still expose folder rows below.
+  }
+  if (await walkListingForItem(page)) {
+    return true;
+  }
   const roots = ["Sites", "Assets"];
   for (const rootName of roots) {
     const root = page.locator(
@@ -196,25 +327,10 @@ async function selectFirstContentItem(page) {
       continue;
     }
     const label = treeNodeLabel(root.first());
-    const openedRoot = await activateForListing(
-      page,
-      (await label.count()) > 0 ? label : root.first(),
-    );
-    if (!openedRoot) {
-      continue;
-    }
-    for (let depth = 0; depth < 6; depth += 1) {
-      const itemRow = page.locator(
-        '[data-testid="detail-list"] tbody tr[data-testid^="detail-row-"][data-row-kind="item"]:not([aria-disabled="true"])',
-      );
-      if ((await itemRow.count()) > 0) {
-        await itemRow.first().click({ force: true, timeout: 10_000 });
-        return true;
-      }
-      const opened = await openFirstFolderRow(page);
-      if (!opened) {
-        break;
-      }
+    await activateForListing(page, (await label.count()) > 0 ? label : root.first());
+    // Use rows even when the tree click timed out as they appeared (#5096).
+    if (await walkListingForItem(page)) {
+      return true;
     }
   }
   return false;
