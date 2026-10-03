@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -188,5 +189,60 @@ class PSPathServiceSaveFolderPropertiesValidationTest {
 
     assertDoesNotThrow(() -> service.saveFolderProperties(props));
     verify(folderHelper).saveFolderProperties(props);
+  }
+
+  @Test
+  void unknownCommunity_mapsToHttp400AndDoesNotSave() throws Exception {
+    PSFolderProperties props = new PSFolderProperties();
+    props.setId("16777215-101-703");
+    props.setName("Design");
+    props.setCommunityId(99);
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(props);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(folderHelper.isAssignableFolderCommunity(99)).thenReturn(false);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveFolderProperties(props));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+    verify(folderHelper, never()).saveFolderProperties(any(PSFolderProperties.class));
+    verify(publishingWs, never()).getItemSites(any());
+  }
+
+  @Test
+  void catalogCommunity_stillDelegatesToFolderHelper() throws Exception {
+    PSFolderProperties props = new PSFolderProperties();
+    props.setId("16777215-101-703");
+    props.setName("Design");
+    props.setCommunityId(12);
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(props);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(folderHelper.isAssignableFolderCommunity(12)).thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    verify(folderHelper).saveFolderProperties(props);
+  }
+
+  @Test
+  void nonPositiveCommunityId_doesNotRequireCatalog() throws Exception {
+    PSFolderProperties props = new PSFolderProperties();
+    props.setId("16777215-101-703");
+    props.setName("Design");
+    props.setCommunityId(0);
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(props);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    verify(folderHelper).saveFolderProperties(props);
+    verify(folderHelper, never()).isAssignableFolderCommunity(anyInt());
   }
 }
