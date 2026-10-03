@@ -16,13 +16,13 @@ limitations under the License.
 
 ## Summary
 
-Machine analysis found **0** finding(s), **0** bug(s).
+Machine analysis found **1** finding(s), **0** bug(s).
 
 ## Scope
 
 - Base: origin/main
 - Head: HEAD
-- Files: 11 analyzed
+- Files: 14 analyzed
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 
@@ -37,14 +37,23 @@ approve
 
 ## Issues
 
-_No issues._
+### Issue 1 -- Severity: suggestion
+
+- File: review
+- Rule: `llm.error`
+- Tool: `llm`
+- Description: model `ollama-dev-coder` failed: http: status 500 Internal Server Error body {"error":{"message":"llama-server process has terminated: exit status 1: cudaMalloc failed: out of memory\nalloc_tensor_range: failed to allocate CUDA0 buffer of size 5064192000\nerror loading model: unable to allocate CUDA0 buffer","type":"api_error","param":null,"code":null}}
+
+- Status: open
+
 
 ## Intent review (Erlang)
 
-Independent read of the Explorer set-workflow slice (not the author). No blocking bug.
+Independent read of PR #5085 (set workflow #5076 and listing wait #5086). Not the author. Recommendation: approve. No blocking bug.
 
-- Success copy is set only after `saveSetWorkflow` returns `status: "saved"` (`ContentExplorerShell.tsx` save handler). HTTP 400/403/409 and gate rejects stay on the dialog and do not bump `listEpoch`.
-- Cancel is a dialog close. It does not call `saveSetWorkflow`.
-- Empty, folder, multi-select, not-item, and missing id are classified before `allowedWorkflows`.
-- Companions present: Vitest behavior tests, Playwright `explorer-set-workflow.spec.js`, `product-docs/8.2/admin/content-explorer.md`. New sources use the Intersoft 2026 header. No agent-rule diff. No filesystem path joins.
-- Nit (non-blocking): `setItemWorkflow.test.ts` builds a `change` mock inside the catalog-403 test and never passes it to `loadSetWorkflowCatalog`. The `status: "http", http: 403` assertion is still behavioral.
+- Success text is set only after `saveSetWorkflow` returns `status: "saved"`. HTTP 400/403/409 and client gate rejects stay on the dialog and do not bump `listEpoch`. Cancel closes the dialog and does not POST `changeWorkflow`.
+- `classifySetWorkflowSelection` blocks empty, folder, multi-select, not-item, and missing id before `allowedWorkflows`.
+- #5086: `folderListingPhase` treats a mounted detail list with no rows and no `detail-list-empty` as loading. `listingNavigationSettled` requires a non-loading phase and a changed listing signature. `activateForListing` returns false when that poll times out, so a cold H2 paint is not reported as "no selectable page". Node tests cover the phase matrix. The `catch` there is the poll-timeout path (returns false), not a swallowed production failure.
+- Companions: Vitest `setItemWorkflow.test.ts`, Playwright `explorer-set-workflow.spec.js`, `tests/unit/explorer-set-workflow.test.js`, `product-docs/8.2/admin/content-explorer.md`. New sources use the Intersoft 2026 header. No agent-rule diff. No filesystem path joins.
+- Machine gate: 0 bugs. Ollama `dev-coder` HTTP 500 (CUDA out of memory) is a suggestion, not a defect in the diff.
+- Nit (non-blocking): `isPaginatedFolderListingUrl` is unit-tested and not called by the spec. The catalog-403 Vitest still builds an unused `change` mock; the HTTP 403 assertion itself is behavioral.
