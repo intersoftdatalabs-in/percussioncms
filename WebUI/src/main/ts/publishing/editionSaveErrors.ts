@@ -62,3 +62,24 @@ export function mapEditionCopyError(err: unknown): string {
   }
   return formatApiError(err, message(MSG.PUBLISH_ERROR));
 }
+
+/**
+ * Map edition delete failures to operator-visible text.
+ * HTTP 400 → bad edition id; HTTP 403 → forbidden; HTTP 409 → edition in use
+ * (a publish job is still running). Plain {@link ApiError} objects are not
+ * {@code Error} instances — do not use {@code e.message}.
+ */
+export function mapEditionDeleteError(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
+    }
+    if (err.status === 409) {
+      return formatApiError(err, "Edition is in use");
+    }
+    if (err.status === 400) {
+      return formatApiError(err, message(MSG.PUBLISH_ERROR));
+    }
+  }
+  return formatApiError(err, message(MSG.PUBLISH_ERROR));
+}

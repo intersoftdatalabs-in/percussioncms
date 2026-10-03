@@ -68,6 +68,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
+import java.util.function.ToLongFunction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +89,8 @@ public class PSPublishingDesignRestService {
   static final String DESIGN_WRITE_FORBIDDEN =
       "Admin or Designer role required to save a publish edition";
   static final String EDITION_NAME_CONFLICT = "Edition name already exists";
+  /** A publish job is still active for this edition. */
+  static final String EDITION_IN_USE = "Edition is in use";
   /** Matches {@code RXEDITION.DISPLAYTITLE} VARCHAR(100). */
   static final int MAX_EDITION_NAME_LENGTH = 100;
 
@@ -104,6 +107,8 @@ public class PSPublishingDesignRestService {
   private final PSPublishingRuntimeSupport runtimeSupport;
   private IPSUserService userService;
   private BooleanSupplier designWriteAllowed;
+  /** Test hook: active job id for an edition; {@code > 0} means the edition is running. */
+  private ToLongFunction<IPSGuid> editionRunningJobId;
 
   public PSPublishingDesignRestService() {
     this(
@@ -145,6 +150,11 @@ public class PSPublishingDesignRestService {
   /** Test hook: when set, overrides Admin/Designer check (403). */
   void setDesignWriteAllowed(BooleanSupplier designWriteAllowed) {
     this.designWriteAllowed = designWriteAllowed;
+  }
+
+  /** Test hook: when set, overrides the runtime running-job lookup used by delete. */
+  void setEditionRunningJobId(ToLongFunction<IPSGuid> editionRunningJobId) {
+    this.editionRunningJobId = editionRunningJobId;
   }
 
   // ---- Editions ----
@@ -255,9 +265,15 @@ public class PSPublishingDesignRestService {
   @DELETE
   @Path("/editions/{editionId}")
   public void deleteEdition(@PathParam("editionId") String editionId) {
+    requireDesignWrite();
     requireNonBlank(editionId, "editionId");
     try {
-      IPSEdition edition = publisherService.loadEdition(toEditionGuid(editionId));
+      IPSGuid editionGuid = toEditionGuid(editionId);
+      rejectEditionInUse(editionGuid);
+      IPSEdition edition = publisherService.loadEdition(editionGuid);
+      if (edition == null) {
+        throw notFound("Edition not found");
+      }
       publisherService.deleteEdition(edition);
     } catch (PSNotFoundException e) {
       throw notFound("Edition not found");
@@ -1351,6 +1367,32 @@ public class PSPublishingDesignRestService {
     } catch (PSDataServiceException e) {
       log.debug("Unable to resolve current user for edition save: {}", e.getMessage());
       return false;
+    }
+  }
+
+  /**
+   * Refuse delete while a publish job is active for the edition (HTTP 409).
+   * Idle ({@code 0}) is allowed, including a finished job still retained until reap.
+   * A missing runtime lookup is treated as idle so unit tests that do not install
+   * runtime support can still delete.
+   */
+  private void rejectEditionInUse(IPSGuid editionGuid) {
+    long jobId;
+    try {
+      if (editionRunningJobId != null) {
+        jobId = editionRunningJobId.applyAsLong(editionGuid);
+      } else if (runtimeSupport != null) {
+        jobId = runtimeSupport.runningJobId(editionGuid);
+      } else {
+        jobId = 0L;
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw internalError(e);
+    }
+    if (jobId > 0L) {
+      throw conflict(EDITION_IN_USE);
     }
   }
 

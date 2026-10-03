@@ -68,6 +68,60 @@ class PSPublishingRuntimeSupportTest {
   }
 
   @Test
+  void runningJobId_returnsActiveJob() {
+    when(rxPublisherService.getEditionJobId(editionGuid)).thenReturn(55L);
+    IPSPublisherJobStatus status = mock(IPSPublisherJobStatus.class);
+    when(rxPublisherService.getPublishingJobStatus(55L)).thenReturn(status);
+    when(status.getState()).thenReturn(IPSPublisherJobStatus.State.WORKING);
+    assertEquals(55L, support.runningJobId(editionGuid));
+  }
+
+  @Test
+  void runningJobId_finishedJobIsIdle() {
+    when(rxPublisherService.getEditionJobId(editionGuid)).thenReturn(55L);
+    IPSPublisherJobStatus status = mock(IPSPublisherJobStatus.class);
+    when(rxPublisherService.getPublishingJobStatus(55L)).thenReturn(status);
+    when(status.getState()).thenReturn(IPSPublisherJobStatus.State.COMPLETED);
+    assertEquals(0L, support.runningJobId(editionGuid));
+  }
+
+  @Test
+  void runningJobId_cancelledJobIsIdle() {
+    when(rxPublisherService.getEditionJobId(editionGuid)).thenReturn(55L);
+    IPSPublisherJobStatus status = mock(IPSPublisherJobStatus.class);
+    when(rxPublisherService.getPublishingJobStatus(55L)).thenReturn(status);
+    when(status.getState()).thenReturn(IPSPublisherJobStatus.State.CANCELLED);
+    assertEquals(0L, support.runningJobId(editionGuid));
+  }
+
+  @Test
+  void runningJobId_unknownJobIsIdle() {
+    when(rxPublisherService.getEditionJobId(editionGuid)).thenReturn(55L);
+    when(rxPublisherService.getPublishingJobStatus(55L))
+        .thenThrow(new IllegalStateException("The publishing job 55 is unknown"));
+    assertEquals(0L, support.runningJobId(editionGuid));
+  }
+
+  @Test
+  void runningJobId_statusLookupFailureStaysInUse() {
+    when(rxPublisherService.getEditionJobId(editionGuid)).thenReturn(55L);
+    when(rxPublisherService.getPublishingJobStatus(55L))
+        .thenThrow(new RuntimeException("status unavailable"));
+    assertEquals(55L, support.runningJobId(editionGuid));
+  }
+
+  @Test
+  void runningJobId_idleIsZero() {
+    when(rxPublisherService.getEditionJobId(editionGuid)).thenReturn(0L);
+    assertEquals(0L, support.runningJobId(editionGuid));
+  }
+
+  @Test
+  void runningJobId_nullGuidIsIdle() {
+    assertEquals(0L, support.runningJobId(null));
+  }
+
+  @Test
   void listRuntimeEditions_includesJobId() {
     when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.SITE))).thenReturn(siteGuid);
     IPSEdition edition = mock(IPSEdition.class);
