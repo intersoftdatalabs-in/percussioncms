@@ -19,6 +19,7 @@ package com.percussion.share.dao;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderProperties;
+import com.percussion.pathmanagement.data.PSFolderWorkflowCatalog;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.pathmanagement.service.IPSPathService;
 import com.percussion.security.SecureStringUtils;
@@ -577,6 +578,17 @@ public interface IPSFolderHelper {
    * @throws PSErrorException If cannot be found the folder with the given path.
    */
   PSFolderProperties findFolderProperties(String id) throws PSErrorException, PSValidationException;
+
+  /**
+   * Workflows that may be stored on a folder ({@code sys_workflowid}). Never {@code null}. An empty
+   * choice list means none are assignable (#5104).
+   */
+  PSFolderWorkflowCatalog listFolderWorkflowCatalog();
+
+  /**
+   * True when {@code workflowId} is a positive id in {@link #listFolderWorkflowCatalog()}.
+   */
+  boolean isAssignableFolderWorkflow(int workflowId);
 
   /**
    * Saves the specified folder properties.

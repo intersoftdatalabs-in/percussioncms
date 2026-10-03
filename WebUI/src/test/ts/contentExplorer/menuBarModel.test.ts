@@ -124,6 +124,15 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     expect(copyPath?.labelKey).toBe(EXPLORER_MSG.COPY_FOLDER_PATH);
   });
 
+  it("puts Set folder workflow under Content (#5104)", () => {
+    const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
+    const setFolder = content?.items.find((i) => i.id === "content-set-folder-workflow");
+    expect(setFolder?.testId).toBe("explorer-set-folder-workflow");
+    expect(setFolder?.disabledWhen).toBeUndefined();
+    expect(setFolder?.labelKey).toBe(EXPLORER_MSG.SET_FOLDER_WORKFLOW);
+    expect(setFolder?.ariaLabelKey).toBe(EXPLORER_MSG.SET_FOLDER_WORKFLOW_ARIA);
+  });
+
   it("puts Set community under Content (#5077)", () => {
     const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
     const setCommunity = content?.items.find((i) => i.id === "content-set-community");

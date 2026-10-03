@@ -46,6 +46,7 @@ import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderPermission.Access;
 import com.percussion.pathmanagement.data.PSFolderProperties;
+import com.percussion.pathmanagement.data.PSFolderWorkflowCatalog;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.pathmanagement.service.IPSPathService.PSPathNotFoundServiceException;
 import com.percussion.pathmanagement.service.IPSPathService.PSReservedNameServiceException;
@@ -530,6 +531,22 @@ public class PSFolderHelper implements IPSFolderHelper {
     props.setAllowedSites(allowedSitesFolderPropertyValue);
 
     return props;
+  }
+
+  @Override
+  public PSFolderWorkflowCatalog listFolderWorkflowCatalog() {
+    if (workflowService == null) {
+      return FolderWorkflowCatalogRules.fromSummaries(null);
+    }
+    return FolderWorkflowCatalogRules.fromSummaries(workflowService.findWorkflowSummariesByName(""));
+  }
+
+  @Override
+  public boolean isAssignableFolderWorkflow(int workflowId) {
+    if (workflowId <= 0) {
+      return false;
+    }
+    return FolderWorkflowCatalogRules.contains(listFolderWorkflowCatalog(), workflowId);
   }
 
   @Override

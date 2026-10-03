@@ -831,6 +831,43 @@ export const EXPLORER_MSG = {
   SET_WORKFLOW_HTTP_409:
     "perc.ui.explorer@This item could not change workflow (HTTP 409)",
   SET_WORKFLOW_FAILED: "perc.ui.explorer@Could not set the workflow",
+  SET_FOLDER_WORKFLOW: "perc.ui.explorer@Set folder workflow",
+  SET_FOLDER_WORKFLOW_ARIA:
+    "perc.ui.explorer@Set the workflow on the selected folder",
+  SET_FOLDER_WORKFLOW_TITLE: "perc.ui.explorer@Set folder workflow",
+  SET_FOLDER_WORKFLOW_LABEL: "perc.ui.explorer@Folder workflow",
+  SET_FOLDER_WORKFLOW_CURRENT: "perc.ui.explorer@current",
+  SET_FOLDER_WORKFLOW_SAVE: "perc.ui.explorer@Save folder workflow",
+  SET_FOLDER_WORKFLOW_CANCEL: "perc.ui.explorer@Cancel",
+  SET_FOLDER_WORKFLOW_SAVED: "perc.ui.explorer@Folder workflow saved",
+  SET_FOLDER_WORKFLOW_EMPTY:
+    "perc.ui.explorer@Select a folder before setting its workflow",
+  SET_FOLDER_WORKFLOW_PAGE:
+    "perc.ui.explorer@Pages are not given a folder workflow",
+  SET_FOLDER_WORKFLOW_ASSET:
+    "perc.ui.explorer@Assets are not given a folder workflow",
+  SET_FOLDER_WORKFLOW_NOT_FOLDER:
+    "perc.ui.explorer@Only a folder can have its folder workflow set",
+  SET_FOLDER_WORKFLOW_MULTI:
+    "perc.ui.explorer@Set folder workflow applies to one selected folder",
+  SET_FOLDER_WORKFLOW_NO_ID:
+    "perc.ui.explorer@No folder id is available to set a workflow",
+  SET_FOLDER_WORKFLOW_NONE:
+    "perc.ui.explorer@No workflows are available to assign to this folder",
+  SET_FOLDER_WORKFLOW_UNCHANGED:
+    "perc.ui.explorer@Choose a different workflow. The current folder workflow is not saved again",
+  SET_FOLDER_WORKFLOW_FORBIDDEN:
+    "perc.ui.explorer@That workflow is not in the folder workflow catalog",
+  SET_FOLDER_WORKFLOW_BLANK: "perc.ui.explorer@Choose a workflow before saving",
+  SET_FOLDER_WORKFLOW_HTTP_400:
+    "perc.ui.explorer@Could not set the folder workflow (HTTP 400)",
+  SET_FOLDER_WORKFLOW_HTTP_403:
+    "perc.ui.explorer@You are not allowed to set this folder workflow (HTTP 403)",
+  SET_FOLDER_WORKFLOW_HTTP_409:
+    "perc.ui.explorer@This folder workflow could not be saved (HTTP 409)",
+  SET_FOLDER_WORKFLOW_FAILED: "perc.ui.explorer@Could not set the folder workflow",
+  SET_FOLDER_WORKFLOW_MISMATCH:
+    "perc.ui.explorer@The folder workflow did not change after refresh",
   SET_COMMUNITY: "perc.ui.explorer@Set community",
   SET_COMMUNITY_ARIA:
     "perc.ui.explorer@Set the community on the selected page or asset",

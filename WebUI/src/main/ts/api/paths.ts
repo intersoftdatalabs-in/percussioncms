@@ -480,6 +480,10 @@ export const PATHS = {
   get PATH_SAVE_FOLDER_PROPERTIES() {
     return `${SERVICES_ROOT}/pathmanagement/path/saveFolderProperties`;
   },
+  /** Workflow id catalog for Explorer folder assignment (#5104). */
+  get PATH_FOLDER_WORKFLOW_CATALOG() {
+    return `${SERVICES_ROOT}/pathmanagement/path/folderWorkflowCatalog`;
+  },
   get PATH_VALIDATE() {
     return `${SERVICES_ROOT}/pathmanagement/path/validate`;
   },

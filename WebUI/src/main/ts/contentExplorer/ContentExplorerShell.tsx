@@ -144,6 +144,14 @@ import {
   type SetWorkflowCatalog,
 } from "./setItemWorkflow";
 import type { ItemWorkflowChoice } from "../api/contentExplorer/itemWorkflowApi";
+import { SetFolderWorkflowDialog } from "./SetFolderWorkflowDialog";
+import {
+  loadSetFolderWorkflowCatalog,
+  saveSetFolderWorkflow,
+  type SetFolderWorkflowCatalog,
+} from "./setFolderWorkflow";
+import type { FolderWorkflowChoice } from "../api/contentExplorer/folderWorkflowApi";
+import type { PSFolderProperties } from "../api/contentExplorer/types";
 import { SetCommunityDialog } from "./SetCommunityDialog";
 import {
   loadSetCommunityCatalog,
@@ -670,6 +678,21 @@ function ContentExplorerShellInner({
     itemId: string;
     currentId: string;
     choices: ItemWorkflowChoice[];
+    busy: boolean;
+    error: string;
+  } | null>(null);
+  const [setFolderWorkflowNotice, setSetFolderWorkflowNotice] = useState<{
+    kind: "success" | "error";
+    reason: string;
+    workflowId: string;
+    workflowName: string;
+    text: string;
+  } | null>(null);
+  const [setFolderWorkflowDialog, setSetFolderWorkflowDialog] = useState<{
+    folderId: string;
+    currentId: string;
+    choices: FolderWorkflowChoice[];
+    props: PSFolderProperties;
     busy: boolean;
     error: string;
   } | null>(null);
@@ -1995,6 +2018,72 @@ function ContentExplorerShellInner({
           })();
           break;
         }
+        case "content-set-folder-workflow": {
+          const current = selectionRef.current;
+          const selectedCount = multiSelectedItemsRef.current.size;
+          void (async () => {
+            setSetFolderWorkflowNotice(null);
+            setSetFolderWorkflowDialog(null);
+            const catalog: SetFolderWorkflowCatalog = await loadSetFolderWorkflowCatalog({
+              item: current.item,
+              selectedCount,
+            });
+            if (catalog.status === "blocked") {
+              const key =
+                catalog.reason === "page"
+                  ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_PAGE
+                  : catalog.reason === "asset"
+                    ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_ASSET
+                    : catalog.reason === "not-folder"
+                      ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_NOT_FOLDER
+                      : catalog.reason === "multi"
+                        ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_MULTI
+                        : catalog.reason === "no-id"
+                          ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_NO_ID
+                          : EXPLORER_MSG.SET_FOLDER_WORKFLOW_EMPTY;
+              const text = catalog.name
+                ? `${message(key)}: ${catalog.name}`
+                : message(key);
+              setSetFolderWorkflowNotice({
+                kind: "error",
+                reason: catalog.reason,
+                workflowId: "",
+                workflowName: "",
+                text,
+              });
+              return;
+            }
+            if (catalog.status === "none" || catalog.status === "http") {
+              const httpKey =
+                catalog.status === "http" && catalog.http === 400
+                  ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_400
+                  : catalog.status === "http" && catalog.http === 403
+                    ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_403
+                    : catalog.status === "http" && catalog.http === 409
+                      ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_409
+                      : catalog.status === "http"
+                        ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_FAILED
+                        : EXPLORER_MSG.SET_FOLDER_WORKFLOW_NONE;
+              setSetFolderWorkflowNotice({
+                kind: "error",
+                reason: catalog.status === "http" ? `http-${catalog.http}` : "none",
+                workflowId: "",
+                workflowName: "",
+                text: message(httpKey),
+              });
+              return;
+            }
+            setSetFolderWorkflowDialog({
+              folderId: catalog.folderId,
+              currentId: catalog.currentId,
+              choices: catalog.choices,
+              props: catalog.props,
+              busy: false,
+              error: "",
+            });
+          })();
+          break;
+        }
         case "content-set-community": {
           const current = selectionRef.current;
           const selectedCount = multiSelectedItemsRef.current.size;
@@ -2331,6 +2420,19 @@ function ContentExplorerShellInner({
               aria-live="polite"
             >
               {setWorkflowNotice.text}
+            </div>
+          ) : null}
+          {setFolderWorkflowNotice ? (
+            <div
+              data-testid="explorer-set-folder-workflow-status"
+              data-kind={setFolderWorkflowNotice.kind}
+              data-reason={setFolderWorkflowNotice.reason}
+              data-workflow-id={setFolderWorkflowNotice.workflowId}
+              data-workflow-name={setFolderWorkflowNotice.workflowName}
+              role="status"
+              aria-live="polite"
+            >
+              {setFolderWorkflowNotice.text}
             </div>
           ) : null}
           {setCommunityNotice ? (
@@ -3337,6 +3439,68 @@ function ContentExplorerShellInner({
                             ? EXPLORER_MSG.SET_WORKFLOW_HTTP_409
                             : EXPLORER_MSG.SET_WORKFLOW_FAILED;
               setSetWorkflowDialog({
+                ...dialog,
+                busy: false,
+                error: message(key),
+              });
+            })();
+          }}
+        />
+      ) : null}
+      {setFolderWorkflowDialog ? (
+        <SetFolderWorkflowDialog
+          choices={setFolderWorkflowDialog.choices}
+          currentId={setFolderWorkflowDialog.currentId}
+          busy={setFolderWorkflowDialog.busy}
+          error={setFolderWorkflowDialog.error}
+          onCancel={() => {
+            if (!setFolderWorkflowDialog.busy) {
+              setSetFolderWorkflowDialog(null);
+            }
+          }}
+          onSave={(workflowId) => {
+            const dialog = setFolderWorkflowDialog;
+            void (async () => {
+              setSetFolderWorkflowDialog({ ...dialog, busy: true, error: "" });
+              const saved = await saveSetFolderWorkflow({
+                folderId: dialog.folderId,
+                props: dialog.props,
+                selectedId: workflowId,
+                currentId: dialog.currentId,
+                allowedIds: dialog.choices.map((row) => row.id),
+              });
+              if (saved.status === "saved") {
+                const name =
+                  dialog.choices.find((row) => row.id === saved.workflowId)?.name ??
+                  saved.workflowId;
+                setSetFolderWorkflowDialog(null);
+                setSetFolderWorkflowNotice({
+                  kind: "success",
+                  reason: "",
+                  workflowId: saved.workflowId,
+                  workflowName: name,
+                  text: `${message(EXPLORER_MSG.SET_FOLDER_WORKFLOW_SAVED)} ${name}`,
+                });
+                setListEpoch((n) => n + 1);
+                return;
+              }
+              const key =
+                saved.status === "gate" && saved.reason === "unchanged"
+                  ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_UNCHANGED
+                  : saved.status === "gate" && saved.reason === "forbidden"
+                    ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_FORBIDDEN
+                    : saved.status === "gate" && saved.reason === "blank"
+                      ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_BLANK
+                      : saved.status === "mismatch"
+                        ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_MISMATCH
+                        : saved.status === "http" && saved.http === 400
+                          ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_400
+                          : saved.status === "http" && saved.http === 403
+                            ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_403
+                            : saved.status === "http" && saved.http === 409
+                              ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_409
+                              : EXPLORER_MSG.SET_FOLDER_WORKFLOW_FAILED;
+              setSetFolderWorkflowDialog({
                 ...dialog,
                 busy: false,
                 error: message(key),
