@@ -38,6 +38,25 @@ describe("DateFieldWidget", () => {
     expect(onChange).toHaveBeenCalledWith("2026-09-18");
   });
 
+  it("emits CMS datetime text with the time when datetime-local changes", () => {
+    const onChange = vi.fn();
+    render(
+      <DateFieldWidget
+        name="event_at"
+        value="2026-01-01 09:00:00"
+        kind="datetime"
+        readOnly={false}
+        onChange={onChange}
+      />,
+    );
+    const input = screen.getByTestId("editor-field-event_at") as HTMLInputElement;
+    expect(input.getAttribute("data-editor-kind")).toBe("datetime");
+    expect(input.type).toBe("datetime-local");
+    expect(input.value).toBe("2026-01-01T09:00");
+    fireEvent.change(input, { target: { value: "2026-09-18T14:30" } });
+    expect(onChange).toHaveBeenCalledWith("2026-09-18 14:30:00");
+  });
+
   it("clears a date and a datetime and hides Clear date when empty or read-only", () => {
     const onChange = vi.fn();
     const view = render(
