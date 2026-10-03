@@ -72,6 +72,26 @@ async function stubEditorApis(page, { binaryStatus } = {}) {
   await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
+  await page.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ItemStateTransition: { transitionTriggers: [] },
+      }),
+    }),
+  );
+  await page.route(
+    "**/services/itemmanagement/workflow/allowedWorkflows/**",
+    (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ItemWorkflowChoices: { choices: [] },
+        }),
+      }),
+  );
   await page.route("**/rest/editor/items/**/checkout", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
