@@ -3862,6 +3862,179 @@ describe("EditorHost page link fields", () => {
   });
 });
 
+describe("EditorHost clear optional link (#5072)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function linkHost(opts: {
+    saveFields: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    page?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [
+            { name: "sys_title", value: "Home" },
+            { name: "page", value: opts.page ?? "594" },
+          ],
+        })}
+        saveFields={opts.saveFields}
+        loadType={async () => ({
+          fields: [
+            { name: "sys_title", label: "Title", control: "sys_EditBox" },
+            {
+              name: "page",
+              label: "Page link",
+              control: "sys_PageLink",
+              dataType: "text",
+              required: opts.required === true,
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  it("saves a cleared optional link and shows it empty after reload", async () => {
+    let page = "594";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      page = body.fields.find((f) => f.name === "page")?.value ?? page;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={linkHost({ saveFields, page })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-link-clear-page")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-link-clear-page"));
+    expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe("");
+    expect(screen.queryByTestId("editor-link-clear-page")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "page")).toMatchObject({
+      value: "",
+      dataType: "link",
+    });
+    expect(screen.queryByTestId("editor-link-clear-page")).toBeNull();
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={linkHost({ saveFields, page })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe("");
+    });
+    expect(screen.queryByTestId("editor-link-clear-page")).toBeNull();
+  });
+
+  it("does not save when Close cancels an unsaved link clear", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={linkHost({ saveFields, confirmLeaveUnsaved: () => false })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-link-clear-page")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-link-clear-page"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe("");
+  });
+
+  it("does not claim success when a required link is cleared", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={linkHost({ saveFields, required: true })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-link-clear-page")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-link-clear-page"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-page").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not claim success for HTTP 400, 403, or 409 on a link clear", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={linkHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-link-clear-page")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-link-clear-page"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-page").textContent).toMatch(/could not be saved/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-page").textContent).toMatch(/not allowed/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/newer revision/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(3);
+  });
+});
+
 describe("EditorHost workflow transitions (#4539)", () => {
   afterEach(() => {
     cleanup();

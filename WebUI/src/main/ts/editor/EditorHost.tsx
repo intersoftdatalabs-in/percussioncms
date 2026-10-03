@@ -534,6 +534,7 @@ function EditorFieldControl({
     );
   }
   if (row.kind === "link") {
+    const showClear = !locked && row.value.length > 0;
     return (
       <div className={styles.linkRow}>
         <input
@@ -547,16 +548,17 @@ function EditorFieldControl({
           aria-required={row.required ? true : undefined}
           onChange={(e) => onChange(row.name, e.target.value)}
         />
-        {locked ? null : (
+        {showClear ? (
           <button
             type="button"
             className={styles.button}
             data-testid={`editor-link-clear-${row.name}`}
+            aria-label={message(EDITOR_MSG.LINK_CLEAR)}
             onClick={() => onChange(row.name, "")}
           >
             {message(EDITOR_MSG.LINK_CLEAR)}
           </button>
-        )}
+        ) : null}
       </div>
     );
   }
