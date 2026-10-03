@@ -170,8 +170,11 @@ test.describe("PublishingShell Design remove content list from edition", () => {
       timeout: 20000,
     });
     await expect(page.getByRole("alert")).toHaveCount(0);
-    await page.getByRole("tab", { name: /Content lists/i }).click();
-    await expect(page.getByRole("button", { name: listName })).toBeVisible();
+    // The open editor replaces the Design tabs. The list definition stays
+    // available to associate again, which is not a deleted content list.
+    await expect(page.getByTestId("edition-assoc-content-list")).toContainText(
+      listName,
+    );
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
   });
 
