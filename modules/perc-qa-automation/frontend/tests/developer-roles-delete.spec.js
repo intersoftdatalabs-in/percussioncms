@@ -189,8 +189,11 @@ test.describe("Developer delete a role (#5103)", () => {
     const roleName = `Nd${Date.now()}`;
     await createRole(page, roleName);
 
+    let deleteRouted = false;
     for (const status of [400, 403, 409]) {
-      await page.unroute("**/services/roles/**").catch(() => {});
+      if (deleteRouted) {
+        await page.unroute("**/services/roles/**");
+      }
       await page.route("**/services/roles/**", async (route) => {
         const request = route.request();
         if (isRoleDelete(request)) {
@@ -210,6 +213,7 @@ test.describe("Developer delete a role (#5103)", () => {
       );
       await expect(page.locator(`[data-role-name="${roleName}"]`).first()).toBeVisible();
       await expect(page.locator('[data-testid="developer-roles-delete-notice"]')).toHaveCount(0);
+      deleteRouted = true;
     }
     assertClean(consoleErrors, pageErrors, { allowHttpStatus: true });
   });
