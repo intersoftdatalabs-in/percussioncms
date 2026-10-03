@@ -14,7 +14,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 9 analyzed
+- Files: 10 analyzed
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 
