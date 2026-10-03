@@ -66,8 +66,9 @@ class PSFolderPropertiesJacksonTest {
   void readsNumericCommunityIdFromWrappedSaveBody() {
     ObjectMapper mapper = new JacksonContextResolver().getContext(PSFolderProperties.class);
     String json =
-        "{\"FolderProperties\":{\"id\":\"16777215-101-703\",\"name\":\"CI\","
-            + "\"communityId\":12,\"permission\":{\"accessLevel\":\"ADMIN\"}}}";
+        """
+        {"FolderProperties":{"id":"16777215-101-703","name":"CI","communityId":12,"permission":{"accessLevel":"ADMIN"}}}
+        """;
     PSFolderProperties props = mapper.readValue(json, PSFolderProperties.class);
     assertEquals(12, props.getCommunityId());
     assertEquals("16777215-101-703", props.getId());
