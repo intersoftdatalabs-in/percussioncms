@@ -54,7 +54,14 @@ public interface IRoleAdaptor {
    */
   boolean roleExists(URI baseUri, String roleName);
 
-  /** Deletes a role by name. */
+  /**
+   * Deletes one CMS role. A directory-backed group loses only the CMS link.
+   *
+   * @throws jakarta.ws.rs.WebApplicationException 400 when the name is blank or the role is a
+   *     system role ({@code System} or {@code Default}); 403 when the caller is not Admin; 404
+   *     when no role has that exact name; 409 when delete would strand users or a workflow still
+   *     assigns the role
+   */
   void deleteRole(URI baseUri, String roleName) throws BackendException;
 
   /** Finds roles by pattern. */

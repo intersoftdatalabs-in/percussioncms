@@ -76,6 +76,8 @@ public class RoleAdaptor implements IRoleAdaptor {
 
   static final String ADMIN_REQUIRED_UPDATE = "Admin role required to update a role description";
 
+  static final String ADMIN_REQUIRED_DELETE = "Admin role required to delete a role";
+
   static final int DESCRIPTION_MAX_LENGTH = 255;
 
   static final String DESCRIPTION_TOO_LONG =
@@ -251,14 +253,67 @@ public class RoleAdaptor implements IRoleAdaptor {
     return false;
   }
 
+  /**
+   * Admin delete of one CMS role. System roles ({@code System}, {@code Default}) are 400.
+   * A role that would strand users or that a workflow still assigns is 409 and is not deleted.
+   * Directory groups lose only the CMS link — {@link PSRoleService#delete} does not remove the
+   * remote directory group.
+   */
   @Override
   public void deleteRole(URI baseURI, String roleName) throws BackendException {
-    try {
-      var wrap = new PSStringWrapper(roleName);
-      roleService.delete(wrap);
-    } catch (PSDataServiceException e) {
-      throw new BackendException(e);
+    requireAdmin(ADMIN_REQUIRED_DELETE);
+    if (StringUtils.isBlank(roleName)) {
+      throw new WebApplicationException("Role name is required", 400);
     }
+    var name = roleName.trim();
+    if (isSystemRoleName(name)) {
+      throw new WebApplicationException("Cannot delete system role", 400);
+    }
+    if (!roleExists(baseURI, name)) {
+      throw new WebApplicationException("Role not found", 404);
+    }
+    try {
+      var existing = roleService.find(new PSStringWrapper(name));
+      if (existing == null || StringUtils.isBlank(existing.getName())) {
+        throw new WebApplicationException("Role not found", 404);
+      }
+      roleService.validateForDelete(existing);
+      roleService.delete(new PSStringWrapper(existing.getName()));
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(validationMessage(e), deleteFailureStatus(e));
+    } catch (PSDataServiceException e) {
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /** {@link PSRoleService#SYSTEM_ROLES} ({@code System} and {@code Default}), case-insensitive. */
+  static boolean isSystemRoleName(String name) {
+    if (StringUtils.isBlank(name)) {
+      return false;
+    }
+    for (String system : PSRoleService.SYSTEM_ROLES) {
+      if (system != null && system.equalsIgnoreCase(name.trim())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Map role-service validation from delete. Missing roles are 404. Restricted system names are
+   * 400. In-use workflows and users who would be unable to log in are 409.
+   */
+  static int deleteFailureStatus(PSValidationException e) {
+    var message = validationMessage(e).toLowerCase(Locale.ROOT);
+    if (message.contains("not found")) {
+      return 404;
+    }
+    if (message.contains("cannot delete system role") || message.contains("system use")) {
+      return 400;
+    }
+    return 409;
   }
 
   @Override

@@ -20,13 +20,16 @@ import { isApiError } from "../api/client";
 import {
   browseRoles,
   createRole,
+  deleteRole,
   isRoleCreateReady,
+  isSystemRoleName,
   ROLE_BROWSE_GROUPS,
   rolesInBrowseGroup,
   updateRoleDescription,
   type RoleBrowseEntry,
   type RoleBrowseGroupKey,
 } from "../api/developer/rolesApi";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
 import { catalogColors, errorAlert, monoCell, mutedCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
@@ -115,18 +118,37 @@ function editFailureMessage(err: unknown): string {
   return panelErrMsg(err, DEV_MSG.ROLES_EDIT_ERROR);
 }
 
+function deleteFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.ROLES_DELETE_FORBIDDEN);
+    }
+    if (err.status === 409) {
+      return panelErrMsg(err, DEV_MSG.ROLES_DELETE_CONFLICT);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.ROLES_DELETE_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.ROLES_DELETE_ERROR);
+}
+
 function RoleGroupSection({
   group,
   roles,
   expanded,
   onToggle,
   onOpenRole,
+  onDeleteRole,
+  deleteBusy,
 }: {
   group: RoleBrowseGroupKey;
   roles: RoleBrowseEntry[];
   expanded: boolean;
   onToggle: () => void;
   onOpenRole: (role: RoleBrowseEntry) => void;
+  onDeleteRole: (role: RoleBrowseEntry) => void;
+  deleteBusy: boolean;
 }): React.ReactElement {
   const label = groupLabel(group);
   return (
@@ -161,6 +183,7 @@ function RoleGroupSection({
                 DEV_MSG.ROLES_COL_DESCRIPTION,
                 DEV_MSG.ROLES_COL_COMMUNITIES,
                 DEV_MSG.ROLES_COL_WORKFLOWS,
+                DEV_MSG.ROLES_COL_ACTIONS,
               ]}
               rows={roles.map((r, index) => ({
                 key: r.name || `role-${group}-${index}`,
@@ -183,6 +206,38 @@ function RoleGroupSection({
                   <span key="w" style={mutedCell}>
                     {joinNames(r.workflows)}
                   </span>,
+                  <button
+                    key="del"
+                    type="button"
+                    data-testid="developer-roles-delete"
+                    data-role-name={r.name}
+                    aria-label={`${DEV_MSG.ROLES_DELETE} ${r.name}`}
+                    title={
+                      isSystemRoleName(r.name) ? DEV_MSG.ROLES_DELETE_SYSTEM : undefined
+                    }
+                    disabled={deleteBusy || isSystemRoleName(r.name)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onDeleteRole(r);
+                    }}
+                    onKeyDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                    style={{
+                      padding: "4px 10px",
+                      background: isSystemRoleName(r.name)
+                        ? catalogColors.disabled
+                        : catalogColors.error,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor:
+                        deleteBusy || isSystemRoleName(r.name) ? "not-allowed" : "pointer",
+                      font: "inherit",
+                    }}
+                  >
+                    {DEV_MSG.ROLES_DELETE}
+                  </button>,
                 ],
               }))}
             />
@@ -195,9 +250,10 @@ function RoleGroupSection({
 
 /**
  * SE-03 Roles catalog grouped by community / workflow / unassigned.
- * Admins create one role (name + description) via PUT ?create=true, and edit
- * one existing role's description via PUT ?update=true. The catalog reloads
- * only after create or description save succeeds. Membership edits stay out of scope.
+ * Admins create one role (name + description) via PUT ?create=true, edit
+ * one existing role's description via PUT ?update=true, and delete one
+ * non-system role via DELETE after confirm. The catalog drops a row only
+ * after delete succeeds. Membership edits stay out of scope.
  */
 export function RolesPanel(): React.ReactElement {
   const [catalog, setCatalog] = useState<RoleBrowseEntry[] | null>(null);
@@ -218,9 +274,14 @@ export function RolesPanel(): React.ReactElement {
   const [editError, setEditError] = useState<string | null>(null);
   const [editNotice, setEditNotice] = useState<string | null>(null);
   const [editBusy, setEditBusy] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
   const mountedRef = useRef(true);
   const createInflight = useRef(false);
   const editInflight = useRef(false);
+  const deleteInflight = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -275,8 +336,53 @@ export function RolesPanel(): React.ReactElement {
     });
   }
 
+  function openDelete(role: RoleBrowseEntry) {
+    if (createBusy || editBusy || deleteBusy || !role.name) return;
+    if (isSystemRoleName(role.name)) return;
+    setDeleteError(null);
+    setDeleteNotice(null);
+    setPendingDelete(role.name);
+  }
+
+  function cancelDelete() {
+    if (deleteBusy) return;
+    setPendingDelete(null);
+  }
+
+  async function handleDelete(): Promise<void> {
+    if (!pendingDelete || deleteInflight.current || isSystemRoleName(pendingDelete)) {
+      return;
+    }
+    const name = pendingDelete.trim();
+    deleteInflight.current = true;
+    setDeleteBusy(true);
+    setDeleteError(null);
+    setDeleteNotice(null);
+    try {
+      await deleteRole(name);
+      if (!mountedRef.current) return;
+      setPendingDelete(null);
+      if (editName === name) {
+        setEditName(null);
+        setEditDescription("");
+        setEditError(null);
+      }
+      setDeleteNotice(DEV_MSG.ROLES_DELETED);
+      await reload();
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setPendingDelete(null);
+      setDeleteError(deleteFailureMessage(err));
+    } finally {
+      deleteInflight.current = false;
+      if (mountedRef.current) {
+        setDeleteBusy(false);
+      }
+    }
+  }
+
   function openCreate() {
-    if (editBusy) return;
+    if (editBusy || deleteBusy) return;
     setEditName(null);
     setEditError(null);
     setEditDescription("");
@@ -297,7 +403,7 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function openEdit(role: RoleBrowseEntry) {
-    if (createBusy || editBusy || !role.name) return;
+    if (createBusy || editBusy || deleteBusy || !role.name) return;
     setCreating(false);
     setCreateError(null);
     setCreateNotice(null);
@@ -410,6 +516,16 @@ export function RolesPanel(): React.ReactElement {
       {editNotice ? (
         <div data-testid="developer-roles-edit-notice" style={{ color: "#276749", marginBottom: "12px" }}>
           {editNotice}
+        </div>
+      ) : null}
+      {deleteNotice ? (
+        <div data-testid="developer-roles-delete-notice" style={{ color: "#276749", marginBottom: "12px" }}>
+          {deleteNotice}
+        </div>
+      ) : null}
+      {deleteError ? (
+        <div role="alert" data-testid="developer-roles-delete-error" style={errorAlert}>
+          {deleteError}
         </div>
       ) : null}
       {editName ? (
@@ -647,10 +763,23 @@ export function RolesPanel(): React.ReactElement {
               expanded={expanded.has(g)}
               onToggle={() => toggleGroup(g)}
               onOpenRole={openEdit}
+              onDeleteRole={openDelete}
+              deleteBusy={deleteBusy}
             />
           ))}
         </div>
       )}
+      <CatalogConfirmDialog
+        open={pendingDelete != null}
+        busy={deleteBusy}
+        message={
+          pendingDelete
+            ? `${DEV_MSG.ROLES_DELETE_CONFIRM} ${pendingDelete}`
+            : ""
+        }
+        onCancel={cancelDelete}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   );
 }

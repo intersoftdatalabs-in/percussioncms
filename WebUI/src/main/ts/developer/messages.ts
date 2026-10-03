@@ -702,7 +702,7 @@ export const DEV_MSG_KEYS = {
   ROLES_EMPTY: "perc.ui.developer@No roles returned.",
   ROLES_ERROR: "perc.ui.developer@Could not load roles catalog.",
   ROLES_HINT:
-    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role and edit one role's description. Membership edits and delete are not done here.",
+    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role, edit one role's description, and delete one non-system role after confirming. Membership edits are not done here. System and Default cannot be deleted.",
   ROLES_EDIT_TITLE: "perc.ui.developer@Edit role description",
   ROLES_EDIT_NAME: "perc.ui.developer@Role name",
   ROLES_EDIT_DESCRIPTION: "perc.ui.developer@Description",
@@ -729,6 +729,18 @@ export const DEV_MSG_KEYS = {
   ROLES_CREATE_ERROR: "perc.ui.developer@Could not create the role.",
   ROLES_CREATE_FORBIDDEN: "perc.ui.developer@You need the Admin role to create a role.",
   ROLES_CREATE_INVALID: "perc.ui.developer@The role was not created.",
+  ROLES_DELETE: "perc.ui.developer@Delete",
+  ROLES_COL_ACTIONS: "perc.ui.developer@Actions",
+  ROLES_DELETE_CONFIRM:
+    "perc.ui.developer@Delete this role? The row stays until the server succeeds. Cancel does not delete.",
+  ROLES_DELETED: "perc.ui.developer@Role deleted.",
+  ROLES_DELETE_ERROR: "perc.ui.developer@Could not delete the role.",
+  ROLES_DELETE_FORBIDDEN: "perc.ui.developer@You need the Admin role to delete a role.",
+  ROLES_DELETE_INVALID: "perc.ui.developer@The role was not deleted.",
+  ROLES_DELETE_CONFLICT:
+    "perc.ui.developer@The role is still in use and was not deleted.",
+  ROLES_DELETE_SYSTEM:
+    "perc.ui.developer@System and Default cannot be deleted.",
   ROLES_FILTER_LABEL: "perc.ui.developer@Role browse groups",
   ROLES_FILTER_ALL: "perc.ui.developer@All groups",
   ROLES_GROUP_COMMUNITY: "perc.ui.developer@Community",

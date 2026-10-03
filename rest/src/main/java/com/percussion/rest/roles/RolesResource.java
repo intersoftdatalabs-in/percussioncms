@@ -92,40 +92,51 @@ public class RolesResource {
   @Operation(
       summary = "Delete a Role",
       description =
-          "Will delete the specified roleName from the system. If the Role is a Directory based"
-              + " Group, the link to the directory is removed but the Group will not be removed"
-              + " from the remote Directory.",
+          "Deletes the CMS role. System roles (System, Default) are 400. Non-Admin is 403."
+              + " A missing role is 404. A role that would strand users or that a workflow still"
+              + " assigns is 409 and is not deleted. If the role is a directory group, only the"
+              + " CMS link is removed; the remote directory group is not deleted.",
       responses = {
         @ApiResponse(
             responseCode = "200",
             description = "OK",
             content = @Content(schema = @Schema(implementation = Status.class))),
+        @ApiResponse(responseCode = "400", description = "Blank name or system role"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Role not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Role is in use or deleting it would strand users"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error message")
       })
   public Status deleteRole(
       @Parameter(description = "The roleName of the Role to delete.", name = "roleName")
           @PathParam("roleName")
           String roleName) {
-    int retCode = 404;
-    String message = "Role not found";
+    if (isBlank(roleName)) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
     try {
       roleName = java.net.URLDecoder.decode(roleName, "UTF-8");
     } catch (UnsupportedEncodingException e) {
-      retCode = 500;
-      message = e.getMessage();
+      throw new WebApplicationException(e.getMessage(), 500);
     }
+    if (isBlank(roleName)) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
+    var base = uriInfo != null ? uriInfo.getBaseUri() : null;
     try {
-      requireAdaptor().deleteRole(uriInfo.getBaseUri(), roleName);
-      retCode = 200;
-      message = "OK";
+      requireAdaptor().deleteRole(base, roleName);
+      return new Status(200, "OK");
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
-      retCode = 500;
-      message = e.getMessage();
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      var message = e.getMessage() != null ? e.getMessage() : "Could not delete role";
+      throw new WebApplicationException(message, 500);
     }
-    return new Status(retCode, message);
   }
 
   /**
