@@ -25,6 +25,7 @@ import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
 import com.percussion.pathmanagement.data.PSFolderCommunityCatalog;
+import com.percussion.pathmanagement.data.PSFolderLocaleCatalog;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderProperties;
 import com.percussion.pathmanagement.data.PSFolderWorkflowCatalog;
@@ -43,6 +44,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.share.dao.IPSFolderHelper;
+import com.percussion.share.dao.impl.FolderLocaleCatalogRules;
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.data.PSItemProperties;
 import com.percussion.share.data.PSItemPropertiesList;
@@ -233,6 +235,18 @@ public class PSPathService extends PSDispatchingPathService
     return catalog == null ? new PSFolderCommunityCatalog() : catalog;
   }
 
+  /**
+   * Locale code and name catalog for Explorer folder assignment (#5106). Not an item translation
+   * variant list and not a free-text Folder Security locale.
+   */
+  @GET
+  @Path("/folderLocaleCatalog")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSFolderLocaleCatalog folderLocaleCatalog() {
+    PSFolderLocaleCatalog catalog = folderHelper.listFolderLocaleCatalog();
+    return catalog == null ? new PSFolderLocaleCatalog() : catalog;
+  }
+
   @POST
   @Path("/saveFolderProperties")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -248,8 +262,9 @@ public class PSPathService extends PSDispatchingPathService
           .throwIfInvalid();
     }
 
+    PSFolderProperties existing;
     try {
-      folderHelper.findFolderProperties(props.getId());
+      existing = folderHelper.findFolderProperties(props.getId());
     } catch (PSValidationException e) {
       if (isMissingFolderValidation(e)) {
         throw new WebApplicationException("Folder not found", Response.Status.NOT_FOUND);
@@ -282,6 +297,17 @@ public class PSPathService extends PSDispatchingPathService
         && !folderHelper.isAssignableFolderCommunity(props.getCommunityId())) {
       throw new WebApplicationException(
           "Community is not in the folder community catalog", Response.Status.BAD_REQUEST);
+    }
+
+    // A blank locale leaves the stored locale alone. A different non-blank code that is not in
+    // the folder locale catalog must not be written (#5106). Unchanged codes (including case)
+    // stay valid for workflow and community saves that resend the current locale.
+    if (StringUtils.isNotBlank(props.getLocale())
+        && !FolderLocaleCatalogRules.sameCode(
+            existing == null ? null : existing.getLocale(), props.getLocale())
+        && !folderHelper.isAssignableFolderLocale(props.getLocale())) {
+      throw new WebApplicationException(
+          "Locale is not in the folder locale catalog", Response.Status.BAD_REQUEST);
     }
 
     List<IPSSite> sites = publishingWs.getItemSites(idMapper.getGuid(props.getId()));

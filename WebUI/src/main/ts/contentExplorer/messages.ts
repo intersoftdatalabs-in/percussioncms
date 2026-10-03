@@ -905,6 +905,43 @@ export const EXPLORER_MSG = {
   SET_FOLDER_COMMUNITY_FAILED: "perc.ui.explorer@Could not set the folder community",
   SET_FOLDER_COMMUNITY_MISMATCH:
     "perc.ui.explorer@The folder community did not change after refresh",
+  SET_FOLDER_LOCALE: "perc.ui.explorer@Set folder locale",
+  SET_FOLDER_LOCALE_ARIA:
+    "perc.ui.explorer@Set the locale on the selected folder",
+  SET_FOLDER_LOCALE_TITLE: "perc.ui.explorer@Set folder locale",
+  SET_FOLDER_LOCALE_LABEL: "perc.ui.explorer@Folder locale",
+  SET_FOLDER_LOCALE_CURRENT: "perc.ui.explorer@current",
+  SET_FOLDER_LOCALE_SAVE: "perc.ui.explorer@Save folder locale",
+  SET_FOLDER_LOCALE_CANCEL: "perc.ui.explorer@Cancel",
+  SET_FOLDER_LOCALE_SAVED: "perc.ui.explorer@Folder locale saved",
+  SET_FOLDER_LOCALE_EMPTY:
+    "perc.ui.explorer@Select a folder before setting its locale",
+  SET_FOLDER_LOCALE_PAGE:
+    "perc.ui.explorer@Pages are not given a folder locale",
+  SET_FOLDER_LOCALE_ASSET:
+    "perc.ui.explorer@Assets are not given a folder locale",
+  SET_FOLDER_LOCALE_NOT_FOLDER:
+    "perc.ui.explorer@Only a folder can have its folder locale set",
+  SET_FOLDER_LOCALE_MULTI:
+    "perc.ui.explorer@Set folder locale applies to one selected folder",
+  SET_FOLDER_LOCALE_NO_ID:
+    "perc.ui.explorer@No folder id is available to set a locale",
+  SET_FOLDER_LOCALE_NONE:
+    "perc.ui.explorer@No locales are available to assign to this folder",
+  SET_FOLDER_LOCALE_UNCHANGED:
+    "perc.ui.explorer@Choose a different locale. The current folder locale is not saved again",
+  SET_FOLDER_LOCALE_FORBIDDEN:
+    "perc.ui.explorer@That locale is not in the folder locale catalog",
+  SET_FOLDER_LOCALE_BLANK: "perc.ui.explorer@Choose a locale before saving",
+  SET_FOLDER_LOCALE_HTTP_400:
+    "perc.ui.explorer@Could not set the folder locale (HTTP 400)",
+  SET_FOLDER_LOCALE_HTTP_403:
+    "perc.ui.explorer@You are not allowed to set this folder locale (HTTP 403)",
+  SET_FOLDER_LOCALE_HTTP_409:
+    "perc.ui.explorer@This folder locale could not be saved (HTTP 409)",
+  SET_FOLDER_LOCALE_FAILED: "perc.ui.explorer@Could not set the folder locale",
+  SET_FOLDER_LOCALE_MISMATCH:
+    "perc.ui.explorer@The folder locale did not change after refresh",
   SET_COMMUNITY: "perc.ui.explorer@Set community",
   SET_COMMUNITY_ARIA:
     "perc.ui.explorer@Set the community on the selected page or asset",

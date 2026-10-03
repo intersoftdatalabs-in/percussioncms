@@ -158,6 +158,13 @@ import {
   type SetFolderCommunityCatalog,
 } from "./setFolderCommunity";
 import type { FolderCommunityChoice } from "../api/contentExplorer/folderCommunityApi";
+import { SetFolderLocaleDialog } from "./SetFolderLocaleDialog";
+import {
+  loadSetFolderLocaleCatalog,
+  saveSetFolderLocale,
+  type SetFolderLocaleCatalog,
+} from "./setFolderLocale";
+import type { FolderLocaleChoice } from "../api/contentExplorer/folderLocaleApi";
 import type { PSFolderProperties } from "../api/contentExplorer/types";
 import { SetCommunityDialog } from "./SetCommunityDialog";
 import {
@@ -714,6 +721,21 @@ function ContentExplorerShellInner({
     folderId: string;
     currentId: string;
     choices: FolderCommunityChoice[];
+    props: PSFolderProperties;
+    busy: boolean;
+    error: string;
+  } | null>(null);
+  const [setFolderLocaleNotice, setSetFolderLocaleNotice] = useState<{
+    kind: "success" | "error";
+    reason: string;
+    localeCode: string;
+    localeName: string;
+    text: string;
+  } | null>(null);
+  const [setFolderLocaleDialog, setSetFolderLocaleDialog] = useState<{
+    folderId: string;
+    currentCode: string;
+    choices: FolderLocaleChoice[];
     props: PSFolderProperties;
     busy: boolean;
     error: string;
@@ -2172,6 +2194,72 @@ function ContentExplorerShellInner({
           })();
           break;
         }
+        case "content-set-folder-locale": {
+          const current = selectionRef.current;
+          const selectedCount = multiSelectedItemsRef.current.size;
+          void (async () => {
+            setSetFolderLocaleNotice(null);
+            setSetFolderLocaleDialog(null);
+            const catalog: SetFolderLocaleCatalog = await loadSetFolderLocaleCatalog({
+              item: current.item,
+              selectedCount,
+            });
+            if (catalog.status === "blocked") {
+              const key =
+                catalog.reason === "page"
+                  ? EXPLORER_MSG.SET_FOLDER_LOCALE_PAGE
+                  : catalog.reason === "asset"
+                    ? EXPLORER_MSG.SET_FOLDER_LOCALE_ASSET
+                    : catalog.reason === "not-folder"
+                      ? EXPLORER_MSG.SET_FOLDER_LOCALE_NOT_FOLDER
+                      : catalog.reason === "multi"
+                        ? EXPLORER_MSG.SET_FOLDER_LOCALE_MULTI
+                        : catalog.reason === "no-id"
+                          ? EXPLORER_MSG.SET_FOLDER_LOCALE_NO_ID
+                          : EXPLORER_MSG.SET_FOLDER_LOCALE_EMPTY;
+              const text = catalog.name
+                ? `${message(key)}: ${catalog.name}`
+                : message(key);
+              setSetFolderLocaleNotice({
+                kind: "error",
+                reason: catalog.reason,
+                localeCode: "",
+                localeName: "",
+                text,
+              });
+              return;
+            }
+            if (catalog.status === "none" || catalog.status === "http") {
+              const httpKey =
+                catalog.status === "http" && catalog.http === 400
+                  ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_400
+                  : catalog.status === "http" && catalog.http === 403
+                    ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_403
+                    : catalog.status === "http" && catalog.http === 409
+                      ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_409
+                      : catalog.status === "http"
+                        ? EXPLORER_MSG.SET_FOLDER_LOCALE_FAILED
+                        : EXPLORER_MSG.SET_FOLDER_LOCALE_NONE;
+              setSetFolderLocaleNotice({
+                kind: "error",
+                reason: catalog.status === "http" ? `http-${catalog.http}` : "none",
+                localeCode: "",
+                localeName: "",
+                text: message(httpKey),
+              });
+              return;
+            }
+            setSetFolderLocaleDialog({
+              folderId: catalog.folderId,
+              currentCode: catalog.currentCode,
+              choices: catalog.choices,
+              props: catalog.props,
+              busy: false,
+              error: "",
+            });
+          })();
+          break;
+        }
         case "content-set-community": {
           const current = selectionRef.current;
           const selectedCount = multiSelectedItemsRef.current.size;
@@ -2534,6 +2622,19 @@ function ContentExplorerShellInner({
               aria-live="polite"
             >
               {setFolderCommunityNotice.text}
+            </div>
+          ) : null}
+          {setFolderLocaleNotice ? (
+            <div
+              data-testid="explorer-set-folder-locale-status"
+              data-kind={setFolderLocaleNotice.kind}
+              data-reason={setFolderLocaleNotice.reason}
+              data-locale={setFolderLocaleNotice.localeCode}
+              data-locale-name={setFolderLocaleNotice.localeName}
+              role="status"
+              aria-live="polite"
+            >
+              {setFolderLocaleNotice.text}
             </div>
           ) : null}
           {setCommunityNotice ? (
@@ -3663,6 +3764,67 @@ function ContentExplorerShellInner({
                               ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_409
                               : EXPLORER_MSG.SET_FOLDER_COMMUNITY_FAILED;
               setSetFolderCommunityDialog({
+                ...dialog,
+                busy: false,
+                error: message(key),
+              });
+            })();
+          }}
+        />
+      ) : null}
+      {setFolderLocaleDialog ? (
+        <SetFolderLocaleDialog
+          choices={setFolderLocaleDialog.choices}
+          currentCode={setFolderLocaleDialog.currentCode}
+          busy={setFolderLocaleDialog.busy}
+          error={setFolderLocaleDialog.error}
+          onCancel={() => {
+            if (!setFolderLocaleDialog.busy) {
+              setSetFolderLocaleDialog(null);
+            }
+          }}
+          onSave={(localeCode) => {
+            const dialog = setFolderLocaleDialog;
+            void (async () => {
+              setSetFolderLocaleDialog({ ...dialog, busy: true, error: "" });
+              const saved = await saveSetFolderLocale({
+                folderId: dialog.folderId,
+                props: dialog.props,
+                selectedCode: localeCode,
+                currentCode: dialog.currentCode,
+                allowedCodes: dialog.choices.map((row) => row.code),
+                localeName:
+                  dialog.choices.find((row) => row.code === localeCode)?.name ?? localeCode,
+              });
+              if (saved.status === "saved") {
+                setSetFolderLocaleDialog(null);
+                setSetFolderLocaleNotice({
+                  kind: "success",
+                  reason: "",
+                  localeCode: saved.localeCode,
+                  localeName: saved.localeName,
+                  text: `${message(EXPLORER_MSG.SET_FOLDER_LOCALE_SAVED)} ${saved.localeName}`,
+                });
+                setListEpoch((n) => n + 1);
+                return;
+              }
+              const key =
+                saved.status === "gate" && saved.reason === "unchanged"
+                  ? EXPLORER_MSG.SET_FOLDER_LOCALE_UNCHANGED
+                  : saved.status === "gate" && saved.reason === "forbidden"
+                    ? EXPLORER_MSG.SET_FOLDER_LOCALE_FORBIDDEN
+                    : saved.status === "gate" && saved.reason === "blank"
+                      ? EXPLORER_MSG.SET_FOLDER_LOCALE_BLANK
+                      : saved.status === "mismatch"
+                        ? EXPLORER_MSG.SET_FOLDER_LOCALE_MISMATCH
+                        : saved.status === "http" && saved.http === 400
+                          ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_400
+                          : saved.status === "http" && saved.http === 403
+                            ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_403
+                            : saved.status === "http" && saved.http === 409
+                              ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_409
+                              : EXPLORER_MSG.SET_FOLDER_LOCALE_FAILED;
+              setSetFolderLocaleDialog({
                 ...dialog,
                 busy: false,
                 error: message(key),

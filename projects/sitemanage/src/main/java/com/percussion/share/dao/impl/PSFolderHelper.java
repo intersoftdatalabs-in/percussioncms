@@ -41,10 +41,12 @@ import com.percussion.cms.objectstore.PSObjectAclNextNumberReconciler;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.designmanagement.service.IPSFileSystemService.PSInvalidCharacterInFolderNameException;
+import com.percussion.i18n.PSLocale;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pathmanagement.data.PSFolderCommunityCatalog;
 import com.percussion.pathmanagement.data.PSFolderCommunityChoice;
+import com.percussion.pathmanagement.data.PSFolderLocaleCatalog;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderPermission.Access;
 import com.percussion.pathmanagement.data.PSFolderProperties;
@@ -587,6 +589,28 @@ public class PSFolderHelper implements IPSFolderHelper {
       return false;
     }
     return FolderCommunityCatalogRules.contains(listFolderCommunityCatalog(), communityId);
+  }
+
+  @Override
+  public PSFolderLocaleCatalog listFolderLocaleCatalog() {
+    try {
+      if (contentWs == null) {
+        return FolderLocaleCatalogRules.fromChoices(null);
+      }
+      List<PSLocale> locales = contentWs.loadLocales(null, null);
+      return FolderLocaleCatalogRules.fromChoices(FolderLocaleCatalogRules.choicesFromLocales(locales));
+    } catch (RuntimeException ex) {
+      log.debug("Could not catalog locales for folder assignment: {}", ex.toString());
+      return FolderLocaleCatalogRules.fromChoices(null);
+    }
+  }
+
+  @Override
+  public boolean isAssignableFolderLocale(String localeCode) {
+    if (StringUtils.isBlank(localeCode)) {
+      return false;
+    }
+    return FolderLocaleCatalogRules.contains(listFolderLocaleCatalog(), localeCode);
   }
 
   @Override
