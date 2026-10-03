@@ -54,7 +54,14 @@ describe("explorer set workflow listing (#5086)", () => {
       listingNavigationSettled("none", "ready", "rows:2:detail-row-9|detail-row-10"),
       true,
     );
-    assert.equal(listingNavigationSettled("rows:1:detail-row-1", "empty", "empty"), true);
+    assert.equal(listingNavigationSettled("rows:1:detail-row-1", "empty", "empty"), false);
+    assert.equal(listingNavigationSettled("rows:1:detail-row-1", "empty", "empty", true), true);
+  });
+
+  it("does not treat the idle empty marker as a finished folder navigation (#5089)", () => {
+    assert.equal(listingNavigationSettled("none", "empty", "empty", false), false);
+    assert.equal(listingNavigationSettled("none", "empty", "empty", true), true);
+    assert.equal(listingNavigationSettled("empty", "empty", "empty", true), false);
   });
 
   it("matches only GET paginatedFolder listings", () => {

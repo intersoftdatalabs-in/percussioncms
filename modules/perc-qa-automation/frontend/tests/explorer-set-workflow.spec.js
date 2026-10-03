@@ -32,6 +32,7 @@ const {
   isKnownExplorerSetWorkflowConsoleNoise,
   folderListingPhase,
   listingNavigationSettled,
+  isPaginatedFolderListingUrl,
 } = require("./helpers/explorer-set-workflow");
 const { openContentMenu } = require("./helpers/explorer-sites-list-create");
 
@@ -106,6 +107,9 @@ async function listReady(page) {
  * replaces the previous paint. Resolves false when the listing never settles
  * so the caller can try another root instead of treating a loading list as empty.
  *
+ * Empty is accepted only after a paginatedFolder GET observed for this click.
+ * The idle {@code !folderPath} paint is also {@code detail-list-empty} (#5089).
+ *
  * @param {import("@playwright/test").Page} page
  * @param {import("@playwright/test").Locator} target
  * @param {{ dblclick?: boolean }} [opts]
@@ -113,18 +117,31 @@ async function listReady(page) {
  */
 async function activateForListing(page, target, opts = {}) {
   const before = await listingSignature(page);
-  if (opts.dblclick) {
-    await target.dblclick({ force: true });
-  } else {
-    await target.click({ force: true });
-  }
+  let listingResponseSeen = false;
+  const onResponse = (res) => {
+    try {
+      if (isPaginatedFolderListingUrl(res.url(), res.request().method())) {
+        listingResponseSeen = true;
+      }
+    } catch {
+      // Ignore responses whose request is already disposed.
+    }
+  };
+  page.on("response", onResponse);
   try {
+    if (opts.dblclick) {
+      await target.dblclick({ force: true });
+    } else {
+      await target.click({ force: true });
+    }
     await expect
       .poll(
         async () => {
           const phase = await readListingPhase(page);
           const signature = await listingSignature(page);
-          return listingNavigationSettled(before, phase, signature) ? "settled" : "pending";
+          return listingNavigationSettled(before, phase, signature, listingResponseSeen)
+            ? "settled"
+            : "pending";
         },
         { timeout: 20_000 },
       )
@@ -132,7 +149,20 @@ async function activateForListing(page, target, opts = {}) {
     return true;
   } catch {
     return false;
+  } finally {
+    page.off("response", onResponse);
   }
+}
+
+/**
+ * Label span inside a tree node. The disclosure toggle stops propagation,
+ * so a center click on the node row can expand without selecting.
+ *
+ * @param {import("@playwright/test").Locator} root
+ * @returns {import("@playwright/test").Locator}
+ */
+function treeNodeLabel(root) {
+  return root.locator('[role="treeitem"] span:not([data-testid^="tree-toggle-"])').first();
 }
 
 async function openFirstFolderRow(page) {
@@ -165,7 +195,11 @@ async function selectFirstContentItem(page) {
     if ((await root.count()) === 0) {
       continue;
     }
-    const openedRoot = await activateForListing(page, root.first());
+    const label = treeNodeLabel(root.first());
+    const openedRoot = await activateForListing(
+      page,
+      (await label.count()) > 0 ? label : root.first(),
+    );
     if (!openedRoot) {
       continue;
     }

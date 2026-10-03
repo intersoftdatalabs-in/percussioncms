@@ -79,12 +79,23 @@ function folderListingPhase(state = {}) {
  * is not settled — cold H2 keeps the previous (often empty) paint until
  * {@code paginatedFolder} returns (#5086).
  *
+ * <p>An {@code empty} signature is settled only after that GET completed.
+ * DetailList paints {@code detail-list-empty} for {@code !folderPath}
+ * before any request, so {@code none → empty} without a response is the
+ * idle marker, not an empty folder (#5089).</p>
+ *
  * @param {string} beforeSignature
  * @param {"loading"|"empty"|"ready"|string} phase
  * @param {string} signature
+ * @param {boolean} [listingResponseSeen] true after paginatedFolder GET for this click
  * @returns {boolean}
  */
-function listingNavigationSettled(beforeSignature, phase, signature) {
+function listingNavigationSettled(
+  beforeSignature,
+  phase,
+  signature,
+  listingResponseSeen = false,
+) {
   if (phase === "loading") {
     return false;
   }
@@ -92,7 +103,13 @@ function listingNavigationSettled(beforeSignature, phase, signature) {
   if (!next || next === "none") {
     return false;
   }
-  return next !== String(beforeSignature || "");
+  if (next === String(beforeSignature || "")) {
+    return false;
+  }
+  if (next === "empty" && !listingResponseSeen) {
+    return false;
+  }
+  return true;
 }
 
 /**
