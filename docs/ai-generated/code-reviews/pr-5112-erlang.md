@@ -3,17 +3,17 @@ Copyright (c) 2026 Intersoft Data Labs, Inc.
 Licensed under the Apache License, Version 2.0.
 -->
 
-# Erlang review — PR #5112 (re-review after partial-clear fix)
+# Erlang review — PR #5112 (re-review after community-row-first fix)
 
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 - Status: mkd-code-review 0.1.18, pack percussion, gate advisory
-- Base: merge-base with origin/main (`d1d9ba90bd`)
-- Branch: fix/issue-5091-editor-clear-community
-- Recommendation: approve (machine in-diff bugs: 0; prior blocking bug fixed)
-- LLM: ollama-dev-coder OOM (cudaMalloc); machine findings kept
+- Base: origin/main (`d1d9ba90bddc988897b11ab903d3ef9dfa007c6f`)
+- Head: `07b21b3a77869cb3cc0f11674e24af9db1dd9fad` (`fix/issue-5091-editor-clear-community`)
+- Recommendation: approve
+- LLM: ollama-dev-coder CUDA OOM; machine findings kept
 
-The prior request-changes bug is fixed. `saveEditorFields` persists `CONTENTSTATUS` community id 0 before `contentItemDao.save`. `PSORMException` still maps to HTTP 409, restores the previous in-memory community id, and does not write blank `sys_communityid`. `communityClearOrmFailureIsConflict` asserts the field stayed at the previous id and that the item is not saved.
+The prior blocking bug is fixed. `persistClearedCommunity` writes `CONTENTSTATUS` community id `0` and commits that summary before `contentItemDao.save`. `PSORMException` and `RuntimeException` restore the previous in-memory id and do not save the content item. `communityClearOrmFailureIsConflict` asserts the field stayed at the previous id and that `contentItemDao.save` is not called.
 
 ## Pre-push local code review
 
@@ -23,8 +23,8 @@ Machine analysis found **9** finding(s), **0** bug(s).
 
 ## Scope
 
-- Base: (unspecified)
-- Head: (unspecified)
+- Base: origin/main
+- Head: HEAD
 - Files: 12 analyzed
 - In-diff: 0 finding(s); preexisting: 8
 - Persona: erlang 0.1.1
@@ -129,10 +129,10 @@ approve
 
 - Status: open
 
-## Erlang gate (fix follow-up)
+## Erlang gate
 
 Machine gate: 12 files, in-diff findings 0, blocking bugs 0. Preexisting path-separator rows and `saveEditorFields` complexity do not block. Ollama `dev-coder` CUDA OOM is not a defect in this diff.
 
-The partial community clear is fixed in `persistClearedCommunity` and the call in `saveEditorFields` that now runs before `contentItemDao.save`. `communityClearOrmFailureIsConflict` covers the rollback.
+`saveEditorFields` now calls `persistClearedCommunity` before `applyUpdates` / `contentItemDao.save`. A failed summary save restores the previous community id and leaves the content item unsaved, so a reload does not show the empty option. Behavioral coverage: `blankCommunityClearsContentStatusAndReturnsEmptyOption` (order), `selectedCommunityDoesNotClearContentStatus`, `communityClearOrmFailureIsConflict`, `unassignedCommunityReloadsAsEmptyOption`.
 
-Suggestion (not blocking, unchanged): `EditorHost.tsx` can attribute a generic HTTP 400/403 to the only community field.
+Not blocking: `PSCmsObjectMgr.saveComponentSummaries` commits on its own transaction. If the later content-item save throws, community id `0` is already stored. That is the order this review required. A compensating restore is optional, not a merge block. `EditorHost` mapping a generic HTTP 400/403 onto the only community field is already in the diff.
