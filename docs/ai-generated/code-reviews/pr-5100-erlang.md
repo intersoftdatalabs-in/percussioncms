@@ -12,17 +12,12 @@ Licensed under the Apache License, Version 2.0.
 - Status: mkd-code-review 0.1.18, pack percussion, --gate advisory, --git-base origin/main
 - PR: https://github.com/intersoftdatalabs-in/percussioncms/pull/5100
 - Base: origin/main
-- Head: 3511651dfc1c6e826ec197133149d6483c6e2e8e
-- Files analyzed: 12
+- Head: 1428cb3d4ebf0e75ab243b035a9d9af30e9ce514
+- Files analyzed: 13
 
-Independent of the author. The first pass requested changes (finished job still 409). The fix pass below clears that bug. Erlang gate after the fix: **approve**. Do not self-approve on GitHub.
+Independent re-review after `1428cb3d` (finished job no longer blocks edition delete). I did not author the change. `runningJobId` returns 0 when `IPSPublisherJobStatus.State.isTerminal()`, the same predicate as `PSPublishingJob.isFinished()`. `getEditionJobId` is unchanged, so the runtime list can still show a completed job. `getPublishingJobStatus` throws `IllegalStateException` for an unknown id, and that path is idle. Any other status-lookup failure stays in use. Tests cover a completed job, a cancelled job, an active `WORKING` job, an unknown id, a failed lookup, and delete through `PSPublishingRuntimeSupport` (completed deletes, working is HTTP 409).
 
-## Re-review after the finished-job fix
-
-- `runningJobId` treats a terminal job status as idle (`State.isTerminal()`, same predicate as `PSPublishingJob.isFinished()`). `getEditionJobId` is unchanged so the runtime list can still show a completed job.
-- Unknown job id (`IllegalStateException`) is idle. A status lookup that fails for another reason stays in use.
-- Tests: finished and cancelled job ids return 0; an active `WORKING` job still returns the id; delete through `PSPublishingRuntimeSupport` deletes a completed job and 409s a working job.
-- CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --fail-on-bug --diff` (working tree vs `origin/main`). 13 files, 0 in-diff bugs, 1 preexisting `listRuntimeEditions` complexity suggestion. May commit/push: yes.
+Nit, non-blocking: the `runningJobId` comment says "`null` is idle". A null edition guid is idle. A null status or null state still returns the job id (treated as in use). The code is the safer behavior.
 
 ## CLI stdout (`mkd-code-review analyze --format markdown`)
 
@@ -34,7 +29,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 12 analyzed
+- Files: 13 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
@@ -61,19 +56,17 @@ approve
 
 ## Erlang findings (strict gate)
 
-### Issue 1 -- Severity: bug
+No blocking bugs. The first-pass bug (a finished job still in `m_jobs` returned HTTP 409 for up to `REAP_TIME`) is fixed on this head.
 
-- File: projects/sitemanage/src/main/java/com/percussion/publishingdesign/impl/PSPublishingDesignRestService.java:1393 (in-diff)
-- Also: projects/sitemanage/src/main/java/com/percussion/publishingdesign/impl/PSPublishingRuntimeSupport.java:145 (in-diff)
-- Description: Delete treats any remembered publish job as "in use". `rejectEditionInUse` throws HTTP 409 when `runningJobId` is `> 0`. `runningJobId` returns `IPSRxPublisherService.getEditionJobId` with no terminal-state check. `PSRxPublisherService.getEditionJobId` returns the max job id still in `m_jobs` for that edition, including finished jobs. Finished jobs stay for `REAP_TIME` (one hour after `endTime`; `IPSRxPublisherServiceInternal`). `startPublishingJob` only refuses an edition when `!job.isFinished()`. After a publish completes, delete of that idle edition returns 409 "Edition is in use" for up to an hour. The runtime list uses the same id to *display* status, including Completed; delete must not reuse `jobId > 0` as "still running".
-- Tests: `PSPublishingRuntimeSupportTest.runningJobId_*` only stubs `getEditionJobId` to 55 or 0. Nothing asserts that a finished job still in the map allows delete.
-- Suggestion: 409 only when the job exists and `!isFinished()` (same predicate as start). Add a behavioral test for a finished job id that must not 409. Do not change `getEditionJobId` itself; the status list still needs the latest job, completed or not.
+Nit: `PSPublishingRuntimeSupport.runningJobId` javadoc "`null` is idle" does not match a null job status, which stays in use.
+
+Preexisting suggestion: `listRuntimeEditions` cognitive complexity. Not introduced by this diff. Does not block.
 
 ## Recommendation
 
-request-changes (first pass only; cleared by the re-review above)
+approve
 
 ## Gate
 
-- Blocking bugs: 1 on the first pass; 0 after `runningJobId` ignores a terminal job
-- May commit/push: yes, after the finished-job fix
+- Blocking bugs: 0
+- May commit/push: yes
