@@ -84,12 +84,54 @@ function sitesRoot(page) {
   );
 }
 
+const ROOT_FOLDER_NAMES = new Set([
+  "Sites",
+  "Folders",
+  "Assets",
+  "Design",
+  "Search",
+  "Recycling",
+]);
+
+/**
+ * Sites root listing replaces the root folders. Clicking the first row
+ * before that swap selects Sites, which has no folder id (#5104).
+ */
 async function showFolderRows(page) {
   await expect(sitesRoot(page).first()).toBeVisible({ timeout: 30_000 });
   await sitesRoot(page).first().click();
   const folderRow = page.locator(FOLDER_ROWS);
-  await expect(folderRow.first()).toBeVisible({ timeout: 20_000 });
+  await expect
+    .poll(
+      async () => {
+        const count = await folderRow.count();
+        if (count < 1) {
+          return "";
+        }
+        const name = (await folderRow.first().getAttribute("data-item-name")) || "";
+        const id = (await folderRow.first().getAttribute("data-item-id")) || "";
+        if (!id || ROOT_FOLDER_NAMES.has(name)) {
+          return "";
+        }
+        return id;
+      },
+      { timeout: 20_000 },
+    )
+    .not.toBe("");
   return folderRow;
+}
+
+async function selectFirstFolder(page) {
+  const folderRow = await showFolderRows(page);
+  const row = folderRow.first();
+  const id = (await row.getAttribute("data-item-id")) || "";
+  await row.locator('[data-testid^="detail-cell-"]').last().click();
+  await expect(page.locator(`[data-testid="${TEST_IDS.shell}"]`)).toHaveAttribute(
+    "data-selected-item-id",
+    id,
+    { timeout: 10_000 },
+  );
+  return row;
 }
 
 /**
@@ -143,8 +185,7 @@ test.describe("Explorer set workflow on the selected folder (#5104 / #4530)", ()
       test.setTimeout(120_000);
       const posts = [];
       const jsErrors = await openExplorer(page);
-      const folderRow = await showFolderRows(page);
-      await folderRow.first().click({ force: true });
+      await selectFirstFolder(page);
       await stubFolderWorkflow(page, {
         onSave: (body) => posts.push(body),
       });
@@ -180,8 +221,7 @@ test.describe("Explorer set workflow on the selected folder (#5104 / #4530)", ()
       test.setTimeout(120_000);
       let posted = false;
       const jsErrors = await openExplorer(page);
-      const folderRow = await showFolderRows(page);
-      await folderRow.first().click({ force: true });
+      await selectFirstFolder(page);
       await stubFolderWorkflow(page, {
         onSave: () => {
           posted = true;
@@ -266,8 +306,7 @@ test.describe("Explorer set workflow on the selected folder (#5104 / #4530)", ()
     async ({ page }) => {
       test.setTimeout(120_000);
       const jsErrors = await openExplorer(page);
-      const folderRow = await showFolderRows(page);
-      await folderRow.first().click({ force: true });
+      await selectFirstFolder(page);
       let saveStatus = 400;
       await page.route("**/pathmanagement/path/folderWorkflowCatalog**", (route) =>
         route.fulfill({
