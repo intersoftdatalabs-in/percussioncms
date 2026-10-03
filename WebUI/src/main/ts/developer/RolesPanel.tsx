@@ -16,15 +16,18 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { isApiError } from "../api/client";
 import {
   browseRoles,
+  createRole,
+  isRoleCreateReady,
   ROLE_BROWSE_GROUPS,
   rolesInBrowseGroup,
   type RoleBrowseEntry,
   type RoleBrowseGroupKey,
 } from "../api/developer/rolesApi";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
-import { catalogColors, monoCell, mutedCell } from "./catalogStyles";
+import { catalogColors, errorAlert, monoCell, mutedCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -68,6 +71,32 @@ const groupHeaderStyle: React.CSSProperties = {
 
 function joinNames(names: string[]): string {
   return names.length > 0 ? names.join(", ") : "—";
+}
+
+const fieldStyle: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "4px",
+  marginBottom: "12px",
+};
+
+const inputStyle: React.CSSProperties = {
+  padding: "8px",
+  border: `1px solid ${catalogColors.softBorder}`,
+  borderRadius: "4px",
+  font: "inherit",
+};
+
+function createFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.ROLES_CREATE_FORBIDDEN);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.ROLES_CREATE_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.ROLES_CREATE_ERROR);
 }
 
 function RoleGroupSection({
@@ -142,9 +171,9 @@ function RoleGroupSection({
 }
 
 /**
- * SE-03 — read-only Roles catalog grouped by community / workflow / unassigned
- * (Workbench Security Design peer). Membership CRUD stays on Admin → Roles /
- * community detail.
+ * SE-03 Roles catalog grouped by community / workflow / unassigned.
+ * Admins create one role (name + description) via PUT ?create=true.
+ * The catalog reloads only after create succeeds. Membership edits stay out of scope.
  */
 export function RolesPanel(): React.ReactElement {
   const [catalog, setCatalog] = useState<RoleBrowseEntry[] | null>(null);
@@ -154,7 +183,14 @@ export function RolesPanel(): React.ReactElement {
   const [expanded, setExpanded] = useState<Set<RoleBrowseGroupKey>>(
     () => new Set(ROLE_BROWSE_GROUPS),
   );
+  const [creating, setCreating] = useState(false);
+  const [draftName, setDraftName] = useState("");
+  const [draftDescription, setDraftDescription] = useState("");
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createNotice, setCreateNotice] = useState<string | null>(null);
+  const [createBusy, setCreateBusy] = useState(false);
   const mountedRef = useRef(true);
+  const createInflight = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -209,6 +245,61 @@ export function RolesPanel(): React.ReactElement {
     });
   }
 
+  function openCreate() {
+    setCreating(true);
+    setCreateError(null);
+    setCreateNotice(null);
+    setDraftName("");
+    setDraftDescription("");
+  }
+
+  function cancelCreate() {
+    if (createBusy) return;
+    setCreating(false);
+    setCreateError(null);
+    setDraftName("");
+    setDraftDescription("");
+  }
+
+  async function handleCreate(): Promise<void> {
+    if (!isRoleCreateReady(draftName) || createInflight.current) {
+      return;
+    }
+    createInflight.current = true;
+    setCreateBusy(true);
+    setCreateError(null);
+    setCreateNotice(null);
+    const name = draftName.trim();
+    const description = draftDescription.trim();
+    try {
+      await createRole({
+        name,
+        description: description || undefined,
+      });
+      if (!mountedRef.current) return;
+      setCreating(false);
+      setDraftName("");
+      setDraftDescription("");
+      setCreateNotice(DEV_MSG.ROLES_CREATED);
+      // Show every group so a workflow-assigned new role is visible after reload.
+      if (filter !== null) {
+        setFilter(null);
+      } else {
+        await reload();
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setCreateError(createFailureMessage(err));
+    } finally {
+      createInflight.current = false;
+      if (mountedRef.current) {
+        setCreateBusy(false);
+      }
+    }
+  }
+
+  const canCreate = !createBusy && isRoleCreateReady(draftName);
+
   if (error) {
     return (
       <CatalogStatus testId="developer-roles-error" error>
@@ -227,6 +318,114 @@ export function RolesPanel(): React.ReactElement {
   return (
     <div data-testid="developer-roles-panel">
       <CatalogHint>{DEV_MSG.ROLES_HINT}</CatalogHint>
+      {createNotice ? (
+        <div data-testid="developer-roles-create-notice" style={{ color: "#276749", marginBottom: "12px" }}>
+          {createNotice}
+        </div>
+      ) : null}
+      {creating ? (
+        <form
+          data-testid="developer-roles-create-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void handleCreate();
+          }}
+          style={{
+            marginBottom: "16px",
+            padding: "12px",
+            border: `1px solid ${catalogColors.softBorder}`,
+            borderRadius: "4px",
+          }}
+        >
+          {createError ? (
+            <div role="alert" data-testid="developer-roles-create-error" style={errorAlert}>
+              {createError}
+            </div>
+          ) : null}
+          <h2 style={{ margin: "0 0 12px" }} data-testid="developer-roles-create-title">
+            {DEV_MSG.ROLES_CREATE_TITLE}
+          </h2>
+          <div style={fieldStyle}>
+            <label htmlFor="developer-roles-create-name">{DEV_MSG.ROLES_CREATE_NAME}</label>
+            <input
+              id="developer-roles-create-name"
+              data-testid="developer-roles-create-name"
+              style={{ ...inputStyle, fontFamily: "monospace" }}
+              value={draftName}
+              disabled={createBusy}
+              autoComplete="off"
+              onChange={(event) => setDraftName(event.target.value)}
+            />
+            <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+              {DEV_MSG.ROLES_CREATE_NAME_REQUIRED}
+            </span>
+          </div>
+          <div style={fieldStyle}>
+            <label htmlFor="developer-roles-create-description">
+              {DEV_MSG.ROLES_CREATE_DESCRIPTION}
+            </label>
+            <input
+              id="developer-roles-create-description"
+              data-testid="developer-roles-create-description"
+              style={inputStyle}
+              value={draftDescription}
+              disabled={createBusy}
+              onChange={(event) => setDraftDescription(event.target.value)}
+            />
+          </div>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <button
+              type="submit"
+              data-testid="developer-roles-create-save"
+              aria-label={DEV_MSG.ROLES_CREATE_SAVE}
+              disabled={!canCreate}
+              style={{
+                padding: "8px 16px",
+                background: canCreate ? catalogColors.accent : catalogColors.disabled,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: canCreate ? "pointer" : "not-allowed",
+              }}
+            >
+              {DEV_MSG.ROLES_CREATE_SAVE}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-roles-create-cancel"
+              disabled={createBusy}
+              onClick={cancelCreate}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              {DEV_MSG.ROLES_CREATE_CANCEL}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div style={{ marginBottom: "16px" }}>
+          <button
+            type="button"
+            data-testid="developer-roles-create"
+            onClick={openCreate}
+            style={{
+              padding: "8px 16px",
+              background: catalogColors.accent,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            {DEV_MSG.ROLES_CREATE}
+          </button>
+        </div>
+      )}
       <div
         role="group"
         aria-label={DEV_MSG.ROLES_FILTER_LABEL}

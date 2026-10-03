@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { get } from "../client";
+import { get, put } from "../client";
 import { asJsonRecord, asStringArray } from "../jsonList";
 import { PATHS } from "../paths";
 
@@ -115,17 +115,22 @@ function unwrapRolesList(payload: unknown): unknown[] {
 }
 
 /**
- * Unwrap flat {@code RoleBrowseCatalog} wire body ({@code {group?, roles:[…]}}).
- * Production DTO is {@code @JsonInclude(NON_NULL)} without WRAP_ROOT.
+ * Unwrap a catalog body. Live CXF uses {@code WRAP_ROOT_VALUE}, so the payload is
+ * {@code { RoleBrowseCatalog: { roles } }}. A flat {@code { roles }} body is also accepted.
+ * One-item lists arrive as strings or a single object.
  */
 export function unwrapRoleBrowseCatalog(payload: unknown): RoleBrowseCatalog {
   if (payload == null) {
     return { roles: [] };
   }
-  const body = asRecord(payload);
-  if (!body) {
+  const root = asRecord(payload);
+  if (!root) {
     return { roles: [] };
   }
+  const body =
+    asRecord(root.RoleBrowseCatalog) ??
+    asRecord(root.roleBrowseCatalog) ??
+    root;
 
   let group: RoleBrowseGroupKey | null | undefined;
   if (typeof body.group === "string") {
@@ -168,4 +173,77 @@ export async function browseRoles(
     : PATHS.ROLES_CATALOG;
   const payload = await get<unknown>(url);
   return unwrapRoleBrowseCatalog(payload);
+}
+
+/** Wire body for PUT /services/roles/?create=true. Description is optional. */
+export type RoleCreateBody = {
+  name: string;
+  description?: string;
+};
+
+/** Role returned by a successful create. */
+export type RoleCreateResult = {
+  name: string;
+  description?: string;
+};
+
+/** Blank and whitespace-only names are rejected before the request. */
+export function isRoleCreateReady(name: string | null | undefined): boolean {
+  return typeof name === "string" && name.trim().length > 0;
+}
+
+/** PUT /services/roles/?create=true — always the create path, never an update. */
+export function roleCreateUrl(): string {
+  return `${PATHS.ROLES}/?create=true`;
+}
+
+/** JAXB / Jackson {@code WRAP_ROOT_VALUE} name for {@code Role}. */
+export const ROLE_WIRE_ROOT = "Role";
+
+/**
+ * Build the PUT body. A flat object fails server {@code UNWRAP_ROOT_VALUE}
+ * ({@code unexpected element name; expected Role}).
+ */
+export function wrapRoleCreateForWire(
+  body: RoleCreateBody,
+): Record<string, RoleCreateBody> {
+  return { [ROLE_WIRE_ROOT]: body };
+}
+
+/**
+ * Unwrap a flat Role body or a {@code {Role:{…}}} envelope.
+ * Throws when the payload has no name so callers do not treat an empty body as success.
+ */
+export function unwrapCreatedRole(payload: unknown): RoleCreateResult {
+  const obj = asRecord(payload);
+  const wrapped = obj ? asRecord(obj.Role) : null;
+  const body = wrapped ?? obj;
+  if (!body) {
+    throw new Error("Role create returned an empty body");
+  }
+  const name = typeof body.name === "string" ? body.name.trim() : "";
+  if (!name) {
+    throw new Error("Role create returned no name");
+  }
+  const description =
+    typeof body.description === "string" ? body.description : undefined;
+  return { name, description };
+}
+
+/**
+ * PUT /services/roles/?create=true — Admin create via adaptor createRole.
+ * Duplicate names are HTTP 400 and are not updated. Blank names throw before fetch.
+ */
+export async function createRole(input: RoleCreateBody): Promise<RoleCreateResult> {
+  const name = input.name.trim();
+  if (!isRoleCreateReady(name)) {
+    throw new Error("Role name is required");
+  }
+  const body: RoleCreateBody = { name };
+  const description = input.description?.trim();
+  if (description) {
+    body.description = description;
+  }
+  const payload = await put<unknown>(roleCreateUrl(), wrapRoleCreateForWire(body));
+  return unwrapCreatedRole(payload);
 }

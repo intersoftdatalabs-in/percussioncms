@@ -34,6 +34,7 @@ import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.services.workflow.data.PSWorkflowRole;
 import com.percussion.share.data.PSStringWrapper;
 import com.percussion.share.service.exception.PSDataServiceException;
+import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
@@ -68,6 +69,8 @@ public class RoleAdaptor implements IRoleAdaptor {
   private static final Logger log = LogManager.getLogger(RoleAdaptor.class);
 
   static final String ADMIN_REQUIRED = "Admin role required to browse the roles catalog";
+
+  static final String ADMIN_REQUIRED_CREATE = "Admin role required to create a role";
 
   private final PSRoleService roleService;
   private final IPSSecurityDesignWs securityDesignWs;
@@ -128,13 +131,62 @@ public class RoleAdaptor implements IRoleAdaptor {
     }
   }
 
+  /**
+   * Admin create. Blank names and role-service validation failures are HTTP 400. Non-admin is 403.
+   */
   @Override
   public Role createRole(URI baseURI, Role role) throws BackendException {
+    requireAdmin(ADMIN_REQUIRED_CREATE);
+    if (role == null || StringUtils.isBlank(role.getName())) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
+    role.setName(role.getName().trim());
+    if (role.getDescription() != null) {
+      var description = role.getDescription().trim();
+      role.setDescription(description.isEmpty() ? null : description);
+    }
     try {
-      return ApiUtils.convertRole(roleService.create(ApiUtils.convertRole(role)));
+      var created = roleService.create(ApiUtils.convertRole(role));
+      var wire = ApiUtils.convertRole(created);
+      if (wire == null || StringUtils.isBlank(wire.getName())) {
+        throw new WebApplicationException("Role create returned no role", 500);
+      }
+      return wire;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(validationMessage(e), 400);
     } catch (PSDataServiceException e) {
       throw new BackendException(e);
     }
+  }
+
+  /** Exact catalog name match. Blank is not defined. Catalog failures are HTTP 500. */
+  @Override
+  public boolean roleExists(URI baseUri, String roleName) {
+    if (StringUtils.isBlank(roleName)) {
+      return false;
+    }
+    if (securityDesignWs == null) {
+      throw new WebApplicationException("Security design service is not available", 500);
+    }
+    var name = roleName.trim();
+    List<IPSCatalogSummary> found;
+    try {
+      found = securityDesignWs.findRoles(name);
+    } catch (RuntimeException e) {
+      log.error("Failed to look up role '{}'", name, e);
+      throw new WebApplicationException(e, 500);
+    }
+    if (found == null) {
+      return false;
+    }
+    for (IPSCatalogSummary summary : found) {
+      if (summary != null && name.equals(summary.getName())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
@@ -344,6 +396,10 @@ public class RoleAdaptor implements IRoleAdaptor {
   }
 
   private void requireAdmin() {
+    requireAdmin(ADMIN_REQUIRED);
+  }
+
+  private void requireAdmin(String message) {
     boolean allowed;
     try {
       allowed = adminChecker.getAsBoolean();
@@ -351,11 +407,18 @@ public class RoleAdaptor implements IRoleAdaptor {
       throw e;
     } catch (RuntimeException e) {
       log.debug("Admin check failed: {}", e.getMessage());
-      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+      throw new WebApplicationException(message, Response.Status.FORBIDDEN);
     }
     if (!allowed) {
-      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+      throw new WebApplicationException(message, Response.Status.FORBIDDEN);
     }
+  }
+
+  private static String validationMessage(PSValidationException e) {
+    if (e != null && StringUtils.isNotBlank(e.getMessage())) {
+      return e.getMessage();
+    }
+    return "Role is not valid";
   }
 
   boolean isCurrentUserAdmin() {

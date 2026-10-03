@@ -30,10 +30,12 @@ vi.mock("../../../main/ts/api/developer/rolesApi", async (importOriginal) => {
   return {
     ...actual,
     browseRoles: vi.fn(),
+    createRole: vi.fn(),
   };
 });
 
 const browseRoles = rolesApi.browseRoles as ReturnType<typeof vi.fn>;
+const createRole = rolesApi.createRole as ReturnType<typeof vi.fn>;
 
 describe("RolesPanel", () => {
   beforeEach(() => {
@@ -41,6 +43,7 @@ describe("RolesPanel", () => {
       message: (key: string) => key,
     };
     browseRoles.mockReset();
+    createRole.mockReset();
   });
 
   it("lists roles grouped by community / workflow / unassigned", async () => {
@@ -163,5 +166,158 @@ describe("RolesPanel", () => {
     });
     fireEvent.click(screen.getByTestId("developer-roles-group-toggle-community"));
     expect(screen.queryByTestId("developer-roles-table-community")).toBeNull();
+  });
+
+  it("rejects a blank name before calling create", async () => {
+    browseRoles.mockResolvedValue({ roles: [] });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-create")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-create"));
+    const save = screen.getByTestId("developer-roles-create-save");
+    expect(save).toBeDisabled();
+    fireEvent.click(save);
+    fireEvent.change(screen.getByTestId("developer-roles-create-name"), {
+      target: { value: "   " },
+    });
+    expect(screen.getByTestId("developer-roles-create-save")).toBeDisabled();
+    fireEvent.click(screen.getByTestId("developer-roles-create-save"));
+    expect(createRole).not.toHaveBeenCalled();
+  });
+
+  it("cancel does not create", async () => {
+    browseRoles.mockResolvedValue({
+      roles: [
+        {
+          name: "Author",
+          groups: ["community"],
+          communities: ["Default"],
+          workflows: [],
+        },
+      ],
+    });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-create")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-create"));
+    fireEvent.change(screen.getByTestId("developer-roles-create-name"), {
+      target: { value: "NightRole" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-create-cancel"));
+    expect(createRole).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-roles-create-form")).toBeNull();
+    expect(document.querySelector('[data-role-name="NightRole"]')).toBeNull();
+  });
+
+  it("shows the new row only after create succeeds", async () => {
+    browseRoles
+      .mockResolvedValueOnce({
+        roles: [
+          {
+            name: "Author",
+            groups: ["community"],
+            communities: ["Default"],
+            workflows: [],
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        roles: [
+          {
+            name: "Author",
+            groups: ["community"],
+            communities: ["Default"],
+            workflows: [],
+          },
+          {
+            name: "NightRole",
+            description: "Editors",
+            groups: ["workflow"],
+            communities: [],
+            workflows: ["Simple Workflow"],
+          },
+        ],
+      });
+    let resolveCreate: (value: { name: string; description?: string }) => void = () => {};
+    createRole.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveCreate = resolve;
+        }),
+    );
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-create")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-create"));
+    fireEvent.change(screen.getByTestId("developer-roles-create-name"), {
+      target: { value: "NightRole" },
+    });
+    fireEvent.change(screen.getByTestId("developer-roles-create-description"), {
+      target: { value: "Editors" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-create-save"));
+    expect(createRole).toHaveBeenCalledWith({
+      name: "NightRole",
+      description: "Editors",
+    });
+    expect(document.querySelector('[data-role-name="NightRole"]')).toBeNull();
+    resolveCreate({ name: "NightRole", description: "Editors" });
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="NightRole"]')).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-roles-create-notice").textContent).toBe(
+      DEV_MSG.ROLES_CREATED,
+    );
+    expect(browseRoles).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not claim success on HTTP 400 or 403", async () => {
+    browseRoles.mockResolvedValue({
+      roles: [
+        {
+          name: "Author",
+          groups: ["community"],
+          communities: ["Default"],
+          workflows: [],
+        },
+      ],
+    });
+    createRole.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: null,
+    });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-create")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-create"));
+    fireEvent.change(screen.getByTestId("developer-roles-create-name"), {
+      target: { value: "NightRole" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-create-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-create-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-roles-create-error").textContent).toContain("(400)");
+    expect(document.querySelector('[data-role-name="NightRole"]')).toBeNull();
+    expect(screen.queryByTestId("developer-roles-create-notice")).toBeNull();
+    expect(browseRoles).toHaveBeenCalledTimes(1);
+
+    createRole.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: null,
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-create-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-create-error").textContent).toContain("(403)");
+    });
+    expect(document.querySelector('[data-role-name="NightRole"]')).toBeNull();
+    expect(screen.queryByTestId("developer-roles-create-notice")).toBeNull();
+    expect(browseRoles).toHaveBeenCalledTimes(1);
   });
 });

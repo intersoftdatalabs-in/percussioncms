@@ -102,9 +102,10 @@ public class RolesResourceBrowseTest {
     WebApplicationException get =
         assertThrows(WebApplicationException.class, () -> bare.getRoleByName("Author"));
     assertEquals(503, get.getResponse().getStatus());
+    Role named = new Role();
+    named.setName("Author");
     WebApplicationException update =
-        assertThrows(
-            WebApplicationException.class, () -> bare.updateRole(new Role()));
+        assertThrows(WebApplicationException.class, () -> bare.updateRole(null, named));
     assertEquals(503, update.getResponse().getStatus());
     WebApplicationException find =
         assertThrows(WebApplicationException.class, () -> bare.findRoles());
