@@ -272,7 +272,6 @@ public class PSPublishingDesignRestService {
           isBlank(request.getNewName()) ? source.getName() + "_copy" : request.getNewName().trim();
       requireUniqueEditionName(newName, null);
       IPSEdition copy = publisherService.createEdition();
-      copy.setName(newName);
       copy.setComment(source.getComment());
       if (source.getEditionType() != null) {
         copy.setEditionType(source.getEditionType());
@@ -281,9 +280,8 @@ public class PSPublishingDesignRestService {
         copy.setPriority(source.getPriority());
       }
       copy.setSiteId(toSiteGuid(request.getTargetSiteId()));
-      if (source.getDisplayTitle() != null) {
-        copy.setDisplayTitle(source.getDisplayTitle());
-      }
+      // setName writes the visible display title. Apply it last so the source title cannot replace it.
+      copy.setName(newName);
       publisherService.saveEdition(copy);
 
       if (request.isCopyContentLists() && source.getGUID() != null && copy.getGUID() != null) {

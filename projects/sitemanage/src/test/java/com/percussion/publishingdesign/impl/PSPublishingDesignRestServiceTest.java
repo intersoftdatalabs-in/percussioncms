@@ -514,6 +514,36 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void copyEdition_keepsRequestedNameWhenSourceHasDisplayTitle() throws Exception {
+    when(guidManager.makeGuid(eq("7"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.SITE))).thenReturn(siteGuid);
+
+    IPSEdition source = mock(IPSEdition.class);
+    org.mockito.Mockito.lenient().when(source.getDisplayTitle()).thenReturn("SourceEd");
+    when(source.getComment()).thenReturn("c");
+    when(publisherService.loadEdition(editionGuid)).thenReturn(source);
+
+    IPSEdition copy = mock(IPSEdition.class);
+    when(publisherService.createEdition()).thenReturn(copy);
+    when(copy.getGUID()).thenReturn(editionGuid);
+    when(editionGuid.getUUID()).thenReturn(11);
+    when(copy.getName()).thenReturn("CopiedName");
+
+    com.percussion.publishingdesign.data.PSCopyEditionRequest req =
+        new com.percussion.publishingdesign.data.PSCopyEditionRequest();
+    req.setSourceEditionId("7");
+    req.setTargetSiteId("42");
+    req.setNewName("CopiedName");
+    req.setCopyContentLists(false);
+
+    PSEditionSummary result = service.copyEdition(req);
+    assertEquals("CopiedName", result.getName());
+    org.mockito.Mockito.verify(copy).setName("CopiedName");
+    org.mockito.Mockito.verify(copy, org.mockito.Mockito.never()).setDisplayTitle("SourceEd");
+    org.mockito.Mockito.verify(publisherService).saveEdition(copy);
+  }
+
+  @Test
   void listDesignSites_requiresSiteManager() {
     // service constructed without site manager
     WebApplicationException ex =
