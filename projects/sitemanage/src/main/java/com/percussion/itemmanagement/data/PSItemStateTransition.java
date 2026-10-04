@@ -39,6 +39,11 @@ public class PSItemStateTransition extends PSAbstractDataObject {
    * {@link #transitionTriggers}. Empty when no allowed transition requires a comment.
    */
   private ArrayList<String> commentRequiredTriggers = new ArrayList<>();
+  /**
+   * Trigger names whose destination state has ad-hoc assignment enabled (#5163). Subset of
+   * {@link #transitionTriggers}. Empty when no allowed transition requires assignees.
+   */
+  private ArrayList<String> assigneeRequiredTriggers = new ArrayList<>();
 
   public String getItemId() {
     return itemId;
@@ -93,6 +98,18 @@ public class PSItemStateTransition extends PSAbstractDataObject {
       commentRequiredTriggers = new ArrayList<>(triggers);
     } else {
       commentRequiredTriggers.clear();
+    }
+  }
+
+  public List<String> getAssigneeRequiredTriggers() {
+    return assigneeRequiredTriggers;
+  }
+
+  public void setAssigneeRequiredTriggers(List<String> triggers) {
+    if (triggers != null) {
+      assigneeRequiredTriggers = new ArrayList<>(triggers);
+    } else {
+      assigneeRequiredTriggers.clear();
     }
   }
 }

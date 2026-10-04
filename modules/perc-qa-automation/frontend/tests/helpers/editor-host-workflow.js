@@ -69,7 +69,7 @@ function isTransitionWithCommentsUrl(url) {
 
 /**
  * @param {string} url
- * @returns {{ itemId: string, trigger: string, comment: string }}
+ * @returns {{ itemId: string, trigger: string, comment: string, adhocAssignees: string }}
  */
 function parseTransitionWithCommentsUrl(url) {
   const raw = String(url || "");
@@ -77,16 +77,20 @@ function parseTransitionWithCommentsUrl(url) {
     /\/transitionWithComments\/([^/?#]+)\/([^/?#]+)/,
   );
   let comment = "";
+  let adhocAssignees = "";
   try {
     const parsed = new URL(raw, "http://cms.example");
     comment = parsed.searchParams.get("comment") || "";
+    adhocAssignees = parsed.searchParams.get("adhocAssignees") || "";
   } catch {
     comment = "";
+    adhocAssignees = "";
   }
   return {
     itemId: match ? decodeURIComponent(match[1]) : "",
     trigger: match ? decodeURIComponent(match[2]) : "",
     comment,
+    adhocAssignees,
   };
 }
 

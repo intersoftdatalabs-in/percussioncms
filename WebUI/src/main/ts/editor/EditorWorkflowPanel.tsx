@@ -22,7 +22,7 @@
 import React from "react";
 import { message } from "../i18n/message";
 import styles from "./EditorHost.module.css";
-import { triggerRequiresComment } from "./editorWorkflow";
+import { triggerRequiresAssignees, triggerRequiresComment } from "./editorWorkflow";
 import { EDITOR_MSG } from "./messages";
 
 export interface EditorWorkflowChoiceOption {
@@ -35,6 +35,12 @@ export interface EditorWorkflowPanelProps {
   triggers: readonly string[];
   comment: string;
   onCommentChange: (value: string) => void;
+  assignees?: readonly string[];
+  assigneeDraft?: string;
+  onAssigneeDraftChange?: (value: string) => void;
+  onAddAssignee?: () => void;
+  onRemoveAssignee?: (name: string) => void;
+  assigneeRequiredTriggers?: readonly string[] | null;
   onTransition: (trigger: string) => void;
   busy?: boolean;
   errorKey?: string | null;
@@ -52,6 +58,12 @@ export function EditorWorkflowPanel({
   triggers,
   comment,
   onCommentChange,
+  assignees = [],
+  assigneeDraft = "",
+  onAssigneeDraftChange,
+  onAddAssignee,
+  onRemoveAssignee,
+  assigneeRequiredTriggers,
   onTransition,
   busy = false,
   errorKey,
@@ -94,6 +106,11 @@ export function EditorWorkflowPanel({
                   ? "true"
                   : "false"
               }
+              data-assignees-required={
+                triggerRequiresAssignees(trigger, assigneeRequiredTriggers)
+                  ? "true"
+                  : "false"
+              }
               disabled={busy}
               onClick={() => onTransition(trigger)}
             >
@@ -113,6 +130,50 @@ export function EditorWorkflowPanel({
           onChange={(e) => onCommentChange(e.target.value)}
         />
       </label>
+      <div className={styles.field} data-testid="editor-workflow-assignees">
+        <span className={styles.label}>{message(EDITOR_MSG.WORKFLOW_ASSIGNEES)}</span>
+        {assignees.length > 0 ? (
+          <ul className={styles.workflowActions}>
+            {assignees.map((name) => (
+              <li key={name} data-testid={`editor-workflow-assignee-${name}`}>
+                {name}
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid={`editor-workflow-assignee-remove-${name}`}
+                  disabled={busy}
+                  aria-label={message(EDITOR_MSG.WORKFLOW_ASSIGNEE_REMOVE)}
+                  onClick={() => onRemoveAssignee?.(name)}
+                >
+                  {message(EDITOR_MSG.WORKFLOW_ASSIGNEE_REMOVE)}
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        <input
+          className={styles.input}
+          data-testid="editor-workflow-assignee-input"
+          value={assigneeDraft}
+          disabled={busy}
+          onChange={(e) => onAssigneeDraftChange?.(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              onAddAssignee?.();
+            }
+          }}
+        />
+        <button
+          type="button"
+          className={styles.button}
+          data-testid="editor-workflow-assignee-add"
+          disabled={busy}
+          onClick={() => onAddAssignee?.()}
+        >
+          {message(EDITOR_MSG.WORKFLOW_ASSIGNEE_ADD)}
+        </button>
+      </div>
       {workflowChoices.length > 0 ? (
         <div className={styles.workflowActions} data-testid="editor-workflow-change">
           <label className={styles.field}>

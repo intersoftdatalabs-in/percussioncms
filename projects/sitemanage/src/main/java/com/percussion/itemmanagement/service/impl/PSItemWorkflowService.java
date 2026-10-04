@@ -45,6 +45,7 @@ import com.percussion.itemmanagement.data.PSItemTransitionResults;
 import com.percussion.itemmanagement.data.PSItemUserInfo;
 import com.percussion.itemmanagement.data.PSItemWorkflowChoice;
 import com.percussion.itemmanagement.data.PSItemWorkflowChoices;
+import com.percussion.itemmanagement.workflow.EditorWorkflowAdhocRules;
 import com.percussion.itemmanagement.workflow.ItemWorkflowAssignmentRules;
 import com.percussion.itemmanagement.workflow.ItemWorkflowAssignmentRules.Reason;
 import com.percussion.itemmanagement.service.CheckoutOwnerInfo;
@@ -376,6 +377,7 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
       int stateId = sum.getContentStateId();
       List<String> triggers = new ArrayList<>();
       List<String> commentRequired = new ArrayList<>();
+      List<String> assigneeRequired = new ArrayList<>();
       String defTrigger = null;
       PSState state = workflowHelper.getState(id);
       for (PSTransition t : state.getTransitions()) {
@@ -390,6 +392,9 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
               && !t.getTrigger().isBlank()) {
             commentRequired.add(t.getTrigger());
           }
+          if (EditorWorkflowAdhocRules.triggerRequiresAssignees(wf, t)) {
+            assigneeRequired.add(t.getTrigger());
+          }
         }
       }
       if (defTrigger != null) {
@@ -402,6 +407,7 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
       trans.setWorkflowId("" + wfId);
       trans.setTransitionTriggers(triggers);
       trans.setCommentRequiredTriggers(commentRequired);
+      trans.setAssigneeRequiredTriggers(assigneeRequired);
 
       return trans;
     } catch (PSValidationException e) {
@@ -569,7 +575,13 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
   @Path("transition/{id}/{trigger}")
   public PSItemTransitionResults transition(
       @PathParam("id") String id, @PathParam("trigger") String trigger) {
-    return transitionWithComments(id, trigger, null);
+    return transitionWithComments(id, trigger, null, null);
+  }
+
+  @Override
+  public PSItemTransitionResults transitionWithComments(
+      String id, String trigger, String comment) {
+    return transitionWithComments(id, trigger, comment, null);
   }
 
   @Override
@@ -578,20 +590,23 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
   public PSItemTransitionResults transitionWithComments(
       @PathParam("id") String id,
       @PathParam("trigger") String trigger,
-      @QueryParam("comment") String comment) {
+      @QueryParam("comment") String comment,
+      @QueryParam("adhocAssignees") String adhocAssignees) {
     try {
       rejectIfBlank("transition", "id", id);
       rejectDisallowedTransition(id, trigger, comment);
+      List<String> adhocUsers = EditorWorkflowAdhocRules.parseAdhocAssignees(adhocAssignees);
+      List<String> adhocArg = adhocUsers.isEmpty() ? null : adhocUsers;
       PSItemTransitionResults results = new PSItemTransitionResults();
       // Make sure user has permission for publish transition while he is approving the content
       // When the scheduled date is on
       if (trigger.equalsIgnoreCase(TRANSITION_TRIGGER_APPROVE)) {
-        results = performApproveTransition(id, true, comment);
+        results = performApproveTransition(id, true, comment, adhocArg);
       } else {
         IPSGuid guid = idMapper.getGuid(id);
         // transition the item
         checkIn(id);
-        transitionItem(((PSLegacyGuid) guid).getContentId(), trigger, comment, null);
+        transitionItem(((PSLegacyGuid) guid).getContentId(), trigger, comment, adhocArg);
         results.setItemId(id);
       }
       return results;
@@ -701,8 +716,15 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
    * (non-Javadoc)
    * @see com.percussion.itemmanagement.service.IPSItemWorkflowService#performApproveTransition(java.lang.String, boolean)
    */
+  @Override
   public PSItemTransitionResults performApproveTransition(
       String id, boolean preventIfStartDate, String comment)
+      throws PSItemWorkflowServiceException, PSDataServiceException, PSNotFoundException {
+    return performApproveTransition(id, preventIfStartDate, comment, null);
+  }
+
+  private PSItemTransitionResults performApproveTransition(
+      String id, boolean preventIfStartDate, String comment, List<String> adhocUsers)
       throws PSItemWorkflowServiceException, PSDataServiceException, PSNotFoundException {
     rejectIfBlank("transition", "id", id);
 
@@ -740,7 +762,7 @@ public class PSItemWorkflowService implements IPSItemWorkflowService {
           ((PSLegacyGuid) guid).getContentId(),
           IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE,
           comment,
-          null);
+          adhocUsers);
     }
 
     PSItemTransitionResults results = new PSItemTransitionResults();

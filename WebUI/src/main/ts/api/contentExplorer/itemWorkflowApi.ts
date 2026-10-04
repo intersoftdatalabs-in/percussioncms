@@ -56,6 +56,11 @@ export interface ItemStateTransition {
   transitionTriggers?: string[];
   /** Triggers whose workflow comment policy is required (#4723). */
   commentRequiredTriggers?: string[];
+  /**
+   * Triggers whose destination state has ad-hoc assignment enabled (#5163).
+   * Empty when the author may transition without choosing assignees.
+   */
+  assigneeRequiredTriggers?: string[];
 }
 
 /**
@@ -151,6 +156,7 @@ export function unwrapItemStateTransition(
     workflowId: asOptionalString(body.workflowId),
     transitionTriggers: coerceTransitionTriggers(body.transitionTriggers),
     commentRequiredTriggers: coerceTransitionTriggers(body.commentRequiredTriggers),
+    assigneeRequiredTriggers: coerceTransitionTriggers(body.assigneeRequiredTriggers),
   };
 }
 
@@ -265,20 +271,40 @@ export async function getItemWorkflowTransitions(
  * <p>Uses {@code transitionWithComments} so comments can be supplied later
  * without a second client path; empty comment is allowed by the service.</p>
  */
+/**
+ * Query string for {@code transitionWithComments}, matching
+ * {@code WorkflowActionsPanel.handleTransitionSubmit}: {@code comment} then
+ * comma-separated {@code adhocAssignees}. Omits a param when it is empty.
+ */
+export function transitionWithCommentsQuery(
+  comment?: string,
+  adhocAssignees?: readonly string[] | null,
+): string {
+  const params: string[] = [];
+  if (comment != null && String(comment).length > 0) {
+    params.push(`comment=${encodeURIComponent(String(comment))}`);
+  }
+  const names = (adhocAssignees ?? [])
+    .map((name) => String(name ?? "").trim())
+    .filter((name) => name.length > 0);
+  if (names.length > 0) {
+    params.push(`adhocAssignees=${encodeURIComponent(names.join(","))}`);
+  }
+  return params.length > 0 ? `?${params.join("&")}` : "";
+}
+
 export async function transitionItem(
   itemId: string,
   trigger: string,
   comment?: string,
+  adhocAssignees?: readonly string[] | null,
 ): Promise<ItemTransitionResults> {
   const id = String(itemId ?? "").trim();
   const trig = String(trigger ?? "").trim();
   if (!id || !trig) {
     throw new Error("transitionItem requires itemId and trigger");
   }
-  let url = `${PATHS.ITEM_WORKFLOW_TRANSITION_WITH_COMMENTS}${encodeURIComponent(id)}/${encodeURIComponent(trig)}`;
-  if (comment != null && String(comment).length > 0) {
-    url += `?comment=${encodeURIComponent(String(comment))}`;
-  }
+  const url = `${PATHS.ITEM_WORKFLOW_TRANSITION_WITH_COMMENTS}${encodeURIComponent(id)}/${encodeURIComponent(trig)}${transitionWithCommentsQuery(comment, adhocAssignees)}`;
   return get<ItemTransitionResults>(url);
 }
 

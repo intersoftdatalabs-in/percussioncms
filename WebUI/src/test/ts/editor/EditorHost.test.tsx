@@ -4933,6 +4933,138 @@ describe("EditorHost workflow transitions (#4539)", () => {
     });
     expect(screen.queryByTestId("editor-workflow-changed")).toBeNull();
   });
+
+  it("sends chosen assignees on a transition that does not require them (#5163)", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    renderEdit({ runTransition });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-assignee-input")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-assignee-input"), {
+      target: { value: "alice" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-add"));
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "ready" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(runTransition).toHaveBeenCalledWith("42", "Submit", "ready", ["alice"]);
+    });
+    expect(screen.queryByTestId("editor-workflow-assignee-dialog")).toBeNull();
+  });
+
+  it("does not fire when required assignees are empty and cancel stays put (#5163)", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    const loadTransitions = vi.fn().mockResolvedValue({
+      stateName: "Draft",
+      transitionTriggers: ["Submit", "Reject"],
+      assigneeRequiredTriggers: ["Submit"],
+    });
+    renderEdit({ runTransition, loadTransitions });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Submit").getAttribute(
+        "data-assignees-required",
+      )).toBe("true");
+    });
+    expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-assignee-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-assignee-error").textContent).toMatch(
+        /at least one assignee/i,
+      );
+    });
+    expect(runTransition).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
+    expect(screen.queryByTestId("editor-workflow-done")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-workflow-assignee-dialog")).toBeNull();
+    });
+    expect(runTransition).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
+  });
+
+  it("confirms assignees then updates state only after success (#5163)", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    const loadTransitions = vi
+      .fn()
+      .mockResolvedValueOnce({
+        stateName: "Draft",
+        transitionTriggers: ["Submit"],
+        assigneeRequiredTriggers: ["Submit"],
+      })
+      .mockResolvedValue({
+        stateName: "Review",
+        transitionTriggers: ["Approve"],
+        assigneeRequiredTriggers: [],
+      });
+    renderEdit({ runTransition, loadTransitions });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Submit")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-assignee-input"), {
+      target: { value: "bob" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-add"));
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-assignee-dialog")).toBeTruthy();
+    });
+    expect(runTransition).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-confirm"));
+    await waitFor(() => {
+      expect(runTransition).toHaveBeenCalledWith("42", "Submit", undefined, ["bob"]);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-done")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Review/);
+    expect(screen.queryByTestId("editor-workflow-assignee-dialog")).toBeNull();
+  });
+
+  it("keeps the state label on HTTP 400, 403, and 409 (#5163)", async () => {
+    const statuses = [400, 403, 409];
+    for (const status of statuses) {
+      cleanup();
+      const runTransition = vi.fn().mockRejectedValue({
+        status,
+        statusText: "no",
+        body: null,
+      });
+      const loadTransitions = vi.fn().mockResolvedValue({
+        stateName: "Draft",
+        transitionTriggers: ["Submit"],
+        assigneeRequiredTriggers: ["Submit"],
+      });
+      renderEdit({ runTransition, loadTransitions });
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-workflow-trigger-Submit")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("editor-workflow-assignee-input"), {
+        target: { value: "cara" },
+      });
+      fireEvent.click(screen.getByTestId("editor-workflow-assignee-add"));
+      fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-workflow-assignee-confirm")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("editor-workflow-assignee-confirm"));
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-workflow-assignee-error")).toBeTruthy();
+      });
+      expect(runTransition).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
+      expect(screen.queryByTestId("editor-workflow-done")).toBeNull();
+      expect(screen.getByTestId("editor-workflow-assignee-dialog")).toBeTruthy();
+      expect(loadTransitions).toHaveBeenCalledTimes(1);
+    }
+  });
 });
 
 describe("EditorHost stage the open item (#4915)", () => {

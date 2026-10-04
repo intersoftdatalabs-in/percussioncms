@@ -19,8 +19,13 @@ import { describe, expect, it } from "vitest";
 import {
   canChangeEditorWorkflow,
   canRunEditorTransition,
-  isAllowedTransitionTrigger,
+  confirmEditorAssignees,
+  editorAssigneeStep,
+  editorTransitionHttpFailure,
+  normalizeAdhocAssignees,
+  triggerRequiresAssignees,
   triggerRequiresComment,
+  isAllowedTransitionTrigger,
   uniqueTransitionTriggers,
 } from "../../../main/ts/editor/editorWorkflow";
 
@@ -97,6 +102,46 @@ describe("editorWorkflow (#4539)", () => {
         comment: "needs work",
       }),
     ).toEqual({ ok: true });
+  });
+
+  it("normalizeAdhocAssignees trims and de-dupes (#5163)", () => {
+    expect(normalizeAdhocAssignees(null)).toEqual([]);
+    expect(normalizeAdhocAssignees([" alice ", "bob", "alice", "  ", "bob"])).toEqual([
+      "alice",
+      "bob",
+    ]);
+  });
+
+  it("triggerRequiresAssignees matches the loaded list exactly (#5163)", () => {
+    expect(triggerRequiresAssignees("Submit", ["Submit"])).toBe(true);
+    expect(triggerRequiresAssignees("submit", ["Submit"])).toBe(false);
+    expect(triggerRequiresAssignees("Reject", ["Submit"])).toBe(false);
+    expect(triggerRequiresAssignees("Submit", null)).toBe(false);
+  });
+
+  it("editorAssigneeStep confirms only when assignees are required (#5163)", () => {
+    expect(
+      editorAssigneeStep({ requiresAssignees: false, assignees: [] }),
+    ).toEqual({ action: "run", assignees: [] });
+    expect(
+      editorAssigneeStep({ requiresAssignees: false, assignees: [" ada "] }),
+    ).toEqual({ action: "run", assignees: ["ada"] });
+    expect(
+      editorAssigneeStep({ requiresAssignees: true, assignees: ["ada"] }),
+    ).toEqual({ action: "confirm" });
+    expect(confirmEditorAssignees([])).toEqual({ ok: false, reason: "assignees" });
+    expect(confirmEditorAssignees([" ada ", "ada"])).toEqual({
+      ok: true,
+      assignees: ["ada"],
+    });
+  });
+
+  it("editorTransitionHttpFailure does not treat 400 403 or 409 as success (#5163)", () => {
+    expect(editorTransitionHttpFailure(400)).toBe("badRequest");
+    expect(editorTransitionHttpFailure(403)).toBe("forbidden");
+    expect(editorTransitionHttpFailure(409)).toBe("conflict");
+    expect(editorTransitionHttpFailure(500)).toBe("failed");
+    expect(editorTransitionHttpFailure(undefined)).toBe("failed");
   });
 
   it("canChangeEditorWorkflow accepts only a different listed id", () => {

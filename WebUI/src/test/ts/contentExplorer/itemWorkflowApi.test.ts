@@ -70,6 +70,20 @@ describe("itemWorkflowApi (#2732)", () => {
     expect(result.commentRequiredTriggers).toEqual([]);
   });
 
+  it("unwraps assigneeRequiredTriggers (#5163)", () => {
+    const result = unwrapItemStateTransition({
+      ItemStateTransition: {
+        stateName: "Draft",
+        transitionTriggers: ["Submit", "Reject"],
+        assigneeRequiredTriggers: ["Submit"],
+      },
+    });
+    expect(result.assigneeRequiredTriggers).toEqual(["Submit"]);
+    expect(unwrapItemStateTransition({ stateName: "Draft" }).assigneeRequiredTriggers).toEqual(
+      [],
+    );
+  });
+
   it("unwraps commentRequiredTriggers (#4723)", () => {
     const result = unwrapItemStateTransition({
       ItemStateTransition: {
@@ -129,6 +143,19 @@ describe("itemWorkflowApi (#2732)", () => {
     const url = vi.mocked(client.get).mock.calls[0]?.[0] as string;
     expect(url).toContain("comment=");
     expect(url).toContain(encodeURIComponent("looks good"));
+    expect(url).not.toContain("adhocAssignees=");
+  });
+
+  it("transitionItem appends comma-separated adhocAssignees (#5163)", async () => {
+    vi.mocked(client.get).mockResolvedValue({ itemId: "55" });
+    await transitionItem("55", "Submit", "ready", ["alice", " bob "]);
+    const url = vi.mocked(client.get).mock.calls[0]?.[0] as string;
+    expect(url).toContain("comment=");
+    expect(url).toContain(encodeURIComponent("ready"));
+    expect(url).toContain(
+      `adhocAssignees=${encodeURIComponent("alice,bob")}`,
+    );
+    expect(url.indexOf("comment=")).toBeLessThan(url.indexOf("adhocAssignees="));
   });
 
   it("transitionItem rejects missing id or trigger", async () => {
