@@ -361,9 +361,24 @@ the confirm with an error and is not marked approved. HTTP **400** (invalid id,
 not on a site, or the transition was rejected), **403** (publish not allowed),
 and **409** (shared assets or the item state blocked approval) stay on the
 confirm and do not show **Approved**. **View** and **Promote** have no
-**Approve for incremental** control. This is not unapprove, not remove from the
-queue, not **Publish now**, not **Stage**, and not **Schedule**. Folders are not
-edited in this host.
+**Approve for incremental** control. This is not remove from the queue, not
+**Publish now**, not **Stage**, and not **Schedule**. **Unapprove from
+incremental** is a separate control. Folders are not edited in this host.
+
+In **Edit** mode the same host shows **Unapprove from incremental** for the
+already-open item. **Unapprove** asks **Remove approval from this page or asset
+on the incremental publish queue?** Confirm posts
+`POST /services/sitemanage/publish/incremental/explorer/{contentId}/unapprove`
+(the Explorer incremental-queue unapprove, not a second queue API). The host
+shows **Unapproved from the incremental queue** and clears **Approved onto the
+incremental queue** only after that call succeeds. **Cancel** does not call the
+server. A template, folder, or other item that is not a page or asset stays on
+the confirm with an error and does not call the server. HTTP **400** (invalid
+id or the transition was rejected), **403** (publish not allowed), and **409**
+(the item state blocked unapprove) stay on the confirm, leave **Approved** in
+place, and do not show **Unapproved**. **View** and **Promote** have no
+**Unapprove from incremental** control. This is not approve, not remove from
+the queue, not **Publish now**, not **Stage**, and not **Schedule**.
 
 The host also lists **Related content** for the open item. Slot relationships
 come from `GET /services/assembly/slot-relationships/canvas?ownerId=` and inline
