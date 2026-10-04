@@ -413,7 +413,26 @@ keeps the previous name until the save succeeds, then shows the new name. **Back
 the server. A blank name is rejected in the editor and does not call the server. HTTP **409**
 (that name already exists) stays in the editor and leaves the previous name on **Content lists**.
 Changing only the description still saves and does not rename the list. The list type is unchanged.
-Copying a content list is a separate action.
+Copying a content list is described below.
+
+### Copy a content list (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Content lists**.
+**Copy** on one row opens a form with a **new name** (required, at most 100 characters,
+`RXCONTENTLIST.NAME`). The field starts as the source name plus ` copy` when that still fits.
+**Copy content list** sends
+`POST …/sitemanage/publishingdesign/contentlists/copy` with a `copyContentListRequest` body
+(`sourceContentListId` and `newName`). The server allocates a new content list id and copies the
+description, generator, legacy URL, expander, item filter, edition type, content-list type, and
+generator and expander parameters. The source name and id stay the same. The new name appears
+under **Content lists** only after that call succeeds. **Cancel** does not call the server.
+
+A blank name, or a name longer than 100 characters, is rejected in the form and does not call the
+server. HTTP **400** (name missing or too long, or the source id is missing), **403** (not Admin
+or Designer), **404** (source list not found), and **409** (that name already exists) stay in the
+copy form. Those responses do not add a row and do not change the source list. This action does
+not associate the copy with an edition. Renaming a content list, deleting one, setting its item
+filter, and copying an edition (which may link existing lists) are separate actions.
 
 ### Delete a content list (Design)
 
