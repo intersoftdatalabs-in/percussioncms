@@ -44,6 +44,10 @@ import {
 import { mapContextSaveError } from "../contextSaveErrors";
 import { mapLocationSchemeSaveError } from "../locationSchemeSaveErrors";
 import {
+  mapLocationSchemeDeleteError,
+  schemesAfterSuccessfulDelete,
+} from "../locationSchemeDelete";
+import {
   buildLocationSchemeCopyBody,
   schemesAfterSuccessfulCopy,
   suggestedLocationSchemeCopyName,
@@ -322,16 +326,30 @@ export function ContextsPanel(): React.ReactElement {
   }
 
   async function removeScheme(id: string): Promise<void> {
+    if (saving) {
+      return;
+    }
     if (!window.confirm(message(MSG.PUBLISH_CONFIRM_DELETE_DESIGN))) {
       return;
     }
+    setError(null);
+    setSaving(true);
+    const previous = schemes;
     try {
       await deleteScheme(id);
+      let refreshed: LocationSchemeSummary[] | null = null;
       if (selected) {
-        setSchemes(await listSchemesForContext(selected));
+        try {
+          refreshed = await listSchemesForContext(selected);
+        } catch {
+          refreshed = null;
+        }
       }
+      setSchemes(schemesAfterSuccessfulDelete(refreshed, id, previous));
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapLocationSchemeDeleteError(e));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -653,6 +671,8 @@ export function ContextsPanel(): React.ReactElement {
                   <button
                     type="button"
                     style={buttonStyle}
+                    data-testid="location-scheme-delete"
+                    disabled={saving}
                     onClick={() => void removeScheme(s.schemeId!)}
                   >
                     Delete
