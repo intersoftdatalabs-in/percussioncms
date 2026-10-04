@@ -24,6 +24,12 @@ import {
   type DeliveryTypeSummary,
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
+import {
+  buildDeliveryTypeCopyBody,
+  deliveryTypesAfterSuccessfulCopy,
+  suggestedDeliveryTypeCopyName,
+  validateDeliveryTypeCopyName,
+} from "../deliveryTypeCopy";
 import { mapDeliveryTypeSaveError } from "../deliveryTypeSaveErrors";
 import { useDirtyForm } from "../dirtyFormContext";
 import {
@@ -41,6 +47,8 @@ export function DeliveryTypesPanel(): React.ReactElement {
   const [items, setItems] = useState<DeliveryTypeSummary[]>([]);
   const [editing, setEditing] = useState<DeliveryTypeSummary | null>(null);
   const [creating, setCreating] = useState(false);
+  const [copying, setCopying] = useState<DeliveryTypeSummary | null>(null);
+  const [copyName, setCopyName] = useState("");
   const [name, setName] = useState("");
   const [beanName, setBeanName] = useState("");
   const [description, setDescription] = useState("");
@@ -64,11 +72,36 @@ export function DeliveryTypesPanel(): React.ReactElement {
   function openCreate(): void {
     setCreating(true);
     setEditing(null);
+    setCopying(null);
     setName("");
     setBeanName("");
     setDescription("");
     setError(null);
     setDirty(false);
+  }
+
+  function openCopy(item: DeliveryTypeSummary): void {
+    if (!item.deliveryTypeId) {
+      return;
+    }
+    setCreating(false);
+    setEditing(null);
+    setCopying(item);
+    setCopyName(suggestedDeliveryTypeCopyName(item.name));
+    setError(null);
+    setDirty(false);
+  }
+
+  function closeCopy(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setCopying(null);
   }
 
   function openEdit(item: DeliveryTypeSummary): void {
@@ -119,6 +152,38 @@ export function DeliveryTypesPanel(): React.ReactElement {
     }
   }
 
+  async function copyType(): Promise<void> {
+    if (!copying?.deliveryTypeId || saving) {
+      return;
+    }
+    const validated = validateDeliveryTypeCopyName(copyName);
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    const previous = items;
+    try {
+      const created = await createDeliveryType(
+        buildDeliveryTypeCopyBody(copying, validated.name),
+      );
+      let refreshed: DeliveryTypeSummary[] | null = null;
+      try {
+        refreshed = await listDeliveryTypes();
+      } catch {
+        refreshed = null;
+      }
+      setItems(deliveryTypesAfterSuccessfulCopy(refreshed, created, previous));
+      setDirty(false);
+      setCopying(null);
+    } catch (e) {
+      setError(mapDeliveryTypeSaveError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function remove(id: string): Promise<void> {
     if (!window.confirm(message(MSG.PUBLISH_CONFIRM_DELETE_DESIGN))) {
       return;
@@ -129,6 +194,61 @@ export function DeliveryTypesPanel(): React.ReactElement {
     } catch (e) {
       setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
     }
+  }
+
+  if (copying) {
+    return (
+      <div data-testid="delivery-type-copy-form">
+        <h3>Copy delivery type</h3>
+        <p>Source: {copying.name ?? copying.deliveryTypeId}</p>
+        <p>
+          Bean name:{" "}
+          <span data-testid="delivery-type-copy-bean">{copying.beanName ?? ""}</span>
+        </p>
+        <p>
+          Description:{" "}
+          <span data-testid="delivery-type-copy-description">
+            {copying.description ?? ""}
+          </span>
+        </p>
+        <div style={formRowStyle}>
+          <label htmlFor="delivery-type-copy-name">* New name</label>
+          <input
+            id="delivery-type-copy-name"
+            value={copyName}
+            onChange={(e) => {
+              setCopyName(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="delivery-type-copy-submit"
+            disabled={saving}
+            onClick={() => void copyType()}
+          >
+            Copy delivery type
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="delivery-type-copy-cancel"
+            disabled={saving}
+            onClick={closeCopy}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (creating || editing) {
@@ -223,13 +343,23 @@ export function DeliveryTypesPanel(): React.ReactElement {
             </button>
             <span style={{ color: "#666" }}>{t.beanName}</span>
             {t.deliveryTypeId && (
-              <button
-                type="button"
-                style={buttonStyle}
-                onClick={() => void remove(t.deliveryTypeId!)}
-              >
-                Delete
-              </button>
+              <>
+                <button
+                  type="button"
+                  style={buttonStyle}
+                  data-testid="delivery-type-copy"
+                  onClick={() => openCopy(t)}
+                >
+                  Copy
+                </button>
+                <button
+                  type="button"
+                  style={buttonStyle}
+                  onClick={() => void remove(t.deliveryTypeId!)}
+                >
+                  Delete
+                </button>
+              </>
             )}
           </li>
         ))}

@@ -19,6 +19,16 @@ import { describe, expect, it } from "vitest";
 import { mapDeliveryTypeSaveError } from "@/publishing/deliveryTypeSaveErrors";
 
 describe("mapDeliveryTypeSaveError", () => {
+  it("maps HTTP 400 body message", () => {
+    expect(
+      mapDeliveryTypeSaveError({
+        status: 400,
+        statusText: "Bad Request",
+        body: { message: "Delivery type name must be 50 characters or fewer" },
+      }),
+    ).toBe("Delivery type name must be 50 characters or fewer");
+  });
+
   it("maps HTTP 403 to forbidden chrome", () => {
     expect(
       mapDeliveryTypeSaveError({ status: 403, statusText: "Forbidden", body: {} }),

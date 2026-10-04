@@ -480,6 +480,25 @@ HTTP **403** (not Admin or Designer) and **409** (delivery type name already exi
 delivery-type editor error region — not as a successful save. Content-list save and edition save
 are separate Design actions.
 
+### Copy a delivery type (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Delivery types**.
+On a delivery type row, **Copy** opens **Copy delivery type** (it does not call the server).
+The form shows the source **bean name** and **description** and does not let you change them.
+Enter a **new name**. **Copy delivery type** posts
+`POST …/sitemanage/publishingdesign/deliverytypes` with a `deliveryType` object: the new name
+plus the source bean name, description, and whether unpublishing requires assembly. The source
+id is not sent. There is no separate copy resource. The source row is not changed.
+
+The new name appears in **Delivery types** only after that create succeeds.
+**Cancel** closes the form and does not call the server. A blank name, or a name longer than
+50 characters (`PSX_DELIVERY_TYPE.NAME`), is rejected in the form and does not call the server.
+
+HTTP **400** (name invalid or bean missing), **403** (not Admin or Designer), and **409**
+(delivery type name already exists) stay in the copy form error region. Those responses do
+not add the new name to the list. Saving a delivery type, and copying an edition, a content
+list, or a location scheme, are separate actions.
+
 ### Save a publishing context (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
