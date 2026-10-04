@@ -18,6 +18,7 @@
 import { describe, expect, it } from "vitest";
 import {
   canRecycleFromEditor,
+  editorClosedAfterRecycle,
   editorRecycleErrorReason,
   editorRecycleItemPath,
 } from "../../../main/ts/editor/editorRecycle";
@@ -44,6 +45,13 @@ describe("editorRecycle", () => {
       ok: false,
       reason: "not_found",
     });
+  });
+
+  it("hides the recycled item before the deferred URL update", () => {
+    expect(editorClosedAfterRecycle(null, 42)).toBe(false);
+    expect(editorClosedAfterRecycle(42, 42)).toBe(true);
+    expect(editorClosedAfterRecycle(42, null)).toBe(true);
+    expect(editorClosedAfterRecycle(42, 99)).toBe(false);
   });
 
   it("maps 403, 404, and 409 as failures", () => {

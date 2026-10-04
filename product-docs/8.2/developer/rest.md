@@ -3509,7 +3509,8 @@ The React Content Editor host **Recycle** action (edit mode only) reuses
 `DELETE /rest/folders/item/{path}` after
 `GET /services/pathmanagement/path/item/id/{id}`. It does not recycle folders
 and does not empty or purge the bin. On success the host drops the open content
-id and leaves edit mode. HTTP **403**, **404**, and **409** are errors on the
+id and leaves edit mode in the same step as the recycled confirmation (content
+id, edit form, and Recycle are absent together). HTTP **403**, **404**, and **409** are errors on the
 host; cancel does not call DELETE. **View** mode has no Recycle control.
 
 ## Item publish now (Explorer)

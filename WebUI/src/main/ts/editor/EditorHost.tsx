@@ -97,6 +97,7 @@ import {
 } from "./editorOpenFolder";
 import {
   canRecycleFromEditor,
+  editorClosedAfterRecycle,
   editorRecycleErrorReason,
   editorRecycleItemPath,
   type EditorRecycleTarget,
@@ -758,8 +759,18 @@ export function EditorHost({
 }: EditorHostProps = {}): React.ReactElement {
   const navigate = useNavigate();
   const [params, setSearchParams] = useSearchParams();
-  const contentId = parsePositiveInt(params.get("contentId"));
-  const mode: EditorHostMode = normalizeEditorMode(params.get("mode"));
+  const routeContentId = parsePositiveInt(params.get("contentId"));
+  // URL updates are deferred (router startTransition). Close the item in this
+  // render so the recycled confirmation does not still show edit mode.
+  const [recycledContentId, setRecycledContentId] = useState<number | null>(null);
+  const closedAfterRecycle = editorClosedAfterRecycle(
+    recycledContentId,
+    routeContentId,
+  );
+  const contentId = closedAfterRecycle ? null : routeContentId;
+  const mode: EditorHostMode = closedAfterRecycle
+    ? "view"
+    : normalizeEditorMode(params.get("mode"));
   const linkbackWarning = (params.get("warningMessage") ?? "").trim();
   const readOnly = mode === "view";
   const promote = mode === "promote";
@@ -901,7 +912,6 @@ export function EditorHost({
   const [moveErrorKey, setMoveErrorKey] = useState<string | null>(null);
   const [moveErrorDetail, setMoveErrorDetail] = useState("");
   const [recycleBusy, setRecycleBusy] = useState(false);
-  const [recycleDone, setRecycleDone] = useState(false);
   const [recycleErrorKey, setRecycleErrorKey] = useState<string | null>(null);
   const [recycleErrorDetail, setRecycleErrorDetail] = useState("");
   const [sessionUser, setSessionUser] = useState("");
@@ -2870,7 +2880,7 @@ export function EditorHost({
       return;
     }
     setRecycleBusy(true);
-    setRecycleDone(false);
+    setRecycledContentId(null);
     setRecycleErrorKey(null);
     setRecycleErrorDetail("");
     const itemId = String(contentId);
@@ -2883,7 +2893,7 @@ export function EditorHost({
         return;
       }
       await recycleItem(resolved.path);
-      setRecycleDone(true);
+      setRecycledContentId(contentId);
       const next = new URLSearchParams(params);
       next.delete("contentId");
       next.set("mode", "view");
@@ -3476,7 +3486,7 @@ export function EditorHost({
               {message(EDITOR_MSG.PREVIEW_DONE)}
             </span>
           ) : null}
-          {recycleDone ? (
+          {closedAfterRecycle ? (
             <span className={styles.meta} data-testid="editor-recycle-done">
               {message(EDITOR_MSG.RECYCLED)}
             </span>

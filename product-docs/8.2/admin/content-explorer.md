@@ -514,8 +514,10 @@ In **Edit** mode the host also shows **Recycle** for the already-open **item**
 (not a folder). Confirm, then the host looks up the item
 (`GET /services/pathmanagement/path/item/id/{id}`) and recycles that path with
 `DELETE /rest/folders/item/{path}` — the same public REST call Explorer uses to
-recycle a page, file, or asset. After success the host **leaves edit mode** and
-no longer shows that content id as an open edit. Cancel does not call delete.
+recycle a page, file, or asset. After success the host **leaves edit mode**
+on the same step as the recycled confirmation: the content id, the edit form,
+and **Recycle** are gone together, and the address drops that item from edit
+mode. Cancel does not call delete.
 A folder path is refused and is not deleted. HTTP **403** (not allowed),
 **404** (item or path not found), and **409** (in use or checked out) stay on
 the host as errors — they are not treated as success and the item stays open.

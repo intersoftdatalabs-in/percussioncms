@@ -45,6 +45,24 @@ export function canRecycleFromEditor(mode: EditorHostMode): boolean {
   return mode === "edit";
 }
 
+/**
+ * True when a successful recycle should hide the open item.
+ *
+ * <p>The router applies the post-recycle URL inside {@code startTransition},
+ * so the address can still carry the recycled content id on the same render
+ * as the recycled confirmation. Hiding only after that URL update leaves edit
+ * mode on screen (#5175 / #4773).</p>
+ */
+export function editorClosedAfterRecycle(
+  recycledContentId: number | null,
+  routeContentId: number | null,
+): boolean {
+  return (
+    recycledContentId != null &&
+    (routeContentId == null || routeContentId === recycledContentId)
+  );
+}
+
 function looksLikeFolder(item: EditorRecycleTarget): boolean {
   const type = String(item.type ?? "").trim().toLowerCase();
   const category = String(item.category ?? "").trim().toLowerCase();
