@@ -26,6 +26,10 @@ vi.mock("@/api/home/homeApi", () => ({
   fetchSites: vi.fn().mockResolvedValue([{ name: "SiteA", siteId: "1" }]),
 }));
 
+vi.mock("@/api/developer/itemFiltersApi", () => ({
+  listItemFilters: () => Promise.resolve([]),
+}));
+
 vi.mock("@/api/publishing/designApi", () => ({
   listEditionsBySite: vi.fn().mockResolvedValue([]),
   createEdition: vi.fn(),

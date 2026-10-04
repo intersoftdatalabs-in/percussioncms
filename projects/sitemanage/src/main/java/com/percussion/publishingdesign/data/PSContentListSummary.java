@@ -31,6 +31,15 @@ public class PSContentListSummary {
   private String generator;
   private String url;
 
+  /**
+   * Item filter uuid, or a filter name. {@code null} leaves the stored filter unchanged. Blank
+   * clears it. A value that does not match an existing filter is rejected.
+   */
+  private String itemFilterId;
+
+  /** Display name of the stored item filter. Ignored on write. */
+  private String itemFilterName;
+
   public String getContentListId() {
     return contentListId;
   }
@@ -77,5 +86,21 @@ public class PSContentListSummary {
 
   public void setUrl(String url) {
     this.url = url;
+  }
+
+  public String getItemFilterId() {
+    return itemFilterId;
+  }
+
+  public void setItemFilterId(String itemFilterId) {
+    this.itemFilterId = itemFilterId;
+  }
+
+  public String getItemFilterName() {
+    return itemFilterName;
+  }
+
+  public void setItemFilterName(String itemFilterName) {
+    this.itemFilterName = itemFilterName;
   }
 }

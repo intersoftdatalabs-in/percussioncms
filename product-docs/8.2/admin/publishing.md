@@ -434,6 +434,24 @@ copy form. Those responses do not add a row and do not change the source list. T
 not associate the copy with an edition. Renaming a content list, deleting one, setting its item
 filter, and copying an edition (which may link existing lists) are separate actions.
 
+### Set the item filter on a content list (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Content lists**.
+Open one existing **modern** content list (not **Add content list**, and not a legacy list).
+**Item filter** lists item filters that already exist (the same catalog as Developer item filters).
+Choose one, or **No item filter** to clear it, then **Save**. That sends
+`PUT …/sitemanage/publishingdesign/contentlists/{contentListId}` with `itemFilterId` set to the
+filter's id, or to an empty string when clearing. The **Saved item filter** line and the text next
+to the content list stay on the previous filter until that save succeeds and the list reloads.
+**Back** does not call the server.
+
+A blank name is rejected in the editor and does not call the server. An unknown filter is
+**400** (**Unknown item filter**). HTTP **400**, **403** (not Admin or Designer), and **409**
+(content list name already exists) stay in the editor. Those responses do not change the filter
+shown for that content list. This action does not create item filters, and it does not change the
+list type, expander, edition type, or generator. Renaming a content list and copying one are
+separate actions. A legacy content list does not use an item filter.
+
 ### Delete a content list (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Content lists**.

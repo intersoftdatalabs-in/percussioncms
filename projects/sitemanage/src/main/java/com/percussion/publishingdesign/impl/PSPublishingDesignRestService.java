@@ -33,6 +33,10 @@ import com.percussion.publishingdesign.data.PSSitePropertyDto;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
+import com.percussion.services.filter.IPSFilterService;
+import com.percussion.services.filter.IPSItemFilter;
+import com.percussion.services.filter.PSFilterException;
+import com.percussion.services.filter.PSFilterServiceLocator;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.publisher.IPSContentList;
@@ -105,6 +109,8 @@ public class PSPublishingDesignRestService {
 
   static final String CONTENT_LIST_NAME_TOO_LONG =
       "Content list name must be 100 characters or fewer";
+  /** Request named an item filter that is not on the system. */
+  static final String UNKNOWN_ITEM_FILTER = "Unknown item filter";
   /** Still linked to at least one edition. Removing that association is a separate action. */
   static final String CONTENT_LIST_IN_USE = "Content list is in use";
   static final String CONTENT_LIST_ALREADY_ASSOCIATED =
@@ -130,6 +136,8 @@ public class PSPublishingDesignRestService {
   private final IPSSiteManager siteManager;
   private final PSPublishingRuntimeSupport runtimeSupport;
   private IPSUserService userService;
+  /** When null, item-filter writes resolve {@link PSFilterServiceLocator} at call time. */
+  private IPSFilterService filterService;
   private BooleanSupplier designWriteAllowed;
   /** Test hook: active job id for an edition; {@code > 0} means the edition is running. */
   private ToLongFunction<IPSGuid> editionRunningJobId;
@@ -174,6 +182,11 @@ public class PSPublishingDesignRestService {
   /** Test hook: when set, overrides Admin/Designer check (403). */
   void setDesignWriteAllowed(BooleanSupplier designWriteAllowed) {
     this.designWriteAllowed = designWriteAllowed;
+  }
+
+  /** Test hook: item-filter lookup. Production uses the filter service locator. */
+  void setFilterService(IPSFilterService filterService) {
+    this.filterService = filterService;
   }
 
   /** Test hook: when set, overrides the runtime running-job lookup (delete and disassociate). */
@@ -449,8 +462,9 @@ public class PSPublishingDesignRestService {
     }
     try {
       requireUniqueContentListName(body.getName().trim(), null);
+      ItemFilterUpdate filterUpdate = resolveItemFilterUpdate(body);
       IPSContentList cl = publisherService.createContentList(body.getName().trim());
-      applyContentListFields(cl, body, true);
+      applyContentListFields(cl, body, true, filterUpdate);
       publisherService.saveContentList(cl);
       return toContentListSummary(cl);
     } catch (WebApplicationException e) {
@@ -472,12 +486,13 @@ public class PSPublishingDesignRestService {
       throw badRequest("body is required");
     }
     try {
+      ItemFilterUpdate filterUpdate = resolveItemFilterUpdate(body);
       IPSContentList cl =
           publisherService.loadContentListModifiable(toContentListGuid(contentListId));
       if (!isBlank(body.getName())) {
         requireUniqueContentListName(body.getName().trim(), contentListId);
       }
-      applyContentListFields(cl, body, false);
+      applyContentListFields(cl, body, false, filterUpdate);
       publisherService.saveContentList(cl);
       return toContentListSummary(cl);
     } catch (PSNotFoundException e) {
@@ -1272,7 +1287,7 @@ public class PSPublishingDesignRestService {
   }
 
   private void applyContentListFields(
-      IPSContentList cl, PSContentListSummary body, boolean isCreate) {
+      IPSContentList cl, PSContentListSummary body, boolean isCreate, ItemFilterUpdate filterUpdate) {
     if (!isBlank(body.getName()) && !isCreate) {
       cl.setName(body.getName().trim());
     }
@@ -1284,6 +1299,77 @@ public class PSPublishingDesignRestService {
     }
     if (body.getUrl() != null && !body.getUrl().isBlank()) {
       cl.setUrl(body.getUrl().trim());
+    }
+    if (filterUpdate.apply()) {
+      cl.setFilterId(filterUpdate.filterId());
+    }
+  }
+
+  /**
+   * {@code apply} false leaves the stored filter alone ({@code itemFilterId} omitted). Blank clears
+   * it. Any other value must name an existing item filter by uuid or name.
+   */
+  private ItemFilterUpdate resolveItemFilterUpdate(PSContentListSummary body) {
+    if (body.getItemFilterId() == null) {
+      return ItemFilterUpdate.unchanged();
+    }
+    String raw = body.getItemFilterId().trim();
+    if (raw.isEmpty()) {
+      return ItemFilterUpdate.clear();
+    }
+    IPSItemFilter filter = findItemFilter(raw);
+    if (filter == null || filter.getGUID() == null) {
+      throw badRequest(UNKNOWN_ITEM_FILTER);
+    }
+    return ItemFilterUpdate.set(filter.getGUID());
+  }
+
+  private IPSItemFilter findItemFilter(String idOrName) {
+    IPSFilterService filters = requireFilterService();
+    if (idOrName.chars().allMatch(Character::isDigit)) {
+      IPSItemFilter byId = findItemFilterByUuid(filters, idOrName);
+      if (byId != null) {
+        return byId;
+      }
+    }
+    try {
+      return filters.findFilterByName(idOrName);
+    } catch (PSFilterException e) {
+      return null;
+    }
+  }
+
+  private IPSItemFilter findItemFilterByUuid(IPSFilterService filters, String uuid) {
+    try {
+      IPSGuid guid = guidManager.makeGuid(uuid, PSTypeEnum.ITEM_FILTER);
+      return filters.findFilterByID(guid);
+    } catch (PSNotFoundException | IllegalArgumentException e) {
+      return null;
+    }
+  }
+
+  private IPSFilterService requireFilterService() {
+    if (filterService != null) {
+      return filterService;
+    }
+    return PSFilterServiceLocator.getFilterService();
+  }
+
+  /**
+   * {@code apply == false} means the request did not mention the filter. {@code filterId == null}
+   * with {@code apply == true} clears it.
+   */
+  private record ItemFilterUpdate(boolean apply, IPSGuid filterId) {
+    static ItemFilterUpdate unchanged() {
+      return new ItemFilterUpdate(false, null);
+    }
+
+    static ItemFilterUpdate clear() {
+      return new ItemFilterUpdate(true, null);
+    }
+
+    static ItemFilterUpdate set(IPSGuid filterId) {
+      return new ItemFilterUpdate(true, filterId);
     }
   }
 
@@ -1353,7 +1439,32 @@ public class PSPublishingDesignRestService {
     } catch (Exception ignored) {
       // optional
     }
+    applyStoredItemFilter(s, cl.getFilterId());
     return s;
+  }
+
+  /** Id always; name when the filter service can resolve it. A lookup miss keeps the id. */
+  private void applyStoredItemFilter(PSContentListSummary summary, IPSGuid filterId) {
+    if (filterId == null) {
+      return;
+    }
+    summary.setItemFilterId(String.valueOf(filterId.getUUID()));
+    IPSFilterService filters = filterService;
+    if (filters == null) {
+      try {
+        filters = PSFilterServiceLocator.getFilterService();
+      } catch (RuntimeException e) {
+        return;
+      }
+    }
+    try {
+      IPSItemFilter filter = filters.findFilterByID(filterId);
+      if (filter != null && !isBlank(filter.getName())) {
+        summary.setItemFilterName(filter.getName());
+      }
+    } catch (RuntimeException e) {
+      // id without a display name (includes a missing filter)
+    }
   }
 
   private PSDeliveryTypeSummary toDeliveryTypeSummary(IPSDeliveryType t) {

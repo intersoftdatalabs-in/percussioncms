@@ -17,6 +17,7 @@
 package com.percussion.publishingdesign.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -39,6 +40,8 @@ import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
+import com.percussion.services.filter.IPSFilterService;
+import com.percussion.services.filter.IPSItemFilter;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.publisher.IPSContentList;
 import com.percussion.services.publisher.IPSDeliveryType;
@@ -453,6 +456,138 @@ class PSPublishingDesignRestServiceTest {
     verify(publisherService).saveContentList(loaded);
     assertEquals("NightCl", saved.getName());
     assertEquals("modern", saved.getListType());
+  }
+
+  @Test
+  void updateContentList_setsItemFilterByUuid() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSGuid filterGuid = mock(IPSGuid.class);
+    when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.ITEM_FILTER))).thenReturn(filterGuid);
+    when(filterGuid.getUUID()).thenReturn(42);
+    IPSFilterService filters = mock(IPSFilterService.class);
+    IPSItemFilter filter = mock(IPSItemFilter.class);
+    when(filters.findFilterByID(filterGuid)).thenReturn(filter);
+    when(filter.getGUID()).thenReturn(filterGuid);
+    when(filter.getName()).thenReturn("public");
+    service.setFilterService(filters);
+
+    IPSContentList loaded = contentListForSummary("NightCl");
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+    when(loaded.getFilterId()).thenReturn(filterGuid);
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setItemFilterId("42");
+
+    PSContentListSummary saved = service.updateContentList("5", body);
+    verify(loaded).setFilterId(filterGuid);
+    verify(publisherService).saveContentList(loaded);
+    assertEquals("42", saved.getItemFilterId());
+    assertEquals("public", saved.getItemFilterName());
+    assertEquals("NightCl", saved.getName());
+  }
+
+  @Test
+  void updateContentList_setsItemFilterByName() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSGuid filterGuid = mock(IPSGuid.class);
+    when(filterGuid.getUUID()).thenReturn(42);
+    IPSFilterService filters = mock(IPSFilterService.class);
+    IPSItemFilter filter = mock(IPSItemFilter.class);
+    when(filters.findFilterByName("preview")).thenReturn(filter);
+    when(filter.getGUID()).thenReturn(filterGuid);
+    when(filter.getName()).thenReturn("preview");
+    when(filters.findFilterByID(filterGuid)).thenReturn(filter);
+    service.setFilterService(filters);
+
+    IPSContentList loaded = contentListForSummary("NightCl");
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+    when(loaded.getFilterId()).thenReturn(filterGuid);
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setItemFilterId("preview");
+
+    PSContentListSummary saved = service.updateContentList("5", body);
+    verify(loaded).setFilterId(filterGuid);
+    verify(publisherService).saveContentList(loaded);
+    assertEquals("preview", saved.getItemFilterName());
+  }
+
+  @Test
+  void updateContentList_blankItemFilterClearsIt() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = contentListForSummary("NightCl");
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setItemFilterId("  ");
+
+    PSContentListSummary saved = service.updateContentList("5", body);
+    verify(loaded).setFilterId(null);
+    verify(publisherService).saveContentList(loaded);
+    assertNull(saved.getItemFilterId());
+    assertNull(saved.getItemFilterName());
+  }
+
+  @Test
+  void updateContentList_omittedItemFilterLeavesStoredFilter() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = contentListForSummary("NightCl");
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+    when(loaded.getDescription()).thenReturn("notes");
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setDescription("notes");
+
+    service.updateContentList("5", body);
+    verify(loaded, never()).setFilterId(any());
+    verify(publisherService).saveContentList(loaded);
+  }
+
+  @Test
+  void updateContentList_unknownItemFilter_400() throws Exception {
+    IPSGuid missing = mock(IPSGuid.class);
+    when(guidManager.makeGuid(eq("999"), eq(PSTypeEnum.ITEM_FILTER))).thenReturn(missing);
+    IPSFilterService filters = mock(IPSFilterService.class);
+    when(filters.findFilterByID(missing)).thenReturn(null);
+    when(filters.findFilterByName("999")).thenReturn(null);
+    service.setFilterService(filters);
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setItemFilterId("999");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains(PSPublishingDesignRestService.UNKNOWN_ITEM_FILTER));
+    verify(publisherService, never()).loadContentListModifiable(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void createContentList_unknownItemFilter_400() throws Exception {
+    IPSFilterService filters = mock(IPSFilterService.class);
+    when(filters.findFilterByName("no-such-filter")).thenReturn(null);
+    service.setFilterService(filters);
+    when(publisherService.findContentListByName("HomePages")).thenReturn(Optional.empty());
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setName("HomePages");
+    body.setItemFilterId("no-such-filter");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.createContentList(body));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(publisherService, never()).createContentList(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  private IPSContentList contentListForSummary(String name) {
+    IPSContentList loaded = mock(IPSContentList.class);
+    when(loaded.getGUID()).thenReturn(contentListGuid);
+    when(contentListGuid.getUUID()).thenReturn(5);
+    when(loaded.getName()).thenReturn(name);
+    when(loaded.isLegacy()).thenReturn(false);
+    return loaded;
   }
 
   @Test

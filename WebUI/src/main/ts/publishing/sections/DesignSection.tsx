@@ -25,6 +25,7 @@ import {
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
 import { contentListsAfterSuccessfulCopy } from "../contentListCopy";
+import { storedItemFilterLabel } from "../contentListItemFilter";
 import { ContentListCopyPanel } from "../design/ContentListCopyPanel";
 import { ContentListEditor } from "../design/ContentListEditor";
 import { ContextsPanel } from "../design/ContextsPanel";
@@ -311,6 +312,13 @@ export function DesignSection(): React.ReactElement {
                   </button>
                 )}
                 <span style={{ color: "#666" }}>{c.listType}</span>
+                {c.contentListId && (
+                  <span
+                    data-testid={`design-content-list-filter-${c.contentListId}`}
+                  >
+                    {storedItemFilterLabel(c)}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

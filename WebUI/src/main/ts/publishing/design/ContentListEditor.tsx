@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useState } from "react";
+import { listItemFilters } from "../../api/developer/itemFiltersApi";
 import {
   createContentList,
   deleteContentList,
@@ -23,6 +24,12 @@ import {
   type ContentListSummary,
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
+import {
+  itemFilterChoices,
+  NO_ITEM_FILTER_LABEL,
+  storedItemFilterLabel,
+  type ItemFilterChoice,
+} from "../contentListItemFilter";
 import {
   mapContentListDeleteError,
   mapContentListSaveError,
@@ -53,6 +60,10 @@ export function ContentListEditor({
   const [generator, setGenerator] = useState(contentList?.generator ?? "");
   const [url, setUrl] = useState(contentList?.url ?? "");
   const [listType, setListType] = useState(contentList?.listType ?? "modern");
+  const [itemFilterId, setItemFilterId] = useState(contentList?.itemFilterId ?? "");
+  const [filterChoices, setFilterChoices] = useState<ItemFilterChoice[]>([]);
+  const [filtersReady, setFiltersReady] = useState(false);
+  const [filtersNote, setFiltersNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const { setDirty, confirmIfDirty } = useDirtyForm();
@@ -63,10 +74,39 @@ export function ContentListEditor({
     setGenerator(contentList?.generator ?? "");
     setUrl(contentList?.url ?? "");
     setListType(contentList?.listType ?? "modern");
+    setItemFilterId(contentList?.itemFilterId ?? "");
     setDirty(false);
   }, [contentList, setDirty]);
 
   const legacy = isLegacyContentList(listType);
+
+  useEffect(() => {
+    if (legacy) {
+      return;
+    }
+    let cancelled = false;
+    setFiltersReady(false);
+    listItemFilters()
+      .then((rows) => {
+        if (cancelled) {
+          return;
+        }
+        setFilterChoices(itemFilterChoices(rows));
+        setFiltersNote(null);
+        setFiltersReady(true);
+      })
+      .catch(() => {
+        if (cancelled) {
+          return;
+        }
+        setFilterChoices([]);
+        setFiltersNote("Item filters could not be loaded");
+        setFiltersReady(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [legacy]);
 
   async function handleSave(): Promise<void> {
     if (!name.trim()) {
@@ -89,6 +129,10 @@ export function ContentListEditor({
         url: effectiveLegacy ? url : undefined,
         listType: effectiveListType,
       };
+      // Omit until the catalog is loaded so a failed lookup cannot clear the filter.
+      if (!effectiveLegacy && filtersReady) {
+        body.itemFilterId = itemFilterId;
+      }
       if (contentList?.contentListId) {
         await updateContentList(contentList.contentListId, body);
       } else {
@@ -203,6 +247,32 @@ export function ContentListEditor({
           />
         </div>
       )}
+      {!legacy && (
+        <div style={formRowStyle}>
+          <label htmlFor="cl-item-filter">Item filter</label>
+          <select
+            id="cl-item-filter"
+            data-testid="contentlist-item-filter"
+            value={selectFilterValue(itemFilterId, filterChoices, contentList)}
+            disabled={saving || !filtersReady}
+            onChange={(e) => {
+              setItemFilterId(e.target.value);
+              setDirty(true);
+            }}
+          >
+            <option value="">{NO_ITEM_FILTER_LABEL}</option>
+            {filterOptions(itemFilterId, filterChoices, contentList).map((choice) => (
+              <option key={choice.id} value={choice.id}>
+                {choice.name}
+              </option>
+            ))}
+          </select>
+          <p data-testid="contentlist-stored-item-filter">
+            Saved item filter: {storedItemFilterLabel(contentList)}
+          </p>
+          {filtersNote && <p data-testid="contentlist-item-filter-note">{filtersNote}</p>}
+        </div>
+      )}
       {error && (
         <p style={errorStyle} role="alert">
           {error}
@@ -235,4 +305,31 @@ export function ContentListEditor({
       </div>
     </div>
   );
+}
+
+function filterOptions(
+  selectedId: string,
+  choices: ItemFilterChoice[],
+  contentList: ContentListSummary | null,
+): ItemFilterChoice[] {
+  if (!selectedId || choices.some((choice) => choice.id === selectedId)) {
+    return choices;
+  }
+  const name = contentList?.itemFilterName?.trim() || selectedId;
+  return [...choices, { id: selectedId, name }];
+}
+
+function selectFilterValue(
+  selectedId: string,
+  choices: ItemFilterChoice[],
+  contentList: ContentListSummary | null,
+): string {
+  if (!selectedId) {
+    return "";
+  }
+  return filterOptions(selectedId, choices, contentList).some(
+    (choice) => choice.id === selectedId,
+  )
+    ? selectedId
+    : "";
 }
