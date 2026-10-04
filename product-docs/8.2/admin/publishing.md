@@ -442,6 +442,33 @@ HTTP **403** (not Admin or Designer) and **409** (location scheme name already e
 context) are shown in the scheme editor error region — not as a successful save. Context save,
 delivery-type save, and edition save are separate Design actions.
 
+### Copy a location scheme (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. On a location scheme row, **Copy** opens
+**Copy location scheme** (it does not call the server). Enter a **new name**. **Copy scheme**
+loads the source scheme and posts
+`POST …/sitemanage/publishingdesign/contexts/{contextId}/schemes` with a `locationScheme`
+object: the new name plus the source generator, description, content type, template, and
+`schemeParameter` entries (the location path is one of those parameters), with `copy` set
+so the server can tell this create from **Add scheme**. A flat JSON body without the
+`locationScheme` root is not saved. There is no separate copy resource.
+
+The database allows one location scheme for each context, template, and content type
+(`UIX_RXLOCSCHEME`). The copy keeps the source scheme's assignment in place, so publishing
+that template is unchanged. The new row is still saved on the same context: when that
+assignment is already used, the copy is stored with a different template id and the same
+content type, generator, and parameters. It appears in the context's location-scheme list
+only after that create succeeds.
+**Cancel** closes the form and does not call the server. A blank name, or a name longer than
+50 characters (`RXLOCATIONSCHEME.SCHEMENAME`), is rejected in the form and does not call the
+server.
+
+HTTP **400** (name or generator invalid), **403** (not Admin or Designer), and **409** (that
+name already exists in the context) stay in the copy form error region. Those responses do
+not add the new name to the list. Editing or deleting a location scheme, and copying an
+edition, are separate actions.
+
 ### Start or stop a publish job (Runtime)
 
 From **Publish** (`spa.jsp?entry=publish&section=runtime`), choose a **site** and

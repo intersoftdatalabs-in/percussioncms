@@ -31,6 +31,13 @@ public class PSLocationSchemeSummary {
   private Long contentTypeId;
   private Long templateId;
 
+  /**
+   * True when this create is a copy of an existing scheme. The context,
+   * template, and content type triple is unique, so a copy must not reuse an
+   * occupied assignment.
+   */
+  private Boolean copy;
+
   /** modern | legacy | unknown */
   private String schemeType;
 
@@ -98,6 +105,14 @@ public class PSLocationSchemeSummary {
 
   public void setTemplateId(Long templateId) {
     this.templateId = templateId;
+  }
+
+  public Boolean getCopy() {
+    return copy;
+  }
+
+  public void setCopy(Boolean copy) {
+    this.copy = copy;
   }
 
   @XmlElementWrapper(name = "parameters")

@@ -101,6 +101,14 @@ public class PSPublishingDesignRestService {
       "Content list is already associated with this edition";
   static final String DELIVERY_TYPE_NAME_CONFLICT = "Delivery type name already exists";
   static final String LOCATION_SCHEME_NAME_CONFLICT = "Location scheme name already exists";
+
+  static final String LOCATION_SCHEME_ASSIGNMENT_CONFLICT =
+      "A location scheme already exists for this context, template, and content type";
+  /** Matches {@code RXLOCATIONSCHEME.SCHEMENAME} VARCHAR(50). */
+  static final int MAX_LOCATION_SCHEME_NAME_LENGTH = 50;
+
+  static final String LOCATION_SCHEME_NAME_TOO_LONG =
+      "Location scheme name must be 50 characters or fewer";
   static final String CONTEXT_NAME_CONFLICT = "Publishing context name already exists";
 
   private final IPSPublisherService publisherService;
@@ -989,20 +997,42 @@ public class PSPublishingDesignRestService {
     if (body == null || isBlank(body.getName()) || isBlank(body.getGenerator())) {
       throw badRequest("name and generator are required");
     }
+    String trimmedName = body.getName().trim();
+    if (trimmedName.length() > MAX_LOCATION_SCHEME_NAME_LENGTH) {
+      throw badRequest(LOCATION_SCHEME_NAME_TOO_LONG);
+    }
     try {
-      requireUniqueLocationSchemeName(contextId, body.getName().trim(), null);
+      requireUniqueLocationSchemeName(contextId, trimmedName, null);
       IPSLocationScheme scheme = siteManager.createScheme();
-      scheme.setName(body.getName().trim());
+      scheme.setName(trimmedName);
       scheme.setGenerator(body.getGenerator().trim());
       scheme.setContextId(guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT));
       if (body.getDescription() != null) {
         scheme.setDescription(body.getDescription());
       }
-      if (body.getContentTypeId() != null) {
-        scheme.setContentTypeId(body.getContentTypeId());
+      Long contentTypeId = body.getContentTypeId();
+      Long templateId = body.getTemplateId();
+      if (Boolean.TRUE.equals(body.getCopy())) {
+        long schemeKey = scheme.getGUID().getUUID();
+        if (contentTypeId == null) {
+          contentTypeId = schemeKey;
+        }
+        if (templateId == null) {
+          templateId = schemeKey;
+        }
+        templateId =
+            unusedCopyTemplateId(
+                siteManager.findSchemesByContextId(
+                    guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT)),
+                contentTypeId,
+                templateId,
+                schemeKey);
       }
-      if (body.getTemplateId() != null) {
-        scheme.setTemplateId(body.getTemplateId());
+      if (contentTypeId != null) {
+        scheme.setContentTypeId(contentTypeId);
+      }
+      if (templateId != null) {
+        scheme.setTemplateId(templateId);
       }
       applySchemeParameters(scheme, body.getParameters(), true);
       siteManager.saveScheme(scheme);
@@ -1438,6 +1468,46 @@ public class PSPublishingDesignRestService {
       return;
     }
     throw conflict(CONTENT_LIST_NAME_CONFLICT);
+  }
+
+  /**
+   * One scheme per context, template, and content type ({@code UIX_RXLOCSCHEME}).
+   * A copy keeps the source assignment and uses another template id when that
+   * triple is already stored.
+   */
+  static Long unusedCopyTemplateId(
+      List<IPSLocationScheme> existing,
+      long contentTypeId,
+      long requestedTemplateId,
+      long schemeKey) {
+    long candidate =
+        locationSchemeTripleTaken(existing, requestedTemplateId, contentTypeId)
+            ? schemeKey
+            : requestedTemplateId;
+    for (int attempt = 0; attempt < 1000; attempt++) {
+      if (!locationSchemeTripleTaken(existing, candidate, contentTypeId)) {
+        return candidate;
+      }
+      candidate++;
+    }
+    throw conflict(LOCATION_SCHEME_ASSIGNMENT_CONFLICT);
+  }
+
+  private static boolean locationSchemeTripleTaken(
+      List<IPSLocationScheme> existing, long templateId, long contentTypeId) {
+    if (existing == null) {
+      return false;
+    }
+    for (IPSLocationScheme scheme : existing) {
+      if (scheme == null || scheme.getTemplateId() == null || scheme.getContentTypeId() == null) {
+        continue;
+      }
+      if (scheme.getTemplateId().longValue() == templateId
+          && scheme.getContentTypeId().longValue() == contentTypeId) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void requireUniqueLocationSchemeName(
