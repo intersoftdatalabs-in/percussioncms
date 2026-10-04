@@ -2042,10 +2042,10 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Adding or removing a step role, and notify or inbox flags, stay on the workflow-admin editor. Reader or Assignee can be set for one role already assigned to a step. Repeated or system-field aging stays outside this surface.",
+    "perc.ui.developer@Removing a step role, and notify or inbox flags, stay on the workflow-admin editor. Reader or Assignee can be set for one role already assigned to a step. Repeated or system-field aging stays outside this surface.",
   WF_ROLE_ASSIGN_TITLE: "perc.ui.developer@Assignment type",
   WF_ROLE_ASSIGN_HINT:
-    "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Adding or removing roles stays on the workflow-admin editor.",
+    "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Removing a role, and notify or inbox flags, stay on the workflow-admin editor.",
   WF_ROLE_ASSIGN_PACKAGED:
     "perc.ui.developer@Packaged or default workflows cannot change assignment type from this surface.",
   WF_ROLE_ASSIGN_TYPE: "perc.ui.developer@Assignment type",
@@ -2065,6 +2065,25 @@ export const DEV_MSG_KEYS = {
   WF_ROLE_ASSIGN_BAD:
     "perc.ui.developer@Choose Reader or Assignee for a role already on the step.",
   WF_ROLE_ASSIGN_MISSING:
+    "perc.ui.developer@That step or role was not found.",
+  WF_ROLE_ADD_TITLE: "perc.ui.developer@Add role",
+  WF_ROLE_ADD_HINT:
+    "perc.ui.developer@Add one existing workflow role that is not already on the step. The table shows that role only after the server accepts it. Notify and inbox are not changed here.",
+  WF_ROLE_ADD_EMPTY:
+    "perc.ui.developer@Every workflow role is already on this step.",
+  WF_ROLE_ADD_ROLE: "perc.ui.developer@Role to add",
+  WF_ROLE_ADD_CONFIRM: "perc.ui.developer@Add role",
+  WF_ROLE_ADD_CANCEL: "perc.ui.developer@Cancel",
+  WF_ROLE_ADD_BUSY: "perc.ui.developer@Adding...",
+  WF_ROLE_ADD_SAVED: "perc.ui.developer@Role added.",
+  WF_ROLE_ADD_ERROR: "perc.ui.developer@Could not add the role.",
+  WF_ROLE_ADD_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_ROLE_ADD_CONFLICT:
+    "perc.ui.developer@That role is already on this step.",
+  WF_ROLE_ADD_BAD:
+    "perc.ui.developer@Choose Reader or Assignee for a role that is not already on the step.",
+  WF_ROLE_ADD_MISSING:
     "perc.ui.developer@That step or role was not found.",
   WF_GAP_WRITE:
     "perc.ui.developer@Workflow update / delete is not supported from this Developer surface",

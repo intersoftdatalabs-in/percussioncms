@@ -37,11 +37,13 @@ import {
   parseWorkflowList,
   parseWorkflowSummary,
   setWorkflowAllowedContentTypes,
+  addStepRole,
   listStepRoleAssignments,
   parseStepRoleAssignments,
   renameWorkflow,
   setDefaultWorkflow,
   setStepRoleAssignment,
+  wrapWorkflowStepRoleAddForWire,
   wrapWorkflowStepRoleAssignmentForWire,
   updateWorkflow,
   wrapWorkflowContentTypesForWire,
@@ -554,6 +556,60 @@ describe("workflow step role assignment API (slice 61)", () => {
       }),
     );
     expect(listStepRoleAssignments).toBeTypeOf("function");
+  });
+});
+
+describe("workflow step role add API (slice 63)", () => {
+  const fetchMock = vi.fn();
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("POSTs one role onto a step and does not send notify or inbox", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        WorkflowStepRoleAssignmentList: {
+          assignments: [
+            { stepName: "Draft", roleName: "System", assignmentType: "READER" },
+          ],
+        },
+      }),
+    );
+    const rows = await addStepRole("Nightly QA", "Draft", {
+      roleName: "System",
+      assignmentType: "READER",
+    });
+    expect(rows[0].roleName).toBe("System");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      `${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Nightly QA")}/steps/${encodeURIComponent("Draft")}/roles`,
+    );
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("role-assignment");
+    const body = JSON.parse(String(init.body)) as {
+      WorkflowStepRoleAdd: { roleName: string; assignmentType: string };
+    };
+    expect(body).toEqual(
+      wrapWorkflowStepRoleAddForWire({
+        roleName: "System",
+        assignmentType: "READER",
+      }),
+    );
+    expect(body.WorkflowStepRoleAdd).not.toHaveProperty("notify");
+    expect(body.WorkflowStepRoleAdd).not.toHaveProperty("inbox");
   });
 });
 

@@ -781,6 +781,7 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   setWorkflowAllowedContentTypes: vi.fn().mockResolvedValue([]),
   listStepRoleAssignments: vi.fn().mockResolvedValue([]),
   setStepRoleAssignment: vi.fn(),
+  addStepRole: vi.fn(),
 }));
 
 vi.mock("../../../main/ts/api/developer/serverConfigsApi", async (importOriginal) => {

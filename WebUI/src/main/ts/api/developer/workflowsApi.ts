@@ -15,7 +15,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Adding or removing a step role, and notify or inbox flags, stay on the workflow-admin editor. Reader or Assignee can be set for one role already assigned to a step. Repeated or system-field aging stays outside this surface.",
+  "Removing a step role, and notify or inbox flags, stay on the workflow-admin editor. Reader or Assignee can be set for one role already assigned to a step. Repeated or system-field aging stays outside this surface.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -886,6 +886,37 @@ export async function setStepRoleAssignment(
   const payload = await put<unknown>(
     `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}/role-assignment`,
     wrapWorkflowStepRoleAssignmentForWire(body),
+  );
+  return parseStepRoleAssignments(payload);
+}
+
+export const WORKFLOW_STEP_ROLE_ADD_ROOT = "WorkflowStepRoleAdd";
+
+export type WorkflowStepRoleAddBody = {
+  roleName: string;
+  assignmentType: string;
+};
+
+export function wrapWorkflowStepRoleAddForWire(
+  body: WorkflowStepRoleAddBody,
+): Record<string, WorkflowStepRoleAddBody> {
+  return { [WORKFLOW_STEP_ROLE_ADD_ROOT]: body };
+}
+
+/**
+ * POST /services/workflows/{id}/steps/{step}/roles — add one existing workflow
+ * role onto one step. Not PUT role-assignment. Notify and inbox are not sent.
+ */
+export async function addStepRole(
+  idOrName: string,
+  stepName: string,
+  body: WorkflowStepRoleAddBody,
+): Promise<WorkflowStepRoleAssignment[]> {
+  const key = encodeURIComponent(idOrName);
+  const step = encodeURIComponent(stepName);
+  const payload = await post<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}/roles`,
+    wrapWorkflowStepRoleAddForWire(body),
   );
   return parseStepRoleAssignments(payload);
 }
