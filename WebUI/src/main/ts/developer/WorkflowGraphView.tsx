@@ -13,6 +13,7 @@ import {
   isPositiveMinuteInterval,
   isValidWorkflowName,
   updateTransitionCommentRequired,
+  updateWorkflowAgingInterval,
   updateWorkflowTransition,
 } from "../api/developer/workflowsApi";
 import type { WorkflowGraph, WorkflowGraphEdge } from "../api/developer/types";
@@ -22,11 +23,13 @@ import { DEV_MSG } from "./messages";
 
 /**
  * State/transition graph for one workflow (slice 32 read, slice 31 transition write,
- * slice 33 transition delete, slice 34 step delete, slice 57 absolute aging create).
+ * slice 33 transition delete, slice 34 step delete, slice 57 absolute aging create,
+ * slice 58 absolute aging interval change).
  * Packaged workflows stay read-only. Aging edges are not comment-required.
  */
 
 type TransitionIdentity = { from: string; label: string; to: string };
+type AgingIntervalIdentity = { from: string; to: string; intervalMinutes: number };
 export function WorkflowGraphView({
   workflowName,
 }: {
@@ -46,6 +49,8 @@ export function WorkflowGraphView({
   const [agingFrom, setAgingFrom] = useState("");
   const [agingTo, setAgingTo] = useState("");
   const [agingMinutes, setAgingMinutes] = useState("");
+  const [agingEdit, setAgingEdit] = useState<AgingIntervalIdentity | null>(null);
+  const [agingNewMinutes, setAgingNewMinutes] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -58,6 +63,8 @@ export function WorkflowGraphView({
     setAgingFrom("");
     setAgingTo("");
     setAgingMinutes("");
+    setAgingEdit(null);
+    setAgingNewMinutes("");
     getWorkflowGraph(workflowName)
       .then((g) => {
         if (!cancelled) {
@@ -185,6 +192,55 @@ export function WorkflowGraphView({
       setBusy(false);
     }
   }, [agingFrom, agingMinutes, agingTo, graph, workflowName]);
+
+  const onCancelAgingInterval = useCallback(() => {
+    setAgingEdit(null);
+    setAgingNewMinutes("");
+    setError(null);
+  }, []);
+
+  const onSaveAgingInterval = useCallback(async () => {
+    if (!agingEdit) {
+      return;
+    }
+    const nextMinutes = agingNewMinutes.trim();
+    if (
+      !isPositiveMinuteInterval(nextMinutes) ||
+      Number(nextMinutes) === agingEdit.intervalMinutes
+    ) {
+      setError(DEV_MSG.WF_AGING_INTERVAL_INVALID);
+      setNotice(null);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const next = await updateWorkflowAgingInterval(workflowName, {
+        from: agingEdit.from,
+        to: agingEdit.to,
+        intervalMinutes: agingEdit.intervalMinutes,
+        newIntervalMinutes: Number(nextMinutes),
+      });
+      setGraph(next);
+      setNotice(DEV_MSG.WF_AGING_INTERVAL_SAVED);
+      setAgingEdit(null);
+      setAgingNewMinutes("");
+      setReloadToken((n) => n + 1);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 403) {
+        setError(DEV_MSG.WF_AGING_INTERVAL_FORBIDDEN);
+      } else if (isApiError(err) && err.status === 409) {
+        setError(DEV_MSG.WF_AGING_INTERVAL_CONFLICT);
+      } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
+        setError(DEV_MSG.WF_AGING_INTERVAL_BAD);
+      } else {
+        setError(DEV_MSG.WF_AGING_INTERVAL_ERROR);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [agingEdit, agingNewMinutes, workflowName]);
 
   const onToggleComment = useCallback(
     async (edge: WorkflowGraphEdge, commentRequired: boolean) => {
@@ -553,6 +609,66 @@ export function WorkflowGraphView({
               >
                 {edge.from || "—"} — {edge.label || "—"} → {edge.to || "—"}
                 {typeof edge.intervalMinutes === "number" ? ` (${edge.intervalMinutes} minutes)` : ""}
+                {canWrite &&
+                edge.from &&
+                edge.to &&
+                typeof edge.intervalMinutes === "number" ? (
+                  <button
+                    type="button"
+                    data-testid={`developer-wf-aging-change-${i}`}
+                    style={{ marginLeft: 8 }}
+                    disabled={busy}
+                    onClick={() => {
+                      setNotice(null);
+                      setError(null);
+                      setAgingEdit({
+                        from: edge.from as string,
+                        to: edge.to as string,
+                        intervalMinutes: edge.intervalMinutes as number,
+                      });
+                      setAgingNewMinutes("");
+                    }}
+                  >
+                    {DEV_MSG.WF_AGING_CHANGE}
+                  </button>
+                ) : null}
+                {agingEdit &&
+                agingEdit.from === edge.from &&
+                agingEdit.to === edge.to &&
+                agingEdit.intervalMinutes === edge.intervalMinutes ? (
+                  <form
+                    data-testid="developer-wf-aging-interval-form"
+                    style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "end", marginTop: 8 }}
+                    onSubmit={(ev) => {
+                      ev.preventDefault();
+                      void onSaveAgingInterval();
+                    }}
+                  >
+                    <label>
+                      {DEV_MSG.WF_AGING_NEW_MINUTES}
+                      <input
+                        data-testid="developer-wf-aging-new-minutes"
+                        inputMode="numeric"
+                        value={agingNewMinutes}
+                        disabled={busy}
+                        onChange={(ev) => setAgingNewMinutes(ev.target.value)}
+                      />
+                    </label>
+                    <button type="submit" data-testid="developer-wf-aging-interval-save" disabled={busy}>
+                      {DEV_MSG.WF_AGING_INTERVAL_SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-wf-aging-interval-cancel"
+                      disabled={busy}
+                      onClick={() => {
+                        onCancelAgingInterval();
+                      }}
+                    >
+                      {DEV_MSG.WF_AGING_CANCEL}
+                    </button>
+                  </form>
+                ) : null}
               </li>
             ))}
           </ul>

@@ -211,6 +211,21 @@ public interface IWorkflowsAdaptor {
       URI baseUri, String idOrName, WorkflowAgingTransitionWrite body);
 
   /**
+   * Change the minute interval on one existing absolute aging transition (Admin, slice 58). Does
+   * not move the destination step, change the aging type, or delete the transition.
+   *
+   * @param body {@code from}, {@code to}, and {@code intervalMinutes} identify the edge; {@code
+   *     newIntervalMinutes} is the replacement
+   * @return the graph after the update, with the new minutes on that aging edge
+   * @throws IllegalArgumentException when a name is blank or an interval is not a different
+   *     positive number of minutes
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or absolute aging edge, 409 when the new interval already exists
+   */
+  WorkflowGraph changeAbsoluteAgingInterval(
+      URI baseUri, String idOrName, WorkflowAgingIntervalWrite body);
+
+  /**
    * Update the label and/or destination of one existing transition (Admin, slice 31). Does not
    * move the source step and does not create steps.
    *

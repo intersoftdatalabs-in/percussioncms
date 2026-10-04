@@ -14,6 +14,7 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   updateTransitionCommentRequired: vi.fn(),
   createWorkflowTransition: vi.fn(),
   createWorkflowAgingTransition: vi.fn(),
+  updateWorkflowAgingInterval: vi.fn(),
   isPositiveMinuteInterval: (raw: string | number | null | undefined) => {
     if (typeof raw === "number") {
       return Number.isSafeInteger(raw) && raw > 0;
@@ -37,6 +38,8 @@ const updateTransitionCommentRequired =
 const createWorkflowTransition = workflowsApi.createWorkflowTransition as ReturnType<typeof vi.fn>;
 const createWorkflowAgingTransition =
   workflowsApi.createWorkflowAgingTransition as ReturnType<typeof vi.fn>;
+const updateWorkflowAgingInterval =
+  workflowsApi.updateWorkflowAgingInterval as ReturnType<typeof vi.fn>;
 const updateWorkflowTransition = workflowsApi.updateWorkflowTransition as ReturnType<typeof vi.fn>;
 
 describe("WorkflowGraphView step delete", () => {
@@ -49,6 +52,7 @@ describe("WorkflowGraphView step delete", () => {
     updateTransitionCommentRequired.mockReset();
     createWorkflowTransition.mockReset();
     createWorkflowAgingTransition.mockReset();
+    updateWorkflowAgingInterval.mockReset();
     updateWorkflowTransition.mockReset();
   });
 
@@ -387,6 +391,132 @@ describe("WorkflowGraphView step delete", () => {
     render(<WorkflowGraphView workflowName="Default Workflow" />);
     await screen.findByTestId("developer-wf-aging-edge-0");
     expect(screen.queryByTestId("developer-wf-aging-form")).toBeNull();
+    expect(screen.queryByTestId("developer-wf-aging-change-0")).toBeNull();
     expect(screen.queryByTestId("developer-wf-graph-comment-0")).toBeNull();
+  });
+
+  it("shows the new aging minutes only after the server accepts the interval change", async () => {
+    const initial = {
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        { from: "Draft", to: "Review", label: "Aging 15", aging: true, intervalMinutes: 15 },
+      ],
+    };
+    const updated = {
+      packaged: false,
+      nodes: initial.nodes,
+      edges: [
+        { from: "Draft", to: "Review", label: "Aging 30", aging: true, intervalMinutes: 30 },
+      ],
+    };
+    let current = initial;
+    let release: (graph: typeof updated) => void = () => {};
+    getWorkflowGraph.mockImplementation(async () => current);
+    updateWorkflowAgingInterval.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = (graph) => {
+            current = graph;
+            resolve(graph);
+          };
+        }),
+    );
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    const edge = await screen.findByTestId("developer-wf-aging-edge-0");
+    expect(edge.textContent).toContain("15 minutes");
+    fireEvent.click(screen.getByTestId("developer-wf-aging-change-0"));
+    fireEvent.change(screen.getByTestId("developer-wf-aging-new-minutes"), {
+      target: { value: "30" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-aging-interval-save"));
+    await waitFor(() => {
+      expect(updateWorkflowAgingInterval).toHaveBeenCalledWith("Nightly QA", {
+        from: "Draft",
+        to: "Review",
+        intervalMinutes: 15,
+        newIntervalMinutes: 30,
+      });
+    });
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("15 minutes");
+    expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+    release(updated);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("30 minutes");
+    });
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 30");
+    expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-interval")).toBe("30");
+    expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
+      "Aging interval saved",
+    );
+    expect(screen.queryByTestId("developer-wf-aging-interval-form")).toBeNull();
+  });
+
+  it("cancel and a non-positive or unchanged interval do not call the server", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        { from: "Draft", to: "Review", label: "Aging 15", aging: true, intervalMinutes: 15 },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-aging-edge-0");
+    fireEvent.click(screen.getByTestId("developer-wf-aging-change-0"));
+    fireEvent.change(screen.getByTestId("developer-wf-aging-new-minutes"), {
+      target: { value: "30" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-aging-interval-cancel"));
+    expect(updateWorkflowAgingInterval).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-wf-aging-interval-form")).toBeNull();
+    expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-interval")).toBe("15");
+
+    fireEvent.click(screen.getByTestId("developer-wf-aging-change-0"));
+    fireEvent.change(screen.getByTestId("developer-wf-aging-new-minutes"), {
+      target: { value: "0" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-aging-interval-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-error").textContent).toMatch(/positive/i);
+    });
+    expect(updateWorkflowAgingInterval).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("15 minutes");
+
+    fireEvent.change(screen.getByTestId("developer-wf-aging-new-minutes"), {
+      target: { value: "15" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-aging-interval-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-error").textContent).toMatch(/different/i);
+    });
+    expect(updateWorkflowAgingInterval).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-interval")).toBe("15");
+  });
+
+  it("does not claim the interval changed on 400, 403, or 409", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        { from: "Draft", to: "Review", label: "Aging 15", aging: true, intervalMinutes: 15 },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-aging-change-0");
+    for (const status of [400, 403, 409]) {
+      fireEvent.click(screen.getByTestId("developer-wf-aging-change-0"));
+      fireEvent.change(screen.getByTestId("developer-wf-aging-new-minutes"), {
+        target: { value: "30" },
+      });
+      updateWorkflowAgingInterval.mockRejectedValueOnce({ status, message: "no" });
+      fireEvent.click(screen.getByTestId("developer-wf-aging-interval-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-wf-graph-error")).toBeTruthy();
+      });
+      expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+      expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("15 minutes");
+      expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).not.toContain("30 minutes");
+    }
   });
 });

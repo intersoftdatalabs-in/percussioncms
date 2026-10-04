@@ -1985,6 +1985,19 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@An absolute aging transition with that interval already goes to that step.",
   WF_AGING_INVALID:
     "perc.ui.developer@Choose an existing destination step and a positive interval in minutes.",
+  WF_AGING_CHANGE: "perc.ui.developer@Change interval",
+  WF_AGING_NEW_MINUTES: "perc.ui.developer@New interval (minutes)",
+  WF_AGING_INTERVAL_SAVE: "perc.ui.developer@Save interval",
+  WF_AGING_INTERVAL_SAVED: "perc.ui.developer@Aging interval saved.",
+  WF_AGING_INTERVAL_ERROR: "perc.ui.developer@Could not change the aging interval.",
+  WF_AGING_INTERVAL_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_AGING_INTERVAL_BAD:
+    "perc.ui.developer@That aging interval could not be changed. Check that it is a different positive number of minutes.",
+  WF_AGING_INTERVAL_CONFLICT:
+    "perc.ui.developer@An absolute aging transition with that interval already goes to that step.",
+  WF_AGING_INTERVAL_INVALID:
+    "perc.ui.developer@Enter a different positive interval in minutes.",
   WF_STEP_DELETE: "perc.ui.developer@Delete step",
   WF_STEP_DELETE_CONFIRM:
     "perc.ui.developer@Delete this step? It is removed only when no transition still uses it.",
@@ -1997,7 +2010,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Role assignment stays on the workflow-admin editor. Custom workflows can add one absolute aging transition in minutes. Changing or deleting that interval, and repeated or system-field aging, stay outside this surface.",
+    "perc.ui.developer@Role assignment stays on the workflow-admin editor. Custom workflows can add one absolute aging transition and change its minute interval. Deleting that interval, and repeated or system-field aging, stay outside this surface.",
   WF_GAP_WRITE:
     "perc.ui.developer@Workflow update / delete is not supported from this Developer surface",
   WF_GAP_CT:

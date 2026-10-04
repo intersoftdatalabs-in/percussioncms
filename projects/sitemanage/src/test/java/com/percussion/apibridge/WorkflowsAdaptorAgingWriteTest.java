@@ -27,6 +27,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.rest.workflows.WorkflowAgingIntervalWrite;
 import com.percussion.rest.workflows.WorkflowAgingTransitionWrite;
 import com.percussion.rest.workflows.WorkflowGraph;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -188,6 +189,100 @@ class WorkflowsAdaptorAgingWriteTest {
   }
 
   @Test
+  void changesAbsoluteIntervalAndListsTheNewMinutes() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    PSWorkflow wf = workflow("Nightly QA", draft, review);
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15));
+
+    WorkflowGraph graph =
+        adaptor.changeAbsoluteAgingInterval(null, "Nightly QA", intervalBody("Draft", "Review", 15, 30));
+
+    WorkflowGraph.Edge edge = graph.getEdges().get(0);
+    assertTrue(edge.isAging());
+    assertEquals(30L, edge.getIntervalMinutes());
+    assertEquals("Aging 30", edge.getLabel());
+    assertEquals("Review", edge.getTo());
+    assertEquals(1, draft.getAgingTransitions().size());
+    assertEquals(30L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.ABSOLUTE, draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    assertEquals(2L, draft.getAgingTransitions().get(0).getToState());
+    assertEquals(0, draft.getTransitions().size());
+    assertEquals(2, wf.getStates().size());
+    verify(workflowService, times(2)).saveWorkflow(wf);
+    verify(workflowService, times(1)).createTransition(any(), any());
+  }
+
+  @Test
+  void unchangedOrNonPositiveIntervalDoesNotSave() {
+    PSState draft = state(1, "Draft");
+    PSWorkflow wf = workflow("Nightly QA", draft, state(2, "Review"));
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            adaptor.changeAbsoluteAgingInterval(
+                null, "Nightly QA", intervalBody("Draft", "Review", 15, 0)));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            adaptor.changeAbsoluteAgingInterval(
+                null, "Nightly QA", intervalBody("Draft", "Review", 15, 15)));
+    assertEquals(15L, draft.getAgingTransitions().get(0).getInterval());
+    verify(workflowService, times(1)).saveWorkflow(wf);
+  }
+
+  @Test
+  void duplicateNewIntervalDoesNotSaveAgain() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    PSWorkflow wf = workflow("Nightly QA", draft, review);
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15));
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 45));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.changeAbsoluteAgingInterval(
+                    null, "Nightly QA", intervalBody("Draft", "Review", 15, 45)));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(15L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(45L, draft.getAgingTransitions().get(1).getInterval());
+    verify(workflowService, times(2)).saveWorkflow(wf);
+  }
+
+  @Test
+  void packagedIntervalChangeIs403() {
+    PSWorkflow wf = workflow("Simple Workflow", state(1, "Draft"), state(2, "Review"));
+    stub(wf, false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.changeAbsoluteAgingInterval(
+                    null, "Simple Workflow", intervalBody("Draft", "Review", 15, 30)));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  @Test
+  void missingAgingIntervalIs404() {
+    PSWorkflow wf = workflow("Nightly QA", state(1, "Draft"), state(2, "Review"));
+    stub(wf, false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.changeAbsoluteAgingInterval(
+                    null, "Nightly QA", intervalBody("Draft", "Review", 15, 30)));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  @Test
   void nonAdminIs403() {
     WorkflowsAdaptor locked =
         new WorkflowsAdaptor(
@@ -216,6 +311,16 @@ class WorkflowsAdaptorAgingWriteTest {
     body.setFrom(from);
     body.setTo(to);
     body.setIntervalMinutes(minutes);
+    return body;
+  }
+
+  private static WorkflowAgingIntervalWrite intervalBody(
+      String from, String to, long currentMinutes, long newMinutes) {
+    WorkflowAgingIntervalWrite body = new WorkflowAgingIntervalWrite();
+    body.setFrom(from);
+    body.setTo(to);
+    body.setIntervalMinutes(currentMinutes);
+    body.setNewIntervalMinutes(newMinutes);
     return body;
   }
 
