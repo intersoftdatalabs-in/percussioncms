@@ -317,6 +317,34 @@ export async function deleteContentList(
   );
 }
 
+export interface CopyContentListRequest {
+  sourceContentListId: string;
+  newName: string;
+}
+
+/** JAXB root wrap expected by sitemanage {@code PSCopyContentListRequest}. */
+function wrapCopyContentList(body: CopyContentListRequest): {
+  copyContentListRequest: CopyContentListRequest;
+} {
+  return { copyContentListRequest: body };
+}
+
+/**
+ * POST copy. Allocates a new content list id and copies the source definition.
+ * HTTP 400 blank or overlong name; 403 non-Admin/Designer; 404 missing source;
+ * 409 duplicate name. Does not modify the source list.
+ */
+export async function copyContentList(
+  request: CopyContentListRequest,
+): Promise<ContentListSummary> {
+  return unwrapContentList(
+    await post<unknown>(
+      `${designRoot()}/contentlists/copy`,
+      wrapCopyContentList(request),
+    ),
+  );
+}
+
 // ---- Delivery types ----
 
 export async function listDeliveryTypes(): Promise<DeliveryTypeSummary[]> {

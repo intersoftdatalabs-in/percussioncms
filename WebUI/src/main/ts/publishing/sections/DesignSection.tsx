@@ -24,6 +24,8 @@ import {
   type EditionSummary,
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
+import { contentListsAfterSuccessfulCopy } from "../contentListCopy";
+import { ContentListCopyPanel } from "../design/ContentListCopyPanel";
 import { ContentListEditor } from "../design/ContentListEditor";
 import { ContextsPanel } from "../design/ContextsPanel";
 import { DeliveryTypesPanel } from "../design/DeliveryTypesPanel";
@@ -60,6 +62,7 @@ export function DesignSection(): React.ReactElement {
     null,
   );
   const [clEdit, setClEdit] = useState<ContentListSummary | null | "new">(null);
+  const [clCopy, setClCopy] = useState<ContentListSummary | null>(null);
 
   useEffect(() => {
     fetchSites()
@@ -129,6 +132,29 @@ export function DesignSection(): React.ReactElement {
               return;
             }
             reloadEditions();
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (clCopy !== null) {
+    return (
+      <div data-testid="publish-section-design">
+        <ContentListCopyPanel
+          source={clCopy}
+          onCancel={() => setClCopy(null)}
+          onCopied={async (created) => {
+            let refreshed: ContentListSummary[] | null = null;
+            try {
+              refreshed = await listContentLists();
+            } catch {
+              refreshed = null;
+            }
+            setContentLists((prev) =>
+              contentListsAfterSuccessfulCopy(refreshed, created, prev),
+            );
+            setClCopy(null);
           }}
         />
       </div>
@@ -274,6 +300,16 @@ export function DesignSection(): React.ReactElement {
                 >
                   {c.name}
                 </button>
+                {c.contentListId && (
+                  <button
+                    type="button"
+                    data-testid={`design-content-list-copy-${c.contentListId}`}
+                    style={buttonStyle}
+                    onClick={() => setClCopy(c)}
+                  >
+                    Copy
+                  </button>
+                )}
                 <span style={{ color: "#666" }}>{c.listType}</span>
               </li>
             ))}

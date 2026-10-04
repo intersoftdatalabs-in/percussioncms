@@ -18,6 +18,7 @@ package com.percussion.publishingdesign.impl;
 
 import com.percussion.publishingdesign.data.PSContentListSummary;
 import com.percussion.publishingdesign.data.PSContextSummary;
+import com.percussion.publishingdesign.data.PSCopyContentListRequest;
 import com.percussion.publishingdesign.data.PSCopyEditionRequest;
 import com.percussion.publishingdesign.data.PSDeliveryTypeSummary;
 import com.percussion.publishingdesign.data.PSDemandPublishRequest;
@@ -65,7 +66,9 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.ToLongFunction;
@@ -97,6 +100,11 @@ public class PSPublishingDesignRestService {
   static final String EDITION_NAME_TOO_LONG =
       "Edition name must be 100 characters or fewer";
   static final String CONTENT_LIST_NAME_CONFLICT = "Content list name already exists";
+  /** Matches {@code RXCONTENTLIST.NAME} VARCHAR(100). */
+  static final int MAX_CONTENT_LIST_NAME_LENGTH = 100;
+
+  static final String CONTENT_LIST_NAME_TOO_LONG =
+      "Content list name must be 100 characters or fewer";
   /** Still linked to at least one edition. Removing that association is a separate action. */
   static final String CONTENT_LIST_IN_USE = "Content list is in use";
   static final String CONTENT_LIST_ALREADY_ASSOCIATED =
@@ -494,6 +502,49 @@ public class PSPublishingDesignRestService {
       }
       rejectContentListInUse(contentListGuid);
       publisherService.deleteContentLists(List.of(cl));
+    } catch (PSNotFoundException e) {
+      throw notFound("Content list not found");
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw internalError(e);
+    }
+  }
+
+  /**
+   * Copy one content list to a new id and name. Description, generator, expander, item filter,
+   * edition type, content-list type, URL, and generator/expander parameters are copied. The source
+   * row is not saved. This does not associate the copy with an edition.
+   */
+  @POST
+  @Path("/contentlists/copy")
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSContentListSummary copyContentList(PSCopyContentListRequest request) {
+    requireDesignWrite();
+    if (request == null
+        || isBlank(request.getSourceContentListId())
+        || isBlank(request.getNewName())) {
+      throw badRequest("sourceContentListId and newName are required");
+    }
+    String newName = request.getNewName().trim();
+    if (newName.length() > MAX_CONTENT_LIST_NAME_LENGTH) {
+      throw badRequest(CONTENT_LIST_NAME_TOO_LONG);
+    }
+    try {
+      IPSContentList source =
+          publisherService.loadContentList(
+              toContentListGuid(request.getSourceContentListId().trim()));
+      if (source == null) {
+        throw notFound("Content list not found");
+      }
+      requireUniqueContentListName(newName, null);
+      IPSContentList copy = publisherService.createContentList(newName);
+      copyContentListFields(source, copy);
+      // setName writes the visible title. Apply it last so copied fields cannot replace it.
+      copy.setName(newName);
+      publisherService.saveContentList(copy);
+      return toContentListSummary(copy);
     } catch (PSNotFoundException e) {
       throw notFound("Content list not found");
     } catch (WebApplicationException e) {
@@ -1233,6 +1284,44 @@ public class PSPublishingDesignRestService {
     }
     if (body.getUrl() != null && !body.getUrl().isBlank()) {
       cl.setUrl(body.getUrl().trim());
+    }
+  }
+
+  /**
+   * Copy definition fields onto a new list. Does not copy the id or name, and does not write the
+   * source. Parameter maps are copied by value so the source argument beans stay attached to the
+   * source list.
+   */
+  private void copyContentListFields(IPSContentList source, IPSContentList copy) {
+    if (source.getDescription() != null) {
+      copy.setDescription(source.getDescription());
+    }
+    if (source.getEditionType() != null) {
+      copy.setEditionType(source.getEditionType());
+    }
+    if (!isBlank(source.getExpander())) {
+      copy.setExpander(source.getExpander());
+    }
+    if (source.getGenerator() != null) {
+      copy.setGenerator(source.getGenerator());
+    }
+    if (source.getFilterId() != null) {
+      copy.setFilterId(source.getFilterId());
+    }
+    String url = source.getUrl();
+    if (!isBlank(url)) {
+      copy.setUrl(url.trim());
+    }
+    if (source.getContentListType() != null) {
+      copy.setContentListType(source.getContentListType());
+    }
+    Map<String, String> generatorParams = source.getGeneratorParams();
+    if (generatorParams != null && !generatorParams.isEmpty()) {
+      copy.setGeneratorParams(new HashMap<>(generatorParams));
+    }
+    Map<String, String> expanderParams = source.getExpanderParams();
+    if (expanderParams != null && !expanderParams.isEmpty()) {
+      copy.setExpanderParams(new HashMap<>(expanderParams));
     }
   }
 

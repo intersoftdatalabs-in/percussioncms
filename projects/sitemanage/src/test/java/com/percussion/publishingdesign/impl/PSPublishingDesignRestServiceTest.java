@@ -19,6 +19,7 @@ package com.percussion.publishingdesign.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.publishingdesign.data.PSContentListSummary;
+import com.percussion.publishingdesign.data.PSCopyContentListRequest;
 import com.percussion.publishingdesign.data.PSDeliveryTypeSummary;
 import com.percussion.publishingdesign.data.PSEditionSummary;
 import com.percussion.publishingdesign.data.PSContextSummary;
@@ -43,6 +45,7 @@ import com.percussion.services.publisher.IPSDeliveryType;
 import com.percussion.services.publisher.IPSEdition;
 import com.percussion.services.publisher.IPSEditionContentList;
 import com.percussion.services.publisher.IPSPublisherService;
+import com.percussion.services.publisher.data.PSEditionType;
 import com.percussion.services.sitemgr.IPSLocationScheme;
 import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSiteManager;
@@ -50,6 +53,7 @@ import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -449,6 +453,151 @@ class PSPublishingDesignRestServiceTest {
     verify(publisherService).saveContentList(loaded);
     assertEquals("NightCl", saved.getName());
     assertEquals("modern", saved.getListType());
+  }
+
+  @Test
+  void copyContentList_blankName_400() {
+    PSCopyContentListRequest request = new PSCopyContentListRequest();
+    request.setSourceContentListId("5");
+    request.setNewName("  ");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.copyContentList(request));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(publisherService, never()).loadContentList(any(IPSGuid.class));
+    verify(publisherService, never()).createContentList(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void copyContentList_nameTooLong_400() {
+    PSCopyContentListRequest request = new PSCopyContentListRequest();
+    request.setSourceContentListId("5");
+    request.setNewName("N".repeat(PSPublishingDesignRestService.MAX_CONTENT_LIST_NAME_LENGTH + 1));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.copyContentList(request));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains(PSPublishingDesignRestService.CONTENT_LIST_NAME_TOO_LONG));
+    verify(publisherService, never()).loadContentList(any(IPSGuid.class));
+    verify(publisherService, never()).createContentList(any());
+  }
+
+  @Test
+  void copyContentList_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+    PSCopyContentListRequest request = new PSCopyContentListRequest();
+    request.setSourceContentListId("5");
+    request.setNewName("NightCl copy");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.copyContentList(request));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(publisherService, never()).createContentList(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void copyContentList_missingSource_404() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    when(publisherService.loadContentList(contentListGuid))
+        .thenThrow(new PSNotFoundException("missing"));
+
+    PSCopyContentListRequest request = new PSCopyContentListRequest();
+    request.setSourceContentListId("5");
+    request.setNewName("NightCl copy");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.copyContentList(request));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(publisherService, never()).createContentList(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void copyContentList_duplicateName_409() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList source = mock(IPSContentList.class);
+    when(publisherService.loadContentList(contentListGuid)).thenReturn(source);
+
+    IPSGuid otherGuid = mock(IPSGuid.class);
+    IPSContentList existing = mock(IPSContentList.class);
+    when(existing.getGUID()).thenReturn(otherGuid);
+    when(otherGuid.getUUID()).thenReturn(99);
+    when(publisherService.findContentListByName("Taken")).thenReturn(Optional.of(existing));
+
+    PSCopyContentListRequest request = new PSCopyContentListRequest();
+    request.setSourceContentListId("5");
+    request.setNewName("Taken");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.copyContentList(request));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains(PSPublishingDesignRestService.CONTENT_LIST_NAME_CONFLICT));
+    verify(publisherService, never()).createContentList(any());
+    verify(publisherService, never()).saveContentList(any());
+    verify(source, never()).setName(any());
+  }
+
+  @Test
+  void copyContentList_copiesDefinitionOntoNewIdAndLeavesSource() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList source = mock(IPSContentList.class);
+    when(publisherService.loadContentList(contentListGuid)).thenReturn(source);
+    when(source.getDescription()).thenReturn("kept");
+    when(source.getGenerator()).thenReturn("sys_Search");
+    when(source.getExpander()).thenReturn("sys_Expander");
+    when(source.getUrl()).thenReturn(" rx_Search ");
+    when(source.getEditionType()).thenReturn(PSEditionType.AUTOMATIC);
+    IPSGuid filterGuid = mock(IPSGuid.class);
+    when(source.getFilterId()).thenReturn(filterGuid);
+    when(source.getContentListType()).thenReturn(IPSContentList.Type.NORMAL);
+    when(source.getGeneratorParams()).thenReturn(Map.of("query", "select 1"));
+    when(source.getExpanderParams()).thenReturn(Map.of("template", "page"));
+    when(publisherService.findContentListByName("NightCl copy")).thenReturn(Optional.empty());
+
+    IPSGuid copyGuid = mock(IPSGuid.class);
+    IPSContentList copy = mock(IPSContentList.class);
+    when(publisherService.createContentList("NightCl copy")).thenReturn(copy);
+    when(copy.getGUID()).thenReturn(copyGuid);
+    when(copyGuid.getUUID()).thenReturn(88);
+    when(copy.getName()).thenReturn("NightCl copy");
+    when(copy.getDescription()).thenReturn("kept");
+    when(copy.isLegacy()).thenReturn(false);
+    when(copy.getGenerator()).thenReturn("sys_Search");
+    when(copy.getUrl()).thenReturn("rx_Search");
+
+    PSCopyContentListRequest request = new PSCopyContentListRequest();
+    request.setSourceContentListId("5");
+    request.setNewName("  NightCl copy  ");
+
+    PSContentListSummary saved = service.copyContentList(request);
+    assertEquals("88", saved.getContentListId());
+    assertEquals("NightCl copy", saved.getName());
+    assertEquals("kept", saved.getDescription());
+    assertEquals("modern", saved.getListType());
+    assertEquals("sys_Search", saved.getGenerator());
+
+    verify(copy).setDescription("kept");
+    verify(copy).setGenerator("sys_Search");
+    verify(copy).setExpander("sys_Expander");
+    verify(copy).setEditionType(PSEditionType.AUTOMATIC);
+    verify(copy).setFilterId(filterGuid);
+    verify(copy).setUrl("rx_Search");
+    verify(copy).setContentListType(IPSContentList.Type.NORMAL);
+    verify(copy).setGeneratorParams(argThat(params -> "select 1".equals(params.get("query"))));
+    verify(copy).setExpanderParams(argThat(params -> "page".equals(params.get("template"))));
+    InOrder order = inOrder(copy);
+    order.verify(copy).setDescription("kept");
+    order.verify(copy).setName("NightCl copy");
+    verify(publisherService).saveContentList(copy);
+    verify(publisherService, never()).saveContentList(source);
+    verify(publisherService, never()).saveEditionContentList(any());
+    verify(publisherService, never()).loadEditionContentLists(any());
+    verify(source, never()).setName(any());
+    verify(source, never()).setDescription(any());
+    verify(source, never()).setGenerator(any());
+    verify(source, never()).setFilterId(any());
   }
 
   @Test
