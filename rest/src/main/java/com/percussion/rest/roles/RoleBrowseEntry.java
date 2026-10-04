@@ -46,6 +46,9 @@ public class RoleBrowseEntry {
   @Schema(description = "Role description when known")
   private String description;
 
+  @Schema(description = "Stored role home page when set. Absent when the role has none.")
+  private String homePage;
+
   @ArraySchema(
       schema =
           @Schema(
@@ -85,6 +88,14 @@ public class RoleBrowseEntry {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public String getHomePage() {
+    return homePage;
+  }
+
+  public void setHomePage(String homePage) {
+    this.homePage = homePage;
   }
 
   public List<String> getGroups() {

@@ -115,7 +115,7 @@ public class PSRoleService implements IPSRoleService {
     doValidation(role, true);
 
     backEndRoleMgr.createRole(role.getName(), role.getDescription());
-    setHomepage(role.getName(), role.getHomepage());
+    writeHomepage(role.getName(), role.getHomepage());
     wfService.addWorkflowRole(null, roleName);
 
     try {
@@ -167,7 +167,7 @@ public class PSRoleService implements IPSRoleService {
     existingRole.setName(name);
     existingRole.setDescription(beRole.getDescription());
     existingRole.setUsers(getUsers(name));
-    existingRole.setHomepage(getHomepage(name));
+    existingRole.setHomepage(readStoredHomepage(name));
     return existingRole;
   }
 
@@ -208,7 +208,7 @@ public class PSRoleService implements IPSRoleService {
     doValidation(role, false);
 
     var beRole = backEndRoleMgr.update(name, role.getDescription());
-    setHomepage(role.getName(), role.getHomepage());
+    writeHomepage(role.getName(), role.getHomepage());
 
     var users = new ArrayList<>(role.getUsers());
     var existingRole = find(role.getName());
@@ -410,36 +410,48 @@ public class PSRoleService implements IPSRoleService {
     return getSingleRoleUsers(role.getUsers());
   }
 
-  private void setHomepage(String roleName, String homepage)
-      throws IPSGenericDao.LoadException, IPSGenericDao.SaveException {
+  /**
+   * Persist a role homepage. A blank value deletes the metadata key (the role has no stored home
+   * page; sign-in still resolves to Home). A known type or alias is stored in canonical form. An
+   * unknown non-blank value is stored as Home so legacy callers cannot write an arbitrary string.
+   * Developer home-page saves reject unknown values before calling this method.
+   */
+  void writeHomepage(String roleName, String homepage) throws PSDataServiceException {
     if (StringUtils.isBlank(roleName)) {
       throw new IllegalArgumentException("roleName must not be blank");
     }
-    String normalized = PSUserService.normalizeHomepageType(homepage);
-    if (normalized == null) {
-      // SPA product default landing is Home (not Dashboard)
-      homepage = HOMEPAGE_TYPE_HOME;
-    } else {
-      homepage = normalized;
-    }
     var key = META_DATA_HOMEPAGE_PREFIX + roleName;
+    if (StringUtils.isBlank(homepage)) {
+      var existing = mdService.find(key);
+      if (existing != null) {
+        mdService.delete(key);
+      }
+      return;
+    }
+    String normalized = PSUserService.normalizeHomepageType(homepage);
+    String stored = normalized == null ? HOMEPAGE_TYPE_HOME : normalized;
     var md = mdService.find(key);
     if (md == null) {
-      md = new PSMetadata(key, homepage);
+      md = new PSMetadata(key, stored);
     } else {
-      md.setData(homepage);
+      md.setData(stored);
     }
     mdService.save(md);
   }
 
-  private String getHomepage(String roleName) throws IPSGenericDao.LoadException {
+  /**
+   * Stored homepage metadata, or {@code null} when unset. Does not substitute Home; sign-in uses
+   * {@link #resolveUserHomepage(Set)} for that default.
+   */
+  String readStoredHomepage(String roleName) throws IPSGenericDao.LoadException {
     if (StringUtils.isBlank(roleName)) {
       throw new IllegalArgumentException("roleName must not be blank");
     }
-    var key = META_DATA_HOMEPAGE_PREFIX + roleName;
-    var md = mdService.find(key);
-    // Unset role homepage → Home (SPA default landing)
-    return (md == null ? HOMEPAGE_TYPE_HOME : md.getData());
+    var md = mdService.find(META_DATA_HOMEPAGE_PREFIX + roleName);
+    if (md == null || StringUtils.isBlank(md.getData())) {
+      return null;
+    }
+    return md.getData();
   }
 
   private List<String> getSingleRoleUsers(List<String> users) {
@@ -542,7 +554,10 @@ public class PSRoleService implements IPSRoleService {
     Set<String> userHomePages = new HashSet<>();
     if (userRoles != null) {
       for (var role : userRoles) {
-        userHomePages.add(getHomepage(role));
+        String stored = readStoredHomepage(role);
+        if (StringUtils.isNotBlank(stored)) {
+          userHomePages.add(stored);
+        }
       }
     }
     return resolveUserHomepage(userHomePages);

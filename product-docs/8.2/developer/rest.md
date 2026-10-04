@@ -486,7 +486,7 @@ role membership CRUD under `/services/roles`.
 
 Each catalog entry includes:
 
-- `name` / optional `description`
+- `name` / optional `description` / optional `homePage` (absent when the role has no stored home page)
 - `groups` — one or more of `community`, `workflow`, or solely `unassigned`
 - `communities` — community names that include the role (sorted)
 - `workflows` — workflow names that include the role (sorted; excludes internal
@@ -506,7 +506,8 @@ Existing role get / list / create-update / delete remain:
 | `GET` | `/services/roles/{roleName}` | Load one role |
 | `GET` | `/services/roles/list/{pattern}` | Find roles by pattern |
 | `PUT` | `/services/roles/?create=true` | Create a role (does not update an existing name) |
-| `PUT` | `/services/roles/?update=true` | Update an existing role's description only (404 if missing; does not change members) |
+| `PUT` | `/services/roles/?update=true` | Update an existing role's description only (404 if missing; does not change members or the home page) |
+| `PUT` | `/services/roles/?homePage=true` | Update an existing role's home page only (404 if missing). Blank `homePage` clears it. Unknown values are 400. Does not change the description or members. Do not combine with `create=true` or `update=true` |
 | `PUT` | `/services/roles/` | Create a role that is not defined, or update the description of one that is |
 | `DELETE` | `/services/roles/{roleName}` | **Admin.** Delete one CMS role. System and Default are `400`. Missing is `404`. In use (stranded users or a non-reader workflow assignment) is `409` and is not deleted. A directory group loses only the CMS link |
 

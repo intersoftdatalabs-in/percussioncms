@@ -133,10 +133,13 @@ class RoleAdaptorBrowseTest {
     PSRole stored = new PSRole();
     stored.setName("Author");
     stored.setDescription("  Authors content  ");
+    stored.setHomepage(" Explorer ");
     when(roleService.find(any())).thenReturn(stored);
 
     RoleBrowseCatalog catalog = adaptor.browseRoles(null, null);
-    assertEquals("Authors content", byName(catalog, "Author").getDescription());
+    RoleBrowseEntry author = byName(catalog, "Author");
+    assertEquals("Authors content", author.getDescription());
+    assertEquals("Explorer", author.getHomePage());
   }
 
   @Test

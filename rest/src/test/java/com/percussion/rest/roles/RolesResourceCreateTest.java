@@ -51,7 +51,7 @@ public class RolesResourceCreateTest {
   @Test
   public void blankNameIs400BeforeAdaptor() {
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, () -> resource.updateRole(Boolean.TRUE, null, new Role()));
+        assertThrows(WebApplicationException.class, () -> resource.updateRole(Boolean.TRUE, null, null, new Role()));
     assertEquals(400, ex.getResponse().getStatus());
     verifyNoInteractions(adaptor);
   }
@@ -61,7 +61,7 @@ public class RolesResourceCreateTest {
     Role role = new Role();
     role.setName("   ");
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, () -> resource.updateRole(null, null, role));
+        assertThrows(WebApplicationException.class, () -> resource.updateRole(null, null, null, role));
     assertEquals(400, ex.getResponse().getStatus());
     verifyNoInteractions(adaptor);
   }
@@ -72,7 +72,7 @@ public class RolesResourceCreateTest {
     Role saved = named("NightRole", "Editors");
     when(adaptor.createRole(isNull(), eq(input))).thenReturn(saved);
 
-    Role out = resource.updateRole(Boolean.TRUE, null, input);
+    Role out = resource.updateRole(Boolean.TRUE, null, null, input);
 
     assertEquals("NightRole", out.getName());
     verify(adaptor).createRole(isNull(), eq(input));
@@ -86,7 +86,7 @@ public class RolesResourceCreateTest {
     when(adaptor.roleExists(isNull(), eq("NightRole"))).thenReturn(false);
     when(adaptor.createRole(isNull(), eq(input))).thenReturn(input);
 
-    Role out = resource.updateRole(null, null, input);
+    Role out = resource.updateRole(null, null, null, input);
 
     assertEquals("NightRole", out.getName());
     verify(adaptor).createRole(isNull(), eq(input));
@@ -99,7 +99,7 @@ public class RolesResourceCreateTest {
     when(adaptor.roleExists(isNull(), eq("Author"))).thenReturn(true);
     when(adaptor.updateRole(isNull(), eq(input))).thenReturn(input);
 
-    Role out = resource.updateRole(Boolean.FALSE, null, input);
+    Role out = resource.updateRole(Boolean.FALSE, null, null, input);
 
     assertEquals("Author", out.getName());
     verify(adaptor).updateRole(isNull(), eq(input));
@@ -113,7 +113,7 @@ public class RolesResourceCreateTest {
         .thenThrow(new WebApplicationException("already exists", 400));
 
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, () -> resource.updateRole(Boolean.TRUE, null, input));
+        assertThrows(WebApplicationException.class, () -> resource.updateRole(Boolean.TRUE, null, null, input));
 
     assertEquals(400, ex.getResponse().getStatus());
     verify(adaptor, never()).updateRole(any(), any());
@@ -127,7 +127,7 @@ public class RolesResourceCreateTest {
         .thenThrow(new WebApplicationException("Admin role required to create a role", 403));
 
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, () -> resource.updateRole(Boolean.TRUE, null, input));
+        assertThrows(WebApplicationException.class, () -> resource.updateRole(Boolean.TRUE, null, null, input));
 
     assertEquals(403, ex.getResponse().getStatus());
     verify(adaptor, never()).updateRole(any(), any());
@@ -140,7 +140,7 @@ public class RolesResourceCreateTest {
         .thenThrow(new BackendException("db down", new Exception("db down")));
 
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, () -> resource.updateRole(Boolean.TRUE, null, input));
+        assertThrows(WebApplicationException.class, () -> resource.updateRole(Boolean.TRUE, null, null, input));
 
     assertEquals(500, ex.getResponse().getStatus());
   }
@@ -150,7 +150,7 @@ public class RolesResourceCreateTest {
     Role input = named("  NightRole  ", "Editors");
     when(adaptor.createRole(isNull(), eq(input))).thenReturn(named("NightRole", "Editors"));
 
-    resource.updateRole(Boolean.TRUE, null, input);
+    resource.updateRole(Boolean.TRUE, null, null, input);
 
     assertEquals("NightRole", input.getName());
     verify(adaptor).createRole(isNull(), eq(input));

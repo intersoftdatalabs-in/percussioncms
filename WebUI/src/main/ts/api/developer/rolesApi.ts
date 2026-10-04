@@ -34,6 +34,8 @@ export type RoleBrowseGroupKey = (typeof ROLE_BROWSE_GROUPS)[number];
 export type RoleBrowseEntry = {
   name: string;
   description?: string;
+  /** Stored landing page when set. Absent when the role has none. */
+  homePage?: string;
   /** Grouping keys: community, workflow, and/or unassigned. */
   groups: RoleBrowseGroupKey[];
   /** Community names that include this role (sorted). */
@@ -93,13 +95,18 @@ function normalizeEntry(raw: unknown): RoleBrowseEntry | null {
   if (!name) return null;
   const description =
     typeof obj.description === "string" ? obj.description : undefined;
-  return {
+  const homePageRaw = typeof obj.homePage === "string" ? obj.homePage.trim() : "";
+  const entry: RoleBrowseEntry = {
     name,
     description,
     groups: normalizeGroups(obj.groups),
     communities: asStringArray(obj.communities),
     workflows: asStringArray(obj.workflows),
   };
+  if (homePageRaw) {
+    entry.homePage = homePageRaw;
+  }
+  return entry;
 }
 
 function unwrapRolesList(payload: unknown): unknown[] {
@@ -181,10 +188,12 @@ export async function browseRoles(
   return unwrapRoleBrowseCatalog(payload);
 }
 
-/** Wire body for PUT /services/roles/?create=true. Description is optional. */
+/** Wire body for PUT /services/roles/. Description and home page are optional. */
 export type RoleCreateBody = {
   name: string;
   description?: string;
+  /** Sent only by the home-page save. Blank clears. */
+  homePage?: string;
 };
 
 /** Role returned by a successful create. */
@@ -306,4 +315,62 @@ export async function updateRoleDescription(
     wrapRoleCreateForWire(body),
   );
   return unwrapCreatedRole(payload);
+}
+
+/** PUT /services/roles/?homePage=true — home page of an existing role, never a create. */
+export function roleUpdateHomePageUrl(): string {
+  return `${PATHS.ROLES}/?homePage=true`;
+}
+
+/** Role returned by a successful home-page save. A missing homePage means it was cleared. */
+export type RoleHomePageResult = {
+  name: string;
+  description?: string;
+  homePage?: string;
+};
+
+/**
+ * Unwrap a home-page save. A missing homePage is a clear, not a failed response.
+ * Throws when the payload has no name so callers do not treat an empty body as success.
+ */
+export function unwrapUpdatedRoleHomePage(payload: unknown): RoleHomePageResult {
+  const obj = asRecord(payload);
+  const wrapped = obj ? asRecord(obj.Role) : null;
+  const body = wrapped ?? obj;
+  if (!body) {
+    throw new Error("Role update returned an empty body");
+  }
+  const name = typeof body.name === "string" ? body.name.trim() : "";
+  if (!name) {
+    throw new Error("Role update returned no name");
+  }
+  const result: RoleHomePageResult = { name };
+  if (typeof body.description === "string") {
+    result.description = body.description;
+  }
+  if (typeof body.homePage === "string" && body.homePage.trim()) {
+    result.homePage = body.homePage.trim();
+  }
+  return result;
+}
+
+/**
+ * PUT /services/roles/?homePage=true — Admin home-page edit.
+ * Does not send description or users (the server keeps both). A blank home page clears.
+ * HTTP 400, 403, and 404 reject; this function does not return a role for those.
+ */
+export async function updateRoleHomePage(input: {
+  name: string;
+  homePage?: string;
+}): Promise<RoleHomePageResult> {
+  const name = input.name.trim();
+  if (!isRoleCreateReady(name)) {
+    throw new Error("Role name is required");
+  }
+  const homePage = input.homePage?.trim() ?? "";
+  const payload = await put<unknown>(
+    roleUpdateHomePageUrl(),
+    wrapRoleCreateForWire({ name, homePage }),
+  );
+  return unwrapUpdatedRoleHomePage(payload);
 }

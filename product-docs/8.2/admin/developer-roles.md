@@ -1,7 +1,7 @@
 ---
 id: admin-developer-roles
 title: Developer Roles
-description: Browse CMS security roles, create a role, update one description, and delete one role
+description: Browse CMS security roles, create a role, update one description, set or clear one home page, and delete one role
 version: "8.2"
 order: 46
 tags: [admin, developer, roles, security]
@@ -20,7 +20,8 @@ It mirrors the classic Workbench **Security Design → Roles** navigator folders
 
 A role that is both community- and workflow-assigned appears under **both** groups.
 An Admin can **create** one role (name and description), **edit the description**
-of one existing role, and **delete** one existing role from this catalog.
+of one existing role, **set or clear the home page** of one existing role, and
+**delete** one existing role from this catalog.
 **System** and **Default** cannot be deleted.
 This chrome does **not** change membership —
 use **Admin → Roles** for user membership and **Developer → Communities** detail for
@@ -37,9 +38,9 @@ the catalog keeps the previous row.
    role counts. Expand or collapse a group to show or hide its table.
 4. Use the **All groups** / **Community** / **Workflow** / **Unassigned** filters
    to focus on one navigator folder.
-5. Each row shows the role name, description (when known), communities that
-   include the role, and workflows that include the role. Select a row to edit
-   that role's description.
+5. Each row shows the role name, description (when known), home page (when
+   stored), communities that include the role, and workflows that include the
+   role. Select a row to edit that role's description or home page.
 
 Non-Admin sessions receive **403** from the catalog API and the panel shows an
 error. An empty catalog is a valid **200** with no rows.
@@ -80,6 +81,34 @@ rejects the update), **403** (not Admin), and **404** (the role no longer
 exists) leave the form in an error state. The catalog row keeps the previous
 description. `update=true` does not create a missing role.
 
+## Product path — set or clear a home page
+
+1. Sign in as **Admin**.
+2. Open **Developer → Roles** and wait for the catalog.
+3. Select the row of an existing role. The detail shows that role's name
+   (read-only), its description, and its stored home page (blank when none is
+   stored).
+4. **Cancel** closes the detail and does not call the server. The row keeps
+   the previous home page.
+5. Enter a landing-page type and choose **Save home page**. The row does not
+   show the new home page until the server returns success and the catalog
+   reloads. Known values and common aliases are stored in canonical form
+   (`Home`, `Explorer`, `Architecture`, `Developer`, `Publish`, `Workflow`,
+   and the older `Dashboard`, `Editor`, and `Design` values). `navigation`
+   is stored as `Architecture`. `admin` is stored as `Design`.
+6. Clear the field and choose **Save home page**. The stored home page is
+   removed only after success. The row is blank after reload. Sign-in still
+   uses **Home** when a role has no stored home page. Saving the word `Home`
+   stores Home; that is not the same as clearing the field.
+7. The save does not rename the role, change its description, or change its
+   members.
+
+HTTP **400** (the value is not a known landing page, or the role service
+rejects the update), **403** (not Admin), and **404** (the role no longer
+exists) leave the detail in an error state. The catalog row keeps the previous
+home page. `homePage=true` does not create a missing role. Do not send
+`homePage=true` together with `create=true` or `update=true` (**400**).
+
 ## Product path — delete a role
 
 1. Sign in as **Admin**.
@@ -102,9 +131,9 @@ role was deleted.
 ## Limits
 
 - Create is name and description only. Description save changes the description
-  only. Delete removes one CMS role. Membership CRUD remains on **Admin → Roles**
+  only. Home-page save changes the home page only (a blank value clears it).
+  Delete removes one CMS role. Membership CRUD remains on **Admin → Roles**
   and community **Save roles**.
-- This form does not change the home page.
 - **System** and **Default** cannot be deleted.
 - A duplicate name is rejected. It does not update the existing role.
 - LocalContent (internal) workflow assignments are excluded from the workflow
@@ -122,16 +151,21 @@ The chrome calls:
 | Filtered | `GET /services/roles/catalog?group=community\|workflow\|unassigned` |
 | Create | `PUT /services/roles/?create=true` with a `Role` object: `name` (required) and optional `description` |
 | Update description | `PUT /services/roles/?update=true` with a `Role` object: `name` (required) and `description` (blank clears) |
+| Set or clear home page | `PUT /services/roles/?homePage=true` with a `Role` object: `name` (required) and `homePage` (blank clears). Description and users on the body are ignored |
 | Delete | `DELETE /services/roles/{roleName}` |
 
 Create always uses the role create service (`create=true`). It does not update
 an existing role. A blank name is **400**. A caller who is not Admin is **403**.
 A duplicate or otherwise invalid name is **400**. `update=true` changes the
 description of an existing role and does not create a missing name (**404**).
-It does not change members or the role name. A description longer than 255
-characters is **400**. Without `create=true` or `update=true`, `PUT` still
-creates a role that is not already defined and updates the description of a
-role that is. Do not send both `create=true` and `update=true` (**400**).
+It does not change members, the home page, or the role name. A description
+longer than 255 characters is **400**. `homePage=true` changes only the home
+page of an existing role and does not create a missing name (**404**). A blank
+`homePage` clears the stored value. A value that is not a known landing page
+is **400**. It does not change the description, members, or the role name.
+Without `create=true`, `update=true`, or `homePage=true`, `PUT` still creates
+a role that is not already defined and updates the description of a role that
+is. Do not combine `create=true`, `update=true`, and `homePage=true` (**400**).
 Delete is **Admin** only (**403** otherwise). **System** and **Default** are
 **400**. A missing name is **404**. A role that would strand a user, or that a
 workflow still assigns beyond reader, is **409** and is not deleted. A
