@@ -112,6 +112,10 @@ public class PSPublishingDesignRestService {
   static final String LOCATION_SCHEME_NAME_TOO_LONG =
       "Location scheme name must be 50 characters or fewer";
   static final String CONTEXT_NAME_CONFLICT = "Publishing context name already exists";
+  /**
+   * Location schemes still belong to this context. Removing those schemes is a separate action.
+   */
+  static final String CONTEXT_HAS_LOCATION_SCHEMES = "Publishing context has location schemes";
 
   private final IPSPublisherService publisherService;
   private final IPSGuidManager guidManager;
@@ -937,11 +941,13 @@ public class PSPublishingDesignRestService {
   @DELETE
   @Path("/contexts/{contextId}")
   public void deleteContext(@PathParam("contextId") String contextId) {
-    requireSiteManager();
+    requireDesignWrite();
     requireNonBlank(contextId, "contextId");
+    requireSiteManager();
     try {
-      IPSPublishingContext ctx =
-          siteManager.loadContext(guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT));
+      IPSGuid contextGuid = guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT);
+      IPSPublishingContext ctx = siteManager.loadContext(contextGuid);
+      rejectContextHasSchemes(contextGuid);
       siteManager.deleteContext(ctx);
     } catch (PSNotFoundException e) {
       throw notFound("Context not found");
@@ -1451,6 +1457,27 @@ public class PSPublishingDesignRestService {
     }
     if (jobId > 0L) {
       throw conflict(EDITION_IN_USE);
+    }
+  }
+
+  /**
+   * Refuse delete while any location scheme still belongs to the context (HTTP 409).
+   * A context with no schemes is deleted. This does not delete those schemes.
+   */
+  private void rejectContextHasSchemes(IPSGuid contextGuid) {
+    if (contextGuid == null) {
+      return;
+    }
+    List<IPSLocationScheme> schemes;
+    try {
+      schemes = siteManager.findSchemesByContextId(contextGuid);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw internalError(e);
+    }
+    if (schemes != null && !schemes.isEmpty()) {
+      throw conflict(CONTEXT_HAS_LOCATION_SCHEMES);
     }
   }
 

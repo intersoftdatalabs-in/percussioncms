@@ -42,6 +42,10 @@ import {
   toolbarStyle,
 } from "../publishing.styles";
 import { mapContextSaveError } from "../contextSaveErrors";
+import {
+  contextsAfterSuccessfulDelete,
+  mapContextDeleteError,
+} from "../contextDelete";
 import { mapLocationSchemeSaveError } from "../locationSchemeSaveErrors";
 import {
   mapLocationSchemeDeleteError,
@@ -257,17 +261,35 @@ export function ContextsPanel(): React.ReactElement {
   }
 
   async function removeContext(id: string): Promise<void> {
+    if (saving || !id) {
+      return;
+    }
     if (!window.confirm(message(MSG.PUBLISH_CONFIRM_DELETE_DESIGN))) {
       return;
     }
+    setError(null);
+    setSaving(true);
+    const previous = contexts;
     try {
       await deleteContext(id);
-      if (selected === id) {
-        setSelected("");
+      let refreshed: ContextSummary[] | null = null;
+      try {
+        refreshed = await listContexts();
+      } catch {
+        refreshed = null;
       }
-      reloadContexts();
+      const next = contextsAfterSuccessfulDelete(refreshed, id, previous);
+      setContexts(next);
+      setSelected((current) => {
+        if (next.some((row) => String(row.contextId ?? "") === current)) {
+          return current;
+        }
+        return next.length > 0 ? String(next[0].contextId ?? "") : "";
+      });
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapContextDeleteError(e));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -622,6 +644,8 @@ export function ContextsPanel(): React.ReactElement {
             <button
               type="button"
               style={buttonStyle}
+              data-testid="context-delete"
+              disabled={saving}
               onClick={() => void removeContext(selected)}
             >
               Delete context

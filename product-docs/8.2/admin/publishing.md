@@ -443,6 +443,24 @@ HTTP **403** (not Admin or Designer) and **409** (publishing context name alread
 are shown in the context editor error region — not as a successful save. Location-scheme
 save, delivery-type save, and edition save are separate Design actions.
 
+### Delete a publishing context (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context** that has no location schemes.
+**Delete context** asks **Delete this design object? This cannot be undone.**
+Dismissing that confirm does not call the server, and the context stays in the
+list. Confirm sends `DELETE …/sitemanage/publishingdesign/contexts/{contextId}`
+(the same delete already used by Design; there is no second delete resource).
+The context leaves the list only after the delete succeeds. If the list refresh
+fails after a successful delete, that context is still removed. Other contexts stay.
+
+A context that still has location schemes is not deleted. Remove those schemes
+first. This action does not delete the schemes. HTTP **409** (**Publishing context
+has location schemes**), **403** (not Admin or Designer), and **400** (context id
+missing) stay in the contexts error region. Those responses do not remove the
+context and do not claim it was deleted. Saving a publishing context, and deleting
+a location scheme, are separate actions.
+
 ### Save a location scheme (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
