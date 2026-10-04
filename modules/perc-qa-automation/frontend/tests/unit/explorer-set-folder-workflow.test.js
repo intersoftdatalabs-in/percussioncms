@@ -28,6 +28,7 @@ describe("explorer set folder workflow helpers (#5104)", () => {
   it("uses the folder workflow dialog test ids", () => {
     assert.equal(TEST_IDS.menuItem, "explorer-set-folder-workflow");
     assert.equal(TEST_IDS.dialog, "explorer-set-folder-workflow-dialog");
+    assert.equal(TEST_IDS.multi, "explorer-set-folder-workflow-multi");
     assert.equal(TEST_IDS.status, "explorer-set-folder-workflow-status");
   });
 

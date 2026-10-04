@@ -21,6 +21,7 @@ const TEST_IDS = Object.freeze({
   shell: "content-explorer-shell",
   menuItem: "explorer-set-folder-workflow",
   dialog: "explorer-set-folder-workflow-dialog",
+  multi: "explorer-set-folder-workflow-multi",
   select: "explorer-set-folder-workflow-select",
   save: "explorer-set-folder-workflow-save",
   cancel: "explorer-set-folder-workflow-cancel",

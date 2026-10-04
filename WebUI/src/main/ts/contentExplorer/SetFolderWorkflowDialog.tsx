@@ -29,6 +29,8 @@ export interface SetFolderWorkflowDialogProps {
   currentId: string;
   busy: boolean;
   error: string;
+  /** When true, one save writes every checked folder (#5179). */
+  multi?: boolean;
   onSave: (workflowId: string) => void;
   onCancel: () => void;
 }
@@ -38,6 +40,7 @@ export function SetFolderWorkflowDialog({
   currentId,
   busy,
   error,
+  multi = false,
   onSave,
   onCancel,
 }: SetFolderWorkflowDialogProps): React.ReactElement {
@@ -115,6 +118,14 @@ export function SetFolderWorkflowDialog({
         <h2 id="explorer-set-folder-workflow-title" style={{ fontSize: 16, margin: "0 0 12px" }}>
           {message(EXPLORER_MSG.SET_FOLDER_WORKFLOW_TITLE)}
         </h2>
+        {multi ? (
+          <p
+            data-testid="explorer-set-folder-workflow-multi"
+            style={{ fontSize: 13, margin: "0 0 12px" }}
+          >
+            {message(EXPLORER_MSG.SET_FOLDER_WORKFLOW_MULTI_NOTE)}
+          </p>
+        ) : null}
         <label style={{ display: "block", fontSize: 13 }}>
           {message(EXPLORER_MSG.SET_FOLDER_WORKFLOW_LABEL)}
           <select
