@@ -31,8 +31,9 @@ import org.apache.commons.lang3.StringUtils;
  * Reads assignment rows and changes one stored field on a role already assigned to one step.
  *
  * <p>{@link #setType} changes only the assignment type and only for Reader or Assignee.
- * {@link #setNotify} changes only {@code ISNOTIFYON} on any assigned role. Neither call renames
- * the step, adds or removes roles, or edits inbox or ad-hoc flags.
+ * {@link #setNotify} changes only {@code ISNOTIFYON} on any assigned role. {@link #setInbox}
+ * changes only {@code SHOWININBOX} and only for Reader or Assignee. None of these calls renames
+ * the step, adds or removes roles, or edits ad-hoc flags.
  */
 public final class WorkflowStepRoleAssignmentWriter {
 
@@ -46,9 +47,14 @@ public final class WorkflowStepRoleAssignmentWriter {
    * @param assignmentType enum name such as READER or ASSIGNEE
    * @param notifyOn stored {@code ISNOTIFYON}. Not named {@code notify}: that collides with
    *     {@link Object#notify()}.
+   * @param showInInbox stored {@code SHOWININBOX}
    */
   public record StepRoleAssignment(
-      String stepName, String roleName, String assignmentType, boolean notifyOn) {}
+      String stepName,
+      String roleName,
+      String assignmentType,
+      boolean notifyOn,
+      boolean showInInbox) {}
 
   public static List<StepRoleAssignment> list(List<PSState> states, List<PSWorkflowRole> roles) {
     List<StepRoleAssignment> out = new ArrayList<>();
@@ -72,7 +78,9 @@ public final class WorkflowStepRoleAssignmentWriter {
           continue;
         }
         PSAssignmentTypeEnum type = role.getAssignmentType();
-        out.add(new StepRoleAssignment(state.getName(), roleName, type.name(), role.isDoNotify()));
+        out.add(
+            new StepRoleAssignment(
+                state.getName(), roleName, type.name(), role.isDoNotify(), role.isShowInInbox()));
       }
     }
     return out;
@@ -128,6 +136,36 @@ public final class WorkflowStepRoleAssignmentWriter {
       throw new IllegalArgumentException("notify is unchanged");
     }
     hit.setDoNotify(notify.booleanValue());
+  }
+
+  /**
+   * Sets {@code SHOWININBOX} on the named Reader or Assignee of the named step. The role must
+   * already be assigned. Assignment type, notify, ad-hoc, the step name, and every other role stay
+   * as they were. Admin and None are rejected. An unchanged flag is rejected.
+   */
+  public static void setInbox(
+      List<PSState> states,
+      List<PSWorkflowRole> roles,
+      String stepName,
+      String roleName,
+      Boolean inbox) {
+    String stepWant = requireText(stepName, "Step name");
+    String roleWant = requireText(roleName, "Role name");
+    if (inbox == null) {
+      throw new IllegalArgumentException("inbox is required");
+    }
+    PSState state = findStep(states, stepWant);
+    int roleId = findWorkflowRoleId(roles, roleWant);
+    PSAssignedRole hit = findAssigned(state, roleId, roleWant);
+    PSAssignmentTypeEnum current = hit.getAssignmentType();
+    if (current != PSAssignmentTypeEnum.READER && current != PSAssignmentTypeEnum.ASSIGNEE) {
+      throw new WebApplicationException(
+          "Only Reader and Assignee roles can change inbox from this surface", 409);
+    }
+    if (hit.isShowInInbox() == inbox.booleanValue()) {
+      throw new IllegalArgumentException("inbox is unchanged");
+    }
+    hit.setShowInInbox(inbox.booleanValue());
   }
 
   static PSAssignmentTypeEnum parseMutable(String raw) {

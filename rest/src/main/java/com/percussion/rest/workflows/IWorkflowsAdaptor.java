@@ -338,6 +338,25 @@ public interface IWorkflowsAdaptor {
       URI baseUri, String idOrName, String stepName, WorkflowStepRoleNotifyWrite body);
 
   /**
+   * Turn inbox on or off for one Reader or Assignee already assigned to one step (Admin, slice
+   * 66).
+   *
+   * <p>Updates {@code SHOWININBOX} only. Does not change the assignment type, add or remove roles,
+   * or edit notify. Packaged and system-default workflows are rejected. Admin and None assignments
+   * are not changed.
+   *
+   * @param stepName existing step name
+   * @param body role name and the new inbox flag
+   * @return the assignment list after the write, never {@code null}
+   * @throws IllegalArgumentException when the role is blank, inbox is missing, or the flag is
+   *     unchanged
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or role, 409 when the current type is not Reader or Assignee
+   */
+  WorkflowStepRoleAssignmentList setStepRoleInbox(
+      URI baseUri, String idOrName, String stepName, WorkflowStepRoleInboxWrite body);
+
+  /**
    * Add one existing workflow role onto one step (Admin, slice 63).
    *
    * <p>Not the assignment-type update. The role must already be a workflow role and must not

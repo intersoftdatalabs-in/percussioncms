@@ -27,6 +27,7 @@ import com.percussion.rest.workflows.WorkflowRename;
 import com.percussion.rest.workflows.WorkflowStepRoleAdd;
 import com.percussion.rest.workflows.WorkflowStepRoleAssignmentList;
 import com.percussion.rest.workflows.WorkflowStepRoleAssignmentWrite;
+import com.percussion.rest.workflows.WorkflowStepRoleInboxWrite;
 import com.percussion.rest.workflows.WorkflowStepRoleNotifyWrite;
 import com.percussion.rest.workflows.WorkflowStepWrite;
 import com.percussion.rest.workflows.WorkflowSummary;
@@ -192,6 +193,12 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
   @Override
   public WorkflowStepRoleAssignmentList setStepRoleNotify(
       URI baseUri, String idOrName, String stepName, WorkflowStepRoleNotifyWrite body) {
+    return new WorkflowStepRoleAssignmentList();
+  }
+
+  @Override
+  public WorkflowStepRoleAssignmentList setStepRoleInbox(
+      URI baseUri, String idOrName, String stepName, WorkflowStepRoleInboxWrite body) {
     return new WorkflowStepRoleAssignmentList();
   }
 

@@ -22,6 +22,7 @@ import {
   listStepRoleAssignments,
   removeStepRole,
   setStepRoleAssignment,
+  setStepRoleInbox,
   setStepRoleNotify,
 } from "../api/developer/workflowsApi";
 import type { WorkflowStepRoleAssignment } from "../api/developer/types";
@@ -60,6 +61,15 @@ import {
   parseNotifyChoice,
   storedNotify,
 } from "./workflowStepRoleNotify";
+import {
+  applyInboxAfterReload,
+  findInboxRow,
+  inboxChoice,
+  inboxRoleRows,
+  isInboxChangeReady,
+  parseInboxChoice,
+  storedInbox,
+} from "./workflowStepRoleInbox";
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
@@ -139,6 +149,24 @@ function notifyErrorFallback(err: unknown): string {
   return DEV_MSG.WF_ROLE_NOTIFY_ERROR;
 }
 
+function inboxErrorFallback(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return DEV_MSG.WF_ROLE_INBOX_FORBIDDEN;
+    }
+    if (err.status === 409) {
+      return DEV_MSG.WF_ROLE_INBOX_CONFLICT;
+    }
+    if (err.status === 400) {
+      return DEV_MSG.WF_ROLE_INBOX_BAD;
+    }
+    if (err.status === 404) {
+      return DEV_MSG.WF_ROLE_INBOX_MISSING;
+    }
+  }
+  return DEV_MSG.WF_ROLE_INBOX_ERROR;
+}
+
 /**
  * Set Reader or Assignee on one role already assigned to one step.
  * The table shows the stored type only after a successful reload.
@@ -176,6 +204,12 @@ export function WorkflowStepRoleAssignmentSection({
   const [notifyBusy, setNotifyBusy] = useState(false);
   const [notifyError, setNotifyError] = useState<string | null>(null);
   const [notifyNotice, setNotifyNotice] = useState<string | null>(null);
+  const [inboxStep, setInboxStep] = useState("");
+  const [inboxRole, setInboxRole] = useState("");
+  const [nextInbox, setNextInbox] = useState(false);
+  const [inboxBusy, setInboxBusy] = useState(false);
+  const [inboxError, setInboxError] = useState<string | null>(null);
+  const [inboxNotice, setInboxNotice] = useState<string | null>(null);
 
   const canOffer = canOfferStepRoleAssignment({
     name: workflowName,
@@ -206,6 +240,11 @@ export function WorkflowStepRoleAssignmentSection({
     setNextNotify(false);
     setNotifyError(null);
     setNotifyNotice(null);
+    setInboxStep("");
+    setInboxRole("");
+    setNextInbox(false);
+    setInboxError(null);
+    setInboxNotice(null);
     listStepRoleAssignments(workflowName)
       .then((loaded) => {
         if (cancelled) {
@@ -231,6 +270,12 @@ export function WorkflowStepRoleAssignmentSection({
           setNotifyStep(notifyFirst.stepName);
           setNotifyRole(notifyFirst.roleName);
           setNextNotify(storedNotify(notifyFirst));
+        }
+        const inboxFirst = inboxRoleRows(next)[0];
+        if (inboxFirst?.stepName && inboxFirst.roleName) {
+          setInboxStep(inboxFirst.stepName);
+          setInboxRole(inboxFirst.roleName);
+          setNextInbox(storedInbox(inboxFirst));
         }
       })
       .catch((err: unknown) => {
@@ -297,6 +342,28 @@ export function WorkflowStepRoleAssignmentSection({
     canOffer &&
     !!currentNotify &&
     isNotifyChangeReady(currentNotifyOn, nextNotify);
+  const inboxRows = useMemo(() => inboxRoleRows(rows), [rows]);
+  const inboxSteps = useMemo(() => {
+    const names: string[] = [];
+    for (const row of inboxRows) {
+      const name = (row.stepName ?? "").trim();
+      if (name && !names.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
+        names.push(name);
+      }
+    }
+    return names;
+  }, [inboxRows]);
+  const inboxRolesForStep = useMemo(
+    () =>
+      inboxRows.filter(
+        (row) => (row.stepName ?? "").trim().toLowerCase() === inboxStep.trim().toLowerCase(),
+      ),
+    [inboxRows, inboxStep],
+  );
+  const currentInbox = findInboxRow(rows, inboxStep, inboxRole);
+  const currentInboxOn = storedInbox(currentInbox);
+  const inboxReady =
+    canOffer && !!currentInbox && isInboxChangeReady(currentInboxOn, nextInbox);
 
   function chooseStep(nextStep: string): void {
     setStepName(nextStep);
@@ -347,6 +414,31 @@ export function WorkflowStepRoleAssignmentSection({
     setNextNotify(currentNotifyOn);
     setNotifyError(null);
     setNotifyNotice(null);
+  }
+
+  function chooseInboxStep(nextStep: string): void {
+    setInboxStep(nextStep);
+    setInboxError(null);
+    setInboxNotice(null);
+    const role = inboxRows.find(
+      (row) => (row.stepName ?? "").trim().toLowerCase() === nextStep.trim().toLowerCase(),
+    );
+    const name = role?.roleName ?? "";
+    setInboxRole(name);
+    setNextInbox(storedInbox(role));
+  }
+
+  function chooseInboxRole(nextRole: string): void {
+    setInboxRole(nextRole);
+    setInboxError(null);
+    setInboxNotice(null);
+    setNextInbox(storedInbox(findInboxRow(rows, inboxStep, nextRole)));
+  }
+
+  function cancelInbox(): void {
+    setNextInbox(currentInboxOn);
+    setInboxError(null);
+    setInboxNotice(null);
   }
 
   function chooseAddStep(nextStep: string): void {
@@ -509,6 +601,43 @@ export function WorkflowStepRoleAssignmentSection({
     }
   }
 
+  async function confirmInbox(): Promise<void> {
+    if (!canOffer || inboxBusy || !inboxReady) {
+      return;
+    }
+    const step = inboxStep.trim();
+    const role = inboxRole.trim();
+    const requested = nextInbox;
+    setInboxBusy(true);
+    setInboxError(null);
+    setInboxNotice(null);
+    try {
+      await setStepRoleInbox(workflowName, step, {
+        roleName: role,
+        inbox: requested,
+      });
+    } catch (err: unknown) {
+      setInboxError(panelErrMsg(err, inboxErrorFallback(err)));
+      setInboxBusy(false);
+      return;
+    }
+    try {
+      const reloaded = await listStepRoleAssignments(workflowName);
+      const applied = applyInboxAfterReload(rows, reloaded, step, role, requested);
+      if (!applied.accepted) {
+        setInboxError(DEV_MSG.WF_ROLE_INBOX_ERROR);
+        return;
+      }
+      setRows(applied.rows);
+      setNextInbox(requested);
+      setInboxNotice(DEV_MSG.WF_ROLE_INBOX_SAVED);
+    } catch (err: unknown) {
+      setInboxError(panelErrMsg(err, DEV_MSG.WF_ROLE_ASSIGN_LOAD_ERROR));
+    } finally {
+      setInboxBusy(false);
+    }
+  }
+
   async function confirm(): Promise<void> {
     if (!canOffer || busy || !ready) {
       return;
@@ -577,6 +706,7 @@ export function WorkflowStepRoleAssignmentSection({
                 <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_ROLES}</th>
                 <th style={{ padding: "8px" }}>{DEV_MSG.WF_ROLE_ASSIGN_TYPE}</th>
                 <th style={{ padding: "8px" }}>{DEV_MSG.WF_ROLE_NOTIFY_FLAG}</th>
+                <th style={{ padding: "8px" }}>{DEV_MSG.WF_ROLE_INBOX_FLAG}</th>
               </tr>
             </thead>
             <tbody>
@@ -601,6 +731,13 @@ export function WorkflowStepRoleAssignmentSection({
                     data-notify={storedNotify(row) ? "true" : "false"}
                   >
                     {storedNotify(row) ? DEV_MSG.WF_ROLE_NOTIFY_ON : DEV_MSG.WF_ROLE_NOTIFY_OFF}
+                  </td>
+                  <td
+                    style={{ padding: "8px" }}
+                    data-testid={`developer-wf-role-inbox-${i}`}
+                    data-inbox={storedInbox(row) ? "true" : "false"}
+                  >
+                    {storedInbox(row) ? DEV_MSG.WF_ROLE_INBOX_ON : DEV_MSG.WF_ROLE_INBOX_OFF}
                   </td>
                 </tr>
               ))}
@@ -841,6 +978,124 @@ export function WorkflowStepRoleAssignmentSection({
               }}
             >
               {DEV_MSG.WF_ROLE_NOTIFY_CANCEL}
+            </button>
+          </div>
+        </div>
+      ) : null}
+      {canOffer && inboxRows.length > 0 ? (
+        <div data-testid="developer-wf-role-inbox" style={{ marginTop: "16px" }}>
+          <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.WF_ROLE_INBOX_TITLE}</h3>
+          <p style={{ color: catalogColors.muted, fontSize: "0.9rem", margin: "0 0 8px" }}>
+            {DEV_MSG.WF_ROLE_INBOX_HINT}
+          </p>
+          {inboxError ? (
+            <div
+              role="alert"
+              data-testid="developer-wf-role-inbox-error"
+              style={{ ...errorAlert, marginBottom: "8px" }}
+            >
+              {inboxError}
+            </div>
+          ) : null}
+          {inboxNotice ? (
+            <div
+              role="status"
+              aria-live="polite"
+              data-testid="developer-wf-role-inbox-notice"
+              style={{ color: catalogColors.accent, marginBottom: "8px" }}
+            >
+              {inboxNotice}
+            </div>
+          ) : null}
+          <label htmlFor="wf-role-inbox-step" style={{ display: "block", marginBottom: 4 }}>
+            {DEV_MSG.WF_COL_STEP}
+          </label>
+          <select
+            id="wf-role-inbox-step"
+            data-testid="developer-wf-role-inbox-step"
+            style={inputStyle}
+            value={inboxStep}
+            disabled={inboxBusy}
+            onChange={(e) => chooseInboxStep(e.target.value)}
+            aria-label={DEV_MSG.WF_COL_STEP}
+          >
+            {inboxSteps.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="wf-role-inbox-role" style={{ display: "block", margin: "8px 0 4px" }}>
+            {DEV_MSG.WF_COL_ROLES}
+          </label>
+          <select
+            id="wf-role-inbox-role"
+            data-testid="developer-wf-role-inbox-role"
+            style={inputStyle}
+            value={inboxRole}
+            disabled={inboxBusy}
+            onChange={(e) => chooseInboxRole(e.target.value)}
+            aria-label={DEV_MSG.WF_COL_ROLES}
+          >
+            {inboxRolesForStep.map((row) => (
+              <option key={row.roleName} value={row.roleName}>
+                {row.roleName}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="wf-role-inbox-value" style={{ display: "block", margin: "8px 0 4px" }}>
+            {DEV_MSG.WF_ROLE_INBOX_FLAG}
+          </label>
+          <select
+            id="wf-role-inbox-value"
+            data-testid="developer-wf-role-inbox-value"
+            style={inputStyle}
+            value={inboxChoice(nextInbox)}
+            disabled={inboxBusy}
+            onChange={(e) => {
+              setNextInbox(parseInboxChoice(e.target.value));
+              if (inboxError) {
+                setInboxError(null);
+              }
+            }}
+            aria-label={DEV_MSG.WF_ROLE_INBOX_FLAG}
+          >
+            <option value="on">{DEV_MSG.WF_ROLE_INBOX_ON}</option>
+            <option value="off">{DEV_MSG.WF_ROLE_INBOX_OFF}</option>
+          </select>
+          <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+            <button
+              type="button"
+              data-testid="developer-wf-role-inbox-confirm"
+              disabled={inboxBusy || !inboxReady}
+              onClick={() => void confirmInbox()}
+              style={{
+                background:
+                  inboxBusy || !inboxReady ? catalogColors.disabled : catalogColors.accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                padding: "8px 14px",
+                font: "inherit",
+                cursor: inboxBusy || !inboxReady ? "not-allowed" : "pointer",
+              }}
+            >
+              {inboxBusy ? DEV_MSG.WF_ROLE_INBOX_BUSY : DEV_MSG.WF_ROLE_INBOX_CONFIRM}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-wf-role-inbox-cancel"
+              disabled={inboxBusy}
+              onClick={cancelInbox}
+              style={{
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                padding: "8px 14px",
+                font: "inherit",
+              }}
+            >
+              {DEV_MSG.WF_ROLE_INBOX_CANCEL}
             </button>
           </div>
         </div>

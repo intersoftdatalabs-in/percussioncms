@@ -50,13 +50,97 @@ class WorkflowStepRoleAssignmentWriterTest {
     assertEquals("Author", rows.get(0).roleName());
     assertEquals("ASSIGNEE", rows.get(0).assignmentType());
     assertTrue(rows.get(0).notifyOn());
+    assertTrue(rows.get(0).showInInbox());
     assertEquals("Editor", rows.get(1).roleName());
     assertEquals("READER", rows.get(1).assignmentType());
     assertFalse(rows.get(1).notifyOn());
+    assertFalse(rows.get(1).showInInbox());
     assertEquals("Review", rows.get(2).stepName());
     assertEquals("Reviewer", rows.get(2).roleName());
     assertEquals("ASSIGNEE", rows.get(2).assignmentType());
     assertTrue(rows.get(2).notifyOn());
+    assertTrue(rows.get(2).showInInbox());
+  }
+
+  @Test
+  void setInboxChangesOnlyThatFlag() {
+    Fixture fixture = fixture();
+    WorkflowStepRoleAssignmentWriter.setInbox(
+        fixture.states, fixture.roles, "draft", "author", Boolean.FALSE);
+
+    assertEquals("Draft", fixture.draft.getName());
+    assertEquals(2, fixture.draft.getAssignedRoles().size());
+    assertEquals(1, fixture.draft.getTransitions().size());
+    assertEquals(PSAssignmentTypeEnum.ASSIGNEE, fixture.author.getAssignmentType());
+    assertTrue(fixture.author.isDoNotify());
+    assertFalse(fixture.author.isShowInInbox());
+    assertEquals(PSAdhocTypeEnum.DISABLED, fixture.author.getAdhocType());
+    assertFalse(fixture.editor.isDoNotify());
+    assertFalse(fixture.editor.isShowInInbox());
+    assertEquals(PSAssignmentTypeEnum.ASSIGNEE, fixture.reviewer.getAssignmentType());
+    assertTrue(fixture.reviewer.isShowInInbox());
+  }
+
+  @Test
+  void unchangedInboxIs400AndDoesNotMutate() {
+    Fixture fixture = fixture();
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                WorkflowStepRoleAssignmentWriter.setInbox(
+                    fixture.states, fixture.roles, "Draft", "Author", Boolean.TRUE));
+    assertTrue(ex.getMessage().toLowerCase().contains("unchanged"));
+    assertTrue(fixture.author.isShowInInbox());
+    assertTrue(fixture.author.isDoNotify());
+    assertEquals(PSAssignmentTypeEnum.ASSIGNEE, fixture.author.getAssignmentType());
+  }
+
+  @Test
+  void adminRoleInboxIs409() {
+    Fixture fixture = fixture();
+    fixture.author.setAssignmentType(PSAssignmentTypeEnum.ADMIN);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowStepRoleAssignmentWriter.setInbox(
+                    fixture.states, fixture.roles, "Draft", "Author", Boolean.FALSE));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(PSAssignmentTypeEnum.ADMIN, fixture.author.getAssignmentType());
+    assertTrue(fixture.author.isShowInInbox());
+    assertTrue(fixture.author.isDoNotify());
+  }
+
+  @Test
+  void missingInboxStepAndRoleAre404() {
+    Fixture fixture = fixture();
+    WebApplicationException missingStep =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowStepRoleAssignmentWriter.setInbox(
+                    fixture.states, fixture.roles, "Archive", "Author", Boolean.FALSE));
+    assertEquals(404, missingStep.getResponse().getStatus());
+    WebApplicationException missingRole =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowStepRoleAssignmentWriter.setInbox(
+                    fixture.states, fixture.roles, "Draft", "Designer", Boolean.FALSE));
+    assertEquals(404, missingRole.getResponse().getStatus());
+    assertTrue(fixture.author.isShowInInbox());
+  }
+
+  @Test
+  void missingInboxValueIs400() {
+    Fixture fixture = fixture();
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            WorkflowStepRoleAssignmentWriter.setInbox(
+                fixture.states, fixture.roles, "Draft", "Author", null));
+    assertTrue(fixture.author.isShowInInbox());
   }
 
   @Test

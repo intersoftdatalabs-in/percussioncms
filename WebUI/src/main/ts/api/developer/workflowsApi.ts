@@ -15,7 +15,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Inbox flags stay on the workflow-admin editor. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Repeated or system-field aging stays outside this surface.",
+  "Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Ad-hoc type and repeated or system-field aging stay outside this surface.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -917,6 +917,38 @@ export async function setStepRoleNotify(
   const payload = await put<unknown>(
     `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}/role-notify`,
     wrapWorkflowStepRoleNotifyForWire(body),
+  );
+  return parseStepRoleAssignments(payload);
+}
+
+export const WORKFLOW_STEP_ROLE_INBOX_ROOT = "WorkflowStepRoleInboxWrite";
+
+export type WorkflowStepRoleInboxWriteBody = {
+  roleName: string;
+  inbox: boolean;
+};
+
+export function wrapWorkflowStepRoleInboxForWire(
+  body: WorkflowStepRoleInboxWriteBody,
+): Record<string, WorkflowStepRoleInboxWriteBody> {
+  return { [WORKFLOW_STEP_ROLE_INBOX_ROOT]: body };
+}
+
+/**
+ * PUT /services/workflows/{id}/steps/{step}/role-inbox — SHOWININBOX for one
+ * Reader or Assignee already on the step. Not PUT role-notify. Assignment type
+ * and notify are not sent.
+ */
+export async function setStepRoleInbox(
+  idOrName: string,
+  stepName: string,
+  body: WorkflowStepRoleInboxWriteBody,
+): Promise<WorkflowStepRoleAssignment[]> {
+  const key = encodeURIComponent(idOrName);
+  const step = encodeURIComponent(stepName);
+  const payload = await put<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}/role-inbox`,
+    wrapWorkflowStepRoleInboxForWire(body),
   );
   return parseStepRoleAssignments(payload);
 }

@@ -27,51 +27,53 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
 
-/** Slice 65 notify body and list flag: Jackson root wrap round-trip. Inbox is not on the write. */
+/** Slice 66 inbox body and list flag: Jackson root wrap round-trip. Notify is not on the write. */
 @Tag("UnitTest")
-public class WorkflowStepRoleNotifyWriteSerialDeserialTest {
+public class WorkflowStepRoleInboxWriteSerialDeserialTest {
 
   @Test
   public void writeBodyRoundTrip() {
-    WorkflowStepRoleNotifyWrite body = new WorkflowStepRoleNotifyWrite();
+    WorkflowStepRoleInboxWrite body = new WorkflowStepRoleInboxWrite();
     body.setRoleName("Author");
-    body.setNotify(Boolean.FALSE);
+    body.setInbox(Boolean.FALSE);
 
     ObjectMapper mapper =
-        new JacksonContextResolver().getContext(WorkflowStepRoleNotifyWrite.class);
+        new JacksonContextResolver().getContext(WorkflowStepRoleInboxWrite.class);
     String json = mapper.writeValueAsString(body);
-    assertTrue(json.contains("WorkflowStepRoleNotifyWrite"), json);
+    assertTrue(json.contains("WorkflowStepRoleInboxWrite"), json);
     assertTrue(json.contains("Author"), json);
     assertTrue(json.contains("false") || json.contains("False"), json);
-    assertFalse(json.toLowerCase().contains("inbox"), json);
+    assertTrue(json.toLowerCase().contains("inbox"), json);
+    assertFalse(json.toLowerCase().contains("notify"), json);
     assertFalse(json.contains("assignmentType"), json);
 
-    WorkflowStepRoleNotifyWrite roundTrip =
-        mapper.readValue(json, WorkflowStepRoleNotifyWrite.class);
+    WorkflowStepRoleInboxWrite roundTrip =
+        mapper.readValue(json, WorkflowStepRoleInboxWrite.class);
     assertEquals("Author", roundTrip.getRoleName());
-    assertEquals(Boolean.FALSE, roundTrip.getNotify());
+    assertEquals(Boolean.FALSE, roundTrip.getInbox());
   }
 
   @Test
-  public void listRoundTripKeepsNotify() {
+  public void listRoundTripKeepsInbox() {
     WorkflowStepRoleAssignment row = new WorkflowStepRoleAssignment();
     row.setStepName("Draft");
     row.setRoleName("Author");
     row.setAssignmentType("ASSIGNEE");
     row.setNotify(true);
+    row.setInbox(false);
     WorkflowStepRoleAssignmentList list = new WorkflowStepRoleAssignmentList();
     list.setAssignments(List.of(row));
 
     ObjectMapper mapper =
         new JacksonContextResolver().getContext(WorkflowStepRoleAssignmentList.class);
     String json = mapper.writeValueAsString(list);
-    assertTrue(json.contains("notify"), json.toLowerCase());
     assertTrue(json.toLowerCase().contains("inbox"), json);
+    assertTrue(json.toLowerCase().contains("notify"), json);
 
     WorkflowStepRoleAssignmentList roundTrip =
         mapper.readValue(json, WorkflowStepRoleAssignmentList.class);
-    assertTrue(roundTrip.getAssignments().get(0).isNotify());
     assertFalse(roundTrip.getAssignments().get(0).isInbox());
+    assertTrue(roundTrip.getAssignments().get(0).isNotify());
     assertEquals("ASSIGNEE", roundTrip.getAssignments().get(0).getAssignmentType());
   }
 }
