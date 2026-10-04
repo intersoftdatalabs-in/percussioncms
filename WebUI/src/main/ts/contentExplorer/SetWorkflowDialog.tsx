@@ -29,6 +29,8 @@ export interface SetWorkflowDialogProps {
   currentId: string;
   busy: boolean;
   error: string;
+  /** When greater than one, the save applies to each checked page and asset. */
+  selectionCount?: number;
   onSave: (workflowId: string) => void;
   onCancel: () => void;
 }
@@ -38,9 +40,11 @@ export function SetWorkflowDialog({
   currentId,
   busy,
   error,
+  selectionCount,
   onSave,
   onCancel,
 }: SetWorkflowDialogProps): React.ReactElement {
+  const multi = (selectionCount ?? 1) > 1;
   const initial =
     choices.find((row) => row.id !== currentId)?.id ?? choices[0]?.id ?? "";
   const [value, setValue] = useState(initial);
@@ -115,9 +119,15 @@ export function SetWorkflowDialog({
         <h2 id="explorer-set-workflow-title" style={{ fontSize: 16, margin: "0 0 12px" }}>
           {message(EXPLORER_MSG.SET_WORKFLOW_TITLE)}
         </h2>
-        <label style={{ display: "block", fontSize: 13 }}>
+        {multi ? (
+          <p data-testid="explorer-set-workflow-multi" style={{ fontSize: 13, margin: "0 0 12px" }}>
+            {message(EXPLORER_MSG.SET_WORKFLOW_MULTI_NOTE)}
+          </p>
+        ) : null}
+        <label htmlFor="explorer-set-workflow-select" style={{ display: "block", fontSize: 13 }}>
           {message(EXPLORER_MSG.SET_WORKFLOW_LABEL)}
           <select
+            id="explorer-set-workflow-select"
             ref={selectRef}
             data-testid="explorer-set-workflow-select"
             value={value}

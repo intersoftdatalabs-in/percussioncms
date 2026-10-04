@@ -151,6 +151,48 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-row-p-2").getAttribute("data-community-id")).toBeNull();
   });
 
+  it("shows a workflow on a row only when that item was saved (#5155)", async () => {
+    mockFetch(async () => {
+      return new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const shown = new Map([
+      ["p-1", { workflowId: "7", workflowName: "Local workflow" }],
+    ]);
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        itemWorkflows={shown}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-item-workflow-p-1")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("detail-item-workflow-p-1")).toHaveAttribute(
+      "data-workflow-id",
+      "7",
+    );
+    expect(screen.getByTestId("detail-item-workflow-p-1")).toHaveTextContent(
+      "Local workflow",
+    );
+    expect(screen.getByTestId("detail-row-p-1")).toHaveAttribute(
+      "data-workflow-name",
+      "Local workflow",
+    );
+    expect(screen.queryByTestId("detail-item-workflow-p-2")).toBeNull();
+    expect(screen.getByTestId("detail-row-p-2").getAttribute("data-workflow-id")).toBeNull();
+  });
+
   it("renders sample-site Pages childrenInPage rows (#3457)", async () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
