@@ -43,6 +43,12 @@ import {
 } from "../publishing.styles";
 import { mapContextSaveError } from "../contextSaveErrors";
 import { mapLocationSchemeSaveError } from "../locationSchemeSaveErrors";
+import {
+  buildLocationSchemeCopyBody,
+  schemesAfterSuccessfulCopy,
+  suggestedLocationSchemeCopyName,
+  validateLocationSchemeCopyName,
+} from "../locationSchemeCopy";
 import { useDirtyForm } from "../dirtyFormContext";
 import { normalizeSchemeType } from "./designLegacyTypes";
 import { SiteRootBrowser } from "./SiteRootBrowser";
@@ -50,7 +56,8 @@ import { SiteRootBrowser } from "./SiteRootBrowser";
 type Mode =
   | { kind: "list" }
   | { kind: "context-edit"; context: ContextSummary | null }
-  | { kind: "scheme-edit"; scheme: LocationSchemeSummary | null; contextId: string };
+  | { kind: "scheme-edit"; scheme: LocationSchemeSummary | null; contextId: string }
+  | { kind: "scheme-copy"; source: LocationSchemeSummary; contextId: string };
 
 /**
  * Contexts CRUD + location schemes with parameters and path browser.
@@ -79,6 +86,7 @@ export function ContextsPanel(): React.ReactElement {
   const [paramType, setParamType] = useState("String");
   const [paramValue, setParamValue] = useState("");
   const [saving, setSaving] = useState(false);
+  const [copyName, setCopyName] = useState("");
   const { setDirty, confirmIfDirty } = useDirtyForm();
 
   function reloadContexts(): void {
@@ -160,6 +168,59 @@ export function ContextsPanel(): React.ReactElement {
     }
     setDirty(false);
     setMode({ kind: "list" });
+  }
+
+  function openSchemeCopy(source: LocationSchemeSummary): void {
+    if (!source.schemeId || !selected) {
+      return;
+    }
+    setCopyName(suggestedLocationSchemeCopyName(source.name));
+    setError(null);
+    setDirty(false);
+    setMode({ kind: "scheme-copy", source, contextId: selected });
+  }
+
+  function closeSchemeCopy(): void {
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setMode({ kind: "list" });
+  }
+
+  async function copyScheme(): Promise<void> {
+    if (mode.kind !== "scheme-copy" || !mode.source.schemeId) {
+      return;
+    }
+    const validated = validateLocationSchemeCopyName(copyName);
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    setError(null);
+    setSaving(true);
+    const contextId = mode.contextId;
+    try {
+      const full = await getScheme(mode.source.schemeId);
+      const created = await createScheme(
+        contextId,
+        buildLocationSchemeCopyBody(full, validated.name, contextId),
+      );
+      let refreshed: LocationSchemeSummary[] | null = null;
+      try {
+        refreshed = await listSchemesForContext(contextId);
+      } catch {
+        refreshed = null;
+      }
+      setSchemes(schemesAfterSuccessfulCopy(refreshed, created, schemes));
+      setDirty(false);
+      setMode({ kind: "list" });
+    } catch (e) {
+      setError(mapLocationSchemeSaveError(e));
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function saveContext(): Promise<void> {
@@ -450,6 +511,53 @@ export function ContextsPanel(): React.ReactElement {
     );
   }
 
+  if (mode.kind === "scheme-copy") {
+    return (
+      <div data-testid="scheme-copy">
+        <h3>Copy location scheme</h3>
+        <p>
+          Source: {mode.source.name ?? mode.source.schemeId}
+        </p>
+        <div style={formRowStyle}>
+          <label htmlFor="scheme-copy-name">* New name</label>
+          <input
+            id="scheme-copy-name"
+            value={copyName}
+            onChange={(e) => {
+              setCopyName(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="location-scheme-copy-submit"
+            disabled={saving}
+            onClick={() => void copyScheme()}
+          >
+            Copy scheme
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="location-scheme-copy-cancel"
+            disabled={saving}
+            onClick={closeSchemeCopy}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div data-testid="contexts-panel">
       {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
@@ -533,13 +641,23 @@ export function ContextsPanel(): React.ReactElement {
                 {s.generator ? ` · ${s.generator}` : ""}
               </span>
               {s.schemeId && (
-                <button
-                  type="button"
-                  style={buttonStyle}
-                  onClick={() => void removeScheme(s.schemeId!)}
-                >
-                  Delete
-                </button>
+                <>
+                  <button
+                    type="button"
+                    style={buttonStyle}
+                    data-testid="location-scheme-copy"
+                    onClick={() => openSchemeCopy(s)}
+                  >
+                    Copy
+                  </button>
+                  <button
+                    type="button"
+                    style={buttonStyle}
+                    onClick={() => void removeScheme(s.schemeId!)}
+                  >
+                    Delete
+                  </button>
+                </>
               )}
             </li>
           ))}

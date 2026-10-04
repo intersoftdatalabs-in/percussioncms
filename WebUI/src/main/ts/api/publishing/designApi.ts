@@ -65,6 +65,8 @@ export interface LocationSchemeSummary {
   generator?: string;
   contentTypeId?: number;
   templateId?: number;
+  /** Create-only. Keeps a copy off an occupied context/template/content-type triple. */
+  copy?: boolean;
   schemeType?: string;
   parameters?: SchemeParameter[];
 }
@@ -400,39 +402,184 @@ export async function deleteContext(contextId: string | number): Promise<void> {
 export async function listSchemesForContext(
   contextId: string | number,
 ): Promise<LocationSchemeSummary[]> {
-  return normalizeArray(
+  return unwrapLocationSchemeList(
     await get<unknown>(
       `${designRoot()}/contexts/${encodeURIComponent(String(contextId))}/schemes`,
     ),
   );
 }
 
+/** List payload: a raw array, one scheme, or a root-wrapped collection. */
+export function unwrapLocationSchemeList(data: unknown): LocationSchemeSummary[] {
+  if (Array.isArray(data)) {
+    return data.map((row) => unwrapLocationScheme(row));
+  }
+  if (!data || typeof data !== "object") {
+    return [];
+  }
+  const record = data as Record<string, unknown>;
+  const nested = record.locationScheme;
+  if (Array.isArray(nested)) {
+    return nested.map((row) => unwrapLocationScheme(row));
+  }
+  if (nested && typeof nested === "object") {
+    return [unwrapLocationScheme(nested)];
+  }
+  for (const value of Object.values(record)) {
+    if (Array.isArray(value)) {
+      return value.map((row) => unwrapLocationScheme(row));
+    }
+  }
+  if (record.name || record.schemeId || record.generator) {
+    return [unwrapLocationScheme(record)];
+  }
+  return [];
+}
+
 export async function getScheme(
   schemeId: string | number,
 ): Promise<LocationSchemeSummary> {
-  return (await get<unknown>(
-    `${designRoot()}/schemes/${encodeURIComponent(String(schemeId))}`,
-  )) as LocationSchemeSummary;
+  return unwrapLocationScheme(
+    await get<unknown>(
+      `${designRoot()}/schemes/${encodeURIComponent(String(schemeId))}`,
+    ),
+  );
 }
 
 export async function createScheme(
   contextId: string | number,
   body: LocationSchemeSummary,
 ): Promise<LocationSchemeSummary> {
-  return (await post<unknown>(
-    `${designRoot()}/contexts/${encodeURIComponent(String(contextId))}/schemes`,
-    body,
-  )) as LocationSchemeSummary;
+  return unwrapLocationScheme(
+    await post<unknown>(
+      `${designRoot()}/contexts/${encodeURIComponent(String(contextId))}/schemes`,
+      wrapLocationScheme(body),
+    ),
+  );
 }
 
 export async function updateScheme(
   schemeId: string | number,
   body: LocationSchemeSummary,
 ): Promise<LocationSchemeSummary> {
-  return (await put<unknown>(
-    `${designRoot()}/schemes/${encodeURIComponent(String(schemeId))}`,
-    body,
-  )) as LocationSchemeSummary;
+  return unwrapLocationScheme(
+    await put<unknown>(
+      `${designRoot()}/schemes/${encodeURIComponent(String(schemeId))}`,
+      wrapLocationScheme(body),
+    ),
+  );
+}
+
+/**
+ * JAXB/Jackson root wrap expected by {@code PSLocationSchemeSummary}.
+ * Parameters are the {@code schemeParameter} array, not a {@code parameters} field.
+ */
+export function wrapLocationScheme(body: LocationSchemeSummary): {
+  locationScheme: Record<string, unknown>;
+} {
+  const wire: Record<string, unknown> = {
+    name: body.name,
+    description: body.description,
+    contextId: body.contextId,
+    generator: body.generator,
+    contentTypeId: body.contentTypeId,
+    templateId: body.templateId,
+  };
+  if (body.schemeId) {
+    wire.schemeId = body.schemeId;
+  }
+  if (body.copy) {
+    wire.copy = true;
+  }
+  if (body.parameters && body.parameters.length > 0) {
+    wire.schemeParameter = body.parameters;
+  }
+  return { locationScheme: wire };
+}
+
+/** Accept a wrapped {@code locationScheme} document or an already-flat summary. */
+export function unwrapLocationScheme(data: unknown): LocationSchemeSummary {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    return {};
+  }
+  const record = data as Record<string, unknown>;
+  const nested = record.locationScheme;
+  const source =
+    nested && typeof nested === "object" && !Array.isArray(nested)
+      ? (nested as Record<string, unknown>)
+      : record;
+  const parameters = normalizeSchemeParameters(
+    source.parameters ?? source.schemeParameter,
+  );
+  return {
+    schemeId: idText(source.schemeId),
+    name: textField(source.name),
+    description: textField(source.description),
+    contextId: idText(source.contextId),
+    generator: textField(source.generator),
+    contentTypeId: longField(source.contentTypeId),
+    templateId: longField(source.templateId),
+    schemeType: textField(source.schemeType),
+    parameters,
+  };
+}
+
+function textField(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function idText(value: unknown): string | undefined {
+  if (typeof value === "string" && value.trim()) {
+    return value.trim();
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+  return undefined;
+}
+
+function longField(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim() && !Number.isNaN(Number(value))) {
+    return Number(value);
+  }
+  return undefined;
+}
+
+function normalizeSchemeParameters(raw: unknown): SchemeParameter[] | undefined {
+  const rows = parameterRows(raw);
+  if (!rows) {
+    return undefined;
+  }
+  return rows.map((row) => ({
+    name: textField(row.name),
+    type: textField(row.type),
+    value: textField(row.value),
+    sequence: longField(row.sequence),
+  }));
+}
+
+function parameterRows(raw: unknown): Array<Record<string, unknown>> | undefined {
+  if (Array.isArray(raw)) {
+    return raw.filter((row) => row && typeof row === "object") as Array<
+      Record<string, unknown>
+    >;
+  }
+  if (!raw || typeof raw !== "object") {
+    return undefined;
+  }
+  const inner = (raw as Record<string, unknown>).schemeParameter;
+  if (Array.isArray(inner)) {
+    return inner.filter((row) => row && typeof row === "object") as Array<
+      Record<string, unknown>
+    >;
+  }
+  if (inner && typeof inner === "object") {
+    return [inner as Record<string, unknown>];
+  }
+  return undefined;
 }
 
 export async function deleteScheme(schemeId: string | number): Promise<void> {

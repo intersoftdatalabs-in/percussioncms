@@ -32,6 +32,7 @@ import com.percussion.publishingdesign.data.PSDeliveryTypeSummary;
 import com.percussion.publishingdesign.data.PSEditionSummary;
 import com.percussion.publishingdesign.data.PSContextSummary;
 import com.percussion.publishingdesign.data.PSLocationSchemeSummary;
+import com.percussion.publishingdesign.data.PSSchemeParameter;
 import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -472,6 +473,97 @@ class PSPublishingDesignRestServiceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> design.createScheme("3", body));
     assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void createScheme_nameTooLong_400() {
+    PSPublishingDesignRestService design =
+        new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
+    design.setDesignWriteAllowed(() -> true);
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setName("n".repeat(PSPublishingDesignRestService.MAX_LOCATION_SCHEME_NAME_LENGTH + 1));
+    body.setGenerator("Java/global/percussion/contentassembler/sys_JexlAssemblyLocation");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.createScheme("3", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.LOCATION_SCHEME_NAME_TOO_LONG, ex.getMessage());
+    verify(siteManager, never()).createScheme();
+  }
+
+  @Test
+  void createScheme_copiesPathParameter_atNameLimit() {
+    PSPublishingDesignRestService design =
+        new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
+    design.setDesignWriteAllowed(() -> true);
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    when(contextGuid.getUUID()).thenReturn(3);
+    when(siteManager.findSchemesByContextId(contextGuid)).thenReturn(List.of());
+    IPSLocationScheme scheme = mock(IPSLocationScheme.class);
+    when(siteManager.createScheme()).thenReturn(scheme);
+    when(scheme.getParameterNames()).thenReturn(List.of());
+    when(scheme.getGUID()).thenReturn(schemeGuid);
+    when(schemeGuid.getUUID()).thenReturn(12);
+    when(scheme.getName()).thenReturn("n".repeat(50));
+    when(scheme.getContextId()).thenReturn(contextGuid);
+
+    String name = "n".repeat(PSPublishingDesignRestService.MAX_LOCATION_SCHEME_NAME_LENGTH);
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setName(name);
+    body.setGenerator("Java/global/percussion/contentassembler/sys_JexlAssemblyLocation");
+    PSSchemeParameter path = new PSSchemeParameter();
+    path.setName("path");
+    path.setType("String");
+    path.setValue("$sys.site.path");
+    path.setSequence(0);
+    body.setParameters(List.of(path));
+
+    PSLocationSchemeSummary saved = design.createScheme("3", body);
+    assertEquals("12", saved.getSchemeId());
+    verify(scheme).setName(name);
+    verify(scheme).addParameter("path", 0, "String", "$sys.site.path");
+    verify(siteManager).saveScheme(scheme);
+  }
+
+  @Test
+  void createScheme_copyWhenTripleTaken_assignsSchemeIdAsTemplate() {
+    PSPublishingDesignRestService design =
+        new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
+    design.setDesignWriteAllowed(() -> true);
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    when(contextGuid.getUUID()).thenReturn(3);
+    IPSLocationScheme existing = mock(IPSLocationScheme.class);
+    when(existing.getName()).thenReturn("Article");
+    when(existing.getTemplateId()).thenReturn(8L);
+    when(existing.getContentTypeId()).thenReturn(4L);
+    when(siteManager.findSchemesByContextId(contextGuid)).thenReturn(List.of(existing));
+    IPSLocationScheme scheme = mock(IPSLocationScheme.class);
+    when(siteManager.createScheme()).thenReturn(scheme);
+    IPSGuid createdGuid = mock(IPSGuid.class);
+    when(scheme.getGUID()).thenReturn(createdGuid);
+    when(createdGuid.getUUID()).thenReturn(12);
+    when(scheme.getParameterNames()).thenReturn(List.of());
+    when(scheme.getName()).thenReturn("Article copy");
+    when(scheme.getContextId()).thenReturn(contextGuid);
+
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setCopy(true);
+    body.setName("Article copy");
+    body.setGenerator("Java/global/percussion/contentassembler/sys_JexlAssemblyLocation");
+    body.setContentTypeId(4L);
+    body.setTemplateId(8L);
+    PSSchemeParameter path = new PSSchemeParameter();
+    path.setName("path");
+    path.setType("String");
+    path.setValue("$sys.site.path");
+    path.setSequence(0);
+    body.setParameters(List.of(path));
+
+    PSLocationSchemeSummary saved = design.createScheme("3", body);
+    assertEquals("12", saved.getSchemeId());
+    verify(scheme).setContentTypeId(4L);
+    verify(scheme).setTemplateId(12L);
+    verify(scheme).addParameter("path", 0, "String", "$sys.site.path");
+    verify(siteManager).saveScheme(scheme);
   }
 
   @Test

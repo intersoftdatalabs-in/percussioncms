@@ -1253,10 +1253,27 @@ public class PSSiteManager implements IPSSiteManager {
       getSession().remove(context);
    }
 
+   /**
+    * Class override so the Spring proxy starts a transaction. The interface
+    * default is not advised, and calling {@code getSession()} from it fails
+    * with "No transactional EntityManager available".
+    */
+   @Override
+   public List<IPSLocationScheme> findSchemesByContextId(IPSGuid contextid)
+   {
+      Objects.requireNonNull(contextid, "contextid cannot be null");
+      return getSession()
+            .createQuery(
+                  "from PSLocationScheme where contextId = :ctxId",
+                  IPSLocationScheme.class)
+            .setParameter("ctxId", contextid.longValue())
+            .list();
+   }
+
    @Override
    public List<IPSLocationScheme> findSchemesByContextIdImpl(IPSGuid contextid)
    {
-       return findSchemesByContextId(contextid);
+      return findSchemesByContextId(contextid);
    }
 
    @Override

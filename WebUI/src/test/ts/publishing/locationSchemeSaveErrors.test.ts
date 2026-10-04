@@ -38,4 +38,14 @@ describe("mapLocationSchemeSaveError", () => {
       }),
     ).toBe("Location scheme name already exists");
   });
+
+  it("maps HTTP 400 body message", () => {
+    expect(
+      mapLocationSchemeSaveError({
+        status: 400,
+        statusText: "Bad Request",
+        body: { message: "Location scheme name must be 50 characters or fewer" },
+      }),
+    ).toBe("Location scheme name must be 50 characters or fewer");
+  });
 });
