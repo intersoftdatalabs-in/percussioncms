@@ -343,6 +343,11 @@ export interface DetailListProps {
    */
   folderCommunities?: ReadonlyMap<string, { communityId: string; communityName: string }>;
   /**
+   * Locale written onto a folder. Shown only after that folder's save
+   * returns and a properties refresh shows the new code (#5157).
+   */
+  folderLocales?: ReadonlyMap<string, { localeCode: string; localeName: string }>;
+  /**
    * Workflow written onto a page or asset. Shown only after that item's
    * change returns (#5155). Absent entries stay unchanged.
    */
@@ -362,6 +367,7 @@ export function DetailList({
   approvedIncrementalIds,
   itemCommunities,
   folderCommunities,
+  folderLocales,
   itemWorkflows,
 }: DetailListProps): React.ReactElement {
   const [page, setPage] = useState(0);
@@ -580,6 +586,12 @@ export function DetailList({
                   ? folderCommunities?.get(String(item.id).trim())
                   : undefined))
               : undefined;
+            const shownFolderLocale = folderish
+              ? (folderLocales?.get(idKey) ??
+                (item.id != null
+                  ? folderLocales?.get(String(item.id).trim())
+                  : undefined))
+              : undefined;
             const shownWorkflow =
               itemWorkflows?.get(idKey) ??
               (item.id != null
@@ -609,6 +621,8 @@ export function DetailList({
                 data-community-name={
                   shownCommunity?.communityName ?? shownFolderCommunity?.communityName
                 }
+                data-locale={shownFolderLocale?.localeCode}
+                data-locale-name={shownFolderLocale?.localeName}
                 data-workflow-id={shownWorkflow?.workflowId}
                 data-workflow-name={shownWorkflow?.workflowName}
                 data-selected={selected ? "true" : undefined}
@@ -731,6 +745,16 @@ export function DetailList({
                       >
                         {" "}
                         {shownFolderCommunity.communityName}
+                      </span>
+                    ) : null}
+                    {c === "name" && shownFolderLocale ? (
+                      <span
+                        data-testid={`detail-folder-locale-${idKey}`}
+                        data-locale={shownFolderLocale.localeCode}
+                        data-locale-name={shownFolderLocale.localeName}
+                      >
+                        {" "}
+                        {shownFolderLocale.localeName}
                       </span>
                     ) : null}
                     {c === "name" && shownWorkflow ? (

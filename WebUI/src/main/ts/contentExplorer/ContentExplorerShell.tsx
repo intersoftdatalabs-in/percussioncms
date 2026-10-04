@@ -168,9 +168,13 @@ import {
 import type { FolderCommunityChoice } from "../api/contentExplorer/folderCommunityApi";
 import { SetFolderLocaleDialog } from "./SetFolderLocaleDialog";
 import {
+  describeSetFolderLocaleMultiSave,
   loadSetFolderLocaleCatalog,
+  loadSetFolderLocaleMultiCatalog,
   saveSetFolderLocale,
+  saveSetFolderLocaleOnSelection,
   type SetFolderLocaleCatalog,
+  type SetFolderLocaleMultiCatalog,
 } from "./setFolderLocale";
 import type { FolderLocaleChoice } from "../api/contentExplorer/folderLocaleApi";
 import { SetFolderDisplayFormatDialog } from "./SetFolderDisplayFormatDialog";
@@ -782,7 +786,17 @@ function ContentExplorerShellInner({
     props: PSFolderProperties;
     busy: boolean;
     error: string;
+    multi: boolean;
+    targets: { folderId: string; name: string }[];
+    skippedPageNames: string[];
+    skippedAssetNames: string[];
+    skippedOtherNames: string[];
+    noIdNames: string[];
   } | null>(null);
+  /** Locale name painted on a folder only after that folder's refresh (#5157). */
+  const [savedFolderLocales, setSavedFolderLocales] = useState<
+    ReadonlyMap<string, { localeCode: string; localeName: string }>
+  >(() => new Map());
   const [setFolderDisplayFormatNotice, setSetFolderDisplayFormatNotice] = useState<{
     kind: "success" | "error";
     reason: string;
@@ -2390,56 +2404,97 @@ function ContentExplorerShellInner({
         case "content-set-folder-locale": {
           const current = selectionRef.current;
           const selectedCount = multiSelectedItemsRef.current.size;
+          const checked = Array.from(multiSelectedItemsRef.current.values());
           void (async () => {
             setSetFolderLocaleNotice(null);
             setSetFolderLocaleDialog(null);
+            const showBlocked = (reason: string, name: string) => {
+              const key =
+                reason === "page"
+                  ? EXPLORER_MSG.SET_FOLDER_LOCALE_PAGE
+                  : reason === "asset"
+                    ? EXPLORER_MSG.SET_FOLDER_LOCALE_ASSET
+                    : reason === "not-folder"
+                      ? EXPLORER_MSG.SET_FOLDER_LOCALE_NOT_FOLDER
+                      : reason === "multi"
+                        ? EXPLORER_MSG.SET_FOLDER_LOCALE_MULTI
+                        : reason === "no-id"
+                          ? EXPLORER_MSG.SET_FOLDER_LOCALE_NO_ID
+                          : EXPLORER_MSG.SET_FOLDER_LOCALE_EMPTY;
+              const text = name ? `${message(key)}: ${name}` : message(key);
+              setSetFolderLocaleNotice({
+                kind: "error",
+                reason,
+                localeCode: "",
+                localeName: "",
+                text,
+              });
+            };
+            const showHttpOrNone = (
+              status: "none" | "http",
+              http?: 400 | 403 | 409 | "other",
+            ) => {
+              const httpKey =
+                status === "http" && http === 400
+                  ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_400
+                  : status === "http" && http === 403
+                    ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_403
+                    : status === "http" && http === 409
+                      ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_409
+                      : status === "http"
+                        ? EXPLORER_MSG.SET_FOLDER_LOCALE_FAILED
+                        : EXPLORER_MSG.SET_FOLDER_LOCALE_NONE;
+              setSetFolderLocaleNotice({
+                kind: "error",
+                reason: status === "http" ? `http-${http}` : "none",
+                localeCode: "",
+                localeName: "",
+                text: message(httpKey),
+              });
+            };
+            if (selectedCount >= 2) {
+              const multiCatalog: SetFolderLocaleMultiCatalog =
+                await loadSetFolderLocaleMultiCatalog({ items: checked });
+              if (multiCatalog.status === "blocked") {
+                showBlocked(multiCatalog.reason, multiCatalog.name);
+                return;
+              }
+              if (multiCatalog.status === "none" || multiCatalog.status === "http") {
+                showHttpOrNone(
+                  multiCatalog.status,
+                  multiCatalog.status === "http" ? multiCatalog.http : undefined,
+                );
+                return;
+              }
+              setSetFolderLocaleDialog({
+                folderId: multiCatalog.targets[0]?.folderId ?? "",
+                currentCode: multiCatalog.currentCode,
+                choices: multiCatalog.choices,
+                props: multiCatalog.props,
+                busy: false,
+                error: "",
+                multi: true,
+                targets: multiCatalog.targets,
+                skippedPageNames: multiCatalog.skippedPageNames,
+                skippedAssetNames: multiCatalog.skippedAssetNames,
+                skippedOtherNames: multiCatalog.skippedOtherNames,
+                noIdNames: multiCatalog.noIdNames,
+              });
+              return;
+            }
             const catalog: SetFolderLocaleCatalog = await loadSetFolderLocaleCatalog({
               item: current.item,
               selectedCount,
             });
             if (catalog.status === "blocked") {
-              const key =
-                catalog.reason === "page"
-                  ? EXPLORER_MSG.SET_FOLDER_LOCALE_PAGE
-                  : catalog.reason === "asset"
-                    ? EXPLORER_MSG.SET_FOLDER_LOCALE_ASSET
-                    : catalog.reason === "not-folder"
-                      ? EXPLORER_MSG.SET_FOLDER_LOCALE_NOT_FOLDER
-                      : catalog.reason === "multi"
-                        ? EXPLORER_MSG.SET_FOLDER_LOCALE_MULTI
-                        : catalog.reason === "no-id"
-                          ? EXPLORER_MSG.SET_FOLDER_LOCALE_NO_ID
-                          : EXPLORER_MSG.SET_FOLDER_LOCALE_EMPTY;
-              const text = catalog.name
-                ? `${message(key)}: ${catalog.name}`
-                : message(key);
-              setSetFolderLocaleNotice({
-                kind: "error",
-                reason: catalog.reason,
-                localeCode: "",
-                localeName: "",
-                text,
-              });
+              showBlocked(catalog.reason, catalog.name);
               return;
             }
             if (catalog.status === "none" || catalog.status === "http") {
-              const httpKey =
-                catalog.status === "http" && catalog.http === 400
-                  ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_400
-                  : catalog.status === "http" && catalog.http === 403
-                    ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_403
-                    : catalog.status === "http" && catalog.http === 409
-                      ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_409
-                      : catalog.status === "http"
-                        ? EXPLORER_MSG.SET_FOLDER_LOCALE_FAILED
-                        : EXPLORER_MSG.SET_FOLDER_LOCALE_NONE;
-              setSetFolderLocaleNotice({
-                kind: "error",
-                reason: catalog.status === "http" ? `http-${catalog.http}` : "none",
-                localeCode: "",
-                localeName: "",
-                text: message(httpKey),
-              });
+              showHttpOrNone(
+                catalog.status,
+                catalog.status === "http" ? catalog.http : undefined,
+              );
               return;
             }
             setSetFolderLocaleDialog({
@@ -2449,6 +2504,12 @@ function ContentExplorerShellInner({
               props: catalog.props,
               busy: false,
               error: "",
+              multi: false,
+              targets: [],
+              skippedPageNames: [],
+              skippedAssetNames: [],
+              skippedOtherNames: [],
+              noIdNames: [],
             });
           })();
           break;
@@ -3470,6 +3531,7 @@ function ContentExplorerShellInner({
           approvedIncrementalIds={approvedIncrementalIds}
           itemCommunities={savedItemCommunities}
           folderCommunities={savedFolderCommunities}
+          folderLocales={savedFolderLocales}
           itemWorkflows={savedItemWorkflows}
         />
       )}
@@ -4266,6 +4328,7 @@ function ContentExplorerShellInner({
           currentCode={setFolderLocaleDialog.currentCode}
           busy={setFolderLocaleDialog.busy}
           error={setFolderLocaleDialog.error}
+          multi={setFolderLocaleDialog.multi}
           onCancel={() => {
             if (!setFolderLocaleDialog.busy) {
               setSetFolderLocaleDialog(null);
@@ -4275,6 +4338,36 @@ function ContentExplorerShellInner({
             const dialog = setFolderLocaleDialog;
             void (async () => {
               setSetFolderLocaleDialog({ ...dialog, busy: true, error: "" });
+              if (dialog.multi) {
+                const choiceName =
+                  dialog.choices.find((row) => row.code === localeCode)?.name ?? localeCode;
+                const result = await saveSetFolderLocaleOnSelection({
+                  targets: dialog.targets,
+                  skippedPageNames: dialog.skippedPageNames,
+                  skippedAssetNames: dialog.skippedAssetNames,
+                  skippedOtherNames: dialog.skippedOtherNames,
+                  noIdNames: dialog.noIdNames,
+                  selectedCode: localeCode,
+                  allowedCodes: dialog.choices.map((row) => row.code),
+                  localeName: choiceName,
+                  onFolderSaved: (folder) => {
+                    setSavedFolderLocales((prev) => {
+                      const next = new Map(prev);
+                      next.set(folder.folderId, {
+                        localeCode: folder.localeCode,
+                        localeName: folder.localeName,
+                      });
+                      return next;
+                    });
+                  },
+                });
+                setSetFolderLocaleDialog(null);
+                setSetFolderLocaleNotice(describeSetFolderLocaleMultiSave(result, choiceName));
+                if (result.saved.length > 0) {
+                  setListEpoch((n) => n + 1);
+                }
+                return;
+              }
               const saved = await saveSetFolderLocale({
                 folderId: dialog.folderId,
                 props: dialog.props,
@@ -4285,6 +4378,14 @@ function ContentExplorerShellInner({
                   dialog.choices.find((row) => row.code === localeCode)?.name ?? localeCode,
               });
               if (saved.status === "saved") {
+                setSavedFolderLocales((prev) => {
+                  const next = new Map(prev);
+                  next.set(dialog.folderId, {
+                    localeCode: saved.localeCode,
+                    localeName: saved.localeName,
+                  });
+                  return next;
+                });
                 setSetFolderLocaleDialog(null);
                 setSetFolderLocaleNotice({
                   kind: "success",

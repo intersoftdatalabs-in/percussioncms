@@ -21,6 +21,7 @@ const TEST_IDS = Object.freeze({
   shell: "content-explorer-shell",
   menuItem: "explorer-set-folder-locale",
   dialog: "explorer-set-folder-locale-dialog",
+  multi: "explorer-set-folder-locale-multi",
   select: "explorer-set-folder-locale-select",
   save: "explorer-set-folder-locale-save",
   cancel: "explorer-set-folder-locale-cancel",
