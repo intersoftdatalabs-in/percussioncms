@@ -186,6 +186,24 @@ export const EDITOR_MSG = {
     "perc.ui.editor@You are not allowed to change the publish schedule.",
   SCHEDULE_INVALID:
     "perc.ui.editor@Those publish dates are not valid. Correct them and try again.",
+  CLEAR_SCHEDULE: "perc.ui.editor@Clear schedule",
+  CLEAR_SCHEDULE_LOADING: "perc.ui.editor@Loading schedule…",
+  CLEAR_SCHEDULE_TITLE: "perc.ui.editor@Clear the publish schedule",
+  CLEAR_SCHEDULE_BODY:
+    "perc.ui.editor@Clear the start and removal dates for this item?",
+  CLEAR_SCHEDULE_CURRENT: "perc.ui.editor@Current dates",
+  CLEAR_SCHEDULE_NONE: "perc.ui.editor@This item has no scheduled dates.",
+  CLEAR_SCHEDULE_CONFIRM: "perc.ui.editor@Clear dates",
+  CLEAR_SCHEDULE_CANCEL: "perc.ui.editor@Cancel",
+  CLEAR_SCHEDULE_DONE: "perc.ui.editor@Publish schedule cleared.",
+  CLEAR_SCHEDULE_FAILED: "perc.ui.editor@Could not clear the publish schedule.",
+  CLEAR_SCHEDULE_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to clear the publish schedule.",
+  CLEAR_SCHEDULE_INVALID:
+    "perc.ui.editor@Those publish dates could not be cleared.",
+  CLEAR_SCHEDULE_CONFLICT: "perc.ui.editor@The publish schedule was not cleared.",
+  CLEAR_SCHEDULE_STILL_SET:
+    "perc.ui.editor@The publish schedule still has dates. It was not cleared.",
   STAGE: "perc.ui.editor@Stage",
   STAGING: "perc.ui.editor@Staging…",
   CONFIRM_STAGE: "perc.ui.editor@Stage this item?",

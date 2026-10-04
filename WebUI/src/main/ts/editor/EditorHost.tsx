@@ -158,7 +158,11 @@ import {
 } from "./editorPublish";
 import { ScheduleDatesDialog } from "../contentExplorer/ScheduleDatesDialog";
 import type { ItemScheduleDates } from "../contentExplorer/itemScheduleDates";
+import { EditorClearScheduleDialog } from "./EditorClearScheduleDialog";
 import {
+  clearedEditorScheduleDates,
+  editorClearRefreshSucceeded,
+  editorClearScheduleFailureMessage,
   editorScheduleFailureMessage,
   loadEditorScheduleDates,
   saveEditorScheduleDates,
@@ -779,6 +783,16 @@ export function EditorHost({
     null,
   );
   const [scheduleLoadError, setScheduleLoadError] = useState("");
+  const [clearScheduleOpen, setClearScheduleOpen] = useState(false);
+  const [clearScheduleBusy, setClearScheduleBusy] = useState(false);
+  const [clearScheduleSaving, setClearScheduleSaving] = useState(false);
+  const [clearScheduleDone, setClearScheduleDone] = useState(false);
+  const [clearScheduleCurrent, setClearScheduleCurrent] =
+    useState<ItemScheduleDates | null>(null);
+  const [clearScheduleServerError, setClearScheduleServerError] = useState<
+    string | null
+  >(null);
+  const [clearScheduleLoadError, setClearScheduleLoadError] = useState("");
   const [stageBusy, setStageBusy] = useState(false);
   const [stageDone, setStageDone] = useState(false);
   const [stageErrorKey, setStageErrorKey] = useState<string | null>(null);
@@ -1900,6 +1914,7 @@ export function EditorHost({
       setScheduleCurrent(dates);
       setScheduleOpen(false);
       setScheduleDone(true);
+      setClearScheduleDone(false);
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
@@ -1910,6 +1925,86 @@ export function EditorHost({
       );
     } finally {
       setScheduleSaving(false);
+    }
+  }
+
+  async function handleOpenClearSchedule(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    const itemId = String(contentId);
+    const kind = resolveEditorPublishKind(payload?.contentType, {
+      id: itemId,
+      allowedTemplateCount,
+    });
+    if (!canPublishFromEditor(mode, kind)) {
+      return;
+    }
+    setClearScheduleBusy(true);
+    setClearScheduleDone(false);
+    setClearScheduleLoadError("");
+    setClearScheduleServerError(null);
+    try {
+      const dates = await loadScheduleDates(itemId);
+      setClearScheduleCurrent({
+        itemId,
+        startDate: dates.startDate ?? "",
+        endDate: dates.endDate ?? "",
+        comments: dates.comments ?? "",
+      });
+      setClearScheduleOpen(true);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setClearScheduleOpen(false);
+      setClearScheduleLoadError(
+        editorClearScheduleFailureMessage(err) ||
+          message(EDITOR_MSG.CLEAR_SCHEDULE_FAILED),
+      );
+    } finally {
+      setClearScheduleBusy(false);
+    }
+  }
+
+  async function handleConfirmClearSchedule(): Promise<void> {
+    if (contentId == null || clearScheduleSaving || clearScheduleCurrent == null) {
+      return;
+    }
+    const itemId = clearScheduleCurrent.itemId || String(contentId);
+    setClearScheduleSaving(true);
+    setClearScheduleServerError(null);
+    setClearScheduleDone(false);
+    setScheduleDone(false);
+    try {
+      await saveScheduleDates(clearedEditorScheduleDates(itemId));
+      const refreshed = await loadScheduleDates(itemId);
+      const next: ItemScheduleDates = {
+        itemId,
+        startDate: refreshed.startDate ?? "",
+        endDate: refreshed.endDate ?? "",
+        comments: refreshed.comments ?? "",
+      };
+      setClearScheduleCurrent(next);
+      if (!editorClearRefreshSucceeded(next)) {
+        setClearScheduleDone(false);
+        setClearScheduleServerError(message(EDITOR_MSG.CLEAR_SCHEDULE_STILL_SET));
+        return;
+      }
+      setScheduleCurrent(next);
+      setClearScheduleOpen(false);
+      setClearScheduleDone(true);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setClearScheduleDone(false);
+      setClearScheduleServerError(
+        editorClearScheduleFailureMessage(err) ||
+          message(EDITOR_MSG.CLEAR_SCHEDULE_FAILED),
+      );
+    } finally {
+      setClearScheduleSaving(false);
     }
   }
 
@@ -3113,6 +3208,11 @@ export function EditorHost({
               {message(EDITOR_MSG.SCHEDULE_DONE)}
             </span>
           ) : null}
+          {clearScheduleDone ? (
+            <span className={styles.meta} data-testid="editor-clear-schedule-done">
+              {message(EDITOR_MSG.CLEAR_SCHEDULE_DONE)}
+            </span>
+          ) : null}
           {stageDone ? (
             <span className={styles.meta} data-testid="editor-stage-done">
               {message(EDITOR_MSG.STAGE_DONE)}
@@ -3176,6 +3276,29 @@ export function EditorHost({
             >
               {message(
                 scheduleBusy ? EDITOR_MSG.SCHEDULE_LOADING : EDITOR_MSG.SCHEDULE,
+              )}
+            </button>
+          ) : null}
+          {showPublish ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-clear-schedule"
+              disabled={
+                clearScheduleBusy ||
+                clearScheduleSaving ||
+                scheduleBusy ||
+                scheduleSaving ||
+                loading ||
+                payload == null ||
+                saving
+              }
+              onClick={() => void handleOpenClearSchedule()}
+            >
+              {message(
+                clearScheduleBusy
+                  ? EDITOR_MSG.CLEAR_SCHEDULE_LOADING
+                  : EDITOR_MSG.CLEAR_SCHEDULE,
               )}
             </button>
           ) : null}
@@ -3568,6 +3691,15 @@ export function EditorHost({
                 data-testid="editor-schedule-error"
               >
                 {scheduleLoadError}
+              </div>
+            ) : null}
+            {clearScheduleLoadError ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-clear-schedule-load-error"
+              >
+                {clearScheduleLoadError}
               </div>
             ) : null}
             {stageErrorKey ? (
@@ -4073,6 +4205,23 @@ export function EditorHost({
           }}
           onSave={(dates) => {
             void handleSaveSchedule(dates);
+          }}
+        />
+      ) : null}
+      {clearScheduleOpen && clearScheduleCurrent ? (
+        <EditorClearScheduleDialog
+          current={clearScheduleCurrent}
+          busy={clearScheduleSaving}
+          serverError={clearScheduleServerError}
+          onCancel={() => {
+            if (clearScheduleSaving) {
+              return;
+            }
+            setClearScheduleOpen(false);
+            setClearScheduleServerError(null);
+          }}
+          onConfirm={() => {
+            void handleConfirmClearSchedule();
           }}
         />
       ) : null}
