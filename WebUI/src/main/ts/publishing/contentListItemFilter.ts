@@ -26,30 +26,26 @@ export interface ItemFilterChoice {
 }
 
 /**
- * Design saves address an item filter by numeric uuid (same shape as content
- * list ids). Prefer {@code uuid}, then an all-digit {@code stringValue}, then
- * the last segment of a host-type-uuid string.
+ * Design saves address an item filter by name. Several filters share the same
+ * numeric uuid on different hosts, so a bare uuid is not a stable choice id.
  */
 export function itemFilterChoiceId(filter: ItemFilter): string | undefined {
-  const guid = filter.filterId;
-  if (!guid) {
-    return undefined;
+  const name = filter.name?.trim();
+  return name || undefined;
+}
+
+/**
+ * Token the editor select and save body use. Prefer the loaded display name so
+ * a summary that still carries a colliding uuid selects the matching name.
+ */
+export function storedFilterToken(
+  contentList: { itemFilterName?: string; itemFilterId?: string } | null | undefined,
+): string {
+  const name = contentList?.itemFilterName?.trim();
+  if (name) {
+    return name;
   }
-  if (typeof guid.uuid === "number" && Number.isFinite(guid.uuid) && guid.uuid > 0) {
-    return String(guid.uuid);
-  }
-  const raw = guid.stringValue?.trim();
-  if (!raw) {
-    return undefined;
-  }
-  if (/^\d+$/.test(raw)) {
-    return raw;
-  }
-  const last = raw.split("-").pop() ?? "";
-  if (/^\d+$/.test(last) && last !== "0") {
-    return last;
-  }
-  return undefined;
+  return contentList?.itemFilterId?.trim() ?? "";
 }
 
 /** Existing filters the editor can choose. Skips rows with no name or no id. */

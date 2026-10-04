@@ -70,10 +70,11 @@ describe("ContentListEditor item filter", () => {
     expect(screen.getByTestId("contentlist-stored-item-filter")).toHaveTextContent(
       "Saved item filter: public",
     );
+    expect(screen.getByTestId("contentlist-item-filter")).toHaveValue("public");
     fireEvent.change(screen.getByTestId("contentlist-item-filter"), {
-      target: { value: "2" },
+      target: { value: "preview" },
     });
-    expect(screen.getByTestId("contentlist-item-filter")).toHaveValue("2");
+    expect(screen.getByTestId("contentlist-item-filter")).toHaveValue("preview");
     expect(screen.getByTestId("contentlist-stored-item-filter")).toHaveTextContent(
       "Saved item filter: public",
     );
@@ -113,13 +114,13 @@ describe("ContentListEditor item filter", () => {
     );
     await screen.findByRole("option", { name: "preview" });
     fireEvent.change(screen.getByTestId("contentlist-item-filter"), {
-      target: { value: "2" },
+      target: { value: "preview" },
     });
     fireEvent.click(screen.getByTestId("contentlist-save"));
     await waitFor(() =>
       expect(updateContentList).toHaveBeenCalledWith(
         "5",
-        expect.objectContaining({ name: "NightCl", itemFilterId: "2" }),
+        expect.objectContaining({ name: "NightCl", itemFilterId: "preview" }),
       ),
     );
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
@@ -152,7 +153,7 @@ describe("ContentListEditor item filter", () => {
     await screen.findByRole("option", { name: "preview" });
     fireEvent.change(screen.getByLabelText(/Name/i), { target: { value: "  " } });
     fireEvent.change(screen.getByTestId("contentlist-item-filter"), {
-      target: { value: "2" },
+      target: { value: "preview" },
     });
     fireEvent.click(screen.getByTestId("contentlist-save"));
     expect(await screen.findByRole("alert")).toHaveTextContent("Name is required");
@@ -174,7 +175,7 @@ describe("ContentListEditor item filter", () => {
     );
     await screen.findByRole("option", { name: "preview" });
     fireEvent.change(screen.getByTestId("contentlist-item-filter"), {
-      target: { value: "2" },
+      target: { value: "preview" },
     });
 
     for (const status of [400, 403, 409]) {
@@ -203,7 +204,7 @@ describe("ContentListEditor item filter", () => {
     );
     await screen.findByRole("option", { name: "preview" });
     fireEvent.change(screen.getByTestId("contentlist-item-filter"), {
-      target: { value: "2" },
+      target: { value: "preview" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Back/i }));
     expect(updateContentList).not.toHaveBeenCalled();

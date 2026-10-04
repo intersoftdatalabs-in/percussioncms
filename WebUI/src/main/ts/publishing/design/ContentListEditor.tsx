@@ -27,6 +27,7 @@ import { message, MSG } from "../../i18n/message";
 import {
   itemFilterChoices,
   NO_ITEM_FILTER_LABEL,
+  storedFilterToken,
   storedItemFilterLabel,
   type ItemFilterChoice,
 } from "../contentListItemFilter";
@@ -60,7 +61,7 @@ export function ContentListEditor({
   const [generator, setGenerator] = useState(contentList?.generator ?? "");
   const [url, setUrl] = useState(contentList?.url ?? "");
   const [listType, setListType] = useState(contentList?.listType ?? "modern");
-  const [itemFilterId, setItemFilterId] = useState(contentList?.itemFilterId ?? "");
+  const [itemFilterId, setItemFilterId] = useState(storedFilterToken(contentList));
   const [filterChoices, setFilterChoices] = useState<ItemFilterChoice[]>([]);
   const [filtersReady, setFiltersReady] = useState(false);
   const [filtersNote, setFiltersNote] = useState<string | null>(null);
@@ -74,7 +75,7 @@ export function ContentListEditor({
     setGenerator(contentList?.generator ?? "");
     setUrl(contentList?.url ?? "");
     setListType(contentList?.listType ?? "modern");
-    setItemFilterId(contentList?.itemFilterId ?? "");
+    setItemFilterId(storedFilterToken(contentList));
     setDirty(false);
   }, [contentList, setDirty]);
 

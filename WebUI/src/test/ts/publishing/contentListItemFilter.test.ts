@@ -20,37 +20,44 @@ import {
   itemFilterChoiceId,
   itemFilterChoices,
   NO_ITEM_FILTER_LABEL,
+  storedFilterToken,
   storedItemFilterLabel,
 } from "@/publishing/contentListItemFilter";
 
 describe("content list item filter choices", () => {
-  it("uses the numeric uuid, then a digit string, then the last guid segment", () => {
-    expect(itemFilterChoiceId({ name: "public", filterId: { uuid: 42 } })).toBe("42");
-    expect(
-      itemFilterChoiceId({ name: "preview", filterId: { stringValue: "77" } }),
-    ).toBe("77");
+  it("addresses a filter by name, not by a colliding uuid", () => {
+    expect(itemFilterChoiceId({ name: " public ", filterId: { uuid: 1 } })).toBe("public");
     expect(
       itemFilterChoiceId({
-        name: "staging",
-        filterId: { stringValue: "0-7-88" },
+        name: "preview",
+        filterId: { uuid: 1, stringValue: "6373757-7-1" },
       }),
-    ).toBe("88");
-    expect(itemFilterChoiceId({ name: "x" })).toBeUndefined();
-    expect(itemFilterChoiceId({ name: "x", filterId: { uuid: 0 } })).toBeUndefined();
+    ).toBe("preview");
+    expect(itemFilterChoiceId({ name: "  ", filterId: { uuid: 42 } })).toBeUndefined();
+    expect(itemFilterChoiceId({ filterId: { uuid: 42 } })).toBeUndefined();
   });
 
-  it("drops nameless or id-less rows and sorts by name", () => {
+  it("keeps filters that share a uuid and drops blank names", () => {
     expect(
       itemFilterChoices([
-        { name: "preview", filterId: { uuid: 2 } },
+        { name: "preview", filterId: { uuid: 1 } },
         { name: "  ", filterId: { uuid: 3 } },
         { name: "public", filterId: { uuid: 1 } },
         { name: "again", filterId: {} },
       ]),
     ).toEqual([
-      { id: "2", name: "preview" },
-      { id: "1", name: "public" },
+      { id: "again", name: "again" },
+      { id: "preview", name: "preview" },
+      { id: "public", name: "public" },
     ]);
+  });
+
+  it("prefers the loaded name as the select token", () => {
+    expect(storedFilterToken({ itemFilterName: " public ", itemFilterId: "1" })).toBe(
+      "public",
+    );
+    expect(storedFilterToken({ itemFilterId: "9" })).toBe("9");
+    expect(storedFilterToken(null)).toBe("");
   });
 
   it("shows the loaded name, else the id, else no filter", () => {

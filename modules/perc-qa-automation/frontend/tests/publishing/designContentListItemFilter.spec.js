@@ -74,6 +74,9 @@ async function createContentList(page, name) {
   await page.getByTestId("design-add-content-list").click();
   await expect(page.getByTestId("contentlist-editor")).toBeVisible();
   await page.locator("#cl-name").fill(name);
+  // A list with no generator, expander, and filter is legacy (isLegacy).
+  // Keep a generator so clearing the filter does not hide this control.
+  await page.locator("#cl-gen").fill("sys_Search");
   await expect(page.locator("#cl-item-filter")).toBeEnabled({ timeout: 20000 });
   await page.getByTestId("contentlist-save").click();
   await expect(page.getByTestId("contentlist-editor")).toBeHidden({
@@ -170,12 +173,12 @@ test.describe("PublishingShell Design content-list item filter", () => {
     await expect(filterLabel).toHaveText(chosenAgain.label, { timeout: 20000 });
 
     await row.click();
-    await expect(page.getByTestId("contentlist-stored-item-filter")).toHaveText(
+    await expect(page.getByTestId("contentlist-stored-item-filter")).toContainText(
       chosenAgain.label,
     );
     await expect(page.locator("#cl-item-filter")).toBeEnabled({ timeout: 20000 });
     await page.locator("#cl-item-filter").selectOption("");
-    await expect(page.getByTestId("contentlist-stored-item-filter")).toHaveText(
+    await expect(page.getByTestId("contentlist-stored-item-filter")).toContainText(
       chosenAgain.label,
     );
     const clearResponse = page.waitForResponse(

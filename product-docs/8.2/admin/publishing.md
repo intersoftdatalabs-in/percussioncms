@@ -441,7 +441,8 @@ Open one existing **modern** content list (not **Add content list**, and not a l
 **Item filter** lists item filters that already exist (the same catalog as Developer item filters).
 Choose one, or **No item filter** to clear it, then **Save**. That sends
 `PUT …/sitemanage/publishingdesign/contentlists/{contentListId}` with `itemFilterId` set to the
-filter's id, or to an empty string when clearing. The **Saved item filter** line and the text next
+filter's **name** (numeric uuids are not unique across hosts), or to an empty string when clearing.
+The **Saved item filter** line and the text next
 to the content list stay on the previous filter until that save succeeds and the list reloads.
 **Back** does not call the server.
 
@@ -450,7 +451,7 @@ A blank name is rejected in the editor and does not call the server. An unknown 
 (content list name already exists) stay in the editor. Those responses do not change the filter
 shown for that content list. This action does not create item filters, and it does not change the
 list type, expander, edition type, or generator. Renaming a content list and copying one are
-separate actions. A legacy content list does not use an item filter.
+separate actions. A legacy content list does not use an item filter. A list with no generator, no expander, and no item filter is legacy, so keep a generator on a modern list when clearing the filter.
 
 ### Delete a content list (Design)
 
