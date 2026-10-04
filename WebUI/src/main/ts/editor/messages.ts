@@ -159,6 +159,20 @@ export const EDITOR_MSG = {
     "perc.ui.editor@That workflow transition is not allowed for this item.",
   WORKFLOW_COMMENT_REQUIRED:
     "perc.ui.editor@Enter a comment before running this transition.",
+  WORKFLOW_ASSIGNEES: "perc.ui.editor@Ad-hoc assignees",
+  WORKFLOW_ASSIGNEE_ADD: "perc.ui.editor@Add assignee",
+  WORKFLOW_ASSIGNEE_REMOVE: "perc.ui.editor@Remove assignee",
+  WORKFLOW_ASSIGNEES_REQUIRED:
+    "perc.ui.editor@Choose at least one assignee before running this transition.",
+  WORKFLOW_ASSIGNEE_TITLE: "perc.ui.editor@Choose assignees",
+  WORKFLOW_ASSIGNEE_BODY:
+    "perc.ui.editor@This transition needs ad-hoc assignees. Confirm to run it with the people you chose.",
+  WORKFLOW_ASSIGNEE_CANCEL: "perc.ui.editor@Cancel",
+  WORKFLOW_ASSIGNEE_CONFIRM: "perc.ui.editor@Run transition",
+  WORKFLOW_ASSIGNEE_BUSY: "perc.ui.editor@Running transition…",
+  WORKFLOW_BAD_REQUEST: "perc.ui.editor@That workflow transition was rejected.",
+  WORKFLOW_CONFLICT:
+    "perc.ui.editor@That workflow transition could not run because the item state rejected it.",
   WORKFLOW_FAILED: "perc.ui.editor@Could not run this workflow transition.",
   WORKFLOW_DONE: "perc.ui.editor@Workflow transition completed.",
   WORKFLOW_CHANGE: "perc.ui.editor@Change workflow",

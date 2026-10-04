@@ -122,6 +122,8 @@ public class PSSerializableListWrappersTest {
     assertCollectionFieldConcrete(PSItemStateTransition.class, "transitionTriggers", ArrayList.class);
     assertCollectionFieldConcrete(
         PSItemStateTransition.class, "commentRequiredTriggers", ArrayList.class);
+    assertCollectionFieldConcrete(
+        PSItemStateTransition.class, "assigneeRequiredTriggers", ArrayList.class);
     assertCollectionFieldConcrete(PSSiteSection.class, "childIds", ArrayList.class);
     assertCollectionFieldConcrete(PSItemProperties.class, "tags", ArrayList.class);
     assertCollectionFieldConcrete(
@@ -165,6 +167,15 @@ public class PSSerializableListWrappersTest {
     transition.setCommentRequiredTriggers(null);
     assertNotNull(transition.getCommentRequiredTriggers());
     assertTrue(transition.getCommentRequiredTriggers().isEmpty());
+    List<String> assignees = new LinkedList<>(List.of("alice", "bob"));
+    transition.setAssigneeRequiredTriggers(assignees);
+    assertEquals(List.of("alice", "bob"), transition.getAssigneeRequiredTriggers());
+    assertTrue(transition.getAssigneeRequiredTriggers() instanceof ArrayList);
+    assignees.clear();
+    assertEquals(2, transition.getAssigneeRequiredTriggers().size());
+    transition.setAssigneeRequiredTriggers(null);
+    assertNotNull(transition.getAssigneeRequiredTriggers());
+    assertTrue(transition.getAssigneeRequiredTriggers().isEmpty());
 
     var section = new PSSiteSection();
     section.setChildIds(new LinkedList<>(List.of("a", "b")));

@@ -327,7 +327,19 @@ from `GET /services/itemmanagement/workflow/getTransitions/{id}`. Enter an optio
 (with `?comment=` when the comment is non-empty). Triggers that are not in the
 loaded allowlist are not shown and cannot run. **Reject**, **Return**, **Disapprove**,
 **Decline**, and **Send Back** require a comment — the host blocks the request until
-the comment field is filled. **View** mode does not load or run transitions.
+the comment field is filled. The same region has **Ad-hoc assignees**: type a user
+name and **Add assignee**. When `getTransitions` lists that trigger in
+`assigneeRequiredTriggers` (the destination state has ad-hoc assignment enabled),
+choosing the trigger opens a confirm. **Cancel** does not call the server.
+**Run transition** with nobody chosen does not call the server and does not change
+the state name. Confirming one or more names calls the same
+`transitionWithComments` route with `adhocAssignees` set to those names separated
+by commas (and `comment` when the comment is not empty). A transition that does
+not need assignees still runs immediately with the comment only, unless assignees
+were already chosen — then those names are sent on the same request. The state
+name and **Workflow transition completed** change only after the call succeeds.
+HTTP **400**, **403**, and **409** stay on the confirm (or on the workflow region)
+and are not success. **View** mode does not load or run transitions.
 
 In **Edit** mode the host also shows **Publish now** for the already-open **page** or
 **asset** so authors do not need to bounce to Explorer solely to publish. Confirm

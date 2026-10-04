@@ -50,7 +50,7 @@ import {
   type ItemWorkflowChoices,
 } from "../api/contentExplorer/itemWorkflowApi";
 import { deleteFolderItem, findItemById, renameFolderItem } from "../api/contentExplorer/pathApi";
-import { formatApiError, isSessionRedirectError } from "../api/client";
+import { formatApiError, isApiError, isSessionRedirectError } from "../api/client";
 import { CopyDestinationPickerDialog } from "../contentExplorer/CopyDestinationPickerDialog";
 import { MoveDestinationPickerDialog } from "../contentExplorer/MoveDestinationPickerDialog";
 import { parsePositiveInt } from "../assembly/assemblyHostUrl";
@@ -208,6 +208,11 @@ import {
 import {
   canChangeEditorWorkflow,
   canRunEditorTransition,
+  confirmEditorAssignees,
+  editorAssigneeStep,
+  editorTransitionHttpFailure,
+  normalizeAdhocAssignees,
+  triggerRequiresAssignees,
   uniqueTransitionTriggers,
 } from "./editorWorkflow";
 import {
@@ -231,6 +236,7 @@ import {
 import styles from "./EditorHost.module.css";
 import { normalizeEditorMode, type EditorHostMode } from "./editorHostUrl";
 import { EditorRelatedContentPanel } from "./EditorRelatedContentPanel";
+import { EditorWorkflowAssigneeDialog } from "./EditorWorkflowAssigneeDialog";
 import { EditorWorkflowPanel } from "./EditorWorkflowPanel";
 import { EDITOR_MSG } from "./messages";
 import { TranslationsPanel } from "../contentExplorer/TranslationsPanel";
@@ -299,11 +305,12 @@ export interface EditorHostProps {
   loadWorkflowChoices?: (itemId: string) => Promise<ItemWorkflowChoices>;
   /** Test seam: {@code POST changeWorkflow}. */
   changeWorkflow?: (itemId: string, workflowId: string) => Promise<ItemStateTransition>;
-  /** Test seam: {@code transitionWithComments}. */
+  /** Test seam: {@code transitionWithComments}. Fourth arg is ad-hoc assignees. */
   runTransition?: (
     itemId: string,
     trigger: string,
     comment?: string,
+    adhocAssignees?: readonly string[],
   ) => Promise<unknown>;
   /** Extra / override names that require a comment (tests). */
   commentRequiredTriggers?: readonly string[];
@@ -816,6 +823,14 @@ export function EditorHost({
   const [workflowTriggers, setWorkflowTriggers] = useState<string[]>([]);
   const [workflowState, setWorkflowState] = useState<string>("");
   const [workflowComment, setWorkflowComment] = useState("");
+  const [assigneeRequiredTriggers, setAssigneeRequiredTriggers] = useState<string[]>(
+    [],
+  );
+  const [workflowAssignees, setWorkflowAssignees] = useState<string[]>([]);
+  const [workflowAssigneeDraft, setWorkflowAssigneeDraft] = useState("");
+  const [workflowAssigneeDialog, setWorkflowAssigneeDialog] = useState<string | null>(
+    null,
+  );
   const [workflowErrorKey, setWorkflowErrorKey] = useState<string | null>(null);
   const [workflowErrorDetail, setWorkflowErrorDetail] = useState("");
   const [workflowBusy, setWorkflowBusy] = useState(false);
@@ -1062,6 +1077,9 @@ export function EditorHost({
                 uniqueTransitionTriggers(trans.transitionTriggers),
               );
               setWorkflowState(trans.stateName ?? "");
+              setAssigneeRequiredTriggers(
+                uniqueTransitionTriggers(trans.assigneeRequiredTriggers),
+              );
               if (trans.workflowId) {
                 setCurrentWorkflowId(trans.workflowId);
               }
@@ -1070,6 +1088,7 @@ export function EditorHost({
             if (!cancelled) {
               setWorkflowTriggers([]);
               setWorkflowState("");
+              setAssigneeRequiredTriggers([]);
             }
           }
           try {
@@ -1799,11 +1818,87 @@ export function EditorHost({
     if (reason === "comment") {
       return EDITOR_MSG.WORKFLOW_COMMENT_REQUIRED;
     }
+    if (reason === "assignees") {
+      return EDITOR_MSG.WORKFLOW_ASSIGNEES_REQUIRED;
+    }
     return EDITOR_MSG.WORKFLOW_FAILED;
   }
 
-  async function handleTransition(trigger: string): Promise<void> {
+  function workflowHttpErrorKey(status: number | undefined): string {
+    const failure = editorTransitionHttpFailure(status);
+    if (failure === "badRequest") {
+      return EDITOR_MSG.WORKFLOW_BAD_REQUEST;
+    }
+    if (failure === "forbidden") {
+      return EDITOR_MSG.WORKFLOW_UNAUTHORIZED;
+    }
+    if (failure === "conflict") {
+      return EDITOR_MSG.WORKFLOW_CONFLICT;
+    }
+    return EDITOR_MSG.WORKFLOW_FAILED;
+  }
+
+  function addWorkflowAssignee(): void {
+    const next = normalizeAdhocAssignees([
+      ...workflowAssignees,
+      workflowAssigneeDraft,
+    ]);
+    setWorkflowAssignees(next);
+    setWorkflowAssigneeDraft("");
+  }
+
+  async function runEditorTransition(
+    trigger: string,
+    assignees: readonly string[],
+  ): Promise<boolean> {
     if (contentId == null) {
+      return false;
+    }
+    setWorkflowBusy(true);
+    setWorkflowDone(false);
+    setWorkflowChanged(false);
+    setWorkflowErrorKey(null);
+    setWorkflowErrorDetail("");
+    const itemId = String(contentId);
+    const comment = workflowComment.trim();
+    const names = normalizeAdhocAssignees(assignees);
+    const commentArg = comment.length > 0 ? comment : undefined;
+    try {
+      if (names.length > 0) {
+        await runTransition(itemId, trigger, commentArg, names);
+      } else {
+        await runTransition(itemId, trigger, commentArg);
+      }
+      setWorkflowComment("");
+      if (!readOnly) {
+        try {
+          await checkout(itemId);
+        } catch {
+          // Transition already succeeded; stay on the host without a second checkout.
+        }
+        const trans = await loadTransitions(itemId);
+        setWorkflowTriggers(uniqueTransitionTriggers(trans.transitionTriggers));
+        setWorkflowState(trans.stateName ?? "");
+        setAssigneeRequiredTriggers(
+          uniqueTransitionTriggers(trans.assigneeRequiredTriggers),
+        );
+      }
+      setWorkflowDone(true);
+      return true;
+    } catch (err) {
+      if (!isSessionRedirectError(err)) {
+        const status = isApiError(err) ? err.status : undefined;
+        setWorkflowErrorDetail(formatApiError(err, message(EDITOR_MSG.WORKFLOW_FAILED)));
+        setWorkflowErrorKey(workflowHttpErrorKey(status));
+      }
+      return false;
+    } finally {
+      setWorkflowBusy(false);
+    }
+  }
+
+  async function handleTransition(trigger: string): Promise<void> {
+    if (contentId == null || workflowAssigneeDialog) {
       return;
     }
     const gate = canRunEditorTransition({
@@ -1819,33 +1914,51 @@ export function EditorHost({
       setWorkflowErrorKey(workflowErrorFor(gate.reason));
       return;
     }
-    setWorkflowBusy(true);
-    setWorkflowDone(false);
-    setWorkflowChanged(false);
+    const step = editorAssigneeStep({
+      requiresAssignees: triggerRequiresAssignees(trigger, assigneeRequiredTriggers),
+      assignees: workflowAssignees,
+    });
+    if (step.action === "confirm") {
+      setWorkflowDone(false);
+      setWorkflowErrorKey(null);
+      setWorkflowErrorDetail("");
+      setWorkflowAssigneeDialog(trigger);
+      return;
+    }
+    const ok = await runEditorTransition(trigger, step.assignees);
+    if (ok) {
+      setWorkflowAssignees([]);
+      setWorkflowAssigneeDraft("");
+    }
+  }
+
+  async function handleAssigneeConfirm(): Promise<void> {
+    const trigger = workflowAssigneeDialog;
+    if (!trigger || workflowBusy) {
+      return;
+    }
+    const confirmed = confirmEditorAssignees(workflowAssignees);
+    if (!confirmed.ok) {
+      setWorkflowDone(false);
+      setWorkflowErrorDetail("");
+      setWorkflowErrorKey(workflowErrorFor(confirmed.reason));
+      return;
+    }
+    const ok = await runEditorTransition(trigger, confirmed.assignees);
+    if (ok) {
+      setWorkflowAssigneeDialog(null);
+      setWorkflowAssignees([]);
+      setWorkflowAssigneeDraft("");
+    }
+  }
+
+  function handleAssigneeCancel(): void {
+    if (workflowBusy) {
+      return;
+    }
+    setWorkflowAssigneeDialog(null);
     setWorkflowErrorKey(null);
     setWorkflowErrorDetail("");
-    const itemId = String(contentId);
-    const comment = workflowComment.trim();
-    try {
-      await runTransition(itemId, trigger, comment.length > 0 ? comment : undefined);
-      setWorkflowComment("");
-      if (!readOnly) {
-        try {
-          await checkout(itemId);
-        } catch {
-          // Transition already succeeded; stay on the host without a second checkout.
-        }
-        const trans = await loadTransitions(itemId);
-        setWorkflowTriggers(uniqueTransitionTriggers(trans.transitionTriggers));
-        setWorkflowState(trans.stateName ?? "");
-      }
-      setWorkflowDone(true);
-    } catch (err) {
-      setWorkflowErrorDetail(err instanceof Error ? err.message : String(err));
-      setWorkflowErrorKey(EDITOR_MSG.WORKFLOW_FAILED);
-    } finally {
-      setWorkflowBusy(false);
-    }
   }
 
   function workflowChangeErrorFor(reason: string): string {
@@ -1886,6 +1999,9 @@ export function EditorHost({
       const trans = await changeWorkflow(String(contentId), gate.workflowId);
       setWorkflowTriggers(uniqueTransitionTriggers(trans.transitionTriggers));
       setWorkflowState(trans.stateName ?? "");
+      setAssigneeRequiredTriggers(
+        uniqueTransitionTriggers(trans.assigneeRequiredTriggers),
+      );
       const nextId = trans.workflowId ?? gate.workflowId;
       setCurrentWorkflowId(nextId);
       setSelectedWorkflowId("");
@@ -4413,10 +4529,20 @@ export function EditorHost({
                 triggers={workflowTriggers}
                 comment={workflowComment}
                 onCommentChange={setWorkflowComment}
+                assignees={workflowAssignees}
+                assigneeDraft={workflowAssigneeDraft}
+                onAssigneeDraftChange={setWorkflowAssigneeDraft}
+                onAddAssignee={addWorkflowAssignee}
+                onRemoveAssignee={(name) =>
+                  setWorkflowAssignees((current) =>
+                    current.filter((entry) => entry !== name),
+                  )
+                }
+                assigneeRequiredTriggers={assigneeRequiredTriggers}
                 onTransition={(t) => void handleTransition(t)}
-                busy={workflowBusy || saving}
-                errorKey={workflowErrorKey}
-                errorDetail={workflowErrorDetail}
+                busy={workflowBusy || saving || workflowAssigneeDialog != null}
+                errorKey={workflowAssigneeDialog ? null : workflowErrorKey}
+                errorDetail={workflowAssigneeDialog ? "" : workflowErrorDetail}
                 commentRequiredTriggers={commentRequiredTriggers}
                 workflowChoices={workflowChoices}
                 selectedWorkflowId={selectedWorkflowId}
@@ -4543,6 +4669,24 @@ export function EditorHost({
           }}
           onConfirm={() => {
             void handleConfirmClearSchedule();
+          }}
+        />
+      ) : null}
+      {workflowAssigneeDialog ? (
+        <EditorWorkflowAssigneeDialog
+          trigger={workflowAssigneeDialog}
+          assignees={workflowAssignees}
+          busy={workflowBusy}
+          serverError={
+            workflowErrorKey
+              ? `${message(workflowErrorKey)}${
+                  workflowErrorDetail ? ` ${workflowErrorDetail}` : ""
+                }`
+              : null
+          }
+          onCancel={handleAssigneeCancel}
+          onConfirm={() => {
+            void handleAssigneeConfirm();
           }}
         />
       ) : null}

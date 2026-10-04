@@ -150,6 +150,17 @@ public interface IPSItemWorkflowService {
   PSItemTransitionResults transitionWithComments(String id, String trigger, String comment);
 
   /**
+   * Same as {@link #transitionWithComments(String, String, String)} plus optional ad-hoc
+   * assignees (#5163). {@code adhocAssignees} is a comma-separated user list, or null. Blank
+   * tokens are ignored. An empty list does not fail the call — the editor refuses to fire a
+   * transition that requires assignees until at least one name is chosen.
+   *
+   * @param adhocAssignees comma-separated user names, may be null or empty
+   */
+  PSItemTransitionResults transitionWithComments(
+      String id, String trigger, String comment, String adhocAssignees);
+
+  /**
    * Performs approve transition of the supplied item. The item will only be transitioned if all
    * shared assets which can be transitioned are also successfully transitioned. If it is index
    * page, associated navon is transitioned. If the supplied preventIfStartDate flag is true, then

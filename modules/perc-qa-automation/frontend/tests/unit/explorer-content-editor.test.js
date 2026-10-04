@@ -185,6 +185,12 @@ describe("editor-host-workflow helpers (#4539)", () => {
     assert.equal(parsed.itemId, "42");
     assert.equal(parsed.trigger, "Reject");
     assert.equal(parsed.comment, "needs work");
+    assert.equal(parsed.adhocAssignees, "");
+    const withAssignees = editorWorkflow.parseTransitionWithCommentsUrl(
+      "http://cms/Rhythmyx/services/itemmanagement/workflow/transitionWithComments/42/Submit?comment=ready&adhocAssignees=alice%2Cbob",
+    );
+    assert.equal(withAssignees.adhocAssignees, "alice,bob");
+    assert.equal(withAssignees.comment, "ready");
     assert.equal(
       editorWorkflow.isGetTransitionsUrl(
         "/Rhythmyx/services/itemmanagement/workflow/getTransitions/42",

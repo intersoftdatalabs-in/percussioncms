@@ -503,6 +503,28 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
 
 Peer: `editor-rich-controls.spec.js`, `explorer-workflow-transitions.spec.js`.
 
+### Editor host ad-hoc assignees (#5163 / parent #4532)
+
+H2 proof that an edit-mode transition whose `getTransitions` payload lists the
+trigger in `assigneeRequiredTriggers` asks for assignees. **Cancel**, and
+**Run transition** with an empty list, do not call `transitionWithComments`.
+Chosen names are sent as comma-separated `adhocAssignees`. A trigger that does
+not require assignees still runs with the comment only unless names were added.
+HTTP **400**, **403**, and **409** leave the state label unchanged.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/editor-host-workflow-assignees.spec.js` |
+| Helpers | `frontend/tests/helpers/editor-host-workflow.js` |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/editor-host-workflow-assignees.spec.js
+```
+
 ### Editor host save field values (#4645 / parent #4532)
 
 H2 operator proof that **Edit** mode PUT dirty scalar fields through

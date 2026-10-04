@@ -38,7 +38,15 @@ export const COMMENT_REQUIRED_TRIGGERS: readonly string[] = [
 export type EditorTransitionBlockReason =
   | "readonly"
   | "unauthorized"
-  | "comment";
+  | "comment"
+  | "assignees";
+
+/** HTTP failures that must not be shown as a completed transition (#5163). */
+export type EditorTransitionHttpFailure =
+  | "badRequest"
+  | "forbidden"
+  | "conflict"
+  | "failed";
 
 export type EditorTransitionGate =
   | { ok: true }
@@ -121,6 +129,90 @@ export function canRunEditorTransition(input: {
     return { ok: false, reason: "comment" };
   }
   return { ok: true };
+}
+
+/**
+ * Trimmed unique assignee names in first-seen order. Matches the comma-separated
+ * {@code adhocAssignees} query {@code WorkflowActionsPanel} sends (#5163).
+ */
+export function normalizeAdhocAssignees(
+  raw: readonly string[] | null | undefined,
+): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const entry of raw ?? []) {
+    const name = String(entry ?? "").trim();
+    if (!name || seen.has(name)) {
+      continue;
+    }
+    seen.add(name);
+    out.push(name);
+  }
+  return out;
+}
+
+/**
+ * True when getTransitions listed this trigger in {@code assigneeRequiredTriggers}
+ * (destination state has ad-hoc assignment enabled).
+ */
+export function triggerRequiresAssignees(
+  trigger: string,
+  required: readonly string[] | null | undefined,
+): boolean {
+  const name = String(trigger ?? "").trim();
+  if (!name) {
+    return false;
+  }
+  return (required ?? []).some((entry) => String(entry ?? "").trim() === name);
+}
+
+/**
+ * Confirm step when the transition requires assignees. Otherwise run immediately.
+ * Chosen names are included only when the list is non-empty so a comment-only
+ * call stays a three-argument transition.
+ */
+export function editorAssigneeStep(input: {
+  requiresAssignees: boolean;
+  assignees: readonly string[] | null | undefined;
+}):
+  | { action: "confirm" }
+  | { action: "run"; assignees: string[] } {
+  if (input.requiresAssignees) {
+    return { action: "confirm" };
+  }
+  return { action: "run", assignees: normalizeAdhocAssignees(input.assignees) };
+}
+
+/**
+ * Confirm is allowed only with at least one assignee. Empty does not fire.
+ */
+export function confirmEditorAssignees(
+  raw: readonly string[] | null | undefined,
+): { ok: true; assignees: string[] } | { ok: false; reason: "assignees" } {
+  const assignees = normalizeAdhocAssignees(raw);
+  if (assignees.length === 0) {
+    return { ok: false, reason: "assignees" };
+  }
+  return { ok: true, assignees };
+}
+
+/**
+ * 400, 403, and 409 are failures. Anything else is a generic failure.
+ * None of these claim the workflow state changed.
+ */
+export function editorTransitionHttpFailure(
+  status: number | undefined,
+): EditorTransitionHttpFailure {
+  if (status === 400) {
+    return "badRequest";
+  }
+  if (status === 403) {
+    return "forbidden";
+  }
+  if (status === 409) {
+    return "conflict";
+  }
+  return "failed";
 }
 
 export type EditorWorkflowChangeReason = "blank" | "unchanged" | "forbidden";
