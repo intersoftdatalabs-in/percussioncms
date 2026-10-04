@@ -18,6 +18,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { isApiError } from "../api/client";
 import {
+  addStepRole,
   listStepRoleAssignments,
   setStepRoleAssignment,
 } from "../api/developer/workflowsApi";
@@ -34,6 +35,13 @@ import {
   mutableAssignments,
   normalizeAssignmentType,
 } from "./workflowStepRoleAssignment";
+import {
+  applyAddedRoleAfterReload,
+  assignmentStepNames,
+  firstStepWithRoleToAdd,
+  isAddRoleReady,
+  rolesNotOnStep,
+} from "./workflowStepRoleAdd";
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
@@ -62,6 +70,24 @@ function assignmentErrorFallback(err: unknown): string {
   return DEV_MSG.WF_ROLE_ASSIGN_ERROR;
 }
 
+function addRoleErrorFallback(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return DEV_MSG.WF_ROLE_ADD_FORBIDDEN;
+    }
+    if (err.status === 409) {
+      return DEV_MSG.WF_ROLE_ADD_CONFLICT;
+    }
+    if (err.status === 400) {
+      return DEV_MSG.WF_ROLE_ADD_BAD;
+    }
+    if (err.status === 404) {
+      return DEV_MSG.WF_ROLE_ADD_MISSING;
+    }
+  }
+  return DEV_MSG.WF_ROLE_ADD_ERROR;
+}
+
 /**
  * Set Reader or Assignee on one role already assigned to one step.
  * The table shows the stored type only after a successful reload.
@@ -81,6 +107,12 @@ export function WorkflowStepRoleAssignmentSection({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [addStep, setAddStep] = useState("");
+  const [addRole, setAddRole] = useState("");
+  const [addType, setAddType] = useState("READER");
+  const [addBusy, setAddBusy] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
+  const [addNotice, setAddNotice] = useState<string | null>(null);
 
   const canOffer = canOfferStepRoleAssignment({
     name: workflowName,
@@ -96,6 +128,11 @@ export function WorkflowStepRoleAssignmentSection({
     setStepName("");
     setRoleName("");
     setNextType("");
+    setAddStep("");
+    setAddRole("");
+    setAddType("READER");
+    setAddError(null);
+    setAddNotice(null);
     listStepRoleAssignments(workflowName)
       .then((loaded) => {
         if (cancelled) {
@@ -109,6 +146,10 @@ export function WorkflowStepRoleAssignmentSection({
           setRoleName(first.roleName);
           setNextType(normalizeAssignmentType(first.assignmentType));
         }
+        const stepToAdd = firstStepWithRoleToAdd(next);
+        setAddStep(stepToAdd);
+        setAddRole(rolesNotOnStep(next, stepToAdd)[0] ?? "");
+        setAddType("READER");
       })
       .catch((err: unknown) => {
         if (!cancelled) {
@@ -141,6 +182,9 @@ export function WorkflowStepRoleAssignmentSection({
   const current = findAssignment(rows, stepName, roleName);
   const currentType = current?.assignmentType;
   const ready = canOffer && isAssignmentChangeReady(currentType, nextType);
+  const addSteps = useMemo(() => assignmentStepNames(rows), [rows]);
+  const rolesToAdd = useMemo(() => rolesNotOnStep(rows, addStep), [rows, addStep]);
+  const addReady = canOffer && isAddRoleReady(rows, addStep, addRole, addType);
 
   function chooseStep(nextStep: string): void {
     setStepName(nextStep);
@@ -166,6 +210,60 @@ export function WorkflowStepRoleAssignmentSection({
     setNextType(normalizeAssignmentType(currentType));
     setError(null);
     setNotice(null);
+  }
+
+  function chooseAddStep(nextStep: string): void {
+    setAddStep(nextStep);
+    setAddError(null);
+    setAddNotice(null);
+    setAddRole(rolesNotOnStep(rows, nextStep)[0] ?? "");
+    setAddType("READER");
+  }
+
+  function cancelAdd(): void {
+    setAddType("READER");
+    setAddRole(rolesNotOnStep(rows, addStep)[0] ?? "");
+    setAddError(null);
+    setAddNotice(null);
+  }
+
+  async function confirmAdd(): Promise<void> {
+    if (!canOffer || addBusy || !addReady) {
+      return;
+    }
+    const step = addStep.trim();
+    const role = addRole.trim();
+    const requested = normalizeAssignmentType(addType);
+    setAddBusy(true);
+    setAddError(null);
+    setAddNotice(null);
+    try {
+      await addStepRole(workflowName, step, {
+        roleName: role,
+        assignmentType: requested,
+      });
+    } catch (err: unknown) {
+      setAddError(panelErrMsg(err, addRoleErrorFallback(err)));
+      setAddBusy(false);
+      return;
+    }
+    try {
+      const reloaded = await listStepRoleAssignments(workflowName);
+      const applied = applyAddedRoleAfterReload(rows, reloaded, step, role, requested);
+      if (!applied.accepted) {
+        setAddError(DEV_MSG.WF_ROLE_ADD_ERROR);
+        return;
+      }
+      setRows(applied.rows);
+      setAddNotice(DEV_MSG.WF_ROLE_ADD_SAVED);
+      const nextRole = rolesNotOnStep(applied.rows, step)[0] ?? "";
+      setAddRole(nextRole);
+      setAddType("READER");
+    } catch (err: unknown) {
+      setAddError(panelErrMsg(err, DEV_MSG.WF_ROLE_ASSIGN_LOAD_ERROR));
+    } finally {
+      setAddBusy(false);
+    }
   }
 
   async function confirm(): Promise<void> {
@@ -376,6 +474,135 @@ export function WorkflowStepRoleAssignmentSection({
               {DEV_MSG.WF_ROLE_ASSIGN_CANCEL}
             </button>
           </div>
+        </div>
+      ) : null}
+      {canOffer && addSteps.length > 0 ? (
+        <div data-testid="developer-wf-role-add" style={{ marginTop: "16px" }}>
+          <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.WF_ROLE_ADD_TITLE}</h3>
+          <p style={{ color: catalogColors.muted, fontSize: "0.9rem", margin: "0 0 8px" }}>
+            {DEV_MSG.WF_ROLE_ADD_HINT}
+          </p>
+          {addError ? (
+            <div
+              role="alert"
+              data-testid="developer-wf-role-add-error"
+              style={{ ...errorAlert, marginBottom: "8px" }}
+            >
+              {addError}
+            </div>
+          ) : null}
+          {addNotice ? (
+            <div
+              role="status"
+              aria-live="polite"
+              data-testid="developer-wf-role-add-notice"
+              style={{ color: catalogColors.accent, marginBottom: "8px" }}
+            >
+              {addNotice}
+            </div>
+          ) : null}
+          <label htmlFor="wf-role-add-step" style={{ display: "block", marginBottom: 4 }}>
+            {DEV_MSG.WF_COL_STEP}
+          </label>
+          <select
+            id="wf-role-add-step"
+            data-testid="developer-wf-role-add-step"
+            style={inputStyle}
+            value={addStep}
+            disabled={addBusy}
+            onChange={(e) => chooseAddStep(e.target.value)}
+            aria-label={DEV_MSG.WF_COL_STEP}
+          >
+            {addSteps.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+          {rolesToAdd.length === 0 ? (
+            <p data-testid="developer-wf-role-add-empty" style={{ color: catalogColors.empty }}>
+              {DEV_MSG.WF_ROLE_ADD_EMPTY}
+            </p>
+          ) : (
+            <>
+              <label htmlFor="wf-role-add-role" style={{ display: "block", margin: "8px 0 4px" }}>
+                {DEV_MSG.WF_ROLE_ADD_ROLE}
+              </label>
+              <select
+                id="wf-role-add-role"
+                data-testid="developer-wf-role-add-role"
+                style={inputStyle}
+                value={addRole}
+                disabled={addBusy}
+                onChange={(e) => {
+                  setAddRole(e.target.value);
+                  setAddError(null);
+                  setAddNotice(null);
+                }}
+                aria-label={DEV_MSG.WF_ROLE_ADD_ROLE}
+              >
+                {rolesToAdd.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <label htmlFor="wf-role-add-type" style={{ display: "block", margin: "8px 0 4px" }}>
+                {DEV_MSG.WF_ROLE_ASSIGN_TYPE}
+              </label>
+              <select
+                id="wf-role-add-type"
+                data-testid="developer-wf-role-add-type"
+                style={inputStyle}
+                value={normalizeAssignmentType(addType) || "READER"}
+                disabled={addBusy}
+                onChange={(e) => {
+                  setAddType(e.target.value);
+                  if (addError) {
+                    setAddError(null);
+                  }
+                }}
+                aria-label={DEV_MSG.WF_ROLE_ASSIGN_TYPE}
+              >
+                <option value="READER">{DEV_MSG.WF_ROLE_ASSIGN_READER}</option>
+                <option value="ASSIGNEE">{DEV_MSG.WF_ROLE_ASSIGN_ASSIGNEE}</option>
+              </select>
+              <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+                <button
+                  type="button"
+                  data-testid="developer-wf-role-add-confirm"
+                  disabled={addBusy || !addReady}
+                  onClick={() => void confirmAdd()}
+                  style={{
+                    background: addBusy || !addReady ? catalogColors.disabled : catalogColors.accent,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    padding: "8px 14px",
+                    font: "inherit",
+                    cursor: addBusy || !addReady ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {addBusy ? DEV_MSG.WF_ROLE_ADD_BUSY : DEV_MSG.WF_ROLE_ADD_CONFIRM}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-wf-role-add-cancel"
+                  disabled={addBusy}
+                  onClick={cancelAdd}
+                  style={{
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    padding: "8px 14px",
+                    font: "inherit",
+                  }}
+                >
+                  {DEV_MSG.WF_ROLE_ADD_CANCEL}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       ) : null}
     </section>

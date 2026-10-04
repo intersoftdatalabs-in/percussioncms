@@ -26,6 +26,7 @@ import com.percussion.rest.workflows.WorkflowAgingTransitionWrite;
 import com.percussion.rest.workflows.WorkflowCreate;
 import com.percussion.rest.workflows.WorkflowGraph;
 import com.percussion.rest.workflows.WorkflowRename;
+import com.percussion.rest.workflows.WorkflowStepRoleAdd;
 import com.percussion.rest.workflows.WorkflowStepRoleAssignment;
 import com.percussion.rest.workflows.WorkflowStepRoleAssignmentList;
 import com.percussion.rest.workflows.WorkflowStepRoleAssignmentWrite;
@@ -745,6 +746,41 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     if (!namesBefore.equals(stepNames(states)) || assignedRoleCount(states) != rolesBefore) {
       throw new IllegalStateException(
           "Setting an assignment type must not rename the step or change the role list");
+    }
+    workflowService.saveWorkflow(workflow);
+    return toAssignmentList(workflow);
+  }
+
+  @Override
+  public WorkflowStepRoleAssignmentList addStepRole(
+      URI baseUri, String idOrName, String stepName, WorkflowStepRoleAdd body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("Workflow step role body is required");
+    }
+    if (stepName == null || stepName.isBlank()) {
+      throw new IllegalArgumentException("Step name is required");
+    }
+    if (body.getRoleName() == null || body.getRoleName().isBlank()) {
+      throw new IllegalArgumentException("Role name is required");
+    }
+    if (body.getAssignmentType() == null || body.getAssignmentType().isBlank()) {
+      throw new IllegalArgumentException("assignment type must be READER or ASSIGNEE");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    List<String> namesBefore = stepNames(states);
+    int rolesBefore = assignedRoleCount(states);
+    WorkflowStepRoleAdder.add(
+        states, workflow.getRoles(), stepName, body.getRoleName(), body.getAssignmentType());
+    if (!namesBefore.equals(stepNames(states)) || assignedRoleCount(states) != rolesBefore + 1) {
+      throw new IllegalStateException(
+          "Adding a step role must add exactly one assignment and must not rename steps");
     }
     workflowService.saveWorkflow(workflow);
     return toAssignmentList(workflow);

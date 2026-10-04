@@ -318,4 +318,23 @@ public interface IWorkflowsAdaptor {
    */
   WorkflowStepRoleAssignmentList setStepRoleAssignment(
       URI baseUri, String idOrName, String stepName, WorkflowStepRoleAssignmentWrite body);
+
+  /**
+   * Add one existing workflow role onto one step (Admin, slice 63).
+   *
+   * <p>Not the assignment-type update. The role must already be a workflow role and must not
+   * already be assigned to the step. Assignment type is Reader or Assignee. Notify and inbox stay
+   * at the assigned-role entity defaults and are not edited. Does not rename the step or change
+   * other roles. Packaged and system-default workflows are rejected.
+   *
+   * @param stepName existing step name
+   * @param body role name and READER or ASSIGNEE
+   * @return the assignment list after the write, never {@code null}
+   * @throws IllegalArgumentException when the role or type is blank or the type is not Reader or
+   *     Assignee
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or role, 409 when the role is already on the step
+   */
+  WorkflowStepRoleAssignmentList addStepRole(
+      URI baseUri, String idOrName, String stepName, WorkflowStepRoleAdd body);
 }

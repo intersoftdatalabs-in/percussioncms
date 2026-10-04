@@ -24,6 +24,7 @@ import com.percussion.rest.workflows.WorkflowAgingTransitionWrite;
 import com.percussion.rest.workflows.WorkflowCreate;
 import com.percussion.rest.workflows.WorkflowGraph;
 import com.percussion.rest.workflows.WorkflowRename;
+import com.percussion.rest.workflows.WorkflowStepRoleAdd;
 import com.percussion.rest.workflows.WorkflowStepRoleAssignmentList;
 import com.percussion.rest.workflows.WorkflowStepRoleAssignmentWrite;
 import com.percussion.rest.workflows.WorkflowStepWrite;
@@ -184,6 +185,12 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
   @Override
   public WorkflowStepRoleAssignmentList setStepRoleAssignment(
       URI baseUri, String idOrName, String stepName, WorkflowStepRoleAssignmentWrite body) {
+    return new WorkflowStepRoleAssignmentList();
+  }
+
+  @Override
+  public WorkflowStepRoleAssignmentList addStepRole(
+      URI baseUri, String idOrName, String stepName, WorkflowStepRoleAdd body) {
     return new WorkflowStepRoleAssignmentList();
   }
 }
