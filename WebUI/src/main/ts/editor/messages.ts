@@ -222,6 +222,26 @@ export const EDITOR_MSG = {
     "perc.ui.editor@Approval was blocked. The item was not queued.",
   APPROVE_INCREMENTAL_UNAVAILABLE:
     "perc.ui.editor@Only a page or asset can be approved onto the incremental queue.",
+  UNAPPROVE_INCREMENTAL: "perc.ui.editor@Unapprove from incremental",
+  UNAPPROVE_INCREMENTAL_BUSY: "perc.ui.editor@Unapproving…",
+  UNAPPROVE_INCREMENTAL_TITLE:
+    "perc.ui.editor@Unapprove from the incremental queue",
+  UNAPPROVE_INCREMENTAL_BODY:
+    "perc.ui.editor@Remove approval from this page or asset on the incremental publish queue?",
+  UNAPPROVE_INCREMENTAL_CONFIRM: "perc.ui.editor@Unapprove",
+  UNAPPROVE_INCREMENTAL_CANCEL: "perc.ui.editor@Cancel",
+  UNAPPROVE_INCREMENTAL_DONE:
+    "perc.ui.editor@Unapproved from the incremental queue",
+  UNAPPROVE_INCREMENTAL_FAILED:
+    "perc.ui.editor@Could not unapprove this item on the incremental queue.",
+  UNAPPROVE_INCREMENTAL_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to unapprove this item on the incremental queue.",
+  UNAPPROVE_INCREMENTAL_REJECTED:
+    "perc.ui.editor@This item could not be unapproved on the incremental queue.",
+  UNAPPROVE_INCREMENTAL_CONFLICT:
+    "perc.ui.editor@Unapprove was blocked. The item stays approved.",
+  UNAPPROVE_INCREMENTAL_UNAVAILABLE:
+    "perc.ui.editor@Only a page or asset can be unapproved on the incremental queue.",
   STAGE: "perc.ui.editor@Stage",
   STAGING: "perc.ui.editor@Staging…",
   CONFIRM_STAGE: "perc.ui.editor@Stage this item?",

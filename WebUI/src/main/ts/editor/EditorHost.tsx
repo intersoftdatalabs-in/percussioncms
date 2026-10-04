@@ -160,6 +160,7 @@ import { ScheduleDatesDialog } from "../contentExplorer/ScheduleDatesDialog";
 import type { ItemScheduleDates } from "../contentExplorer/itemScheduleDates";
 import { EditorClearScheduleDialog } from "./EditorClearScheduleDialog";
 import { EditorIncrementalApproveDialog } from "./EditorIncrementalApproveDialog";
+import { EditorIncrementalUnapproveDialog } from "./EditorIncrementalUnapproveDialog";
 import {
   clearedEditorScheduleDates,
   editorClearRefreshSucceeded,
@@ -173,6 +174,10 @@ import {
   editorIncrementalApproveFailureMessage,
   editorItemCanJoinIncrementalQueue,
 } from "./editorIncrementalApprove";
+import {
+  editorIncrementalUnapproveFailureMessage,
+  unapproveEditorItemOnIncrementalQueue,
+} from "./editorIncrementalUnapprove";
 import {
   buildEditorCreateRequest,
   canCreateFromEditor,
@@ -308,6 +313,15 @@ export interface EditorHostProps {
    * cannot be queued (no HTTP). HTTP errors throw and are not success.
    */
   approveIncremental?: (
+    itemId: string,
+    kind: EditorPublishKind,
+  ) => Promise<boolean>;
+  /**
+   * Test seam: Explorer incremental unapprove
+   * ({@code POST …/incremental/explorer/{id}/unapprove}). False when the item
+   * cannot be unapproved (no HTTP). HTTP errors throw and are not success.
+   */
+  unapproveIncremental?: (
     itemId: string,
     kind: EditorPublishKind,
   ) => Promise<boolean>;
@@ -678,6 +692,7 @@ export function EditorHost({
   loadScheduleDates = loadEditorScheduleDates,
   saveScheduleDates = saveEditorScheduleDates,
   approveIncremental = approveEditorItemToIncrementalQueue,
+  unapproveIncremental = unapproveEditorItemOnIncrementalQueue,
   confirmPublish,
   stageItem = stageEditorItem,
   confirmStage,
@@ -813,6 +828,12 @@ export function EditorHost({
   const [incrementalApproveBusy, setIncrementalApproveBusy] = useState(false);
   const [incrementalApproved, setIncrementalApproved] = useState(false);
   const [incrementalApproveError, setIncrementalApproveError] = useState<
+    string | null
+  >(null);
+  const [incrementalUnapproveOpen, setIncrementalUnapproveOpen] = useState(false);
+  const [incrementalUnapproveBusy, setIncrementalUnapproveBusy] = useState(false);
+  const [incrementalUnapproved, setIncrementalUnapproved] = useState(false);
+  const [incrementalUnapproveError, setIncrementalUnapproveError] = useState<
     string | null
   >(null);
   const [stageBusy, setStageBusy] = useState(false);
@@ -2065,6 +2086,7 @@ export function EditorHost({
       }
       setIncrementalApproveOpen(false);
       setIncrementalApproved(true);
+      setIncrementalUnapproved(false);
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
@@ -2075,6 +2097,55 @@ export function EditorHost({
       );
     } finally {
       setIncrementalApproveBusy(false);
+    }
+  }
+
+  function handleOpenIncrementalUnapprove(): void {
+    if (contentId == null || mode !== "edit" || incrementalApproveOpen) {
+      return;
+    }
+    setIncrementalUnapproveError(null);
+    setIncrementalUnapproveOpen(true);
+  }
+
+  async function handleConfirmIncrementalUnapprove(): Promise<void> {
+    if (contentId == null || incrementalUnapproveBusy || mode !== "edit") {
+      return;
+    }
+    const itemId = String(contentId);
+    const kind = resolveEditorPublishKind(payload?.contentType, {
+      id: itemId,
+      allowedTemplateCount,
+    });
+    setIncrementalUnapproveBusy(true);
+    setIncrementalUnapproveError(null);
+    try {
+      if (!editorItemCanJoinIncrementalQueue(itemId, kind)) {
+        setIncrementalUnapproveError(
+          message(EDITOR_MSG.UNAPPROVE_INCREMENTAL_UNAVAILABLE),
+        );
+        return;
+      }
+      const accepted = await unapproveIncremental(itemId, kind);
+      if (!accepted) {
+        setIncrementalUnapproveError(
+          message(EDITOR_MSG.UNAPPROVE_INCREMENTAL_UNAVAILABLE),
+        );
+        return;
+      }
+      setIncrementalUnapproveOpen(false);
+      setIncrementalApproved(false);
+      setIncrementalUnapproved(true);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setIncrementalUnapproveError(
+        editorIncrementalUnapproveFailureMessage(err) ||
+          message(EDITOR_MSG.UNAPPROVE_INCREMENTAL_FAILED),
+      );
+    } finally {
+      setIncrementalUnapproveBusy(false);
     }
   }
 
@@ -3290,6 +3361,11 @@ export function EditorHost({
               {message(EDITOR_MSG.APPROVE_INCREMENTAL_DONE)}
             </span>
           ) : null}
+          {incrementalUnapproved ? (
+            <span className={styles.meta} data-testid="editor-incremental-unapproved">
+              {message(EDITOR_MSG.UNAPPROVE_INCREMENTAL_DONE)}
+            </span>
+          ) : null}
           {stageDone ? (
             <span className={styles.meta} data-testid="editor-stage-done">
               {message(EDITOR_MSG.STAGE_DONE)}
@@ -3384,10 +3460,39 @@ export function EditorHost({
               type="button"
               className={styles.button}
               data-testid="editor-incremental-approve"
-              disabled={incrementalApproveBusy || loading || payload == null || saving}
+              disabled={
+                incrementalApproveBusy ||
+                incrementalUnapproveBusy ||
+                incrementalUnapproveOpen ||
+                loading ||
+                payload == null ||
+                saving
+              }
               onClick={() => handleOpenIncrementalApprove()}
             >
               {message(EDITOR_MSG.APPROVE_INCREMENTAL)}
+            </button>
+          ) : null}
+          {showIncrementalApprove ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-incremental-unapprove"
+              disabled={
+                incrementalUnapproveBusy ||
+                incrementalApproveBusy ||
+                incrementalApproveOpen ||
+                loading ||
+                payload == null ||
+                saving
+              }
+              onClick={() => handleOpenIncrementalUnapprove()}
+            >
+              {message(
+                incrementalUnapproveBusy
+                  ? EDITOR_MSG.UNAPPROVE_INCREMENTAL_BUSY
+                  : EDITOR_MSG.UNAPPROVE_INCREMENTAL,
+              )}
             </button>
           ) : null}
           {showStage ? (
@@ -4326,6 +4431,22 @@ export function EditorHost({
           }}
           onConfirm={() => {
             void handleConfirmIncrementalApprove();
+          }}
+        />
+      ) : null}
+      {incrementalUnapproveOpen ? (
+        <EditorIncrementalUnapproveDialog
+          busy={incrementalUnapproveBusy}
+          serverError={incrementalUnapproveError}
+          onCancel={() => {
+            if (incrementalUnapproveBusy) {
+              return;
+            }
+            setIncrementalUnapproveOpen(false);
+            setIncrementalUnapproveError(null);
+          }}
+          onConfirm={() => {
+            void handleConfirmIncrementalUnapprove();
           }}
         />
       ) : null}
