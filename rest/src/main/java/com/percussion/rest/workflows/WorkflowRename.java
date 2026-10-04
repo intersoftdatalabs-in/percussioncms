@@ -22,33 +22,25 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
- * Update body for a stepped workflow (slice 21 Developer workflow update).
+ * Rename body for one custom workflow (slice 60).
  *
- * <p>Name must match the path {@code idOrName}. Renames are {@code POST
- * /workflows/{idOrName}/rename} ({@link WorkflowRename}), not this body. Description is replaced
- * when given (empty string clears). States, transitions, and roles are not fields on this body.
- * Jackson root wrap is {@code WorkflowUpdate}.
+ * <p>{@code name} is the new workflow name. Description, steps, transitions, and roles are not
+ * fields on this body and stay as they were. Jackson root wrap is {@code WorkflowRename}. The
+ * description-only {@link WorkflowUpdate} surface still requires its name to match the path.
  */
-@XmlRootElement(name = "WorkflowUpdate")
+@XmlRootElement(name = "WorkflowRename")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(
-    description =
-        "Workflow description update (name must match the path; rename uses WorkflowRename)")
-public class WorkflowUpdate {
+@Schema(description = "Workflow rename body (new name only)")
+public class WorkflowRename {
 
   @Schema(
       required = true,
       description =
-          "Workflow name echoed from the path (must match idOrName; use WorkflowRename to rename)")
+          "New workflow name (unique case-insensitive; letters, digits, underscore, hyphen,"
+              + " space; max 50 chars)")
   private String name;
 
-  @Schema(
-      description =
-          "Replacement description (empty string clears). Omitted/null leaves the stored value"
-              + " untouched.")
-  private String description;
-
-  public WorkflowUpdate() {}
+  public WorkflowRename() {}
 
   public String getName() {
     return name;
@@ -56,13 +48,5 @@ public class WorkflowUpdate {
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
   }
 }

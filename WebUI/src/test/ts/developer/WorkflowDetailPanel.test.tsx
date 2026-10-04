@@ -16,6 +16,7 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   getWorkflowAllowedContentTypes: vi.fn(),
   setWorkflowAllowedContentTypes: vi.fn(),
   updateWorkflow: vi.fn(),
+  renameWorkflow: vi.fn(),
   setDefaultWorkflow: vi.fn(),
   deleteWorkflow: vi.fn(),
   createWorkflowStep: vi.fn(),
@@ -38,6 +39,7 @@ const getWorkflowAllowedContentTypes =
 const setWorkflowAllowedContentTypes =
   workflowsApi.setWorkflowAllowedContentTypes as ReturnType<typeof vi.fn>;
 const updateWorkflowMock = workflowsApi.updateWorkflow as ReturnType<typeof vi.fn>;
+const renameWorkflowMock = workflowsApi.renameWorkflow as ReturnType<typeof vi.fn>;
 const setDefaultWorkflowMock = workflowsApi.setDefaultWorkflow as ReturnType<typeof vi.fn>;
 const deleteWorkflowMock = workflowsApi.deleteWorkflow as ReturnType<typeof vi.fn>;
 const createWorkflowStepMock = workflowsApi.createWorkflowStep as ReturnType<typeof vi.fn>;
@@ -78,6 +80,7 @@ describe("WorkflowDetailPanel", () => {
     getWorkflowAllowedContentTypes.mockReset();
     setWorkflowAllowedContentTypes.mockReset();
     updateWorkflowMock.mockReset();
+    renameWorkflowMock.mockReset();
     setDefaultWorkflowMock.mockReset();
     deleteWorkflowMock.mockReset();
     createWorkflowStepMock.mockReset();
@@ -600,5 +603,92 @@ describe("WorkflowDetailPanel", () => {
       name: "Draft 2",
       roleNames: ["Admin"],
     });
+  });
+
+  const customDetail = {
+    workflowName: "Nightly QA",
+    workflowDescription: "Keep me",
+    defaultWorkflow: false,
+    stagingRoleNames: "Editor",
+    workflowSteps: [{ stepName: "Draft", stepRoles: [{ roleName: "Admin" }] }],
+  };
+
+  it("hides rename for packaged and system-default workflows", async () => {
+    getWorkflowDetail.mockResolvedValue(sampleDetail);
+    render(<WorkflowDetailPanel name="Simple Workflow" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-rename-unavailable")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-wf-rename-save")).toBeNull();
+  });
+
+  it("renames a custom workflow only after confirm", async () => {
+    getWorkflowDetail.mockResolvedValue(customDetail);
+    renameWorkflowMock.mockResolvedValue({
+      workflowName: "Nightly QA 2",
+      workflowDescription: "Keep me",
+      defaultWorkflow: false,
+    });
+    const onRenamed = vi.fn();
+    render(
+      <WorkflowDetailPanel name="Nightly QA" onBack={() => undefined} onRenamed={onRenamed} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-rename-name")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-rename-save")).toBeDisabled();
+    fireEvent.change(screen.getByTestId("developer-wf-rename-name"), {
+      target: { value: "Nightly QA 2" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-rename-cancel"));
+    expect(renameWorkflowMock).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-wf-detail-title").textContent).toContain("Nightly QA");
+    expect((screen.getByTestId("developer-wf-rename-name") as HTMLInputElement).value).toBe(
+      "Nightly QA",
+    );
+
+    fireEvent.change(screen.getByTestId("developer-wf-rename-name"), {
+      target: { value: "Nightly QA 2" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-rename-save"));
+    await waitFor(() => {
+      expect(renameWorkflowMock).toHaveBeenCalledWith("Nightly QA", { name: "Nightly QA 2" });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-detail-title").textContent).toContain(
+        "Nightly QA 2",
+      );
+    });
+    expect(screen.getByTestId("developer-wf-rename-notice").textContent).toContain(
+      DEV_MSG.WF_RENAMED,
+    );
+    expect(onRenamed).toHaveBeenCalledWith("Nightly QA", "Nightly QA 2");
+    expect(updateWorkflowMock).not.toHaveBeenCalled();
+  });
+
+  it("does not claim success on duplicate or forbidden rename", async () => {
+    getWorkflowDetail.mockResolvedValue(customDetail);
+    renameWorkflowMock.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      message: "already exists",
+      body: "already exists",
+    });
+    render(<WorkflowDetailPanel name="Nightly QA" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-rename-name")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-rename-name"), {
+      target: { value: "Simple Workflow" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-rename-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-rename-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-rename-error").textContent).toContain(
+      DEV_MSG.WF_DUPLICATE,
+    );
+    expect(screen.queryByTestId("developer-wf-rename-notice")).toBeNull();
+    expect(screen.getByTestId("developer-wf-detail-title").textContent).toContain("Nightly QA");
   });
 });

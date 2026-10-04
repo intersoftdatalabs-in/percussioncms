@@ -377,6 +377,90 @@ public class WorkflowsResourceTest {
     assertEquals(503, ex.getResponse().getStatus());
   }
 
+  private static WorkflowRename renameBody(String name) {
+    WorkflowRename body = new WorkflowRename();
+    body.setName(name);
+    return body;
+  }
+
+  @Test
+  public void renameWorkflowSuccess() {
+    when(adaptor.renameWorkflow(any(), eq("Nightly QA"), any()))
+        .thenReturn(createdSummary("Nightly QA 2"));
+    WorkflowSummary out = resource.renameWorkflow("Nightly QA", renameBody("Nightly QA 2"));
+    assertEquals("Nightly QA 2", out.getWorkflowName());
+    verify(adaptor).renameWorkflow(any(), eq("Nightly QA"), any());
+    verify(mockLog, never()).error(any(String.class), any(), any(), any());
+  }
+
+  @Test
+  public void renameWorkflowRequiresBody() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.renameWorkflow("Nightly QA", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).renameWorkflow(any(), any(String.class), any());
+  }
+
+  @Test
+  public void renameWorkflowInvalidNameIs400() {
+    when(adaptor.renameWorkflow(any(), any(String.class), any()))
+        .thenThrow(new IllegalArgumentException("Invalid character in workflow name"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameWorkflow("Nightly QA", renameBody("Bad!")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameWorkflowDuplicateIs409() {
+    when(adaptor.renameWorkflow(any(), any(String.class), any()))
+        .thenThrow(new WebApplicationException("Workflow already exists: Simple Workflow", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameWorkflow("Nightly QA", renameBody("Simple Workflow")));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameWorkflowPackagedIs403() {
+    when(adaptor.renameWorkflow(any(), any(String.class), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Packaged or default workflows cannot be modified from this surface", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameWorkflow("Default Workflow", renameBody("Other")));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void renameWorkflowNotFoundIs404() {
+    when(adaptor.renameWorkflow(any(), eq("missing"), any()))
+        .thenThrow(new WebApplicationException("Workflow not found: missing", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.renameWorkflow("missing", renameBody("Other")));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void missingAdaptorReturns503OnRename() {
+    WorkflowsResource bare = new WorkflowsResource();
+    UriInfo uriInfo = mock(UriInfo.class);
+    when(uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/services/"));
+    bare.setUriInfo(uriInfo);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> bare.renameWorkflow("Nightly QA", renameBody("Nightly QA 2")));
+    assertEquals(503, ex.getResponse().getStatus());
+  }
+
   @Test
   public void updateWorkflowRequiresBody() {
     WebApplicationException ex =

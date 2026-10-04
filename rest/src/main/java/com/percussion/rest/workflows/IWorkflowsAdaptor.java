@@ -83,9 +83,9 @@ public interface IWorkflowsAdaptor {
   /**
    * Update a stepped workflow's description (Admin, slice 21 Developer workflow update).
    *
-   * <p>The name is immutable from this surface; renaming and step/transitions/roles editing stay
-   * on the workflow-admin editor. A {@code null} or missing description is treated as no-op; a
-   * non-null description (including the empty string) is stored on the matching workflow.
+   * <p>The name is immutable on this description update. Renames use {@link #renameWorkflow}. A
+   * {@code null} or missing description is treated as no-op; a non-null description (including the
+   * empty string) is stored on the matching workflow.
    *
    * @param idOrName workflow name, numeric uuid, or guid string; must resolve
    * @param body update body, never {@code null}; {@code name} must match {@code idOrName}
@@ -94,6 +94,25 @@ public interface IWorkflowsAdaptor {
    * @throws jakarta.ws.rs.WebApplicationException with 404 when the workflow is not found
    */
   WorkflowSummary updateWorkflow(URI baseUri, String idOrName, WorkflowUpdate body);
+
+  /**
+   * Rename one custom workflow (Admin, slice 60).
+   *
+   * <p>Delegates to {@code IPSSteppedWorkflowService#updateWorkflow}, which validates the new name
+   * against {@code previousWorkflowName}. Description, steps, transitions, and roles are left as
+   * they were. Packaged names (Default Workflow, Simple Workflow, Local Content) and the current
+   * system default are rejected. {@link #updateWorkflow} still requires its body name to match the
+   * path.
+   *
+   * @param idOrName current workflow name, numeric uuid, or guid string
+   * @param body new name, never {@code null}
+   * @return summary under the new name
+   * @throws IllegalArgumentException when the new name is blank, too long, or has invalid
+   *     characters
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged or system default, 404 missing, 409
+   *     duplicate name
+   */
+  WorkflowSummary renameWorkflow(URI baseUri, String idOrName, WorkflowRename body);
 
   /**
    * Mark one workflow as the system default (Admin, slice 37).

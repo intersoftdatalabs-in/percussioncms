@@ -1,7 +1,7 @@
 ---
 id: admin-developer-workflows
 title: Developer Workflows
-description: Browse workflow definitions, create / copy / update / delete workflows, and edit allowed content types from Developer Workflows chrome
+description: Browse workflow definitions, create / copy / rename / update / delete workflows, and edit allowed content types from Developer Workflows chrome
 version: "8.2"
 order: 46
 tags: [admin, developer, workflows]
@@ -12,13 +12,12 @@ tags: [admin, developer, workflows]
 **Developer → Workflows** lists stepped workflow definitions (name, default flag,
 description, staging roles, and steps). Open a row to inspect steps and to edit
 **Allowed content types** for that workflow (SY-06). Admins can also **create**,
-**copy** (steps and transitions included), **edit** the description, and
-**delete** a workflow from the catalog. The new or copied row opens and lists
-on the catalog. A copy name that already exists is rejected and does not
-overwrite.
+**copy** (steps and transitions included), **rename** one custom workflow,
+**edit** the description, and **delete** a workflow from the catalog. The new,
+copied, or renamed row opens and lists on the catalog. A copy or rename name
+that already exists is rejected and does not overwrite.
 
-Workflow renaming stays outside this chrome. **Developer → Workflows** detail
-shows a step list and a graph of states and transitions
+**Developer → Workflows** detail shows a step list and a graph of states and transitions
 (`GET .../workflows/{id}/graph`). On a **custom** workflow an Admin can
 **add or update one transition** between existing steps, **add one absolute
 aging transition** (interval in minutes), **change that minute interval**,
@@ -251,9 +250,33 @@ The public call is `POST /services/workflows/{idOrName}/copy` with a
    workflow (`404`), or non-Admin callers (`403`) appear in the section
    alert.
 
-Renaming and role assignment stay on the workflow-admin editor — this
-description field updates only the description. Step and transition edits
+This description field updates only the description. A name that does not
+match the path on `PUT /services/workflows/{idOrName}` is still `400`.
+Renaming a custom workflow is a separate confirm on this detail (see below).
+Role assignment stays on the workflow-admin editor. Step and transition edits
 are on the detail form and graph.
+
+## Product path — rename a custom workflow (slice 60)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow (not Default
+   Workflow, Simple Workflow, or Local Content, and not the system default).
+3. Under **Rename workflow**, the name field shows the current name. Change
+   it and click **Rename**. The detail title and, after **Back to list**, the
+   catalog row show the new name only after the server accepts it. Description,
+   steps, transitions, and roles stay as they were.
+4. Click **Cancel** to restore the current name. Cancel does not call the
+   server.
+5. Packaged workflows and the system default do not show **Rename** and do
+   not call the server. They show that those workflows cannot be renamed.
+6. A duplicate name is `409`. An invalid name (blank, too long, or characters
+   other than letters, digits, underscore, hyphen, and space) is `400`.
+   Non-Admin callers receive `403`. None of those responses claim the rename
+   succeeded, and the title stays on the previous name.
+
+The public call is `POST /services/workflows/{idOrName}/rename` with a
+`WorkflowRename` body (`name` required). It is not the description-only
+`PUT`.
 
 ## Product path — set the system default (slice 37)
 
@@ -328,8 +351,13 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
   .../workflows/{idOrName}/transitions`. Deleting one step that no transition
   still uses is `DELETE .../workflows/{idOrName}/steps/{stepName}` (`409` when
   a transition still references the step).
-- Workflow rename, role assignment, and repeated or system-field aging are
-  not in this chrome. Changing the minute interval on one existing absolute
+- Rename one **custom** workflow from detail
+  (`POST .../workflows/{idOrName}/rename`). Packaged **Default Workflow**,
+  **Simple Workflow**, **Local Content**, and the current system default
+  cannot be renamed (`403`). A duplicate name is `409`. The description-only
+  `PUT` still rejects a body name that does not match the path (`400`).
+  Role assignment and repeated or system-field aging are not in this chrome.
+  Changing the minute interval on one existing absolute
   aging transition is
   `PUT .../workflows/{idOrName}/aging-transitions/interval`. Deleting that
   absolute aging transition is
@@ -348,7 +376,8 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | List metadata | `GET /services/workflowmanagement/workflows/metadata` |
 | Load detail | `GET /services/workflowmanagement/workflows/{name}` |
 | Create workflow | `POST /services/workflows` (`WorkflowCreate` wrap; Admin; duplicate `409`) |
-| Update description | `PUT /services/workflows/{idOrName}` (`WorkflowUpdate` wrap; Admin; name must match; missing workflow `404`) |
+| Update description | `PUT /services/workflows/{idOrName}` (`WorkflowUpdate` wrap; Admin; name must match the path or the call is `400`; missing workflow `404`. This call does not rename) |
+| Rename workflow | `POST /services/workflows/{idOrName}/rename` (`WorkflowRename` wrap: required new `name`; Admin; custom workflows only; description, steps, transitions, and roles unchanged; packaged or system default `403`; duplicate `409`; invalid name `400`; missing workflow `404`) |
 | Delete workflow | `DELETE /services/workflows/{idOrName}` (Admin; system workflows and item owners return `409`) |
 | Create step | `POST /services/workflows/{idOrName}/steps` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
 | Update step | `PUT /services/workflows/{idOrName}/steps/{stepName}` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |

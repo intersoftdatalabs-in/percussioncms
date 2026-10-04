@@ -1835,7 +1835,7 @@ export const DEV_MSG_KEYS = {
   WF_EMPTY: "perc.ui.developer@No workflows returned.",
   WF_ERROR: "perc.ui.developer@Could not load workflows.",
   WF_HINT:
-    "perc.ui.developer@Workflow definitions for association and step browse. Custom workflows can delete one graph transition; packaged workflows stay read-only.",
+    "perc.ui.developer@Workflow definitions for association and step browse. Custom workflows can be renamed; packaged and system-default workflows stay read-only.",
   WF_COL_NAME: "perc.ui.developer@Name",
   WF_COL_DESC: "perc.ui.developer@Description",
   WF_COL_DEFAULT: "perc.ui.developer@Default",
@@ -1877,6 +1877,15 @@ export const DEV_MSG_KEYS = {
   WF_COPYING: "perc.ui.developer@Copying...",
   WF_COPIED: "perc.ui.developer@Workflow copied.",
   WF_COPY_ERROR: "perc.ui.developer@Could not copy workflow.",
+  WF_RENAME_TITLE: "perc.ui.developer@Rename workflow",
+  WF_RENAME_HINT:
+    "perc.ui.developer@Rename this custom workflow. The catalog and title show the new name only after the server accepts it. Description, steps, transitions, and roles stay as they are.",
+  WF_RENAME_SAVE: "perc.ui.developer@Rename",
+  WF_RENAME_BUSY: "perc.ui.developer@Renaming...",
+  WF_RENAMED: "perc.ui.developer@Workflow renamed.",
+  WF_RENAME_ERROR: "perc.ui.developer@Could not rename workflow.",
+  WF_RENAME_PACKAGED:
+    "perc.ui.developer@Packaged and system-default workflows cannot be renamed.",
   WF_FORM_NAME: "perc.ui.developer@Name",
   WF_NAME_HINT:
     "perc.ui.developer@Letters, digits, underscore, hyphen, and space; max 50 characters.",

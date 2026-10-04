@@ -299,6 +299,50 @@ public class WorkflowsResource {
     }
   }
 
+  @POST
+  @Path("/{idOrName}/rename")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Rename a custom workflow",
+      description =
+          "Slice 60 Admin. Renames one custom workflow via IPSSteppedWorkflowService.updateWorkflow"
+              + " (new name validated against the previous name). Description, steps, transitions,"
+              + " and roles are unchanged. Packaged workflows (Default Workflow, Simple Workflow,"
+              + " Local Content) and the current system default are 403 and are not renamed."
+              + " Duplicate name is 409. Invalid name is 400. This does not change PUT"
+              + " /{idOrName}, which still requires WorkflowUpdate.name to match the path."
+              + " Jackson root wrap is WorkflowRename.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Renamed",
+            content = @Content(schema = @Schema(implementation = WorkflowSummary.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid new name"),
+        @ApiResponse(responseCode = "403", description = "Admin required, or packaged/default"),
+        @ApiResponse(responseCode = "404", description = "Workflow not found"),
+        @ApiResponse(responseCode = "409", description = "A workflow with the new name exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowSummary renameWorkflow(
+      @PathParam("idOrName") String idOrName, WorkflowRename body) {
+    if (body == null) {
+      throw new WebApplicationException("Workflow name is required", 400);
+    }
+    try {
+      return requireAdaptor().renameWorkflow(uriInfo.getBaseUri(), idOrName, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to rename workflow ({}): {}", e.getClass().getName(), e.getMessage(), e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @PUT
   @Path("/{idOrName}")
   @Consumes({MediaType.APPLICATION_JSON})
@@ -306,11 +350,12 @@ public class WorkflowsResource {
   @Operation(
       summary = "Update a workflow's description",
       description =
-          "Slice 21 Admin. Updates the description of an existing stepped workflow (full graph"
-              + " design and renaming stay outside this surface). The body's `name` must match"
-              + " the path idOrName. A non-null description (including the empty string) replaces"
-              + " the stored value; a missing/null description leaves the stored value untouched."
-              + " Jackson root wrap is WorkflowUpdate.",
+          "Slice 21 Admin. Updates the description of an existing stepped workflow. The body's"
+              + " `name` must match the path idOrName (a mismatch is 400). Renames use POST"
+              + " /{idOrName}/rename and are not accepted on this body. A non-null description"
+              + " (including the empty string) replaces the stored value; a missing/null"
+              + " description leaves the stored value untouched. Jackson root wrap is"
+              + " WorkflowUpdate.",
       responses = {
         @ApiResponse(
             responseCode = "200",
