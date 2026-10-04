@@ -21,13 +21,14 @@ import { DesignSection } from "@/publishing/sections/DesignSection";
 
 const listContentLists = vi.fn();
 const updateContentList = vi.fn();
+const listItemFilters = vi.fn();
 
 vi.mock("@/api/home/homeApi", () => ({
   fetchSites: vi.fn().mockResolvedValue([{ name: "SiteA", siteId: "1" }]),
 }));
 
 vi.mock("@/api/developer/itemFiltersApi", () => ({
-  listItemFilters: () => Promise.resolve([]),
+  listItemFilters: () => listItemFilters(),
 }));
 
 vi.mock("@/api/publishing/designApi", () => ({
@@ -59,22 +60,33 @@ const original = {
   name: "NightCl",
   description: "old",
   listType: "modern",
+  itemFilterId: "1",
+  itemFilterName: "public",
 };
 
-describe("DesignSection rename content list", () => {
+describe("DesignSection item filter", () => {
   beforeEach(() => {
     listContentLists.mockReset();
     updateContentList.mockReset();
+    listItemFilters.mockReset();
     listContentLists.mockResolvedValue([original]);
+    listItemFilters.mockResolvedValue([
+      { name: "public", filterId: { uuid: 1 } },
+      { name: "preview", filterId: { uuid: 2 } },
+    ]);
   });
 
   async function openList(): Promise<void> {
     render(<DesignSection />);
     fireEvent.click(screen.getByRole("tab", { name: /Content lists/i }));
-    fireEvent.click(await screen.findByTestId("design-content-list-5"));
+    expect(await screen.findByTestId("design-content-list-filter-5")).toHaveTextContent(
+      "public",
+    );
+    fireEvent.click(screen.getByTestId("design-content-list-5"));
+    await screen.findByRole("option", { name: "preview" });
   }
 
-  it("keeps the previous name on the list until rename save succeeds", async () => {
+  it("shows the new filter on the list only after save reloads", async () => {
     let releaseReload: (() => void) | undefined;
     let calls = 0;
     listContentLists.mockImplementation(
@@ -88,84 +100,71 @@ describe("DesignSection rename content list", () => {
           releaseReload = () =>
             resolve([
               {
-                contentListId: "5",
-                name: "RenamedCl",
-                listType: "modern",
+                ...original,
+                itemFilterId: "2",
+                itemFilterName: "preview",
               },
             ]);
         }),
     );
     updateContentList.mockResolvedValue({
-      contentListId: "5",
-      name: "RenamedCl",
-      listType: "modern",
+      ...original,
+      itemFilterId: "2",
+      itemFilterName: "preview",
     });
 
     await openList();
-    fireEvent.change(screen.getByLabelText(/Name/i), {
-      target: { value: "RenamedCl" },
+    fireEvent.change(screen.getByTestId("contentlist-item-filter"), {
+      target: { value: "2" },
     });
-    expect(screen.queryByTestId("design-content-list-5")).not.toBeInTheDocument();
-    expect(updateContentList).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByTestId("contentlist-save"));
-    expect(await screen.findByTestId("design-content-list-5")).toHaveTextContent(
-      "NightCl",
+    expect(screen.getByTestId("contentlist-stored-item-filter")).toHaveTextContent(
+      "public",
     );
-    expect(screen.queryByRole("button", { name: "RenamedCl" })).not.toBeInTheDocument();
+    expect(screen.queryByTestId("design-content-list-filter-5")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("contentlist-save"));
+    expect(await screen.findByTestId("design-content-list-filter-5")).toHaveTextContent(
+      "public",
+    );
     expect(releaseReload).toEqual(expect.any(Function));
     releaseReload?.();
     await waitFor(() =>
-      expect(screen.getByTestId("design-content-list-5")).toHaveTextContent(
-        "RenamedCl",
+      expect(screen.getByTestId("design-content-list-filter-5")).toHaveTextContent(
+        "preview",
       ),
     );
   });
 
-  it("does not PUT when rename is cancelled", async () => {
+  it("keeps the previous filter when save is cancelled", async () => {
     await openList();
-    fireEvent.change(screen.getByLabelText(/Name/i), {
-      target: { value: "Nope" },
+    fireEvent.change(screen.getByTestId("contentlist-item-filter"), {
+      target: { value: "2" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Back/i }));
     expect(updateContentList).not.toHaveBeenCalled();
-    expect(await screen.findByTestId("design-content-list-5")).toHaveTextContent(
-      "NightCl",
+    expect(await screen.findByTestId("design-content-list-filter-5")).toHaveTextContent(
+      "public",
     );
   });
 
-  it("keeps the previous name when the rename is rejected", async () => {
+  it("keeps the previous filter when the server rejects the save", async () => {
     updateContentList.mockRejectedValue({
-      status: 409,
-      statusText: "Conflict",
-      body: { message: "Content list name already exists" },
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Unknown item filter" },
     });
     await openList();
-    fireEvent.change(screen.getByLabelText(/Name/i), {
-      target: { value: "Taken" },
+    fireEvent.change(screen.getByTestId("contentlist-item-filter"), {
+      target: { value: "2" },
     });
     fireEvent.click(screen.getByTestId("contentlist-save"));
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Content list name already exists",
+    expect(await screen.findByRole("alert")).toHaveTextContent("Unknown item filter");
+    expect(screen.getByTestId("contentlist-stored-item-filter")).toHaveTextContent(
+      "public",
     );
-    expect(screen.queryByRole("button", { name: "Taken" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Back/i }));
-    expect(await screen.findByTestId("design-content-list-5")).toHaveTextContent(
-      "NightCl",
+    expect(await screen.findByTestId("design-content-list-filter-5")).toHaveTextContent(
+      "public",
     );
     expect(listContentLists).toHaveBeenCalledTimes(1);
-  });
-
-  it("rejects a blank name without calling the server", async () => {
-    await openList();
-    fireEvent.change(screen.getByLabelText(/Name/i), {
-      target: { value: " " },
-    });
-    fireEvent.click(screen.getByTestId("contentlist-save"));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Name is required");
-    expect(updateContentList).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: /Back/i }));
-    expect(await screen.findByTestId("design-content-list-5")).toHaveTextContent(
-      "NightCl",
-    );
   });
 });

@@ -27,6 +27,10 @@ vi.mock("@/api/publishing/designApi", () => ({
   deleteContentList: (...args: unknown[]) => deleteContentList(...args),
 }));
 
+vi.mock("@/api/developer/itemFiltersApi", () => ({
+  listItemFilters: () => Promise.resolve([]),
+}));
+
 const contentList = {
   contentListId: "5",
   name: "NightCl",

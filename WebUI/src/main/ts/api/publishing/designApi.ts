@@ -33,6 +33,13 @@ export interface ContentListSummary {
   listType?: string;
   generator?: string;
   url?: string;
+  /**
+   * Item filter uuid (or name on write). Empty string clears the filter.
+   * Omitted on write leaves the stored filter unchanged.
+   */
+  itemFilterId?: string;
+  /** Display name from the last successful load. Not sent as the source of truth. */
+  itemFilterName?: string;
 }
 
 export interface DeliveryTypeSummary {
@@ -267,6 +274,7 @@ function unwrapContentList(data: unknown): ContentListSummary {
   const listType = source.listType;
   const generator = source.generator;
   const url = source.url;
+  const itemFilterName = source.itemFilterName;
   return {
     contentListId: contentListIdText(source.contentListId),
     name: typeof name === "string" ? name : undefined,
@@ -274,6 +282,11 @@ function unwrapContentList(data: unknown): ContentListSummary {
     listType: typeof listType === "string" ? listType : undefined,
     generator: typeof generator === "string" ? generator : undefined,
     url: typeof url === "string" ? url : undefined,
+    itemFilterId: contentListIdText(source.itemFilterId),
+    itemFilterName:
+      typeof itemFilterName === "string" && itemFilterName.trim()
+        ? itemFilterName
+        : undefined,
   };
 }
 

@@ -28,6 +28,10 @@ vi.mock("@/api/publishing/designApi", () => ({
   deleteContentList: vi.fn(),
 }));
 
+vi.mock("@/api/developer/itemFiltersApi", () => ({
+  listItemFilters: () => Promise.resolve([]),
+}));
+
 const existing = {
   contentListId: "5",
   name: "NightCl",
@@ -102,6 +106,7 @@ describe("ContentListEditor save", () => {
     const name = screen.getByLabelText(/Name/i);
     expect(name).not.toBeDisabled();
     expect(screen.getByLabelText(/^Type$/)).toBeDisabled();
+    await screen.findByTestId("contentlist-item-filter");
     fireEvent.change(screen.getByLabelText(/^Type$/), {
       target: { value: "legacy" },
     });
@@ -114,6 +119,7 @@ describe("ContentListEditor save", () => {
         generator: "sys_searchList",
         url: undefined,
         listType: "modern",
+        itemFilterId: "",
       }),
     );
     await waitFor(() => expect(onSaved).toHaveBeenCalled());
