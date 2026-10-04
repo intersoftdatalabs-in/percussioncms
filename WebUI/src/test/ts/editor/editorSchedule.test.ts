@@ -17,7 +17,12 @@
 
 import { describe, expect, it } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
-import { editorScheduleFailureMessage } from "../../../main/ts/editor/editorSchedule";
+import {
+  clearedEditorScheduleDates,
+  editorClearRefreshSucceeded,
+  editorClearScheduleFailureMessage,
+  editorScheduleFailureMessage,
+} from "../../../main/ts/editor/editorSchedule";
 
 describe("editorScheduleFailureMessage", () => {
   it("does not claim success for HTTP 400 or 403", () => {
@@ -48,5 +53,78 @@ describe("editorScheduleFailureMessage", () => {
 
   it("stays silent when the session is already redirecting", () => {
     expect(editorScheduleFailureMessage(new SessionRedirectError())).toBe("");
+  });
+});
+
+describe("editor clear schedule (#5123)", () => {
+  it("posts empty start and removal dates", () => {
+    expect(clearedEditorScheduleDates(" 42 ")).toEqual({
+      itemId: "42",
+      startDate: "",
+      endDate: "",
+      comments: "",
+    });
+  });
+
+  it("treats a refresh as cleared only when both dates are empty", () => {
+    expect(editorClearRefreshSucceeded(null)).toBe(false);
+    expect(editorClearRefreshSucceeded(undefined)).toBe(false);
+    expect(
+      editorClearRefreshSucceeded({ startDate: "09/18/2026 09:00 am", endDate: "" }),
+    ).toBe(false);
+    expect(
+      editorClearRefreshSucceeded({ startDate: "", endDate: "09/19/2026 10:00 am" }),
+    ).toBe(false);
+    expect(editorClearRefreshSucceeded({ startDate: "  ", endDate: "" })).toBe(true);
+    expect(editorClearRefreshSucceeded({ startDate: "", endDate: "" })).toBe(true);
+  });
+
+  it("does not claim success for HTTP 400, 403, or 409", () => {
+    expect(
+      editorClearScheduleFailureMessage({
+        status: 400,
+        statusText: "Bad Request",
+        body: {},
+      }),
+    ).toMatch(/could not be cleared/i);
+    expect(
+      editorClearScheduleFailureMessage({
+        status: 403,
+        statusText: "Forbidden",
+        body: {},
+      }),
+    ).toMatch(/not allowed to clear/i);
+    expect(
+      editorClearScheduleFailureMessage({
+        status: 409,
+        statusText: "Conflict",
+        body: {},
+      }),
+    ).toMatch(/was not cleared/i);
+    for (const status of [400, 403, 409]) {
+      expect(
+        editorClearScheduleFailureMessage({
+          status,
+          statusText: "no",
+          body: {},
+        }),
+      ).not.toMatch(/publish schedule cleared/i);
+    }
+  });
+
+  it("maps application-level FORBIDDEN, INVALID, and CONFLICT", () => {
+    expect(editorClearScheduleFailureMessage(new Error("FORBIDDEN"))).toMatch(
+      /not allowed to clear/i,
+    );
+    expect(editorClearScheduleFailureMessage(new Error("INVALID range"))).toMatch(
+      /could not be cleared/i,
+    );
+    expect(editorClearScheduleFailureMessage(new Error("CONFLICT"))).toMatch(
+      /was not cleared/i,
+    );
+  });
+
+  it("stays silent when the session is already redirecting", () => {
+    expect(editorClearScheduleFailureMessage(new SessionRedirectError())).toBe("");
   });
 });

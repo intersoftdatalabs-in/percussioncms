@@ -17,11 +17,13 @@
 
 /**
  * Schedule publish/removal dates from the React Content Editor host
- * (#4917 / parent #4532).
+ * (#4917 / parent #4532). Clearing both dates is a separate confirm
+ * (#5123) that posts empty start and removal dates, then reloads them.
  *
- * <p>Reuses itemmanagement get/set item dates. HTTP 400/403 and HTTP 200
+ * <p>Reuses itemmanagement get/set item dates. HTTP 400/403/409 and HTTP 200
  * {@code FORBIDDEN}/{@code INVALID}/{@code BADCONFIG} are failures — the
- * host must not show success.</p>
+ * host must not show success. A refresh that still has a date is not a
+ * cleared schedule.</p>
  */
 
 import {
@@ -41,6 +43,29 @@ export type { ItemScheduleDates };
 
 export const loadEditorScheduleDates = fetchItemScheduleDates;
 export const saveEditorScheduleDates = saveItemScheduleDates;
+
+/** Empty start, removal, and comments for one item (#5123). */
+export function clearedEditorScheduleDates(itemId: string): ItemScheduleDates {
+  return {
+    itemId: itemId.trim(),
+    startDate: "",
+    endDate: "",
+    comments: "",
+  };
+}
+
+/**
+ * True only when a post-clear reload has neither start nor removal date.
+ * A missing payload is not success.
+ */
+export function editorClearRefreshSucceeded(
+  refreshed: Pick<ItemScheduleDates, "startDate" | "endDate"> | null | undefined,
+): boolean {
+  if (refreshed == null) {
+    return false;
+  }
+  return !(refreshed.startDate ?? "").trim() && !(refreshed.endDate ?? "").trim();
+}
 
 /**
  * User-visible failure for a schedule save/load. Empty when the session is
@@ -64,6 +89,38 @@ export function editorScheduleFailureMessage(err: unknown): string {
   }
   if (/\bINVALID\b/i.test(text) || /\bBADCONFIG\b/i.test(text)) {
     return message(EDITOR_MSG.SCHEDULE_INVALID);
+  }
+  return text;
+}
+
+/**
+ * User-visible failure for clearing a publish schedule (#5123).
+ * HTTP 400/403/409 stay failures. Empty when the session is redirecting.
+ */
+export function editorClearScheduleFailureMessage(err: unknown): string {
+  if (isSessionRedirectError(err)) {
+    return "";
+  }
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return formatApiError(err, message(EDITOR_MSG.CLEAR_SCHEDULE_FORBIDDEN));
+    }
+    if (err.status === 400) {
+      return formatApiError(err, message(EDITOR_MSG.CLEAR_SCHEDULE_INVALID));
+    }
+    if (err.status === 409) {
+      return formatApiError(err, message(EDITOR_MSG.CLEAR_SCHEDULE_CONFLICT));
+    }
+  }
+  const text = formatApiError(err, message(EDITOR_MSG.CLEAR_SCHEDULE_FAILED));
+  if (/\bFORBIDDEN\b/i.test(text)) {
+    return message(EDITOR_MSG.CLEAR_SCHEDULE_FORBIDDEN);
+  }
+  if (/\bINVALID\b/i.test(text) || /\bBADCONFIG\b/i.test(text)) {
+    return message(EDITOR_MSG.CLEAR_SCHEDULE_INVALID);
+  }
+  if (/\bCONFLICT\b/i.test(text)) {
+    return message(EDITOR_MSG.CLEAR_SCHEDULE_CONFLICT);
   }
   return text;
 }
