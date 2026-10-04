@@ -1189,6 +1189,72 @@ public class WorkflowsResource {
     }
   }
 
+  @PUT
+  @Path("/{idOrName}/steps/{stepName}/role-notify")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Set notify on one step role",
+      description =
+          "Slice 65 Admin. Turns notify (ISNOTIFYON) on or off for one role already assigned to"
+              + " the path step. Does not change the assignment type, add or remove roles, or edit"
+              + " the inbox flag. This is not PUT role-assignment. Packaged and system-default"
+              + " workflows are 403. An unchanged flag, a blank role, or a missing notify value is"
+              + " 400. Missing workflow, step, or role is 404. Jackson root wrap is"
+              + " WorkflowStepRoleNotifyWrite. Returns the assignment list after the write.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated; returns assignment rows including the stored notify flag",
+            content =
+                @Content(schema = @Schema(implementation = WorkflowStepRoleAssignmentList.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing body, blank role, missing notify, or unchanged notify"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow, step, or role not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowStepRoleAssignmentList setStepRoleNotify(
+      @PathParam("idOrName") String idOrName,
+      @PathParam("stepName") String stepName,
+      WorkflowStepRoleNotifyWrite body) {
+    if (stepName == null || stepName.isBlank()) {
+      throw new WebApplicationException("Step name is required", 400);
+    }
+    if (body == null) {
+      throw new WebApplicationException("Workflow step role notify body is required", 400);
+    }
+    if (body.getRoleName() == null || body.getRoleName().isBlank()) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
+    if (body.getNotify() == null) {
+      throw new WebApplicationException("notify is required", 400);
+    }
+    try {
+      WorkflowStepRoleAssignmentList list =
+          requireAdaptor().setStepRoleNotify(uriInfo.getBaseUri(), idOrName, stepName, body);
+      if (list == null) {
+        throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+      }
+      return list;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to set step role notify ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @POST
   @Path("/{idOrName}/steps/{stepName}/roles")
   @Consumes({MediaType.APPLICATION_JSON})

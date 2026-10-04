@@ -28,11 +28,11 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Reads and sets the assignment type of one role already assigned to one workflow step.
+ * Reads assignment rows and changes one stored field on a role already assigned to one step.
  *
- * <p>Does not rename the step, add or remove roles, or change notify, inbox, or ad-hoc flags.
- * Only {@link PSAssignmentTypeEnum#READER} and {@link PSAssignmentTypeEnum#ASSIGNEE} can be
- * written, and only when the role's current type is one of those two.
+ * <p>{@link #setType} changes only the assignment type and only for Reader or Assignee.
+ * {@link #setNotify} changes only {@code ISNOTIFYON} on any assigned role. Neither call renames
+ * the step, adds or removes roles, or edits inbox or ad-hoc flags.
  */
 public final class WorkflowStepRoleAssignmentWriter {
 
@@ -44,8 +44,11 @@ public final class WorkflowStepRoleAssignmentWriter {
    * @param stepName step (state) name
    * @param roleName role already assigned to that step
    * @param assignmentType enum name such as READER or ASSIGNEE
+   * @param notifyOn stored {@code ISNOTIFYON}. Not named {@code notify}: that collides with
+   *     {@link Object#notify()}.
    */
-  public record StepRoleAssignment(String stepName, String roleName, String assignmentType) {}
+  public record StepRoleAssignment(
+      String stepName, String roleName, String assignmentType, boolean notifyOn) {}
 
   public static List<StepRoleAssignment> list(List<PSState> states, List<PSWorkflowRole> roles) {
     List<StepRoleAssignment> out = new ArrayList<>();
@@ -69,7 +72,7 @@ public final class WorkflowStepRoleAssignmentWriter {
           continue;
         }
         PSAssignmentTypeEnum type = role.getAssignmentType();
-        out.add(new StepRoleAssignment(state.getName(), roleName, type.name()));
+        out.add(new StepRoleAssignment(state.getName(), roleName, type.name(), role.isDoNotify()));
       }
     }
     return out;
@@ -100,6 +103,31 @@ public final class WorkflowStepRoleAssignmentWriter {
       throw new IllegalArgumentException("assignment type is unchanged");
     }
     hit.setAssignmentType(next);
+  }
+
+  /**
+   * Sets {@code ISNOTIFYON} on the named role of the named step. The role must already be
+   * assigned. Assignment type, inbox, ad-hoc, the step name, and every other role stay as they
+   * were. An unchanged flag is rejected.
+   */
+  public static void setNotify(
+      List<PSState> states,
+      List<PSWorkflowRole> roles,
+      String stepName,
+      String roleName,
+      Boolean notify) {
+    String stepWant = requireText(stepName, "Step name");
+    String roleWant = requireText(roleName, "Role name");
+    if (notify == null) {
+      throw new IllegalArgumentException("notify is required");
+    }
+    PSState state = findStep(states, stepWant);
+    int roleId = findWorkflowRoleId(roles, roleWant);
+    PSAssignedRole hit = findAssigned(state, roleId, roleWant);
+    if (hit.isDoNotify() == notify.booleanValue()) {
+      throw new IllegalArgumentException("notify is unchanged");
+    }
+    hit.setDoNotify(notify.booleanValue());
   }
 
   static PSAssignmentTypeEnum parseMutable(String raw) {

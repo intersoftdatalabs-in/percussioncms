@@ -320,6 +320,24 @@ public interface IWorkflowsAdaptor {
       URI baseUri, String idOrName, String stepName, WorkflowStepRoleAssignmentWrite body);
 
   /**
+   * Turn notify on or off for one role already assigned to one step (Admin, slice 65).
+   *
+   * <p>Updates {@code ISNOTIFYON} only. Does not change the assignment type, add or remove roles,
+   * or edit inbox. Packaged and system-default workflows are rejected. Any assigned role,
+   * including Admin and None, may be updated.
+   *
+   * @param stepName existing step name
+   * @param body role name and the new notify flag
+   * @return the assignment list after the write, never {@code null}
+   * @throws IllegalArgumentException when the role is blank, notify is missing, or the flag is
+   *     unchanged
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or role
+   */
+  WorkflowStepRoleAssignmentList setStepRoleNotify(
+      URI baseUri, String idOrName, String stepName, WorkflowStepRoleNotifyWrite body);
+
+  /**
    * Add one existing workflow role onto one step (Admin, slice 63).
    *
    * <p>Not the assignment-type update. The role must already be a workflow role and must not

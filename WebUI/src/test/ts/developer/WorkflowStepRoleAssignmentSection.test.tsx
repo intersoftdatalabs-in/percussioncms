@@ -24,6 +24,7 @@ import { WorkflowStepRoleAssignmentSection } from "../../../main/ts/developer/Wo
 vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   listStepRoleAssignments: vi.fn(),
   setStepRoleAssignment: vi.fn(),
+  setStepRoleNotify: vi.fn(),
   addStepRole: vi.fn(),
   removeStepRole: vi.fn(),
 }));

@@ -49,11 +49,89 @@ class WorkflowStepRoleAssignmentWriterTest {
     assertEquals("Draft", rows.get(0).stepName());
     assertEquals("Author", rows.get(0).roleName());
     assertEquals("ASSIGNEE", rows.get(0).assignmentType());
+    assertTrue(rows.get(0).notifyOn());
     assertEquals("Editor", rows.get(1).roleName());
     assertEquals("READER", rows.get(1).assignmentType());
+    assertFalse(rows.get(1).notifyOn());
     assertEquals("Review", rows.get(2).stepName());
     assertEquals("Reviewer", rows.get(2).roleName());
     assertEquals("ASSIGNEE", rows.get(2).assignmentType());
+    assertTrue(rows.get(2).notifyOn());
+  }
+
+  @Test
+  void setNotifyChangesOnlyThatFlag() {
+    Fixture fixture = fixture();
+    WorkflowStepRoleAssignmentWriter.setNotify(
+        fixture.states, fixture.roles, "draft", "author", Boolean.FALSE);
+
+    assertEquals("Draft", fixture.draft.getName());
+    assertEquals(2, fixture.draft.getAssignedRoles().size());
+    assertEquals(1, fixture.draft.getTransitions().size());
+    assertEquals(PSAssignmentTypeEnum.ASSIGNEE, fixture.author.getAssignmentType());
+    assertFalse(fixture.author.isDoNotify());
+    assertTrue(fixture.author.isShowInInbox());
+    assertEquals(PSAdhocTypeEnum.DISABLED, fixture.author.getAdhocType());
+    assertFalse(fixture.editor.isDoNotify());
+    assertFalse(fixture.editor.isShowInInbox());
+    assertEquals(PSAssignmentTypeEnum.ASSIGNEE, fixture.reviewer.getAssignmentType());
+    assertTrue(fixture.reviewer.isDoNotify());
+  }
+
+  @Test
+  void unchangedNotifyIs400AndDoesNotMutate() {
+    Fixture fixture = fixture();
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                WorkflowStepRoleAssignmentWriter.setNotify(
+                    fixture.states, fixture.roles, "Draft", "Author", Boolean.TRUE));
+    assertTrue(ex.getMessage().toLowerCase().contains("unchanged"));
+    assertTrue(fixture.author.isDoNotify());
+    assertEquals(PSAssignmentTypeEnum.ASSIGNEE, fixture.author.getAssignmentType());
+  }
+
+  @Test
+  void adminRoleNotifyCanChange() {
+    Fixture fixture = fixture();
+    fixture.author.setAssignmentType(PSAssignmentTypeEnum.ADMIN);
+    WorkflowStepRoleAssignmentWriter.setNotify(
+        fixture.states, fixture.roles, "Draft", "Author", Boolean.FALSE);
+    assertEquals(PSAssignmentTypeEnum.ADMIN, fixture.author.getAssignmentType());
+    assertFalse(fixture.author.isDoNotify());
+    assertTrue(fixture.author.isShowInInbox());
+  }
+
+  @Test
+  void missingNotifyStepAndRoleAre404() {
+    Fixture fixture = fixture();
+    WebApplicationException missingStep =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowStepRoleAssignmentWriter.setNotify(
+                    fixture.states, fixture.roles, "Archive", "Author", Boolean.FALSE));
+    assertEquals(404, missingStep.getResponse().getStatus());
+    WebApplicationException missingRole =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowStepRoleAssignmentWriter.setNotify(
+                    fixture.states, fixture.roles, "Draft", "Designer", Boolean.FALSE));
+    assertEquals(404, missingRole.getResponse().getStatus());
+    assertTrue(fixture.author.isDoNotify());
+  }
+
+  @Test
+  void missingNotifyValueIs400() {
+    Fixture fixture = fixture();
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            WorkflowStepRoleAssignmentWriter.setNotify(
+                fixture.states, fixture.roles, "Draft", "Author", null));
+    assertTrue(fixture.author.isDoNotify());
   }
 
   @Test
