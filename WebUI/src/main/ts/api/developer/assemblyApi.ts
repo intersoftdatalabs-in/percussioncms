@@ -457,6 +457,9 @@ export function isValidCommunityName(name: string | undefined | null): boolean {
 /** {@code NAME} column length on the community table. */
 export const COMMUNITY_NAME_MAX_LENGTH = 50;
 
+/** {@code DESCRITPION} column length on the community table (historical spelling). */
+export const COMMUNITY_DESCRIPTION_MAX_LENGTH = 255;
+
 /**
  * Rename name: non-blank and at most {@link COMMUNITY_NAME_MAX_LENGTH} characters.
  * Spaces are allowed. Uniqueness is enforced by the server (409).
@@ -483,6 +486,29 @@ export function isCommunityRenameReady(
     return false;
   }
   return normalizeCommunityName(draft) !== normalizeCommunityName(currentName);
+}
+
+/** Trim a community description. Null becomes "". Whitespace-only becomes "". */
+export function normalizeCommunityDescription(
+  description: string | undefined | null,
+): string {
+  return description == null ? "" : description.trim();
+}
+
+/**
+ * Description save is enabled when the trimmed draft differs from the stored
+ * description and is at most {@link COMMUNITY_DESCRIPTION_MAX_LENGTH} characters.
+ * Empty is a clear. The same text after trim does not save.
+ */
+export function isCommunityDescriptionReady(
+  currentDescription: string | undefined | null,
+  draft: string | undefined | null,
+): boolean {
+  const next = normalizeCommunityDescription(draft);
+  if (next.length > COMMUNITY_DESCRIPTION_MAX_LENGTH) {
+    return false;
+  }
+  return next !== normalizeCommunityDescription(currentDescription);
 }
 
 /** Wire JSON for POST /services/communities/bulk name list. */
@@ -629,6 +655,42 @@ export async function renameCommunity(
   const payload = await post<unknown>(
     `${PATHS.COMMUNITIES}/${key}/rename`,
     wrapCommunityRenameForWire(body),
+  );
+  return unwrapCommunityDetail(payload);
+}
+
+/** Description for {@code POST /services/communities/{idOrName}/description}. */
+export type CommunityDescriptionBody = {
+  description: string;
+};
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code CommunityDescription}. */
+export const COMMUNITY_DESCRIPTION_ROOT = "CommunityDescription";
+
+/**
+ * Wire JSON for a community description update. A flat body fails server UNWRAP_ROOT_VALUE.
+ * Empty {@code description} clears.
+ */
+export function wrapCommunityDescriptionForWire(
+  body: CommunityDescriptionBody,
+): Record<string, CommunityDescriptionBody> {
+  return { [COMMUNITY_DESCRIPTION_ROOT]: body };
+}
+
+/**
+ * POST /services/communities/{idOrName}/description — Admin. Longer than 255
+ * characters is 400. Non-Admin is 403. A design lock is 409. Empty description
+ * clears. The caller must keep the previous description until this resolves.
+ */
+export async function updateCommunityDescription(
+  idOrName: string,
+  body: CommunityDescriptionBody,
+): Promise<CommunityDetail> {
+  const key = encodeURIComponent(idOrName);
+  const description = normalizeCommunityDescription(body.description);
+  const payload = await post<unknown>(
+    `${PATHS.COMMUNITIES}/${key}/description`,
+    wrapCommunityDescriptionForWire({ description }),
   );
   return unwrapCommunityDetail(payload);
 }

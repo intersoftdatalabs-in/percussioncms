@@ -26,13 +26,19 @@ import {
   deleteCommunities,
   deleteCommunity,
   getCommunityDetail,
+  COMMUNITY_DESCRIPTION_MAX_LENGTH,
+  COMMUNITY_DESCRIPTION_ROOT,
   COMMUNITY_NAME_MAX_LENGTH,
   COMMUNITY_RENAME_ROOT,
+  isCommunityDescriptionReady,
   isCommunityRenameReady,
   isCommunityWriteReady,
   isValidCommunityName,
   isValidCommunityRenameName,
+  normalizeCommunityDescription,
   renameCommunity,
+  updateCommunityDescription,
+  wrapCommunityDescriptionForWire,
   wrapCommunityRenameForWire,
   listAvailableRoles,
   listCommunities,
@@ -69,6 +75,20 @@ describe("community name validation (SE-01)", () => {
     expect(isCommunityRenameReady("Default", "Enterprise")).toBe(true);
     expect(wrapCommunityRenameForWire({ name: "Enterprise" })).toEqual({
       [COMMUNITY_RENAME_ROOT]: { name: "Enterprise" },
+    });
+    expect(normalizeCommunityDescription("  notes  ")).toBe("notes");
+    expect(normalizeCommunityDescription(null)).toBe("");
+    expect(isCommunityDescriptionReady("keep", " keep ")).toBe(false);
+    expect(isCommunityDescriptionReady("keep", "")).toBe(true);
+    expect(isCommunityDescriptionReady("", "   ")).toBe(false);
+    expect(isCommunityDescriptionReady("keep", "D".repeat(COMMUNITY_DESCRIPTION_MAX_LENGTH))).toBe(
+      true,
+    );
+    expect(
+      isCommunityDescriptionReady("keep", "D".repeat(COMMUNITY_DESCRIPTION_MAX_LENGTH + 1)),
+    ).toBe(false);
+    expect(wrapCommunityDescriptionForWire({ description: "" })).toEqual({
+      [COMMUNITY_DESCRIPTION_ROOT]: { description: "" },
     });
   });
 });
@@ -249,6 +269,35 @@ describe("createCommunities / saveCommunities / deleteCommunities (SE-01)", () =
     );
     expect(JSON.parse(String(init.body))).toEqual({
       CommunityRename: { name: "Enterprise" },
+    });
+  });
+
+  it("POSTs CommunityDescription and sends an empty string to clear", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        Community: { name: "Default", id: 10, description: "Enterprise notes" },
+      }),
+    );
+    const updated = await updateCommunityDescription("Default", {
+      description: "  Enterprise notes  ",
+    });
+    expect(updated.name).toBe("Default");
+    expect(updated.description).toBe("Enterprise notes");
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain(
+      `${PATHS.COMMUNITIES}/${encodeURIComponent("Default")}/description`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      CommunityDescription: { description: "Enterprise notes" },
+    });
+
+    fetchMock.mockResolvedValueOnce(jsonResponse({ Community: { name: "Default", id: 10 } }));
+    const cleared = await updateCommunityDescription("Default", { description: "   " });
+    expect(cleared.description).toBeUndefined();
+    const clearInit = fetchMock.mock.calls[1]?.[1] as RequestInit;
+    expect(JSON.parse(String(clearInit.body))).toEqual({
+      CommunityDescription: { description: "" },
     });
   });
 

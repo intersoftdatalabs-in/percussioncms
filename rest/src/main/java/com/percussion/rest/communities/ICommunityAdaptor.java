@@ -59,6 +59,15 @@ public interface ICommunityAdaptor {
    */
   Community renameCommunity(String idOrName, String newName);
 
+  /**
+   * Set or clear one community's description. Longer than {@code 255} characters is {@link
+   * IllegalArgumentException} (HTTP 400). Empty or whitespace clears the stored description.
+   * Non-Admin or a missing session/user is HTTP 403. Returns {@code null} when the community does
+   * not exist. The same description after trim does not write. Name and role membership are
+   * unchanged. Design-lock conflicts are HTTP 409 and do not change the description.
+   */
+  Community updateCommunityDescription(String idOrName, String description);
+
   CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock)
       throws PSErrorResultsException;
 

@@ -123,6 +123,22 @@ export function CommunitiesPanel(): React.ReactElement {
           setSelected(next);
           void reload();
         }}
+        onDescriptionSaved={(communityName, description) => {
+          const key = communityName.trim().toLowerCase();
+          if (!key) {
+            return;
+          }
+          setItems((itemsPrev) =>
+            itemsPrev == null
+              ? itemsPrev
+              : itemsPrev.map((c) =>
+                  (c.name || "").trim().toLowerCase() === key
+                    ? { ...c, description }
+                    : c,
+                ),
+          );
+          void reload();
+        }}
       />
     );
   }

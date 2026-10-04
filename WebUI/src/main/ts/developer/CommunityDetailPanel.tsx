@@ -26,13 +26,16 @@ import {
   getCommunityDetail,
   getCommunityNewSearchDefaults,
   getCommunityVisibility,
+  COMMUNITY_DESCRIPTION_MAX_LENGTH,
   COMMUNITY_NAME_MAX_LENGTH,
+  isCommunityDescriptionReady,
   isCommunityRenameReady,
   isCommunityWriteReady,
   isValidCommunityRenameName,
   listAvailableRoles,
   renameCommunity,
   replaceCommunityNewSearchDefaults,
+  updateCommunityDescription,
   updateCommunityRoles,
 } from "../api/developer/assemblyApi";
 import { listSearches } from "../api/developer/searchesApi";
@@ -177,6 +180,10 @@ function communityRenameDraftTooLong(draft: string): boolean {
   return draft.trim().length > COMMUNITY_NAME_MAX_LENGTH;
 }
 
+function communityDescriptionDraftTooLong(draft: string): boolean {
+  return draft.trim().length > COMMUNITY_DESCRIPTION_MAX_LENGTH;
+}
+
 function renameFallback(err: unknown): string {
   if (!isApiError(err)) return DEV_MSG.COMM_RENAME_ERROR;
   if (err.status === 409) return DEV_MSG.COMM_DUPLICATE;
@@ -191,6 +198,22 @@ function renameFallback(err: unknown): string {
   }
   if (err.status === 404) return DEV_MSG.COMM_MISSING;
   return DEV_MSG.COMM_RENAME_ERROR;
+}
+
+function descriptionFallback(err: unknown): string {
+  if (!isApiError(err)) return DEV_MSG.COMM_DESCRIPTION_ERROR;
+  if (err.status === 409) return DEV_MSG.COMM_DESCRIPTION_LOCK;
+  if (err.status === 403) return DEV_MSG.COMM_FORBIDDEN;
+  if (err.status === 400) {
+    const raw = typeof err.body === "string" ? err.body : "";
+    const msg = `${raw} ${err.statusText || ""}`.toLowerCase();
+    if (msg.includes("255") || msg.includes("long") || msg.includes("character")) {
+      return DEV_MSG.COMM_DESCRIPTION_TOO_LONG;
+    }
+    return DEV_MSG.COMM_DESCRIPTION_ERROR;
+  }
+  if (err.status === 404) return DEV_MSG.COMM_MISSING;
+  return DEV_MSG.COMM_DESCRIPTION_ERROR;
 }
 
 function nsdLoadFallback(err: unknown): string {
@@ -229,6 +252,7 @@ export function CommunityDetailPanel({
   onSaved,
   onDeleted,
   onRenamed,
+  onDescriptionSaved,
 }: {
   /** null = create mode */
   idOrName: string | null;
@@ -237,12 +261,15 @@ export function CommunityDetailPanel({
   onDeleted?: () => void;
   /** Fired only after a rename POST succeeds. */
   onRenamed?: (previousName: string, newName: string) => void;
+  /** Fired only after a description POST succeeds. */
+  onDescriptionSaved?: (communityName: string, description: string) => void;
 }): React.ReactElement {
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const isNew = idOrName == null && createdKey == null;
   const [detail, setDetail] = useState<CommunityDetail | null>(null);
   const [name, setName] = useState("");
   const [renameDraft, setRenameDraft] = useState("");
+  const [descriptionDraft, setDescriptionDraft] = useState("");
   const [allRoles, setAllRoles] = useState<CommunityRoleSummary[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
@@ -327,6 +354,7 @@ export function CommunityDetailPanel({
     visibilityReqId.current += 1;
     setDetail(null);
     setRenameDraft("");
+    setDescriptionDraft("");
     setError(null);
     setNotice(null);
     setVisibleObjects([]);
@@ -346,6 +374,7 @@ export function CommunityDetailPanel({
         setDetail(d);
         setName(d.name || idOrName);
         setRenameDraft(d.name || idOrName);
+        setDescriptionDraft(d.description || "");
         setAllRoles(roles);
         setSelectedKeys(
           new Set(asRoles(d).map((r, i) => roleKey(r, i)).filter((k) => k.length > 0)),
@@ -440,6 +469,7 @@ export function CommunityDetailPanel({
   ) {
     setDetail(d);
     setName(d.name || key);
+    setDescriptionDraft(d.description || "");
     setAllRoles(roles);
     setSelectedKeys(
       new Set(asRoles(d).map((r, i) => roleKey(r, i)).filter((k) => k.length > 0)),
@@ -495,6 +525,55 @@ export function CommunityDetailPanel({
       onSaved?.(created);
     } catch (err: unknown) {
       setError(panelErrMsg(err, createFallback(err)));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  function handleDescriptionCancel(): void {
+    if (busy || inflight.current) return;
+    setDescriptionDraft(detail?.description || "");
+    setError(null);
+  }
+
+  async function handleDescription(): Promise<void> {
+    const currentName = (detail?.name || "").trim();
+    const stored = detail?.description || "";
+    if (isNew || !detail || busy || inflight.current) return;
+    if (!isCommunityDescriptionReady(stored, descriptionDraft)) {
+      if (communityDescriptionDraftTooLong(descriptionDraft)) {
+        setError(DEV_MSG.COMM_DESCRIPTION_TOO_LONG);
+      }
+      return;
+    }
+    const next = descriptionDraft.trim();
+    const key = idOrName || currentName;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = await updateCommunityDescription(key, { description: next });
+      const savedDescription =
+        typeof saved.description === "string" ? saved.description : next;
+      setDetail((prev) =>
+        prev == null
+          ? prev
+          : {
+              ...prev,
+              description: savedDescription,
+            },
+      );
+      setDescriptionDraft(savedDescription);
+      setNotice(
+        savedDescription
+          ? DEV_MSG.COMM_DESCRIPTION_SAVED
+          : DEV_MSG.COMM_DESCRIPTION_CLEARED,
+      );
+      onDescriptionSaved?.(currentName, savedDescription);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, descriptionFallback(err)));
     } finally {
       inflight.current = false;
       setBusy(false);
@@ -740,9 +819,89 @@ export function CommunityDetailPanel({
               {detail.id != null ? ` · id ${detail.id}` : ""}
               {guidLabel ? ` · ${guidLabel}` : ""}
             </div>
-            {detail.description ? (
-              <p style={{ marginTop: "8px", color: catalogColors.text }}>{detail.description}</p>
-            ) : null}
+            <p
+              data-testid="developer-comm-description"
+              style={{ marginTop: "8px", color: catalogColors.text, whiteSpace: "pre-wrap" }}
+            >
+              {detail.description || ""}
+            </p>
+            <section
+              data-testid="developer-comm-description-form"
+              style={{ marginTop: "12px", marginBottom: "12px" }}
+            >
+              <h3 style={{ fontSize: "1rem", margin: "0 0 4px" }}>{DEV_MSG.COMM_DESCRIPTION}</h3>
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem", margin: "0 0 8px" }}>
+                {DEV_MSG.COMM_DESCRIPTION_HINT}
+              </p>
+              {communityDescriptionDraftTooLong(descriptionDraft) ? (
+                <div
+                  role="alert"
+                  data-testid="developer-comm-description-error"
+                  style={{ ...errorAlert, marginBottom: "8px" }}
+                >
+                  {DEV_MSG.COMM_DESCRIPTION_TOO_LONG}
+                </div>
+              ) : null}
+              <label
+                htmlFor="comm-description"
+                style={{ display: "block", marginBottom: "4px" }}
+              >
+                {DEV_MSG.COMM_DESCRIPTION_LABEL}
+              </label>
+              <textarea
+                id="comm-description"
+                data-testid="developer-comm-description-input"
+                style={{ ...inputStyle, minHeight: "4.5rem", resize: "vertical" }}
+                value={descriptionDraft}
+                disabled={busy}
+                aria-label={DEV_MSG.COMM_DESCRIPTION}
+                onChange={(e) => {
+                  setDescriptionDraft(e.target.value);
+                  if (error) setError(null);
+                }}
+              />
+              <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+                <button
+                  type="button"
+                  data-testid="developer-comm-description-save"
+                  disabled={
+                    busy || !isCommunityDescriptionReady(detail.description, descriptionDraft)
+                  }
+                  onClick={() => void handleDescription()}
+                  style={{
+                    padding: "8px 16px",
+                    background:
+                      busy || !isCommunityDescriptionReady(detail.description, descriptionDraft)
+                        ? catalogColors.disabled
+                        : catalogColors.accent,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor:
+                      busy || !isCommunityDescriptionReady(detail.description, descriptionDraft)
+                        ? "not-allowed"
+                        : "pointer",
+                  }}
+                >
+                  {busy ? DEV_MSG.COMM_DESCRIPTION_BUSY : DEV_MSG.COMM_DESCRIPTION_SAVE}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-comm-description-cancel"
+                  disabled={busy}
+                  onClick={handleDescriptionCancel}
+                  style={{
+                    padding: "8px 16px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {DEV_MSG.COMM_CANCEL}
+                </button>
+              </div>
+            </section>
             <dl style={metaGrid}>
               <dt>{DEV_MSG.COMM_META_ID}</dt>
               <dd style={{ margin: 0, ...monoCell }}>

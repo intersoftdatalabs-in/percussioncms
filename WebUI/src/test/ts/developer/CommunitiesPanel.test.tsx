@@ -24,6 +24,7 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => 
     createCommunity: vi.fn(),
     deleteCommunity: vi.fn(),
     renameCommunity: vi.fn(),
+    updateCommunityDescription: vi.fn(),
     getCommunityNewSearchDefaults: vi.fn().mockResolvedValue({ searches: [] }),
     replaceCommunityNewSearchDefaults: vi.fn().mockResolvedValue({ searches: [] }),
   };
@@ -33,6 +34,9 @@ const listCommunities = assemblyApi.listCommunities as ReturnType<typeof vi.fn>;
 const createCommunity = assemblyApi.createCommunity as ReturnType<typeof vi.fn>;
 const getCommunityDetail = assemblyApi.getCommunityDetail as ReturnType<typeof vi.fn>;
 const renameCommunity = assemblyApi.renameCommunity as ReturnType<typeof vi.fn>;
+const updateCommunityDescription = assemblyApi.updateCommunityDescription as ReturnType<
+  typeof vi.fn
+>;
 
 describe("CommunitiesPanel", () => {
   beforeEach(() => {
@@ -43,6 +47,7 @@ describe("CommunitiesPanel", () => {
     createCommunity.mockReset();
     getCommunityDetail.mockReset();
     renameCommunity.mockReset();
+    updateCommunityDescription.mockReset();
   });
 
   it("lists communities on success", async () => {
@@ -203,6 +208,60 @@ describe("CommunitiesPanel", () => {
       expect(screen.getByTestId("developer-comm-table").textContent).toContain("Enterprise");
     });
     expect(screen.getByTestId("developer-comm-table").textContent).not.toContain("DefaultComm");
+  });
+
+  it("shows the stored description in the catalog only after save (#5178)", async () => {
+    const original = {
+      id: 7,
+      name: "DefaultComm",
+      label: "Default Community",
+      description: "System community",
+      guid: { stringValue: "0-13-7", longValue: 7 },
+    };
+    listCommunities
+      .mockResolvedValueOnce([original])
+      .mockResolvedValue([{ ...original, description: "Updated notes" }]);
+    getCommunityDetail.mockResolvedValue({
+      ...original,
+      roleList: [],
+    });
+    updateCommunityDescription.mockResolvedValue({
+      name: "DefaultComm",
+      label: "Default Community",
+      description: "Updated notes",
+      id: 7,
+      guid: original.guid,
+    });
+    render(<CommunitiesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table").textContent).toContain("System community");
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-open"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-description").textContent).toContain(
+        "System community",
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
+      target: { value: "Updated notes" },
+    });
+    expect(screen.queryByTestId("developer-comm-table")).toBeNull();
+    expect(screen.getByTestId("developer-comm-description").textContent).not.toContain(
+      "Updated notes",
+    );
+    fireEvent.click(screen.getByTestId("developer-comm-description-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-description").textContent).toContain(
+        "Updated notes",
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table").textContent).toContain("Updated notes");
+    });
+    expect(screen.getByTestId("developer-comm-table").textContent).not.toContain(
+      "System community",
+    );
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

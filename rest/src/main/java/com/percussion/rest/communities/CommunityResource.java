@@ -412,6 +412,49 @@ public class CommunityResource implements ICommunityResource {
     }
   }
 
+  @POST
+  @Path("/{idOrName}/description")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Set or clear a community description",
+      description =
+          "Admin. Updates one community's description. Name and role membership are unchanged."
+              + " Empty or whitespace clears the stored description. Longer than 255 characters"
+              + " is 400. Non-Admin or a missing session is 403. Unknown community is 404. A"
+              + " design lock held by another session is 409 and the description is not changed."
+              + " The same description after trim does not write. Jackson root wrap is"
+              + " CommunityDescription.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Community with the stored description",
+            content = @Content(schema = @Schema(implementation = Community.class))),
+        @ApiResponse(responseCode = "400", description = "Description longer than 255 characters"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Community not found"),
+        @ApiResponse(responseCode = "409", description = "Design lock held by another session"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Community updateCommunityDescription(
+      @Parameter(description = "Community id, GUID string, or exact name", required = true)
+          @PathParam("idOrName")
+          String idOrName,
+      CommunityDescription body) {
+    if (body == null) {
+      throw new WebApplicationException("Community description is required", 400);
+    }
+    try {
+      Community community = adaptor.updateCommunityDescription(idOrName, body.getDescription());
+      if (community == null) {
+        throw new WebApplicationException("Community not found: " + idOrName, 404);
+      }
+      return community;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure("updateCommunityDescription", e);
+    }
+  }
+
   @GET
   @Path("/{idOrName}")
   @Produces({MediaType.APPLICATION_JSON})
