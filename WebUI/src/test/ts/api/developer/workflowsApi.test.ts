@@ -18,6 +18,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createWorkflow,
   createWorkflowAgingTransition,
+  updateWorkflowAgingInterval,
   deleteWorkflow,
   deleteWorkflowStep,
   createWorkflowTransition,
@@ -700,6 +701,67 @@ describe("workflow transition write API (slice 31)", () => {
         from: "Draft",
         to: "Review",
         intervalMinutes: 15,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+  });
+
+  it("PUTs a wrapped aging interval change and parses the new minutes", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          packaged: false,
+          nodes: [{ name: "Draft" }, { name: "Review" }],
+          edges: [
+            { from: "Draft", to: "Review", label: "Aging 30", aging: true, intervalMinutes: 30 },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await updateWorkflowAgingInterval("Nightly QA", {
+      from: "Draft",
+      to: "Review",
+      intervalMinutes: 15,
+      newIntervalMinutes: 30,
+    });
+    expect(graph.edges?.[0]?.intervalMinutes).toBe(30);
+    expect(graph.edges?.[0]?.label).toBe("Aging 30");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/aging-transitions/interval");
+    expect(String(init.body)).toContain("WorkflowAgingIntervalWrite");
+    expect(String(init.body)).toContain("newIntervalMinutes");
+    expect(String(init.body)).toContain("30");
+  });
+
+  it("propagates 400 and 409 when an aging interval change is rejected", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "bad" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(
+      updateWorkflowAgingInterval("Nightly QA", {
+        from: "Draft",
+        to: "Review",
+        intervalMinutes: 15,
+        newIntervalMinutes: 0,
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "exists" }), {
+        status: 409,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(
+      updateWorkflowAgingInterval("Nightly QA", {
+        from: "Draft",
+        to: "Review",
+        intervalMinutes: 15,
+        newIntervalMinutes: 45,
       }),
     ).rejects.toMatchObject({ status: 409 });
   });

@@ -777,6 +777,104 @@ public class WorkflowsResourceTest {
     assertEquals(409, ex.getResponse().getStatus());
   }
 
+  private static WorkflowAgingIntervalWrite intervalBody(
+      String from, String to, long currentMinutes, long newMinutes) {
+    WorkflowAgingIntervalWrite body = new WorkflowAgingIntervalWrite();
+    body.setFrom(from);
+    body.setTo(to);
+    body.setIntervalMinutes(currentMinutes);
+    body.setNewIntervalMinutes(newMinutes);
+    return body;
+  }
+
+  @Test
+  public void changeAgingIntervalSuccess() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Nightly QA");
+    when(adaptor.changeAbsoluteAgingInterval(any(), eq("Nightly QA"), any())).thenReturn(graph);
+    WorkflowGraph out =
+        resource.changeAbsoluteAgingInterval("Nightly QA", intervalBody("Draft", "Review", 15, 30));
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor).changeAbsoluteAgingInterval(any(), eq("Nightly QA"), any());
+  }
+
+  @Test
+  public void changeAgingIntervalRequiresBody() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.changeAbsoluteAgingInterval("Nightly QA", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).changeAbsoluteAgingInterval(any(), any(), any());
+  }
+
+  @Test
+  public void changeAgingIntervalRejectsBlankOrNonPositiveOrUnchanged() {
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.changeAbsoluteAgingInterval(
+                        "Nightly QA", intervalBody("Draft", " ", 15, 30)))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.changeAbsoluteAgingInterval(
+                        "Nightly QA", intervalBody("Draft", "Review", 15, 0)))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.changeAbsoluteAgingInterval(
+                        "Nightly QA", intervalBody("Draft", "Review", 15, -5)))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.changeAbsoluteAgingInterval(
+                        "Nightly QA", intervalBody("Draft", "Review", 15, 15)))
+            .getResponse()
+            .getStatus());
+    verify(adaptor, never()).changeAbsoluteAgingInterval(any(), any(), any());
+  }
+
+  @Test
+  public void changeAgingIntervalPackagedIs403() {
+    when(adaptor.changeAbsoluteAgingInterval(any(), any(), any()))
+        .thenThrow(new WebApplicationException("packaged", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.changeAbsoluteAgingInterval(
+                    "Default Workflow", intervalBody("Draft", "Review", 15, 30)));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void changeAgingIntervalConflictIs409() {
+    when(adaptor.changeAbsoluteAgingInterval(any(), any(), any()))
+        .thenThrow(new WebApplicationException("exists", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.changeAbsoluteAgingInterval(
+                    "Nightly QA", intervalBody("Draft", "Review", 15, 30)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
   private static WorkflowTransitionWrite transitionBody(String from, String to, String label) {
     WorkflowTransitionWrite body = new WorkflowTransitionWrite();
     body.setFrom(from);

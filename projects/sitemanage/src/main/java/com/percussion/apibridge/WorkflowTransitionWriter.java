@@ -32,8 +32,8 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Creates or updates one workflow transition between existing steps. Does not add or delete
- * states. Absolute aging creates go through {@link #createAbsoluteAging}; comment-required is not
- * used for aging.
+ * states. Absolute aging creates go through {@link #createAbsoluteAging}. Interval changes go
+ * through {@link #changeAbsoluteInterval}. Comment-required is not used for aging.
  */
 public final class WorkflowTransitionWriter {
 
@@ -153,6 +153,87 @@ public final class WorkflowTransitionWriter {
       }
     }
     return false;
+  }
+
+  /**
+   * Changes the minute interval on one existing absolute aging transition. Does not change the
+   * destination, the aging type, or the set of steps. A generated {@code Aging N} label, trigger,
+   * and description are rewritten to the new interval. A custom label is left alone.
+   */
+  public static void changeAbsoluteInterval(
+      List<PSState> states,
+      String fromStep,
+      String toStep,
+      long currentMinutes,
+      long newMinutes) {
+    if (currentMinutes <= 0 || newMinutes <= 0) {
+      throw new IllegalArgumentException("interval must be a positive number of minutes");
+    }
+    if (currentMinutes == newMinutes) {
+      throw new IllegalArgumentException("new interval must differ from the current interval");
+    }
+    String from = requireName(fromStep, "from");
+    String to = requireName(toStep, "to");
+    String nextLabel = absoluteAgingLabel(newMinutes);
+    Index index = index(states);
+    PSState source = requireStep(index, from);
+    PSState dest = requireStep(index, to);
+    PSAgingTransition hit = locateAbsolute(source, dest.getStateId(), currentMinutes);
+    String oldLabel = absoluteAgingLabel(currentMinutes);
+    String previousLabel = StringUtils.defaultString(hit.getLabel()).trim();
+    boolean renameLabel = previousLabel.equalsIgnoreCase(oldLabel);
+    if (sameAbsoluteInterval(source, dest.getStateId(), newMinutes)
+        || (renameLabel
+            && otherEdge(source, new Hit(true, hit), nextLabel, dest.getName(), index.names))) {
+      throw new WebApplicationException(
+          "Workflow aging transition already exists: " + nextLabel, 409);
+    }
+    String previousTrigger = StringUtils.defaultString(hit.getTrigger()).trim();
+    String previousDescription = StringUtils.defaultString(hit.getDescription()).trim();
+    hit.setInterval(newMinutes);
+    if (previousLabel.equalsIgnoreCase(oldLabel)) {
+      hit.setLabel(nextLabel);
+    }
+    if (previousTrigger.equalsIgnoreCase(oldLabel)
+        || (previousTrigger.isEmpty() && previousLabel.equalsIgnoreCase(oldLabel))) {
+      hit.setTrigger(nextLabel);
+    }
+    if (previousDescription.equalsIgnoreCase(oldLabel)
+        || (previousDescription.isEmpty() && previousLabel.equalsIgnoreCase(oldLabel))) {
+      hit.setDescription(nextLabel);
+    }
+    source.setAgingTransitions(copyAging(source));
+  }
+
+  private static PSAgingTransition locateAbsolute(
+      PSState source, long toStateId, long intervalMinutes) {
+    PSAgingTransition match = null;
+    boolean nonAbsolute = false;
+    for (PSAgingTransition existing : copyAging(source)) {
+      if (existing == null || existing.getToState() != toStateId) {
+        continue;
+      }
+      if (existing.getInterval() != intervalMinutes) {
+        continue;
+      }
+      PSAgingTypeEnum type = existing.getAgingTypeEnum();
+      if (type != null && type != PSAgingTypeEnum.ABSOLUTE) {
+        nonAbsolute = true;
+        continue;
+      }
+      if (match != null) {
+        throw new IllegalArgumentException(
+            "More than one absolute aging transition uses that interval");
+      }
+      match = existing;
+    }
+    if (match == null) {
+      if (nonAbsolute) {
+        throw new IllegalArgumentException("Only an absolute aging interval can be changed");
+      }
+      throw new WebApplicationException("Workflow aging transition not found", 404);
+    }
+    return match;
   }
 
   public static void update(

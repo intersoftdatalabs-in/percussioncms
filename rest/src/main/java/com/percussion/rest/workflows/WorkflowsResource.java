@@ -732,6 +732,73 @@ public class WorkflowsResource {
   }
 
   @PUT
+  @Path("/{idOrName}/aging-transitions/interval")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Change one absolute aging interval",
+      description =
+          "Slice 58 Admin. Changes the minute interval on one existing absolute aging transition."
+              + " Body from, to, and intervalMinutes identify the edge. newIntervalMinutes is the"
+              + " replacement and must be a different positive number of minutes. Does not move"
+              + " the destination step, change the aging type, delete the transition, or edit"
+              + " packaged workflows. A duplicate absolute interval for that from and to is 409."
+              + " Jackson root wrap is WorkflowAgingIntervalWrite.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated; returns the graph with the new interval on that aging edge",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description =
+                "Missing body, blank from or to, a non-positive interval, or an unchanged interval"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Workflow, step, or absolute aging transition not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "That absolute aging interval already exists"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph changeAbsoluteAgingInterval(
+      @PathParam("idOrName") String idOrName, WorkflowAgingIntervalWrite body) {
+    if (body == null) {
+      throw new WebApplicationException("Workflow aging interval body is required", 400);
+    }
+    if (body.getFrom() == null
+        || body.getFrom().isBlank()
+        || body.getTo() == null
+        || body.getTo().isBlank()) {
+      throw new WebApplicationException("from and to are required", 400);
+    }
+    if (body.getIntervalMinutes() <= 0 || body.getNewIntervalMinutes() <= 0) {
+      throw new WebApplicationException("interval must be a positive number of minutes", 400);
+    }
+    if (body.getIntervalMinutes() == body.getNewIntervalMinutes()) {
+      throw new WebApplicationException("new interval must differ from the current interval", 400);
+    }
+    try {
+      return requireAdaptor().changeAbsoluteAgingInterval(uriInfo.getBaseUri(), idOrName, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to change aging interval ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
   @Path("/{idOrName}/transitions")
   @Consumes({MediaType.APPLICATION_JSON})
   @Produces({MediaType.APPLICATION_JSON})

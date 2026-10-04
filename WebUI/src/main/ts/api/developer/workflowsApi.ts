@@ -10,7 +10,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Role assignment stays on the workflow-admin editor. Custom workflows can add one absolute aging transition in minutes. Changing or deleting that interval, and repeated or system-field aging, stay outside this surface.",
+  "Role assignment stays on the workflow-admin editor. Custom workflows can add one absolute aging transition and change its minute interval. Deleting that interval, and repeated or system-field aging, stay outside this surface.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -639,6 +639,35 @@ export async function createWorkflowAgingTransition(
   const payload = await post<unknown>(
     `${PATHS.WORKFLOWS_ASSOC}/${key}/aging-transitions`,
     wrapWorkflowAgingTransitionWriteForWire(body),
+  );
+  return parseWorkflowGraph(payload);
+}
+
+export const WORKFLOW_AGING_INTERVAL_WRITE_ROOT = "WorkflowAgingIntervalWrite";
+
+/** Writable fields for PUT .../workflows/{id}/aging-transitions/interval (slice 58). */
+export type WorkflowAgingIntervalWriteBody = {
+  from: string;
+  to: string;
+  intervalMinutes: number;
+  newIntervalMinutes: number;
+};
+
+export function wrapWorkflowAgingIntervalWriteForWire(
+  body: WorkflowAgingIntervalWriteBody,
+): Record<string, WorkflowAgingIntervalWriteBody> {
+  return { [WORKFLOW_AGING_INTERVAL_WRITE_ROOT]: body };
+}
+
+/** PUT /services/workflows/{id}/aging-transitions/interval — change one absolute interval. */
+export async function updateWorkflowAgingInterval(
+  idOrName: string,
+  body: WorkflowAgingIntervalWriteBody,
+): Promise<WorkflowGraph> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/aging-transitions/interval`,
+    wrapWorkflowAgingIntervalWriteForWire(body),
   );
   return parseWorkflowGraph(payload);
 }
