@@ -394,14 +394,26 @@ edition, copying an edition, and stopping a running job are separate actions.
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Content lists**.
 **Add content list** (or open an existing list). Enter a **name** (required), optional description,
-type (modern vs legacy), generator or legacy URL, then **Save**. Unsaved field edits mark the form
-dirty; leaving the editor prompts to discard. The shell posts
+and, on create, a type (modern vs legacy), plus a generator or legacy URL, then **Save**.
+On an existing list the **name** stays editable; **type** cannot be changed. Unsaved field edits
+mark the form dirty; leaving the editor prompts to discard. The shell posts
 `POST …/sitemanage/publishingdesign/contentlists` (create) or
 `PUT …/sitemanage/publishingdesign/contentlists/{contentListId}` (update).
 
 HTTP **403** (not Admin or Designer) and **409** (content list name already exists) are shown in the
 content-list editor error region — not as a successful save. Edition save and delivery-type save
 are separate Design actions.
+
+### Rename a content list (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Content lists**.
+Open one existing content list (not **Add content list**). Change **Name** and **Save**.
+That sends `PUT …/sitemanage/publishingdesign/contentlists/{contentListId}`. **Content lists**
+keeps the previous name until the save succeeds, then shows the new name. **Back** does not call
+the server. A blank name is rejected in the editor and does not call the server. HTTP **409**
+(that name already exists) stays in the editor and leaves the previous name on **Content lists**.
+Changing only the description still saves and does not rename the list. The list type is unchanged.
+Copying a content list is a separate action.
 
 ### Delete a content list (Design)
 
