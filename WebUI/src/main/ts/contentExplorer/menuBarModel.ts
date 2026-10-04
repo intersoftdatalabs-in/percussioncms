@@ -45,6 +45,7 @@ export type ExplorerMenuCommandId =
   | "content-set-folder-community"
   | "content-set-folder-locale"
   | "content-set-folder-display-format"
+  | "content-set-folder-allowed-sites"
   | "content-set-community"
   | "content-mobile-preview"
   | "view-refresh"
@@ -221,6 +222,12 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT,
           ariaLabelKey: EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_ARIA,
           testId: "explorer-set-folder-display-format",
+        },
+        {
+          id: "content-set-folder-allowed-sites",
+          labelKey: EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES,
+          ariaLabelKey: EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_ARIA,
+          testId: "explorer-set-folder-allowed-sites",
         },
         {
           id: "content-set-community",

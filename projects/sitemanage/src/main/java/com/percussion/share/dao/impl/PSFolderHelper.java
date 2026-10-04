@@ -45,6 +45,7 @@ import com.percussion.designmanagement.service.IPSFileSystemService.PSInvalidCha
 import com.percussion.i18n.PSLocale;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.pagemanagement.service.IPSPageService;
+import com.percussion.pathmanagement.data.PSFolderAllowedSitesCatalog;
 import com.percussion.pathmanagement.data.PSFolderCommunityCatalog;
 import com.percussion.pathmanagement.data.PSFolderCommunityChoice;
 import com.percussion.pathmanagement.data.PSFolderDisplayFormatCatalog;
@@ -654,6 +655,30 @@ public class PSFolderHelper implements IPSFolderHelper {
     }
     return FolderDisplayFormatCatalogRules.contains(
         listFolderDisplayFormatCatalog(), displayFormatId);
+  }
+
+  @Override
+  public PSFolderAllowedSitesCatalog listFolderAllowedSitesCatalog() {
+    try {
+      if (siteMgr == null) {
+        return FolderAllowedSitesCatalogRules.fromSites(null);
+      }
+      return FolderAllowedSitesCatalogRules.fromSites(siteMgr.findAllSites());
+    } catch (RuntimeException ex) {
+      log.debug("Could not catalog publish sites for folder assignment: {}", ex.toString());
+      return FolderAllowedSitesCatalogRules.fromSites(null);
+    }
+  }
+
+  @Override
+  public boolean isAssignableFolderAllowedSites(String allowedSites) {
+    FolderAllowedSitesCatalogRules.Parsed parsed =
+        FolderAllowedSitesCatalogRules.parse(allowedSites);
+    if (parsed.kind() != FolderAllowedSitesCatalogRules.Kind.LIST) {
+      return false;
+    }
+    return FolderAllowedSitesCatalogRules.containsAll(
+        listFolderAllowedSitesCatalog(), parsed.canonical());
   }
 
   @Override
