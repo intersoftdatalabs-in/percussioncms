@@ -27,6 +27,7 @@ const TEST_IDS = Object.freeze({
   host: "editor-host",
   form: "editor-form",
   workflow: "editor-workflow",
+  workflowState: "editor-workflow-state",
   comment: "editor-workflow-comment",
   error: "editor-workflow-error",
   done: "editor-workflow-done",

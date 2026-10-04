@@ -98,6 +98,13 @@ async function stubEditorApis(page, opts = {}) {
       body: JSON.stringify(TYPE),
     }),
   );
+  await page.route("**/services/itemmanagement/workflow/allowedWorkflows/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ItemWorkflowChoices: { choices: [] } }),
+    }),
+  );
   await page.route("**/services/itemmanagement/workflow/getTransitions/**", (route) => {
     const stateName = transitioned ? "Review" : "Draft";
     route.fulfill({
@@ -200,8 +207,10 @@ test.describe("React Content Editor ad-hoc assignees", () => {
       );
       await expect(page.getByTestId("editor-workflow-assignee-dialog")).toHaveCount(0);
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+      // Workflow surface only. The editor also mounts Translations, whose
+      // unstubbed "Item not found" alert is outside this slice.
       await expectNoSeriousA11yViolations(page, {
-        scope: `[data-testid="${TEST_IDS.host}"]`,
+        scope: `[data-testid="${TEST_IDS.workflow}"]`,
       });
     },
   );

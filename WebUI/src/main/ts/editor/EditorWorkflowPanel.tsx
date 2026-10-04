@@ -130,8 +130,7 @@ export function EditorWorkflowPanel({
           onChange={(e) => onCommentChange(e.target.value)}
         />
       </label>
-      <div className={styles.field} data-testid="editor-workflow-assignees">
-        <span className={styles.label}>{message(EDITOR_MSG.WORKFLOW_ASSIGNEES)}</span>
+      <div data-testid="editor-workflow-assignees">
         {assignees.length > 0 ? (
           <ul className={styles.workflowActions}>
             {assignees.map((name) => (
@@ -151,19 +150,22 @@ export function EditorWorkflowPanel({
             ))}
           </ul>
         ) : null}
-        <input
-          className={styles.input}
-          data-testid="editor-workflow-assignee-input"
-          value={assigneeDraft}
-          disabled={busy}
-          onChange={(e) => onAssigneeDraftChange?.(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              onAddAssignee?.();
-            }
-          }}
-        />
+        <label className={styles.field}>
+          <span className={styles.label}>{message(EDITOR_MSG.WORKFLOW_ASSIGNEES)}</span>
+          <input
+            className={styles.input}
+            data-testid="editor-workflow-assignee-input"
+            value={assigneeDraft}
+            disabled={busy}
+            onChange={(e) => onAssigneeDraftChange?.(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                onAddAssignee?.();
+              }
+            }}
+          />
+        </label>
         <button
           type="button"
           className={styles.button}
