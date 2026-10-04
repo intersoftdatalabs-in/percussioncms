@@ -69,4 +69,27 @@ describe("SetFolderCommunityDialog (#5105)", () => {
     fireEvent.click(screen.getByTestId("explorer-set-folder-community-save"));
     expect(onSave).toHaveBeenCalledWith("12");
   });
+
+  it("names the multi-folder save and cancel still does not save", async () => {
+    const onSave = vi.fn();
+    const onCancel = vi.fn();
+    const { container } = render(
+      <SetFolderCommunityDialog
+        choices={choices}
+        currentId="10"
+        busy={false}
+        error=""
+        multi
+        onSave={onSave}
+        onCancel={onCancel}
+      />,
+    );
+    expect(screen.getByTestId("explorer-set-folder-community-multi").textContent).toContain(
+      "each selected folder",
+    );
+    fireEvent.click(screen.getByTestId("explorer-set-folder-community-cancel"));
+    expect(onCancel).toHaveBeenCalled();
+    expect(onSave).not.toHaveBeenCalled();
+    await renderA11yGate(container);
+  });
 });

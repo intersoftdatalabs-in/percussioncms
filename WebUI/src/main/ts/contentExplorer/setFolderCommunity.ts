@@ -16,13 +16,18 @@
  */
 
 /**
- * Content → Set folder community (#5105 / parent #4530).
+ * Content → Set folder community for one selected folder (#5105 / parent #4530)
+ * and for every checked folder (#5156).
  *
- * <p>Assigns the community id on one selected folder from the community
- * catalog, then reads folder properties again. Cancel, pages, assets, empty
- * selection, and HTTP 400/403/409 must not be reported as a saved community.
- * This is not item Set community (#5077) and not the security panel's free-text
- * community name.</p>
+ * <p>Assigns the community id from the community catalog, then reads folder
+ * properties again. Cancel, pages, assets, empty selection, and HTTP 400/403/409
+ * must not be reported as a saved community for the whole selection. A page or
+ * asset in a multi-selection is not written. The community name is shown on a
+ * folder only after that folder's save returns and a properties refresh shows
+ * the new id. This is not item Set community (#5077 / #5133) and not the
+ * security panel's free-text community name. Single-item still refuses a
+ * multi-count so callers that have not opted into {@link planSetFolderCommunityMulti}
+ * keep #5105.</p>
  */
 
 import { isApiError, post } from "../api/client";
@@ -37,7 +42,9 @@ import {
 } from "../api/contentExplorer/pathApi";
 import { PATHS } from "../api/paths";
 import type { PSFolderProperties, PSPathItem } from "../api/contentExplorer/types";
+import { message } from "../i18n/message";
 import { resolvePublishKind } from "./itemPublish";
+import { EXPLORER_MSG } from "./messages";
 import { isFolder } from "./selection";
 
 export type SetFolderCommunityBlockReason =
@@ -249,4 +256,378 @@ function httpBucket(err: unknown): 400 | 403 | 409 | "other" {
 /** Exposed for tests that feed a raw GET body through the same unwrap as the client. */
 export function readReloadedCommunityId(data: unknown): string {
   return folderCommunityIdText(unwrapFolderProperties(data) ?? undefined);
+}
+
+export interface SetFolderCommunityTarget {
+  folderId: string;
+  name: string;
+}
+
+export type SetFolderCommunityMultiPlan =
+  | { status: "blocked"; reason: SetFolderCommunityBlockReason; name: string }
+  | {
+      status: "ready";
+      targets: SetFolderCommunityTarget[];
+      skippedPageNames: string[];
+      skippedAssetNames: string[];
+      skippedOtherNames: string[];
+      noIdNames: string[];
+    };
+
+function pushUnique(list: string[], seen: Set<string>, label: string): void {
+  const name = label.trim();
+  if (!name || seen.has(name)) {
+    return;
+  }
+  seen.add(name);
+  list.push(name);
+}
+
+/**
+ * Folders are written. Pages and assets are named and skipped. Duplicate
+ * folder ids are written once. An empty check set, or a set with no folder,
+ * does not open a save. Callers that have not opted into this plan still
+ * use {@link classifySetFolderCommunitySelection}, which blocks {@code multi}.
+ */
+export function planSetFolderCommunityMulti(
+  items: readonly PSPathItem[],
+): SetFolderCommunityMultiPlan {
+  if (items.length === 0) {
+    return { status: "blocked", reason: "empty", name: "" };
+  }
+  const targets: SetFolderCommunityTarget[] = [];
+  const seen = new Set<string>();
+  const skippedPageNames: string[] = [];
+  const skippedAssetNames: string[] = [];
+  const skippedOtherNames: string[] = [];
+  const noIdNames: string[] = [];
+  const seenPages = new Set<string>();
+  const seenAssets = new Set<string>();
+  const seenOthers = new Set<string>();
+  const seenNoId = new Set<string>();
+  for (const item of items) {
+    const name = (item.name ?? item.path ?? "").trim();
+    if (!isFolder(item)) {
+      const kind = resolvePublishKind(item);
+      if (kind === "page") {
+        pushUnique(skippedPageNames, seenPages, name);
+      } else if (kind === "asset") {
+        pushUnique(skippedAssetNames, seenAssets, name);
+      } else {
+        pushUnique(skippedOtherNames, seenOthers, name);
+      }
+      continue;
+    }
+    const folderId = item.id == null ? "" : String(item.id).trim();
+    if (!folderId) {
+      pushUnique(noIdNames, seenNoId, name);
+      continue;
+    }
+    if (seen.has(folderId)) {
+      continue;
+    }
+    seen.add(folderId);
+    targets.push({ folderId, name: name || folderId });
+  }
+  if (targets.length === 0) {
+    if (skippedPageNames.length > 0 && skippedAssetNames.length === 0 && skippedOtherNames.length === 0) {
+      return { status: "blocked", reason: "page", name: skippedPageNames.join(", ") };
+    }
+    if (skippedAssetNames.length > 0 && skippedPageNames.length === 0 && skippedOtherNames.length === 0) {
+      return { status: "blocked", reason: "asset", name: skippedAssetNames.join(", ") };
+    }
+    if (skippedPageNames.length > 0) {
+      return {
+        status: "blocked",
+        reason: "page",
+        name: [...skippedPageNames, ...skippedAssetNames, ...skippedOtherNames].join(", "),
+      };
+    }
+    if (skippedAssetNames.length > 0) {
+      return {
+        status: "blocked",
+        reason: "asset",
+        name: [...skippedAssetNames, ...skippedOtherNames].join(", "),
+      };
+    }
+    if (noIdNames.length > 0) {
+      return { status: "blocked", reason: "no-id", name: noIdNames.join(", ") };
+    }
+    return {
+      status: "blocked",
+      reason: "not-folder",
+      name: skippedOtherNames.join(", "),
+    };
+  }
+  return {
+    status: "ready",
+    targets,
+    skippedPageNames,
+    skippedAssetNames,
+    skippedOtherNames,
+    noIdNames,
+  };
+}
+
+export type SetFolderCommunityMultiCatalog =
+  | {
+      status: "ready";
+      targets: SetFolderCommunityTarget[];
+      skippedPageNames: string[];
+      skippedAssetNames: string[];
+      skippedOtherNames: string[];
+      noIdNames: string[];
+      currentId: string;
+      choices: FolderCommunityChoice[];
+      props: PSFolderProperties;
+    }
+  | { status: "blocked"; reason: SetFolderCommunityBlockReason; name: string }
+  | { status: "http"; http: 400 | 403 | 409 | "other" }
+  | { status: "none" };
+
+/** Shared catalog plus the first folder's current community. Does not save. */
+export async function loadSetFolderCommunityMultiCatalog(input: {
+  items: readonly PSPathItem[];
+  loadProps?: typeof folderProperties;
+  loadCatalog?: typeof listFolderCommunityCatalog;
+}): Promise<SetFolderCommunityMultiCatalog> {
+  const plan = planSetFolderCommunityMulti(input.items);
+  if (plan.status === "blocked") {
+    return plan;
+  }
+  const loadProps = input.loadProps ?? folderProperties;
+  const loadCatalog = input.loadCatalog ?? listFolderCommunityCatalog;
+  try {
+    const [props, catalog] = await Promise.all([
+      loadProps(plan.targets[0].folderId),
+      loadCatalog(),
+    ]);
+    const choices = (catalog.choices ?? []).filter(
+      (row) => row && String(row.id ?? "").trim().length > 0,
+    );
+    if (choices.length === 0) {
+      return { status: "none" };
+    }
+    return {
+      status: "ready",
+      targets: plan.targets,
+      skippedPageNames: plan.skippedPageNames,
+      skippedAssetNames: plan.skippedAssetNames,
+      skippedOtherNames: plan.skippedOtherNames,
+      noIdNames: plan.noIdNames,
+      currentId: folderCommunityIdText(props),
+      choices,
+      props,
+    };
+  } catch (err: unknown) {
+    return { status: "http", http: httpBucket(err) };
+  }
+}
+
+export type SetFolderCommunityFailureCode =
+  | 400
+  | 403
+  | 409
+  | "other"
+  | "forbidden"
+  | "blank"
+  | "mismatch";
+
+export interface SetFolderCommunityItemFailure {
+  folderId: string;
+  name: string;
+  http: SetFolderCommunityFailureCode;
+}
+
+export interface SetFolderCommunityMultiSave {
+  status: "saved" | "partial" | "failed" | "unchanged";
+  communityId: string;
+  saved: SetFolderCommunityTarget[];
+  unchanged: SetFolderCommunityTarget[];
+  failures: SetFolderCommunityItemFailure[];
+  skippedPageNames: string[];
+  skippedAssetNames: string[];
+  skippedOtherNames: string[];
+}
+
+export interface SetFolderCommunityShown {
+  folderId: string;
+  name: string;
+  communityId: string;
+  communityName: string;
+}
+
+/**
+ * One community on every target folder. Each save reads that folder, posts
+ * its properties, and reads them again. {@code onFolderSaved} runs only after
+ * that refresh shows the new community id, and never for a failure.
+ * Pages and assets are not posted.
+ */
+export async function saveSetFolderCommunityOnSelection(input: {
+  targets: readonly SetFolderCommunityTarget[];
+  skippedPageNames?: readonly string[];
+  skippedAssetNames?: readonly string[];
+  skippedOtherNames?: readonly string[];
+  noIdNames?: readonly string[];
+  selectedId: string;
+  allowedIds: readonly string[];
+  communityName?: string;
+  loadProps?: (id: string) => Promise<PSFolderProperties>;
+  save?: (props: PSFolderProperties) => Promise<void>;
+  reload?: (id: string) => Promise<PSFolderProperties>;
+  onFolderSaved?: (saved: SetFolderCommunityShown) => void;
+}): Promise<SetFolderCommunityMultiSave> {
+  const selectedId = String(input.selectedId ?? "").trim();
+  const communityName = (input.communityName ?? "").trim() || selectedId;
+  const saved: SetFolderCommunityTarget[] = [];
+  const unchanged: SetFolderCommunityTarget[] = [];
+  const failures: SetFolderCommunityItemFailure[] = [];
+  const loadProps = input.loadProps ?? folderProperties;
+  for (const name of input.noIdNames ?? []) {
+    failures.push({ folderId: "", name, http: "other" });
+  }
+  for (const target of input.targets) {
+    let props: PSFolderProperties;
+    try {
+      props = await loadProps(target.folderId);
+    } catch (err: unknown) {
+      failures.push({
+        folderId: target.folderId,
+        name: target.name,
+        http: httpBucket(err),
+      });
+      continue;
+    }
+    const one = await saveSetFolderCommunity({
+      folderId: target.folderId,
+      props,
+      selectedId,
+      currentId: folderCommunityIdText(props),
+      allowedIds: input.allowedIds,
+      communityName,
+      save: input.save,
+      reload: input.reload,
+    });
+    if (one.status === "saved") {
+      saved.push(target);
+      input.onFolderSaved?.({
+        folderId: target.folderId,
+        name: target.name,
+        communityId: one.communityId,
+        communityName: one.communityName,
+      });
+      continue;
+    }
+    if (one.status === "gate" && one.reason === "unchanged") {
+      unchanged.push(target);
+      continue;
+    }
+    if (one.status === "http") {
+      failures.push({
+        folderId: target.folderId,
+        name: target.name,
+        http: one.http,
+      });
+      continue;
+    }
+    failures.push({
+      folderId: target.folderId,
+      name: target.name,
+      http:
+        one.status === "mismatch"
+          ? "mismatch"
+          : one.status === "gate" && one.reason === "forbidden"
+            ? "forbidden"
+            : "blank",
+    });
+  }
+
+  let status: SetFolderCommunityMultiSave["status"];
+  if (failures.length > 0) {
+    status = saved.length > 0 ? "partial" : "failed";
+  } else if (saved.length === 0) {
+    status = "unchanged";
+  } else {
+    status = "saved";
+  }
+  return {
+    status,
+    communityId: status === "saved" ? selectedId : "",
+    saved,
+    unchanged,
+    failures,
+    skippedPageNames: [...(input.skippedPageNames ?? [])],
+    skippedAssetNames: [...(input.skippedAssetNames ?? [])],
+    skippedOtherNames: [...(input.skippedOtherNames ?? [])],
+  };
+}
+
+/** Status line. Success is only a complete write of every target folder. */
+export function describeSetFolderCommunityMultiSave(
+  result: SetFolderCommunityMultiSave,
+  communityName: string,
+): {
+  kind: "success" | "error";
+  reason: string;
+  communityId: string;
+  communityName: string;
+  text: string;
+} {
+  const name = communityName.trim() || result.communityId;
+  const parts: string[] = [];
+  if (result.status === "saved") {
+    parts.push(`${message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_SAVED)} ${name}`.trim());
+  } else if (result.status === "unchanged") {
+    parts.push(message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_UNCHANGED));
+  } else {
+    const detail = result.failures
+      .map((failure) => `${failure.name} (${folderFailureLabel(failure.http)})`)
+      .join("; ");
+    parts.push(
+      message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_PARTIAL).split("{detail}").join(detail),
+    );
+  }
+  if (result.skippedPageNames.length > 0) {
+    parts.push(
+      `${message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_PAGE)}: ${result.skippedPageNames.join(", ")}`,
+    );
+  }
+  if (result.skippedAssetNames.length > 0) {
+    parts.push(
+      `${message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_ASSET)}: ${result.skippedAssetNames.join(", ")}`,
+    );
+  }
+  if (result.skippedOtherNames.length > 0) {
+    parts.push(
+      `${message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_NOT_FOLDER)}: ${result.skippedOtherNames.join(", ")}`,
+    );
+  }
+  const skipped =
+    result.skippedPageNames.length +
+    result.skippedAssetNames.length +
+    result.skippedOtherNames.length;
+  const success = result.status === "saved";
+  return {
+    kind: success ? "success" : "error",
+    reason: success ? (skipped > 0 ? "items-skipped" : "") : result.status === "unchanged" ? "unchanged" : "partial",
+    communityId: success ? result.communityId : "",
+    communityName: success ? name : "",
+    text: parts.join(" "),
+  };
+}
+
+function folderFailureLabel(code: SetFolderCommunityFailureCode): string {
+  if (code === 400 || code === 403 || code === 409) {
+    return `HTTP ${code}`;
+  }
+  if (code === "forbidden") {
+    return message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_FORBIDDEN);
+  }
+  if (code === "blank") {
+    return message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_BLANK);
+  }
+  if (code === "mismatch") {
+    return message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_MISMATCH);
+  }
+  return message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_FAILED);
 }

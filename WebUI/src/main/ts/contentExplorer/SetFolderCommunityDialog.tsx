@@ -29,6 +29,8 @@ export interface SetFolderCommunityDialogProps {
   currentId: string;
   busy: boolean;
   error: string;
+  /** When true, one save writes every checked folder (#5156). */
+  multi?: boolean;
   onSave: (communityId: string) => void;
   onCancel: () => void;
 }
@@ -38,6 +40,7 @@ export function SetFolderCommunityDialog({
   currentId,
   busy,
   error,
+  multi = false,
   onSave,
   onCancel,
 }: SetFolderCommunityDialogProps): React.ReactElement {
@@ -115,6 +118,14 @@ export function SetFolderCommunityDialog({
         <h2 id="explorer-set-folder-community-title" style={{ fontSize: 16, margin: "0 0 12px" }}>
           {message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_TITLE)}
         </h2>
+        {multi ? (
+          <p
+            data-testid="explorer-set-folder-community-multi"
+            style={{ fontSize: 13, margin: "0 0 12px" }}
+          >
+            {message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_MULTI_NOTE)}
+          </p>
+        ) : null}
         <label style={{ display: "block", fontSize: 13 }}>
           {message(EXPLORER_MSG.SET_FOLDER_COMMUNITY_LABEL)}
           <select

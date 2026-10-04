@@ -338,6 +338,11 @@ export interface DetailListProps {
    */
   itemCommunities?: ReadonlyMap<string, { communityId: string; communityName: string }>;
   /**
+   * Community written onto a folder. Shown only after that folder's save
+   * returns and a properties refresh shows the new id (#5156).
+   */
+  folderCommunities?: ReadonlyMap<string, { communityId: string; communityName: string }>;
+  /**
    * Workflow written onto a page or asset. Shown only after that item's
    * change returns (#5155). Absent entries stay unchanged.
    */
@@ -356,6 +361,7 @@ export function DetailList({
   onToggleSelectItem,
   approvedIncrementalIds,
   itemCommunities,
+  folderCommunities,
   itemWorkflows,
 }: DetailListProps): React.ReactElement {
   const [page, setPage] = useState(0);
@@ -562,11 +568,18 @@ export function DetailList({
               approvedIncrementalIds?.has(idKey) === true ||
               (item.id != null &&
                 approvedIncrementalIds?.has(String(item.id)) === true);
-            const shownCommunity =
-              itemCommunities?.get(idKey) ??
-              (item.id != null
-                ? itemCommunities?.get(String(item.id).trim())
-                : undefined);
+            const shownCommunity = folderish
+              ? undefined
+              : (itemCommunities?.get(idKey) ??
+                (item.id != null
+                  ? itemCommunities?.get(String(item.id).trim())
+                  : undefined));
+            const shownFolderCommunity = folderish
+              ? (folderCommunities?.get(idKey) ??
+                (item.id != null
+                  ? folderCommunities?.get(String(item.id).trim())
+                  : undefined))
+              : undefined;
             const shownWorkflow =
               itemWorkflows?.get(idKey) ??
               (item.id != null
@@ -590,8 +603,12 @@ export function DetailList({
                 data-incremental-approved={
                   incrementalApproved ? "true" : undefined
                 }
-                data-community-id={shownCommunity?.communityId}
-                data-community-name={shownCommunity?.communityName}
+                data-community-id={
+                  shownCommunity?.communityId ?? shownFolderCommunity?.communityId
+                }
+                data-community-name={
+                  shownCommunity?.communityName ?? shownFolderCommunity?.communityName
+                }
                 data-workflow-id={shownWorkflow?.workflowId}
                 data-workflow-name={shownWorkflow?.workflowName}
                 data-selected={selected ? "true" : undefined}
@@ -704,6 +721,16 @@ export function DetailList({
                       >
                         {" "}
                         {shownCommunity.communityName}
+                      </span>
+                    ) : null}
+                    {c === "name" && shownFolderCommunity ? (
+                      <span
+                        data-testid={`detail-folder-community-${idKey}`}
+                        data-community-id={shownFolderCommunity.communityId}
+                        data-community-name={shownFolderCommunity.communityName}
+                      >
+                        {" "}
+                        {shownFolderCommunity.communityName}
                       </span>
                     ) : null}
                     {c === "name" && shownWorkflow ? (
