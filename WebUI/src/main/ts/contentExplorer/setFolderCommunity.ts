@@ -283,6 +283,95 @@ function pushUnique(list: string[], seen: Set<string>, label: string): void {
   list.push(name);
 }
 
+interface FolderCommunityBuckets {
+  targets: SetFolderCommunityTarget[];
+  skippedPageNames: string[];
+  skippedAssetNames: string[];
+  skippedOtherNames: string[];
+  noIdNames: string[];
+}
+
+function emptyBuckets(): FolderCommunityBuckets {
+  return {
+    targets: [],
+    skippedPageNames: [],
+    skippedAssetNames: [],
+    skippedOtherNames: [],
+    noIdNames: [],
+  };
+}
+
+function rememberNonFolder(
+  item: PSPathItem,
+  buckets: FolderCommunityBuckets,
+  seenPages: Set<string>,
+  seenAssets: Set<string>,
+  seenOthers: Set<string>,
+): void {
+  const name = (item.name ?? item.path ?? "").trim();
+  const kind = resolvePublishKind(item);
+  if (kind === "page") {
+    pushUnique(buckets.skippedPageNames, seenPages, name);
+    return;
+  }
+  if (kind === "asset") {
+    pushUnique(buckets.skippedAssetNames, seenAssets, name);
+    return;
+  }
+  pushUnique(buckets.skippedOtherNames, seenOthers, name);
+}
+
+function rememberFolder(
+  item: PSPathItem,
+  buckets: FolderCommunityBuckets,
+  seenIds: Set<string>,
+  seenNoId: Set<string>,
+): void {
+  const name = (item.name ?? item.path ?? "").trim();
+  const folderId = item.id == null ? "" : String(item.id).trim();
+  if (!folderId) {
+    pushUnique(buckets.noIdNames, seenNoId, name);
+    return;
+  }
+  if (seenIds.has(folderId)) {
+    return;
+  }
+  seenIds.add(folderId);
+  buckets.targets.push({ folderId, name: name || folderId });
+}
+
+function blockedWithoutFolderTargets(
+  buckets: FolderCommunityBuckets,
+): SetFolderCommunityMultiPlan {
+  const pages = buckets.skippedPageNames;
+  const assets = buckets.skippedAssetNames;
+  const others = buckets.skippedOtherNames;
+  if (pages.length > 0 && assets.length === 0 && others.length === 0) {
+    return { status: "blocked", reason: "page", name: pages.join(", ") };
+  }
+  if (assets.length > 0 && pages.length === 0 && others.length === 0) {
+    return { status: "blocked", reason: "asset", name: assets.join(", ") };
+  }
+  if (pages.length > 0) {
+    return {
+      status: "blocked",
+      reason: "page",
+      name: [...pages, ...assets, ...others].join(", "),
+    };
+  }
+  if (assets.length > 0) {
+    return {
+      status: "blocked",
+      reason: "asset",
+      name: [...assets, ...others].join(", "),
+    };
+  }
+  if (buckets.noIdNames.length > 0) {
+    return { status: "blocked", reason: "no-id", name: buckets.noIdNames.join(", ") };
+  }
+  return { status: "blocked", reason: "not-folder", name: others.join(", ") };
+}
+
 /**
  * Folders are written. Pages and assets are named and skipped. Duplicate
  * folder ids are written once. An empty check set, or a set with no folder,
@@ -295,78 +384,23 @@ export function planSetFolderCommunityMulti(
   if (items.length === 0) {
     return { status: "blocked", reason: "empty", name: "" };
   }
-  const targets: SetFolderCommunityTarget[] = [];
-  const seen = new Set<string>();
-  const skippedPageNames: string[] = [];
-  const skippedAssetNames: string[] = [];
-  const skippedOtherNames: string[] = [];
-  const noIdNames: string[] = [];
+  const buckets = emptyBuckets();
+  const seenIds = new Set<string>();
   const seenPages = new Set<string>();
   const seenAssets = new Set<string>();
   const seenOthers = new Set<string>();
   const seenNoId = new Set<string>();
   for (const item of items) {
-    const name = (item.name ?? item.path ?? "").trim();
     if (!isFolder(item)) {
-      const kind = resolvePublishKind(item);
-      if (kind === "page") {
-        pushUnique(skippedPageNames, seenPages, name);
-      } else if (kind === "asset") {
-        pushUnique(skippedAssetNames, seenAssets, name);
-      } else {
-        pushUnique(skippedOtherNames, seenOthers, name);
-      }
-      continue;
+      rememberNonFolder(item, buckets, seenPages, seenAssets, seenOthers);
+    } else {
+      rememberFolder(item, buckets, seenIds, seenNoId);
     }
-    const folderId = item.id == null ? "" : String(item.id).trim();
-    if (!folderId) {
-      pushUnique(noIdNames, seenNoId, name);
-      continue;
-    }
-    if (seen.has(folderId)) {
-      continue;
-    }
-    seen.add(folderId);
-    targets.push({ folderId, name: name || folderId });
   }
-  if (targets.length === 0) {
-    if (skippedPageNames.length > 0 && skippedAssetNames.length === 0 && skippedOtherNames.length === 0) {
-      return { status: "blocked", reason: "page", name: skippedPageNames.join(", ") };
-    }
-    if (skippedAssetNames.length > 0 && skippedPageNames.length === 0 && skippedOtherNames.length === 0) {
-      return { status: "blocked", reason: "asset", name: skippedAssetNames.join(", ") };
-    }
-    if (skippedPageNames.length > 0) {
-      return {
-        status: "blocked",
-        reason: "page",
-        name: [...skippedPageNames, ...skippedAssetNames, ...skippedOtherNames].join(", "),
-      };
-    }
-    if (skippedAssetNames.length > 0) {
-      return {
-        status: "blocked",
-        reason: "asset",
-        name: [...skippedAssetNames, ...skippedOtherNames].join(", "),
-      };
-    }
-    if (noIdNames.length > 0) {
-      return { status: "blocked", reason: "no-id", name: noIdNames.join(", ") };
-    }
-    return {
-      status: "blocked",
-      reason: "not-folder",
-      name: skippedOtherNames.join(", "),
-    };
+  if (buckets.targets.length === 0) {
+    return blockedWithoutFolderTargets(buckets);
   }
-  return {
-    status: "ready",
-    targets,
-    skippedPageNames,
-    skippedAssetNames,
-    skippedOtherNames,
-    noIdNames,
-  };
+  return { status: "ready", ...buckets };
 }
 
 export type SetFolderCommunityMultiCatalog =
@@ -487,58 +521,17 @@ export async function saveSetFolderCommunityOnSelection(input: {
     failures.push({ folderId: "", name, http: "other" });
   }
   for (const target of input.targets) {
-    let props: PSFolderProperties;
-    try {
-      props = await loadProps(target.folderId);
-    } catch (err: unknown) {
-      failures.push({
-        folderId: target.folderId,
-        name: target.name,
-        http: httpBucket(err),
-      });
-      continue;
-    }
-    const one = await saveSetFolderCommunity({
-      folderId: target.folderId,
-      props,
+    await saveOneFolderCommunity(target, {
       selectedId,
-      currentId: folderCommunityIdText(props),
-      allowedIds: input.allowedIds,
       communityName,
+      allowedIds: input.allowedIds,
+      loadProps,
       save: input.save,
       reload: input.reload,
-    });
-    if (one.status === "saved") {
-      saved.push(target);
-      input.onFolderSaved?.({
-        folderId: target.folderId,
-        name: target.name,
-        communityId: one.communityId,
-        communityName: one.communityName,
-      });
-      continue;
-    }
-    if (one.status === "gate" && one.reason === "unchanged") {
-      unchanged.push(target);
-      continue;
-    }
-    if (one.status === "http") {
-      failures.push({
-        folderId: target.folderId,
-        name: target.name,
-        http: one.http,
-      });
-      continue;
-    }
-    failures.push({
-      folderId: target.folderId,
-      name: target.name,
-      http:
-        one.status === "mismatch"
-          ? "mismatch"
-          : one.status === "gate" && one.reason === "forbidden"
-            ? "forbidden"
-            : "blank",
+      onFolderSaved: input.onFolderSaved,
+      saved,
+      unchanged,
+      failures,
     });
   }
 
@@ -560,6 +553,78 @@ export async function saveSetFolderCommunityOnSelection(input: {
     skippedAssetNames: [...(input.skippedAssetNames ?? [])],
     skippedOtherNames: [...(input.skippedOtherNames ?? [])],
   };
+}
+
+async function saveOneFolderCommunity(
+  target: SetFolderCommunityTarget,
+  input: {
+    selectedId: string;
+    communityName: string;
+    allowedIds: readonly string[];
+    loadProps: (id: string) => Promise<PSFolderProperties>;
+    save?: (props: PSFolderProperties) => Promise<void>;
+    reload?: (id: string) => Promise<PSFolderProperties>;
+    onFolderSaved?: (saved: SetFolderCommunityShown) => void;
+    saved: SetFolderCommunityTarget[];
+    unchanged: SetFolderCommunityTarget[];
+    failures: SetFolderCommunityItemFailure[];
+  },
+): Promise<void> {
+  let props: PSFolderProperties;
+  try {
+    props = await input.loadProps(target.folderId);
+  } catch (err: unknown) {
+    input.failures.push({
+      folderId: target.folderId,
+      name: target.name,
+      http: httpBucket(err),
+    });
+    return;
+  }
+  const one = await saveSetFolderCommunity({
+    folderId: target.folderId,
+    props,
+    selectedId: input.selectedId,
+    currentId: folderCommunityIdText(props),
+    allowedIds: input.allowedIds,
+    communityName: input.communityName,
+    save: input.save,
+    reload: input.reload,
+  });
+  if (one.status === "saved") {
+    input.saved.push(target);
+    input.onFolderSaved?.({
+      folderId: target.folderId,
+      name: target.name,
+      communityId: one.communityId,
+      communityName: one.communityName,
+    });
+    return;
+  }
+  if (one.status === "gate" && one.reason === "unchanged") {
+    input.unchanged.push(target);
+    return;
+  }
+  input.failures.push({
+    folderId: target.folderId,
+    name: target.name,
+    http: folderSaveFailureCode(one),
+  });
+}
+
+function folderSaveFailureCode(
+  one: Exclude<SetFolderCommunitySave, { status: "saved" }>,
+): SetFolderCommunityFailureCode {
+  if (one.status === "http") {
+    return one.http;
+  }
+  if (one.status === "mismatch") {
+    return "mismatch";
+  }
+  if (one.status === "gate" && one.reason === "forbidden") {
+    return "forbidden";
+  }
+  return "blank";
 }
 
 /** Status line. Success is only a complete write of every target folder. */
