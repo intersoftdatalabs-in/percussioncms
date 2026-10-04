@@ -264,6 +264,11 @@ export function DesignSection(): React.ReactElement {
               <li key={c.contentListId ?? c.name} style={listItemStyle}>
                 <button
                   type="button"
+                  data-testid={
+                    c.contentListId
+                      ? `design-content-list-${c.contentListId}`
+                      : "design-content-list-unnamed"
+                  }
                   style={buttonStyle}
                   onClick={() => setClEdit(c)}
                 >

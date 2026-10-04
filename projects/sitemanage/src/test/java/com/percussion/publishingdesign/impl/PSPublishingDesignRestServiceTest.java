@@ -628,6 +628,83 @@ class PSPublishingDesignRestServiceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> service.deleteContentList("5"));
     assertEquals(404, ex.getResponse().getStatus());
+    verify(publisherService, never()).deleteContentLists(any());
+  }
+
+  @Test
+  void deleteContentList_unassociated_deletes() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList cl = mock(IPSContentList.class);
+    when(publisherService.loadContentList(contentListGuid)).thenReturn(cl);
+    when(publisherService.findAllEditions("")).thenReturn(List.of());
+
+    service.deleteContentList("5");
+    verify(publisherService).deleteContentLists(List.of(cl));
+  }
+
+  @Test
+  void deleteContentList_associated_409() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    when(contentListGuid.longValue()).thenReturn(5L);
+    IPSContentList cl = mock(IPSContentList.class);
+    when(publisherService.loadContentList(contentListGuid)).thenReturn(cl);
+
+    IPSEdition edition = mock(IPSEdition.class);
+    when(edition.getGUID()).thenReturn(editionGuid);
+    when(publisherService.findAllEditions("")).thenReturn(List.of(edition));
+
+    IPSEditionContentList link = mock(IPSEditionContentList.class);
+    IPSGuid linkedList = mock(IPSGuid.class);
+    when(link.getContentListId()).thenReturn(linkedList);
+    when(linkedList.longValue()).thenReturn(5L);
+    when(publisherService.loadEditionContentLists(editionGuid)).thenReturn(List.of(link));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.deleteContentList("5"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains(PSPublishingDesignRestService.CONTENT_LIST_IN_USE));
+    verify(publisherService, never()).deleteContentLists(any());
+  }
+
+  @Test
+  void deleteContentList_otherAssociation_deletes() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    when(contentListGuid.longValue()).thenReturn(5L);
+    IPSContentList cl = mock(IPSContentList.class);
+    when(publisherService.loadContentList(contentListGuid)).thenReturn(cl);
+
+    IPSEdition edition = mock(IPSEdition.class);
+    when(edition.getGUID()).thenReturn(editionGuid);
+    when(publisherService.findAllEditions("")).thenReturn(List.of(edition));
+
+    IPSEditionContentList link = mock(IPSEditionContentList.class);
+    IPSGuid linkedList = mock(IPSGuid.class);
+    when(link.getContentListId()).thenReturn(linkedList);
+    when(linkedList.longValue()).thenReturn(8L);
+    when(publisherService.loadEditionContentLists(editionGuid)).thenReturn(List.of(link));
+
+    service.deleteContentList("5");
+    verify(publisherService).deleteContentLists(List.of(cl));
+  }
+
+  @Test
+  void deleteContentList_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.deleteContentList("5"));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(publisherService, never()).loadContentList(any(IPSGuid.class));
+    verify(publisherService, never()).deleteContentLists(any());
+  }
+
+  @Test
+  void deleteContentList_blankId_400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.deleteContentList("  "));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(publisherService, never()).loadContentList(any(IPSGuid.class));
+    verify(publisherService, never()).deleteContentLists(any());
   }
 
   @Test

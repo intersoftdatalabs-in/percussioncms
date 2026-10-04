@@ -23,7 +23,10 @@ import {
   type ContentListSummary,
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
-import { mapContentListSaveError } from "../contentListSaveErrors";
+import {
+  mapContentListDeleteError,
+  mapContentListSaveError,
+} from "../contentListSaveErrors";
 import { useDirtyForm } from "../dirtyFormContext";
 import {
   buttonStyle,
@@ -110,11 +113,13 @@ export function ContentListEditor({
       return;
     }
     setSaving(true);
+    setError(null);
     try {
       await deleteContentList(contentList.contentListId);
+      setDirty(false);
       onSaved();
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapContentListDeleteError(e));
     } finally {
       setSaving(false);
     }
@@ -209,6 +214,7 @@ export function ContentListEditor({
         {contentList?.contentListId && (
           <button
             type="button"
+            data-testid="contentlist-delete"
             style={buttonStyle}
             disabled={saving}
             onClick={() => void handleDelete()}

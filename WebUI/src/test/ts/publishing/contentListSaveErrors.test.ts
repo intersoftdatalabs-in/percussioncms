@@ -16,7 +16,10 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { mapContentListSaveError } from "@/publishing/contentListSaveErrors";
+import {
+  mapContentListDeleteError,
+  mapContentListSaveError,
+} from "@/publishing/contentListSaveErrors";
 
 describe("mapContentListSaveError", () => {
   it("maps HTTP 403 to forbidden chrome", () => {
@@ -33,5 +36,45 @@ describe("mapContentListSaveError", () => {
         body: { message: "Content list name already exists" },
       }),
     ).toBe("Content list name already exists");
+  });
+});
+
+describe("mapContentListDeleteError", () => {
+  it("maps HTTP 409 to the content-list-in-use message", () => {
+    expect(
+      mapContentListDeleteError({
+        status: 409,
+        statusText: "Conflict",
+        body: { message: "Content list is in use" },
+      }),
+    ).toBe("Content list is in use");
+  });
+
+  it("maps HTTP 409 without a body to content list in use", () => {
+    expect(
+      mapContentListDeleteError({ status: 409, statusText: "Conflict", body: {} }),
+    ).toMatch(/Content list is in use|409/i);
+  });
+
+  it("maps HTTP 403 to forbidden chrome", () => {
+    expect(
+      mapContentListDeleteError({
+        status: 403,
+        statusText: "Forbidden",
+        body: {
+          message: "Admin or Designer role required to save a publish edition",
+        },
+      }),
+    ).toMatch(/Admin or Designer|403|Forbidden/i);
+  });
+
+  it("maps HTTP 400 body message", () => {
+    expect(
+      mapContentListDeleteError({
+        status: 400,
+        statusText: "Bad Request",
+        body: { message: "contentListId is required" },
+      }),
+    ).toBe("contentListId is required");
   });
 });

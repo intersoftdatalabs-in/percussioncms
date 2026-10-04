@@ -97,6 +97,8 @@ public class PSPublishingDesignRestService {
   static final String EDITION_NAME_TOO_LONG =
       "Edition name must be 100 characters or fewer";
   static final String CONTENT_LIST_NAME_CONFLICT = "Content list name already exists";
+  /** Still linked to at least one edition. Removing that association is a separate action. */
+  static final String CONTENT_LIST_IN_USE = "Content list is in use";
   static final String CONTENT_LIST_ALREADY_ASSOCIATED =
       "Content list is already associated with this edition";
   static final String DELIVERY_TYPE_NAME_CONFLICT = "Delivery type name already exists";
@@ -478,9 +480,15 @@ public class PSPublishingDesignRestService {
   @DELETE
   @Path("/contentlists/{contentListId}")
   public void deleteContentList(@PathParam("contentListId") String contentListId) {
+    requireDesignWrite();
     requireNonBlank(contentListId, "contentListId");
     try {
-      IPSContentList cl = publisherService.loadContentList(toContentListGuid(contentListId));
+      IPSGuid contentListGuid = toContentListGuid(contentListId);
+      IPSContentList cl = publisherService.loadContentList(contentListGuid);
+      if (cl == null) {
+        throw notFound("Content list not found");
+      }
+      rejectContentListInUse(contentListGuid);
       publisherService.deleteContentLists(List.of(cl));
     } catch (PSNotFoundException e) {
       throw notFound("Content list not found");
@@ -1443,6 +1451,52 @@ public class PSPublishingDesignRestService {
     }
     if (jobId > 0L) {
       throw conflict(EDITION_IN_USE);
+    }
+  }
+
+  /**
+   * Refuse delete while any edition still references the content list (HTTP 409).
+   * An unassociated list is deleted. This does not remove edition associations.
+   */
+  private void rejectContentListInUse(IPSGuid contentListGuid) {
+    if (contentListGuid == null) {
+      return;
+    }
+    List<IPSEdition> editions;
+    try {
+      editions = publisherService.findAllEditions("");
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw internalError(e);
+    }
+    if (editions == null || editions.isEmpty()) {
+      return;
+    }
+    long id = contentListGuid.longValue();
+    for (IPSEdition edition : editions) {
+      if (edition == null || edition.getGUID() == null) {
+        continue;
+      }
+      List<IPSEditionContentList> links;
+      try {
+        links = publisherService.loadEditionContentLists(edition.getGUID());
+      } catch (WebApplicationException e) {
+        throw e;
+      } catch (RuntimeException e) {
+        throw internalError(e);
+      }
+      if (links == null) {
+        continue;
+      }
+      for (IPSEditionContentList link : links) {
+        if (link == null || link.getContentListId() == null) {
+          continue;
+        }
+        if (link.getContentListId().longValue() == id) {
+          throw conflict(CONTENT_LIST_IN_USE);
+        }
+      }
     }
   }
 

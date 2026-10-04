@@ -403,6 +403,21 @@ HTTP **403** (not Admin or Designer) and **409** (content list name already exis
 content-list editor error region — not as a successful save. Edition save and delivery-type save
 are separate Design actions.
 
+### Delete a content list (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Content lists**.
+Open an existing content list (not **Add content list**). **Delete** asks for confirmation
+(**Delete this design object? This cannot be undone.**). Confirm calls
+`DELETE …/sitemanage/publishingdesign/contentlists/{contentListId}`. On success the editor
+closes and that content list is gone from **Content lists**. Cancel does not call the server
+and leaves the list unchanged.
+
+A content list that is still associated with an edition is not deleted. Remove that association
+first. This action does not remove an edition association and does not delete the edition.
+HTTP **409** (**Content list is in use**), **403** (not Admin or Designer), and **400** (content
+list id missing) stay in the content-list editor error region. The list is not refreshed as a
+successful delete. Saving a content list and removing it from an edition are separate actions.
+
 ### Save a delivery type (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Delivery types**.
