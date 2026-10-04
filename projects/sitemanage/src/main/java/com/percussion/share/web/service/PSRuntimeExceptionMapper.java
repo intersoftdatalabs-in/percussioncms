@@ -27,7 +27,9 @@ import com.percussion.sitemanage.service.impl.PSSiteCopyStatusException;
 import com.percussion.system.utils.PSSiteManageBean;
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -59,8 +61,10 @@ public class PSRuntimeExceptionMapper extends PSAbstractExceptionMapper<RuntimeE
   @Override
   @Produces(MediaType.APPLICATION_JSON)
   protected PSErrors createErrors(RuntimeException exception) {
-    if (exception instanceof PSSiteCopyStatusException) {
+    if (exception instanceof PSSiteCopyStatusException || isClientWebApplication(exception)) {
       // Expected operator outcome (400/403/409). Do not log at error.
+      // CXF selects this RuntimeException mapper ahead of the JAX-RS default
+      // WebApplicationException mapper, which otherwise turns design conflicts into 500.
       log.debug(ERROR_MESSAGE, exception);
     } else if (exception instanceof IPSValidationException ve) {
       log.debug(ERROR_MESSAGE, exception);
@@ -83,6 +87,12 @@ public class PSRuntimeExceptionMapper extends PSAbstractExceptionMapper<RuntimeE
       Status mapped = Status.fromStatusCode(siteCopy.status());
       return mapped != null ? mapped : Status.INTERNAL_SERVER_ERROR;
     }
+    if (exception instanceof WebApplicationException wae) {
+      Status client = clientStatus(wae);
+      if (client != null) {
+        return client;
+      }
+    }
     if (exception instanceof IPSValidationException) {
       return Status.BAD_REQUEST;
     }
@@ -97,5 +107,27 @@ public class PSRuntimeExceptionMapper extends PSAbstractExceptionMapper<RuntimeE
       return Status.BAD_REQUEST;
     }
     return super.getStatus(exception);
+  }
+
+  /**
+   * Status already chosen on a {@link WebApplicationException} when it is a client error.
+   * A wrapped server failure stays at the mapper default (500), including HTML preview.
+   *
+   * @return the 4xx status, or {@code null} when this mapper should keep its own status
+   */
+  private static Status clientStatus(WebApplicationException exception) {
+    Response response = exception.getResponse();
+    if (response == null) {
+      return null;
+    }
+    int code = response.getStatus();
+    if (code < 400 || code >= 500) {
+      return null;
+    }
+    return Status.fromStatusCode(code);
+  }
+
+  private static boolean isClientWebApplication(RuntimeException exception) {
+    return exception instanceof WebApplicationException wae && clientStatus(wae) != null;
   }
 }

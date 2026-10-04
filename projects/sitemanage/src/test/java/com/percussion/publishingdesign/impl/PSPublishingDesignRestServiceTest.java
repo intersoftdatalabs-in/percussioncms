@@ -707,6 +707,78 @@ class PSPublishingDesignRestServiceTest {
     verify(publisherService, never()).deleteContentLists(any());
   }
 
+  private PSPublishingDesignRestService contextDesign() {
+    PSPublishingDesignRestService design =
+        new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
+    design.setDesignWriteAllowed(() -> true);
+    return design;
+  }
+
+  @Test
+  void deleteContext_noSchemes_deletes() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    IPSPublishingContext ctx = mock(IPSPublishingContext.class);
+    when(siteManager.loadContext(contextGuid)).thenReturn(ctx);
+    when(siteManager.findSchemesByContextId(contextGuid)).thenReturn(List.of());
+
+    design.deleteContext("3");
+    verify(siteManager).deleteContext(ctx);
+  }
+
+  @Test
+  void deleteContext_hasSchemes_409() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    IPSPublishingContext ctx = mock(IPSPublishingContext.class);
+    when(siteManager.loadContext(contextGuid)).thenReturn(ctx);
+    when(siteManager.findSchemesByContextId(contextGuid))
+        .thenReturn(List.of(mock(IPSLocationScheme.class)));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.deleteContext("3"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(
+        ex.getMessage().contains(PSPublishingDesignRestService.CONTEXT_HAS_LOCATION_SCHEMES));
+    verify(siteManager, never()).deleteContext(any(IPSPublishingContext.class));
+  }
+
+  @Test
+  void deleteContext_notFound_404() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    when(siteManager.loadContext(contextGuid)).thenThrow(new PSNotFoundException("missing"));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.deleteContext("3"));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(siteManager, never()).deleteContext(any(IPSPublishingContext.class));
+    verify(siteManager, never()).findSchemesByContextId(any(IPSGuid.class));
+  }
+
+  @Test
+  void deleteContext_forbidden_403() {
+    PSPublishingDesignRestService design = contextDesign();
+    design.setDesignWriteAllowed(() -> false);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.deleteContext("3"));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(siteManager, never()).loadContext(any(IPSGuid.class));
+    verify(siteManager, never()).deleteContext(any(IPSPublishingContext.class));
+  }
+
+  @Test
+  void deleteContext_blankId_400() {
+    PSPublishingDesignRestService design = contextDesign();
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.deleteContext("  "));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(guidManager, never()).makeGuid(any(String.class), any(PSTypeEnum.class));
+    verify(siteManager, never()).loadContext(any(IPSGuid.class));
+    verify(siteManager, never()).deleteContext(any(IPSPublishingContext.class));
+  }
+
   @Test
   void associateContentList_requiresIds() {
     com.percussion.publishingdesign.data.PSEditionContentListAssoc body =
