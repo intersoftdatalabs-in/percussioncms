@@ -43,6 +43,12 @@ import {
 } from "../publishing.styles";
 import { mapContextSaveError } from "../contextSaveErrors";
 import {
+  buildContextCopyBody,
+  contextsAfterSuccessfulCopy,
+  suggestedContextCopyName,
+  validateContextCopyName,
+} from "../contextCopy";
+import {
   contextsAfterSuccessfulDelete,
   mapContextDeleteError,
 } from "../contextDelete";
@@ -64,6 +70,7 @@ import { SiteRootBrowser } from "./SiteRootBrowser";
 type Mode =
   | { kind: "list" }
   | { kind: "context-edit"; context: ContextSummary | null }
+  | { kind: "context-copy"; source: ContextSummary }
   | { kind: "scheme-edit"; scheme: LocationSchemeSummary | null; contextId: string }
   | { kind: "scheme-copy"; source: LocationSchemeSummary; contextId: string };
 
@@ -138,6 +145,71 @@ export function ContextsPanel(): React.ReactElement {
     }
     setDirty(false);
     setMode({ kind: "list" });
+  }
+
+  function openContextCopy(): void {
+    const source = contexts.find((row) => String(row.contextId ?? "") === selected);
+    if (!source?.contextId) {
+      return;
+    }
+    setCopyName(suggestedContextCopyName(source.name));
+    setError(null);
+    setDirty(false);
+    setMode({ kind: "context-copy", source });
+  }
+
+  function closeContextCopy(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setMode({ kind: "list" });
+  }
+
+  async function copyContext(): Promise<void> {
+    if (mode.kind !== "context-copy" || !mode.source.contextId || saving) {
+      return;
+    }
+    const validated = validateContextCopyName(copyName);
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    setError(null);
+    setSaving(true);
+    const previous = contexts;
+    const sourceId = String(mode.source.contextId);
+    try {
+      const created = await createContext(
+        buildContextCopyBody(mode.source, validated.name),
+      );
+      let refreshed: ContextSummary[] | null = null;
+      try {
+        refreshed = await listContexts();
+      } catch {
+        refreshed = null;
+      }
+      const next = contextsAfterSuccessfulCopy(refreshed, created, previous);
+      setContexts(next);
+      setSelected((current) => {
+        if (next.some((row) => String(row.contextId ?? "") === current)) {
+          return current;
+        }
+        return next.some((row) => String(row.contextId ?? "") === sourceId)
+          ? sourceId
+          : current;
+      });
+      setDirty(false);
+      setMode({ kind: "list" });
+    } catch (e) {
+      setError(mapContextSaveError(e));
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function openSchemeEdit(
@@ -424,6 +496,60 @@ export function ContextsPanel(): React.ReactElement {
     );
   }
 
+  if (mode.kind === "context-copy") {
+    return (
+      <div data-testid="context-copy-form">
+        <h3>Copy context</h3>
+        <p>Source: {mode.source.name ?? mode.source.contextId}</p>
+        <p>
+          Description:{" "}
+          <span data-testid="context-copy-description">
+            {mode.source.description ?? ""}
+          </span>
+        </p>
+        <p data-testid="context-copy-schemes-note">
+          Location schemes stay on the source context.
+        </p>
+        <div style={formRowStyle}>
+          <label htmlFor="context-copy-name">* New name</label>
+          <input
+            id="context-copy-name"
+            value={copyName}
+            onChange={(e) => {
+              setCopyName(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="context-copy-submit"
+            disabled={saving}
+            onClick={() => void copyContext()}
+          >
+            Copy context
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="context-copy-cancel"
+            disabled={saving}
+            onClick={closeContextCopy}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (mode.kind === "scheme-edit") {
     return (
       <div data-testid="scheme-editor">
@@ -635,11 +761,21 @@ export function ContextsPanel(): React.ReactElement {
               type="button"
               style={buttonStyle}
               onClick={() => {
-                const c = contexts.find((x) => x.contextId === selected) ?? null;
+                const c =
+                  contexts.find((x) => String(x.contextId ?? "") === selected) ?? null;
                 openContextEdit(c);
               }}
             >
               Edit context
+            </button>
+            <button
+              type="button"
+              style={buttonStyle}
+              data-testid="context-copy"
+              disabled={saving}
+              onClick={openContextCopy}
+            >
+              Copy context
             </button>
             <button
               type="button"

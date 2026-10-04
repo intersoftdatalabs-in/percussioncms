@@ -19,11 +19,16 @@ import { formatApiError, isApiError } from "../api/client";
 import { message, MSG } from "../i18n/message";
 
 /**
- * Map publishing-context create/update failures to operator-visible text.
- * HTTP 403 → forbidden; HTTP 409 → duplicate context name.
+ * Map publishing-context create/update/copy failures to operator-visible text.
+ * HTTP 400 → invalid name; HTTP 403 → forbidden; HTTP 409 → duplicate name.
+ * Plain {@link ApiError} objects are not {@code Error} instances — do not use
+ * {@code e.message}.
  */
 export function mapContextSaveError(err: unknown): string {
   if (isApiError(err)) {
+    if (err.status === 400) {
+      return formatApiError(err, message(MSG.PUBLISH_ERROR));
+    }
     if (err.status === 403) {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
     }

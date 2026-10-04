@@ -509,8 +509,30 @@ mark the form dirty; leaving the editor prompts to discard. The shell posts
 `PUT …/sitemanage/publishingdesign/contexts/{contextId}` (update).
 
 HTTP **403** (not Admin or Designer) and **409** (publishing context name already exists)
-are shown in the context editor error region — not as a successful save. Location-scheme
-save, delivery-type save, and edition save are separate Design actions.
+are shown in the context editor error region — not as a successful save. Create and update
+post a `context` object (`name`, optional `description`). A flat JSON body without that
+root is not saved. Location-scheme save, delivery-type save, and edition save are separate
+Design actions. Copying a publishing context is described below.
+
+### Copy a publishing context (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. **Copy context** opens **Copy context**
+(it does not call the server). The form shows the source **description** and does not
+let you change it. Location schemes are not copied. Enter a **new name**. **Copy context**
+posts `POST …/sitemanage/publishingdesign/contexts` with a `context` object: the new name
+plus the source description. The source id and default scheme are not sent. There is no
+separate copy resource. The source context is not changed, and its location schemes stay
+on that context.
+
+The new name appears in the **Context** list only after that create succeeds.
+**Cancel** closes the form and does not call the server. A blank name, or a name longer than
+50 characters (`RXCONTEXT.CONTEXTNAME`), is rejected in the form and does not call the server.
+
+HTTP **400** (name missing or too long), **403** (not Admin or Designer), and **409**
+(publishing context name already exists) stay in the copy form error region. Those responses
+do not add the new name to the list and do not move location schemes. Saving a publishing
+context, deleting one, and copying a location scheme are separate actions.
 
 ### Delete a publishing context (Design)
 

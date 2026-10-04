@@ -19,6 +19,16 @@ import { describe, expect, it } from "vitest";
 import { mapContextSaveError } from "@/publishing/contextSaveErrors";
 
 describe("mapContextSaveError", () => {
+  it("maps HTTP 400 body message", () => {
+    expect(
+      mapContextSaveError({
+        status: 400,
+        statusText: "Bad Request",
+        body: { message: "Publishing context name must be 50 characters or fewer" },
+      }),
+    ).toBe("Publishing context name must be 50 characters or fewer");
+  });
+
   it("maps HTTP 403 to forbidden chrome", () => {
     expect(
       mapContextSaveError({ status: 403, statusText: "Forbidden", body: {} }),

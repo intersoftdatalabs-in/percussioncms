@@ -68,8 +68,8 @@ async function openContexts(page) {
 }
 
 /**
- * Seed a disposable context. Design create still posts a flat body; JAXB
- * requires the {@code context} root (context save stays #4703).
+ * Seed a disposable context. Create posts a {@code context} root; JAXB /
+ * UNWRAP_ROOT_VALUE does not bind a flat name (context copy is #5183).
  */
 async function seedContext(request, name) {
   const res = await request.post(
