@@ -26,10 +26,13 @@ import {
   roleCreateUrl,
   roleDeleteUrl,
   roleUpdateDescriptionUrl,
+  roleUpdateHomePageUrl,
   rolesInBrowseGroup,
   unwrapCreatedRole,
   unwrapRoleBrowseCatalog,
+  unwrapUpdatedRoleHomePage,
   updateRoleDescription,
+  updateRoleHomePage,
 } from "../../../../main/ts/api/developer/rolesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -375,6 +378,90 @@ describe("updateRoleDescription", () => {
         updateRoleDescription({ name: "Author", description: "Nope" }),
       ).rejects.toMatchObject({ status });
     }
+  });
+});
+
+describe("updateRoleHomePage", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      statusText: status === 200 ? "OK" : "Error",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("does not PUT a blank name", async () => {
+    await expect(updateRoleHomePage({ name: "  ", homePage: "Home" })).rejects.toThrow(
+      /required/,
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("PUTs homePage=true with the canonical field and no description or users", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        Role: { name: "Author", description: "Keep me", homePage: "Explorer" },
+      }),
+    );
+    const saved = await updateRoleHomePage({
+      name: " Author ",
+      homePage: " Explorer ",
+    });
+    expect(saved).toEqual({
+      name: "Author",
+      description: "Keep me",
+      homePage: "Explorer",
+    });
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(String(url)).toBe(roleUpdateHomePageUrl());
+    expect(String(url)).not.toContain("update=true");
+    expect(String(url)).not.toContain("create=true");
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(String(init.body))).toEqual({
+      Role: { name: "Author", homePage: "Explorer" },
+    });
+  });
+
+  it("sends an empty home page to clear and does not invent one from a missing field", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ Role: { name: "Author", description: "Keep me" } }),
+    );
+    const saved = await updateRoleHomePage({ name: "Author", homePage: "   " });
+    expect(saved).toEqual({ name: "Author", description: "Keep me" });
+    expect(saved.homePage).toBeUndefined();
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(JSON.parse(String(init.body))).toEqual({
+      Role: { name: "Author", homePage: "" },
+    });
+  });
+
+  it("rejects HTTP 400, 403, and 404 without returning a role", async () => {
+    for (const status of [400, 403, 404]) {
+      fetchMock.mockResolvedValueOnce(jsonResponse({ message: "no" }, status));
+      await expect(
+        updateRoleHomePage({ name: "Author", homePage: "Explorer" }),
+      ).rejects.toMatchObject({ status });
+    }
+  });
+
+  it("unwraps a flat body and rejects an empty payload", () => {
+    expect(unwrapUpdatedRoleHomePage({ name: "Author", homePage: "Home" })).toEqual({
+      name: "Author",
+      homePage: "Home",
+    });
+    expect(() => unwrapUpdatedRoleHomePage(null)).toThrow(/empty/);
+    expect(() => unwrapUpdatedRoleHomePage({ homePage: "Home" })).toThrow(/name/);
   });
 });
 

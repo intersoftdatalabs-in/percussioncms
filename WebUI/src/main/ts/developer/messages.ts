@@ -702,7 +702,7 @@ export const DEV_MSG_KEYS = {
   ROLES_EMPTY: "perc.ui.developer@No roles returned.",
   ROLES_ERROR: "perc.ui.developer@Could not load roles catalog.",
   ROLES_HINT:
-    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role, edit one role's description, and delete one non-system role after confirming. Membership edits are not done here. System and Default cannot be deleted.",
+    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role, edit one role's description, set or clear one role's home page, and delete one non-system role after confirming. Membership edits are not done here. System and Default cannot be deleted.",
   ROLES_EDIT_TITLE: "perc.ui.developer@Edit role description",
   ROLES_EDIT_NAME: "perc.ui.developer@Role name",
   ROLES_EDIT_DESCRIPTION: "perc.ui.developer@Description",
@@ -717,6 +717,17 @@ export const DEV_MSG_KEYS = {
   ROLES_EDIT_INVALID: "perc.ui.developer@The description was not saved.",
   ROLES_EDIT_NOT_FOUND:
     "perc.ui.developer@That role was not found. The description was not saved.",
+  ROLES_HOME_LABEL: "perc.ui.developer@Home page",
+  ROLES_HOME_SAVE: "perc.ui.developer@Save home page",
+  ROLES_HOME_HINT:
+    "perc.ui.developer@Saves the home page only. A blank value clears it. The description and members stay the same. The row updates only after the server accepts the change.",
+  ROLES_HOME_SAVED: "perc.ui.developer@Role home page saved.",
+  ROLES_HOME_ERROR: "perc.ui.developer@Could not save the role home page.",
+  ROLES_HOME_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to update a role home page.",
+  ROLES_HOME_INVALID: "perc.ui.developer@The home page was not saved.",
+  ROLES_HOME_NOT_FOUND:
+    "perc.ui.developer@That role was not found. The home page was not saved.",
   ROLES_CREATE: "perc.ui.developer@Create role",
   ROLES_CREATE_TITLE: "perc.ui.developer@New role",
   ROLES_CREATE_NAME: "perc.ui.developer@Role name",
@@ -749,6 +760,7 @@ export const DEV_MSG_KEYS = {
   ROLES_GROUP_EMPTY: "perc.ui.developer@No roles in this group.",
   ROLES_COL_NAME: "perc.ui.developer@Role name",
   ROLES_COL_DESCRIPTION: "perc.ui.developer@Description",
+  ROLES_COL_HOMEPAGE: "perc.ui.developer@Home page",
   ROLES_COL_COMMUNITIES: "perc.ui.developer@Communities",
   ROLES_COL_WORKFLOWS: "perc.ui.developer@Workflows",
   CVN_LOADING: "perc.ui.developer@Loading community visibility navigator...",

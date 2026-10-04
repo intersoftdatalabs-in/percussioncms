@@ -32,6 +32,7 @@ vi.mock("../../../main/ts/api/developer/rolesApi", async (importOriginal) => {
     browseRoles: vi.fn(),
     createRole: vi.fn(),
     updateRoleDescription: vi.fn(),
+    updateRoleHomePage: vi.fn(),
     deleteRole: vi.fn(),
   };
 });
@@ -39,6 +40,7 @@ vi.mock("../../../main/ts/api/developer/rolesApi", async (importOriginal) => {
 const browseRoles = rolesApi.browseRoles as ReturnType<typeof vi.fn>;
 const createRole = rolesApi.createRole as ReturnType<typeof vi.fn>;
 const updateRoleDescription = rolesApi.updateRoleDescription as ReturnType<typeof vi.fn>;
+const updateRoleHomePage = rolesApi.updateRoleHomePage as ReturnType<typeof vi.fn>;
 const deleteRole = rolesApi.deleteRole as ReturnType<typeof vi.fn>;
 
 describe("RolesPanel", () => {
@@ -49,6 +51,7 @@ describe("RolesPanel", () => {
     browseRoles.mockReset();
     createRole.mockReset();
     updateRoleDescription.mockReset();
+    updateRoleHomePage.mockReset();
     deleteRole.mockReset();
   });
 
@@ -327,12 +330,13 @@ describe("RolesPanel", () => {
     expect(browseRoles).toHaveBeenCalledTimes(1);
   });
 
-  function authorCatalog(description = "Authors content") {
+  function authorCatalog(description = "Authors content", homePage?: string) {
     return {
       roles: [
         {
           name: "Author",
           description,
+          ...(homePage ? { homePage } : {}),
           groups: ["workflow"],
           communities: [],
           workflows: ["Simple Workflow"],
@@ -340,6 +344,152 @@ describe("RolesPanel", () => {
       ],
     };
   }
+
+  it("cancel does not save the home page", async () => {
+    browseRoles.mockResolvedValue(authorCatalog("Authors content", "Home"));
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe(
+        "Home",
+      );
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    fireEvent.change(screen.getByTestId("developer-roles-edit-homepage"), {
+      target: { value: "Explorer" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-edit-cancel"));
+    expect(updateRoleHomePage).not.toHaveBeenCalled();
+    expect(updateRoleDescription).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
+    expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe("Home");
+    expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+      "Authors content",
+    );
+    expect(screen.queryByTestId("developer-roles-homepage-notice")).toBeNull();
+  });
+
+  it("shows the new home page only after save reloads and leaves the description", async () => {
+    browseRoles
+      .mockResolvedValueOnce(authorCatalog("Authors content", "Home"))
+      .mockResolvedValueOnce(authorCatalog("Authors content", "Explorer"));
+    let resolveSave: (value: { name: string; homePage?: string }) => void = () => {};
+    updateRoleHomePage.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe("Home");
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    fireEvent.change(screen.getByTestId("developer-roles-edit-homepage"), {
+      target: { value: " explorer " },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-homepage-save"));
+    expect(updateRoleHomePage).toHaveBeenCalledWith({
+      name: "Author",
+      homePage: "explorer",
+    });
+    expect(updateRoleDescription).not.toHaveBeenCalled();
+    expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe("Home");
+    expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+      "Authors content",
+    );
+    expect(screen.queryByTestId("developer-roles-homepage-notice")).toBeNull();
+    resolveSave({ name: "Author", homePage: "Explorer" });
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe(
+        "Explorer",
+      );
+    });
+    expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+      "Authors content",
+    );
+    expect(screen.getByTestId("developer-roles-homepage-notice").textContent).toBe(
+      DEV_MSG.ROLES_HOME_SAVED,
+    );
+    expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
+    expect(browseRoles).toHaveBeenCalledTimes(2);
+  });
+
+  it("clears the home page only after a blank save succeeds", async () => {
+    browseRoles
+      .mockResolvedValueOnce(authorCatalog("Authors content", "Explorer"))
+      .mockResolvedValueOnce(authorCatalog("Authors content"));
+    updateRoleHomePage.mockResolvedValue({ name: "Author" });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe(
+        "Explorer",
+      );
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    fireEvent.change(screen.getByTestId("developer-roles-edit-homepage"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-homepage-save"));
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe("");
+    });
+    expect(updateRoleHomePage).toHaveBeenCalledWith({ name: "Author", homePage: "" });
+    expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+      "Authors content",
+    );
+    expect(screen.queryByTestId("developer-roles-homepage-notice")).toBeTruthy();
+  });
+
+  it("does not claim a home page change on HTTP 400, 403, or 404", async () => {
+    browseRoles.mockResolvedValue(authorCatalog("Authors content", "Home"));
+    updateRoleHomePage.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: null,
+    });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe("Home");
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    fireEvent.change(screen.getByTestId("developer-roles-edit-homepage"), {
+      target: { value: "NotAPage" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-homepage-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-homepage-error").textContent).toContain("(400)");
+    });
+    expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe("Home");
+    expect(screen.queryByTestId("developer-roles-homepage-notice")).toBeNull();
+    expect(browseRoles).toHaveBeenCalledTimes(1);
+
+    updateRoleHomePage.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: null,
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-homepage-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-homepage-error").textContent).toContain("(403)");
+    });
+    expect(screen.queryByTestId("developer-roles-homepage-notice")).toBeNull();
+
+    updateRoleHomePage.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: null,
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-homepage-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-homepage-error").textContent).toContain("(404)");
+    });
+    expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe("Home");
+    expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+      "Authors content",
+    );
+    expect(screen.queryByTestId("developer-roles-homepage-notice")).toBeNull();
+    expect(browseRoles).toHaveBeenCalledTimes(1);
+  });
 
   it("cancel does not update the description", async () => {
     browseRoles.mockResolvedValue(authorCatalog());

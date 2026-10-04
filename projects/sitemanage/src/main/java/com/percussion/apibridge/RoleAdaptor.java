@@ -39,6 +39,7 @@ import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
+import com.percussion.user.service.impl.PSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
@@ -75,6 +76,10 @@ public class RoleAdaptor implements IRoleAdaptor {
   static final String ADMIN_REQUIRED_CREATE = "Admin role required to create a role";
 
   static final String ADMIN_REQUIRED_UPDATE = "Admin role required to update a role description";
+
+  static final String ADMIN_REQUIRED_HOMEPAGE = "Admin role required to update a role home page";
+
+  static final String HOMEPAGE_INVALID = "Role home page is not a known landing page.";
 
   static final String ADMIN_REQUIRED_DELETE = "Admin role required to delete a role";
 
@@ -173,6 +178,63 @@ public class RoleAdaptor implements IRoleAdaptor {
     } catch (PSDataServiceException e) {
       throw new WebApplicationException(e);
     }
+  }
+
+  /**
+   * Admin home-page edit. Copies the stored description and users so the wire body cannot change
+   * them or rename the role. A blank {@code homePage} clears the stored value. An unknown
+   * non-blank value is HTTP 400 and is not saved. Missing roles are 404, not creates.
+   */
+  @Override
+  public Role updateRoleHomePage(URI baseURI, Role role) {
+    requireAdmin(ADMIN_REQUIRED_HOMEPAGE);
+    if (role == null || StringUtils.isBlank(role.getName())) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
+    role.setName(role.getName().trim());
+    var homepage = normalizeHomePage(role.getHomePage());
+    if (!roleExists(baseURI, role.getName())) {
+      throw new WebApplicationException("Role not found", 404);
+    }
+    try {
+      var existing = roleService.find(new PSStringWrapper(role.getName()));
+      if (existing == null || StringUtils.isBlank(existing.getName())) {
+        throw new WebApplicationException("Role not found", 404);
+      }
+      var toUpdate = new PSRole();
+      toUpdate.setName(existing.getName());
+      toUpdate.setDescription(existing.getDescription());
+      toUpdate.setHomepage(homepage);
+      toUpdate.setUsers(existing.getUsers());
+      var updated = roleService.update(toUpdate);
+      var wire = ApiUtils.convertRole(updated);
+      if (wire == null || StringUtils.isBlank(wire.getName())) {
+        throw new WebApplicationException("Role update returned no role", 500);
+      }
+      return wire;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSValidationException e) {
+      var status = isNotFound(e) ? 404 : 400;
+      throw new WebApplicationException(validationMessage(e), status);
+    } catch (PSDataServiceException e) {
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /**
+   * Blank or whitespace clears (returns {@code null}). A known type or alias is canonical. Anything
+   * else is HTTP 400.
+   */
+  private static String normalizeHomePage(String homePage) {
+    if (StringUtils.isBlank(homePage)) {
+      return null;
+    }
+    var normalized = PSUserService.normalizeHomepageType(homePage);
+    if (normalized == null) {
+      throw new WebApplicationException(HOMEPAGE_INVALID, 400);
+    }
+    return normalized;
   }
 
   /** Trim; blank becomes null (clear). Longer than {@link #DESCRIPTION_MAX_LENGTH} is HTTP 400. */
@@ -338,6 +400,7 @@ public class RoleAdaptor implements IRoleAdaptor {
 
     List<IPSCatalogSummary> roleSummaries = securityDesignWs.findRoles(null);
     Map<String, String> descriptions = new HashMap<>();
+    Map<String, String> homePages = new HashMap<>();
     Map<Long, String> roleIdToName = new HashMap<>();
     List<String> roleNames = new ArrayList<>();
     if (roleSummaries != null) {
@@ -349,12 +412,17 @@ public class RoleAdaptor implements IRoleAdaptor {
         roleNames.add(name);
         // Design-object summaries do not store a description (PSRole#getDescription is
         // always null). Create and update persist the text on the backend role.
+        // Home page is metadata, not a catalog-summary field.
+        StoredRoleFields stored = storedRoleFields(name);
         String description = summary.getDescription();
         if (StringUtils.isBlank(description)) {
-          description = storedRoleDescription(name);
+          description = stored.description();
         }
         if (StringUtils.isNotBlank(description)) {
           descriptions.put(name, description.trim());
+        }
+        if (StringUtils.isNotBlank(stored.homePage())) {
+          homePages.put(name, stored.homePage().trim());
         }
         if (summary.getGUID() != null) {
           roleIdToName.put(summary.getGUID().longValue(), name);
@@ -392,6 +460,7 @@ public class RoleAdaptor implements IRoleAdaptor {
       RoleBrowseEntry entry = new RoleBrowseEntry();
       entry.setName(name);
       entry.setDescription(descriptions.get(name));
+      entry.setHomePage(homePages.get(name));
       entry.setGroups(groups);
       entry.setCommunities(new ArrayList<>(communities));
       entry.setWorkflows(new ArrayList<>(workflows));
@@ -409,20 +478,30 @@ public class RoleAdaptor implements IRoleAdaptor {
     return catalog;
   }
 
+  /** Description and home page from the backend role, or blanks when the lookup fails. */
+  private record StoredRoleFields(String description, String homePage) {
+    private static StoredRoleFields empty() {
+      return new StoredRoleFields(null, null);
+    }
+  }
+
   /**
-   * Backend-role description for a catalog name. A missing role or a service failure leaves the
-   * catalog row in place with no description rather than failing the browse.
+   * Backend role text for a catalog name. A missing role or a service failure leaves the catalog
+   * row in place with no description or home page rather than failing the browse.
    */
-  private String storedRoleDescription(String name) {
+  private StoredRoleFields storedRoleFields(String name) {
     if (roleService == null || StringUtils.isBlank(name)) {
-      return null;
+      return StoredRoleFields.empty();
     }
     try {
       var found = roleService.find(new PSStringWrapper(name));
-      return found == null ? null : found.getDescription();
+      if (found == null) {
+        return StoredRoleFields.empty();
+      }
+      return new StoredRoleFields(found.getDescription(), found.getHomepage());
     } catch (PSDataServiceException | RuntimeException e) {
-      log.debug("Role '{}' has no stored description: {}", name, e.getMessage());
-      return null;
+      log.debug("Role '{}' has no stored description or home page: {}", name, e.getMessage());
+      return StoredRoleFields.empty();
     }
   }
 

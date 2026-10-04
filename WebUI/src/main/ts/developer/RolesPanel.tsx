@@ -26,6 +26,7 @@ import {
   ROLE_BROWSE_GROUPS,
   rolesInBrowseGroup,
   updateRoleDescription,
+  updateRoleHomePage,
   type RoleBrowseEntry,
   type RoleBrowseGroupKey,
 } from "../api/developer/rolesApi";
@@ -118,6 +119,21 @@ function editFailureMessage(err: unknown): string {
   return panelErrMsg(err, DEV_MSG.ROLES_EDIT_ERROR);
 }
 
+function homePageFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.ROLES_HOME_FORBIDDEN);
+    }
+    if (err.status === 404) {
+      return panelErrMsg(err, DEV_MSG.ROLES_HOME_NOT_FOUND);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.ROLES_HOME_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.ROLES_HOME_ERROR);
+}
+
 function deleteFailureMessage(err: unknown): string {
   if (isApiError(err)) {
     if (err.status === 403) {
@@ -181,6 +197,7 @@ function RoleGroupSection({
               columns={[
                 DEV_MSG.ROLES_COL_NAME,
                 DEV_MSG.ROLES_COL_DESCRIPTION,
+                DEV_MSG.ROLES_COL_HOMEPAGE,
                 DEV_MSG.ROLES_COL_COMMUNITIES,
                 DEV_MSG.ROLES_COL_WORKFLOWS,
                 DEV_MSG.ROLES_COL_ACTIONS,
@@ -199,6 +216,13 @@ function RoleGroupSection({
                     data-role-description={r.name}
                   >
                     {r.description || ""}
+                  </span>,
+                  <span
+                    key="h"
+                    style={mutedCell}
+                    data-role-homepage={r.name}
+                  >
+                    {r.homePage || ""}
                   </span>,
                   <span key="c" style={mutedCell}>
                     {joinNames(r.communities)}
@@ -251,9 +275,10 @@ function RoleGroupSection({
 /**
  * SE-03 Roles catalog grouped by community / workflow / unassigned.
  * Admins create one role (name + description) via PUT ?create=true, edit
- * one existing role's description via PUT ?update=true, and delete one
- * non-system role via DELETE after confirm. The catalog drops a row only
- * after delete succeeds. Membership edits stay out of scope.
+ * one existing role's description via PUT ?update=true, set or clear one
+ * role's home page via PUT ?homePage=true, and delete one non-system role
+ * via DELETE after confirm. The catalog shows a new home page only after
+ * that save succeeds. Membership edits stay out of scope.
  */
 export function RolesPanel(): React.ReactElement {
   const [catalog, setCatalog] = useState<RoleBrowseEntry[] | null>(null);
@@ -271,9 +296,13 @@ export function RolesPanel(): React.ReactElement {
   const [createBusy, setCreateBusy] = useState(false);
   const [editName, setEditName] = useState<string | null>(null);
   const [editDescription, setEditDescription] = useState("");
+  const [editHomePage, setEditHomePage] = useState("");
   const [editError, setEditError] = useState<string | null>(null);
   const [editNotice, setEditNotice] = useState<string | null>(null);
   const [editBusy, setEditBusy] = useState(false);
+  const [homeError, setHomeError] = useState<string | null>(null);
+  const [homeNotice, setHomeNotice] = useState<string | null>(null);
+  const [homeBusy, setHomeBusy] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
@@ -281,6 +310,7 @@ export function RolesPanel(): React.ReactElement {
   const mountedRef = useRef(true);
   const createInflight = useRef(false);
   const editInflight = useRef(false);
+  const homeInflight = useRef(false);
   const deleteInflight = useRef(false);
 
   useEffect(() => {
@@ -365,7 +395,9 @@ export function RolesPanel(): React.ReactElement {
       if (editName === name) {
         setEditName(null);
         setEditDescription("");
+        setEditHomePage("");
         setEditError(null);
+        setHomeError(null);
       }
       setDeleteNotice(DEV_MSG.ROLES_DELETED);
       await reload();
@@ -382,10 +414,12 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function openCreate() {
-    if (editBusy || deleteBusy) return;
+    if (editBusy || homeBusy || deleteBusy) return;
     setEditName(null);
     setEditError(null);
+    setHomeError(null);
     setEditDescription("");
+    setEditHomePage("");
     setCreating(true);
     setCreateError(null);
     setCreateNotice(null);
@@ -403,23 +437,28 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function openEdit(role: RoleBrowseEntry) {
-    if (createBusy || editBusy || deleteBusy || !role.name) return;
+    if (createBusy || editBusy || homeBusy || deleteBusy || !role.name) return;
     setCreating(false);
     setCreateError(null);
     setCreateNotice(null);
     setEditError(null);
+    setHomeError(null);
     setEditNotice(null);
+    setHomeNotice(null);
     if (editName !== role.name) {
       setEditDescription(role.description ?? "");
+      setEditHomePage(role.homePage ?? "");
       setEditName(role.name);
     }
   }
 
   function cancelEdit() {
-    if (editBusy) return;
+    if (editBusy || homeBusy) return;
     setEditName(null);
     setEditError(null);
+    setHomeError(null);
     setEditDescription("");
+    setEditHomePage("");
   }
 
   async function handleCreate(): Promise<void> {
@@ -460,7 +499,7 @@ export function RolesPanel(): React.ReactElement {
   }
 
   async function handleEdit(): Promise<void> {
-    if (!editName || editInflight.current) {
+    if (!editName || editInflight.current || homeInflight.current) {
       return;
     }
     editInflight.current = true;
@@ -474,6 +513,7 @@ export function RolesPanel(): React.ReactElement {
       if (!mountedRef.current) return;
       setEditName(null);
       setEditDescription("");
+      setEditHomePage("");
       setEditNotice(DEV_MSG.ROLES_EDIT_SAVED);
       await reload();
     } catch (err: unknown) {
@@ -487,8 +527,39 @@ export function RolesPanel(): React.ReactElement {
     }
   }
 
+  async function handleHomePage(): Promise<void> {
+    if (!editName || homeInflight.current || editInflight.current) {
+      return;
+    }
+    homeInflight.current = true;
+    setHomeBusy(true);
+    setHomeError(null);
+    setHomeNotice(null);
+    const name = editName.trim();
+    const homePage = editHomePage.trim();
+    try {
+      await updateRoleHomePage({ name, homePage });
+      if (!mountedRef.current) return;
+      setEditName(null);
+      setEditDescription("");
+      setEditHomePage("");
+      setHomeNotice(DEV_MSG.ROLES_HOME_SAVED);
+      await reload();
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setHomeError(homePageFailureMessage(err));
+    } finally {
+      homeInflight.current = false;
+      if (mountedRef.current) {
+        setHomeBusy(false);
+      }
+    }
+  }
+
   const canCreate = !createBusy && isRoleCreateReady(draftName);
-  const canSaveDescription = !editBusy && editName != null && editName.trim().length > 0;
+  const detailLocked = editBusy || homeBusy;
+  const canSaveDescription = !detailLocked && editName != null && editName.trim().length > 0;
+  const canSaveHomePage = canSaveDescription;
 
   if (error) {
     return (
@@ -516,6 +587,11 @@ export function RolesPanel(): React.ReactElement {
       {editNotice ? (
         <div data-testid="developer-roles-edit-notice" style={{ color: "#276749", marginBottom: "12px" }}>
           {editNotice}
+        </div>
+      ) : null}
+      {homeNotice ? (
+        <div data-testid="developer-roles-homepage-notice" style={{ color: "#276749", marginBottom: "12px" }}>
+          {homeNotice}
         </div>
       ) : null}
       {deleteNotice ? (
@@ -547,6 +623,11 @@ export function RolesPanel(): React.ReactElement {
               {editError}
             </div>
           ) : null}
+          {homeError ? (
+            <div role="alert" data-testid="developer-roles-homepage-error" style={errorAlert}>
+              {homeError}
+            </div>
+          ) : null}
           <h2 style={{ margin: "0 0 12px" }} data-testid="developer-roles-edit-title">
             {DEV_MSG.ROLES_EDIT_TITLE}
           </h2>
@@ -561,7 +642,7 @@ export function RolesPanel(): React.ReactElement {
               style={{ ...inputStyle, fontFamily: "monospace" }}
               value={editName}
               readOnly
-              disabled={editBusy}
+              disabled={detailLocked}
             />
           </div>
           <div style={fieldStyle}>
@@ -573,16 +654,32 @@ export function RolesPanel(): React.ReactElement {
               data-testid="developer-roles-edit-description"
               style={inputStyle}
               value={editDescription}
-              disabled={editBusy}
+              disabled={detailLocked}
               onChange={(event) => setEditDescription(event.target.value)}
             />
+          </div>
+          <div style={fieldStyle}>
+            <label htmlFor="developer-roles-edit-homepage">
+              {DEV_MSG.ROLES_HOME_LABEL}
+            </label>
+            <input
+              id="developer-roles-edit-homepage"
+              data-testid="developer-roles-edit-homepage"
+              style={inputStyle}
+              value={editHomePage}
+              disabled={detailLocked}
+              onChange={(event) => setEditHomePage(event.target.value)}
+            />
+            <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+              {DEV_MSG.ROLES_HOME_HINT}
+            </span>
           </div>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             <button
               type="submit"
               data-testid="developer-roles-edit-save"
               aria-label={DEV_MSG.ROLES_EDIT_SAVE}
-              disabled={!canSaveDescription}
+              disabled={!canSaveDescription || homeBusy}
               style={{
                 padding: "8px 16px",
                 background: canSaveDescription ? catalogColors.accent : catalogColors.disabled,
@@ -596,8 +693,27 @@ export function RolesPanel(): React.ReactElement {
             </button>
             <button
               type="button"
+              data-testid="developer-roles-homepage-save"
+              aria-label={DEV_MSG.ROLES_HOME_SAVE}
+              disabled={!canSaveHomePage}
+              onClick={() => {
+                void handleHomePage();
+              }}
+              style={{
+                padding: "8px 16px",
+                background: canSaveHomePage ? catalogColors.accent : catalogColors.disabled,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: canSaveHomePage ? "pointer" : "not-allowed",
+              }}
+            >
+              {DEV_MSG.ROLES_HOME_SAVE}
+            </button>
+            <button
+              type="button"
               data-testid="developer-roles-edit-cancel"
-              disabled={editBusy}
+              disabled={detailLocked}
               onClick={cancelEdit}
               style={{
                 padding: "8px 16px",

@@ -52,7 +52,7 @@ public class RolesResourceUpdateDescriptionTest {
     Role input = named("Author", "Authors");
     when(adaptor.updateRole(isNull(), eq(input))).thenReturn(input);
 
-    Role out = resource.updateRole(null, Boolean.TRUE, input);
+    Role out = resource.updateRole(null, Boolean.TRUE, null, input);
 
     assertEquals("Authors", out.getDescription());
     verify(adaptor).updateRole(isNull(), eq(input));
@@ -68,7 +68,7 @@ public class RolesResourceUpdateDescriptionTest {
 
     WebApplicationException ex =
         assertThrows(
-            WebApplicationException.class, () -> resource.updateRole(null, Boolean.TRUE, input));
+            WebApplicationException.class, () -> resource.updateRole(null, Boolean.TRUE, null, input));
 
     assertEquals(404, ex.getResponse().getStatus());
     verify(adaptor, never()).createRole(any(), any());
@@ -82,7 +82,7 @@ public class RolesResourceUpdateDescriptionTest {
 
     WebApplicationException ex =
         assertThrows(
-            WebApplicationException.class, () -> resource.updateRole(Boolean.FALSE, Boolean.TRUE, input));
+            WebApplicationException.class, () -> resource.updateRole(Boolean.FALSE, Boolean.TRUE, null, input));
 
     assertEquals(403, ex.getResponse().getStatus());
     verify(adaptor, never()).createRole(any(), any());
@@ -96,7 +96,7 @@ public class RolesResourceUpdateDescriptionTest {
 
     WebApplicationException ex =
         assertThrows(
-            WebApplicationException.class, () -> resource.updateRole(null, Boolean.TRUE, input));
+            WebApplicationException.class, () -> resource.updateRole(null, Boolean.TRUE, null, input));
 
     assertEquals(400, ex.getResponse().getStatus());
     verify(adaptor, never()).createRole(any(), any());
@@ -107,7 +107,7 @@ public class RolesResourceUpdateDescriptionTest {
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
-            () -> resource.updateRole(null, Boolean.TRUE, new Role()));
+            () -> resource.updateRole(null, Boolean.TRUE, null, new Role()));
     assertEquals(400, ex.getResponse().getStatus());
     verifyNoInteractions(adaptor);
   }
@@ -118,7 +118,7 @@ public class RolesResourceUpdateDescriptionTest {
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
-            () -> resource.updateRole(Boolean.TRUE, Boolean.TRUE, input));
+            () -> resource.updateRole(Boolean.TRUE, Boolean.TRUE, null, input));
     assertEquals(400, ex.getResponse().getStatus());
     verifyNoInteractions(adaptor);
   }
@@ -128,7 +128,7 @@ public class RolesResourceUpdateDescriptionTest {
     Role input = named("  Author  ", "Authors");
     when(adaptor.updateRole(isNull(), eq(input))).thenReturn(named("Author", "Authors"));
 
-    resource.updateRole(null, Boolean.TRUE, input);
+    resource.updateRole(null, Boolean.TRUE, null, input);
 
     assertEquals("Author", input.getName());
     verify(adaptor).updateRole(isNull(), eq(input));

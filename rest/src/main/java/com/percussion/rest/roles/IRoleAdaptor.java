@@ -38,6 +38,17 @@ public interface IRoleAdaptor {
   Role updateRole(URI baseUri, Role role);
 
   /**
+   * Updates an existing role's home page only. Description, membership, and name are left as
+   * stored. A blank home page clears the stored value. Does not create a missing role and does not
+   * rename.
+   *
+   * @throws jakarta.ws.rs.WebApplicationException 400 when the name is blank or the home page is
+   *     not a known landing page, or when the role service rejects the update; 403 when the caller
+   *     is not Admin; 404 when no role has that exact name
+   */
+  Role updateRoleHomePage(URI baseUri, Role role);
+
+  /**
    * Creates a role via the role service create path.
    *
    * @throws jakarta.ws.rs.WebApplicationException 400 when the name is blank or rejected by role
