@@ -348,6 +348,21 @@ application-level `FORBIDDEN`, `BADCONFIG`, or `INVALID`, keep the dialog open
 and do not show **Schedule saved.** **View** mode has no **Schedule** control.
 Explorer and PublishingShell keep their own schedule editors.
 
+In **Edit** mode the same host shows **Approve for incremental** for the already-open item.
+**Approve** asks **Approve this page or asset onto the incremental publish queue?**
+Confirm posts
+`POST /services/sitemanage/publish/incremental/explorer/{contentId}/approve`
+(the Explorer incremental-queue approve, not a second queue API). The host shows
+**Approved onto the incremental queue** only after HTTP 204. **Cancel** does not
+call the server. A template or other item that is not a page or asset stays on
+the confirm with an error and is not marked approved. HTTP **400** (invalid id,
+not on a site, or the transition was rejected), **403** (publish not allowed),
+and **409** (shared assets or the item state blocked approval) stay on the
+confirm and do not show **Approved**. **View** and **Promote** have no
+**Approve for incremental** control. This is not unapprove, not remove from the
+queue, not **Publish now**, not **Stage**, and not **Schedule**. Folders are not
+edited in this host.
+
 The host also lists **Related content** for the open item. Slot relationships
 come from `GET /services/assembly/slot-relationships/canvas?ownerId=` and inline
 / local dependents from

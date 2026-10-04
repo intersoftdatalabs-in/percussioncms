@@ -204,6 +204,24 @@ export const EDITOR_MSG = {
   CLEAR_SCHEDULE_CONFLICT: "perc.ui.editor@The publish schedule was not cleared.",
   CLEAR_SCHEDULE_STILL_SET:
     "perc.ui.editor@The publish schedule still has dates. It was not cleared.",
+  APPROVE_INCREMENTAL: "perc.ui.editor@Approve for incremental",
+  APPROVE_INCREMENTAL_BUSY: "perc.ui.editor@Approving…",
+  APPROVE_INCREMENTAL_TITLE: "perc.ui.editor@Approve onto the incremental queue",
+  APPROVE_INCREMENTAL_BODY:
+    "perc.ui.editor@Approve this page or asset onto the incremental publish queue?",
+  APPROVE_INCREMENTAL_CONFIRM: "perc.ui.editor@Approve",
+  APPROVE_INCREMENTAL_CANCEL: "perc.ui.editor@Cancel",
+  APPROVE_INCREMENTAL_DONE: "perc.ui.editor@Approved onto the incremental queue",
+  APPROVE_INCREMENTAL_FAILED:
+    "perc.ui.editor@Could not approve this item onto the incremental queue.",
+  APPROVE_INCREMENTAL_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to approve this item onto the incremental queue.",
+  APPROVE_INCREMENTAL_REJECTED:
+    "perc.ui.editor@This item could not be queued for incremental publish.",
+  APPROVE_INCREMENTAL_CONFLICT:
+    "perc.ui.editor@Approval was blocked. The item was not queued.",
+  APPROVE_INCREMENTAL_UNAVAILABLE:
+    "perc.ui.editor@Only a page or asset can be approved onto the incremental queue.",
   STAGE: "perc.ui.editor@Stage",
   STAGING: "perc.ui.editor@Staging…",
   CONFIRM_STAGE: "perc.ui.editor@Stage this item?",
