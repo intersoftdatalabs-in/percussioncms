@@ -18,6 +18,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createWorkflow,
   createWorkflowAgingTransition,
+  deleteWorkflowAgingTransition,
   updateWorkflowAgingInterval,
   deleteWorkflow,
   deleteWorkflowStep,
@@ -763,6 +764,52 @@ describe("workflow transition write API (slice 31)", () => {
         intervalMinutes: 15,
         newIntervalMinutes: 45,
       }),
+    ).rejects.toMatchObject({ status: 409 });
+  });
+
+  it("DELETEs one absolute aging transition and parses the graph without that edge", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          packaged: false,
+          nodes: [{ name: "Draft" }, { name: "Review" }],
+          edges: [{ from: "Draft", to: "Review", label: "Submit", aging: false }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await deleteWorkflowAgingTransition("Nightly QA", "Draft", "Review", 15);
+    expect(graph.edges?.[0]?.label).toBe("Submit");
+    expect(graph.edges?.[0]?.aging).toBe(false);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+    const url = String(fetchMock.mock.calls[0][0]);
+    expect(url).toContain("/aging-transitions?");
+    expect(url).toContain("from=Draft");
+    expect(url).toContain("to=Review");
+    expect(url).toContain("intervalMinutes=15");
+    expect(url).not.toContain("/transitions?");
+  });
+
+  it("propagates 400 and 409 when an aging delete is rejected", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "bad" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(
+      deleteWorkflowAgingTransition("Nightly QA", "Draft", "Review", 0),
+    ).rejects.toMatchObject({ status: 400 });
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "repeated" }), {
+        status: 409,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(
+      deleteWorkflowAgingTransition("Nightly QA", "Draft", "Review", 15),
     ).rejects.toMatchObject({ status: 409 });
   });
 

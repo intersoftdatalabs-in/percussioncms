@@ -18,6 +18,7 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -297,6 +298,121 @@ class WorkflowsAdaptorAgingWriteTest {
             () -> locked.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15)));
     assertEquals(403, ex.getResponse().getStatus());
     verify(workflowService, never()).saveWorkflow(any());
+  }
+
+  @Test
+  void deletesAbsoluteAgingAndLeavesTheRegularTransition() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    draft.addTransition(regular("Submit", 2));
+    PSWorkflow wf = workflow("Nightly QA", draft, review);
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15));
+
+    WorkflowGraph graph =
+        adaptor.deleteAbsoluteAgingTransition(null, "Nightly QA", "Draft", "Review", 15);
+
+    assertEquals(2, graph.getNodes().size());
+    assertEquals(1, graph.getEdges().size());
+    assertFalse(graph.getEdges().get(0).isAging());
+    assertEquals("Submit", graph.getEdges().get(0).getLabel());
+    assertTrue(draft.getAgingTransitions().isEmpty());
+    assertEquals(1, draft.getTransitions().size());
+    assertEquals("Submit", draft.getTransitions().get(0).getLabel());
+    assertEquals(2, wf.getStates().size());
+    verify(workflowService, times(2)).saveWorkflow(wf);
+  }
+
+  @Test
+  void deletesOnlyTheNamedAbsoluteInterval() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    draft.addTransition(regular("Submit", 2));
+    PSWorkflow wf = workflow("Nightly QA", draft, review);
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15));
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 45));
+
+    WorkflowGraph graph =
+        adaptor.deleteAbsoluteAgingTransition(null, "Nightly QA", "Draft", "Review", 15);
+
+    assertEquals(1, draft.getAgingTransitions().size());
+    assertEquals(45L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(1, draft.getTransitions().size());
+    assertEquals(2, graph.getEdges().size());
+    verify(workflowService, times(3)).saveWorkflow(wf);
+  }
+
+  @Test
+  void repeatedAgingIs409AndIsNotDeleted() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    PSAgingTransition repeated = new PSAgingTransition();
+    repeated.setType(PSAgingTransition.PSAgingTypeEnum.REPEATED);
+    repeated.setInterval(15);
+    repeated.setToState(2);
+    repeated.setLabel("Repeat");
+    draft.addAgingTransition(repeated);
+    draft.addTransition(regular("Submit", 2));
+    PSWorkflow wf = workflow("Nightly QA", draft, review);
+    stub(wf, false);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.deleteAbsoluteAgingTransition(null, "Nightly QA", "Draft", "Review", 15));
+
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(1, draft.getAgingTransitions().size());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.REPEATED, draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    assertEquals(1, draft.getTransitions().size());
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  @Test
+  void missingAgingDeleteIs404() {
+    PSWorkflow wf = workflow("Nightly QA", state(1, "Draft"), state(2, "Review"));
+    stub(wf, false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.deleteAbsoluteAgingTransition(null, "Nightly QA", "Draft", "Review", 15));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  @Test
+  void nonPositiveAgingDeleteDoesNotSave() {
+    PSState draft = state(1, "Draft");
+    PSWorkflow wf = workflow("Nightly QA", draft, state(2, "Review"));
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> adaptor.deleteAbsoluteAgingTransition(null, "Nightly QA", "Draft", "Review", 0));
+    assertEquals(1, draft.getAgingTransitions().size());
+    verify(workflowService, times(1)).saveWorkflow(wf);
+  }
+
+  @Test
+  void packagedAgingDeleteIs403() {
+    PSWorkflow wf = workflow("Simple Workflow", state(1, "Draft"), state(2, "Review"));
+    stub(wf, false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.deleteAbsoluteAgingTransition(null, "Simple Workflow", "Draft", "Review", 15));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  private static PSTransition regular(String label, long toState) {
+    PSTransition transition = new PSTransition();
+    transition.setLabel(label);
+    transition.setTrigger(label);
+    transition.setToState(toState);
+    return transition;
   }
 
   private void stub(PSWorkflow wf, boolean defaultWorkflow) {

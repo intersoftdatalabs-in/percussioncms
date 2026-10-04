@@ -7,6 +7,7 @@ import { isApiError } from "../api/client";
 import {
   createWorkflowAgingTransition,
   createWorkflowTransition,
+  deleteWorkflowAgingTransition,
   deleteWorkflowStep,
   deleteWorkflowTransition,
   getWorkflowGraph,
@@ -24,8 +25,9 @@ import { DEV_MSG } from "./messages";
 /**
  * State/transition graph for one workflow (slice 32 read, slice 31 transition write,
  * slice 33 transition delete, slice 34 step delete, slice 57 absolute aging create,
- * slice 58 absolute aging interval change).
+ * slice 58 absolute aging interval change, slice 59 absolute aging delete).
  * Packaged workflows stay read-only. Aging edges are not comment-required.
+ * Deleting an aging transition does not remove a regular transition.
  */
 
 type TransitionIdentity = { from: string; label: string; to: string };
@@ -39,6 +41,7 @@ export function WorkflowGraphView({
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
   const [pending, setPending] = useState<WorkflowGraphEdge | null>(null);
+  const [pendingAging, setPendingAging] = useState<AgingIntervalIdentity | null>(null);
   const [pendingStep, setPendingStep] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -65,6 +68,7 @@ export function WorkflowGraphView({
     setAgingMinutes("");
     setAgingEdit(null);
     setAgingNewMinutes("");
+    setPendingAging(null);
     getWorkflowGraph(workflowName)
       .then((g) => {
         if (!cancelled) {
@@ -241,6 +245,42 @@ export function WorkflowGraphView({
       setBusy(false);
     }
   }, [agingEdit, agingNewMinutes, workflowName]);
+
+  const onConfirmDeleteAging = useCallback(async () => {
+    if (!pendingAging) {
+      setPendingAging(null);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const next = await deleteWorkflowAgingTransition(
+        workflowName,
+        pendingAging.from,
+        pendingAging.to,
+        pendingAging.intervalMinutes,
+      );
+      setGraph(next);
+      setNotice(DEV_MSG.WF_AGING_DELETED);
+      setPendingAging(null);
+      setAgingEdit(null);
+      setReloadToken((n) => n + 1);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 403) {
+        setError(DEV_MSG.WF_AGING_DELETE_FORBIDDEN);
+      } else if (isApiError(err) && err.status === 409) {
+        setError(DEV_MSG.WF_AGING_DELETE_CONFLICT);
+      } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
+        setError(DEV_MSG.WF_AGING_DELETE_BAD);
+      } else {
+        setError(DEV_MSG.WF_AGING_DELETE_ERROR);
+      }
+      setPendingAging(null);
+    } finally {
+      setBusy(false);
+    }
+  }, [pendingAging, workflowName]);
 
   const onToggleComment = useCallback(
     async (edge: WorkflowGraphEdge, commentRequired: boolean) => {
@@ -529,6 +569,7 @@ export function WorkflowGraphView({
                   onClick={() => {
                     setNotice(null);
                     setPending(null);
+                    setPendingAging(null);
                     setPendingStep(node.name as string);
                   }}
                 >
@@ -567,6 +608,7 @@ export function WorkflowGraphView({
                     setNotice(null);
                     setError(null);
                     setPending(null);
+                    setPendingAging(null);
                     setPendingStep(null);
                     setEditing({ from: edge.from as string, label: edge.label as string, to: edge.to as string });
                     setFromStep(edge.from as string);
@@ -585,6 +627,7 @@ export function WorkflowGraphView({
                   onClick={() => {
                     setNotice(null);
                     setPendingStep(null);
+                    setPendingAging(null);
                     setPending(edge);
                   }}
                 >
@@ -621,6 +664,9 @@ export function WorkflowGraphView({
                     onClick={() => {
                       setNotice(null);
                       setError(null);
+                      setPending(null);
+                      setPendingAging(null);
+                      setPendingStep(null);
                       setAgingEdit({
                         from: edge.from as string,
                         to: edge.to as string,
@@ -630,6 +676,32 @@ export function WorkflowGraphView({
                     }}
                   >
                     {DEV_MSG.WF_AGING_CHANGE}
+                  </button>
+                ) : null}
+                {canWrite &&
+                edge.from &&
+                edge.to &&
+                typeof edge.intervalMinutes === "number" &&
+                edge.intervalMinutes > 0 ? (
+                  <button
+                    type="button"
+                    data-testid={`developer-wf-aging-delete-${i}`}
+                    style={{ marginLeft: 8 }}
+                    disabled={busy}
+                    onClick={() => {
+                      setNotice(null);
+                      setError(null);
+                      setPending(null);
+                      setPendingStep(null);
+                      setAgingEdit(null);
+                      setPendingAging({
+                        from: edge.from as string,
+                        to: edge.to as string,
+                        intervalMinutes: edge.intervalMinutes as number,
+                      });
+                    }}
+                  >
+                    {DEV_MSG.WF_AGING_DELETE}
                   </button>
                 ) : null}
                 {agingEdit &&
@@ -689,6 +761,23 @@ export function WorkflowGraphView({
         }}
         onConfirm={() => {
           void onConfirmDelete();
+        }}
+      />
+      <CatalogConfirmDialog
+        open={pendingAging != null}
+        busy={busy}
+        message={
+          pendingAging
+            ? `${DEV_MSG.WF_AGING_DELETE_CONFIRM} ${pendingAging.from} → ${pendingAging.to} (${pendingAging.intervalMinutes} minutes)`
+            : DEV_MSG.WF_AGING_DELETE_CONFIRM
+        }
+        onCancel={() => {
+          if (!busy) {
+            setPendingAging(null);
+          }
+        }}
+        onConfirm={() => {
+          void onConfirmDeleteAging();
         }}
       />
       <CatalogConfirmDialog

@@ -18,6 +18,7 @@
 package com.percussion.apibridge;
 
 import com.percussion.services.workflow.data.PSAgingTransition;
+import com.percussion.services.workflow.data.PSAgingTransition.PSAgingTypeEnum;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSTransitionBase;
@@ -29,9 +30,12 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Removes one workflow transition (regular or aging) without deleting states.
+ * Removes one workflow transition without deleting states.
  *
- * <p>When more than one transition on the source step shares the label, {@code toStep} is required.
+ * <p>{@link #removeOne} matches a regular or aging transition by label. When more than one
+ * transition on the source step shares the label, {@code toStep} is required. {@link
+ * #removeAbsoluteAging} removes only one absolute aging transition identified by source,
+ * destination, and minute interval, and leaves regular transitions in place.
  */
 public final class WorkflowTransitionRemover {
 
@@ -92,6 +96,89 @@ public final class WorkflowTransitionRemover {
     } else {
       aging.remove((int) agingHits.get(0));
       source.setAgingTransitions(aging);
+    }
+  }
+
+  /**
+   * Removes one absolute aging transition. Does not remove regular transitions, steps, or a
+   * repeated or system-field aging transition that happens to use the same interval.
+   */
+  public static void removeAbsoluteAging(
+      List<PSState> states, String fromStep, String toStep, long intervalMinutes) {
+    if (intervalMinutes <= 0) {
+      throw new IllegalArgumentException("interval must be a positive number of minutes");
+    }
+    if (StringUtils.isBlank(fromStep) || StringUtils.isBlank(toStep)) {
+      throw new IllegalArgumentException("from and to are required");
+    }
+    String from = fromStep.trim();
+    String to = toStep.trim();
+    PSState source = null;
+    Long destId = null;
+    if (states != null) {
+      for (PSState state : states) {
+        if (state == null || StringUtils.isBlank(state.getName())) {
+          continue;
+        }
+        String name = state.getName().trim();
+        if (name.equalsIgnoreCase(from)) {
+          source = state;
+        }
+        if (name.equalsIgnoreCase(to)) {
+          destId = state.getStateId();
+        }
+      }
+    }
+    if (source == null) {
+      throw new WebApplicationException("Workflow step not found: " + from, 404);
+    }
+    if (destId == null) {
+      throw new WebApplicationException("Workflow step not found: " + to, 404);
+    }
+    int regularBefore = regularCount(source);
+    List<PSAgingTransition> aging = safeAging(source);
+    int matchIndex = -1;
+    boolean nonAbsolute = false;
+    for (int i = 0; i < aging.size(); i++) {
+      PSAgingTransition existing = aging.get(i);
+      if (existing == null || existing.getToState() != destId.longValue()) {
+        continue;
+      }
+      if (existing.getInterval() != intervalMinutes) {
+        continue;
+      }
+      PSAgingTypeEnum type = existing.getAgingTypeEnum();
+      if (type != null && type != PSAgingTypeEnum.ABSOLUTE) {
+        nonAbsolute = true;
+        continue;
+      }
+      if (matchIndex >= 0) {
+        throw new IllegalArgumentException(
+            "More than one absolute aging transition uses that interval");
+      }
+      matchIndex = i;
+    }
+    if (matchIndex < 0) {
+      if (nonAbsolute) {
+        throw new WebApplicationException("Only an absolute aging transition can be deleted", 409);
+      }
+      throw new WebApplicationException("Workflow aging transition not found", 404);
+    }
+    aging.remove(matchIndex);
+    source.setAgingTransitions(aging);
+    int regularAfter = regularCount(source);
+    if (regularBefore >= 0 && regularAfter >= 0 && regularAfter != regularBefore) {
+      throw new IllegalStateException(
+          "Deleting an aging transition must not remove a regular transition");
+    }
+  }
+
+  private static int regularCount(PSState state) {
+    try {
+      List<PSTransition> regular = state.getTransitions();
+      return regular == null ? 0 : regular.size();
+    } catch (RuntimeException ex) {
+      return -1;
     }
   }
 

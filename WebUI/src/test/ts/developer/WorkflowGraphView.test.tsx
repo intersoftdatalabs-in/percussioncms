@@ -15,6 +15,7 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   createWorkflowTransition: vi.fn(),
   createWorkflowAgingTransition: vi.fn(),
   updateWorkflowAgingInterval: vi.fn(),
+  deleteWorkflowAgingTransition: vi.fn(),
   isPositiveMinuteInterval: (raw: string | number | null | undefined) => {
     if (typeof raw === "number") {
       return Number.isSafeInteger(raw) && raw > 0;
@@ -40,6 +41,10 @@ const createWorkflowAgingTransition =
   workflowsApi.createWorkflowAgingTransition as ReturnType<typeof vi.fn>;
 const updateWorkflowAgingInterval =
   workflowsApi.updateWorkflowAgingInterval as ReturnType<typeof vi.fn>;
+const deleteWorkflowAgingTransition =
+  workflowsApi.deleteWorkflowAgingTransition as ReturnType<typeof vi.fn>;
+const deleteWorkflowTransition =
+  workflowsApi.deleteWorkflowTransition as ReturnType<typeof vi.fn>;
 const updateWorkflowTransition = workflowsApi.updateWorkflowTransition as ReturnType<typeof vi.fn>;
 
 describe("WorkflowGraphView step delete", () => {
@@ -53,6 +58,8 @@ describe("WorkflowGraphView step delete", () => {
     createWorkflowTransition.mockReset();
     createWorkflowAgingTransition.mockReset();
     updateWorkflowAgingInterval.mockReset();
+    deleteWorkflowAgingTransition.mockReset();
+    deleteWorkflowTransition.mockReset();
     updateWorkflowTransition.mockReset();
   });
 
@@ -392,6 +399,7 @@ describe("WorkflowGraphView step delete", () => {
     await screen.findByTestId("developer-wf-aging-edge-0");
     expect(screen.queryByTestId("developer-wf-aging-form")).toBeNull();
     expect(screen.queryByTestId("developer-wf-aging-change-0")).toBeNull();
+    expect(screen.queryByTestId("developer-wf-aging-delete-0")).toBeNull();
     expect(screen.queryByTestId("developer-wf-graph-comment-0")).toBeNull();
   });
 
@@ -518,5 +526,84 @@ describe("WorkflowGraphView step delete", () => {
       expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("15 minutes");
       expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).not.toContain("30 minutes");
     }
+  });
+
+  it("removes an aging transition only after confirm and leaves the regular transition", async () => {
+    const initial = {
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        { from: "Draft", to: "Review", label: "Submit", commentRequired: false },
+        { from: "Draft", to: "Review", label: "Aging 15", aging: true, intervalMinutes: 15 },
+      ],
+    };
+    const updated = {
+      packaged: false,
+      nodes: initial.nodes,
+      edges: [{ from: "Draft", to: "Review", label: "Submit", commentRequired: false }],
+    };
+    let current = initial;
+    let release: (graph: typeof updated) => void = () => {};
+    getWorkflowGraph.mockImplementation(async () => current);
+    deleteWorkflowAgingTransition.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = (graph) => {
+            current = graph;
+            resolve(graph);
+          };
+        }),
+    );
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-aging-edge-0");
+    expect(screen.getByTestId("developer-wf-graph-edge-0").textContent).toContain("Submit");
+    fireEvent.click(screen.getByTestId("developer-wf-aging-delete-0"));
+    expect(screen.getByTestId("developer-catalog-confirm-body").textContent).toContain("15 minutes");
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    expect(deleteWorkflowAgingTransition).not.toHaveBeenCalled();
+    expect(deleteWorkflowTransition).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("15 minutes");
+
+    fireEvent.click(screen.getByTestId("developer-wf-aging-delete-0"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(deleteWorkflowAgingTransition).toHaveBeenCalledWith("Nightly QA", "Draft", "Review", 15);
+    });
+    expect(deleteWorkflowTransition).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("15 minutes");
+    expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+    release(updated);
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-wf-aging-edge-0")).toBeNull();
+    });
+    expect(screen.getByTestId("developer-wf-graph-edge-0").textContent).toContain("Submit");
+    expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
+      "Aging transition deleted",
+    );
+  });
+
+  it("does not claim the aging transition was deleted on 400, 403, or 409", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        { from: "Draft", to: "Review", label: "Submit" },
+        { from: "Draft", to: "Review", label: "Aging 15", aging: true, intervalMinutes: 15 },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-aging-delete-0");
+    for (const status of [400, 403, 409]) {
+      deleteWorkflowAgingTransition.mockRejectedValueOnce({ status, message: "no" });
+      fireEvent.click(screen.getByTestId("developer-wf-aging-delete-0"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-wf-graph-error")).toBeTruthy();
+      });
+      expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+      expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("15 minutes");
+      expect(screen.getByTestId("developer-wf-graph-edge-0").textContent).toContain("Submit");
+    }
+    expect(deleteWorkflowTransition).not.toHaveBeenCalled();
   });
 });

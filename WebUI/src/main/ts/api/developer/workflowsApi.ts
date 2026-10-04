@@ -10,7 +10,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Role assignment stays on the workflow-admin editor. Custom workflows can add one absolute aging transition and change its minute interval. Deleting that interval, and repeated or system-field aging, stay outside this surface.",
+  "Role assignment stays on the workflow-admin editor. Custom workflows can add one absolute aging transition, change its minute interval, or delete that aging transition. Repeated or system-field aging stays outside this surface.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -668,6 +668,34 @@ export async function updateWorkflowAgingInterval(
   const payload = await put<unknown>(
     `${PATHS.WORKFLOWS_ASSOC}/${key}/aging-transitions/interval`,
     wrapWorkflowAgingIntervalWriteForWire(body),
+  );
+  return parseWorkflowGraph(payload);
+}
+
+/** DELETE /services/workflows/{id}/aging-transitions?from&to&intervalMinutes */
+export function workflowAgingDeletePath(
+  idOrName: string,
+  fromStep: string,
+  toStep: string,
+  intervalMinutes: number,
+): string {
+  const key = encodeURIComponent(idOrName);
+  const q = new URLSearchParams();
+  q.set("from", fromStep);
+  q.set("to", toStep);
+  q.set("intervalMinutes", String(intervalMinutes));
+  return `${PATHS.WORKFLOWS_ASSOC}/${key}/aging-transitions?${q.toString()}`;
+}
+
+/** DELETE one absolute aging edge. Does not delete a regular transition. */
+export async function deleteWorkflowAgingTransition(
+  idOrName: string,
+  fromStep: string,
+  toStep: string,
+  intervalMinutes: number,
+): Promise<WorkflowGraph> {
+  const payload = await del<unknown>(
+    workflowAgingDeletePath(idOrName, fromStep, toStep, intervalMinutes),
   );
   return parseWorkflowGraph(payload);
 }

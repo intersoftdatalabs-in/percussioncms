@@ -226,6 +226,23 @@ public interface IWorkflowsAdaptor {
       URI baseUri, String idOrName, WorkflowAgingIntervalWrite body);
 
   /**
+   * Delete one absolute aging transition (Admin, slice 59). Does not delete steps or regular
+   * transitions. A repeated or system-field aging transition that uses the same interval is not
+   * removed.
+   *
+   * @param fromStep source step name
+   * @param toStep destination step name
+   * @param intervalMinutes current absolute interval, in minutes
+   * @return the graph after the delete
+   * @throws IllegalArgumentException when a step name is blank, the interval is not positive, or
+   *     more than one absolute aging transition uses that interval
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or absolute aging edge, 409 when the only match is not an absolute aging transition
+   */
+  WorkflowGraph deleteAbsoluteAgingTransition(
+      URI baseUri, String idOrName, String fromStep, String toStep, long intervalMinutes);
+
+  /**
    * Update the label and/or destination of one existing transition (Admin, slice 31). Does not
    * move the source step and does not create steps.
    *

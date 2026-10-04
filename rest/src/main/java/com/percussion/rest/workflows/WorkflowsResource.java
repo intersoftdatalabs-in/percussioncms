@@ -798,6 +798,80 @@ public class WorkflowsResource {
     }
   }
 
+  @DELETE
+  @Path("/{idOrName}/aging-transitions")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Delete one absolute aging transition",
+      description =
+          "Slice 59 Admin. Deletes one absolute aging transition identified by query from, to,"
+              + " and intervalMinutes. The edge disappears only after the delete succeeds. Does"
+              + " not delete steps or regular transitions. A repeated or system-field aging"
+              + " transition that uses the same interval is not deleted (409). Packaged default"
+              + " workflows are forbidden (403).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Deleted; returns the updated graph without that aging edge",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing from or to, or a non-positive interval"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Workflow, step, or absolute aging transition not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "The matching aging transition is not absolute"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph deleteAbsoluteAgingTransition(
+      @PathParam("idOrName") String idOrName,
+      @QueryParam("from") String fromStep,
+      @QueryParam("to") String toStep,
+      @QueryParam("intervalMinutes") String intervalMinutes) {
+    if (fromStep == null || fromStep.isBlank() || toStep == null || toStep.isBlank()) {
+      throw new WebApplicationException("from and to are required", 400);
+    }
+    long minutes = parsePositiveMinutes(intervalMinutes);
+    try {
+      return requireAdaptor()
+          .deleteAbsoluteAgingTransition(
+              uriInfo.getBaseUri(), idOrName, fromStep, toStep, minutes);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to delete aging transition ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  private static long parsePositiveMinutes(String raw) {
+    if (raw == null || raw.isBlank()) {
+      throw new WebApplicationException("interval must be a positive number of minutes", 400);
+    }
+    final long minutes;
+    try {
+      minutes = Long.parseLong(raw.trim());
+    } catch (NumberFormatException ex) {
+      throw new WebApplicationException("interval must be a positive number of minutes", 400);
+    }
+    if (minutes <= 0) {
+      throw new WebApplicationException("interval must be a positive number of minutes", 400);
+    }
+    return minutes;
+  }
+
   @PUT
   @Path("/{idOrName}/transitions")
   @Consumes({MediaType.APPLICATION_JSON})
