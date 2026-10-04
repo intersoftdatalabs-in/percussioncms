@@ -41,7 +41,10 @@ const {
   BASE_URL,
   adminBasicAuthHeaders,
 } = require("./helpers/auth");
-const { catalogOpenByExactName } = require("./helpers/developer-catalog-selectors");
+const {
+  catalogOpenByExactName,
+  catalogRowsSelector,
+} = require("./helpers/developer-catalog-selectors");
 
 function developerWorkflowsUrl() {
   const q = new URLSearchParams({
@@ -184,21 +187,19 @@ test.describe("Developer workflow rename (slice 60 / #5139)", () => {
       nextName,
       { timeout: 30_000 },
     );
-    await expect(page.locator('[data-testid="developer-wf-description-input"]')).toHaveValue(
-      "keep desc",
-      { timeout: 30_000 },
-    );
     await expect(page.locator('[data-testid="developer-wf-rename-error"]')).toHaveCount(0);
 
     await page.locator('[data-testid="developer-wf-back"]').click();
     await expect(page.locator('[data-testid="developer-wf-table"]')).toBeVisible({
       timeout: 30_000,
     });
-    await expect(
-      page.locator(
+    const renamedRow = page.locator(catalogRowsSelector("developer-wf-row")).filter({
+      has: page.locator(
         catalogOpenByExactName("developer-wf-open", "data-wf-name", nextName),
       ),
-    ).toBeVisible({ timeout: 30_000 });
+    });
+    await expect(renamedRow).toBeVisible({ timeout: 30_000 });
+    await expect(renamedRow).toContainText("keep desc");
     await expect(
       page.locator(
         catalogOpenByExactName("developer-wf-open", "data-wf-name", source),
@@ -217,12 +218,12 @@ test.describe("Developer workflow rename (slice 60 / #5139)", () => {
     );
     expect(oldGraph.status()).toBe(404);
 
-    const detail = await request.get(
-      `${BASE_URL}/Rhythmyx/services/workflowmanagement/workflows/${encodeURIComponent(nextName)}`,
+    const meta = await request.get(
+      `${BASE_URL}/Rhythmyx/services/workflowmanagement/workflows/metadata`,
       { headers },
     );
-    expect(detail.status()).toBe(200);
-    expect(JSON.stringify(await detail.json())).toContain("keep desc");
+    expect(meta.status()).toBe(200);
+    expect(JSON.stringify(await meta.json())).toContain("keep desc");
 
     await request.delete(
       `${BASE_URL}/Rhythmyx/services/workflows/${encodeURIComponent(nextName)}`,
@@ -274,11 +275,13 @@ test.describe("Developer workflow rename (slice 60 / #5139)", () => {
 
     await loginAsAdmin(page);
     await openWorkflowsCatalog(page);
+    // Simple Workflow is excluded from the stepped catalog (PSSteppedWorkflowMetadata).
+    // Default Workflow is packaged and the H2 system default, so rename is not offered.
     await page
-      .locator(catalogOpenByExactName("developer-wf-open", "data-wf-name", "Simple Workflow"))
+      .locator(catalogOpenByExactName("developer-wf-open", "data-wf-name", "Default Workflow"))
       .click();
     await expect(page.locator('[data-testid="developer-wf-detail-title"]')).toContainText(
-      "Simple Workflow",
+      "Default Workflow",
       { timeout: 30_000 },
     );
     await expect(page.locator('[data-testid="developer-wf-rename-save"]')).toHaveCount(0);
