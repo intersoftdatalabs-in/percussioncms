@@ -492,6 +492,10 @@ export const PATHS = {
   get PATH_FOLDER_LOCALE_CATALOG() {
     return `${SERVICES_ROOT}/pathmanagement/path/folderLocaleCatalog`;
   },
+  /** Display-format id catalog for Explorer folder assignment (#5131). */
+  get PATH_FOLDER_DISPLAY_FORMAT_CATALOG() {
+    return `${SERVICES_ROOT}/pathmanagement/path/folderDisplayFormatCatalog`;
+  },
   get PATH_VALIDATE() {
     return `${SERVICES_ROOT}/pathmanagement/path/validate`;
   },

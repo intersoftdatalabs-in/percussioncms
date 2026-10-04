@@ -44,6 +44,7 @@ class PSFolderPropertiesJacksonTest {
     props.setCommunityId(-1);
     props.setCommunityName("Default");
     props.setDisplayFormatName("FolderList");
+    props.setDisplayFormatId("12");
     props.setWorkflowId(-1);
 
     Principal adminRole = new Principal();
@@ -60,6 +61,28 @@ class PSFolderPropertiesJacksonTest {
     assertTrue(json.contains("ROLE") || json.contains("Role"), json);
     assertTrue(json.contains("en-us"), json);
     assertTrue(json.contains("FolderList"), json);
+    assertTrue(json.contains("\"displayFormatId\""), json);
+    assertTrue(json.contains("\"12\""), json);
+  }
+
+  @Test
+  void readsDisplayFormatIdAndLeavesNameOnlyWithoutAnId() {
+    ObjectMapper mapper = new JacksonContextResolver().getContext(PSFolderProperties.class);
+    String withId =
+        """
+        {"FolderProperties":{"id":"16777215-101-703","name":"CI","displayFormatId":"12","displayFormatName":"Simple"}}
+        """;
+    PSFolderProperties parsed = mapper.readValue(withId, PSFolderProperties.class);
+    assertEquals("12", parsed.getDisplayFormatId());
+    assertEquals("Simple", parsed.getDisplayFormatName());
+
+    String nameOnly =
+        """
+        {"FolderProperties":{"id":"16777215-101-703","name":"CI","displayFormatName":"Simple"}}
+        """;
+    PSFolderProperties name = mapper.readValue(nameOnly, PSFolderProperties.class);
+    assertEquals(null, name.getDisplayFormatId());
+    assertEquals("Simple", name.getDisplayFormatName());
   }
 
   @Test

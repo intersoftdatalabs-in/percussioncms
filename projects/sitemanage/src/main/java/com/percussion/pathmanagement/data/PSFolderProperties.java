@@ -43,6 +43,11 @@ public class PSFolderProperties extends PSAbstractDataObject {
   private String communityName;
   private int communityId;
   private String displayFormatName;
+  /**
+   * Persisted folder property {@code sys_displayformat}: the display-format id, not the name.
+   * Blank, zero, or omitted leaves the stored id alone (#5131).
+   */
+  private String displayFormatId;
   private String id;
   private String name;
   private PSFolderPermission permission;
@@ -92,6 +97,14 @@ public class PSFolderProperties extends PSAbstractDataObject {
 
   public void setDisplayFormatName(String displayFormatName) {
     this.displayFormatName = displayFormatName;
+  }
+
+  public String getDisplayFormatId() {
+    return displayFormatId;
+  }
+
+  public void setDisplayFormatId(String displayFormatId) {
+    this.displayFormatId = displayFormatId;
   }
 
   @XmlElement

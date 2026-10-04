@@ -20,6 +20,7 @@ import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderProperties;
 import com.percussion.pathmanagement.data.PSFolderCommunityCatalog;
+import com.percussion.pathmanagement.data.PSFolderDisplayFormatCatalog;
 import com.percussion.pathmanagement.data.PSFolderLocaleCatalog;
 import com.percussion.pathmanagement.data.PSFolderWorkflowCatalog;
 import com.percussion.pathmanagement.data.PSPathItem;
@@ -614,6 +615,18 @@ public interface IPSFolderHelper {
    * (case-insensitive).
    */
   boolean isAssignableFolderLocale(String localeCode);
+
+  /**
+   * Display formats that may be stored on a folder ({@code sys_displayformat} id). Never {@code
+   * null}. An empty choice list means none are assignable (#5131). Not the list-column chooser.
+   */
+  PSFolderDisplayFormatCatalog listFolderDisplayFormatCatalog();
+
+  /**
+   * True when {@code displayFormatId} is a positive id in {@link #listFolderDisplayFormatCatalog()}.
+   * A display-format name is not an id.
+   */
+  boolean isAssignableFolderDisplayFormat(String displayFormatId);
 
   /**
    * Saves the specified folder properties.

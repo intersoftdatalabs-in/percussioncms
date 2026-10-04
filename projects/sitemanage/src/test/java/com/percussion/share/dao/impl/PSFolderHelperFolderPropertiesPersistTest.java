@@ -19,6 +19,7 @@ package com.percussion.share.dao.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSObjectAclEntry;
@@ -27,8 +28,9 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
- * Folder Security property persist (#3206): locale and community id must be copied onto {@link
- * PSFolder} on save. Display-format name is transient and is not written here.
+ * Folder Security property persist (#3206 / #5131): locale, community id, and display-format id
+ * must be copied onto {@link PSFolder} on save. Display-format name is transient and is not
+ * written here. A name-only update does not change {@code sys_displayformat}.
  */
 @Tag("UnitTest")
 class PSFolderHelperFolderPropertiesPersistTest {
@@ -73,5 +75,45 @@ class PSFolderHelperFolderPropertiesPersistTest {
     PSFolderHelper.applyPersistableFolderProperties(null, new PSFolderProperties());
     PSFolderHelper.applyPersistableFolderProperties(folder, null);
     assertNotEquals("", folder.getName());
+  }
+
+  @Test
+  void applyPersistableFolderProperties_writesDisplayFormatIdNotName() {
+    PSFolder folder = new PSFolder("Design", -1, PSObjectAclEntry.ACCESS_ADMIN, "test");
+    folder.setDisplayFormatPropertyValue("3");
+    folder.setDisplayFormatName("Default");
+
+    PSFolderProperties props = new PSFolderProperties();
+    props.setDisplayFormatId("012");
+    props.setDisplayFormatName("NotSimple");
+
+    PSFolderHelper.applyPersistableFolderProperties(folder, props);
+
+    assertEquals("12", folder.getDisplayFormatPropertyValue());
+    assertEquals("Default", folder.getDisplayFormatName());
+  }
+
+  @Test
+  void applyPersistableFolderProperties_nameOnlyDoesNotChangeStoredId() {
+    PSFolder folder = new PSFolder("Design", -1, PSObjectAclEntry.ACCESS_ADMIN, "test");
+    folder.setDisplayFormatPropertyValue("3");
+    folder.setDisplayFormatName("Default");
+
+    PSFolderProperties nameOnly = new PSFolderProperties();
+    nameOnly.setDisplayFormatName("Simple");
+    PSFolderHelper.applyPersistableFolderProperties(folder, nameOnly);
+    assertEquals("3", folder.getDisplayFormatPropertyValue());
+    assertEquals("Default", folder.getDisplayFormatName());
+
+    PSFolderProperties namedId = new PSFolderProperties();
+    namedId.setDisplayFormatId("Simple");
+    PSFolderHelper.applyPersistableFolderProperties(folder, namedId);
+    assertEquals("3", folder.getDisplayFormatPropertyValue());
+
+    PSFolderProperties zero = new PSFolderProperties();
+    zero.setDisplayFormatId("0");
+    PSFolderHelper.applyPersistableFolderProperties(folder, zero);
+    assertEquals("3", folder.getDisplayFormatPropertyValue());
+    assertNull(new PSFolderProperties().getDisplayFormatId());
   }
 }

@@ -35,6 +35,7 @@ import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.notEmpty;
 import static org.apache.commons.lang3.Validate.notNull;
 
+import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSObjectAclEntry;
 import com.percussion.cms.objectstore.PSObjectAclNextNumberReconciler;
@@ -46,6 +47,7 @@ import com.percussion.i18n.PSI18nUtils;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.pathmanagement.data.PSFolderCommunityCatalog;
 import com.percussion.pathmanagement.data.PSFolderCommunityChoice;
+import com.percussion.pathmanagement.data.PSFolderDisplayFormatCatalog;
 import com.percussion.pathmanagement.data.PSFolderLocaleCatalog;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderPermission.Access;
@@ -105,6 +107,8 @@ import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
+import com.percussion.webservices.ui.IPSUiWs;
+import com.percussion.webservices.ui.PSUiWsLocator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -376,9 +380,10 @@ public class PSFolderHelper implements IPSFolderHelper {
   }
 
   /**
-   * Copy locale and community id from the Folder Security DTO onto the persisted folder. Community
-   * name and display-format name are transient on {@link PSFolder} and are not written here
-   * (#3206).
+   * Copy locale, community id, and display-format id from the Folder Security DTO onto the
+   * persisted folder. Community name and display-format name are transient on {@link PSFolder} and
+   * are not written here (#3206 / #5131). A blank or non-positive display-format id leaves {@code
+   * sys_displayformat} alone. A name is not an id.
    */
   static void applyPersistableFolderProperties(PSFolder folder, PSFolderProperties folderProps) {
     if (folder == null || folderProps == null) {
@@ -388,6 +393,11 @@ public class PSFolderHelper implements IPSFolderHelper {
       folder.setLocale(folderProps.getLocale().trim());
     }
     folder.setCommunityId(folderProps.getCommunityId());
+    FolderDisplayFormatCatalogRules.ParsedId formatId =
+        FolderDisplayFormatCatalogRules.parseId(folderProps.getDisplayFormatId());
+    if (formatId.kind() == FolderDisplayFormatCatalogRules.IdKind.POSITIVE) {
+      folder.setDisplayFormatPropertyValue(formatId.canonical());
+    }
   }
 
   /**
@@ -525,9 +535,17 @@ public class PSFolderHelper implements IPSFolderHelper {
     if (folder.getLocale() != null) {
       props.setLocale(folder.getLocale());
     }
-    if (folder.getDisplayFormatName() != null) {
-      props.setDisplayFormatName(folder.getDisplayFormatName());
+    PSFolderDisplayFormatCatalog formatCatalog = null;
+    if (StringUtils.isBlank(folder.getDisplayFormatName())
+        && FolderDisplayFormatCatalogRules.parseId(folder.getDisplayFormatPropertyValue()).kind()
+            == FolderDisplayFormatCatalogRules.IdKind.POSITIVE) {
+      formatCatalog = listFolderDisplayFormatCatalog();
     }
+    FolderDisplayFormatCatalogRules.copyOntoProperties(
+        props,
+        folder.getDisplayFormatPropertyValue(),
+        folder.getDisplayFormatName(),
+        formatCatalog);
 
     String folderPropertyValue = folder.getPropertyValue(IPSHtmlParameters.SYS_WORKFLOWID);
     props.setWorkflowId(
@@ -611,6 +629,31 @@ public class PSFolderHelper implements IPSFolderHelper {
       return false;
     }
     return FolderLocaleCatalogRules.contains(listFolderLocaleCatalog(), localeCode);
+  }
+
+  @Override
+  public PSFolderDisplayFormatCatalog listFolderDisplayFormatCatalog() {
+    try {
+      IPSUiWs uiws = PSUiWsLocator.getUiWebservice();
+      if (uiws == null) {
+        return FolderDisplayFormatCatalogRules.fromFormats(null);
+      }
+      List<PSDisplayFormat> formats = uiws.loadDisplayFormats(null);
+      return FolderDisplayFormatCatalogRules.fromFormats(formats);
+    } catch (RuntimeException ex) {
+      log.debug("Could not catalog display formats for folder assignment: {}", ex.toString());
+      return FolderDisplayFormatCatalogRules.fromFormats(null);
+    }
+  }
+
+  @Override
+  public boolean isAssignableFolderDisplayFormat(String displayFormatId) {
+    if (FolderDisplayFormatCatalogRules.parseId(displayFormatId).kind()
+        != FolderDisplayFormatCatalogRules.IdKind.POSITIVE) {
+      return false;
+    }
+    return FolderDisplayFormatCatalogRules.contains(
+        listFolderDisplayFormatCatalog(), displayFormatId);
   }
 
   @Override

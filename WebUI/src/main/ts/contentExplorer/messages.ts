@@ -942,6 +942,45 @@ export const EXPLORER_MSG = {
   SET_FOLDER_LOCALE_FAILED: "perc.ui.explorer@Could not set the folder locale",
   SET_FOLDER_LOCALE_MISMATCH:
     "perc.ui.explorer@The folder locale did not change after refresh",
+  SET_FOLDER_DISPLAY_FORMAT: "perc.ui.explorer@Set folder display format",
+  SET_FOLDER_DISPLAY_FORMAT_ARIA:
+    "perc.ui.explorer@Set the display format on the selected folder",
+  SET_FOLDER_DISPLAY_FORMAT_TITLE: "perc.ui.explorer@Set folder display format",
+  SET_FOLDER_DISPLAY_FORMAT_LABEL: "perc.ui.explorer@Folder display format",
+  SET_FOLDER_DISPLAY_FORMAT_CURRENT: "perc.ui.explorer@current",
+  SET_FOLDER_DISPLAY_FORMAT_SAVE: "perc.ui.explorer@Save folder display format",
+  SET_FOLDER_DISPLAY_FORMAT_CANCEL: "perc.ui.explorer@Cancel",
+  SET_FOLDER_DISPLAY_FORMAT_SAVED: "perc.ui.explorer@Folder display format saved",
+  SET_FOLDER_DISPLAY_FORMAT_EMPTY:
+    "perc.ui.explorer@Select a folder before setting its display format",
+  SET_FOLDER_DISPLAY_FORMAT_PAGE:
+    "perc.ui.explorer@Pages are not given a folder display format",
+  SET_FOLDER_DISPLAY_FORMAT_ASSET:
+    "perc.ui.explorer@Assets are not given a folder display format",
+  SET_FOLDER_DISPLAY_FORMAT_NOT_FOLDER:
+    "perc.ui.explorer@Only a folder can have its folder display format set",
+  SET_FOLDER_DISPLAY_FORMAT_MULTI:
+    "perc.ui.explorer@Set folder display format applies to one selected folder",
+  SET_FOLDER_DISPLAY_FORMAT_NO_ID:
+    "perc.ui.explorer@No folder id is available to set a display format",
+  SET_FOLDER_DISPLAY_FORMAT_NONE:
+    "perc.ui.explorer@No display formats are available to assign to this folder",
+  SET_FOLDER_DISPLAY_FORMAT_UNCHANGED:
+    "perc.ui.explorer@Choose a different display format. The current folder display format is not saved again",
+  SET_FOLDER_DISPLAY_FORMAT_FORBIDDEN:
+    "perc.ui.explorer@That display format is not in the folder display format catalog",
+  SET_FOLDER_DISPLAY_FORMAT_BLANK:
+    "perc.ui.explorer@Choose a display format before saving",
+  SET_FOLDER_DISPLAY_FORMAT_HTTP_400:
+    "perc.ui.explorer@Could not set the folder display format (HTTP 400)",
+  SET_FOLDER_DISPLAY_FORMAT_HTTP_403:
+    "perc.ui.explorer@You are not allowed to set this folder display format (HTTP 403)",
+  SET_FOLDER_DISPLAY_FORMAT_HTTP_409:
+    "perc.ui.explorer@This folder display format could not be saved (HTTP 409)",
+  SET_FOLDER_DISPLAY_FORMAT_FAILED:
+    "perc.ui.explorer@Could not set the folder display format",
+  SET_FOLDER_DISPLAY_FORMAT_MISMATCH:
+    "perc.ui.explorer@The folder display format did not change after refresh",
   SET_COMMUNITY: "perc.ui.explorer@Set community",
   SET_COMMUNITY_ARIA:
     "perc.ui.explorer@Set the community on the selected page or asset",
