@@ -67,4 +67,27 @@ describe("SetFolderLocaleDialog (#5106)", () => {
     fireEvent.click(screen.getByTestId("explorer-set-folder-locale-save"));
     expect(onSave).toHaveBeenCalledWith("fr-fr");
   });
+
+  it("names the multi-folder save and cancel still does not save", async () => {
+    const onSave = vi.fn();
+    const onCancel = vi.fn();
+    const { container } = render(
+      <SetFolderLocaleDialog
+        choices={choices}
+        currentCode="en-us"
+        busy={false}
+        error=""
+        multi
+        onSave={onSave}
+        onCancel={onCancel}
+      />,
+    );
+    expect(screen.getByTestId("explorer-set-folder-locale-multi").textContent).toContain(
+      "each selected folder",
+    );
+    fireEvent.click(screen.getByTestId("explorer-set-folder-locale-cancel"));
+    expect(onCancel).toHaveBeenCalled();
+    expect(onSave).not.toHaveBeenCalled();
+    await renderA11yGate(container);
+  });
 });

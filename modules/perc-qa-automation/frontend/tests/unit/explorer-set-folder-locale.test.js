@@ -28,6 +28,7 @@ describe("explorer set folder locale helpers (#5106)", () => {
   it("uses the folder locale dialog test ids", () => {
     assert.equal(TEST_IDS.menuItem, "explorer-set-folder-locale");
     assert.equal(TEST_IDS.dialog, "explorer-set-folder-locale-dialog");
+    assert.equal(TEST_IDS.multi, "explorer-set-folder-locale-multi");
     assert.equal(TEST_IDS.status, "explorer-set-folder-locale-status");
   });
 

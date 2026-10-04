@@ -33,6 +33,8 @@ export interface SetFolderLocaleDialogProps {
   currentCode: string;
   busy: boolean;
   error: string;
+  /** When true, one save writes every checked folder (#5157). */
+  multi?: boolean;
   onSave: (localeCode: string) => void;
   onCancel: () => void;
 }
@@ -42,6 +44,7 @@ export function SetFolderLocaleDialog({
   currentCode,
   busy,
   error,
+  multi = false,
   onSave,
   onCancel,
 }: SetFolderLocaleDialogProps): React.ReactElement {
@@ -119,6 +122,14 @@ export function SetFolderLocaleDialog({
         <h2 id="explorer-set-folder-locale-title" style={{ fontSize: 16, margin: "0 0 12px" }}>
           {message(EXPLORER_MSG.SET_FOLDER_LOCALE_TITLE)}
         </h2>
+        {multi ? (
+          <p
+            data-testid="explorer-set-folder-locale-multi"
+            style={{ fontSize: 13, margin: "0 0 12px" }}
+          >
+            {message(EXPLORER_MSG.SET_FOLDER_LOCALE_MULTI_NOTE)}
+          </p>
+        ) : null}
         <label style={{ display: "block", fontSize: 13 }}>
           {message(EXPLORER_MSG.SET_FOLDER_LOCALE_LABEL)}
           <select

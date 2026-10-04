@@ -950,6 +950,10 @@ export const EXPLORER_MSG = {
   SET_FOLDER_LOCALE_FAILED: "perc.ui.explorer@Could not set the folder locale",
   SET_FOLDER_LOCALE_MISMATCH:
     "perc.ui.explorer@The folder locale did not change after refresh",
+  SET_FOLDER_LOCALE_MULTI_NOTE:
+    "perc.ui.explorer@This locale is saved on each selected folder. Pages and assets are not changed",
+  SET_FOLDER_LOCALE_PARTIAL:
+    "perc.ui.explorer@Not every selected folder had its locale set: {detail}",
   SET_FOLDER_DISPLAY_FORMAT: "perc.ui.explorer@Set folder display format",
   SET_FOLDER_DISPLAY_FORMAT_ARIA:
     "perc.ui.explorer@Set the display format on the selected folder",
