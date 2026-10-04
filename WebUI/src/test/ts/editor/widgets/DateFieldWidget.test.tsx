@@ -97,6 +97,19 @@ describe("DateFieldWidget", () => {
     expect(screen.queryByTestId("editor-date-clear-event_at")).toBeNull();
     empty.unmount();
 
+    const readOnlyDatetime = render(
+      <DateFieldWidget
+        name="event_at"
+        value="2026-01-01 09:00:00"
+        kind="datetime"
+        readOnly
+        onChange={onChange}
+      />,
+    );
+    expect(screen.queryByTestId("editor-date-clear-event_at")).toBeNull();
+    expect((screen.getByTestId("editor-field-event_at") as HTMLInputElement).disabled).toBe(true);
+    readOnlyDatetime.unmount();
+
     render(
       <DateFieldWidget
         name="sys_contentstartdate"

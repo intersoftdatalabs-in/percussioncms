@@ -532,6 +532,9 @@ through `PUT /services/itemmanagement/item/fields/{id}`, and stay read-only in
 **View** mode. Saving a datetime-local value (#5092) persists
 `yyyy-MM-dd HH:mm:ss` and a reload shows the same date and time. Cancel, a
 required blank datetime, and HTTP 400/403/409 do not claim success.
+Clearing a datetime that already has a time (#5122) writes a blank on **Save**
+and a reload shows the picker empty. Close without Save, view mode, a required
+blank, and HTTP 400/403/409 do not claim the field was cleared.
 
 | Item | Value |
 |------|--------|
