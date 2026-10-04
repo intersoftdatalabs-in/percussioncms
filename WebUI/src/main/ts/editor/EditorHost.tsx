@@ -159,6 +159,7 @@ import {
 import { ScheduleDatesDialog } from "../contentExplorer/ScheduleDatesDialog";
 import type { ItemScheduleDates } from "../contentExplorer/itemScheduleDates";
 import { EditorClearScheduleDialog } from "./EditorClearScheduleDialog";
+import { EditorIncrementalApproveDialog } from "./EditorIncrementalApproveDialog";
 import {
   clearedEditorScheduleDates,
   editorClearRefreshSucceeded,
@@ -167,6 +168,11 @@ import {
   loadEditorScheduleDates,
   saveEditorScheduleDates,
 } from "./editorSchedule";
+import {
+  approveEditorItemToIncrementalQueue,
+  editorIncrementalApproveFailureMessage,
+  editorItemCanJoinIncrementalQueue,
+} from "./editorIncrementalApprove";
 import {
   buildEditorCreateRequest,
   canCreateFromEditor,
@@ -296,6 +302,15 @@ export interface EditorHostProps {
   loadScheduleDates?: (itemId: string) => Promise<ItemScheduleDates>;
   /** Test seam: {@code POST item/setitemdates}. */
   saveScheduleDates?: (dates: ItemScheduleDates) => Promise<void>;
+  /**
+   * Test seam: Explorer incremental approve
+   * ({@code POST …/incremental/explorer/{id}/approve}). False when the item
+   * cannot be queued (no HTTP). HTTP errors throw and are not success.
+   */
+  approveIncremental?: (
+    itemId: string,
+    kind: EditorPublishKind,
+  ) => Promise<boolean>;
   /** Test seam: confirm before Publish now (defaults to {@code window.confirm}). */
   confirmPublish?: (body: string) => boolean;
   /** Test seam: sitemanage stage ({@code publish/page|resource/staging/{id}}). */
@@ -662,6 +677,7 @@ export function EditorHost({
   publishItem = publishEditorItem,
   loadScheduleDates = loadEditorScheduleDates,
   saveScheduleDates = saveEditorScheduleDates,
+  approveIncremental = approveEditorItemToIncrementalQueue,
   confirmPublish,
   stageItem = stageEditorItem,
   confirmStage,
@@ -793,6 +809,12 @@ export function EditorHost({
     string | null
   >(null);
   const [clearScheduleLoadError, setClearScheduleLoadError] = useState("");
+  const [incrementalApproveOpen, setIncrementalApproveOpen] = useState(false);
+  const [incrementalApproveBusy, setIncrementalApproveBusy] = useState(false);
+  const [incrementalApproved, setIncrementalApproved] = useState(false);
+  const [incrementalApproveError, setIncrementalApproveError] = useState<
+    string | null
+  >(null);
   const [stageBusy, setStageBusy] = useState(false);
   const [stageDone, setStageDone] = useState(false);
   const [stageErrorKey, setStageErrorKey] = useState<string | null>(null);
@@ -2008,6 +2030,54 @@ export function EditorHost({
     }
   }
 
+  function handleOpenIncrementalApprove(): void {
+    if (contentId == null || mode !== "edit") {
+      return;
+    }
+    setIncrementalApproveError(null);
+    setIncrementalApproveOpen(true);
+  }
+
+  async function handleConfirmIncrementalApprove(): Promise<void> {
+    if (contentId == null || incrementalApproveBusy || mode !== "edit") {
+      return;
+    }
+    const itemId = String(contentId);
+    const kind = resolveEditorPublishKind(payload?.contentType, {
+      id: itemId,
+      allowedTemplateCount,
+    });
+    setIncrementalApproveBusy(true);
+    setIncrementalApproveError(null);
+    try {
+      if (!editorItemCanJoinIncrementalQueue(itemId, kind)) {
+        setIncrementalApproveError(
+          message(EDITOR_MSG.APPROVE_INCREMENTAL_UNAVAILABLE),
+        );
+        return;
+      }
+      const accepted = await approveIncremental(itemId, kind);
+      if (!accepted) {
+        setIncrementalApproveError(
+          message(EDITOR_MSG.APPROVE_INCREMENTAL_UNAVAILABLE),
+        );
+        return;
+      }
+      setIncrementalApproveOpen(false);
+      setIncrementalApproved(true);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setIncrementalApproveError(
+        editorIncrementalApproveFailureMessage(err) ||
+          message(EDITOR_MSG.APPROVE_INCREMENTAL_FAILED),
+      );
+    } finally {
+      setIncrementalApproveBusy(false);
+    }
+  }
+
   async function handleStage(): Promise<void> {
     if (contentId == null) {
       return;
@@ -3120,6 +3190,8 @@ export function EditorHost({
     allowedTemplateCount,
   });
   const showPublish = canPublishFromEditor(mode, publishKind);
+  const showIncrementalApprove =
+    mode === "edit" && contentId != null && payload != null;
   const showStage = canStageFromEditor(mode, publishKind);
   const showRemoveFromStaging = canRemoveFromStagingFromEditor(mode, publishKind);
   const showTakedown = canTakedownFromEditor(mode, publishKind);
@@ -3213,6 +3285,11 @@ export function EditorHost({
               {message(EDITOR_MSG.CLEAR_SCHEDULE_DONE)}
             </span>
           ) : null}
+          {incrementalApproved ? (
+            <span className={styles.meta} data-testid="editor-incremental-approved">
+              {message(EDITOR_MSG.APPROVE_INCREMENTAL_DONE)}
+            </span>
+          ) : null}
           {stageDone ? (
             <span className={styles.meta} data-testid="editor-stage-done">
               {message(EDITOR_MSG.STAGE_DONE)}
@@ -3300,6 +3377,17 @@ export function EditorHost({
                   ? EDITOR_MSG.CLEAR_SCHEDULE_LOADING
                   : EDITOR_MSG.CLEAR_SCHEDULE,
               )}
+            </button>
+          ) : null}
+          {showIncrementalApprove ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-incremental-approve"
+              disabled={incrementalApproveBusy || loading || payload == null || saving}
+              onClick={() => handleOpenIncrementalApprove()}
+            >
+              {message(EDITOR_MSG.APPROVE_INCREMENTAL)}
             </button>
           ) : null}
           {showStage ? (
@@ -4222,6 +4310,22 @@ export function EditorHost({
           }}
           onConfirm={() => {
             void handleConfirmClearSchedule();
+          }}
+        />
+      ) : null}
+      {incrementalApproveOpen ? (
+        <EditorIncrementalApproveDialog
+          busy={incrementalApproveBusy}
+          serverError={incrementalApproveError}
+          onCancel={() => {
+            if (incrementalApproveBusy) {
+              return;
+            }
+            setIncrementalApproveOpen(false);
+            setIncrementalApproveError(null);
+          }}
+          onConfirm={() => {
+            void handleConfirmIncrementalApprove();
           }}
         />
       ) : null}
