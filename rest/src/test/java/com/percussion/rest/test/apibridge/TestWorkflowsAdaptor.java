@@ -132,6 +132,12 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
   }
 
   @Override
+  public WorkflowGraph deleteAbsoluteAgingTransition(
+      URI baseUri, String idOrName, String fromStep, String toStep, long intervalMinutes) {
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
   public WorkflowGraph updateWorkflowTransition(
       URI baseUri,
       String idOrName,

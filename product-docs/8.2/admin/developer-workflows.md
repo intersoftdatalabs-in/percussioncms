@@ -22,9 +22,10 @@ shows a step list and a graph of states and transitions
 (`GET .../workflows/{id}/graph`). On a **custom** workflow an Admin can
 **add or update one transition** between existing steps, **add one absolute
 aging transition** (interval in minutes), **change that minute interval**,
-**delete one transition**, or **delete one step** that no transition still
-uses. Role assignment, deleting an aging transition, repeated or system-field
-aging, and writes on packaged workflows stay outside this chrome.
+**delete that aging transition**, **delete one regular transition**, or
+**delete one step** that no transition still uses. Role assignment, repeated
+or system-field aging, and writes on packaged workflows stay outside this
+chrome.
 The graph badge says **Packaged workflow** for Default Workflow, Simple
 Workflow, Local Content, and any workflow the server marks as the default;
 other workflows show **Custom workflow**. Missing workflows (`404`) and
@@ -134,6 +135,29 @@ with a `WorkflowAgingTransitionWrite` body (`from`, `to`, and a positive
 The public call is `PUT /services/workflows/{idOrName}/aging-transitions/interval`
 with a `WorkflowAgingIntervalWrite` body (`from`, `to`, the current
 `intervalMinutes`, and a different positive `newIntervalMinutes`).
+
+## Product path — delete an absolute aging transition (slice 59)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow that already
+   has an absolute aging transition.
+3. Under **Graph**, in **Aging transitions**, click **Delete aging
+   transition** on that row.
+4. **Cancel** closes the dialog and does not call the server. The row stays.
+5. Confirm in the in-app dialog. The aging row disappears only after the
+   server accepts the delete. Reopening the workflow shows the same row gone.
+   A regular transition on the same steps stays, including its **Delete
+   transition** action.
+6. Packaged workflows do not show **Delete aging transition** (`403` on the
+   API). A blank step or a non-positive interval is `400`. A missing workflow,
+   step, or absolute aging edge is `404`. A repeated or system-field aging
+   transition that uses the same interval is `409` and is not deleted. HTTP
+   `400`, `403`, and `409` do not show the deleted notice.
+7. This does not delete steps, remove a regular transition, change an aging
+   interval, or assign roles.
+
+The public call is
+`DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&intervalMinutes={minutes}`.
 
 ## Product path — comment required on a transition (slice 38)
 
@@ -304,10 +328,12 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
   .../workflows/{idOrName}/transitions`. Deleting one step that no transition
   still uses is `DELETE .../workflows/{idOrName}/steps/{stepName}` (`409` when
   a transition still references the step).
-- Workflow rename, role assignment, deleting an aging transition, and
-  repeated or system-field aging are not in this chrome. Changing the minute
-  interval on one existing absolute aging transition is
-  `PUT .../workflows/{idOrName}/aging-transitions/interval`.
+- Workflow rename, role assignment, and repeated or system-field aging are
+  not in this chrome. Changing the minute interval on one existing absolute
+  aging transition is
+  `PUT .../workflows/{idOrName}/aging-transitions/interval`. Deleting that
+  absolute aging transition is
+  `DELETE .../workflows/{idOrName}/aging-transitions?from={step}&to={step}&intervalMinutes={minutes}`.
 - Object ACL is not available on workflow detail (no workflow GUID in this
   release).
 - Association save requires Admin and the SY-06 REST surface
@@ -332,6 +358,7 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Delete one transition | `DELETE /services/workflows/{idOrName}/transitions?from={step}&label={label}&to={step}` (Admin; does not delete steps; packaged workflows `403`; missing workflow/step/transition `404`; blank or ambiguous label `400`) |
 | Create one absolute aging transition | `POST /services/workflows/{idOrName}/aging-transitions` (`WorkflowAgingTransitionWrite` wrap: required `from`, `to`, and a positive `intervalMinutes`; duplicate absolute edge `409`; packaged workflows `403`) |
 | Change one absolute aging interval | `PUT /services/workflows/{idOrName}/aging-transitions/interval` (`WorkflowAgingIntervalWrite` wrap: `from`, `to`, current `intervalMinutes`, and a different positive `newIntervalMinutes`; does not move the destination or change the aging type; duplicate new interval `409`; non-positive or unchanged interval `400`; missing edge `404`; packaged workflows `403`) |
+| Delete one absolute aging transition | `DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&intervalMinutes={minutes}` (Admin; does not delete steps or regular transitions; repeated or system-field match `409` and is not deleted; non-positive interval `400`; missing edge `404`; packaged workflows `403`) |
 | Comment required | `PUT /services/workflows/{idOrName}/transitions/comment-required?from={step}&label={label}&to={step}` (`WorkflowTransitionComment` wrap `{ "commentRequired": true }`; Admin; existing transition only; packaged workflows `403`; aging transitions `400`; missing transition `404`) |
 | Delete one step | `DELETE /services/workflows/{idOrName}/steps/{stepName}` (Admin; only when no transition still uses the step; returns the updated graph; packaged workflows `403`; missing workflow or step `404`; invalid step name `400`; step still referenced `409`) |
 | List allowed content types | `GET /services/workflows/{idOrName}/allowedContentTypes` |

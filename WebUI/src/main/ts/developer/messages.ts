@@ -1923,7 +1923,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_AFTER_LABEL: "perc.ui.developer@Insert after",
   WF_STEP_ROLES_LABEL: "perc.ui.developer@Roles (comma-separated)",
   WF_STEP_HINT:
-    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. Custom workflows can add or update one transition between existing steps, add one absolute aging transition in minutes, delete one transition, or delete a step that no longer has transitions.",
+    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. Custom workflows can add or update one transition between existing steps, add one absolute aging transition in minutes, delete that aging transition, delete one regular transition, or delete a step that no longer has transitions.",
   WF_STEP_SAVED: "perc.ui.developer@Workflow step saved.",
   WF_STEP_ERROR: "perc.ui.developer@Could not save workflow step.",
   WF_STEP_INVALID:
@@ -1938,7 +1938,7 @@ export const DEV_MSG_KEYS = {
   WF_GRAPH_LOADING: "perc.ui.developer@Loading workflow graph...",
   WF_GRAPH_ERROR: "perc.ui.developer@Could not load workflow graph.",
   WF_GRAPH_HINT:
-    "perc.ui.developer@States and transitions. On a custom workflow, add or update one transition between existing steps, add one absolute aging transition in minutes, delete one transition, delete a step that no transition still uses, or mark a transition as comment required. Packaged workflows stay read-only.",
+    "perc.ui.developer@States and transitions. On a custom workflow, add or update one transition between existing steps, add one absolute aging transition in minutes, delete that aging transition, delete one regular transition, delete a step that no transition still uses, or mark a transition as comment required. Packaged workflows stay read-only.",
   WF_GRAPH_COMMENT: "perc.ui.developer@Comment required",
   WF_GRAPH_COMMENT_SAVED: "perc.ui.developer@Comment requirement saved.",
   WF_GRAPH_COMMENT_ERROR: "perc.ui.developer@Could not save the comment requirement.",
@@ -1998,6 +1998,17 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@An absolute aging transition with that interval already goes to that step.",
   WF_AGING_INTERVAL_INVALID:
     "perc.ui.developer@Enter a different positive interval in minutes.",
+  WF_AGING_DELETE: "perc.ui.developer@Delete aging transition",
+  WF_AGING_DELETE_CONFIRM:
+    "perc.ui.developer@Delete this aging transition? Regular transitions stay on the workflow.",
+  WF_AGING_DELETED: "perc.ui.developer@Aging transition deleted.",
+  WF_AGING_DELETE_ERROR: "perc.ui.developer@Could not delete the aging transition.",
+  WF_AGING_DELETE_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_AGING_DELETE_BAD:
+    "perc.ui.developer@That aging transition could not be deleted. Check the steps and interval.",
+  WF_AGING_DELETE_CONFLICT:
+    "perc.ui.developer@That aging transition was not deleted. Only an absolute aging transition can be removed here.",
   WF_STEP_DELETE: "perc.ui.developer@Delete step",
   WF_STEP_DELETE_CONFIRM:
     "perc.ui.developer@Delete this step? It is removed only when no transition still uses it.",
@@ -2010,7 +2021,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Role assignment stays on the workflow-admin editor. Custom workflows can add one absolute aging transition and change its minute interval. Deleting that interval, and repeated or system-field aging, stay outside this surface.",
+    "perc.ui.developer@Role assignment stays on the workflow-admin editor. Custom workflows can add one absolute aging transition, change its minute interval, or delete that aging transition. Repeated or system-field aging stays outside this surface.",
   WF_GAP_WRITE:
     "perc.ui.developer@Workflow update / delete is not supported from this Developer surface",
   WF_GAP_CT:

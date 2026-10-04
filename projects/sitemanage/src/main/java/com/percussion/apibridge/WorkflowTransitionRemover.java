@@ -18,6 +18,7 @@
 package com.percussion.apibridge;
 
 import com.percussion.services.workflow.data.PSAgingTransition;
+import com.percussion.services.workflow.data.PSAgingTransition.PSAgingTypeEnum;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSTransitionBase;
@@ -29,9 +30,12 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Removes one workflow transition (regular or aging) without deleting states.
+ * Removes one workflow transition without deleting states.
  *
- * <p>When more than one transition on the source step shares the label, {@code toStep} is required.
+ * <p>{@link #removeOne} matches a regular or aging transition by label. When more than one
+ * transition on the source step shares the label, {@code toStep} is required. {@link
+ * #removeAbsoluteAging} removes only one absolute aging transition identified by source,
+ * destination, and minute interval, and leaves regular transitions in place.
  */
 public final class WorkflowTransitionRemover {
 
@@ -92,6 +96,122 @@ public final class WorkflowTransitionRemover {
     } else {
       aging.remove((int) agingHits.get(0));
       source.setAgingTransitions(aging);
+    }
+  }
+
+  /**
+   * Removes one absolute aging transition. Does not remove regular transitions, steps, or a
+   * repeated or system-field aging transition that happens to use the same interval.
+   */
+  public static void removeAbsoluteAging(
+      List<PSState> states, String fromStep, String toStep, long intervalMinutes) {
+    requirePositiveInterval(intervalMinutes);
+    String from = requireStepName(fromStep, "from and to are required");
+    String to = requireStepName(toStep, "from and to are required");
+    PSState source = findNamedState(states, from);
+    Long destId = stateIdNamed(states, to);
+    if (source == null) {
+      throw new WebApplicationException("Workflow step not found: " + from, 404);
+    }
+    if (destId == null) {
+      throw new WebApplicationException("Workflow step not found: " + to, 404);
+    }
+    int regularBefore = regularCount(source);
+    List<PSAgingTransition> aging = safeAging(source);
+    int matchIndex = absoluteMatchIndex(aging, destId.longValue(), intervalMinutes);
+    aging.remove(matchIndex);
+    source.setAgingTransitions(aging);
+    assertRegularUntouched(regularBefore, regularCount(source));
+  }
+
+  private static void requirePositiveInterval(long intervalMinutes) {
+    if (intervalMinutes <= 0) {
+      throw new IllegalArgumentException("interval must be a positive number of minutes");
+    }
+  }
+
+  private static String requireStepName(String raw, String message) {
+    if (StringUtils.isBlank(raw)) {
+      throw new IllegalArgumentException(message);
+    }
+    return raw.trim();
+  }
+
+  private static PSState findNamedState(List<PSState> states, String name) {
+    if (states == null) {
+      return null;
+    }
+    PSState found = null;
+    for (PSState state : states) {
+      if (sameStepName(state, name)) {
+        found = state;
+      }
+    }
+    return found;
+  }
+
+  private static Long stateIdNamed(List<PSState> states, String name) {
+    PSState state = findNamedState(states, name);
+    return state == null ? null : state.getStateId();
+  }
+
+  private static boolean sameStepName(PSState state, String name) {
+    return state != null
+        && StringUtils.isNotBlank(state.getName())
+        && state.getName().trim().equalsIgnoreCase(name);
+  }
+
+  private static int absoluteMatchIndex(
+      List<PSAgingTransition> aging, long destId, long intervalMinutes) {
+    int matchIndex = -1;
+    boolean nonAbsolute = false;
+    for (int i = 0; i < aging.size(); i++) {
+      if (!sameAgingEdge(aging.get(i), destId, intervalMinutes)) {
+        continue;
+      }
+      if (isNonAbsolute(aging.get(i))) {
+        nonAbsolute = true;
+        continue;
+      }
+      if (matchIndex >= 0) {
+        throw new IllegalArgumentException(
+            "More than one absolute aging transition uses that interval");
+      }
+      matchIndex = i;
+    }
+    if (matchIndex >= 0) {
+      return matchIndex;
+    }
+    if (nonAbsolute) {
+      throw new WebApplicationException("Only an absolute aging transition can be deleted", 409);
+    }
+    throw new WebApplicationException("Workflow aging transition not found", 404);
+  }
+
+  private static boolean sameAgingEdge(PSAgingTransition existing, long destId, long interval) {
+    return existing != null
+        && existing.getToState() == destId
+        && existing.getInterval() == interval;
+  }
+
+  private static boolean isNonAbsolute(PSAgingTransition existing) {
+    PSAgingTypeEnum type = existing.getAgingTypeEnum();
+    return type != null && type != PSAgingTypeEnum.ABSOLUTE;
+  }
+
+  private static void assertRegularUntouched(int before, int after) {
+    if (before >= 0 && after >= 0 && after != before) {
+      throw new IllegalStateException(
+          "Deleting an aging transition must not remove a regular transition");
+    }
+  }
+
+  private static int regularCount(PSState state) {
+    try {
+      List<PSTransition> regular = state.getTransitions();
+      return regular == null ? 0 : regular.size();
+    } catch (RuntimeException ex) {
+      return -1;
     }
   }
 

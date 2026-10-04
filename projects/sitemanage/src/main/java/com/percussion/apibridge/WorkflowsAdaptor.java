@@ -565,6 +565,33 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
   }
 
   @Override
+  public WorkflowGraph deleteAbsoluteAgingTransition(
+      URI baseUri, String idOrName, String fromStep, String toStep, long intervalMinutes) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(fromStep) || StringUtils.isBlank(toStep)) {
+      throw new IllegalArgumentException("from and to are required");
+    }
+    if (intervalMinutes <= 0) {
+      throw new IllegalArgumentException("interval must be a positive number of minutes");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    int stepCount = states.size();
+    WorkflowTransitionRemover.removeAbsoluteAging(states, fromStep, toStep, intervalMinutes);
+    int after = workflow.getStates() == null ? 0 : workflow.getStates().size();
+    if (after != stepCount) {
+      throw new IllegalStateException("Deleting an aging transition must not delete steps");
+    }
+    workflowService.saveWorkflow(workflow);
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
   public WorkflowGraph updateWorkflowTransition(
       URI baseUri,
       String idOrName,
