@@ -454,9 +454,35 @@ export function isValidCommunityName(name: string | undefined | null): boolean {
   return normalizeCommunityName(name).length > 0;
 }
 
+/** {@code NAME} column length on the community table. */
+export const COMMUNITY_NAME_MAX_LENGTH = 50;
+
+/**
+ * Rename name: non-blank and at most {@link COMMUNITY_NAME_MAX_LENGTH} characters.
+ * Spaces are allowed. Uniqueness is enforced by the server (409).
+ */
+export function isValidCommunityRenameName(name: string | undefined | null): boolean {
+  const trimmed = normalizeCommunityName(name);
+  return trimmed.length > 0 && trimmed.length <= COMMUNITY_NAME_MAX_LENGTH;
+}
+
 /** Create is enabled when the community name is non-blank after trim. */
 export function isCommunityWriteReady(opts: { name: string }): boolean {
   return isValidCommunityName(opts.name);
+}
+
+/**
+ * Rename save is enabled when the draft is a valid new name that differs from
+ * the current name (after trim). Case-only changes are allowed.
+ */
+export function isCommunityRenameReady(
+  currentName: string | undefined | null,
+  draft: string | undefined | null,
+): boolean {
+  if (!isValidCommunityRenameName(draft)) {
+    return false;
+  }
+  return normalizeCommunityName(draft) !== normalizeCommunityName(currentName);
 }
 
 /** Wire JSON for POST /services/communities/bulk name list. */
@@ -571,6 +597,40 @@ export async function deleteCommunity(
   ignoreDependencies = false,
 ): Promise<void> {
   await deleteCommunities([guid], ignoreDependencies);
+}
+
+/** New name for {@code POST /services/communities/{idOrName}/rename}. */
+export type CommunityRenameBody = {
+  name: string;
+};
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code CommunityRename}. */
+export const COMMUNITY_RENAME_ROOT = "CommunityRename";
+
+/**
+ * Wire JSON for community rename. A flat body fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapCommunityRenameForWire(
+  body: CommunityRenameBody,
+): Record<string, CommunityRenameBody> {
+  return { [COMMUNITY_RENAME_ROOT]: body };
+}
+
+/**
+ * POST /services/communities/{idOrName}/rename — Admin. Blank or overlong
+ * (max 50) is 400. Duplicate name is 409. Non-Admin is 403. The caller must
+ * keep the previous name until this resolves.
+ */
+export async function renameCommunity(
+  idOrName: string,
+  body: CommunityRenameBody,
+): Promise<CommunityDetail> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(
+    `${PATHS.COMMUNITIES}/${key}/rename`,
+    wrapCommunityRenameForWire(body),
+  );
+  return unwrapCommunityDetail(payload);
 }
 
 /** Unwrap GET `{ Community: {…} }` or a flat Community body. */

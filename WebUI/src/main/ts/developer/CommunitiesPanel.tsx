@@ -105,6 +105,24 @@ export function CommunitiesPanel(): React.ReactElement {
         onBack={() => setSelected(null)}
         onSaved={() => void reload()}
         onDeleted={handleDeleted}
+        onRenamed={(previousName, newName) => {
+          const prev = previousName.trim().toLowerCase();
+          const next = newName.trim();
+          if (!next) {
+            return;
+          }
+          setItems((itemsPrev) =>
+            itemsPrev == null
+              ? itemsPrev
+              : itemsPrev.map((c) =>
+                  (c.name || "").trim().toLowerCase() === prev
+                    ? { ...c, name: next, label: next }
+                    : c,
+                ),
+          );
+          setSelected(next);
+          void reload();
+        }}
       />
     );
   }

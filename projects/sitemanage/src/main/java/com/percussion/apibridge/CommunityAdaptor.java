@@ -30,7 +30,10 @@ import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.security.data.PSCommunity;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.security.IPSSecurityDesignWs;
@@ -42,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -53,9 +57,20 @@ public class CommunityAdaptor implements ICommunityAdaptor {
 
   private static final Logger log = LogManager.getLogger(CommunityAdaptor.class);
 
+  /** Column {@code RXCOMMUNITY.NAME} / {@link PSCommunity} length. */
+  static final int COMMUNITY_NAME_MAX_LENGTH = 50;
+
+  static final String ADMIN_REQUIRED = "Admin role required";
+
   @Autowired private IPSSecurityDesignWs securityDesignWs;
 
   @Autowired private IPSSystemWs systemWs;
+
+  @Autowired(required = false)
+  private IPSUserService userService;
+
+  /** When non-null, overrides {@link #isCurrentUserAdmin()} (unit tests). */
+  BooleanSupplier adminChecker;
 
   /***
    * Create one or more communities by name and return the results
@@ -210,6 +225,208 @@ public class CommunityAdaptor implements ICommunityAdaptor {
       throw new IllegalStateException("Failed to update community roles", e);
     }
     return getCommunity(idOrName.trim());
+  }
+
+  @Override
+  public Community renameCommunity(String idOrName, String newName) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    String name = validateCommunityRenameName(newName);
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    String key = idOrName.trim();
+    Community current = getCommunity(key);
+    if (current == null || current.getGuid() == null) {
+      return null;
+    }
+    if (name.equals(current.getName())) {
+      return current;
+    }
+    rejectDuplicateCommunityName(name, current);
+
+    GuidList ids = new GuidList();
+    ids.add(current.getGuid());
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      List<PSCommunity> locked =
+          securityDesignWs.loadCommunities(
+              ApiUtils.convertGuids(ids), true, true, session, user);
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSCommunity ps = locked.get(0);
+      // Loaded rows already have a Hibernate version. saveCommunities stamps the
+      // lock version and rejects a second setVersion. Persist a fresh copy
+      // (null version) so the design service merges name, description, and roles.
+      PSCommunity toSave = communityForRename(ps, name);
+      securityDesignWs.saveCommunities(List.of(toSave), true, session, user);
+    } catch (PSErrorResultsException e) {
+      throw new WebApplicationException("Community could not be locked for rename", e, 409);
+    } catch (PSErrorsException e) {
+      throw mapCommunityRenameSaveFailure(e, name);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      if (messageContainsAlreadyExists(e)) {
+        throw new WebApplicationException(communityAlreadyExistsMessage(List.of(name)), 409);
+      }
+      throw e;
+    }
+
+    Community reloaded = getCommunity(name);
+    if (reloaded != null) {
+      return reloaded;
+    }
+    current.setName(name);
+    current.setLabel(name);
+    return current;
+  }
+
+  /**
+   * Copy used by {@link IPSSecurityDesignWs#saveCommunities}. Version stays unset so the design
+   * service can apply the object-lock version. Description and role membership are preserved.
+   */
+  static PSCommunity communityForRename(PSCommunity current, String newName) {
+    PSCommunity copy = new PSCommunity();
+    copy.setName(newName);
+    copy.setDescription(current.getDescription());
+    copy.tuneClone(current.getId());
+    copy.setRoleAssociations(current.getRoleAssociations());
+    return copy;
+  }
+
+  /**
+   * Trimmed community rename name. Blank and longer than {@link #COMMUNITY_NAME_MAX_LENGTH} are
+   * {@link IllegalArgumentException} (HTTP 400 at the resource).
+   */
+  static String validateCommunityRenameName(String raw) {
+    String name = raw == null ? "" : raw.trim();
+    if (name.isEmpty()) {
+      throw new IllegalArgumentException("name cannot be null or empty");
+    }
+    if (name.length() > COMMUNITY_NAME_MAX_LENGTH) {
+      throw new IllegalArgumentException(
+          "Community name cannot have more than " + COMMUNITY_NAME_MAX_LENGTH + " characters");
+    }
+    return name;
+  }
+
+  private void rejectDuplicateCommunityName(String name, Community current) {
+    CommunityList found = findCommunities(name);
+    if (found == null) {
+      return;
+    }
+    for (Community other : found) {
+      if (other == null || other.getName() == null) {
+        continue;
+      }
+      if (!name.equalsIgnoreCase(other.getName())) {
+        continue;
+      }
+      if (sameCommunity(other, current)) {
+        continue;
+      }
+      throw new WebApplicationException(communityAlreadyExistsMessage(List.of(name)), 409);
+    }
+  }
+
+  static boolean sameCommunity(Community a, Community b) {
+    if (a == null || b == null) {
+      return false;
+    }
+    if (a.getId() > 0 && a.getId() == b.getId()) {
+      return true;
+    }
+    String ag = communityGuidKey(a.getGuid());
+    String bg = communityGuidKey(b.getGuid());
+    return ag != null && ag.equals(bg);
+  }
+
+  private static String communityGuidKey(Guid guid) {
+    if (guid == null) {
+      return null;
+    }
+    if (StringUtils.isNotBlank(guid.getStringValue())) {
+      return guid.getStringValue().trim();
+    }
+    if (guid.getUuid() > 0) {
+      return "uuid:" + guid.getUuid();
+    }
+    return null;
+  }
+
+  static RuntimeException mapCommunityRenameSaveFailure(PSErrorsException e, String newName) {
+    StringBuilder buf = new StringBuilder();
+    if (e.getMessage() != null) {
+      buf.append(e.getMessage());
+    }
+    if (e.getErrors() != null) {
+      for (Object value : e.getErrors().values()) {
+        if (value != null) {
+          buf.append(' ').append(value);
+        }
+      }
+    }
+    String msg = buf.toString();
+    if (msg.toLowerCase().contains("already exists")) {
+      return new WebApplicationException(communityAlreadyExistsMessage(List.of(newName)), 409);
+    }
+    String detail = msg.isBlank() ? "Could not rename community" : msg.trim();
+    return new WebApplicationException(detail, e, 500);
+  }
+
+  private static boolean messageContainsAlreadyExists(Throwable t) {
+    String msg = t == null ? null : t.getMessage();
+    return msg != null && msg.toLowerCase().contains("already exists");
+  }
+
+  private void requireAdmin() {
+    boolean allowed;
+    try {
+      allowed = adminChecker != null ? adminChecker.getAsBoolean() : isCurrentUserAdmin();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      log.debug("Admin check failed: {}", e.getMessage());
+      throw new WebApplicationException(ADMIN_REQUIRED, 403);
+    }
+    if (!allowed) {
+      throw new WebApplicationException(ADMIN_REQUIRED, 403);
+    }
+  }
+
+  boolean isCurrentUserAdmin() {
+    if (userService == null) {
+      log.warn("IPSUserService not available; defaulting admin check to deny");
+      return false;
+    }
+    try {
+      PSCurrentUser current = userService.getCurrentUser();
+      if (current == null || StringUtils.isBlank(current.getName())) {
+        return false;
+      }
+      return userService.isAdminUser(current.getName());
+    } catch (PSDataServiceException e) {
+      log.debug("Unable to resolve current user for Admin check: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  private static void requireSessionUserForWrite() {
+    if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
+      throw new WebApplicationException(
+          "Request session/user required for community rename", 403);
+    }
+  }
+
+  private static String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  private static String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
   }
 
   private Community resolveSummary(String key) {

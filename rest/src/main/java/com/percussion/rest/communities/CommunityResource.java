@@ -369,6 +369,49 @@ public class CommunityResource implements ICommunityResource {
     }
   }
 
+  @POST
+  @Path("/{idOrName}/rename")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Rename a community",
+      description =
+          "Admin. Renames one community. Description and role membership are unchanged."
+              + " Blank or longer than 50 characters is 400. A case-insensitive name owned by a"
+              + " different community is 409. Non-Admin or a missing session is 403. Unknown"
+              + " community is 404. A design lock held by another session is 409 and the name is"
+              + " not changed. The same name after trim does not write. Jackson root wrap is"
+              + " CommunityRename.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Renamed community",
+            content = @Content(schema = @Schema(implementation = Community.class))),
+        @ApiResponse(responseCode = "400", description = "Blank or overlong name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Community not found"),
+        @ApiResponse(responseCode = "409", description = "Duplicate name or design lock"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Community renameCommunity(
+      @Parameter(description = "Community id, GUID string, or exact name", required = true)
+          @PathParam("idOrName")
+          String idOrName,
+      CommunityRename body) {
+    if (body == null) {
+      throw new WebApplicationException("Community name is required", 400);
+    }
+    try {
+      Community community = adaptor.renameCommunity(idOrName, body.getName());
+      if (community == null) {
+        throw new WebApplicationException("Community not found: " + idOrName, 404);
+      }
+      return community;
+    } catch (RuntimeException e) {
+      throw mapWriteFailure("renameCommunity", e);
+    }
+  }
+
   @GET
   @Path("/{idOrName}")
   @Produces({MediaType.APPLICATION_JSON})
