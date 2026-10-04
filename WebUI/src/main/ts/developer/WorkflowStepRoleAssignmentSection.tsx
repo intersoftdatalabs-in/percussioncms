@@ -22,6 +22,7 @@ import {
   listStepRoleAssignments,
   removeStepRole,
   setStepRoleAssignment,
+  setStepRoleNotify,
 } from "../api/developer/workflowsApi";
 import type { WorkflowStepRoleAssignment } from "../api/developer/types";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
@@ -50,6 +51,15 @@ import {
   removableRolesOnStep,
   removableStepNames,
 } from "./workflowStepRoleRemove";
+import {
+  applyNotifyAfterReload,
+  findNotifyRow,
+  isNotifyChangeReady,
+  namedRoleRows,
+  notifyChoice,
+  parseNotifyChoice,
+  storedNotify,
+} from "./workflowStepRoleNotify";
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
@@ -114,6 +124,21 @@ function removeRoleErrorFallback(err: unknown): string {
   return DEV_MSG.WF_ROLE_REMOVE_ERROR;
 }
 
+function notifyErrorFallback(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return DEV_MSG.WF_ROLE_NOTIFY_FORBIDDEN;
+    }
+    if (err.status === 400) {
+      return DEV_MSG.WF_ROLE_NOTIFY_BAD;
+    }
+    if (err.status === 404) {
+      return DEV_MSG.WF_ROLE_NOTIFY_MISSING;
+    }
+  }
+  return DEV_MSG.WF_ROLE_NOTIFY_ERROR;
+}
+
 /**
  * Set Reader or Assignee on one role already assigned to one step.
  * The table shows the stored type only after a successful reload.
@@ -145,6 +170,12 @@ export function WorkflowStepRoleAssignmentSection({
   const [removeError, setRemoveError] = useState<string | null>(null);
   const [removeNotice, setRemoveNotice] = useState<string | null>(null);
   const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
+  const [notifyStep, setNotifyStep] = useState("");
+  const [notifyRole, setNotifyRole] = useState("");
+  const [nextNotify, setNextNotify] = useState(false);
+  const [notifyBusy, setNotifyBusy] = useState(false);
+  const [notifyError, setNotifyError] = useState<string | null>(null);
+  const [notifyNotice, setNotifyNotice] = useState<string | null>(null);
 
   const canOffer = canOfferStepRoleAssignment({
     name: workflowName,
@@ -170,6 +201,11 @@ export function WorkflowStepRoleAssignmentSection({
     setRemoveError(null);
     setRemoveNotice(null);
     setRemoveConfirmOpen(false);
+    setNotifyStep("");
+    setNotifyRole("");
+    setNextNotify(false);
+    setNotifyError(null);
+    setNotifyNotice(null);
     listStepRoleAssignments(workflowName)
       .then((loaded) => {
         if (cancelled) {
@@ -190,6 +226,12 @@ export function WorkflowStepRoleAssignmentSection({
         const stepToRemove = removableStepNames(next)[0] ?? "";
         setRemoveStep(stepToRemove);
         setRemoveRole(removableRolesOnStep(next, stepToRemove)[0] ?? "");
+        const notifyFirst = namedRoleRows(next)[0];
+        if (notifyFirst?.stepName && notifyFirst.roleName) {
+          setNotifyStep(notifyFirst.stepName);
+          setNotifyRole(notifyFirst.roleName);
+          setNextNotify(storedNotify(notifyFirst));
+        }
       })
       .catch((err: unknown) => {
         if (!cancelled) {
@@ -231,6 +273,30 @@ export function WorkflowStepRoleAssignmentSection({
     [rows, removeStep],
   );
   const removeReady = canOffer && isRemoveRoleReady(rows, removeStep, removeRole);
+  const notifyRows = useMemo(() => namedRoleRows(rows), [rows]);
+  const notifySteps = useMemo(() => {
+    const names: string[] = [];
+    for (const row of notifyRows) {
+      const name = (row.stepName ?? "").trim();
+      if (name && !names.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
+        names.push(name);
+      }
+    }
+    return names;
+  }, [notifyRows]);
+  const notifyRolesForStep = useMemo(
+    () =>
+      notifyRows.filter(
+        (row) => (row.stepName ?? "").trim().toLowerCase() === notifyStep.trim().toLowerCase(),
+      ),
+    [notifyRows, notifyStep],
+  );
+  const currentNotify = findNotifyRow(rows, notifyStep, notifyRole);
+  const currentNotifyOn = storedNotify(currentNotify);
+  const notifyReady =
+    canOffer &&
+    !!currentNotify &&
+    isNotifyChangeReady(currentNotifyOn, nextNotify);
 
   function chooseStep(nextStep: string): void {
     setStepName(nextStep);
@@ -256,6 +322,31 @@ export function WorkflowStepRoleAssignmentSection({
     setNextType(normalizeAssignmentType(currentType));
     setError(null);
     setNotice(null);
+  }
+
+  function chooseNotifyStep(nextStep: string): void {
+    setNotifyStep(nextStep);
+    setNotifyError(null);
+    setNotifyNotice(null);
+    const role = notifyRows.find(
+      (row) => (row.stepName ?? "").trim().toLowerCase() === nextStep.trim().toLowerCase(),
+    );
+    const name = role?.roleName ?? "";
+    setNotifyRole(name);
+    setNextNotify(storedNotify(role));
+  }
+
+  function chooseNotifyRole(nextRole: string): void {
+    setNotifyRole(nextRole);
+    setNotifyError(null);
+    setNotifyNotice(null);
+    setNextNotify(storedNotify(findNotifyRow(rows, notifyStep, nextRole)));
+  }
+
+  function cancelNotify(): void {
+    setNextNotify(currentNotifyOn);
+    setNotifyError(null);
+    setNotifyNotice(null);
   }
 
   function chooseAddStep(nextStep: string): void {
@@ -381,6 +472,43 @@ export function WorkflowStepRoleAssignmentSection({
     }
   }
 
+  async function confirmNotify(): Promise<void> {
+    if (!canOffer || notifyBusy || !notifyReady) {
+      return;
+    }
+    const step = notifyStep.trim();
+    const role = notifyRole.trim();
+    const requested = nextNotify;
+    setNotifyBusy(true);
+    setNotifyError(null);
+    setNotifyNotice(null);
+    try {
+      await setStepRoleNotify(workflowName, step, {
+        roleName: role,
+        notify: requested,
+      });
+    } catch (err: unknown) {
+      setNotifyError(panelErrMsg(err, notifyErrorFallback(err)));
+      setNotifyBusy(false);
+      return;
+    }
+    try {
+      const reloaded = await listStepRoleAssignments(workflowName);
+      const applied = applyNotifyAfterReload(rows, reloaded, step, role, requested);
+      if (!applied.accepted) {
+        setNotifyError(DEV_MSG.WF_ROLE_NOTIFY_ERROR);
+        return;
+      }
+      setRows(applied.rows);
+      setNextNotify(requested);
+      setNotifyNotice(DEV_MSG.WF_ROLE_NOTIFY_SAVED);
+    } catch (err: unknown) {
+      setNotifyError(panelErrMsg(err, DEV_MSG.WF_ROLE_ASSIGN_LOAD_ERROR));
+    } finally {
+      setNotifyBusy(false);
+    }
+  }
+
   async function confirm(): Promise<void> {
     if (!canOffer || busy || !ready) {
       return;
@@ -448,6 +576,7 @@ export function WorkflowStepRoleAssignmentSection({
                 <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_STEP}</th>
                 <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_ROLES}</th>
                 <th style={{ padding: "8px" }}>{DEV_MSG.WF_ROLE_ASSIGN_TYPE}</th>
+                <th style={{ padding: "8px" }}>{DEV_MSG.WF_ROLE_NOTIFY_FLAG}</th>
               </tr>
             </thead>
             <tbody>
@@ -465,6 +594,13 @@ export function WorkflowStepRoleAssignmentSection({
                     data-assignment-type={normalizeAssignmentType(row.assignmentType)}
                   >
                     {assignmentTypeLabel(row.assignmentType) || "—"}
+                  </td>
+                  <td
+                    style={{ padding: "8px" }}
+                    data-testid={`developer-wf-role-notify-${i}`}
+                    data-notify={storedNotify(row) ? "true" : "false"}
+                  >
+                    {storedNotify(row) ? DEV_MSG.WF_ROLE_NOTIFY_ON : DEV_MSG.WF_ROLE_NOTIFY_OFF}
                   </td>
                 </tr>
               ))}
@@ -587,6 +723,124 @@ export function WorkflowStepRoleAssignmentSection({
               }}
             >
               {DEV_MSG.WF_ROLE_ASSIGN_CANCEL}
+            </button>
+          </div>
+        </div>
+      ) : null}
+      {canOffer && notifyRows.length > 0 ? (
+        <div data-testid="developer-wf-role-notify" style={{ marginTop: "16px" }}>
+          <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.WF_ROLE_NOTIFY_TITLE}</h3>
+          <p style={{ color: catalogColors.muted, fontSize: "0.9rem", margin: "0 0 8px" }}>
+            {DEV_MSG.WF_ROLE_NOTIFY_HINT}
+          </p>
+          {notifyError ? (
+            <div
+              role="alert"
+              data-testid="developer-wf-role-notify-error"
+              style={{ ...errorAlert, marginBottom: "8px" }}
+            >
+              {notifyError}
+            </div>
+          ) : null}
+          {notifyNotice ? (
+            <div
+              role="status"
+              aria-live="polite"
+              data-testid="developer-wf-role-notify-notice"
+              style={{ color: catalogColors.accent, marginBottom: "8px" }}
+            >
+              {notifyNotice}
+            </div>
+          ) : null}
+          <label htmlFor="wf-role-notify-step" style={{ display: "block", marginBottom: 4 }}>
+            {DEV_MSG.WF_COL_STEP}
+          </label>
+          <select
+            id="wf-role-notify-step"
+            data-testid="developer-wf-role-notify-step"
+            style={inputStyle}
+            value={notifyStep}
+            disabled={notifyBusy}
+            onChange={(e) => chooseNotifyStep(e.target.value)}
+            aria-label={DEV_MSG.WF_COL_STEP}
+          >
+            {notifySteps.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="wf-role-notify-role" style={{ display: "block", margin: "8px 0 4px" }}>
+            {DEV_MSG.WF_COL_ROLES}
+          </label>
+          <select
+            id="wf-role-notify-role"
+            data-testid="developer-wf-role-notify-role"
+            style={inputStyle}
+            value={notifyRole}
+            disabled={notifyBusy}
+            onChange={(e) => chooseNotifyRole(e.target.value)}
+            aria-label={DEV_MSG.WF_COL_ROLES}
+          >
+            {notifyRolesForStep.map((row) => (
+              <option key={row.roleName} value={row.roleName}>
+                {row.roleName}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="wf-role-notify-value" style={{ display: "block", margin: "8px 0 4px" }}>
+            {DEV_MSG.WF_ROLE_NOTIFY_FLAG}
+          </label>
+          <select
+            id="wf-role-notify-value"
+            data-testid="developer-wf-role-notify-value"
+            style={inputStyle}
+            value={notifyChoice(nextNotify)}
+            disabled={notifyBusy}
+            onChange={(e) => {
+              setNextNotify(parseNotifyChoice(e.target.value));
+              if (notifyError) {
+                setNotifyError(null);
+              }
+            }}
+            aria-label={DEV_MSG.WF_ROLE_NOTIFY_FLAG}
+          >
+            <option value="on">{DEV_MSG.WF_ROLE_NOTIFY_ON}</option>
+            <option value="off">{DEV_MSG.WF_ROLE_NOTIFY_OFF}</option>
+          </select>
+          <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+            <button
+              type="button"
+              data-testid="developer-wf-role-notify-confirm"
+              disabled={notifyBusy || !notifyReady}
+              onClick={() => void confirmNotify()}
+              style={{
+                background:
+                  notifyBusy || !notifyReady ? catalogColors.disabled : catalogColors.accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                padding: "8px 14px",
+                font: "inherit",
+                cursor: notifyBusy || !notifyReady ? "not-allowed" : "pointer",
+              }}
+            >
+              {notifyBusy ? DEV_MSG.WF_ROLE_NOTIFY_BUSY : DEV_MSG.WF_ROLE_NOTIFY_CONFIRM}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-wf-role-notify-cancel"
+              disabled={notifyBusy}
+              onClick={cancelNotify}
+              style={{
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                padding: "8px 14px",
+                font: "inherit",
+              }}
+            >
+              {DEV_MSG.WF_ROLE_NOTIFY_CANCEL}
             </button>
           </div>
         </div>

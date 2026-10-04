@@ -1240,6 +1240,8 @@ export interface WorkflowStepRoleAssignment {
   stepName?: string;
   roleName?: string;
   assignmentType?: string;
+  /** Stored ISNOTIFYON. Inbox is not on this row. */
+  notify?: boolean;
 }
 
 export interface WorkflowStepSummary {

@@ -44,8 +44,10 @@ import {
   renameWorkflow,
   setDefaultWorkflow,
   setStepRoleAssignment,
+  setStepRoleNotify,
   wrapWorkflowStepRoleAddForWire,
   wrapWorkflowStepRoleAssignmentForWire,
+  wrapWorkflowStepRoleNotifyForWire,
   updateWorkflow,
   wrapWorkflowContentTypesForWire,
   wrapWorkflowCreateForWire,
@@ -557,6 +559,66 @@ describe("workflow step role assignment API (slice 61)", () => {
       }),
     );
     expect(listStepRoleAssignments).toBeTypeOf("function");
+  });
+});
+
+describe("workflow step role notify API (slice 65)", () => {
+  const fetchMock = vi.fn();
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("PUTs notify for one role and does not send inbox or assignment type", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        WorkflowStepRoleAssignmentList: {
+          assignments: [
+            {
+              stepName: "Draft",
+              roleName: "Author",
+              assignmentType: "ASSIGNEE",
+              notify: false,
+            },
+          ],
+        },
+      }),
+    );
+    const rows = await setStepRoleNotify("Nightly QA", "Draft", {
+      roleName: "Author",
+      notify: false,
+    });
+    expect(rows[0].notify).toBe(false);
+    expect(rows[0].assignmentType).toBe("ASSIGNEE");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      `${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Nightly QA")}/steps/${encodeURIComponent("Draft")}/role-notify`,
+    );
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("role-assignment");
+    const body = JSON.parse(String(init.body)) as {
+      WorkflowStepRoleNotifyWrite: { roleName: string; notify: boolean };
+    };
+    expect(body).toEqual(
+      wrapWorkflowStepRoleNotifyForWire({
+        roleName: "Author",
+        notify: false,
+      }),
+    );
+    expect(body.WorkflowStepRoleNotifyWrite).not.toHaveProperty("inbox");
+    expect(body.WorkflowStepRoleNotifyWrite).not.toHaveProperty("assignmentType");
   });
 });
 

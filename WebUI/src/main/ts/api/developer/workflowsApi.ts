@@ -15,7 +15,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Notify or inbox flags stay on the workflow-admin editor. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Repeated or system-field aging stays outside this surface.",
+  "Inbox flags stay on the workflow-admin editor. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Repeated or system-field aging stays outside this surface.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -886,6 +886,37 @@ export async function setStepRoleAssignment(
   const payload = await put<unknown>(
     `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}/role-assignment`,
     wrapWorkflowStepRoleAssignmentForWire(body),
+  );
+  return parseStepRoleAssignments(payload);
+}
+
+export const WORKFLOW_STEP_ROLE_NOTIFY_ROOT = "WorkflowStepRoleNotifyWrite";
+
+export type WorkflowStepRoleNotifyWriteBody = {
+  roleName: string;
+  notify: boolean;
+};
+
+export function wrapWorkflowStepRoleNotifyForWire(
+  body: WorkflowStepRoleNotifyWriteBody,
+): Record<string, WorkflowStepRoleNotifyWriteBody> {
+  return { [WORKFLOW_STEP_ROLE_NOTIFY_ROOT]: body };
+}
+
+/**
+ * PUT /services/workflows/{id}/steps/{step}/role-notify — ISNOTIFYON for one
+ * role already on the step. Not PUT role-assignment. Inbox is not sent.
+ */
+export async function setStepRoleNotify(
+  idOrName: string,
+  stepName: string,
+  body: WorkflowStepRoleNotifyWriteBody,
+): Promise<WorkflowStepRoleAssignment[]> {
+  const key = encodeURIComponent(idOrName);
+  const step = encodeURIComponent(stepName);
+  const payload = await put<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}/role-notify`,
+    wrapWorkflowStepRoleNotifyForWire(body),
   );
   return parseStepRoleAssignments(payload);
 }
