@@ -420,23 +420,81 @@ export async function listContexts(): Promise<ContextSummary[]> {
   return normalizeArray(await get<unknown>(`${designRoot()}/contexts`));
 }
 
+/**
+ * JAXB/Jackson root wrap expected by sitemanage {@code PSContextSummary}.
+ * A flat name root does not bind under UNWRAP_ROOT_VALUE. Omits id and
+ * default scheme unless the caller set them. Copy does not set them, so
+ * create allocates a new context and leaves location schemes on the source.
+ */
+export function wrapContext(body: ContextSummary): { context: ContextSummary } {
+  const wire: ContextSummary = {};
+  if (body.name != null) {
+    wire.name = body.name;
+  }
+  if (body.description != null) {
+    wire.description = body.description;
+  }
+  if (body.contextId != null && body.contextId !== "") {
+    wire.contextId = String(body.contextId);
+  }
+  if (body.defaultSchemeId != null && body.defaultSchemeId !== "") {
+    wire.defaultSchemeId = String(body.defaultSchemeId);
+  }
+  return { context: wire };
+}
+
+/** Accept a wrapped {@code context} document or an already-flat summary. */
+export function unwrapContext(data: unknown): ContextSummary {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    return {};
+  }
+  const record = data as Record<string, unknown>;
+  const nested = record.context;
+  const source =
+    nested && typeof nested === "object" && !Array.isArray(nested)
+      ? (nested as Record<string, unknown>)
+      : record;
+  const summary: ContextSummary = {};
+  if (source.contextId != null && source.contextId !== "") {
+    summary.contextId = String(source.contextId);
+  }
+  if (typeof source.name === "string") {
+    summary.name = source.name;
+  }
+  if (typeof source.description === "string") {
+    summary.description = source.description;
+  }
+  if (source.defaultSchemeId != null && source.defaultSchemeId !== "") {
+    summary.defaultSchemeId = String(source.defaultSchemeId);
+  }
+  return summary;
+}
+
+/**
+ * POST create. Copy reuses this with a new name and the source description.
+ * The source id and default scheme are not sent, so location schemes stay
+ * on the source context. HTTP 400 blank or overlong name; 403 non-Admin/Designer;
+ * 409 duplicate name.
+ */
 export async function createContext(
   body: ContextSummary,
 ): Promise<ContextSummary> {
-  return (await post<unknown>(
-    `${designRoot()}/contexts`,
-    body,
-  )) as ContextSummary;
+  return unwrapContext(
+    await post<unknown>(`${designRoot()}/contexts`, wrapContext(body)),
+  );
 }
 
+/** PUT update. HTTP 400 overlong name; 403 non-Admin/Designer; 409 duplicate name. */
 export async function updateContext(
   contextId: string | number,
   body: ContextSummary,
 ): Promise<ContextSummary> {
-  return (await put<unknown>(
-    `${designRoot()}/contexts/${encodeURIComponent(String(contextId))}`,
-    body,
-  )) as ContextSummary;
+  return unwrapContext(
+    await put<unknown>(
+      `${designRoot()}/contexts/${encodeURIComponent(String(contextId))}`,
+      wrapContext(body),
+    ),
+  );
 }
 
 export async function deleteContext(contextId: string | number): Promise<void> {

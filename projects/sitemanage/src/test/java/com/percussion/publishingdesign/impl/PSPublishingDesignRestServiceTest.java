@@ -975,6 +975,69 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void createContext_nameTooLong_400() {
+    PSPublishingDesignRestService design =
+        new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
+    design.setDesignWriteAllowed(() -> true);
+    PSContextSummary body = new PSContextSummary();
+    body.setName("n".repeat(PSPublishingDesignRestService.MAX_CONTEXT_NAME_LENGTH + 1));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.createContext(body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_NAME_TOO_LONG, ex.getMessage());
+    verify(siteManager, never()).createContext();
+    verify(siteManager, never()).saveContext(any());
+  }
+
+  @Test
+  void createContext_keepsDescriptionAndDoesNotAttachScheme() throws Exception {
+    PSPublishingDesignRestService design =
+        new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
+    design.setDesignWriteAllowed(() -> true);
+    when(siteManager.findAllContexts()).thenReturn(List.of());
+    IPSPublishingContext created = mock(IPSPublishingContext.class);
+    when(siteManager.createContext()).thenReturn(created);
+    when(created.getGUID()).thenReturn(contextGuid);
+    when(contextGuid.getUUID()).thenReturn(12);
+    when(created.getName()).thenReturn("Publish copy");
+    when(created.getDescription()).thenReturn("Public site");
+    when(created.getDefaultScheme()).thenReturn(null);
+
+    PSContextSummary body = new PSContextSummary();
+    body.setName("  Publish copy  ");
+    body.setDescription("Public site");
+
+    PSContextSummary saved = design.createContext(body);
+    assertEquals("12", saved.getContextId());
+    assertEquals("Publish copy", saved.getName());
+    assertEquals("Public site", saved.getDescription());
+    assertNull(saved.getDefaultSchemeId());
+    verify(created).setName("Publish copy");
+    verify(created).setDescription("Public site");
+    verify(created, never()).setDefaultSchemeId(any());
+    verify(siteManager).saveContext(created);
+    verify(siteManager, never()).createScheme();
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateContext_nameTooLong_400() throws Exception {
+    PSPublishingDesignRestService design =
+        new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
+    design.setDesignWriteAllowed(() -> true);
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    when(siteManager.loadContextModifiable(contextGuid)).thenReturn(mock(IPSPublishingContext.class));
+
+    PSContextSummary body = new PSContextSummary();
+    body.setName("n".repeat(PSPublishingDesignRestService.MAX_CONTEXT_NAME_LENGTH + 1));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateContext("5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_NAME_TOO_LONG, ex.getMessage());
+    verify(siteManager, never()).saveContext(any());
+  }
+
+  @Test
   void createContext_duplicateName_409() throws Exception {
     PSPublishingDesignRestService design =
         new PSPublishingDesignRestService(publisherService, guidManager, siteManager);

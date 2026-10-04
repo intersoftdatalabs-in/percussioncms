@@ -131,6 +131,11 @@ public class PSPublishingDesignRestService {
   static final String LOCATION_SCHEME_NAME_TOO_LONG =
       "Location scheme name must be 50 characters or fewer";
   static final String CONTEXT_NAME_CONFLICT = "Publishing context name already exists";
+  /** Matches {@code RXCONTEXT.CONTEXTNAME} VARCHAR(50). */
+  static final int MAX_CONTEXT_NAME_LENGTH = 50;
+
+  static final String CONTEXT_NAME_TOO_LONG =
+      "Publishing context name must be 50 characters or fewer";
   /**
    * Location schemes still belong to this context. Removing those schemes is a separate action.
    */
@@ -956,10 +961,14 @@ public class PSPublishingDesignRestService {
     if (body == null || isBlank(body.getName())) {
       throw badRequest("name is required");
     }
+    String trimmedName = body.getName().trim();
+    if (trimmedName.length() > MAX_CONTEXT_NAME_LENGTH) {
+      throw badRequest(CONTEXT_NAME_TOO_LONG);
+    }
     try {
-      requireUniqueContextName(body.getName().trim(), null);
+      requireUniqueContextName(trimmedName, null);
       IPSPublishingContext ctx = siteManager.createContext();
-      ctx.setName(body.getName().trim());
+      ctx.setName(trimmedName);
       if (body.getDescription() != null) {
         ctx.setDescription(body.getDescription());
       }
@@ -992,8 +1001,12 @@ public class PSPublishingDesignRestService {
       IPSPublishingContext ctx =
           siteManager.loadContextModifiable(guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT));
       if (!isBlank(body.getName())) {
-        requireUniqueContextName(body.getName().trim(), contextId);
-        ctx.setName(body.getName().trim());
+        String trimmedName = body.getName().trim();
+        if (trimmedName.length() > MAX_CONTEXT_NAME_LENGTH) {
+          throw badRequest(CONTEXT_NAME_TOO_LONG);
+        }
+        requireUniqueContextName(trimmedName, contextId);
+        ctx.setName(trimmedName);
       }
       if (body.getDescription() != null) {
         ctx.setDescription(body.getDescription());
