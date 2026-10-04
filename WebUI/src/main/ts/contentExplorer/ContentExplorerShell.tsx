@@ -157,9 +157,13 @@ import {
 import type { FolderWorkflowChoice } from "../api/contentExplorer/folderWorkflowApi";
 import { SetFolderCommunityDialog } from "./SetFolderCommunityDialog";
 import {
+  describeSetFolderCommunityMultiSave,
   loadSetFolderCommunityCatalog,
+  loadSetFolderCommunityMultiCatalog,
   saveSetFolderCommunity,
+  saveSetFolderCommunityOnSelection,
   type SetFolderCommunityCatalog,
+  type SetFolderCommunityMultiCatalog,
 } from "./setFolderCommunity";
 import type { FolderCommunityChoice } from "../api/contentExplorer/folderCommunityApi";
 import { SetFolderLocaleDialog } from "./SetFolderLocaleDialog";
@@ -753,7 +757,17 @@ function ContentExplorerShellInner({
     props: PSFolderProperties;
     busy: boolean;
     error: string;
+    multi: boolean;
+    targets: { folderId: string; name: string }[];
+    skippedPageNames: string[];
+    skippedAssetNames: string[];
+    skippedOtherNames: string[];
+    noIdNames: string[];
   } | null>(null);
+  /** Community name painted on a folder only after that folder's refresh (#5156). */
+  const [savedFolderCommunities, setSavedFolderCommunities] = useState<
+    ReadonlyMap<string, { communityId: string; communityName: string }>
+  >(() => new Map());
   const [setFolderLocaleNotice, setSetFolderLocaleNotice] = useState<{
     kind: "success" | "error";
     reason: string;
@@ -2263,56 +2277,97 @@ function ContentExplorerShellInner({
         case "content-set-folder-community": {
           const current = selectionRef.current;
           const selectedCount = multiSelectedItemsRef.current.size;
+          const checked = Array.from(multiSelectedItemsRef.current.values());
           void (async () => {
             setSetFolderCommunityNotice(null);
             setSetFolderCommunityDialog(null);
+            const showBlocked = (reason: string, name: string) => {
+              const key =
+                reason === "page"
+                  ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_PAGE
+                  : reason === "asset"
+                    ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_ASSET
+                    : reason === "not-folder"
+                      ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_NOT_FOLDER
+                      : reason === "multi"
+                        ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_MULTI
+                        : reason === "no-id"
+                          ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_NO_ID
+                          : EXPLORER_MSG.SET_FOLDER_COMMUNITY_EMPTY;
+              const text = name ? `${message(key)}: ${name}` : message(key);
+              setSetFolderCommunityNotice({
+                kind: "error",
+                reason,
+                communityId: "",
+                communityName: "",
+                text,
+              });
+            };
+            const showHttpOrNone = (
+              status: "none" | "http",
+              http?: 400 | 403 | 409 | "other",
+            ) => {
+              const httpKey =
+                status === "http" && http === 400
+                  ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_400
+                  : status === "http" && http === 403
+                    ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_403
+                    : status === "http" && http === 409
+                      ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_409
+                      : status === "http"
+                        ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_FAILED
+                        : EXPLORER_MSG.SET_FOLDER_COMMUNITY_NONE;
+              setSetFolderCommunityNotice({
+                kind: "error",
+                reason: status === "http" ? `http-${http}` : "none",
+                communityId: "",
+                communityName: "",
+                text: message(httpKey),
+              });
+            };
+            if (selectedCount >= 2) {
+              const multiCatalog: SetFolderCommunityMultiCatalog =
+                await loadSetFolderCommunityMultiCatalog({ items: checked });
+              if (multiCatalog.status === "blocked") {
+                showBlocked(multiCatalog.reason, multiCatalog.name);
+                return;
+              }
+              if (multiCatalog.status === "none" || multiCatalog.status === "http") {
+                showHttpOrNone(
+                  multiCatalog.status,
+                  multiCatalog.status === "http" ? multiCatalog.http : undefined,
+                );
+                return;
+              }
+              setSetFolderCommunityDialog({
+                folderId: multiCatalog.targets[0]?.folderId ?? "",
+                currentId: multiCatalog.currentId,
+                choices: multiCatalog.choices,
+                props: multiCatalog.props,
+                busy: false,
+                error: "",
+                multi: true,
+                targets: multiCatalog.targets,
+                skippedPageNames: multiCatalog.skippedPageNames,
+                skippedAssetNames: multiCatalog.skippedAssetNames,
+                skippedOtherNames: multiCatalog.skippedOtherNames,
+                noIdNames: multiCatalog.noIdNames,
+              });
+              return;
+            }
             const catalog: SetFolderCommunityCatalog = await loadSetFolderCommunityCatalog({
               item: current.item,
               selectedCount,
             });
             if (catalog.status === "blocked") {
-              const key =
-                catalog.reason === "page"
-                  ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_PAGE
-                  : catalog.reason === "asset"
-                    ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_ASSET
-                    : catalog.reason === "not-folder"
-                      ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_NOT_FOLDER
-                      : catalog.reason === "multi"
-                        ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_MULTI
-                        : catalog.reason === "no-id"
-                          ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_NO_ID
-                          : EXPLORER_MSG.SET_FOLDER_COMMUNITY_EMPTY;
-              const text = catalog.name
-                ? `${message(key)}: ${catalog.name}`
-                : message(key);
-              setSetFolderCommunityNotice({
-                kind: "error",
-                reason: catalog.reason,
-                communityId: "",
-                communityName: "",
-                text,
-              });
+              showBlocked(catalog.reason, catalog.name);
               return;
             }
             if (catalog.status === "none" || catalog.status === "http") {
-              const httpKey =
-                catalog.status === "http" && catalog.http === 400
-                  ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_400
-                  : catalog.status === "http" && catalog.http === 403
-                    ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_403
-                    : catalog.status === "http" && catalog.http === 409
-                      ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_HTTP_409
-                      : catalog.status === "http"
-                        ? EXPLORER_MSG.SET_FOLDER_COMMUNITY_FAILED
-                        : EXPLORER_MSG.SET_FOLDER_COMMUNITY_NONE;
-              setSetFolderCommunityNotice({
-                kind: "error",
-                reason: catalog.status === "http" ? `http-${catalog.http}` : "none",
-                communityId: "",
-                communityName: "",
-                text: message(httpKey),
-              });
+              showHttpOrNone(
+                catalog.status,
+                catalog.status === "http" ? catalog.http : undefined,
+              );
               return;
             }
             setSetFolderCommunityDialog({
@@ -2322,6 +2377,12 @@ function ContentExplorerShellInner({
               props: catalog.props,
               busy: false,
               error: "",
+              multi: false,
+              targets: [],
+              skippedPageNames: [],
+              skippedAssetNames: [],
+              skippedOtherNames: [],
+              noIdNames: [],
             });
           })();
           break;
@@ -3408,6 +3469,7 @@ function ContentExplorerShellInner({
           onToggleSelectItem={handleToggleSelectItem}
           approvedIncrementalIds={approvedIncrementalIds}
           itemCommunities={savedItemCommunities}
+          folderCommunities={savedFolderCommunities}
           itemWorkflows={savedItemWorkflows}
         />
       )}
@@ -4110,6 +4172,7 @@ function ContentExplorerShellInner({
           currentId={setFolderCommunityDialog.currentId}
           busy={setFolderCommunityDialog.busy}
           error={setFolderCommunityDialog.error}
+          multi={setFolderCommunityDialog.multi}
           onCancel={() => {
             if (!setFolderCommunityDialog.busy) {
               setSetFolderCommunityDialog(null);
@@ -4119,6 +4182,38 @@ function ContentExplorerShellInner({
             const dialog = setFolderCommunityDialog;
             void (async () => {
               setSetFolderCommunityDialog({ ...dialog, busy: true, error: "" });
+              if (dialog.multi) {
+                const choiceName =
+                  dialog.choices.find((row) => row.id === communityId)?.name ?? communityId;
+                const result = await saveSetFolderCommunityOnSelection({
+                  targets: dialog.targets,
+                  skippedPageNames: dialog.skippedPageNames,
+                  skippedAssetNames: dialog.skippedAssetNames,
+                  skippedOtherNames: dialog.skippedOtherNames,
+                  noIdNames: dialog.noIdNames,
+                  selectedId: communityId,
+                  allowedIds: dialog.choices.map((row) => row.id),
+                  communityName: choiceName,
+                  onFolderSaved: (folder) => {
+                    setSavedFolderCommunities((prev) => {
+                      const next = new Map(prev);
+                      next.set(folder.folderId, {
+                        communityId: folder.communityId,
+                        communityName: folder.communityName,
+                      });
+                      return next;
+                    });
+                  },
+                });
+                setSetFolderCommunityDialog(null);
+                setSetFolderCommunityNotice(
+                  describeSetFolderCommunityMultiSave(result, choiceName),
+                );
+                if (result.saved.length > 0) {
+                  setListEpoch((n) => n + 1);
+                }
+                return;
+              }
               const saved = await saveSetFolderCommunity({
                 folderId: dialog.folderId,
                 props: dialog.props,

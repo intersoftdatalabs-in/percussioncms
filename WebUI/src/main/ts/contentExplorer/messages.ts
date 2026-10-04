@@ -909,6 +909,10 @@ export const EXPLORER_MSG = {
   SET_FOLDER_COMMUNITY_FAILED: "perc.ui.explorer@Could not set the folder community",
   SET_FOLDER_COMMUNITY_MISMATCH:
     "perc.ui.explorer@The folder community did not change after refresh",
+  SET_FOLDER_COMMUNITY_MULTI_NOTE:
+    "perc.ui.explorer@This community is saved on each selected folder. Pages and assets are not changed",
+  SET_FOLDER_COMMUNITY_PARTIAL:
+    "perc.ui.explorer@Not every selected folder had its community set: {detail}",
   SET_FOLDER_LOCALE: "perc.ui.explorer@Set folder locale",
   SET_FOLDER_LOCALE_ARIA:
     "perc.ui.explorer@Set the locale on the selected folder",
