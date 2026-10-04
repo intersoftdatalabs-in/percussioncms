@@ -193,4 +193,10 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
       URI baseUri, String idOrName, String stepName, WorkflowStepRoleAdd body) {
     return new WorkflowStepRoleAssignmentList();
   }
+
+  @Override
+  public WorkflowStepRoleAssignmentList removeStepRole(
+      URI baseUri, String idOrName, String stepName, String roleName) {
+    return new WorkflowStepRoleAssignmentList();
+  }
 }

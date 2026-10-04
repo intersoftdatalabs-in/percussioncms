@@ -2042,10 +2042,10 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Removing a step role, and notify or inbox flags, stay on the workflow-admin editor. Reader or Assignee can be set for one role already assigned to a step. Repeated or system-field aging stays outside this surface.",
+    "perc.ui.developer@Notify or inbox flags stay on the workflow-admin editor. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Repeated or system-field aging stays outside this surface.",
   WF_ROLE_ASSIGN_TITLE: "perc.ui.developer@Assignment type",
   WF_ROLE_ASSIGN_HINT:
-    "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Removing a role, and notify or inbox flags, stay on the workflow-admin editor.",
+    "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Notify or inbox flags stay on the workflow-admin editor.",
   WF_ROLE_ASSIGN_PACKAGED:
     "perc.ui.developer@Packaged or default workflows cannot change assignment type from this surface.",
   WF_ROLE_ASSIGN_TYPE: "perc.ui.developer@Assignment type",
@@ -2085,6 +2085,24 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Choose Reader or Assignee for a role that is not already on the step.",
   WF_ROLE_ADD_MISSING:
     "perc.ui.developer@That step or role was not found.",
+  WF_ROLE_REMOVE_TITLE: "perc.ui.developer@Remove role",
+  WF_ROLE_REMOVE_HINT:
+    "perc.ui.developer@Remove one Reader or Assignee role from one step. The role stays listed until the server accepts the delete. Other steps keep that role.",
+  WF_ROLE_REMOVE_EMPTY:
+    "perc.ui.developer@No Reader or Assignee roles can be removed from this workflow.",
+  WF_ROLE_REMOVE_ROLE: "perc.ui.developer@Role to remove",
+  WF_ROLE_REMOVE_REQUEST: "perc.ui.developer@Remove role",
+  WF_ROLE_REMOVE_CONFIRM:
+    "perc.ui.developer@Remove this role from the step? It stays listed until the delete succeeds.",
+  WF_ROLE_REMOVE_BUSY: "perc.ui.developer@Removing...",
+  WF_ROLE_REMOVE_SAVED: "perc.ui.developer@Role removed.",
+  WF_ROLE_REMOVE_ERROR: "perc.ui.developer@Could not remove the role.",
+  WF_ROLE_REMOVE_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_ROLE_REMOVE_CONFLICT:
+    "perc.ui.developer@That role was not removed. Admin and None assignments stay on the workflow-admin editor.",
+  WF_ROLE_REMOVE_BAD: "perc.ui.developer@Choose a Reader or Assignee role already on the step.",
+  WF_ROLE_REMOVE_MISSING: "perc.ui.developer@That step or role was not found.",
   WF_GAP_WRITE:
     "perc.ui.developer@Workflow update / delete is not supported from this Developer surface",
   WF_GAP_CT:

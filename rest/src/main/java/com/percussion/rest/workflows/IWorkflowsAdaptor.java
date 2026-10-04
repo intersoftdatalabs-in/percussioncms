@@ -337,4 +337,21 @@ public interface IWorkflowsAdaptor {
    */
   WorkflowStepRoleAssignmentList addStepRole(
       URI baseUri, String idOrName, String stepName, WorkflowStepRoleAdd body);
+
+  /**
+   * Remove one Reader or Assignee role from one step (Admin, slice 64).
+   *
+   * <p>Not the assignment-type update and not the add. The role must already be assigned to the
+   * step. Other steps keep that role. Notify and inbox on remaining roles are not edited. Admin
+   * and None assignments are not removed. Packaged and system-default workflows are rejected.
+   *
+   * @param stepName existing step name
+   * @param roleName role already assigned to that step
+   * @return the assignment list after the delete, never {@code null}
+   * @throws IllegalArgumentException when the step or role name is blank
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or role, 409 when the current type is not Reader or Assignee
+   */
+  WorkflowStepRoleAssignmentList removeStepRole(
+      URI baseUri, String idOrName, String stepName, String roleName);
 }

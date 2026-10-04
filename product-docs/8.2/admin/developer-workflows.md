@@ -22,9 +22,11 @@ that already exists is rejected and does not overwrite.
 **add or update one transition** between existing steps, **add one absolute
 aging transition** (interval in minutes), **change that minute interval**,
 **delete that aging transition**, **delete one regular transition**, or
-**delete one step** that no transition still uses. Role assignment, repeated
-or system-field aging, and writes on packaged workflows stay outside this
-chrome.
+**delete one step** that no transition still uses. An Admin can also set
+Reader or Assignee on a role already assigned to a step, add one existing
+workflow role onto a step, and remove one Reader or Assignee role from a
+step. Notify and inbox flags, repeated or system-field aging, and writes on
+packaged workflows stay outside this chrome.
 The graph badge says **Packaged workflow** for Default Workflow, Simple
 Workflow, Local Content, and any workflow the server marks as the default;
 other workflows show **Custom workflow**. Missing workflows (`404`) and
@@ -255,7 +257,8 @@ match the path on `PUT /services/workflows/{idOrName}` is still `400`.
 Renaming a custom workflow is a separate confirm on this detail (see below).
 Setting Reader or Assignee on a role already assigned to a step is a separate
 confirm (see below). Adding one existing role onto one step is a separate
-confirm (see below). Removing a role, and notify or inbox flags, stay on the
+confirm (see below). Removing one Reader or Assignee role from one step is a
+separate confirm (see below). Notify or inbox flags stay on the
 workflow-admin editor. Step and transition edits are on the detail form and
 graph.
 
@@ -341,6 +344,37 @@ The public call is
 (`WorkflowStepRoleAdd`: `roleName` and `assignmentType`). This is not
 `PUT .../steps/{stepName}/role-assignment`, which only changes Reader or
 Assignee on a role that is already on the step.
+
+## Product path — remove one role from a step (slice 64)
+
+On a **custom** workflow, remove one Reader or Assignee role from one step.
+The step role table drops that role only after the server accepts the delete
+and the list reloads. The same role on another step stays.
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow (not Default
+   Workflow, Simple Workflow, or Local Content, and not the system default).
+3. Under **Assignment type**, the table lists each role already on a step.
+4. Under **Remove role**, choose a step and a Reader or Assignee role on that
+   step. Click **Remove role**.
+5. **Cancel** closes the dialog and does not call the server. The role stays
+   listed.
+6. Confirm in the in-app dialog. That row disappears only after the server
+   accepts the delete. Reopening the workflow shows the same row gone. Other
+   roles on the step, and the same role on another step, stay. Notify and
+   inbox flags are not edited. The step name does not change.
+7. Packaged workflows and the system default do not show **Remove role** and
+   do not call the server.
+8. A blank step or role is `400`. An Admin or None assignment is `409` and is
+   not removed. A missing workflow, step, or role is `404`. Non-Admin callers
+   and packaged workflows receive `403`. None of those responses claim the
+   role was removed.
+
+The public call is
+`DELETE /services/workflows/{idOrName}/steps/{stepName}/roles/{roleName}`.
+This is not `PUT .../steps/{stepName}/role-assignment`, which only changes
+Reader or Assignee, and it is not `POST .../steps/{stepName}/roles`, which
+adds a role.
 
 ## Product path — set the system default (slice 37)
 
@@ -428,12 +462,18 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
   reloads. Packaged workflows and the system default are `403`. A role already
   on the step is `409`. A blank role or any other type is `400`. A missing
   workflow, step, or role is `404`.
+- Remove one Reader or Assignee role from one step of a custom workflow
+  (`DELETE .../workflows/{idOrName}/steps/{stepName}/roles/{roleName}`). The
+  table drops that role only after the list reloads. The same role on another
+  step stays. Packaged workflows and the system default are `403`. An Admin
+  or None assignment is `409` and is not removed. A blank step or role is
+  `400`. A missing workflow, step, or role is `404`.
 - Set Reader or Assignee on one role already assigned to one step of a custom
   workflow (`PUT .../workflows/{idOrName}/steps/{stepName}/role-assignment`).
   The table updates only after the list reloads. Packaged workflows and the
   system default are `403`. Admin or None roles are `409` and are not changed.
-  Removing a role, notify and inbox flags, and repeated or system-field aging
-  stay outside this chrome.
+  Notify and inbox flags, and repeated or system-field aging, stay outside
+  this chrome.
 - Changing the minute interval on one existing absolute
   aging transition is
   `PUT .../workflows/{idOrName}/aging-transitions/interval`. Deleting that
@@ -461,6 +501,7 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | List assignment types | `GET /services/workflows/{idOrName}/role-assignments` (Admin; every assigned role, including Reader; missing workflow `404`) |
 | Set assignment type | `PUT /services/workflows/{idOrName}/steps/{stepName}/role-assignment` (`WorkflowStepRoleAssignmentWrite` wrap: `roleName` and `assignmentType` of `READER` or `ASSIGNEE`; Admin; one role already on that step; does not rename the step or replace the role list; packaged or system default `403`; Admin or None current type `409`; unchanged or invalid type `400`; missing workflow, step, or role `404`) |
 | Add one role | `POST /services/workflows/{idOrName}/steps/{stepName}/roles` (`WorkflowStepRoleAdd` wrap: `roleName` and `assignmentType` of `READER` or `ASSIGNEE`; Admin; role must already exist on the workflow and must not already be on that step; notify and inbox stay at entity defaults; does not rename the step; packaged or system default `403`; role already on the step `409`; blank role or other type `400`; missing workflow, step, or role `404`) |
+| Remove one role | `DELETE /services/workflows/{idOrName}/steps/{stepName}/roles/{roleName}` (Admin; one Reader or Assignee already on that step; other steps keep the role; does not rename the step or edit notify and inbox; packaged or system default `403`; Admin or None `409`; blank step or role `400`; missing workflow, step, or role `404`) |
 | Read graph | `GET /services/workflows/{idOrName}/graph` (Admin; states and transitions; `packaged` true for stock or default workflows) |
 | Create one transition | `POST /services/workflows/{idOrName}/transitions` (`WorkflowTransitionWrite` wrap: required `from`, `to`, `label`; both steps must exist; duplicate edge `409`; packaged workflows `403`; missing step `404`; invalid name `400`) |
 | Update one transition | `PUT /services/workflows/{idOrName}/transitions?from={step}&label={label}&to={step}` (`WorkflowTransitionWrite` wrap: new `label` and `to`; does not move the source step; ambiguous label `400`; missing transition `404`; colliding edge `409`; packaged workflows `403`) |
