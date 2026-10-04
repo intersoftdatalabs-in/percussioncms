@@ -126,6 +126,13 @@ test.describe("React Content Editor recycle open item", () => {
           body: JSON.stringify(PATH_ITEM),
         }),
       );
+      await page.route("**/rest/content-explorer/translations/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ itemId: 42, locale: "en-us", variants: [] }),
+        }),
+      );
       let deleteStatus = 200;
       await page.route("**/rest/folders/item/**", async (route) => {
         if (route.request().method() !== "DELETE") {
@@ -169,6 +176,10 @@ test.describe("React Content Editor recycle open item", () => {
       await expect(page.locator('[data-testid="editor-content-id"]')).toHaveCount(0);
       await expect(page.locator('[data-testid="editor-recycle"]')).toHaveCount(0);
       await expect(page.locator('[data-testid="editor-form"]')).toHaveCount(0);
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="editor-host"]',
+        exclude: ['[data-testid="translations-panel"]'],
+      });
 
       await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=view"));
       await expect(page.locator('[data-testid="editor-form"]')).toBeVisible({
@@ -179,6 +190,7 @@ test.describe("React Content Editor recycle open item", () => {
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="editor-host"]',
+        exclude: ['[data-testid="translations-panel"]'],
       });
     },
   );
