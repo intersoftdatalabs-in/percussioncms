@@ -25,7 +25,11 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("../helpers/auth");
+const {
+  loginAsAdmin,
+  BASE_URL,
+  adminBasicAuthHeaders,
+} = require("../helpers/auth");
 
 const GENERATOR =
   "Java/global/percussion/contentassembler/sys_JexlAssemblyLocation";
@@ -63,24 +67,30 @@ async function openContexts(page) {
   await expect(page.getByTestId("contexts-panel")).toBeVisible();
 }
 
-async function createContext(page, name) {
-  await page.getByTestId("design-add-context").click();
-  await expect(page.getByTestId("context-editor")).toBeVisible();
-  await page.locator("#ctx-name").fill(name);
-  const createResponse = page.waitForResponse(
-    (res) =>
-      res.request().method() === "POST" &&
-      /\/publishingdesign\/contexts(?:\?|$)/.test(res.url()),
-    { timeout: 30000 },
+/**
+ * Seed a disposable context. Design create still posts a flat body; JAXB
+ * requires the {@code context} root (context save stays #4703).
+ */
+async function seedContext(request, name) {
+  const res = await request.post(
+    `${BASE_URL}/Rhythmyx/services/sitemanage/publishingdesign/contexts`,
+    {
+      headers: {
+        ...adminBasicAuthHeaders(),
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      data: { context: { name, description: "night-issue-prs #5136" } },
+    },
   );
-  await page.getByTestId("context-save").click();
-  const posted = await createResponse;
-  if (posted.status() !== 200 && posted.status() !== 201) {
+  if (res.status() !== 200 && res.status() !== 201) {
     throw new Error(
-      `create context HTTP ${posted.status()} ${(await posted.text()).slice(0, 400)}`,
+      `seed context HTTP ${res.status()} ${(await res.text()).slice(0, 400)}`,
     );
   }
-  await expect(page.getByTestId("context-editor")).toBeHidden({ timeout: 20000 });
+}
+
+async function selectContext(page, name) {
   const option = page.getByRole("option", { name, exact: true });
   await expect(option).toBeAttached({ timeout: 20000 });
   await page.getByLabel("Publishing context").selectOption({ label: name });
@@ -124,11 +134,13 @@ test.describe("PublishingShell Design delete publishing context", () => {
 
   test("deletes a context with no schemes only after confirm succeeds", async ({
     page,
+    request,
   }) => {
     const jsErrors = trackJsErrors(page);
-    await openContexts(page);
     const name = `CtxDel${Date.now().toString().slice(-8)}`;
-    await createContext(page, name);
+    await seedContext(request, name);
+    await openContexts(page);
+    await selectContext(page, name);
     await expect(page.getByTestId("context-delete")).toBeVisible();
 
     page.once("dialog", async (dialog) => {
@@ -153,11 +165,12 @@ test.describe("PublishingShell Design delete publishing context", () => {
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
   });
 
-  test("cancel does not call the server", async ({ page }) => {
+  test("cancel does not call the server", async ({ page, request }) => {
     const jsErrors = trackJsErrors(page);
-    await openContexts(page);
     const name = `CtxKeep${Date.now().toString().slice(-8)}`;
-    await createContext(page, name);
+    await seedContext(request, name);
+    await openContexts(page);
+    await selectContext(page, name);
     let deletes = 0;
     await page.route(
       "**/services/sitemanage/publishingdesign/contexts/**",
@@ -179,11 +192,15 @@ test.describe("PublishingShell Design delete publishing context", () => {
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
   });
 
-  test("keeps a context that still has location schemes", async ({ page }) => {
+  test("keeps a context that still has location schemes", async ({
+    page,
+    request,
+  }) => {
     const jsErrors = trackJsErrors(page);
-    await openContexts(page);
     const name = `CtxSch${Date.now().toString().slice(-8)}`;
-    await createContext(page, name);
+    await seedContext(request, name);
+    await openContexts(page);
+    await selectContext(page, name);
     await createSchemeOnSelected(page, `Sch${name}`);
 
     page.once("dialog", async (dialog) => {
@@ -206,11 +223,13 @@ test.describe("PublishingShell Design delete publishing context", () => {
 
   test("surfaces HTTP 400, 403, and 409 without removing the context", async ({
     page,
+    request,
   }) => {
     const jsErrors = trackJsErrors(page);
-    await openContexts(page);
     const name = `CtxErr${Date.now().toString().slice(-8)}`;
-    await createContext(page, name);
+    await seedContext(request, name);
+    await openContexts(page);
+    await selectContext(page, name);
 
     async function stubDelete(status, message) {
       await page.unrouteAll({ behavior: "ignoreErrors" });

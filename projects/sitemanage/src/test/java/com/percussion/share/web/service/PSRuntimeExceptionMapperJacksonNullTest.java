@@ -19,6 +19,7 @@ package com.percussion.share.web.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
@@ -61,5 +62,19 @@ class PSRuntimeExceptionMapperJacksonNullTest {
   void jacksonCauseIsBadRequest() throws Exception {
     RuntimeException wrap = new RuntimeException("wrap", new JacksonException("bad json") {});
     assertEquals(Response.Status.BAD_REQUEST, statusOf(wrap));
+  }
+
+  @Test
+  void webApplicationConflictStays409() throws Exception {
+    WebApplicationException wae =
+        new WebApplicationException(
+            "Publishing context has location schemes", Response.Status.CONFLICT);
+    assertEquals(Response.Status.CONFLICT, statusOf(wae));
+  }
+
+  @Test
+  void wrappedServerFailureStays500() throws Exception {
+    WebApplicationException wae = new WebApplicationException(new IllegalStateException("boom"));
+    assertEquals(Response.Status.INTERNAL_SERVER_ERROR, statusOf(wae));
   }
 }
