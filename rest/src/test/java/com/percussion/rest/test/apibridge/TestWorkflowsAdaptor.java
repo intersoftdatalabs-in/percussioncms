@@ -23,6 +23,7 @@ import com.percussion.rest.workflows.WorkflowAgingIntervalWrite;
 import com.percussion.rest.workflows.WorkflowAgingTransitionWrite;
 import com.percussion.rest.workflows.WorkflowCreate;
 import com.percussion.rest.workflows.WorkflowGraph;
+import com.percussion.rest.workflows.WorkflowRename;
 import com.percussion.rest.workflows.WorkflowStepWrite;
 import com.percussion.rest.workflows.WorkflowSummary;
 import com.percussion.rest.workflows.WorkflowTransitionWrite;
@@ -70,6 +71,15 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
     WorkflowSummary summary = new WorkflowSummary();
     summary.setWorkflowName(idOrName != null ? idOrName.trim() : "");
     summary.setWorkflowDescription(body != null ? body.getDescription() : null);
+    summary.setDefaultWorkflow(false);
+    return summary;
+  }
+
+  @Override
+  public WorkflowSummary renameWorkflow(URI baseUri, String idOrName, WorkflowRename body) {
+    WorkflowSummary summary = new WorkflowSummary();
+    String next = body != null && body.getName() != null ? body.getName().trim() : "";
+    summary.setWorkflowName(next.isEmpty() && idOrName != null ? idOrName.trim() : next);
     summary.setDefaultWorkflow(false);
     return summary;
   }

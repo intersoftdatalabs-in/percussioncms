@@ -96,6 +96,24 @@ export function WorkflowsPanel(): React.ReactElement {
         name={selected}
         onBack={() => setSelected(null)}
         onDeleted={handleDeleted}
+        onRenamed={(previousName, newName) => {
+          const prev = previousName.trim().toLowerCase();
+          const next = newName.trim();
+          if (!next) {
+            return;
+          }
+          setItems((itemsPrev) =>
+            itemsPrev == null
+              ? itemsPrev
+              : itemsPrev.map((w) =>
+                  (w.workflowName || "").trim().toLowerCase() === prev
+                    ? { ...w, workflowName: next }
+                    : w,
+                ),
+          );
+          setSelected(next);
+          reload();
+        }}
         onDefaultChanged={(workflowName) => {
           const key = workflowName.trim().toLowerCase();
           setItems((prev) =>

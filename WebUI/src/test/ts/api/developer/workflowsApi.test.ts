@@ -37,10 +37,12 @@ import {
   parseWorkflowList,
   parseWorkflowSummary,
   setWorkflowAllowedContentTypes,
+  renameWorkflow,
   setDefaultWorkflow,
   updateWorkflow,
   wrapWorkflowContentTypesForWire,
   wrapWorkflowCreateForWire,
+  wrapWorkflowRenameForWire,
   wrapWorkflowUpdateForWire,
 } from "../../../../main/ts/api/developer/workflowsApi";
 import { PATHS } from "../../../../main/ts/api/paths";
@@ -440,6 +442,53 @@ describe("workflow update API (slice 21 update)", () => {
     await updateWorkflow("My WF", { name: "My WF" });
     const url = String(fetchMock.mock.calls[0][0]);
     expect(url).toContain(encodeURIComponent("My WF"));
+  });
+});
+
+describe("workflow rename API (slice 60)", () => {
+  const fetchMock = vi.fn();
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("wraps under WorkflowRename and does not send a description", () => {
+    expect(wrapWorkflowRenameForWire({ name: "Nightly QA 2" })).toEqual({
+      WorkflowRename: { name: "Nightly QA 2" },
+    });
+  });
+
+  it("POSTs WorkflowRename to /workflows/{name}/rename", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        workflowName: "Nightly QA 2",
+        workflowDescription: "Keep me",
+        defaultWorkflow: false,
+      }),
+    );
+    const renamed = await renameWorkflow("Nightly QA", { name: "Nightly QA 2" });
+    expect(renamed.workflowName).toBe("Nightly QA 2");
+    expect(renamed.workflowDescription).toBe("Keep me");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      `${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Nightly QA")}/rename`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      WorkflowRename: { name: "Nightly QA 2" },
+    });
   });
 });
 

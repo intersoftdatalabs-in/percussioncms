@@ -25,6 +25,7 @@ import com.percussion.rest.workflows.WorkflowAgingIntervalWrite;
 import com.percussion.rest.workflows.WorkflowAgingTransitionWrite;
 import com.percussion.rest.workflows.WorkflowCreate;
 import com.percussion.rest.workflows.WorkflowGraph;
+import com.percussion.rest.workflows.WorkflowRename;
 import com.percussion.rest.workflows.WorkflowStepWrite;
 import com.percussion.rest.workflows.WorkflowSummary;
 import com.percussion.rest.workflows.WorkflowTransitionWrite;
@@ -42,6 +43,7 @@ import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSWorkflow;
+import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
@@ -290,6 +292,45 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     applyDescriptionAllowClear(resolvedName, body.getDescription());
     PSUiWorkflow refreshed = lookupUiWorkflow(resolvedName);
     return toWorkflowSummary(refreshed, resolvedName, body.getDescription());
+  }
+
+  @Override
+  public WorkflowSummary renameWorkflow(URI baseUri, String idOrName, WorkflowRename body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    String newName = validateRenameName(body);
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    String resolvedName = workflow.getName();
+    PSUiWorkflow existing = lookupUiWorkflow(resolvedName);
+    if (existing == null) {
+      throw new IllegalStateException("Could not load workflow for rename: " + resolvedName);
+    }
+    if (newName.equals(resolvedName)) {
+      return toWorkflowSummary(existing, resolvedName, null);
+    }
+    PSUiWorkflow payload = new PSUiWorkflow();
+    payload.setWorkflowName(newName);
+    payload.setPreviousWorkflowName(resolvedName);
+    payload.setDefaultWorkflow(false);
+    payload.setStagingRoleNames(existing.getStagingRoleNames());
+    IPSSteppedWorkflowService stepped = requireSteppedService();
+    try {
+      PSUiWorkflow saved = stepped.updateWorkflow(resolvedName, payload);
+      String savedName =
+          saved != null && StringUtils.isNotBlank(saved.getWorkflowName())
+              ? saved.getWorkflowName()
+              : newName;
+      return toWorkflowSummary(saved != null ? saved : existing, savedName, null);
+    } catch (IPSSteppedWorkflowService.PSWorkflowEditorServiceException e) {
+      throw mapRenameException(e);
+    } catch (IPSGenericDao.LoadException | IPSGenericDao.SaveException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Could not rename workflow";
+      throw new WebApplicationException(msg, e, 500);
+    }
   }
 
   @Override
@@ -794,7 +835,18 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     if (body == null) {
       throw new IllegalArgumentException("Workflow name is required");
     }
-    String name = body.getName() != null ? body.getName().trim() : "";
+    return validateWorkflowNameText(body.getName());
+  }
+
+  private static String validateRenameName(WorkflowRename body) {
+    if (body == null) {
+      throw new IllegalArgumentException("Workflow name is required");
+    }
+    return validateWorkflowNameText(body.getName());
+  }
+
+  private static String validateWorkflowNameText(String raw) {
+    String name = raw != null ? raw.trim() : "";
     if (name.isEmpty()) {
       throw new IllegalArgumentException("Workflow name is required");
     }
@@ -811,6 +863,21 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
               + " [space].");
     }
     return name;
+  }
+
+  private static RuntimeException mapRenameException(
+      IPSSteppedWorkflowService.PSWorkflowEditorServiceException e) {
+    String msg = e.getMessage() != null ? e.getMessage() : "";
+    String lower = msg.toLowerCase();
+    if (lower.contains("already exists")) {
+      return new WebApplicationException(msg.isEmpty() ? "Workflow already exists" : msg, 409);
+    }
+    if (lower.contains("can't find")
+        || lower.contains("invalid workflow")
+        || lower.contains("not found")) {
+      return new WebApplicationException(msg.isEmpty() ? "Workflow not found" : msg, 404);
+    }
+    return new IllegalArgumentException(msg.isEmpty() ? "Invalid workflow name" : msg, e);
   }
 
   private IPSSteppedWorkflowService requireSteppedService() {

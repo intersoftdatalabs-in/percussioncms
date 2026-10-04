@@ -480,6 +480,42 @@ export async function updateWorkflow(
   return parseWorkflowSummary(payload);
 }
 
+/** New name for {@code POST /services/workflows/{idOrName}/rename} (slice 60). */
+export type WorkflowRenameBody = {
+  name: string;
+};
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code WorkflowRename}. */
+export const WORKFLOW_RENAME_ROOT = "WorkflowRename";
+
+/**
+ * Build the wire JSON body for WorkflowsResource rename under
+ * {@link WORKFLOW_RENAME_ROOT}. A flat body fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapWorkflowRenameForWire(
+  body: WorkflowRenameBody,
+): Record<string, WorkflowRenameBody> {
+  return { [WORKFLOW_RENAME_ROOT]: body };
+}
+
+/**
+ * POST /services/workflows/{idOrName}/rename — Admin. Renames one custom
+ * workflow. Description, steps, transitions, and roles stay as they were.
+ * Packaged and system-default workflows are 403. Duplicate name is 409.
+ * Invalid name is 400. This does not use the description-only PUT.
+ */
+export async function renameWorkflow(
+  idOrName: string,
+  body: WorkflowRenameBody,
+): Promise<WorkflowCreateResult> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await post<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/rename`,
+    wrapWorkflowRenameForWire(body),
+  );
+  return parseWorkflowSummary(payload);
+}
+
 /**
  * POST /services/workflows/{idOrName}/default — Admin. Marks this workflow as
  * the single system default. A later call for another workflow replaces it.

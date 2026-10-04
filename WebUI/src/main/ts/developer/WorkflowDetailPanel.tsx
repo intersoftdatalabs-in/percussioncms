@@ -11,6 +11,7 @@ import {
   getWorkflowAllowedContentTypes,
   getWorkflowDetail,
   isValidWorkflowStepName,
+  renameWorkflow,
   setDefaultWorkflow,
   setWorkflowAllowedContentTypes,
   updateWorkflow,
@@ -37,6 +38,7 @@ import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { buildAllowedContentTypesReplaceBody } from "./workflowContentTypes";
 import { formatStepTransitionNames } from "./workflowStepTransitions";
+import { canOfferWorkflowRename, isWorkflowRenameReady } from "./workflowRename";
 import { WorkflowGraphView } from "./WorkflowGraphView";
 
 /** Canonical Percussion GUID shape: type-host-uuid (three numeric groups). */
@@ -89,11 +91,13 @@ export function WorkflowDetailPanel({
   onBack,
   onDeleted,
   onDefaultChanged,
+  onRenamed,
 }: {
   name: string;
   onBack: () => void;
   onDeleted?: () => void;
   onDefaultChanged?: (workflowName: string) => void;
+  onRenamed?: (previousName: string, newName: string) => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<WorkflowDef | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -112,6 +116,10 @@ export function WorkflowDetailPanel({
   const [descriptionBusy, setDescriptionBusy] = useState(false);
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
+  const [renameDraft, setRenameDraft] = useState("");
+  const [renameBusy, setRenameBusy] = useState(false);
+  const [renameError, setRenameError] = useState<string | null>(null);
+  const [renameNotice, setRenameNotice] = useState<string | null>(null);
   const [defaultBusy, setDefaultBusy] = useState(false);
   const [defaultError, setDefaultError] = useState<string | null>(null);
   const [defaultNotice, setDefaultNotice] = useState<string | null>(null);
@@ -142,6 +150,9 @@ export function WorkflowDetailPanel({
     setDescriptionDirty(false);
     setDescriptionError(null);
     setDescriptionNotice(null);
+    setRenameDraft("");
+    setRenameError(null);
+    setRenameNotice(null);
     setConfirmDeleteOpen(false);
     setDeleteError(null);
     setStepNameDraft("");
@@ -159,6 +170,9 @@ export function WorkflowDetailPanel({
         setDescriptionDraft(description);
         setBaselineDescription(description);
         setDescriptionDirty(false);
+        setRenameDraft((d.workflowName || name).trim());
+        setRenameError(null);
+        setRenameNotice(null);
         const firstStep = Array.isArray(d.workflowSteps)
           ? d.workflowSteps.find((s) => s.stepName)?.stepName
           : "";
@@ -380,6 +394,78 @@ export function WorkflowDetailPanel({
     } finally {
       inflight.current = false;
       setDescriptionBusy(false);
+    }
+  }
+
+  function renameErrorFallback(err: unknown): string {
+    if (isApiError(err)) {
+      if (err.status === 409) {
+        return DEV_MSG.WF_DUPLICATE;
+      }
+      if (err.status === 400) {
+        return DEV_MSG.WF_INVALID_NAME;
+      }
+      if (err.status === 403) {
+        return DEV_MSG.WF_RENAME_PACKAGED;
+      }
+      if (err.status === 404) {
+        return DEV_MSG.WF_NOT_FOUND;
+      }
+    }
+    return DEV_MSG.WF_RENAME_ERROR;
+  }
+
+  function handleRenameCancel(): void {
+    if (renameBusy) {
+      return;
+    }
+    const current = (detail?.workflowName || name).trim();
+    setRenameDraft(current);
+    setRenameError(null);
+    setRenameNotice(null);
+  }
+
+  async function handleRename(): Promise<void> {
+    const current = (detail?.workflowName || name).trim();
+    if (
+      !canOfferWorkflowRename({
+        name: current,
+        defaultWorkflow: detail?.defaultWorkflow,
+      }) ||
+      renameBusy ||
+      inflight.current
+    ) {
+      return;
+    }
+    if (!isWorkflowRenameReady(current, renameDraft)) {
+      setRenameError(DEV_MSG.WF_INVALID_NAME);
+      setRenameNotice(null);
+      return;
+    }
+    const next = renameDraft.trim();
+    inflight.current = true;
+    setRenameBusy(true);
+    setRenameError(null);
+    setRenameNotice(null);
+    try {
+      const saved = await renameWorkflow(current, { name: next });
+      const renamed = (saved.workflowName || next).trim();
+      setDetail((prev) =>
+        prev == null
+          ? prev
+          : ({
+              ...prev,
+              workflowName: renamed,
+            } as WorkflowDef),
+      );
+      setRenameDraft(renamed);
+      setRenameNotice(DEV_MSG.WF_RENAMED);
+      onRenamed?.(current, renamed);
+    } catch (err: unknown) {
+      setRenameError(panelErrMsg(err, renameErrorFallback(err)));
+    } finally {
+      inflight.current = false;
+      setRenameBusy(false);
     }
   }
 
@@ -658,6 +744,110 @@ export function WorkflowDetailPanel({
               </button>
             </div>
           </section>
+
+          {canOfferWorkflowRename({
+            name: detail.workflowName || name,
+            defaultWorkflow: detail.defaultWorkflow,
+          }) ? (
+            <section
+              style={{ marginBottom: "16px" }}
+              data-testid="developer-wf-rename"
+            >
+              <h3 style={{ fontSize: "1rem", margin: "0 0 4px" }}>
+                {DEV_MSG.WF_RENAME_TITLE}
+              </h3>
+              <p
+                style={{
+                  color: catalogColors.muted,
+                  fontSize: "0.9rem",
+                  margin: "0 0 8px",
+                }}
+              >
+                {DEV_MSG.WF_RENAME_HINT}
+              </p>
+              {renameError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-wf-rename-error"
+                  style={{ ...errorAlert, marginBottom: "8px" }}
+                >
+                  {renameError}
+                </div>
+              ) : null}
+              {renameNotice ? (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  data-testid="developer-wf-rename-notice"
+                  style={{ color: catalogColors.accent, marginBottom: "8px" }}
+                >
+                  {renameNotice}
+                </div>
+              ) : null}
+              <label htmlFor="wf-rename-name" style={{ display: "block", marginBottom: "4px" }}>
+                {DEV_MSG.WF_FORM_NAME}
+              </label>
+              <input
+                id="wf-rename-name"
+                data-testid="developer-wf-rename-name"
+                style={inputStyle}
+                value={renameDraft}
+                disabled={renameBusy}
+                onChange={(e) => {
+                  setRenameDraft(e.target.value);
+                  if (renameError) {
+                    setRenameError(null);
+                  }
+                  if (renameNotice) {
+                    setRenameNotice(null);
+                  }
+                }}
+                aria-label={DEV_MSG.WF_RENAME_TITLE}
+              />
+              <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+                <button
+                  type="button"
+                  data-testid="developer-wf-rename-save"
+                  disabled={
+                    renameBusy ||
+                    !isWorkflowRenameReady(detail.workflowName || name, renameDraft)
+                  }
+                  onClick={() => void handleRename()}
+                  style={{
+                    ...primaryBtnStyle,
+                    background:
+                      renameBusy ||
+                      !isWorkflowRenameReady(detail.workflowName || name, renameDraft)
+                        ? catalogColors.disabled
+                        : catalogColors.accent,
+                    cursor:
+                      renameBusy ||
+                      !isWorkflowRenameReady(detail.workflowName || name, renameDraft)
+                        ? "not-allowed"
+                        : "pointer",
+                  }}
+                >
+                  {renameBusy ? DEV_MSG.WF_RENAME_BUSY : DEV_MSG.WF_RENAME_SAVE}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-wf-rename-cancel"
+                  disabled={renameBusy}
+                  onClick={handleRenameCancel}
+                  style={smallBtnStyle}
+                >
+                  {DEV_MSG.WF_CANCEL}
+                </button>
+              </div>
+            </section>
+          ) : (
+            <p
+              data-testid="developer-wf-rename-unavailable"
+              style={{ color: catalogColors.muted, fontSize: "0.9rem" }}
+            >
+              {DEV_MSG.WF_RENAME_PACKAGED}
+            </p>
+          )}
 
           {deleteError ? (
             <div
