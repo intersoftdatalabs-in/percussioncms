@@ -801,7 +801,11 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Could not copy the folder path",
   SET_WORKFLOW: "perc.ui.explorer@Set workflow",
   SET_WORKFLOW_ARIA:
-    "perc.ui.explorer@Set the workflow on the selected page or asset",
+    "perc.ui.explorer@Set the workflow on the selected pages and assets",
+  SET_WORKFLOW_MULTI_NOTE:
+    "perc.ui.explorer@This workflow is saved on each selected page and asset. Folders are not changed",
+  SET_WORKFLOW_PARTIAL:
+    "perc.ui.explorer@Not every selected item had its workflow set: {detail}",
   SET_WORKFLOW_TITLE: "perc.ui.explorer@Set workflow",
   SET_WORKFLOW_LABEL: "perc.ui.explorer@Workflow",
   SET_WORKFLOW_CURRENT: "perc.ui.explorer@current",

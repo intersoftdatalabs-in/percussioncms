@@ -139,9 +139,13 @@ import { PublishingHistoryDialog } from "./PublishingHistoryDialog";
 import { ClearScheduledDatesDialog } from "./ClearScheduledDatesDialog";
 import { SetWorkflowDialog } from "./SetWorkflowDialog";
 import {
+  describeSetWorkflowMultiSave,
   loadSetWorkflowCatalog,
+  loadSetWorkflowMultiCatalog,
   saveSetWorkflow,
+  saveSetWorkflowOnSelection,
   type SetWorkflowCatalog,
+  type SetWorkflowMultiCatalog,
 } from "./setItemWorkflow";
 import type { ItemWorkflowChoice } from "../api/contentExplorer/itemWorkflowApi";
 import { SetFolderWorkflowDialog } from "./SetFolderWorkflowDialog";
@@ -712,7 +716,14 @@ function ContentExplorerShellInner({
     choices: ItemWorkflowChoice[];
     busy: boolean;
     error: string;
+    multi: boolean;
+    targets: { itemId: string; name: string }[];
+    skippedFolderNames: string[];
   } | null>(null);
+  /** Workflow name painted on a row only after that item's change returns (#5155). */
+  const [savedItemWorkflows, setSavedItemWorkflows] = useState<
+    ReadonlyMap<string, { workflowId: string; workflowName: string }>
+  >(() => new Map());
   const [setFolderWorkflowNotice, setSetFolderWorkflowNotice] = useState<{
     kind: "success" | "error";
     reason: string;
@@ -2056,9 +2067,72 @@ function ContentExplorerShellInner({
         case "content-set-workflow": {
           const current = selectionRef.current;
           const selectedCount = multiSelectedItemsRef.current.size;
+          const checked = Array.from(multiSelectedItemsRef.current.values());
           void (async () => {
             setSetWorkflowNotice(null);
             setSetWorkflowDialog(null);
+            if (selectedCount >= 2) {
+              const multiCatalog: SetWorkflowMultiCatalog =
+                await loadSetWorkflowMultiCatalog({ items: checked });
+              if (multiCatalog.status === "blocked") {
+                const key =
+                  multiCatalog.reason === "folder"
+                    ? EXPLORER_MSG.SET_WORKFLOW_FOLDER
+                    : multiCatalog.reason === "not-item"
+                      ? EXPLORER_MSG.SET_WORKFLOW_NOT_ITEM
+                      : multiCatalog.reason === "no-id"
+                        ? EXPLORER_MSG.SET_WORKFLOW_NO_ID
+                        : multiCatalog.reason === "multi"
+                          ? EXPLORER_MSG.SET_WORKFLOW_MULTI
+                          : EXPLORER_MSG.SET_WORKFLOW_EMPTY;
+                const text =
+                  multiCatalog.reason === "folder" && multiCatalog.name
+                    ? `${message(key)}: ${multiCatalog.name}`
+                    : message(key);
+                setSetWorkflowNotice({
+                  kind: "error",
+                  reason: multiCatalog.reason,
+                  workflowId: "",
+                  workflowName: "",
+                  text,
+                });
+                return;
+              }
+              if (multiCatalog.status === "none" || multiCatalog.status === "http") {
+                const httpKey =
+                  multiCatalog.status === "http" && multiCatalog.http === 400
+                    ? EXPLORER_MSG.SET_WORKFLOW_HTTP_400
+                    : multiCatalog.status === "http" && multiCatalog.http === 403
+                      ? EXPLORER_MSG.SET_WORKFLOW_HTTP_403
+                      : multiCatalog.status === "http" && multiCatalog.http === 409
+                        ? EXPLORER_MSG.SET_WORKFLOW_HTTP_409
+                        : multiCatalog.status === "http"
+                          ? EXPLORER_MSG.SET_WORKFLOW_FAILED
+                          : EXPLORER_MSG.SET_WORKFLOW_NONE;
+                setSetWorkflowNotice({
+                  kind: "error",
+                  reason:
+                    multiCatalog.status === "http"
+                      ? `http-${multiCatalog.http}`
+                      : "none",
+                  workflowId: "",
+                  workflowName: "",
+                  text: message(httpKey),
+                });
+                return;
+              }
+              setSetWorkflowDialog({
+                itemId: multiCatalog.targets[0]?.itemId ?? "",
+                currentId: multiCatalog.currentId,
+                choices: multiCatalog.choices,
+                busy: false,
+                error: "",
+                multi: true,
+                targets: multiCatalog.targets,
+                skippedFolderNames: multiCatalog.skippedFolderNames,
+              });
+              return;
+            }
             const catalog: SetWorkflowCatalog = await loadSetWorkflowCatalog({
               item: current.item,
               selectedCount,
@@ -2113,6 +2187,9 @@ function ContentExplorerShellInner({
               choices: catalog.choices,
               busy: false,
               error: "",
+              multi: false,
+              targets: [],
+              skippedFolderNames: [],
             });
           })();
           break;
@@ -3331,6 +3408,7 @@ function ContentExplorerShellInner({
           onToggleSelectItem={handleToggleSelectItem}
           approvedIncrementalIds={approvedIncrementalIds}
           itemCommunities={savedItemCommunities}
+          itemWorkflows={savedItemWorkflows}
         />
       )}
       {hasOpenSidePanel ? (
@@ -3878,6 +3956,9 @@ function ContentExplorerShellInner({
           currentId={setWorkflowDialog.currentId}
           busy={setWorkflowDialog.busy}
           error={setWorkflowDialog.error}
+          selectionCount={
+            setWorkflowDialog.multi ? setWorkflowDialog.targets.length : 1
+          }
           onCancel={() => {
             if (!setWorkflowDialog.busy) {
               setSetWorkflowDialog(null);
@@ -3887,6 +3968,36 @@ function ContentExplorerShellInner({
             const dialog = setWorkflowDialog;
             void (async () => {
               setSetWorkflowDialog({ ...dialog, busy: true, error: "" });
+              if (dialog.multi) {
+                const result = await saveSetWorkflowOnSelection({
+                  targets: dialog.targets,
+                  skippedFolderNames: dialog.skippedFolderNames,
+                  selectedId: workflowId,
+                  allowedIds: dialog.choices.map((row) => row.id),
+                  onItemSaved: (item) => {
+                    const choiceName =
+                      dialog.choices.find((row) => row.id === item.workflowId)?.name ??
+                      item.workflowId;
+                    setSavedItemWorkflows((prev) => {
+                      const next = new Map(prev);
+                      next.set(item.itemId, {
+                        workflowId: item.workflowId,
+                        workflowName: choiceName,
+                      });
+                      return next;
+                    });
+                  },
+                });
+                const choiceName =
+                  dialog.choices.find((row) => row.id === workflowId)?.name ??
+                  workflowId;
+                setSetWorkflowDialog(null);
+                setSetWorkflowNotice(describeSetWorkflowMultiSave(result, choiceName));
+                if (result.saved.length > 0) {
+                  setListEpoch((n) => n + 1);
+                }
+                return;
+              }
               const saved = await saveSetWorkflow({
                 itemId: dialog.itemId,
                 selectedId: workflowId,

@@ -337,6 +337,11 @@ export interface DetailListProps {
    * change returns (#5133). Absent entries stay unchanged.
    */
   itemCommunities?: ReadonlyMap<string, { communityId: string; communityName: string }>;
+  /**
+   * Workflow written onto a page or asset. Shown only after that item's
+   * change returns (#5155). Absent entries stay unchanged.
+   */
+  itemWorkflows?: ReadonlyMap<string, { workflowId: string; workflowName: string }>;
 }
 
 export function DetailList({
@@ -351,6 +356,7 @@ export function DetailList({
   onToggleSelectItem,
   approvedIncrementalIds,
   itemCommunities,
+  itemWorkflows,
 }: DetailListProps): React.ReactElement {
   const [page, setPage] = useState(0);
   const [data, setData] = useState<PSPagedResult | null>(null);
@@ -561,6 +567,11 @@ export function DetailList({
               (item.id != null
                 ? itemCommunities?.get(String(item.id).trim())
                 : undefined);
+            const shownWorkflow =
+              itemWorkflows?.get(idKey) ??
+              (item.id != null
+                ? itemWorkflows?.get(String(item.id).trim())
+                : undefined);
             const scheduleOnRow = rowScheduleDates(item);
             const scheduleLabel = [scheduleOnRow.startDate, scheduleOnRow.endDate]
               .filter((part) => part.length > 0)
@@ -581,6 +592,8 @@ export function DetailList({
                 }
                 data-community-id={shownCommunity?.communityId}
                 data-community-name={shownCommunity?.communityName}
+                data-workflow-id={shownWorkflow?.workflowId}
+                data-workflow-name={shownWorkflow?.workflowName}
                 data-selected={selected ? "true" : undefined}
                 data-checked={isChecked ? "true" : undefined}
                 data-finder-mime={
@@ -691,6 +704,16 @@ export function DetailList({
                       >
                         {" "}
                         {shownCommunity.communityName}
+                      </span>
+                    ) : null}
+                    {c === "name" && shownWorkflow ? (
+                      <span
+                        data-testid={`detail-item-workflow-${idKey}`}
+                        data-workflow-id={shownWorkflow.workflowId}
+                        data-workflow-name={shownWorkflow.workflowName}
+                      >
+                        {" "}
+                        {shownWorkflow.workflowName}
                       </span>
                     ) : null}
                     {c === "name" && scheduleLabel ? (
