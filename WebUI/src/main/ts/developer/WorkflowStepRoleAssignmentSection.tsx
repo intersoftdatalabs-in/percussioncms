@@ -20,9 +20,11 @@ import { isApiError } from "../api/client";
 import {
   addStepRole,
   listStepRoleAssignments,
+  removeStepRole,
   setStepRoleAssignment,
 } from "../api/developer/workflowsApi";
 import type { WorkflowStepRoleAssignment } from "../api/developer/types";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { catalogColors, errorAlert, tableHeaderRow, tableRow } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -42,6 +44,12 @@ import {
   isAddRoleReady,
   rolesNotOnStep,
 } from "./workflowStepRoleAdd";
+import {
+  applyRemovedRoleAfterReload,
+  isRemoveRoleReady,
+  removableRolesOnStep,
+  removableStepNames,
+} from "./workflowStepRoleRemove";
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
@@ -88,6 +96,24 @@ function addRoleErrorFallback(err: unknown): string {
   return DEV_MSG.WF_ROLE_ADD_ERROR;
 }
 
+function removeRoleErrorFallback(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return DEV_MSG.WF_ROLE_REMOVE_FORBIDDEN;
+    }
+    if (err.status === 409) {
+      return DEV_MSG.WF_ROLE_REMOVE_CONFLICT;
+    }
+    if (err.status === 400) {
+      return DEV_MSG.WF_ROLE_REMOVE_BAD;
+    }
+    if (err.status === 404) {
+      return DEV_MSG.WF_ROLE_REMOVE_MISSING;
+    }
+  }
+  return DEV_MSG.WF_ROLE_REMOVE_ERROR;
+}
+
 /**
  * Set Reader or Assignee on one role already assigned to one step.
  * The table shows the stored type only after a successful reload.
@@ -113,6 +139,12 @@ export function WorkflowStepRoleAssignmentSection({
   const [addBusy, setAddBusy] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
   const [addNotice, setAddNotice] = useState<string | null>(null);
+  const [removeStep, setRemoveStep] = useState("");
+  const [removeRole, setRemoveRole] = useState("");
+  const [removeBusy, setRemoveBusy] = useState(false);
+  const [removeError, setRemoveError] = useState<string | null>(null);
+  const [removeNotice, setRemoveNotice] = useState<string | null>(null);
+  const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false);
 
   const canOffer = canOfferStepRoleAssignment({
     name: workflowName,
@@ -133,6 +165,11 @@ export function WorkflowStepRoleAssignmentSection({
     setAddType("READER");
     setAddError(null);
     setAddNotice(null);
+    setRemoveStep("");
+    setRemoveRole("");
+    setRemoveError(null);
+    setRemoveNotice(null);
+    setRemoveConfirmOpen(false);
     listStepRoleAssignments(workflowName)
       .then((loaded) => {
         if (cancelled) {
@@ -150,6 +187,9 @@ export function WorkflowStepRoleAssignmentSection({
         setAddStep(stepToAdd);
         setAddRole(rolesNotOnStep(next, stepToAdd)[0] ?? "");
         setAddType("READER");
+        const stepToRemove = removableStepNames(next)[0] ?? "";
+        setRemoveStep(stepToRemove);
+        setRemoveRole(removableRolesOnStep(next, stepToRemove)[0] ?? "");
       })
       .catch((err: unknown) => {
         if (!cancelled) {
@@ -185,6 +225,12 @@ export function WorkflowStepRoleAssignmentSection({
   const addSteps = useMemo(() => assignmentStepNames(rows), [rows]);
   const rolesToAdd = useMemo(() => rolesNotOnStep(rows, addStep), [rows, addStep]);
   const addReady = canOffer && isAddRoleReady(rows, addStep, addRole, addType);
+  const removeSteps = useMemo(() => removableStepNames(rows), [rows]);
+  const rolesToRemove = useMemo(
+    () => removableRolesOnStep(rows, removeStep),
+    [rows, removeStep],
+  );
+  const removeReady = canOffer && isRemoveRoleReady(rows, removeStep, removeRole);
 
   function chooseStep(nextStep: string): void {
     setStepName(nextStep);
@@ -227,6 +273,31 @@ export function WorkflowStepRoleAssignmentSection({
     setAddNotice(null);
   }
 
+  function chooseRemoveStep(nextStep: string): void {
+    setRemoveStep(nextStep);
+    setRemoveError(null);
+    setRemoveNotice(null);
+    setRemoveConfirmOpen(false);
+    setRemoveRole(removableRolesOnStep(rows, nextStep)[0] ?? "");
+  }
+
+  function requestRemove(): void {
+    if (!canOffer || removeBusy || !removeReady) {
+      return;
+    }
+    setRemoveError(null);
+    setRemoveNotice(null);
+    setRemoveConfirmOpen(true);
+  }
+
+  function cancelRemove(): void {
+    if (removeBusy) {
+      return;
+    }
+    setRemoveConfirmOpen(false);
+    setRemoveError(null);
+  }
+
   async function confirmAdd(): Promise<void> {
     if (!canOffer || addBusy || !addReady) {
       return;
@@ -263,6 +334,50 @@ export function WorkflowStepRoleAssignmentSection({
       setAddError(panelErrMsg(err, DEV_MSG.WF_ROLE_ASSIGN_LOAD_ERROR));
     } finally {
       setAddBusy(false);
+    }
+  }
+
+  async function confirmRemove(): Promise<void> {
+    if (!canOffer || removeBusy || !removeReady) {
+      return;
+    }
+    const step = removeStep.trim();
+    const role = removeRole.trim();
+    setRemoveBusy(true);
+    setRemoveError(null);
+    setRemoveNotice(null);
+    try {
+      await removeStepRole(workflowName, step, role);
+    } catch (err: unknown) {
+      setRemoveError(panelErrMsg(err, removeRoleErrorFallback(err)));
+      setRemoveConfirmOpen(false);
+      setRemoveBusy(false);
+      return;
+    }
+    try {
+      const reloaded = await listStepRoleAssignments(workflowName);
+      const applied = applyRemovedRoleAfterReload(rows, reloaded, step, role);
+      if (!applied.accepted) {
+        setRemoveError(DEV_MSG.WF_ROLE_REMOVE_ERROR);
+        setRemoveConfirmOpen(false);
+        return;
+      }
+      setRows(applied.rows);
+      setRemoveNotice(DEV_MSG.WF_ROLE_REMOVE_SAVED);
+      setRemoveConfirmOpen(false);
+      const still = removableRolesOnStep(applied.rows, step);
+      if (still.length > 0) {
+        setRemoveRole(still[0]);
+      } else {
+        const nextStep = removableStepNames(applied.rows)[0] ?? "";
+        setRemoveStep(nextStep);
+        setRemoveRole(removableRolesOnStep(applied.rows, nextStep)[0] ?? "");
+      }
+    } catch (err: unknown) {
+      setRemoveError(panelErrMsg(err, DEV_MSG.WF_ROLE_ASSIGN_LOAD_ERROR));
+      setRemoveConfirmOpen(false);
+    } finally {
+      setRemoveBusy(false);
     }
   }
 
@@ -603,6 +718,114 @@ export function WorkflowStepRoleAssignmentSection({
               </div>
             </>
           )}
+        </div>
+      ) : null}
+      {canOffer && rows.length > 0 ? (
+        <div data-testid="developer-wf-role-remove" style={{ marginTop: "16px" }}>
+          <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.WF_ROLE_REMOVE_TITLE}</h3>
+          <p style={{ color: catalogColors.muted, fontSize: "0.9rem", margin: "0 0 8px" }}>
+            {DEV_MSG.WF_ROLE_REMOVE_HINT}
+          </p>
+          {removeError ? (
+            <div
+              role="alert"
+              data-testid="developer-wf-role-remove-error"
+              style={{ ...errorAlert, marginBottom: "8px" }}
+            >
+              {removeError}
+            </div>
+          ) : null}
+          {removeNotice ? (
+            <div
+              role="status"
+              aria-live="polite"
+              data-testid="developer-wf-role-remove-notice"
+              style={{ color: catalogColors.accent, marginBottom: "8px" }}
+            >
+              {removeNotice}
+            </div>
+          ) : null}
+          {removeSteps.length === 0 ? (
+            <p data-testid="developer-wf-role-remove-empty" style={{ color: catalogColors.empty }}>
+              {DEV_MSG.WF_ROLE_REMOVE_EMPTY}
+            </p>
+          ) : (
+            <>
+              <label htmlFor="wf-role-remove-step" style={{ display: "block", marginBottom: 4 }}>
+                {DEV_MSG.WF_COL_STEP}
+              </label>
+              <select
+                id="wf-role-remove-step"
+                data-testid="developer-wf-role-remove-step"
+                style={inputStyle}
+                value={removeStep}
+                disabled={removeBusy}
+                onChange={(e) => chooseRemoveStep(e.target.value)}
+                aria-label={DEV_MSG.WF_COL_STEP}
+              >
+                {removeSteps.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <label
+                htmlFor="wf-role-remove-role"
+                style={{ display: "block", margin: "8px 0 4px" }}
+              >
+                {DEV_MSG.WF_ROLE_REMOVE_ROLE}
+              </label>
+              <select
+                id="wf-role-remove-role"
+                data-testid="developer-wf-role-remove-role"
+                style={inputStyle}
+                value={removeRole}
+                disabled={removeBusy}
+                onChange={(e) => {
+                  setRemoveRole(e.target.value);
+                  setRemoveError(null);
+                  setRemoveNotice(null);
+                  setRemoveConfirmOpen(false);
+                }}
+                aria-label={DEV_MSG.WF_ROLE_REMOVE_ROLE}
+              >
+                {rolesToRemove.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <div style={{ marginTop: "8px" }}>
+                <button
+                  type="button"
+                  data-testid="developer-wf-role-remove-request"
+                  disabled={removeBusy || !removeReady}
+                  onClick={requestRemove}
+                  style={{
+                    background:
+                      removeBusy || !removeReady ? catalogColors.disabled : catalogColors.error,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    padding: "8px 14px",
+                    font: "inherit",
+                    cursor: removeBusy || !removeReady ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {removeBusy ? DEV_MSG.WF_ROLE_REMOVE_BUSY : DEV_MSG.WF_ROLE_REMOVE_REQUEST}
+                </button>
+              </div>
+            </>
+          )}
+          <CatalogConfirmDialog
+            open={removeConfirmOpen}
+            busy={removeBusy}
+            message={`${DEV_MSG.WF_ROLE_REMOVE_CONFIRM} ${removeStep.trim()} / ${removeRole.trim()}`}
+            onCancel={cancelRemove}
+            onConfirm={() => {
+              void confirmRemove();
+            }}
+          />
         </div>
       ) : null}
     </section>

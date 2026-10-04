@@ -1258,6 +1258,67 @@ public class WorkflowsResource {
     }
   }
 
+  @DELETE
+  @Path("/{idOrName}/steps/{stepName}/roles/{roleName}")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Remove one role from a workflow step",
+      description =
+          "Slice 64 Admin. Removes one Reader or Assignee role from the path step. This is not"
+              + " PUT role-assignment, which only sets Reader or Assignee, and it is not POST"
+              + " .../roles, which adds a role. Other steps keep the role. Notify and inbox flags"
+              + " on remaining roles are not edited. Packaged and system-default workflows are"
+              + " 403. An Admin or None assignment is 409 and is not removed. A blank step or role"
+              + " is 400. Missing workflow, step, or role is 404. The role stays assigned until"
+              + " this call succeeds. Returns the assignment list after the delete.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Removed; returns assignment rows without that step role",
+            content =
+                @Content(schema = @Schema(implementation = WorkflowStepRoleAssignmentList.class))),
+        @ApiResponse(responseCode = "400", description = "Blank step or role name"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow, step, or role not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Current assignment type is not Reader or Assignee"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowStepRoleAssignmentList removeStepRole(
+      @PathParam("idOrName") String idOrName,
+      @PathParam("stepName") String stepName,
+      @PathParam("roleName") String roleName) {
+    if (stepName == null || stepName.isBlank()) {
+      throw new WebApplicationException("Step name is required", 400);
+    }
+    if (roleName == null || roleName.isBlank()) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
+    try {
+      WorkflowStepRoleAssignmentList list =
+          requireAdaptor().removeStepRole(uriInfo.getBaseUri(), idOrName, stepName, roleName);
+      if (list == null) {
+        throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+      }
+      return list;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to remove step role ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   private static boolean isReaderOrAssignee(String raw) {
     if (raw == null) {
       return false;

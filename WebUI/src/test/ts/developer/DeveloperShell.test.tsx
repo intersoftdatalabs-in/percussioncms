@@ -782,6 +782,7 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   listStepRoleAssignments: vi.fn().mockResolvedValue([]),
   setStepRoleAssignment: vi.fn(),
   addStepRole: vi.fn(),
+  removeStepRole: vi.fn(),
 }));
 
 vi.mock("../../../main/ts/api/developer/serverConfigsApi", async (importOriginal) => {

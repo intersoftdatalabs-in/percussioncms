@@ -15,7 +15,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Removing a step role, and notify or inbox flags, stay on the workflow-admin editor. Reader or Assignee can be set for one role already assigned to a step. Repeated or system-field aging stays outside this surface.",
+  "Notify or inbox flags stay on the workflow-admin editor. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Repeated or system-field aging stays outside this surface.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -917,6 +917,24 @@ export async function addStepRole(
   const payload = await post<unknown>(
     `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}/roles`,
     wrapWorkflowStepRoleAddForWire(body),
+  );
+  return parseStepRoleAssignments(payload);
+}
+
+/**
+ * DELETE /services/workflows/{id}/steps/{step}/roles/{role} — remove one
+ * Reader or Assignee role from one step. Not PUT role-assignment.
+ */
+export async function removeStepRole(
+  idOrName: string,
+  stepName: string,
+  roleName: string,
+): Promise<WorkflowStepRoleAssignment[]> {
+  const key = encodeURIComponent(idOrName);
+  const step = encodeURIComponent(stepName);
+  const role = encodeURIComponent(roleName.trim());
+  const payload = await del<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}/roles/${role}`,
   );
   return parseStepRoleAssignments(payload);
 }

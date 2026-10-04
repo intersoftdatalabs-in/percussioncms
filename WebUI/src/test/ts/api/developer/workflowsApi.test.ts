@@ -38,6 +38,7 @@ import {
   parseWorkflowSummary,
   setWorkflowAllowedContentTypes,
   addStepRole,
+  removeStepRole,
   listStepRoleAssignments,
   parseStepRoleAssignments,
   renameWorkflow,
@@ -610,6 +611,28 @@ describe("workflow step role add API (slice 63)", () => {
     );
     expect(body.WorkflowStepRoleAdd).not.toHaveProperty("notify");
     expect(body.WorkflowStepRoleAdd).not.toHaveProperty("inbox");
+  });
+
+  it("DELETEs one role from a step and does not use role-assignment", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        WorkflowStepRoleAssignmentList: {
+          assignments: [
+            { stepName: "Draft", roleName: "Editor", assignmentType: "READER" },
+          ],
+        },
+      }),
+    );
+    const rows = await removeStepRole("Nightly QA", "Draft", "Author");
+    expect(rows[0].roleName).toBe("Editor");
+    expect(rows.some((row) => row.roleName === "Author")).toBe(false);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      `${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Nightly QA")}/steps/${encodeURIComponent("Draft")}/roles/${encodeURIComponent("Author")}`,
+    );
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("role-assignment");
+    expect(init.body).toBeUndefined();
   });
 });
 

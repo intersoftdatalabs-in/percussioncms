@@ -786,6 +786,34 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     return toAssignmentList(workflow);
   }
 
+  @Override
+  public WorkflowStepRoleAssignmentList removeStepRole(
+      URI baseUri, String idOrName, String stepName, String roleName) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (stepName == null || stepName.isBlank()) {
+      throw new IllegalArgumentException("Step name is required");
+    }
+    if (roleName == null || roleName.isBlank()) {
+      throw new IllegalArgumentException("Role name is required");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    List<String> namesBefore = stepNames(states);
+    int rolesBefore = assignedRoleCount(states);
+    WorkflowStepRoleRemover.remove(states, workflow.getRoles(), stepName, roleName);
+    if (!namesBefore.equals(stepNames(states)) || assignedRoleCount(states) != rolesBefore - 1) {
+      throw new IllegalStateException(
+          "Removing a step role must remove exactly one assignment and must not rename steps");
+    }
+    workflowService.saveWorkflow(workflow);
+    return toAssignmentList(workflow);
+  }
+
   private static WorkflowStepRoleAssignmentList toAssignmentList(PSWorkflow workflow) {
     List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
     List<PSWorkflowRole> roles = workflow.getRoles() != null ? workflow.getRoles() : List.of();
