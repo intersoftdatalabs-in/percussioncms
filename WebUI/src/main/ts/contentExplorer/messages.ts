@@ -981,6 +981,48 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Could not set the folder display format",
   SET_FOLDER_DISPLAY_FORMAT_MISMATCH:
     "perc.ui.explorer@The folder display format did not change after refresh",
+  SET_FOLDER_ALLOWED_SITES: "perc.ui.explorer@Set allowed publish sites",
+  SET_FOLDER_ALLOWED_SITES_ARIA:
+    "perc.ui.explorer@Set allowed publish sites on the selected folder",
+  SET_FOLDER_ALLOWED_SITES_TITLE: "perc.ui.explorer@Set allowed publish sites",
+  SET_FOLDER_ALLOWED_SITES_LABEL: "perc.ui.explorer@Allowed publish sites",
+  SET_FOLDER_ALLOWED_SITES_HINT:
+    "perc.ui.explorer@Leave every site unchecked and save to allow publishing to all sites",
+  SET_FOLDER_ALLOWED_SITES_CURRENT: "perc.ui.explorer@current",
+  SET_FOLDER_ALLOWED_SITES_SAVE: "perc.ui.explorer@Save allowed publish sites",
+  SET_FOLDER_ALLOWED_SITES_CANCEL: "perc.ui.explorer@Cancel",
+  SET_FOLDER_ALLOWED_SITES_SAVED: "perc.ui.explorer@Allowed publish sites saved",
+  SET_FOLDER_ALLOWED_SITES_CLEARED:
+    "perc.ui.explorer@Allowed publish sites cleared. Assets may publish to all sites",
+  SET_FOLDER_ALLOWED_SITES_EMPTY:
+    "perc.ui.explorer@Select a folder before setting its allowed publish sites",
+  SET_FOLDER_ALLOWED_SITES_PAGE:
+    "perc.ui.explorer@Pages are not given allowed publish sites",
+  SET_FOLDER_ALLOWED_SITES_ASSET:
+    "perc.ui.explorer@Assets are not given allowed publish sites",
+  SET_FOLDER_ALLOWED_SITES_NOT_FOLDER:
+    "perc.ui.explorer@Only a folder can have its allowed publish sites set",
+  SET_FOLDER_ALLOWED_SITES_MULTI:
+    "perc.ui.explorer@Set allowed publish sites applies to one selected folder",
+  SET_FOLDER_ALLOWED_SITES_NO_ID:
+    "perc.ui.explorer@No folder id is available to set allowed publish sites",
+  SET_FOLDER_ALLOWED_SITES_NONE:
+    "perc.ui.explorer@No publish sites are available to assign to this folder",
+  SET_FOLDER_ALLOWED_SITES_UNCHANGED:
+    "perc.ui.explorer@That allowed publish site list is already stored. It is not saved again",
+  SET_FOLDER_ALLOWED_SITES_FORBIDDEN:
+    "perc.ui.explorer@That site is not in the allowed publish sites catalog",
+  SET_FOLDER_ALLOWED_SITES_INVALID:
+    "perc.ui.explorer@Allowed publish sites must be catalog site ids",
+  SET_FOLDER_ALLOWED_SITES_HTTP_400:
+    "perc.ui.explorer@Could not set allowed publish sites (HTTP 400)",
+  SET_FOLDER_ALLOWED_SITES_HTTP_403:
+    "perc.ui.explorer@You are not allowed to set allowed publish sites (HTTP 403)",
+  SET_FOLDER_ALLOWED_SITES_HTTP_409:
+    "perc.ui.explorer@Allowed publish sites could not be saved (HTTP 409)",
+  SET_FOLDER_ALLOWED_SITES_FAILED: "perc.ui.explorer@Could not set allowed publish sites",
+  SET_FOLDER_ALLOWED_SITES_MISMATCH:
+    "perc.ui.explorer@The allowed publish sites did not change after refresh",
   SET_COMMUNITY: "perc.ui.explorer@Set community",
   SET_COMMUNITY_ARIA:
     "perc.ui.explorer@Set the community on the selected page or asset",

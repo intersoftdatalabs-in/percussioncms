@@ -496,6 +496,10 @@ export const PATHS = {
   get PATH_FOLDER_DISPLAY_FORMAT_CATALOG() {
     return `${SERVICES_ROOT}/pathmanagement/path/folderDisplayFormatCatalog`;
   },
+  /** Publish site id catalog for Explorer folder assignment (#5132). */
+  get PATH_FOLDER_ALLOWED_SITES_CATALOG() {
+    return `${SERVICES_ROOT}/pathmanagement/path/folderAllowedSitesCatalog`;
+  },
   get PATH_VALIDATE() {
     return `${SERVICES_ROOT}/pathmanagement/path/validate`;
   },

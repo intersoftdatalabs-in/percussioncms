@@ -24,6 +24,7 @@ import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
+import com.percussion.pathmanagement.data.PSFolderAllowedSitesCatalog;
 import com.percussion.pathmanagement.data.PSFolderCommunityCatalog;
 import com.percussion.pathmanagement.data.PSFolderDisplayFormatCatalog;
 import com.percussion.pathmanagement.data.PSFolderLocaleCatalog;
@@ -45,6 +46,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.share.dao.IPSFolderHelper;
+import com.percussion.share.dao.impl.FolderAllowedSitesCatalogRules;
 import com.percussion.share.dao.impl.FolderDisplayFormatCatalogRules;
 import com.percussion.share.dao.impl.FolderLocaleCatalogRules;
 import com.percussion.share.data.IPSItemSummary;
@@ -261,6 +263,18 @@ public class PSPathService extends PSDispatchingPathService
     return catalog == null ? new PSFolderDisplayFormatCatalog() : catalog;
   }
 
+  /**
+   * Publish site id and name catalog for Explorer folder assignment (#5132). Ids are what {@code
+   * sys_allowed_sites} stores. Not an item publish target and not a site name.
+   */
+  @GET
+  @Path("/folderAllowedSitesCatalog")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSFolderAllowedSitesCatalog folderAllowedSitesCatalog() {
+    PSFolderAllowedSitesCatalog catalog = folderHelper.listFolderAllowedSitesCatalog();
+    return catalog == null ? new PSFolderAllowedSitesCatalog() : catalog;
+  }
+
   @POST
   @Path("/saveFolderProperties")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -340,6 +354,34 @@ public class PSPathService extends PSDispatchingPathService
       throw new WebApplicationException(
           "Display format is not in the folder display format catalog",
           Response.Status.BAD_REQUEST);
+    }
+
+    // Null leaves sys_allowed_sites alone (other property saves). Empty clears it so assets may
+    // publish to all sites. A different list must be catalog site ids. The same set, including a
+    // reordered or zero-padded resend, stays valid (#5132).
+    if (props.getAllowedSites() != null) {
+      FolderAllowedSitesCatalogRules.Parsed requestedSites =
+          FolderAllowedSitesCatalogRules.parse(props.getAllowedSites());
+      String existingSites = existing == null ? null : existing.getAllowedSites();
+      if (requestedSites.kind() == FolderAllowedSitesCatalogRules.Kind.INVALID
+          && !FolderAllowedSitesCatalogRules.sameRaw(props.getAllowedSites(), existingSites)) {
+        throw new WebApplicationException(
+            "Allowed publish sites are not a list of site ids", Response.Status.BAD_REQUEST);
+      }
+      if (requestedSites.kind() == FolderAllowedSitesCatalogRules.Kind.LIST
+          && !FolderAllowedSitesCatalogRules.sameList(requestedSites.canonical(), existingSites)
+          && !folderHelper.isAssignableFolderAllowedSites(requestedSites.canonical())) {
+        throw new WebApplicationException(
+            "Allowed publish site is not in the folder allowed sites catalog",
+            Response.Status.BAD_REQUEST);
+      }
+      if (requestedSites.kind() == FolderAllowedSitesCatalogRules.Kind.LIST
+          && !FolderAllowedSitesCatalogRules.sameList(requestedSites.canonical(), existingSites)) {
+        props.setAllowedSites(requestedSites.canonical());
+      }
+      if (requestedSites.kind() == FolderAllowedSitesCatalogRules.Kind.CLEAR) {
+        props.setAllowedSites("");
+      }
     }
 
     List<IPSSite> sites = publishingWs.getItemSites(idMapper.getGuid(props.getId()));

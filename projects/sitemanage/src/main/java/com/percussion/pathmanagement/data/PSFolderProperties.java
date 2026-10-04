@@ -54,8 +54,8 @@ public class PSFolderProperties extends PSAbstractDataObject {
   private int workflowId;
 
   /**
-   * Comma-separated list of allowed sites for publishing assets. If null, assets are published to
-   * all sites by default.
+   * Comma-separated publish site ids ({@code sys_allowed_sites}). Null on save leaves the stored
+   * list alone. Empty deletes the property so assets may publish to all sites (#5132).
    */
   private String allowedSites;
 

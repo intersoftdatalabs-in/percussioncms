@@ -19,6 +19,7 @@ package com.percussion.share.dao;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderProperties;
+import com.percussion.pathmanagement.data.PSFolderAllowedSitesCatalog;
 import com.percussion.pathmanagement.data.PSFolderCommunityCatalog;
 import com.percussion.pathmanagement.data.PSFolderDisplayFormatCatalog;
 import com.percussion.pathmanagement.data.PSFolderLocaleCatalog;
@@ -627,6 +628,19 @@ public interface IPSFolderHelper {
    * A display-format name is not an id.
    */
   boolean isAssignableFolderDisplayFormat(String displayFormatId);
+
+  /**
+   * Publish sites that may be stored on a folder ({@code sys_allowed_sites} ids). Never {@code
+   * null}. An empty choice list means none are assignable (#5132). Not an item publish target.
+   */
+  PSFolderAllowedSitesCatalog listFolderAllowedSitesCatalog();
+
+  /**
+   * True when {@code allowedSites} is a non-empty comma-separated list and every id is in {@link
+   * #listFolderAllowedSitesCatalog()}. A site name is not an id. Empty clears the property and is
+   * not an assignable list.
+   */
+  boolean isAssignableFolderAllowedSites(String allowedSites);
 
   /**
    * Saves the specified folder properties.

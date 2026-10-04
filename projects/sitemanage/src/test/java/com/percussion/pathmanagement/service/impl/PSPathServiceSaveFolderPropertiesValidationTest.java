@@ -432,6 +432,136 @@ class PSPathServiceSaveFolderPropertiesValidationTest {
     verify(folderHelper, never()).isAssignableFolderDisplayFormat(anyString());
   }
 
+  @Test
+  void unknownAllowedSite_mapsToHttp400AndDoesNotSave() throws Exception {
+    PSFolderProperties stored = storedFolder();
+    stored.setAllowedSites("301");
+    PSFolderProperties props = storedFolder();
+    props.setAllowedSites("301,999");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(folderHelper.isAssignableFolderAllowedSites("301,999")).thenReturn(false);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveFolderProperties(props));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+    verify(folderHelper, never()).saveFolderProperties(any(PSFolderProperties.class));
+    verify(publishingWs, never()).getItemSites(any());
+  }
+
+  @Test
+  void siteNameIsNotAnAllowedSiteId() throws Exception {
+    PSFolderProperties stored = storedFolder();
+    stored.setAllowedSites("301");
+    PSFolderProperties props = storedFolder();
+    props.setAllowedSites("Enterprise");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveFolderProperties(props));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+    verify(folderHelper, never()).saveFolderProperties(any(PSFolderProperties.class));
+    verify(folderHelper, never()).isAssignableFolderAllowedSites(anyString());
+    verify(publishingWs, never()).getItemSites(any());
+  }
+
+  @Test
+  void changedAllowedSites_areCanonicalizedBeforeSave() throws Exception {
+    PSFolderProperties stored = storedFolder();
+    stored.setAllowedSites("301");
+    PSFolderProperties props = storedFolder();
+    props.setAllowedSites(" 302, 301 ");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(folderHelper.isAssignableFolderAllowedSites("301,302")).thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    assertEquals("301,302", props.getAllowedSites());
+    verify(folderHelper).saveFolderProperties(props);
+  }
+
+  @Test
+  void emptyAllowedSites_clearsWithoutCatalogCheck() throws Exception {
+    PSFolderProperties stored = storedFolder();
+    stored.setAllowedSites("301,302");
+    PSFolderProperties props = storedFolder();
+    props.setAllowedSites("  ");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    assertEquals("", props.getAllowedSites());
+    verify(folderHelper).saveFolderProperties(props);
+    verify(folderHelper, never()).isAssignableFolderAllowedSites(anyString());
+  }
+
+  @Test
+  void unchangedAllowedSites_doNotRequireCatalog() throws Exception {
+    PSFolderProperties stored = storedFolder();
+    stored.setAllowedSites("302,301");
+    PSFolderProperties props = storedFolder();
+    props.setAllowedSites("301,0302");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    assertEquals("301,0302", props.getAllowedSites());
+    verify(folderHelper).saveFolderProperties(props);
+    verify(folderHelper, never()).isAssignableFolderAllowedSites(anyString());
+  }
+
+  @Test
+  void omittedAllowedSites_doNotRequireCatalog() throws Exception {
+    PSFolderProperties stored = storedFolder();
+    stored.setAllowedSites("301");
+    PSFolderProperties props = storedFolder();
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    verify(folderHelper).saveFolderProperties(props);
+    verify(folderHelper, never()).isAssignableFolderAllowedSites(anyString());
+  }
+
+  @Test
+  void unchangedMalformedAllowedSites_stillSaves() throws Exception {
+    PSFolderProperties stored = storedFolder();
+    stored.setAllowedSites("legacy");
+    PSFolderProperties props = storedFolder();
+    props.setAllowedSites(" legacy ");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    verify(folderHelper).saveFolderProperties(props);
+    verify(folderHelper, never()).isAssignableFolderAllowedSites(anyString());
+  }
+
   private static PSFolderProperties storedFolder() {
     PSFolderProperties props = new PSFolderProperties();
     props.setId("16777215-101-703");

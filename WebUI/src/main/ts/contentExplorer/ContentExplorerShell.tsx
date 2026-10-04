@@ -172,6 +172,13 @@ import {
   type SetFolderDisplayFormatCatalog,
 } from "./setFolderDisplayFormat";
 import type { FolderDisplayFormatChoice } from "../api/contentExplorer/folderDisplayFormatApi";
+import { SetFolderAllowedSitesDialog } from "./SetFolderAllowedSitesDialog";
+import {
+  loadSetFolderAllowedSitesCatalog,
+  saveSetFolderAllowedSites,
+  type SetFolderAllowedSitesCatalog,
+} from "./setFolderAllowedSites";
+import type { FolderAllowedSiteChoice } from "../api/contentExplorer/folderAllowedSitesApi";
 import type { PSFolderProperties } from "../api/contentExplorer/types";
 import { SetCommunityDialog } from "./SetCommunityDialog";
 import {
@@ -758,6 +765,21 @@ function ContentExplorerShellInner({
     folderId: string;
     currentId: string;
     choices: FolderDisplayFormatChoice[];
+    props: PSFolderProperties;
+    busy: boolean;
+    error: string;
+  } | null>(null);
+  const [setFolderAllowedSitesNotice, setSetFolderAllowedSitesNotice] = useState<{
+    kind: "success" | "error";
+    reason: string;
+    allowedSites: string;
+    allowedSiteNames: string;
+    text: string;
+  } | null>(null);
+  const [setFolderAllowedSitesDialog, setSetFolderAllowedSitesDialog] = useState<{
+    folderId: string;
+    currentSites: string;
+    choices: FolderAllowedSiteChoice[];
     props: PSFolderProperties;
     busy: boolean;
     error: string;
@@ -2349,6 +2371,73 @@ function ContentExplorerShellInner({
           })();
           break;
         }
+        case "content-set-folder-allowed-sites": {
+          const current = selectionRef.current;
+          const selectedCount = multiSelectedItemsRef.current.size;
+          void (async () => {
+            setSetFolderAllowedSitesNotice(null);
+            setSetFolderAllowedSitesDialog(null);
+            const catalog: SetFolderAllowedSitesCatalog =
+              await loadSetFolderAllowedSitesCatalog({
+                item: current.item,
+                selectedCount,
+              });
+            if (catalog.status === "blocked") {
+              const key =
+                catalog.reason === "page"
+                  ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_PAGE
+                  : catalog.reason === "asset"
+                    ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_ASSET
+                    : catalog.reason === "not-folder"
+                      ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_NOT_FOLDER
+                      : catalog.reason === "multi"
+                        ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_MULTI
+                        : catalog.reason === "no-id"
+                          ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_NO_ID
+                          : EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_EMPTY;
+              const text = catalog.name
+                ? `${message(key)}: ${catalog.name}`
+                : message(key);
+              setSetFolderAllowedSitesNotice({
+                kind: "error",
+                reason: catalog.reason,
+                allowedSites: "",
+                allowedSiteNames: "",
+                text,
+              });
+              return;
+            }
+            if (catalog.status === "none" || catalog.status === "http") {
+              const httpKey =
+                catalog.status === "http" && catalog.http === 400
+                  ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_400
+                  : catalog.status === "http" && catalog.http === 403
+                    ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_403
+                    : catalog.status === "http" && catalog.http === 409
+                      ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_409
+                      : catalog.status === "http"
+                        ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_FAILED
+                        : EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_NONE;
+              setSetFolderAllowedSitesNotice({
+                kind: "error",
+                reason: catalog.status === "http" ? `http-${catalog.http}` : "none",
+                allowedSites: "",
+                allowedSiteNames: "",
+                text: message(httpKey),
+              });
+              return;
+            }
+            setSetFolderAllowedSitesDialog({
+              folderId: catalog.folderId,
+              currentSites: catalog.currentSites,
+              choices: catalog.choices,
+              props: catalog.props,
+              busy: false,
+              error: "",
+            });
+          })();
+          break;
+        }
         case "content-set-community": {
           const current = selectionRef.current;
           const selectedCount = multiSelectedItemsRef.current.size;
@@ -2737,6 +2826,19 @@ function ContentExplorerShellInner({
               aria-live="polite"
             >
               {setFolderDisplayFormatNotice.text}
+            </div>
+          ) : null}
+          {setFolderAllowedSitesNotice ? (
+            <div
+              data-testid="explorer-set-folder-allowed-sites-status"
+              data-kind={setFolderAllowedSitesNotice.kind}
+              data-reason={setFolderAllowedSitesNotice.reason}
+              data-allowed-sites={setFolderAllowedSitesNotice.allowedSites}
+              data-allowed-site-names={setFolderAllowedSitesNotice.allowedSiteNames}
+              role="status"
+              aria-live="polite"
+            >
+              {setFolderAllowedSitesNotice.text}
             </div>
           ) : null}
           {setCommunityNotice ? (
@@ -3989,6 +4091,68 @@ function ContentExplorerShellInner({
                               ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_HTTP_409
                               : EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_FAILED;
               setSetFolderDisplayFormatDialog({
+                ...dialog,
+                busy: false,
+                error: message(key),
+              });
+            })();
+          }}
+        />
+      ) : null}
+      {setFolderAllowedSitesDialog ? (
+        <SetFolderAllowedSitesDialog
+          choices={setFolderAllowedSitesDialog.choices}
+          currentSites={setFolderAllowedSitesDialog.currentSites}
+          busy={setFolderAllowedSitesDialog.busy}
+          error={setFolderAllowedSitesDialog.error}
+          onCancel={() => {
+            if (!setFolderAllowedSitesDialog.busy) {
+              setSetFolderAllowedSitesDialog(null);
+            }
+          }}
+          onSave={(siteIds) => {
+            const dialog = setFolderAllowedSitesDialog;
+            void (async () => {
+              setSetFolderAllowedSitesDialog({ ...dialog, busy: true, error: "" });
+              const saved = await saveSetFolderAllowedSites({
+                folderId: dialog.folderId,
+                props: dialog.props,
+                selectedIds: siteIds,
+                currentSites: dialog.currentSites,
+                allowedIds: dialog.choices.map((row) => row.id),
+                choices: dialog.choices,
+              });
+              if (saved.status === "saved") {
+                setSetFolderAllowedSitesDialog(null);
+                setSetFolderAllowedSitesNotice({
+                  kind: "success",
+                  reason: "",
+                  allowedSites: saved.allowedSites,
+                  allowedSiteNames: saved.allowedSiteNames,
+                  text: saved.cleared
+                    ? message(EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_CLEARED)
+                    : `${message(EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_SAVED)} ${saved.allowedSiteNames}`,
+                });
+                setListEpoch((n) => n + 1);
+                return;
+              }
+              const key =
+                saved.status === "gate" && saved.reason === "unchanged"
+                  ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_UNCHANGED
+                  : saved.status === "gate" && saved.reason === "forbidden"
+                    ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_FORBIDDEN
+                    : saved.status === "gate" && saved.reason === "invalid"
+                      ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_INVALID
+                      : saved.status === "mismatch"
+                        ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_MISMATCH
+                        : saved.status === "http" && saved.http === 400
+                          ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_400
+                          : saved.status === "http" && saved.http === 403
+                            ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_403
+                            : saved.status === "http" && saved.http === 409
+                              ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_409
+                              : EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_FAILED;
+              setSetFolderAllowedSitesDialog({
                 ...dialog,
                 busy: false,
                 error: message(key),

@@ -108,7 +108,11 @@ export interface PSFolderProperties {
   /** Persisted {@code sys_displayformat} id. A name is not an id. */
   displayFormatId?: string;
   workflowId?: string;
-  allowedSites?: string[];
+  /**
+   * Comma-separated publish site ids ({@code sys_allowed_sites}). Empty clears
+   * the restriction so assets may publish to all sites (#5132).
+   */
+  allowedSites?: string;
 }
 
 export interface PSRenameFolderItem {
