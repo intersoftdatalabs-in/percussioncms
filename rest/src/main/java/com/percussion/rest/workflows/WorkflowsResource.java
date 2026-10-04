@@ -1255,6 +1255,76 @@ public class WorkflowsResource {
     }
   }
 
+  @PUT
+  @Path("/{idOrName}/steps/{stepName}/role-inbox")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Set inbox on one step role",
+      description =
+          "Slice 66 Admin. Turns inbox (SHOWININBOX) on or off for one Reader or Assignee already"
+              + " assigned to the path step. Does not change the assignment type, add or remove"
+              + " roles, or edit notify. This is not PUT role-notify and not PUT role-assignment."
+              + " Packaged and system-default workflows are 403. An Admin or None role is 409 and"
+              + " is not changed. An unchanged flag, a blank role, or a missing inbox value is"
+              + " 400. Missing workflow, step, or role is 404. Jackson root wrap is"
+              + " WorkflowStepRoleInboxWrite. Returns the assignment list after the write.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated; returns assignment rows including the stored inbox flag",
+            content =
+                @Content(schema = @Schema(implementation = WorkflowStepRoleAssignmentList.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing body, blank role, missing inbox, or unchanged inbox"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow, step, or role not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Current assignment type is not Reader or Assignee"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowStepRoleAssignmentList setStepRoleInbox(
+      @PathParam("idOrName") String idOrName,
+      @PathParam("stepName") String stepName,
+      WorkflowStepRoleInboxWrite body) {
+    if (stepName == null || stepName.isBlank()) {
+      throw new WebApplicationException("Step name is required", 400);
+    }
+    if (body == null) {
+      throw new WebApplicationException("Workflow step role inbox body is required", 400);
+    }
+    if (body.getRoleName() == null || body.getRoleName().isBlank()) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
+    if (body.getInbox() == null) {
+      throw new WebApplicationException("inbox is required", 400);
+    }
+    try {
+      WorkflowStepRoleAssignmentList list =
+          requireAdaptor().setStepRoleInbox(uriInfo.getBaseUri(), idOrName, stepName, body);
+      if (list == null) {
+        throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+      }
+      return list;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to set step role inbox ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @POST
   @Path("/{idOrName}/steps/{stepName}/roles")
   @Consumes({MediaType.APPLICATION_JSON})

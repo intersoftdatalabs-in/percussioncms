@@ -24,11 +24,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * One role already assigned to a workflow step, with its stored assignment type.
  *
  * <p>{@code assignmentType} is the enum name ({@code READER}, {@code ASSIGNEE}, {@code ADMIN}, or
- * {@code NONE}). {@code notify} is the stored {@code ISNOTIFYON} flag. This row does not add or
- * remove the role and does not include the inbox flag.
+ * {@code NONE}). {@code notify} is the stored {@code ISNOTIFYON} flag. {@code inbox} is the stored
+ * {@code SHOWININBOX} flag. This row does not add or remove the role.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Assignment type and notify flag of one role on one workflow step")
+@Schema(description = "Assignment type, notify flag, and inbox flag of one role on one workflow step")
 public class WorkflowStepRoleAssignment {
 
   @Schema(description = "Step (state) name.")
@@ -40,8 +40,11 @@ public class WorkflowStepRoleAssignment {
   @Schema(description = "Stored assignment type: READER, ASSIGNEE, ADMIN, or NONE.")
   private String assignmentType;
 
-  @Schema(description = "Stored notify flag (ISNOTIFYON). Inbox is not included.")
+  @Schema(description = "Stored notify flag (ISNOTIFYON).")
   private boolean notify;
+
+  @Schema(description = "Stored inbox flag (SHOWININBOX).")
+  private boolean inbox;
 
   public WorkflowStepRoleAssignment() {}
 
@@ -75,5 +78,13 @@ public class WorkflowStepRoleAssignment {
 
   public void setNotify(boolean notify) {
     this.notify = notify;
+  }
+
+  public boolean isInbox() {
+    return inbox;
+  }
+
+  public void setInbox(boolean inbox) {
+    this.inbox = inbox;
   }
 }

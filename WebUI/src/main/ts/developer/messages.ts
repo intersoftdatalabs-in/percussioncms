@@ -2042,10 +2042,10 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Inbox flags stay on the workflow-admin editor. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Repeated or system-field aging stays outside this surface.",
+    "perc.ui.developer@Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Ad-hoc type and repeated or system-field aging stay outside this surface.",
   WF_ROLE_ASSIGN_TITLE: "perc.ui.developer@Assignment type",
   WF_ROLE_ASSIGN_HINT:
-    "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Inbox flags stay on the workflow-admin editor.",
+    "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Notify and inbox are separate confirms.",
   WF_ROLE_ASSIGN_PACKAGED:
     "perc.ui.developer@Packaged or default workflows cannot change assignment type from this surface.",
   WF_ROLE_ASSIGN_TYPE: "perc.ui.developer@Assignment type",
@@ -2068,7 +2068,25 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@That step or role was not found.",
   WF_ROLE_NOTIFY_TITLE: "perc.ui.developer@Notify",
   WF_ROLE_NOTIFY_HINT:
-    "perc.ui.developer@Turn notify on or off for one role already on a step. The table shows the stored flag only after the server accepts it. Inbox stays on the workflow-admin editor.",
+    "perc.ui.developer@Turn notify on or off for one role already on a step. The table shows the stored flag only after the server accepts it. Inbox is a separate confirm.",
+  WF_ROLE_INBOX_TITLE: "perc.ui.developer@Inbox",
+  WF_ROLE_INBOX_HINT:
+    "perc.ui.developer@Turn inbox on or off for one Reader or Assignee role already on a step. The table shows the stored flag only after the server accepts it. Assignment type and notify are not changed.",
+  WF_ROLE_INBOX_FLAG: "perc.ui.developer@Inbox",
+  WF_ROLE_INBOX_ON: "perc.ui.developer@On",
+  WF_ROLE_INBOX_OFF: "perc.ui.developer@Off",
+  WF_ROLE_INBOX_CONFIRM: "perc.ui.developer@Set inbox",
+  WF_ROLE_INBOX_CANCEL: "perc.ui.developer@Cancel",
+  WF_ROLE_INBOX_BUSY: "perc.ui.developer@Saving...",
+  WF_ROLE_INBOX_SAVED: "perc.ui.developer@Inbox saved.",
+  WF_ROLE_INBOX_ERROR: "perc.ui.developer@Could not set inbox.",
+  WF_ROLE_INBOX_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_ROLE_INBOX_CONFLICT:
+    "perc.ui.developer@That role's inbox was not changed. Admin and None assignments stay on the workflow-admin editor.",
+  WF_ROLE_INBOX_BAD:
+    "perc.ui.developer@Choose on or off for a Reader or Assignee role already on the step.",
+  WF_ROLE_INBOX_MISSING: "perc.ui.developer@That step or role was not found.",
   WF_ROLE_NOTIFY_FLAG: "perc.ui.developer@Notify",
   WF_ROLE_NOTIFY_ON: "perc.ui.developer@On",
   WF_ROLE_NOTIFY_OFF: "perc.ui.developer@Off",
