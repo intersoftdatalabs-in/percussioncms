@@ -23,6 +23,7 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => 
     updateCommunityRoles: vi.fn(),
     createCommunity: vi.fn(),
     deleteCommunity: vi.fn(),
+    renameCommunity: vi.fn(),
     getCommunityNewSearchDefaults: vi.fn(),
     replaceCommunityNewSearchDefaults: vi.fn(),
   };
@@ -44,6 +45,7 @@ const getCommunityVisibility = assemblyApi.getCommunityVisibility as ReturnType<
 const updateCommunityRoles = assemblyApi.updateCommunityRoles as ReturnType<typeof vi.fn>;
 const createCommunity = assemblyApi.createCommunity as ReturnType<typeof vi.fn>;
 const deleteCommunity = assemblyApi.deleteCommunity as ReturnType<typeof vi.fn>;
+const renameCommunity = assemblyApi.renameCommunity as ReturnType<typeof vi.fn>;
 const getCommunityNewSearchDefaults = assemblyApi.getCommunityNewSearchDefaults as ReturnType<
   typeof vi.fn
 >;
@@ -81,6 +83,7 @@ describe("CommunityDetailPanel", () => {
     updateCommunityRoles.mockReset();
     createCommunity.mockReset();
     deleteCommunity.mockReset();
+    renameCommunity.mockReset();
     getCommunityNewSearchDefaults.mockReset();
     replaceCommunityNewSearchDefaults.mockReset();
     listSearches.mockReset();
@@ -685,5 +688,125 @@ describe("CommunityDetailPanel", () => {
     expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
       DEV_MSG.COMM_FORBIDDEN,
     );
+  });
+
+  it("renames only after success and keeps the title until then (#5177)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    renameCommunity.mockResolvedValue({
+      name: "Enterprise",
+      label: "Enterprise",
+      id: 1001,
+      guid: { stringValue: "0-10-1001" },
+    });
+    const onRenamed = vi.fn();
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} onRenamed={onRenamed} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-title").textContent).toContain(
+        "Default Community",
+      );
+    });
+    const save = screen.getByTestId("developer-comm-rename-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
+      target: { value: "Enterprise" },
+    });
+    expect(screen.getByTestId("developer-comm-detail-title").textContent).toContain(
+      "Default Community",
+    );
+    expect(screen.getByTestId("developer-comm-detail-title").textContent).not.toContain(
+      "Enterprise",
+    );
+    fireEvent.click(save);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-title").textContent).toContain("Enterprise");
+    });
+    expect(screen.getByTestId("developer-comm-detail-notice").textContent).toContain(
+      DEV_MSG.COMM_RENAMED,
+    );
+    expect(renameCommunity).toHaveBeenCalledWith("Default", { name: "Enterprise" });
+    expect(onRenamed).toHaveBeenCalledWith("Default", "Enterprise");
+  });
+
+  it("rename cancel restores the old name and does not post (#5177)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-rename-name")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
+      target: { value: "Enterprise" },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-cancel"));
+    expect((screen.getByTestId("developer-comm-rename-name") as HTMLInputElement).value).toBe(
+      "Default",
+    );
+    expect(screen.getByTestId("developer-comm-detail-title").textContent).toContain(
+      "Default Community",
+    );
+    expect(renameCommunity).not.toHaveBeenCalled();
+  });
+
+  it("does not post a blank or overlong rename (#5177)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-rename-save")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
+      target: { value: "   " },
+    });
+    expect((screen.getByTestId("developer-comm-rename-save") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    fireEvent.click(screen.getByTestId("developer-comm-rename-save"));
+    fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
+      target: { value: "E".repeat(51) },
+    });
+    expect(screen.getByTestId("developer-comm-rename-error").textContent).toContain(
+      DEV_MSG.COMM_NAME_TOO_LONG,
+    );
+    expect((screen.getByTestId("developer-comm-rename-save") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    fireEvent.click(screen.getByTestId("developer-comm-rename-save"));
+    expect(renameCommunity).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-comm-detail-title").textContent).toContain(
+      "Default Community",
+    );
+  });
+
+  it("keeps the old title on rename 400, 403, and 409 (#5177)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    const onRenamed = vi.fn();
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} onRenamed={onRenamed} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-rename-name")).toBeTruthy();
+    });
+    for (const [status, message] of [
+      [400, DEV_MSG.COMM_NAME_INVALID],
+      [403, DEV_MSG.COMM_FORBIDDEN],
+      [409, DEV_MSG.COMM_DUPLICATE],
+    ] as const) {
+      renameCommunity.mockRejectedValueOnce({
+        status,
+        statusText: "Error",
+        body: { message: "nope" },
+      });
+      fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
+        target: { value: `Name${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-comm-rename-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(message);
+      });
+      expect(screen.getByTestId("developer-comm-detail-title").textContent).toContain(
+        "Default Community",
+      );
+      expect(screen.getByTestId("developer-comm-detail-title").textContent).not.toContain(
+        `Name${status}`,
+      );
+    }
+    expect(onRenamed).not.toHaveBeenCalled();
+    expect(renameCommunity).toHaveBeenCalledTimes(3);
   });
 });

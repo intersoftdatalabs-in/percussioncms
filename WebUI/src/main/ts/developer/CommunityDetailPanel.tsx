@@ -26,8 +26,12 @@ import {
   getCommunityDetail,
   getCommunityNewSearchDefaults,
   getCommunityVisibility,
+  COMMUNITY_NAME_MAX_LENGTH,
+  isCommunityRenameReady,
   isCommunityWriteReady,
+  isValidCommunityRenameName,
   listAvailableRoles,
+  renameCommunity,
   replaceCommunityNewSearchDefaults,
   updateCommunityRoles,
 } from "../api/developer/assemblyApi";
@@ -169,6 +173,26 @@ function deleteFallback(err: unknown): string {
   return DEV_MSG.COMM_DELETE_ERROR;
 }
 
+function communityRenameDraftTooLong(draft: string): boolean {
+  return draft.trim().length > COMMUNITY_NAME_MAX_LENGTH;
+}
+
+function renameFallback(err: unknown): string {
+  if (!isApiError(err)) return DEV_MSG.COMM_RENAME_ERROR;
+  if (err.status === 409) return DEV_MSG.COMM_DUPLICATE;
+  if (err.status === 403) return DEV_MSG.COMM_FORBIDDEN;
+  if (err.status === 400) {
+    const raw = typeof err.body === "string" ? err.body : "";
+    const msg = `${raw} ${err.statusText || ""}`.toLowerCase();
+    if (msg.includes("50") || msg.includes("long") || msg.includes("character")) {
+      return DEV_MSG.COMM_NAME_TOO_LONG;
+    }
+    return DEV_MSG.COMM_NAME_INVALID;
+  }
+  if (err.status === 404) return DEV_MSG.COMM_MISSING;
+  return DEV_MSG.COMM_RENAME_ERROR;
+}
+
 function nsdLoadFallback(err: unknown): string {
   if (!isApiError(err)) return DEV_MSG.COMM_NSD_ERROR;
   if (err.status === 403) return DEV_MSG.COMM_FORBIDDEN;
@@ -204,17 +228,21 @@ export function CommunityDetailPanel({
   onBack,
   onSaved,
   onDeleted,
+  onRenamed,
 }: {
   /** null = create mode */
   idOrName: string | null;
   onBack: () => void;
   onSaved?: (detail: CommunityDetail | CommunitySummary) => void;
   onDeleted?: () => void;
+  /** Fired only after a rename POST succeeds. */
+  onRenamed?: (previousName: string, newName: string) => void;
 }): React.ReactElement {
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const isNew = idOrName == null && createdKey == null;
   const [detail, setDetail] = useState<CommunityDetail | null>(null);
   const [name, setName] = useState("");
+  const [renameDraft, setRenameDraft] = useState("");
   const [allRoles, setAllRoles] = useState<CommunityRoleSummary[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
@@ -298,6 +326,7 @@ export function CommunityDetailPanel({
     // Invalidate any in-flight visibility from a prior community / type filter.
     visibilityReqId.current += 1;
     setDetail(null);
+    setRenameDraft("");
     setError(null);
     setNotice(null);
     setVisibleObjects([]);
@@ -316,6 +345,7 @@ export function CommunityDetailPanel({
         if (cancelled) return;
         setDetail(d);
         setName(d.name || idOrName);
+        setRenameDraft(d.name || idOrName);
         setAllRoles(roles);
         setSelectedKeys(
           new Set(asRoles(d).map((r, i) => roleKey(r, i)).filter((k) => k.length > 0)),
@@ -465,6 +495,52 @@ export function CommunityDetailPanel({
       onSaved?.(created);
     } catch (err: unknown) {
       setError(panelErrMsg(err, createFallback(err)));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  function handleRenameCancel(): void {
+    if (busy || inflight.current) return;
+    setRenameDraft(detail?.name || "");
+    setError(null);
+  }
+
+  async function handleRename(): Promise<void> {
+    const current = (detail?.name || "").trim();
+    if (isNew || !detail || busy || inflight.current) return;
+    if (!isCommunityRenameReady(current, renameDraft)) {
+      if (!isValidCommunityRenameName(renameDraft)) {
+        const trimmed = renameDraft.trim();
+        setError(trimmed.length === 0 ? DEV_MSG.COMM_NAME_INVALID : DEV_MSG.COMM_NAME_TOO_LONG);
+      }
+      return;
+    }
+    const next = renameDraft.trim();
+    const key = idOrName || current;
+    inflight.current = true;
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = await renameCommunity(key, { name: next });
+      const renamed = (saved.name || next).trim();
+      setDetail((prev) =>
+        prev == null
+          ? prev
+          : {
+              ...prev,
+              name: renamed,
+              label: renamed,
+            },
+      );
+      setRenameDraft(renamed);
+      setName(renamed);
+      setNotice(DEV_MSG.COMM_RENAMED);
+      onRenamed?.(current, renamed);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, renameFallback(err)));
     } finally {
       inflight.current = false;
       setBusy(false);
@@ -677,6 +753,78 @@ export function CommunityDetailPanel({
                 {guidLabel || "—"}
               </dd>
             </dl>
+            <section
+              data-testid="developer-comm-rename"
+              style={{ marginTop: "12px", marginBottom: "12px" }}
+            >
+              <h3 style={{ fontSize: "1rem", margin: "0 0 4px" }}>{DEV_MSG.COMM_RENAME}</h3>
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem", margin: "0 0 8px" }}>
+                {DEV_MSG.COMM_RENAME_HINT}
+              </p>
+              {communityRenameDraftTooLong(renameDraft) ? (
+                <div
+                  role="alert"
+                  data-testid="developer-comm-rename-error"
+                  style={{ ...errorAlert, marginBottom: "8px" }}
+                >
+                  {DEV_MSG.COMM_NAME_TOO_LONG}
+                </div>
+              ) : null}
+              <label htmlFor="comm-rename-name" style={{ display: "block", marginBottom: "4px" }}>
+                {DEV_MSG.COMM_FORM_NAME}
+              </label>
+              <input
+                id="comm-rename-name"
+                data-testid="developer-comm-rename-name"
+                style={inputStyle}
+                value={renameDraft}
+                disabled={busy}
+                aria-label={DEV_MSG.COMM_RENAME}
+                onChange={(e) => {
+                  setRenameDraft(e.target.value);
+                  if (error) setError(null);
+                }}
+              />
+              <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+                <button
+                  type="button"
+                  data-testid="developer-comm-rename-save"
+                  disabled={busy || !isCommunityRenameReady(detail.name, renameDraft)}
+                  onClick={() => void handleRename()}
+                  style={{
+                    padding: "8px 16px",
+                    background:
+                      busy || !isCommunityRenameReady(detail.name, renameDraft)
+                        ? catalogColors.disabled
+                        : catalogColors.accent,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor:
+                      busy || !isCommunityRenameReady(detail.name, renameDraft)
+                        ? "not-allowed"
+                        : "pointer",
+                  }}
+                >
+                  {busy ? DEV_MSG.COMM_RENAME_BUSY : DEV_MSG.COMM_RENAME_SAVE}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-comm-rename-cancel"
+                  disabled={busy}
+                  onClick={handleRenameCancel}
+                  style={{
+                    padding: "8px 16px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {DEV_MSG.COMM_CANCEL}
+                </button>
+              </div>
+            </section>
             <div style={{ marginTop: "12px" }}>
               <button
                 type="button"

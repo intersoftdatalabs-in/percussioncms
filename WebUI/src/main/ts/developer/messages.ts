@@ -614,7 +614,7 @@ export const DEV_MSG_KEYS = {
   COMM_EMPTY: "perc.ui.developer@No communities returned.",
   COMM_ERROR: "perc.ui.developer@Could not load communities.",
   COMM_HINT:
-    "perc.ui.developer@Create or delete a community, then open one to edit role membership, Content Explorer new-search defaults, and inspect object visibility. Per-object COMMUNITY ACL entries are edited on object detail panels (e.g. content types).",
+    "perc.ui.developer@Create, rename, or delete a community, then open one to edit role membership, Content Explorer new-search defaults, and inspect object visibility. Per-object COMMUNITY ACL entries are edited on object detail panels (e.g. content types).",
   COMM_NEW: "perc.ui.developer@New community",
   COMM_CREATE: "perc.ui.developer@Create community",
   COMM_CANCEL: "perc.ui.developer@Cancel",
@@ -622,6 +622,14 @@ export const DEV_MSG_KEYS = {
   COMM_NAME_HINT:
     "perc.ui.developer@Required unique name. Spaces are allowed. Duplicate names are rejected.",
   COMM_NAME_INVALID: "perc.ui.developer@Community name cannot be blank.",
+  COMM_NAME_TOO_LONG: "perc.ui.developer@Community name must be 50 characters or fewer.",
+  COMM_RENAME: "perc.ui.developer@Rename community",
+  COMM_RENAME_HINT:
+    "perc.ui.developer@Enter a new unique name (max 50 characters). The catalog and title change only after rename succeeds.",
+  COMM_RENAME_SAVE: "perc.ui.developer@Rename",
+  COMM_RENAME_BUSY: "perc.ui.developer@Renaming...",
+  COMM_RENAMED: "perc.ui.developer@Community renamed.",
+  COMM_RENAME_ERROR: "perc.ui.developer@Could not rename community.",
   COMM_CREATED: "perc.ui.developer@Community created.",
   COMM_DUPLICATE: "perc.ui.developer@A community with this name already exists.",
   COMM_FORBIDDEN: "perc.ui.developer@Admin role required.",

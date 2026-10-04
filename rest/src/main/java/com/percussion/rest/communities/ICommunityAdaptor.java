@@ -50,6 +50,15 @@ public interface ICommunityAdaptor {
    */
   Community updateCommunityRoles(String idOrName, CommunityRoleList roles);
 
+  /**
+   * Rename one community. Blank or longer than {@code 50} characters is {@link
+   * IllegalArgumentException} (HTTP 400). A case-insensitive name owned by a different community
+   * is HTTP 409. Non-Admin or a missing session/user is HTTP 403. Returns {@code null} when the
+   * community does not exist. The same name after trim does not write. Description and role
+   * membership are unchanged. Design-lock conflicts are HTTP 409 and do not rename.
+   */
+  Community renameCommunity(String idOrName, String newName);
+
   CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock)
       throws PSErrorResultsException;
 

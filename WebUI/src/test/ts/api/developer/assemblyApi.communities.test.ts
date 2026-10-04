@@ -26,8 +26,14 @@ import {
   deleteCommunities,
   deleteCommunity,
   getCommunityDetail,
+  COMMUNITY_NAME_MAX_LENGTH,
+  COMMUNITY_RENAME_ROOT,
+  isCommunityRenameReady,
   isCommunityWriteReady,
   isValidCommunityName,
+  isValidCommunityRenameName,
+  renameCommunity,
+  wrapCommunityRenameForWire,
   listAvailableRoles,
   listCommunities,
   normalizeCommunityName,
@@ -54,6 +60,16 @@ describe("community name validation (SE-01)", () => {
     expect(isValidCommunityName("Swiss French")).toBe(true);
     expect(isCommunityWriteReady({ name: "" })).toBe(false);
     expect(isCommunityWriteReady({ name: "QA" })).toBe(true);
+    expect(isValidCommunityRenameName("")).toBe(false);
+    expect(isValidCommunityRenameName(" ")).toBe(false);
+    expect(isValidCommunityRenameName("A".repeat(COMMUNITY_NAME_MAX_LENGTH))).toBe(true);
+    expect(isValidCommunityRenameName("A".repeat(COMMUNITY_NAME_MAX_LENGTH + 1))).toBe(false);
+    expect(isCommunityRenameReady("Default", "Default")).toBe(false);
+    expect(isCommunityRenameReady("Default", " default ")).toBe(true);
+    expect(isCommunityRenameReady("Default", "Enterprise")).toBe(true);
+    expect(wrapCommunityRenameForWire({ name: "Enterprise" })).toEqual({
+      [COMMUNITY_RENAME_ROOT]: { name: "Enterprise" },
+    });
   });
 });
 
@@ -215,6 +231,25 @@ describe("createCommunities / saveCommunities / deleteCommunities (SE-01)", () =
       jsonResponse({ message: "Community already exists: Default" }, 409),
     );
     await expect(createCommunities(["Default"])).rejects.toMatchObject({ status: 409 });
+  });
+
+  it("POSTs CommunityRename to /communities/{name}/rename", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        Community: { name: "Enterprise", id: 10, description: "keep me" },
+      }),
+    );
+    const renamed = await renameCommunity("Default", { name: "Enterprise" });
+    expect(renamed.name).toBe("Enterprise");
+    expect(renamed.description).toBe("keep me");
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain(
+      `${PATHS.COMMUNITIES}/${encodeURIComponent("Default")}/rename`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      CommunityRename: { name: "Enterprise" },
+    });
   });
 
   it("createCommunities non-Admin is 403", async () => {

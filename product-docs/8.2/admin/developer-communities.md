@@ -1,7 +1,7 @@
 ---
 id: admin-developer-communities
 title: Developer Communities
-description: Create and delete CMS communities, edit roles, and set Content Explorer new-search defaults from Developer Communities chrome
+description: Create, rename, and delete CMS communities, edit roles, and set Content Explorer new-search defaults from Developer Communities chrome
 version: "8.2"
 order: 45
 tags: [admin, developer, communities]
@@ -10,14 +10,15 @@ tags: [admin, developer, communities]
 # Developer Communities
 
 **Developer → Communities** lists CMS communities (label, unique name, id, and
-description). Admins can **create** a community and **delete** one from this
-chrome. Open an existing community to **edit role membership**, set **Content
-Explorer new-search defaults**, and inspect **object visibility**. Per-object
-COMMUNITY ACL entries stay on object detail panels (for example content types).
+description). Admins can **create** a community, **rename** one, and **delete**
+one from this chrome. Open an existing community to **edit role membership**,
+set **Content Explorer new-search defaults**, and inspect **object visibility**.
+Per-object COMMUNITY ACL entries stay on object detail panels (for example
+content types). Description edits are not part of rename.
 
-## Product path — create and delete
+## Product path — create, rename, and delete
 
-1. Sign in as **Admin** (create and delete require the Admin role).
+1. Sign in as **Admin** (create, rename, and delete require the Admin role).
 2. Open **Developer → Communities**, or deep-link
    `spa.jsp?entry=developer&section=communities`.
 3. Click **New community**. Enter a **name** (required, unique,
@@ -29,7 +30,18 @@ COMMUNITY ACL entries stay on object detail panels (for example content types).
    non-Admin session is **403**. After a successful create, the catalog
    includes the new row when you return to the list, and the detail panel
    still offers **role membership** save.
-5. Open an existing community and click **Delete community**, then confirm
+5. Open an existing community. Under **Rename community**, the name field
+   starts as the current name. The detail title does not change while you
+   type. **Cancel** restores the field and does not call the server.
+6. Enter a new name (required, unique, case-insensitive, at most **50**
+   characters; spaces are allowed) and click **Rename**. Rename stays disabled
+   for a blank name, a name longer than 50 characters, or the same name.
+   A duplicate name is **409**, a blank or overlong name is **400**, and a
+   non-Admin session is **403**. Those responses keep the previous name on
+   the detail title and in the catalog. After a successful rename, the detail
+   title and the catalog row show the new name (the catalog does not show it
+   before the rename succeeds). Description and role membership are unchanged.
+7. Open an existing community and click **Delete community**, then confirm
    in the in-app dialog (not a browser prompt).
    The catalog no longer lists that name. Delete of a missing community is
    **404**. A community that is still **in use** (dependencies) is **409**
@@ -69,6 +81,9 @@ for each community. That assignment is now on the community detail panel.
 - Create uses the existing bulk REST (`POST /services/communities/bulk`). The
   server persists on create (Workbench Finish create+save). Name is the catalog
   key. The SPA does not PUT the DTO back after create.
+- Rename uses `POST /services/communities/{idOrName}/rename` with
+  `{"CommunityRename":{"name":"…"}}`. It does not change the description or
+  role membership. The stored name is at most 50 characters.
 - Delete uses `DELETE /services/communities/bulk` with the community GUID
   and `ignoredependencies=false`.
 - Community visibility remains a read-only lens. Object ACL for a COMMUNITY
@@ -87,6 +102,7 @@ The chrome calls:
 | List | `GET /services/communities/find?name=*` |
 | Load | `GET /services/communities/{idOrName}` |
 | Create | `POST /services/communities/bulk` (name list; server persists) |
+| Rename | `POST /services/communities/{idOrName}/rename` (`CommunityRename.name`; max 50) |
 | Available roles (picker) | `GET /services/communities/roles` |
 | Assign / unassign roles | `PUT /services/communities/{idOrName}/roles` (full membership replace; `{"CommunityRoleList":[]}` clears) |
 | New-search defaults | `GET` / `PUT /services/communities/{idOrName}/new-search-defaults` |

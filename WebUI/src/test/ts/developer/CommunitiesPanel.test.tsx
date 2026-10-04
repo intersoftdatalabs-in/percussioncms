@@ -23,12 +23,16 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => 
     updateCommunityRoles: vi.fn(),
     createCommunity: vi.fn(),
     deleteCommunity: vi.fn(),
+    renameCommunity: vi.fn(),
+    getCommunityNewSearchDefaults: vi.fn().mockResolvedValue({ searches: [] }),
+    replaceCommunityNewSearchDefaults: vi.fn().mockResolvedValue({ searches: [] }),
   };
 });
 
 const listCommunities = assemblyApi.listCommunities as ReturnType<typeof vi.fn>;
 const createCommunity = assemblyApi.createCommunity as ReturnType<typeof vi.fn>;
 const getCommunityDetail = assemblyApi.getCommunityDetail as ReturnType<typeof vi.fn>;
+const renameCommunity = assemblyApi.renameCommunity as ReturnType<typeof vi.fn>;
 
 describe("CommunitiesPanel", () => {
   beforeEach(() => {
@@ -38,6 +42,7 @@ describe("CommunitiesPanel", () => {
     listCommunities.mockReset();
     createCommunity.mockReset();
     getCommunityDetail.mockReset();
+    renameCommunity.mockReset();
   });
 
   it("lists communities on success", async () => {
@@ -147,6 +152,57 @@ describe("CommunitiesPanel", () => {
     });
     expect(createCommunity).toHaveBeenCalledWith("QA Community");
     expect(listCommunities).toHaveBeenCalledTimes(2);
+  });
+
+  it("shows the new community name in the catalog only after rename succeeds (#5177)", async () => {
+    const original = {
+      id: 7,
+      name: "DefaultComm",
+      label: "Default Community",
+      description: "System community",
+      guid: { stringValue: "0-13-7", longValue: 7 },
+    };
+    const renamed = {
+      ...original,
+      name: "Enterprise",
+      label: "Enterprise",
+    };
+    listCommunities.mockResolvedValueOnce([original]).mockResolvedValue([renamed]);
+    getCommunityDetail.mockImplementation(async (key: string) => ({
+      ...original,
+      name: key === "Enterprise" ? "Enterprise" : "DefaultComm",
+      label: key === "Enterprise" ? "Enterprise" : "Default Community",
+      roleList: [],
+    }));
+    renameCommunity.mockResolvedValue({
+      name: "Enterprise",
+      label: "Enterprise",
+      id: 7,
+      guid: original.guid,
+    });
+    render(<CommunitiesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table").textContent).toContain("DefaultComm");
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-open"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-rename-name")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
+      target: { value: "Enterprise" },
+    });
+    expect(screen.queryByTestId("developer-comm-table")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-comm-rename-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-title").textContent).toContain(
+        "Enterprise",
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table").textContent).toContain("Enterprise");
+    });
+    expect(screen.getByTestId("developer-comm-table").textContent).not.toContain("DefaultComm");
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {
