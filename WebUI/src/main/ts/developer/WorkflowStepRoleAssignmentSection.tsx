@@ -1,0 +1,383 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import React, { useEffect, useMemo, useState } from "react";
+import { isApiError } from "../api/client";
+import {
+  listStepRoleAssignments,
+  setStepRoleAssignment,
+} from "../api/developer/workflowsApi";
+import type { WorkflowStepRoleAssignment } from "../api/developer/types";
+import { catalogColors, errorAlert, tableHeaderRow, tableRow } from "./catalogStyles";
+import { panelErrMsg } from "./errors";
+import { DEV_MSG } from "./messages";
+import {
+  applyAssignmentAfterReload,
+  assignmentTypeLabel,
+  canOfferStepRoleAssignment,
+  findAssignment,
+  isAssignmentChangeReady,
+  mutableAssignments,
+  normalizeAssignmentType,
+} from "./workflowStepRoleAssignment";
+
+const inputStyle: React.CSSProperties = {
+  padding: "8px",
+  border: `1px solid ${catalogColors.softBorder}`,
+  borderRadius: "4px",
+  font: "inherit",
+  width: "100%",
+  boxSizing: "border-box",
+};
+
+function assignmentErrorFallback(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return DEV_MSG.WF_ROLE_ASSIGN_FORBIDDEN;
+    }
+    if (err.status === 409) {
+      return DEV_MSG.WF_ROLE_ASSIGN_CONFLICT;
+    }
+    if (err.status === 400) {
+      return DEV_MSG.WF_ROLE_ASSIGN_BAD;
+    }
+    if (err.status === 404) {
+      return DEV_MSG.WF_ROLE_ASSIGN_MISSING;
+    }
+  }
+  return DEV_MSG.WF_ROLE_ASSIGN_ERROR;
+}
+
+/**
+ * Set Reader or Assignee on one role already assigned to one step.
+ * The table shows the stored type only after a successful reload.
+ */
+export function WorkflowStepRoleAssignmentSection({
+  workflowName,
+  defaultWorkflow,
+}: {
+  workflowName: string;
+  defaultWorkflow?: boolean;
+}): React.ReactElement {
+  const [rows, setRows] = useState<WorkflowStepRoleAssignment[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [stepName, setStepName] = useState("");
+  const [roleName, setRoleName] = useState("");
+  const [nextType, setNextType] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const canOffer = canOfferStepRoleAssignment({
+    name: workflowName,
+    defaultWorkflow,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    setRows([]);
+    setLoadError(null);
+    setError(null);
+    setNotice(null);
+    setStepName("");
+    setRoleName("");
+    setNextType("");
+    listStepRoleAssignments(workflowName)
+      .then((loaded) => {
+        if (cancelled) {
+          return;
+        }
+        const next = Array.isArray(loaded) ? loaded : [];
+        setRows(next);
+        const first = mutableAssignments(next)[0];
+        if (first?.stepName && first.roleName) {
+          setStepName(first.stepName);
+          setRoleName(first.roleName);
+          setNextType(normalizeAssignmentType(first.assignmentType));
+        }
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) {
+          setLoadError(panelErrMsg(err, DEV_MSG.WF_ROLE_ASSIGN_LOAD_ERROR));
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [workflowName]);
+
+  const editable = useMemo(() => mutableAssignments(rows), [rows]);
+  const steps = useMemo(() => {
+    const names: string[] = [];
+    for (const row of editable) {
+      const name = (row.stepName ?? "").trim();
+      if (name && !names.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
+        names.push(name);
+      }
+    }
+    return names;
+  }, [editable]);
+  const rolesForStep = useMemo(
+    () =>
+      editable.filter(
+        (row) => (row.stepName ?? "").trim().toLowerCase() === stepName.trim().toLowerCase(),
+      ),
+    [editable, stepName],
+  );
+  const current = findAssignment(rows, stepName, roleName);
+  const currentType = current?.assignmentType;
+  const ready = canOffer && isAssignmentChangeReady(currentType, nextType);
+
+  function chooseStep(nextStep: string): void {
+    setStepName(nextStep);
+    setError(null);
+    setNotice(null);
+    const role = editable.find(
+      (row) => (row.stepName ?? "").trim().toLowerCase() === nextStep.trim().toLowerCase(),
+    );
+    const name = role?.roleName ?? "";
+    setRoleName(name);
+    setNextType(normalizeAssignmentType(role?.assignmentType));
+  }
+
+  function chooseRole(nextRole: string): void {
+    setRoleName(nextRole);
+    setError(null);
+    setNotice(null);
+    const hit = findAssignment(rows, stepName, nextRole);
+    setNextType(normalizeAssignmentType(hit?.assignmentType));
+  }
+
+  function cancel(): void {
+    setNextType(normalizeAssignmentType(currentType));
+    setError(null);
+    setNotice(null);
+  }
+
+  async function confirm(): Promise<void> {
+    if (!canOffer || busy || !ready) {
+      return;
+    }
+    const step = stepName.trim();
+    const role = roleName.trim();
+    const requested = normalizeAssignmentType(nextType);
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await setStepRoleAssignment(workflowName, step, {
+        roleName: role,
+        assignmentType: requested,
+      });
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, assignmentErrorFallback(err)));
+      setBusy(false);
+      return;
+    }
+    try {
+      const reloaded = await listStepRoleAssignments(workflowName);
+      const applied = applyAssignmentAfterReload(rows, reloaded, step, role, requested);
+      if (!applied.accepted) {
+        setError(DEV_MSG.WF_ROLE_ASSIGN_ERROR);
+        return;
+      }
+      setRows(applied.rows);
+      setNextType(requested);
+      setNotice(DEV_MSG.WF_ROLE_ASSIGN_SAVED);
+    } catch (err: unknown) {
+      setError(panelErrMsg(err, DEV_MSG.WF_ROLE_ASSIGN_LOAD_ERROR));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section data-testid="developer-wf-role-assign" style={{ marginTop: "16px" }}>
+      <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.WF_ROLE_ASSIGN_TITLE}</h3>
+      <p style={{ color: catalogColors.muted, fontSize: "0.9rem", margin: "0 0 8px" }}>
+        {canOffer ? DEV_MSG.WF_ROLE_ASSIGN_HINT : DEV_MSG.WF_ROLE_ASSIGN_PACKAGED}
+      </p>
+      {loadError ? (
+        <div
+          role="alert"
+          data-testid="developer-wf-role-assign-load-error"
+          style={{ ...errorAlert, marginBottom: "8px" }}
+        >
+          {loadError}
+        </div>
+      ) : null}
+      {rows.length === 0 ? (
+        <p data-testid="developer-wf-role-assign-empty" style={{ color: catalogColors.empty }}>
+          {DEV_MSG.WF_ROLE_ASSIGN_EMPTY}
+        </p>
+      ) : (
+        <div style={{ overflowX: "auto" }}>
+          <table
+            data-testid="developer-wf-role-assign-table"
+            style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
+          >
+            <thead>
+              <tr style={tableHeaderRow}>
+                <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_STEP}</th>
+                <th style={{ padding: "8px" }}>{DEV_MSG.WF_COL_ROLES}</th>
+                <th style={{ padding: "8px" }}>{DEV_MSG.WF_ROLE_ASSIGN_TYPE}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, i) => (
+                <tr
+                  key={`${row.stepName ?? "s"}-${row.roleName ?? "r"}-${i}`}
+                  data-testid={`developer-wf-role-assign-row-${i}`}
+                  style={tableRow}
+                >
+                  <td style={{ padding: "8px" }}>{row.stepName || "—"}</td>
+                  <td style={{ padding: "8px" }}>{row.roleName || "—"}</td>
+                  <td
+                    style={{ padding: "8px" }}
+                    data-testid={`developer-wf-role-assign-type-${i}`}
+                    data-assignment-type={normalizeAssignmentType(row.assignmentType)}
+                  >
+                    {assignmentTypeLabel(row.assignmentType) || "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {canOffer && editable.length > 0 ? (
+        <div style={{ marginTop: "12px" }}>
+          {error ? (
+            <div
+              role="alert"
+              data-testid="developer-wf-role-assign-error"
+              style={{ ...errorAlert, marginBottom: "8px" }}
+            >
+              {error}
+            </div>
+          ) : null}
+          {notice ? (
+            <div
+              role="status"
+              aria-live="polite"
+              data-testid="developer-wf-role-assign-notice"
+              style={{ color: catalogColors.accent, marginBottom: "8px" }}
+            >
+              {notice}
+            </div>
+          ) : null}
+          <label htmlFor="wf-role-assign-step" style={{ display: "block", marginBottom: 4 }}>
+            {DEV_MSG.WF_COL_STEP}
+          </label>
+          <select
+            id="wf-role-assign-step"
+            data-testid="developer-wf-role-assign-step"
+            style={inputStyle}
+            value={stepName}
+            disabled={busy}
+            onChange={(e) => chooseStep(e.target.value)}
+            aria-label={DEV_MSG.WF_COL_STEP}
+          >
+            {steps.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+          <label
+            htmlFor="wf-role-assign-role"
+            style={{ display: "block", margin: "8px 0 4px" }}
+          >
+            {DEV_MSG.WF_COL_ROLES}
+          </label>
+          <select
+            id="wf-role-assign-role"
+            data-testid="developer-wf-role-assign-role"
+            style={inputStyle}
+            value={roleName}
+            disabled={busy}
+            onChange={(e) => chooseRole(e.target.value)}
+            aria-label={DEV_MSG.WF_COL_ROLES}
+          >
+            {rolesForStep.map((row) => (
+              <option key={row.roleName} value={row.roleName}>
+                {row.roleName}
+              </option>
+            ))}
+          </select>
+          <label
+            htmlFor="wf-role-assign-type"
+            style={{ display: "block", margin: "8px 0 4px" }}
+          >
+            {DEV_MSG.WF_ROLE_ASSIGN_TYPE}
+          </label>
+          <select
+            id="wf-role-assign-type"
+            data-testid="developer-wf-role-assign-type"
+            style={inputStyle}
+            value={normalizeAssignmentType(nextType)}
+            disabled={busy}
+            onChange={(e) => {
+              setNextType(e.target.value);
+              if (error) {
+                setError(null);
+              }
+            }}
+            aria-label={DEV_MSG.WF_ROLE_ASSIGN_TYPE}
+          >
+            <option value="READER">{DEV_MSG.WF_ROLE_ASSIGN_READER}</option>
+            <option value="ASSIGNEE">{DEV_MSG.WF_ROLE_ASSIGN_ASSIGNEE}</option>
+          </select>
+          <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+            <button
+              type="button"
+              data-testid="developer-wf-role-assign-confirm"
+              disabled={busy || !ready}
+              onClick={() => void confirm()}
+              style={{
+                background: busy || !ready ? catalogColors.disabled : catalogColors.accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                padding: "8px 14px",
+                font: "inherit",
+                cursor: busy || !ready ? "not-allowed" : "pointer",
+              }}
+            >
+              {busy ? DEV_MSG.WF_ROLE_ASSIGN_BUSY : DEV_MSG.WF_ROLE_ASSIGN_CONFIRM}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-wf-role-assign-cancel"
+              disabled={busy}
+              onClick={cancel}
+              style={{
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                padding: "8px 14px",
+                font: "inherit",
+              }}
+            >
+              {DEV_MSG.WF_ROLE_ASSIGN_CANCEL}
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </section>
+  );
+}

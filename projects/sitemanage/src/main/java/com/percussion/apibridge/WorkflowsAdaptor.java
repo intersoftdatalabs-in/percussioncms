@@ -26,6 +26,9 @@ import com.percussion.rest.workflows.WorkflowAgingTransitionWrite;
 import com.percussion.rest.workflows.WorkflowCreate;
 import com.percussion.rest.workflows.WorkflowGraph;
 import com.percussion.rest.workflows.WorkflowRename;
+import com.percussion.rest.workflows.WorkflowStepRoleAssignment;
+import com.percussion.rest.workflows.WorkflowStepRoleAssignmentList;
+import com.percussion.rest.workflows.WorkflowStepRoleAssignmentWrite;
 import com.percussion.rest.workflows.WorkflowStepWrite;
 import com.percussion.rest.workflows.WorkflowSummary;
 import com.percussion.rest.workflows.WorkflowTransitionWrite;
@@ -43,6 +46,7 @@ import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSWorkflow;
+import com.percussion.services.workflow.data.PSWorkflowRole;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -695,6 +699,96 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     }
     workflowService.saveWorkflow(workflow);
     return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
+  public WorkflowStepRoleAssignmentList listStepRoleAssignments(URI baseUri, String idOrName) {
+    requireAdmin();
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    return toAssignmentList(workflow);
+  }
+
+  @Override
+  public WorkflowStepRoleAssignmentList setStepRoleAssignment(
+      URI baseUri, String idOrName, String stepName, WorkflowStepRoleAssignmentWrite body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("Workflow step role assignment body is required");
+    }
+    if (stepName == null || stepName.isBlank()) {
+      throw new IllegalArgumentException("Step name is required");
+    }
+    if (body.getRoleName() == null || body.getRoleName().isBlank()) {
+      throw new IllegalArgumentException("Role name is required");
+    }
+    if (body.getAssignmentType() == null || body.getAssignmentType().isBlank()) {
+      throw new IllegalArgumentException("assignment type must be READER or ASSIGNEE");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    List<String> namesBefore = stepNames(states);
+    int rolesBefore = assignedRoleCount(states);
+    WorkflowStepRoleAssignmentWriter.setType(
+        states,
+        workflow.getRoles(),
+        stepName,
+        body.getRoleName(),
+        body.getAssignmentType());
+    if (!namesBefore.equals(stepNames(states)) || assignedRoleCount(states) != rolesBefore) {
+      throw new IllegalStateException(
+          "Setting an assignment type must not rename the step or change the role list");
+    }
+    workflowService.saveWorkflow(workflow);
+    return toAssignmentList(workflow);
+  }
+
+  private static WorkflowStepRoleAssignmentList toAssignmentList(PSWorkflow workflow) {
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    List<PSWorkflowRole> roles = workflow.getRoles() != null ? workflow.getRoles() : List.of();
+    WorkflowStepRoleAssignmentList list = new WorkflowStepRoleAssignmentList();
+    List<WorkflowStepRoleAssignment> items = new ArrayList<>();
+    for (WorkflowStepRoleAssignmentWriter.StepRoleAssignment row :
+        WorkflowStepRoleAssignmentWriter.list(states, roles)) {
+      WorkflowStepRoleAssignment item = new WorkflowStepRoleAssignment();
+      item.setStepName(row.stepName());
+      item.setRoleName(row.roleName());
+      item.setAssignmentType(row.assignmentType());
+      items.add(item);
+    }
+    list.setAssignments(items);
+    return list;
+  }
+
+  private static List<String> stepNames(List<PSState> states) {
+    List<String> names = new ArrayList<>();
+    if (states == null) {
+      return names;
+    }
+    for (PSState state : states) {
+      names.add(state == null ? null : state.getName());
+    }
+    return names;
+  }
+
+  private static int assignedRoleCount(List<PSState> states) {
+    int count = 0;
+    if (states == null) {
+      return 0;
+    }
+    for (PSState state : states) {
+      if (state != null && state.getAssignedRoles() != null) {
+        count += state.getAssignedRoles().size();
+      }
+    }
+    return count;
   }
 
   private static void validateStepPathName(String stepName) {

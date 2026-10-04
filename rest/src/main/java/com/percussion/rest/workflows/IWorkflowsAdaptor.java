@@ -291,4 +291,31 @@ public interface IWorkflowsAdaptor {
    *     step, 409 when a transition still references the step
    */
   WorkflowGraph deleteWorkflowStep(URI baseUri, String idOrName, String stepName);
+
+  /**
+   * List assignment types for roles already assigned to steps (Admin, slice 61). Includes readers
+   * so a reload can show Reader. Does not mutate.
+   *
+   * @param idOrName workflow name, numeric uuid, or guid string
+   * @return the list, never {@code null}; empty when the workflow has no named assigned roles
+   * @throws jakarta.ws.rs.WebApplicationException 404 when the workflow is not found
+   */
+  WorkflowStepRoleAssignmentList listStepRoleAssignments(URI baseUri, String idOrName);
+
+  /**
+   * Set Reader or Assignee on one role already assigned to one step (Admin, slice 61).
+   *
+   * <p>Does not rename the step, add or remove roles, or change notify / inbox flags. Packaged and
+   * system-default workflows are rejected. Admin and None assignment types are not changed.
+   *
+   * @param stepName existing step name
+   * @param body role name and READER or ASSIGNEE
+   * @return the assignment list after the write, never {@code null}
+   * @throws IllegalArgumentException when the role or type is blank, the type is not Reader or
+   *     Assignee, or the type is unchanged
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or role, 409 when the current type is not Reader or Assignee
+   */
+  WorkflowStepRoleAssignmentList setStepRoleAssignment(
+      URI baseUri, String idOrName, String stepName, WorkflowStepRoleAssignmentWrite body);
 }

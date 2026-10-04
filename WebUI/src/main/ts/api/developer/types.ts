@@ -1235,6 +1235,13 @@ export interface WorkflowStepRoleSummary {
   roleTransitions?: WorkflowStepRoleTransitionSummary[];
 }
 
+/** One stored Reader/Assignee/Admin/None row from GET .../role-assignments. */
+export interface WorkflowStepRoleAssignment {
+  stepName?: string;
+  roleName?: string;
+  assignmentType?: string;
+}
+
 export interface WorkflowStepSummary {
   stepName?: string;
   permissionNames?: string[];

@@ -2030,7 +2030,30 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Role assignment stays on the workflow-admin editor. Custom workflows can add one absolute aging transition, change its minute interval, or delete that aging transition. Repeated or system-field aging stays outside this surface.",
+    "perc.ui.developer@Adding or removing a step role, and notify or inbox flags, stay on the workflow-admin editor. Reader or Assignee can be set for one role already assigned to a step. Repeated or system-field aging stays outside this surface.",
+  WF_ROLE_ASSIGN_TITLE: "perc.ui.developer@Assignment type",
+  WF_ROLE_ASSIGN_HINT:
+    "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Adding or removing roles stays on the workflow-admin editor.",
+  WF_ROLE_ASSIGN_PACKAGED:
+    "perc.ui.developer@Packaged or default workflows cannot change assignment type from this surface.",
+  WF_ROLE_ASSIGN_TYPE: "perc.ui.developer@Assignment type",
+  WF_ROLE_ASSIGN_READER: "perc.ui.developer@Reader",
+  WF_ROLE_ASSIGN_ASSIGNEE: "perc.ui.developer@Assignee",
+  WF_ROLE_ASSIGN_CONFIRM: "perc.ui.developer@Set assignment type",
+  WF_ROLE_ASSIGN_CANCEL: "perc.ui.developer@Cancel",
+  WF_ROLE_ASSIGN_BUSY: "perc.ui.developer@Saving...",
+  WF_ROLE_ASSIGN_SAVED: "perc.ui.developer@Assignment type saved.",
+  WF_ROLE_ASSIGN_ERROR: "perc.ui.developer@Could not set the assignment type.",
+  WF_ROLE_ASSIGN_LOAD_ERROR: "perc.ui.developer@Could not load assignment types.",
+  WF_ROLE_ASSIGN_EMPTY: "perc.ui.developer@No assigned roles on this workflow.",
+  WF_ROLE_ASSIGN_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_ROLE_ASSIGN_CONFLICT:
+    "perc.ui.developer@That role's assignment type was not changed.",
+  WF_ROLE_ASSIGN_BAD:
+    "perc.ui.developer@Choose Reader or Assignee for a role already on the step.",
+  WF_ROLE_ASSIGN_MISSING:
+    "perc.ui.developer@That step or role was not found.",
   WF_GAP_WRITE:
     "perc.ui.developer@Workflow update / delete is not supported from this Developer surface",
   WF_GAP_CT:

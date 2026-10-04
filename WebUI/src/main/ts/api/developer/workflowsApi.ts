@@ -5,12 +5,17 @@
 import { get, post, put, del } from "../client";
 import { asJsonRecord } from "../jsonList";
 import { PATHS } from "../paths";
-import type { NamedObjectRef, WorkflowDef, WorkflowGraph } from "./types";
+import type {
+  NamedObjectRef,
+  WorkflowDef,
+  WorkflowGraph,
+  WorkflowStepRoleAssignment,
+} from "./types";
 import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Role assignment stays on the workflow-admin editor. Custom workflows can add one absolute aging transition, change its minute interval, or delete that aging transition. Repeated or system-field aging stays outside this surface.",
+  "Adding or removing a step role, and notify or inbox flags, stay on the workflow-admin editor. Reader or Assignee can be set for one role already assigned to a step. Repeated or system-field aging stays outside this surface.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -827,4 +832,60 @@ export async function updateWorkflowStep(
     wrapWorkflowStepWriteForWire(body),
   );
   return parseWorkflowSummary(payload);
+}
+
+export const WORKFLOW_STEP_ROLE_ASSIGNMENT_ROOT = "WorkflowStepRoleAssignmentWrite";
+export const WORKFLOW_STEP_ROLE_ASSIGNMENT_LIST_ROOT = "WorkflowStepRoleAssignmentList";
+
+export type WorkflowStepRoleAssignmentWriteBody = {
+  roleName: string;
+  assignmentType: string;
+};
+
+export function wrapWorkflowStepRoleAssignmentForWire(
+  body: WorkflowStepRoleAssignmentWriteBody,
+): Record<string, WorkflowStepRoleAssignmentWriteBody> {
+  return { [WORKFLOW_STEP_ROLE_ASSIGNMENT_ROOT]: body };
+}
+
+/** Unwrap Jackson root {@code WorkflowStepRoleAssignmentList}. */
+export function parseStepRoleAssignments(payload: unknown): WorkflowStepRoleAssignment[] {
+  const raw = asJsonRecord(payload) ?? {};
+  const wrapped = raw[WORKFLOW_STEP_ROLE_ASSIGNMENT_LIST_ROOT];
+  const obj =
+    wrapped && typeof wrapped === "object" && !Array.isArray(wrapped)
+      ? (wrapped as Record<string, unknown>)
+      : raw;
+  const rows = obj.assignments ?? obj.Assignments;
+  if (!Array.isArray(rows)) {
+    return [];
+  }
+  return rows as WorkflowStepRoleAssignment[];
+}
+
+/** GET /services/workflows/{id}/role-assignments — stored types, including Reader. */
+export async function listStepRoleAssignments(
+  idOrName: string,
+): Promise<WorkflowStepRoleAssignment[]> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await get<unknown>(`${PATHS.WORKFLOWS_ASSOC}/${key}/role-assignments`);
+  return parseStepRoleAssignments(payload);
+}
+
+/**
+ * PUT /services/workflows/{id}/steps/{step}/role-assignment — Reader or Assignee
+ * for one role already on the step. Does not rename the step or replace the role list.
+ */
+export async function setStepRoleAssignment(
+  idOrName: string,
+  stepName: string,
+  body: WorkflowStepRoleAssignmentWriteBody,
+): Promise<WorkflowStepRoleAssignment[]> {
+  const key = encodeURIComponent(idOrName);
+  const step = encodeURIComponent(stepName);
+  const payload = await put<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}/role-assignment`,
+    wrapWorkflowStepRoleAssignmentForWire(body),
+  );
+  return parseStepRoleAssignments(payload);
 }
