@@ -298,6 +298,67 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-row-f-2").getAttribute("data-format-id")).toBeNull();
   });
 
+  it("shows allowed publish sites only on folders that refreshed (#5181)", async () => {
+    mockFetch(async () => {
+      return new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [
+              {
+                id: "f-1",
+                path: "/Sites/Foo/News/",
+                name: "News",
+                type: "folder",
+                category: "folder",
+                accessLevel: "WRITE",
+              },
+              {
+                id: "f-2",
+                path: "/Sites/Foo/Blog/",
+                name: "Blog",
+                type: "folder",
+                category: "folder",
+                accessLevel: "WRITE",
+              },
+            ],
+            childrenCount: 2,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const shown = new Map([
+      ["f-1", { allowedSites: "301,302", allowedSiteNames: "Enterprise, Corporate", cleared: false }],
+      ["f-2", { allowedSites: "", allowedSiteNames: "", cleared: true }],
+    ]);
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        folderAllowedSites={shown}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-folder-allowed-sites-f-1")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("detail-folder-allowed-sites-f-1")).toHaveAttribute(
+      "data-allowed-sites",
+      "301,302",
+    );
+    expect(screen.getByTestId("detail-folder-allowed-sites-f-1")).toHaveTextContent(
+      "Enterprise, Corporate",
+    );
+    expect(screen.getByTestId("detail-folder-allowed-sites-f-2")).toHaveAttribute(
+      "data-cleared",
+      "true",
+    );
+    expect(screen.getByTestId("detail-folder-allowed-sites-f-2")).toHaveTextContent("All sites");
+    expect(screen.getByTestId("detail-row-f-1")).toHaveAttribute("data-allowed-sites", "301,302");
+    expect(screen.getByTestId("detail-row-f-2")).toHaveAttribute("data-allowed-sites-cleared", "true");
+  });
+
   it("renders sample-site Pages childrenInPage rows (#3457)", async () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;

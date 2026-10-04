@@ -194,9 +194,13 @@ import {
 import type { FolderDisplayFormatChoice } from "../api/contentExplorer/folderDisplayFormatApi";
 import { SetFolderAllowedSitesDialog } from "./SetFolderAllowedSitesDialog";
 import {
+  describeSetFolderAllowedSitesMultiSave,
   loadSetFolderAllowedSitesCatalog,
+  loadSetFolderAllowedSitesMultiCatalog,
   saveSetFolderAllowedSites,
+  saveSetFolderAllowedSitesOnSelection,
   type SetFolderAllowedSitesCatalog,
+  type SetFolderAllowedSitesMultiCatalog,
 } from "./setFolderAllowedSites";
 import type { FolderAllowedSiteChoice } from "../api/contentExplorer/folderAllowedSitesApi";
 import type { PSFolderProperties } from "../api/contentExplorer/types";
@@ -854,7 +858,17 @@ function ContentExplorerShellInner({
     props: PSFolderProperties;
     busy: boolean;
     error: string;
+    multi: boolean;
+    targets: { folderId: string; name: string }[];
+    skippedPageNames: string[];
+    skippedAssetNames: string[];
+    skippedOtherNames: string[];
+    noIdNames: string[];
   } | null>(null);
+  /** Site list painted on a folder only after that folder's refresh (#5181). */
+  const [savedFolderAllowedSites, setSavedFolderAllowedSites] = useState<
+    ReadonlyMap<string, { allowedSites: string; allowedSiteNames: string; cleared: boolean }>
+  >(() => new Map());
   const [mobilePreviewNotice, setMobilePreviewNotice] = useState<{
     kind: "opened" | "error";
     reason: string;
@@ -2706,57 +2720,98 @@ function ContentExplorerShellInner({
         case "content-set-folder-allowed-sites": {
           const current = selectionRef.current;
           const selectedCount = multiSelectedItemsRef.current.size;
+          const checked = Array.from(multiSelectedItemsRef.current.values());
           void (async () => {
             setSetFolderAllowedSitesNotice(null);
             setSetFolderAllowedSitesDialog(null);
+            const showBlocked = (reason: string, name: string) => {
+              const key =
+                reason === "page"
+                  ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_PAGE
+                  : reason === "asset"
+                    ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_ASSET
+                    : reason === "not-folder"
+                      ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_NOT_FOLDER
+                      : reason === "multi"
+                        ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_MULTI
+                        : reason === "no-id"
+                          ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_NO_ID
+                          : EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_EMPTY;
+              const text = name ? `${message(key)}: ${name}` : message(key);
+              setSetFolderAllowedSitesNotice({
+                kind: "error",
+                reason,
+                allowedSites: "",
+                allowedSiteNames: "",
+                text,
+              });
+            };
+            const showHttpOrNone = (
+              status: "none" | "http",
+              http?: 400 | 403 | 409 | "other",
+            ) => {
+              const httpKey =
+                status === "http" && http === 400
+                  ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_400
+                  : status === "http" && http === 403
+                    ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_403
+                    : status === "http" && http === 409
+                      ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_409
+                      : status === "http"
+                        ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_FAILED
+                        : EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_NONE;
+              setSetFolderAllowedSitesNotice({
+                kind: "error",
+                reason: status === "http" ? `http-${http}` : "none",
+                allowedSites: "",
+                allowedSiteNames: "",
+                text: message(httpKey),
+              });
+            };
+            if (selectedCount >= 2) {
+              const multiCatalog: SetFolderAllowedSitesMultiCatalog =
+                await loadSetFolderAllowedSitesMultiCatalog({ items: checked });
+              if (multiCatalog.status === "blocked") {
+                showBlocked(multiCatalog.reason, multiCatalog.name);
+                return;
+              }
+              if (multiCatalog.status === "none" || multiCatalog.status === "http") {
+                showHttpOrNone(
+                  multiCatalog.status,
+                  multiCatalog.status === "http" ? multiCatalog.http : undefined,
+                );
+                return;
+              }
+              setSetFolderAllowedSitesDialog({
+                folderId: multiCatalog.targets[0]?.folderId ?? "",
+                currentSites: multiCatalog.currentSites,
+                choices: multiCatalog.choices,
+                props: multiCatalog.props,
+                busy: false,
+                error: "",
+                multi: true,
+                targets: multiCatalog.targets,
+                skippedPageNames: multiCatalog.skippedPageNames,
+                skippedAssetNames: multiCatalog.skippedAssetNames,
+                skippedOtherNames: multiCatalog.skippedOtherNames,
+                noIdNames: multiCatalog.noIdNames,
+              });
+              return;
+            }
             const catalog: SetFolderAllowedSitesCatalog =
               await loadSetFolderAllowedSitesCatalog({
                 item: current.item,
                 selectedCount,
               });
             if (catalog.status === "blocked") {
-              const key =
-                catalog.reason === "page"
-                  ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_PAGE
-                  : catalog.reason === "asset"
-                    ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_ASSET
-                    : catalog.reason === "not-folder"
-                      ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_NOT_FOLDER
-                      : catalog.reason === "multi"
-                        ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_MULTI
-                        : catalog.reason === "no-id"
-                          ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_NO_ID
-                          : EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_EMPTY;
-              const text = catalog.name
-                ? `${message(key)}: ${catalog.name}`
-                : message(key);
-              setSetFolderAllowedSitesNotice({
-                kind: "error",
-                reason: catalog.reason,
-                allowedSites: "",
-                allowedSiteNames: "",
-                text,
-              });
+              showBlocked(catalog.reason, catalog.name);
               return;
             }
             if (catalog.status === "none" || catalog.status === "http") {
-              const httpKey =
-                catalog.status === "http" && catalog.http === 400
-                  ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_400
-                  : catalog.status === "http" && catalog.http === 403
-                    ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_403
-                    : catalog.status === "http" && catalog.http === 409
-                      ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_409
-                      : catalog.status === "http"
-                        ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_FAILED
-                        : EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_NONE;
-              setSetFolderAllowedSitesNotice({
-                kind: "error",
-                reason: catalog.status === "http" ? `http-${catalog.http}` : "none",
-                allowedSites: "",
-                allowedSiteNames: "",
-                text: message(httpKey),
-              });
+              showHttpOrNone(
+                catalog.status,
+                catalog.status === "http" ? catalog.http : undefined,
+              );
               return;
             }
             setSetFolderAllowedSitesDialog({
@@ -2766,6 +2821,12 @@ function ContentExplorerShellInner({
               props: catalog.props,
               busy: false,
               error: "",
+              multi: false,
+              targets: [],
+              skippedPageNames: [],
+              skippedAssetNames: [],
+              skippedOtherNames: [],
+              noIdNames: [],
             });
           })();
           break;
@@ -3656,6 +3717,7 @@ function ContentExplorerShellInner({
           folderLocales={savedFolderLocales}
           folderWorkflows={savedFolderWorkflows}
           folderDisplayFormats={savedFolderDisplayFormats}
+          folderAllowedSites={savedFolderAllowedSites}
           itemWorkflows={savedItemWorkflows}
         />
       )}
@@ -4697,6 +4759,7 @@ function ContentExplorerShellInner({
           currentSites={setFolderAllowedSitesDialog.currentSites}
           busy={setFolderAllowedSitesDialog.busy}
           error={setFolderAllowedSitesDialog.error}
+          multi={setFolderAllowedSitesDialog.multi}
           onCancel={() => {
             if (!setFolderAllowedSitesDialog.busy) {
               setSetFolderAllowedSitesDialog(null);
@@ -4706,6 +4769,35 @@ function ContentExplorerShellInner({
             const dialog = setFolderAllowedSitesDialog;
             void (async () => {
               setSetFolderAllowedSitesDialog({ ...dialog, busy: true, error: "" });
+              if (dialog.multi) {
+                const result = await saveSetFolderAllowedSitesOnSelection({
+                  targets: dialog.targets,
+                  skippedPageNames: dialog.skippedPageNames,
+                  skippedAssetNames: dialog.skippedAssetNames,
+                  skippedOtherNames: dialog.skippedOtherNames,
+                  noIdNames: dialog.noIdNames,
+                  selectedIds: siteIds,
+                  allowedIds: dialog.choices.map((row) => row.id),
+                  choices: dialog.choices,
+                  onFolderSaved: (folder) => {
+                    setSavedFolderAllowedSites((prev) => {
+                      const next = new Map(prev);
+                      next.set(folder.folderId, {
+                        allowedSites: folder.allowedSites,
+                        allowedSiteNames: folder.allowedSiteNames,
+                        cleared: folder.cleared,
+                      });
+                      return next;
+                    });
+                  },
+                });
+                setSetFolderAllowedSitesDialog(null);
+                setSetFolderAllowedSitesNotice(describeSetFolderAllowedSitesMultiSave(result));
+                if (result.saved.length > 0) {
+                  setListEpoch((n) => n + 1);
+                }
+                return;
+              }
               const saved = await saveSetFolderAllowedSites({
                 folderId: dialog.folderId,
                 props: dialog.props,
@@ -4715,10 +4807,19 @@ function ContentExplorerShellInner({
                 choices: dialog.choices,
               });
               if (saved.status === "saved") {
+                setSavedFolderAllowedSites((prev) => {
+                  const next = new Map(prev);
+                  next.set(dialog.folderId, {
+                    allowedSites: saved.allowedSites,
+                    allowedSiteNames: saved.allowedSiteNames,
+                    cleared: saved.cleared,
+                  });
+                  return next;
+                });
                 setSetFolderAllowedSitesDialog(null);
                 setSetFolderAllowedSitesNotice({
                   kind: "success",
-                  reason: "",
+                  reason: saved.cleared ? "cleared" : "",
                   allowedSites: saved.allowedSites,
                   allowedSiteNames: saved.allowedSiteNames,
                   text: saved.cleared

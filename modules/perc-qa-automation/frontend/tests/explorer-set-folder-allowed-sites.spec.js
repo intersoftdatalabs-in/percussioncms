@@ -348,7 +348,7 @@ test.describe("Explorer set allowed publish sites on the selected folder (#5132 
   );
 
   test(
-    "UI: multi-select does not call the server",
+    "UI: multi-select opens one dialog and cancel writes nothing",
     { tag: TAGS },
     async ({ page }) => {
       test.setTimeout(120_000);
@@ -369,10 +369,12 @@ test.describe("Explorer set allowed publish sites on the selected folder (#5132 
       await expect(folderRow.nth(1).locator('input[type="checkbox"]')).toBeChecked();
       await openContentMenu(page);
       await page.locator(`[data-testid="${TEST_IDS.menuItem}"]`).click();
-      const status = page.locator(`[data-testid="${TEST_IDS.status}"]`);
-      await expect(status).toHaveAttribute("data-kind", "error");
-      await expect(status).toHaveAttribute("data-reason", "multi");
-      await expect(page.locator(`[data-testid="${TEST_IDS.dialog}"]`)).toHaveCount(0);
+      const dialog = page.locator(`[data-testid="${TEST_IDS.dialog}"]`);
+      await expect(dialog).toBeVisible();
+      await expect(page.locator('[data-testid="explorer-set-folder-allowed-sites-multi"]')).toBeVisible();
+      await page.locator(`[data-testid="${TEST_IDS.cancel}"]`).click();
+      await expect(dialog).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.status}"]`)).toHaveCount(0);
       expect(posted).toBe(false);
       expect(jsErrors, jsErrors.join("\n")).toEqual([]);
     },

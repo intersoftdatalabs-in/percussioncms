@@ -30,6 +30,8 @@ export interface SetFolderAllowedSitesDialogProps {
   currentSites: string;
   busy: boolean;
   error: string;
+  /** When true, one save writes every checked folder (#5181). */
+  multi?: boolean;
   onSave: (siteIds: string[]) => void;
   onCancel: () => void;
 }
@@ -39,6 +41,7 @@ export function SetFolderAllowedSitesDialog({
   currentSites,
   busy,
   error,
+  multi = false,
   onSave,
   onCancel,
 }: SetFolderAllowedSitesDialogProps): React.ReactElement {
@@ -133,6 +136,14 @@ export function SetFolderAllowedSitesDialog({
         <h2 id="explorer-set-folder-allowed-sites-title" style={{ fontSize: 16, margin: "0 0 12px" }}>
           {message(EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_TITLE)}
         </h2>
+        {multi ? (
+          <p
+            data-testid="explorer-set-folder-allowed-sites-multi"
+            style={{ fontSize: 13, margin: "0 0 12px" }}
+          >
+            {message(EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_MULTI_NOTE)}
+          </p>
+        ) : null}
         <fieldset
           style={{ border: "1px solid #e2e8f0", borderRadius: 6, margin: 0, padding: 8 }}
           disabled={busy}
