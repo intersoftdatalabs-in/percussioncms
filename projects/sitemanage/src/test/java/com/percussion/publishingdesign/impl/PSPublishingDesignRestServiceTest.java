@@ -395,6 +395,60 @@ class PSPublishingDesignRestServiceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
     assertEquals(409, ex.getResponse().getStatus());
+    verify(loaded, never()).setName(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void updateContentList_rename_setsNameAndKeepsType() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = mock(IPSContentList.class);
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+    when(loaded.getGUID()).thenReturn(contentListGuid);
+    when(contentListGuid.getUUID()).thenReturn(5);
+    when(loaded.getName()).thenReturn("Renamed");
+    when(loaded.getDescription()).thenReturn("kept");
+    when(loaded.isLegacy()).thenReturn(false);
+    when(publisherService.findContentListByName("Renamed")).thenReturn(Optional.empty());
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setName("  Renamed  ");
+    body.setDescription("kept");
+    body.setListType("legacy");
+
+    PSContentListSummary saved = service.updateContentList("5", body);
+    verify(loaded).setName("Renamed");
+    verify(loaded).setDescription("kept");
+    verify(loaded, never()).setContentListType(any());
+    verify(publisherService).saveContentList(loaded);
+    assertEquals("Renamed", saved.getName());
+    assertEquals("modern", saved.getListType());
+  }
+
+  @Test
+  void updateContentList_sameName_updatesDescription() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = mock(IPSContentList.class);
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+    when(loaded.getGUID()).thenReturn(contentListGuid);
+    when(contentListGuid.getUUID()).thenReturn(5);
+    when(loaded.getName()).thenReturn("NightCl");
+    when(loaded.getDescription()).thenReturn("notes");
+    when(loaded.isLegacy()).thenReturn(false);
+    when(publisherService.findContentListByName("NightCl")).thenReturn(Optional.of(loaded));
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setName("NightCl");
+    body.setDescription("notes");
+    body.setListType("legacy");
+
+    PSContentListSummary saved = service.updateContentList("5", body);
+    verify(loaded).setName("NightCl");
+    verify(loaded).setDescription("notes");
+    verify(loaded, never()).setContentListType(any());
+    verify(publisherService).saveContentList(loaded);
+    assertEquals("NightCl", saved.getName());
+    assertEquals("modern", saved.getListType());
   }
 
   @Test

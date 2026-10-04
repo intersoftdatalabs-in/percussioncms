@@ -76,12 +76,18 @@ export function ContentListEditor({
     setSaving(true);
     setError(null);
     try {
+      const editing = Boolean(contentList?.contentListId);
+      // Rename must not change list type, even if the disabled select is altered.
+      const effectiveListType = editing
+        ? (contentList?.listType ?? listType)
+        : listType;
+      const effectiveLegacy = isLegacyContentList(effectiveListType);
       const body: ContentListSummary = {
         name: name.trim(),
         description,
-        generator: legacy ? undefined : generator,
-        url: legacy ? url : undefined,
-        listType,
+        generator: effectiveLegacy ? undefined : generator,
+        url: effectiveLegacy ? url : undefined,
+        listType: effectiveListType,
       };
       if (contentList?.contentListId) {
         await updateContentList(contentList.contentListId, body);
@@ -139,7 +145,6 @@ export function ContentListEditor({
             setName(e.target.value);
             setDirty(true);
           }}
-          disabled={Boolean(contentList?.contentListId)}
         />
       </div>
       <div style={formRowStyle}>
@@ -163,6 +168,11 @@ export function ContentListEditor({
             setDirty(true);
           }}
           disabled={Boolean(contentList?.contentListId)}
+          title={
+            contentList?.contentListId
+              ? "Content list type cannot be changed"
+              : undefined
+          }
         >
           <option value="modern">Modern</option>
           <option value="legacy">Legacy</option>
