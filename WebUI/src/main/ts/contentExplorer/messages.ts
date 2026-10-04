@@ -1025,7 +1025,11 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@The allowed publish sites did not change after refresh",
   SET_COMMUNITY: "perc.ui.explorer@Set community",
   SET_COMMUNITY_ARIA:
-    "perc.ui.explorer@Set the community on the selected page or asset",
+    "perc.ui.explorer@Set the community on the selected pages and assets",
+  SET_COMMUNITY_MULTI_NOTE:
+    "perc.ui.explorer@This community is saved on each selected page and asset. Folders are not changed",
+  SET_COMMUNITY_PARTIAL:
+    "perc.ui.explorer@Not every selected item had its community set: {detail}",
   SET_COMMUNITY_TITLE: "perc.ui.explorer@Set community",
   SET_COMMUNITY_LABEL: "perc.ui.explorer@Community",
   SET_COMMUNITY_CURRENT: "perc.ui.explorer@current",

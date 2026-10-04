@@ -109,6 +109,48 @@ describe("DetailList", () => {
     );
   });
 
+  it("shows a community on a row only when that item was saved (#5133)", async () => {
+    mockFetch(async () => {
+      return new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const shown = new Map([
+      ["p-1", { communityId: "20", communityName: "Enterprise" }],
+    ]);
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        itemCommunities={shown}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-item-community-p-1")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("detail-item-community-p-1")).toHaveAttribute(
+      "data-community-id",
+      "20",
+    );
+    expect(screen.getByTestId("detail-item-community-p-1")).toHaveTextContent(
+      "Enterprise",
+    );
+    expect(screen.getByTestId("detail-row-p-1")).toHaveAttribute(
+      "data-community-name",
+      "Enterprise",
+    );
+    expect(screen.queryByTestId("detail-item-community-p-2")).toBeNull();
+    expect(screen.getByTestId("detail-row-p-2").getAttribute("data-community-id")).toBeNull();
+  });
+
   it("renders sample-site Pages childrenInPage rows (#3457)", async () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;

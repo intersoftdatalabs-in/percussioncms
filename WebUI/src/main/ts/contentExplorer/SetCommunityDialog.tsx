@@ -29,6 +29,8 @@ export interface SetCommunityDialogProps {
   currentId: string;
   busy: boolean;
   error: string;
+  /** When greater than one, the save applies to each checked page and asset. */
+  selectionCount?: number;
   onSave: (communityId: string) => void;
   onCancel: () => void;
 }
@@ -38,9 +40,11 @@ export function SetCommunityDialog({
   currentId,
   busy,
   error,
+  selectionCount,
   onSave,
   onCancel,
 }: SetCommunityDialogProps): React.ReactElement {
+  const multi = (selectionCount ?? 1) > 1;
   const initial =
     choices.find((row) => row.id !== currentId)?.id ?? choices[0]?.id ?? "";
   const [value, setValue] = useState(initial);
@@ -115,6 +119,11 @@ export function SetCommunityDialog({
         <h2 id="explorer-set-community-title" style={{ fontSize: 16, margin: "0 0 12px" }}>
           {message(EXPLORER_MSG.SET_COMMUNITY_TITLE)}
         </h2>
+        {multi ? (
+          <p data-testid="explorer-set-community-multi" style={{ fontSize: 13, margin: "0 0 12px" }}>
+            {message(EXPLORER_MSG.SET_COMMUNITY_MULTI_NOTE)}
+          </p>
+        ) : null}
         <label htmlFor="explorer-set-community-select" style={{ display: "block", fontSize: 13 }}>
           {message(EXPLORER_MSG.SET_COMMUNITY_LABEL)}
           <select
