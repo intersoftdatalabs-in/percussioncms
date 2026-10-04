@@ -997,6 +997,10 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Could not set the folder display format",
   SET_FOLDER_DISPLAY_FORMAT_MISMATCH:
     "perc.ui.explorer@The folder display format did not change after refresh",
+  SET_FOLDER_DISPLAY_FORMAT_MULTI_NOTE:
+    "perc.ui.explorer@This display format is saved on each selected folder. Pages and assets are not changed",
+  SET_FOLDER_DISPLAY_FORMAT_PARTIAL:
+    "perc.ui.explorer@Not every selected folder had its display format set: {detail}",
   SET_FOLDER_ALLOWED_SITES: "perc.ui.explorer@Set allowed publish sites",
   SET_FOLDER_ALLOWED_SITES_ARIA:
     "perc.ui.explorer@Set allowed publish sites on the selected folder",

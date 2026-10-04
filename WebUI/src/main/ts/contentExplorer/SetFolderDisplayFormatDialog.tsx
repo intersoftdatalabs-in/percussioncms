@@ -36,6 +36,8 @@ export interface SetFolderDisplayFormatDialogProps {
   currentId: string;
   busy: boolean;
   error: string;
+  /** When true, one save writes every checked folder (#5180). */
+  multi?: boolean;
   onSave: (displayFormatId: string) => void;
   onCancel: () => void;
 }
@@ -45,6 +47,7 @@ export function SetFolderDisplayFormatDialog({
   currentId,
   busy,
   error,
+  multi = false,
   onSave,
   onCancel,
 }: SetFolderDisplayFormatDialogProps): React.ReactElement {
@@ -125,6 +128,14 @@ export function SetFolderDisplayFormatDialog({
         >
           {message(EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_TITLE)}
         </h2>
+        {multi ? (
+          <p
+            data-testid="explorer-set-folder-display-format-multi"
+            style={{ fontSize: 13, margin: "0 0 12px" }}
+          >
+            {message(EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_MULTI_NOTE)}
+          </p>
+        ) : null}
         <label style={{ display: "block", fontSize: 13 }}>
           {message(EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_LABEL)}
           <select

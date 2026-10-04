@@ -357,6 +357,14 @@ export interface DetailListProps {
    * returns and a properties refresh shows the new id (#5179).
    */
   folderWorkflows?: ReadonlyMap<string, { workflowId: string; workflowName: string }>;
+  /**
+   * Display format written onto a folder. Shown only after that folder's save
+   * returns and a properties refresh shows the new id and catalog name (#5180).
+   */
+  folderDisplayFormats?: ReadonlyMap<
+    string,
+    { displayFormatId: string; displayFormatName: string }
+  >;
 }
 
 export function DetailList({
@@ -375,6 +383,7 @@ export function DetailList({
   folderLocales,
   itemWorkflows,
   folderWorkflows,
+  folderDisplayFormats,
 }: DetailListProps): React.ReactElement {
   const [page, setPage] = useState(0);
   const [data, setData] = useState<PSPagedResult | null>(null);
@@ -610,6 +619,12 @@ export function DetailList({
                   ? folderWorkflows?.get(String(item.id).trim())
                   : undefined))
               : undefined;
+            const shownFolderDisplayFormat = folderish
+              ? (folderDisplayFormats?.get(idKey) ??
+                (item.id != null
+                  ? folderDisplayFormats?.get(String(item.id).trim())
+                  : undefined))
+              : undefined;
             const shownWorkflow = shownFolderWorkflow ?? shownItemWorkflow;
             const scheduleOnRow = rowScheduleDates(item);
             const scheduleLabel = [scheduleOnRow.startDate, scheduleOnRow.endDate]
@@ -639,6 +654,8 @@ export function DetailList({
                 data-locale-name={shownFolderLocale?.localeName}
                 data-workflow-id={shownWorkflow?.workflowId}
                 data-workflow-name={shownWorkflow?.workflowName}
+                data-format-id={shownFolderDisplayFormat?.displayFormatId}
+                data-format-name={shownFolderDisplayFormat?.displayFormatName}
                 data-selected={selected ? "true" : undefined}
                 data-checked={isChecked ? "true" : undefined}
                 data-finder-mime={
@@ -779,6 +796,16 @@ export function DetailList({
                       >
                         {" "}
                         {shownFolderWorkflow.workflowName}
+                      </span>
+                    ) : null}
+                    {c === "name" && shownFolderDisplayFormat ? (
+                      <span
+                        data-testid={`detail-folder-display-format-${idKey}`}
+                        data-format-id={shownFolderDisplayFormat.displayFormatId}
+                        data-format-name={shownFolderDisplayFormat.displayFormatName}
+                      >
+                        {" "}
+                        {shownFolderDisplayFormat.displayFormatName}
                       </span>
                     ) : null}
                     {c === "name" && shownItemWorkflow ? (

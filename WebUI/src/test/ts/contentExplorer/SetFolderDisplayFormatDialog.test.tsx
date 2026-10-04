@@ -69,4 +69,27 @@ describe("SetFolderDisplayFormatDialog (#5131)", () => {
     fireEvent.click(screen.getByTestId("explorer-set-folder-display-format-save"));
     expect(onSave).toHaveBeenCalledWith("12");
   });
+
+  it("names the multi-folder save and cancel still does not save", async () => {
+    const onSave = vi.fn();
+    const onCancel = vi.fn();
+    const { container } = render(
+      <SetFolderDisplayFormatDialog
+        choices={choices}
+        currentId="3"
+        busy={false}
+        error=""
+        multi
+        onSave={onSave}
+        onCancel={onCancel}
+      />,
+    );
+    expect(screen.getByTestId("explorer-set-folder-display-format-multi").textContent).toContain(
+      "each selected folder",
+    );
+    fireEvent.click(screen.getByTestId("explorer-set-folder-display-format-cancel"));
+    expect(onCancel).toHaveBeenCalled();
+    expect(onSave).not.toHaveBeenCalled();
+    await renderA11yGate(container);
+  });
 });
