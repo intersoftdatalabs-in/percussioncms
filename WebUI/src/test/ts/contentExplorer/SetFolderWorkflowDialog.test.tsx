@@ -67,4 +67,27 @@ describe("SetFolderWorkflowDialog (#5104)", () => {
     fireEvent.click(screen.getByTestId("explorer-set-folder-workflow-save"));
     expect(onSave).toHaveBeenCalledWith("7");
   });
+
+  it("names the multi-folder save and cancel still does not save", async () => {
+    const onSave = vi.fn();
+    const onCancel = vi.fn();
+    const { container } = render(
+      <SetFolderWorkflowDialog
+        choices={choices}
+        currentId="4"
+        busy={false}
+        error=""
+        multi
+        onSave={onSave}
+        onCancel={onCancel}
+      />,
+    );
+    expect(screen.getByTestId("explorer-set-folder-workflow-multi").textContent).toContain(
+      "each selected folder",
+    );
+    fireEvent.click(screen.getByTestId("explorer-set-folder-workflow-cancel"));
+    expect(onCancel).toHaveBeenCalled();
+    expect(onSave).not.toHaveBeenCalled();
+    await renderA11yGate(container);
+  });
 });

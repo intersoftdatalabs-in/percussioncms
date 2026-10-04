@@ -872,6 +872,10 @@ export const EXPLORER_MSG = {
   SET_FOLDER_WORKFLOW_FAILED: "perc.ui.explorer@Could not set the folder workflow",
   SET_FOLDER_WORKFLOW_MISMATCH:
     "perc.ui.explorer@The folder workflow did not change after refresh",
+  SET_FOLDER_WORKFLOW_MULTI_NOTE:
+    "perc.ui.explorer@This workflow is saved on each selected folder. Pages and assets are not changed",
+  SET_FOLDER_WORKFLOW_PARTIAL:
+    "perc.ui.explorer@Not every selected folder had its workflow set: {detail}",
   SET_FOLDER_COMMUNITY: "perc.ui.explorer@Set folder community",
   SET_FOLDER_COMMUNITY_ARIA:
     "perc.ui.explorer@Set the community on the selected folder",

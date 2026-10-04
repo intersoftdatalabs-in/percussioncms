@@ -352,6 +352,11 @@ export interface DetailListProps {
    * change returns (#5155). Absent entries stay unchanged.
    */
   itemWorkflows?: ReadonlyMap<string, { workflowId: string; workflowName: string }>;
+  /**
+   * Workflow written onto a folder. Shown only after that folder's save
+   * returns and a properties refresh shows the new id (#5179).
+   */
+  folderWorkflows?: ReadonlyMap<string, { workflowId: string; workflowName: string }>;
 }
 
 export function DetailList({
@@ -369,6 +374,7 @@ export function DetailList({
   folderCommunities,
   folderLocales,
   itemWorkflows,
+  folderWorkflows,
 }: DetailListProps): React.ReactElement {
   const [page, setPage] = useState(0);
   const [data, setData] = useState<PSPagedResult | null>(null);
@@ -592,11 +598,19 @@ export function DetailList({
                   ? folderLocales?.get(String(item.id).trim())
                   : undefined))
               : undefined;
-            const shownWorkflow =
-              itemWorkflows?.get(idKey) ??
-              (item.id != null
-                ? itemWorkflows?.get(String(item.id).trim())
-                : undefined);
+            const shownItemWorkflow = folderish
+              ? undefined
+              : (itemWorkflows?.get(idKey) ??
+                (item.id != null
+                  ? itemWorkflows?.get(String(item.id).trim())
+                  : undefined));
+            const shownFolderWorkflow = folderish
+              ? (folderWorkflows?.get(idKey) ??
+                (item.id != null
+                  ? folderWorkflows?.get(String(item.id).trim())
+                  : undefined))
+              : undefined;
+            const shownWorkflow = shownFolderWorkflow ?? shownItemWorkflow;
             const scheduleOnRow = rowScheduleDates(item);
             const scheduleLabel = [scheduleOnRow.startDate, scheduleOnRow.endDate]
               .filter((part) => part.length > 0)
@@ -757,14 +771,24 @@ export function DetailList({
                         {shownFolderLocale.localeName}
                       </span>
                     ) : null}
-                    {c === "name" && shownWorkflow ? (
+                    {c === "name" && shownFolderWorkflow ? (
                       <span
-                        data-testid={`detail-item-workflow-${idKey}`}
-                        data-workflow-id={shownWorkflow.workflowId}
-                        data-workflow-name={shownWorkflow.workflowName}
+                        data-testid={`detail-folder-workflow-${idKey}`}
+                        data-workflow-id={shownFolderWorkflow.workflowId}
+                        data-workflow-name={shownFolderWorkflow.workflowName}
                       >
                         {" "}
-                        {shownWorkflow.workflowName}
+                        {shownFolderWorkflow.workflowName}
+                      </span>
+                    ) : null}
+                    {c === "name" && shownItemWorkflow ? (
+                      <span
+                        data-testid={`detail-item-workflow-${idKey}`}
+                        data-workflow-id={shownItemWorkflow.workflowId}
+                        data-workflow-name={shownItemWorkflow.workflowName}
+                      >
+                        {" "}
+                        {shownItemWorkflow.workflowName}
                       </span>
                     ) : null}
                     {c === "name" && scheduleLabel ? (

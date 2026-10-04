@@ -193,6 +193,59 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-row-p-2").getAttribute("data-workflow-id")).toBeNull();
   });
 
+  it("shows a folder workflow only when that folder was saved (#5179)", async () => {
+    mockFetch(async () => {
+      return new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [
+              {
+                id: "f-1",
+                path: "/Sites/Foo/News/",
+                name: "News",
+                type: "folder",
+                category: "folder",
+                accessLevel: "WRITE",
+              },
+              {
+                id: "f-2",
+                path: "/Sites/Foo/Blog/",
+                name: "Blog",
+                type: "folder",
+                category: "folder",
+                accessLevel: "WRITE",
+              },
+            ],
+            childrenCount: 2,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const shown = new Map([["f-1", { workflowId: "7", workflowName: "Local" }]]);
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        folderWorkflows={shown}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-folder-workflow-f-1")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("detail-folder-workflow-f-1")).toHaveAttribute(
+      "data-workflow-id",
+      "7",
+    );
+    expect(screen.getByTestId("detail-folder-workflow-f-1")).toHaveTextContent("Local");
+    expect(screen.getByTestId("detail-row-f-1")).toHaveAttribute("data-workflow-name", "Local");
+    expect(screen.queryByTestId("detail-folder-workflow-f-2")).toBeNull();
+    expect(screen.queryByTestId("detail-item-workflow-f-1")).toBeNull();
+    expect(screen.getByTestId("detail-row-f-2").getAttribute("data-workflow-id")).toBeNull();
+  });
+
   it("renders sample-site Pages childrenInPage rows (#3457)", async () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;

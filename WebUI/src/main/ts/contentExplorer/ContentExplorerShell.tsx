@@ -150,9 +150,13 @@ import {
 import type { ItemWorkflowChoice } from "../api/contentExplorer/itemWorkflowApi";
 import { SetFolderWorkflowDialog } from "./SetFolderWorkflowDialog";
 import {
+  describeSetFolderWorkflowMultiSave,
   loadSetFolderWorkflowCatalog,
+  loadSetFolderWorkflowMultiCatalog,
   saveSetFolderWorkflow,
+  saveSetFolderWorkflowOnSelection,
   type SetFolderWorkflowCatalog,
+  type SetFolderWorkflowMultiCatalog,
 } from "./setFolderWorkflow";
 import type { FolderWorkflowChoice } from "../api/contentExplorer/folderWorkflowApi";
 import { SetFolderCommunityDialog } from "./SetFolderCommunityDialog";
@@ -746,7 +750,17 @@ function ContentExplorerShellInner({
     props: PSFolderProperties;
     busy: boolean;
     error: string;
+    multi: boolean;
+    targets: { folderId: string; name: string }[];
+    skippedPageNames: string[];
+    skippedAssetNames: string[];
+    skippedOtherNames: string[];
+    noIdNames: string[];
   } | null>(null);
+  /** Workflow name painted on a folder only after that folder's refresh (#5179). */
+  const [savedFolderWorkflows, setSavedFolderWorkflows] = useState<
+    ReadonlyMap<string, { workflowId: string; workflowName: string }>
+  >(() => new Map());
   const [setFolderCommunityNotice, setSetFolderCommunityNotice] = useState<{
     kind: "success" | "error";
     reason: string;
@@ -2225,56 +2239,97 @@ function ContentExplorerShellInner({
         case "content-set-folder-workflow": {
           const current = selectionRef.current;
           const selectedCount = multiSelectedItemsRef.current.size;
+          const checked = Array.from(multiSelectedItemsRef.current.values());
           void (async () => {
             setSetFolderWorkflowNotice(null);
             setSetFolderWorkflowDialog(null);
+            const showBlocked = (reason: string, name: string) => {
+              const key =
+                reason === "page"
+                  ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_PAGE
+                  : reason === "asset"
+                    ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_ASSET
+                    : reason === "not-folder"
+                      ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_NOT_FOLDER
+                      : reason === "multi"
+                        ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_MULTI
+                        : reason === "no-id"
+                          ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_NO_ID
+                          : EXPLORER_MSG.SET_FOLDER_WORKFLOW_EMPTY;
+              const text = name ? `${message(key)}: ${name}` : message(key);
+              setSetFolderWorkflowNotice({
+                kind: "error",
+                reason,
+                workflowId: "",
+                workflowName: "",
+                text,
+              });
+            };
+            const showHttpOrNone = (
+              status: "none" | "http",
+              http?: 400 | 403 | 409 | "other",
+            ) => {
+              const httpKey =
+                status === "http" && http === 400
+                  ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_400
+                  : status === "http" && http === 403
+                    ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_403
+                    : status === "http" && http === 409
+                      ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_409
+                      : status === "http"
+                        ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_FAILED
+                        : EXPLORER_MSG.SET_FOLDER_WORKFLOW_NONE;
+              setSetFolderWorkflowNotice({
+                kind: "error",
+                reason: status === "http" ? `http-${http}` : "none",
+                workflowId: "",
+                workflowName: "",
+                text: message(httpKey),
+              });
+            };
+            if (selectedCount >= 2) {
+              const multiCatalog: SetFolderWorkflowMultiCatalog =
+                await loadSetFolderWorkflowMultiCatalog({ items: checked });
+              if (multiCatalog.status === "blocked") {
+                showBlocked(multiCatalog.reason, multiCatalog.name);
+                return;
+              }
+              if (multiCatalog.status === "none" || multiCatalog.status === "http") {
+                showHttpOrNone(
+                  multiCatalog.status,
+                  multiCatalog.status === "http" ? multiCatalog.http : undefined,
+                );
+                return;
+              }
+              setSetFolderWorkflowDialog({
+                folderId: multiCatalog.targets[0]?.folderId ?? "",
+                currentId: multiCatalog.currentId,
+                choices: multiCatalog.choices,
+                props: multiCatalog.props,
+                busy: false,
+                error: "",
+                multi: true,
+                targets: multiCatalog.targets,
+                skippedPageNames: multiCatalog.skippedPageNames,
+                skippedAssetNames: multiCatalog.skippedAssetNames,
+                skippedOtherNames: multiCatalog.skippedOtherNames,
+                noIdNames: multiCatalog.noIdNames,
+              });
+              return;
+            }
             const catalog: SetFolderWorkflowCatalog = await loadSetFolderWorkflowCatalog({
               item: current.item,
               selectedCount,
             });
             if (catalog.status === "blocked") {
-              const key =
-                catalog.reason === "page"
-                  ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_PAGE
-                  : catalog.reason === "asset"
-                    ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_ASSET
-                    : catalog.reason === "not-folder"
-                      ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_NOT_FOLDER
-                      : catalog.reason === "multi"
-                        ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_MULTI
-                        : catalog.reason === "no-id"
-                          ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_NO_ID
-                          : EXPLORER_MSG.SET_FOLDER_WORKFLOW_EMPTY;
-              const text = catalog.name
-                ? `${message(key)}: ${catalog.name}`
-                : message(key);
-              setSetFolderWorkflowNotice({
-                kind: "error",
-                reason: catalog.reason,
-                workflowId: "",
-                workflowName: "",
-                text,
-              });
+              showBlocked(catalog.reason, catalog.name);
               return;
             }
             if (catalog.status === "none" || catalog.status === "http") {
-              const httpKey =
-                catalog.status === "http" && catalog.http === 400
-                  ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_400
-                  : catalog.status === "http" && catalog.http === 403
-                    ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_403
-                    : catalog.status === "http" && catalog.http === 409
-                      ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_HTTP_409
-                      : catalog.status === "http"
-                        ? EXPLORER_MSG.SET_FOLDER_WORKFLOW_FAILED
-                        : EXPLORER_MSG.SET_FOLDER_WORKFLOW_NONE;
-              setSetFolderWorkflowNotice({
-                kind: "error",
-                reason: catalog.status === "http" ? `http-${catalog.http}` : "none",
-                workflowId: "",
-                workflowName: "",
-                text: message(httpKey),
-              });
+              showHttpOrNone(
+                catalog.status,
+                catalog.status === "http" ? catalog.http : undefined,
+              );
               return;
             }
             setSetFolderWorkflowDialog({
@@ -2284,6 +2339,12 @@ function ContentExplorerShellInner({
               props: catalog.props,
               busy: false,
               error: "",
+              multi: false,
+              targets: [],
+              skippedPageNames: [],
+              skippedAssetNames: [],
+              skippedOtherNames: [],
+              noIdNames: [],
             });
           })();
           break;
@@ -3532,6 +3593,7 @@ function ContentExplorerShellInner({
           itemCommunities={savedItemCommunities}
           folderCommunities={savedFolderCommunities}
           folderLocales={savedFolderLocales}
+          folderWorkflows={savedFolderWorkflows}
           itemWorkflows={savedItemWorkflows}
         />
       )}
@@ -4172,6 +4234,7 @@ function ContentExplorerShellInner({
           currentId={setFolderWorkflowDialog.currentId}
           busy={setFolderWorkflowDialog.busy}
           error={setFolderWorkflowDialog.error}
+          multi={setFolderWorkflowDialog.multi}
           onCancel={() => {
             if (!setFolderWorkflowDialog.busy) {
               setSetFolderWorkflowDialog(null);
@@ -4181,6 +4244,38 @@ function ContentExplorerShellInner({
             const dialog = setFolderWorkflowDialog;
             void (async () => {
               setSetFolderWorkflowDialog({ ...dialog, busy: true, error: "" });
+              if (dialog.multi) {
+                const choiceName =
+                  dialog.choices.find((row) => row.id === workflowId)?.name ?? workflowId;
+                const result = await saveSetFolderWorkflowOnSelection({
+                  targets: dialog.targets,
+                  skippedPageNames: dialog.skippedPageNames,
+                  skippedAssetNames: dialog.skippedAssetNames,
+                  skippedOtherNames: dialog.skippedOtherNames,
+                  noIdNames: dialog.noIdNames,
+                  selectedId: workflowId,
+                  allowedIds: dialog.choices.map((row) => row.id),
+                  workflowName: choiceName,
+                  onFolderSaved: (folder) => {
+                    setSavedFolderWorkflows((prev) => {
+                      const next = new Map(prev);
+                      next.set(folder.folderId, {
+                        workflowId: folder.workflowId,
+                        workflowName: folder.workflowName,
+                      });
+                      return next;
+                    });
+                  },
+                });
+                setSetFolderWorkflowDialog(null);
+                setSetFolderWorkflowNotice(
+                  describeSetFolderWorkflowMultiSave(result, choiceName),
+                );
+                if (result.saved.length > 0) {
+                  setListEpoch((n) => n + 1);
+                }
+                return;
+              }
               const saved = await saveSetFolderWorkflow({
                 folderId: dialog.folderId,
                 props: dialog.props,
@@ -4192,6 +4287,14 @@ function ContentExplorerShellInner({
                 const name =
                   dialog.choices.find((row) => row.id === saved.workflowId)?.name ??
                   saved.workflowId;
+                setSavedFolderWorkflows((prev) => {
+                  const next = new Map(prev);
+                  next.set(dialog.folderId, {
+                    workflowId: saved.workflowId,
+                    workflowName: name,
+                  });
+                  return next;
+                });
                 setSetFolderWorkflowDialog(null);
                 setSetFolderWorkflowNotice({
                   kind: "success",
