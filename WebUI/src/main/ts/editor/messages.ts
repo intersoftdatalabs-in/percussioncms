@@ -242,6 +242,26 @@ export const EDITOR_MSG = {
     "perc.ui.editor@Unapprove was blocked. The item stays approved.",
   UNAPPROVE_INCREMENTAL_UNAVAILABLE:
     "perc.ui.editor@Only a page or asset can be unapproved on the incremental queue.",
+  REMOVE_INCREMENTAL: "perc.ui.editor@Remove from incremental",
+  REMOVE_INCREMENTAL_BUSY: "perc.ui.editor@Removing…",
+  REMOVE_INCREMENTAL_TITLE:
+    "perc.ui.editor@Remove from the incremental queue",
+  REMOVE_INCREMENTAL_BODY:
+    "perc.ui.editor@Remove this page or asset from the incremental publish queue?",
+  REMOVE_INCREMENTAL_CONFIRM: "perc.ui.editor@Remove",
+  REMOVE_INCREMENTAL_CANCEL: "perc.ui.editor@Cancel",
+  REMOVE_INCREMENTAL_DONE:
+    "perc.ui.editor@Removed from the incremental queue",
+  REMOVE_INCREMENTAL_FAILED:
+    "perc.ui.editor@Could not remove this item from the incremental queue.",
+  REMOVE_INCREMENTAL_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to remove this item from the incremental queue.",
+  REMOVE_INCREMENTAL_REJECTED:
+    "perc.ui.editor@This item could not be removed from the incremental queue.",
+  REMOVE_INCREMENTAL_CONFLICT:
+    "perc.ui.editor@Remove was blocked. The item stays on the queue.",
+  REMOVE_INCREMENTAL_UNAVAILABLE:
+    "perc.ui.editor@Only a page or asset can be removed from the incremental queue.",
   STAGE: "perc.ui.editor@Stage",
   STAGING: "perc.ui.editor@Staging…",
   CONFIRM_STAGE: "perc.ui.editor@Stage this item?",

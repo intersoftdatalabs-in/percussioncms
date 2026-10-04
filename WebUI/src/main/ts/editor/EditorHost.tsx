@@ -160,6 +160,7 @@ import { ScheduleDatesDialog } from "../contentExplorer/ScheduleDatesDialog";
 import type { ItemScheduleDates } from "../contentExplorer/itemScheduleDates";
 import { EditorClearScheduleDialog } from "./EditorClearScheduleDialog";
 import { EditorIncrementalApproveDialog } from "./EditorIncrementalApproveDialog";
+import { EditorIncrementalRemoveDialog } from "./EditorIncrementalRemoveDialog";
 import { EditorIncrementalUnapproveDialog } from "./EditorIncrementalUnapproveDialog";
 import {
   clearedEditorScheduleDates,
@@ -174,6 +175,10 @@ import {
   editorIncrementalApproveFailureMessage,
   editorItemCanJoinIncrementalQueue,
 } from "./editorIncrementalApprove";
+import {
+  editorIncrementalRemoveFailureMessage,
+  removeEditorItemFromIncrementalQueue,
+} from "./editorIncrementalRemove";
 import {
   editorIncrementalUnapproveFailureMessage,
   unapproveEditorItemOnIncrementalQueue,
@@ -322,6 +327,16 @@ export interface EditorHostProps {
    * cannot be unapproved (no HTTP). HTTP errors throw and are not success.
    */
   unapproveIncremental?: (
+    itemId: string,
+    kind: EditorPublishKind,
+  ) => Promise<boolean>;
+  /**
+   * Test seam: Explorer incremental remove
+   * ({@code POST …/incremental/explorer/{id}/remove}). False when the item
+   * cannot be removed (no HTTP). HTTP errors throw and are not success.
+   * This is not unapprove.
+   */
+  removeIncremental?: (
     itemId: string,
     kind: EditorPublishKind,
   ) => Promise<boolean>;
@@ -693,6 +708,7 @@ export function EditorHost({
   saveScheduleDates = saveEditorScheduleDates,
   approveIncremental = approveEditorItemToIncrementalQueue,
   unapproveIncremental = unapproveEditorItemOnIncrementalQueue,
+  removeIncremental = removeEditorItemFromIncrementalQueue,
   confirmPublish,
   stageItem = stageEditorItem,
   confirmStage,
@@ -834,6 +850,12 @@ export function EditorHost({
   const [incrementalUnapproveBusy, setIncrementalUnapproveBusy] = useState(false);
   const [incrementalUnapproved, setIncrementalUnapproved] = useState(false);
   const [incrementalUnapproveError, setIncrementalUnapproveError] = useState<
+    string | null
+  >(null);
+  const [incrementalRemoveOpen, setIncrementalRemoveOpen] = useState(false);
+  const [incrementalRemoveBusy, setIncrementalRemoveBusy] = useState(false);
+  const [incrementalRemoved, setIncrementalRemoved] = useState(false);
+  const [incrementalRemoveError, setIncrementalRemoveError] = useState<
     string | null
   >(null);
   const [stageBusy, setStageBusy] = useState(false);
@@ -2052,7 +2074,12 @@ export function EditorHost({
   }
 
   function handleOpenIncrementalApprove(): void {
-    if (contentId == null || mode !== "edit") {
+    if (
+      contentId == null ||
+      mode !== "edit" ||
+      incrementalUnapproveOpen ||
+      incrementalRemoveOpen
+    ) {
       return;
     }
     setIncrementalApproveError(null);
@@ -2087,6 +2114,7 @@ export function EditorHost({
       setIncrementalApproveOpen(false);
       setIncrementalApproved(true);
       setIncrementalUnapproved(false);
+      setIncrementalRemoved(false);
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
@@ -2101,7 +2129,12 @@ export function EditorHost({
   }
 
   function handleOpenIncrementalUnapprove(): void {
-    if (contentId == null || mode !== "edit" || incrementalApproveOpen) {
+    if (
+      contentId == null ||
+      mode !== "edit" ||
+      incrementalApproveOpen ||
+      incrementalRemoveOpen
+    ) {
       return;
     }
     setIncrementalUnapproveError(null);
@@ -2136,6 +2169,7 @@ export function EditorHost({
       setIncrementalUnapproveOpen(false);
       setIncrementalApproved(false);
       setIncrementalUnapproved(true);
+      setIncrementalRemoved(false);
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
@@ -2146,6 +2180,57 @@ export function EditorHost({
       );
     } finally {
       setIncrementalUnapproveBusy(false);
+    }
+  }
+
+  function handleOpenIncrementalRemove(): void {
+    if (
+      contentId == null ||
+      mode !== "edit" ||
+      incrementalApproveOpen ||
+      incrementalUnapproveOpen
+    ) {
+      return;
+    }
+    setIncrementalRemoveError(null);
+    setIncrementalRemoveOpen(true);
+  }
+
+  async function handleConfirmIncrementalRemove(): Promise<void> {
+    if (contentId == null || incrementalRemoveBusy || mode !== "edit") {
+      return;
+    }
+    const itemId = String(contentId);
+    const kind = resolveEditorPublishKind(payload?.contentType, {
+      id: itemId,
+      allowedTemplateCount,
+    });
+    setIncrementalRemoveBusy(true);
+    setIncrementalRemoveError(null);
+    try {
+      if (!editorItemCanJoinIncrementalQueue(itemId, kind)) {
+        setIncrementalRemoveError(message(EDITOR_MSG.REMOVE_INCREMENTAL_UNAVAILABLE));
+        return;
+      }
+      const accepted = await removeIncremental(itemId, kind);
+      if (!accepted) {
+        setIncrementalRemoveError(message(EDITOR_MSG.REMOVE_INCREMENTAL_UNAVAILABLE));
+        return;
+      }
+      setIncrementalRemoveOpen(false);
+      setIncrementalApproved(false);
+      setIncrementalUnapproved(false);
+      setIncrementalRemoved(true);
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setIncrementalRemoveError(
+        editorIncrementalRemoveFailureMessage(err) ||
+          message(EDITOR_MSG.REMOVE_INCREMENTAL_FAILED),
+      );
+    } finally {
+      setIncrementalRemoveBusy(false);
     }
   }
 
@@ -3366,6 +3451,11 @@ export function EditorHost({
               {message(EDITOR_MSG.UNAPPROVE_INCREMENTAL_DONE)}
             </span>
           ) : null}
+          {incrementalRemoved ? (
+            <span className={styles.meta} data-testid="editor-incremental-removed">
+              {message(EDITOR_MSG.REMOVE_INCREMENTAL_DONE)}
+            </span>
+          ) : null}
           {stageDone ? (
             <span className={styles.meta} data-testid="editor-stage-done">
               {message(EDITOR_MSG.STAGE_DONE)}
@@ -3464,6 +3554,8 @@ export function EditorHost({
                 incrementalApproveBusy ||
                 incrementalUnapproveBusy ||
                 incrementalUnapproveOpen ||
+                incrementalRemoveBusy ||
+                incrementalRemoveOpen ||
                 loading ||
                 payload == null ||
                 saving
@@ -3482,6 +3574,8 @@ export function EditorHost({
                 incrementalUnapproveBusy ||
                 incrementalApproveBusy ||
                 incrementalApproveOpen ||
+                incrementalRemoveBusy ||
+                incrementalRemoveOpen ||
                 loading ||
                 payload == null ||
                 saving
@@ -3492,6 +3586,30 @@ export function EditorHost({
                 incrementalUnapproveBusy
                   ? EDITOR_MSG.UNAPPROVE_INCREMENTAL_BUSY
                   : EDITOR_MSG.UNAPPROVE_INCREMENTAL,
+              )}
+            </button>
+          ) : null}
+          {showIncrementalApprove ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-incremental-remove"
+              disabled={
+                incrementalRemoveBusy ||
+                incrementalApproveBusy ||
+                incrementalApproveOpen ||
+                incrementalUnapproveBusy ||
+                incrementalUnapproveOpen ||
+                loading ||
+                payload == null ||
+                saving
+              }
+              onClick={() => handleOpenIncrementalRemove()}
+            >
+              {message(
+                incrementalRemoveBusy
+                  ? EDITOR_MSG.REMOVE_INCREMENTAL_BUSY
+                  : EDITOR_MSG.REMOVE_INCREMENTAL,
               )}
             </button>
           ) : null}
@@ -4447,6 +4565,22 @@ export function EditorHost({
           }}
           onConfirm={() => {
             void handleConfirmIncrementalUnapprove();
+          }}
+        />
+      ) : null}
+      {incrementalRemoveOpen ? (
+        <EditorIncrementalRemoveDialog
+          busy={incrementalRemoveBusy}
+          serverError={incrementalRemoveError}
+          onCancel={() => {
+            if (incrementalRemoveBusy) {
+              return;
+            }
+            setIncrementalRemoveOpen(false);
+            setIncrementalRemoveError(null);
+          }}
+          onConfirm={() => {
+            void handleConfirmIncrementalRemove();
           }}
         />
       ) : null}
