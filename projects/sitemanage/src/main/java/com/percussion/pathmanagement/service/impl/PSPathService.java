@@ -25,6 +25,7 @@ import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pathmanagement.data.PSDeleteFolderCriteria;
 import com.percussion.pathmanagement.data.PSFolderCommunityCatalog;
+import com.percussion.pathmanagement.data.PSFolderDisplayFormatCatalog;
 import com.percussion.pathmanagement.data.PSFolderLocaleCatalog;
 import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderProperties;
@@ -44,6 +45,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.share.dao.IPSFolderHelper;
+import com.percussion.share.dao.impl.FolderDisplayFormatCatalogRules;
 import com.percussion.share.dao.impl.FolderLocaleCatalogRules;
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.data.PSItemProperties;
@@ -247,6 +249,18 @@ public class PSPathService extends PSDispatchingPathService
     return catalog == null ? new PSFolderLocaleCatalog() : catalog;
   }
 
+  /**
+   * Display-format id and name catalog for Explorer folder assignment (#5131). The id is what
+   * {@code sys_displayformat} stores. Not the list-column chooser and not a page or asset format.
+   */
+  @GET
+  @Path("/folderDisplayFormatCatalog")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSFolderDisplayFormatCatalog folderDisplayFormatCatalog() {
+    PSFolderDisplayFormatCatalog catalog = folderHelper.listFolderDisplayFormatCatalog();
+    return catalog == null ? new PSFolderDisplayFormatCatalog() : catalog;
+  }
+
   @POST
   @Path("/saveFolderProperties")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -308,6 +322,24 @@ public class PSPathService extends PSDispatchingPathService
         && !folderHelper.isAssignableFolderLocale(props.getLocale())) {
       throw new WebApplicationException(
           "Locale is not in the folder locale catalog", Response.Status.BAD_REQUEST);
+    }
+
+    // A blank, zero, or negative display-format id leaves the stored id alone. A name is not an
+    // id. A different positive id that is not in the catalog must not be written (#5131). The
+    // same id (including leading zeros) stays valid for other property saves.
+    FolderDisplayFormatCatalogRules.ParsedId requestedFormat =
+        FolderDisplayFormatCatalogRules.parseId(props.getDisplayFormatId());
+    if (requestedFormat.kind() == FolderDisplayFormatCatalogRules.IdKind.INVALID) {
+      throw new WebApplicationException(
+          "Display format id is not a catalog id", Response.Status.BAD_REQUEST);
+    }
+    if (requestedFormat.kind() == FolderDisplayFormatCatalogRules.IdKind.POSITIVE
+        && !FolderDisplayFormatCatalogRules.sameId(
+            existing == null ? null : existing.getDisplayFormatId(), props.getDisplayFormatId())
+        && !folderHelper.isAssignableFolderDisplayFormat(requestedFormat.canonical())) {
+      throw new WebApplicationException(
+          "Display format is not in the folder display format catalog",
+          Response.Status.BAD_REQUEST);
     }
 
     List<IPSSite> sites = publishingWs.getItemSites(idMapper.getGuid(props.getId()));

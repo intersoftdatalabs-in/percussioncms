@@ -165,6 +165,13 @@ import {
   type SetFolderLocaleCatalog,
 } from "./setFolderLocale";
 import type { FolderLocaleChoice } from "../api/contentExplorer/folderLocaleApi";
+import { SetFolderDisplayFormatDialog } from "./SetFolderDisplayFormatDialog";
+import {
+  loadSetFolderDisplayFormatCatalog,
+  saveSetFolderDisplayFormat,
+  type SetFolderDisplayFormatCatalog,
+} from "./setFolderDisplayFormat";
+import type { FolderDisplayFormatChoice } from "../api/contentExplorer/folderDisplayFormatApi";
 import type { PSFolderProperties } from "../api/contentExplorer/types";
 import { SetCommunityDialog } from "./SetCommunityDialog";
 import {
@@ -736,6 +743,21 @@ function ContentExplorerShellInner({
     folderId: string;
     currentCode: string;
     choices: FolderLocaleChoice[];
+    props: PSFolderProperties;
+    busy: boolean;
+    error: string;
+  } | null>(null);
+  const [setFolderDisplayFormatNotice, setSetFolderDisplayFormatNotice] = useState<{
+    kind: "success" | "error";
+    reason: string;
+    displayFormatId: string;
+    displayFormatName: string;
+    text: string;
+  } | null>(null);
+  const [setFolderDisplayFormatDialog, setSetFolderDisplayFormatDialog] = useState<{
+    folderId: string;
+    currentId: string;
+    choices: FolderDisplayFormatChoice[];
     props: PSFolderProperties;
     busy: boolean;
     error: string;
@@ -2260,6 +2282,73 @@ function ContentExplorerShellInner({
           })();
           break;
         }
+        case "content-set-folder-display-format": {
+          const current = selectionRef.current;
+          const selectedCount = multiSelectedItemsRef.current.size;
+          void (async () => {
+            setSetFolderDisplayFormatNotice(null);
+            setSetFolderDisplayFormatDialog(null);
+            const catalog: SetFolderDisplayFormatCatalog =
+              await loadSetFolderDisplayFormatCatalog({
+                item: current.item,
+                selectedCount,
+              });
+            if (catalog.status === "blocked") {
+              const key =
+                catalog.reason === "page"
+                  ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_PAGE
+                  : catalog.reason === "asset"
+                    ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_ASSET
+                    : catalog.reason === "not-folder"
+                      ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_NOT_FOLDER
+                      : catalog.reason === "multi"
+                        ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_MULTI
+                        : catalog.reason === "no-id"
+                          ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_NO_ID
+                          : EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_EMPTY;
+              const text = catalog.name
+                ? `${message(key)}: ${catalog.name}`
+                : message(key);
+              setSetFolderDisplayFormatNotice({
+                kind: "error",
+                reason: catalog.reason,
+                displayFormatId: "",
+                displayFormatName: "",
+                text,
+              });
+              return;
+            }
+            if (catalog.status === "none" || catalog.status === "http") {
+              const httpKey =
+                catalog.status === "http" && catalog.http === 400
+                  ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_HTTP_400
+                  : catalog.status === "http" && catalog.http === 403
+                    ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_HTTP_403
+                    : catalog.status === "http" && catalog.http === 409
+                      ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_HTTP_409
+                      : catalog.status === "http"
+                        ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_FAILED
+                        : EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_NONE;
+              setSetFolderDisplayFormatNotice({
+                kind: "error",
+                reason: catalog.status === "http" ? `http-${catalog.http}` : "none",
+                displayFormatId: "",
+                displayFormatName: "",
+                text: message(httpKey),
+              });
+              return;
+            }
+            setSetFolderDisplayFormatDialog({
+              folderId: catalog.folderId,
+              currentId: catalog.currentId,
+              choices: catalog.choices,
+              props: catalog.props,
+              busy: false,
+              error: "",
+            });
+          })();
+          break;
+        }
         case "content-set-community": {
           const current = selectionRef.current;
           const selectedCount = multiSelectedItemsRef.current.size;
@@ -2635,6 +2724,19 @@ function ContentExplorerShellInner({
               aria-live="polite"
             >
               {setFolderLocaleNotice.text}
+            </div>
+          ) : null}
+          {setFolderDisplayFormatNotice ? (
+            <div
+              data-testid="explorer-set-folder-display-format-status"
+              data-kind={setFolderDisplayFormatNotice.kind}
+              data-reason={setFolderDisplayFormatNotice.reason}
+              data-format-id={setFolderDisplayFormatNotice.displayFormatId}
+              data-format-name={setFolderDisplayFormatNotice.displayFormatName}
+              role="status"
+              aria-live="polite"
+            >
+              {setFolderDisplayFormatNotice.text}
             </div>
           ) : null}
           {setCommunityNotice ? (
@@ -3825,6 +3927,68 @@ function ContentExplorerShellInner({
                               ? EXPLORER_MSG.SET_FOLDER_LOCALE_HTTP_409
                               : EXPLORER_MSG.SET_FOLDER_LOCALE_FAILED;
               setSetFolderLocaleDialog({
+                ...dialog,
+                busy: false,
+                error: message(key),
+              });
+            })();
+          }}
+        />
+      ) : null}
+      {setFolderDisplayFormatDialog ? (
+        <SetFolderDisplayFormatDialog
+          choices={setFolderDisplayFormatDialog.choices}
+          currentId={setFolderDisplayFormatDialog.currentId}
+          busy={setFolderDisplayFormatDialog.busy}
+          error={setFolderDisplayFormatDialog.error}
+          onCancel={() => {
+            if (!setFolderDisplayFormatDialog.busy) {
+              setSetFolderDisplayFormatDialog(null);
+            }
+          }}
+          onSave={(displayFormatId) => {
+            const dialog = setFolderDisplayFormatDialog;
+            void (async () => {
+              setSetFolderDisplayFormatDialog({ ...dialog, busy: true, error: "" });
+              const saved = await saveSetFolderDisplayFormat({
+                folderId: dialog.folderId,
+                props: dialog.props,
+                selectedId: displayFormatId,
+                currentId: dialog.currentId,
+                allowedIds: dialog.choices.map((row) => row.id),
+                displayFormatName:
+                  dialog.choices.find((row) => row.id === displayFormatId)?.name ??
+                  displayFormatId,
+              });
+              if (saved.status === "saved") {
+                setSetFolderDisplayFormatDialog(null);
+                setSetFolderDisplayFormatNotice({
+                  kind: "success",
+                  reason: "",
+                  displayFormatId: saved.displayFormatId,
+                  displayFormatName: saved.displayFormatName,
+                  text: `${message(EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_SAVED)} ${saved.displayFormatName}`,
+                });
+                setListEpoch((n) => n + 1);
+                return;
+              }
+              const key =
+                saved.status === "gate" && saved.reason === "unchanged"
+                  ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_UNCHANGED
+                  : saved.status === "gate" && saved.reason === "forbidden"
+                    ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_FORBIDDEN
+                    : saved.status === "gate" && saved.reason === "blank"
+                      ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_BLANK
+                      : saved.status === "mismatch"
+                        ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_MISMATCH
+                        : saved.status === "http" && saved.http === 400
+                          ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_HTTP_400
+                          : saved.status === "http" && saved.http === 403
+                            ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_HTTP_403
+                            : saved.status === "http" && saved.http === 409
+                              ? EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_HTTP_409
+                              : EXPLORER_MSG.SET_FOLDER_DISPLAY_FORMAT_FAILED;
+              setSetFolderDisplayFormatDialog({
                 ...dialog,
                 busy: false,
                 error: message(key),

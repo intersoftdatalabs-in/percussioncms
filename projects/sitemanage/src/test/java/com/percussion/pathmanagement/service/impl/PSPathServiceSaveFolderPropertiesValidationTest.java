@@ -334,4 +334,108 @@ class PSPathServiceSaveFolderPropertiesValidationTest {
     verify(folderHelper).saveFolderProperties(props);
     verify(folderHelper, never()).isAssignableFolderLocale(anyString());
   }
+
+  @Test
+  void unknownDisplayFormatId_mapsToHttp400AndDoesNotSave() throws Exception {
+    PSFolderProperties stored = storedFolder();
+    stored.setDisplayFormatId("3");
+    PSFolderProperties props = storedFolder();
+    props.setDisplayFormatId("99");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(folderHelper.isAssignableFolderDisplayFormat("99")).thenReturn(false);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveFolderProperties(props));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+    verify(folderHelper, never()).saveFolderProperties(any(PSFolderProperties.class));
+    verify(publishingWs, never()).getItemSites(any());
+  }
+
+  @Test
+  void nameOnlyDisplayFormat_isHttp400AndDoesNotSave() throws Exception {
+    PSFolderProperties stored = storedFolder();
+    stored.setDisplayFormatId("3");
+    stored.setDisplayFormatName("Default");
+    PSFolderProperties props = storedFolder();
+    props.setDisplayFormatName("Simple");
+    props.setDisplayFormatId("Simple");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveFolderProperties(props));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+    verify(folderHelper, never()).saveFolderProperties(any(PSFolderProperties.class));
+    verify(folderHelper, never()).isAssignableFolderDisplayFormat(anyString());
+    verify(publishingWs, never()).getItemSites(any());
+  }
+
+  @Test
+  void catalogDisplayFormat_stillDelegatesToFolderHelper() throws Exception {
+    PSFolderProperties stored = storedFolder();
+    stored.setDisplayFormatId("3");
+    PSFolderProperties props = storedFolder();
+    props.setDisplayFormatId("12");
+    props.setDisplayFormatName("Simple");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(folderHelper.isAssignableFolderDisplayFormat("12")).thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    verify(folderHelper).saveFolderProperties(props);
+  }
+
+  @Test
+  void unchangedDisplayFormatId_doesNotRequireCatalog() throws Exception {
+    PSFolderProperties stored = storedFolder();
+    stored.setDisplayFormatId("12");
+    PSFolderProperties props = storedFolder();
+    props.setDisplayFormatId("012");
+    props.setDisplayFormatName("Whatever");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    verify(folderHelper).saveFolderProperties(props);
+    verify(folderHelper, never()).isAssignableFolderDisplayFormat(anyString());
+  }
+
+  @Test
+  void omittedDisplayFormatId_doesNotRequireCatalog() throws Exception {
+    PSFolderProperties stored = storedFolder();
+    stored.setDisplayFormatId("3");
+    stored.setDisplayFormatName("Default");
+    PSFolderProperties props = storedFolder();
+    props.setDisplayFormatName("Simple");
+    when(folderHelper.findFolderProperties("16777215-101-703")).thenReturn(stored);
+    when(folderHelper.hasFolderPermission(
+            eq("16777215-101-703"), eq(PSFolderPermission.Access.ADMIN)))
+        .thenReturn(true);
+    when(idMapper.getGuid("16777215-101-703")).thenReturn(new PSLegacyGuid(703, 1));
+    when(publishingWs.getItemSites(any())).thenReturn(Collections.emptyList());
+
+    assertDoesNotThrow(() -> service.saveFolderProperties(props));
+    verify(folderHelper).saveFolderProperties(props);
+    verify(folderHelper, never()).isAssignableFolderDisplayFormat(anyString());
+  }
+
+  private static PSFolderProperties storedFolder() {
+    PSFolderProperties props = new PSFolderProperties();
+    props.setId("16777215-101-703");
+    props.setName("Design");
+    return props;
+  }
 }

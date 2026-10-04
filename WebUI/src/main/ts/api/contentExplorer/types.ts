@@ -103,7 +103,10 @@ export interface PSFolderProperties {
   communityId?: string;
   communityName?: string;
   locale?: string;
+  /** Transient catalog name. Not what save persists (#5131). */
   displayFormatName?: string;
+  /** Persisted {@code sys_displayformat} id. A name is not an id. */
+  displayFormatId?: string;
   workflowId?: string;
   allowedSites?: string[];
 }
