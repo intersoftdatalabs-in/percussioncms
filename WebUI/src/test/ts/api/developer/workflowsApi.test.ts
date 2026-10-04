@@ -37,8 +37,12 @@ import {
   parseWorkflowList,
   parseWorkflowSummary,
   setWorkflowAllowedContentTypes,
+  listStepRoleAssignments,
+  parseStepRoleAssignments,
   renameWorkflow,
   setDefaultWorkflow,
+  setStepRoleAssignment,
+  wrapWorkflowStepRoleAssignmentForWire,
   updateWorkflow,
   wrapWorkflowContentTypesForWire,
   wrapWorkflowCreateForWire,
@@ -489,6 +493,67 @@ describe("workflow rename API (slice 60)", () => {
     expect(JSON.parse(String(init.body))).toEqual({
       WorkflowRename: { name: "Nightly QA 2" },
     });
+  });
+});
+
+describe("workflow step role assignment API (slice 61)", () => {
+  const fetchMock = vi.fn();
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("unwraps the assignment list and keeps Reader", () => {
+    expect(
+      parseStepRoleAssignments({
+        WorkflowStepRoleAssignmentList: {
+          assignments: [
+            { stepName: "Draft", roleName: "Author", assignmentType: "READER" },
+          ],
+        },
+      }),
+    ).toEqual([{ stepName: "Draft", roleName: "Author", assignmentType: "READER" }]);
+  });
+
+  it("PUTs one role assignment and does not send the step name in the body", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        WorkflowStepRoleAssignmentList: {
+          assignments: [
+            { stepName: "Draft", roleName: "Author", assignmentType: "READER" },
+          ],
+        },
+      }),
+    );
+    const rows = await setStepRoleAssignment("Nightly QA", "Draft", {
+      roleName: "Author",
+      assignmentType: "READER",
+    });
+    expect(rows[0].assignmentType).toBe("READER");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      `${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Nightly QA")}/steps/${encodeURIComponent("Draft")}/role-assignment`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual(
+      wrapWorkflowStepRoleAssignmentForWire({
+        roleName: "Author",
+        assignmentType: "READER",
+      }),
+    );
+    expect(listStepRoleAssignments).toBeTypeOf("function");
   });
 });
 

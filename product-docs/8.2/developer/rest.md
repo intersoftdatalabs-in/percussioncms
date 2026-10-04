@@ -2391,6 +2391,11 @@ delete one existing transition with
 `DELETE /services/workflows/{idOrName}/transitions`, or delete one step that
 no transition still uses with
 `DELETE /services/workflows/{idOrName}/steps/{stepName}`.
+Stored assignment types, including Reader, are
+`GET /services/workflows/{idOrName}/role-assignments`.
+An Admin sets Reader or Assignee on one role already assigned to one step with
+`PUT /services/workflows/{idOrName}/steps/{stepName}/role-assignment`.
+That call does not rename the step or replace the role list.
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -2404,6 +2409,8 @@ no transition still uses with
 | `DELETE` | `/services/workflows/{idOrName}` | **Admin.** Delete the workflow via `IPSSteppedWorkflowService.deleteWorkflow` (same backend the workflow-admin editor uses). Path `idOrName` is workflow name, numeric uuid, or rest guid (same resolution as `PUT`). System workflows and workflows that still own content items return `409`; missing workflow returns `404`. `204` on success |
 | `POST` | `/services/workflows/{idOrName}/steps` | **Admin.** Create a step (`WorkflowStepWrite` wrap: required `name`, optional `afterStep`, optional `roleNames`). Packaged Default Workflow / Simple Workflow / Local Content return `403`. Invalid names are `400`; duplicate step is `409`. |
 | `PUT` | `/services/workflows/{idOrName}/steps/{stepName}` | **Admin.** Update a step (`WorkflowStepWrite` wrap). Path `stepName` is the current name; body `name` is the new name. Packaged workflows are `403`. |
+| `GET` | `/services/workflows/{idOrName}/role-assignments` | **Admin.** List every role already assigned to a step and its stored assignment type (`WorkflowStepRoleAssignmentList`: `assignments` of `stepName`, `roleName`, `assignmentType`). Includes Reader. Does not mutate. Missing workflow is `404`. Non-Admin is `403`. |
+| `PUT` | `/services/workflows/{idOrName}/steps/{stepName}/role-assignment` | **Admin.** Set Reader or Assignee on one role already assigned to the path step (`WorkflowStepRoleAssignmentWrite` wrap: required `roleName` and `assignmentType` of `READER` or `ASSIGNEE`). Does not rename the step, add or remove roles, or change notify and inbox flags. The returned list shows the new type only after the server accepts it. Packaged and system-default workflows are `403` and are not mutated. A role whose current type is Admin or None is `409` and is not changed. An unchanged type, a blank role, or any other type is `400`. Missing workflow, step, or role is `404`. Non-Admin is `403`. |
 | `GET` | `/services/workflows/{idOrName}/graph` | **Admin.** Graph (`WorkflowGraph`: `nodes`, `edges` with `from` / `to` / `label` / `commentRequired`, and on aging edges `aging` plus `intervalMinutes`, `packaged`, `defaultWorkflow`). Stock names (Default Workflow, Simple Workflow, Local Content) and the server default flag set `packaged` true. Read-only. Missing workflow is `404`; non-Admin is `403`. |
 | `POST` | `/services/workflows/{idOrName}/transitions` | **Admin.** Create one transition between existing steps (`WorkflowTransitionWrite` wrap: required `from`, `to`, and `label`). Does not create steps. Duplicate from/label/to is `409`. Invalid names are `400`. Missing workflow or step is `404`. Packaged/default workflows are `403`. Returns the updated `WorkflowGraph`. |
 | `POST` | `/services/workflows/{idOrName}/aging-transitions` | **Admin.** Create one absolute aging transition between existing steps (`WorkflowAgingTransitionWrite` wrap: required `from`, `to`, and a positive `intervalMinutes`). The interval is minutes. Does not create steps, change an existing interval, or set comment-required. A duplicate absolute aging edge for that from, to, and interval is `409`. A blank destination or a non-positive interval is `400`. Missing workflow or step is `404`. Packaged/default workflows are `403`. Returns the updated `WorkflowGraph` with `aging` and `intervalMinutes` on the new edge. |

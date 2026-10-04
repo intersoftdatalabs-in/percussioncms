@@ -1075,4 +1075,128 @@ public class WorkflowsResource {
       throw new WebApplicationException(e, 500);
     }
   }
+
+  @GET
+  @Path("/{idOrName}/role-assignments")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "List step role assignment types",
+      description =
+          "Slice 61 Admin. Lists every role already assigned to a step and its stored assignment"
+              + " type, including Reader. Does not mutate. Missing workflow is 404.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Assignment rows",
+            content =
+                @Content(schema = @Schema(implementation = WorkflowStepRoleAssignmentList.class))),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Workflow not found"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowStepRoleAssignmentList listStepRoleAssignments(
+      @PathParam("idOrName") String idOrName) {
+    try {
+      WorkflowStepRoleAssignmentList list =
+          requireAdaptor().listStepRoleAssignments(uriInfo.getBaseUri(), idOrName);
+      if (list == null) {
+        throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+      }
+      if (list.getAssignments() == null) {
+        list.setAssignments(List.of());
+      }
+      return list;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error(
+          "Failed to list step role assignments ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/steps/{stepName}/role-assignment")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Set one step role assignment type",
+      description =
+          "Slice 61 Admin. Sets Reader or Assignee on one role already assigned to the path step."
+              + " Does not rename the step, add or remove roles, or change notify and inbox flags."
+              + " Packaged and system-default workflows are 403. An Admin or None role is 409 and"
+              + " is not changed. An unchanged type, a blank role, or a type other than Reader or"
+              + " Assignee is 400. Missing workflow, step, or role is 404. Jackson root wrap is"
+              + " WorkflowStepRoleAssignmentWrite. Returns the assignment list after the write.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated; returns assignment rows including the new type",
+            content =
+                @Content(schema = @Schema(implementation = WorkflowStepRoleAssignmentList.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Missing body, blank role, invalid type, or unchanged type"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow, step, or role not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Current assignment type is not Reader or Assignee"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowStepRoleAssignmentList setStepRoleAssignment(
+      @PathParam("idOrName") String idOrName,
+      @PathParam("stepName") String stepName,
+      WorkflowStepRoleAssignmentWrite body) {
+    if (stepName == null || stepName.isBlank()) {
+      throw new WebApplicationException("Step name is required", 400);
+    }
+    if (body == null) {
+      throw new WebApplicationException("Workflow step role assignment body is required", 400);
+    }
+    if (body.getRoleName() == null || body.getRoleName().isBlank()) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
+    if (!isReaderOrAssignee(body.getAssignmentType())) {
+      throw new WebApplicationException("assignment type must be READER or ASSIGNEE", 400);
+    }
+    try {
+      WorkflowStepRoleAssignmentList list =
+          requireAdaptor()
+              .setStepRoleAssignment(uriInfo.getBaseUri(), idOrName, stepName, body);
+      if (list == null) {
+        throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+      }
+      return list;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to set step role assignment ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  private static boolean isReaderOrAssignee(String raw) {
+    if (raw == null) {
+      return false;
+    }
+    String n = raw.trim();
+    return n.equalsIgnoreCase("READER")
+        || n.equalsIgnoreCase("Reader")
+        || n.equalsIgnoreCase("ASSIGNEE")
+        || n.equalsIgnoreCase("Assignee");
+  }
 }

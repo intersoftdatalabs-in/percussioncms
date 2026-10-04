@@ -40,6 +40,7 @@ import { buildAllowedContentTypesReplaceBody } from "./workflowContentTypes";
 import { formatStepTransitionNames } from "./workflowStepTransitions";
 import { canOfferWorkflowRename, isWorkflowRenameReady } from "./workflowRename";
 import { WorkflowGraphView } from "./WorkflowGraphView";
+import { WorkflowStepRoleAssignmentSection } from "./WorkflowStepRoleAssignmentSection";
 
 /** Canonical Percussion GUID shape: type-host-uuid (three numeric groups). */
 const PERC_GUID_RE = /^\d+-\d+-\d+$/;
@@ -1074,6 +1075,11 @@ export function WorkflowDetailPanel({
               </div>
             </div>
           </section>
+
+          <WorkflowStepRoleAssignmentSection
+            workflowName={(detail.workflowName || name).trim()}
+            defaultWorkflow={detail.defaultWorkflow === true}
+          />
 
           <section
             style={{ marginTop: "16px", marginBottom: "16px" }}

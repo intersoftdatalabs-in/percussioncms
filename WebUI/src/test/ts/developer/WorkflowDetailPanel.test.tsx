@@ -21,6 +21,8 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   deleteWorkflow: vi.fn(),
   createWorkflowStep: vi.fn(),
   updateWorkflowStep: vi.fn(),
+  listStepRoleAssignments: vi.fn().mockResolvedValue([]),
+  setStepRoleAssignment: vi.fn(),
   getWorkflowGraph: vi.fn(),
   deleteWorkflowTransition: vi.fn(),
   deleteWorkflowStep: vi.fn(),
