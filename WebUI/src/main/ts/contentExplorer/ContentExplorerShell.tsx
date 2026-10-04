@@ -182,9 +182,13 @@ import type { FolderAllowedSiteChoice } from "../api/contentExplorer/folderAllow
 import type { PSFolderProperties } from "../api/contentExplorer/types";
 import { SetCommunityDialog } from "./SetCommunityDialog";
 import {
+  describeSetCommunityMultiSave,
   loadSetCommunityCatalog,
+  loadSetCommunityMultiCatalog,
   saveSetCommunity,
+  saveSetCommunityOnSelection,
   type SetCommunityCatalog,
+  type SetCommunityMultiCatalog,
 } from "./setItemCommunity";
 import type { ItemCommunityChoice } from "../api/contentExplorer/itemCommunityApi";
 import { ScheduleDatesDialog } from "./ScheduleDatesDialog";
@@ -803,7 +807,14 @@ function ContentExplorerShellInner({
     choices: ItemCommunityChoice[];
     busy: boolean;
     error: string;
+    multi: boolean;
+    targets: { itemId: string; name: string }[];
+    skippedFolderNames: string[];
   } | null>(null);
+  /** Community name painted on a row only after that item's change returns (#5133). */
+  const [savedItemCommunities, setSavedItemCommunities] = useState<
+    ReadonlyMap<string, { communityId: string; communityName: string }>
+  >(() => new Map());
   const dismissSubfolderCopy = useCallback(() => {
     setShowSubfolderCopy(false);
   }, []);
@@ -2441,9 +2452,72 @@ function ContentExplorerShellInner({
         case "content-set-community": {
           const current = selectionRef.current;
           const selectedCount = multiSelectedItemsRef.current.size;
+          const checked = Array.from(multiSelectedItemsRef.current.values());
           void (async () => {
             setSetCommunityNotice(null);
             setSetCommunityDialog(null);
+            if (selectedCount >= 2) {
+              const multiCatalog: SetCommunityMultiCatalog =
+                await loadSetCommunityMultiCatalog({ items: checked });
+              if (multiCatalog.status === "blocked") {
+                const key =
+                  multiCatalog.reason === "folder"
+                    ? EXPLORER_MSG.SET_COMMUNITY_FOLDER
+                    : multiCatalog.reason === "not-item"
+                      ? EXPLORER_MSG.SET_COMMUNITY_NOT_ITEM
+                      : multiCatalog.reason === "no-id"
+                        ? EXPLORER_MSG.SET_COMMUNITY_NO_ID
+                        : multiCatalog.reason === "multi"
+                          ? EXPLORER_MSG.SET_COMMUNITY_MULTI
+                          : EXPLORER_MSG.SET_COMMUNITY_EMPTY;
+                const text =
+                  multiCatalog.reason === "folder" && multiCatalog.name
+                    ? `${message(key)}: ${multiCatalog.name}`
+                    : message(key);
+                setSetCommunityNotice({
+                  kind: "error",
+                  reason: multiCatalog.reason,
+                  communityId: "",
+                  communityName: "",
+                  text,
+                });
+                return;
+              }
+              if (multiCatalog.status === "none" || multiCatalog.status === "http") {
+                const httpKey =
+                  multiCatalog.status === "http" && multiCatalog.http === 400
+                    ? EXPLORER_MSG.SET_COMMUNITY_HTTP_400
+                    : multiCatalog.status === "http" && multiCatalog.http === 403
+                      ? EXPLORER_MSG.SET_COMMUNITY_HTTP_403
+                      : multiCatalog.status === "http" && multiCatalog.http === 409
+                        ? EXPLORER_MSG.SET_COMMUNITY_HTTP_409
+                        : multiCatalog.status === "http"
+                          ? EXPLORER_MSG.SET_COMMUNITY_FAILED
+                          : EXPLORER_MSG.SET_COMMUNITY_NONE;
+                setSetCommunityNotice({
+                  kind: "error",
+                  reason:
+                    multiCatalog.status === "http"
+                      ? `http-${multiCatalog.http}`
+                      : "none",
+                  communityId: "",
+                  communityName: "",
+                  text: message(httpKey),
+                });
+                return;
+              }
+              setSetCommunityDialog({
+                itemId: multiCatalog.targets[0]?.itemId ?? "",
+                currentId: multiCatalog.currentId,
+                choices: multiCatalog.choices,
+                busy: false,
+                error: "",
+                multi: true,
+                targets: multiCatalog.targets,
+                skippedFolderNames: multiCatalog.skippedFolderNames,
+              });
+              return;
+            }
             const catalog: SetCommunityCatalog = await loadSetCommunityCatalog({
               item: current.item,
               selectedCount,
@@ -2498,6 +2572,9 @@ function ContentExplorerShellInner({
               choices: catalog.choices,
               busy: false,
               error: "",
+              multi: false,
+              targets: [],
+              skippedFolderNames: [],
             });
           })();
           break;
@@ -3253,6 +3330,7 @@ function ContentExplorerShellInner({
           selectedItemIds={multiSelectedIds}
           onToggleSelectItem={handleToggleSelectItem}
           approvedIncrementalIds={approvedIncrementalIds}
+          itemCommunities={savedItemCommunities}
         />
       )}
       {hasOpenSidePanel ? (
@@ -4167,6 +4245,9 @@ function ContentExplorerShellInner({
           currentId={setCommunityDialog.currentId}
           busy={setCommunityDialog.busy}
           error={setCommunityDialog.error}
+          selectionCount={
+            setCommunityDialog.multi ? setCommunityDialog.targets.length : 1
+          }
           onCancel={() => {
             if (!setCommunityDialog.busy) {
               setSetCommunityDialog(null);
@@ -4176,6 +4257,38 @@ function ContentExplorerShellInner({
             const dialog = setCommunityDialog;
             void (async () => {
               setSetCommunityDialog({ ...dialog, busy: true, error: "" });
+              if (dialog.multi) {
+                const result = await saveSetCommunityOnSelection({
+                  targets: dialog.targets,
+                  skippedFolderNames: dialog.skippedFolderNames,
+                  selectedId: communityId,
+                  allowedIds: dialog.choices.map((row) => row.id),
+                  onItemSaved: (item) => {
+                    const choiceName =
+                      dialog.choices.find((row) => row.id === item.communityId)?.name ??
+                      item.communityId;
+                    setSavedItemCommunities((prev) => {
+                      const next = new Map(prev);
+                      next.set(item.itemId, {
+                        communityId: item.communityId,
+                        communityName: choiceName,
+                      });
+                      return next;
+                    });
+                  },
+                });
+                const choiceName =
+                  dialog.choices.find((row) => row.id === communityId)?.name ??
+                  communityId;
+                setSetCommunityDialog(null);
+                setSetCommunityNotice(
+                  describeSetCommunityMultiSave(result, choiceName),
+                );
+                if (result.saved.length > 0) {
+                  setListEpoch((n) => n + 1);
+                }
+                return;
+              }
               const saved = await saveSetCommunity({
                 itemId: dialog.itemId,
                 selectedId: communityId,

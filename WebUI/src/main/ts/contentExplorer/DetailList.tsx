@@ -332,6 +332,11 @@ export interface DetailListProps {
    * after the server accepts the approve call (#5056).
    */
   approvedIncrementalIds?: ReadonlySet<string>;
+  /**
+   * Community written onto a page or asset. Shown only after that item's
+   * change returns (#5133). Absent entries stay unchanged.
+   */
+  itemCommunities?: ReadonlyMap<string, { communityId: string; communityName: string }>;
 }
 
 export function DetailList({
@@ -345,6 +350,7 @@ export function DetailList({
   selectedItemIds,
   onToggleSelectItem,
   approvedIncrementalIds,
+  itemCommunities,
 }: DetailListProps): React.ReactElement {
   const [page, setPage] = useState(0);
   const [data, setData] = useState<PSPagedResult | null>(null);
@@ -550,6 +556,11 @@ export function DetailList({
               approvedIncrementalIds?.has(idKey) === true ||
               (item.id != null &&
                 approvedIncrementalIds?.has(String(item.id)) === true);
+            const shownCommunity =
+              itemCommunities?.get(idKey) ??
+              (item.id != null
+                ? itemCommunities?.get(String(item.id).trim())
+                : undefined);
             const scheduleOnRow = rowScheduleDates(item);
             const scheduleLabel = [scheduleOnRow.startDate, scheduleOnRow.endDate]
               .filter((part) => part.length > 0)
@@ -568,6 +579,8 @@ export function DetailList({
                 data-incremental-approved={
                   incrementalApproved ? "true" : undefined
                 }
+                data-community-id={shownCommunity?.communityId}
+                data-community-name={shownCommunity?.communityName}
                 data-selected={selected ? "true" : undefined}
                 data-checked={isChecked ? "true" : undefined}
                 data-finder-mime={
@@ -668,6 +681,16 @@ export function DetailList({
                       >
                         {" "}
                         Approved
+                      </span>
+                    ) : null}
+                    {c === "name" && shownCommunity ? (
+                      <span
+                        data-testid={`detail-item-community-${idKey}`}
+                        data-community-id={shownCommunity.communityId}
+                        data-community-name={shownCommunity.communityName}
+                      >
+                        {" "}
+                        {shownCommunity.communityName}
                       </span>
                     ) : null}
                     {c === "name" && scheduleLabel ? (

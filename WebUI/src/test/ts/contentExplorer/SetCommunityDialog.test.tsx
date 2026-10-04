@@ -64,4 +64,27 @@ describe("SetCommunityDialog (#5077)", () => {
     fireEvent.click(screen.getByTestId("explorer-set-community-save"));
     expect(onSave).toHaveBeenCalledWith("20");
   });
+
+  it("names a multi-selection and cancel still does not save", async () => {
+    const onSave = vi.fn();
+    const onCancel = vi.fn();
+    const { container } = render(
+      <SetCommunityDialog
+        choices={choices}
+        currentId="10"
+        busy={false}
+        error=""
+        selectionCount={2}
+        onSave={onSave}
+        onCancel={onCancel}
+      />,
+    );
+    expect(screen.getByTestId("explorer-set-community-multi")).toHaveTextContent(
+      /each selected page and asset/i,
+    );
+    fireEvent.click(screen.getByTestId("explorer-set-community-cancel"));
+    expect(onCancel).toHaveBeenCalled();
+    expect(onSave).not.toHaveBeenCalled();
+    await renderA11yGate(container);
+  });
 });
