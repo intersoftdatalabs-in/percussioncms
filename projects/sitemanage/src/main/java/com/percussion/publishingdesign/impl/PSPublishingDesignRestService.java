@@ -116,6 +116,11 @@ public class PSPublishingDesignRestService {
   static final String CONTENT_LIST_ALREADY_ASSOCIATED =
       "Content list is already associated with this edition";
   static final String DELIVERY_TYPE_NAME_CONFLICT = "Delivery type name already exists";
+  /** Matches {@code PSX_DELIVERY_TYPE.NAME} VARCHAR(50). */
+  static final int MAX_DELIVERY_TYPE_NAME_LENGTH = 50;
+
+  static final String DELIVERY_TYPE_NAME_TOO_LONG =
+      "Delivery type name must be 50 characters or fewer";
   static final String LOCATION_SCHEME_NAME_CONFLICT = "Location scheme name already exists";
 
   static final String LOCATION_SCHEME_ASSIGNMENT_CONFLICT =
@@ -614,10 +619,14 @@ public class PSPublishingDesignRestService {
     if (body == null || isBlank(body.getName()) || isBlank(body.getBeanName())) {
       throw badRequest("name and beanName are required");
     }
+    String trimmedName = body.getName().trim();
+    if (trimmedName.length() > MAX_DELIVERY_TYPE_NAME_LENGTH) {
+      throw badRequest(DELIVERY_TYPE_NAME_TOO_LONG);
+    }
     try {
-      requireUniqueDeliveryTypeName(body.getName().trim(), null);
+      requireUniqueDeliveryTypeName(trimmedName, null);
       IPSDeliveryType t = publisherService.createDeliveryType();
-      t.setName(body.getName().trim());
+      t.setName(trimmedName);
       t.setBeanName(body.getBeanName().trim());
       if (body.getDescription() != null) {
         t.setDescription(body.getDescription());
@@ -647,8 +656,12 @@ public class PSPublishingDesignRestService {
       IPSGuid guid = guidManager.makeGuid(deliveryTypeId, PSTypeEnum.DELIVERY_TYPE);
       IPSDeliveryType t = publisherService.loadDeliveryTypeModifiable(guid);
       if (!isBlank(body.getName())) {
-        requireUniqueDeliveryTypeName(body.getName().trim(), deliveryTypeId);
-        t.setName(body.getName().trim());
+        String trimmedName = body.getName().trim();
+        if (trimmedName.length() > MAX_DELIVERY_TYPE_NAME_LENGTH) {
+          throw badRequest(DELIVERY_TYPE_NAME_TOO_LONG);
+        }
+        requireUniqueDeliveryTypeName(trimmedName, deliveryTypeId);
+        t.setName(trimmedName);
       }
       if (!isBlank(body.getBeanName())) {
         t.setBeanName(body.getBeanName().trim());

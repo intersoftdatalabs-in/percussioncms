@@ -19,11 +19,17 @@ import { formatApiError, isApiError } from "../api/client";
 import { message, MSG } from "../i18n/message";
 
 /**
- * Map delivery-type create/update failures to operator-visible text.
- * HTTP 403 → forbidden; HTTP 409 → duplicate name.
+ * Map delivery-type create/update/copy failures to operator-visible text.
+ * HTTP 400 → invalid name or missing bean; HTTP 403 → forbidden;
+ * HTTP 409 → duplicate name.
+ * Plain {@link ApiError} objects are not {@code Error} instances — do not use
+ * {@code e.message}.
  */
 export function mapDeliveryTypeSaveError(err: unknown): string {
   if (isApiError(err)) {
+    if (err.status === 400) {
+      return formatApiError(err, message(MSG.PUBLISH_ERROR));
+    }
     if (err.status === 403) {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
     }

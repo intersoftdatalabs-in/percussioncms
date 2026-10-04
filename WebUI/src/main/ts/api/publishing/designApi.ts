@@ -378,7 +378,12 @@ function wrapDeliveryType(body: DeliveryTypeSummary): {
   return { deliveryType: body };
 }
 
-/** POST create. HTTP 403 non-Admin/Designer; 409 duplicate name. */
+/**
+ * POST create. Copy reuses this with a new name and the source bean,
+ * description, and unpublishing flag (no deliveryTypeId).
+ * HTTP 400 blank or overlong name, or missing bean; 403 non-Admin/Designer;
+ * 409 duplicate name.
+ */
 export async function createDeliveryType(
   body: DeliveryTypeSummary,
 ): Promise<DeliveryTypeSummary> {

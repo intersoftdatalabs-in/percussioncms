@@ -747,6 +747,64 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void createDeliveryType_nameTooLong_400() {
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setName("n".repeat(PSPublishingDesignRestService.MAX_DELIVERY_TYPE_NAME_LENGTH + 1));
+    body.setBeanName("sys_fileDeliveryHandler");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.createDeliveryType(body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.DELIVERY_TYPE_NAME_TOO_LONG, ex.getMessage());
+    verify(publisherService, never()).createDeliveryType();
+    verify(publisherService, never()).saveDeliveryType(any());
+  }
+
+  @Test
+  void createDeliveryType_copiesBeanDescriptionAndAssemblyFlag() throws Exception {
+    when(publisherService.loadDeliveryType("NightDt")).thenThrow(new PSNotFoundException("free"));
+    IPSDeliveryType created = mock(IPSDeliveryType.class);
+    when(publisherService.createDeliveryType()).thenReturn(created);
+    when(created.getGUID()).thenReturn(deliveryTypeGuid);
+    when(deliveryTypeGuid.getUUID()).thenReturn(12);
+    when(created.getName()).thenReturn("NightDt");
+    when(created.getBeanName()).thenReturn("sys_fileDeliveryHandler");
+    when(created.getDescription()).thenReturn("Publish content to the filesystem");
+    when(created.isUnpublishingRequiresAssembly()).thenReturn(true);
+
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setName("  NightDt  ");
+    body.setBeanName(" sys_fileDeliveryHandler ");
+    body.setDescription("Publish content to the filesystem");
+    body.setUnpublishingRequiresAssembly(true);
+
+    PSDeliveryTypeSummary saved = service.createDeliveryType(body);
+    assertEquals("12", saved.getDeliveryTypeId());
+    assertEquals("NightDt", saved.getName());
+    assertEquals("sys_fileDeliveryHandler", saved.getBeanName());
+    assertEquals("Publish content to the filesystem", saved.getDescription());
+    assertTrue(saved.isUnpublishingRequiresAssembly());
+    verify(created).setName("NightDt");
+    verify(created).setBeanName("sys_fileDeliveryHandler");
+    verify(created).setDescription("Publish content to the filesystem");
+    verify(created).setUnpublishingRequiresAssembly(true);
+    verify(publisherService).saveDeliveryType(created);
+  }
+
+  @Test
+  void updateDeliveryType_nameTooLong_400() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.DELIVERY_TYPE))).thenReturn(deliveryTypeGuid);
+    when(publisherService.loadDeliveryTypeModifiable(deliveryTypeGuid))
+        .thenReturn(mock(IPSDeliveryType.class));
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setName("n".repeat(PSPublishingDesignRestService.MAX_DELIVERY_TYPE_NAME_LENGTH + 1));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateDeliveryType("5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.DELIVERY_TYPE_NAME_TOO_LONG, ex.getMessage());
+    verify(publisherService, never()).saveDeliveryType(any());
+  }
+
+  @Test
   void createDeliveryType_duplicateName_409() throws Exception {
     IPSDeliveryType existing = mock(IPSDeliveryType.class);
     when(existing.getGUID()).thenReturn(deliveryTypeGuid);
