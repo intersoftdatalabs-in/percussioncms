@@ -17,24 +17,54 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as client from "@/api/client";
-import { createContext, unwrapContext, updateContext, wrapContext } from "@/api/publishing/designApi";
+import {
+  createContext,
+  listContexts,
+  unwrapContext,
+  updateContext,
+  wrapContext,
+} from "@/api/publishing/designApi";
 
 vi.mock("@/api/client", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/api/client")>();
   return {
     ...actual,
+    get: vi.fn(),
     post: vi.fn(),
     put: vi.fn(),
   };
 });
 
+const getMock = vi.mocked(client.get);
 const postMock = vi.mocked(client.post);
 const putMock = vi.mocked(client.put);
 
 describe("publishing context wire shape", () => {
   beforeEach(() => {
+    getMock.mockReset();
     postMock.mockReset();
     putMock.mockReset();
+  });
+
+  it("lists wrapped contexts with string ids so edit can match the select", async () => {
+    getMock.mockResolvedValue({
+      context: [
+        {
+          contextId: 1012,
+          name: "CtxDst",
+          description: "Night copy source",
+          defaultSchemeId: 11,
+        },
+      ],
+    });
+    await expect(listContexts()).resolves.toEqual([
+      {
+        contextId: "1012",
+        name: "CtxDst",
+        description: "Night copy source",
+        defaultSchemeId: "11",
+      },
+    ]);
   });
 
   it("posts a context root without a scheme id and unwraps the created row", async () => {

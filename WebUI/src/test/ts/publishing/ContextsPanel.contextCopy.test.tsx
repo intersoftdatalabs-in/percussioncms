@@ -210,4 +210,19 @@ describe("ContextsPanel publishing context copy", () => {
     expect(screen.getByRole("option", { name: "Publish" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Article" })).toBeTruthy();
   });
+
+  it("edits a numeric context id and keeps the copied description", async () => {
+    listContexts.mockResolvedValue([
+      { contextId: 1012, name: "CtxDst", description: "Night copy source" },
+    ]);
+    listSchemesForContext.mockResolvedValue([]);
+    renderPanel();
+    await waitFor(() => expect(screen.getByRole("button", { name: "Edit context" })).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "Edit context" }));
+    await waitFor(() => expect(screen.getByTestId("context-editor")).toBeTruthy());
+    expect(screen.getByRole("heading", { name: "Edit context" })).toBeTruthy();
+    expect((document.getElementById("ctx-desc") as HTMLInputElement).value).toBe(
+      "Night copy source",
+    );
+  });
 });

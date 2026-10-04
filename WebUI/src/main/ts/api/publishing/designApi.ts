@@ -417,7 +417,10 @@ export async function deleteDeliveryType(id: string | number): Promise<void> {
 // ---- Contexts ----
 
 export async function listContexts(): Promise<ContextSummary[]> {
-  return normalizeArray(await get<unknown>(`${designRoot()}/contexts`));
+  // List JSON uses numeric context ids. The select stores string values.
+  return normalizeArray(await get<unknown>(`${designRoot()}/contexts`)).map((row) =>
+    unwrapContext(row),
+  );
 }
 
 /**

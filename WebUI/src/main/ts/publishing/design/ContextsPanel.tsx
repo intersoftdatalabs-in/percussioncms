@@ -761,7 +761,8 @@ export function ContextsPanel(): React.ReactElement {
               type="button"
               style={buttonStyle}
               onClick={() => {
-                const c = contexts.find((x) => x.contextId === selected) ?? null;
+                const c =
+                  contexts.find((x) => String(x.contextId ?? "") === selected) ?? null;
                 openContextEdit(c);
               }}
             >

@@ -264,7 +264,6 @@ test.describe("PublishingShell Design copy publishing context", () => {
     await page.getByTestId("context-copy-submit").click();
     await expect(page.getByRole("alert")).toContainText(/already exists|409|Conflict/i);
     await expect(page.getByTestId("context-copy-form")).toBeVisible();
-    await expect(page.getByRole("option", { name: source, exact: true })).toHaveCount(1);
 
     const cases = [
       [400, "name is required", /required|400|Bad Request/i],
@@ -293,7 +292,7 @@ test.describe("PublishingShell Design copy publishing context", () => {
     }
     page.once("dialog", (dialog) => dialog.accept());
     await page.getByTestId("context-copy-cancel").click();
-    await expect(page.getByRole("option", { name: source, exact: true })).toBeAttached();
+    await expect(page.getByRole("option", { name: source, exact: true })).toHaveCount(1);
     await expect(page.getByRole("option", { name: /WillNotCopy/ })).toHaveCount(0);
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
   });
