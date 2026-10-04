@@ -67,8 +67,9 @@ class PSLocationSchemeSummaryJacksonTest {
   @Test
   void schemeParameterArrayBindsPath() {
     String json =
-        "{\"locationScheme\":{\"name\":\"Article copy\",\"generator\":\"gen\","
-            + "\"schemeParameter\":[{\"name\":\"path\",\"type\":\"String\",\"value\":\"$sys.site.path\",\"sequence\":0}]}}";
+        """
+        {"locationScheme":{"name":"Article copy","generator":"gen","schemeParameter":[{"name":"path","type":"String","value":"$sys.site.path","sequence":0}]}}
+        """;
     PSLocationSchemeSummary body = mapper.readValue(json, PSLocationSchemeSummary.class);
     assertNotNull(body.getParameters());
     assertEquals("path", body.getParameters().get(0).getName());
@@ -78,8 +79,9 @@ class PSLocationSchemeSummaryJacksonTest {
   @Test
   void parametersArrayDoesNotBindPath() {
     String json =
-        "{\"locationScheme\":{\"name\":\"Article copy\",\"generator\":\"gen\","
-            + "\"parameters\":[{\"name\":\"path\",\"type\":\"String\",\"value\":\"$sys.site.path\",\"sequence\":0}]}}";
+        """
+        {"locationScheme":{"name":"Article copy","generator":"gen","parameters":[{"name":"path","type":"String","value":"$sys.site.path","sequence":0}]}}
+        """;
     PSLocationSchemeSummary body = mapper.readValue(json, PSLocationSchemeSummary.class);
     assertTrue(body.getParameters() == null || body.getParameters().isEmpty());
   }
