@@ -466,8 +466,25 @@ server.
 
 HTTP **400** (name or generator invalid), **403** (not Admin or Designer), and **409** (that
 name already exists in the context) stay in the copy form error region. Those responses do
-not add the new name to the list. Editing or deleting a location scheme, and copying an
-edition, are separate actions.
+not add the new name to the list. Editing a location scheme, deleting one, and copying an
+edition are separate actions.
+
+### Delete a location scheme (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. On a location scheme row, **Delete** asks
+**Delete this design object? This cannot be undone.** Dismissing that confirm does not
+call the server, and the row stays on that context. Confirm sends
+`DELETE …/sitemanage/publishingdesign/schemes/{schemeId}` (the same delete already used
+by Design; there is no second delete resource). The row leaves that context's list only
+after the delete succeeds. If the list refresh fails after a successful delete, that row
+is still removed. Other schemes on the context stay.
+
+HTTP **400** (scheme id missing or invalid), **403** (not allowed), and **409** (the scheme
+cannot be deleted, for example it is still in use) stay in the contexts error region.
+Those responses do not remove the row and do not claim the scheme was deleted. Saving or
+copying a location scheme, and deleting an edition, a content list, or a publishing
+context, are separate actions.
 
 ### Start or stop a publish job (Runtime)
 
