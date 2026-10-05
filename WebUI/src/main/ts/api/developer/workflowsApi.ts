@@ -657,6 +657,39 @@ export async function updateTransitionApprovalsRequired(
   return parseWorkflowGraph(payload);
 }
 
+export const WORKFLOW_TRANSITION_DEFAULT_ROOT = "WorkflowTransitionDefault";
+
+/** PUT .../transitions/default?from&label&to */
+export function workflowTransitionDefaultPath(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  toStep?: string,
+): string {
+  const key = encodeURIComponent(idOrName);
+  const q = new URLSearchParams();
+  q.set("from", fromStep);
+  q.set("label", label);
+  if (toStep && toStep.trim()) {
+    q.set("to", toStep.trim());
+  }
+  return `${PATHS.WORKFLOWS_ASSOC}/${key}/transitions/default?${q.toString()}`;
+}
+
+/** Mark one regular transition as the default from its step. Does not clear a flag by itself. */
+export async function markTransitionAsDefault(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  toStep?: string,
+): Promise<WorkflowGraph> {
+  const payload = await put<unknown>(
+    workflowTransitionDefaultPath(idOrName, fromStep, label, toStep),
+    { [WORKFLOW_TRANSITION_DEFAULT_ROOT]: { defaultTransition: true } },
+  );
+  return parseWorkflowGraph(payload);
+}
+
 export async function deleteWorkflowTransition(
   idOrName: string,
   fromStep: string,

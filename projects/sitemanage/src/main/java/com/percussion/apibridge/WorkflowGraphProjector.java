@@ -135,6 +135,7 @@ public final class WorkflowGraphProjector {
         edge.setCommentRequired(
             regular.getRequiresComment() == PSTransition.PSWorkflowCommentEnum.REQUIRED);
         edge.setApprovalsRequired(regular.getApprovals());
+        edge.setDefaultTransition(regular.isDefaultTransition());
       }
       edges.add(edge);
     }

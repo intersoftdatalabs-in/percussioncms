@@ -229,6 +229,30 @@ public interface IWorkflowsAdaptor {
       int approvalsRequired);
 
   /**
+   * Mark one existing regular transition as the default from its step (Admin, slice 71). Other
+   * regular transitions from that step lose the flag in the same write. Does not create or delete
+   * the transition, and does not change the label, destination, comment flag, or approval count.
+   * {@code false} does not clear a stored default.
+   *
+   * @param fromStep source step name
+   * @param label transition label or trigger
+   * @param toStep destination step; required when the label is not unique on the source step
+   * @param defaultTransition {@code true} to mark this transition; {@code false} refuses a clear
+   * @return the graph after the update, with {@code defaultTransition} on regular edges
+   * @throws IllegalArgumentException when the value is not a mark, the label is ambiguous, the
+   *     match is an aging transition, or the transition is already the only default
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or transition, 409 when the body would clear the current default
+   */
+  WorkflowGraph updateTransitionDefault(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String label,
+      String toStep,
+      boolean defaultTransition);
+
+  /**
    * Create one transition between existing steps (Admin, slice 31). Does not create steps.
    *
    * @param body {@code from}, {@code to}, and {@code label}; both steps must already exist

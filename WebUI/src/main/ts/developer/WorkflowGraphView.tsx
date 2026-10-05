@@ -14,6 +14,7 @@ import {
   isNonNegativeApprovalCount,
   isPositiveMinuteInterval,
   isValidWorkflowName,
+  markTransitionAsDefault,
   updateTransitionApprovalsRequired,
   updateTransitionCommentRequired,
   updateWorkflowAgingInterval,
@@ -28,9 +29,9 @@ import { DEV_MSG } from "./messages";
  * State/transition graph for one workflow (slice 32 read, slice 31 transition write,
  * slice 33 transition delete, slice 34 step delete, slice 57 absolute aging create,
  * slice 58 absolute aging interval change, slice 59 absolute aging delete,
- * slice 70 approvals required).
- * Packaged workflows stay read-only. Aging edges are not comment-required
- * and do not take an approval count.
+ * slice 70 approvals required, slice 71 default transition).
+ * Packaged workflows stay read-only. Aging edges are not comment-required,
+ * do not take an approval count, and cannot be the default.
  * Deleting an aging transition does not remove a regular transition.
  */
 
@@ -61,6 +62,7 @@ export function WorkflowGraphView({
   const [agingNewMinutes, setAgingNewMinutes] = useState("");
   const [approvalsEdit, setApprovalsEdit] = useState<ApprovalsIdentity | null>(null);
   const [approvalsDraft, setApprovalsDraft] = useState("");
+  const [defaultEdit, setDefaultEdit] = useState<TransitionIdentity | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -78,6 +80,7 @@ export function WorkflowGraphView({
     setPendingAging(null);
     setApprovalsEdit(null);
     setApprovalsDraft("");
+    setDefaultEdit(null);
     getWorkflowGraph(workflowName)
       .then((g) => {
         if (!cancelled) {
@@ -339,6 +342,43 @@ export function WorkflowGraphView({
       setBusy(false);
     }
   }, [approvalsDraft, approvalsEdit, workflowName]);
+
+  const onCancelDefault = useCallback(() => {
+    setDefaultEdit(null);
+    setError(null);
+  }, []);
+
+  const onSaveDefault = useCallback(async () => {
+    if (!defaultEdit) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const next = await markTransitionAsDefault(
+        workflowName,
+        defaultEdit.from,
+        defaultEdit.label,
+        defaultEdit.to,
+      );
+      setGraph(next);
+      setNotice(DEV_MSG.WF_GRAPH_DEFAULT_SAVED);
+      setDefaultEdit(null);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 403) {
+        setError(DEV_MSG.WF_GRAPH_DEFAULT_FORBIDDEN);
+      } else if (isApiError(err) && err.status === 409) {
+        setError(DEV_MSG.WF_GRAPH_DEFAULT_CONFLICT);
+      } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
+        setError(DEV_MSG.WF_GRAPH_DEFAULT_BAD);
+      } else {
+        setError(DEV_MSG.WF_GRAPH_DEFAULT_ERROR);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [defaultEdit, workflowName]);
 
   const onToggleComment = useCallback(
     async (edge: WorkflowGraphEdge, commentRequired: boolean) => {
@@ -665,6 +705,63 @@ export function WorkflowGraphView({
                 >
                   {DEV_MSG.WF_GRAPH_APPROVALS}: {edge.approvalsRequired}
                 </span>
+              ) : null}
+              {typeof edge.defaultTransition === "boolean" ? (
+                <span
+                  data-testid={`developer-wf-graph-default-${i}`}
+                  data-default={edge.defaultTransition ? "true" : "false"}
+                  style={{ marginLeft: 8 }}
+                >
+                  {edge.defaultTransition ? DEV_MSG.WF_GRAPH_DEFAULT : ""}
+                </span>
+              ) : null}
+              {!packaged && edge.defaultTransition === false && edge.from && edge.label ? (
+                defaultEdit &&
+                defaultEdit.from === edge.from &&
+                defaultEdit.label === edge.label &&
+                defaultEdit.to === (edge.to || "") ? (
+                  <span style={{ marginLeft: 8 }}>
+                    <button
+                      type="button"
+                      data-testid="developer-wf-default-save"
+                      disabled={busy}
+                      onClick={() => {
+                        void onSaveDefault();
+                      }}
+                    >
+                      {DEV_MSG.WF_GRAPH_DEFAULT_SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-wf-default-cancel"
+                      style={{ marginLeft: 8 }}
+                      disabled={busy}
+                      onClick={() => {
+                        onCancelDefault();
+                      }}
+                    >
+                      {DEV_MSG.WF_GRAPH_DEFAULT_CANCEL}
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    data-testid={`developer-wf-default-edit-${i}`}
+                    style={{ marginLeft: 8 }}
+                    disabled={busy}
+                    onClick={() => {
+                      setNotice(null);
+                      setError(null);
+                      setDefaultEdit({
+                        from: edge.from as string,
+                        label: edge.label as string,
+                        to: (edge.to as string) || "",
+                      });
+                    }}
+                  >
+                    {DEV_MSG.WF_GRAPH_DEFAULT_MARK}
+                  </button>
+                )
               ) : null}
               {!packaged &&
               edge.from &&

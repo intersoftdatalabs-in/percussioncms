@@ -1270,6 +1270,11 @@ export interface WorkflowGraphEdge {
    * A negative value is the each-role sentinel.
    */
   approvalsRequired?: number;
+  /**
+   * Whether this regular transition is the default from its step.
+   * Omitted on aging edges. Exactly one regular edge from a step is true after a successful mark.
+   */
+  defaultTransition?: boolean;
   /** True for an aging transition. Comment-required and approvals required do not apply. */
   aging?: boolean;
   /** Minutes on an absolute aging transition. */

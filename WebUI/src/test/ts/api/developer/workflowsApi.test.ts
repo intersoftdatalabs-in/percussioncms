@@ -32,6 +32,8 @@ import {
   isPositiveMinuteInterval,
   updateTransitionApprovalsRequired,
   workflowTransitionApprovalsPath,
+  markTransitionAsDefault,
+  workflowTransitionDefaultPath,
   isValidWorkflowName,
   isWorkflowCreateReady,
   normalizeWorkflowName,
@@ -1356,6 +1358,62 @@ describe("updateTransitionApprovalsRequired", () => {
     );
     expect(String(init.body)).toContain("WorkflowTransitionApprovals");
     expect(String(init.body)).toContain('"approvalsRequired":2');
+    expect(String(init.body)).not.toContain("commentRequired");
+  });
+});
+
+describe("markTransitionAsDefault", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("PUTs a wrapped true flag and parses defaultTransition", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          edges: [
+            {
+              from: "Draft",
+              to: "Review",
+              label: "Submit",
+              defaultTransition: false,
+              approvalsRequired: 1,
+              commentRequired: true,
+            },
+            {
+              from: "Draft",
+              to: "Live",
+              label: "Send",
+              defaultTransition: true,
+              approvalsRequired: 4,
+              commentRequired: false,
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await markTransitionAsDefault("Nightly QA", "Draft", "Send", "Live");
+    expect(graph.edges?.[0]?.defaultTransition).toBe(false);
+    expect(graph.edges?.[1]?.defaultTransition).toBe(true);
+    expect(graph.edges?.[1]?.approvalsRequired).toBe(4);
+    expect(graph.edges?.[0]?.commentRequired).toBe(true);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      workflowTransitionDefaultPath("Nightly QA", "Draft", "Send", "Live"),
+    );
+    expect(String(init.body)).toContain("WorkflowTransitionDefault");
+    expect(String(init.body)).toContain('"defaultTransition":true');
+    expect(String(init.body)).not.toContain("approvalsRequired");
     expect(String(init.body)).not.toContain("commentRequired");
   });
 });
