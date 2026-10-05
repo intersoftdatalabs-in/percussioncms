@@ -105,6 +105,132 @@ describe("RevisionsPanel", () => {
     expect(restore).not.toHaveBeenCalled();
   });
 
+  it("shows the older revision as current only after restore succeeds (#5220)", async () => {
+    let resolveRestore: (value: void) => void = () => {};
+    const restore = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveRestore = resolve;
+        }),
+    );
+    let resolveReload: (value: typeof SAMPLE) => void = () => {};
+    let loads = 0;
+    const loadSummary = vi.fn(() => {
+      loads += 1;
+      if (loads === 1) {
+        return Promise.resolve({ ...SAMPLE, currentRevision: 2 });
+      }
+      return new Promise<typeof SAMPLE>((resolve) => {
+        resolveReload = resolve;
+      });
+    });
+    const { container } = render(
+      <RevisionsPanel
+        itemId="42"
+        loadSummary={loadSummary}
+        restoreRevision={restore}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-current")).toHaveAttribute(
+        "data-current-rev",
+        "2",
+      ),
+    );
+    fireEvent.click(screen.getByTestId("revisions-restore-1"));
+    expect(restore).not.toHaveBeenCalled();
+    await renderA11yGate(container);
+    fireEvent.click(screen.getByTestId("revisions-restore-cancel"));
+    expect(restore).not.toHaveBeenCalled();
+    expect(screen.getByTestId("revisions-current")).toHaveAttribute(
+      "data-current-rev",
+      "2",
+    );
+
+    fireEvent.click(screen.getByTestId("revisions-restore-1"));
+    fireEvent.click(screen.getByTestId("revisions-restore-ok"));
+    await waitFor(() => expect(restore).toHaveBeenCalledWith("42", 1));
+    expect(screen.getByTestId("revisions-current")).toHaveAttribute(
+      "data-current-rev",
+      "2",
+    );
+    resolveRestore();
+    await waitFor(() => expect(loads).toBe(2));
+    expect(screen.getByTestId("revisions-current")).toHaveAttribute(
+      "data-current-rev",
+      "2",
+    );
+    resolveReload({
+      ...SAMPLE,
+      currentRevision: 1,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-current")).toHaveAttribute(
+        "data-current-rev",
+        "1",
+      ),
+    );
+    expect(screen.queryByTestId("revisions-restore-1")).toBeNull();
+    expect(screen.getByTestId("revisions-restore-2")).toBeTruthy();
+  });
+
+  it("HTTP 403 and 409 leave the current revision in place (#5220)", async () => {
+    const restore403 = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
+    const loadSummary = vi.fn(async () => ({ ...SAMPLE, currentRevision: 2 }));
+    const { rerender } = render(
+      <RevisionsPanel
+        itemId="42"
+        loadSummary={loadSummary}
+        restoreRevision={restore403}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-restore-1")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("revisions-restore-1"));
+    fireEvent.click(screen.getByTestId("revisions-restore-ok"));
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-restore-error").textContent).toMatch(
+        /403/,
+      ),
+    );
+    expect(loadSummary).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("revisions-current")).toHaveAttribute(
+      "data-current-rev",
+      "2",
+    );
+    expect(screen.getByTestId("revisions-restore-1")).toBeTruthy();
+
+    const restore409 = vi.fn().mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: {},
+    });
+    rerender(
+      <RevisionsPanel
+        itemId="42"
+        loadSummary={loadSummary}
+        restoreRevision={restore409}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("revisions-restore-1"));
+    fireEvent.click(screen.getByTestId("revisions-restore-ok"));
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-restore-error").textContent).toMatch(
+        /409/,
+      ),
+    );
+    expect(loadSummary).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("revisions-current")).toHaveAttribute(
+      "data-current-rev",
+      "2",
+    );
+  });
+
   it("shows an error when the loader fails", async () => {
     render(
       <RevisionsPanel

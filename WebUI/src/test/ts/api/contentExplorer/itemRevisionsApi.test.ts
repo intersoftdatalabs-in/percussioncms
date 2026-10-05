@@ -17,6 +17,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildRestoreRevisionId,
+  currentRevisionId,
   fetchItemRevisionCompare,
   fetchItemRevisions,
   restoreItemRevision,
@@ -87,8 +88,32 @@ describe("itemRevisionsApi", () => {
       },
     });
     expect(summary.restorable).toBe(true);
+    expect(summary.currentRevision).toBe(0);
     expect(summary.revisions).toHaveLength(1);
     expect(summary.comments[0]?.comment).toBe("c");
+  });
+
+  it("keeps a restored older revision as current when a higher number remains", () => {
+    const summary = unwrapRevisionsSummary({
+      RevisionsSummary: {
+        restorable: true,
+        currentRevision: 1,
+        revisions: [
+          { revId: 1, lastModifiedDate: "d", lastModifier: "u", status: "Quick Edit" },
+          { revId: 3, lastModifiedDate: "d", lastModifier: "u", status: "Live" },
+        ],
+        comments: [],
+      },
+    });
+    expect(summary.currentRevision).toBe(1);
+    expect(currentRevisionId(summary)).toBe(1);
+    expect(
+      currentRevisionId({
+        restorable: true,
+        revisions: summary.revisions,
+        comments: [],
+      }),
+    ).toBe(3);
   });
 
   it("fetchItemRevisions GETs the revisions path", async () => {

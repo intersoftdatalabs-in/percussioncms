@@ -3505,7 +3505,7 @@ itemmanagement REST (sitemanage `PSItemService`), not Content Editor HTML.
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/services/itemmanagement/item/revisions/{id}` | Revisions plus workflow comments (`RevisionsSummary`) |
+| `GET` | `/services/itemmanagement/item/revisions/{id}` | Revisions plus workflow comments (`RevisionsSummary`). `currentRevision` is the revision the item is on now (edit revision when checked out, otherwise the current revision). |
 | `GET` | `/services/itemmanagement/item/restoreRevision/{id}` | Restore a prior revision (guid must include that revision) |
 | `POST` | `/services/itemmanagement/item/newCopy/{id}` | New copy in the item's current folder |
 | `POST` | `/services/itemmanagement/item/promotableVersion/{id}` | Promotable version in the item's current folder |
@@ -3525,6 +3525,13 @@ revision. HTTP **403** ("not allowed to restore", including `NONE` / `READER`
 assignment) and **404** (item or revision not found) are surfaced as errors in the
 host — neither status is treated as success, and the open item does not change. The
 action is hidden in **View** and **Promote** modes.
+
+Content Explorer's **Revisions** panel uses the same two GETs. **Restore** confirms first.
+**Cancel** does not call restore. On success the panel reloads revisions and marks
+`currentRevision` **Current** — an older revision can be current even when a higher
+revision number is still listed. HTTP **403** and **409** leave that marker on the
+revision it showed before the attempt. A folder or an empty selection does not restore.
+That panel is not the editor host **Restore prior revision** action.
 
 The React Content Editor host **Recycle** action (edit mode only) reuses
 `DELETE /rest/folders/item/{path}` after
