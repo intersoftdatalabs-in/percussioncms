@@ -1244,6 +1244,8 @@ export interface WorkflowStepRoleAssignment {
   notify?: boolean;
   /** Stored SHOWININBOX. */
   inbox?: boolean;
+  /** Stored adhoc type: disabled, enabled, or anonymous. */
+  adhocType?: string;
 }
 
 export interface WorkflowStepSummary {

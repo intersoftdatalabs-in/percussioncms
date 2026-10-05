@@ -17,6 +17,7 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.services.workflow.data.PSAdhocTypeEnum;
 import com.percussion.services.workflow.data.PSAssignedRole;
 import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
 import com.percussion.services.workflow.data.PSState;
@@ -25,6 +26,7 @@ import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -32,8 +34,9 @@ import org.apache.commons.lang3.StringUtils;
  *
  * <p>{@link #setType} changes only the assignment type and only for Reader or Assignee.
  * {@link #setNotify} changes only {@code ISNOTIFYON} on any assigned role. {@link #setInbox}
- * changes only {@code SHOWININBOX} and only for Reader or Assignee. None of these calls renames
- * the step, adds or removes roles, or edits ad-hoc flags.
+ * changes only {@code SHOWININBOX} and only for Reader or Assignee. {@link #setAdhoc} changes only
+ * the adhoc type and only for Reader or Assignee. None of these calls renames the step or adds or
+ * removes roles.
  */
 public final class WorkflowStepRoleAssignmentWriter {
 
@@ -48,13 +51,15 @@ public final class WorkflowStepRoleAssignmentWriter {
    * @param notifyOn stored {@code ISNOTIFYON}. Not named {@code notify}: that collides with
    *     {@link Object#notify()}.
    * @param showInInbox stored {@code SHOWININBOX}
+   * @param adhocType stored adhoc type: {@code disabled}, {@code enabled}, or {@code anonymous}
    */
   public record StepRoleAssignment(
       String stepName,
       String roleName,
       String assignmentType,
       boolean notifyOn,
-      boolean showInInbox) {}
+      boolean showInInbox,
+      String adhocType) {}
 
   public static List<StepRoleAssignment> list(List<PSState> states, List<PSWorkflowRole> roles) {
     List<StepRoleAssignment> out = new ArrayList<>();
@@ -80,7 +85,12 @@ public final class WorkflowStepRoleAssignmentWriter {
         PSAssignmentTypeEnum type = role.getAssignmentType();
         out.add(
             new StepRoleAssignment(
-                state.getName(), roleName, type.name(), role.isDoNotify(), role.isShowInInbox()));
+                state.getName(),
+                roleName,
+                type.name(),
+                role.isDoNotify(),
+                role.isShowInInbox(),
+                adhocName(role.getAdhocType())));
       }
     }
     return out;
@@ -166,6 +176,54 @@ public final class WorkflowStepRoleAssignmentWriter {
       throw new IllegalArgumentException("inbox is unchanged");
     }
     hit.setShowInInbox(inbox.booleanValue());
+  }
+
+  /**
+   * Sets the adhoc type on the named Reader or Assignee of the named step. The role must already
+   * be assigned. Assignment type, notify, inbox, the step name, and every other role stay as they
+   * were. Admin and None are rejected. An unchanged type is rejected. A role that is not on the
+   * step is not added.
+   */
+  public static void setAdhoc(
+      List<PSState> states,
+      List<PSWorkflowRole> roles,
+      String stepName,
+      String roleName,
+      String adhocType) {
+    String stepWant = requireText(stepName, "Step name");
+    String roleWant = requireText(roleName, "Role name");
+    PSAdhocTypeEnum next = parseAdhoc(adhocType);
+    PSState state = findStep(states, stepWant);
+    int roleId = findWorkflowRoleId(roles, roleWant);
+    PSAssignedRole hit = findAssigned(state, roleId, roleWant);
+    PSAssignmentTypeEnum current = hit.getAssignmentType();
+    if (current != PSAssignmentTypeEnum.READER && current != PSAssignmentTypeEnum.ASSIGNEE) {
+      throw new WebApplicationException(
+          "Only Reader and Assignee roles can change adhoc type from this surface", 409);
+    }
+    if (hit.getAdhocType() == next) {
+      throw new IllegalArgumentException("adhoc type is unchanged");
+    }
+    hit.setAdhocType(next);
+  }
+
+  static PSAdhocTypeEnum parseAdhoc(String raw) {
+    String n = raw == null ? "" : raw.trim();
+    if (n.equalsIgnoreCase("disabled")) {
+      return PSAdhocTypeEnum.DISABLED;
+    }
+    if (n.equalsIgnoreCase("enabled")) {
+      return PSAdhocTypeEnum.ENABLED;
+    }
+    if (n.equalsIgnoreCase("anonymous")) {
+      return PSAdhocTypeEnum.ANONYMOUS;
+    }
+    throw new IllegalArgumentException("adhoc type must be disabled, enabled, or anonymous");
+  }
+
+  static String adhocName(PSAdhocTypeEnum type) {
+    PSAdhocTypeEnum stored = type == null ? PSAdhocTypeEnum.DISABLED : type;
+    return stored.name().toLowerCase(Locale.ROOT);
   }
 
   static PSAssignmentTypeEnum parseMutable(String raw) {

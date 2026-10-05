@@ -30,6 +30,7 @@ import com.percussion.rest.workflows.WorkflowStepRoleAdd;
 import com.percussion.rest.workflows.WorkflowStepRoleAssignment;
 import com.percussion.rest.workflows.WorkflowStepRoleAssignmentList;
 import com.percussion.rest.workflows.WorkflowStepRoleAssignmentWrite;
+import com.percussion.rest.workflows.WorkflowStepRoleAdhocWrite;
 import com.percussion.rest.workflows.WorkflowStepRoleInboxWrite;
 import com.percussion.rest.workflows.WorkflowStepRoleNotifyWrite;
 import com.percussion.rest.workflows.WorkflowStepWrite;
@@ -824,6 +825,41 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
   }
 
   @Override
+  public WorkflowStepRoleAssignmentList setStepRoleAdhoc(
+      URI baseUri, String idOrName, String stepName, WorkflowStepRoleAdhocWrite body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("Workflow step role adhoc body is required");
+    }
+    if (stepName == null || stepName.isBlank()) {
+      throw new IllegalArgumentException("Step name is required");
+    }
+    if (body.getRoleName() == null || body.getRoleName().isBlank()) {
+      throw new IllegalArgumentException("Role name is required");
+    }
+    if (body.getAdhocType() == null || body.getAdhocType().isBlank()) {
+      throw new IllegalArgumentException("adhoc type must be disabled, enabled, or anonymous");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    List<String> namesBefore = stepNames(states);
+    int rolesBefore = assignedRoleCount(states);
+    WorkflowStepRoleAssignmentWriter.setAdhoc(
+        states, workflow.getRoles(), stepName, body.getRoleName(), body.getAdhocType());
+    if (!namesBefore.equals(stepNames(states)) || assignedRoleCount(states) != rolesBefore) {
+      throw new IllegalStateException(
+          "Setting adhoc type must not rename the step or change the role list");
+    }
+    workflowService.saveWorkflow(workflow);
+    return toAssignmentList(workflow);
+  }
+
+  @Override
   public WorkflowStepRoleAssignmentList addStepRole(
       URI baseUri, String idOrName, String stepName, WorkflowStepRoleAdd body) {
     requireAdmin();
@@ -899,6 +935,7 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
       item.setAssignmentType(row.assignmentType());
       item.setNotify(row.notifyOn());
       item.setInbox(row.showInInbox());
+      item.setAdhocType(row.adhocType());
       items.add(item);
     }
     list.setAssignments(items);
