@@ -41,6 +41,13 @@ public class PSExplorerRelationshipEdge extends PSAbstractDataObject {
   private int slotId;
   /** Zero-based order of this relationship inside {@link #slotId}. */
   private int sortRank;
+  /**
+   * Snippet template id ({@code sys_variantid}). Zero when the relationship has no template.
+   * The list shows a replacement only after a successful template-slot write.
+   */
+  private int templateId;
+  /** Display name when known. Empty when only {@link #templateId} is stored. */
+  private String templateName = "";
 
   public PSExplorerRelationshipEdge() {
     super();
@@ -109,5 +116,21 @@ public class PSExplorerRelationshipEdge extends PSAbstractDataObject {
 
   public void setSortRank(int sortRank) {
     this.sortRank = sortRank;
+  }
+
+  public int getTemplateId() {
+    return templateId;
+  }
+
+  public void setTemplateId(int templateId) {
+    this.templateId = templateId;
+  }
+
+  public String getTemplateName() {
+    return templateName;
+  }
+
+  public void setTemplateName(String templateName) {
+    this.templateName = templateName == null ? "" : templateName;
   }
 }

@@ -94,6 +94,9 @@ class PSExplorerRelationshipRemoveServiceTest {
     assertEquals(List.of(7, 12, 13, 11), ids(action));
     assertEquals(3, action.getEdges().get(1).getSlotId());
     assertEquals(0, action.getEdges().get(1).getSortRank());
+    assertEquals(15, action.getEdges().get(1).getTemplateId());
+    assertEquals("", action.getEdges().get(1).getTemplateName());
+    assertEquals(0, action.getEdges().get(0).getTemplateId());
     assertEquals(9, action.getEdges().get(2).getSlotId());
   }
 
@@ -276,6 +279,7 @@ class PSExplorerRelationshipRemoveServiceTest {
     lenient()
         .when(rel.getProperty(IPSHtmlParameters.SYS_SORTRANK))
         .thenReturn(Integer.toString(sortRank));
+    lenient().when(rel.getProperty(IPSHtmlParameters.SYS_VARIANTID)).thenReturn("15");
     return rel;
   }
 

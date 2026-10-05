@@ -810,4 +810,229 @@ describe("RelationshipsView", () => {
     fireEvent.click(screen.getByTestId("relationships-open-81"));
     await renderA11yGate(container);
   });
+
+  const slotted = {
+    relationshipId: 71,
+    configName: "ActiveAssembly",
+    category: "rs_activeassembly",
+    dependentId: 4,
+    label: "AA first",
+    slotId: 5,
+    templateId: 4,
+    templateName: "Brief",
+  };
+  const slottedSibling = {
+    relationshipId: 72,
+    configName: "ActiveAssembly",
+    category: "rs_activeassembly",
+    dependentId: 5,
+    label: "AA last",
+    slotId: 5,
+    templateId: 4,
+    templateName: "Brief",
+  };
+  const folderEdge = {
+    relationshipId: 82,
+    configName: "Folder",
+    category: "rs_folder",
+    dependentId: 3,
+    label: "Folder row",
+    slotId: 5,
+    templateId: 4,
+    templateName: "Brief",
+  };
+  const allowed = [
+    { id: 4, name: "brief", label: "Brief" },
+    { id: 8, name: "full", label: "Full story" },
+  ];
+
+  function templateText(relationshipId: number): string {
+    return (
+      screen
+        .getByTestId(`relationships-template-${relationshipId}`)
+        .textContent ?? ""
+    );
+  }
+
+  it("a folder relationship has no snippet template control (#5219)", async () => {
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [folderEdge, translationEdge]}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-82")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-change-template-82")).toBeNull();
+    expect(screen.queryByTestId("relationships-change-template-73")).toBeNull();
+    expect(screen.queryByTestId("relationships-template-changed")).toBeNull();
+  });
+
+  it("cancel and an empty choice do not change the snippet template (#5219)", async () => {
+    const change = vi.fn();
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted, folderEdge]}
+        loadAllowedTemplates={async () => allowed}
+        changeTemplate={change}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-change-template-71")).toBeTruthy(),
+    );
+    expect(templateText(71)).toContain("Brief");
+    fireEvent.click(screen.getByTestId("relationships-change-template-71"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Brief" })).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-template-confirm"));
+    expect(change).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-template-changed")).toBeNull();
+    expect(screen.getByTestId("relationships-template-error")).toBeTruthy();
+    expect(templateText(71)).toContain("Brief");
+
+    fireEvent.change(screen.getByTestId("relationships-template-select"), {
+      target: { value: "8" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-template-cancel"));
+    expect(change).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-template-dialog")).toBeNull();
+    expect(templateText(71)).toContain("Brief");
+  });
+
+  it("confirm writes one template and shows it only after success (#5219)", async () => {
+    let release: (value: {
+      relationshipId: number;
+      ownerId: number;
+      dependentId: number;
+      slotId: number;
+      templateId: number;
+      sortRank: number;
+    }) => void = () => {};
+    const gate = new Promise<{
+      relationshipId: number;
+      ownerId: number;
+      dependentId: number;
+      slotId: number;
+      templateId: number;
+      sortRank: number;
+    }>((resolve) => {
+      release = resolve;
+    });
+    const change = vi.fn().mockReturnValue(gate);
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted, slottedSibling]}
+        loadAllowedTemplates={async () => allowed}
+        changeTemplate={change}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-change-template-71")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-change-template-71"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Full story" })).toBeTruthy(),
+    );
+    fireEvent.change(screen.getByTestId("relationships-template-select"), {
+      target: { value: "8" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-template-confirm"));
+    expect(change).toHaveBeenCalledWith(71, 5, 8);
+    expect(templateText(71)).toContain("Brief");
+    expect(screen.queryByTestId("relationships-template-changed")).toBeNull();
+    release({
+      relationshipId: 91,
+      ownerId: 42,
+      dependentId: 4,
+      slotId: 5,
+      templateId: 8,
+      sortRank: 0,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-template-changed")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-edge-71")).toBeNull();
+    expect(templateText(91)).toContain("Full story");
+    expect(screen.getByTestId("relationships-template-91")).toHaveAttribute(
+      "data-template-id",
+      "8",
+    );
+    expect(templateText(72)).toContain("Brief");
+    expect(change).toHaveBeenCalledTimes(1);
+  });
+
+  async function expectTemplateStays(status: number): Promise<void> {
+    const change = vi
+      .fn()
+      .mockRejectedValue(Object.assign(new Error("no"), { status }));
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted]}
+        loadAllowedTemplates={async () => allowed}
+        changeTemplate={change}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-change-template-71")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-change-template-71"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Full story" })).toBeTruthy(),
+    );
+    fireEvent.change(screen.getByTestId("relationships-template-select"), {
+      target: { value: "8" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-template-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-template-error")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-template-changed")).toBeNull();
+    expect(templateText(71)).toContain("Brief");
+    expect(screen.getByTestId("relationships-template-71")).toHaveAttribute(
+      "data-template-id",
+      "4",
+    );
+    expect(change).toHaveBeenCalledWith(71, 5, 8);
+  }
+
+  it("HTTP 400 leaves the previous snippet template (#5219)", async () => {
+    await expectTemplateStays(400);
+  });
+
+  it("HTTP 403 leaves the previous snippet template (#5219)", async () => {
+    await expectTemplateStays(403);
+  });
+
+  it("HTTP 409 leaves the previous snippet template (#5219)", async () => {
+    await expectTemplateStays(409);
+  });
+
+  it("template dialog passes the zero serious/critical axe-core gate (#5219)", async () => {
+    const { container } = render(
+      <RelationshipsView
+        item={{ id: "42", folderPath: "/p" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted, folderEdge]}
+        loadAllowedTemplates={async () => allowed}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-change-template-71")).toBeTruthy(),
+    );
+    await renderA11yGate(container);
+    fireEvent.click(screen.getByTestId("relationships-change-template-71"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Full story" })).toBeTruthy(),
+    );
+    await renderA11yGate(container);
+  });
 });

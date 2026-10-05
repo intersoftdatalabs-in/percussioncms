@@ -180,6 +180,7 @@ function unwrapEdges(raw: unknown): PSExplorerRelationshipEdge[] {
     }
     const slotId = Number(rec.slotId ?? 0);
     const sortRank = Number(rec.sortRank ?? 0);
+    const templateId = Number(rec.templateId ?? 0);
     return {
       relationshipId,
       configName: String(rec.configName ?? ""),
@@ -188,6 +189,8 @@ function unwrapEdges(raw: unknown): PSExplorerRelationshipEdge[] {
       label: String(rec.label ?? ""),
       slotId: Number.isFinite(slotId) && slotId > 0 ? slotId : 0,
       sortRank: Number.isFinite(sortRank) ? sortRank : 0,
+      templateId: Number.isFinite(templateId) && templateId > 0 ? templateId : 0,
+      templateName: String(rec.templateName ?? ""),
     };
   });
 }

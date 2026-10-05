@@ -298,6 +298,7 @@ public class PSExplorerRelationshipRemoveService implements IPSExplorerRelations
         new PSExplorerRelationshipEdge(rel.getId(), name, category, dependentId, label);
     edge.setSlotId(propertyInt(rel, IPSHtmlParameters.SYS_SLOTID));
     edge.setSortRank(propertyInt(rel, IPSHtmlParameters.SYS_SORTRANK));
+    edge.setTemplateId(propertyInt(rel, IPSHtmlParameters.SYS_VARIANTID));
     return edge;
   }
 
