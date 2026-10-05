@@ -284,6 +284,8 @@ test.describe("Explorer change one relationship snippet template (#5219)", () =>
     await expect(page.locator('[data-testid="relationships-edge-71"]')).toHaveCount(0);
     expect(posts[posts.length - 1].body.slotId).toBe(5);
     expect(posts[posts.length - 1].body.templateId).toBe(8);
+    expect(posts[posts.length - 1].body.index).toBe(0);
+    expect(posts.map((post) => post.body.index)).toEqual([0, 0, 0, 0]);
     expect(posts[posts.length - 1].url).toContain("/slot-relationships/71/template-slot");
     expect(posts).toHaveLength(4);
     expect(unexpectedJsErrors(jsErrors)).toEqual([]);

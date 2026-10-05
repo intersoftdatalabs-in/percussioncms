@@ -818,6 +818,7 @@ describe("RelationshipsView", () => {
     dependentId: 4,
     label: "AA first",
     slotId: 5,
+    sortRank: 0,
     templateId: 4,
     templateName: "Brief",
   };
@@ -828,6 +829,7 @@ describe("RelationshipsView", () => {
     dependentId: 5,
     label: "AA last",
     slotId: 5,
+    sortRank: 1,
     templateId: 4,
     templateName: "Brief",
   };
@@ -944,7 +946,7 @@ describe("RelationshipsView", () => {
       target: { value: "8" },
     });
     fireEvent.click(screen.getByTestId("relationships-template-confirm"));
-    expect(change).toHaveBeenCalledWith(71, 5, 8);
+    expect(change).toHaveBeenCalledWith(71, 5, 8, 0);
     expect(templateText(71)).toContain("Brief");
     expect(screen.queryByTestId("relationships-template-changed")).toBeNull();
     release({
@@ -1001,7 +1003,7 @@ describe("RelationshipsView", () => {
       "data-template-id",
       "4",
     );
-    expect(change).toHaveBeenCalledWith(71, 5, 8);
+    expect(change).toHaveBeenCalledWith(71, 5, 8, 0);
   }
 
   it("HTTP 400 leaves the previous snippet template (#5219)", async () => {

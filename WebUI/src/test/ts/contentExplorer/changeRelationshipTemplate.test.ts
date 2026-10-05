@@ -21,6 +21,7 @@ import {
   applyRelationshipSnippetTemplate,
   canChangeRelationshipSnippetTemplate,
   gateRelationshipSnippetTemplate,
+  relationshipSlotIndex,
   relationshipTemplateLabel,
 } from "../../../main/ts/contentExplorer/changeRelationshipTemplate";
 
@@ -107,7 +108,33 @@ describe("changeRelationshipSnippetTemplate", () => {
         templateId: 8,
         allowedIds: [4, 8],
       }),
-    ).toEqual({ ok: true, relationshipId: 71, slotId: 5, templateId: 8 });
+    ).toEqual({
+      ok: true,
+      relationshipId: 71,
+      slotId: 5,
+      templateId: 8,
+      index: 0,
+    });
+  });
+
+  it("sends sort position 0 and a later position (#5219)", () => {
+    expect(relationshipSlotIndex({ sortRank: 0 })).toBe(0);
+    expect(relationshipSlotIndex(undefined)).toBe(0);
+    expect(relationshipSlotIndex({ sortRank: -1 })).toBe(0);
+    expect(
+      gateRelationshipSnippetTemplate({
+        edge: { ...assembly, sortRank: 0 },
+        templateId: 8,
+        allowedIds: [4, 8],
+      }),
+    ).toMatchObject({ ok: true, index: 0 });
+    expect(
+      gateRelationshipSnippetTemplate({
+        edge: { ...assembly, sortRank: 2 },
+        templateId: 8,
+        allowedIds: [4, 8],
+      }),
+    ).toMatchObject({ ok: true, index: 2 });
   });
 
   it("shows the new template on that row only and keeps the slot", () => {

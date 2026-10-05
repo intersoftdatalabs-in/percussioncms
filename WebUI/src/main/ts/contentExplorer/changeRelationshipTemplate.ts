@@ -20,9 +20,11 @@
  * on the Explorer relationships list (#5219 / parent #4530).
  *
  * <p>Confirm posts the existing slot-relationship template API and keeps
- * the row's slot. Cancel, a folder row, an empty template choice, and
- * HTTP 400/403/409 must not be reported as a new template. This is not
- * the editor Related content template control and not a slot change.</p>
+ * the row's slot and its sort position. Index {@code 0} is the first row
+ * and is sent; omitting it appends the replacement. Cancel, a folder row,
+ * an empty template choice, and HTTP 400/403/409 must not be reported as
+ * a new template. This is not the editor Related content template control
+ * and not a slot change.</p>
  */
 
 import type { PSExplorerRelationshipEdge } from "../api/contentExplorer/relationship";
@@ -45,6 +47,8 @@ export type RelationshipTemplateGate =
       relationshipId: number;
       slotId: number;
       templateId: number;
+      /** Zero-based slot position. {@code 0} is the first row. */
+      index: number;
     }
   | { ok: false; reason: RelationshipTemplateBlock };
 
@@ -92,8 +96,24 @@ export function relationshipTemplateLabel(
 }
 
 /**
+ * Zero-based slot position for the template-slot write. {@code 0} is the
+ * first row and must be returned. A missing or negative rank is {@code 0},
+ * not the server append sentinel.
+ */
+export function relationshipSlotIndex(
+  edge: Pick<PSExplorerRelationshipEdge, "sortRank"> | null | undefined,
+): number {
+  const rank = Number(edge?.sortRank);
+  if (!Number.isInteger(rank) || rank < 0) {
+    return 0;
+  }
+  return rank;
+}
+
+/**
  * Whether confirm may post one template change. The slot is the row's
  * current slot. The chosen id must be a different allowed template.
+ * A successful gate includes the row's sort position, including {@code 0}.
  */
 export function gateRelationshipSnippetTemplate(input: {
   edge: PSExplorerRelationshipEdge | null | undefined;
@@ -129,7 +149,13 @@ export function gateRelationshipSnippetTemplate(input: {
   if (!input.allowedIds.some((id) => Number(id) === templateId)) {
     return { ok: false, reason: "not_allowed" };
   }
-  return { ok: true, relationshipId, slotId, templateId };
+  return {
+    ok: true,
+    relationshipId,
+    slotId,
+    templateId,
+    index: relationshipSlotIndex(edge),
+  };
 }
 
 /**

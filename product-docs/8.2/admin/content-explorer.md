@@ -968,7 +968,10 @@ From the **View** menu you can also toggle:
   the template the row already shows, does not call the server and does not
   show *Snippet template changed.* **Change snippet template** calls
   `POST /services/assembly/slot-relationships/{relationshipId}/template-slot`
-  with that row's current `slotId` and the chosen `templateId` only. The list
+  with that row's current `slotId`, the chosen `templateId`, and the row's
+  current sort position as `index`. The first item in the slot is index `0`,
+  and that `0` is sent, so the snippet stays in place. Leaving `index` off
+  would append the snippet to the end of the slot. The list
   shows the new template, and the relationship id returned by that call, only
   after the call succeeds. HTTP **400**, **403**, and **409** stay on the
   panel, keep the previous template, and do not show *Snippet template

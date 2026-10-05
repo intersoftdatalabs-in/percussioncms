@@ -105,13 +105,15 @@ export interface RelationshipsViewProps {
   loadAllowedTemplates?: (slotId: number) => Promise<SlotAllowedChoice[]>;
   /**
    * Optional injection seam: change one relationship's snippet template.
-   * Defaults to {@code POST …/slot-relationships/{id}/template-slot} and
-   * keeps the row's current slot.
+   * Defaults to {@code POST …/slot-relationships/{id}/template-slot}.
+   * Keeps the row's current slot and sort position. Index {@code 0} is
+   * the first row and is sent.
    */
   changeTemplate?: (
     relationshipId: number,
     slotId: number,
     templateId: number,
+    index: number,
   ) => Promise<SlotRelationship>;
   /**
    * Optional injection seam: open one related content item in EditorHost.
@@ -600,6 +602,7 @@ export function RelationshipsView(
         gate.relationshipId,
         gate.slotId,
         gate.templateId,
+        gate.index,
       );
       setEdges((current) =>
         applyRelationshipSnippetTemplate(
