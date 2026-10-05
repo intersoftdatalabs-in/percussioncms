@@ -524,7 +524,8 @@ discard. The shell posts `POST …/sitemanage/publishingdesign/deliverytypes` (c
 HTTP **403** (not Admin or Designer) and **409** (delivery type name already exists) are shown in the
 delivery-type editor error region — not as a successful save. Content-list save and edition save
 are separate Design actions. Renaming a delivery type is described below and does not change the
-bean name or description.
+bean name or description. Setting a delivery type description is also described below and does
+not change the name or bean name.
 
 ### Rename a delivery type (Design)
 
@@ -544,7 +545,30 @@ does not call the server.
 HTTP **400** (name invalid), **403** (not Admin or Designer), and **409** (delivery type name
 already exists) stay in the rename form error region. Those responses do not change the name
 on the list. Saving a delivery type (which can also change the bean name and description),
-copying a delivery type, and renaming an edition are separate actions.
+setting only the description, copying a delivery type, and renaming an edition are separate
+actions.
+
+### Set a delivery type description (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Delivery types**.
+On a delivery type row, **Description** opens **Delivery type description** (it does not call
+the server). The form shows the current **name** and **bean name** and does not let you change
+them. Change **Description**. **Save description** sends
+`PUT …/sitemanage/publishingdesign/deliverytypes/{deliveryTypeId}` with a `deliveryType` object
+that contains only the description. Name, bean name, and whether unpublishing requires assembly
+are omitted, so the server leaves those stored. A blank description clears the stored
+description.
+
+**Delivery types** keeps the previous description until that update succeeds, then shows the
+new description (or none, when cleared) with the same name and bean name. **Cancel** closes
+the form and does not call the server. A description longer than 255 characters
+(`PSX_DELIVERY_TYPE.DESCRIPTION`) is rejected in the form and does not call the server.
+
+HTTP **400** (description longer than 255 characters), **403** (not Admin or Designer), and
+**409** (for example a delivery type name conflict on the same update) stay in the description
+form error region. Those responses do not change the description on the list. Saving a delivery
+type (which can also change the name and bean name), renaming a delivery type, and copying a
+delivery type are separate actions.
 
 ### Copy a delivery type (Design)
 

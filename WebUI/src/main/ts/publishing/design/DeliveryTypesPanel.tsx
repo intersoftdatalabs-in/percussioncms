@@ -31,6 +31,11 @@ import {
   validateDeliveryTypeCopyName,
 } from "../deliveryTypeCopy";
 import {
+  buildDeliveryTypeDescriptionBody,
+  deliveryTypesAfterSuccessfulDescription,
+  validateDeliveryTypeDescription,
+} from "../deliveryTypeDescription";
+import {
   buildDeliveryTypeRenameBody,
   deliveryTypesAfterSuccessfulRename,
   validateDeliveryTypeRenameName,
@@ -60,6 +65,8 @@ export function DeliveryTypesPanel(): React.ReactElement {
   const [copyName, setCopyName] = useState("");
   const [renaming, setRenaming] = useState<DeliveryTypeSummary | null>(null);
   const [renameName, setRenameName] = useState("");
+  const [describing, setDescribing] = useState<DeliveryTypeSummary | null>(null);
+  const [describeText, setDescribeText] = useState("");
   const [name, setName] = useState("");
   const [beanName, setBeanName] = useState("");
   const [description, setDescription] = useState("");
@@ -85,6 +92,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setEditing(null);
     setCopying(null);
     setRenaming(null);
+    setDescribing(null);
     setName("");
     setBeanName("");
     setDescription("");
@@ -99,6 +107,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setCreating(false);
     setEditing(null);
     setRenaming(null);
+    setDescribing(null);
     setCopying(item);
     setCopyName(suggestedDeliveryTypeCopyName(item.name));
     setError(null);
@@ -124,6 +133,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setCreating(false);
     setEditing(null);
     setCopying(null);
+    setDescribing(null);
     setRenaming(item);
     setRenameName(item.name ?? "");
     setError(null);
@@ -142,10 +152,37 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setRenaming(null);
   }
 
+  function openDescribe(item: DeliveryTypeSummary): void {
+    if (!item.deliveryTypeId) {
+      return;
+    }
+    setCreating(false);
+    setEditing(null);
+    setCopying(null);
+    setRenaming(null);
+    setDescribing(item);
+    setDescribeText(item.description ?? "");
+    setError(null);
+    setDirty(false);
+  }
+
+  function closeDescribe(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setDescribing(null);
+  }
+
   function openEdit(item: DeliveryTypeSummary): void {
     setCreating(false);
     setCopying(null);
     setRenaming(null);
+    setDescribing(null);
     setEditing(item);
     setName(item.name ?? "");
     setBeanName(item.beanName ?? "");
@@ -162,6 +199,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setCreating(false);
     setEditing(null);
     setRenaming(null);
+    setDescribing(null);
   }
 
   async function save(): Promise<void> {
@@ -258,6 +296,44 @@ export function DeliveryTypesPanel(): React.ReactElement {
     }
   }
 
+  async function saveDescription(): Promise<void> {
+    if (!describing?.deliveryTypeId || saving) {
+      return;
+    }
+    const validated = validateDeliveryTypeDescription(describeText);
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    const id = describing.deliveryTypeId;
+    setSaving(true);
+    setError(null);
+    const previous = items;
+    try {
+      await updateDeliveryType(id, buildDeliveryTypeDescriptionBody(validated.description));
+      setDirty(false);
+      setDescribing(null);
+      let refreshed: DeliveryTypeSummary[] | null = null;
+      try {
+        refreshed = await listDeliveryTypes();
+      } catch {
+        refreshed = null;
+      }
+      setItems(
+        deliveryTypesAfterSuccessfulDescription(
+          refreshed,
+          id,
+          validated.description,
+          previous,
+        ),
+      );
+    } catch (e) {
+      setError(mapDeliveryTypeSaveError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function remove(id: string | number): Promise<void> {
     if (saving || id === "" || id == null) {
       return;
@@ -282,6 +358,60 @@ export function DeliveryTypesPanel(): React.ReactElement {
     } finally {
       setSaving(false);
     }
+  }
+
+  if (describing) {
+    return (
+      <div data-testid="delivery-type-describe-form">
+        <h3>Delivery type description</h3>
+        <p>
+          Name:{" "}
+          <span data-testid="delivery-type-describe-name">{describing.name ?? ""}</span>
+        </p>
+        <p>
+          Bean name:{" "}
+          <span data-testid="delivery-type-describe-bean">
+            {describing.beanName ?? ""}
+          </span>
+        </p>
+        <div style={formRowStyle}>
+          <label htmlFor="delivery-type-describe-description">Description</label>
+          <input
+            id="delivery-type-describe-description"
+            value={describeText}
+            onChange={(e) => {
+              setDescribeText(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="delivery-type-describe-submit"
+            disabled={saving}
+            onClick={() => void saveDescription()}
+          >
+            Save description
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="delivery-type-describe-cancel"
+            disabled={saving}
+            onClick={closeDescribe}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (renaming) {
@@ -491,6 +621,15 @@ export function DeliveryTypesPanel(): React.ReactElement {
             >
               {t.beanName}
             </span>
+            <span
+              data-testid={
+                t.deliveryTypeId
+                  ? `delivery-type-description-${t.deliveryTypeId}`
+                  : undefined
+              }
+            >
+              {t.description ?? ""}
+            </span>
             {t.deliveryTypeId && (
               <>
                 <button
@@ -500,6 +639,14 @@ export function DeliveryTypesPanel(): React.ReactElement {
                   onClick={() => openRename(t)}
                 >
                   Rename
+                </button>
+                <button
+                  type="button"
+                  style={buttonStyle}
+                  data-testid="delivery-type-describe"
+                  onClick={() => openDescribe(t)}
+                >
+                  Description
                 </button>
                 <button
                   type="button"

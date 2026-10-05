@@ -127,6 +127,11 @@ public class PSPublishingDesignRestService {
 
   static final String DELIVERY_TYPE_NAME_TOO_LONG =
       "Delivery type name must be 50 characters or fewer";
+  /** Matches {@code PSX_DELIVERY_TYPE.DESCRIPTION} VARCHAR(255). */
+  static final int MAX_DELIVERY_TYPE_DESCRIPTION_LENGTH = 255;
+
+  static final String DELIVERY_TYPE_DESCRIPTION_TOO_LONG =
+      "Delivery type description must be 255 characters or fewer";
   /**
    * A content list URL still names this delivery type ({@code sys_deliverytype}). Changing that
    * list is a separate action.
@@ -657,6 +662,18 @@ public class PSPublishingDesignRestService {
     try {
       IPSGuid guid = guidManager.makeGuid(deliveryTypeId, PSTypeEnum.DELIVERY_TYPE);
       IPSDeliveryType t = publisherService.loadDeliveryTypeModifiable(guid);
+      // Reject an overlong description before any field is written so 400 leaves name and bean.
+      String nextDescription = null;
+      boolean applyDescription = body.getDescription() != null;
+      if (applyDescription) {
+        nextDescription = body.getDescription().trim();
+        if (nextDescription.length() > MAX_DELIVERY_TYPE_DESCRIPTION_LENGTH) {
+          throw badRequest(DELIVERY_TYPE_DESCRIPTION_TOO_LONG);
+        }
+        if (nextDescription.isEmpty()) {
+          nextDescription = null;
+        }
+      }
       if (!isBlank(body.getName())) {
         String trimmedName = body.getName().trim();
         if (trimmedName.length() > MAX_DELIVERY_TYPE_NAME_LENGTH) {
@@ -668,8 +685,8 @@ public class PSPublishingDesignRestService {
       if (!isBlank(body.getBeanName())) {
         t.setBeanName(body.getBeanName().trim());
       }
-      if (body.getDescription() != null) {
-        t.setDescription(body.getDescription());
+      if (applyDescription) {
+        t.setDescription(nextDescription);
       }
       // Omitted on a name-only rename. Do not clear the stored flag with the primitive default.
       if (body.isUnpublishingRequiresAssemblySpecified()) {
