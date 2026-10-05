@@ -645,6 +645,34 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
   }
 
   @Override
+  public WorkflowGraph clearTransitionAllowedRoles(
+      URI baseUri, String idOrName, String fromStep, String label, String toStep) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(fromStep) || StringUtils.isBlank(label)) {
+      throw new IllegalArgumentException("from and label are required");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    int stepCount = states.size();
+    int transitionCount = countTransitions(states);
+    WorkflowTransitionAllowedRoleLimiter.clear(workflow, fromStep, label, toStep);
+    if (workflow.getStates() == null || workflow.getStates().size() != stepCount) {
+      throw new IllegalStateException("Clearing a transition role list must not delete steps");
+    }
+    if (countTransitions(workflow.getStates()) != transitionCount) {
+      throw new IllegalStateException(
+          "Clearing a transition role list must not add or delete transitions");
+    }
+    workflowService.saveWorkflow(workflow);
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
   public WorkflowGraph createWorkflowTransition(
       URI baseUri, String idOrName, WorkflowTransitionWrite body) {
     requireAdmin();

@@ -35,9 +35,11 @@ import {
   markTransitionAsDefault,
   workflowTransitionDefaultPath,
   addTransitionAllowedRole,
+  clearTransitionAllowedRoles,
   restrictTransitionToOneRole,
   workflowTransitionAddAllowedRolePath,
   workflowTransitionAllowedRolePath,
+  workflowTransitionClearAllowedRolesPath,
   isValidWorkflowName,
   isWorkflowCreateReady,
   normalizeWorkflowName,
@@ -1566,5 +1568,50 @@ describe("addTransitionAllowedRole", () => {
     expect(String(init.body)).toContain('"roleName":"Author"');
     expect(String(init.body)).not.toContain("defaultTransition");
     expect(String(init.body)).not.toContain("approvalsRequired");
+  });
+});
+
+describe("clearTransitionAllowedRoles", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("DELETEs the role list and parses allow-all with no roles", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          roles: ["Editor", "Author"],
+          edges: [
+            {
+              from: "Draft",
+              to: "Live",
+              label: "Send",
+              allowAllRoles: true,
+              defaultTransition: false,
+              approvalsRequired: 4,
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await clearTransitionAllowedRoles("Nightly QA", "Draft", "Send", "Live");
+    expect(graph.edges?.[0]?.allowAllRoles).toBe(true);
+    expect(graph.edges?.[0]?.allowedRoles).toBeUndefined();
+    expect(graph.edges?.[0]?.approvalsRequired).toBe(4);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      workflowTransitionClearAllowedRolesPath("Nightly QA", "Draft", "Send", "Live"),
+    );
+    expect(init.body).toBeUndefined();
   });
 });

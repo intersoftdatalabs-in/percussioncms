@@ -15,6 +15,7 @@ import {
   isPositiveMinuteInterval,
   isValidWorkflowName,
   addTransitionAllowedRole,
+  clearTransitionAllowedRoles,
   markTransitionAsDefault,
   restrictTransitionToOneRole,
   updateTransitionApprovalsRequired,
@@ -33,10 +34,11 @@ import { DEV_MSG } from "./messages";
  * slice 58 absolute aging interval change, slice 59 absolute aging delete,
  * slice 70 approvals required, slice 71 default transition,
  * slice 72 restrict one transition to a single role,
- * slice 73 add one more role to an already-restricted transition).
+ * slice 73 add one more role to an already-restricted transition,
+ * slice 74 clear that list so every role may fire the transition again).
  * Packaged workflows stay read-only. Aging edges are not comment-required,
  * do not take an approval count, cannot be the default, and are not role-restricted.
- * Adding a role does not clear the restriction or turn the edge back to every role.
+ * Adding a role does not clear the restriction. Clearing shows allow-all only after success.
  * Deleting an aging transition does not remove a regular transition.
  */
 
@@ -92,6 +94,7 @@ export function WorkflowGraphView({
   const [addRoleEdit, setAddRoleEdit] = useState<(TransitionIdentity & { roleName: string }) | null>(
     null,
   );
+  const [clearRoleEdit, setClearRoleEdit] = useState<TransitionIdentity | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -112,6 +115,7 @@ export function WorkflowGraphView({
     setDefaultEdit(null);
     setRolesEdit(null);
     setAddRoleEdit(null);
+    setClearRoleEdit(null);
     getWorkflowGraph(workflowName)
       .then((g) => {
         if (!cancelled) {
@@ -496,6 +500,43 @@ export function WorkflowGraphView({
       setBusy(false);
     }
   }, [addRoleEdit, workflowName]);
+
+  const onCancelClearRoles = useCallback(() => {
+    setClearRoleEdit(null);
+    setError(null);
+  }, []);
+
+  const onSaveClearRoles = useCallback(async () => {
+    if (!clearRoleEdit) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const next = await clearTransitionAllowedRoles(
+        workflowName,
+        clearRoleEdit.from,
+        clearRoleEdit.label,
+        clearRoleEdit.to,
+      );
+      setGraph(next);
+      setNotice(DEV_MSG.WF_GRAPH_ROLES_CLEAR_SAVED);
+      setClearRoleEdit(null);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 403) {
+        setError(DEV_MSG.WF_GRAPH_ROLES_CLEAR_FORBIDDEN);
+      } else if (isApiError(err) && err.status === 409) {
+        setError(DEV_MSG.WF_GRAPH_ROLES_CLEAR_CONFLICT);
+      } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
+        setError(DEV_MSG.WF_GRAPH_ROLES_CLEAR_BAD);
+      } else {
+        setError(DEV_MSG.WF_GRAPH_ROLES_CLEAR_ERROR);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [clearRoleEdit, workflowName]);
 
   const onToggleComment = useCallback(
     async (edge: WorkflowGraphEdge, commentRequired: boolean) => {
@@ -1034,6 +1075,54 @@ export function WorkflowGraphView({
                     }}
                   >
                     {DEV_MSG.WF_GRAPH_ROLES_ADD}
+                  </button>
+                )
+              ) : null}
+              {!packaged && edge.allowAllRoles === false && edge.from && edge.label ? (
+                clearRoleEdit &&
+                clearRoleEdit.from === edge.from &&
+                clearRoleEdit.label === edge.label &&
+                clearRoleEdit.to === (edge.to || "") ? (
+                  <span style={{ marginLeft: 8 }}>
+                    <button
+                      type="button"
+                      data-testid="developer-wf-roles-clear-save"
+                      disabled={busy}
+                      onClick={() => {
+                        void onSaveClearRoles();
+                      }}
+                    >
+                      {DEV_MSG.WF_GRAPH_ROLES_CLEAR_SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-wf-roles-clear-cancel"
+                      style={{ marginLeft: 8 }}
+                      disabled={busy}
+                      onClick={() => {
+                        onCancelClearRoles();
+                      }}
+                    >
+                      {DEV_MSG.WF_GRAPH_ROLES_CLEAR_CANCEL}
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    data-testid={`developer-wf-roles-clear-${i}`}
+                    style={{ marginLeft: 8 }}
+                    disabled={busy}
+                    onClick={() => {
+                      setNotice(null);
+                      setError(null);
+                      setClearRoleEdit({
+                        from: edge.from as string,
+                        label: edge.label as string,
+                        to: (edge.to as string) || "",
+                      });
+                    }}
+                  >
+                    {DEV_MSG.WF_GRAPH_ROLES_CLEAR}
                   </button>
                 )
               ) : null}

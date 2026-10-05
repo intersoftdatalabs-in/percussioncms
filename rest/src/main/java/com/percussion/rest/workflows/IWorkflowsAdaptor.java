@@ -302,6 +302,24 @@ public interface IWorkflowsAdaptor {
       String roleName);
 
   /**
+   * Clear the role list on one regular transition that is already restricted so every role may
+   * fire it again (Admin, slice 74). Does not perform the first restriction, append a role, edit
+   * step roles, or change aging transitions.
+   *
+   * @param fromStep source step name
+   * @param label transition label or trigger
+   * @param toStep destination step; required when the label is not unique on the source step
+   * @return the graph after the update, with {@code allowAllRoles} true and no role list on the
+   *     edge
+   * @throws IllegalArgumentException when the label is blank or ambiguous, or the match is an
+   *     aging transition
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or transition, 409 when the transition already allows every role
+   */
+  WorkflowGraph clearTransitionAllowedRoles(
+      URI baseUri, String idOrName, String fromStep, String label, String toStep);
+
+  /**
    * Create one transition between existing steps (Admin, slice 31). Does not create steps.
    *
    * @param body {@code from}, {@code to}, and {@code label}; both steps must already exist

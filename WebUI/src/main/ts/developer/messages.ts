@@ -2036,6 +2036,17 @@ export const DEV_MSG_KEYS = {
   WF_GRAPH_ROLES_ADD_CONFLICT:
     "perc.ui.developer@That role was not added. The previous role list was not changed.",
   WF_GRAPH_ROLES_ADD_INVALID: "perc.ui.developer@Choose one workflow role that is not already allowed.",
+  WF_GRAPH_ROLES_CLEAR: "perc.ui.developer@Allow every role",
+  WF_GRAPH_ROLES_CLEAR_SAVE: "perc.ui.developer@Allow every role",
+  WF_GRAPH_ROLES_CLEAR_CANCEL: "perc.ui.developer@Cancel",
+  WF_GRAPH_ROLES_CLEAR_SAVED: "perc.ui.developer@Every role may fire this transition.",
+  WF_GRAPH_ROLES_CLEAR_ERROR: "perc.ui.developer@Could not allow every role to fire this transition.",
+  WF_GRAPH_ROLES_CLEAR_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_GRAPH_ROLES_CLEAR_BAD:
+    "perc.ui.developer@That transition could not be opened to every role. Check the transition and try again.",
+  WF_GRAPH_ROLES_CLEAR_CONFLICT:
+    "perc.ui.developer@This transition already allows every role. The previous role list was not changed.",
   WF_GRAPH_DELETE: "perc.ui.developer@Delete transition",
   WF_GRAPH_DELETE_CONFIRM:
     "perc.ui.developer@Delete this transition? The steps stay on the workflow.",
@@ -2115,7 +2126,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. How many approvals one regular transition requires can be set on the graph. One more existing workflow role can be added to a regular transition that is already limited to specific roles. Clearing that list so every role may fire it, the default transition, and repeated or system-field aging stay outside this surface.",
+    "perc.ui.developer@Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. How many approvals one regular transition requires can be set on the graph. One more existing workflow role can be added to a regular transition that is already limited to specific roles, and that list can be cleared so every role may fire it again. The default transition, and repeated or system-field aging stay outside this surface.",
   WF_ROLE_ASSIGN_TITLE: "perc.ui.developer@Assignment type",
   WF_ROLE_ASSIGN_HINT:
     "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Notify and inbox are separate confirms.",
