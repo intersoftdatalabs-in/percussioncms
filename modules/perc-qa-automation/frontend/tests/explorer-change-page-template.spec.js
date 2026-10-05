@@ -172,6 +172,14 @@ async function openFirstFolderRow(page) {
   return activateForListing(page, folderRow.first(), { dblclick: true });
 }
 
+async function rootAlreadyListed(page, root) {
+  const selected = root.first().locator('[role="treeitem"][aria-selected="true"]');
+  if ((await selected.count()) === 0) {
+    return false;
+  }
+  return (await readListingPhase(page)) === "ready";
+}
+
 async function selectFirstItemUnder(page, rootName) {
   await expect(
     page
@@ -184,9 +192,19 @@ async function selectFirstItemUnder(page, rootName) {
     `[data-testid="${TEST_IDS.tree}"] [data-testid="tree-node-/${rootName}/"], [data-testid="${TEST_IDS.tree}"] [data-testid="tree-node-/${rootName}"]`,
   );
   const row = root.first().locator('[role="treeitem"]').first();
-  let openedRoot = false;
-  for (let attempt = 0; attempt < 2 && !openedRoot; attempt += 1) {
-    openedRoot = await activateForListing(page, row);
+  let openedRoot = await rootAlreadyListed(page, root);
+  if (!openedRoot) {
+    await row.click({ force: true });
+    try {
+      await expect
+        .poll(async () => ((await rootAlreadyListed(page, root)) ? "ready" : "pending"), {
+          timeout: 15_000,
+        })
+        .toBe("ready");
+      openedRoot = true;
+    } catch {
+      openedRoot = false;
+    }
   }
   if (!openedRoot) {
     return false;
@@ -233,6 +251,54 @@ async function stubTemplateReads(page) {
 
 function selectedRow(page) {
   return page.locator(`${DETAIL_ROWS}[data-selected="true"]`);
+}
+
+function isAssetsFolderList(url) {
+  let decoded = String(url || "");
+  try {
+    decoded = decodeURIComponent(decoded);
+  } catch {
+    /* Keep the raw URL when a segment is not valid encoding. */
+  }
+  const path = decoded.split("?")[0].replace(/\/+$/, "");
+  // Explorer lists /Assets through //Folders/$System$/Assets.
+  return /\/paginatedFolder\/(?:Folders\/\$System\$\/)?Assets$/.test(path);
+}
+
+/**
+ * H2 /Assets is often empty. Show one image row that reuses a real content
+ * id so selection does not look up a missing component summary.
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {string} itemId
+ */
+async function stubOneAssetInAssets(page, itemId) {
+  await page.route("**/pathmanagement/path/paginatedFolder/**", (route) => {
+    if (!isAssetsFolderList(route.request().url())) {
+      return route.continue();
+    }
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        PagedItemList: {
+          childrenCount: 1,
+          startIndex: 0,
+          childrenInPage: [
+            {
+              id: itemId,
+              name: "logo.png",
+              path: "/Assets/logo.png",
+              folderPath: "/Assets",
+              type: "percImageAsset",
+              category: "asset",
+              leaf: true,
+            },
+          ],
+        },
+      }),
+    });
+  });
 }
 
 test.describe("Explorer change page template (#5200 / #4530)", () => {
@@ -386,6 +452,11 @@ test.describe("Explorer change page template (#5200 / #4530)", () => {
       test.setTimeout(120_000);
       let wrote = false;
       const jsErrors = await openExplorer(page);
+      const pageFound = await selectFirstItemUnder(page, "Sites");
+      expect(pageFound, "H2 Explorer has no page whose id can back an asset row").toBe(true);
+      const realId = (await selectedRow(page).getAttribute("data-item-id")) || "";
+      expect(realId, "selected page has no data-item-id").not.toEqual("");
+      await stubOneAssetInAssets(page, realId);
       const found = await selectFirstItemUnder(page, "Assets");
       expect(found, "H2 Explorer has no selectable asset under Assets").toBe(true);
       await page.route("**/itemmanagement/item/fields/**", (route) => {
