@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0.
 
 # Pre-push local code review — PR #5236
 
-Independent Erlang confirmation at HEAD `5056b622` (code still `5cc28b80`; the tip commit is the prior verdict, not a fix). The machine report below is the full `mkd-code-review analyze --format markdown` stdout from this pass (`--pack percussion --gate advisory --git-base origin/main`). Ollama `dev-coder` returned CUDA out-of-memory; machine findings were kept. Preexisting rows do not block. In-diff machine bugs: 0. The return-to-restored-item bug below still blocks.
+Independent Erlang re-review at code HEAD `07bdd26bad` (fix: drop the revisions reload when leaving the item). The machine report below is the full `mkd-code-review analyze --format markdown` stdout from this pass (`--pack percussion --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`). Ollama `dev-coder` returned CUDA out-of-memory; machine findings were kept. Preexisting rows do not block. In-diff machine bugs: 0. The prior return-to-restored-item bug is fixed. Recommendation: approve.
 
 ## Summary
 
@@ -103,18 +103,12 @@ approve
 
 ## Erlang verdict
 
-**request-changes.** Do not merge. Reconfirmed on this pass: in-diff machine bugs: 0. The first content-item switch after restore is fixed. Returning to the restored item is not. No code changed after `5cc28b80`.
+**approve.** May merge. In-diff machine bugs: 0. The six `paths.hardcoded_sep` rows are preexisting in `PSItemService` and are not in this diff. The Ollama CUDA out-of-memory (`llm.error`) is not a product defect; the machine pass completed.
 
-`sameItemReload` is `reloadItemId === itemId && reloadToken > 0` (`WebUI/src/main/ts/contentExplorer/RevisionsPanel.tsx:137`). A successful restore sets both and never clears them (`:215-216`). The shell keeps one `RevisionsPanel` mounted and only changes `itemId` between content items (`WebUI/src/main/ts/contentExplorer/ContentExplorerShell.tsx:4318-4338`); there is no `key`. Folder and empty selection unmount the panel, so they do not hit this.
+The prior bug is fixed in `07bdd26bad`. `sameItemReload` is true only when `reloadItemIdRef.current === itemId` and `reloadToken > 0` (`WebUI/src/main/ts/contentExplorer/RevisionsPanel.tsx:138-139`). A successful restore sets the ref to that item (`:220-221`). The load effect clears the ref when `itemId` is different (`:140-142`), so leaving the item drops the association. A later visit is not a same-item reload: compare from/to are assigned from that item's revision ids (`:178-185`), and a failed load sets `kind: "error"` (`:198-201`) instead of staying on Loading.
 
-After restore on item A, open item B (session resets — covered), then select A again:
+The shell still mounts one panel across content items (`ContentExplorerShell.tsx:4318-4338`) with no `key`. Folder and empty selection unmount it. `loadSummary` in production is the stable `defaultLoad`, so the effect does not re-fire on parent render.
 
-- `reloadItemId` is still A and `reloadToken` is still > 0, so the return is treated as a same-item reload.
-- Load failure: `:156-160` already set `loading` because `prev.forItem` is B, then `:189-191` only `setRestoreError` and returns. The panel stays on Loading and the error state is never shown.
-- Load success: `:173-180` does not assign compare from/to, so the selects keep B's revision ids (or stay null if B's load never finished). Compare then sends those ids for A. Pending confirm and compare error from B are also kept, because `resetSession` runs only when `!sameItemReload` (`:162-164`).
-
-Vitest covers 42→99 and a failed 99 (`WebUI/src/test/ts/contentExplorer/RevisionsPanel.test.tsx:364` and `:431`) but never returns to 42. Add a behavioral test: restore 42, switch to 99, switch back to 42. Compare ids must be 42's, and a failed load of 42 must be `data-testid-state="error"`, not Loading.
-
-Fix: a same-item reload must apply only to the effect run caused by that restore, not to a later visit. When `itemId` changes, drop the reload association so a later visit to the restored item loads fresh.
+Behavioral coverage: `RevisionsPanel.test.tsx` restores 42, switches to 99, and switches back to 42. Compare uses 42's ids (`"1"` / `"2"`, `compare` called with `("42", 1, 2)` and not `("42", 10, 12)`). A failed load of 42 on that return is `data-testid-state="error"`. Local vitest: `RevisionsPanel.test.tsx` 15 passed. Playwright `explorer-restore-revision.spec.js` covers the same return on success and on HTTP 500. No new filesystem path joins. No agent rule files in the diff.
 
 > Co-Authored by Grok Build 1.0.46 using grok-4.7 with agent night-issue-prs-erlang.
