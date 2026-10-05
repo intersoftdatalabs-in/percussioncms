@@ -5097,6 +5097,166 @@ describe("EditorHost refuse blank required number (#5224)", () => {
   });
 });
 
+describe("EditorHost refuse blank required date (#5225)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function requiredDateHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    startDate?: string;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const startDate = opts.startDate ?? "2026-01-01";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percEvent",
+          name: "Event",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "sys_contentstartdate", value: startDate }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "sys_contentstartdate",
+              label: "Start",
+              control: "sys_CalendarSimple",
+              required: true,
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openRequiredDate(element: React.ReactElement): Promise<HTMLInputElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement).value,
+      ).toBe("2026-01-01");
+    });
+    return screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement;
+  }
+
+  it("does not save a blank required date and reloads the previous value", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredDate(requiredDateHost({ saveFields }));
+    expect(input.getAttribute("data-editor-kind")).toBe("date");
+    expect(input.getAttribute("aria-required")).toBe("true");
+    expect(
+      screen.getByTestId("editor-field-row-sys_contentstartdate").getAttribute("data-required"),
+    ).toBe("true");
+    fireEvent.click(screen.getByTestId("editor-date-clear-sys_contentstartdate"));
+    expect(input.value).toBe("");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_contentstartdate").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(document.activeElement).toBe(screen.getByTestId("editor-field-sys_contentstartdate"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(
+      screen.getByTestId("editor-field-row-sys_contentstartdate").getAttribute("data-required"),
+    ).toBe("true");
+    cleanup();
+    const reloaded = await openRequiredDate(requiredDateHost({ saveFields }));
+    expect(reloaded.value).toBe("2026-01-01");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not save when the required date picker is emptied", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredDate(requiredDateHost({ saveFields }));
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_contentstartdate").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(
+      (screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement).value,
+    ).toBe("");
+    cleanup();
+    const reloaded = await openRequiredDate(requiredDateHost({ saveFields }));
+    expect(reloaded.value).toBe("2026-01-01");
+  });
+
+  it("does not write when Close cancels a blank required date edit", async () => {
+    const saveFields = vi.fn();
+    await openRequiredDate(
+      requiredDateHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.click(screen.getByTestId("editor-date-clear-sys_contentstartdate"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(
+      (screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement).value,
+    ).toBe("");
+    expect(
+      screen.getByTestId("editor-field-row-sys_contentstartdate").getAttribute("data-required"),
+    ).toBe("true");
+  });
+
+  it("still saves a non-blank required date", async () => {
+    let startDate = "2026-01-01";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      startDate = body.fields.find((f) => f.name === "sys_contentstartdate")?.value ?? startDate;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Event",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const input = await openRequiredDate(requiredDateHost({ saveFields, startDate }));
+    fireEvent.change(input, { target: { value: "2026-09-18" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "sys_contentstartdate")?.value).toBe("2026-09-18");
+    cleanup();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={requiredDateHost({ saveFields, startDate })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement).value,
+      ).toBe("2026-09-18");
+    });
+  });
+});
+
 describe("EditorHost page link fields", () => {
   afterEach(() => {
     cleanup();
