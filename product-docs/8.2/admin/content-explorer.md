@@ -926,7 +926,7 @@ From the **View** menu you can also toggle:
   shows the error and does not claim that every relationship was removed.
   A folder row (`rs_folder` / `folder`), if present, has no Remove control and
   is left in place. Folder membership is otherwise not listed. A folder with no page or asset selected keeps
-  the select-item hint and does not claim a relationship was removed, added, moved, or opened.
+  the select-item hint and does not claim a relationship was removed, added, moved, opened, or its snippet template changed.
   **Add relationship** asks for a target content id and a non-folder relationship
   type (for example **Translation**). **Cancel** does not call the server.
   **Add relationship** in the dialog calls
@@ -957,12 +957,30 @@ From the **View** menu you can also toggle:
   A folder relationship (`rs_folder` / `folder`) and a row with no content id
   have no **Open** control and do not claim the editor opened. HTTP **403**
   and **404** stay on the panel, do not show *Opened the related item in the
-  editor.*, and leave the Explorer selection in place. This is not an Active
-  Assembly slot-canvas open, not a snippet-template change, and not an editor
-  field save. This is not the editor Related content reorder and
-  not a folder move. An empty selection or a folder
+  editor.*, and leave the Explorer selection in place. Opening a related item
+  is not an Active Assembly slot-canvas open and not an editor field save.
+  **Change template** appears on an owned Active Assembly row that has a slot.
+  Translation rows, folder rows, and Active Assembly rows with no slot do not
+  show it. The dialog lists snippet templates allowed for that same slot
+  (`GET /services/assembly/slot-relationships/allowed-templates?slotId=`).
+  The slot itself is not changed. **Cancel** does not call the server and
+  leaves the row's snippet template as it was. Choosing nothing, or choosing
+  the template the row already shows, does not call the server and does not
+  show *Snippet template changed.* **Change snippet template** calls
+  `POST /services/assembly/slot-relationships/{relationshipId}/template-slot`
+  with that row's current `slotId`, the chosen `templateId`, and the row's
+  current sort position as `index`. The first item in the slot is index `0`,
+  and that `0` is sent, so the snippet stays in place. Leaving `index` off
+  would append the snippet to the end of the slot. The list
+  shows the new template, and the relationship id returned by that call, only
+  after the call succeeds. HTTP **400**, **403**, and **409** stay on the
+  panel, keep the previous template, and do not show *Snippet template
+  changed.* A folder relationship does not claim a template change. This does
+  not move, add, or remove the relationship, and it does not change the
+  editor Related content template control. This is not the editor Related
+  content reorder and not a folder move. An empty selection or a folder
   selection keeps the select-item hint and does not claim a relationship was
-  added, moved, or opened. When the
+  added, moved, opened, or its snippet template changed. When the
   item has relationship buckets, taxonomy nodes, local links, or Active
   Assembly links, those edges are listed. When every count is zero the panel
   says **No known dependencies for this item** — that is not a successful

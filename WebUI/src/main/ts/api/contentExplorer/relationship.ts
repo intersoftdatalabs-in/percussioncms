@@ -84,6 +84,10 @@ export interface PSExplorerRelationshipEdge {
   slotId?: number;
   /** Zero-based order inside {@link slotId}. */
   sortRank?: number;
+  /** Snippet template id. Missing or 0 means the row has no template yet. */
+  templateId?: number;
+  /** Snippet template label when the list already knows it. */
+  templateName?: string;
 }
 
 export interface PSExplorerRelationshipList {

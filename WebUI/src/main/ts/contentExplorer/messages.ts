@@ -413,6 +413,33 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@This related item was not found (HTTP 404)",
   RELATIONSHIPS_OPEN_FAILED:
     "perc.ui.explorer@Could not open this related item",
+  RELATIONSHIPS_CHANGE_TEMPLATE: "perc.ui.explorer@Change template",
+  RELATIONSHIPS_CHANGE_TEMPLATE_TITLE: "perc.ui.explorer@Change snippet template",
+  RELATIONSHIPS_CHANGE_TEMPLATE_LABEL: "perc.ui.explorer@Snippet template",
+  RELATIONSHIPS_CHANGE_TEMPLATE_PLACEHOLDER:
+    "perc.ui.explorer@Choose a snippet template",
+  RELATIONSHIPS_CHANGE_TEMPLATE_DO: "perc.ui.explorer@Change snippet template",
+  RELATIONSHIPS_TEMPLATE_CHANGED: "perc.ui.explorer@Snippet template changed.",
+  RELATIONSHIPS_TEMPLATE_FAILED_400:
+    "perc.ui.explorer@The snippet template could not be changed (HTTP 400)",
+  RELATIONSHIPS_TEMPLATE_FAILED_403:
+    "perc.ui.explorer@You are not allowed to change this snippet template (HTTP 403)",
+  RELATIONSHIPS_TEMPLATE_FAILED_409:
+    "perc.ui.explorer@This snippet template could not be saved (HTTP 409)",
+  RELATIONSHIPS_TEMPLATE_NEEDS:
+    "perc.ui.explorer@Choose a snippet template before applying.",
+  RELATIONSHIPS_TEMPLATE_SAME:
+    "perc.ui.explorer@Choose a different snippet template. The current template is not saved again",
+  RELATIONSHIPS_TEMPLATE_FOLDER:
+    "perc.ui.explorer@Folder relationships do not have a snippet template",
+  RELATIONSHIPS_TEMPLATE_NOT_ASSEMBLY:
+    "perc.ui.explorer@Only an Active Assembly relationship can change its snippet template",
+  RELATIONSHIPS_TEMPLATE_NO_SLOT:
+    "perc.ui.explorer@This relationship has no slot for a snippet template",
+  RELATIONSHIPS_TEMPLATE_NOT_ALLOWED:
+    "perc.ui.explorer@That snippet template is not allowed for this slot",
+  RELATIONSHIPS_TEMPLATE_FAILED:
+    "perc.ui.explorer@Could not change the snippet template",
   // US5 P-Search / search panel (FR-017, FR-018, SC-005)
   SEARCH_TITLE: "perc.ui.explorer@Search",
   SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",

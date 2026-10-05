@@ -125,6 +125,39 @@ describe("relationshipsApi", () => {
     expect(String(deleteCall?.[0])).toContain("/relationships/42/edges/7");
   });
 
+  it("reads the snippet template on an explorer relationship row (#5219)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              items: [
+                {
+                  relationshipId: 71,
+                  configName: "ActiveAssembly",
+                  category: "rs_activeassembly",
+                  dependentId: 4,
+                  label: "AA first",
+                  slotId: 5,
+                  templateId: 4,
+                  templateName: "Brief",
+                },
+              ],
+            }),
+            { status: 200 },
+          ),
+      ),
+    );
+    const edges = await fetchRelationshipEdges("42");
+    expect(edges[0]).toMatchObject({
+      relationshipId: 71,
+      slotId: 5,
+      templateId: 4,
+      templateName: "Brief",
+    });
+  });
+
   it("deletes every owned edge and skips folder rows (#4988)", async () => {
     const remove = vi.fn().mockResolvedValue(undefined);
     await removeAllOwnedRelationshipEdges(

@@ -38,7 +38,13 @@ import { EXPLORER_MSG } from "../messages";
 import { composeFromServerSummary, labelFor } from "./dependencyModel";
 import { parseExplorerContentId } from "../../api/contentExplorer/pathItemId";
 import type { PSExplorerRelationshipEdge } from "../../api/contentExplorer/relationship";
-import { moveSlotRelationship } from "../../api/contentExplorer/slotRelationshipApi";
+import {
+  changeSlotTemplateSlot,
+  fetchSlotAllowedTemplates,
+  moveSlotRelationship,
+  type SlotAllowedChoice,
+  type SlotRelationship,
+} from "../../api/contentExplorer/slotRelationshipApi";
 import {
   addRelationshipEdge,
   fetchNodeSummary,
@@ -50,6 +56,13 @@ import {
   removeAllOwnedRelationshipEdges,
   removeRelationshipEdge,
 } from "../../api/contentExplorer/relationshipsApi";
+import {
+  applyRelationshipSnippetTemplate,
+  canChangeRelationshipSnippetTemplate,
+  gateRelationshipSnippetTemplate,
+  relationshipTemplateLabel,
+  type RelationshipTemplateBlock,
+} from "../changeRelationshipTemplate";
 import { OpenRelatedItemDialog } from "../OpenRelatedItemDialog";
 import {
   openRelatedItemInEditor,
@@ -85,6 +98,23 @@ export interface RelationshipsViewProps {
     relationshipId: number,
     direction: "UP" | "DOWN",
   ) => Promise<void>;
+  /**
+   * Optional injection seam: snippet templates allowed for one slot.
+   * Defaults to {@code GET …/slot-relationships/allowed-templates}.
+   */
+  loadAllowedTemplates?: (slotId: number) => Promise<SlotAllowedChoice[]>;
+  /**
+   * Optional injection seam: change one relationship's snippet template.
+   * Defaults to {@code POST …/slot-relationships/{id}/template-slot}.
+   * Keeps the row's current slot and sort position. Index {@code 0} is
+   * the first row and is sent.
+   */
+  changeTemplate?: (
+    relationshipId: number,
+    slotId: number,
+    templateId: number,
+    index: number,
+  ) => Promise<SlotRelationship>;
   /**
    * Optional injection seam: open one related content item in EditorHost.
    * Defaults to a fields probe, then the React editor. Does not change the
@@ -157,6 +187,8 @@ export function RelationshipsView(
     addEdge = addRelationshipEdge,
     moveEdge = (relationshipId, direction) =>
       moveSlotRelationship(relationshipId, direction),
+    loadAllowedTemplates = fetchSlotAllowedTemplates,
+    changeTemplate = changeSlotTemplateSlot,
     openRelated = openRelatedItemInEditor,
     reserveRelatedWindow = reserveEditorWindow,
     composeSummary,
@@ -192,6 +224,16 @@ export function RelationshipsView(
   const [opening, setOpening] = React.useState(false);
   const [openedNotice, setOpenedNotice] = React.useState(false);
   const [openError, setOpenError] = React.useState<string | null>(null);
+  const [templateRequest, setTemplateRequest] = React.useState<number | null>(
+    null,
+  );
+  const [templateChoices, setTemplateChoices] = React.useState<
+    SlotAllowedChoice[]
+  >([]);
+  const [pickedTemplate, setPickedTemplate] = React.useState("");
+  const [templateBusy, setTemplateBusy] = React.useState(false);
+  const [templateNotice, setTemplateNotice] = React.useState(false);
+  const [templateError, setTemplateError] = React.useState<string | null>(null);
   const [addOpen, setAddOpen] = React.useState(false);
   const [addTarget, setAddTarget] = React.useState("");
   const [addType, setAddType] = React.useState("Translation");
@@ -220,6 +262,10 @@ export function RelationshipsView(
       setOpenPrompt(null);
       setOpenedNotice(false);
       setOpenError(null);
+      setTemplateRequest(null);
+      setTemplateNotice(false);
+      setTemplateError(null);
+      setPickedTemplate("");
       return;
     }
     setState({ kind: "loading" });
@@ -228,6 +274,7 @@ export function RelationshipsView(
     setMoveRequest(null);
     setAddOpen(false);
     setOpenPrompt(null);
+    setTemplateRequest(null);
     loadServerSummary(itemId)
       .then(async (summary) => {
         if (!alive) return;
@@ -276,6 +323,10 @@ export function RelationshipsView(
     setOpenError(null);
     setOpenedNotice(false);
     setOpenPrompt(null);
+    setTemplateRequest(null);
+    setTemplateNotice(false);
+    setTemplateError(null);
+    setPickedTemplate("");
   }, [itemId]);
 
   function statusOf(err: unknown): number | undefined {
@@ -308,6 +359,29 @@ export function RelationshipsView(
     if (status === 403) return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_FAILED_403);
     if (status === 409) return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_FAILED_409);
     return err instanceof Error ? err.message : String(err);
+  }
+
+  function templateFailureMessage(err: unknown): string {
+    const status = statusOf(err);
+    if (status === 400) return message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_FAILED_400);
+    if (status === 403) return message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_FAILED_403);
+    if (status === 409) return message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_FAILED_409);
+    return err instanceof Error
+      ? err.message
+      : message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_FAILED);
+  }
+
+  function templateGateMessage(reason: RelationshipTemplateBlock): string {
+    if (reason === "folder") return message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_FOLDER);
+    if (reason === "not_assembly") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_NOT_ASSEMBLY);
+    }
+    if (reason === "no_slot") return message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_NO_SLOT);
+    if (reason === "same") return message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_SAME);
+    if (reason === "not_allowed") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_NOT_ALLOWED);
+    }
+    return message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_NEEDS);
   }
 
   function openFailureMessage(result: OpenRelatedItemResult): string {
@@ -463,6 +537,94 @@ export function RelationshipsView(
       setMoveRequest(null);
     } finally {
       setMoving(false);
+    }
+  }
+
+  function clearTemplateChrome(): void {
+    setTemplateNotice(false);
+    setTemplateError(null);
+  }
+
+  async function openTemplate(edge: PSExplorerRelationshipEdge): Promise<void> {
+    if (!canChangeRelationshipSnippetTemplate(edge)) {
+      setTemplateRequest(null);
+      setTemplateNotice(false);
+      setTemplateError(message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_NOT_ASSEMBLY));
+      return;
+    }
+    setRemovedNotice(null);
+    setRemoveError(null);
+    setMovedNotice(false);
+    setMoveError(null);
+    setOpenedNotice(false);
+    setOpenError(null);
+    setOpenPrompt(null);
+    setAddedNotice(false);
+    setAddError(null);
+    setConfirmId(null);
+    setConfirmAll(false);
+    setMoveRequest(null);
+    setAddOpen(false);
+    clearTemplateChrome();
+    setPickedTemplate("");
+    setTemplateChoices([]);
+    setTemplateRequest(edge.relationshipId);
+    try {
+      const choices = await loadAllowedTemplates(Number(edge.slotId));
+      setTemplateChoices(choices);
+    } catch (err: unknown) {
+      setTemplateNotice(false);
+      setTemplateError(templateFailureMessage(err));
+    }
+  }
+
+  async function confirmTemplate(): Promise<void> {
+    if (!itemId || templateBusy || templateRequest == null) return;
+    const edge = edges.find(
+      (candidate) => candidate.relationshipId === templateRequest,
+    );
+    const gate = gateRelationshipSnippetTemplate({
+      edge,
+      templateId: Number(pickedTemplate),
+      allowedIds: templateChoices.map((choice) => choice.id),
+    });
+    if (!gate.ok) {
+      setTemplateNotice(false);
+      setTemplateError(templateGateMessage(gate.reason));
+      return;
+    }
+    const choice = templateChoices.find((row) => row.id === gate.templateId);
+    const templateName = (choice?.label || choice?.name || "").trim();
+    setTemplateBusy(true);
+    clearTemplateChrome();
+    try {
+      const updated = await changeTemplate(
+        gate.relationshipId,
+        gate.slotId,
+        gate.templateId,
+        gate.index,
+      );
+      setEdges((current) =>
+        applyRelationshipSnippetTemplate(
+          current,
+          gate.relationshipId,
+          {
+            relationshipId: updated.relationshipId,
+            slotId: gate.slotId,
+            templateId:
+              updated.templateId > 0 ? updated.templateId : gate.templateId,
+          },
+          templateName,
+        ),
+      );
+      setTemplateRequest(null);
+      setTemplateError(null);
+      setTemplateNotice(true);
+    } catch (err: unknown) {
+      setTemplateNotice(false);
+      setTemplateError(templateFailureMessage(err));
+    } finally {
+      setTemplateBusy(false);
     }
   }
 
@@ -754,6 +916,16 @@ export function RelationshipsView(
             {openError}
           </p>
         ) : null}
+        {templateNotice ? (
+          <p role="status" data-testid="relationships-template-changed">
+            {message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_CHANGED)}
+          </p>
+        ) : null}
+        {templateError ? (
+          <p role="alert" data-testid="relationships-template-error">
+            {templateError}
+          </p>
+        ) : null}
         {removableOwnedEdges(edges).length > 0 ? (
           <p>
             <button
@@ -785,6 +957,7 @@ export function RelationshipsView(
             {edges.map((edge) => {
               const ends = relationshipMoveEnds(edges, edge);
               const openTarget = relatedItemOpenTarget(edge);
+              const templateText = relationshipTemplateLabel(edge);
               return (
               <li
                 key={edge.relationshipId}
@@ -796,8 +969,32 @@ export function RelationshipsView(
                   padding: "4px 0",
                 }}
               >
-                <span>{edge.label}</span>
+                <span>
+                  {edge.label}
+                  {templateText ? (
+                    <span
+                      data-testid={`relationships-template-${edge.relationshipId}`}
+                      data-template-id={String(edge.templateId ?? 0)}
+                      data-template-name={edge.templateName ?? ""}
+                    >
+                      {" "}
+                      {message(EXPLORER_MSG.RELATIONSHIPS_CHANGE_TEMPLATE_LABEL)}{" "}
+                      {templateText}
+                    </span>
+                  ) : null}
+                </span>
                 <span style={{ display: "flex", gap: 8 }}>
+                  {canChangeRelationshipSnippetTemplate(edge) ? (
+                    <button
+                      type="button"
+                      data-testid={`relationships-change-template-${edge.relationshipId}`}
+                      onClick={() => {
+                        void openTemplate(edge);
+                      }}
+                    >
+                      {message(EXPLORER_MSG.RELATIONSHIPS_CHANGE_TEMPLATE)}
+                    </button>
+                  ) : null}
                   {openTarget.kind === "content" ? (
                     <button
                       type="button"
@@ -880,6 +1077,54 @@ export function RelationshipsView(
               }}
             >
               {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_ALL)}
+            </button>
+          </div>
+        ) : null}
+        {templateRequest != null ? (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="relationships-template-title"
+            data-testid="relationships-template-dialog"
+            style={{ marginTop: 8, padding: 8, border: "1px solid #ccc" }}
+          >
+            <h3 id="relationships-template-title" style={{ fontSize: "1rem" }}>
+              {message(EXPLORER_MSG.RELATIONSHIPS_CHANGE_TEMPLATE_TITLE)}
+            </h3>
+            <label htmlFor="relationships-template-select">
+              {message(EXPLORER_MSG.RELATIONSHIPS_CHANGE_TEMPLATE_LABEL)}
+            </label>
+            <select
+              id="relationships-template-select"
+              data-testid="relationships-template-select"
+              value={pickedTemplate}
+              onChange={(event) => setPickedTemplate(event.target.value)}
+            >
+              <option value="">
+                {message(EXPLORER_MSG.RELATIONSHIPS_CHANGE_TEMPLATE_PLACEHOLDER)}
+              </option>
+              {templateChoices.map((choice) => (
+                <option key={choice.id} value={String(choice.id)}>
+                  {choice.label || choice.name || String(choice.id)}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              data-testid="relationships-template-cancel"
+              onClick={() => setTemplateRequest(null)}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_CANCEL)}
+            </button>
+            <button
+              type="button"
+              data-testid="relationships-template-confirm"
+              disabled={templateBusy}
+              onClick={() => {
+                void confirmTemplate();
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_CHANGE_TEMPLATE_DO)}
             </button>
           </div>
         ) : null}
