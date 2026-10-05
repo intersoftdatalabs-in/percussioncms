@@ -62,11 +62,60 @@ function summary(currentRevision) {
   };
 }
 
+function unexpectedConsoleErrors(errors) {
+  return errors.filter((text) => {
+    // Chromium logs the scripted restore 403/409 as resource failures.
+    // The panel asserts those statuses; they are not uncaught exceptions.
+    return !/Failed to load resource: the server responded with a status of 40[39]/i.test(
+      text,
+    );
+  });
+}
+
 async function stubExplorerList(page) {
+  // Synthetic row 42 is not a CMS item. Fulfill the selection side-calls
+  // so checkout-owner and template menus do not 404/500 on the server.
+  await page.route("**/explorer/list-columns**", async (route) => {
+    const folderPath =
+      new URL(route.request().url()).searchParams.get("folderPath") || "/";
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ExplorerListColumns: { folderPath, columns: [] },
+      }),
+    });
+  });
+  await page.route("**/itemmanagement/workflow/getTransitions/**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ItemStateTransition: { transitionTriggers: [] },
+      }),
+    });
+  });
+  await page.route("**/editor/items/**/checkout-owner**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        EditorItemLockInfo: {
+          itemName: "Home",
+          checkOutUser: "",
+          currentUser: "Admin",
+        },
+      }),
+    });
+  });
   await page.route("**/actions/find**", async (route) => {
     const reqUrl = route.request().url();
     if (/\/actions\/find\/(types|templates)/i.test(reqUrl)) {
-      return route.continue();
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ ActionMenu: [] }),
+      });
     }
     const response = await route.fetch();
     const contentType = response.headers()["content-type"] || "";
@@ -230,7 +279,10 @@ test.describe("modern React Content Explorer — restore one older revision", ()
       expect(restoreUrls.some((url) => url.includes("restoreRevision/1-101-42"))).toBe(true);
       await expect(page.locator('[data-testid="revisions-restore-1"]')).toHaveCount(0);
       expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
-      expect(consoleErrors, `console error: ${consoleErrors.join(" | ")}`).toEqual([]);
+      expect(
+        unexpectedConsoleErrors(consoleErrors),
+        `console error: ${consoleErrors.join(" | ")}`,
+      ).toEqual([]);
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });
@@ -300,7 +352,10 @@ test.describe("modern React Content Explorer — restore one older revision", ()
         "2",
       );
       expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
-      expect(consoleErrors, `console error: ${consoleErrors.join(" | ")}`).toEqual([]);
+      expect(
+        unexpectedConsoleErrors(consoleErrors),
+        `console error: ${consoleErrors.join(" | ")}`,
+      ).toEqual([]);
     },
   );
 
