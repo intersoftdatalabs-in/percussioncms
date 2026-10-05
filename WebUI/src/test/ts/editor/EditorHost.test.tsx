@@ -4943,6 +4943,160 @@ describe("EditorHost refuse blank required single-line text (#5207)", () => {
   });
 });
 
+describe("EditorHost refuse blank required number (#5224)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function numberHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    qty?: string;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const qty = opts.qty ?? "4";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "qty", value: qty }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "qty",
+              label: "Quantity",
+              control: "sys_Number",
+              dataType: "integer",
+              required: true,
+              controlProperties: [
+                { name: "minimum", value: "0" },
+                { name: "maximum", value: "10" },
+              ],
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openRequiredNumber(element: React.ReactElement): Promise<HTMLInputElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-qty") as HTMLInputElement).value).toBe("4");
+    });
+    return screen.getByTestId("editor-field-qty") as HTMLInputElement;
+  }
+
+  it("does not save a blank required number and reloads the previous value", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredNumber(numberHost({ saveFields }));
+    expect(input.getAttribute("data-editor-kind")).toBe("number");
+    expect(input.getAttribute("aria-required")).toBe("true");
+    expect(screen.getByTestId("editor-field-row-qty").getAttribute("data-required")).toBe("true");
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/required/i);
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(document.activeElement).toBe(screen.getByTestId("editor-field-qty"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-field-row-qty").getAttribute("data-required")).toBe("true");
+    expect(
+      (screen.getByTestId("editor-field-qty") as HTMLInputElement).getAttribute("aria-required"),
+    ).toBe("true");
+    cleanup();
+    const reloaded = await openRequiredNumber(numberHost({ saveFields }));
+    expect(reloaded.value).toBe("4");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not save whitespace-only required number and keeps the previous value", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredNumber(numberHost({ saveFields }));
+    fireEvent.change(input, { target: { value: "   " } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-qty") as HTMLInputElement).value).toBe("   ");
+    cleanup();
+    const reloaded = await openRequiredNumber(numberHost({ saveFields }));
+    expect(reloaded.value).toBe("4");
+  });
+
+  it("does not write when Close cancels a blank required number edit", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredNumber(
+      numberHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-qty") as HTMLInputElement).value).toBe("");
+    expect(screen.getByTestId("editor-field-row-qty").getAttribute("data-required")).toBe("true");
+  });
+
+  it("still saves a non-blank in-range required number", async () => {
+    let qty = "4";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      qty = body.fields.find((f) => f.name === "qty")?.value ?? qty;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const input = await openRequiredNumber(numberHost({ saveFields, qty }));
+    fireEvent.change(input, { target: { value: "7" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "qty")).toMatchObject({
+      value: "7",
+      dataType: "integer",
+      minimum: "0",
+      maximum: "10",
+    });
+    cleanup();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={numberHost({ saveFields, qty })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-qty") as HTMLInputElement).value).toBe("7");
+    });
+  });
+});
+
 describe("EditorHost page link fields", () => {
   afterEach(() => {
     cleanup();

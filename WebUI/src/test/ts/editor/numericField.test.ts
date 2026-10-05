@@ -25,6 +25,7 @@ import {
 describe("numericFieldProblem", () => {
   it("accepts a blank or in-range integer and a float fraction", () => {
     expect(numericFieldProblem("", { integer: true, minimum: "0", maximum: "10" })).toBeNull();
+    expect(numericFieldProblem("   ", { integer: true, minimum: "0", maximum: "10" })).toBeNull();
     expect(numericFieldProblem("10", { integer: true, minimum: "0", maximum: "10" })).toBeNull();
     expect(numericFieldProblem("1.5", { integer: false, minimum: "0", maximum: "2" })).toBeNull();
   });

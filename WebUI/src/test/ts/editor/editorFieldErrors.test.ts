@@ -30,6 +30,12 @@ describe("isEmptyEditorFieldValue", () => {
     expect(isEmptyEditorFieldValue("text", "Home")).toBe(false);
   });
 
+  it("treats a blank or whitespace number as empty and a stored number as present", () => {
+    expect(isEmptyEditorFieldValue("number", "")).toBe(true);
+    expect(isEmptyEditorFieldValue("number", "   ")).toBe(true);
+    expect(isEmptyEditorFieldValue("number", "4")).toBe(false);
+  });
+
   it("treats file/image as present when a pending file is set", () => {
     const file = new File(["x"], "hero.png", { type: "image/png" });
     expect(isEmptyEditorFieldValue("image", "", file)).toBe(false);
@@ -49,6 +55,19 @@ describe("collectRequiredFieldErrors", () => {
       "This field is required.",
     );
     expect(errors).toEqual({ sys_title: "This field is required." });
+  });
+
+  it("refuses a blank required number and still allows an optional blank number", () => {
+    const errors = collectRequiredFieldErrors(
+      [
+        { name: "qty", kind: "number", required: true, value: "   " },
+        { name: "optionalQty", kind: "number", required: false, value: "" },
+        { name: "count", kind: "number", required: true, value: "7" },
+      ],
+      {},
+      "This field is required.",
+    );
+    expect(errors).toEqual({ qty: "This field is required." });
   });
 });
 
