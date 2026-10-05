@@ -28,7 +28,10 @@ import {
   workflowStepDeletePath,
   workflowTransitionDeletePath,
   getWorkflowAllowedContentTypes,
+  isNonNegativeApprovalCount,
   isPositiveMinuteInterval,
+  updateTransitionApprovalsRequired,
+  workflowTransitionApprovalsPath,
   isValidWorkflowName,
   isWorkflowCreateReady,
   normalizeWorkflowName,
@@ -1296,5 +1299,63 @@ describe("parseWorkflowGraph", () => {
     });
     expect(graph.edges?.[0]?.label).toBe("Go");
     expect(graph.packaged).toBe(false);
+  });
+
+  it("reads approvalsRequired on a regular edge", () => {
+    const graph = parseWorkflowGraph({
+      workflowName: "Nightly QA",
+      edges: [{ from: "Draft", to: "Review", label: "Submit", approvalsRequired: 0, commentRequired: true }],
+    });
+    expect(graph.edges?.[0]?.approvalsRequired).toBe(0);
+    expect(graph.edges?.[0]?.commentRequired).toBe(true);
+  });
+});
+
+describe("updateTransitionApprovalsRequired", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("PUTs a wrapped non-negative count and parses the edge", async () => {
+    expect(isNonNegativeApprovalCount("0")).toBe(true);
+    expect(isNonNegativeApprovalCount("2")).toBe(true);
+    expect(isNonNegativeApprovalCount(-1)).toBe(false);
+    expect(isNonNegativeApprovalCount("")).toBe(false);
+    expect(isNonNegativeApprovalCount("1.5")).toBe(false);
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          edges: [
+            {
+              from: "Draft",
+              to: "Review",
+              label: "Submit",
+              approvalsRequired: 2,
+              commentRequired: false,
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await updateTransitionApprovalsRequired("Nightly QA", "Draft", "Submit", 2, "Review");
+    expect(graph.edges?.[0]?.approvalsRequired).toBe(2);
+    expect(graph.edges?.[0]?.commentRequired).toBe(false);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      workflowTransitionApprovalsPath("Nightly QA", "Draft", "Submit", "Review"),
+    );
+    expect(String(init.body)).toContain("WorkflowTransitionApprovals");
+    expect(String(init.body)).toContain('"approvalsRequired":2');
+    expect(String(init.body)).not.toContain("commentRequired");
   });
 });

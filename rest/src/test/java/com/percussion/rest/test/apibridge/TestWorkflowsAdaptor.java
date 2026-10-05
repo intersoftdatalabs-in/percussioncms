@@ -176,6 +176,17 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
   }
 
   @Override
+  public WorkflowGraph updateTransitionApprovalsRequired(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String label,
+      String toStep,
+      int approvalsRequired) {
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
   public WorkflowGraph deleteWorkflowStep(URI baseUri, String idOrName, String stepName) {
     return getWorkflowGraph(baseUri, idOrName);
   }

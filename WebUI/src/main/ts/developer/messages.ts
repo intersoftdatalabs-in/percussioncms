@@ -1980,10 +1980,24 @@ export const DEV_MSG_KEYS = {
   WF_GRAPH_LOADING: "perc.ui.developer@Loading workflow graph...",
   WF_GRAPH_ERROR: "perc.ui.developer@Could not load workflow graph.",
   WF_GRAPH_HINT:
-    "perc.ui.developer@States and transitions. On a custom workflow, add or update one transition between existing steps, add one absolute aging transition in minutes, delete that aging transition, delete one regular transition, delete a step that no transition still uses, or mark a transition as comment required. Packaged workflows stay read-only.",
+    "perc.ui.developer@States and transitions. On a custom workflow, add or update one transition between existing steps, add one absolute aging transition in minutes, delete that aging transition, delete one regular transition, delete a step that no transition still uses, mark a transition as comment required, or set how many approvals a transition requires. Packaged workflows stay read-only.",
   WF_GRAPH_COMMENT: "perc.ui.developer@Comment required",
   WF_GRAPH_COMMENT_SAVED: "perc.ui.developer@Comment requirement saved.",
   WF_GRAPH_COMMENT_ERROR: "perc.ui.developer@Could not save the comment requirement.",
+  WF_GRAPH_APPROVALS: "perc.ui.developer@Approvals required",
+  WF_GRAPH_APPROVALS_SET: "perc.ui.developer@Set approvals",
+  WF_GRAPH_APPROVALS_SAVE: "perc.ui.developer@Save approvals",
+  WF_GRAPH_APPROVALS_CANCEL: "perc.ui.developer@Cancel",
+  WF_GRAPH_APPROVALS_SAVED: "perc.ui.developer@Approvals required saved.",
+  WF_GRAPH_APPROVALS_ERROR: "perc.ui.developer@Could not save how many approvals this transition requires.",
+  WF_GRAPH_APPROVALS_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_GRAPH_APPROVALS_BAD:
+    "perc.ui.developer@That approval count could not be saved. Use a different non-negative whole number.",
+  WF_GRAPH_APPROVALS_CONFLICT:
+    "perc.ui.developer@That transition uses each-role approval. The approval count was not changed.",
+  WF_GRAPH_APPROVALS_INVALID:
+    "perc.ui.developer@Enter a different non-negative whole number of approvals.",
   WF_GRAPH_DELETE: "perc.ui.developer@Delete transition",
   WF_GRAPH_DELETE_CONFIRM:
     "perc.ui.developer@Delete this transition? The steps stay on the workflow.",
@@ -2063,7 +2077,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Approvals required, the default transition, and repeated or system-field aging stay outside this surface.",
+    "perc.ui.developer@Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. How many approvals one regular transition requires can be set on the graph. The default transition and repeated or system-field aging stay outside this surface.",
   WF_ROLE_ASSIGN_TITLE: "perc.ui.developer@Assignment type",
   WF_ROLE_ASSIGN_HINT:
     "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Notify and inbox are separate confirms.",

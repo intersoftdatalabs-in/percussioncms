@@ -11,8 +11,10 @@ import {
   deleteWorkflowStep,
   deleteWorkflowTransition,
   getWorkflowGraph,
+  isNonNegativeApprovalCount,
   isPositiveMinuteInterval,
   isValidWorkflowName,
+  updateTransitionApprovalsRequired,
   updateTransitionCommentRequired,
   updateWorkflowAgingInterval,
   updateWorkflowTransition,
@@ -25,12 +27,15 @@ import { DEV_MSG } from "./messages";
 /**
  * State/transition graph for one workflow (slice 32 read, slice 31 transition write,
  * slice 33 transition delete, slice 34 step delete, slice 57 absolute aging create,
- * slice 58 absolute aging interval change, slice 59 absolute aging delete).
- * Packaged workflows stay read-only. Aging edges are not comment-required.
+ * slice 58 absolute aging interval change, slice 59 absolute aging delete,
+ * slice 70 approvals required).
+ * Packaged workflows stay read-only. Aging edges are not comment-required
+ * and do not take an approval count.
  * Deleting an aging transition does not remove a regular transition.
  */
 
 type TransitionIdentity = { from: string; label: string; to: string };
+type ApprovalsIdentity = TransitionIdentity & { current: number };
 type AgingIntervalIdentity = { from: string; to: string; intervalMinutes: number };
 export function WorkflowGraphView({
   workflowName,
@@ -54,6 +59,8 @@ export function WorkflowGraphView({
   const [agingMinutes, setAgingMinutes] = useState("");
   const [agingEdit, setAgingEdit] = useState<AgingIntervalIdentity | null>(null);
   const [agingNewMinutes, setAgingNewMinutes] = useState("");
+  const [approvalsEdit, setApprovalsEdit] = useState<ApprovalsIdentity | null>(null);
+  const [approvalsDraft, setApprovalsDraft] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -69,6 +76,8 @@ export function WorkflowGraphView({
     setAgingEdit(null);
     setAgingNewMinutes("");
     setPendingAging(null);
+    setApprovalsEdit(null);
+    setApprovalsDraft("");
     getWorkflowGraph(workflowName)
       .then((g) => {
         if (!cancelled) {
@@ -281,6 +290,55 @@ export function WorkflowGraphView({
       setBusy(false);
     }
   }, [pendingAging, workflowName]);
+
+  const onCancelApprovals = useCallback(() => {
+    setApprovalsEdit(null);
+    setApprovalsDraft("");
+    setError(null);
+  }, []);
+
+  const onSaveApprovals = useCallback(async () => {
+    if (!approvalsEdit) {
+      return;
+    }
+    const nextCount = approvalsDraft.trim();
+    if (
+      !isNonNegativeApprovalCount(nextCount) ||
+      Number(nextCount) === approvalsEdit.current
+    ) {
+      setError(DEV_MSG.WF_GRAPH_APPROVALS_INVALID);
+      setNotice(null);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const next = await updateTransitionApprovalsRequired(
+        workflowName,
+        approvalsEdit.from,
+        approvalsEdit.label,
+        Number(nextCount),
+        approvalsEdit.to,
+      );
+      setGraph(next);
+      setNotice(DEV_MSG.WF_GRAPH_APPROVALS_SAVED);
+      setApprovalsEdit(null);
+      setApprovalsDraft("");
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 403) {
+        setError(DEV_MSG.WF_GRAPH_APPROVALS_FORBIDDEN);
+      } else if (isApiError(err) && err.status === 409) {
+        setError(DEV_MSG.WF_GRAPH_APPROVALS_CONFLICT);
+      } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
+        setError(DEV_MSG.WF_GRAPH_APPROVALS_BAD);
+      } else {
+        setError(DEV_MSG.WF_GRAPH_APPROVALS_ERROR);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [approvalsDraft, approvalsEdit, workflowName]);
 
   const onToggleComment = useCallback(
     async (edge: WorkflowGraphEdge, commentRequired: boolean) => {
@@ -598,6 +656,79 @@ export function WorkflowGraphView({
                   />{" "}
                   {DEV_MSG.WF_GRAPH_COMMENT}
                 </label>
+              ) : null}
+              {typeof edge.approvalsRequired === "number" ? (
+                <span
+                  data-testid={`developer-wf-graph-approvals-${i}`}
+                  data-approvals={edge.approvalsRequired}
+                  style={{ marginLeft: 8 }}
+                >
+                  {DEV_MSG.WF_GRAPH_APPROVALS}: {edge.approvalsRequired}
+                </span>
+              ) : null}
+              {!packaged &&
+              edge.from &&
+              edge.label &&
+              typeof edge.approvalsRequired === "number" ? (
+                approvalsEdit &&
+                approvalsEdit.from === edge.from &&
+                approvalsEdit.label === edge.label &&
+                approvalsEdit.to === (edge.to || "") ? (
+                  <span style={{ marginLeft: 8 }}>
+                    <label>
+                      {DEV_MSG.WF_GRAPH_APPROVALS}{" "}
+                      <input
+                        data-testid="developer-wf-approvals-value"
+                        inputMode="numeric"
+                        value={approvalsDraft}
+                        disabled={busy}
+                        onChange={(ev) => setApprovalsDraft(ev.target.value)}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      data-testid="developer-wf-approvals-save"
+                      style={{ marginLeft: 8 }}
+                      disabled={busy}
+                      onClick={() => {
+                        void onSaveApprovals();
+                      }}
+                    >
+                      {DEV_MSG.WF_GRAPH_APPROVALS_SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-wf-approvals-cancel"
+                      style={{ marginLeft: 8 }}
+                      disabled={busy}
+                      onClick={() => {
+                        onCancelApprovals();
+                      }}
+                    >
+                      {DEV_MSG.WF_GRAPH_APPROVALS_CANCEL}
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    data-testid={`developer-wf-approvals-edit-${i}`}
+                    style={{ marginLeft: 8 }}
+                    disabled={busy}
+                    onClick={() => {
+                      setNotice(null);
+                      setError(null);
+                      setApprovalsEdit({
+                        from: edge.from as string,
+                        label: edge.label as string,
+                        to: (edge.to as string) || "",
+                        current: edge.approvalsRequired as number,
+                      });
+                      setApprovalsDraft(String(edge.approvalsRequired));
+                    }}
+                  >
+                    {DEV_MSG.WF_GRAPH_APPROVALS_SET}
+                  </button>
+                )
               ) : null}
               {!packaged && edge.from && edge.label && edge.to ? (
                 <button

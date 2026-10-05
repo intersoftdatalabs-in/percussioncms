@@ -12,6 +12,16 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   deleteWorkflowTransition: vi.fn(),
   deleteWorkflowStep: vi.fn(),
   updateTransitionCommentRequired: vi.fn(),
+  updateTransitionApprovalsRequired: vi.fn(),
+  isNonNegativeApprovalCount: (raw: string | number | null | undefined) => {
+    if (typeof raw === "number") {
+      return Number.isSafeInteger(raw) && raw >= 0;
+    }
+    if (typeof raw !== "string") {
+      return false;
+    }
+    return /^(0|[1-9]\d*)$/.test(raw.trim());
+  },
   createWorkflowTransition: vi.fn(),
   createWorkflowAgingTransition: vi.fn(),
   updateWorkflowAgingInterval: vi.fn(),
@@ -36,6 +46,8 @@ const getWorkflowGraph = workflowsApi.getWorkflowGraph as ReturnType<typeof vi.f
 const deleteWorkflowStep = workflowsApi.deleteWorkflowStep as ReturnType<typeof vi.fn>;
 const updateTransitionCommentRequired =
   workflowsApi.updateTransitionCommentRequired as ReturnType<typeof vi.fn>;
+const updateTransitionApprovalsRequired =
+  workflowsApi.updateTransitionApprovalsRequired as ReturnType<typeof vi.fn>;
 const createWorkflowTransition = workflowsApi.createWorkflowTransition as ReturnType<typeof vi.fn>;
 const createWorkflowAgingTransition =
   workflowsApi.createWorkflowAgingTransition as ReturnType<typeof vi.fn>;
@@ -55,6 +67,7 @@ describe("WorkflowGraphView step delete", () => {
     getWorkflowGraph.mockReset();
     deleteWorkflowStep.mockReset();
     updateTransitionCommentRequired.mockReset();
+    updateTransitionApprovalsRequired.mockReset();
     createWorkflowTransition.mockReset();
     createWorkflowAgingTransition.mockReset();
     updateWorkflowAgingInterval.mockReset();
@@ -605,5 +618,162 @@ describe("WorkflowGraphView step delete", () => {
       expect(screen.getByTestId("developer-wf-graph-edge-0").textContent).toContain("Submit");
     }
     expect(deleteWorkflowTransition).not.toHaveBeenCalled();
+  });
+
+  it("shows the new approval count only after save and cancel does not write", async () => {
+    const initial = {
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Submit",
+          commentRequired: true,
+          approvalsRequired: 1,
+        },
+        {
+          from: "Draft",
+          to: "Live",
+          label: "Publish",
+          commentRequired: false,
+          approvalsRequired: 4,
+        },
+      ],
+    };
+    const updated = {
+      packaged: false,
+      nodes: initial.nodes,
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Submit",
+          commentRequired: true,
+          approvalsRequired: 2,
+        },
+        initial.edges[1],
+      ],
+    };
+    let release: (graph: typeof updated) => void = () => {};
+    getWorkflowGraph.mockResolvedValue(initial);
+    updateTransitionApprovalsRequired.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = resolve;
+        }),
+    );
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    const shown = await screen.findByTestId("developer-wf-graph-approvals-0");
+    expect(shown.getAttribute("data-approvals")).toBe("1");
+    expect(screen.getByTestId("developer-wf-graph-approvals-1").getAttribute("data-approvals")).toBe(
+      "4",
+    );
+    fireEvent.click(screen.getByTestId("developer-wf-approvals-edit-0"));
+    fireEvent.change(screen.getByTestId("developer-wf-approvals-value"), {
+      target: { value: "2" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-approvals-cancel"));
+    expect(updateTransitionApprovalsRequired).not.toHaveBeenCalled();
+    expect(updateTransitionCommentRequired).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-wf-graph-approvals-0").getAttribute("data-approvals")).toBe(
+      "1",
+    );
+
+    fireEvent.click(screen.getByTestId("developer-wf-approvals-edit-0"));
+    fireEvent.change(screen.getByTestId("developer-wf-approvals-value"), {
+      target: { value: "2" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-approvals-save"));
+    await waitFor(() => {
+      expect(updateTransitionApprovalsRequired).toHaveBeenCalledWith(
+        "Nightly QA",
+        "Draft",
+        "Submit",
+        2,
+        "Review",
+      );
+    });
+    expect(screen.getByTestId("developer-wf-graph-approvals-0").getAttribute("data-approvals")).toBe(
+      "1",
+    );
+    expect((screen.getByTestId("developer-wf-graph-comment-0") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    release(updated);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-approvals-0").getAttribute("data-approvals")).toBe(
+        "2",
+      );
+    });
+    expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
+      "Approvals required saved",
+    );
+    expect(screen.getByTestId("developer-wf-graph-approvals-1").getAttribute("data-approvals")).toBe(
+      "4",
+    );
+    expect((screen.getByTestId("developer-wf-graph-comment-0") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect(screen.getByTestId("developer-wf-graph-edge-0").textContent).toContain("Submit");
+    expect(screen.getByTestId("developer-wf-graph-edge-0").textContent).toContain("Review");
+  });
+
+  it("keeps the previous approval count on HTTP 400, 403, and 409", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Submit",
+          commentRequired: false,
+          approvalsRequired: 1,
+        },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-graph-approvals-0");
+    for (const status of [400, 403, 409]) {
+      updateTransitionApprovalsRequired.mockRejectedValueOnce({ status, message: "no" });
+      fireEvent.click(screen.getByTestId("developer-wf-approvals-edit-0"));
+      fireEvent.change(screen.getByTestId("developer-wf-approvals-value"), {
+        target: { value: "3" },
+      });
+      fireEvent.click(screen.getByTestId("developer-wf-approvals-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-wf-graph-error")).toBeTruthy();
+      });
+      expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+      expect(screen.getByTestId("developer-wf-graph-approvals-0").getAttribute("data-approvals")).toBe(
+        "1",
+      );
+      expect((screen.getByTestId("developer-wf-graph-comment-0") as HTMLInputElement).checked).toBe(
+        false,
+      );
+      fireEvent.click(screen.getByTestId("developer-wf-approvals-cancel"));
+    }
+  });
+
+  it("does not write a blank or negative approval count", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        { from: "Draft", to: "Review", label: "Submit", approvalsRequired: 1, commentRequired: false },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-approvals-edit-0");
+    fireEvent.click(screen.getByTestId("developer-wf-approvals-edit-0"));
+    fireEvent.change(screen.getByTestId("developer-wf-approvals-value"), {
+      target: { value: "-1" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-approvals-save"));
+    expect(updateTransitionApprovalsRequired).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-wf-graph-approvals-0").getAttribute("data-approvals")).toBe(
+      "1",
+    );
   });
 });

@@ -206,6 +206,29 @@ public interface IWorkflowsAdaptor {
       boolean commentRequired);
 
   /**
+   * Set how many approvals an existing regular transition requires (Admin, slice 70). Does not
+   * create or delete the transition, and does not change the label, destination, comment flag, or
+   * default flag. A stored negative count is the each-role sentinel and is not overwritten.
+   *
+   * @param fromStep source step name
+   * @param label transition label or trigger
+   * @param toStep destination step; required when the label is not unique on the source step
+   * @param approvalsRequired non-negative count; zero is allowed
+   * @return the graph after the update, with {@code approvalsRequired} on the edge
+   * @throws IllegalArgumentException when the count is negative, the label is ambiguous, the match
+   *     is an aging transition, or the stored count is already that number
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or transition, 409 when the transition uses each-role approval
+   */
+  WorkflowGraph updateTransitionApprovalsRequired(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String label,
+      String toStep,
+      int approvalsRequired);
+
+  /**
    * Create one transition between existing steps (Admin, slice 31). Does not create steps.
    *
    * @param body {@code from}, {@code to}, and {@code label}; both steps must already exist
