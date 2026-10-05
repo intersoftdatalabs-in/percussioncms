@@ -484,9 +484,10 @@ public class PSExitPerformTransition implements IPSRequestPreProcessor {
                 localParams.m_workflowAppID,
                 localParams.m_contentID,
                 connection,
-                (localParams.m_transitionFromStateID == localParams.m_transitionToStateID)
-                    ? localParams.m_transitionFromStateID
-                    : localParams.m_transitionToStateID,
+                // Check-in and checkout leave the to-state at 0. That is not a new state;
+                // role lookup must use the current state or it throws stateId must be > 0 (#5246).
+                PSWorkflowAssignmentState.stateIdForRoles(
+                    localParams.m_transitionFromStateID, localParams.m_transitionToStateID),
                 localParams.m_userName,
                 sRoleNameList,
                 request);

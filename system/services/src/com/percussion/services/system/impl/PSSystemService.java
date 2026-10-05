@@ -518,8 +518,13 @@ public class PSSystemService
     * <p>Returns the number of rows updated so callers can fire the
     * {@code PSItemSummaryCache} event (mirroring legacy
     * {@code notifyUpdateItem(columns)}).
+    *
+    * <p>{@code REQUIRES_NEW} commits before return, as {@code commit(Connection)} did.
+    * Joining the caller's transaction holds the row lock across later
+    * {@code contentstatus_update} and {@code putLastPublicRev} JDBC and self-deadlocks
+    * on H2 (#5246).
     */
-   @Transactional
+   @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
    public int updateContentStatusState(
        int contentId,
        int stateId,
@@ -584,6 +589,38 @@ public class PSSystemService
       // Force a refresh of any cached PSComponentSummary for this content id.
       if (updated > 0) {
          getSession().getSessionFactory().getCache()
+             .evictEntityData(com.percussion.cms.objectstore.PSComponentSummary.class, contentId);
+      }
+      return updated;
+   }
+
+   /**
+    * Writes {@code CONTENTSTATEID} only when it is null or not positive. Other content-status
+    * columns stay as they are. {@code REQUIRES_NEW} so {@code sys_wfPerformTransition}, which
+    * reads on another connection, sees the state (#5246).
+    */
+   @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+   public int assignContentStateIfMissing(int contentId, int stateId) {
+      if (contentId <= 0)
+         throw new IllegalArgumentException("contentId must be > 0");
+      if (stateId <= 0)
+         throw new IllegalArgumentException("stateId must be > 0");
+
+      String jpql =
+          "update PSComponentSummary "
+              + "set m_contentStateId = :stateId "
+              + "where m_contentId = :contentId "
+              + "and (m_contentStateId is null or m_contentStateId <= 0)";
+      int updated =
+          getSession()
+              .createMutationQuery(jpql)
+              .setParameter("stateId", stateId)
+              .setParameter("contentId", contentId)
+              .executeUpdate();
+      if (updated > 0) {
+         getSession()
+             .getSessionFactory()
+             .getCache()
              .evictEntityData(com.percussion.cms.objectstore.PSComponentSummary.class, contentId);
       }
       return updated;

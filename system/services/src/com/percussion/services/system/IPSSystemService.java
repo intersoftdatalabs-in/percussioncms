@@ -305,6 +305,10 @@ public interface IPSSystemService
     *     {@code null}.
     * @return the number of {@code CONTENTSTATUS} rows updated; {@code 0} when no row
     *     matches the supplied {@code contentId}.
+    *     <p>The implementation commits in its own transaction ({@code REQUIRES_NEW}), matching
+    *     the legacy {@code commit(Connection)} which committed before later
+    *     {@code contentstatus_update} / {@code putLastPublicRev} JDBC. Joining an outer
+    *     transaction leaves the row locked and those requests self-deadlock on H2 (#5246).
     */
    public int updateContentStatusState(
        int contentId,
@@ -322,6 +326,21 @@ public interface IPSSystemService
        java.util.Date expiryDate,
        java.util.Date reminderDate,
        java.util.Date repeatedAgingStartDate);
+
+   /**
+    * Sets {@code CONTENTSTATEID} when the row has none. Does not change checkout user, revisions,
+    * or dates. Item create can leave the column null; checkout then fails with {@code stateId must
+    * be > 0} (#5246).
+    *
+    * <p>The implementation commits in its own transaction ({@code REQUIRES_NEW}) so a later
+    * workflow exit on another connection sees the state. No row is updated when the state is
+    * already positive.
+    *
+    * @param contentId the content id; must be {@code > 0}
+    * @param stateId the workflow initial state; must be {@code > 0}
+    * @return the number of {@code CONTENTSTATUS} rows updated
+    */
+   public int assignContentStateIfMissing(int contentId, int stateId);
 
    /**
     * Hibernate-backed INSERT into {@code CONTENTADHOCUSERS} for the supplied rows.

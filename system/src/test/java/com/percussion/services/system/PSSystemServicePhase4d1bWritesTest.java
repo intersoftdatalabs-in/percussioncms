@@ -202,6 +202,76 @@ public class PSSystemServicePhase4d1bWritesTest {
     verify(mockQuery).setParameter("revisionLock", 'Y');
   }
 
+  @Test
+  void assignContentStateIfMissing_rejectsNonPositiveIds() {
+    assertThrows(
+        IllegalArgumentException.class, () -> service.assignContentStateIfMissing(0, 1));
+    assertThrows(
+        IllegalArgumentException.class, () -> service.assignContentStateIfMissing(1, 0));
+  }
+
+  @Test
+  void assignContentStateIfMissing_updatesOnlyABlankState() {
+    MutationQuery mockQuery = stubMutationQuery(1);
+    org.hibernate.SessionFactory mockFactory = mock(org.hibernate.SessionFactory.class);
+    org.hibernate.Cache mockCache = mock(org.hibernate.Cache.class);
+    when(mockFactory.getCache()).thenReturn(mockCache);
+    when(session.getSessionFactory()).thenReturn(mockFactory);
+
+    int updated = service.assignContentStateIfMissing(10142, 1);
+
+    assertEquals(1, updated);
+    ArgumentCaptor<String> jpql = ArgumentCaptor.forClass(String.class);
+    verify(session).createMutationQuery(jpql.capture());
+    String q = jpql.getValue();
+    assertContains(q, "set m_contentStateId = :stateId");
+    assertContains(q, "m_contentStateId is null or m_contentStateId <= 0");
+    assertEquals(false, q.contains("m_currRevision"));
+    assertEquals(false, q.contains("m_checkoutUserName"));
+    verify(mockQuery).setParameter("stateId", 1);
+    verify(mockQuery).setParameter("contentId", 10142);
+    verify(mockCache)
+        .evictEntityData(com.percussion.cms.objectstore.PSComponentSummary.class, 10142);
+  }
+
+  @Test
+  void assignContentStateIfMissing_commitsInANewTransaction() throws Exception {
+    org.springframework.transaction.annotation.Transactional tx =
+        PSSystemService.class
+            .getMethod("assignContentStateIfMissing", int.class, int.class)
+            .getAnnotation(org.springframework.transaction.annotation.Transactional.class);
+    org.junit.jupiter.api.Assertions.assertNotNull(tx);
+    org.junit.jupiter.api.Assertions.assertEquals(
+        org.springframework.transaction.annotation.Propagation.REQUIRES_NEW, tx.propagation());
+  }
+
+  @Test
+  void updateContentStatusState_commitsInANewTransaction() throws Exception {
+    org.springframework.transaction.annotation.Transactional tx =
+        PSSystemService.class
+            .getMethod(
+                "updateContentStatusState",
+                int.class,
+                int.class,
+                String.class,
+                int.class,
+                int.class,
+                int.class,
+                boolean.class,
+                java.util.Date.class,
+                java.util.Date.class,
+                int.class,
+                java.util.Date.class,
+                java.util.Date.class,
+                java.util.Date.class,
+                java.util.Date.class,
+                java.util.Date.class)
+            .getAnnotation(org.springframework.transaction.annotation.Transactional.class);
+    org.junit.jupiter.api.Assertions.assertNotNull(tx);
+    org.junit.jupiter.api.Assertions.assertEquals(
+        org.springframework.transaction.annotation.Propagation.REQUIRES_NEW, tx.propagation());
+  }
+
   private MutationQuery stubMutationQuery(int rows) {
     MutationQuery mockQuery = mock(MutationQuery.class);
     when(session.createMutationQuery(anyString())).thenReturn(mockQuery);

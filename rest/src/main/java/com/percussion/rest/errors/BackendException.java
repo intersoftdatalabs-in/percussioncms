@@ -29,8 +29,14 @@ public class BackendException extends PSException {
     super(message, e);
   }
 
+  /**
+   * Message with no cause. {@link PSException#PSException(String, Throwable)} rejects a null cause
+   * ({@code e must never be null}), so this must not delegate to that constructor.
+   * {@code getMessage()} returns {@code m_overridingMessage}, not the {@link Exception} detail.
+   */
   public BackendException(String message) {
-    this(message, null);
+    super(message);
+    m_overridingMessage = message == null || message.isBlank() ? null : message;
   }
 
   public BackendException(Throwable cause) {

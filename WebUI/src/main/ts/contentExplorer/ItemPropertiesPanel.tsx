@@ -16,10 +16,15 @@
  */
 
 /**
- * Explorer item properties panel (#4701): name + display title save.
+ * Explorer item properties panel (#4701, #5246): name + display title save.
+ *
+ * <p>The saved display title is the value returned by a reload after POST.
+ * Cancel does not post. HTTP 400, 403, and 409 put the previous display
+ * title back. A title-only save posts the loaded name.</p>
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { isApiError } from "../api/client";
 import {
   getItemProperties,
   saveItemProperties,
@@ -27,6 +32,12 @@ import {
 import { message } from "../i18n/message";
 import { formatItemPropertiesError } from "./itemPropertiesErrors";
 import { EXPLORER_MSG } from "./messages";
+import {
+  committedDisplayTitleAfterAttempt,
+  displayTitleDraftAfterFailure,
+  itemPropertiesPathAfterSave,
+  planItemPropertiesSave,
+} from "./setItemDisplayTitle";
 
 export interface ItemPropertiesPanelProps {
   itemPath: string;
@@ -41,7 +52,14 @@ export interface ItemPropertiesPanelProps {
 type Status =
   | { kind: "loading" }
   | { kind: "error"; message: string }
-  | { kind: "ready"; name: string; displayTitle: string; dirty: boolean };
+  | {
+      kind: "ready";
+      name: string;
+      displayTitle: string;
+      committedName: string;
+      committedDisplayTitle: string;
+      dirty: boolean;
+    };
 
 export function ItemPropertiesPanel(
   props: ItemPropertiesPanelProps,
@@ -57,29 +75,32 @@ export function ItemPropertiesPanel(
   const [status, setStatus] = useState<Status>({ kind: "loading" });
   const [pending, setPending] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const sessionRef = useRef(0);
 
   useEffect(() => {
-    let cancelled = false;
+    const token = ++sessionRef.current;
     setStatus({ kind: "loading" });
     setSaveMessage(null);
+    setPending(false);
     void (async () => {
       try {
         const loaded = await load(itemPath);
-        if (cancelled) return;
+        if (sessionRef.current !== token) return;
+        const name = String(loaded.name ?? itemName ?? "").trim();
+        const displayTitle = String(loaded.displayTitle ?? "");
         setStatus({
           kind: "ready",
-          name: String(loaded.name ?? itemName ?? "").trim(),
-          displayTitle: String(loaded.displayTitle ?? ""),
+          name,
+          displayTitle,
+          committedName: name,
+          committedDisplayTitle: displayTitle,
           dirty: false,
         });
       } catch (err) {
-        if (cancelled) return;
+        if (sessionRef.current !== token) return;
         setStatus({ kind: "error", message: formatItemPropertiesError(err) });
       }
     })();
-    return () => {
-      cancelled = true;
-    };
   }, [itemPath, itemName, load]);
 
   if (status.kind === "loading") {
@@ -97,28 +118,117 @@ export function ItemPropertiesPanel(
     );
   }
 
+  const handleCancel = (): void => {
+    if (pending) {
+      return;
+    }
+    const previous = status.committedDisplayTitle;
+    setStatus({
+      ...status,
+      name: status.committedName,
+      displayTitle: committedDisplayTitleAfterAttempt(previous, {
+        outcome: "cancelled",
+      }),
+      dirty: false,
+    });
+    setSaveMessage(null);
+  };
+
   const handleSave = (): void => {
-    const name = status.name.trim();
-    if (!name) {
+    const plan = planItemPropertiesSave({
+      itemPath,
+      loadedName: status.committedName,
+      draftName: status.name,
+      draftDisplayTitle: status.displayTitle,
+    });
+    if (!plan.ok) {
       setSaveMessage(message(EXPLORER_MSG.ITEM_PROPS_BAD_REQUEST));
       return;
     }
+    const token = sessionRef.current;
+    const previousTitle = status.committedDisplayTitle;
     setPending(true);
     setSaveMessage(null);
     void (async () => {
       try {
         await save({
-          itemPath,
-          name,
-          displayTitle: status.displayTitle,
+          itemPath: plan.itemPath,
+          name: plan.name,
+          displayTitle: plan.displayTitle,
         });
-        setStatus({ ...status, name, dirty: false });
+        if (sessionRef.current !== token) {
+          return;
+        }
+        let reloaded: { name?: string; displayTitle?: string | null };
+        const reloadPath = itemPropertiesPathAfterSave(
+          plan.itemPath,
+          plan.name,
+          plan.nameChanged,
+        );
+        try {
+          reloaded = await load(reloadPath);
+        } catch (err) {
+          if (sessionRef.current !== token) {
+            return;
+          }
+          setStatus((current) =>
+            current.kind === "ready"
+              ? {
+                  ...current,
+                  displayTitle: committedDisplayTitleAfterAttempt(
+                    current.committedDisplayTitle,
+                    { outcome: "reload-failed" },
+                  ),
+                  dirty: current.name.trim() !== current.committedName,
+                }
+              : current,
+          );
+          setSaveMessage(formatItemPropertiesError(err));
+          return;
+        }
+        if (sessionRef.current !== token) {
+          return;
+        }
+        const nextName = String(reloaded.name ?? plan.name).trim();
+        const nextTitle = committedDisplayTitleAfterAttempt(previousTitle, {
+          outcome: "saved",
+          reloadedTitle: String(reloaded.displayTitle ?? ""),
+        });
+        setStatus({
+          kind: "ready",
+          name: nextName,
+          displayTitle: nextTitle,
+          committedName: nextName,
+          committedDisplayTitle: nextTitle,
+          dirty: false,
+        });
         setSaveMessage(message(EXPLORER_MSG.ITEM_PROPS_SAVE_SUCCESS));
-        onSaved?.(name);
+        onSaved?.(nextName);
       } catch (err) {
+        if (sessionRef.current !== token) {
+          return;
+        }
+        const http = isApiError(err) ? err.status : undefined;
+        setStatus((current) => {
+          if (current.kind !== "ready") {
+            return current;
+          }
+          const displayTitle = displayTitleDraftAfterFailure(
+            current.committedDisplayTitle,
+            current.displayTitle,
+            http,
+          );
+          return {
+            ...current,
+            displayTitle,
+            dirty: current.name.trim() !== current.committedName,
+          };
+        });
         setSaveMessage(formatItemPropertiesError(err));
       } finally {
-        setPending(false);
+        if (sessionRef.current === token) {
+          setPending(false);
+        }
       }
     })();
   };
@@ -155,6 +265,12 @@ export function ItemPropertiesPanel(
           }
         />
       </div>
+      <p data-testid="item-properties-shown-display-title">
+        {message(EXPLORER_MSG.ITEM_PROPS_SAVED_DISPLAY_TITLE)}{" "}
+        <span data-testid="item-properties-shown-display-title-value">
+          {status.committedDisplayTitle}
+        </span>
+      </p>
       <div>
         <label htmlFor="item-props-display-title">
           {message(EXPLORER_MSG.ITEM_PROPS_DISPLAY_TITLE)}
@@ -174,6 +290,14 @@ export function ItemPropertiesPanel(
           }
         />
       </div>
+      <button
+        type="button"
+        data-testid="item-properties-cancel"
+        disabled={!canEdit || pending || !status.dirty}
+        onClick={handleCancel}
+      >
+        {message(EXPLORER_MSG.ITEM_PROPS_CANCEL)}
+      </button>
       <button
         type="submit"
         data-testid="item-properties-save"

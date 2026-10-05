@@ -50,6 +50,8 @@ const ITEM_PROPS_TEST_IDS = Object.freeze({
   hint: "explorer-item-properties-hint",
   name: "item-properties-name",
   displayTitle: "item-properties-display-title",
+  shownDisplayTitle: "item-properties-shown-display-title-value",
+  cancel: "item-properties-cancel",
   save: "item-properties-save",
   readonly: "item-properties-readonly",
 });

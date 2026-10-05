@@ -1521,7 +1521,11 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       PSWebserviceUtils.validateLegacyGuid(itemId);
       int id = ((PSLegacyGuid) itemId).getContentId();
 
-      PSComponentSummary summary = PSWebserviceUtils.getItemSummary(id);
+      // Item create can leave CONTENTSTATEID null. A cached summary may still show a state, and
+      // checkout then runs sys_wfPerformTransition against the row and throws stateId must be > 0
+      // (#5246). Read the committed row and write only the initial state when it is missing.
+      PSComponentSummary summary =
+          assignInitialWorkflowStateIfMissing(PSWebserviceUtils.getItemSummary(id, true));
       PSItemStatus itemStatus = new PSItemStatus(id);
       long fromStateId = summary.getContentStateId();
       itemStatus.setFromStateId(fromStateId);
@@ -1531,14 +1535,20 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
 
       transitionItemIfNeeded(itemStatus, summary);
 
+      // Quick Edit commits CONTENTSTATUS on another connection (#5246). Reload so checkout sees
+      // that row instead of the pre-transition summary.
+      PSComponentSummary checkoutSummary =
+          PSPrepareForEditCheckout.summaryForCheckoutDecision(
+              summary, PSWebserviceUtils.getItemSummary(id, true));
+
       // handle checkout if needed
-      if (PSWebserviceUtils.isItemCheckedOutToUser(summary))
+      if (PSWebserviceUtils.isItemCheckedOutToUser(checkoutSummary))
       {
          itemStatus.setDidCheckout(false);
       }
       else
       {
-         checkOutItem(summary.getContentId(), null);
+         checkOutItem(checkoutSummary.getContentId(), null);
          itemStatus.setDidCheckout(true);
       }
 
@@ -1548,6 +1558,29 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       }
 
       return itemStatus;
+   }
+
+   /**
+    * Persists the workflow initial state when the committed row has none. Revisions, checkout
+    * user, and dates are left alone.
+    */
+   private PSComponentSummary assignInitialWorkflowStateIfMissing(PSComponentSummary summary)
+       throws PSErrorException {
+      int contentId = summary.getContentId();
+      int workflowId = summary.getWorkflowAppId();
+      int stateId = summary.getContentStateId();
+      int assigned = PSPrepareForEditCheckout.missingStateToAssign(workflowId, stateId);
+      if (assigned <= 0) {
+         if (stateId <= 0) {
+            logger.warn(
+                "prepareForEdit contentId={} workflowId={} has no initial workflow state",
+                contentId,
+                workflowId);
+         }
+         return summary;
+      }
+      PSSystemServiceLocator.getSystemService().assignContentStateIfMissing(contentId, assigned);
+      return PSWebserviceUtils.getItemSummary(contentId, true);
    }
 
    /**
