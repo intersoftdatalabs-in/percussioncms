@@ -14,6 +14,7 @@ import {
   isNonNegativeApprovalCount,
   isPositiveMinuteInterval,
   isValidWorkflowName,
+  addTransitionAllowedRole,
   markTransitionAsDefault,
   restrictTransitionToOneRole,
   updateTransitionApprovalsRequired,
@@ -31,9 +32,11 @@ import { DEV_MSG } from "./messages";
  * slice 33 transition delete, slice 34 step delete, slice 57 absolute aging create,
  * slice 58 absolute aging interval change, slice 59 absolute aging delete,
  * slice 70 approvals required, slice 71 default transition,
- * slice 72 restrict one transition to a single role).
+ * slice 72 restrict one transition to a single role,
+ * slice 73 add one more role to an already-restricted transition).
  * Packaged workflows stay read-only. Aging edges are not comment-required,
  * do not take an approval count, cannot be the default, and are not role-restricted.
+ * Adding a role does not clear the restriction or turn the edge back to every role.
  * Deleting an aging transition does not remove a regular transition.
  */
 
@@ -49,6 +52,12 @@ function roleNameList(raw: unknown): string[] {
     return [];
   }
   return raw.filter((name): name is string => typeof name === "string" && name.trim().length > 0);
+}
+
+/** Workflow roles that are not already allowed to fire this restricted transition. */
+function rolesNotYetAllowed(all: unknown, allowed: unknown): string[] {
+  const taken = new Set(roleNameList(allowed).map((name) => name.toLowerCase()));
+  return roleNameList(all).filter((name) => !taken.has(name.toLowerCase()));
 }
 type ApprovalsIdentity = TransitionIdentity & { current: number };
 type AgingIntervalIdentity = { from: string; to: string; intervalMinutes: number };
@@ -80,6 +89,9 @@ export function WorkflowGraphView({
   const [rolesEdit, setRolesEdit] = useState<(TransitionIdentity & { roleName: string }) | null>(
     null,
   );
+  const [addRoleEdit, setAddRoleEdit] = useState<(TransitionIdentity & { roleName: string }) | null>(
+    null,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -99,6 +111,7 @@ export function WorkflowGraphView({
     setApprovalsDraft("");
     setDefaultEdit(null);
     setRolesEdit(null);
+    setAddRoleEdit(null);
     getWorkflowGraph(workflowName)
       .then((g) => {
         if (!cancelled) {
@@ -440,6 +453,49 @@ export function WorkflowGraphView({
       setBusy(false);
     }
   }, [rolesEdit, workflowName]);
+
+  const onCancelAddRole = useCallback(() => {
+    setAddRoleEdit(null);
+    setError(null);
+  }, []);
+
+  const onSaveAddRole = useCallback(async () => {
+    if (!addRoleEdit) {
+      return;
+    }
+    const roleName = addRoleEdit.roleName.trim();
+    if (!roleName) {
+      setError(DEV_MSG.WF_GRAPH_ROLES_ADD_INVALID);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const next = await addTransitionAllowedRole(
+        workflowName,
+        addRoleEdit.from,
+        addRoleEdit.label,
+        roleName,
+        addRoleEdit.to,
+      );
+      setGraph(next);
+      setNotice(DEV_MSG.WF_GRAPH_ROLES_ADD_SAVED);
+      setAddRoleEdit(null);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 403) {
+        setError(DEV_MSG.WF_GRAPH_ROLES_ADD_FORBIDDEN);
+      } else if (isApiError(err) && err.status === 409) {
+        setError(DEV_MSG.WF_GRAPH_ROLES_ADD_CONFLICT);
+      } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
+        setError(DEV_MSG.WF_GRAPH_ROLES_ADD_BAD);
+      } else {
+        setError(DEV_MSG.WF_GRAPH_ROLES_ADD_ERROR);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [addRoleEdit, workflowName]);
 
   const onToggleComment = useCallback(
     async (edge: WorkflowGraphEdge, commentRequired: boolean) => {
@@ -905,6 +961,79 @@ export function WorkflowGraphView({
                     }}
                   >
                     {DEV_MSG.WF_GRAPH_ROLES_RESTRICT}
+                  </button>
+                )
+              ) : null}
+              {!packaged &&
+              edge.allowAllRoles === false &&
+              edge.from &&
+              edge.label &&
+              roleNameList(edge.allowedRoles).length > 0 &&
+              rolesNotYetAllowed(graph?.roles, edge.allowedRoles).length > 0 ? (
+                addRoleEdit &&
+                addRoleEdit.from === edge.from &&
+                addRoleEdit.label === edge.label &&
+                addRoleEdit.to === (edge.to || "") ? (
+                  <span style={{ marginLeft: 8 }}>
+                    <label>
+                      {DEV_MSG.WF_GRAPH_ROLES_LABEL}{" "}
+                      <select
+                        data-testid="developer-wf-roles-add-value"
+                        value={addRoleEdit.roleName}
+                        disabled={busy}
+                        onChange={(ev) =>
+                          setAddRoleEdit({ ...addRoleEdit, roleName: ev.target.value })
+                        }
+                      >
+                        {rolesNotYetAllowed(graph?.roles, edge.allowedRoles).map((roleName) => (
+                          <option key={roleName} value={roleName}>
+                            {roleName}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <button
+                      type="button"
+                      data-testid="developer-wf-roles-add-save"
+                      style={{ marginLeft: 8 }}
+                      disabled={busy}
+                      onClick={() => {
+                        void onSaveAddRole();
+                      }}
+                    >
+                      {DEV_MSG.WF_GRAPH_ROLES_ADD_SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-wf-roles-add-cancel"
+                      style={{ marginLeft: 8 }}
+                      disabled={busy}
+                      onClick={() => {
+                        onCancelAddRole();
+                      }}
+                    >
+                      {DEV_MSG.WF_GRAPH_ROLES_ADD_CANCEL}
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    data-testid={`developer-wf-roles-add-${i}`}
+                    style={{ marginLeft: 8 }}
+                    disabled={busy}
+                    onClick={() => {
+                      const first = rolesNotYetAllowed(graph?.roles, edge.allowedRoles)[0] ?? "";
+                      setNotice(null);
+                      setError(null);
+                      setAddRoleEdit({
+                        from: edge.from as string,
+                        label: edge.label as string,
+                        to: (edge.to as string) || "",
+                        roleName: first,
+                      });
+                    }}
+                  >
+                    {DEV_MSG.WF_GRAPH_ROLES_ADD}
                   </button>
                 )
               ) : null}

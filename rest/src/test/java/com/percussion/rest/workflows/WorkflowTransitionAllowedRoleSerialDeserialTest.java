@@ -92,4 +92,27 @@ public class WorkflowTransitionAllowedRoleSerialDeserialTest {
     assertNull(roundTrip.getEdges().get(1).getAllowedRoles());
     assertTrue(roundTrip.getEdges().get(1).isCommentRequired());
   }
+
+  @Test
+  public void graphEdgeKeepsBothAllowedRolesAndStaysRestricted() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Nightly QA");
+    WorkflowGraph.Edge restricted = new WorkflowGraph.Edge();
+    restricted.setFrom("Draft");
+    restricted.setTo("Live");
+    restricted.setLabel("Send");
+    restricted.setAllowAllRoles(false);
+    restricted.setAllowedRoles(List.of("Editor", "Author"));
+    graph.setEdges(List.of(restricted));
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(WorkflowGraph.class);
+    String json = mapper.writeValueAsString(graph);
+    assertTrue(json.contains("Editor"), json);
+    assertTrue(json.contains("Author"), json);
+    assertFalse(json.contains("\"allowAllRoles\":true"), json);
+
+    WorkflowGraph roundTrip = mapper.readValue(json, WorkflowGraph.class);
+    assertEquals(Boolean.FALSE, roundTrip.getEdges().get(0).getAllowAllRoles());
+    assertEquals(List.of("Editor", "Author"), roundTrip.getEdges().get(0).getAllowedRoles());
+  }
 }

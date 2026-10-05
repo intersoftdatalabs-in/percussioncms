@@ -277,6 +277,31 @@ public interface IWorkflowsAdaptor {
       String roleName);
 
   /**
+   * Add one existing workflow role to a regular transition that is already restricted (Admin, slice
+   * 73). Does not perform the first restriction, clear the list, edit step roles, or change aging
+   * transitions. The transition stays restricted.
+   *
+   * @param fromStep source step name
+   * @param label transition label or trigger
+   * @param toStep destination step; required when the label is not unique on the source step
+   * @param roleName one existing workflow role that is not already allowed to fire it
+   * @return the graph after the update, with {@code allowAllRoles} false and both the previous
+   *     roles and this role on the edge
+   * @throws IllegalArgumentException when the role name is blank, the label is ambiguous, or the
+   *     match is an aging transition
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     transition, or role, 409 when the transition still allows every role, the role is already
+   *     on the list, or the name is the allow-all marker
+   */
+  WorkflowGraph addTransitionAllowedRole(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String label,
+      String toStep,
+      String roleName);
+
+  /**
    * Create one transition between existing steps (Admin, slice 31). Does not create steps.
    *
    * @param body {@code from}, {@code to}, and {@code label}; both steps must already exist

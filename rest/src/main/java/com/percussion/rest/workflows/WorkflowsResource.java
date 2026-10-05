@@ -883,6 +883,86 @@ public class WorkflowsResource {
   }
 
   @POST
+  @Path("/{idOrName}/transitions/allowed-roles")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Add one role allowed to fire a transition",
+      description =
+          "Slice 73 Admin. Adds one existing workflow role to one regular transition that is"
+              + " already restricted. Query `from` is the source step and `label` is the"
+              + " transition label (or trigger). Query `to` is required when more than one"
+              + " transition on the source step shares the label. The body is one role name that"
+              + " is not already on that transition. The transition stays restricted. Both the"
+              + " previous roles and the new role are listed only after success. This is not PUT"
+              + " allowed-role, which only replaces allow-all with one role. The allow-all marker"
+              + " *ALL* is 409 and does not write. A transition that still allows every role is"
+              + " 409 and stays allow-all. A role already on the list is 409 and the list is not"
+              + " changed. Does not clear the restriction, edit step roles, or change the label,"
+              + " destination, comment flag, approval count, or default flag. Aging transitions"
+              + " are 400. Packaged default workflows are forbidden (403). Jackson root wrap is"
+              + " WorkflowTransitionAllowedRole.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description =
+                "Updated; returns the graph with allowAllRoles false and the previous roles plus"
+                    + " the added role",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description =
+                "Missing body, from, label, or role, ambiguous label, or the match is aging"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Workflow, step, transition, or role not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description =
+                "Allow-all marker, the transition still allows every role, or the role is already"
+                    + " allowed; nothing was written"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph addTransitionAllowedRole(
+      @PathParam("idOrName") String idOrName,
+      @QueryParam("from") String fromStep,
+      @QueryParam("label") String label,
+      @QueryParam("to") String toStep,
+      WorkflowTransitionAllowedRole body) {
+    if (body == null || body.getRoleName() == null || body.getRoleName().isBlank()) {
+      throw new WebApplicationException("Workflow transition role body is required", 400);
+    }
+    if (fromStep == null || fromStep.isBlank() || label == null || label.isBlank()) {
+      throw new WebApplicationException("from and label are required", 400);
+    }
+    try {
+      return requireAdaptor()
+          .addTransitionAllowedRole(
+              uriInfo.getBaseUri(),
+              idOrName,
+              fromStep,
+              label,
+              toStep,
+              body.getRoleName());
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to add a transition role ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @POST
   @Path("/{idOrName}/transitions")
   @Consumes({MediaType.APPLICATION_JSON})
   @Produces({MediaType.APPLICATION_JSON})

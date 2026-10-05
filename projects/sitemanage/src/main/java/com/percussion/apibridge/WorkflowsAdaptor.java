@@ -610,6 +610,41 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
   }
 
   @Override
+  public WorkflowGraph addTransitionAllowedRole(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String label,
+      String toStep,
+      String roleName) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(fromStep) || StringUtils.isBlank(label)) {
+      throw new IllegalArgumentException("from and label are required");
+    }
+    if (StringUtils.isBlank(roleName)) {
+      throw new IllegalArgumentException("role name is required");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    int stepCount = states.size();
+    int transitionCount = countTransitions(states);
+    WorkflowTransitionAllowedRoleLimiter.addOne(workflow, fromStep, label, toStep, roleName);
+    if (workflow.getStates() == null || workflow.getStates().size() != stepCount) {
+      throw new IllegalStateException("Adding a transition role must not delete steps");
+    }
+    if (countTransitions(workflow.getStates()) != transitionCount) {
+      throw new IllegalStateException("Adding a transition role must not add or delete transitions");
+    }
+    workflowService.saveWorkflow(workflow);
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
   public WorkflowGraph createWorkflowTransition(
       URI baseUri, String idOrName, WorkflowTransitionWrite body) {
     requireAdmin();
