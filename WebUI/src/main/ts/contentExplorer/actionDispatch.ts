@@ -47,6 +47,7 @@ import {
   checkOutItem,
   forceCheckInItem,
 } from "../api/contentExplorer/itemWorkflowApi";
+import { checkinEditorItem } from "../editor/itemFieldsApi";
 import {
   formatTakedownConfirmBody,
   isCheckinActionName,
@@ -307,6 +308,12 @@ export interface ActionDispatchContext {
    */
   promptWorkflowComment?: (trigger: string) => string | null;
   /**
+   * Revision comment for one selected page or asset (#5199). Return null to
+   * cancel (no check-in request). An empty string checks in with no comment.
+   * Multi-select does not call this.
+   */
+  promptCheckinComment?: () => Promise<string | null> | string | null;
+  /**
    * Selected AA slot (and optional relationship). Folder browse has no
    * slot — dispatch must not invent Arrange_* from a folder.
    */
@@ -343,6 +350,11 @@ export interface ActionDispatchResult {
    */
   outcome?: "success";
   refresh?: boolean;
+  /**
+   * Reload who holds the checkout only after a successful single-item
+   * check-in. HTTP 400, 403, and 409 leave the displayed user in place.
+   */
+  refreshCheckoutOwner?: boolean;
   /** Item id the list may mark approved only after the server accepts it. */
   approvedItemId?: string;
   /** Item id whose approved mark is cleared only after the server accepts unapprove. */
@@ -1611,6 +1623,24 @@ function describeWorkflowBatch(result: {
   return parts.join(" ");
 }
 
+/**
+ * Comment for one page or asset. Null cancels. Missing prompt does not
+ * check in (a folder never reaches this).
+ */
+async function promptSingleCheckinComment(
+  ctx: ActionDispatchContext,
+): Promise<string | null> {
+  if (ctx.promptCheckinComment) {
+    const entered = await ctx.promptCheckinComment();
+    return entered == null ? null : String(entered);
+  }
+  if (typeof window === "undefined" || typeof window.prompt !== "function") {
+    return null;
+  }
+  const entered = window.prompt(message(EXPLORER_MSG.CHECKIN_COMMENT_PROMPT));
+  return entered == null ? null : entered;
+}
+
 function promptWorkflowComment(
   ctx: ActionDispatchContext,
   trigger: string,
@@ -2580,20 +2610,31 @@ export async function dispatchAction(
     if (resolvePublishKind(item) === "none") {
       return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
     }
+    const entered = await promptSingleCheckinComment(ctx);
+    if (entered == null) {
+      return { kind: "rest" };
+    }
+    const comment = entered.trim();
     try {
-      await checkInItem(String(item.id));
+      await checkinEditorItem(
+        String(item.id),
+        comment.length > 0 ? comment : undefined,
+      );
     } catch (err: unknown) {
       if (isApiError(err)) {
+        if (err.status === 400) {
+          return { kind: "rest", messageKey: EXPLORER_MSG.CHECKIN_REJECTED };
+        }
         if (err.status === 403) {
           return { kind: "rest", messageKey: EXPLORER_MSG.CHECKIN_FORBIDDEN };
         }
-        if (err.status === 409 || err.status === 400) {
+        if (err.status === 409) {
           return { kind: "rest", messageKey: EXPLORER_MSG.CHECKIN_CONFLICT };
         }
       }
       throw err;
     }
-    return { kind: "rest", refresh: true };
+    return { kind: "rest", refresh: true, refreshCheckoutOwner: true };
   }
 
   if (isForceCheckinActionName(name)) {

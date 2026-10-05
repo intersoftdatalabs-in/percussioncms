@@ -690,10 +690,18 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Not every selected item was checked out. {detail}",
   CHECKOUT_NOTHING_ELIGIBLE:
     "perc.ui.explorer@Nothing in the selection can be checked out. Folders are not checked out.",
+  CHECKIN_COMMENT_TITLE: "perc.ui.explorer@Revision comment",
+  CHECKIN_COMMENT_HINT:
+    "perc.ui.explorer@Optional comment stored with this check-in. Leave blank to check in without a comment.",
+  CHECKIN_COMMENT_LABEL: "perc.ui.explorer@Revision comment",
+  CHECKIN_COMMENT_PROMPT: "perc.ui.explorer@Revision comment (optional)",
+  CHECKIN_CONFIRM: "perc.ui.explorer@Check in",
+  CHECKIN_CANCEL: "perc.ui.explorer@Cancel",
   CHECKIN_FORBIDDEN:
     "perc.ui.explorer@You are not allowed to check in this item",
   CHECKIN_CONFLICT:
     "perc.ui.explorer@Item is not checked out to you",
+  CHECKIN_REJECTED: "perc.ui.explorer@Check-in was rejected",
   CONFIRM_CHECKIN_MULTI:
     "perc.ui.explorer@Check in {count} selected items? Folders in the selection are not checked in.",
   CHECKIN_SKIPPED_FOLDERS:

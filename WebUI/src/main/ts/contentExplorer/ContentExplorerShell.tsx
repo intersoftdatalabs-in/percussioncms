@@ -216,6 +216,7 @@ import {
 } from "./setItemCommunity";
 import type { ItemCommunityChoice } from "../api/contentExplorer/itemCommunityApi";
 import { ScheduleDatesDialog } from "./ScheduleDatesDialog";
+import { CheckinCommentDialog } from "./CheckinCommentDialog";
 import type { ItemScheduleDates } from "./itemScheduleDates";
 import {
   replaceSchedulePickerSession,
@@ -955,6 +956,12 @@ function ContentExplorerShellInner({
   const clearScheduleResolveRef = useRef<((cleared: boolean) => void) | null>(
     null,
   );
+  const [checkinCommentOpen, setCheckinCommentOpen] = useState(false);
+  const checkinCommentResolveRef = useRef<((comment: string | null) => void) | null>(
+    null,
+  );
+  /** Bumped only after a successful single-item check-in (#5199). */
+  const [checkoutOwnerReload, setCheckoutOwnerReload] = useState(0);
   const [publishingHistoryItem, setPublishingHistoryItem] =
     useState<PSPathItem | null>(null);
   /**
@@ -1587,6 +1594,26 @@ function ContentExplorerShellInner({
     settleSchedulePickerSession(current, dates);
   }, []);
 
+  const promptCheckinComment = useCallback(() => {
+    return new Promise<string | null>((resolve) => {
+      const previous = checkinCommentResolveRef.current;
+      checkinCommentResolveRef.current = resolve;
+      setCheckinCommentOpen(true);
+      if (previous) {
+        previous(null);
+      }
+    });
+  }, []);
+
+  const finishCheckinComment = useCallback((comment: string | null) => {
+    const resolve = checkinCommentResolveRef.current;
+    checkinCommentResolveRef.current = null;
+    setCheckinCommentOpen(false);
+    if (resolve) {
+      resolve(comment);
+    }
+  }, []);
+
   useEffect(() => {
     return () => {
       const typeCurrent = contentTypePickerRef.current;
@@ -1611,6 +1638,11 @@ function ContentExplorerShellInner({
       clearScheduleResolveRef.current = null;
       if (clearResolve) {
         clearResolve(false);
+      }
+      const checkinResolve = checkinCommentResolveRef.current;
+      checkinCommentResolveRef.current = null;
+      if (checkinResolve) {
+        checkinResolve(null);
       }
     };
   }, []);
@@ -1730,6 +1762,7 @@ function ContentExplorerShellInner({
             pickContentType,
             pickScheduleDates,
             confirmClearScheduledDates,
+            promptCheckinComment,
             loadContentTypes,
             slot,
             addToSlot,
@@ -1793,6 +1826,9 @@ function ContentExplorerShellInner({
           if (result.refresh) {
             setListEpoch((n) => n + 1);
           }
+          if (result.refreshCheckoutOwner) {
+            setCheckoutOwnerReload((n) => n + 1);
+          }
         } catch (err: unknown) {
           const msg = formatApiError(
             err,
@@ -1814,6 +1850,7 @@ function ContentExplorerShellInner({
       pickContentType,
       pickScheduleDates,
       confirmClearScheduledDates,
+      promptCheckinComment,
       loadContentTypes,
       slot,
       addToSlot,
@@ -3397,6 +3434,7 @@ function ContentExplorerShellInner({
                 ? (selection.item.id ?? null)
                 : null
             }
+            reloadToken={checkoutOwnerReload}
           />
           {/* Always-visible refresh residual (#2733); View menu also has Refresh (#2731). */}
           <div
@@ -4252,6 +4290,12 @@ function ContentExplorerShellInner({
           applyCount={schedulePicker.applyCount}
           onSave={(dates) => finishSchedulePicker(dates)}
           onCancel={() => finishSchedulePicker(null)}
+        />
+      ) : null}
+      {checkinCommentOpen ? (
+        <CheckinCommentDialog
+          onConfirm={(comment) => finishCheckinComment(comment)}
+          onCancel={() => finishCheckinComment(null)}
         />
       ) : null}
       {clearScheduleItem ? (

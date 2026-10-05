@@ -32,11 +32,17 @@ import { EXPLORER_MSG } from "./messages";
 export interface CheckoutOwnerPanelProps {
   /** Page or asset id. Null hides the panel (folders). */
   itemId: string | null;
+  /**
+   * Changes only after a successful check-in. The same token leaves the
+   * displayed checkout user in place (#5199).
+   */
+  reloadToken?: number;
   load?: (itemId: string) => Promise<CheckoutOwnerInfo>;
 }
 
 export function CheckoutOwnerPanel({
   itemId,
+  reloadToken = 0,
   load = lookupCheckoutOwner,
 }: CheckoutOwnerPanelProps): React.ReactElement | null {
   const [owner, setOwner] = useState<string | null>(null);
@@ -74,7 +80,7 @@ export function CheckoutOwnerPanel({
     return () => {
       cancelled = true;
     };
-  }, [itemId, load]);
+  }, [itemId, load, reloadToken]);
 
   if (!(itemId ?? "").trim()) {
     return null;
