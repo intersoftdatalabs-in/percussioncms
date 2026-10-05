@@ -177,6 +177,17 @@ describe("buildExplorerMenuBarGroups (#2731 DCE ContentExplorerMenu.xml)", () =>
     expect(setCommunity?.labelKey).toBe(EXPLORER_MSG.SET_COMMUNITY);
   });
 
+  it("puts Change page template under Content (#5200)", () => {
+    const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
+    const changeTemplate = content?.items.find(
+      (i) => i.id === "content-change-page-template",
+    );
+    expect(changeTemplate?.testId).toBe("explorer-change-page-template");
+    expect(changeTemplate?.disabledWhen).toBeUndefined();
+    expect(changeTemplate?.labelKey).toBe(EXPLORER_MSG.CHANGE_PAGE_TEMPLATE);
+    expect(changeTemplate?.ariaLabelKey).toBe(EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_ARIA);
+  });
+
   it("puts Mobile preview under Content (#5078)", () => {
     const content = buildExplorerMenuBarGroups().find((g) => g.id === "content");
     const mobile = content?.items.find((i) => i.id === "content-mobile-preview");
