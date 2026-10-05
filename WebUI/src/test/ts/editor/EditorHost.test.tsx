@@ -5408,6 +5408,154 @@ describe("EditorHost refuse blank required link (#5226)", () => {
   });
 });
 
+describe("EditorHost refuse blank required HTML (#5251)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function requiredHtmlHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    body?: string;
+    confirmLeaveUnsaved?: (message: string) => boolean;
+  }) {
+    const body = opts.body ?? "<p>Hi</p>";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percRichText",
+          name: "Intro",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "text", value: body }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "text",
+              label: "Body",
+              control: "sys_tinymce",
+              required: true,
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openRequiredHtml(element: React.ReactElement): Promise<HTMLTextAreaElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
+        "<p>Hi</p>",
+      );
+    });
+    return screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
+  }
+
+  it("does not save a blank required HTML field and reloads the previous value", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredHtml(requiredHtmlHost({ saveFields }));
+    expect(input.getAttribute("data-editor-kind")).toBe("html");
+    expect(screen.getByTestId("editor-field-row-text").getAttribute("data-required")).toBe("true");
+    fireEvent.click(screen.getByTestId("editor-html-clear-text"));
+    expect(input.value).toBe("");
+    expect(screen.queryByTestId("editor-html-clear-text")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(/required/i);
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(document.activeElement).toBe(screen.getByTestId("editor-field-text"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-field-row-text").getAttribute("data-required")).toBe("true");
+    cleanup();
+    const reloaded = await openRequiredHtml(requiredHtmlHost({ saveFields }));
+    expect(reloaded.value).toBe("<p>Hi</p>");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not save when the required HTML is emptied or only spaces", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredHtml(requiredHtmlHost({ saveFields }));
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.change(screen.getByTestId("editor-field-text"), { target: { value: "   " } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe("   ");
+    cleanup();
+    const reloaded = await openRequiredHtml(requiredHtmlHost({ saveFields }));
+    expect(reloaded.value).toBe("<p>Hi</p>");
+  });
+
+  it("does not write when Close cancels a blank required HTML edit", async () => {
+    const saveFields = vi.fn();
+    await openRequiredHtml(requiredHtmlHost({ saveFields, confirmLeaveUnsaved: () => false }));
+    fireEvent.click(screen.getByTestId("editor-html-clear-text"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe("");
+    expect(screen.getByTestId("editor-field-row-text").getAttribute("data-required")).toBe("true");
+  });
+
+  it("still saves a non-blank required HTML value", async () => {
+    let body = "<p>Hi</p>";
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
+      body = payload.fields.find((f) => f.name === "text")?.value ?? body;
+      return {
+        contentId: "42",
+        contentType: "percRichText",
+        name: "Intro",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: payload.fields,
+      };
+    });
+    const input = await openRequiredHtml(requiredHtmlHost({ saveFields, body }));
+    fireEvent.change(input, { target: { value: "<p>Bye</p>" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "text")?.value).toBe("<p>Bye</p>");
+    cleanup();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={requiredHtmlHost({ saveFields, body })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
+        "<p>Bye</p>",
+      );
+    });
+  });
+});
+
 describe("EditorHost page link fields", () => {
   afterEach(() => {
     cleanup();
