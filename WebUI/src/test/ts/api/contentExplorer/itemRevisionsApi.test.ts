@@ -195,4 +195,56 @@ describe("itemRevisionsApi", () => {
       "itemmanagement/item/compare/1-101-42/1/2",
     );
   });
+
+  it("drops a blank comment object so empty history is not a fake row (#5245)", () => {
+    const summary = unwrapRevisionsSummary({
+      RevisionsSummary: {
+        restorable: false,
+        revisions: [],
+        comments: {
+          Comment: {
+            comment: " ",
+            commenter: "",
+            commentType: "",
+            commentDate: "",
+          },
+        },
+      },
+    });
+    expect(summary.comments).toEqual([]);
+  });
+
+  it("keeps a comment that has a date even when the text is empty (#5245)", () => {
+    const summary = unwrapRevisionsSummary({
+      comments: [
+        {
+          comment: "",
+          commenter: "Admin",
+          commentType: "CheckIn",
+          commentDate: "2026-04-01",
+        },
+      ],
+    });
+    expect(summary.comments).toHaveLength(1);
+    expect(summary.comments[0]?.commenter).toBe("Admin");
+    expect(summary.comments[0]?.commentDate).toBe("2026-04-01");
+  });
+
+  it.each([403, 404])(
+    "fetchItemRevisions HTTP %s is not an empty audit trail (#5245)",
+    async (status) => {
+      vi.spyOn(global, "fetch").mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            message: "No workflow comments are recorded for this item",
+          }),
+          {
+            status,
+            headers: { "Content-Type": "application/json" },
+          },
+        ),
+      );
+      await expect(fetchItemRevisions("42")).rejects.toMatchObject({ status });
+    },
+  );
 });

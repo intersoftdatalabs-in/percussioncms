@@ -1218,6 +1218,10 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Select a content item to view revisions and the audit trail.",
   REVISIONS_LOADING: "perc.ui.explorer@Loading revisions…",
   REVISIONS_ERROR: "perc.ui.explorer@Could not load revisions",
+  REVISIONS_LOAD_FORBIDDEN:
+    "perc.ui.explorer@You are not allowed to view this item's audit trail (HTTP 403)",
+  REVISIONS_LOAD_NOT_FOUND:
+    "perc.ui.explorer@This item was not found (HTTP 404)",
   REVISIONS_EMPTY: "perc.ui.explorer@No revisions are recorded for this item",
   REVISIONS_AUDIT_EMPTY:
     "perc.ui.explorer@No workflow comments are recorded for this item",

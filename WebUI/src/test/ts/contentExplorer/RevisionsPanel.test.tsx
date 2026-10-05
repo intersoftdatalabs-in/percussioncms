@@ -699,4 +699,105 @@ describe("RevisionsPanel", () => {
     );
     await renderA11yGate(container);
   });
+
+  it("shows date, user, type, and comment only after history loads (#5245)", async () => {
+    let release: (value: typeof SAMPLE) => void = () => {};
+    const loadSummary = vi.fn(
+      () =>
+        new Promise<typeof SAMPLE>((resolve) => {
+          release = resolve;
+        }),
+    );
+    const { container } = render(
+      <RevisionsPanel
+        itemId="42"
+        initialTab="audit"
+        loadSummary={loadSummary}
+      />,
+    );
+    expect(screen.getByTestId("revisions-panel")).toHaveAttribute(
+      "data-testid-state",
+      "loading",
+    );
+    expect(screen.queryByTestId("audit-row-0")).toBeNull();
+    expect(screen.queryByTestId("revisions-audit-empty")).toBeNull();
+    expect(screen.queryByTestId("revisions-audit-table")).toBeNull();
+    expect(screen.queryByTestId("revisions-restore-1")).toBeNull();
+    expect(screen.queryByTestId("revisions-compare-run")).toBeNull();
+
+    release(SAMPLE);
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-panel")).toHaveAttribute(
+        "data-testid-tab",
+        "audit",
+      ),
+    );
+    expect(screen.getByTestId("audit-date-0")).toHaveTextContent("2026-01-02");
+    expect(screen.getByTestId("audit-user-0")).toHaveTextContent("Admin");
+    expect(screen.getByTestId("audit-type-0")).toHaveTextContent("Approve");
+    expect(screen.getByTestId("audit-comment-0")).toHaveTextContent("Looks good");
+    expect(screen.queryByTestId("revisions-restore-1")).toBeNull();
+    expect(screen.queryByTestId("revisions-compare-run")).toBeNull();
+    await renderA11yGate(container);
+  });
+
+  it("an empty history shows the empty message, not a fake row (#5245)", async () => {
+    render(
+      <RevisionsPanel
+        itemId="42"
+        initialTab="audit"
+        loadSummary={async () => ({
+          ...SAMPLE,
+          comments: [
+            {
+              comment: " ",
+              commenter: "",
+              commentType: "",
+              commentDate: " ",
+            },
+          ],
+        })}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-audit-empty").textContent).toMatch(
+        /No workflow comments/,
+      ),
+    );
+    expect(screen.queryByTestId("audit-row-0")).toBeNull();
+    expect(screen.queryByTestId("revisions-audit-table")).toBeNull();
+  });
+
+  it.each([403, 404])(
+    "HTTP %s stays in the audit panel and is not an empty trail (#5245)",
+    async (status) => {
+      render(
+        <RevisionsPanel
+          itemId="42"
+          initialTab="audit"
+          loadSummary={async () => {
+            throw {
+              status,
+              statusText: status === 403 ? "Forbidden" : "Not Found",
+              body: {
+                message: "No workflow comments are recorded for this item",
+              },
+            };
+          }}
+        />,
+      );
+      await waitFor(() =>
+        expect(screen.getByTestId("revisions-load-error").textContent).toMatch(
+          new RegExp(String(status)),
+        ),
+      );
+      expect(screen.getByTestId("revisions-panel")).toHaveAttribute(
+        "data-testid-state",
+        "error",
+      );
+      expect(screen.queryByTestId("revisions-audit-empty")).toBeNull();
+      expect(screen.queryByTestId("audit-row-0")).toBeNull();
+      expect(screen.queryByTestId("revisions-audit-table")).toBeNull();
+    },
+  );
 });

@@ -727,6 +727,38 @@ describe("actionDispatch", () => {
       { item: item(), onShowRevisions },
     );
     expect(result.kind).toBe("client");
+    expect(result.outcome).not.toBe("success");
+    expect(onShowRevisions).toHaveBeenCalledWith("audit");
+  });
+
+  it("folder and empty selection do not claim an audit trail (#5245)", async () => {
+    const onShowRevisions = vi.fn();
+    const folder = await dispatchAction(
+      action({
+        name: "Workflow_AuditTrail",
+        url: "../sys_cxSupport/contenteditorurls.html?sys_userview=sys_audittrail&sys_command=preview",
+      }),
+      {
+        item: item({
+          id: "fold-1",
+          name: "News",
+          path: "/Sites/Demo/News/",
+          type: "folder",
+          category: "folder",
+        }),
+        onShowRevisions,
+      },
+    );
+    expect(folder.kind).toBe("client");
+    expect(folder.outcome).not.toBe("success");
+    expect(folder.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+
+    const empty = await dispatchAction(
+      action({ name: "Workflow_AuditTrail" }),
+      { item: null, onShowRevisions },
+    );
+    expect(empty.outcome).not.toBe("success");
+    expect(empty.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
     expect(onShowRevisions).toHaveBeenCalledWith("audit");
   });
 
