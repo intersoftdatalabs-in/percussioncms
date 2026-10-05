@@ -44,11 +44,23 @@ import {
   fetchNodeSummary,
   fetchRelationshipEdges,
   isFolderRelationshipCategory,
+  relatedItemOpenTarget,
   relationshipMoveEnds,
   removableOwnedEdges,
   removeAllOwnedRelationshipEdges,
   removeRelationshipEdge,
 } from "../../api/contentExplorer/relationshipsApi";
+import { OpenRelatedItemDialog } from "../OpenRelatedItemDialog";
+import {
+  openRelatedItemInEditor,
+  type OpenRelatedItemDeps,
+  type OpenRelatedItemRequest,
+  type OpenRelatedItemResult,
+} from "../openRelatedItemInEditor";
+import {
+  closeReservedWindow,
+  reserveEditorWindow,
+} from "../../editor/openEditorHost";
 
 export interface RelationshipsViewProps {
   item: DependencyItemShared;
@@ -73,6 +85,17 @@ export interface RelationshipsViewProps {
     relationshipId: number,
     direction: "UP" | "DOWN",
   ) => Promise<void>;
+  /**
+   * Optional injection seam: open one related content item in EditorHost.
+   * Defaults to a fields probe, then the React editor. Does not change the
+   * Explorer selection.
+   */
+  openRelated?: (
+    request: OpenRelatedItemRequest,
+    deps?: OpenRelatedItemDeps,
+  ) => Promise<OpenRelatedItemResult>;
+  /** Optional injection seam: popup reserved on the confirm gesture. */
+  reserveRelatedWindow?: () => Window | null;
   /** Optional injection seam for tests: summarises server-shape with AA-link count. */
   composeSummary?: (
     item: DependencyItemShared,
@@ -134,6 +157,8 @@ export function RelationshipsView(
     addEdge = addRelationshipEdge,
     moveEdge = (relationshipId, direction) =>
       moveSlotRelationship(relationshipId, direction),
+    openRelated = openRelatedItemInEditor,
+    reserveRelatedWindow = reserveEditorWindow,
     composeSummary,
     ariaLabel,
     className,
@@ -159,6 +184,14 @@ export function RelationshipsView(
   } | null>(null);
   const [movedNotice, setMovedNotice] = React.useState(false);
   const [moveError, setMoveError] = React.useState<string | null>(null);
+  const [openPrompt, setOpenPrompt] = React.useState<{
+    relationshipId: number;
+    contentId: number;
+    label: string;
+  } | null>(null);
+  const [opening, setOpening] = React.useState(false);
+  const [openedNotice, setOpenedNotice] = React.useState(false);
+  const [openError, setOpenError] = React.useState<string | null>(null);
   const [addOpen, setAddOpen] = React.useState(false);
   const [addTarget, setAddTarget] = React.useState("");
   const [addType, setAddType] = React.useState("Translation");
@@ -184,6 +217,9 @@ export function RelationshipsView(
       setMoveError(null);
       setMoveRequest(null);
       setAddOpen(false);
+      setOpenPrompt(null);
+      setOpenedNotice(false);
+      setOpenError(null);
       return;
     }
     setState({ kind: "loading" });
@@ -191,6 +227,7 @@ export function RelationshipsView(
     setConfirmAll(false);
     setMoveRequest(null);
     setAddOpen(false);
+    setOpenPrompt(null);
     loadServerSummary(itemId)
       .then(async (summary) => {
         if (!alive) return;
@@ -236,6 +273,9 @@ export function RelationshipsView(
     setRemovedNotice(null);
     setAddedNotice(false);
     setMovedNotice(false);
+    setOpenError(null);
+    setOpenedNotice(false);
+    setOpenPrompt(null);
   }, [itemId]);
 
   function statusOf(err: unknown): number | undefined {
@@ -270,14 +310,127 @@ export function RelationshipsView(
     return err instanceof Error ? err.message : String(err);
   }
 
+  function openFailureMessage(result: OpenRelatedItemResult): string {
+    if (result.reason === "forbidden") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_OPEN_FORBIDDEN);
+    }
+    if (result.reason === "not_found") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_OPEN_NOT_FOUND);
+    }
+    if (result.reason === "folder") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_OPEN_FOLDER);
+    }
+    if (result.reason === "no_content") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_OPEN_NO_CONTENT);
+    }
+    const text = message(EXPLORER_MSG.RELATIONSHIPS_OPEN_FAILED);
+    return result.detail ? `${text} ${result.detail}` : text;
+  }
+
   function openMove(relationshipId: number, direction: "UP" | "DOWN"): void {
     setRemovedNotice(null);
     setRemoveError(null);
     setMovedNotice(false);
     setMoveError(null);
+    setOpenedNotice(false);
+    setOpenError(null);
+    setOpenPrompt(null);
     setConfirmId(null);
     setConfirmAll(false);
     setMoveRequest({ id: relationshipId, direction });
+  }
+
+  function beginOpen(edge: PSExplorerRelationshipEdge): void {
+    const target = relatedItemOpenTarget(edge);
+    setRemovedNotice(null);
+    setRemoveError(null);
+    setMovedNotice(false);
+    setMoveError(null);
+    setAddedNotice(false);
+    setAddError(null);
+    setMoveRequest(null);
+    setConfirmId(null);
+    setConfirmAll(false);
+    setAddOpen(false);
+    setOpenedNotice(false);
+    if (target.kind !== "content") {
+      setOpenPrompt(null);
+      setOpenError(
+        message(
+          target.kind === "folder"
+            ? EXPLORER_MSG.RELATIONSHIPS_OPEN_FOLDER
+            : EXPLORER_MSG.RELATIONSHIPS_OPEN_NO_CONTENT,
+        ),
+      );
+      return;
+    }
+    setOpenError(null);
+    setOpenPrompt({
+      relationshipId: edge.relationshipId,
+      contentId: target.contentId,
+      label: edge.label,
+    });
+  }
+
+  async function confirmOpen(): Promise<void> {
+    if (!itemId || opening || openPrompt == null) return;
+    const edge = edges.find(
+      (candidate) => candidate.relationshipId === openPrompt.relationshipId,
+    );
+    const target = edge
+      ? relatedItemOpenTarget(edge)
+      : { kind: "no_content" as const };
+    if (target.kind !== "content") {
+      setOpenPrompt(null);
+      setOpenedNotice(false);
+      setOpenError(
+        message(
+          target.kind === "folder"
+            ? EXPLORER_MSG.RELATIONSHIPS_OPEN_FOLDER
+            : EXPLORER_MSG.RELATIONSHIPS_OPEN_NO_CONTENT,
+        ),
+      );
+      return;
+    }
+    if (target.contentId !== openPrompt.contentId) {
+      setOpenPrompt(null);
+      setOpenedNotice(false);
+      setOpenError(message(EXPLORER_MSG.RELATIONSHIPS_OPEN_NO_CONTENT));
+      return;
+    }
+    const contentId = target.contentId;
+    setOpening(true);
+    setOpenError(null);
+    setOpenedNotice(false);
+    const reserved = reserveRelatedWindow();
+    try {
+      const result = await openRelated(
+        { contentId, folder: false },
+        { reservedWindow: reserved },
+      );
+      setOpenPrompt(null);
+      if (result.ok) {
+        setOpenError(null);
+        setOpenedNotice(true);
+        return;
+      }
+      closeReservedWindow(reserved);
+      setOpenedNotice(false);
+      setOpenError(openFailureMessage(result));
+    } catch (err: unknown) {
+      closeReservedWindow(reserved);
+      setOpenPrompt(null);
+      setOpenedNotice(false);
+      setOpenError(
+        openFailureMessage({
+          ok: false,
+          reason: "failed",
+          detail: err instanceof Error ? err.message : String(err),
+        }),
+      );
+    } finally {
+      setOpening(false);
+    }
   }
 
   async function confirmMove(): Promise<void> {
@@ -505,6 +658,9 @@ export function RelationshipsView(
           onClick={() => {
             setAddedNotice(false);
             setAddError(null);
+            setOpenedNotice(false);
+            setOpenError(null);
+            setOpenPrompt(null);
             setAddOpen(true);
           }}
         >
@@ -588,6 +744,16 @@ export function RelationshipsView(
             {moveError}
           </p>
         ) : null}
+        {openedNotice ? (
+          <p role="status" data-testid="relationships-opened">
+            {message(EXPLORER_MSG.RELATIONSHIPS_OPENED)}
+          </p>
+        ) : null}
+        {openError ? (
+          <p role="alert" data-testid="relationships-open-error">
+            {openError}
+          </p>
+        ) : null}
         {removableOwnedEdges(edges).length > 0 ? (
           <p>
             <button
@@ -596,6 +762,9 @@ export function RelationshipsView(
               onClick={() => {
                 setRemovedNotice(null);
                 setRemoveError(null);
+                setOpenedNotice(false);
+                setOpenError(null);
+                setOpenPrompt(null);
                 setConfirmId(null);
                 setConfirmAll(true);
               }}
@@ -615,6 +784,7 @@ export function RelationshipsView(
           >
             {edges.map((edge) => {
               const ends = relationshipMoveEnds(edges, edge);
+              const openTarget = relatedItemOpenTarget(edge);
               return (
               <li
                 key={edge.relationshipId}
@@ -628,6 +798,16 @@ export function RelationshipsView(
               >
                 <span>{edge.label}</span>
                 <span style={{ display: "flex", gap: 8 }}>
+                  {openTarget.kind === "content" ? (
+                    <button
+                      type="button"
+                      data-testid={`relationships-open-${edge.relationshipId}`}
+                      data-content-id={String(openTarget.contentId)}
+                      onClick={() => beginOpen(edge)}
+                    >
+                      {message(EXPLORER_MSG.RELATIONSHIPS_OPEN)}
+                    </button>
+                  ) : null}
                   {ends.up ? (
                     <button
                       type="button"
@@ -659,6 +839,9 @@ export function RelationshipsView(
                         setRemoveError(null);
                         setMovedNotice(false);
                         setMoveError(null);
+                        setOpenedNotice(false);
+                        setOpenError(null);
+                        setOpenPrompt(null);
                         setMoveRequest(null);
                         setConfirmAll(false);
                         setConfirmId(edge.relationshipId);
@@ -733,6 +916,23 @@ export function RelationshipsView(
               {message(EXPLORER_MSG.RELATIONSHIPS_MOVE_DO)}
             </button>
           </div>
+        ) : null}
+        {openPrompt != null ? (
+          <OpenRelatedItemDialog
+            itemLabel={openPrompt.label || String(openPrompt.contentId)}
+            busy={opening}
+            onCancel={() => {
+              if (opening) {
+                return;
+              }
+              setOpenPrompt(null);
+              setOpenedNotice(false);
+              setOpenError(null);
+            }}
+            onConfirm={() => {
+              void confirmOpen();
+            }}
+          />
         ) : null}
         {confirmId != null ? (
           <div
