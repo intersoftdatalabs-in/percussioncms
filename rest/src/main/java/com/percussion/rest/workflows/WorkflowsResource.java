@@ -662,6 +662,79 @@ public class WorkflowsResource {
     }
   }
 
+  @PUT
+  @Path("/{idOrName}/transitions/approvals-required")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Set how many approvals a transition requires",
+      description =
+          "Slice 70 Admin. Sets TRANSITIONAPPROVALSREQUIRED on one existing regular transition."
+              + " Query `from` is the source step and `label` is the transition label (or trigger)."
+              + " Query `to` is required when more than one transition on the source step shares"
+              + " the label. The body count must be a non-negative whole number. Does not create or"
+              + " delete the transition and does not change the label, destination, comment flag,"
+              + " or default flag. A stored negative count is each-role approval and is 409."
+              + " Packaged default workflows are forbidden (403). Jackson root wrap is"
+              + " WorkflowTransitionApprovals.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated; returns the graph with approvalsRequired on the edge",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description =
+                "Missing body, from, or label, negative count, unchanged count, ambiguous label,"
+                    + " or the match is aging"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow, step, or transition not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "The transition uses each-role approval and was not changed"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph updateTransitionApprovalsRequired(
+      @PathParam("idOrName") String idOrName,
+      @QueryParam("from") String fromStep,
+      @QueryParam("label") String label,
+      @QueryParam("to") String toStep,
+      WorkflowTransitionApprovals body) {
+    if (body == null || body.getApprovalsRequired() == null) {
+      throw new WebApplicationException("Workflow transition approvals body is required", 400);
+    }
+    if (body.getApprovalsRequired() < 0) {
+      throw new WebApplicationException("approvals required must be a non-negative whole number", 400);
+    }
+    if (fromStep == null || fromStep.isBlank() || label == null || label.isBlank()) {
+      throw new WebApplicationException("from and label are required", 400);
+    }
+    try {
+      return requireAdaptor()
+          .updateTransitionApprovalsRequired(
+              uriInfo.getBaseUri(),
+              idOrName,
+              fromStep,
+              label,
+              toStep,
+              body.getApprovalsRequired());
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to update transition approvals ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @POST
   @Path("/{idOrName}/transitions")
   @Consumes({MediaType.APPLICATION_JSON})

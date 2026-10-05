@@ -105,6 +105,11 @@ public class WorkflowGraph {
     private String to;
     private String label;
     private boolean commentRequired;
+    /**
+     * Approvals required on a regular transition. Omitted for aging edges. A negative value is the
+     * each-role sentinel and is not writable from the approvals surface.
+     */
+    private Integer approvalsRequired;
     /** True when this edge is an aging transition, not a regular workflow transition. */
     private boolean aging;
     /** Minutes on an absolute or repeated aging transition. Omitted for regular edges. */
@@ -140,6 +145,16 @@ public class WorkflowGraph {
 
     public void setCommentRequired(boolean commentRequired) {
       this.commentRequired = commentRequired;
+    }
+
+    /** Stored approval count on a regular transition, or {@code null} on an aging edge. */
+    public Integer getApprovalsRequired() {
+      return approvalsRequired;
+    }
+
+    /** @param approvalsRequired stored {@code TRANSITIONAPPROVALSREQUIRED}, including zero */
+    public void setApprovalsRequired(Integer approvalsRequired) {
+      this.approvalsRequired = approvalsRequired;
     }
 
     public boolean isAging() {

@@ -1265,7 +1265,12 @@ export interface WorkflowGraphEdge {
   label?: string;
   /** True when the transition dialog must block an empty comment. */
   commentRequired?: boolean;
-  /** True for an aging transition. Comment-required does not apply. */
+  /**
+   * Approvals required on a regular transition. Omitted on aging edges.
+   * A negative value is the each-role sentinel.
+   */
+  approvalsRequired?: number;
+  /** True for an aging transition. Comment-required and approvals required do not apply. */
   aging?: boolean;
   /** Minutes on an absolute aging transition. */
   intervalMinutes?: number;

@@ -15,7 +15,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Approvals required, the default transition, and repeated or system-field aging stay outside this surface.",
+  "Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. How many approvals one regular transition requires can be set on the graph. The default transition and repeated or system-field aging stay outside this surface.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -609,6 +609,50 @@ export async function updateTransitionCommentRequired(
   const payload = await put<unknown>(
     workflowTransitionCommentPath(idOrName, fromStep, label, toStep),
     { [WORKFLOW_TRANSITION_COMMENT_ROOT]: { commentRequired } },
+  );
+  return parseWorkflowGraph(payload);
+}
+
+export const WORKFLOW_TRANSITION_APPROVALS_ROOT = "WorkflowTransitionApprovals";
+
+/** PUT .../transitions/approvals-required?from&label&to */
+export function workflowTransitionApprovalsPath(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  toStep?: string,
+): string {
+  const key = encodeURIComponent(idOrName);
+  const q = new URLSearchParams();
+  q.set("from", fromStep);
+  q.set("label", label);
+  if (toStep && toStep.trim()) {
+    q.set("to", toStep.trim());
+  }
+  return `${PATHS.WORKFLOWS_ASSOC}/${key}/transitions/approvals-required?${q.toString()}`;
+}
+
+/** Whole number, including zero. Rejects blank, negatives, and fractions. */
+export function isNonNegativeApprovalCount(raw: string | number | null | undefined): boolean {
+  if (typeof raw === "number") {
+    return Number.isSafeInteger(raw) && raw >= 0;
+  }
+  if (typeof raw !== "string") {
+    return false;
+  }
+  return /^(0|[1-9]\d*)$/.test(raw.trim());
+}
+
+export async function updateTransitionApprovalsRequired(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  approvalsRequired: number,
+  toStep?: string,
+): Promise<WorkflowGraph> {
+  const payload = await put<unknown>(
+    workflowTransitionApprovalsPath(idOrName, fromStep, label, toStep),
+    { [WORKFLOW_TRANSITION_APPROVALS_ROOT]: { approvalsRequired } },
   );
   return parseWorkflowGraph(payload);
 }

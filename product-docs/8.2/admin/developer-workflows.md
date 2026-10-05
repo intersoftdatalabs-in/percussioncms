@@ -1,7 +1,7 @@
 ---
 id: admin-developer-workflows
 title: Developer Workflows
-description: Browse workflow definitions, create / copy / rename / update / delete workflows, set notify, inbox, and ad-hoc type on a step role, and edit allowed content types from Developer Workflows chrome
+description: Browse workflow definitions, create / copy / rename / update / delete workflows, set notify, inbox, and ad-hoc type on a step role, set how many approvals a regular transition requires, and edit allowed content types from Developer Workflows chrome
 version: "8.2"
 order: 46
 tags: [admin, developer, workflows]
@@ -28,8 +28,9 @@ or off for one role already on a step, turn **inbox** on or off for one
 Reader or Assignee already on a step, set the **ad-hoc type** (disabled,
 enabled, or anonymous) on one Reader or Assignee already on a step, add one
 existing workflow role onto a step, and remove one Reader or Assignee role
-from a step. Approvals required, the default transition, repeated or
-system-field aging, and writes on packaged workflows stay outside this chrome.
+from a step. An Admin can set how many approvals one regular transition
+requires. The default transition, repeated or system-field aging, and writes
+on packaged workflows stay outside this chrome.
 The graph badge says **Packaged workflow** for Default Workflow, Simple
 Workflow, Local Content, and any workflow the server marks as the default;
 other workflows show **Custom workflow**. Missing workflows (`404`) and
@@ -175,6 +176,31 @@ The public call is
    from the item's allowed transitions, not from a hard-coded trigger name.
 6. Packaged workflows do not show the checkbox (`403` on the API). Aging
    transitions cannot store the flag (`400`). A missing transition is `404`.
+
+## Product path — approvals required on a transition (slice 70)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow.
+3. Under **Graph**, each regular edge shows **Approvals required** and the
+   stored count. Aging rows do not show a count.
+4. Click **Set approvals**, enter a different non-negative whole number
+   (zero is allowed), and click **Save approvals**.
+5. The edge shows the new count only after the server accepts it. Reopening
+   the workflow shows the same count. **Cancel** closes the editor and does
+   not call the server. The label, destination, comment-required flag, and
+   every other edge stay as they were.
+6. A blank, negative, fractional, or unchanged count is rejected in the form
+   and does not show a saved notice. Packaged workflows show the stored count
+   and hide **Set approvals** (`403` on the API). A missing workflow, step, or
+   transition is `404`. A stored negative count means each-role approval and
+   is `409`; that count is not overwritten. HTTP `400`, `403`, and `409` leave
+   the previous count on the edge.
+7. This does not create or delete the transition, change the default
+   transition, or edit aging.
+
+The public call is
+`PUT /services/workflows/{idOrName}/transitions/approvals-required?from={step}&label={label}&to={step}`
+with a `WorkflowTransitionApprovals` body (`approvalsRequired`).
 
 ## Product path — delete one transition (slice 33)
 
@@ -542,8 +568,9 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
   workflow (`PUT .../workflows/{idOrName}/steps/{stepName}/role-assignment`).
   The table updates only after the list reloads. Packaged workflows and the
   system default are `403`. Admin or None roles are `409` and are not changed.
-  That call does not change notify, inbox, or ad-hoc type. Approvals required
-  and repeated or system-field aging stay outside this chrome.
+  That call does not change notify, inbox, or ad-hoc type, and it does not
+  set approvals required. Repeated or system-field aging stay outside this
+  chrome.
 - Turn notify on or off for one role already assigned to one step of a custom
   workflow (`PUT .../workflows/{idOrName}/steps/{stepName}/role-notify`). The
   table shows the stored flag only after the list reloads. Packaged workflows
@@ -605,6 +632,7 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Change one absolute aging interval | `PUT /services/workflows/{idOrName}/aging-transitions/interval` (`WorkflowAgingIntervalWrite` wrap: `from`, `to`, current `intervalMinutes`, and a different positive `newIntervalMinutes`; does not move the destination or change the aging type; duplicate new interval `409`; non-positive or unchanged interval `400`; missing edge `404`; packaged workflows `403`) |
 | Delete one absolute aging transition | `DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&intervalMinutes={minutes}` (Admin; does not delete steps or regular transitions; repeated or system-field match `409` and is not deleted; non-positive interval `400`; missing edge `404`; packaged workflows `403`) |
 | Comment required | `PUT /services/workflows/{idOrName}/transitions/comment-required?from={step}&label={label}&to={step}` (`WorkflowTransitionComment` wrap `{ "commentRequired": true }`; Admin; existing transition only; packaged workflows `403`; aging transitions `400`; missing transition `404`) |
+| Approvals required | `PUT /services/workflows/{idOrName}/transitions/approvals-required?from={step}&label={label}&to={step}` (`WorkflowTransitionApprovals` wrap `{ "approvalsRequired": 2 }`; Admin; existing regular transition only; non-negative whole number including zero; unchanged, negative, ambiguous, or aging `400`; packaged or default `403`; missing transition `404`; stored each-role count `409` and is not overwritten; label, destination, comment flag, and other edges stay unchanged) |
 | Delete one step | `DELETE /services/workflows/{idOrName}/steps/{stepName}` (Admin; only when no transition still uses the step; returns the updated graph; packaged workflows `403`; missing workflow or step `404`; invalid step name `400`; step still referenced `409`) |
 | List allowed content types | `GET /services/workflows/{idOrName}/allowedContentTypes` |
 | Replace allowed content types | `PUT /services/workflows/{idOrName}/allowedContentTypes` (`WorkflowContentTypes` wrap) |

@@ -134,6 +134,7 @@ public final class WorkflowGraphProjector {
       } else if (transition instanceof PSTransition regular) {
         edge.setCommentRequired(
             regular.getRequiresComment() == PSTransition.PSWorkflowCommentEnum.REQUIRED);
+        edge.setApprovalsRequired(regular.getApprovals());
       }
       edges.add(edge);
     }
