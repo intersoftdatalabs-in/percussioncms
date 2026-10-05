@@ -735,6 +735,78 @@ public class WorkflowsResource {
     }
   }
 
+  @PUT
+  @Path("/{idOrName}/transitions/default")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Mark one transition as the default",
+      description =
+          "Slice 71 Admin. Sets DEFAULTTRANSITION on one existing regular transition and clears"
+              + " it on the other regular transitions from the same step. Query `from` is the"
+              + " source step and `label` is the transition label (or trigger). Query `to` is"
+              + " required when more than one transition on the source step shares the label."
+              + " The body must be true to mark. False does not clear a stored default (409 when"
+              + " that transition is already the default, 400 otherwise). Does not create or"
+              + " delete the transition and does not change the label, destination, comment flag,"
+              + " or approval count. Aging transitions are 400. Packaged default workflows are"
+              + " forbidden (403). The previous default stays until this call succeeds. Jackson"
+              + " root wrap is WorkflowTransitionDefault.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated; returns the graph with defaultTransition on regular edges",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description =
+                "Missing body, from, or label, false on a transition that is not the default,"
+                    + " already the only default, ambiguous label, or the match is aging"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(responseCode = "404", description = "Workflow, step, or transition not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "The body would clear the current default and nothing was changed"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph updateTransitionDefault(
+      @PathParam("idOrName") String idOrName,
+      @QueryParam("from") String fromStep,
+      @QueryParam("label") String label,
+      @QueryParam("to") String toStep,
+      WorkflowTransitionDefault body) {
+    if (body == null || body.getDefaultTransition() == null) {
+      throw new WebApplicationException("Workflow transition default body is required", 400);
+    }
+    if (fromStep == null || fromStep.isBlank() || label == null || label.isBlank()) {
+      throw new WebApplicationException("from and label are required", 400);
+    }
+    try {
+      return requireAdaptor()
+          .updateTransitionDefault(
+              uriInfo.getBaseUri(),
+              idOrName,
+              fromStep,
+              label,
+              toStep,
+              body.getDefaultTransition());
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to mark the default transition ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @POST
   @Path("/{idOrName}/transitions")
   @Consumes({MediaType.APPLICATION_JSON})

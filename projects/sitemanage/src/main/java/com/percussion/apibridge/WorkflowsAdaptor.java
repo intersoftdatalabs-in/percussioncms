@@ -546,6 +546,34 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
   }
 
   @Override
+  public WorkflowGraph updateTransitionDefault(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String label,
+      String toStep,
+      boolean defaultTransition) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(fromStep) || StringUtils.isBlank(label)) {
+      throw new IllegalArgumentException("from and label are required");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    int stepCount = states.size();
+    WorkflowTransitionDefaultFlag.apply(states, fromStep, label, toStep, defaultTransition);
+    if (workflow.getStates() == null || workflow.getStates().size() != stepCount) {
+      throw new IllegalStateException("Marking a default transition must not delete steps");
+    }
+    workflowService.saveWorkflow(workflow);
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
   public WorkflowGraph createWorkflowTransition(
       URI baseUri, String idOrName, WorkflowTransitionWrite body) {
     requireAdmin();

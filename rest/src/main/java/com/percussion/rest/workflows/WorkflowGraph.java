@@ -110,6 +110,12 @@ public class WorkflowGraph {
      * each-role sentinel and is not writable from the approvals surface.
      */
     private Integer approvalsRequired;
+    /**
+     * Whether this regular transition is the default from its step ({@code DEFAULTTRANSITION}).
+     * Omitted on aging edges. At most one regular edge from a step is true after a successful
+     * mark.
+     */
+    private Boolean defaultTransition;
     /** True when this edge is an aging transition, not a regular workflow transition. */
     private boolean aging;
     /** Minutes on an absolute or repeated aging transition. Omitted for regular edges. */
@@ -155,6 +161,16 @@ public class WorkflowGraph {
     /** @param approvalsRequired stored {@code TRANSITIONAPPROVALSREQUIRED}, including zero */
     public void setApprovalsRequired(Integer approvalsRequired) {
       this.approvalsRequired = approvalsRequired;
+    }
+
+    /** Stored default flag on a regular transition, or {@code null} on an aging edge. */
+    public Boolean getDefaultTransition() {
+      return defaultTransition;
+    }
+
+    /** @param defaultTransition stored {@code DEFAULTTRANSITION}; {@code null} omits the field */
+    public void setDefaultTransition(Boolean defaultTransition) {
+      this.defaultTransition = defaultTransition;
     }
 
     public boolean isAging() {

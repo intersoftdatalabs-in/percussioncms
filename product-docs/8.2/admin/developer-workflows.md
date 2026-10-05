@@ -1,7 +1,7 @@
 ---
 id: admin-developer-workflows
 title: Developer Workflows
-description: Browse workflow definitions, create / copy / rename / update / delete workflows, set notify, inbox, and ad-hoc type on a step role, set how many approvals a regular transition requires, and edit allowed content types from Developer Workflows chrome
+description: Browse workflow definitions, create / copy / rename / update / delete workflows, set notify, inbox, and ad-hoc type on a step role, set how many approvals a regular transition requires, mark one transition as the default from its step, and edit allowed content types from Developer Workflows chrome
 version: "8.2"
 order: 46
 tags: [admin, developer, workflows]
@@ -29,8 +29,9 @@ Reader or Assignee already on a step, set the **ad-hoc type** (disabled,
 enabled, or anonymous) on one Reader or Assignee already on a step, add one
 existing workflow role onto a step, and remove one Reader or Assignee role
 from a step. An Admin can set how many approvals one regular transition
-requires. The default transition, repeated or system-field aging, and writes
-on packaged workflows stay outside this chrome.
+requires, and can mark one regular transition as the default from its step.
+Repeated or system-field aging, and writes on packaged workflows, stay
+outside this chrome.
 The graph badge says **Packaged workflow** for Default Workflow, Simple
 Workflow, Local Content, and any workflow the server marks as the default;
 other workflows show **Custom workflow**. Missing workflows (`404`) and
@@ -201,6 +202,32 @@ The public call is
 The public call is
 `PUT /services/workflows/{idOrName}/transitions/approvals-required?from={step}&label={label}&to={step}`
 with a `WorkflowTransitionApprovals` body (`approvalsRequired`).
+
+## Product path — mark one transition as the default (slice 71)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow.
+3. Under **Graph**, each regular edge shows whether it is the **Default**
+   from its step. Aging rows do not.
+4. On a transition that is not the default, click **Make default**, then
+   **Save default**.
+5. That edge shows **Default** only after the server accepts it. The previous
+   default from the same step no longer shows **Default**. Reopening the
+   workflow shows the same choice. **Cancel** closes the confirmation and
+   does not call the server. The label, destination, comment-required flag,
+   approval count, and defaults on other steps stay as they were.
+6. Packaged workflows show the stored flag and hide **Make default** (`403`
+   on the API). A missing workflow, step, or transition is `404`. A blank
+   step or label, an ambiguous label, a transition that is already the only
+   default, or an aging transition is `400`. Sending `false` for the current
+   default is `409` and does not clear it. HTTP `400`, `403`, and `409` leave
+   the previous default on the edge.
+7. This does not create or delete the transition, change how many approvals
+   it requires, or edit aging.
+
+The public call is
+`PUT /services/workflows/{idOrName}/transitions/default?from={step}&label={label}&to={step}`
+with a `WorkflowTransitionDefault` body (`defaultTransition`: `true`).
 
 ## Product path — delete one transition (slice 33)
 
@@ -569,8 +596,8 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
   The table updates only after the list reloads. Packaged workflows and the
   system default are `403`. Admin or None roles are `409` and are not changed.
   That call does not change notify, inbox, or ad-hoc type, and it does not
-  set approvals required. Repeated or system-field aging stay outside this
-  chrome.
+  set approvals required, or mark one transition as the default from its
+  step. Repeated or system-field aging stay outside this chrome.
 - Turn notify on or off for one role already assigned to one step of a custom
   workflow (`PUT .../workflows/{idOrName}/steps/{stepName}/role-notify`). The
   table shows the stored flag only after the list reloads. Packaged workflows
@@ -633,6 +660,7 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Delete one absolute aging transition | `DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&intervalMinutes={minutes}` (Admin; does not delete steps or regular transitions; repeated or system-field match `409` and is not deleted; non-positive interval `400`; missing edge `404`; packaged workflows `403`) |
 | Comment required | `PUT /services/workflows/{idOrName}/transitions/comment-required?from={step}&label={label}&to={step}` (`WorkflowTransitionComment` wrap `{ "commentRequired": true }`; Admin; existing transition only; packaged workflows `403`; aging transitions `400`; missing transition `404`) |
 | Approvals required | `PUT /services/workflows/{idOrName}/transitions/approvals-required?from={step}&label={label}&to={step}` (`WorkflowTransitionApprovals` wrap `{ "approvalsRequired": 2 }`; Admin; existing regular transition only; non-negative whole number including zero; unchanged, negative, ambiguous, or aging `400`; packaged or default `403`; missing transition `404`; stored each-role count `409` and is not overwritten; label, destination, comment flag, and other edges stay unchanged) |
+| Default transition | `PUT /services/workflows/{idOrName}/transitions/default?from={step}&label={label}&to={step}` (`WorkflowTransitionDefault` wrap `{ "defaultTransition": true }`; Admin; existing regular transition only; marks that transition and clears the flag on the other regular transitions from the same step; the graph shows the new default only after success; already the only default, ambiguous, or aging `400`; packaged or default `403`; missing transition `404`; `false` on the current default is `409` and does not clear it; label, destination, comment flag, approval count, and defaults on other steps stay unchanged) |
 | Delete one step | `DELETE /services/workflows/{idOrName}/steps/{stepName}` (Admin; only when no transition still uses the step; returns the updated graph; packaged workflows `403`; missing workflow or step `404`; invalid step name `400`; step still referenced `409`) |
 | List allowed content types | `GET /services/workflows/{idOrName}/allowedContentTypes` |
 | Replace allowed content types | `PUT /services/workflows/{idOrName}/allowedContentTypes` (`WorkflowContentTypes` wrap) |

@@ -13,6 +13,7 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   deleteWorkflowStep: vi.fn(),
   updateTransitionCommentRequired: vi.fn(),
   updateTransitionApprovalsRequired: vi.fn(),
+  markTransitionAsDefault: vi.fn(),
   isNonNegativeApprovalCount: (raw: string | number | null | undefined) => {
     if (typeof raw === "number") {
       return Number.isSafeInteger(raw) && raw >= 0;
@@ -48,6 +49,7 @@ const updateTransitionCommentRequired =
   workflowsApi.updateTransitionCommentRequired as ReturnType<typeof vi.fn>;
 const updateTransitionApprovalsRequired =
   workflowsApi.updateTransitionApprovalsRequired as ReturnType<typeof vi.fn>;
+const markTransitionAsDefault = workflowsApi.markTransitionAsDefault as ReturnType<typeof vi.fn>;
 const createWorkflowTransition = workflowsApi.createWorkflowTransition as ReturnType<typeof vi.fn>;
 const createWorkflowAgingTransition =
   workflowsApi.createWorkflowAgingTransition as ReturnType<typeof vi.fn>;
@@ -68,6 +70,7 @@ describe("WorkflowGraphView step delete", () => {
     deleteWorkflowStep.mockReset();
     updateTransitionCommentRequired.mockReset();
     updateTransitionApprovalsRequired.mockReset();
+    markTransitionAsDefault.mockReset();
     createWorkflowTransition.mockReset();
     createWorkflowAgingTransition.mockReset();
     updateWorkflowAgingInterval.mockReset();
@@ -775,5 +778,156 @@ describe("WorkflowGraphView step delete", () => {
     expect(screen.getByTestId("developer-wf-graph-approvals-0").getAttribute("data-approvals")).toBe(
       "1",
     );
+  });
+
+  it("shows the new default only after save and cancel does not write", async () => {
+    const initial = {
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }, { name: "Live" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Submit",
+          commentRequired: true,
+          approvalsRequired: 1,
+          defaultTransition: true,
+        },
+        {
+          from: "Draft",
+          to: "Live",
+          label: "Send",
+          commentRequired: false,
+          approvalsRequired: 4,
+          defaultTransition: false,
+        },
+        {
+          from: "Review",
+          to: "Live",
+          label: "Approve",
+          commentRequired: false,
+          approvalsRequired: 2,
+          defaultTransition: true,
+        },
+      ],
+    };
+    const updated = {
+      packaged: false,
+      nodes: initial.nodes,
+      edges: [
+        { ...initial.edges[0], defaultTransition: false },
+        { ...initial.edges[1], defaultTransition: true },
+        initial.edges[2],
+      ],
+    };
+    let release: (graph: typeof updated) => void = () => {};
+    getWorkflowGraph.mockResolvedValue(initial);
+    markTransitionAsDefault.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = resolve;
+        }),
+    );
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    const previous = await screen.findByTestId("developer-wf-graph-default-0");
+    expect(previous.getAttribute("data-default")).toBe("true");
+    expect(screen.getByTestId("developer-wf-graph-default-1").getAttribute("data-default")).toBe(
+      "false",
+    );
+    expect(screen.getByTestId("developer-wf-graph-default-2").getAttribute("data-default")).toBe(
+      "true",
+    );
+    expect(screen.queryByTestId("developer-wf-default-edit-0")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-wf-default-edit-1"));
+    fireEvent.click(screen.getByTestId("developer-wf-default-cancel"));
+    expect(markTransitionAsDefault).not.toHaveBeenCalled();
+    expect(updateTransitionApprovalsRequired).not.toHaveBeenCalled();
+    expect(updateTransitionCommentRequired).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-wf-graph-default-0").getAttribute("data-default")).toBe(
+      "true",
+    );
+    expect(screen.getByTestId("developer-wf-graph-default-1").getAttribute("data-default")).toBe(
+      "false",
+    );
+
+    fireEvent.click(screen.getByTestId("developer-wf-default-edit-1"));
+    fireEvent.click(screen.getByTestId("developer-wf-default-save"));
+    await waitFor(() => {
+      expect(markTransitionAsDefault).toHaveBeenCalledWith("Nightly QA", "Draft", "Send", "Live");
+    });
+    expect(screen.getByTestId("developer-wf-graph-default-0").getAttribute("data-default")).toBe(
+      "true",
+    );
+    expect(screen.getByTestId("developer-wf-graph-default-1").getAttribute("data-default")).toBe(
+      "false",
+    );
+    expect((screen.getByTestId("developer-wf-graph-comment-0") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    release(updated);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-default-1").getAttribute("data-default")).toBe(
+        "true",
+      );
+    });
+    expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
+      "Default transition saved",
+    );
+    expect(screen.getByTestId("developer-wf-graph-default-0").getAttribute("data-default")).toBe(
+      "false",
+    );
+    expect(screen.getByTestId("developer-wf-graph-default-2").getAttribute("data-default")).toBe(
+      "true",
+    );
+    expect(screen.getByTestId("developer-wf-graph-approvals-1").getAttribute("data-approvals")).toBe(
+      "4",
+    );
+    expect(screen.getByTestId("developer-wf-graph-edge-1").textContent).toContain("Send");
+  });
+
+  it("keeps the previous default on HTTP 400, 403, and 409", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Submit",
+          commentRequired: false,
+          approvalsRequired: 1,
+          defaultTransition: true,
+        },
+        {
+          from: "Draft",
+          to: "Live",
+          label: "Send",
+          commentRequired: true,
+          approvalsRequired: 4,
+          defaultTransition: false,
+        },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-graph-default-0");
+    for (const status of [400, 403, 409]) {
+      markTransitionAsDefault.mockRejectedValueOnce({ status, message: "no" });
+      fireEvent.click(screen.getByTestId("developer-wf-default-edit-1"));
+      fireEvent.click(screen.getByTestId("developer-wf-default-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-wf-graph-error")).toBeTruthy();
+      });
+      expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+      expect(screen.getByTestId("developer-wf-graph-default-0").getAttribute("data-default")).toBe(
+        "true",
+      );
+      expect(screen.getByTestId("developer-wf-graph-default-1").getAttribute("data-default")).toBe(
+        "false",
+      );
+      expect(screen.getByTestId("developer-wf-graph-approvals-0").getAttribute("data-approvals")).toBe(
+        "1",
+      );
+      fireEvent.click(screen.getByTestId("developer-wf-default-cancel"));
+    }
   });
 });

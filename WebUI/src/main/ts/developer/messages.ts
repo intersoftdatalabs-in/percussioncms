@@ -1980,7 +1980,7 @@ export const DEV_MSG_KEYS = {
   WF_GRAPH_LOADING: "perc.ui.developer@Loading workflow graph...",
   WF_GRAPH_ERROR: "perc.ui.developer@Could not load workflow graph.",
   WF_GRAPH_HINT:
-    "perc.ui.developer@States and transitions. On a custom workflow, add or update one transition between existing steps, add one absolute aging transition in minutes, delete that aging transition, delete one regular transition, delete a step that no transition still uses, mark a transition as comment required, or set how many approvals a transition requires. Packaged workflows stay read-only.",
+    "perc.ui.developer@States and transitions. On a custom workflow, add or update one transition between existing steps, add one absolute aging transition in minutes, delete that aging transition, delete one regular transition, delete a step that no transition still uses, mark a transition as comment required, set how many approvals a transition requires, or mark one transition as the default from its step. Packaged workflows stay read-only.",
   WF_GRAPH_COMMENT: "perc.ui.developer@Comment required",
   WF_GRAPH_COMMENT_SAVED: "perc.ui.developer@Comment requirement saved.",
   WF_GRAPH_COMMENT_ERROR: "perc.ui.developer@Could not save the comment requirement.",
@@ -1998,6 +1998,18 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@That transition uses each-role approval. The approval count was not changed.",
   WF_GRAPH_APPROVALS_INVALID:
     "perc.ui.developer@Enter a different non-negative whole number of approvals.",
+  WF_GRAPH_DEFAULT: "perc.ui.developer@Default",
+  WF_GRAPH_DEFAULT_MARK: "perc.ui.developer@Make default",
+  WF_GRAPH_DEFAULT_SAVE: "perc.ui.developer@Save default",
+  WF_GRAPH_DEFAULT_CANCEL: "perc.ui.developer@Cancel",
+  WF_GRAPH_DEFAULT_SAVED: "perc.ui.developer@Default transition saved.",
+  WF_GRAPH_DEFAULT_ERROR: "perc.ui.developer@Could not mark this transition as the default.",
+  WF_GRAPH_DEFAULT_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_GRAPH_DEFAULT_BAD:
+    "perc.ui.developer@That transition could not be marked as the default.",
+  WF_GRAPH_DEFAULT_CONFLICT:
+    "perc.ui.developer@Clearing the default is not supported. The previous default was not changed.",
   WF_GRAPH_DELETE: "perc.ui.developer@Delete transition",
   WF_GRAPH_DELETE_CONFIRM:
     "perc.ui.developer@Delete this transition? The steps stay on the workflow.",
