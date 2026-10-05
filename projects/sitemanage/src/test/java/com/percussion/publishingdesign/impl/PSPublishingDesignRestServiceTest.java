@@ -1143,6 +1143,39 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void updateContext_nameOnly_keepsDescriptionDefaultSchemeAndSchemes() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    IPSPublishingContext loaded = mock(IPSPublishingContext.class);
+    when(siteManager.loadContextModifiable(contextGuid)).thenReturn(loaded);
+    when(siteManager.findAllContexts()).thenReturn(List.of());
+    when(loaded.getGUID()).thenReturn(contextGuid);
+    when(contextGuid.getUUID()).thenReturn(5);
+    when(loaded.getName()).thenReturn("Renamed");
+    when(loaded.getDescription()).thenReturn("kept description");
+    IPSLocationScheme scheme = mock(IPSLocationScheme.class);
+    when(loaded.getDefaultScheme()).thenReturn(scheme);
+    when(scheme.getGUID()).thenReturn(schemeGuid);
+    when(schemeGuid.getUUID()).thenReturn(11);
+
+    PSContextSummary body = new PSContextSummary();
+    body.setName("  Renamed  ");
+
+    PSContextSummary saved = design.updateContext("5", body);
+    assertEquals("5", saved.getContextId());
+    assertEquals("Renamed", saved.getName());
+    assertEquals("kept description", saved.getDescription());
+    assertEquals("11", saved.getDefaultSchemeId());
+    verify(loaded).setName("Renamed");
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setDefaultSchemeId(any());
+    verify(siteManager).saveContext(loaded);
+    verify(siteManager, never()).findSchemesByContextId(any());
+    verify(siteManager, never()).saveScheme(any());
+    verify(siteManager, never()).createScheme();
+  }
+
+  @Test
   void deleteContentList_notFound_404() throws Exception {
     when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
     when(publisherService.loadContentList(contentListGuid))

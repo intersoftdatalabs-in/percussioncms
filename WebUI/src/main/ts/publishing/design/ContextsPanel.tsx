@@ -49,6 +49,11 @@ import {
   validateContextCopyName,
 } from "../contextCopy";
 import {
+  buildContextRenameBody,
+  contextsAfterSuccessfulRename,
+  validateContextRenameName,
+} from "../contextRename";
+import {
   contextsAfterSuccessfulDelete,
   mapContextDeleteError,
 } from "../contextDelete";
@@ -71,6 +76,7 @@ type Mode =
   | { kind: "list" }
   | { kind: "context-edit"; context: ContextSummary | null }
   | { kind: "context-copy"; source: ContextSummary }
+  | { kind: "context-rename"; source: ContextSummary }
   | { kind: "scheme-edit"; scheme: LocationSchemeSummary | null; contextId: string }
   | { kind: "scheme-copy"; source: LocationSchemeSummary; contextId: string };
 
@@ -102,6 +108,7 @@ export function ContextsPanel(): React.ReactElement {
   const [paramValue, setParamValue] = useState("");
   const [saving, setSaving] = useState(false);
   const [copyName, setCopyName] = useState("");
+  const [renameName, setRenameName] = useState("");
   const { setDirty, confirmIfDirty } = useDirtyForm();
 
   function reloadContexts(): void {
@@ -168,6 +175,67 @@ export function ContextsPanel(): React.ReactElement {
     setDirty(false);
     setError(null);
     setMode({ kind: "list" });
+  }
+
+  function openContextRename(): void {
+    const source = contexts.find((row) => String(row.contextId ?? "") === selected);
+    if (!source?.contextId) {
+      return;
+    }
+    setRenameName(source.name ?? "");
+    setError(null);
+    setDirty(false);
+    setMode({ kind: "context-rename", source });
+  }
+
+  function closeContextRename(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setMode({ kind: "list" });
+  }
+
+  async function renameContext(): Promise<void> {
+    if (mode.kind !== "context-rename" || !mode.source.contextId || saving) {
+      return;
+    }
+    const validated = validateContextRenameName(renameName);
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    const id = String(mode.source.contextId);
+    setError(null);
+    setSaving(true);
+    const previous = contexts;
+    try {
+      await updateContext(id, buildContextRenameBody(validated.name));
+      setDirty(false);
+      setMode({ kind: "list" });
+      let refreshed: ContextSummary[] | null = null;
+      try {
+        refreshed = await listContexts();
+      } catch {
+        refreshed = null;
+      }
+      const next = contextsAfterSuccessfulRename(refreshed, id, validated.name, previous);
+      setContexts(next);
+      setSelected((current) => {
+        if (next.some((row) => String(row.contextId ?? "") === current)) {
+          return current;
+        }
+        return next.some((row) => String(row.contextId ?? "") === id) ? id : current;
+      });
+    } catch (e) {
+      setError(mapContextSaveError(e));
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function copyContext(): Promise<void> {
@@ -496,6 +564,59 @@ export function ContextsPanel(): React.ReactElement {
     );
   }
 
+  if (mode.kind === "context-rename") {
+    return (
+      <div data-testid="context-rename-form">
+        <h3>Rename context</h3>
+        <p>
+          Description:{" "}
+          <span data-testid="context-rename-description">
+            {mode.source.description ?? ""}
+          </span>
+        </p>
+        <p data-testid="context-rename-schemes-note">
+          Location schemes stay on this context.
+        </p>
+        <div style={formRowStyle}>
+          <label htmlFor="context-rename-name">* Name</label>
+          <input
+            id="context-rename-name"
+            value={renameName}
+            onChange={(e) => {
+              setRenameName(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="context-rename-submit"
+            disabled={saving}
+            onClick={() => void renameContext()}
+          >
+            Rename context
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="context-rename-cancel"
+            disabled={saving}
+            onClick={closeContextRename}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (mode.kind === "context-copy") {
     return (
       <div data-testid="context-copy-form">
@@ -767,6 +888,15 @@ export function ContextsPanel(): React.ReactElement {
               }}
             >
               Edit context
+            </button>
+            <button
+              type="button"
+              style={buttonStyle}
+              data-testid="context-rename"
+              disabled={saving}
+              onClick={openContextRename}
+            >
+              Rename context
             </button>
             <button
               type="button"
