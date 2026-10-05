@@ -214,6 +214,13 @@ import {
   type SetCommunityCatalog,
   type SetCommunityMultiCatalog,
 } from "./setItemCommunity";
+import { ChangePageTemplateDialog } from "./ChangePageTemplateDialog";
+import {
+  loadChangePageTemplateCatalog,
+  pageTemplateShownAfterSave,
+  saveChangePageTemplate,
+  type ChangePageTemplateCatalog,
+} from "./changePageTemplate";
 import type { ItemCommunityChoice } from "../api/contentExplorer/itemCommunityApi";
 import { ScheduleDatesDialog } from "./ScheduleDatesDialog";
 import { CheckinCommentDialog } from "./CheckinCommentDialog";
@@ -896,6 +903,24 @@ function ContentExplorerShellInner({
   /** Community name painted on a row only after that item's change returns (#5133). */
   const [savedItemCommunities, setSavedItemCommunities] = useState<
     ReadonlyMap<string, { communityId: string; communityName: string }>
+  >(() => new Map());
+  const [changePageTemplateNotice, setChangePageTemplateNotice] = useState<{
+    kind: "success" | "error";
+    reason: string;
+    templateId: string;
+    templateName: string;
+    text: string;
+  } | null>(null);
+  const [changePageTemplateDialog, setChangePageTemplateDialog] = useState<{
+    itemId: string;
+    currentId: string;
+    choices: PageTemplateChoice[];
+    busy: boolean;
+    error: string;
+  } | null>(null);
+  /** Template name painted on a page only after changeTemplate returns (#5200). */
+  const [savedPageTemplates, setSavedPageTemplates] = useState<
+    ReadonlyMap<string, { templateId: string; templateName: string }>
   >(() => new Map());
   const dismissSubfolderCopy = useCallback(() => {
     setShowSubfolderCopy(false);
@@ -2868,6 +2893,75 @@ function ContentExplorerShellInner({
           })();
           break;
         }
+        case "content-change-page-template": {
+          const current = selectionRef.current;
+          const selectedCount = multiSelectedItemsRef.current.size;
+          void (async () => {
+            setChangePageTemplateNotice(null);
+            setChangePageTemplateDialog(null);
+            const catalog: ChangePageTemplateCatalog = await loadChangePageTemplateCatalog({
+              item: current.item,
+              selectedCount,
+            });
+            if (catalog.status === "blocked") {
+              const key =
+                catalog.reason === "folder"
+                  ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_FOLDER
+                  : catalog.reason === "asset"
+                    ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_ASSET
+                    : catalog.reason === "multi"
+                      ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_MULTI
+                      : catalog.reason === "not-page"
+                        ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_NOT_PAGE
+                        : catalog.reason === "no-id"
+                          ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_NO_ID
+                          : EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_EMPTY;
+              const text =
+                (catalog.reason === "folder" ||
+                  catalog.reason === "asset" ||
+                  catalog.reason === "not-page") &&
+                catalog.name
+                  ? `${message(key)}: ${catalog.name}`
+                  : message(key);
+              setChangePageTemplateNotice({
+                kind: "error",
+                reason: catalog.reason,
+                templateId: "",
+                templateName: "",
+                text,
+              });
+              return;
+            }
+            if (catalog.status === "none" || catalog.status === "http") {
+              const httpKey =
+                catalog.status === "http" && catalog.http === 400
+                  ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_HTTP_400
+                  : catalog.status === "http" && catalog.http === 403
+                    ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_HTTP_403
+                    : catalog.status === "http" && catalog.http === 409
+                      ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_HTTP_409
+                      : catalog.status === "http"
+                        ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_FAILED
+                        : EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_NONE;
+              setChangePageTemplateNotice({
+                kind: "error",
+                reason: catalog.status === "http" ? `http-${catalog.http}` : "none",
+                templateId: "",
+                templateName: "",
+                text: message(httpKey),
+              });
+              return;
+            }
+            setChangePageTemplateDialog({
+              itemId: catalog.itemId,
+              currentId: catalog.currentId,
+              choices: catalog.choices,
+              busy: false,
+              error: "",
+            });
+          })();
+          break;
+        }
         case "content-set-community": {
           const current = selectionRef.current;
           const selectedCount = multiSelectedItemsRef.current.size;
@@ -3350,6 +3444,19 @@ function ContentExplorerShellInner({
               {setCommunityNotice.text}
             </div>
           ) : null}
+          {changePageTemplateNotice ? (
+            <div
+              data-testid="explorer-change-page-template-status"
+              data-kind={changePageTemplateNotice.kind}
+              data-reason={changePageTemplateNotice.reason}
+              data-page-template-id={changePageTemplateNotice.templateId}
+              data-page-template-name={changePageTemplateNotice.templateName}
+              role="status"
+              aria-live="polite"
+            >
+              {changePageTemplateNotice.text}
+            </div>
+          ) : null}
           {mobilePreviewNotice ? (
             <div
               data-testid="explorer-mobile-preview-status"
@@ -3751,6 +3858,7 @@ function ContentExplorerShellInner({
           onToggleSelectItem={handleToggleSelectItem}
           approvedIncrementalIds={approvedIncrementalIds}
           itemCommunities={savedItemCommunities}
+          itemPageTemplates={savedPageTemplates}
           folderCommunities={savedFolderCommunities}
           folderLocales={savedFolderLocales}
           folderWorkflows={savedFolderWorkflows}
@@ -4890,6 +4998,75 @@ function ContentExplorerShellInner({
                               ? EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_HTTP_409
                               : EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_FAILED;
               setSetFolderAllowedSitesDialog({
+                ...dialog,
+                busy: false,
+                error: message(key),
+              });
+            })();
+          }}
+        />
+      ) : null}
+      {changePageTemplateDialog ? (
+        <ChangePageTemplateDialog
+          choices={changePageTemplateDialog.choices}
+          currentId={changePageTemplateDialog.currentId}
+          busy={changePageTemplateDialog.busy}
+          error={changePageTemplateDialog.error}
+          onCancel={() => {
+            if (!changePageTemplateDialog.busy) {
+              setChangePageTemplateDialog(null);
+            }
+          }}
+          onSave={(templateId) => {
+            const dialog = changePageTemplateDialog;
+            void (async () => {
+              setChangePageTemplateDialog({ ...dialog, busy: true, error: "" });
+              const saved = await saveChangePageTemplate({
+                itemId: dialog.itemId,
+                selectedId: templateId,
+                currentId: dialog.currentId,
+                allowedIds: dialog.choices.map((row) => row.id),
+              });
+              const choiceName =
+                dialog.choices.find((row) => row.id === templateId)?.name ?? templateId;
+              const previous = savedPageTemplates.get(dialog.itemId);
+              const shown = pageTemplateShownAfterSave(previous, saved, choiceName);
+              if (shown && shown !== previous) {
+                setSavedPageTemplates((prev) => {
+                  const next = new Map(prev);
+                  next.set(dialog.itemId, shown);
+                  return next;
+                });
+              }
+              if (saved.status === "saved") {
+                setChangePageTemplateDialog(null);
+                setChangePageTemplateNotice({
+                  kind: "success",
+                  reason: "",
+                  templateId: saved.templateId,
+                  templateName: shown?.templateName ?? choiceName,
+                  text: `${message(EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_SAVED)} ${
+                    shown?.templateName ?? choiceName
+                  }`,
+                });
+                setListEpoch((n) => n + 1);
+                return;
+              }
+              const key =
+                saved.status === "gate" && saved.reason === "unchanged"
+                  ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_UNCHANGED
+                  : saved.status === "gate" && saved.reason === "forbidden"
+                    ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_FORBIDDEN
+                    : saved.status === "gate" && saved.reason === "blank"
+                      ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_BLANK
+                      : saved.status === "http" && saved.http === 400
+                        ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_HTTP_400
+                        : saved.status === "http" && saved.http === 403
+                          ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_HTTP_403
+                          : saved.status === "http" && saved.http === 409
+                            ? EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_HTTP_409
+                            : EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_FAILED;
+              setChangePageTemplateDialog({
                 ...dialog,
                 busy: false,
                 error: message(key),

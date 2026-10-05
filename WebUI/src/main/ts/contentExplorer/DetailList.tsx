@@ -338,6 +338,11 @@ export interface DetailListProps {
    */
   itemCommunities?: ReadonlyMap<string, { communityId: string; communityName: string }>;
   /**
+   * Page template written onto a page. Shown only after that page's
+   * changeTemplate call returns (#5200). Absent entries stay unchanged.
+   */
+  itemPageTemplates?: ReadonlyMap<string, { templateId: string; templateName: string }>;
+  /**
    * Community written onto a folder. Shown only after that folder's save
    * returns and a properties refresh shows the new id (#5156).
    */
@@ -388,6 +393,7 @@ export function DetailList({
   onToggleSelectItem,
   approvedIncrementalIds,
   itemCommunities,
+  itemPageTemplates,
   folderCommunities,
   folderLocales,
   itemWorkflows,
@@ -605,6 +611,12 @@ export function DetailList({
                 (item.id != null
                   ? itemCommunities?.get(String(item.id).trim())
                   : undefined));
+            const shownPageTemplate = folderish
+              ? undefined
+              : (itemPageTemplates?.get(idKey) ??
+                (item.id != null
+                  ? itemPageTemplates?.get(String(item.id).trim())
+                  : undefined));
             const shownFolderCommunity = folderish
               ? (folderCommunities?.get(idKey) ??
                 (item.id != null
@@ -666,6 +678,8 @@ export function DetailList({
                 data-community-name={
                   shownCommunity?.communityName ?? shownFolderCommunity?.communityName
                 }
+                data-page-template-id={shownPageTemplate?.templateId}
+                data-page-template-name={shownPageTemplate?.templateName}
                 data-locale={shownFolderLocale?.localeCode}
                 data-locale-name={shownFolderLocale?.localeName}
                 data-workflow-id={shownWorkflow?.workflowId}
@@ -791,6 +805,16 @@ export function DetailList({
                       >
                         {" "}
                         {shownCommunity.communityName}
+                      </span>
+                    ) : null}
+                    {c === "name" && shownPageTemplate ? (
+                      <span
+                        data-testid={`detail-page-template-${idKey}`}
+                        data-page-template-id={shownPageTemplate.templateId}
+                        data-page-template-name={shownPageTemplate.templateName}
+                      >
+                        {" "}
+                        {shownPageTemplate.templateName}
                       </span>
                     ) : null}
                     {c === "name" && shownFolderCommunity ? (

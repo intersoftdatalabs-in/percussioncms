@@ -47,6 +47,7 @@ export type ExplorerMenuCommandId =
   | "content-set-folder-display-format"
   | "content-set-folder-allowed-sites"
   | "content-set-community"
+  | "content-change-page-template"
   | "content-mobile-preview"
   | "view-refresh"
   | "view-search"
@@ -234,6 +235,12 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           labelKey: EXPLORER_MSG.SET_COMMUNITY,
           ariaLabelKey: EXPLORER_MSG.SET_COMMUNITY_ARIA,
           testId: "explorer-set-community",
+        },
+        {
+          id: "content-change-page-template",
+          labelKey: EXPLORER_MSG.CHANGE_PAGE_TEMPLATE,
+          ariaLabelKey: EXPLORER_MSG.CHANGE_PAGE_TEMPLATE_ARIA,
+          testId: "explorer-change-page-template",
         },
         {
           id: "content-mobile-preview",

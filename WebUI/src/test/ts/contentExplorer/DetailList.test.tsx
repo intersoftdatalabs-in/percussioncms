@@ -151,6 +151,44 @@ describe("DetailList", () => {
     expect(screen.getByTestId("detail-row-p-2").getAttribute("data-community-id")).toBeNull();
   });
 
+  it("shows a page template on a row only when that page was saved (#5200)", async () => {
+    mockFetch(async () => {
+      return new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: CHILDREN,
+            childrenCount: CHILDREN.length,
+            startIndex: 0,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+    const shown = new Map([["p-1", { templateId: "202", templateName: "Blog" }]]);
+    render(
+      <DetailList
+        folderPath="/Sites/Foo"
+        selectedItemId={null}
+        onSelectItem={() => undefined}
+        itemPageTemplates={shown}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("detail-page-template-p-1")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("detail-page-template-p-1")).toHaveAttribute(
+      "data-page-template-id",
+      "202",
+    );
+    expect(screen.getByTestId("detail-page-template-p-1")).toHaveTextContent("Blog");
+    expect(screen.getByTestId("detail-row-p-1")).toHaveAttribute(
+      "data-page-template-name",
+      "Blog",
+    );
+    expect(screen.queryByTestId("detail-page-template-p-2")).toBeNull();
+    expect(screen.getByTestId("detail-row-p-2").getAttribute("data-page-template-id")).toBeNull();
+  });
+
   it("shows a workflow on a row only when that item was saved (#5155)", async () => {
     mockFetch(async () => {
       return new Response(

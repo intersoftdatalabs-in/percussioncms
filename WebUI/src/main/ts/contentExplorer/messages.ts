@@ -1092,6 +1092,42 @@ export const EXPLORER_MSG = {
   SET_COMMUNITY_HTTP_409:
     "perc.ui.explorer@This item could not change community (HTTP 409)",
   SET_COMMUNITY_FAILED: "perc.ui.explorer@Could not set the community",
+  CHANGE_PAGE_TEMPLATE: "perc.ui.explorer@Change page template",
+  CHANGE_PAGE_TEMPLATE_ARIA:
+    "perc.ui.explorer@Change the page template of the selected page",
+  CHANGE_PAGE_TEMPLATE_TITLE: "perc.ui.explorer@Change page template",
+  CHANGE_PAGE_TEMPLATE_LABEL: "perc.ui.explorer@Page template",
+  CHANGE_PAGE_TEMPLATE_CURRENT: "perc.ui.explorer@current",
+  CHANGE_PAGE_TEMPLATE_SAVE: "perc.ui.explorer@Save page template",
+  CHANGE_PAGE_TEMPLATE_CANCEL: "perc.ui.explorer@Cancel",
+  CHANGE_PAGE_TEMPLATE_SAVED: "perc.ui.explorer@Page template saved",
+  CHANGE_PAGE_TEMPLATE_EMPTY:
+    "perc.ui.explorer@Select a page before changing its page template",
+  CHANGE_PAGE_TEMPLATE_FOLDER:
+    "perc.ui.explorer@Folders do not have a page template",
+  CHANGE_PAGE_TEMPLATE_ASSET:
+    "perc.ui.explorer@Assets do not have a page template",
+  CHANGE_PAGE_TEMPLATE_NOT_PAGE:
+    "perc.ui.explorer@Only a page can change its page template",
+  CHANGE_PAGE_TEMPLATE_MULTI:
+    "perc.ui.explorer@Change page template applies to one selected page",
+  CHANGE_PAGE_TEMPLATE_NO_ID:
+    "perc.ui.explorer@No page id is available to change the page template",
+  CHANGE_PAGE_TEMPLATE_NONE:
+    "perc.ui.explorer@This page has no page template to choose",
+  CHANGE_PAGE_TEMPLATE_UNCHANGED:
+    "perc.ui.explorer@Choose a different page template. The current template is not saved again",
+  CHANGE_PAGE_TEMPLATE_FORBIDDEN:
+    "perc.ui.explorer@That page template is not allowed for this page",
+  CHANGE_PAGE_TEMPLATE_BLANK:
+    "perc.ui.explorer@Choose a page template before saving",
+  CHANGE_PAGE_TEMPLATE_HTTP_400:
+    "perc.ui.explorer@Could not change the page template (HTTP 400)",
+  CHANGE_PAGE_TEMPLATE_HTTP_403:
+    "perc.ui.explorer@You are not allowed to change this page template (HTTP 403)",
+  CHANGE_PAGE_TEMPLATE_HTTP_409:
+    "perc.ui.explorer@This page template could not be saved (HTTP 409)",
+  CHANGE_PAGE_TEMPLATE_FAILED: "perc.ui.explorer@Could not change the page template",
   MOBILE_PREVIEW: "perc.ui.explorer@Mobile preview",
   MOBILE_PREVIEW_ARIA:
     "perc.ui.explorer@Open a mobile preview of the selected page",
