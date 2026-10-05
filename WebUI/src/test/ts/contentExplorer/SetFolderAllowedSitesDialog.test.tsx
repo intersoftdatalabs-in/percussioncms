@@ -71,4 +71,27 @@ describe("SetFolderAllowedSitesDialog (#5132)", () => {
     fireEvent.click(screen.getByTestId("explorer-set-folder-allowed-sites-save"));
     expect(onSave).toHaveBeenLastCalledWith([]);
   });
+
+  it("names the multi-folder save and cancel still does not save", async () => {
+    const onSave = vi.fn();
+    const onCancel = vi.fn();
+    const { container } = render(
+      <SetFolderAllowedSitesDialog
+        choices={choices}
+        currentSites="301"
+        busy={false}
+        error=""
+        multi
+        onSave={onSave}
+        onCancel={onCancel}
+      />,
+    );
+    expect(screen.getByTestId("explorer-set-folder-allowed-sites-multi").textContent).toContain(
+      "each selected folder",
+    );
+    fireEvent.click(screen.getByTestId("explorer-set-folder-allowed-sites-cancel"));
+    expect(onCancel).toHaveBeenCalled();
+    expect(onSave).not.toHaveBeenCalled();
+    await renderA11yGate(container);
+  });
 });

@@ -365,6 +365,15 @@ export interface DetailListProps {
     string,
     { displayFormatId: string; displayFormatName: string }
   >;
+  /**
+   * Allowed publish sites written onto a folder. Shown only after that
+   * folder's save returns and a properties refresh shows the same list
+   * (#5181). A clear is {@code cleared} with an empty id list.
+   */
+  folderAllowedSites?: ReadonlyMap<
+    string,
+    { allowedSites: string; allowedSiteNames: string; cleared: boolean }
+  >;
 }
 
 export function DetailList({
@@ -384,6 +393,7 @@ export function DetailList({
   itemWorkflows,
   folderWorkflows,
   folderDisplayFormats,
+  folderAllowedSites,
 }: DetailListProps): React.ReactElement {
   const [page, setPage] = useState(0);
   const [data, setData] = useState<PSPagedResult | null>(null);
@@ -625,6 +635,12 @@ export function DetailList({
                   ? folderDisplayFormats?.get(String(item.id).trim())
                   : undefined))
               : undefined;
+            const shownFolderAllowedSites = folderish
+              ? (folderAllowedSites?.get(idKey) ??
+                (item.id != null
+                  ? folderAllowedSites?.get(String(item.id).trim())
+                  : undefined))
+              : undefined;
             const shownWorkflow = shownFolderWorkflow ?? shownItemWorkflow;
             const scheduleOnRow = rowScheduleDates(item);
             const scheduleLabel = [scheduleOnRow.startDate, scheduleOnRow.endDate]
@@ -656,6 +672,15 @@ export function DetailList({
                 data-workflow-name={shownWorkflow?.workflowName}
                 data-format-id={shownFolderDisplayFormat?.displayFormatId}
                 data-format-name={shownFolderDisplayFormat?.displayFormatName}
+                data-allowed-sites={shownFolderAllowedSites?.allowedSites}
+                data-allowed-site-names={shownFolderAllowedSites?.allowedSiteNames}
+                data-allowed-sites-cleared={
+                  shownFolderAllowedSites
+                    ? shownFolderAllowedSites.cleared
+                      ? "true"
+                      : "false"
+                    : undefined
+                }
                 data-selected={selected ? "true" : undefined}
                 data-checked={isChecked ? "true" : undefined}
                 data-finder-mime={
@@ -806,6 +831,19 @@ export function DetailList({
                       >
                         {" "}
                         {shownFolderDisplayFormat.displayFormatName}
+                      </span>
+                    ) : null}
+                    {c === "name" && shownFolderAllowedSites ? (
+                      <span
+                        data-testid={`detail-folder-allowed-sites-${idKey}`}
+                        data-allowed-sites={shownFolderAllowedSites.allowedSites}
+                        data-allowed-site-names={shownFolderAllowedSites.allowedSiteNames}
+                        data-cleared={shownFolderAllowedSites.cleared ? "true" : "false"}
+                      >
+                        {" "}
+                        {shownFolderAllowedSites.cleared
+                          ? message(EXPLORER_MSG.SET_FOLDER_ALLOWED_SITES_ALL)
+                          : shownFolderAllowedSites.allowedSiteNames}
                       </span>
                     ) : null}
                     {c === "name" && shownItemWorkflow ? (

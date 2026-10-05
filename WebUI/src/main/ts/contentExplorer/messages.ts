@@ -1024,6 +1024,11 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Only a folder can have its allowed publish sites set",
   SET_FOLDER_ALLOWED_SITES_MULTI:
     "perc.ui.explorer@Set allowed publish sites applies to one selected folder",
+  SET_FOLDER_ALLOWED_SITES_MULTI_NOTE:
+    "perc.ui.explorer@These allowed publish sites are saved on each selected folder. Pages and assets are not changed. Leave every site unchecked to allow publishing to all sites",
+  SET_FOLDER_ALLOWED_SITES_PARTIAL:
+    "perc.ui.explorer@Not every selected folder had its allowed publish sites set: {detail}",
+  SET_FOLDER_ALLOWED_SITES_ALL: "perc.ui.explorer@All sites",
   SET_FOLDER_ALLOWED_SITES_NO_ID:
     "perc.ui.explorer@No folder id is available to set allowed publish sites",
   SET_FOLDER_ALLOWED_SITES_NONE:
