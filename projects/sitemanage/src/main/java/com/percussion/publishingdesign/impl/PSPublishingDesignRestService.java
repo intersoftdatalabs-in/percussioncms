@@ -53,7 +53,9 @@ import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.share.service.exception.PSDataServiceException;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSSiteManageBean;
+import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
@@ -125,6 +127,11 @@ public class PSPublishingDesignRestService {
 
   static final String DELIVERY_TYPE_NAME_TOO_LONG =
       "Delivery type name must be 50 characters or fewer";
+  /**
+   * A content list URL still names this delivery type ({@code sys_deliverytype}). Changing that
+   * list is a separate action.
+   */
+  static final String DELIVERY_TYPE_IN_USE = "Delivery type is in use";
   static final String LOCATION_SCHEME_NAME_CONFLICT = "Location scheme name already exists";
 
   static final String LOCATION_SCHEME_ASSIGNMENT_CONFLICT =
@@ -682,10 +689,12 @@ public class PSPublishingDesignRestService {
   @DELETE
   @Path("/deliverytypes/{deliveryTypeId}")
   public void deleteDeliveryType(@PathParam("deliveryTypeId") String deliveryTypeId) {
+    requireDesignWrite();
     requireNonBlank(deliveryTypeId, "deliveryTypeId");
     try {
       IPSGuid guid = guidManager.makeGuid(deliveryTypeId, PSTypeEnum.DELIVERY_TYPE);
       IPSDeliveryType t = publisherService.loadDeliveryType(guid);
+      rejectDeliveryTypeInUse(t);
       publisherService.deleteDeliveryType(t);
     } catch (PSNotFoundException e) {
       throw notFound("Delivery type not found");
@@ -1820,6 +1829,62 @@ public class PSPublishingDesignRestService {
     }
     if (schemes != null && !schemes.isEmpty()) {
       throw conflict(CONTEXT_HAS_LOCATION_SCHEMES);
+    }
+  }
+
+  /**
+   * Refuse delete while any content list URL still names this delivery type (HTTP 409). An unused
+   * type is deleted. This does not change those content lists.
+   */
+  private void rejectDeliveryTypeInUse(IPSDeliveryType deliveryType) {
+    if (deliveryType == null || isBlank(deliveryType.getName())) {
+      return;
+    }
+    String name = deliveryType.getName().trim();
+    List<IPSContentList> lists;
+    try {
+      lists = publisherService.findAllContentLists("");
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw internalError(e);
+    }
+    if (lists == null || lists.isEmpty()) {
+      return;
+    }
+    for (IPSContentList list : lists) {
+      if (list == null) {
+        continue;
+      }
+      String referenced = deliveryTypeNameFromContentListUrl(list.getUrl());
+      if (name.equals(referenced)) {
+        throw conflict(DELIVERY_TYPE_IN_USE);
+      }
+    }
+  }
+
+  /**
+   * {@code sys_deliverytype} query value from a content-list URL, or null when the list does not
+   * name one. Percent-decoding matches values stored by the publisher URL helpers.
+   */
+  private static String deliveryTypeNameFromContentListUrl(String url) {
+    if (isBlank(url)) {
+      return null;
+    }
+    String value;
+    try {
+      value = PSUrlUtils.getUrlParameterValue(url, IPSHtmlParameters.SYS_DELIVERYTYPE);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+    if (isBlank(value)) {
+      return null;
+    }
+    String trimmed = value.trim();
+    try {
+      return java.net.URLDecoder.decode(trimmed, java.nio.charset.StandardCharsets.UTF_8).trim();
+    } catch (IllegalArgumentException e) {
+      return trimmed;
     }
   }
 

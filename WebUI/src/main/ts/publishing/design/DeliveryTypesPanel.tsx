@@ -35,6 +35,10 @@ import {
   deliveryTypesAfterSuccessfulRename,
   validateDeliveryTypeRenameName,
 } from "../deliveryTypeRename";
+import {
+  deliveryTypesAfterSuccessfulDelete,
+  mapDeliveryTypeDeleteError,
+} from "../deliveryTypeDelete";
 import { mapDeliveryTypeSaveError } from "../deliveryTypeSaveErrors";
 import { useDirtyForm } from "../dirtyFormContext";
 import {
@@ -254,15 +258,29 @@ export function DeliveryTypesPanel(): React.ReactElement {
     }
   }
 
-  async function remove(id: string): Promise<void> {
+  async function remove(id: string | number): Promise<void> {
+    if (saving || id === "" || id == null) {
+      return;
+    }
     if (!window.confirm(message(MSG.PUBLISH_CONFIRM_DELETE_DESIGN))) {
       return;
     }
+    setError(null);
+    setSaving(true);
+    const previous = items;
     try {
       await deleteDeliveryType(id);
-      reload();
+      let refreshed: DeliveryTypeSummary[] | null = null;
+      try {
+        refreshed = await listDeliveryTypes();
+      } catch {
+        refreshed = null;
+      }
+      setItems(deliveryTypesAfterSuccessfulDelete(refreshed, id, previous));
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapDeliveryTypeDeleteError(e));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -494,6 +512,8 @@ export function DeliveryTypesPanel(): React.ReactElement {
                 <button
                   type="button"
                   style={buttonStyle}
+                  data-testid="delivery-type-delete"
+                  disabled={saving}
                   onClick={() => void remove(t.deliveryTypeId!)}
                 >
                   Delete
