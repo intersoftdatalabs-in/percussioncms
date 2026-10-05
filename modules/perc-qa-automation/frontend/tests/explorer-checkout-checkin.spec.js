@@ -50,7 +50,7 @@ test.describe("modern React Content Explorer — check-out / check-in", () => {
   });
 
   test(
-    "Check Out then Check In call workflow endpoints and refresh",
+    "Check Out then Check In prompts and calls the editor check-in",
     { tag: ["@explorer-checkout-checkin", "@explorer"] },
     async ({ page }) => {
       const pageErrors = [];
@@ -76,12 +76,19 @@ test.describe("modern React Content Explorer — check-out / check-in", () => {
           }),
         });
       });
-      await page.route("**/itemmanagement/workflow/checkIn/**", async (route) => {
+      await page.route("**/rest/editor/items/**/checkin**", async (route) => {
         checkinHits += 1;
         await route.fulfill({
           status: 200,
           contentType: "application/json",
-          body: JSON.stringify({ PSNoContent: { operation: "checkIn" } }),
+          body: JSON.stringify({
+            EditorItemLockInfo: {
+              itemName: "Home",
+              checkOutUser: "",
+              currentUser: "Admin",
+              assignmentType: "",
+            },
+          }),
         });
       });
 
@@ -111,6 +118,10 @@ test.describe("modern React Content Explorer — check-out / check-in", () => {
       await checkout.click();
       await expect.poll(() => checkoutHits, { timeout: 10_000 }).toBeGreaterThan(0);
       await checkin.click();
+      await expect(page.locator('[data-testid="explorer-checkin-comment"]')).toBeVisible({
+        timeout: 10_000,
+      });
+      await page.locator('[data-testid="explorer-checkin-confirm"]').click();
       await expect.poll(() => checkinHits, { timeout: 10_000 }).toBeGreaterThan(0);
       await expect(
         page.locator('[data-testid="explorer-server-actions-error"]'),
@@ -179,7 +190,7 @@ test.describe("modern React Content Explorer — check-out / check-in", () => {
           body: JSON.stringify(PAGE_LIST),
         });
       });
-      await page.route("**/itemmanagement/workflow/checkIn/**", async (route) => {
+      await page.route("**/rest/editor/items/**/checkin**", async (route) => {
         await route.fulfill({
           status: 403,
           contentType: "text/plain",
@@ -197,6 +208,10 @@ test.describe("modern React Content Explorer — check-out / check-in", () => {
       const checkin = page.locator('[data-testid="action-toolbar-item-Check_In"]');
       await expect(checkin).toBeVisible({ timeout: 15_000 });
       await checkin.click();
+      await expect(page.locator('[data-testid="explorer-checkin-comment"]')).toBeVisible({
+        timeout: 10_000,
+      });
+      await page.locator('[data-testid="explorer-checkin-confirm"]').click();
       await expect(
         page.locator('[data-testid="explorer-server-actions-error"]'),
       ).toBeVisible({ timeout: 10_000 });

@@ -27,6 +27,7 @@ vi.mock("../../../main/ts/api/contentExplorer/pathApi", async (importOriginal) =
 });
 
 import * as itemWorkflowApi from "../../../main/ts/api/contentExplorer/itemWorkflowApi";
+import * as itemFieldsApi from "../../../main/ts/editor/itemFieldsApi";
 import {
   classifyAction,
   dispatchAction,
@@ -1525,11 +1526,18 @@ describe("actionDispatch", () => {
       type: "folder",
       category: "folder",
     });
+    const editorCheckin = vi
+      .spyOn(itemFieldsApi, "checkinEditorItem")
+      .mockResolvedValue(undefined);
+    const promptCheckinComment = vi.fn();
     const result = await dispatchAction(action({ name: "Check_In" }), {
       item: page,
       selectedItems: [page, folder, asset],
       confirm,
+      promptCheckinComment,
     });
+    expect(promptCheckinComment).not.toHaveBeenCalled();
+    expect(editorCheckin).not.toHaveBeenCalled();
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(String(confirm.mock.calls[0]?.[0])).toMatch(
       /Check in 2 selected items/i,
@@ -1596,30 +1604,97 @@ describe("actionDispatch", () => {
     expect(result.messageText).toMatch(/Folders are not checked in/i);
   });
 
-  it("Check In calls workflow checkIn and refreshes", async () => {
-    const checkIn = vi
+  it("Check In prompts then uses the editor check-in with a trimmed comment (#5199)", async () => {
+    const workflowCheckIn = vi
       .spyOn(itemWorkflowApi, "checkInItem")
+      .mockResolvedValue(undefined);
+    const editorCheckin = vi
+      .spyOn(itemFieldsApi, "checkinEditorItem")
       .mockResolvedValue(undefined);
     const result = await dispatchAction(action({ name: "Check_In" }), {
       item: item(),
+      promptCheckinComment: async () => "  shipped copy  ",
     });
     expect(result.kind).toBe("rest");
     expect(result.refresh).toBe(true);
-    expect(checkIn).toHaveBeenCalledWith("42");
+    expect(result.refreshCheckoutOwner).toBe(true);
+    expect(editorCheckin).toHaveBeenCalledWith("42", "shipped copy");
+    expect(workflowCheckIn).not.toHaveBeenCalled();
   });
 
-  it("Check In maps HTTP 403/409", async () => {
-    vi.spyOn(itemWorkflowApi, "checkInItem")
+  it("blank Check In comment still checks in without a comment (#5199)", async () => {
+    const editorCheckin = vi
+      .spyOn(itemFieldsApi, "checkinEditorItem")
+      .mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Check_In" }), {
+      item: item({
+        id: "44",
+        name: "Logo",
+        type: "percImageAsset",
+        category: "asset",
+      }),
+      promptCheckinComment: () => "   ",
+    });
+    expect(result.refresh).toBe(true);
+    expect(editorCheckin).toHaveBeenCalledWith("44", undefined);
+  });
+
+  it("Check In cancel does not check in or send the comment (#5199)", async () => {
+    const editorCheckin = vi
+      .spyOn(itemFieldsApi, "checkinEditorItem")
+      .mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Check_In" }), {
+      item: item(),
+      promptCheckinComment: () => null,
+    });
+    expect(editorCheckin).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.refreshCheckoutOwner).toBeUndefined();
+    expect(result.messageKey).toBeUndefined();
+  });
+
+  it("a folder selection does not prompt or check in (#5199)", async () => {
+    const editorCheckin = vi
+      .spyOn(itemFieldsApi, "checkinEditorItem")
+      .mockResolvedValue(undefined);
+    const promptCheckinComment = vi.fn();
+    const result = await dispatchAction(action({ name: "Check_In" }), {
+      item: item({ id: "7", type: "folder", category: "folder", name: "News" }),
+      promptCheckinComment,
+    });
+    expect(promptCheckinComment).not.toHaveBeenCalled();
+    expect(editorCheckin).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+  });
+
+  it("Check In HTTP 400, 403, and 409 do not claim success (#5199)", async () => {
+    const editorCheckin = vi
+      .spyOn(itemFieldsApi, "checkinEditorItem")
+      .mockRejectedValueOnce({ status: 400, statusText: "Bad Request", body: {} })
       .mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: {} })
       .mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: {} });
+    const rejected = await dispatchAction(action({ name: "Check_In" }), {
+      item: item(),
+      promptCheckinComment: () => "note",
+    });
+    expect(rejected.messageKey).toBe(EXPLORER_MSG.CHECKIN_REJECTED);
+    expect(rejected.refresh).toBeUndefined();
+    expect(rejected.refreshCheckoutOwner).toBeUndefined();
+    expect(rejected.outcome).toBeUndefined();
     const forbidden = await dispatchAction(action({ name: "Check_In" }), {
       item: item(),
+      promptCheckinComment: () => "",
     });
     expect(forbidden.messageKey).toBe(EXPLORER_MSG.CHECKIN_FORBIDDEN);
+    expect(forbidden.refreshCheckoutOwner).toBeUndefined();
     const conflict = await dispatchAction(action({ name: "Check_In" }), {
       item: item(),
+      promptCheckinComment: () => "note",
     });
     expect(conflict.messageKey).toBe(EXPLORER_MSG.CHECKIN_CONFLICT);
+    expect(conflict.refresh).toBeUndefined();
+    expect(editorCheckin).toHaveBeenCalledTimes(3);
   });
 
   it("multi-select Force Check-in confirms once and skips folders (#4873)", async () => {

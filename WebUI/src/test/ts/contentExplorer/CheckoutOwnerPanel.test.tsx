@@ -66,6 +66,29 @@ describe("CheckoutOwnerPanel (#4910)", () => {
     expect(container.querySelector('[data-testid="explorer-checkout-owner"]')).toBeNull();
   });
 
+  it("leaves the checkout user in place until reloadToken changes (#5199)", async () => {
+    let released = false;
+    const load = vi.fn(async () => ({
+      checkOutUser: released ? "" : "editor",
+      currentUser: "Admin",
+      itemName: "Home",
+    }));
+    const { rerender } = render(
+      <CheckoutOwnerPanel itemId="42" load={load} reloadToken={0} />,
+    );
+    expect(await screen.findByTestId("explorer-checkout-owner-user")).toHaveTextContent(
+      "editor",
+    );
+    const callsWhileHeld = load.mock.calls.length;
+    rerender(<CheckoutOwnerPanel itemId="42" load={load} reloadToken={0} />);
+    expect(load.mock.calls.length).toBe(callsWhileHeld);
+    expect(screen.getByTestId("explorer-checkout-owner-user")).toHaveTextContent("editor");
+    released = true;
+    rerender(<CheckoutOwnerPanel itemId="42" load={load} reloadToken={1} />);
+    expect(await screen.findByTestId("explorer-checkout-owner-none")).toBeTruthy();
+    expect(load.mock.calls.length).toBeGreaterThan(callsWhileHeld);
+  });
+
   it("does not throw when the lookup rejects", async () => {
     render(
       <CheckoutOwnerPanel
