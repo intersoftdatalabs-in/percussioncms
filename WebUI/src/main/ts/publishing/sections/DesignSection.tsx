@@ -26,11 +26,13 @@ import {
 import { message, MSG } from "../../i18n/message";
 import { contentListsAfterSuccessfulCopy } from "../contentListCopy";
 import { storedItemFilterLabel } from "../contentListItemFilter";
+import { editionsAfterSuccessfulComment } from "../editionComment";
 import { editionsAfterSuccessfulPriority } from "../editionPriority";
 import { ContentListCopyPanel } from "../design/ContentListCopyPanel";
 import { ContentListEditor } from "../design/ContentListEditor";
 import { ContextsPanel } from "../design/ContextsPanel";
 import { DeliveryTypesPanel } from "../design/DeliveryTypesPanel";
+import { EditionCommentPanel } from "../design/EditionCommentPanel";
 import { EditionEditor, type EditionCopiedInfo } from "../design/EditionEditor";
 import { EditionPriorityPanel } from "../design/EditionPriorityPanel";
 import { SiteDesignPanel } from "../design/SiteDesignPanel";
@@ -62,6 +64,9 @@ export function DesignSection(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [editionEdit, setEditionEdit] = useState<EditionSummary | null | "new">(
+    null,
+  );
+  const [editionComment, setEditionComment] = useState<EditionSummary | null>(
     null,
   );
   const [editionPriority, setEditionPriority] = useState<EditionSummary | null>(
@@ -117,6 +122,33 @@ export function DesignSection(): React.ReactElement {
       reloadContentLists();
     }
   }, [nav, reloadContentLists]);
+
+  if (editionComment !== null) {
+    const commentEdition = editionComment;
+    return (
+      <div data-testid="publish-section-design">
+        <EditionCommentPanel
+          edition={commentEdition}
+          onCancel={() => setEditionComment(null)}
+          onSaved={async (comment) => {
+            const id = commentEdition.editionId ?? "";
+            setEditionComment(null);
+            let refreshed: EditionSummary[] | null = null;
+            try {
+              if (siteId) {
+                refreshed = await listEditionsBySite(siteId);
+              }
+            } catch {
+              refreshed = null;
+            }
+            setEditions((prev) =>
+              editionsAfterSuccessfulComment(refreshed, id, comment, prev),
+            );
+          }}
+        />
+      </div>
+    );
+  }
 
   if (editionPriority !== null) {
     const priorityEdition = editionPriority;
@@ -300,6 +332,16 @@ export function DesignSection(): React.ReactElement {
                 >
                   {e.comment ?? ""}
                 </span>
+                {e.editionId && (
+                  <button
+                    type="button"
+                    style={buttonStyle}
+                    data-testid={`design-edition-set-comment-${e.editionId}`}
+                    onClick={() => setEditionComment(e)}
+                  >
+                    Comment
+                  </button>
+                )}
                 <span
                   data-testid={
                     e.editionId

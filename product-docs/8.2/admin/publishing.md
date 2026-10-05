@@ -318,8 +318,10 @@ failures. Saving an edited **comment** together with other fields on an existing
 still that update (`PUT …/sitemanage/publishingdesign/editions/{editionId}`). Changing only the
 name is described under **Rename a publish edition** and does not rewrite stored priority,
 comment, or content-list order. Changing only the priority is described under **Set an edition
-priority** and does not rewrite the name, comment, or content-list order. Associating a content
-list is described below. Copying an edition and Runtime start/stop are separate actions.
+priority** and does not rewrite the name, comment, or content-list order. Changing only the
+comment is described under **Set an edition comment** and does not rewrite the name, priority,
+or content-list order. Associating a content list is described below. Copying an edition and
+Runtime start/stop are separate actions.
 
 ### Rename a publish edition (Design)
 
@@ -359,7 +361,28 @@ must be from 1 to 5**) and does not call the server.
 
 HTTP **400** (priority outside 1–5), **403** (not Admin or Designer), and **409** stay in the
 priority form error region. Those responses do not change the priority on **Editions**. Renaming
-an edition, creating an edition, and reordering content lists are separate actions.
+an edition, setting only the comment, creating an edition, and reordering content lists are
+separate actions.
+
+### Set an edition comment (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
+On an edition row, **Comment** opens **Edition comment** (it does not call the server).
+The form shows the current **name** and **priority** and does not let you change them.
+Change **Comment**, or clear it. **Save comment** sends
+`PUT …/sitemanage/publishingdesign/editions/{editionId}` with an `edition` object that contains
+only `comment`. Name, priority, and site id are omitted, so the server leaves the stored name
+and priority as they are. The call does not associate, remove, or reorder content lists, so that
+order stays as stored.
+
+A blank comment, including spaces only, is trimmed and sent as an empty `comment`, which clears
+the stored comment. **Editions** keeps the previous comment until that update succeeds, then
+shows the new comment (or nothing, when it was cleared) with the same name and priority.
+**Cancel** closes the form and does not call the server.
+
+HTTP **400**, **403** (not Admin or Designer), and **409** stay in the comment form error region.
+Those responses do not change the comment on **Editions**. Renaming an edition, setting only the
+priority, creating an edition, and reordering content lists are separate actions.
 
 ### Associate a content list with an edition (Design)
 
@@ -420,7 +443,7 @@ An edition with a running publish job does not change order. HTTP **400** (the p
 missing or not adjacent, including moving the first row up or the last row down), **403**
 (not Admin or Designer), and **409** (**Edition is in use**) stay in the edition editor error
 region. Those responses keep the previous order. Associating or removing a content list,
-and setting an edition priority (1–5), are separate actions.
+setting an edition priority (1–5), and setting an edition comment are separate actions.
 
 ### Copy a publish edition (Design)
 
