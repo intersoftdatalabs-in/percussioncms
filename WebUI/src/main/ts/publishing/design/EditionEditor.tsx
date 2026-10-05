@@ -33,6 +33,12 @@ import {
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
 import {
+  EDITION_PRIORITY_FORM_DEFAULT,
+  editionRenameBody,
+  editionRenameIsNameOnly,
+  validateEditionName,
+} from "../editionRename";
+import {
   mapEditionContentListAssociateError,
   mapEditionContentListDisassociateError,
   mapEditionContentListReorderError,
@@ -76,7 +82,9 @@ export function EditionEditor({
 }: EditionEditorProps): React.ReactElement {
   const [name, setName] = useState(edition?.name ?? "");
   const [comment, setComment] = useState(edition?.comment ?? "");
-  const [priority, setPriority] = useState(edition?.priority ?? 3);
+  const [priority, setPriority] = useState(
+    edition?.priority ?? EDITION_PRIORITY_FORM_DEFAULT,
+  );
   const [assoc, setAssoc] = useState<ContentListSummary[]>([]);
   const [allLists, setAllLists] = useState<ContentListSummary[]>([]);
   const [contexts, setContexts] = useState<ContextSummary[]>([]);
@@ -92,7 +100,7 @@ export function EditionEditor({
   useEffect(() => {
     setName(edition?.name ?? "");
     setComment(edition?.comment ?? "");
-    setPriority(edition?.priority ?? 3);
+    setPriority(edition?.priority ?? EDITION_PRIORITY_FORM_DEFAULT);
   }, [edition]);
 
   function reloadAssoc(): void {
@@ -132,15 +140,9 @@ export function EditionEditor({
   }, [edition?.editionId]);
 
   async function handleSave(): Promise<void> {
-    const trimmedName = name.trim();
-    if (!trimmedName) {
-      setError("Name is required");
-      return;
-    }
-    // RXEDITION.DISPLAYTITLE is VARCHAR(100). Reject before POST so the operator
-    // sees the limit instead of a database 500.
-    if (trimmedName.length > 100) {
-      setError("Edition name must be 100 characters or fewer");
+    const named = validateEditionName(name);
+    if (!named.ok) {
+      setError(named.error);
       return;
     }
     if (!siteId.trim()) {
@@ -150,19 +152,30 @@ export function EditionEditor({
     setSaving(true);
     setError(null);
     try {
-      const body: EditionSummary = {
-        name: trimmedName,
-        comment,
-        priority,
-        siteId,
-      };
       if (edition?.editionId) {
-        await updateEdition(edition.editionId, {
-          ...body,
-          editionId: edition.editionId,
-        });
+        // Name-only: omit comment and priority so the server leaves them stored.
+        // Content-list order is a different resource and is not written here.
+        const body: EditionSummary = editionRenameIsNameOnly(
+          edition,
+          comment,
+          priority,
+        )
+          ? editionRenameBody(edition, named.name, siteId)
+          : {
+              name: named.name,
+              comment,
+              priority,
+              siteId,
+              editionId: edition.editionId,
+            };
+        await updateEdition(edition.editionId, body);
       } else {
-        await createEdition(body);
+        await createEdition({
+          name: named.name,
+          comment,
+          priority,
+          siteId,
+        });
       }
       onSaved();
     } catch (e) {

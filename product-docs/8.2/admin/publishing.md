@@ -314,10 +314,31 @@ A blank name stays in the editor (**Name is required**) and is not posted. A nam
 100 characters stays in the editor and is not posted. HTTP **400** (name or site missing, or
 the name is too long), **403** (not Admin or Designer), and **409** (edition name already
 exists) stay in the edition editor error region. The list does not gain a row for those
-failures. Opening an existing edition and saving it is an update
-(`PUT …/sitemanage/publishingdesign/editions/{editionId}`) on the same form. Associating a
-content list is described below. Copying an edition and Runtime start/stop are separate
-actions.
+failures. Saving an edited **comment** or **priority** on an existing edition is still that
+update (`PUT …/sitemanage/publishingdesign/editions/{editionId}`). Changing only the name is
+described under **Rename a publish edition** and does not rewrite stored priority, comment,
+or content-list order. Associating a content list is described below. Copying an edition
+and Runtime start/stop are separate actions.
+
+### Rename a publish edition (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
+Open one existing edition (not **Add edition**). Change **Name** and **Save**.
+
+That sends `PUT …/sitemanage/publishingdesign/editions/{editionId}` with the new name, the
+edition id, and the open site id. When **Comment** and **Priority** were not edited, those
+fields are omitted so the stored comment and priority stay as they are. The call does not
+associate, remove, or reorder content lists, so that order stays as stored. **Editions**
+keeps the previous name until the save succeeds, then shows the new name. **Back** does not
+call the server.
+
+A blank name stays in the editor (**Name is required**) and is not sent. A name longer than
+100 characters stays in the editor (**Edition name must be 100 characters or fewer**) and is
+not sent. HTTP **400** (the name is rejected), **403** (not Admin or Designer), and **409**
+(edition name already exists) stay in the edition editor error region. Those responses leave
+the previous name on **Editions**. Stored priority, comment, and content-list order stay as
+they were. Creating an edition, copying an edition, deleting an edition, and reordering
+content lists are separate actions.
 
 ### Associate a content list with an edition (Design)
 
