@@ -490,8 +490,9 @@ mark the form dirty; leaving the editor prompts to discard. The shell posts
 `PUT …/sitemanage/publishingdesign/contentlists/{contentListId}` (update).
 
 HTTP **403** (not Admin or Designer) and **409** (content list name already exists) are shown in the
-content-list editor error region — not as a successful save. Edition save and delivery-type save
-are separate Design actions.
+content-list editor error region — not as a successful save. Setting only the description is
+described below and does not change the name, type, generator or legacy URL, or item filter.
+Edition save and delivery-type save are separate Design actions.
 
 ### Rename a content list (Design)
 
@@ -539,8 +540,32 @@ A blank name is rejected in the editor and does not call the server. An unknown 
 **400** (**Unknown item filter**). HTTP **400**, **403** (not Admin or Designer), and **409**
 (content list name already exists) stay in the editor. Those responses do not change the filter
 shown for that content list. This action does not create item filters, and it does not change the
-list type, expander, edition type, or generator. Renaming a content list and copying one are
-separate actions. A legacy content list does not use an item filter. A list with no generator, no expander, and no item filter is legacy, so keep a generator on a modern list when clearing the filter.
+list type, expander, edition type, or generator. Renaming a content list, copying one, and
+setting only the description are separate actions. A legacy content list does not use an item
+filter. A list with no generator, no expander, and no item filter is legacy, so keep a generator
+on a modern list when clearing the filter.
+
+### Set a content list description (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Content lists**.
+On a content list row, **Description** opens **Content list description** (it does not call the
+server). The form shows the current **name**, **type**, **generator** or **legacy URL**, and
+**item filter**, and does not let you change them. Change **Description**. **Save description**
+sends `PUT …/sitemanage/publishingdesign/contentlists/{contentListId}` with a `contentList`
+object that contains only the description. Name, type, generator, legacy URL, and item filter
+are omitted, so the server leaves those stored. A blank description clears the stored
+description.
+
+**Content lists** keeps the previous description until that update succeeds, then shows the new
+description (or none, when cleared) with the same name, type, generator or legacy URL, and item
+filter. **Cancel** closes the form and does not call the server. A description longer than 255
+characters (`RXCONTENTLIST.DESCRIPTION`) is rejected in the form and does not call the server.
+
+HTTP **400** (description longer than 255 characters), **403** (not Admin or Designer), and
+**409** (for example a content list name conflict on the same update) stay in the description
+form error region. Those responses do not change the description on the list. Saving a content
+list (which can also change the name, generator or legacy URL, and item filter), renaming a
+content list, and setting the item filter are separate actions.
 
 ### Delete a content list (Design)
 

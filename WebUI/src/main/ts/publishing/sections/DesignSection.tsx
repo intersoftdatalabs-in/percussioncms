@@ -25,11 +25,14 @@ import {
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
 import { contentListsAfterSuccessfulCopy } from "../contentListCopy";
+import { contentListsAfterSuccessfulDescription } from "../contentListDescription";
 import { storedItemFilterLabel } from "../contentListItemFilter";
 import { editionsAfterSuccessfulComment } from "../editionComment";
 import { editionsAfterSuccessfulPriority } from "../editionPriority";
 import { ContentListCopyPanel } from "../design/ContentListCopyPanel";
+import { ContentListDescriptionPanel } from "../design/ContentListDescriptionPanel";
 import { ContentListEditor } from "../design/ContentListEditor";
+import { isLegacyContentList } from "../design/designLegacyTypes";
 import { ContextsPanel } from "../design/ContextsPanel";
 import { DeliveryTypesPanel } from "../design/DeliveryTypesPanel";
 import { EditionCommentPanel } from "../design/EditionCommentPanel";
@@ -74,6 +77,7 @@ export function DesignSection(): React.ReactElement {
   );
   const [clEdit, setClEdit] = useState<ContentListSummary | null | "new">(null);
   const [clCopy, setClCopy] = useState<ContentListSummary | null>(null);
+  const [clDescribe, setClDescribe] = useState<ContentListSummary | null>(null);
 
   useEffect(() => {
     fetchSites()
@@ -220,6 +224,36 @@ export function DesignSection(): React.ReactElement {
               contentListsAfterSuccessfulCopy(refreshed, created, prev),
             );
             setClCopy(null);
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (clDescribe !== null) {
+    const described = clDescribe;
+    return (
+      <div data-testid="publish-section-design">
+        <ContentListDescriptionPanel
+          contentList={described}
+          onCancel={() => setClDescribe(null)}
+          onSaved={async (description) => {
+            const id = described.contentListId ?? "";
+            setClDescribe(null);
+            let refreshed: ContentListSummary[] | null = null;
+            try {
+              refreshed = await listContentLists();
+            } catch {
+              refreshed = null;
+            }
+            setContentLists((prev) =>
+              contentListsAfterSuccessfulDescription(
+                refreshed,
+                id,
+                description,
+                prev,
+              ),
+            );
           }}
         />
       </div>
@@ -413,7 +447,42 @@ export function DesignSection(): React.ReactElement {
                     Copy
                   </button>
                 )}
-                <span style={{ color: "#666" }}>{c.listType}</span>
+                {c.contentListId && (
+                  <button
+                    type="button"
+                    style={buttonStyle}
+                    data-testid={`design-content-list-describe-${c.contentListId}`}
+                    onClick={() => setClDescribe(c)}
+                  >
+                    Description
+                  </button>
+                )}
+                <span
+                  style={{ color: "#666" }}
+                  data-testid={
+                    c.contentListId
+                      ? `design-content-list-type-${c.contentListId}`
+                      : undefined
+                  }
+                >
+                  {c.listType}
+                </span>
+                {c.contentListId && (
+                  <span
+                    data-testid={`design-content-list-source-${c.contentListId}`}
+                  >
+                    {isLegacyContentList(c.listType)
+                      ? (c.url ?? "")
+                      : (c.generator ?? "")}
+                  </span>
+                )}
+                {c.contentListId && (
+                  <span
+                    data-testid={`design-content-list-description-${c.contentListId}`}
+                  >
+                    {c.description ?? ""}
+                  </span>
+                )}
                 {c.contentListId && (
                   <span
                     data-testid={`design-content-list-filter-${c.contentListId}`}

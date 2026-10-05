@@ -115,6 +115,11 @@ public class PSPublishingDesignRestService {
 
   static final String CONTENT_LIST_NAME_TOO_LONG =
       "Content list name must be 100 characters or fewer";
+  /** Matches {@code RXCONTENTLIST.DESCRIPTION} VARCHAR(255). */
+  static final int MAX_CONTENT_LIST_DESCRIPTION_LENGTH = 255;
+
+  static final String CONTENT_LIST_DESCRIPTION_TOO_LONG =
+      "Content list description must be 255 characters or fewer";
   /** Request named an item filter that is not on the system. */
   static final String UNKNOWN_ITEM_FILTER = "Unknown item filter";
   /** Still linked to at least one edition. Removing that association is a separate action. */
@@ -492,6 +497,11 @@ public class PSPublishingDesignRestService {
     }
   }
 
+  /**
+   * Update one content list. A description-only body leaves the name, type, generator, URL, and
+   * item filter stored. A blank description clears it. A description longer than
+   * {@link #MAX_CONTENT_LIST_DESCRIPTION_LENGTH} is HTTP 400 and writes nothing.
+   */
   @PUT
   @Path("/contentlists/{contentListId}")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -1397,11 +1407,23 @@ public class PSPublishingDesignRestService {
 
   private void applyContentListFields(
       IPSContentList cl, PSContentListSummary body, boolean isCreate, ItemFilterUpdate filterUpdate) {
+    // Reject an overlong description before any field is written so 400 leaves the stored row.
+    String nextDescription = null;
+    boolean applyDescription = body.getDescription() != null;
+    if (applyDescription) {
+      nextDescription = body.getDescription().trim();
+      if (nextDescription.length() > MAX_CONTENT_LIST_DESCRIPTION_LENGTH) {
+        throw badRequest(CONTENT_LIST_DESCRIPTION_TOO_LONG);
+      }
+      if (nextDescription.isEmpty()) {
+        nextDescription = null;
+      }
+    }
     if (!isBlank(body.getName()) && !isCreate) {
       cl.setName(body.getName().trim());
     }
-    if (body.getDescription() != null) {
-      cl.setDescription(body.getDescription());
+    if (applyDescription) {
+      cl.setDescription(nextDescription);
     }
     if (body.getGenerator() != null) {
       cl.setGenerator(body.getGenerator());
