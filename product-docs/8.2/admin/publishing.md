@@ -563,7 +563,25 @@ The new name appears in **Delivery types** only after that create succeeds.
 HTTP **400** (name invalid or bean missing), **403** (not Admin or Designer), and **409**
 (delivery type name already exists) stay in the copy form error region. Those responses do
 not add the new name to the list. Saving a delivery type, and copying an edition, a content
-list, or a location scheme, are separate actions.
+list, or a location scheme, are separate actions. Deleting a delivery type is described below.
+
+### Delete a delivery type (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Delivery types**.
+On a delivery type row, **Delete** asks **Delete this design object? This cannot be undone.**
+Dismissing that confirm does not call the server, and the row stays. Confirm sends
+`DELETE …/sitemanage/publishingdesign/deliverytypes/{deliveryTypeId}` (the same delete already
+used by Design; there is no second delete resource). The row leaves **Delivery types** only
+after the delete succeeds. If the list refresh fails after a successful delete, that delivery
+type is still removed. Other delivery types stay.
+
+A delivery type that a content list still names is not deleted. The content list URL parameter
+`sys_deliverytype` must no longer equal that delivery type's name (change or delete the content
+list first). This action does not change content lists, editions, or publishing contexts, and
+it does not rename the type or edit its bean name. HTTP **409** (**Delivery type is in use**),
+**403** (not Admin or Designer), and **400** (delivery type id missing) stay in the delivery-types
+error region. Those responses do not remove the row and do not claim it was deleted. Saving,
+renaming, and copying a delivery type are separate actions.
 
 ### Save a publishing context (Design)
 

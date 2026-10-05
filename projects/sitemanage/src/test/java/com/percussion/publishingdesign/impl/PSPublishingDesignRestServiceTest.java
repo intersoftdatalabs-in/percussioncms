@@ -903,6 +903,89 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void deleteDeliveryType_unused_deletes() throws Exception {
+    IPSDeliveryType type = stubLoadedDeliveryType("nightonly");
+    IPSContentList other = mock(IPSContentList.class);
+    when(other.getUrl())
+        .thenReturn(
+            "/Rhythmyx/contentlist?sys_contentlist=nightonly&sys_deliverytype=filesystem");
+    when(publisherService.findAllContentLists("")).thenReturn(List.of(other));
+
+    service.deleteDeliveryType("5");
+    verify(publisherService).deleteDeliveryType(type);
+  }
+
+  @Test
+  void deleteDeliveryType_referencedByContentList_409() throws Exception {
+    stubLoadedDeliveryType("nightonly");
+    IPSContentList referenced = mock(IPSContentList.class);
+    when(referenced.getUrl())
+        .thenReturn("/Rhythmyx/contentlist?sys_deliverytype=nightonly&sys_contentlist=x");
+    when(publisherService.findAllContentLists("")).thenReturn(List.of(referenced));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.deleteDeliveryType("5"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains(PSPublishingDesignRestService.DELIVERY_TYPE_IN_USE));
+    verify(publisherService, never()).deleteDeliveryType(any());
+  }
+
+  @Test
+  void deleteDeliveryType_encodedContentListReference_409() throws Exception {
+    stubLoadedDeliveryType("night only");
+    IPSContentList referenced = mock(IPSContentList.class);
+    when(referenced.getUrl())
+        .thenReturn("/Rhythmyx/contentlist?sys_deliverytype=night%20only&sys_contentlist=x");
+    when(publisherService.findAllContentLists("")).thenReturn(List.of(referenced));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.deleteDeliveryType("5"));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(publisherService, never()).deleteDeliveryType(any());
+  }
+
+  @Test
+  void deleteDeliveryType_notFound_404() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.DELIVERY_TYPE))).thenReturn(deliveryTypeGuid);
+    when(publisherService.loadDeliveryType(deliveryTypeGuid))
+        .thenThrow(new PSNotFoundException("missing"));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.deleteDeliveryType("5"));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(publisherService, never()).deleteDeliveryType(any());
+    verify(publisherService, never()).findAllContentLists(any());
+  }
+
+  @Test
+  void deleteDeliveryType_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.deleteDeliveryType("5"));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(publisherService, never()).loadDeliveryType(any(IPSGuid.class));
+    verify(publisherService, never()).deleteDeliveryType(any());
+  }
+
+  @Test
+  void deleteDeliveryType_blankId_400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.deleteDeliveryType("  "));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(guidManager, never()).makeGuid(any(String.class), any(PSTypeEnum.class));
+    verify(publisherService, never()).deleteDeliveryType(any());
+  }
+
+  private IPSDeliveryType stubLoadedDeliveryType(String name) throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.DELIVERY_TYPE))).thenReturn(deliveryTypeGuid);
+    IPSDeliveryType type = mock(IPSDeliveryType.class);
+    when(type.getName()).thenReturn(name);
+    when(publisherService.loadDeliveryType(deliveryTypeGuid)).thenReturn(type);
+    return type;
+  }
+
+  @Test
   void createScheme_forbidden_403() {
     PSPublishingDesignRestService design =
         new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
