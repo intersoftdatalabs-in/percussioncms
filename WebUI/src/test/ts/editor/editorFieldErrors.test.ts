@@ -98,6 +98,22 @@ describe("collectRequiredFieldErrors", () => {
     expect(isEmptyEditorFieldValue("link", "  ")).toBe(true);
     expect(isEmptyEditorFieldValue("link", "//Sites/Example/index")).toBe(false);
   });
+
+  it("refuses a blank required HTML field and still allows an optional blank HTML field", () => {
+    const errors = collectRequiredFieldErrors(
+      [
+        { name: "text", kind: "html", required: true, value: "   " },
+        { name: "optionalBody", kind: "html", required: false, value: "" },
+        { name: "intro", kind: "html", required: true, value: "<p>Hi</p>" },
+      ],
+      {},
+      "This field is required.",
+    );
+    expect(errors).toEqual({ text: "This field is required." });
+    expect(isEmptyEditorFieldValue("html", "")).toBe(true);
+    expect(isEmptyEditorFieldValue("html", " \n\t ")).toBe(true);
+    expect(isEmptyEditorFieldValue("html", "<p>Hi</p>")).toBe(false);
+  });
 });
 
 describe("firstInvalidEditorFieldName", () => {
