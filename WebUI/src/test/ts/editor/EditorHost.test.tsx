@@ -4786,6 +4786,163 @@ describe("EditorHost save single-line text (#5206)", () => {
   });
 });
 
+describe("EditorHost refuse blank required single-line text (#5207)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function textHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    summary?: string;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const summary = opts.summary ?? "Hello";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "summary", value: summary }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "summary",
+              label: "Summary",
+              control: "sys_EditBox",
+              dataType: "text",
+              required: true,
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openRequiredText(element: React.ReactElement): Promise<HTMLInputElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe(
+        "Hello",
+      );
+    });
+    return screen.getByTestId("editor-field-summary") as HTMLInputElement;
+  }
+
+  it("does not save a blank required text field and reloads the previous value", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredText(textHost({ saveFields }));
+    expect(input.getAttribute("data-editor-kind")).toBe("text");
+    expect(input.getAttribute("aria-required")).toBe("true");
+    expect(screen.getByTestId("editor-field-row-summary").getAttribute("data-required")).toBe(
+      "true",
+    );
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(/required/i);
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(document.activeElement).toBe(screen.getByTestId("editor-field-summary"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-field-row-summary").getAttribute("data-required")).toBe(
+      "true",
+    );
+    expect(
+      (screen.getByTestId("editor-field-summary") as HTMLInputElement).getAttribute(
+        "aria-required",
+      ),
+    ).toBe("true");
+    cleanup();
+    const reloaded = await openRequiredText(textHost({ saveFields }));
+    expect(reloaded.value).toBe("Hello");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not save whitespace-only required text and keeps the previous value", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredText(textHost({ saveFields }));
+    fireEvent.change(input, { target: { value: "   " } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe("   ");
+    cleanup();
+    const reloaded = await openRequiredText(textHost({ saveFields }));
+    expect(reloaded.value).toBe("Hello");
+  });
+
+  it("does not write when Close cancels a blank required text edit", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredText(
+      textHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe("");
+    expect(screen.getByTestId("editor-field-row-summary").getAttribute("data-required")).toBe(
+      "true",
+    );
+  });
+
+  it("still saves a non-blank required text value", async () => {
+    let summary = "Hello";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      summary = body.fields.find((f) => f.name === "summary")?.value ?? summary;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const input = await openRequiredText(textHost({ saveFields, summary }));
+    fireEvent.change(input, { target: { value: "Updated headline" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields).toEqual([{ name: "summary", value: "Updated headline" }]);
+    cleanup();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={textHost({ saveFields, summary })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe(
+        "Updated headline",
+      );
+    });
+  });
+});
+
 describe("EditorHost page link fields", () => {
   afterEach(() => {
     cleanup();
