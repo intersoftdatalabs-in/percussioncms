@@ -314,11 +314,12 @@ A blank name stays in the editor (**Name is required**) and is not posted. A nam
 100 characters stays in the editor and is not posted. HTTP **400** (name or site missing, or
 the name is too long), **403** (not Admin or Designer), and **409** (edition name already
 exists) stay in the edition editor error region. The list does not gain a row for those
-failures. Saving an edited **comment** or **priority** on an existing edition is still that
-update (`PUT …/sitemanage/publishingdesign/editions/{editionId}`). Changing only the name is
-described under **Rename a publish edition** and does not rewrite stored priority, comment,
-or content-list order. Associating a content list is described below. Copying an edition
-and Runtime start/stop are separate actions.
+failures. Saving an edited **comment** together with other fields on an existing edition is
+still that update (`PUT …/sitemanage/publishingdesign/editions/{editionId}`). Changing only the
+name is described under **Rename a publish edition** and does not rewrite stored priority,
+comment, or content-list order. Changing only the priority is described under **Set an edition
+priority** and does not rewrite the name, comment, or content-list order. Associating a content
+list is described below. Copying an edition and Runtime start/stop are separate actions.
 
 ### Rename a publish edition (Design)
 
@@ -337,8 +338,28 @@ A blank name stays in the editor (**Name is required**) and is not sent. A name 
 not sent. HTTP **400** (the name is rejected), **403** (not Admin or Designer), and **409**
 (edition name already exists) stay in the edition editor error region. Those responses leave
 the previous name on **Editions**. Stored priority, comment, and content-list order stay as
-they were. Creating an edition, copying an edition, deleting an edition, and reordering
-content lists are separate actions.
+they were. Creating an edition, copying an edition, deleting an edition, setting only the
+priority, and reordering content lists are separate actions.
+
+### Set an edition priority (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
+On an edition row, **Priority** opens **Edition priority** (it does not call the server).
+The form shows the current **name** and **comment** and does not let you change them.
+Change **Priority** to a whole number from 1 (lowest) to 5 (highest). **Save priority** sends
+`PUT …/sitemanage/publishingdesign/editions/{editionId}` with an `edition` object that contains
+only `priority`. Name, comment, and site id are omitted, so the server leaves the stored name
+and comment as they are. The call does not associate, remove, or reorder content lists, so that
+order stays as stored.
+
+**Editions** keeps the previous priority until that update succeeds, then shows the new priority
+with the same name and comment. **Cancel** closes the form and does not call the server.
+A value outside 1–5 (blank, 0, 6, or not a whole number) stays in the form (**Edition priority
+must be from 1 to 5**) and does not call the server.
+
+HTTP **400** (priority outside 1–5), **403** (not Admin or Designer), and **409** stay in the
+priority form error region. Those responses do not change the priority on **Editions**. Renaming
+an edition, creating an edition, and reordering content lists are separate actions.
 
 ### Associate a content list with an edition (Design)
 
@@ -399,7 +420,7 @@ An edition with a running publish job does not change order. HTTP **400** (the p
 missing or not adjacent, including moving the first row up or the last row down), **403**
 (not Admin or Designer), and **409** (**Edition is in use**) stay in the edition editor error
 region. Those responses keep the previous order. Associating or removing a content list,
-and the edition priority field (1–5), are separate actions.
+and setting an edition priority (1–5), are separate actions.
 
 ### Copy a publish edition (Design)
 

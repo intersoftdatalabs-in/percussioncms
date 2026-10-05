@@ -26,10 +26,12 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -363,6 +365,97 @@ class PSPublishingDesignRestServiceTest {
         assertThrows(WebApplicationException.class, () -> service.updateEdition("11", body));
     assertEquals(400, ex.getResponse().getStatus());
     verify(publisherService, never()).findEditionByName(any());
+    verify(publisherService, never()).saveEdition(any());
+  }
+
+  @Test
+  void updateEdition_priorityOnly_setsPriorityAndLeavesNameCommentAndLists() throws Exception {
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    IPSEdition loaded = mock(IPSEdition.class);
+    when(publisherService.loadEditionModifiable(editionGuid)).thenReturn(loaded);
+    when(loaded.getGUID()).thenReturn(editionGuid);
+    when(editionGuid.getUUID()).thenReturn(11);
+    when(loaded.getName()).thenReturn("NightEd");
+    when(loaded.getComment()).thenReturn("keep-me");
+    when(loaded.getSiteId()).thenReturn(null);
+    AtomicReference<IPSEdition.Priority> stored = new AtomicReference<>();
+    doAnswer(
+            invocation -> {
+              stored.set(invocation.getArgument(0));
+              return null;
+            })
+        .when(loaded)
+        .setPriority(any(IPSEdition.Priority.class));
+    when(loaded.getPriority()).thenAnswer(invocation -> stored.get());
+
+    PSEditionSummary low = new PSEditionSummary();
+    low.setPriority(1);
+    PSEditionSummary savedLow = service.updateEdition("11", low);
+    assertEquals("NightEd", savedLow.getName());
+    assertEquals("keep-me", savedLow.getComment());
+    assertEquals(1, savedLow.getPriority());
+
+    PSEditionSummary high = new PSEditionSummary();
+    high.setPriority(5);
+    PSEditionSummary savedHigh = service.updateEdition("11", high);
+    assertEquals("NightEd", savedHigh.getName());
+    assertEquals("keep-me", savedHigh.getComment());
+    assertEquals(5, savedHigh.getPriority());
+
+    verify(loaded).setPriority(IPSEdition.Priority.LOWEST);
+    verify(loaded).setPriority(IPSEdition.Priority.HIGHEST);
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setComment(any());
+    verify(publisherService, times(2)).saveEdition(loaded);
+    verify(publisherService, never()).loadEditionContentLists(any());
+    verify(publisherService, never()).saveEditionContentList(any());
+  }
+
+  @Test
+  void updateEdition_priorityOutOfRange_400() {
+    PSEditionSummary body = new PSEditionSummary();
+    body.setPriority(0);
+    WebApplicationException low =
+        assertThrows(WebApplicationException.class, () -> service.updateEdition("11", body));
+    assertEquals(400, low.getResponse().getStatus());
+    assertTrue(
+        low.getMessage()
+            .contains(PSPublishingDesignRestService.EDITION_PRIORITY_OUT_OF_RANGE));
+
+    body.setPriority(6);
+    WebApplicationException high =
+        assertThrows(WebApplicationException.class, () -> service.updateEdition("11", body));
+    assertEquals(400, high.getResponse().getStatus());
+    verify(publisherService, never()).loadEditionModifiable(any());
+    verify(publisherService, never()).saveEdition(any());
+    verify(publisherService, never()).loadEditionContentLists(any());
+  }
+
+  @Test
+  void updateEdition_priority_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+    PSEditionSummary body = new PSEditionSummary();
+    body.setPriority(4);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateEdition("11", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(publisherService, never()).loadEditionModifiable(any());
+    verify(publisherService, never()).saveEdition(any());
+  }
+
+  @Test
+  void createEdition_priorityOutOfRange_400() {
+    PSEditionSummary body = new PSEditionSummary();
+    body.setName("NightEd");
+    body.setSiteId("42");
+    body.setPriority(9);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.createEdition(body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        ex.getMessage()
+            .contains(PSPublishingDesignRestService.EDITION_PRIORITY_OUT_OF_RANGE));
+    verify(publisherService, never()).createEdition();
     verify(publisherService, never()).saveEdition(any());
   }
 
