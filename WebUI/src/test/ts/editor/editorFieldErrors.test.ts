@@ -69,6 +69,19 @@ describe("collectRequiredFieldErrors", () => {
     );
     expect(errors).toEqual({ qty: "This field is required." });
   });
+
+  it("refuses a blank required date and still allows an optional blank date", () => {
+    const errors = collectRequiredFieldErrors(
+      [
+        { name: "start", kind: "date", required: true, value: "" },
+        { name: "end", kind: "date", required: false, value: "   " },
+        { name: "publish", kind: "date", required: true, value: "2026-09-18" },
+      ],
+      {},
+      "This field is required.",
+    );
+    expect(errors).toEqual({ start: "This field is required." });
+  });
 });
 
 describe("firstInvalidEditorFieldName", () => {
