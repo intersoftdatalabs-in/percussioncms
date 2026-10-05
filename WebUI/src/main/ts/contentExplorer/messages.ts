@@ -397,6 +397,22 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@You do not have permission to move this relationship.",
   RELATIONSHIPS_MOVE_FAILED_409:
     "perc.ui.explorer@This relationship cannot be moved.",
+  RELATIONSHIPS_OPEN: "perc.ui.explorer@Open",
+  RELATIONSHIPS_OPEN_CONFIRM:
+    "perc.ui.explorer@Open this related item in the editor?",
+  RELATIONSHIPS_OPEN_DO: "perc.ui.explorer@Open related item",
+  RELATIONSHIPS_OPENED:
+    "perc.ui.explorer@Opened the related item in the editor.",
+  RELATIONSHIPS_OPEN_FOLDER:
+    "perc.ui.explorer@Folders are not opened in the editor",
+  RELATIONSHIPS_OPEN_NO_CONTENT:
+    "perc.ui.explorer@This relationship has no content id",
+  RELATIONSHIPS_OPEN_FORBIDDEN:
+    "perc.ui.explorer@You do not have permission to open this related item (HTTP 403)",
+  RELATIONSHIPS_OPEN_NOT_FOUND:
+    "perc.ui.explorer@This related item was not found (HTTP 404)",
+  RELATIONSHIPS_OPEN_FAILED:
+    "perc.ui.explorer@Could not open this related item",
   // US5 P-Search / search panel (FR-017, FR-018, SC-005)
   SEARCH_TITLE: "perc.ui.explorer@Search",
   SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",

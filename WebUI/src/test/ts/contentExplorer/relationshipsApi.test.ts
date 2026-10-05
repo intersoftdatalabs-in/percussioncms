@@ -14,6 +14,7 @@ import {
   fetchOutgoing,
   fetchRelationshipEdges,
   isActiveAssemblyRelationship,
+  relatedItemOpenTarget,
   relationshipMoveEnds,
   removeAllOwnedRelationshipEdges,
   removeRelationshipEdge,
@@ -269,5 +270,36 @@ describe("relationshipsApi", () => {
       up: true,
       down: false,
     });
+  });
+
+  it("opens only a related row that has a content id (#5218)", () => {
+    expect(
+      relatedItemOpenTarget({
+        category: "rs_translation",
+        configName: "Translation",
+        dependentId: 9,
+      }),
+    ).toEqual({ kind: "content", contentId: 9 });
+    expect(
+      relatedItemOpenTarget({
+        category: "rs_folder",
+        configName: "Folder",
+        dependentId: 3,
+      }),
+    ).toEqual({ kind: "folder" });
+    expect(
+      relatedItemOpenTarget({
+        category: "rs_translation",
+        configName: "Folder",
+        dependentId: 4,
+      }),
+    ).toEqual({ kind: "folder" });
+    expect(
+      relatedItemOpenTarget({
+        category: "rs_translation",
+        configName: "Translation",
+        dependentId: 0,
+      }),
+    ).toEqual({ kind: "no_content" });
   });
 });

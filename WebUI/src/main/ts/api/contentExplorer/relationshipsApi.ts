@@ -261,6 +261,35 @@ export function isFolderRelationshipCategory(category: string): boolean {
   return normalized === "rs_folder" || normalized === "folder";
 }
 
+export type RelatedItemOpenTarget =
+  | { kind: "content"; contentId: number }
+  | { kind: "folder" }
+  | { kind: "no_content" };
+
+/**
+ * Whether one relationships-list row can open EditorHost (#5218).
+ * Folder membership is never a content item. A missing or non-positive
+ * dependent id is not a content id.
+ */
+export function relatedItemOpenTarget(
+  edge: Pick<
+    PSExplorerRelationshipEdge,
+    "category" | "configName" | "dependentId"
+  >,
+): RelatedItemOpenTarget {
+  if (
+    isFolderRelationshipCategory(edge.category ?? "") ||
+    isFolderRelationshipCategory(edge.configName ?? "")
+  ) {
+    return { kind: "folder" };
+  }
+  const contentId = Number(edge.dependentId);
+  if (!Number.isFinite(contentId) || contentId <= 0) {
+    return { kind: "no_content" };
+  }
+  return { kind: "content", contentId };
+}
+
 function isActiveAssemblyToken(value: string): boolean {
   const token = value.trim().toLowerCase().replace(/[\s_-]+/g, "");
   return (

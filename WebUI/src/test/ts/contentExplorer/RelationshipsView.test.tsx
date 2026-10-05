@@ -677,4 +677,137 @@ describe("RelationshipsView", () => {
     fireEvent.click(screen.getByTestId("relationships-move-down-71"));
     await renderA11yGate(container);
   });
+
+  const relatedContent = {
+    relationshipId: 81,
+    configName: "Translation",
+    category: "rs_translation",
+    dependentId: 9,
+    label: "Related page",
+  };
+  const relatedFolder = {
+    relationshipId: 82,
+    configName: "Folder",
+    category: "rs_folder",
+    dependentId: 3,
+    label: "Folder row",
+  };
+  const relatedNoContent = {
+    relationshipId: 83,
+    configName: "Translation",
+    category: "rs_translation",
+    dependentId: 0,
+    label: "No content id",
+  };
+
+  function renderRelatedList(
+    openRelated: ReturnType<typeof vi.fn> = vi.fn(async () => ({
+      ok: true,
+      reason: "opened" as const,
+    })),
+  ) {
+    render(
+      <RelationshipsView
+        item={{ id: "42", path: "/Sites/Foo/page" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [relatedContent, relatedFolder, relatedNoContent]}
+        openRelated={openRelated}
+        reserveRelatedWindow={() => null}
+      />,
+    );
+    return openRelated;
+  }
+
+  it("cancel and Escape do not open the related item (#5218)", async () => {
+    const openRelated = renderRelatedList(vi.fn());
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-open-81")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-open-82")).toBeNull();
+    expect(screen.queryByTestId("relationships-open-83")).toBeNull();
+    fireEvent.click(screen.getByTestId("relationships-open-81"));
+    expect(screen.getByTestId("relationships-open-dialog")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("relationships-open-cancel"));
+    expect(screen.queryByTestId("relationships-open-dialog")).toBeNull();
+    expect(screen.queryByTestId("relationships-opened")).toBeNull();
+    expect(openRelated).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("relationships-open-81"));
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(screen.queryByTestId("relationships-open-dialog")).toBeNull();
+    expect(screen.queryByTestId("relationships-opened")).toBeNull();
+    expect(openRelated).not.toHaveBeenCalled();
+    expect(screen.getByTestId("relationships-edge-81")).toBeTruthy();
+  });
+
+  it("confirm opens EditorHost only after the related content id is known (#5218)", async () => {
+    const openRelated = renderRelatedList();
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-open-81")).toHaveAttribute(
+        "data-content-id",
+        "9",
+      ),
+    );
+    fireEvent.click(screen.getByTestId("relationships-open-81"));
+    fireEvent.click(screen.getByTestId("relationships-open-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-opened")).toBeTruthy(),
+    );
+    expect(openRelated).toHaveBeenCalledWith(
+      { contentId: 9, folder: false },
+      { reservedWindow: null },
+    );
+    expect(screen.queryByTestId("relationships-open-error")).toBeNull();
+    expect(screen.getByTestId("relationships-edge-81")).toBeTruthy();
+    expect(screen.getByTestId("relationships-folder-82")).toBeTruthy();
+  });
+
+  it("HTTP 403 and 404 do not claim the related item opened (#5218)", async () => {
+    const openRelated = renderRelatedList(
+      vi
+        .fn()
+        .mockResolvedValueOnce({ ok: false, reason: "forbidden" })
+        .mockResolvedValueOnce({ ok: false, reason: "not_found" }),
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-open-81")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-open-81"));
+    fireEvent.click(screen.getByTestId("relationships-open-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-open-error")).toHaveTextContent(
+        "HTTP 403",
+      ),
+    );
+    expect(screen.queryByTestId("relationships-opened")).toBeNull();
+    expect(screen.getByText(/Sites\/Foo\/page/)).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId("relationships-open-81"));
+    fireEvent.click(screen.getByTestId("relationships-open-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-open-error")).toHaveTextContent(
+        "HTTP 404",
+      ),
+    );
+    expect(screen.queryByTestId("relationships-opened")).toBeNull();
+    expect(openRelated).toHaveBeenCalledTimes(2);
+  });
+
+  it("open dialog passes the zero serious/critical axe-core gate (#5218)", async () => {
+    const { container } = render(
+      <RelationshipsView
+        item={{ id: "42", folderPath: "/p" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [relatedContent, relatedFolder, relatedNoContent]}
+        reserveRelatedWindow={() => null}
+        openRelated={vi.fn()}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-open-81")).toBeTruthy(),
+    );
+    await renderA11yGate(container);
+    fireEvent.click(screen.getByTestId("relationships-open-81"));
+    await renderA11yGate(container);
+  });
 });
