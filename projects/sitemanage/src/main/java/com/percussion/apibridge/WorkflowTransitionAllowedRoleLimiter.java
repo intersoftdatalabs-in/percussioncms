@@ -35,9 +35,10 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Role list changes for one existing regular transition. {@link #apply} replaces allow-all with
- * exactly one role. {@link #addOne} appends one role to a list that is already restricted. Neither
- * call clears a restriction, edits step roles, or changes aging transitions. The label,
- * destination, comment flag, approval count, and default flag stay as they were.
+ * exactly one role. {@link #addOne} appends one role to a list that is already restricted. {@link
+ * #clear} drops that list so every role may fire the transition again. None of these calls edit
+ * step roles or change aging transitions. The label, destination, comment flag, approval count,
+ * and default flag stay as they were.
  */
 public final class WorkflowTransitionAllowedRoleLimiter {
 
@@ -212,6 +213,71 @@ public final class WorkflowTransitionAllowedRoleLimiter {
     next.add(link);
     chosen.setAllowAllRoles(false);
     chosen.setTransitionRoles(next);
+    source.setTransitions(regular);
+  }
+
+  /**
+   * Clears the stored role list on one regular transition that is already restricted so every role
+   * may fire it. Does not perform the first restriction, append a role, or leave a single-role
+   * limit in place. An allow-all transition is refused and is not rewritten.
+   */
+  public static void clear(PSWorkflow workflow, String fromStep, String label, String toStep) {
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found", 404);
+    }
+    if (StringUtils.isBlank(fromStep)) {
+      throw new IllegalArgumentException("from is required");
+    }
+    if (StringUtils.isBlank(label)) {
+      throw new IllegalArgumentException("label is required");
+    }
+    String from = fromStep.trim();
+    String wantLabel = label.trim();
+    String wantTo = toStep == null ? "" : toStep.trim();
+
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    Map<Long, String> names = new LinkedHashMap<>();
+    PSState source = null;
+    for (PSState state : states) {
+      if (state == null || StringUtils.isBlank(state.getName())) {
+        continue;
+      }
+      names.put(state.getStateId(), state.getName().trim());
+      if (state.getName().trim().equalsIgnoreCase(from)) {
+        source = state;
+      }
+    }
+    if (source == null) {
+      throw new WebApplicationException("Workflow step not found: " + from, 404);
+    }
+
+    List<PSTransition> regular = new ArrayList<>();
+    if (source.getTransitions() != null) {
+      regular.addAll(source.getTransitions());
+    }
+    List<PSAgingTransition> aging = safeAging(source);
+    List<Integer> regularHits = matching(regular, wantLabel, wantTo, names);
+    List<Integer> agingHits = matching(aging, wantLabel, wantTo, names);
+    int total = regularHits.size() + agingHits.size();
+    if (total == 0) {
+      throw new WebApplicationException("Workflow transition not found: " + wantLabel, 404);
+    }
+    if (total > 1) {
+      throw new IllegalArgumentException(
+          "More than one transition named " + wantLabel + " on step " + from + "; specify to");
+    }
+    if (regularHits.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Transition role restriction applies only to workflow transitions, not aging transitions");
+    }
+
+    PSTransition chosen = regular.get(regularHits.get(0));
+    if (chosen == null || chosen.isAllowAllRoles()) {
+      throw new WebApplicationException(
+          "Transition already allows every role. The role list was not changed.", 409);
+    }
+    chosen.setAllowAllRoles(true);
+    chosen.setTransitionRoles(new ArrayList<>());
     source.setTransitions(regular);
   }
 

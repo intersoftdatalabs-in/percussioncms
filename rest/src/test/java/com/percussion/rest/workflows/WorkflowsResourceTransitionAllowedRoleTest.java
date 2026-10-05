@@ -265,6 +265,79 @@ public class WorkflowsResourceTransitionAllowedRoleTest {
     assertEquals(409, ex.getResponse().getStatus());
   }
 
+  @Test
+  public void deleteClearsTheRoleListAndReturnsAllowAll() {
+    WorkflowGraph graph = graph();
+    graph.getEdges().get(0).setAllowAllRoles(true);
+    graph.getEdges().get(0).setAllowedRoles(null);
+    when(adaptor.clearTransitionAllowedRoles(
+            any(), eq("Nightly QA"), eq("Draft"), eq("Send"), eq("Live")))
+        .thenReturn(graph);
+
+    WorkflowGraph out =
+        resource.clearTransitionAllowedRoles("Nightly QA", "Draft", "Send", "Live");
+    assertEquals(Boolean.TRUE, out.getEdges().get(0).getAllowAllRoles());
+    assertEquals(null, out.getEdges().get(0).getAllowedRoles());
+    verify(adaptor)
+        .clearTransitionAllowedRoles(any(), eq("Nightly QA"), eq("Draft"), eq("Send"), eq("Live"));
+    verify(adaptor, never())
+        .addTransitionAllowedRole(any(), any(), any(), any(), any(), any());
+    verify(adaptor, never())
+        .restrictTransitionToOneRole(any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  public void clearBlankFromDoesNotCallAdaptor() {
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () -> resource.clearTransitionAllowedRoles("Nightly QA", " ", "Send", "Live"))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () -> resource.clearTransitionAllowedRoles("Nightly QA", "Draft", " ", "Live"))
+            .getResponse()
+            .getStatus());
+    verify(adaptor, never()).clearTransitionAllowedRoles(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  public void clearAgingFromAdaptorIs400() {
+    when(adaptor.clearTransitionAllowedRoles(any(), any(), any(), any(), any()))
+        .thenThrow(new IllegalArgumentException("not aging transitions"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.clearTransitionAllowedRoles("Nightly QA", "Live", "Expire", "Archive"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void clearAdaptor403Is403() {
+    when(adaptor.clearTransitionAllowedRoles(any(), any(), any(), any(), any()))
+        .thenThrow(new WebApplicationException("protected", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.clearTransitionAllowedRoles("Simple Workflow", "Draft", "Send", "Live"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void clearAdaptor409Is409() {
+    when(adaptor.clearTransitionAllowedRoles(any(), any(), any(), any(), any()))
+        .thenThrow(new WebApplicationException("already allow-all", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.clearTransitionAllowedRoles("Nightly QA", "Draft", "Send", "Live"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
   private static WorkflowTransitionAllowedRole body(String roleName) {
     WorkflowTransitionAllowedRole body = new WorkflowTransitionAllowedRole();
     body.setRoleName(roleName);

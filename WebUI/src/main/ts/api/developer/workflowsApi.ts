@@ -15,7 +15,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. How many approvals one regular transition requires can be set on the graph. One more existing workflow role can be added to a regular transition that is already limited to specific roles. Clearing that list so every role may fire it, the default transition, and repeated or system-field aging stay outside this surface.",
+  "Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. How many approvals one regular transition requires can be set on the graph. One more existing workflow role can be added to a regular transition that is already limited to specific roles, and that list can be cleared so every role may fire it again. The default transition, and repeated or system-field aging stay outside this surface.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -792,6 +792,32 @@ export async function addTransitionAllowedRole(
   const payload = await post<unknown>(
     workflowTransitionAddAllowedRolePath(idOrName, fromStep, label, toStep),
     { [WORKFLOW_TRANSITION_ALLOWED_ROLE_ROOT]: { roleName } },
+  );
+  return parseWorkflowGraph(payload);
+}
+
+/** DELETE .../transitions/allowed-roles?from&label&to */
+export function workflowTransitionClearAllowedRolesPath(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  toStep?: string,
+): string {
+  return workflowTransitionAddAllowedRolePath(idOrName, fromStep, label, toStep);
+}
+
+/**
+ * Clear the role list on one regular transition that is already restricted so every role may
+ * fire it. Does not append a role and does not replace allow-all with one role.
+ */
+export async function clearTransitionAllowedRoles(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  toStep?: string,
+): Promise<WorkflowGraph> {
+  const payload = await del<unknown>(
+    workflowTransitionClearAllowedRolesPath(idOrName, fromStep, label, toStep),
   );
   return parseWorkflowGraph(payload);
 }
