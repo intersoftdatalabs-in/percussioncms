@@ -50,6 +50,14 @@ test.describe("React Content Editor clear optional single-line text", () => {
       let required = false;
       let failStatus = 0;
       page.on("pageerror", (err) => pageErrors.push(String(err)));
+      // Registered first so later field/workflow stubs win. Keeps fake id 42
+      // off the QA server log; the browser still ignores failed-resource noise.
+      await page.route("**/services/**", (route) =>
+        route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/**", (route) =>
+        route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+      );
       page.on("console", (msg) => {
         if (msg.type() === "error") {
           const text = msg.text();
