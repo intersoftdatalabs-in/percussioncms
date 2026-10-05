@@ -4392,6 +4392,217 @@ describe("EditorHost clear optional HTML (#5071)", () => {
   });
 });
 
+describe("EditorHost clear optional single-line text (#5205)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function textHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    summary?: string;
+    required?: boolean;
+    withTitle?: boolean;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const summary = opts.summary ?? "Hello";
+    const fields = [
+      ...(opts.withTitle === false
+        ? []
+        : [{ name: "sys_title", value: "Home" }]),
+      { name: "summary", value: summary },
+    ];
+    const schema = [
+      ...(opts.withTitle === false
+        ? []
+        : [{ name: "sys_title", label: "Title", control: "sys_EditBox", dataType: "text" }]),
+      {
+        name: "summary",
+        label: "Summary",
+        control: "sys_EditBox",
+        dataType: "text",
+        required: opts.required === true,
+      },
+    ];
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields,
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({ fields: schema })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  it("saves a cleared optional text field and shows it empty after reload", async () => {
+    let summary = "Hello";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      summary = body.fields.find((f) => f.name === "summary")?.value ?? summary;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={textHost({ saveFields, summary })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-text-clear-summary")).toBeTruthy();
+    });
+    const input = screen.getByTestId("editor-field-summary") as HTMLInputElement;
+    expect(input.getAttribute("data-editor-kind")).toBe("text");
+    fireEvent.click(screen.getByTestId("editor-text-clear-summary"));
+    expect(input.value).toBe("");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "summary")?.value).toBe("");
+    expect(sent.fields.find((f) => f.name === "sys_title")?.value).toBe("Home");
+    expect(screen.queryByTestId("editor-text-clear-summary")).toBeNull();
+    expect(screen.getByTestId("editor-text-clear-sys_title")).toBeTruthy();
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={textHost({ saveFields, summary })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe("");
+    });
+    expect((screen.getByTestId("editor-field-sys_title") as HTMLInputElement).value).toBe("Home");
+  });
+
+  it("does not save when Close cancels an unsaved text clear", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={textHost({ saveFields, confirmLeaveUnsaved: () => false })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-text-clear-summary")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-text-clear-summary"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe("");
+  });
+
+  it("does not claim success when a required text field is cleared", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={textHost({ saveFields, required: true })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-text-clear-summary")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-text-clear-summary"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not claim success for HTTP 400, 403, or 409 on a text clear", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={textHost({ saveFields, withTitle: false })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-text-clear-summary")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-text-clear-summary"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(/could not be saved/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(/not allowed/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/newer revision/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(3);
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={textHost({ saveFields, withTitle: false })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe("Hello");
+    });
+  });
+
+  it("does not offer Clear text in view mode", async () => {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+        <Routes>
+          <Route path="/editor" element={textHost({})} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    const input = screen.getByTestId("editor-field-summary") as HTMLInputElement;
+    expect(input.readOnly).toBe(true);
+    expect(input.value).toBe("Hello");
+    expect(screen.queryByTestId("editor-text-clear-summary")).toBeNull();
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+  });
+});
+
 describe("EditorHost page link fields", () => {
   afterEach(() => {
     cleanup();
