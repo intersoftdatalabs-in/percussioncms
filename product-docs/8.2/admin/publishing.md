@@ -333,9 +333,10 @@ and does not call the server. The associated list stays unchanged.
 
 HTTP **400** (content list or delivery context missing), **403** (not Admin or Designer), and
 **409** (that content list is already associated with this edition) stay in the edition editor
-error region. Those responses do not add the content list to the associated list. Removing an
-association is described below. Creating an edition and creating a content list are separate
-actions.
+error region. Those responses do not add the content list to the associated list. A successful
+associate stores the next sequence, so the new row is last among numbered associations.
+Removing an association and changing that order are described below. Creating an edition and
+creating a content list are separate actions.
 
 ### Remove a content list from an edition (Design)
 
@@ -355,6 +356,29 @@ already finished does not block removal. HTTP **400** (edition or content list i
 **403** (not Admin or Designer), and **409** (**Edition is in use**) stay in the edition
 editor error region. Those responses do not remove the row. Associating a content list,
 deleting the content list definition, and deleting the edition are separate actions.
+
+### Reorder a content list on an edition (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
+Open an existing edition (not **Add edition**). Under **Associated content lists**, each row
+has **Move up** and **Move down**. The list is shown in association sequence (a missing
+sequence sorts after numbered rows, then by content-list id).
+
+**Move up** on the first row and **Move down** on the last row stay disabled. On any other
+row the button asks for confirmation (**Move this content list up in the edition?** or
+**Move this content list down in the edition?**). Confirm calls
+`PUT …/sitemanage/publishingdesign/editions/{editionId}/contentlists/{contentListId}/sequence`
+with an `editionContentList` body. `sequence` in that body is the 0-based target position and
+must be the previous or next row. The rendered order changes only after that call succeeds.
+The server then rewrites each association's stored sequence to 1, 2, 3… in the new order
+(`PSEditionContentList.sequence` / `RXEDITIONCLIST.SEQUENCE`). Cancel does not call the server
+and leaves the order unchanged.
+
+An edition with a running publish job does not change order. HTTP **400** (the position is
+missing or not adjacent, including moving the first row up or the last row down), **403**
+(not Admin or Designer), and **409** (**Edition is in use**) stay in the edition editor error
+region. Those responses keep the previous order. Associating or removing a content list,
+and the edition priority field (1–5), are separate actions.
 
 ### Copy a publish edition (Design)
 

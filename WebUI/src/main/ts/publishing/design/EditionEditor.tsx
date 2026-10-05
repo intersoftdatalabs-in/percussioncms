@@ -22,6 +22,7 @@ import {
   createEdition,
   deleteEdition,
   disassociateContentList,
+  reorderEditionContentList,
   listContentLists,
   listContexts,
   listEditionContentLists,
@@ -34,6 +35,7 @@ import { message, MSG } from "../../i18n/message";
 import {
   mapEditionContentListAssociateError,
   mapEditionContentListDisassociateError,
+  mapEditionContentListReorderError,
   mapEditionCopyError,
   mapEditionDeleteError,
   mapEditionSaveError,
@@ -301,6 +303,56 @@ export function EditionEditor({
     }
   }
 
+  async function handleReorder(
+    clId: string,
+    index: number,
+    direction: -1 | 1,
+  ): Promise<void> {
+    if (!edition?.editionId || !clId.trim() || saving) {
+      return;
+    }
+    const target = index + direction;
+    if (target < 0 || target >= assoc.length) {
+      return;
+    }
+    const confirmText = message(
+      direction < 0
+        ? MSG.PUBLISH.DESIGN.EDITIONS.CONFIRM_MOVE_UP
+        : MSG.PUBLISH.DESIGN.EDITIONS.CONFIRM_MOVE_DOWN,
+    );
+    if (!window.confirm(confirmText)) {
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await reorderEditionContentList(edition.editionId, clId, target);
+      // Swap only this pair after the write succeeds. A list reload that fails
+      // must not restore the previous order.
+      assocLoadGen.current += 1;
+      setAssoc((prev) => {
+        if (index < 0 || index >= prev.length) {
+          return prev;
+        }
+        const nextIndex = index + direction;
+        if (nextIndex < 0 || nextIndex >= prev.length) {
+          return prev;
+        }
+        if (String(prev[index]?.contentListId ?? "") !== clId) {
+          return prev;
+        }
+        const copy = prev.slice();
+        const [row] = copy.splice(index, 1);
+        copy.splice(nextIndex, 0, row);
+        return copy;
+      });
+    } catch (e) {
+      setError(mapEditionContentListReorderError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   const assocIds = new Set(assoc.map((a) => a.contentListId));
   const available = allLists.filter((l) => l.contentListId && !assocIds.has(l.contentListId));
 
@@ -344,22 +396,68 @@ export function EditionEditor({
             </p>
           ) : (
             <ul style={listStyle} data-testid="edition-assoc-list">
-              {assoc.map((c) => (
-                <li key={c.contentListId ?? c.name} style={listItemStyle}>
+              {assoc.map((c, index) => (
+                <li
+                  key={c.contentListId ?? c.name}
+                  style={listItemStyle}
+                  data-testid={
+                    c.contentListId
+                      ? `edition-assoc-row-${c.contentListId}`
+                      : undefined
+                  }
+                >
                   <span>
-                    {c.name}{" "}
+                    <span
+                      data-testid={
+                        c.contentListId
+                          ? `edition-assoc-name-${c.contentListId}`
+                          : undefined
+                      }
+                    >
+                      {c.name}
+                    </span>{" "}
                     <span style={{ color: "#888" }}>({c.listType})</span>
                   </span>
                   {c.contentListId && (
-                    <button
-                      type="button"
-                      data-testid={`edition-disassociate-${c.contentListId}`}
-                      style={buttonStyle}
-                      disabled={saving}
-                      onClick={() => void handleDisassociate(String(c.contentListId))}
-                    >
-                      {message(MSG.PUBLISH.DESIGN.EDITIONS.REMOVE)}
-                    </button>
+                    <span style={{ display: "flex", gap: 8 }}>
+                      <button
+                        type="button"
+                        data-testid={`edition-move-up-${c.contentListId}`}
+                        style={buttonStyle}
+                        disabled={saving || index === 0}
+                        aria-label={message(MSG.PUBLISH.DESIGN.EDITIONS.MOVE_UP)}
+                        onClick={() =>
+                          void handleReorder(String(c.contentListId), index, -1)
+                        }
+                      >
+                        {message(MSG.PUBLISH.DESIGN.EDITIONS.MOVE_UP)}
+                      </button>
+                      <button
+                        type="button"
+                        data-testid={`edition-move-down-${c.contentListId}`}
+                        style={buttonStyle}
+                        disabled={saving || index === assoc.length - 1}
+                        aria-label={message(
+                          MSG.PUBLISH.DESIGN.EDITIONS.MOVE_DOWN,
+                        )}
+                        onClick={() =>
+                          void handleReorder(String(c.contentListId), index, 1)
+                        }
+                      >
+                        {message(MSG.PUBLISH.DESIGN.EDITIONS.MOVE_DOWN)}
+                      </button>
+                      <button
+                        type="button"
+                        data-testid={`edition-disassociate-${c.contentListId}`}
+                        style={buttonStyle}
+                        disabled={saving}
+                        onClick={() =>
+                          void handleDisassociate(String(c.contentListId))
+                        }
+                      >
+                        {message(MSG.PUBLISH.DESIGN.EDITIONS.REMOVE)}
+                      </button>
+                    </span>
                   )}
                 </li>
               ))}
