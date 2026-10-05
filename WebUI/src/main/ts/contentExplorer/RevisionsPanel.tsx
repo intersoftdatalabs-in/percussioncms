@@ -113,11 +113,12 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
   const [restoreError, setRestoreError] = useState<string | null>(null);
   const [restoringRev, setRestoringRev] = useState<number | null>(null);
   const [pendingRev, setPendingRev] = useState<number | null>(null);
-  // Token stays above 0 after a successful restore. It is a same-item reload
-  // only while reloadItemId still matches; a later content-item switch must
-  // load fresh or a failure stays on Loading and Compare keeps the old ids.
+  // Token stays above 0 after a successful restore. The ref is the item that
+  // reload belongs to. Drop it when itemId changes: a later visit must load
+  // fresh, or Compare keeps the other item's ids and a failed load stays
+  // on Loading.
   const [reloadToken, setReloadToken] = useState(0);
-  const [reloadItemId, setReloadItemId] = useState(itemId);
+  const reloadItemIdRef = useRef<string | null>(null);
   const itemIdRef = useRef(itemId);
   itemIdRef.current = itemId;
   const [leftRev, setLeftRev] = useState<number | null>(null);
@@ -134,7 +135,11 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
 
   useEffect(() => {
     let alive = true;
-    const sameItemReload = reloadItemId === itemId && reloadToken > 0;
+    const sameItemReload =
+      reloadItemIdRef.current === itemId && reloadToken > 0;
+    if (reloadItemIdRef.current !== itemId) {
+      reloadItemIdRef.current = null;
+    }
     const resetSession = () => {
       setRestoreError(null);
       setPendingRev(null);
@@ -198,7 +203,7 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
     return () => {
       alive = false;
     };
-  }, [itemId, loadSummary, reloadItemId, reloadToken]);
+  }, [itemId, loadSummary, reloadToken]);
 
   const runRestore = useCallback(
     async (revId: number) => {
@@ -212,7 +217,7 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
         if (itemIdRef.current !== forItem) {
           return;
         }
-        setReloadItemId(forItem);
+        reloadItemIdRef.current = forItem;
         setReloadToken((n) => n + 1);
       } catch (err: unknown) {
         if (itemIdRef.current !== forItem) {

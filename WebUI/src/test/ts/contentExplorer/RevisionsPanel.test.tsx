@@ -428,6 +428,128 @@ describe("RevisionsPanel", () => {
     await renderA11yGate(container);
   });
 
+  it("loads the restored item fresh when it is selected again", async () => {
+    let loads42 = 0;
+    const loadSummary = vi.fn(async (id: string) => {
+      if (id === "99") {
+        return OTHER_ITEM;
+      }
+      loads42 += 1;
+      return {
+        ...SAMPLE,
+        currentRevision: loads42 === 1 ? 2 : 1,
+      };
+    });
+    const restore = vi.fn().mockResolvedValue(undefined);
+    const compare = vi.fn(
+      async (id: string, rev1: number, rev2: number) => ({
+        itemId: id,
+        rev1,
+        rev2,
+        fields: [] as [],
+      }),
+    );
+    const { container, rerender } = render(
+      <RevisionsPanel
+        itemId="42"
+        loadSummary={loadSummary}
+        restoreRevision={restore}
+        compareRevisions={compare}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-compare-left")).toHaveValue("1"),
+    );
+    await restoreThenReload("1");
+    rerender(
+      <RevisionsPanel
+        itemId="99"
+        loadSummary={loadSummary}
+        restoreRevision={restore}
+        compareRevisions={compare}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-compare-left")).toHaveValue("10"),
+    );
+    expect(screen.getByTestId("revisions-compare-right")).toHaveValue("12");
+    rerender(
+      <RevisionsPanel
+        itemId="42"
+        loadSummary={loadSummary}
+        restoreRevision={restore}
+        compareRevisions={compare}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-current")).toHaveAttribute(
+        "data-current-rev",
+        "1",
+      ),
+    );
+    expect(screen.getByTestId("revisions-panel")).toHaveAttribute(
+      "data-testid-state",
+      "ok",
+    );
+    expect(screen.getByTestId("revisions-compare-left")).toHaveValue("1");
+    expect(screen.getByTestId("revisions-compare-right")).toHaveValue("2");
+    fireEvent.click(screen.getByTestId("revisions-compare-run"));
+    await waitFor(() => expect(compare).toHaveBeenCalledWith("42", 1, 2));
+    expect(compare).not.toHaveBeenCalledWith("42", 10, 12);
+    await renderA11yGate(container);
+  });
+
+  it("shows a load error instead of Loading when the restored item fails on return", async () => {
+    let loads42 = 0;
+    const loadSummary = vi.fn(async (id: string) => {
+      if (id === "99") {
+        return OTHER_ITEM;
+      }
+      loads42 += 1;
+      if (loads42 > 2) {
+        throw new Error("return failed");
+      }
+      return { ...SAMPLE, currentRevision: loads42 === 1 ? 2 : 1 };
+    });
+    const restore = vi.fn().mockResolvedValue(undefined);
+    const { rerender } = render(
+      <RevisionsPanel
+        itemId="42"
+        loadSummary={loadSummary}
+        restoreRevision={restore}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-restore-1")).toBeTruthy(),
+    );
+    await restoreThenReload("1");
+    rerender(
+      <RevisionsPanel
+        itemId="99"
+        loadSummary={loadSummary}
+        restoreRevision={restore}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-compare-left")).toHaveValue("10"),
+    );
+    rerender(
+      <RevisionsPanel
+        itemId="42"
+        loadSummary={loadSummary}
+        restoreRevision={restore}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("revisions-panel")).toHaveAttribute(
+        "data-testid-state",
+        "error",
+      ),
+    );
+    expect(screen.getByRole("alert").textContent).toMatch(/return failed/);
+    expect(screen.queryByTestId("revisions-compare-left")).toBeNull();
+  });
+
   it("shows a load error instead of staying on Loading when the next item fails after restore", async () => {
     let loads42 = 0;
     const loadSummary = vi.fn(async (id: string) => {

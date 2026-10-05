@@ -23,7 +23,9 @@
  * HTTP 403, and HTTP 409 leave the current revision. Folders and an empty
  * selection do not claim a restore. After a successful restore, selecting a
  * different content item loads that item: Compare uses its revision ids, and
- * a failed load is an error instead of staying on Loading.</p>
+ * a failed load is an error instead of staying on Loading. Returning to the
+ * restored item loads that item again: Compare uses its revision ids, and a
+ * failed load is an error instead of staying on Loading.</p>
  *
  * <p>Tags: {@code @explorer-restore-revision} {@code @explorer-revisions}
  * {@code @explorer}</p>
@@ -396,12 +398,13 @@ test.describe("modern React Content Explorer — restore one older revision", ()
   );
 
   test(
-    "after restore, another content item resets compare and a failed load is an error",
+    "after restore, another item resets compare and returning to the restored item loads fresh",
     { tag: ["@explorer-restore-revision", "@explorer-revisions", "@explorer"] },
     async ({ page }) => {
       const pageErrors = [];
       const consoleErrors = [];
       let restored42 = false;
+      let failReturn42 = false;
       page.on("pageerror", (err) => {
         pageErrors.push(String(err));
       });
@@ -468,6 +471,14 @@ test.describe("modern React Content Explorer — restore one older revision", ()
           });
           return;
         }
+        if (failReturn42) {
+          await route.fulfill({
+            status: 500,
+            contentType: "application/json",
+            body: JSON.stringify({ message: "revisions unavailable" }),
+          });
+          return;
+        }
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -508,9 +519,37 @@ test.describe("modern React Content Explorer — restore one older revision", ()
       await expect(page.locator('[data-testid="revisions-compare-left"]')).toHaveValue("10");
       await expect(page.locator('[data-testid="revisions-compare-right"]')).toHaveValue("12");
       await expect(page.locator('[data-testid="revisions-restore-confirm"]')).toHaveCount(0);
+
+      await page.locator('[data-testid="detail-row-42"][data-row-kind="item"]').click();
+      await expect(page.locator('[data-testid="revisions-current"]')).toHaveAttribute(
+        "data-current-rev",
+        "1",
+        { timeout: 10_000 },
+      );
+      await expect(page.locator('[data-testid="revisions-compare-left"]')).toHaveValue("1");
+      await expect(page.locator('[data-testid="revisions-compare-right"]')).toHaveValue("2");
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });
+
+      await page.locator('[data-testid="revisions-restore-2"]').click();
+      await page.locator('[data-testid="revisions-restore-ok"]').click();
+      await expect(page.locator('[data-testid="revisions-current"]')).toHaveAttribute(
+        "data-current-rev",
+        "1",
+        { timeout: 10_000 },
+      );
+      await page.locator('[data-testid="detail-row-77"][data-row-kind="item"]').click();
+      await expect(page.locator('[data-testid="revisions-compare-left"]')).toHaveValue("10");
+      failReturn42 = true;
+      await page.locator('[data-testid="detail-row-42"][data-row-kind="item"]').click();
+      await expect(page.locator('[data-testid="revisions-panel"]')).toHaveAttribute(
+        "data-testid-state",
+        "error",
+        { timeout: 10_000 },
+      );
+      await expect(page.locator('[data-testid="revisions-compare-left"]')).toHaveCount(0);
+      failReturn42 = false;
 
       await page.locator('[data-testid="detail-row-88"][data-row-kind="item"]').click();
       await expect(page.locator('[data-testid="revisions-panel"]')).toHaveAttribute(
