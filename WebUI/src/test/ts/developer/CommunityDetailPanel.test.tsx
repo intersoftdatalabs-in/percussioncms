@@ -24,6 +24,7 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => 
     createCommunity: vi.fn(),
     deleteCommunity: vi.fn(),
     renameCommunity: vi.fn(),
+    updateCommunityDescription: vi.fn(),
     getCommunityNewSearchDefaults: vi.fn(),
     replaceCommunityNewSearchDefaults: vi.fn(),
   };
@@ -46,6 +47,9 @@ const updateCommunityRoles = assemblyApi.updateCommunityRoles as ReturnType<type
 const createCommunity = assemblyApi.createCommunity as ReturnType<typeof vi.fn>;
 const deleteCommunity = assemblyApi.deleteCommunity as ReturnType<typeof vi.fn>;
 const renameCommunity = assemblyApi.renameCommunity as ReturnType<typeof vi.fn>;
+const updateCommunityDescription = assemblyApi.updateCommunityDescription as ReturnType<
+  typeof vi.fn
+>;
 const getCommunityNewSearchDefaults = assemblyApi.getCommunityNewSearchDefaults as ReturnType<
   typeof vi.fn
 >;
@@ -84,6 +88,7 @@ describe("CommunityDetailPanel", () => {
     createCommunity.mockReset();
     deleteCommunity.mockReset();
     renameCommunity.mockReset();
+    updateCommunityDescription.mockReset();
     getCommunityNewSearchDefaults.mockReset();
     replaceCommunityNewSearchDefaults.mockReset();
     listSearches.mockReset();
@@ -808,5 +813,162 @@ describe("CommunityDetailPanel", () => {
     }
     expect(onRenamed).not.toHaveBeenCalled();
     expect(renameCommunity).toHaveBeenCalledTimes(3);
+  });
+
+  it("saves a description only after success and can clear it (#5178)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    updateCommunityDescription.mockResolvedValueOnce({
+      name: "Default",
+      label: "Default Community",
+      description: "Enterprise notes",
+      id: 1001,
+    });
+    const onDescriptionSaved = vi.fn();
+    render(
+      <CommunityDetailPanel
+        idOrName="Default"
+        onBack={() => undefined}
+        onDescriptionSaved={onDescriptionSaved}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-description").textContent).toContain(
+        "System default",
+      );
+    });
+    const save = screen.getByTestId("developer-comm-description-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
+      target: { value: "  System default  " },
+    });
+    expect(save.disabled).toBe(true);
+    fireEvent.click(save);
+    expect(updateCommunityDescription).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
+      target: { value: "Enterprise notes" },
+    });
+    expect(screen.getByTestId("developer-comm-description").textContent).toContain(
+      "System default",
+    );
+    expect(screen.getByTestId("developer-comm-description").textContent).not.toContain(
+      "Enterprise notes",
+    );
+    fireEvent.click(save);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-description").textContent).toContain(
+        "Enterprise notes",
+      );
+    });
+    expect(screen.getByTestId("developer-comm-description").textContent).not.toContain(
+      "System default",
+    );
+    expect(screen.getByTestId("developer-comm-detail-notice").textContent).toContain(
+      DEV_MSG.COMM_DESCRIPTION_SAVED,
+    );
+    expect(updateCommunityDescription).toHaveBeenCalledWith("Default", {
+      description: "Enterprise notes",
+    });
+    expect(onDescriptionSaved).toHaveBeenCalledWith("Default", "Enterprise notes");
+
+    updateCommunityDescription.mockResolvedValueOnce({
+      name: "Default",
+      label: "Default Community",
+      id: 1001,
+    });
+    fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-description-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-notice").textContent).toContain(
+        DEV_MSG.COMM_DESCRIPTION_CLEARED,
+      );
+    });
+    expect(screen.getByTestId("developer-comm-description").textContent).toBe("");
+    expect(updateCommunityDescription).toHaveBeenLastCalledWith("Default", { description: "" });
+    expect(onDescriptionSaved).toHaveBeenLastCalledWith("Default", "");
+  });
+
+  it("description cancel restores the stored text and does not post (#5178)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-description-input")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
+      target: { value: "Draft only" },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-description-cancel"));
+    expect(
+      (screen.getByTestId("developer-comm-description-input") as HTMLTextAreaElement).value,
+    ).toBe("System default");
+    expect(screen.getByTestId("developer-comm-description").textContent).toContain(
+      "System default",
+    );
+    expect(updateCommunityDescription).not.toHaveBeenCalled();
+  });
+
+  it("does not post an overlong description (#5178)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-description-save")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
+      target: { value: "D".repeat(256) },
+    });
+    expect(screen.getByTestId("developer-comm-description-error").textContent).toContain(
+      DEV_MSG.COMM_DESCRIPTION_TOO_LONG,
+    );
+    expect(
+      (screen.getByTestId("developer-comm-description-save") as HTMLButtonElement).disabled,
+    ).toBe(true);
+    fireEvent.click(screen.getByTestId("developer-comm-description-save"));
+    expect(updateCommunityDescription).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-comm-description").textContent).toContain(
+      "System default",
+    );
+  });
+
+  it("keeps the stored description on 400, 403, and 409 (#5178)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    const onDescriptionSaved = vi.fn();
+    render(
+      <CommunityDetailPanel
+        idOrName="Default"
+        onBack={() => undefined}
+        onDescriptionSaved={onDescriptionSaved}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-description-input")).toBeTruthy();
+    });
+    for (const [status, message] of [
+      [400, DEV_MSG.COMM_DESCRIPTION_ERROR],
+      [403, DEV_MSG.COMM_FORBIDDEN],
+      [409, DEV_MSG.COMM_DESCRIPTION_LOCK],
+    ] as const) {
+      updateCommunityDescription.mockRejectedValueOnce({
+        status,
+        statusText: "Error",
+        body: { message: "nope" },
+      });
+      fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
+        target: { value: `Notes ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-comm-description-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(message);
+      });
+      expect(screen.getByTestId("developer-comm-description").textContent).toContain(
+        "System default",
+      );
+      expect(screen.getByTestId("developer-comm-description").textContent).not.toContain(
+        `Notes ${status}`,
+      );
+    }
+    expect(onDescriptionSaved).not.toHaveBeenCalled();
+    expect(updateCommunityDescription).toHaveBeenCalledTimes(3);
   });
 });

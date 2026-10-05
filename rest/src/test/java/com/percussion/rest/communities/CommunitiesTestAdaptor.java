@@ -59,6 +59,11 @@ public class CommunitiesTestAdaptor implements ICommunityAdaptor {
   }
 
   @Override
+  public Community updateCommunityDescription(String idOrName, String description) {
+    return null;
+  }
+
+  @Override
   public CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock)
       throws PSErrorResultsException {
     return null;

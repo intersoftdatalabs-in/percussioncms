@@ -1,7 +1,7 @@
 ---
 id: admin-developer-communities
 title: Developer Communities
-description: Create, rename, and delete CMS communities, edit roles, and set Content Explorer new-search defaults from Developer Communities chrome
+description: Create, rename, describe, and delete CMS communities, edit roles, and set Content Explorer new-search defaults from Developer Communities chrome
 version: "8.2"
 order: 45
 tags: [admin, developer, communities]
@@ -10,13 +10,14 @@ tags: [admin, developer, communities]
 # Developer Communities
 
 **Developer → Communities** lists CMS communities (label, unique name, id, and
-description). Admins can **create** a community, **rename** one, and **delete**
-one from this chrome. Open an existing community to **edit role membership**,
-set **Content Explorer new-search defaults**, and inspect **object visibility**.
-Per-object COMMUNITY ACL entries stay on object detail panels (for example
-content types). Description edits are not part of rename.
+description). Admins can **create** a community, **rename** one, **set or clear
+its description**, and **delete** one from this chrome. Open an existing
+community to **edit role membership**, set **Content Explorer new-search
+defaults**, and inspect **object visibility**. Per-object COMMUNITY ACL entries
+stay on object detail panels (for example content types). Rename does not
+change the description. Description save does not change the name or roles.
 
-## Product path — create, rename, and delete
+## Product path — create, rename, description, and delete
 
 1. Sign in as **Admin** (create, rename, and delete require the Admin role).
 2. Open **Developer → Communities**, or deep-link
@@ -41,7 +42,20 @@ content types). Description edits are not part of rename.
    the detail title and in the catalog. After a successful rename, the detail
    title and the catalog row show the new name (the catalog does not show it
    before the rename succeeds). Description and role membership are unchanged.
-7. Open an existing community and click **Delete community**, then confirm
+7. Open an existing community. Under **Community description**, the field
+   starts as the stored description (empty when none is stored). The detail
+   text does not change while you type. **Cancel** restores the field and
+   does not call the server. **Save description** stays disabled when the
+   trimmed text matches the stored description, including whitespace-only
+   when the stored description is empty.
+8. Enter a new description (at most **255** characters) or clear the field,
+   then click **Save description**. A description longer than 255 characters
+   is **400** and is not saved. A non-Admin session is **403**. A design lock
+   held by another session is **409**. Those responses keep the previous
+   description on the detail and in the catalog. After a successful save,
+   the detail text and the catalog description show the stored value (or
+   nothing, when cleared). The name and role membership are unchanged.
+9. Open an existing community and click **Delete community**, then confirm
    in the in-app dialog (not a browser prompt).
    The catalog no longer lists that name. Delete of a missing community is
    **404**. A community that is still **in use** (dependencies) is **409**
@@ -84,6 +98,11 @@ for each community. That assignment is now on the community detail panel.
 - Rename uses `POST /services/communities/{idOrName}/rename` with
   `{"CommunityRename":{"name":"…"}}`. It does not change the description or
   role membership. The stored name is at most 50 characters.
+- Description uses `POST /services/communities/{idOrName}/description` with
+  `{"CommunityDescription":{"description":"…"}}`. An empty `description`
+  clears the stored value. It does not change the name or role membership.
+  The stored description is at most 255 characters. The same text after trim
+  does not write.
 - Delete uses `DELETE /services/communities/bulk` with the community GUID
   and `ignoredependencies=false`.
 - Community visibility remains a read-only lens. Object ACL for a COMMUNITY
@@ -103,6 +122,7 @@ The chrome calls:
 | Load | `GET /services/communities/{idOrName}` |
 | Create | `POST /services/communities/bulk` (name list; server persists) |
 | Rename | `POST /services/communities/{idOrName}/rename` (`CommunityRename.name`; max 50) |
+| Description | `POST /services/communities/{idOrName}/description` (`CommunityDescription.description`; max 255; empty clears) |
 | Available roles (picker) | `GET /services/communities/roles` |
 | Assign / unassign roles | `PUT /services/communities/{idOrName}/roles` (full membership replace; `{"CommunityRoleList":[]}` clears) |
 | New-search defaults | `GET` / `PUT /services/communities/{idOrName}/new-search-defaults` |

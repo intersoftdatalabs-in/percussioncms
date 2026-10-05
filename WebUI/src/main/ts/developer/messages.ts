@@ -614,7 +614,7 @@ export const DEV_MSG_KEYS = {
   COMM_EMPTY: "perc.ui.developer@No communities returned.",
   COMM_ERROR: "perc.ui.developer@Could not load communities.",
   COMM_HINT:
-    "perc.ui.developer@Create, rename, or delete a community, then open one to edit role membership, Content Explorer new-search defaults, and inspect object visibility. Per-object COMMUNITY ACL entries are edited on object detail panels (e.g. content types).",
+    "perc.ui.developer@Create, rename, set a description, or delete a community, then open one to edit role membership, Content Explorer new-search defaults, and inspect object visibility. Per-object COMMUNITY ACL entries are edited on object detail panels (e.g. content types).",
   COMM_NEW: "perc.ui.developer@New community",
   COMM_CREATE: "perc.ui.developer@Create community",
   COMM_CANCEL: "perc.ui.developer@Cancel",
@@ -630,6 +630,19 @@ export const DEV_MSG_KEYS = {
   COMM_RENAME_BUSY: "perc.ui.developer@Renaming...",
   COMM_RENAMED: "perc.ui.developer@Community renamed.",
   COMM_RENAME_ERROR: "perc.ui.developer@Could not rename community.",
+  COMM_DESCRIPTION: "perc.ui.developer@Community description",
+  COMM_DESCRIPTION_HINT:
+    "perc.ui.developer@Set or clear the description (max 255 characters). The detail and catalog change only after save succeeds.",
+  COMM_DESCRIPTION_LABEL: "perc.ui.developer@Description",
+  COMM_DESCRIPTION_SAVE: "perc.ui.developer@Save description",
+  COMM_DESCRIPTION_BUSY: "perc.ui.developer@Saving description...",
+  COMM_DESCRIPTION_SAVED: "perc.ui.developer@Community description saved.",
+  COMM_DESCRIPTION_CLEARED: "perc.ui.developer@Community description cleared.",
+  COMM_DESCRIPTION_ERROR: "perc.ui.developer@Could not save community description.",
+  COMM_DESCRIPTION_TOO_LONG:
+    "perc.ui.developer@Community description must be 255 characters or fewer.",
+  COMM_DESCRIPTION_LOCK:
+    "perc.ui.developer@Could not save the description; a design lock is held by another user.",
   COMM_CREATED: "perc.ui.developer@Community created.",
   COMM_DUPLICATE: "perc.ui.developer@A community with this name already exists.",
   COMM_FORBIDDEN: "perc.ui.developer@Admin role required.",

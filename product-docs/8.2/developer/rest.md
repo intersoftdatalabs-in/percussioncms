@@ -426,6 +426,7 @@ surface (`ICommunityAdaptor.createCommunities` / `saveCommunities` /
 | `GET` | `/services/communities/roles` | Roles available for community membership (picker) |
 | `POST` | `/services/communities/bulk` | **Admin.** Create from a name list (`{"List":["Name"]}`); server persists |
 | `POST` | `/services/communities/{idOrName}/rename` | **Admin.** Rename one community (`{"CommunityRename":{"name":"…"}}`). Description and roles stay. Blank or longer than 50 characters is **400**. Duplicate name (case-insensitive, other community) is **409**. Non-Admin is **403**. Unknown community is **404**. Design lock held by another session is **409** and the name is unchanged. |
+| `POST` | `/services/communities/{idOrName}/description` | **Admin.** Set or clear one community's description (`{"CommunityDescription":{"description":"…"}}`). Empty or whitespace clears. Longer than 255 characters is **400**. Non-Admin is **403**. Unknown community is **404**. Design lock held by another session is **409** and the description is unchanged. The same text after trim does not write. Name and roles stay. |
 | `PUT` | `/services/communities/bulk` | **Admin.** Persist edited communities (`release` header) |
 | `PUT` | `/services/communities/{idOrName}/roles` | Assign/unassign roles by replacing the full membership set (same session auth as other community design calls; not the Admin-gated bulk create/delete surface) |
 | `DELETE` | `/services/communities/bulk` | **Admin.** Delete by GuidList (`ignoredependencies` header) |
@@ -445,6 +446,12 @@ community remains (the lock is not stolen). Non-Admin is **403**.
 Rename uses `POST /services/communities/{idOrName}/rename`. The detail title
 and catalog show the new name only after that call succeeds. Cancel does not
 write. A **400**, **403**, or **409** leaves the previous name in place.
+
+Description uses `POST /services/communities/{idOrName}/description`. The
+detail text and catalog description show the stored value only after that
+call succeeds. Cancel does not write. Unchanged text (after trim) does not
+write. A **400**, **403**, or **409** leaves the previous description in
+place. Empty `description` clears it.
 
 ### Community role membership (Security Design SE-02)
 

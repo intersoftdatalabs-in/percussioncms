@@ -60,6 +60,9 @@ public class CommunityAdaptor implements ICommunityAdaptor {
   /** Column {@code RXCOMMUNITY.NAME} / {@link PSCommunity} length. */
   static final int COMMUNITY_NAME_MAX_LENGTH = 50;
 
+  /** Column {@code RXCOMMUNITY.DESCRITPION} / {@link PSCommunity} length (historical spelling). */
+  static final int COMMUNITY_DESCRIPTION_MAX_LENGTH = 255;
+
   static final String ADMIN_REQUIRED = "Admin role required";
 
   @Autowired private IPSSecurityDesignWs securityDesignWs;
@@ -284,6 +287,126 @@ public class CommunityAdaptor implements ICommunityAdaptor {
     return current;
   }
 
+  @Override
+  public Community updateCommunityDescription(String idOrName, String description) {
+    requireAdmin();
+    requireSessionUser("Request session/user required for community description");
+    String next = normalizeCommunityDescription(description);
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    String key = idOrName.trim();
+    Community current = getCommunity(key);
+    if (current == null || current.getGuid() == null) {
+      return null;
+    }
+    if (descriptionsEqual(current.getDescription(), next)) {
+      return current;
+    }
+
+    GuidList ids = new GuidList();
+    ids.add(current.getGuid());
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      List<PSCommunity> locked =
+          securityDesignWs.loadCommunities(
+              ApiUtils.convertGuids(ids), true, true, session, user);
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      // Loaded rows already have a Hibernate version. saveCommunities stamps the
+      // lock version and rejects a second setVersion. Persist a fresh copy
+      // (null version) so the design service merges name, description, and roles.
+      PSCommunity toSave = communityForDescription(locked.get(0), next);
+      securityDesignWs.saveCommunities(List.of(toSave), true, session, user);
+    } catch (PSErrorResultsException e) {
+      throw new WebApplicationException(
+          "Community could not be locked for description update", e, 409);
+    } catch (PSErrorsException e) {
+      throw mapCommunityDescriptionSaveFailure(e);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      if (messageContainsLock(e)) {
+        throw new WebApplicationException(
+            "Community could not be locked for description update", e, 409);
+      }
+      throw e;
+    }
+
+    Community reloaded = getCommunity(key);
+    if (reloaded != null && descriptionsEqual(reloaded.getDescription(), next)) {
+      return reloaded;
+    }
+    current.setDescription(next.isEmpty() ? null : next);
+    return current;
+  }
+
+  /**
+   * Copy used by {@link IPSSecurityDesignWs#saveCommunities}. Version stays unset so the design
+   * service can apply the object-lock version. Name and role membership are preserved.
+   */
+  static PSCommunity communityForDescription(PSCommunity current, String description) {
+    PSCommunity copy = new PSCommunity();
+    copy.setName(current.getName());
+    copy.setDescription(description == null || description.isEmpty() ? null : description);
+    copy.tuneClone(current.getId());
+    copy.setRoleAssociations(current.getRoleAssociations());
+    return copy;
+  }
+
+  /**
+   * Trimmed community description. Longer than {@link #COMMUNITY_DESCRIPTION_MAX_LENGTH} is {@link
+   * IllegalArgumentException} (HTTP 400 at the resource). Empty clears.
+   */
+  static String normalizeCommunityDescription(String raw) {
+    String text = raw == null ? "" : raw.trim();
+    if (text.length() > COMMUNITY_DESCRIPTION_MAX_LENGTH) {
+      throw new IllegalArgumentException(
+          "Community description cannot have more than "
+              + COMMUNITY_DESCRIPTION_MAX_LENGTH
+              + " characters");
+    }
+    return text;
+  }
+
+  static boolean descriptionsEqual(String stored, String next) {
+    String left = stored == null ? "" : stored.trim();
+    String right = next == null ? "" : next.trim();
+    return left.equals(right);
+  }
+
+  static RuntimeException mapCommunityDescriptionSaveFailure(PSErrorsException e) {
+    String msg = descriptionSaveMessage(e);
+    if (msg.toLowerCase().contains("lock")) {
+      return new WebApplicationException(
+          "Community could not be locked for description update", e, 409);
+    }
+    String detail = msg.isBlank() ? "Could not update community description" : msg.trim();
+    return new WebApplicationException(detail, e, 500);
+  }
+
+  private static String descriptionSaveMessage(PSErrorsException e) {
+    StringBuilder buf = new StringBuilder();
+    if (e.getMessage() != null) {
+      buf.append(e.getMessage());
+    }
+    if (e.getErrors() != null) {
+      for (Object value : e.getErrors().values()) {
+        if (value != null) {
+          buf.append(' ').append(value);
+        }
+      }
+    }
+    return buf.toString();
+  }
+
+  private static boolean messageContainsLock(Throwable t) {
+    String msg = t == null ? null : t.getMessage();
+    return msg != null && msg.toLowerCase().contains("lock");
+  }
+
   /**
    * Copy used by {@link IPSSecurityDesignWs#saveCommunities}. Version stays unset so the design
    * service can apply the object-lock version. Description and role membership are preserved.
@@ -415,9 +538,12 @@ public class CommunityAdaptor implements ICommunityAdaptor {
   }
 
   private static void requireSessionUserForWrite() {
+    requireSessionUser("Request session/user required for community rename");
+  }
+
+  private static void requireSessionUser(String message) {
     if (StringUtils.isBlank(currentSession()) || StringUtils.isBlank(currentUser())) {
-      throw new WebApplicationException(
-          "Request session/user required for community rename", 403);
+      throw new WebApplicationException(message, 403);
     }
   }
 
