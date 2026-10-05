@@ -229,6 +229,34 @@ The public call is
 `PUT /services/workflows/{idOrName}/transitions/default?from={step}&label={label}&to={step}`
 with a `WorkflowTransitionDefault` body (`defaultTransition`: `true`).
 
+## Product path — restrict one transition to a single role (slice 72)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow.
+3. Under **Graph**, each regular edge that still allows every role shows
+   **All roles**. Aging rows do not.
+4. On that edge, click **Restrict to one role**, choose one role that already
+   exists on the workflow, then click **Save role**.
+5. The edge shows that role name, and not **All roles**, only after the server
+   accepts it. Reopening the workflow shows the same role. **Cancel** closes
+   the editor and does not call the server. The label, destination,
+   comment-required flag, approval count, default flag, and every other edge
+   stay as they were.
+6. Packaged workflows show the stored flag and hide **Restrict to one role**
+   (`403` on the API). A missing workflow, step, transition, or role is `404`.
+   A blank step, label, or role, an ambiguous label, or an aging transition is
+   `400`. A transition that is already restricted, or the allow-all marker
+   `*ALL*` used as the role name, is `409` and does not change the stored
+   list. HTTP `400`, `403`, and `409` leave **All roles** in place when the
+   transition still allows every role.
+7. This does not add a second allowed role, clear the restriction back to
+   every role, assign the role to a step, or edit notify, inbox, or ad-hoc
+   type.
+
+The public call is
+`PUT /services/workflows/{idOrName}/transitions/allowed-role?from={step}&label={label}&to={step}`
+with a `WorkflowTransitionAllowedRole` body (`roleName`).
+
 ## Product path — delete one transition (slice 33)
 
 1. Sign in as **Admin**.
@@ -661,6 +689,7 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Comment required | `PUT /services/workflows/{idOrName}/transitions/comment-required?from={step}&label={label}&to={step}` (`WorkflowTransitionComment` wrap `{ "commentRequired": true }`; Admin; existing transition only; packaged workflows `403`; aging transitions `400`; missing transition `404`) |
 | Approvals required | `PUT /services/workflows/{idOrName}/transitions/approvals-required?from={step}&label={label}&to={step}` (`WorkflowTransitionApprovals` wrap `{ "approvalsRequired": 2 }`; Admin; existing regular transition only; non-negative whole number including zero; unchanged, negative, ambiguous, or aging `400`; packaged or default `403`; missing transition `404`; stored each-role count `409` and is not overwritten; label, destination, comment flag, and other edges stay unchanged) |
 | Default transition | `PUT /services/workflows/{idOrName}/transitions/default?from={step}&label={label}&to={step}` (`WorkflowTransitionDefault` wrap `{ "defaultTransition": true }`; Admin; existing regular transition only; marks that transition and clears the flag on the other regular transitions from the same step; the graph shows the new default only after success; already the only default, ambiguous, or aging `400`; packaged or default `403`; missing transition `404`; `false` on the current default is `409` and does not clear it; label, destination, comment flag, approval count, and defaults on other steps stay unchanged) |
+| Restrict one transition role | `PUT /services/workflows/{idOrName}/transitions/allowed-role?from={step}&label={label}&to={step}` (`WorkflowTransitionAllowedRole` wrap `{ "roleName": "Editor" }`; Admin; one existing regular transition that still allows every role; sets that transition to the one named workflow role; the graph shows that role, and not all roles, only after success; already restricted or the allow-all marker `*ALL*` is `409` and does not change the list; blank, ambiguous, or aging `400`; packaged or default `403`; missing workflow, step, transition, or role `404`; label, destination, comment flag, approval count, default flag, other edges, and aging stay unchanged) |
 | Delete one step | `DELETE /services/workflows/{idOrName}/steps/{stepName}` (Admin; only when no transition still uses the step; returns the updated graph; packaged workflows `403`; missing workflow or step `404`; invalid step name `400`; step still referenced `409`) |
 | List allowed content types | `GET /services/workflows/{idOrName}/allowedContentTypes` |
 | Replace allowed content types | `PUT /services/workflows/{idOrName}/allowedContentTypes` (`WorkflowContentTypes` wrap) |

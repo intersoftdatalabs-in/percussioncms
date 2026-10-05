@@ -34,6 +34,8 @@ import {
   workflowTransitionApprovalsPath,
   markTransitionAsDefault,
   workflowTransitionDefaultPath,
+  restrictTransitionToOneRole,
+  workflowTransitionAllowedRolePath,
   isValidWorkflowName,
   isWorkflowCreateReady,
   normalizeWorkflowName,
@@ -1311,6 +1313,54 @@ describe("parseWorkflowGraph", () => {
     expect(graph.edges?.[0]?.approvalsRequired).toBe(0);
     expect(graph.edges?.[0]?.commentRequired).toBe(true);
   });
+
+  it("keeps workflow roles and a restricted edge", () => {
+    const graph = parseWorkflowGraph({
+      workflowName: "Nightly QA",
+      roles: ["Editor", "Author"],
+      edges: [
+        {
+          from: "Draft",
+          to: "Live",
+          label: "Send",
+          allowAllRoles: false,
+          allowedRoles: ["Editor"],
+          defaultTransition: false,
+          approvalsRequired: 4,
+        },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Submit",
+          allowAllRoles: true,
+          commentRequired: true,
+        },
+      ],
+    });
+    expect(graph.roles).toEqual(["Editor", "Author"]);
+    expect(graph.edges?.[0]?.allowAllRoles).toBe(false);
+    expect(graph.edges?.[0]?.allowedRoles).toEqual(["Editor"]);
+    expect(graph.edges?.[1]?.allowAllRoles).toBe(true);
+    expect(graph.edges?.[1]?.allowedRoles).toBeUndefined();
+  });
+
+  it("coerces a one-element role string into a list", () => {
+    const graph = parseWorkflowGraph({
+      workflowName: "Nightly QA",
+      roles: "Editor",
+      edges: [
+        {
+          from: "Draft",
+          to: "Live",
+          label: "Send",
+          allowAllRoles: false,
+          allowedRoles: "Editor",
+        },
+      ],
+    });
+    expect(graph.roles).toEqual(["Editor"]);
+    expect(graph.edges?.[0]?.allowedRoles).toEqual(["Editor"]);
+  });
 });
 
 describe("updateTransitionApprovalsRequired", () => {
@@ -1415,5 +1465,55 @@ describe("markTransitionAsDefault", () => {
     expect(String(init.body)).toContain('"defaultTransition":true');
     expect(String(init.body)).not.toContain("approvalsRequired");
     expect(String(init.body)).not.toContain("commentRequired");
+  });
+});
+
+describe("restrictTransitionToOneRole", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("PUTs one role name and parses allowAllRoles", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          roles: ["Editor", "Author"],
+          edges: [
+            {
+              from: "Draft",
+              to: "Live",
+              label: "Send",
+              allowAllRoles: false,
+              allowedRoles: "Editor",
+              defaultTransition: false,
+              approvalsRequired: 4,
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await restrictTransitionToOneRole("Nightly QA", "Draft", "Send", "Editor", "Live");
+    expect(graph.roles).toEqual(["Editor", "Author"]);
+    expect(graph.edges?.[0]?.allowAllRoles).toBe(false);
+    expect(graph.edges?.[0]?.allowedRoles).toEqual(["Editor"]);
+    expect(graph.edges?.[0]?.approvalsRequired).toBe(4);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      workflowTransitionAllowedRolePath("Nightly QA", "Draft", "Send", "Live"),
+    );
+    expect(String(init.body)).toContain("WorkflowTransitionAllowedRole");
+    expect(String(init.body)).toContain('"roleName":"Editor"');
+    expect(String(init.body)).not.toContain("defaultTransition");
+    expect(String(init.body)).not.toContain("approvalsRequired");
   });
 });

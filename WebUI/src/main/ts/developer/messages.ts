@@ -2010,6 +2010,20 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@That transition could not be marked as the default.",
   WF_GRAPH_DEFAULT_CONFLICT:
     "perc.ui.developer@Clearing the default is not supported. The previous default was not changed.",
+  WF_GRAPH_ROLES_ALL: "perc.ui.developer@All roles",
+  WF_GRAPH_ROLES_RESTRICT: "perc.ui.developer@Restrict to one role",
+  WF_GRAPH_ROLES_SAVE: "perc.ui.developer@Save role",
+  WF_GRAPH_ROLES_CANCEL: "perc.ui.developer@Cancel",
+  WF_GRAPH_ROLES_LABEL: "perc.ui.developer@Role",
+  WF_GRAPH_ROLES_SAVED: "perc.ui.developer@Transition role saved.",
+  WF_GRAPH_ROLES_ERROR: "perc.ui.developer@Could not restrict this transition to one role.",
+  WF_GRAPH_ROLES_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_GRAPH_ROLES_BAD:
+    "perc.ui.developer@That role could not be saved. Check the transition and try again.",
+  WF_GRAPH_ROLES_CONFLICT:
+    "perc.ui.developer@This transition is already restricted. The previous role list was not changed.",
+  WF_GRAPH_ROLES_INVALID: "perc.ui.developer@Choose one existing workflow role.",
   WF_GRAPH_DELETE: "perc.ui.developer@Delete transition",
   WF_GRAPH_DELETE_CONFIRM:
     "perc.ui.developer@Delete this transition? The steps stay on the workflow.",

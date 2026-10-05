@@ -1275,6 +1275,16 @@ export interface WorkflowGraphEdge {
    * Omitted on aging edges. Exactly one regular edge from a step is true after a successful mark.
    */
   defaultTransition?: boolean;
+  /**
+   * True when every role may fire this regular transition.
+   * Omitted on aging edges. False only after a successful single-role restriction.
+   */
+  allowAllRoles?: boolean;
+  /**
+   * Role names that may fire a restricted regular transition.
+   * Omitted while the transition still allows every role, and omitted on aging edges.
+   */
+  allowedRoles?: string[];
   /** True for an aging transition. Comment-required and approvals required do not apply. */
   aging?: boolean;
   /** Minutes on an absolute aging transition. */
@@ -1285,6 +1295,8 @@ export interface WorkflowGraph {
   workflowName?: string;
   packaged?: boolean;
   defaultWorkflow?: boolean;
+  /** Workflow role names an admin can choose when restricting a transition. */
+  roles?: string[];
   nodes?: { name?: string }[];
   edges?: WorkflowGraphEdge[];
 }

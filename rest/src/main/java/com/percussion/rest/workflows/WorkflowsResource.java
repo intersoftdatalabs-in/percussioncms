@@ -807,6 +807,81 @@ public class WorkflowsResource {
     }
   }
 
+  @PUT
+  @Path("/{idOrName}/transitions/allowed-role")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Restrict one transition to a single role",
+      description =
+          "Slice 72 Admin. Sets one existing regular transition so only one workflow role may"
+              + " fire it. The transition must currently allow every role. Query `from` is the"
+              + " source step and `label` is the transition label (or trigger). Query `to` is"
+              + " required when more than one transition on the source step shares the label."
+              + " The body is one existing role name. The allow-all marker *ALL* is 409 and does"
+              + " not write. A transition that is already restricted is 409 and keeps its role"
+              + " list. Does not add a second role, clear the restriction, edit step roles, or"
+              + " change the label, destination, comment flag, approval count, or default flag."
+              + " Aging transitions are 400. Packaged default workflows are forbidden (403)."
+              + " The graph shows that one role, and not allow-all, only after success. Jackson"
+              + " root wrap is WorkflowTransitionAllowedRole.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated; returns the graph with allowAllRoles false and one role",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description =
+                "Missing body, from, label, or role, ambiguous label, or the match is aging"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Workflow, step, transition, or role not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description =
+                "Allow-all marker, or the transition is already restricted; nothing was written"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph restrictTransitionToOneRole(
+      @PathParam("idOrName") String idOrName,
+      @QueryParam("from") String fromStep,
+      @QueryParam("label") String label,
+      @QueryParam("to") String toStep,
+      WorkflowTransitionAllowedRole body) {
+    if (body == null || body.getRoleName() == null || body.getRoleName().isBlank()) {
+      throw new WebApplicationException("Workflow transition role body is required", 400);
+    }
+    if (fromStep == null || fromStep.isBlank() || label == null || label.isBlank()) {
+      throw new WebApplicationException("from and label are required", 400);
+    }
+    try {
+      return requireAdaptor()
+          .restrictTransitionToOneRole(
+              uriInfo.getBaseUri(),
+              idOrName,
+              fromStep,
+              label,
+              toStep,
+              body.getRoleName());
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to restrict transition to one role ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @POST
   @Path("/{idOrName}/transitions")
   @Consumes({MediaType.APPLICATION_JSON})
