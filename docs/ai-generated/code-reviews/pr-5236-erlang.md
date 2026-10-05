@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0.
 
 # Pre-push local code review — PR #5236
 
-Independent Erlang re-review after `5cc28b80` (night-issue-prs-erlang). The machine report below is the full `mkd-code-review analyze --format markdown` stdout. Ollama `dev-coder` returned CUDA out-of-memory; machine findings were kept. Preexisting rows do not block.
+Independent Erlang confirmation at HEAD `5056b622` (code still `5cc28b80`; the tip commit is the prior verdict, not a fix). The machine report below is the full `mkd-code-review analyze --format markdown` stdout from this pass (`--pack percussion --gate advisory --git-base origin/main`). Ollama `dev-coder` returned CUDA out-of-memory; machine findings were kept. Preexisting rows do not block. In-diff machine bugs: 0. The return-to-restored-item bug below still blocks.
 
 ## Summary
 
@@ -103,7 +103,7 @@ approve
 
 ## Erlang verdict
 
-**request-changes.** Do not merge. In-diff machine bugs: 0. The first content-item switch after restore is fixed. Returning to the restored item is not.
+**request-changes.** Do not merge. Reconfirmed on this pass: in-diff machine bugs: 0. The first content-item switch after restore is fixed. Returning to the restored item is not. No code changed after `5cc28b80`.
 
 `sameItemReload` is `reloadItemId === itemId && reloadToken > 0` (`WebUI/src/main/ts/contentExplorer/RevisionsPanel.tsx:137`). A successful restore sets both and never clears them (`:215-216`). The shell keeps one `RevisionsPanel` mounted and only changes `itemId` between content items (`WebUI/src/main/ts/contentExplorer/ContentExplorerShell.tsx:4318-4338`); there is no `key`. Folder and empty selection unmount the panel, so they do not hit this.
 
