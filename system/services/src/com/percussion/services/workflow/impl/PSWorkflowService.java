@@ -758,6 +758,13 @@ public class PSWorkflowService
       }
 
       PSWorkflow wf = loadWorkflow(workflowId);
+      // A missing workflow used to NPE here. The content editor preview calls this from a
+      // transaction that joins the caller's, so the NPE marked item-properties rollback-only
+      // after the exception was caught (#5246).
+      if (wf == null || wf.getStates() == null)
+      {
+         return null;
+      }
       for (PSState state : wf.getStates())
       {
          if (stateId.equals(state.getGUID()))

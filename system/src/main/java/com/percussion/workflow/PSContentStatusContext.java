@@ -386,7 +386,7 @@ public class PSContentStatusContext implements IPSContentStatusContext {
       throw new IllegalArgumentException("contentID must be > 0");
     }
     PSComponentSummary summary =
-        PSCmsObjectMgrLocator.getObjectManager().loadComponentSummary(contentID);
+        PSCmsObjectMgrLocator.getObjectManager().loadComponentSummary(contentID, true);
     if (summary == null) {
       throw new PSEntryNotFoundException(ExtensionErrorCodes.NO_RECORDS);
     }

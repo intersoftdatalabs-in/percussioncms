@@ -751,10 +751,15 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
     int nWorkflowAppID =
         localParams.m_contentStatusCtx == null ? 0 : localParams.m_contentStatusCtx.getWorkflowID();
     IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-    boolean isPublic =
-        cms.loadWorkflowState(nWorkflowAppID, contentStateID)
-            .map(IPSStatesContext::getIsValid)
-            .orElse(false);
+    // Id 0 is not a workflow state. The lookup is transactional and joins the caller; a failure
+    // there marks item save rollback-only (#5246).
+    boolean isPublic = false;
+    if (nWorkflowAppID > 0 && contentStateID > 0) {
+      isPublic =
+          cms.loadWorkflowState(nWorkflowAppID, contentStateID)
+              .map(IPSStatesContext::getIsValid)
+              .orElse(false);
+    }
 
     elemParent.setAttribute("isPublic", isPublic ? "y" : "n");
 
@@ -1095,6 +1100,9 @@ public class PSExitAddPossibleTransitionsEx implements IPSResultDocumentProcesso
       throw new IllegalArgumentException("userName may not be null");
     if (roleNameList == null) throw new IllegalArgumentException("roleNameList may not be null");
     if (req == null) throw new IllegalArgumentException("req may not be null");
+    // Check-in and checkout pass a to-state of 0 when the caller has not applied the current
+    // state. Role lookup cannot run; treat it as not in workflow instead of failing the action.
+    if (stateid <= 0) return PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW;
 
     if (!PSCms.canReadInFolders(contentID)) return PSWorkFlowUtils.ASSIGNMENT_TYPE_NONE;
 

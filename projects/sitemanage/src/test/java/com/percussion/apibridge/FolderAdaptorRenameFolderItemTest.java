@@ -19,6 +19,7 @@ package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSCoreItem;
+import com.percussion.rest.errors.BackendException;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.pagemanagement.assembler.IPSRenderAssemblyBridge;
 import com.percussion.pagemanagement.dao.IPSPageDao;
@@ -169,7 +171,7 @@ class FolderAdaptorRenameFolderItemTest {
   }
 
   @Test
-  void renameFolderItemTreatsRollbackOnlyAfterSaveAsSuccess() throws Exception {
+  void renameFolderItemDoesNotSucceedWhenSaveRollsBack() throws Exception {
     PSDataItemSummary source = new PSDataItemSummary();
     source.setId("1-101-7");
     source.setType("percSimpleTextAsset");
@@ -186,7 +188,12 @@ class FolderAdaptorRenameFolderItemTest {
         .thenThrow(
             new org.springframework.transaction.UnexpectedRollbackException("rollback-only"));
 
-    adaptor.renameFolderItem(base, "/Assets/src/item", "qa-renamed");
+    BackendException thrown =
+        assertThrows(
+            BackendException.class,
+            () -> adaptor.renameFolderItem(base, "/Assets/src/item", "qa-renamed"));
+    assertInstanceOf(
+        org.springframework.transaction.UnexpectedRollbackException.class, thrown.getCause());
     verify(core).setTextField("sys_title", "qa-renamed");
     verify(contentService).releaseFromEdit(status, false);
   }

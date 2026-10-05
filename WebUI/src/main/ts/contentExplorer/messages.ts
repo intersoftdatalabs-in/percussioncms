@@ -533,6 +533,8 @@ export const EXPLORER_MSG = {
   ITEM_PROPS_LOADING: "perc.ui.explorer@Loading item properties",
   ITEM_PROPS_NAME: "perc.ui.explorer@Name",
   ITEM_PROPS_DISPLAY_TITLE: "perc.ui.explorer@Display title",
+  ITEM_PROPS_SAVED_DISPLAY_TITLE: "perc.ui.explorer@Saved display title",
+  ITEM_PROPS_CANCEL: "perc.ui.explorer@Cancel",
   ITEM_PROPS_SAVE: "perc.ui.explorer@Save properties",
   ITEM_PROPS_SAVE_SUCCESS: "perc.ui.explorer@Properties saved",
   ITEM_PROPS_READ_ONLY:

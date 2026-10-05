@@ -1297,6 +1297,10 @@ public class FolderAdaptor implements IFolderAdaptor {
     try {
       return contentService.prepareForEdit(id);
     } catch (PSErrorException e) {
+      log.warn(
+          "prepareForEdit failed contentId={} : {}",
+          ((PSLegacyGuid) id).getContentId(),
+          e.getMessage());
 
       String type = isPage ? "page" : "asset";
       PSComponentSummary summary = getItemSummary(((PSLegacyGuid) id).getContentId());
@@ -1979,24 +1983,11 @@ public class FolderAdaptor implements IFolderAdaptor {
           PSPathUtils.fixSiteFolderPath(
               siteDataService, PSPathUtils.toRepositoryPath(itemPath));
 
-      PSDataItemSummary sourceItem;
-      try {
-        sourceItem = (PSDataItemSummary) this.folderHelper.findItem(correctedItemPath);
-      } catch (PSPathNotFoundServiceException | PSNotFoundException e) {
-        throw new FolderNotFoundException(e);
-      }
-      if (sourceItem == null) {
-        throw new FolderNotFoundException();
-      }
-      if (sourceItem.isFolder()) {
-        throw new WebApplicationException(
-            "Use folder rename for folders", Response.Status.CONFLICT);
-      }
-
-      // Listing name is sys_title. Persist via content WS with check-in false so
-      // releaseFromEdit is the only check-in (saveItems checkin=true then
-      // releaseFromEdit marks the wrapping TX rollback-only → HTTP 500 on H2, #4655).
-      persistItemDisplayName(sourceItem, wanted, correctedItemPath, sourceItem.isPage(), null);
+      // Listing name is sys_title. Lookup and save share REQUIRES_NEW so the caller
+      // transaction does not pin CONTENTSTATUS (#4655, #5246). Null display title
+      // leaves the stored title unchanged.
+      persistItemDisplayName(
+          wanted, correctedItemPath, null, "Use folder rename for folders");
     } catch (WebApplicationException e) {
       throw e;
     } catch (PSValidationException e) {
@@ -2093,22 +2084,12 @@ public class FolderAdaptor implements IFolderAdaptor {
       String correctedItemPath =
           PSPathUtils.fixSiteFolderPath(
               siteDataService, PSPathUtils.toRepositoryPath(itemPath));
-      PSDataItemSummary sourceItem;
-      try {
-        sourceItem = (PSDataItemSummary) this.folderHelper.findItem(correctedItemPath);
-      } catch (PSPathNotFoundServiceException | PSNotFoundException e) {
-        throw new FolderNotFoundException(e);
-      }
-      if (sourceItem == null) {
-        throw new FolderNotFoundException();
-      }
-      if (sourceItem.isFolder()) {
-        throw new WebApplicationException(
-            "Use folder properties for folders", Response.Status.CONFLICT);
-      }
       String title = displayTitle == null ? null : displayTitle.trim();
+      // Lookup and checkout share one transaction. The caller REST transaction otherwise
+      // keeps the CONTENTSTATUS row locked, and H2 rejects the REQUIRES_NEW Quick Edit
+      // update on that row (#5246).
       persistItemDisplayName(
-          sourceItem, wanted, correctedItemPath, sourceItem.isPage(), title);
+          wanted, correctedItemPath, title, "Use folder properties for folders");
       return new com.percussion.rest.folders.ItemProperties(itemPath, wanted, title);
     } catch (WebApplicationException e) {
       throw e;
@@ -2132,6 +2113,9 @@ public class FolderAdaptor implements IFolderAdaptor {
       if (e instanceof BackendException be) {
         throw be;
       }
+      if (e instanceof RuntimeException && e.getCause() instanceof BackendException be) {
+        throw be;
+      }
       String msg = PSExceptionUtils.getMessageForLog(e);
       if (msg != null
           && (msg.contains("already exists")
@@ -2144,36 +2128,115 @@ public class FolderAdaptor implements IFolderAdaptor {
   }
 
   /**
-   * Load the core item, set {@code sys_title}, save in a new transaction so
-   * prepareForEdit/loadItems JDBC does not mark the REST TX rollback-only
-   * before save runs (#4655).
+   * Resolve the item, then save {@code sys_title} plus the display title.
+   *
+   * <p>The lookup commits on its own. Leaving {@code findItem} open across Quick Edit deadlocks
+   * H2 (#5246). Content-editor preview ({@code loadItems}) can mark that JPA session
+   * rollback-only after the in-memory {@code PSCoreItem} is already built. The save therefore
+   * runs in a later transaction so a poisoned preview session is not the save commit (#5246 /
+   * #4655).
    */
   private void persistItemDisplayName(
-      PSDataItemSummary sourceItem,
-      String wanted,
-      String correctedItemPath,
-      boolean isPage,
-      String displayTitle)
-      throws BackendException, FolderNotFoundException, PSErrorResultsException {
-    if (transactionManager != null) {
-      TransactionTemplate tt = new TransactionTemplate(transactionManager);
-      tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-      try {
-        tt.execute(
-            status -> {
-              persistItemDisplayNameInTx(
-                  sourceItem, wanted, correctedItemPath, isPage, displayTitle);
-              return null;
-            });
-      } catch (org.springframework.transaction.UnexpectedRollbackException e) {
-        log.warn("rename/item REQUIRES_NEW completed with rollback-only TX (#4655)", e);
-      }
+      String wanted, String correctedItemPath, String displayTitle, String folderConflictMessage)
+      throws Exception {
+    PSDataItemSummary sourceItem = resolveItemCommitted(correctedItemPath, folderConflictMessage);
+    PSCoreItem core = loadItemForProperties(sourceItem);
+    if (transactionManager == null) {
+      saveItemPropertiesFields(sourceItem, core, wanted, correctedItemPath, displayTitle);
       return;
     }
-    persistItemDisplayNameInTx(sourceItem, wanted, correctedItemPath, isPage, displayTitle);
+    TransactionTemplate tt = new TransactionTemplate(transactionManager);
+    tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+    tt.execute(
+        status -> {
+          saveItemPropertiesFields(sourceItem, core, wanted, correctedItemPath, displayTitle);
+          return null;
+        });
   }
 
-  private static String readTextField(PSCoreItem core, String fieldName) {
+  /**
+   * Load the core item. Preview may mark the session rollback-only; the returned item is XML-backed
+   * and stays usable for the save transaction.
+   */
+  private PSCoreItem loadItemForProperties(PSDataItemSummary sourceItem) throws Exception {
+    if (transactionManager == null) {
+      return readCoreItem(sourceItem);
+    }
+    PSCoreItem[] loaded = new PSCoreItem[1];
+    TransactionTemplate tt = new TransactionTemplate(transactionManager);
+    tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+    try {
+      tt.execute(
+          status -> {
+            loaded[0] = readCoreItem(sourceItem);
+            return null;
+          });
+    } catch (org.springframework.transaction.UnexpectedRollbackException e) {
+      if (loaded[0] == null) {
+        throw e;
+      }
+      log.debug(
+          "item properties preview load left the JPA session rollback-only; saving separately");
+    }
+    if (loaded[0] == null) {
+      throw new FolderNotFoundException();
+    }
+    return loaded[0];
+  }
+
+  private PSCoreItem readCoreItem(PSDataItemSummary sourceItem) {
+    boolean isPage = sourceItem.isPage();
+    IPSGuid guid = idMapper.getGuid(sourceItem.getId());
+    boolean loadBinary = isPage || isFileAssetType(sourceItem.getType());
+    List<PSCoreItem> items;
+    try {
+      items =
+          contentService.loadItems(
+              Collections.singletonList(guid), loadBinary, false, false, false);
+    } catch (PSErrorResultsException e) {
+      throw new RuntimeException(e);
+    }
+    if (items == null || items.isEmpty() || items.get(0) == null) {
+      throw new FolderNotFoundException();
+    }
+    return items.get(0);
+  }
+
+  private PSDataItemSummary resolveItemCommitted(
+      String correctedItemPath, String folderConflictMessage) throws Exception {
+    if (transactionManager == null) {
+      try {
+        return resolveItemForProperties(correctedItemPath, folderConflictMessage);
+      } catch (ItemPropertiesTxException e) {
+        rethrowItemPropertiesCause(e);
+        throw e;
+      }
+    }
+    TransactionTemplate tt = new TransactionTemplate(transactionManager);
+    tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+    try {
+      return tt.execute(
+          status -> resolveItemForProperties(correctedItemPath, folderConflictMessage));
+    } catch (ItemPropertiesTxException e) {
+      rethrowItemPropertiesCause(e);
+      throw e;
+    }
+  }
+
+  private static void rethrowItemPropertiesCause(ItemPropertiesTxException wrapped)
+      throws Exception {
+    Throwable cause = wrapped.getCause();
+    if (cause instanceof Exception ex) {
+      throw ex;
+    }
+    throw wrapped;
+  }
+
+  /**
+   * Text stored on the field. {@link PSItemField#getValue()} is an {@code IPSFieldValue}
+   * ({@code PSTextValue}); {@code String.valueOf} on that object is the identity, not the title.
+   */
+  private static String readTextField(PSCoreItem core, String fieldName) throws PSCmsException {
     if (core == null || StringUtils.isBlank(fieldName)) {
       return null;
     }
@@ -2181,28 +2244,42 @@ public class FolderAdaptor implements IFolderAdaptor {
     if (field == null || field.getValue() == null) {
       return null;
     }
-    String v = String.valueOf(field.getValue());
-    return StringUtils.trimToNull(v);
+    return StringUtils.trimToNull(field.getValue().getValueAsString());
   }
 
-  private void persistItemDisplayNameInTx(
-      PSDataItemSummary sourceItem,
-      String wanted,
-      String correctedItemPath,
-      boolean isPage,
-      String displayTitle) {
+  private PSDataItemSummary resolveItemForProperties(
+      String correctedItemPath, String folderConflictMessage) {
     try {
-      IPSGuid guid = idMapper.getGuid(sourceItem.getId());
-      boolean loadBinary = isPage || isFileAssetType(sourceItem.getType());
-      List<PSCoreItem> items =
-          contentService.loadItems(
-              Collections.singletonList(guid), loadBinary, false, false, false);
-      if (items == null || items.isEmpty() || items.get(0) == null) {
+      PSDataItemSummary sourceItem =
+          (PSDataItemSummary) this.folderHelper.findItem(correctedItemPath);
+      if (sourceItem == null) {
         throw new FolderNotFoundException();
       }
+      if (sourceItem.isFolder()) {
+        throw new WebApplicationException(folderConflictMessage, Response.Status.CONFLICT);
+      }
+      return sourceItem;
+    } catch (PSPathNotFoundServiceException | PSNotFoundException e) {
+      throw new FolderNotFoundException(e);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new ItemPropertiesTxException(e);
+    }
+  }
+
+  private void saveItemPropertiesFields(
+      PSDataItemSummary sourceItem,
+      PSCoreItem core,
+      String wanted,
+      String correctedItemPath,
+      String displayTitle) {
+    try {
+      boolean isPage = sourceItem.isPage();
+      IPSGuid guid = idMapper.getGuid(sourceItem.getId());
+      boolean loadBinary = isPage || isFileAssetType(sourceItem.getType());
       PSItemStatus status = prepareForEdit(guid, isPage);
       try {
-        PSCoreItem core = items.get(0);
         core.setTextField("sys_title", wanted);
         if (loadBinary) {
           core.setTextField("filename", wanted);
@@ -2210,22 +2287,17 @@ public class FolderAdaptor implements IFolderAdaptor {
         if (displayTitle != null) {
           core.setTextField("displaytitle", displayTitle);
         }
+        // Preview omits hidden CONTENTSTATUS fields. The modify pipe still writes them, and a
+        // blank sys_workflowid is rejected as NULL WORKFLOWAPPID (#5246).
+        preserveBlankContentStatus(core, guid.getUUID());
         IPSGuid folderId = null;
         String parent = StringUtils.substringBeforeLast(correctedItemPath, "/");
         if (StringUtils.isNotBlank(parent)) {
           folderId = contentService.getIdByPath(parent);
         }
         contentService.saveItems(Collections.singletonList(core), false, false, folderId);
-      } catch (org.springframework.transaction.UnexpectedRollbackException e) {
-        log.warn("rename/item save completed with rollback-only TX (#4655)", e);
       } finally {
-        if (status != null) {
-          try {
-            releaseFromEdit(status);
-          } catch (Exception e) {
-            log.warn("rename/item releaseFromEdit failed", e);
-          }
-        }
+        releaseCheckedOutItem(status);
       }
     } catch (FolderNotFoundException e) {
       throw e;
@@ -2233,6 +2305,45 @@ public class FolderAdaptor implements IFolderAdaptor {
       throw new RuntimeException(e);
     } catch (PSErrorResultsException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  private void releaseCheckedOutItem(PSItemStatus status) {
+    if (status == null) {
+      return;
+    }
+    try {
+      releaseFromEdit(status);
+    } catch (Exception e) {
+      log.warn("rename/item releaseFromEdit failed", e);
+    }
+  }
+
+  /**
+   * Copies committed CONTENTSTATUS values onto blank system fields before the content editor
+   * modify. Refresh sees the Quick Edit commit from {@code updateContentStatusState}.
+   */
+  private void preserveBlankContentStatus(PSCoreItem core, int contentId) {
+    if (!ItemPropertiesSystemFields.needsBackfill(core)) {
+      return;
+    }
+    try {
+      ItemPropertiesSystemFields.preserveBlank(core, getItemSummary(contentId, true));
+    } catch (PSErrorException e) {
+      log.warn(
+          "item properties could not copy content status fields for content id {}", contentId, e);
+    }
+  }
+
+  /**
+   * Carries a checked failure out of {@link TransactionTemplate}, which only propagates runtime
+   * exceptions. Unwrapped before the item-properties catch ladder.
+   */
+  private static final class ItemPropertiesTxException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
+    ItemPropertiesTxException(Exception cause) {
+      super(cause);
     }
   }
 
