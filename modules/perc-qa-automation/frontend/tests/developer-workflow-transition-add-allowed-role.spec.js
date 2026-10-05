@@ -302,7 +302,14 @@ test.describe("Developer workflow add one transition role (#5234)", () => {
       await expect(badge).toContainText(roleA);
       await expect(badge).toContainText(roleB);
       await expect(badge).not.toContainText(/All roles/i);
-      await expect(row.locator('[data-testid^="developer-wf-roles-add-"]')).toHaveCount(0);
+      const spareRoles = graphRoles(opened).filter(
+        (role) =>
+          role.toLowerCase() !== roleA.toLowerCase() &&
+          role.toLowerCase() !== roleB.toLowerCase(),
+      );
+      await expect(row.locator('[data-testid^="developer-wf-roles-add-"]')).toHaveCount(
+        spareRoles.length === 0 ? 0 : 1,
+      );
       expect(await comment.isChecked()).toBe(commentWasChecked);
       await expect(approvals).toHaveAttribute("data-approvals", storedApprovals);
       await expect(
