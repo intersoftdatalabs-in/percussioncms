@@ -463,7 +463,8 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
       defaultWorkflow = true;
       packaged = true;
     }
-    return WorkflowGraphProjector.project(name, packaged, defaultWorkflow, workflow.getStates());
+    return WorkflowGraphProjector.project(
+        name, packaged, defaultWorkflow, workflow.getStates(), workflow.getRoles());
   }
 
   @Override
@@ -568,6 +569,41 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     WorkflowTransitionDefaultFlag.apply(states, fromStep, label, toStep, defaultTransition);
     if (workflow.getStates() == null || workflow.getStates().size() != stepCount) {
       throw new IllegalStateException("Marking a default transition must not delete steps");
+    }
+    workflowService.saveWorkflow(workflow);
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
+  public WorkflowGraph restrictTransitionToOneRole(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String label,
+      String toStep,
+      String roleName) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (StringUtils.isBlank(fromStep) || StringUtils.isBlank(label)) {
+      throw new IllegalArgumentException("from and label are required");
+    }
+    if (StringUtils.isBlank(roleName)) {
+      throw new IllegalArgumentException("role name is required");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    int stepCount = states.size();
+    int transitionCount = countTransitions(states);
+    WorkflowTransitionAllowedRoleLimiter.apply(workflow, fromStep, label, toStep, roleName);
+    if (workflow.getStates() == null || workflow.getStates().size() != stepCount) {
+      throw new IllegalStateException("Restricting a transition must not delete steps");
+    }
+    if (countTransitions(workflow.getStates()) != transitionCount) {
+      throw new IllegalStateException("Restricting a transition must not add or delete transitions");
     }
     workflowService.saveWorkflow(workflow);
     return getWorkflowGraph(baseUri, idOrName);
@@ -1057,6 +1093,29 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
       log.debug("Could not load PSUiWorkflow for graph {}: {}", name, e.getMessage());
       return null;
     }
+  }
+
+  private static int countTransitions(List<PSState> states) {
+    int count = 0;
+    if (states == null) {
+      return 0;
+    }
+    for (PSState state : states) {
+      if (state == null) {
+        continue;
+      }
+      if (state.getTransitions() != null) {
+        count += state.getTransitions().size();
+      }
+      try {
+        if (state.getAgingTransitions() != null) {
+          count += state.getAgingTransitions().size();
+        }
+      } catch (RuntimeException ex) {
+        // Aging is optional on a partial state; a missing list is not a new transition.
+      }
+    }
+    return count;
   }
 
   private void rejectPackagedWorkflow(PSWorkflow workflow) {

@@ -22,6 +22,8 @@ import com.percussion.services.workflow.data.PSAgingTransition;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSTransitionBase;
+import com.percussion.services.workflow.data.PSTransitionRole;
+import com.percussion.services.workflow.data.PSWorkflowRole;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -39,6 +41,15 @@ public final class WorkflowGraphProjector {
 
   public static WorkflowGraph project(
       String workflowName, boolean packaged, boolean defaultWorkflow, List<PSState> states) {
+    return project(workflowName, packaged, defaultWorkflow, states, null);
+  }
+
+  public static WorkflowGraph project(
+      String workflowName,
+      boolean packaged,
+      boolean defaultWorkflow,
+      List<PSState> states,
+      List<PSWorkflowRole> roles) {
     WorkflowGraph graph = new WorkflowGraph();
     graph.setWorkflowName(workflowName);
     graph.setPackaged(packaged);
@@ -65,14 +76,46 @@ public final class WorkflowGraphProjector {
       }
     }
 
+    Map<Long, String> roleNamesById = new LinkedHashMap<>();
+    List<String> roleNames = new ArrayList<>();
+    if (roles != null) {
+      for (PSWorkflowRole role : roles) {
+        if (role == null || StringUtils.isBlank(role.getName()) || role.getGUID() == null) {
+          continue;
+        }
+        String roleName = role.getName().trim();
+        roleNamesById.putIfAbsent(role.getGUID().longValue(), roleName);
+        boolean seenRole = false;
+        for (String existing : roleNames) {
+          if (existing.equalsIgnoreCase(roleName)) {
+            seenRole = true;
+            break;
+          }
+        }
+        if (!seenRole) {
+          roleNames.add(roleName);
+        }
+      }
+    }
+    graph.setRoles(roleNames);
+
     List<WorkflowGraph.Edge> edges = new ArrayList<>();
     Set<String> seenEdges = new LinkedHashSet<>();
     for (PSState state : ordered) {
-      collect(state.getName(), state.getTransitions(), namesById, nodes, seenNames, edges, seenEdges);
+      collect(
+          state.getName(),
+          state.getTransitions(),
+          namesById,
+          roleNamesById,
+          nodes,
+          seenNames,
+          edges,
+          seenEdges);
       collect(
           state.getName(),
           safeAging(state),
           namesById,
+          roleNamesById,
           nodes,
           seenNames,
           edges,
@@ -81,6 +124,25 @@ public final class WorkflowGraphProjector {
     graph.setNodes(nodes);
     graph.setEdges(edges);
     return graph;
+  }
+
+  private static List<String> allowedRoleNames(
+      PSTransition transition, Map<Long, String> roleNamesById) {
+    List<String> names = new ArrayList<>();
+    List<PSTransitionRole> roles = transition.getTransitionRoles();
+    if (roles == null) {
+      return names;
+    }
+    for (PSTransitionRole role : roles) {
+      if (role == null || roleNamesById == null) {
+        continue;
+      }
+      String name = roleNamesById.get(role.getRoleId());
+      if (StringUtils.isNotBlank(name)) {
+        names.add(name);
+      }
+    }
+    return names;
   }
 
   private static List<PSAgingTransition> safeAging(PSState state) {
@@ -96,6 +158,7 @@ public final class WorkflowGraphProjector {
       String fromName,
       List<? extends PSTransitionBase> transitions,
       Map<Long, String> namesById,
+      Map<Long, String> roleNamesById,
       List<WorkflowGraph.Node> nodes,
       Set<String> seenNames,
       List<WorkflowGraph.Edge> edges,
@@ -136,6 +199,10 @@ public final class WorkflowGraphProjector {
             regular.getRequiresComment() == PSTransition.PSWorkflowCommentEnum.REQUIRED);
         edge.setApprovalsRequired(regular.getApprovals());
         edge.setDefaultTransition(regular.isDefaultTransition());
+        edge.setAllowAllRoles(regular.isAllowAllRoles());
+        if (!regular.isAllowAllRoles()) {
+          edge.setAllowedRoles(allowedRoleNames(regular, roleNamesById));
+        }
       }
       edges.add(edge);
     }

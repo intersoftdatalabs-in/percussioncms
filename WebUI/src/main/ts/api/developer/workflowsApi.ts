@@ -538,6 +538,39 @@ export async function setDefaultWorkflow(
  * stepped-workflow editor. 404 when not found; 409 when the workflow is a
  * system workflow or still owns content items. Returns void on success.
  */
+/**
+ * Jackson/JAXB emits a one-element string list as a bare string. Joining that
+ * value throws and unmounts the workflow graph (#5233).
+ */
+function parseWorkflowRoleNames(raw: unknown): string[] | undefined {
+  if (typeof raw === "string") {
+    const name = raw.trim();
+    return name ? [name] : undefined;
+  }
+  if (!Array.isArray(raw)) {
+    return undefined;
+  }
+  return raw.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+}
+
+function parseWorkflowEdges(raw: unknown): NonNullable<WorkflowGraph["edges"]> {
+  const items = Array.isArray(raw) ? raw : [];
+  return items.map((item) => {
+    const edge = asJsonRecord(item);
+    if (!edge) {
+      return {};
+    }
+    const allowedRoles = parseWorkflowRoleNames(edge.allowedRoles);
+    const next = { ...edge } as NonNullable<WorkflowGraph["edges"]>[number];
+    if (allowedRoles) {
+      next.allowedRoles = allowedRoles;
+    } else {
+      delete next.allowedRoles;
+    }
+    return next;
+  });
+}
+
 export function parseWorkflowGraph(payload: unknown): WorkflowGraph {
   const raw = asJsonRecord(payload) ?? {};
   const wrapped = raw.WorkflowGraph;
@@ -546,13 +579,14 @@ export function parseWorkflowGraph(payload: unknown): WorkflowGraph {
       ? (wrapped as Record<string, unknown>)
       : raw;
   const nodesRaw = obj.nodes;
-  const edgesRaw = obj.edges;
+  const roles = parseWorkflowRoleNames(obj.roles);
   return {
     workflowName: typeof obj.workflowName === "string" ? obj.workflowName : undefined,
     packaged: obj.packaged === true,
     defaultWorkflow: obj.defaultWorkflow === true,
+    ...(roles ? { roles } : {}),
     nodes: Array.isArray(nodesRaw) ? (nodesRaw as WorkflowGraph["nodes"]) : [],
-    edges: Array.isArray(edgesRaw) ? (edgesRaw as WorkflowGraph["edges"]) : [],
+    edges: parseWorkflowEdges(obj.edges),
   };
 }
 
@@ -686,6 +720,43 @@ export async function markTransitionAsDefault(
   const payload = await put<unknown>(
     workflowTransitionDefaultPath(idOrName, fromStep, label, toStep),
     { [WORKFLOW_TRANSITION_DEFAULT_ROOT]: { defaultTransition: true } },
+  );
+  return parseWorkflowGraph(payload);
+}
+
+export const WORKFLOW_TRANSITION_ALLOWED_ROLE_ROOT = "WorkflowTransitionAllowedRole";
+
+/** PUT .../transitions/allowed-role?from&label&to */
+export function workflowTransitionAllowedRolePath(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  toStep?: string,
+): string {
+  const key = encodeURIComponent(idOrName);
+  const q = new URLSearchParams();
+  q.set("from", fromStep);
+  q.set("label", label);
+  if (toStep && toStep.trim()) {
+    q.set("to", toStep.trim());
+  }
+  return `${PATHS.WORKFLOWS_ASSOC}/${key}/transitions/allowed-role?${q.toString()}`;
+}
+
+/**
+ * Restrict one allow-all regular transition to a single existing workflow role.
+ * Does not add a second role or clear a restriction.
+ */
+export async function restrictTransitionToOneRole(
+  idOrName: string,
+  fromStep: string,
+  label: string,
+  roleName: string,
+  toStep?: string,
+): Promise<WorkflowGraph> {
+  const payload = await put<unknown>(
+    workflowTransitionAllowedRolePath(idOrName, fromStep, label, toStep),
+    { [WORKFLOW_TRANSITION_ALLOWED_ROLE_ROOT]: { roleName } },
   );
   return parseWorkflowGraph(payload);
 }

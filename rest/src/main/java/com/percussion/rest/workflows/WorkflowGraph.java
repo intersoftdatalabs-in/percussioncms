@@ -37,6 +37,8 @@ public class WorkflowGraph {
   private boolean defaultWorkflow;
   private List<Node> nodes = new ArrayList<>();
   private List<Edge> edges = new ArrayList<>();
+  /** Workflow role names an admin may use when restricting a transition. */
+  private List<String> roles = new ArrayList<>();
 
   public String getWorkflowName() {
     return workflowName;
@@ -78,6 +80,16 @@ public class WorkflowGraph {
     this.edges = edges != null ? edges : new ArrayList<>();
   }
 
+  /** Workflow role names, never {@code null}. */
+  public List<String> getRoles() {
+    return roles;
+  }
+
+  /** @param roles workflow role names; {@code null} clears the list */
+  public void setRoles(List<String> roles) {
+    this.roles = roles != null ? new ArrayList<>(roles) : new ArrayList<>();
+  }
+
   /** One workflow state. */
   @JsonInclude(JsonInclude.Include.NON_NULL)
   public static class Node {
@@ -116,6 +128,16 @@ public class WorkflowGraph {
      * mark.
      */
     private Boolean defaultTransition;
+    /**
+     * Whether every workflow role may fire this regular transition. {@code true} is allow-all.
+     * {@code false} means {@link #allowedRoles} is the enforced list. Omitted on aging edges.
+     */
+    private Boolean allowAllRoles;
+    /**
+     * Role names that may fire this transition when {@link #allowAllRoles} is {@code false}.
+     * Omitted while the transition still allows every role, and omitted on aging edges.
+     */
+    private List<String> allowedRoles;
     /** True when this edge is an aging transition, not a regular workflow transition. */
     private boolean aging;
     /** Minutes on an absolute or repeated aging transition. Omitted for regular edges. */
@@ -171,6 +193,26 @@ public class WorkflowGraph {
     /** @param defaultTransition stored {@code DEFAULTTRANSITION}; {@code null} omits the field */
     public void setDefaultTransition(Boolean defaultTransition) {
       this.defaultTransition = defaultTransition;
+    }
+
+    /** {@code true} when every role may fire this regular transition; {@code null} on aging. */
+    public Boolean getAllowAllRoles() {
+      return allowAllRoles;
+    }
+
+    /** @param allowAllRoles stored allow-all flag; {@code null} omits the field */
+    public void setAllowAllRoles(Boolean allowAllRoles) {
+      this.allowAllRoles = allowAllRoles;
+    }
+
+    /** Enforced role names when the transition is restricted, or {@code null} when allow-all. */
+    public List<String> getAllowedRoles() {
+      return allowedRoles;
+    }
+
+    /** @param allowedRoles enforced names; {@code null} omits the field */
+    public void setAllowedRoles(List<String> allowedRoles) {
+      this.allowedRoles = allowedRoles != null ? new ArrayList<>(allowedRoles) : null;
     }
 
     public boolean isAging() {
