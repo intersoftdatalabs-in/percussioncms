@@ -9,49 +9,71 @@ Licensed under the Apache License, Version 2.0.
 - Persona source: ~/.local/share/mkd/agents/erlang
 - Status: mkd-code-review 0.1.18, pack percussion, gate advisory
 - Base: origin/main
-- Head: 42026fd4efda306ded7093ef497a0b6111c67012
+- Head: 6ed3d066ca819a26322fc4d001c9f1d43f7bc37a
 - Branch: fix/issue-5219-explorer-snippet-template
-- Recommendation: request-changes (machine in-diff bugs: 0; reviewer bug: 1)
+- Recommendation: approve (machine/LLM in-diff bugs: 1, dismissed as stale; reviewer bugs: 0)
 
 ## Pre-push local code review
 
 ## Summary
 
-Machine analysis found **0** finding(s), **0** bug(s).
+Machine analysis found **1** finding(s), **1** bug(s).
 
 ## Scope
 
 - Base: origin/main
 - Head: HEAD
-- Files: 14 analyzed
+- Files: 15 analyzed
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
-approve
+request-changes
 
 ## Gate
 
-- Blocking bugs: 0
+- Blocking bugs: 1
 - May commit/push: yes
 
 ## Issues
 
-_No issues._
+### Issue 1 -- Severity: bug
+
+- File: WebUI/src/main/ts/contentExplorer/views/RelationshipsView.tsx:599
+- Rule: `llm.ollama-dev-coder`
+- Tool: `llm`
+- Description: confirmTemplate posts changeTemplate(relationshipId, slotId, templateId) and does not pass index.
+- Suggestion: Pass the sort rank as the index parameter in the call to changeTemplate.
+- Status: open
 
 ## Erlang findings
 
-Machine short-circuit did not see the slot-index contract. One in-diff bug blocks merge.
+The LLM row is the previous slot-index bug, restated against a line that no longer matches. It does not block.
 
-### Bug — WebUI/src/main/ts/contentExplorer/views/RelationshipsView.tsx:599
+`confirmTemplate` posts the row index, including `0`:
 
-`confirmTemplate` posts `changeTemplate(relationshipId, slotId, templateId)` and does not pass `index`. `changeSlotTemplateSlot` (`WebUI/src/main/ts/api/contentExplorer/slotRelationshipApi.ts:219`) then sends a body with no index. `SlotRelationshipAdaptor.changeTemplateSlot` (`projects/sitemanage/src/main/java/com/percussion/apibridge/SlotRelationshipAdaptor.java:251`) sets `add.setIndex(request.getIndex() == null ? -1 : request.getIndex())`, adds that relationship, and deletes the original id (`:256`). `PSContentWs.mergeAaRelationships` (`system/webservices/src/com/percussion/webservices/content/impl/PSContentWs.java:3257`) treats `-1` as append.
+```601:606:WebUI/src/main/ts/contentExplorer/views/RelationshipsView.tsx
+      const updated = await changeTemplate(
+        gate.relationshipId,
+        gate.slotId,
+        gate.templateId,
+        gate.index,
+      );
+```
 
-For slot order `[A, B, C]`, changing B's template therefore reloads as `[A, C, B']`. The row's `sortRank` is already the 0-based index in that slot (`PSExplorerRelationshipRemoveService` sets `sys_sortrank`). Pass that rank as `index`, including `0` (omitting it is what selects append). `RelationshipsView.test.tsx:947` currently locks the three-argument call (`toHaveBeenCalledWith(71, 5, 8)`); assert the sort rank for a non-last row.
+`gate.index` comes from `relationshipSlotIndex`, which returns `0` for a missing or negative rank and the sort rank otherwise (`changeRelationshipTemplate.ts`). `changeSlotTemplateSlot` JSON-encodes that number, so `0` is not dropped. `SlotRelationshipAdaptor.changeTemplateSlot` uses `-1` only when `index` is null. `PSContentWs.mergeAaRelationships` appends only for `-1` or an index past the slot list. The slot list is slot-scoped, and `sortRank` is the 0-based order inside that slot.
 
-Out of scope for this slice is a move control, not a silent reorder. The product note in this PR says the action does not move the relationship.
+Tests that lock this:
+
+- `RelationshipsView.test.tsx` expects `toHaveBeenCalledWith(71, 5, 8, 0)` before the row updates, and on HTTP 400, 403, and 409.
+- `changeRelationshipTemplate.test.ts` expects index `0` and index `2`.
+- `explorer-change-relationship-template.spec.js` expects the posted body `index` to be `0`.
+
+Cancel, an empty choice, a folder row, and those HTTP errors still leave the previous template. No new filesystem path joins. Product docs, Vitest, the sitemanage `templateId` mapping, and the Playwright surface spec are present. No agent rule files are in the diff.
 
 ### Suggestion
 
-`toEdge` sets `templateId` from `sys_variantid` and leaves `templateName` empty. After a full list reload the row shows the numeric id, not the label just chosen. Not a false success. Resolve the template label on the list if the name must survive reload.
+`toEdge` still leaves `templateName` empty, so a full reload shows the numeric template id until the dialog label is applied again. Not a false success. Not a merge block.
+
+Recommendation: approve. May merge: yes, when required checks on this head are green.
