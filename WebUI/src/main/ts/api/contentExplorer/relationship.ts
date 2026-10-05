@@ -80,6 +80,10 @@ export interface PSExplorerRelationshipEdge {
   category: string;
   dependentId: number;
   label: string;
+  /** Active Assembly slot id. Missing or 0 means the row is not slotted. */
+  slotId?: number;
+  /** Zero-based order inside {@link slotId}. */
+  sortRank?: number;
 }
 
 export interface PSExplorerRelationshipList {

@@ -383,6 +383,20 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@You do not have permission to add this relationship.",
   RELATIONSHIPS_ADD_FAILED_409:
     "perc.ui.explorer@This relationship cannot be added.",
+  RELATIONSHIPS_MOVE_UP: "perc.ui.explorer@Move up",
+  RELATIONSHIPS_MOVE_DOWN: "perc.ui.explorer@Move down",
+  RELATIONSHIPS_MOVE_UP_CONFIRM:
+    "perc.ui.explorer@Move this Active Assembly relationship up one position?",
+  RELATIONSHIPS_MOVE_DOWN_CONFIRM:
+    "perc.ui.explorer@Move this Active Assembly relationship down one position?",
+  RELATIONSHIPS_MOVE_DO: "perc.ui.explorer@Move relationship",
+  RELATIONSHIPS_MOVED: "perc.ui.explorer@Relationship moved.",
+  RELATIONSHIPS_MOVE_FAILED_400:
+    "perc.ui.explorer@The relationship could not be moved.",
+  RELATIONSHIPS_MOVE_FAILED_403:
+    "perc.ui.explorer@You do not have permission to move this relationship.",
+  RELATIONSHIPS_MOVE_FAILED_409:
+    "perc.ui.explorer@This relationship cannot be moved.",
   // US5 P-Search / search panel (FR-017, FR-018, SC-005)
   SEARCH_TITLE: "perc.ui.explorer@Search",
   SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",

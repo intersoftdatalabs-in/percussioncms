@@ -178,12 +178,16 @@ function unwrapEdges(raw: unknown): PSExplorerRelationshipEdge[] {
     if (!Number.isFinite(relationshipId) || relationshipId <= 0) {
       throw Object.assign(new Error("relationshipId is missing"), { status: 400 });
     }
+    const slotId = Number(rec.slotId ?? 0);
+    const sortRank = Number(rec.sortRank ?? 0);
     return {
       relationshipId,
       configName: String(rec.configName ?? ""),
       category: String(rec.category ?? ""),
       dependentId: Number(rec.dependentId ?? 0),
       label: String(rec.label ?? ""),
+      slotId: Number.isFinite(slotId) && slotId > 0 ? slotId : 0,
+      sortRank: Number.isFinite(sortRank) ? sortRank : 0,
     };
   });
 }
@@ -255,6 +259,73 @@ export async function removeRelationshipEdge(
 export function isFolderRelationshipCategory(category: string): boolean {
   const normalized = category.trim().toLowerCase();
   return normalized === "rs_folder" || normalized === "folder";
+}
+
+function isActiveAssemblyToken(value: string): boolean {
+  const token = value.trim().toLowerCase().replace(/[\s_-]+/g, "");
+  return (
+    token === "rsaa" ||
+    token === "aa" ||
+    token === "activeassembly" ||
+    token === "rsactiveassembly" ||
+    token.endsWith("activeassembly")
+  );
+}
+
+/**
+ * Active Assembly rows are the only Explorer edges the editor reorder API can move.
+ * The server category is {@code rs_activeassembly}. Folder membership is never
+ * reorderable, even if a label looks like Active Assembly.
+ */
+export function isActiveAssemblyRelationship(
+  edge: Pick<PSExplorerRelationshipEdge, "category" | "configName">,
+): boolean {
+  if (
+    isFolderRelationshipCategory(edge.category) ||
+    isFolderRelationshipCategory(edge.configName)
+  ) {
+    return false;
+  }
+  if (isActiveAssemblyToken(edge.category ?? "")) {
+    return true;
+  }
+  const config = (edge.configName ?? "").trim().toLowerCase().replace(/[\s_-]+/g, "");
+  return config === "activeassembly" || config === "rsactiveassembly" || config === "rsaa";
+}
+
+function assemblySlotKey(edge: PSExplorerRelationshipEdge): string {
+  const slotId = edge.slotId ?? 0;
+  if (Number.isFinite(slotId) && slotId > 0) {
+    return `slot:${slotId}`;
+  }
+  return "slot:unspecified";
+}
+
+/**
+ * Whether one Active Assembly edge can move one step among siblings in the same slot.
+ * Rows with no slot id share one group so older payloads still move as a single list.
+ */
+export function relationshipMoveEnds(
+  edges: readonly PSExplorerRelationshipEdge[],
+  edge: PSExplorerRelationshipEdge,
+): { up: boolean; down: boolean } {
+  if (!isActiveAssemblyRelationship(edge) || !(edge.relationshipId > 0)) {
+    return { up: false, down: false };
+  }
+  const slot = assemblySlotKey(edge);
+  const siblings = edges.filter(
+    (candidate) =>
+      isActiveAssemblyRelationship(candidate) &&
+      candidate.relationshipId > 0 &&
+      assemblySlotKey(candidate) === slot,
+  );
+  const index = siblings.findIndex(
+    (candidate) => candidate.relationshipId === edge.relationshipId,
+  );
+  if (index < 0 || siblings.length < 2) {
+    return { up: false, down: false };
+  }
+  return { up: index > 0, down: index < siblings.length - 1 };
 }
 
 /** Edges the panel may delete. Folder rows are left in place. */
