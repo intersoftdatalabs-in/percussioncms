@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -58,6 +59,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -1400,6 +1402,260 @@ class PSPublishingDesignRestServiceTest {
             WebApplicationException.class, () -> service.disassociateContentList("1", "5"));
     assertEquals(404, ex.getResponse().getStatus());
     verify(publisherService, never()).deleteEditionContentList(any());
+  }
+
+  @Test
+  void associateContentList_omittedSequence_appendsAfterHighest() throws Exception {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSGuid ctxGuid = mock(IPSGuid.class);
+    when(guidManager.makeGuid(eq("9"), eq(PSTypeEnum.CONTEXT))).thenReturn(ctxGuid);
+    when(publisherService.loadEdition(editionGuid)).thenReturn(mock(IPSEdition.class));
+
+    IPSContentList cl = mock(IPSContentList.class);
+    when(cl.getGUID()).thenReturn(contentListGuid);
+    when(contentListGuid.getUUID()).thenReturn(5);
+    when(cl.getName()).thenReturn("News");
+    when(cl.isLegacy()).thenReturn(false);
+    when(publisherService.loadContentList(contentListGuid)).thenReturn(cl);
+
+    IPSGuid linkId = mock(IPSGuid.class);
+    when(linkId.longValue()).thenReturn(99L);
+    com.percussion.services.publisher.data.PSEditionContentList link =
+        new com.percussion.services.publisher.data.PSEditionContentList(linkId);
+    when(publisherService.createEditionContentList()).thenReturn(link);
+    when(editionGuid.longValue()).thenReturn(1L);
+    when(contentListGuid.longValue()).thenReturn(5L);
+    IPSEditionContentList existing = association(8L, 4);
+    when(publisherService.loadEditionContentLists(editionGuid)).thenReturn(List.of(existing));
+
+    com.percussion.publishingdesign.data.PSEditionContentListAssoc body =
+        new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
+    body.setContentListId("5");
+    body.setDeliveryContextId("9");
+
+    service.associateContentList("1", body);
+    assertEquals(5, link.getSequence());
+  }
+
+  @Test
+  void listEditionContentLists_ordersBySequenceThenId() throws Exception {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    IPSEditionContentList later = association(5L, 2);
+    IPSEditionContentList earlier = association(8L, 1);
+    IPSEditionContentList unsequenced = association(3L, null);
+    when(publisherService.loadEditionContentLists(editionGuid))
+        .thenReturn(List.of(later, unsequenced, earlier));
+    when(publisherService.loadContentList(any(IPSGuid.class))).thenAnswer(invocation -> {
+      IPSGuid id = invocation.getArgument(0);
+      IPSContentList cl = mock(IPSContentList.class);
+      long value = id.longValue();
+      String name = value == 8L ? "Earlier" : value == 5L ? "Middle" : "Last";
+      when(cl.getName()).thenReturn(name);
+      when(cl.isLegacy()).thenReturn(false);
+      return cl;
+    });
+
+    List<PSContentListSummary> rows = service.listEditionContentLists("1");
+    assertEquals(List.of("Earlier", "Middle", "Last"), rows.stream().map(PSContentListSummary::getName).toList());
+  }
+
+  @Test
+  void reorderEditionContentList_swapsAdjacentSequences() throws Exception {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    when(guidManager.makeGuid(eq("8"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    when(contentListGuid.longValue()).thenReturn(8L);
+    service.setEditionRunningJobId(guid -> 0L);
+    IPSEditionContentList first = association(5L, 1);
+    IPSEditionContentList second = association(8L, 2);
+    IPSEditionContentList third = association(9L, 3);
+    when(publisherService.loadEditionContentLists(editionGuid))
+        .thenReturn(List.of(third, first, second));
+
+    com.percussion.publishingdesign.data.PSEditionContentListAssoc body =
+        new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
+    body.setContentListId("8");
+    body.setSequence(2);
+
+    service.reorderEditionContentList("1", "8", body);
+
+    assertEquals(1, first.getSequence());
+    assertEquals(3, second.getSequence());
+    assertEquals(2, third.getSequence());
+    verify(publisherService, never()).saveEditionContentList(first);
+    verify(publisherService).saveEditionContentList(second);
+    verify(publisherService).saveEditionContentList(third);
+  }
+
+  @Test
+  void reorderEditionContentList_nullSequences_becomeOneBasedOrder() throws Exception {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    when(guidManager.makeGuid(eq("8"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    when(contentListGuid.longValue()).thenReturn(8L);
+    service.setEditionRunningJobId(guid -> 0L);
+    IPSEditionContentList lowId = association(5L, null);
+    IPSEditionContentList highId = association(8L, null);
+    when(publisherService.loadEditionContentLists(editionGuid)).thenReturn(List.of(highId, lowId));
+
+    com.percussion.publishingdesign.data.PSEditionContentListAssoc body =
+        new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
+    body.setSequence(0);
+
+    service.reorderEditionContentList("1", "8", body);
+
+    assertEquals(1, highId.getSequence());
+    assertEquals(2, lowId.getSequence());
+    verify(publisherService).saveEditionContentList(highId);
+    verify(publisherService).saveEditionContentList(lowId);
+  }
+
+  @Test
+  void reorderEditionContentList_notAdjacent_400() throws Exception {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    when(contentListGuid.longValue()).thenReturn(5L);
+    service.setEditionRunningJobId(guid -> 0L);
+    IPSEditionContentList first = association(5L, 1);
+    IPSEditionContentList middle = association(8L, 2);
+    IPSEditionContentList last = association(9L, 3);
+    when(publisherService.loadEditionContentLists(editionGuid))
+        .thenReturn(List.of(first, middle, last));
+
+    com.percussion.publishingdesign.data.PSEditionContentListAssoc body =
+        new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
+    body.setSequence(2);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> service.reorderEditionContentList("1", "5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        ex.getMessage()
+            .contains(PSPublishingDesignRestService.CONTENT_LIST_SEQUENCE_NOT_ADJACENT));
+    assertEquals(1, first.getSequence());
+    assertEquals(2, middle.getSequence());
+    assertEquals(3, last.getSequence());
+    verify(publisherService, never()).saveEditionContentList(any());
+  }
+
+  @Test
+  void reorderEditionContentList_endsAndMissingSequence_400() throws Exception {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    when(contentListGuid.longValue()).thenReturn(5L);
+    service.setEditionRunningJobId(guid -> 0L);
+    IPSEditionContentList first = association(5L, 1);
+    IPSEditionContentList last = association(8L, 2);
+    when(publisherService.loadEditionContentLists(editionGuid)).thenReturn(List.of(first, last));
+
+    com.percussion.publishingdesign.data.PSEditionContentListAssoc up =
+        new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
+    up.setSequence(-1);
+    WebApplicationException moveUp =
+        assertThrows(
+            WebApplicationException.class, () -> service.reorderEditionContentList("1", "5", up));
+    assertEquals(400, moveUp.getResponse().getStatus());
+
+    when(guidManager.makeGuid(eq("8"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    when(contentListGuid.longValue()).thenReturn(8L);
+    com.percussion.publishingdesign.data.PSEditionContentListAssoc down =
+        new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
+    down.setSequence(2);
+    WebApplicationException moveDown =
+        assertThrows(
+            WebApplicationException.class, () -> service.reorderEditionContentList("1", "8", down));
+    assertEquals(400, moveDown.getResponse().getStatus());
+
+    WebApplicationException missing =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                service.reorderEditionContentList(
+                    "1", "8", new com.percussion.publishingdesign.data.PSEditionContentListAssoc()));
+    assertEquals(400, missing.getResponse().getStatus());
+    assertTrue(missing.getMessage().contains("sequence is required"));
+    verify(publisherService, never()).saveEditionContentList(any());
+  }
+
+  @Test
+  void reorderEditionContentList_blankId_400() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> service.reorderEditionContentList("1", " ", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(publisherService, never()).loadEditionContentLists(any());
+    verify(publisherService, never()).saveEditionContentList(any());
+  }
+
+  @Test
+  void reorderEditionContentList_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+    com.percussion.publishingdesign.data.PSEditionContentListAssoc body =
+        new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
+    body.setSequence(1);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> service.reorderEditionContentList("1", "5", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains(PSPublishingDesignRestService.DESIGN_WRITE_FORBIDDEN));
+    verify(publisherService, never()).loadEditionContentLists(any());
+    verify(publisherService, never()).saveEditionContentList(any());
+  }
+
+  @Test
+  void reorderEditionContentList_running_409() {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    service.setEditionRunningJobId(guid -> 55L);
+    com.percussion.publishingdesign.data.PSEditionContentListAssoc body =
+        new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
+    body.setSequence(1);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> service.reorderEditionContentList("1", "8", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains(PSPublishingDesignRestService.EDITION_IN_USE));
+    verify(publisherService, never()).loadEditionContentLists(any());
+    verify(publisherService, never()).saveEditionContentList(any());
+  }
+
+  @Test
+  void reorderEditionContentList_missing_404() throws Exception {
+    when(guidManager.makeGuid(eq("1"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    when(contentListGuid.longValue()).thenReturn(5L);
+    service.setEditionRunningJobId(guid -> 0L);
+    IPSEditionContentList present = association(8L, 1);
+    when(publisherService.loadEditionContentLists(editionGuid)).thenReturn(List.of(present));
+
+    com.percussion.publishingdesign.data.PSEditionContentListAssoc body =
+        new com.percussion.publishingdesign.data.PSEditionContentListAssoc();
+    body.setSequence(0);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> service.reorderEditionContentList("1", "5", body));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(publisherService, never()).saveEditionContentList(any());
+  }
+
+  private IPSEditionContentList association(long contentListId, Integer sequence) {
+    IPSEditionContentList link = mock(IPSEditionContentList.class);
+    IPSGuid id = mock(IPSGuid.class);
+    AtomicReference<Integer> stored = new AtomicReference<>(sequence);
+    lenient().when(id.longValue()).thenReturn(contentListId);
+    lenient().when(link.getContentListId()).thenReturn(id);
+    lenient().when(link.getSequence()).thenAnswer(invocation -> stored.get());
+    lenient()
+        .doAnswer(
+            invocation -> {
+              stored.set(invocation.getArgument(0));
+              return null;
+            })
+        .when(link)
+        .setSequence(any());
+    return link;
   }
 
   @Test

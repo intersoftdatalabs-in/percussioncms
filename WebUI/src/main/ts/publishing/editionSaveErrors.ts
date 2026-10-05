@@ -140,3 +140,30 @@ export function mapEditionContentListDisassociateError(err: unknown): string {
     message(MSG.PUBLISH.DESIGN.EDITIONS.REMOVE_FAILED),
   );
 }
+
+/**
+ * Map edition content-list reorder failures to operator-visible text.
+ * HTTP 400 → not an adjacent position; HTTP 403 → forbidden; HTTP 409 → edition in use.
+ * Plain {@link ApiError} objects are not {@code Error} instances — do not use
+ * {@code e.message} or a failed move looks like a generic miss (or success).
+ */
+export function mapEditionContentListReorderError(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
+    }
+    if (err.status === 409) {
+      return formatApiError(err, "Edition is in use");
+    }
+    if (err.status === 400) {
+      return formatApiError(
+        err,
+        message(MSG.PUBLISH.DESIGN.EDITIONS.REORDER_FAILED),
+      );
+    }
+  }
+  return formatApiError(
+    err,
+    message(MSG.PUBLISH.DESIGN.EDITIONS.REORDER_FAILED),
+  );
+}

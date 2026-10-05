@@ -866,6 +866,14 @@ GADGET_DESC_DASHBOARD_CONFIG:
           "perc.ui.publish.design.editions@Remove this content list from the edition? The content list itself is not deleted.",
         REMOVE_FAILED:
           "perc.ui.publish.design.editions@Could not remove the content list from the edition",
+        MOVE_UP: "perc.ui.publish.design.editions@Move up",
+        MOVE_DOWN: "perc.ui.publish.design.editions@Move down",
+        CONFIRM_MOVE_UP:
+          "perc.ui.publish.design.editions@Move this content list up in the edition?",
+        CONFIRM_MOVE_DOWN:
+          "perc.ui.publish.design.editions@Move this content list down in the edition?",
+        REORDER_FAILED:
+          "perc.ui.publish.design.editions@Could not change the content list order",
         COPY_TO_SITE_HEADING: "perc.ui.publish.design.editions@Copy to site",
         TARGET_SITE: "perc.ui.publish.design.editions@Target site",
       },

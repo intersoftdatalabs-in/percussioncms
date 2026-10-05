@@ -94,8 +94,13 @@ export interface SitePropertyDto {
 
 export interface EditionContentListAssoc {
   contentListId: string;
-  deliveryContextId: string;
+  /** Required when associating. Omitted when only the sequence is written. */
+  deliveryContextId?: string;
   assemblyContextId?: string;
+  /**
+   * On associate, stored 1-based sequence. On reorder, the 0-based target
+   * position; it must be adjacent to the current position.
+   */
   sequence?: number;
 }
 
@@ -227,6 +232,25 @@ export async function disassociateContentList(
 ): Promise<void> {
   await del(
     `${designRoot()}/editions/${encodeURIComponent(String(editionId))}/contentlists/${encodeURIComponent(String(contentListId))}`,
+  );
+}
+
+/**
+ * PUT reorder. {@code sequence} is the 0-based target position and must be
+ * adjacent. HTTP 400 when it is not; 403 non-Admin/Designer; 409 edition in use.
+ * Stored association sequences are rewritten 1..n only after success.
+ */
+export async function reorderEditionContentList(
+  editionId: string | number,
+  contentListId: string | number,
+  sequence: number,
+): Promise<void> {
+  await put<unknown>(
+    `${designRoot()}/editions/${encodeURIComponent(String(editionId))}/contentlists/${encodeURIComponent(String(contentListId))}/sequence`,
+    wrapEditionContentList({
+      contentListId: String(contentListId),
+      sequence,
+    }),
   );
 }
 

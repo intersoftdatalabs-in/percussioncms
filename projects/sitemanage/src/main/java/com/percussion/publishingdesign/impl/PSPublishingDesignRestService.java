@@ -115,6 +115,10 @@ public class PSPublishingDesignRestService {
   static final String CONTENT_LIST_IN_USE = "Content list is in use";
   static final String CONTENT_LIST_ALREADY_ASSOCIATED =
       "Content list is already associated with this edition";
+
+  /** Move request was not the previous or next position in the current order. */
+  static final String CONTENT_LIST_SEQUENCE_NOT_ADJACENT =
+      "sequence must be the adjacent position";
   static final String DELIVERY_TYPE_NAME_CONFLICT = "Delivery type name already exists";
   /** Matches {@code PSX_DELIVERY_TYPE.NAME} VARCHAR(50). */
   static final int MAX_DELIVERY_TYPE_NAME_LENGTH = 50;
@@ -401,21 +405,7 @@ public class PSPublishingDesignRestService {
       @PathParam("editionId") String editionId) {
     requireNonBlank(editionId, "editionId");
     try {
-      List<IPSEditionContentList> links =
-          publisherService.loadEditionContentLists(toEditionGuid(editionId));
-      List<PSContentListSummary> out = new ArrayList<>();
-      for (IPSEditionContentList link : links) {
-        if (link.getContentListId() == null) {
-          continue;
-        }
-        try {
-          IPSContentList cl = publisherService.loadContentList(link.getContentListId());
-          out.add(toContentListSummary(cl));
-        } catch (PSNotFoundException ignored) {
-          // skip orphan associations
-        }
-      }
-      return out;
+      return summariesForAssociations(orderedEditionContentLists(toEditionGuid(editionId)));
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
@@ -867,6 +857,8 @@ public class PSPublishingDesignRestService {
       }
       if (body.getSequence() != null) {
         pcl.setSequence(body.getSequence());
+      } else {
+        pcl.setSequence(nextAssociationSequence(existingLinks));
       }
       publisherService.saveEditionContentList(pcl);
       return toContentListSummary(cl);
@@ -906,6 +898,60 @@ public class PSPublishingDesignRestService {
       }
       if (!removed) {
         throw notFound("Association not found");
+      }
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw internalError(e);
+    }
+  }
+
+  /**
+   * Move one association to an adjacent 0-based position. Stored sequences are rewritten to 1..n
+   * in the new order. HTTP 400 when the position is missing or not adjacent; 403 when the caller
+   * cannot write design; 409 while a publish job is running for the edition.
+   */
+  @PUT
+  @Path("/editions/{editionId}/contentlists/{contentListId}/sequence")
+  @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public void reorderEditionContentList(
+      @PathParam("editionId") String editionId,
+      @PathParam("contentListId") String contentListId,
+      PSEditionContentListAssoc body) {
+    requireDesignWrite();
+    requireNonBlank(editionId, "editionId");
+    requireNonBlank(contentListId, "contentListId");
+    if (body == null || body.getSequence() == null) {
+      throw badRequest("sequence is required");
+    }
+    try {
+      IPSGuid edGuid = toEditionGuid(editionId);
+      rejectEditionInUse(edGuid);
+      IPSGuid clGuid = toContentListGuid(contentListId);
+      List<IPSEditionContentList> ordered = orderedEditionContentLists(edGuid);
+      int from = -1;
+      for (int i = 0; i < ordered.size(); i++) {
+        if (ordered.get(i).getContentListId().longValue() == clGuid.longValue()) {
+          from = i;
+          break;
+        }
+      }
+      if (from < 0) {
+        throw notFound("Association not found");
+      }
+      int to = body.getSequence();
+      if (to < 0 || to >= ordered.size() || Math.abs(to - from) != 1) {
+        throw badRequest(CONTENT_LIST_SEQUENCE_NOT_ADJACENT);
+      }
+      IPSEditionContentList moving = ordered.remove(from);
+      ordered.add(to, moving);
+      for (int i = 0; i < ordered.size(); i++) {
+        int want = i + 1;
+        IPSEditionContentList link = ordered.get(i);
+        if (link.getSequence() == null || link.getSequence().intValue() != want) {
+          link.setSequence(want);
+          publisherService.saveEditionContentList(link);
+        }
       }
     } catch (WebApplicationException e) {
       throw e;
@@ -1613,6 +1659,73 @@ public class PSPublishingDesignRestService {
 
   private IPSGuid toContentListGuid(String contentListId) {
     return guidManager.makeGuid(contentListId, PSTypeEnum.CONTENT_LIST);
+  }
+
+  /**
+   * Associations in {@link IPSEditionContentList#compareBySequence} order. Null sequences sort
+   * last, then by content-list id. The publisher query itself is unordered.
+   */
+  private List<IPSEditionContentList> orderedEditionContentLists(IPSGuid editionGuid) {
+    List<IPSEditionContentList> links = publisherService.loadEditionContentLists(editionGuid);
+    List<IPSEditionContentList> ordered = new ArrayList<>();
+    if (links == null) {
+      return ordered;
+    }
+    for (IPSEditionContentList link : links) {
+      if (link != null && link.getContentListId() != null) {
+        ordered.add(link);
+      }
+    }
+    ordered.sort(PSPublishingDesignRestService::compareAssociations);
+    return ordered;
+  }
+
+  /**
+   * Same order as {@link IPSEditionContentList#compareBySequence}: sequence ascending, a missing
+   * sequence last, then content-list id.
+   */
+  static int compareAssociations(IPSEditionContentList left, IPSEditionContentList right) {
+    int leftSeq = left.getSequence() == null ? Integer.MAX_VALUE : left.getSequence();
+    int rightSeq = right.getSequence() == null ? Integer.MAX_VALUE : right.getSequence();
+    int bySequence = Integer.compare(leftSeq, rightSeq);
+    if (bySequence != 0) {
+      return bySequence;
+    }
+    return Long.compare(left.getContentListId().longValue(), right.getContentListId().longValue());
+  }
+
+  private List<PSContentListSummary> summariesForAssociations(List<IPSEditionContentList> links) {
+    List<PSContentListSummary> out = new ArrayList<>();
+    for (IPSEditionContentList link : links) {
+      if (link.getContentListId() == null) {
+        continue;
+      }
+      try {
+        IPSContentList cl = publisherService.loadContentList(link.getContentListId());
+        out.add(toContentListSummary(cl));
+      } catch (PSNotFoundException ignored) {
+        // skip orphan associations
+      }
+    }
+    return out;
+  }
+
+  /** Next 1-based sequence, or 1 when no association has a sequence yet. */
+  private static int nextAssociationSequence(List<IPSEditionContentList> existing) {
+    int next = 1;
+    if (existing == null) {
+      return next;
+    }
+    for (IPSEditionContentList link : existing) {
+      if (link == null || link.getSequence() == null) {
+        continue;
+      }
+      int current = link.getSequence();
+      if (current >= next && current < Integer.MAX_VALUE) {
+        next = current + 1;
+      }
+    }
+    return next;
   }
 
   private static void requireNonBlank(String value, String field) {
