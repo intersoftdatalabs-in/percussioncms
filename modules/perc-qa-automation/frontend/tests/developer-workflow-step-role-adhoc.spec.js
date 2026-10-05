@@ -45,7 +45,9 @@ const {
 const { catalogOpenByExactName } = require("./helpers/developer-catalog-selectors");
 
 const ADHOC_TYPES = ["disabled", "enabled", "anonymous"];
-const PACKAGED = ["Default Workflow", "Simple Workflow", "Local Content"];
+// Installed workflow name is LocalContent. The server also treats the
+// display label "Local Content" as packaged when that is the stored name.
+const PACKAGED = ["Default Workflow", "Simple Workflow", "LocalContent"];
 
 function developerWorkflowsUrl() {
   const q = new URLSearchParams({
