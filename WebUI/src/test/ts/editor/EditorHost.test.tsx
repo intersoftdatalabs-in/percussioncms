@@ -5257,6 +5257,157 @@ describe("EditorHost refuse blank required date (#5225)", () => {
   });
 });
 
+describe("EditorHost refuse blank required link (#5226)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function requiredLinkHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    page?: string;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const page = opts.page ?? "594";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "page", value: page }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "page",
+              label: "Page link",
+              control: "sys_PageLink",
+              dataType: "text",
+              required: true,
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openRequiredLink(element: React.ReactElement): Promise<HTMLInputElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe("594");
+    });
+    return screen.getByTestId("editor-field-page") as HTMLInputElement;
+  }
+
+  it("does not save a blank required link and reloads the previous value", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredLink(requiredLinkHost({ saveFields }));
+    expect(input.getAttribute("data-editor-kind")).toBe("link");
+    expect(input.getAttribute("aria-required")).toBe("true");
+    expect(screen.getByTestId("editor-field-row-page").getAttribute("data-required")).toBe("true");
+    fireEvent.click(screen.getByTestId("editor-link-clear-page"));
+    expect(input.value).toBe("");
+    expect(screen.queryByTestId("editor-link-clear-page")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-page").textContent).toMatch(/required/i);
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(document.activeElement).toBe(screen.getByTestId("editor-field-page"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-field-row-page").getAttribute("data-required")).toBe("true");
+    cleanup();
+    const reloaded = await openRequiredLink(requiredLinkHost({ saveFields }));
+    expect(reloaded.value).toBe("594");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not save when the required link is emptied or only spaces", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredLink(requiredLinkHost({ saveFields }));
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-page").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.change(screen.getByTestId("editor-field-page"), { target: { value: "   " } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe("   ");
+    cleanup();
+    const reloaded = await openRequiredLink(requiredLinkHost({ saveFields }));
+    expect(reloaded.value).toBe("594");
+  });
+
+  it("does not write when Close cancels a blank required link edit", async () => {
+    const saveFields = vi.fn();
+    await openRequiredLink(requiredLinkHost({ saveFields, confirmLeaveUnsaved: () => false }));
+    fireEvent.click(screen.getByTestId("editor-link-clear-page"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe("");
+    expect(screen.getByTestId("editor-field-row-page").getAttribute("data-required")).toBe("true");
+  });
+
+  it("still saves a non-blank required link", async () => {
+    let page = "594";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      page = body.fields.find((f) => f.name === "page")?.value ?? page;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const input = await openRequiredLink(requiredLinkHost({ saveFields, page }));
+    fireEvent.change(input, { target: { value: "//Sites/Example/index" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "page")).toMatchObject({
+      value: "//Sites/Example/index",
+      dataType: "link",
+    });
+    cleanup();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={requiredLinkHost({ saveFields, page })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe(
+        "//Sites/Example/index",
+      );
+    });
+  });
+});
+
 describe("EditorHost page link fields", () => {
   afterEach(() => {
     cleanup();

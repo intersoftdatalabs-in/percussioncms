@@ -82,6 +82,22 @@ describe("collectRequiredFieldErrors", () => {
     );
     expect(errors).toEqual({ start: "This field is required." });
   });
+
+  it("refuses a blank required link and still allows an optional blank link", () => {
+    const errors = collectRequiredFieldErrors(
+      [
+        { name: "page", kind: "link", required: true, value: "   " },
+        { name: "optionalPage", kind: "link", required: false, value: "" },
+        { name: "related", kind: "link", required: true, value: "594" },
+      ],
+      {},
+      "This field is required.",
+    );
+    expect(errors).toEqual({ page: "This field is required." });
+    expect(isEmptyEditorFieldValue("link", "")).toBe(true);
+    expect(isEmptyEditorFieldValue("link", "  ")).toBe(true);
+    expect(isEmptyEditorFieldValue("link", "//Sites/Example/index")).toBe(false);
+  });
 });
 
 describe("firstInvalidEditorFieldName", () => {
