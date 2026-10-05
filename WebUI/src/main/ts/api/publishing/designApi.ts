@@ -333,7 +333,12 @@ export async function createContentList(
   );
 }
 
-/** PUT update. HTTP 403 non-Admin/Designer; 409 duplicate name. */
+/**
+ * PUT update. A description change sends {@code description} only (empty
+ * string clears it) so name, type, generator, legacy URL, and item filter stay
+ * stored. HTTP 400 when the description is longer than 255 characters; 403
+ * non-Admin/Designer; 409 duplicate name when a name is also sent.
+ */
 export async function updateContentList(
   contentListId: string | number,
   body: ContentListSummary,
