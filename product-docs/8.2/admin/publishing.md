@@ -578,7 +578,31 @@ HTTP **403** (not Admin or Designer) and **409** (publishing context name alread
 are shown in the context editor error region — not as a successful save. Create and update
 post a `context` object (`name`, optional `description`). A flat JSON body without that
 root is not saved. Location-scheme save, delivery-type save, and edition save are separate
-Design actions. Copying a publishing context is described below.
+Design actions. Renaming a publishing context is described below and does not change the
+description or move location schemes. Copying a publishing context is also described below.
+
+### Rename a publishing context (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. **Rename context** opens **Rename context**
+(it does not call the server). The form shows the current **description** and does not
+let you change it. Location schemes are not edited. Change **Name**. **Rename context**
+sends `PUT …/sitemanage/publishingdesign/contexts/{contextId}` with a `context` object
+that contains only the new name. Description and the default scheme are omitted, so the
+server leaves those stored. The context id does not change, so location schemes that
+were on the context stay on it.
+
+The **Context** list keeps the previous name until that update succeeds, then shows the
+new name. The location schemes for that context stay listed.
+**Cancel** closes the form and does not call the server. A blank name, or a name longer
+than 50 characters (`RXCONTEXT.CONTEXTNAME`), is rejected in the form and does not call
+the server.
+
+HTTP **400** (name invalid), **403** (not Admin or Designer), and **409** (publishing
+context name already exists) stay in the rename form error region. Those responses do
+not change the name on the list and do not move location schemes. Saving a publishing
+context (which can also change the description), copying one, and deleting one are
+separate actions.
 
 ### Copy a publishing context (Design)
 
@@ -598,7 +622,7 @@ The new name appears in the **Context** list only after that create succeeds.
 HTTP **400** (name missing or too long), **403** (not Admin or Designer), and **409**
 (publishing context name already exists) stay in the copy form error region. Those responses
 do not add the new name to the list and do not move location schemes. Saving a publishing
-context, deleting one, and copying a location scheme are separate actions.
+context, renaming one, deleting one, and copying a location scheme are separate actions.
 
 ### Delete a publishing context (Design)
 

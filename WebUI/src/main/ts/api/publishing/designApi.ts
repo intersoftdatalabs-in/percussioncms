@@ -515,7 +515,12 @@ export async function createContext(
   );
 }
 
-/** PUT update. HTTP 400 overlong name; 403 non-Admin/Designer; 409 duplicate name. */
+/**
+ * PUT update. A rename sends {@code name} only so the description and default
+ * scheme stay stored. Location schemes stay on this context id; this request
+ * does not create or move them. HTTP 400 overlong name; 403 non-Admin/Designer;
+ * 409 duplicate name.
+ */
 export async function updateContext(
   contextId: string | number,
   body: ContextSummary,

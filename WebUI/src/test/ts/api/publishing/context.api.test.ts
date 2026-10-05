@@ -109,6 +109,28 @@ describe("publishing context wire shape", () => {
     expect(updated.description).toBe("edited");
   });
 
+  it("puts a name-only context root on rename", async () => {
+    putMock.mockResolvedValue({
+      context: {
+        contextId: "3",
+        name: "Renamed",
+        description: "Public site",
+        defaultSchemeId: 11,
+      },
+    });
+    const updated = await updateContext("3", { name: "Renamed" });
+    expect(putMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/publishingdesign\/contexts\/3$/),
+      { context: { name: "Renamed" } },
+    );
+    expect(updated).toEqual({
+      contextId: "3",
+      name: "Renamed",
+      description: "Public site",
+      defaultSchemeId: "11",
+    });
+  });
+
   it("wrapContext omits id and default scheme when the copy body does not have them", () => {
     expect(wrapContext({ name: "Publish copy", description: "Public site" })).toEqual({
       context: { name: "Publish copy", description: "Public site" },
