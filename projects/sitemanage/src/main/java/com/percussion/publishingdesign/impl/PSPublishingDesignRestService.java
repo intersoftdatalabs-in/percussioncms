@@ -105,6 +105,10 @@ public class PSPublishingDesignRestService {
 
   static final String EDITION_NAME_TOO_LONG =
       "Edition name must be 100 characters or fewer";
+
+  /** {@link IPSEdition.Priority} is 1 (lowest) through 5 (highest). */
+  static final String EDITION_PRIORITY_OUT_OF_RANGE =
+      "Edition priority must be from 1 to 5";
   static final String CONTENT_LIST_NAME_CONFLICT = "Content list name already exists";
   /** Matches {@code RXCONTENTLIST.NAME} VARCHAR(100). */
   static final int MAX_CONTENT_LIST_NAME_LENGTH = 100;
@@ -276,6 +280,7 @@ public class PSPublishingDesignRestService {
     if (trimmedName.length() > MAX_EDITION_NAME_LENGTH) {
       throw badRequest(EDITION_NAME_TOO_LONG);
     }
+    requireEditionPriority(body.getPriority());
     try {
       requireUniqueEditionName(trimmedName, null);
       IPSEdition edition = publisherService.createEdition();
@@ -300,6 +305,7 @@ public class PSPublishingDesignRestService {
     if (body == null) {
       throw badRequest("body is required");
     }
+    requireEditionPriority(body.getPriority());
     try {
       IPSEdition edition = publisherService.loadEditionModifiable(toEditionGuid(editionId));
       if (!isBlank(body.getName())) {
@@ -1361,6 +1367,7 @@ public class PSPublishingDesignRestService {
   // ---- Mapping helpers ----
 
   private void applyEditionFields(IPSEdition edition, PSEditionSummary body, boolean isCreate) {
+    requireEditionPriority(body.getPriority());
     String trimmedName = body.getName() == null ? null : body.getName().trim();
     if (isBlank(trimmedName)) {
       if (isCreate) {
@@ -1377,7 +1384,8 @@ public class PSPublishingDesignRestService {
     }
     if (body.getPriority() != null) {
       IPSEdition.Priority p =
-          IPSEdition.Priority.findByValue(body.getPriority()).orElse(IPSEdition.Priority.MEDIUM);
+          IPSEdition.Priority.findByValue(body.getPriority())
+              .orElseThrow(() -> badRequest(EDITION_PRIORITY_OUT_OF_RANGE));
       edition.setPriority(p);
     }
     // setName writes the visible display title. Apply it last so site assignment
@@ -2073,6 +2081,16 @@ public class PSPublishingDesignRestService {
       throw conflict(DELIVERY_TYPE_NAME_CONFLICT);
     } catch (PSNotFoundException e) {
       // name is free
+    }
+  }
+
+  /** Null leaves the stored priority. Any other value must be 1 through 5. */
+  private static void requireEditionPriority(Integer priority) {
+    if (priority == null) {
+      return;
+    }
+    if (IPSEdition.Priority.findByValue(priority).isEmpty()) {
+      throw badRequest(EDITION_PRIORITY_OUT_OF_RANGE);
     }
   }
 
