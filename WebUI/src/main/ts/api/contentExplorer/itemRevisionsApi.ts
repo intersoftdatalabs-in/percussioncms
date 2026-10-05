@@ -164,6 +164,19 @@ function parseComment(raw: unknown): ItemAuditComment | null {
   };
 }
 
+/**
+ * A workflow comment with no date, user, type, or text is not history.
+ * CXF sometimes emits an empty comment object; that must not become a row.
+ */
+export function isRecordedAuditComment(comment: ItemAuditComment): boolean {
+  return (
+    comment.comment.trim().length > 0 ||
+    comment.commenter.trim().length > 0 ||
+    comment.commentType.trim().length > 0 ||
+    comment.commentDate.trim().length > 0
+  );
+}
+
 export function unwrapRevisionsSummary(
   payload: unknown,
 ): ItemRevisionsSummary {
@@ -182,7 +195,7 @@ export function unwrapRevisionsSummary(
     .filter((r): r is ItemRevision => r != null);
   const comments = asItemList(comRaw)
     .map(parseComment)
-    .filter((c): c is ItemAuditComment => c != null);
+    .filter((c): c is ItemAuditComment => c != null && isRecordedAuditComment(c));
   return { restorable, currentRevision, revisions, comments };
 }
 

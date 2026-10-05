@@ -26,6 +26,7 @@ import {
   currentRevisionId,
   fetchItemRevisions,
   fetchItemRevisionCompare,
+  isRecordedAuditComment,
   restoreItemRevision,
   type ItemRevisionCompare,
   type ItemRevisionsSummary,
@@ -92,6 +93,16 @@ function compareErrorMessage(err: unknown): string {
     return message(EXPLORER_MSG.REVISIONS_COMPARE_FORBIDDEN);
   }
   return formatApiError(err, message(EXPLORER_MSG.REVISIONS_COMPARE_ERROR));
+}
+
+function historyLoadErrorMessage(err: unknown): string {
+  if (isApiError(err) && err.status === 404) {
+    return message(EXPLORER_MSG.REVISIONS_LOAD_NOT_FOUND);
+  }
+  if (isApiError(err) && err.status === 403) {
+    return message(EXPLORER_MSG.REVISIONS_LOAD_FORBIDDEN);
+  }
+  return formatApiError(err, message(EXPLORER_MSG.REVISIONS_ERROR));
 }
 
 export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
@@ -187,10 +198,7 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
       })
       .catch((err: unknown) => {
         if (!alive) return;
-        const messageText = formatApiError(
-          err,
-          message(EXPLORER_MSG.REVISIONS_ERROR),
-        );
+        const messageText = historyLoadErrorMessage(err);
         if (sameItemReload) {
           setRestoreError(messageText);
           return;
@@ -309,13 +317,16 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
         className={className}
         style={panelStyle}
       >
-        <p role="alert">{state.message}</p>
+        <p role="alert" data-testid="revisions-load-error">
+          {state.message}
+        </p>
       </section>
     );
   }
 
   const { data } = state;
   const headRev = currentRevisionId(data);
+  const auditComments = data.comments.filter(isRecordedAuditComment);
 
   return (
     <section
@@ -548,7 +559,7 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
           </div>
           </>
         )
-      ) : data.comments.length === 0 ? (
+      ) : auditComments.length === 0 ? (
         <p data-testid="revisions-audit-empty">
           {message(EXPLORER_MSG.REVISIONS_AUDIT_EMPTY)}
         </p>
@@ -563,12 +574,12 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
             </tr>
           </thead>
           <tbody>
-            {data.comments.map((c, i) => (
+            {auditComments.map((c, i) => (
               <tr key={`${c.commentDate}-${i}`} data-testid={`audit-row-${i}`}>
-                <td>{c.commentDate}</td>
-                <td>{c.commenter}</td>
-                <td>{c.commentType}</td>
-                <td>{c.comment}</td>
+                <td data-testid={`audit-date-${i}`}>{c.commentDate}</td>
+                <td data-testid={`audit-user-${i}`}>{c.commenter}</td>
+                <td data-testid={`audit-type-${i}`}>{c.commentType}</td>
+                <td data-testid={`audit-comment-${i}`}>{c.comment}</td>
               </tr>
             ))}
           </tbody>
