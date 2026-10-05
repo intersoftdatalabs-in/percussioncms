@@ -161,6 +161,12 @@ async function selectedRowId(page) {
   return selected.first().getAttribute("data-testid");
 }
 
+/** Client routing rewrites spa.jsp?entry=explorer to /cm/app/explorer. */
+async function expectExplorerStays(page) {
+  await expect(page).toHaveURL(/\/cm\/app\/explorer(?:\?|$)|entry=explorer/);
+  await expect(page).not.toHaveURL(/entry=editor|\/cm\/app\/editor/);
+}
+
 test.describe("Explorer open one related item (#5218)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(180_000);
@@ -240,7 +246,7 @@ test.describe("Explorer open one related item (#5218)", () => {
     await expect(page.locator('[data-testid="relationships-open-dialog"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="relationships-opened"]')).toHaveCount(0);
     expect(probes).toEqual([]);
-    await expect(page).toHaveURL(/entry=explorer/);
+    await expectExplorerStays(page);
     await expect(
       page.locator(`[data-testid="${selectionBefore}"]`),
     ).toHaveAttribute("data-selected", "true");
@@ -264,7 +270,7 @@ test.describe("Explorer open one related item (#5218)", () => {
         `HTTP ${status}`,
       );
       await expect(page.locator('[data-testid="relationships-opened"]')).toHaveCount(0);
-      await expect(page).toHaveURL(/entry=explorer/);
+      await expectExplorerStays(page);
       await expect(
         page.locator(`[data-testid="${selectionBefore}"]`),
       ).toHaveAttribute("data-selected", "true");
@@ -284,9 +290,11 @@ test.describe("Explorer open one related item (#5218)", () => {
     await page.locator('[data-testid="relationships-open-confirm"]').click();
     const popup = await popupPromise;
     await expect(page.locator('[data-testid="relationships-opened"]')).toBeVisible();
-    await expect(popup).toHaveURL(/entry=editor/, { timeout: 20_000 });
+    await expect(popup).toHaveURL(/entry=editor|\/cm\/app\/editor/, {
+      timeout: 20_000,
+    });
     await expect(popup).toHaveURL(/contentId=9/);
-    await expect(page).toHaveURL(/entry=explorer/);
+    await expectExplorerStays(page);
     await expect(
       page.locator(`[data-testid="${selectionBefore}"]`),
     ).toHaveAttribute("data-selected", "true");
