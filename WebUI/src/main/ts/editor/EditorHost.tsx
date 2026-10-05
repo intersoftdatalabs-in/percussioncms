@@ -677,18 +677,32 @@ function EditorFieldControl({
       </div>
     );
   }
+  const showTextClear = !locked && row.value.length > 0;
   return (
-    <input
-      className={`${styles.input} ${locked ? styles.readonly : ""}`}
-      data-testid={`editor-field-${row.name}`}
-      data-editor-kind="text"
-      name={row.name}
-      value={row.value}
-      readOnly={locked}
-      aria-invalid={invalid ? true : undefined}
-      aria-required={row.required ? true : undefined}
-      onChange={(e) => onChange(row.name, e.target.value)}
-    />
+    <div className={styles.linkRow}>
+      <input
+        className={`${styles.input} ${locked ? styles.readonly : ""}`}
+        data-testid={`editor-field-${row.name}`}
+        data-editor-kind="text"
+        name={row.name}
+        value={row.value}
+        readOnly={locked}
+        aria-invalid={invalid ? true : undefined}
+        aria-required={row.required ? true : undefined}
+        onChange={(e) => onChange(row.name, e.target.value)}
+      />
+      {showTextClear ? (
+        <button
+          type="button"
+          className={styles.button}
+          data-testid={`editor-text-clear-${row.name}`}
+          aria-label={message(EDITOR_MSG.TEXT_CLEAR)}
+          onClick={() => onChange(row.name, "")}
+        >
+          {message(EDITOR_MSG.TEXT_CLEAR)}
+        </button>
+      ) : null}
+    </div>
   );
 }
 
@@ -1765,6 +1779,35 @@ export function EditorHost({
             : EDITOR_MSG.COMMUNITY_BAD_REQUEST,
         );
       }
+      const textNames = rows
+        .filter((row) => row.kind === "text")
+        .map((row) => row.name);
+      const namedText = Object.keys(mapped.fieldErrors).some((name) =>
+        textNames.includes(name),
+      );
+      const textStatus = saveReason === "forbidden" || saveReason === "badRequest";
+      const textMapped =
+        !html400 &&
+        !long400 &&
+        !number400 &&
+        !linkMapped &&
+        !keywordMapped &&
+        !dateMapped &&
+        !communityMapped &&
+        textStatus &&
+        (namedText ||
+          (Object.keys(mapped.fieldErrors).length === 0 && textNames.length === 1));
+      if (
+        textMapped &&
+        Object.keys(mapped.fieldErrors).length === 0 &&
+        textNames.length === 1
+      ) {
+        mapped.fieldErrors[textNames[0]] = message(
+          saveReason === "forbidden"
+            ? EDITOR_MSG.TEXT_FORBIDDEN
+            : EDITOR_MSG.TEXT_BAD_REQUEST,
+        );
+      }
       if (
         saveReason === "badRequest" &&
         Object.keys(mapped.fieldErrors).length > 0
@@ -1803,7 +1846,11 @@ export function EditorHost({
                               ? EDITOR_MSG.COMMUNITY_FORBIDDEN
                               : communityMapped
                                 ? EDITOR_MSG.COMMUNITY_BAD_REQUEST
-                                : EDITOR_MSG.SAVE_FAILED,
+                                : textMapped && saveReason === "forbidden"
+                                  ? EDITOR_MSG.TEXT_FORBIDDEN
+                                  : textMapped
+                                    ? EDITOR_MSG.TEXT_BAD_REQUEST
+                                    : EDITOR_MSG.SAVE_FAILED,
       );
       setSaveErrorDetail(mapped.banner === fallback ? "" : mapped.banner);
     } finally {
