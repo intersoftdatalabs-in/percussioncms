@@ -523,7 +523,28 @@ discard. The shell posts `POST …/sitemanage/publishingdesign/deliverytypes` (c
 
 HTTP **403** (not Admin or Designer) and **409** (delivery type name already exists) are shown in the
 delivery-type editor error region — not as a successful save. Content-list save and edition save
-are separate Design actions.
+are separate Design actions. Renaming a delivery type is described below and does not change the
+bean name or description.
+
+### Rename a delivery type (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Delivery types**.
+On a delivery type row, **Rename** opens **Rename delivery type** (it does not call the server).
+The form shows the current **bean name** and **description** and does not let you change them.
+Change **Name**. **Rename delivery type** sends
+`PUT …/sitemanage/publishingdesign/deliverytypes/{deliveryTypeId}` with a `deliveryType` object
+that contains only the new name. Bean name, description, and whether unpublishing requires
+assembly are omitted, so the server leaves those stored.
+
+**Delivery types** keeps the previous name until that update succeeds, then shows the new name
+and the same bean name. **Cancel** closes the form and does not call the server. A blank name,
+or a name longer than 50 characters (`PSX_DELIVERY_TYPE.NAME`), is rejected in the form and
+does not call the server.
+
+HTTP **400** (name invalid), **403** (not Admin or Designer), and **409** (delivery type name
+already exists) stay in the rename form error region. Those responses do not change the name
+on the list. Saving a delivery type (which can also change the bean name and description),
+copying a delivery type, and renaming an edition are separate actions.
 
 ### Copy a delivery type (Design)
 
