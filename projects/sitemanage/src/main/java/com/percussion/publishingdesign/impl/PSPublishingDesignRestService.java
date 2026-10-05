@@ -664,7 +664,10 @@ public class PSPublishingDesignRestService {
       if (body.getDescription() != null) {
         t.setDescription(body.getDescription());
       }
-      t.setUnpublishingRequiresAssembly(body.isUnpublishingRequiresAssembly());
+      // Omitted on a name-only rename. Do not clear the stored flag with the primitive default.
+      if (body.isUnpublishingRequiresAssemblySpecified()) {
+        t.setUnpublishingRequiresAssembly(body.isUnpublishingRequiresAssembly());
+      }
       publisherService.saveDeliveryType(t);
       return toDeliveryTypeSummary(t);
     } catch (PSNotFoundException e) {

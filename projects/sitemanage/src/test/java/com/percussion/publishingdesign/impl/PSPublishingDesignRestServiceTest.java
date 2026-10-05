@@ -17,9 +17,11 @@
 package com.percussion.publishingdesign.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -838,6 +840,66 @@ class PSPublishingDesignRestServiceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> service.updateDeliveryType("5", body));
     assertEquals(409, ex.getResponse().getStatus());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setBeanName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setUnpublishingRequiresAssembly(anyBoolean());
+    verify(publisherService, never()).saveDeliveryType(any());
+  }
+
+  @Test
+  void updateDeliveryType_nameOnly_keepsBeanDescriptionAndAssemblyFlag() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.DELIVERY_TYPE))).thenReturn(deliveryTypeGuid);
+    IPSDeliveryType loaded = mock(IPSDeliveryType.class);
+    when(publisherService.loadDeliveryTypeModifiable(deliveryTypeGuid)).thenReturn(loaded);
+    when(publisherService.loadDeliveryType("Renamed")).thenThrow(new PSNotFoundException("free"));
+    when(loaded.getGUID()).thenReturn(deliveryTypeGuid);
+    when(deliveryTypeGuid.getUUID()).thenReturn(5);
+    when(loaded.getName()).thenReturn("Renamed");
+    when(loaded.getBeanName()).thenReturn("sys_fileDeliveryHandler");
+    when(loaded.getDescription()).thenReturn("kept description");
+    when(loaded.isUnpublishingRequiresAssembly()).thenReturn(true);
+
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setName("  Renamed  ");
+    assertFalse(body.isUnpublishingRequiresAssemblySpecified());
+
+    PSDeliveryTypeSummary saved = service.updateDeliveryType("5", body);
+    assertEquals("5", saved.getDeliveryTypeId());
+    assertEquals("Renamed", saved.getName());
+    assertEquals("sys_fileDeliveryHandler", saved.getBeanName());
+    assertEquals("kept description", saved.getDescription());
+    assertTrue(saved.isUnpublishingRequiresAssembly());
+    verify(loaded).setName("Renamed");
+    verify(loaded, never()).setBeanName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setUnpublishingRequiresAssembly(anyBoolean());
+    verify(publisherService).saveDeliveryType(loaded);
+  }
+
+  @Test
+  void updateDeliveryType_explicitAssemblyFlag_isApplied() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.DELIVERY_TYPE))).thenReturn(deliveryTypeGuid);
+    IPSDeliveryType loaded = mock(IPSDeliveryType.class);
+    when(publisherService.loadDeliveryTypeModifiable(deliveryTypeGuid)).thenReturn(loaded);
+    when(publisherService.loadDeliveryType("Renamed")).thenThrow(new PSNotFoundException("free"));
+    when(loaded.getGUID()).thenReturn(deliveryTypeGuid);
+    when(deliveryTypeGuid.getUUID()).thenReturn(5);
+    when(loaded.getName()).thenReturn("Renamed");
+    when(loaded.getBeanName()).thenReturn("sys_fileDeliveryHandler");
+    when(loaded.getDescription()).thenReturn("kept description");
+    when(loaded.isUnpublishingRequiresAssembly()).thenReturn(false);
+
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setName("Renamed");
+    body.setUnpublishingRequiresAssembly(false);
+    assertTrue(body.isUnpublishingRequiresAssemblySpecified());
+
+    PSDeliveryTypeSummary saved = service.updateDeliveryType("5", body);
+    assertFalse(saved.isUnpublishingRequiresAssembly());
+    verify(loaded).setName("Renamed");
+    verify(loaded).setUnpublishingRequiresAssembly(false);
+    verify(publisherService).saveDeliveryType(loaded);
   }
 
   @Test

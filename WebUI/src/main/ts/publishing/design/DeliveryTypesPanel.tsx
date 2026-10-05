@@ -30,6 +30,11 @@ import {
   suggestedDeliveryTypeCopyName,
   validateDeliveryTypeCopyName,
 } from "../deliveryTypeCopy";
+import {
+  buildDeliveryTypeRenameBody,
+  deliveryTypesAfterSuccessfulRename,
+  validateDeliveryTypeRenameName,
+} from "../deliveryTypeRename";
 import { mapDeliveryTypeSaveError } from "../deliveryTypeSaveErrors";
 import { useDirtyForm } from "../dirtyFormContext";
 import {
@@ -49,6 +54,8 @@ export function DeliveryTypesPanel(): React.ReactElement {
   const [creating, setCreating] = useState(false);
   const [copying, setCopying] = useState<DeliveryTypeSummary | null>(null);
   const [copyName, setCopyName] = useState("");
+  const [renaming, setRenaming] = useState<DeliveryTypeSummary | null>(null);
+  const [renameName, setRenameName] = useState("");
   const [name, setName] = useState("");
   const [beanName, setBeanName] = useState("");
   const [description, setDescription] = useState("");
@@ -73,6 +80,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setCreating(true);
     setEditing(null);
     setCopying(null);
+    setRenaming(null);
     setName("");
     setBeanName("");
     setDescription("");
@@ -86,6 +94,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     }
     setCreating(false);
     setEditing(null);
+    setRenaming(null);
     setCopying(item);
     setCopyName(suggestedDeliveryTypeCopyName(item.name));
     setError(null);
@@ -104,8 +113,35 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setCopying(null);
   }
 
+  function openRename(item: DeliveryTypeSummary): void {
+    if (!item.deliveryTypeId) {
+      return;
+    }
+    setCreating(false);
+    setEditing(null);
+    setCopying(null);
+    setRenaming(item);
+    setRenameName(item.name ?? "");
+    setError(null);
+    setDirty(false);
+  }
+
+  function closeRename(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setRenaming(null);
+  }
+
   function openEdit(item: DeliveryTypeSummary): void {
     setCreating(false);
+    setCopying(null);
+    setRenaming(null);
     setEditing(item);
     setName(item.name ?? "");
     setBeanName(item.beanName ?? "");
@@ -121,6 +157,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setDirty(false);
     setCreating(false);
     setEditing(null);
+    setRenaming(null);
   }
 
   async function save(): Promise<void> {
@@ -184,6 +221,39 @@ export function DeliveryTypesPanel(): React.ReactElement {
     }
   }
 
+  async function renameType(): Promise<void> {
+    if (!renaming?.deliveryTypeId || saving) {
+      return;
+    }
+    const validated = validateDeliveryTypeRenameName(renameName);
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    const id = renaming.deliveryTypeId;
+    setSaving(true);
+    setError(null);
+    const previous = items;
+    try {
+      await updateDeliveryType(id, buildDeliveryTypeRenameBody(validated.name));
+      setDirty(false);
+      setRenaming(null);
+      let refreshed: DeliveryTypeSummary[] | null = null;
+      try {
+        refreshed = await listDeliveryTypes();
+      } catch {
+        refreshed = null;
+      }
+      setItems(
+        deliveryTypesAfterSuccessfulRename(refreshed, id, validated.name, previous),
+      );
+    } catch (e) {
+      setError(mapDeliveryTypeSaveError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function remove(id: string): Promise<void> {
     if (!window.confirm(message(MSG.PUBLISH_CONFIRM_DELETE_DESIGN))) {
       return;
@@ -194,6 +264,60 @@ export function DeliveryTypesPanel(): React.ReactElement {
     } catch (e) {
       setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
     }
+  }
+
+  if (renaming) {
+    return (
+      <div data-testid="delivery-type-rename-form">
+        <h3>Rename delivery type</h3>
+        <p>
+          Bean name:{" "}
+          <span data-testid="delivery-type-rename-bean">{renaming.beanName ?? ""}</span>
+        </p>
+        <p>
+          Description:{" "}
+          <span data-testid="delivery-type-rename-description">
+            {renaming.description ?? ""}
+          </span>
+        </p>
+        <div style={formRowStyle}>
+          <label htmlFor="delivery-type-rename-name">* Name</label>
+          <input
+            id="delivery-type-rename-name"
+            value={renameName}
+            onChange={(e) => {
+              setRenameName(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="delivery-type-rename-submit"
+            disabled={saving}
+            onClick={() => void renameType()}
+          >
+            Rename delivery type
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="delivery-type-rename-cancel"
+            disabled={saving}
+            onClick={closeRename}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (copying) {
@@ -341,9 +465,24 @@ export function DeliveryTypesPanel(): React.ReactElement {
             <button type="button" style={buttonStyle} onClick={() => openEdit(t)}>
               {t.name}
             </button>
-            <span style={{ color: "#666" }}>{t.beanName}</span>
+            <span
+              style={{ color: "#666" }}
+              data-testid={
+                t.deliveryTypeId ? `delivery-type-bean-${t.deliveryTypeId}` : undefined
+              }
+            >
+              {t.beanName}
+            </span>
             {t.deliveryTypeId && (
               <>
+                <button
+                  type="button"
+                  style={buttonStyle}
+                  data-testid="delivery-type-rename"
+                  onClick={() => openRename(t)}
+                >
+                  Rename
+                </button>
                 <button
                   type="button"
                   style={buttonStyle}

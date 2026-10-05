@@ -17,6 +17,7 @@
 package com.percussion.publishingdesign.data;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement(name = "deliveryType")
 public class PSDeliveryTypeSummary {
@@ -25,6 +26,11 @@ public class PSDeliveryTypeSummary {
   private String beanName;
   private String description;
   private boolean unpublishingRequiresAssembly;
+  /**
+   * Set only when {@link #setUnpublishingRequiresAssembly(boolean)} runs. A name-only JSON body
+   * omits the flag, so update must not treat the primitive default as an explicit {@code false}.
+   */
+  private boolean unpublishingRequiresAssemblySpecified;
 
   public String getDeliveryTypeId() {
     return deliveryTypeId;
@@ -64,5 +70,12 @@ public class PSDeliveryTypeSummary {
 
   public void setUnpublishingRequiresAssembly(boolean unpublishingRequiresAssembly) {
     this.unpublishingRequiresAssembly = unpublishingRequiresAssembly;
+    this.unpublishingRequiresAssemblySpecified = true;
+  }
+
+  /** True when the request included {@code unpublishingRequiresAssembly}. Not part of the wire document. */
+  @XmlTransient
+  public boolean isUnpublishingRequiresAssemblySpecified() {
+    return unpublishingRequiresAssemblySpecified;
   }
 }

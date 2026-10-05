@@ -419,7 +419,11 @@ export async function createDeliveryType(
   );
 }
 
-/** PUT update. HTTP 403 non-Admin/Designer; 409 duplicate name. */
+/**
+ * PUT update. A rename sends {@code name} only so bean name, description, and
+ * the unpublishing-requires-assembly flag stay stored.
+ * HTTP 400 invalid name; 403 non-Admin/Designer; 409 duplicate name.
+ */
 export async function updateDeliveryType(
   id: string | number,
   body: DeliveryTypeSummary,
