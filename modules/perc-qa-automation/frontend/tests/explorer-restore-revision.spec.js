@@ -21,7 +21,9 @@
  * <p>This is the Explorer panel, not the editor host restore action.
  * Confirm moves the Current marker only after restore succeeds. Cancel,
  * HTTP 403, and HTTP 409 leave the current revision. Folders and an empty
- * selection do not claim a restore.</p>
+ * selection do not claim a restore. After a successful restore, selecting a
+ * different content item loads that item: Compare uses its revision ids, and
+ * a failed load is an error instead of staying on Loading.</p>
  *
  * <p>Tags: {@code @explorer-restore-revision} {@code @explorer-revisions}
  * {@code @explorer}</p>
@@ -72,7 +74,7 @@ function unexpectedConsoleErrors(errors) {
   });
 }
 
-async function stubExplorerList(page) {
+async function stubExplorerList(page, extraChildren = []) {
   // Synthetic row 42 is not a CMS item. Fulfill the selection side-calls
   // so checkout-owner and template menus do not 404/500 on the server.
   await page.route("**/explorer/list-columns**", async (route) => {
@@ -172,8 +174,9 @@ async function stubExplorerList(page) {
               accessLevel: "WRITE",
               leaf: true,
             },
+            ...extraChildren,
           ],
-          childrenCount: 2,
+          childrenCount: 2 + extraChildren.length,
           startIndex: 0,
         },
       }),
@@ -389,6 +392,141 @@ test.describe("modern React Content Explorer — restore one older revision", ()
       await expect(page.locator('[data-testid="explorer-flush-cache-status"]')).toHaveCount(0);
       expect(restoreUrls).toEqual([]);
       expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
+    "after restore, another content item resets compare and a failed load is an error",
+    { tag: ["@explorer-restore-revision", "@explorer-revisions", "@explorer"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      const consoleErrors = [];
+      let restored42 = false;
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
+      });
+      await stubExplorerList(page, [
+        {
+          id: "77",
+          name: "About",
+          path: "/Sites/Demo/About",
+          type: "percPage",
+          category: "page",
+          accessLevel: "WRITE",
+          leaf: true,
+        },
+        {
+          id: "88",
+          name: "Missing",
+          path: "/Sites/Demo/Missing",
+          type: "percPage",
+          category: "page",
+          accessLevel: "WRITE",
+          leaf: true,
+        },
+      ]);
+      await page.route("**/itemmanagement/item/revisions/**", async (route) => {
+        const url = route.request().url();
+        if (url.includes("/revisions/88")) {
+          await route.fulfill({
+            status: 500,
+            contentType: "application/json",
+            body: JSON.stringify({ message: "revisions unavailable" }),
+          });
+          return;
+        }
+        if (url.includes("/revisions/77")) {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              RevisionsSummary: {
+                restorable: true,
+                currentRevision: 12,
+                revisions: [
+                  {
+                    revId: 10,
+                    lastModifiedDate: "2026-02-01",
+                    lastModifier: "Admin",
+                    status: "Draft",
+                  },
+                  {
+                    revId: 12,
+                    lastModifiedDate: "2026-02-02",
+                    lastModifier: "Editor",
+                    status: "Live",
+                  },
+                ],
+                comments: [],
+              },
+            }),
+          });
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(summary(restored42 ? 1 : 2)),
+        });
+      });
+      await page.route("**/itemmanagement/item/restoreRevision/**", async (route) => {
+        restored42 = true;
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: "{}",
+        });
+      });
+
+      await openExplorer(page);
+      await page.locator('[data-testid="detail-row-42"][data-row-kind="item"]').click();
+      await openRevisions(page);
+      await expect(page.locator('[data-testid="revisions-current"]')).toHaveAttribute(
+        "data-current-rev",
+        "2",
+        { timeout: 10_000 },
+      );
+      await page.locator('[data-testid="revisions-restore-1"]').click();
+      await page.locator('[data-testid="revisions-restore-ok"]').click();
+      await expect(page.locator('[data-testid="revisions-current"]')).toHaveAttribute(
+        "data-current-rev",
+        "1",
+        { timeout: 10_000 },
+      );
+
+      await page.locator('[data-testid="detail-row-77"][data-row-kind="item"]').click();
+      await expect(page.locator('[data-testid="revisions-current"]')).toHaveAttribute(
+        "data-current-rev",
+        "12",
+        { timeout: 10_000 },
+      );
+      await expect(page.locator('[data-testid="revisions-compare-left"]')).toHaveValue("10");
+      await expect(page.locator('[data-testid="revisions-compare-right"]')).toHaveValue("12");
+      await expect(page.locator('[data-testid="revisions-restore-confirm"]')).toHaveCount(0);
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="content-explorer-shell"]',
+      });
+
+      await page.locator('[data-testid="detail-row-88"][data-row-kind="item"]').click();
+      await expect(page.locator('[data-testid="revisions-panel"]')).toHaveAttribute(
+        "data-testid-state",
+        "error",
+        { timeout: 10_000 },
+      );
+      await expect(page.locator('[data-testid="revisions-compare-left"]')).toHaveCount(0);
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
+      const noisy = consoleErrors.filter(
+        (text) =>
+          !/Failed to load resource: the server responded with a status of 500/i.test(
+            text,
+          ),
+      );
+      expect(noisy, `console error: ${noisy.join(" | ")}`).toEqual([]);
     },
   );
 });
