@@ -272,7 +272,7 @@ test.describe("Explorer open one related item (#5218)", () => {
         const url = popup.isClosed() ? "" : popup.url();
         expect(url).not.toMatch(/entry=editor/);
         if (!popup.isClosed()) {
-          await popup.close().catch(() => {});
+          await popup.close();
         }
       }
       page.off("popup", onPopup);
