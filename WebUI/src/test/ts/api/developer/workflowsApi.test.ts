@@ -44,10 +44,12 @@ import {
   renameWorkflow,
   setDefaultWorkflow,
   setStepRoleAssignment,
+  setStepRoleAdhoc,
   setStepRoleInbox,
   setStepRoleNotify,
   wrapWorkflowStepRoleAddForWire,
   wrapWorkflowStepRoleAssignmentForWire,
+  wrapWorkflowStepRoleAdhocForWire,
   wrapWorkflowStepRoleInboxForWire,
   wrapWorkflowStepRoleNotifyForWire,
   updateWorkflow,
@@ -684,6 +686,73 @@ describe("workflow step role inbox API (slice 66)", () => {
     );
     expect(body.WorkflowStepRoleInboxWrite).not.toHaveProperty("notify");
     expect(body.WorkflowStepRoleInboxWrite).not.toHaveProperty("assignmentType");
+  });
+});
+
+describe("workflow step role adhoc API (slice 69)", () => {
+  const fetchMock = vi.fn();
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("PUTs adhoc type for one role and does not send notify, inbox, or assignment type", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        WorkflowStepRoleAssignmentList: {
+          assignments: [
+            {
+              stepName: "Draft",
+              roleName: "Author",
+              assignmentType: "ASSIGNEE",
+              notify: true,
+              inbox: true,
+              adhocType: "enabled",
+            },
+          ],
+        },
+      }),
+    );
+    const rows = await setStepRoleAdhoc("Nightly QA", "Draft", {
+      roleName: "Author",
+      adhocType: "enabled",
+    });
+    expect(rows[0].adhocType).toBe("enabled");
+    expect(rows[0].inbox).toBe(true);
+    expect(rows[0].notify).toBe(true);
+    expect(rows[0].assignmentType).toBe("ASSIGNEE");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      `${PATHS.WORKFLOWS_ASSOC}/${encodeURIComponent("Nightly QA")}/steps/${encodeURIComponent("Draft")}/role-adhoc`,
+    );
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("role-inbox");
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("role-notify");
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("role-assignment");
+    const body = JSON.parse(String(init.body)) as {
+      WorkflowStepRoleAdhocWrite: { roleName: string; adhocType: string };
+    };
+    expect(body).toEqual(
+      wrapWorkflowStepRoleAdhocForWire({
+        roleName: "Author",
+        adhocType: "enabled",
+      }),
+    );
+    expect(body.WorkflowStepRoleAdhocWrite).not.toHaveProperty("notify");
+    expect(body.WorkflowStepRoleAdhocWrite).not.toHaveProperty("inbox");
+    expect(body.WorkflowStepRoleAdhocWrite).not.toHaveProperty("assignmentType");
   });
 });
 

@@ -357,6 +357,25 @@ public interface IWorkflowsAdaptor {
       URI baseUri, String idOrName, String stepName, WorkflowStepRoleInboxWrite body);
 
   /**
+   * Set the adhoc type on one Reader or Assignee already assigned to one step (Admin, slice 69).
+   *
+   * <p>Updates the stored adhoc type only ({@code disabled}, {@code enabled}, or {@code
+   * anonymous}). Does not change the assignment type, add or remove roles, or edit notify or
+   * inbox. Packaged and system-default workflows are rejected. Admin and None assignments are not
+   * changed.
+   *
+   * @param stepName existing step name
+   * @param body role name and the new adhoc type
+   * @return the assignment list after the write, never {@code null}
+   * @throws IllegalArgumentException when the role is blank, the type is missing or invalid, or
+   *     the type is unchanged
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or role, 409 when the current type is not Reader or Assignee
+   */
+  WorkflowStepRoleAssignmentList setStepRoleAdhoc(
+      URI baseUri, String idOrName, String stepName, WorkflowStepRoleAdhocWrite body);
+
+  /**
    * Add one existing workflow role onto one step (Admin, slice 63).
    *
    * <p>Not the assignment-type update. The role must already be a workflow role and must not

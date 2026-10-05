@@ -1,7 +1,7 @@
 ---
 id: admin-developer-workflows
 title: Developer Workflows
-description: Browse workflow definitions, create / copy / rename / update / delete workflows, set notify and inbox on a step role, and edit allowed content types from Developer Workflows chrome
+description: Browse workflow definitions, create / copy / rename / update / delete workflows, set notify, inbox, and ad-hoc type on a step role, and edit allowed content types from Developer Workflows chrome
 version: "8.2"
 order: 46
 tags: [admin, developer, workflows]
@@ -25,10 +25,11 @@ aging transition** (interval in minutes), **change that minute interval**,
 **delete one step** that no transition still uses. An Admin can also set
 Reader or Assignee on a role already assigned to a step, turn **notify** on
 or off for one role already on a step, turn **inbox** on or off for one
-Reader or Assignee already on a step, add one existing workflow role onto a
-step, and remove one Reader or Assignee role from a step. Ad-hoc type,
-repeated or system-field aging, and writes on packaged workflows stay outside
-this chrome.
+Reader or Assignee already on a step, set the **ad-hoc type** (disabled,
+enabled, or anonymous) on one Reader or Assignee already on a step, add one
+existing workflow role onto a step, and remove one Reader or Assignee role
+from a step. Approvals required, the default transition, repeated or
+system-field aging, and writes on packaged workflows stay outside this chrome.
 The graph badge says **Packaged workflow** for Default Workflow, Simple
 Workflow, Local Content, and any workflow the server marks as the default;
 other workflows show **Custom workflow**. Missing workflows (`404`) and
@@ -541,8 +542,8 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
   workflow (`PUT .../workflows/{idOrName}/steps/{stepName}/role-assignment`).
   The table updates only after the list reloads. Packaged workflows and the
   system default are `403`. Admin or None roles are `409` and are not changed.
-  That call does not change notify or inbox. Ad-hoc type, and repeated or
-  system-field aging, stay outside this chrome.
+  That call does not change notify, inbox, or ad-hoc type. Approvals required
+  and repeated or system-field aging stay outside this chrome.
 - Turn notify on or off for one role already assigned to one step of a custom
   workflow (`PUT .../workflows/{idOrName}/steps/{stepName}/role-notify`). The
   table shows the stored flag only after the list reloads. Packaged workflows
@@ -556,6 +557,15 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
   system default are `403`. An Admin or None role is `409` and is not changed.
   An unchanged flag, a blank role, or a missing inbox value is `400`. A missing
   workflow, step, or role is `404`. Assignment type and notify are not edited.
+- Set the ad-hoc type on one Reader or Assignee already assigned to one step
+  of a custom workflow
+  (`PUT .../workflows/{idOrName}/steps/{stepName}/role-adhoc`). Allowed values
+  are disabled, enabled, and anonymous. The table shows the stored type only
+  after the list reloads. Packaged workflows and the system default are `403`.
+  An Admin or None role is `409` and is not changed. An unchanged type, a blank
+  role, or any other value is `400`. A missing workflow, step, or role is
+  `404`. A role that is not on the step is not added. Assignment type, notify,
+  and inbox are not edited.
 - Changing the minute interval on one existing absolute
   aging transition is
   `PUT .../workflows/{idOrName}/aging-transitions/interval`. Deleting that
@@ -580,10 +590,11 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Delete workflow | `DELETE /services/workflows/{idOrName}` (Admin; system workflows and item owners return `409`) |
 | Create step | `POST /services/workflows/{idOrName}/steps` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
 | Update step | `PUT /services/workflows/{idOrName}/steps/{stepName}` (`WorkflowStepWrite` wrap; Admin; packaged workflows `403`) |
-| List assignment types | `GET /services/workflows/{idOrName}/role-assignments` (Admin; every assigned role, including Reader, plus stored `notify` and `inbox`; missing workflow `404`) |
+| List assignment types | `GET /services/workflows/{idOrName}/role-assignments` (Admin; every assigned role, including Reader, plus stored `notify`, `inbox`, and `adhocType`; missing workflow `404`) |
 | Set assignment type | `PUT /services/workflows/{idOrName}/steps/{stepName}/role-assignment` (`WorkflowStepRoleAssignmentWrite` wrap: `roleName` and `assignmentType` of `READER` or `ASSIGNEE`; Admin; one role already on that step; does not rename the step or replace the role list; packaged or system default `403`; Admin or None current type `409`; unchanged or invalid type `400`; missing workflow, step, or role `404`) |
 | Set notify | `PUT /services/workflows/{idOrName}/steps/{stepName}/role-notify` (`WorkflowStepRoleNotifyWrite` wrap: `roleName` and `notify`; Admin; one role already on that step; updates `ISNOTIFYON` only; does not change assignment type or inbox; packaged or system default `403`; unchanged flag, blank role, or missing notify `400`; missing workflow, step, or role `404`) |
 | Set inbox | `PUT /services/workflows/{idOrName}/steps/{stepName}/role-inbox` (`WorkflowStepRoleInboxWrite` wrap: `roleName` and `inbox`; Admin; one Reader or Assignee already on that step; updates `SHOWININBOX` only; does not change assignment type or notify; packaged or system default `403`; Admin or None `409`; unchanged flag, blank role, or missing inbox `400`; missing workflow, step, or role `404`) |
+| Set ad-hoc type | `PUT /services/workflows/{idOrName}/steps/{stepName}/role-adhoc` (`WorkflowStepRoleAdhocWrite` wrap: `roleName` and `adhocType` of `disabled`, `enabled`, or `anonymous`; Admin; one Reader or Assignee already on that step; updates the adhoc type only; does not change assignment type, notify, or inbox; packaged or system default `403`; Admin or None `409`; unchanged type, blank role, or any other value `400`; missing workflow, step, or role `404`; a role that is not on the step is not added) |
 | Add one role | `POST /services/workflows/{idOrName}/steps/{stepName}/roles` (`WorkflowStepRoleAdd` wrap: `roleName` and `assignmentType` of `READER` or `ASSIGNEE`; Admin; role must already exist on the workflow and must not already be on that step; notify and inbox stay at entity defaults; does not rename the step; packaged or system default `403`; role already on the step `409`; blank role or other type `400`; missing workflow, step, or role `404`) |
 | Remove one role | `DELETE /services/workflows/{idOrName}/steps/{stepName}/roles/{roleName}` (Admin; one Reader or Assignee already on that step; other steps keep the role; does not rename the step or edit notify and inbox; packaged or system default `403`; Admin or None `409`; blank step or role `400`; missing workflow, step, or role `404`) |
 | Read graph | `GET /services/workflows/{idOrName}/graph` (Admin; states and transitions; `packaged` true for stock or default workflows) |

@@ -15,7 +15,7 @@ import { unwrapNamedObjectRefList } from "./contentTypesApi";
 
 /** Honest design gaps for the Developer SY-04 browse surface (not full workflow admin). */
 export const WORKFLOW_DESIGN_GAPS: string[] = [
-  "Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Ad-hoc type and repeated or system-field aging stay outside this surface.",
+  "Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Approvals required, the default transition, and repeated or system-field aging stay outside this surface.",
 ];
 
 /** Known envelope keys for list payloads (PSUiWorkflowList @JsonRootName + historical aliases). */
@@ -949,6 +949,38 @@ export async function setStepRoleInbox(
   const payload = await put<unknown>(
     `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}/role-inbox`,
     wrapWorkflowStepRoleInboxForWire(body),
+  );
+  return parseStepRoleAssignments(payload);
+}
+
+export const WORKFLOW_STEP_ROLE_ADHOC_ROOT = "WorkflowStepRoleAdhocWrite";
+
+export type WorkflowStepRoleAdhocWriteBody = {
+  roleName: string;
+  adhocType: string;
+};
+
+export function wrapWorkflowStepRoleAdhocForWire(
+  body: WorkflowStepRoleAdhocWriteBody,
+): Record<string, WorkflowStepRoleAdhocWriteBody> {
+  return { [WORKFLOW_STEP_ROLE_ADHOC_ROOT]: body };
+}
+
+/**
+ * PUT /services/workflows/{id}/steps/{step}/role-adhoc — adhoc type for one
+ * Reader or Assignee already on the step. Not PUT role-inbox. Assignment type,
+ * notify, and inbox are not sent.
+ */
+export async function setStepRoleAdhoc(
+  idOrName: string,
+  stepName: string,
+  body: WorkflowStepRoleAdhocWriteBody,
+): Promise<WorkflowStepRoleAssignment[]> {
+  const key = encodeURIComponent(idOrName);
+  const step = encodeURIComponent(stepName);
+  const payload = await put<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/steps/${step}/role-adhoc`,
+    wrapWorkflowStepRoleAdhocForWire(body),
   );
   return parseStepRoleAssignments(payload);
 }

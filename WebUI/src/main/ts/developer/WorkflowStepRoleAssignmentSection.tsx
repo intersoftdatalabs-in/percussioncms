@@ -21,6 +21,7 @@ import {
   addStepRole,
   listStepRoleAssignments,
   removeStepRole,
+  setStepRoleAdhoc,
   setStepRoleAssignment,
   setStepRoleInbox,
   setStepRoleNotify,
@@ -70,6 +71,16 @@ import {
   parseInboxChoice,
   storedInbox,
 } from "./workflowStepRoleInbox";
+import {
+  ADHOC_TYPES,
+  applyAdhocAfterReload,
+  adhocRoleRows,
+  findAdhocRow,
+  isAdhocChangeReady,
+  normalizeAdhocType,
+  storedAdhoc,
+  type AdhocType,
+} from "./workflowStepRoleAdhoc";
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
@@ -167,6 +178,35 @@ function inboxErrorFallback(err: unknown): string {
   return DEV_MSG.WF_ROLE_INBOX_ERROR;
 }
 
+function adhocErrorFallback(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return DEV_MSG.WF_ROLE_ADHOC_FORBIDDEN;
+    }
+    if (err.status === 409) {
+      return DEV_MSG.WF_ROLE_ADHOC_CONFLICT;
+    }
+    if (err.status === 400) {
+      return DEV_MSG.WF_ROLE_ADHOC_BAD;
+    }
+    if (err.status === 404) {
+      return DEV_MSG.WF_ROLE_ADHOC_MISSING;
+    }
+  }
+  return DEV_MSG.WF_ROLE_ADHOC_ERROR;
+}
+
+function adhocLabel(value: string | undefined): string {
+  const type = normalizeAdhocType(value);
+  if (type === "enabled") {
+    return DEV_MSG.WF_ROLE_ADHOC_ENABLED;
+  }
+  if (type === "anonymous") {
+    return DEV_MSG.WF_ROLE_ADHOC_ANONYMOUS;
+  }
+  return DEV_MSG.WF_ROLE_ADHOC_DISABLED;
+}
+
 /**
  * Set Reader or Assignee on one role already assigned to one step.
  * The table shows the stored type only after a successful reload.
@@ -210,6 +250,12 @@ export function WorkflowStepRoleAssignmentSection({
   const [inboxBusy, setInboxBusy] = useState(false);
   const [inboxError, setInboxError] = useState<string | null>(null);
   const [inboxNotice, setInboxNotice] = useState<string | null>(null);
+  const [adhocStep, setAdhocStep] = useState("");
+  const [adhocRole, setAdhocRole] = useState("");
+  const [nextAdhoc, setNextAdhoc] = useState<AdhocType>("disabled");
+  const [adhocBusy, setAdhocBusy] = useState(false);
+  const [adhocError, setAdhocError] = useState<string | null>(null);
+  const [adhocNotice, setAdhocNotice] = useState<string | null>(null);
 
   const canOffer = canOfferStepRoleAssignment({
     name: workflowName,
@@ -245,6 +291,11 @@ export function WorkflowStepRoleAssignmentSection({
     setNextInbox(false);
     setInboxError(null);
     setInboxNotice(null);
+    setAdhocStep("");
+    setAdhocRole("");
+    setNextAdhoc("disabled");
+    setAdhocError(null);
+    setAdhocNotice(null);
     listStepRoleAssignments(workflowName)
       .then((loaded) => {
         if (cancelled) {
@@ -276,6 +327,12 @@ export function WorkflowStepRoleAssignmentSection({
           setInboxStep(inboxFirst.stepName);
           setInboxRole(inboxFirst.roleName);
           setNextInbox(storedInbox(inboxFirst));
+        }
+        const adhocFirst = adhocRoleRows(next)[0];
+        if (adhocFirst?.stepName && adhocFirst.roleName) {
+          setAdhocStep(adhocFirst.stepName);
+          setAdhocRole(adhocFirst.roleName);
+          setNextAdhoc(storedAdhoc(adhocFirst));
         }
       })
       .catch((err: unknown) => {
@@ -364,6 +421,28 @@ export function WorkflowStepRoleAssignmentSection({
   const currentInboxOn = storedInbox(currentInbox);
   const inboxReady =
     canOffer && !!currentInbox && isInboxChangeReady(currentInboxOn, nextInbox);
+  const adhocRows = useMemo(() => adhocRoleRows(rows), [rows]);
+  const adhocSteps = useMemo(() => {
+    const names: string[] = [];
+    for (const row of adhocRows) {
+      const name = (row.stepName ?? "").trim();
+      if (name && !names.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
+        names.push(name);
+      }
+    }
+    return names;
+  }, [adhocRows]);
+  const adhocRolesForStep = useMemo(
+    () =>
+      adhocRows.filter(
+        (row) => (row.stepName ?? "").trim().toLowerCase() === adhocStep.trim().toLowerCase(),
+      ),
+    [adhocRows, adhocStep],
+  );
+  const currentAdhoc = findAdhocRow(rows, adhocStep, adhocRole);
+  const currentAdhocType = storedAdhoc(currentAdhoc);
+  const adhocReady =
+    canOffer && !!currentAdhoc && isAdhocChangeReady(currentAdhocType, nextAdhoc);
 
   function chooseStep(nextStep: string): void {
     setStepName(nextStep);
@@ -439,6 +518,31 @@ export function WorkflowStepRoleAssignmentSection({
     setNextInbox(currentInboxOn);
     setInboxError(null);
     setInboxNotice(null);
+  }
+
+  function chooseAdhocStep(nextStep: string): void {
+    setAdhocStep(nextStep);
+    setAdhocError(null);
+    setAdhocNotice(null);
+    const role = adhocRows.find(
+      (row) => (row.stepName ?? "").trim().toLowerCase() === nextStep.trim().toLowerCase(),
+    );
+    const name = role?.roleName ?? "";
+    setAdhocRole(name);
+    setNextAdhoc(storedAdhoc(role));
+  }
+
+  function chooseAdhocRole(nextRole: string): void {
+    setAdhocRole(nextRole);
+    setAdhocError(null);
+    setAdhocNotice(null);
+    setNextAdhoc(storedAdhoc(findAdhocRow(rows, adhocStep, nextRole)));
+  }
+
+  function cancelAdhoc(): void {
+    setNextAdhoc(currentAdhocType);
+    setAdhocError(null);
+    setAdhocNotice(null);
   }
 
   function chooseAddStep(nextStep: string): void {
@@ -638,6 +742,43 @@ export function WorkflowStepRoleAssignmentSection({
     }
   }
 
+  async function confirmAdhoc(): Promise<void> {
+    if (!canOffer || adhocBusy || !adhocReady) {
+      return;
+    }
+    const step = adhocStep.trim();
+    const role = adhocRole.trim();
+    const requested = normalizeAdhocType(nextAdhoc);
+    setAdhocBusy(true);
+    setAdhocError(null);
+    setAdhocNotice(null);
+    try {
+      await setStepRoleAdhoc(workflowName, step, {
+        roleName: role,
+        adhocType: requested,
+      });
+    } catch (err: unknown) {
+      setAdhocError(panelErrMsg(err, adhocErrorFallback(err)));
+      setAdhocBusy(false);
+      return;
+    }
+    try {
+      const reloaded = await listStepRoleAssignments(workflowName);
+      const applied = applyAdhocAfterReload(rows, reloaded, step, role, requested);
+      if (!applied.accepted) {
+        setAdhocError(DEV_MSG.WF_ROLE_ADHOC_ERROR);
+        return;
+      }
+      setRows(applied.rows);
+      setNextAdhoc(requested);
+      setAdhocNotice(DEV_MSG.WF_ROLE_ADHOC_SAVED);
+    } catch (err: unknown) {
+      setAdhocError(panelErrMsg(err, DEV_MSG.WF_ROLE_ASSIGN_LOAD_ERROR));
+    } finally {
+      setAdhocBusy(false);
+    }
+  }
+
   async function confirm(): Promise<void> {
     if (!canOffer || busy || !ready) {
       return;
@@ -707,6 +848,7 @@ export function WorkflowStepRoleAssignmentSection({
                 <th style={{ padding: "8px" }}>{DEV_MSG.WF_ROLE_ASSIGN_TYPE}</th>
                 <th style={{ padding: "8px" }}>{DEV_MSG.WF_ROLE_NOTIFY_FLAG}</th>
                 <th style={{ padding: "8px" }}>{DEV_MSG.WF_ROLE_INBOX_FLAG}</th>
+                <th style={{ padding: "8px" }}>{DEV_MSG.WF_ROLE_ADHOC_FLAG}</th>
               </tr>
             </thead>
             <tbody>
@@ -738,6 +880,13 @@ export function WorkflowStepRoleAssignmentSection({
                     data-inbox={storedInbox(row) ? "true" : "false"}
                   >
                     {storedInbox(row) ? DEV_MSG.WF_ROLE_INBOX_ON : DEV_MSG.WF_ROLE_INBOX_OFF}
+                  </td>
+                  <td
+                    style={{ padding: "8px" }}
+                    data-testid={`developer-wf-role-adhoc-${i}`}
+                    data-adhoc={storedAdhoc(row)}
+                  >
+                    {adhocLabel(row.adhocType)}
                   </td>
                 </tr>
               ))}
@@ -1096,6 +1245,127 @@ export function WorkflowStepRoleAssignmentSection({
               }}
             >
               {DEV_MSG.WF_ROLE_INBOX_CANCEL}
+            </button>
+          </div>
+        </div>
+      ) : null}
+      {canOffer && adhocRows.length > 0 ? (
+        <div data-testid="developer-wf-role-adhoc" style={{ marginTop: "16px" }}>
+          <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.WF_ROLE_ADHOC_TITLE}</h3>
+          <p style={{ color: catalogColors.muted, fontSize: "0.9rem", margin: "0 0 8px" }}>
+            {DEV_MSG.WF_ROLE_ADHOC_HINT}
+          </p>
+          {adhocError ? (
+            <div
+              role="alert"
+              data-testid="developer-wf-role-adhoc-error"
+              style={{ ...errorAlert, marginBottom: "8px" }}
+            >
+              {adhocError}
+            </div>
+          ) : null}
+          {adhocNotice ? (
+            <div
+              role="status"
+              aria-live="polite"
+              data-testid="developer-wf-role-adhoc-notice"
+              style={{ color: catalogColors.accent, marginBottom: "8px" }}
+            >
+              {adhocNotice}
+            </div>
+          ) : null}
+          <label htmlFor="wf-role-adhoc-step" style={{ display: "block", marginBottom: 4 }}>
+            {DEV_MSG.WF_COL_STEP}
+          </label>
+          <select
+            id="wf-role-adhoc-step"
+            data-testid="developer-wf-role-adhoc-step"
+            style={inputStyle}
+            value={adhocStep}
+            disabled={adhocBusy}
+            onChange={(e) => chooseAdhocStep(e.target.value)}
+            aria-label={DEV_MSG.WF_COL_STEP}
+          >
+            {adhocSteps.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="wf-role-adhoc-role" style={{ display: "block", margin: "8px 0 4px" }}>
+            {DEV_MSG.WF_COL_ROLES}
+          </label>
+          <select
+            id="wf-role-adhoc-role"
+            data-testid="developer-wf-role-adhoc-role"
+            style={inputStyle}
+            value={adhocRole}
+            disabled={adhocBusy}
+            onChange={(e) => chooseAdhocRole(e.target.value)}
+            aria-label={DEV_MSG.WF_COL_ROLES}
+          >
+            {adhocRolesForStep.map((row) => (
+              <option key={row.roleName} value={row.roleName}>
+                {row.roleName}
+              </option>
+            ))}
+          </select>
+          <label htmlFor="wf-role-adhoc-value" style={{ display: "block", margin: "8px 0 4px" }}>
+            {DEV_MSG.WF_ROLE_ADHOC_FLAG}
+          </label>
+          <select
+            id="wf-role-adhoc-value"
+            data-testid="developer-wf-role-adhoc-value"
+            style={inputStyle}
+            value={normalizeAdhocType(nextAdhoc)}
+            disabled={adhocBusy}
+            onChange={(e) => {
+              setNextAdhoc(normalizeAdhocType(e.target.value));
+              if (adhocError) {
+                setAdhocError(null);
+              }
+            }}
+            aria-label={DEV_MSG.WF_ROLE_ADHOC_FLAG}
+          >
+            {ADHOC_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {adhocLabel(type)}
+              </option>
+            ))}
+          </select>
+          <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+            <button
+              type="button"
+              data-testid="developer-wf-role-adhoc-confirm"
+              disabled={adhocBusy || !adhocReady}
+              onClick={() => void confirmAdhoc()}
+              style={{
+                background:
+                  adhocBusy || !adhocReady ? catalogColors.disabled : catalogColors.accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                padding: "8px 14px",
+                font: "inherit",
+                cursor: adhocBusy || !adhocReady ? "not-allowed" : "pointer",
+              }}
+            >
+              {adhocBusy ? DEV_MSG.WF_ROLE_ADHOC_BUSY : DEV_MSG.WF_ROLE_ADHOC_CONFIRM}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-wf-role-adhoc-cancel"
+              disabled={adhocBusy}
+              onClick={cancelAdhoc}
+              style={{
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                padding: "8px 14px",
+                font: "inherit",
+              }}
+            >
+              {DEV_MSG.WF_ROLE_ADHOC_CANCEL}
             </button>
           </div>
         </div>

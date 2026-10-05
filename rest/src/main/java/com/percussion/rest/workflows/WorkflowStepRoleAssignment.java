@@ -25,10 +25,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
  *
  * <p>{@code assignmentType} is the enum name ({@code READER}, {@code ASSIGNEE}, {@code ADMIN}, or
  * {@code NONE}). {@code notify} is the stored {@code ISNOTIFYON} flag. {@code inbox} is the stored
- * {@code SHOWININBOX} flag. This row does not add or remove the role.
+ * {@code SHOWININBOX} flag. {@code adhocType} is the stored adhoc type ({@code disabled}, {@code
+ * enabled}, or {@code anonymous}). This row does not add or remove the role.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Assignment type, notify flag, and inbox flag of one role on one workflow step")
+@Schema(
+    description =
+        "Assignment type, notify flag, inbox flag, and adhoc type of one role on one workflow step")
 public class WorkflowStepRoleAssignment {
 
   @Schema(description = "Step (state) name.")
@@ -45,6 +48,9 @@ public class WorkflowStepRoleAssignment {
 
   @Schema(description = "Stored inbox flag (SHOWININBOX).")
   private boolean inbox;
+
+  @Schema(description = "Stored adhoc type: disabled, enabled, or anonymous.")
+  private String adhocType;
 
   public WorkflowStepRoleAssignment() {}
 
@@ -86,5 +92,13 @@ public class WorkflowStepRoleAssignment {
 
   public void setInbox(boolean inbox) {
     this.inbox = inbox;
+  }
+
+  public String getAdhocType() {
+    return adhocType;
+  }
+
+  public void setAdhocType(String adhocType) {
+    this.adhocType = adhocType;
   }
 }

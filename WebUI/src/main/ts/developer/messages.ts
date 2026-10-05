@@ -2063,7 +2063,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Ad-hoc type and repeated or system-field aging stay outside this surface.",
+    "perc.ui.developer@Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. Approvals required, the default transition, and repeated or system-field aging stay outside this surface.",
   WF_ROLE_ASSIGN_TITLE: "perc.ui.developer@Assignment type",
   WF_ROLE_ASSIGN_HINT:
     "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Notify and inbox are separate confirms.",
@@ -2108,6 +2108,25 @@ export const DEV_MSG_KEYS = {
   WF_ROLE_INBOX_BAD:
     "perc.ui.developer@Choose on or off for a Reader or Assignee role already on the step.",
   WF_ROLE_INBOX_MISSING: "perc.ui.developer@That step or role was not found.",
+  WF_ROLE_ADHOC_TITLE: "perc.ui.developer@Ad-hoc type",
+  WF_ROLE_ADHOC_HINT:
+    "perc.ui.developer@Set disabled, enabled, or anonymous for one Reader or Assignee role already on a step. The table shows the stored type only after the server accepts it. Assignment type, notify, and inbox are not changed.",
+  WF_ROLE_ADHOC_FLAG: "perc.ui.developer@Ad-hoc type",
+  WF_ROLE_ADHOC_DISABLED: "perc.ui.developer@Disabled",
+  WF_ROLE_ADHOC_ENABLED: "perc.ui.developer@Enabled",
+  WF_ROLE_ADHOC_ANONYMOUS: "perc.ui.developer@Anonymous",
+  WF_ROLE_ADHOC_CONFIRM: "perc.ui.developer@Set ad-hoc type",
+  WF_ROLE_ADHOC_CANCEL: "perc.ui.developer@Cancel",
+  WF_ROLE_ADHOC_BUSY: "perc.ui.developer@Saving...",
+  WF_ROLE_ADHOC_SAVED: "perc.ui.developer@Ad-hoc type saved.",
+  WF_ROLE_ADHOC_ERROR: "perc.ui.developer@Could not set the ad-hoc type.",
+  WF_ROLE_ADHOC_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_ROLE_ADHOC_CONFLICT:
+    "perc.ui.developer@That role's ad-hoc type was not changed. Admin and None assignments stay as they are.",
+  WF_ROLE_ADHOC_BAD:
+    "perc.ui.developer@Choose disabled, enabled, or anonymous for a Reader or Assignee role already on the step.",
+  WF_ROLE_ADHOC_MISSING: "perc.ui.developer@That step or role was not found.",
   WF_ROLE_NOTIFY_FLAG: "perc.ui.developer@Notify",
   WF_ROLE_NOTIFY_ON: "perc.ui.developer@On",
   WF_ROLE_NOTIFY_OFF: "perc.ui.developer@Off",

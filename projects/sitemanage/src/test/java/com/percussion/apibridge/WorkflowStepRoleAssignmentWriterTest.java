@@ -60,6 +60,8 @@ class WorkflowStepRoleAssignmentWriterTest {
     assertEquals("ASSIGNEE", rows.get(2).assignmentType());
     assertTrue(rows.get(2).notifyOn());
     assertTrue(rows.get(2).showInInbox());
+    assertEquals("disabled", rows.get(0).adhocType());
+    assertEquals("disabled", rows.get(1).adhocType());
   }
 
   @Test
@@ -282,6 +284,109 @@ class WorkflowStepRoleAssignmentWriterTest {
                     fixture.states, fixture.roles, "Draft", "Designer", "READER"));
     assertEquals(404, missingRole.getResponse().getStatus());
     assertEquals(PSAssignmentTypeEnum.ASSIGNEE, fixture.author.getAssignmentType());
+  }
+
+  @Test
+  void setAdhocChangesOnlyThatType() {
+    Fixture fixture = fixture();
+    WorkflowStepRoleAssignmentWriter.setAdhoc(
+        fixture.states, fixture.roles, "draft", "author", "ENABLED");
+
+    assertEquals("Draft", fixture.draft.getName());
+    assertEquals(2, fixture.draft.getAssignedRoles().size());
+    assertEquals(1, fixture.draft.getTransitions().size());
+    assertEquals(PSAdhocTypeEnum.ENABLED, fixture.author.getAdhocType());
+    assertEquals(PSAssignmentTypeEnum.ASSIGNEE, fixture.author.getAssignmentType());
+    assertTrue(fixture.author.isDoNotify());
+    assertTrue(fixture.author.isShowInInbox());
+    assertEquals(PSAdhocTypeEnum.DISABLED, fixture.editor.getAdhocType());
+    assertEquals(PSAdhocTypeEnum.DISABLED, fixture.reviewer.getAdhocType());
+    assertEquals(
+        "enabled",
+        WorkflowStepRoleAssignmentWriter.list(fixture.states, fixture.roles).get(0).adhocType());
+  }
+
+  @Test
+  void readerAdhocCanChangeWithoutTouchingAssignee() {
+    Fixture fixture = fixture();
+    WorkflowStepRoleAssignmentWriter.setAdhoc(
+        fixture.states, fixture.roles, "Draft", "Editor", "anonymous");
+    assertEquals(PSAdhocTypeEnum.ANONYMOUS, fixture.editor.getAdhocType());
+    assertEquals(PSAssignmentTypeEnum.READER, fixture.editor.getAssignmentType());
+    assertFalse(fixture.editor.isDoNotify());
+    assertFalse(fixture.editor.isShowInInbox());
+    assertEquals(PSAdhocTypeEnum.DISABLED, fixture.author.getAdhocType());
+    assertEquals(2, fixture.draft.getAssignedRoles().size());
+  }
+
+  @Test
+  void unchangedAdhocIs400AndDoesNotMutate() {
+    Fixture fixture = fixture();
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                WorkflowStepRoleAssignmentWriter.setAdhoc(
+                    fixture.states, fixture.roles, "Draft", "Author", "disabled"));
+    assertTrue(ex.getMessage().toLowerCase().contains("unchanged"));
+    assertEquals(PSAdhocTypeEnum.DISABLED, fixture.author.getAdhocType());
+    assertTrue(fixture.author.isDoNotify());
+    assertTrue(fixture.author.isShowInInbox());
+    assertEquals(PSAssignmentTypeEnum.ASSIGNEE, fixture.author.getAssignmentType());
+  }
+
+  @Test
+  void invalidAdhocIs400AndDoesNotMutate() {
+    Fixture fixture = fixture();
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            WorkflowStepRoleAssignmentWriter.setAdhoc(
+                fixture.states, fixture.roles, "Draft", "Author", "maybe"));
+    assertEquals(PSAdhocTypeEnum.DISABLED, fixture.author.getAdhocType());
+  }
+
+  @Test
+  void adminAndNoneAdhocAre409() {
+    Fixture fixture = fixture();
+    fixture.author.setAssignmentType(PSAssignmentTypeEnum.ADMIN);
+    WebApplicationException admin =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowStepRoleAssignmentWriter.setAdhoc(
+                    fixture.states, fixture.roles, "Draft", "Author", "enabled"));
+    assertEquals(409, admin.getResponse().getStatus());
+    assertEquals(PSAdhocTypeEnum.DISABLED, fixture.author.getAdhocType());
+    assertEquals(PSAssignmentTypeEnum.ADMIN, fixture.author.getAssignmentType());
+    assertTrue(fixture.author.isShowInInbox());
+
+    fixture.author.setAssignmentType(PSAssignmentTypeEnum.NONE);
+    WebApplicationException none =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowStepRoleAssignmentWriter.setAdhoc(
+                    fixture.states, fixture.roles, "Draft", "Author", "enabled"));
+    assertEquals(409, none.getResponse().getStatus());
+    assertEquals(PSAdhocTypeEnum.DISABLED, fixture.author.getAdhocType());
+    assertEquals(PSAssignmentTypeEnum.NONE, fixture.author.getAssignmentType());
+  }
+
+  @Test
+  void roleNotOnStepDoesNotCreateAnAssignment() {
+    Fixture fixture = fixture();
+    fixture.roles.add(role(14, "Designer"));
+    int before = fixture.draft.getAssignedRoles().size();
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowStepRoleAssignmentWriter.setAdhoc(
+                    fixture.states, fixture.roles, "Draft", "Designer", "enabled"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals(before, fixture.draft.getAssignedRoles().size());
+    assertEquals(PSAdhocTypeEnum.DISABLED, fixture.author.getAdhocType());
   }
 
   @Test
