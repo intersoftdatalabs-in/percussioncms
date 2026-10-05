@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 import com.percussion.assetmanagement.dao.IPSAssetDao;
 import com.percussion.assetmanagement.service.IPSWidgetAssetRelationshipService;
 import com.percussion.cms.objectstore.PSComponentSummary;
+import com.percussion.itemmanagement.data.PSRevisionsSummary;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.pagemanagement.service.IPSTemplateService;
@@ -32,6 +33,7 @@ import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.useritems.IPSUserItemsDao;
+import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
 import com.percussion.share.dao.IPSContentItemDao;
 import com.percussion.share.dao.IPSFolderHelper;
@@ -135,5 +137,40 @@ class PSItemServiceRestoreRevisionTest {
         assertThrows(
             WebApplicationException.class, () -> service.restoreRevision("   "));
     assertEquals(Response.Status.FORBIDDEN.getStatusCode(), ex.getResponse().getStatus());
+  }
+
+  @Test
+  void checkedOutEditRevisionIsCurrentNotTheHighestNumber() {
+    PSComponentSummary checkedOut =
+        new PSComponentSummary(42, 3, 3, 1, PSComponentSummary.TYPE_ITEM, "Home", 301, -1);
+    assertEquals(1, PSItemService.explorerCurrentRevision(checkedOut));
+  }
+
+  @Test
+  void uncheckedItemUsesTheCurrentRevision() {
+    PSComponentSummary current =
+        new PSComponentSummary(42, 3, 5, 0, PSComponentSummary.TYPE_ITEM, "Home", 301, -1);
+    assertEquals(3, PSItemService.explorerCurrentRevision(current));
+    assertEquals(0, PSItemService.explorerCurrentRevision(null));
+  }
+
+  @Test
+  void revisionsSummaryReportsTheEditRevisionAsCurrent() throws Exception {
+    PSComponentSummary checkedOut =
+        new PSComponentSummary(42, 3, 3, 1, PSComponentSummary.TYPE_ITEM, "Home", 301, -1);
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(checkedOut);
+    when(workflowHelper.isPage(anyString())).thenReturn(true);
+    when(idMapper.getGuid(anyString())).thenReturn(guid);
+    when(guid.toString()).thenReturn("1-1-1");
+    when(systemService.getContentAssignmentTypes(anyList()))
+        .thenReturn(List.of(PSAssignmentTypeEnum.ASSIGNEE));
+    when(folderHelper.getParentFolderId(guid)).thenReturn(guid);
+    when(folderHelper.getFolderAccessLevel("1-1-1")).thenReturn(PSFolderPermission.Access.WRITE);
+    when(systemService.findContentStatusHistory(guid)).thenReturn(List.of());
+
+    PSRevisionsSummary summary = service.getRevisions("42");
+
+    assertEquals(1, summary.getCurrentRevision());
+    assertEquals(true, summary.isRestorable());
   }
 }

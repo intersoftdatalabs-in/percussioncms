@@ -1232,7 +1232,13 @@ export const EXPLORER_MSG = {
   REVISIONS_COL_TYPE: "perc.ui.explorer@Transition",
   REVISIONS_COL_COMMENT: "perc.ui.explorer@Comment",
   REVISIONS_RESTORE: "perc.ui.explorer@Restore",
+  REVISIONS_CURRENT: "perc.ui.explorer@Current",
+  REVISIONS_RESTORE_TITLE: "perc.ui.explorer@Restore revision",
   REVISIONS_RESTORE_ERROR: "perc.ui.explorer@Could not restore that revision",
+  REVISIONS_RESTORE_FORBIDDEN:
+    "perc.ui.explorer@You are not allowed to restore this revision (HTTP 403)",
+  REVISIONS_RESTORE_CONFLICT:
+    "perc.ui.explorer@This revision could not be restored (HTTP 409)",
   REVISIONS_COMPARE: "perc.ui.explorer@Compare",
   REVISIONS_COMPARE_FROM: "perc.ui.explorer@Compare from",
   REVISIONS_COMPARE_TO: "perc.ui.explorer@Compare to",

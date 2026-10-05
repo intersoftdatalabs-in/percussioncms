@@ -20,9 +20,10 @@
  * prior revision, and compares two revision field payloads.
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { formatApiError, isApiError } from "../api/client";
 import {
+  currentRevisionId,
   fetchItemRevisions,
   fetchItemRevisionCompare,
   restoreItemRevision,
@@ -31,6 +32,7 @@ import {
 } from "../api/contentExplorer/itemRevisionsApi";
 import { message } from "../i18n/message";
 import { EXPLORER_MSG } from "./messages";
+import { RevisionRestoreConfirmDialog } from "./RevisionRestoreConfirmDialog";
 
 export type RevisionsPanelTab = "revisions" | "audit";
 
@@ -53,8 +55,18 @@ export interface RevisionsPanelProps {
 
 type PanelState =
   | { kind: "loading" }
-  | { kind: "ok"; data: ItemRevisionsSummary }
+  | { kind: "ok"; data: ItemRevisionsSummary; forItem: string }
   | { kind: "error"; message: string };
+
+function restoreErrorMessage(err: unknown): string {
+  if (isApiError(err) && err.status === 403) {
+    return message(EXPLORER_MSG.REVISIONS_RESTORE_FORBIDDEN);
+  }
+  if (isApiError(err) && err.status === 409) {
+    return message(EXPLORER_MSG.REVISIONS_RESTORE_CONFLICT);
+  }
+  return formatApiError(err, message(EXPLORER_MSG.REVISIONS_RESTORE_ERROR));
+}
 
 async function defaultLoad(itemId: string): Promise<ItemRevisionsSummary> {
   return fetchItemRevisions(itemId);
@@ -100,7 +112,15 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
   const [state, setState] = useState<PanelState>({ kind: "loading" });
   const [restoreError, setRestoreError] = useState<string | null>(null);
   const [restoringRev, setRestoringRev] = useState<number | null>(null);
+  const [pendingRev, setPendingRev] = useState<number | null>(null);
+  // Token stays above 0 after a successful restore. The ref is the item that
+  // reload belongs to. Drop it when itemId changes: a later visit must load
+  // fresh, or Compare keeps the other item's ids and a failed load stays
+  // on Loading.
   const [reloadToken, setReloadToken] = useState(0);
+  const reloadItemIdRef = useRef<string | null>(null);
+  const itemIdRef = useRef(itemId);
+  itemIdRef.current = itemId;
   const [leftRev, setLeftRev] = useState<number | null>(null);
   const [rightRev, setRightRev] = useState<number | null>(null);
   const [compareError, setCompareError] = useState<string | null>(null);
@@ -115,37 +135,69 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
 
   useEffect(() => {
     let alive = true;
+    const sameItemReload =
+      reloadItemIdRef.current === itemId && reloadToken > 0;
+    if (reloadItemIdRef.current !== itemId) {
+      reloadItemIdRef.current = null;
+    }
+    const resetSession = () => {
+      setRestoreError(null);
+      setPendingRev(null);
+      setRestoringRev(null);
+      setCompareError(null);
+      setCompareResult(null);
+      setCompareBusy(false);
+      setLeftRev(null);
+      setRightRev(null);
+    };
     if (!itemId) {
       setState({
         kind: "error",
         message: message(EXPLORER_MSG.ACTION_NEEDS_ITEM),
       });
+      resetSession();
       return;
     }
-    setState({ kind: "loading" });
-    setRestoreError(null);
-    setCompareError(null);
-    setCompareResult(null);
-    setLeftRev(null);
-    setRightRev(null);
+    setState((prev) => {
+      if (prev.kind === "ok" && prev.forItem === itemId && sameItemReload) {
+        return prev;
+      }
+      return { kind: "loading" };
+    });
+    if (!sameItemReload) {
+      resetSession();
+    }
     loadSummary(itemId)
       .then((data) => {
         if (!alive) return;
-        setState({ kind: "ok", data });
+        setState({ kind: "ok", data, forItem: itemId });
+        if (sameItemReload) {
+          setRestoreError(null);
+        }
         const ids = data.revisions.map((r) => r.revId).sort((a, b) => a - b);
-        if (ids.length >= 2) {
-          setLeftRev(ids[0] ?? null);
-          setRightRev(ids[ids.length - 1] ?? null);
-        } else if (ids.length === 1) {
-          setLeftRev(ids[0] ?? null);
-          setRightRev(ids[0] ?? null);
+        if (!sameItemReload) {
+          if (ids.length >= 2) {
+            setLeftRev(ids[0] ?? null);
+            setRightRev(ids[ids.length - 1] ?? null);
+          } else if (ids.length === 1) {
+            setLeftRev(ids[0] ?? null);
+            setRightRev(ids[0] ?? null);
+          }
         }
       })
       .catch((err: unknown) => {
         if (!alive) return;
+        const messageText = formatApiError(
+          err,
+          message(EXPLORER_MSG.REVISIONS_ERROR),
+        );
+        if (sameItemReload) {
+          setRestoreError(messageText);
+          return;
+        }
         setState({
           kind: "error",
-          message: formatApiError(err, message(EXPLORER_MSG.REVISIONS_ERROR)),
+          message: messageText,
         });
       });
     return () => {
@@ -153,32 +205,50 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
     };
   }, [itemId, loadSummary, reloadToken]);
 
-  const handleRestore = useCallback(
+  const runRestore = useCallback(
     async (revId: number) => {
-      const ok = (confirm ?? ((b) => window.confirm(b)))(
-        message(EXPLORER_MSG.CONFIRM_RESTORE_REVISION),
-      );
-      if (!ok) {
-        return;
-      }
+      const forItem = itemId;
+      setPendingRev(null);
       setRestoringRev(revId);
       setRestoreError(null);
       try {
-        await restoreRevision(itemId, revId);
-        setReloadToken((n) => n + 1);
+        await restoreRevision(forItem, revId);
         onRestored?.(revId);
+        if (itemIdRef.current !== forItem) {
+          return;
+        }
+        reloadItemIdRef.current = forItem;
+        setReloadToken((n) => n + 1);
       } catch (err: unknown) {
-        setRestoreError(
-          formatApiError(err, message(EXPLORER_MSG.REVISIONS_RESTORE_ERROR)),
-        );
+        if (itemIdRef.current !== forItem) {
+          return;
+        }
+        setRestoreError(restoreErrorMessage(err));
       } finally {
-        setRestoringRev(null);
+        if (itemIdRef.current === forItem) {
+          setRestoringRev(null);
+        }
       }
     },
-    [confirm, itemId, onRestored, restoreRevision],
+    [itemId, onRestored, restoreRevision],
+  );
+
+  const handleRestore = useCallback(
+    (revId: number) => {
+      if (confirm) {
+        if (!confirm(message(EXPLORER_MSG.CONFIRM_RESTORE_REVISION))) {
+          return;
+        }
+        void runRestore(revId);
+        return;
+      }
+      setPendingRev(revId);
+    },
+    [confirm, runRestore],
   );
 
   const handleCompare = useCallback(async () => {
+    const forItem = itemId;
     if (leftRev == null || rightRev == null || leftRev === rightRev) {
       setCompareError(message(EXPLORER_MSG.REVISIONS_COMPARE_NEED_TWO));
       return;
@@ -186,13 +256,21 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
     setCompareBusy(true);
     setCompareError(null);
     try {
-      const result = await compareRevisions(itemId, leftRev, rightRev);
+      const result = await compareRevisions(forItem, leftRev, rightRev);
+      if (itemIdRef.current !== forItem) {
+        return;
+      }
       setCompareResult(result);
     } catch (err: unknown) {
+      if (itemIdRef.current !== forItem) {
+        return;
+      }
       setCompareResult(null);
       setCompareError(compareErrorMessage(err));
     } finally {
-      setCompareBusy(false);
+      if (itemIdRef.current === forItem) {
+        setCompareBusy(false);
+      }
     }
   }, [compareRevisions, itemId, leftRev, rightRev]);
 
@@ -203,7 +281,10 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
     background: "#fff",
   };
 
-  if (state.kind === "loading") {
+  if (
+    state.kind === "loading" ||
+    (state.kind === "ok" && state.forItem !== itemId)
+  ) {
     return (
       <section
         role="region"
@@ -234,10 +315,7 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
   }
 
   const { data } = state;
-  const headRev =
-    data.revisions.length > 0
-      ? Math.max(...data.revisions.map((r) => r.revId))
-      : 0;
+  const headRev = currentRevisionId(data);
 
   return (
     <section
@@ -245,6 +323,7 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
       aria-label={regionLabel}
       data-testid="revisions-panel"
       data-testid-state="ok"
+      data-current-rev={String(headRev)}
       data-testid-tab={tab}
       className={className}
       style={panelStyle}
@@ -310,14 +389,26 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
             </thead>
             <tbody>
               {data.revisions.map((rev) => {
-                const canRestore =
-                  data.restorable && rev.revId !== headRev;
+                const isCurrent = headRev > 0 && rev.revId === headRev;
+                const canRestore = data.restorable && !isCurrent;
                 return (
                   <tr
                     key={rev.revId}
                     data-testid={`revisions-row-${rev.revId}`}
+                    data-current={isCurrent ? "true" : "false"}
                   >
-                    <td>{rev.revId}</td>
+                    <td>
+                      {rev.revId}
+                      {isCurrent ? (
+                        <span
+                          data-testid="revisions-current"
+                          data-current-rev={String(rev.revId)}
+                        >
+                          {" "}
+                          {message(EXPLORER_MSG.REVISIONS_CURRENT)}
+                        </span>
+                      ) : null}
+                    </td>
                     <td>{rev.lastModifiedDate}</td>
                     <td>{rev.lastModifier}</td>
                     <td>{rev.status}</td>
@@ -483,6 +574,15 @@ export function RevisionsPanel(props: RevisionsPanelProps): React.JSX.Element {
           </tbody>
         </table>
       )}
+      {pendingRev != null ? (
+        <RevisionRestoreConfirmDialog
+          revId={pendingRev}
+          onConfirm={() => {
+            void runRestore(pendingRev);
+          }}
+          onCancel={() => setPendingRev(null)}
+        />
+      ) : null}
     </section>
   );
 }

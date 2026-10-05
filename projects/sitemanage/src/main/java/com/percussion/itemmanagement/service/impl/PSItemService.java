@@ -359,6 +359,8 @@ public class PSItemService implements IPSItemService {
       }
       revSummary.setRevisions(revisions);
       revSummary.setComments(comments);
+      // Edit revision when checked out (including just-restored), else current.
+      revSummary.setCurrentRevision(explorerCurrentRevision(sum));
       return revSummary;
     } catch (PSValidationException e) {
       throw new WebApplicationException(e);
@@ -1620,6 +1622,20 @@ public class PSItemService implements IPSItemService {
     Date dbDate = format1.parse(inputDate);
     String date = format2.format(dbDate);
     return date;
+  }
+
+  /**
+   * Revision Explorer marks current. A checked-out item (including one whose older revision was
+   * just promoted) uses the edit revision, which is not always the highest revision number.
+   *
+   * @param summary component summary, may be {@code null}
+   * @return a positive revision id, or {@code 0} when unknown
+   */
+  static int explorerCurrentRevision(PSComponentSummary summary) {
+    if (summary == null) {
+      return 0;
+    }
+    return Math.max(summary.getHeadLocator().getRevision(), 0);
   }
 
   /**

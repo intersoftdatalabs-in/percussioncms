@@ -41,6 +41,13 @@ export interface ItemAuditComment {
 
 export interface ItemRevisionsSummary {
   restorable: boolean;
+  /**
+   * Revision the item is on now. A restore of an older revision makes that
+   * revision current even when a higher revision number is still in history.
+   * {@code 0} or omitted means the server did not say; callers may fall back
+   * to the highest revision id.
+   */
+  currentRevision?: number;
   revisions: ItemRevision[];
   comments: ItemAuditComment[];
 }
@@ -75,6 +82,34 @@ function asString(value: unknown): string {
     return value.toISOString();
   }
   return String(value);
+}
+
+function parsePositiveInt(value: unknown): number {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n) || n <= 0) {
+    return 0;
+  }
+  return Math.trunc(n);
+}
+
+/**
+ * Revision the panel should mark current. Prefers the server head
+ * ({@code currentRevision}), which after a restore is the promoted revision
+ * and not necessarily the highest revision number. Falls back to the highest
+ * id only when the server omits a positive head.
+ */
+export function currentRevisionId(summary: ItemRevisionsSummary): number {
+  const reported = summary.currentRevision ?? 0;
+  if (reported > 0) {
+    return reported;
+  }
+  let max = 0;
+  for (const rev of summary.revisions) {
+    if (rev.revId > max) {
+      max = rev.revId;
+    }
+  }
+  return max;
 }
 
 function parseRevision(raw: unknown): ItemRevision | null {
@@ -134,9 +169,12 @@ export function unwrapRevisionsSummary(
 ): ItemRevisionsSummary {
   const inner = unwrapRoot(payload);
   if (inner == null) {
-    return { restorable: false, revisions: [], comments: [] };
+    return { restorable: false, currentRevision: 0, revisions: [], comments: [] };
   }
   const restorable = Boolean(inner.restorable ?? inner.Restorable);
+  const currentRevision = parsePositiveInt(
+    inner.currentRevision ?? inner.CurrentRevision,
+  );
   const revRaw = inner.revisions ?? inner.Revisions;
   const comRaw = inner.comments ?? inner.Comments;
   const revisions = asItemList(revRaw)
@@ -145,7 +183,7 @@ export function unwrapRevisionsSummary(
   const comments = asItemList(comRaw)
     .map(parseComment)
     .filter((c): c is ItemAuditComment => c != null);
-  return { restorable, revisions, comments };
+  return { restorable, currentRevision, revisions, comments };
 }
 
 /**

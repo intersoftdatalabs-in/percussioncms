@@ -683,6 +683,33 @@ describe("actionDispatch", () => {
     expect(onShowRevisions).toHaveBeenCalledWith("revisions");
   });
 
+  it("folder and empty selection do not claim a revision restore (#5220)", async () => {
+    const onShowRevisions = vi.fn();
+    const folder = await dispatchAction(
+      action({ name: "Workflow_Revisions" }),
+      {
+        item: item({
+          id: "fold-1",
+          name: "News",
+          path: "/Sites/Demo/News/",
+          type: "folder",
+          category: "folder",
+        }),
+        onShowRevisions,
+      },
+    );
+    expect(folder.outcome).not.toBe("success");
+    expect(folder.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+
+    const empty = await dispatchAction(action({ name: "Workflow_Revisions" }), {
+      item: null,
+      onShowRevisions,
+    });
+    expect(empty.outcome).not.toBe("success");
+    expect(empty.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(onShowRevisions).toHaveBeenCalledWith("revisions");
+  });
+
   it("Revisions opens the revisions panel", async () => {
     const onShowRevisions = vi.fn();
     const result = await dispatchAction(action({ name: "Workflow_Revisions" }), {

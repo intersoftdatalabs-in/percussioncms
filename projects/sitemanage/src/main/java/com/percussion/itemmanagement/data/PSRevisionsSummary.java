@@ -32,6 +32,12 @@ public class PSRevisionsSummary {
   private List<PSComment> comments;
 
   /**
+   * Revision the item is on now. Checked-out items use the edit revision (the revision a restore
+   * just promoted). Otherwise this is the current revision. {@code 0} when unknown.
+   */
+  private int currentRevision;
+
+  /**
    * Indicates whether the item can be restored from a prior revision or not.
    *
    * @return true if the item can be restored from prior revision, otherwise false.
@@ -69,5 +75,19 @@ public class PSRevisionsSummary {
 
   public void setComments(List<PSComment> comments) {
     this.comments = comments;
+  }
+
+  /**
+   * @return the revision Explorer should mark current, or {@code 0} when unknown
+   */
+  public int getCurrentRevision() {
+    return currentRevision;
+  }
+
+  /**
+   * @param currentRevision head revision id, or {@code 0} when unknown
+   */
+  public void setCurrentRevision(int currentRevision) {
+    this.currentRevision = currentRevision;
   }
 }
