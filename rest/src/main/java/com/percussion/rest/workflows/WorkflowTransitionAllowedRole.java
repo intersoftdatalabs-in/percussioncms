@@ -21,10 +21,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
- * Body for restricting one existing regular transition to exactly one workflow role (slice 72).
+ * Body naming one existing workflow role on a regular transition.
  *
- * <p>Jackson root wrap is {@code WorkflowTransitionAllowedRole}. One {@code roleName} replaces
- * allow-all. This body does not add a second role and does not clear the restriction.
+ * <p>Jackson root wrap is {@code WorkflowTransitionAllowedRole}. Slice 72 uses one {@code
+ * roleName} to replace allow-all. Slice 73 uses the same wrap to append that role to a transition
+ * that is already restricted. This body does not clear the restriction.
  */
 @XmlRootElement(name = "WorkflowTransitionAllowedRole")
 @Schema(description = "The single workflow role allowed to fire the addressed transition")

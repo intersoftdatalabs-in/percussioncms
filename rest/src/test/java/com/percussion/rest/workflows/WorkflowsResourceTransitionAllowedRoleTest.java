@@ -162,6 +162,109 @@ public class WorkflowsResourceTransitionAllowedRoleTest {
     assertEquals(409, ex.getResponse().getStatus());
   }
 
+  @Test
+  public void postAddsOneRoleAndKeepsAllowAllFalse() {
+    WorkflowGraph graph = graph();
+    graph.getEdges().get(0).setAllowedRoles(List.of("Editor", "Author"));
+    when(adaptor.addTransitionAllowedRole(
+            any(), eq("Nightly QA"), eq("Draft"), eq("Send"), eq("Live"), eq("Author")))
+        .thenReturn(graph);
+
+    WorkflowGraph out =
+        resource.addTransitionAllowedRole("Nightly QA", "Draft", "Send", "Live", body("Author"));
+    assertEquals(Boolean.FALSE, out.getEdges().get(0).getAllowAllRoles());
+    assertEquals(List.of("Editor", "Author"), out.getEdges().get(0).getAllowedRoles());
+    verify(adaptor)
+        .addTransitionAllowedRole(
+            any(), eq("Nightly QA"), eq("Draft"), eq("Send"), eq("Live"), eq("Author"));
+    verify(adaptor, never())
+        .restrictTransitionToOneRole(any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  public void addBlankBodyAndBlankFromDoNotCallAdaptor() {
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.addTransitionAllowedRole(
+                        "Nightly QA", "Draft", "Send", "Live", null))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.addTransitionAllowedRole(
+                        "Nightly QA", "Draft", "Send", "Live", body(" ")))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.addTransitionAllowedRole(
+                        "Nightly QA", " ", "Send", "Live", body("Author")))
+            .getResponse()
+            .getStatus());
+    verify(adaptor, never()).addTransitionAllowedRole(any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  public void addAgingFromAdaptorIs400() {
+    when(adaptor.addTransitionAllowedRole(any(), any(), any(), any(), any(), eq("Author")))
+        .thenThrow(new IllegalArgumentException("not aging transitions"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.addTransitionAllowedRole(
+                    "Nightly QA", "Live", "Expire", "Archive", body("Author")));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void addAdaptor404Is404() {
+    when(adaptor.addTransitionAllowedRole(any(), any(), any(), any(), any(), eq("Missing")))
+        .thenThrow(new WebApplicationException("missing", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.addTransitionAllowedRole(
+                    "Nightly QA", "Draft", "Send", "Live", body("Missing")));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void addAdaptor403Is403() {
+    when(adaptor.addTransitionAllowedRole(any(), any(), any(), any(), any(), eq("Author")))
+        .thenThrow(new WebApplicationException("protected", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.addTransitionAllowedRole(
+                    "Simple Workflow", "Draft", "Send", "Live", body("Author")));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void addAdaptor409Is409() {
+    when(adaptor.addTransitionAllowedRole(any(), any(), any(), any(), any(), eq("Editor")))
+        .thenThrow(new WebApplicationException("already listed", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.addTransitionAllowedRole(
+                    "Nightly QA", "Draft", "Send", "Live", body("Editor")));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
   private static WorkflowTransitionAllowedRole body(String roleName) {
     WorkflowTransitionAllowedRole body = new WorkflowTransitionAllowedRole();
     body.setRoleName(roleName);

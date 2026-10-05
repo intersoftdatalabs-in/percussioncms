@@ -34,7 +34,9 @@ import {
   workflowTransitionApprovalsPath,
   markTransitionAsDefault,
   workflowTransitionDefaultPath,
+  addTransitionAllowedRole,
   restrictTransitionToOneRole,
+  workflowTransitionAddAllowedRolePath,
   workflowTransitionAllowedRolePath,
   isValidWorkflowName,
   isWorkflowCreateReady,
@@ -1513,6 +1515,55 @@ describe("restrictTransitionToOneRole", () => {
     );
     expect(String(init.body)).toContain("WorkflowTransitionAllowedRole");
     expect(String(init.body)).toContain('"roleName":"Editor"');
+    expect(String(init.body)).not.toContain("defaultTransition");
+    expect(String(init.body)).not.toContain("approvalsRequired");
+  });
+});
+
+describe("addTransitionAllowedRole", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("POSTs one more role and keeps both names restricted", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          roles: ["Editor", "Author"],
+          edges: [
+            {
+              from: "Draft",
+              to: "Live",
+              label: "Send",
+              allowAllRoles: false,
+              allowedRoles: ["Editor", "Author"],
+              defaultTransition: false,
+              approvalsRequired: 4,
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await addTransitionAllowedRole("Nightly QA", "Draft", "Send", "Author", "Live");
+    expect(graph.edges?.[0]?.allowAllRoles).toBe(false);
+    expect(graph.edges?.[0]?.allowedRoles).toEqual(["Editor", "Author"]);
+    expect(graph.edges?.[0]?.approvalsRequired).toBe(4);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("POST");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      workflowTransitionAddAllowedRolePath("Nightly QA", "Draft", "Send", "Live"),
+    );
+    expect(String(init.body)).toContain("WorkflowTransitionAllowedRole");
+    expect(String(init.body)).toContain('"roleName":"Author"');
     expect(String(init.body)).not.toContain("defaultTransition");
     expect(String(init.body)).not.toContain("approvalsRequired");
   });

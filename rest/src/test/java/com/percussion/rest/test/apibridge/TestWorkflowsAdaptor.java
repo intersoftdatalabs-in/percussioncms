@@ -209,6 +209,17 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
   }
 
   @Override
+  public WorkflowGraph addTransitionAllowedRole(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String label,
+      String toStep,
+      String roleName) {
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
   public WorkflowGraph deleteWorkflowStep(URI baseUri, String idOrName, String stepName) {
     return getWorkflowGraph(baseUri, idOrName);
   }

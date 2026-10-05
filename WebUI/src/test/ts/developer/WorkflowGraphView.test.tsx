@@ -15,6 +15,7 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
   updateTransitionApprovalsRequired: vi.fn(),
   markTransitionAsDefault: vi.fn(),
   restrictTransitionToOneRole: vi.fn(),
+  addTransitionAllowedRole: vi.fn(),
   isNonNegativeApprovalCount: (raw: string | number | null | undefined) => {
     if (typeof raw === "number") {
       return Number.isSafeInteger(raw) && raw >= 0;
@@ -53,6 +54,8 @@ const updateTransitionApprovalsRequired =
 const markTransitionAsDefault = workflowsApi.markTransitionAsDefault as ReturnType<typeof vi.fn>;
 const restrictTransitionToOneRole =
   workflowsApi.restrictTransitionToOneRole as ReturnType<typeof vi.fn>;
+const addTransitionAllowedRole =
+  workflowsApi.addTransitionAllowedRole as ReturnType<typeof vi.fn>;
 const createWorkflowTransition = workflowsApi.createWorkflowTransition as ReturnType<typeof vi.fn>;
 const createWorkflowAgingTransition =
   workflowsApi.createWorkflowAgingTransition as ReturnType<typeof vi.fn>;
@@ -75,6 +78,7 @@ describe("WorkflowGraphView step delete", () => {
     updateTransitionApprovalsRequired.mockReset();
     markTransitionAsDefault.mockReset();
     restrictTransitionToOneRole.mockReset();
+    addTransitionAllowedRole.mockReset();
     createWorkflowTransition.mockReset();
     createWorkflowAgingTransition.mockReset();
     updateWorkflowAgingInterval.mockReset();
@@ -1125,5 +1129,142 @@ describe("WorkflowGraphView step delete", () => {
     expect(badge.getAttribute("data-allow-all")).toBe("false");
     expect(badge.textContent).toContain("Editor");
     expect(screen.queryByTestId("developer-wf-roles-edit-0")).toBeNull();
+    expect(screen.getByTestId("developer-wf-roles-add-0")).toBeTruthy();
+  });
+
+  it("lists both roles only after save and cancel does not add a role", async () => {
+    const initial = {
+      packaged: false,
+      roles: ["Editor", "Author"],
+      nodes: [{ name: "Draft" }, { name: "Live" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Submit",
+          commentRequired: true,
+          approvalsRequired: 1,
+          defaultTransition: true,
+          allowAllRoles: true,
+        },
+        {
+          from: "Draft",
+          to: "Live",
+          label: "Send",
+          commentRequired: false,
+          approvalsRequired: 4,
+          defaultTransition: false,
+          allowAllRoles: false,
+          allowedRoles: ["Editor"],
+        },
+      ],
+    };
+    const updated = {
+      ...initial,
+      edges: [
+        initial.edges[0],
+        {
+          ...initial.edges[1],
+          allowAllRoles: false,
+          allowedRoles: ["Editor", "Author"],
+        },
+      ],
+    };
+    let release: (graph: typeof updated) => void = () => {};
+    getWorkflowGraph.mockResolvedValue(initial);
+    addTransitionAllowedRole.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = resolve;
+        }),
+    );
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    const badge = await screen.findByTestId("developer-wf-graph-roles-1");
+    expect(badge.getAttribute("data-allow-all")).toBe("false");
+    expect(badge.getAttribute("data-allowed-roles")).toBe("Editor");
+    expect(screen.queryByTestId("developer-wf-roles-edit-1")).toBeNull();
+    expect(screen.queryByTestId("developer-wf-roles-add-0")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-wf-roles-add-1"));
+    fireEvent.click(screen.getByTestId("developer-wf-roles-add-cancel"));
+    expect(addTransitionAllowedRole).not.toHaveBeenCalled();
+    expect(restrictTransitionToOneRole).not.toHaveBeenCalled();
+    expect(badge.getAttribute("data-allowed-roles")).toBe("Editor");
+    expect(badge.textContent).not.toContain("Author");
+
+    fireEvent.click(screen.getByTestId("developer-wf-roles-add-1"));
+    fireEvent.change(screen.getByTestId("developer-wf-roles-add-value"), {
+      target: { value: "Author" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-roles-add-save"));
+    await waitFor(() => {
+      expect(addTransitionAllowedRole).toHaveBeenCalledWith(
+        "Nightly QA",
+        "Draft",
+        "Send",
+        "Author",
+        "Live",
+      );
+    });
+    expect(badge.getAttribute("data-allow-all")).toBe("false");
+    expect(badge.getAttribute("data-allowed-roles")).toBe("Editor");
+    expect(badge.textContent).not.toContain("Author");
+    release(updated);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-roles-1").getAttribute("data-allowed-roles")).toBe(
+        "Editor,Author",
+      );
+    });
+    const saved = screen.getByTestId("developer-wf-graph-roles-1");
+    expect(saved.getAttribute("data-allow-all")).toBe("false");
+    expect(saved.textContent).toContain("Editor");
+    expect(saved.textContent).toContain("Author");
+    expect(saved.textContent).not.toContain("All roles");
+    expect(screen.getByTestId("developer-wf-graph-roles-0").textContent).toContain("All roles");
+    expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
+      "Transition role added",
+    );
+    expect(screen.getByTestId("developer-wf-graph-approvals-1").getAttribute("data-approvals")).toBe(
+      "4",
+    );
+    expect(screen.queryByTestId("developer-wf-roles-add-1")).toBeNull();
+  });
+
+  it("keeps the previous role list on HTTP 400, 403, and 409", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      roles: ["Editor", "Author"],
+      nodes: [{ name: "Draft" }, { name: "Live" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Live",
+          label: "Send",
+          commentRequired: false,
+          approvalsRequired: 4,
+          defaultTransition: false,
+          allowAllRoles: false,
+          allowedRoles: ["Editor"],
+        },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-graph-roles-0");
+    for (const status of [400, 403, 409]) {
+      addTransitionAllowedRole.mockRejectedValueOnce({ status, message: "no" });
+      fireEvent.click(screen.getByTestId("developer-wf-roles-add-0"));
+      fireEvent.click(screen.getByTestId("developer-wf-roles-add-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-wf-graph-error")).toBeTruthy();
+      });
+      expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+      const badge = screen.getByTestId("developer-wf-graph-roles-0");
+      expect(badge.getAttribute("data-allow-all")).toBe("false");
+      expect(badge.getAttribute("data-allowed-roles")).toBe("Editor");
+      expect(badge.textContent).toContain("Editor");
+      expect(badge.textContent).not.toContain("Author");
+      expect(badge.textContent).not.toContain("All roles");
+      fireEvent.click(screen.getByTestId("developer-wf-roles-add-cancel"));
+    }
   });
 });

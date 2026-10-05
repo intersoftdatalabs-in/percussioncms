@@ -280,6 +280,244 @@ class WorkflowsAdaptorTransitionAllowedRoleTest {
     verify(workflowService, never()).saveWorkflow(wf);
   }
 
+  @Test
+  void addsOneRoleToAnAlreadyRestrictedTransitionAndKeepsTheFirstRole() {
+    PSWorkflowRole editor = role(12, "Editor");
+    PSWorkflowRole author = role(11, "Author");
+    PSState draft = state(1, "Draft");
+    PSTransition submit = transition(21, "Submit", 2);
+    submit.setDefaultTransition(true);
+    submit.setApprovals(1);
+    submit.setRequiresComment(PSWorkflowCommentEnum.REQUIRED);
+    PSTransition send = restricted(transition(22, "Send", 3), 12L);
+    send.setDefaultTransition(false);
+    send.setApprovals(4);
+    send.setRequiresComment(PSWorkflowCommentEnum.OPTIONAL);
+    draft.addTransition(submit);
+    draft.addTransition(send);
+    PSAgingTransition expire = aging("Expire", 3);
+    draft.addAgingTransition(expire);
+    PSWorkflow wf =
+        workflow("Nightly QA", List.of(editor, author), draft, state(2, "Review"), state(3, "Live"));
+    stub(wf);
+
+    WorkflowGraph graph =
+        adaptor.addTransitionAllowedRole(null, "Nightly QA", "Draft", "Send", "Live", "author");
+
+    PSTransition storedSend = draft.getTransitions().get(1);
+    PSTransition storedSubmit = draft.getTransitions().get(0);
+    assertFalse(storedSend.isAllowAllRoles());
+    assertEquals(2, storedSend.getTransitionRoles().size());
+    assertEquals(12L, storedSend.getTransitionRoles().get(0).getRoleId());
+    assertEquals(11L, storedSend.getTransitionRoles().get(1).getRoleId());
+    assertEquals(22L, storedSend.getTransitionRoles().get(1).getTransitionId());
+    assertEquals(7L, storedSend.getTransitionRoles().get(1).getWorkflowId());
+    assertTrue(storedSubmit.isAllowAllRoles());
+    assertTrue(storedSubmit.getTransitionRoles().isEmpty());
+    assertEquals(4, storedSend.getApprovals());
+    assertEquals(PSWorkflowCommentEnum.OPTIONAL, storedSend.getRequiresComment());
+    assertFalse(storedSend.isDefaultTransition());
+    assertEquals("Send", storedSend.getLabel());
+    assertEquals(3L, storedSend.getToState());
+    assertEquals(1, storedSubmit.getApprovals());
+    assertEquals("Expire", draft.getAgingTransitions().get(0).getLabel());
+    assertEquals(3, wf.getStates().size());
+    assertEquals(2, draft.getTransitions().size());
+
+    WorkflowGraph.Edge added = edge(graph, "Send");
+    WorkflowGraph.Edge untouched = edge(graph, "Submit");
+    assertEquals(Boolean.FALSE, added.getAllowAllRoles());
+    assertEquals(List.of("Editor", "Author"), added.getAllowedRoles());
+    assertEquals(Boolean.TRUE, untouched.getAllowAllRoles());
+    assertNull(untouched.getAllowedRoles());
+    assertEquals(4, added.getApprovalsRequired());
+    assertFalse(added.isCommentRequired());
+    assertEquals(Boolean.FALSE, added.getDefaultTransition());
+    WorkflowGraph.Edge agingEdge = edge(graph, "Expire");
+    assertTrue(agingEdge.isAging());
+    assertNull(agingEdge.getAllowAllRoles());
+    assertNull(agingEdge.getAllowedRoles());
+    verify(workflowService).saveWorkflow(wf);
+  }
+
+  @Test
+  void addRoleOnAllowAllIs409AndDoesNotSave() {
+    PSTransition send = allowAllSend();
+    PSWorkflow wf = workflowWith(send);
+    stub(wf);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.addTransitionAllowedRole(
+                    null, "Nightly QA", "Draft", "Send", "Live", "Editor"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(send.isAllowAllRoles());
+    assertTrue(send.getTransitionRoles().isEmpty());
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  @Test
+  void addRoleAlreadyOnTheListIs409AndKeepsThePreviousRole() {
+    PSWorkflowRole editor = role(12, "Editor");
+    PSWorkflowRole author = role(11, "Author");
+    PSTransition send = restricted(transition(22, "Send", 3), 12L);
+    PSState draft = state(1, "Draft");
+    draft.addTransition(send);
+    PSWorkflow wf = workflow("Nightly QA", List.of(editor, author), draft, state(3, "Live"));
+    stub(wf);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.addTransitionAllowedRole(
+                    null, "Nightly QA", "Draft", "Send", "Live", "Editor"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertFalse(send.isAllowAllRoles());
+    assertEquals(1, send.getTransitionRoles().size());
+    assertEquals(12L, send.getTransitionRoles().get(0).getRoleId());
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  @Test
+  void addAllowAllMarkerIs409AndKeepsThePreviousRole() {
+    PSTransition send = restricted(transition(22, "Send", 3), 12L);
+    PSState draft = state(1, "Draft");
+    draft.addTransition(send);
+    PSWorkflow wf = workflow("Nightly QA", List.of(role(12, "Editor")), draft, state(3, "Live"));
+    stub(wf);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.addTransitionAllowedRole(
+                    null, "Nightly QA", "Draft", "Send", "Live", "*ALL*"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertFalse(send.isAllowAllRoles());
+    assertEquals(List.of(12L), roleIds(send));
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  @Test
+  void addUnknownRoleIs404AndKeepsThePreviousRole() {
+    PSTransition send = restricted(transition(22, "Send", 3), 12L);
+    PSState draft = state(1, "Draft");
+    draft.addTransition(send);
+    PSWorkflow wf =
+        workflow("Nightly QA", List.of(role(12, "Editor"), role(11, "Author")), draft, state(3, "Live"));
+    stub(wf);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.addTransitionAllowedRole(
+                    null, "Nightly QA", "Draft", "Send", "Live", "Missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertFalse(send.isAllowAllRoles());
+    assertEquals(List.of(12L), roleIds(send));
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  @Test
+  void addRoleOnAgingIs400AndKeepsThePreviousRole() {
+    PSTransition publish = restricted(transition(30, "Publish", 5), 12L);
+    PSState live = state(4, "Live");
+    live.addTransition(publish);
+    PSAgingTransition expire = aging("Expire", 5);
+    live.addAgingTransition(expire);
+    PSWorkflow wf =
+        workflow(
+            "Nightly QA",
+            List.of(role(12, "Editor"), role(11, "Author")),
+            live,
+            state(5, "Archive"));
+    stub(wf);
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                adaptor.addTransitionAllowedRole(
+                    null, "Nightly QA", "Live", "Expire", "Archive", "Author"));
+    assertTrue(ex.getMessage().toLowerCase().contains("aging"));
+    assertFalse(publish.isAllowAllRoles());
+    assertEquals(List.of(12L), roleIds(publish));
+    assertEquals("Expire", live.getAgingTransitions().get(0).getLabel());
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  @Test
+  void addRoleAmbiguousLabelIs400AndKeepsThePreviousRoles() {
+    PSTransition sendReview = restricted(transition(22, "Send", 2), 12L);
+    PSTransition sendLive = restricted(transition(23, "Send", 3), 12L);
+    PSState draft = state(1, "Draft");
+    draft.addTransition(sendReview);
+    draft.addTransition(sendLive);
+    PSWorkflow wf =
+        workflow(
+            "Nightly QA",
+            List.of(role(12, "Editor"), role(11, "Author")),
+            draft,
+            state(2, "Review"),
+            state(3, "Live"));
+    stub(wf);
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                adaptor.addTransitionAllowedRole(
+                    null, "Nightly QA", "Draft", "Send", null, "Author"));
+    assertTrue(ex.getMessage().toLowerCase().contains("specify to"));
+    assertEquals(List.of(12L), roleIds(sendReview));
+    assertEquals(List.of(12L), roleIds(sendLive));
+    assertFalse(sendReview.isAllowAllRoles());
+    assertFalse(sendLive.isAllowAllRoles());
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  @Test
+  void addRoleOnPackagedWorkflowIs403AndKeepsThePreviousRole() {
+    PSTransition send = restricted(transition(22, "Send", 3), 12L);
+    PSState draft = state(1, "Draft");
+    draft.addTransition(send);
+    PSWorkflow wf = workflow("Simple Workflow", List.of(role(12, "Editor"), role(11, "Author")), draft, state(3, "Live"));
+    stub(wf);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.addTransitionAllowedRole(
+                    null, "Simple Workflow", "Draft", "Send", "Live", "Author"));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertFalse(send.isAllowAllRoles());
+    assertEquals(List.of(12L), roleIds(send));
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  private static PSTransition restricted(PSTransition transition, long roleId) {
+    transition.setAllowAllRoles(false);
+    PSTransitionRole existing = new PSTransitionRole();
+    existing.setRoleId(roleId);
+    existing.setTransitionId(transition.getGUID().longValue());
+    existing.setWorkflowId(7L);
+    transition.setTransitionRoles(new ArrayList<>(List.of(existing)));
+    return transition;
+  }
+
+  private static List<Long> roleIds(PSTransition transition) {
+    List<Long> ids = new ArrayList<>();
+    for (PSTransitionRole role : transition.getTransitionRoles()) {
+      ids.add(role.getRoleId());
+    }
+    return ids;
+  }
+
   private PSTransition allowAllSend() {
     return transition(22, "Send", 3);
   }
