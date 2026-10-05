@@ -37,6 +37,10 @@ public class PSExplorerRelationshipEdge extends PSAbstractDataObject {
   private String category = "";
   private int dependentId;
   private String label = "";
+  /** Active Assembly slot id. Zero when the relationship is not slotted. */
+  private int slotId;
+  /** Zero-based order of this relationship inside {@link #slotId}. */
+  private int sortRank;
 
   public PSExplorerRelationshipEdge() {
     super();
@@ -89,5 +93,21 @@ public class PSExplorerRelationshipEdge extends PSAbstractDataObject {
 
   public void setLabel(String label) {
     this.label = label == null ? "" : label;
+  }
+
+  public int getSlotId() {
+    return slotId;
+  }
+
+  public void setSlotId(int slotId) {
+    this.slotId = slotId;
+  }
+
+  public int getSortRank() {
+    return sortRank;
+  }
+
+  public void setSortRank(int sortRank) {
+    this.sortRank = sortRank;
   }
 }

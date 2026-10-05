@@ -38,11 +38,13 @@ import { EXPLORER_MSG } from "../messages";
 import { composeFromServerSummary, labelFor } from "./dependencyModel";
 import { parseExplorerContentId } from "../../api/contentExplorer/pathItemId";
 import type { PSExplorerRelationshipEdge } from "../../api/contentExplorer/relationship";
+import { moveSlotRelationship } from "../../api/contentExplorer/slotRelationshipApi";
 import {
   addRelationshipEdge,
   fetchNodeSummary,
   fetchRelationshipEdges,
   isFolderRelationshipCategory,
+  relationshipMoveEnds,
   removableOwnedEdges,
   removeAllOwnedRelationshipEdges,
   removeRelationshipEdge,
@@ -63,6 +65,14 @@ export interface RelationshipsViewProps {
     targetItemId: string,
     configName: string,
   ) => Promise<PSExplorerRelationshipEdge>;
+  /**
+   * Optional injection seam: move one owned Active Assembly relationship.
+   * Defaults to the editor reorder API ({@code POST …/slot-relationships/{id}/move}).
+   */
+  moveEdge?: (
+    relationshipId: number,
+    direction: "UP" | "DOWN",
+  ) => Promise<void>;
   /** Optional injection seam for tests: summarises server-shape with AA-link count. */
   composeSummary?: (
     item: DependencyItemShared,
@@ -122,6 +132,8 @@ export function RelationshipsView(
     loadEdges = fetchRelationshipEdges,
     removeEdge = removeRelationshipEdge,
     addEdge = addRelationshipEdge,
+    moveEdge = (relationshipId, direction) =>
+      moveSlotRelationship(relationshipId, direction),
     composeSummary,
     ariaLabel,
     className,
@@ -140,6 +152,13 @@ export function RelationshipsView(
   const [addError, setAddError] = React.useState<string | null>(null);
   const [removing, setRemoving] = React.useState(false);
   const [adding, setAdding] = React.useState(false);
+  const [moving, setMoving] = React.useState(false);
+  const [moveRequest, setMoveRequest] = React.useState<{
+    id: number;
+    direction: "UP" | "DOWN";
+  } | null>(null);
+  const [movedNotice, setMovedNotice] = React.useState(false);
+  const [moveError, setMoveError] = React.useState<string | null>(null);
   const [addOpen, setAddOpen] = React.useState(false);
   const [addTarget, setAddTarget] = React.useState("");
   const [addType, setAddType] = React.useState("Translation");
@@ -161,12 +180,16 @@ export function RelationshipsView(
       setEdges([]);
       setRemovedNotice(null);
       setAddedNotice(false);
+      setMovedNotice(false);
+      setMoveError(null);
+      setMoveRequest(null);
       setAddOpen(false);
       return;
     }
     setState({ kind: "loading" });
     setConfirmId(null);
     setConfirmAll(false);
+    setMoveRequest(null);
     setAddOpen(false);
     loadServerSummary(itemId)
       .then(async (summary) => {
@@ -209,8 +232,10 @@ export function RelationshipsView(
   React.useEffect(() => {
     setRemoveError(null);
     setAddError(null);
+    setMoveError(null);
     setRemovedNotice(null);
     setAddedNotice(false);
+    setMovedNotice(false);
   }, [itemId]);
 
   function statusOf(err: unknown): number | undefined {
@@ -235,6 +260,57 @@ export function RelationshipsView(
     if (status === 403) return message(EXPLORER_MSG.RELATIONSHIPS_ADD_FAILED_403);
     if (status === 409) return message(EXPLORER_MSG.RELATIONSHIPS_ADD_FAILED_409);
     return err instanceof Error ? err.message : String(err);
+  }
+
+  function moveFailureMessage(err: unknown): string {
+    const status = statusOf(err);
+    if (status === 400) return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_FAILED_400);
+    if (status === 403) return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_FAILED_403);
+    if (status === 409) return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_FAILED_409);
+    return err instanceof Error ? err.message : String(err);
+  }
+
+  function openMove(relationshipId: number, direction: "UP" | "DOWN"): void {
+    setRemovedNotice(null);
+    setRemoveError(null);
+    setMovedNotice(false);
+    setMoveError(null);
+    setConfirmId(null);
+    setConfirmAll(false);
+    setMoveRequest({ id: relationshipId, direction });
+  }
+
+  async function confirmMove(): Promise<void> {
+    if (!itemId || moving || moveRequest == null) return;
+    const edge = edges.find(
+      (candidate) => candidate.relationshipId === moveRequest.id,
+    );
+    const ends = edge ? relationshipMoveEnds(edges, edge) : { up: false, down: false };
+    if (
+      !edge ||
+      (moveRequest.direction === "UP" && !ends.up) ||
+      (moveRequest.direction === "DOWN" && !ends.down)
+    ) {
+      setMoveRequest(null);
+      return;
+    }
+    const direction = moveRequest.direction;
+    const relationshipId = moveRequest.id;
+    setMoving(true);
+    setMoveError(null);
+    setMovedNotice(false);
+    try {
+      await moveEdge(relationshipId, direction);
+      setMoveRequest(null);
+      setMovedNotice(true);
+      setReloadToken((n) => n + 1);
+    } catch (err: unknown) {
+      setMovedNotice(false);
+      setMoveError(moveFailureMessage(err));
+      setMoveRequest(null);
+    } finally {
+      setMoving(false);
+    }
   }
 
   async function confirmAdd(): Promise<void> {
@@ -502,6 +578,16 @@ export function RelationshipsView(
             {removeError}
           </p>
         ) : null}
+        {movedNotice ? (
+          <p role="status" data-testid="relationships-moved">
+            {message(EXPLORER_MSG.RELATIONSHIPS_MOVED)}
+          </p>
+        ) : null}
+        {moveError ? (
+          <p role="alert" data-testid="relationships-move-error">
+            {moveError}
+          </p>
+        ) : null}
         {removableOwnedEdges(edges).length > 0 ? (
           <p>
             <button
@@ -527,7 +613,9 @@ export function RelationshipsView(
             data-testid="relationships-edge-list"
             style={{ listStyle: "none", padding: 0, margin: 0 }}
           >
-            {edges.map((edge) => (
+            {edges.map((edge) => {
+              const ends = relationshipMoveEnds(edges, edge);
+              return (
               <li
                 key={edge.relationshipId}
                 data-testid={`relationships-edge-${edge.relationshipId}`}
@@ -539,26 +627,50 @@ export function RelationshipsView(
                 }}
               >
                 <span>{edge.label}</span>
-                {removableOwnedEdges([edge]).length === 0 ? (
-                  <span data-testid={`relationships-folder-${edge.relationshipId}`}>
-                    {edge.category}
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    data-testid={`relationships-remove-${edge.relationshipId}`}
-                    onClick={() => {
-                      setRemovedNotice(null);
-                      setRemoveError(null);
-                      setConfirmAll(false);
-                      setConfirmId(edge.relationshipId);
-                    }}
-                  >
-                    {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE)}
-                  </button>
-                )}
+                <span style={{ display: "flex", gap: 8 }}>
+                  {ends.up ? (
+                    <button
+                      type="button"
+                      data-testid={`relationships-move-up-${edge.relationshipId}`}
+                      onClick={() => openMove(edge.relationshipId, "UP")}
+                    >
+                      {message(EXPLORER_MSG.RELATIONSHIPS_MOVE_UP)}
+                    </button>
+                  ) : null}
+                  {ends.down ? (
+                    <button
+                      type="button"
+                      data-testid={`relationships-move-down-${edge.relationshipId}`}
+                      onClick={() => openMove(edge.relationshipId, "DOWN")}
+                    >
+                      {message(EXPLORER_MSG.RELATIONSHIPS_MOVE_DOWN)}
+                    </button>
+                  ) : null}
+                  {removableOwnedEdges([edge]).length === 0 ? (
+                    <span data-testid={`relationships-folder-${edge.relationshipId}`}>
+                      {edge.category}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      data-testid={`relationships-remove-${edge.relationshipId}`}
+                      onClick={() => {
+                        setRemovedNotice(null);
+                        setRemoveError(null);
+                        setMovedNotice(false);
+                        setMoveError(null);
+                        setMoveRequest(null);
+                        setConfirmAll(false);
+                        setConfirmId(edge.relationshipId);
+                      }}
+                    >
+                      {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE)}
+                    </button>
+                  )}
+                </span>
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
         {confirmAll ? (
@@ -585,6 +697,40 @@ export function RelationshipsView(
               }}
             >
               {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_ALL)}
+            </button>
+          </div>
+        ) : null}
+        {moveRequest != null ? (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="relationships-move-prompt"
+            data-testid="relationships-move-dialog"
+            style={{ marginTop: 8, padding: 8, border: "1px solid #ccc" }}
+          >
+            <p id="relationships-move-prompt">
+              {message(
+                moveRequest.direction === "UP"
+                  ? EXPLORER_MSG.RELATIONSHIPS_MOVE_UP_CONFIRM
+                  : EXPLORER_MSG.RELATIONSHIPS_MOVE_DOWN_CONFIRM,
+              )}
+            </p>
+            <button
+              type="button"
+              data-testid="relationships-move-cancel"
+              onClick={() => setMoveRequest(null)}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_CANCEL)}
+            </button>
+            <button
+              type="button"
+              data-testid="relationships-move-confirm"
+              disabled={moving}
+              onClick={() => {
+                void confirmMove();
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_MOVE_DO)}
             </button>
           </div>
         ) : null}

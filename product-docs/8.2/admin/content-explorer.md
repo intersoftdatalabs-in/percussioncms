@@ -926,7 +926,7 @@ From the **View** menu you can also toggle:
   shows the error and does not claim that every relationship was removed.
   A folder row (`rs_folder` / `folder`), if present, has no Remove control and
   is left in place. Folder membership is otherwise not listed. A folder with no page or asset selected keeps
-  the select-item hint and does not claim a relationship was removed or added.
+  the select-item hint and does not claim a relationship was removed, added, or moved.
   **Add relationship** asks for a target content id and a non-folder relationship
   type (for example **Translation**). **Cancel** does not call the server.
   **Add relationship** in the dialog calls
@@ -934,9 +934,23 @@ From the **View** menu you can also toggle:
   with `targetItemId` and `configName`. The new row appears in the list, and
   the panel says *Relationship added.*, only after HTTP **201**. HTTP **400**,
   **403**, and **409** stay on the panel and do not show *Relationship added*.
-  Folder relationship types are refused. An empty selection or a folder
+  Folder relationship types are refused. **Move up** and **Move down** appear
+  on owned Active Assembly rows (category `rs_activeassembly`) that share a
+  slot, when that row is not the first or last Active Assembly relationship
+  in that slot. The first row in the slot has no **Move up**. The last has no
+  **Move down**. A single Active Assembly row in a slot has neither control.
+  Rows in a different slot are not one position away. Translation rows and
+  folder rows are not reordered from this list. **Move up** or **Move down** asks
+  for confirmation. **Cancel** does not call the server and leaves the list
+  order unchanged. **Move relationship** reuses the editor reorder API,
+  `POST /services/assembly/slot-relationships/{relationshipId}/move`, with
+  `direction` `UP` or `DOWN`. The list order changes, and the panel says
+  *Relationship moved.*, only after HTTP **204**. HTTP **400**, **403**, and
+  **409** stay on the panel, keep the previous order, and do not show
+  *Relationship moved*. This is not the editor Related content reorder and
+  not a folder move. An empty selection or a folder
   selection keeps the select-item hint and does not claim a relationship was
-  added. When the
+  added or moved. When the
   item has relationship buckets, taxonomy nodes, local links, or Active
   Assembly links, those edges are listed. When every count is zero the panel
   says **No known dependencies for this item** — that is not a successful

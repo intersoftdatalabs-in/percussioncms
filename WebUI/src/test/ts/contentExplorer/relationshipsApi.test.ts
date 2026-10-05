@@ -13,6 +13,8 @@ import {
   fetchNodeSummary,
   fetchOutgoing,
   fetchRelationshipEdges,
+  isActiveAssemblyRelationship,
+  relationshipMoveEnds,
   removeAllOwnedRelationshipEdges,
   removeRelationshipEdge,
   RelationshipSummaryAuthError,
@@ -190,6 +192,82 @@ describe("relationshipsApi", () => {
   it("rejects a non-positive relationship id before DELETE", async () => {
     await expect(removeRelationshipEdge("42", 0)).rejects.toMatchObject({
       status: 400,
+    });
+  });
+
+  it("moves only Active Assembly edges and stops at the ends (#5201)", () => {
+    const translation = {
+      relationshipId: 7,
+      configName: "Translation",
+      category: "rs_translation",
+      dependentId: 9,
+      label: "Translation -> 9",
+    };
+    const first = {
+      relationshipId: 11,
+      configName: "Active Assembly",
+      category: "rs_aa",
+      dependentId: 4,
+      label: "AA first",
+    };
+    const last = {
+      relationshipId: 12,
+      configName: "Widget-Content",
+      category: "rs_activeassembly",
+      dependentId: 5,
+      label: "AA last",
+    };
+    const otherSlot = {
+      relationshipId: 14,
+      configName: "ActiveAssembly",
+      category: "rs_activeassembly",
+      dependentId: 8,
+      label: "AA other slot",
+      slotId: 9,
+    };
+    const folder = {
+      relationshipId: 8,
+      configName: "Active Assembly",
+      category: "rs_folder",
+      dependentId: 3,
+      label: "Folder",
+    };
+    const alone = {
+      relationshipId: 13,
+      configName: "Active Assembly",
+      category: "rs_aa",
+      dependentId: 6,
+      label: "AA only",
+    };
+    expect(isActiveAssemblyRelationship(first)).toBe(true);
+    expect(isActiveAssemblyRelationship(last)).toBe(true);
+    expect(isActiveAssemblyRelationship(translation)).toBe(false);
+    expect(isActiveAssemblyRelationship(folder)).toBe(false);
+    const rows = [translation, first, folder, last];
+    expect(relationshipMoveEnds(rows, first)).toEqual({ up: false, down: true });
+    expect(relationshipMoveEnds(rows, last)).toEqual({ up: true, down: false });
+    expect(relationshipMoveEnds(rows, translation)).toEqual({
+      up: false,
+      down: false,
+    });
+    expect(relationshipMoveEnds(rows, folder)).toEqual({ up: false, down: false });
+    expect(relationshipMoveEnds([alone], alone)).toEqual({ up: false, down: false });
+    const slotted = [
+      { ...first, slotId: 3 },
+      { ...otherSlot },
+      { ...last, slotId: 3 },
+    ];
+    expect(relationshipMoveEnds(slotted, slotted[0])).toEqual({
+      up: false,
+      down: true,
+    });
+    expect(relationshipMoveEnds(slotted, otherSlot)).toEqual({
+      up: false,
+      down: false,
+    });
+    expect(relationshipMoveEnds(slotted, slotted[2])).toEqual({
+      up: true,
+      down: false,
     });
   });
 });

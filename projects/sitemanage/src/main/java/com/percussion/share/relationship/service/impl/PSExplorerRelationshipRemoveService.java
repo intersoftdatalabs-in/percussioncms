@@ -24,6 +24,7 @@ import com.percussion.share.relationship.data.PSExplorerRelationshipEdge;
 import com.percussion.share.relationship.service.ExplorerRelationshipAction;
 import com.percussion.share.relationship.service.IPSExplorerRelationshipRemoveService;
 import com.percussion.share.service.IPSIdMapper;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorException;
@@ -32,8 +33,11 @@ import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.system.IPSSystemWs;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -79,13 +83,18 @@ public class PSExplorerRelationshipRemoveService implements IPSExplorerRelations
     if (resolved.failure != null) {
       return resolved.failure;
     }
-    List<PSExplorerRelationshipEdge> edges = new ArrayList<>();
+    List<PSRelationship> owned = new ArrayList<>();
     for (PSRelationship rel : loadOwned(resolved.contentId)) {
       if (rel == null || isFolder(rel)) {
         continue;
       }
+      owned.add(rel);
+    }
+    List<PSExplorerRelationshipEdge> edges = new ArrayList<>(owned.size());
+    for (PSRelationship rel : owned) {
       edges.add(toEdge(rel));
     }
+    orderActiveAssemblyBySortRank(owned, edges);
     return ExplorerRelationshipAction.listed(edges);
   }
 
@@ -285,7 +294,63 @@ public class PSExplorerRelationshipRemoveService implements IPSExplorerRelations
     }
     int dependentId = rel.getDependent() == null ? 0 : rel.getDependent().getId();
     String label = name.isEmpty() ? ("Relationship " + rel.getId()) : (name + " -> " + dependentId);
-    return new PSExplorerRelationshipEdge(rel.getId(), name, category, dependentId, label);
+    PSExplorerRelationshipEdge edge =
+        new PSExplorerRelationshipEdge(rel.getId(), name, category, dependentId, label);
+    edge.setSlotId(propertyInt(rel, IPSHtmlParameters.SYS_SLOTID));
+    edge.setSortRank(propertyInt(rel, IPSHtmlParameters.SYS_SORTRANK));
+    return edge;
+  }
+
+  /**
+   * Active Assembly siblings in one slot are listed in sort-rank order. Other rows keep their
+   * places. Missing sort rank stays in the loaded order.
+   */
+  private static void orderActiveAssemblyBySortRank(
+      List<PSRelationship> owned, List<PSExplorerRelationshipEdge> edges) {
+    Map<String, List<Integer>> bySlot = new LinkedHashMap<>();
+    for (int i = 0; i < owned.size(); i++) {
+      if (!isActiveAssembly(owned.get(i))) {
+        continue;
+      }
+      bySlot.computeIfAbsent(slotKey(owned.get(i)), ignored -> new ArrayList<>()).add(i);
+    }
+    for (List<Integer> indexes : bySlot.values()) {
+      if (indexes.size() < 2) {
+        continue;
+      }
+      List<Integer> order = new ArrayList<>();
+      for (int n = 0; n < indexes.size(); n++) {
+        order.add(n);
+      }
+      order.sort(
+          Comparator.comparingInt(
+                  (Integer n) -> propertyInt(owned.get(indexes.get(n)), IPSHtmlParameters.SYS_SORTRANK))
+              .thenComparingInt(n -> indexes.get(n)));
+      List<PSExplorerRelationshipEdge> placed = new ArrayList<>();
+      for (int n : order) {
+        placed.add(edges.get(indexes.get(n)));
+      }
+      for (int n = 0; n < indexes.size(); n++) {
+        edges.set(indexes.get(n), placed.get(n));
+      }
+    }
+  }
+
+  private static String slotKey(PSRelationship rel) {
+    int slotId = propertyInt(rel, IPSHtmlParameters.SYS_SLOTID);
+    return slotId > 0 ? Integer.toString(slotId) : "";
+  }
+
+  private static int propertyInt(PSRelationship rel, String name) {
+    try {
+      String raw = rel.getProperty(name);
+      if (raw == null || raw.isBlank()) {
+        return 0;
+      }
+      return Integer.parseInt(raw.trim());
+    } catch (RuntimeException ex) {
+      return 0;
+    }
   }
 
   private static boolean isFolder(PSRelationship rel) {

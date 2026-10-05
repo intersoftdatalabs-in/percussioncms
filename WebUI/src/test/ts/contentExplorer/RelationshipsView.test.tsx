@@ -491,4 +491,190 @@ describe("RelationshipsView", () => {
     expect(screen.queryByTestId("relationships-added")).toBeNull();
     expect(screen.getByTestId("relationships-add-error")).toBeTruthy();
   });
+
+  const aaFirst = {
+    relationshipId: 71,
+    configName: "Active Assembly",
+    category: "rs_aa",
+    dependentId: 4,
+    label: "AA first",
+  };
+  const aaLast = {
+    relationshipId: 72,
+    configName: "Active Assembly",
+    category: "rs_aa",
+    dependentId: 5,
+    label: "AA last",
+  };
+  const translationEdge = {
+    relationshipId: 73,
+    configName: "Translation",
+    category: "rs_translation",
+    dependentId: 9,
+    label: "Translation stays",
+  };
+
+  function edgeOrder(): string[] {
+    const list = screen.getByTestId("relationships-edge-list");
+    return Array.from(list.querySelectorAll("li")).map(
+      (row) => row.getAttribute("data-testid") ?? "",
+    );
+  }
+
+  it("the first Active Assembly row cannot move up and the last cannot move down (#5201)", async () => {
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [aaFirst, translationEdge, aaLast]}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-71")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-move-up-71")).toBeNull();
+    expect(screen.getByTestId("relationships-move-down-71")).toBeTruthy();
+    expect(screen.getByTestId("relationships-move-up-72")).toBeTruthy();
+    expect(screen.queryByTestId("relationships-move-down-72")).toBeNull();
+    expect(screen.queryByTestId("relationships-move-up-73")).toBeNull();
+    expect(screen.queryByTestId("relationships-move-down-73")).toBeNull();
+    expect(screen.getByTestId("relationships-remove-73")).toBeTruthy();
+  });
+
+  it("a single Active Assembly row has no move controls (#5201)", async () => {
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [aaFirst]}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-71")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-move-up-71")).toBeNull();
+    expect(screen.queryByTestId("relationships-move-down-71")).toBeNull();
+  });
+
+  it("cancel does not move a relationship (#5201)", async () => {
+    const move = vi.fn();
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [aaFirst, aaLast]}
+        moveEdge={move}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-move-down-71")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-move-down-71"));
+    fireEvent.click(screen.getByTestId("relationships-move-cancel"));
+    expect(move).not.toHaveBeenCalled();
+    expect(edgeOrder()).toEqual([
+      "relationships-edge-71",
+      "relationships-edge-72",
+    ]);
+    expect(screen.queryByTestId("relationships-moved")).toBeNull();
+  });
+
+  it("confirm moves one relationship and updates the list only after success (#5201)", async () => {
+    let rows = [aaFirst, aaLast];
+    let release: () => void = () => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const move = vi.fn().mockImplementation(async () => {
+      await gate;
+      rows = [aaLast, aaFirst];
+    });
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => rows}
+        moveEdge={move}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-move-down-71")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-move-down-71"));
+    fireEvent.click(screen.getByTestId("relationships-move-confirm"));
+    expect(edgeOrder()).toEqual([
+      "relationships-edge-71",
+      "relationships-edge-72",
+    ]);
+    expect(screen.queryByTestId("relationships-moved")).toBeNull();
+    release();
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-moved")).toBeTruthy(),
+    );
+    await waitFor(() =>
+      expect(edgeOrder()).toEqual([
+        "relationships-edge-72",
+        "relationships-edge-71",
+      ]),
+    );
+    expect(move).toHaveBeenCalledWith(71, "DOWN");
+    expect(screen.queryByTestId("relationships-move-up-72")).toBeNull();
+    expect(screen.getByTestId("relationships-move-up-71")).toBeTruthy();
+  });
+
+  async function expectMoveKeepsOrder(status: number): Promise<void> {
+    const move = vi
+      .fn()
+      .mockRejectedValue(Object.assign(new Error("no"), { status }));
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [aaFirst, aaLast]}
+        moveEdge={move}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-move-up-72")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-move-up-72"));
+    fireEvent.click(screen.getByTestId("relationships-move-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-move-error")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-moved")).toBeNull();
+    expect(edgeOrder()).toEqual([
+      "relationships-edge-71",
+      "relationships-edge-72",
+    ]);
+    expect(move).toHaveBeenCalledWith(72, "UP");
+  }
+
+  it("HTTP 400 keeps the previous relationship order (#5201)", async () => {
+    await expectMoveKeepsOrder(400);
+  });
+
+  it("HTTP 403 keeps the previous relationship order (#5201)", async () => {
+    await expectMoveKeepsOrder(403);
+  });
+
+  it("HTTP 409 keeps the previous relationship order (#5201)", async () => {
+    await expectMoveKeepsOrder(409);
+  });
+
+  it("move controls pass the zero serious/critical axe-core gate (#5201)", async () => {
+    const { container } = render(
+      <RelationshipsView
+        item={{ id: "42", folderPath: "/p" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [aaFirst, aaLast]}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-move-down-71")).toBeTruthy(),
+    );
+    await renderA11yGate(container);
+    fireEvent.click(screen.getByTestId("relationships-move-down-71"));
+    await renderA11yGate(container);
+  });
 });

@@ -32,6 +32,7 @@ import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.share.relationship.service.ExplorerRelationshipAction;
 import com.percussion.share.service.IPSIdMapper;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.system.IPSSystemWs;
@@ -75,6 +76,25 @@ class PSExplorerRelationshipRemoveServiceTest {
     assertEquals(1, action.getEdges().size());
     assertEquals(7, action.getEdges().get(0).getRelationshipId());
     assertEquals("Translation -> 9", action.getEdges().get(0).getLabel());
+  }
+
+  @Test
+  void listOrdersActiveAssemblyInTheSameSlotBySortRank() throws Exception {
+    when(idMapper.getGuid("42")).thenReturn(itemGuid);
+    when(itemGuid.getUUID()).thenReturn(42);
+    PSRelationship translation = edge(7, 42, 9, "Translation", "rs_translation");
+    PSRelationship later = activeAssembly(11, 3, 2);
+    PSRelationship otherSlot = activeAssembly(13, 9, 0);
+    PSRelationship earlier = activeAssembly(12, 3, 0);
+    when(systemWs.loadRelationships(any(PSRelationshipFilter.class)))
+        .thenReturn(List.of(translation, later, otherSlot, earlier));
+
+    ExplorerRelationshipAction action = service.listOwned("42");
+
+    assertEquals(List.of(7, 12, 13, 11), ids(action));
+    assertEquals(3, action.getEdges().get(1).getSlotId());
+    assertEquals(0, action.getEdges().get(1).getSortRank());
+    assertEquals(9, action.getEdges().get(2).getSlotId());
   }
 
   @Test
@@ -236,6 +256,26 @@ class PSExplorerRelationshipRemoveServiceTest {
     lenient().when(config.getName()).thenReturn(name);
     lenient().when(config.getCategory()).thenReturn(category);
     lenient().when(config.isActiveAssemblyRelationship()).thenReturn(false);
+    return rel;
+  }
+
+  private static List<Integer> ids(ExplorerRelationshipAction action) {
+    List<Integer> ids = new java.util.ArrayList<>();
+    for (var edge : action.getEdges()) {
+      ids.add(edge.getRelationshipId());
+    }
+    return ids;
+  }
+
+  private static PSRelationship activeAssembly(int id, int slotId, int sortRank) {
+    PSRelationship rel = edge(id, 42, id + 1, "ActiveAssembly", "rs_activeassembly");
+    when(rel.getConfig().isActiveAssemblyRelationship()).thenReturn(true);
+    lenient()
+        .when(rel.getProperty(IPSHtmlParameters.SYS_SLOTID))
+        .thenReturn(Integer.toString(slotId));
+    lenient()
+        .when(rel.getProperty(IPSHtmlParameters.SYS_SORTRANK))
+        .thenReturn(Integer.toString(sortRank));
     return rel;
   }
 
