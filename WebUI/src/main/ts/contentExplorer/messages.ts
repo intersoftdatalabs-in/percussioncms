@@ -440,6 +440,37 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@That snippet template is not allowed for this slot",
   RELATIONSHIPS_TEMPLATE_FAILED:
     "perc.ui.explorer@Could not change the snippet template",
+  RELATIONSHIPS_SLOT_LABEL: "perc.ui.explorer@Slot",
+  RELATIONSHIPS_MOVE_SLOT: "perc.ui.explorer@Move to slot",
+  RELATIONSHIPS_MOVE_SLOT_TITLE: "perc.ui.explorer@Move to another slot",
+  RELATIONSHIPS_MOVE_SLOT_LABEL: "perc.ui.explorer@Destination slot",
+  RELATIONSHIPS_MOVE_SLOT_PLACEHOLDER:
+    "perc.ui.explorer@Choose a different slot",
+  RELATIONSHIPS_MOVE_SLOT_DO: "perc.ui.explorer@Move to slot",
+  RELATIONSHIPS_SLOT_MOVED:
+    "perc.ui.explorer@Relationship moved to the other slot.",
+  RELATIONSHIPS_MOVE_SLOT_FAILED_400:
+    "perc.ui.explorer@The relationship could not be moved to that slot (HTTP 400)",
+  RELATIONSHIPS_MOVE_SLOT_FAILED_403:
+    "perc.ui.explorer@You are not allowed to move this relationship to that slot (HTTP 403)",
+  RELATIONSHIPS_MOVE_SLOT_FAILED_409:
+    "perc.ui.explorer@This relationship could not be moved to that slot (HTTP 409)",
+  RELATIONSHIPS_MOVE_SLOT_NEEDS:
+    "perc.ui.explorer@Choose a different slot before moving.",
+  RELATIONSHIPS_MOVE_SLOT_SAME:
+    "perc.ui.explorer@Choose a different slot. The current slot is not saved again",
+  RELATIONSHIPS_MOVE_SLOT_FOLDER:
+    "perc.ui.explorer@Folder relationships are not moved to a slot",
+  RELATIONSHIPS_MOVE_SLOT_NOT_ASSEMBLY:
+    "perc.ui.explorer@Only an Active Assembly relationship can move to another slot",
+  RELATIONSHIPS_MOVE_SLOT_NO_SLOT:
+    "perc.ui.explorer@This relationship has no slot to move from",
+  RELATIONSHIPS_MOVE_SLOT_NO_TEMPLATE:
+    "perc.ui.explorer@This relationship has no snippet template to keep on the other slot",
+  RELATIONSHIPS_MOVE_SLOT_NOT_ALLOWED:
+    "perc.ui.explorer@That slot is not on this page",
+  RELATIONSHIPS_MOVE_SLOT_FAILED:
+    "perc.ui.explorer@Could not move the relationship to another slot",
   // US5 P-Search / search panel (FR-017, FR-018, SC-005)
   SEARCH_TITLE: "perc.ui.explorer@Search",
   SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",

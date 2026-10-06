@@ -932,7 +932,7 @@ From the **View** menu you can also toggle:
   shows the error and does not claim that every relationship was removed.
   A folder row (`rs_folder` / `folder`), if present, has no Remove control and
   is left in place. Folder membership is otherwise not listed. A folder with no page or asset selected keeps
-  the select-item hint and does not claim a relationship was removed, added, moved, opened, or its snippet template changed.
+  the select-item hint and does not claim a relationship was removed, added, moved, moved to another slot, opened, or its snippet template changed.
   **Add relationship** asks for a target content id and a non-folder relationship
   type (for example **Translation**). **Cancel** does not call the server.
   **Add relationship** in the dialog calls
@@ -984,9 +984,26 @@ From the **View** menu you can also toggle:
   changed.* A folder relationship does not claim a template change. This does
   not move, add, or remove the relationship, and it does not change the
   editor Related content template control. This is not the editor Related
-  content reorder and not a folder move. An empty selection or a folder
+  content reorder and not a folder move. **Move to slot** appears on an
+  owned Active Assembly row that already has a slot. Translation rows,
+  folder rows, and Active Assembly rows with no slot do not show it and do
+  not claim a move. The dialog lists other slots on the same page
+  (`GET /services/assembly/slot-relationships/canvas?ownerId=`). The current
+  slot is not a choice. This is not **Move up** or **Move down**, and it is
+  not **Change template** (that write stays on the same slot). **Cancel**,
+  or choosing nothing, does not call the server and leaves the row in the
+  source slot. **Move to slot** calls
+  `POST /services/assembly/slot-relationships/{relationshipId}/template-slot`
+  with the destination `slotId` and the row's current `templateId`. The
+  sort index is omitted, so the snippet is appended on the destination
+  slot instead of keeping its source position. The row is listed under the
+  destination slot, and no longer under the source slot, only after that
+  call returns the destination slot. HTTP **400**, **403**, and **409** stay
+  on the panel, keep the previous slot, and do not show *Relationship moved
+  to the other slot.* A folder selection keeps the select-item hint and does
+  not claim a move. An empty selection or a folder
   selection keeps the select-item hint and does not claim a relationship was
-  added, moved, opened, or its snippet template changed. When the
+  added, moved, moved to another slot, opened, or its snippet template changed. When the
   item has relationship buckets, taxonomy nodes, local links, or Active
   Assembly links, those edges are listed. When every count is zero the panel
   says **No known dependencies for this item** — that is not a successful
