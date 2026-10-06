@@ -428,7 +428,9 @@ test.describe("Explorer create a new item in the selected slot (#5267)", () => {
     expect(order.filter((step) => step === "create").length).toBe(5);
     expect(editorDocs.some((url) => /contentId=99/.test(url))).toBe(true);
     expect(unexpectedJsErrors(jsErrors)).toEqual([]);
-    await popup.close().catch(() => {});
+    if (!popup.isClosed()) {
+      await popup.close();
+    }
   });
 
   test("a folder selection does not claim an item was created in a slot", async ({
