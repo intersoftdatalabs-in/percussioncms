@@ -8,6 +8,7 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  */
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
 import {
   RelationshipsView,
@@ -1473,6 +1474,307 @@ describe("RelationshipsView", () => {
     await waitFor(() =>
       expect(screen.getByRole("option", { name: "Brief" })).toBeTruthy(),
     );
+    await renderA11yGate(container);
+  });
+
+  const pageTypes = [{ id: 3, name: "percPage", label: "Page" }];
+
+  function renderCreate(
+    extra: Partial<ComponentProps<typeof RelationshipsView>> = {},
+  ) {
+    return render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted, slottedSibling, folderEdge]}
+        loadAllowedTemplates={async () => allowed}
+        loadAllowedTypes={async () => pageTypes}
+        {...extra}
+      />,
+    );
+  }
+
+  async function openCreateDialog(): Promise<void> {
+    fireEvent.click(screen.getByTestId("relationships-create-slot-5"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Page" })).toBeTruthy(),
+    );
+  }
+
+  function fillCreate(template = "4"): void {
+    fireEvent.change(screen.getByTestId("relationships-create-slot-type"), {
+      target: { value: "percPage" },
+    });
+    fireEvent.change(screen.getByTestId("relationships-create-slot-folder"), {
+      target: { value: "/Sites/Enterprise" },
+    });
+    fireEvent.change(screen.getByTestId("relationships-create-slot-template"), {
+      target: { value: template },
+    });
+  }
+
+  it("a folder row is not a slot and does not create an item (#5267)", async () => {
+    const create = vi.fn();
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [folderEdge, translationEdge]}
+        loadAllowedTypes={async () => pageTypes}
+        loadAllowedTemplates={async () => allowed}
+        createItem={create}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-82")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-create-slot-5")).toBeNull();
+    fireEvent.click(screen.getByTestId("relationships-create-in-slot"));
+    expect(create).not.toHaveBeenCalled();
+    expect(screen.getByTestId("relationships-create-slot-error")).toBeTruthy();
+    expect(screen.queryByTestId("relationships-create-slot-dialog")).toBeNull();
+    expect(screen.queryByTestId("relationships-create-slot-done")).toBeNull();
+  });
+
+  it("cancel and a missing type, folder, or template do not create (#5267)", async () => {
+    const create = vi.fn();
+    const link = vi.fn();
+    const open = vi.fn();
+    renderCreate({ createItem: create, linkCreated: link, openCreated: open });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-create-slot-5")).toBeTruthy(),
+    );
+    expect(idsInSlot(5)).toEqual(["71", "72"]);
+    await openCreateDialog();
+    fireEvent.click(screen.getByTestId("relationships-create-slot-confirm"));
+    expect(create).not.toHaveBeenCalled();
+    expect(link).not.toHaveBeenCalled();
+    expect(open).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-create-slot-done")).toBeNull();
+    expect(screen.getByTestId("relationships-create-slot-error")).toBeTruthy();
+
+    fireEvent.change(screen.getByTestId("relationships-create-slot-folder"), {
+      target: { value: "/Sites/Enterprise" },
+    });
+    fireEvent.change(screen.getByTestId("relationships-create-slot-template"), {
+      target: { value: "4" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-create-slot-confirm"));
+    expect(create).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("relationships-create-slot-type"), {
+      target: { value: "percPage" },
+    });
+    fireEvent.change(screen.getByTestId("relationships-create-slot-folder"), {
+      target: { value: "  " },
+    });
+    fireEvent.click(screen.getByTestId("relationships-create-slot-confirm"));
+    expect(create).not.toHaveBeenCalled();
+
+    fillCreate("9");
+    fireEvent.click(screen.getByTestId("relationships-create-slot-confirm"));
+    expect(create).not.toHaveBeenCalled();
+    expect(idsInSlot(5)).toEqual(["71", "72"]);
+
+    fillCreate("4");
+    fireEvent.click(screen.getByTestId("relationships-create-slot-cancel"));
+    expect(create).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-create-slot-dialog")).toBeNull();
+    expect(screen.queryByTestId("relationships-create-slot-done")).toBeNull();
+  });
+
+  it("lists the item and opens the editor only after the link succeeds (#5267)", async () => {
+    let releaseCreate: (value: { itemId: string; name: string }) => void = () => {};
+    const created = new Promise<{ itemId: string; name: string }>((resolve) => {
+      releaseCreate = resolve;
+    });
+    let releaseLink: (value: {
+      relationshipId: number;
+      ownerId: number;
+      dependentId: number;
+      slotId: number;
+      templateId: number;
+      sortRank: number;
+    }) => void = () => {};
+    const linked = new Promise<{
+      relationshipId: number;
+      ownerId: number;
+      dependentId: number;
+      slotId: number;
+      templateId: number;
+      sortRank: number;
+    }>((resolve) => {
+      releaseLink = resolve;
+    });
+    const create = vi.fn().mockReturnValue(created);
+    const link = vi.fn().mockReturnValue(linked);
+    const linkExisting = vi.fn();
+    const open = vi.fn().mockResolvedValue(true);
+    renderCreate({
+      createItem: create,
+      linkCreated: link,
+      linkExisting,
+      openCreated: open,
+      reserveCreatedWindow: () => null,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-create-slot-5")).toBeTruthy(),
+    );
+    await openCreateDialog();
+    fillCreate();
+    fireEvent.click(screen.getByTestId("relationships-create-slot-confirm"));
+    expect(create).toHaveBeenCalledWith({
+      contentType: "percPage",
+      folderPath: "/Sites/Enterprise",
+    });
+    expect(link).not.toHaveBeenCalled();
+    expect(open).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-edge-91")).toBeNull();
+    expect(screen.queryByTestId("relationships-create-slot-done")).toBeNull();
+    releaseCreate({ itemId: "1-101-99", name: "New page" });
+    await waitFor(() =>
+      expect(link).toHaveBeenCalledWith({
+        ownerId: 42,
+        dependentId: 99,
+        slotId: 5,
+        templateId: 4,
+      }),
+    );
+    expect(open).not.toHaveBeenCalled();
+    expect(idsInSlot(5)).toEqual(["71", "72"]);
+    releaseLink({
+      relationshipId: 91,
+      ownerId: 42,
+      dependentId: 99,
+      slotId: 5,
+      templateId: 4,
+      sortRank: 2,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-create-slot-done")).toBeTruthy(),
+    );
+    expect(open).toHaveBeenCalledWith(
+      { id: 99, mode: "edit" },
+      { reservedWindow: null },
+    );
+    expect(linkExisting).not.toHaveBeenCalled();
+    expect(idsInSlot(5)).toEqual(["71", "72", "91"]);
+    expect(screen.getByTestId("relationships-edge-91").textContent).toContain(
+      "New page",
+    );
+    expect(screen.getByTestId("relationships-edge-91")).toHaveAttribute(
+      "data-dependent-id",
+      "99",
+    );
+    expect(screen.getByTestId("relationships-edge-91")).toHaveAttribute(
+      "data-slot-id",
+      "5",
+    );
+  });
+
+  async function expectCreateStays(status: number): Promise<void> {
+    const create = vi
+      .fn()
+      .mockRejectedValue(Object.assign(new Error("no"), { status }));
+    const link = vi.fn();
+    const open = vi.fn();
+    const reserved = { closed: false, close: vi.fn() };
+    renderCreate({
+      createItem: create,
+      linkCreated: link,
+      openCreated: open,
+      reserveCreatedWindow: () => reserved as unknown as Window,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-create-slot-5")).toBeTruthy(),
+    );
+    await openCreateDialog();
+    fillCreate();
+    fireEvent.click(screen.getByTestId("relationships-create-slot-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-create-slot-error")).toBeTruthy(),
+    );
+    expect(link).not.toHaveBeenCalled();
+    expect(open).not.toHaveBeenCalled();
+    expect(reserved.close).toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-create-slot-done")).toBeNull();
+    expect(screen.queryByTestId("relationships-edge-91")).toBeNull();
+    expect(idsInSlot(5)).toEqual(["71", "72"]);
+  }
+
+  it("HTTP 400 does not list a created item in the slot (#5267)", async () => {
+    await expectCreateStays(400);
+  });
+
+  it("HTTP 403 does not list a created item in the slot (#5267)", async () => {
+    await expectCreateStays(403);
+  });
+
+  it("HTTP 409 does not list a created item in the slot (#5267)", async () => {
+    await expectCreateStays(409);
+  });
+
+  it("a failed link does not list the item or open the editor (#5267)", async () => {
+    const create = vi.fn().mockResolvedValue({
+      itemId: "1-101-99",
+      name: "New page",
+    });
+    const link = vi
+      .fn()
+      .mockRejectedValue(Object.assign(new Error("no"), { status: 409 }));
+    const open = vi.fn();
+    renderCreate({ createItem: create, linkCreated: link, openCreated: open });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-create-slot-5")).toBeTruthy(),
+    );
+    await openCreateDialog();
+    fillCreate();
+    fireEvent.click(screen.getByTestId("relationships-create-slot-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-create-slot-error")).toBeTruthy(),
+    );
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(link).toHaveBeenCalledTimes(1);
+    expect(open).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-create-slot-done")).toBeNull();
+    expect(screen.queryByTestId("relationships-edge-91")).toBeNull();
+  });
+
+  it("does not claim success when the editor does not open (#5267)", async () => {
+    const open = vi.fn().mockResolvedValue(false);
+    renderCreate({
+      createItem: async () => ({ itemId: "99", name: "New page" }),
+      linkCreated: async (request) => ({
+        relationshipId: 91,
+        ownerId: request.ownerId,
+        dependentId: request.dependentId,
+        slotId: request.slotId,
+        templateId: request.templateId,
+        sortRank: 1,
+      }),
+      openCreated: open,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-create-slot-5")).toBeTruthy(),
+    );
+    await openCreateDialog();
+    fillCreate();
+    fireEvent.click(screen.getByTestId("relationships-create-slot-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-create-slot-error")).toBeTruthy(),
+    );
+    expect(open).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("relationships-create-slot-done")).toBeNull();
+    expect(idsInSlot(5)).toEqual(["71", "72", "91"]);
+  });
+
+  it("create-in-slot dialog passes the zero serious/critical axe-core gate (#5267)", async () => {
+    const { container } = renderCreate();
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-create-slot-5")).toBeTruthy(),
+    );
+    await renderA11yGate(container);
+    await openCreateDialog();
     await renderA11yGate(container);
   });
 });

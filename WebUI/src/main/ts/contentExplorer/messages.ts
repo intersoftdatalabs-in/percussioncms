@@ -496,6 +496,37 @@ export const EXPLORER_MSG = {
   RELATIONSHIPS_LINK_SLOT_FAILED:
     "perc.ui.explorer@Could not link the item into the slot",
   RELATIONSHIPS_LINK_SLOT_SELECT_ROW: "perc.ui.explorer@Select row",
+  RELATIONSHIPS_CREATE_SLOT: "perc.ui.explorer@Create new item",
+  RELATIONSHIPS_CREATE_SLOT_DO: "perc.ui.explorer@Create in slot",
+  RELATIONSHIPS_CREATE_SLOT_TITLE:
+    "perc.ui.explorer@Create a new item in this slot",
+  RELATIONSHIPS_CREATE_SLOT_TYPE: "perc.ui.explorer@Content type",
+  RELATIONSHIPS_CREATE_SLOT_TYPE_PLACEHOLDER:
+    "perc.ui.explorer@Choose a content type",
+  RELATIONSHIPS_CREATE_SLOT_FOLDER: "perc.ui.explorer@Folder",
+  RELATIONSHIPS_CREATE_SLOT_DONE: "perc.ui.explorer@Created the item in the slot.",
+  RELATIONSHIPS_CREATE_SLOT_FAILED_400:
+    "perc.ui.explorer@The item could not be created in that slot (HTTP 400)",
+  RELATIONSHIPS_CREATE_SLOT_FAILED_403:
+    "perc.ui.explorer@You are not allowed to create an item in that slot (HTTP 403)",
+  RELATIONSHIPS_CREATE_SLOT_FAILED_409:
+    "perc.ui.explorer@This item could not be created in that slot (HTTP 409)",
+  RELATIONSHIPS_CREATE_SLOT_NO_TYPE:
+    "perc.ui.explorer@Choose a content type before creating.",
+  RELATIONSHIPS_CREATE_SLOT_TYPE_NOT_ALLOWED:
+    "perc.ui.explorer@That content type is not allowed for this slot",
+  RELATIONSHIPS_CREATE_SLOT_NO_FOLDER:
+    "perc.ui.explorer@Choose a folder before creating.",
+  RELATIONSHIPS_CREATE_SLOT_NO_TEMPLATE:
+    "perc.ui.explorer@Choose a snippet template before creating.",
+  RELATIONSHIPS_CREATE_SLOT_NOT_ALLOWED:
+    "perc.ui.explorer@That snippet template is not allowed for this slot",
+  RELATIONSHIPS_CREATE_SLOT_NOT_SLOT:
+    "perc.ui.explorer@Select a slot before creating a new item",
+  RELATIONSHIPS_CREATE_SLOT_FAILED:
+    "perc.ui.explorer@Could not create the item in the slot",
+  RELATIONSHIPS_CREATE_SLOT_EDITOR_FAILED:
+    "perc.ui.explorer@The editor did not open.",
   // US5 P-Search / search panel (FR-017, FR-018, SC-005)
   SEARCH_TITLE: "perc.ui.explorer@Search",
   SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",
