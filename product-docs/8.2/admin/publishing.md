@@ -690,7 +690,9 @@ are shown in the context editor error region — not as a successful save. Creat
 post a `context` object (`name`, optional `description`). A flat JSON body without that
 root is not saved. Location-scheme save, delivery-type save, and edition save are separate
 Design actions. Renaming a publishing context is described below and does not change the
-description or move location schemes. Copying a publishing context is also described below.
+description or move location schemes. Setting a publishing context description is also
+described below and does not change the name or move location schemes. Copying a publishing
+context is also described below.
 
 ### Rename a publishing context (Design)
 
@@ -712,8 +714,31 @@ the server.
 HTTP **400** (name invalid), **403** (not Admin or Designer), and **409** (publishing
 context name already exists) stay in the rename form error region. Those responses do
 not change the name on the list and do not move location schemes. Saving a publishing
-context (which can also change the description), copying one, and deleting one are
-separate actions.
+context (which can also change the description), setting only the description, copying
+one, and deleting one are separate actions.
+
+### Set a publishing context description (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. **Description** opens **Context description**
+(it does not call the server). The form shows the current **name** and the location scheme
+names and does not let you change them. Change **Description**. **Save description** sends
+`PUT …/sitemanage/publishingdesign/contexts/{contextId}` with a `context` object that
+contains only the description. Name and the default scheme are omitted, so the server leaves
+those stored. The context id does not change, so location schemes that were on the context
+stay on it. A blank description clears the stored description.
+
+The **Context** list keeps the previous description until that update succeeds, then shows
+the new description (or none, when cleared) with the same name. The location schemes for
+that context stay listed. **Cancel** closes the form and does not call the server. A
+description longer than 255 characters (`RXCONTEXT.CONTEXTDESC`) is rejected in the form
+and does not call the server.
+
+HTTP **400** (description longer than 255 characters), **403** (not Admin or Designer), and
+**409** (for example a publishing context name conflict on the same update) stay in the
+description form error region. Those responses do not change the description on the list
+and do not move location schemes. Saving a publishing context (which can also change the
+name), renaming a publishing context, and copying one are separate actions.
 
 ### Copy a publishing context (Design)
 

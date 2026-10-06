@@ -1595,6 +1595,133 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void updateContext_descriptionOnly_keepsNameDefaultSchemeAndSchemes() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    IPSPublishingContext loaded = mock(IPSPublishingContext.class);
+    when(siteManager.loadContextModifiable(contextGuid)).thenReturn(loaded);
+    when(loaded.getGUID()).thenReturn(contextGuid);
+    when(contextGuid.getUUID()).thenReturn(5);
+    when(loaded.getName()).thenReturn("Publish");
+    when(loaded.getDescription()).thenReturn("Night notes");
+    IPSLocationScheme scheme = mock(IPSLocationScheme.class);
+    when(loaded.getDefaultScheme()).thenReturn(scheme);
+    when(scheme.getGUID()).thenReturn(schemeGuid);
+    when(schemeGuid.getUUID()).thenReturn(11);
+
+    PSContextSummary body = new PSContextSummary();
+    body.setDescription("  Night notes  ");
+
+    PSContextSummary saved = design.updateContext("5", body);
+    assertEquals("5", saved.getContextId());
+    assertEquals("Publish", saved.getName());
+    assertEquals("Night notes", saved.getDescription());
+    assertEquals("11", saved.getDefaultSchemeId());
+    verify(loaded).setDescription("Night notes");
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setDefaultSchemeId(any());
+    verify(siteManager).saveContext(loaded);
+    verify(siteManager, never()).findAllContexts();
+    verify(siteManager, never()).findSchemesByContextId(any());
+    verify(siteManager, never()).saveScheme(any());
+    verify(siteManager, never()).createScheme();
+  }
+
+  @Test
+  void updateContext_blankDescription_clearsAndKeepsNameAndSchemes() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    IPSPublishingContext loaded = mock(IPSPublishingContext.class);
+    when(siteManager.loadContextModifiable(contextGuid)).thenReturn(loaded);
+    when(loaded.getGUID()).thenReturn(contextGuid);
+    when(contextGuid.getUUID()).thenReturn(5);
+    when(loaded.getName()).thenReturn("Publish");
+    when(loaded.getDescription()).thenReturn(null);
+    IPSLocationScheme scheme = mock(IPSLocationScheme.class);
+    when(loaded.getDefaultScheme()).thenReturn(scheme);
+    when(scheme.getGUID()).thenReturn(schemeGuid);
+    when(schemeGuid.getUUID()).thenReturn(11);
+
+    PSContextSummary body = new PSContextSummary();
+    body.setDescription("   ");
+
+    PSContextSummary saved = design.updateContext("5", body);
+    assertEquals("Publish", saved.getName());
+    assertNull(saved.getDescription());
+    assertEquals("11", saved.getDefaultSchemeId());
+    verify(loaded).setDescription(isNull());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setDefaultSchemeId(any());
+    verify(siteManager).saveContext(loaded);
+    verify(siteManager, never()).saveScheme(any());
+    verify(siteManager, never()).createScheme();
+  }
+
+  @Test
+  void updateContext_descriptionTooLong_400_doesNotChangeNameOrSchemes() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    IPSPublishingContext loaded = mock(IPSPublishingContext.class);
+    when(siteManager.loadContextModifiable(contextGuid)).thenReturn(loaded);
+
+    PSContextSummary body = new PSContextSummary();
+    body.setName("Renamed");
+    body.setDescription(
+        "d".repeat(PSPublishingDesignRestService.MAX_CONTEXT_DESCRIPTION_LENGTH + 1));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateContext("5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_DESCRIPTION_TOO_LONG, ex.getMessage());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setDefaultSchemeId(any());
+    verify(siteManager, never()).saveContext(any());
+    verify(siteManager, never()).saveScheme(any());
+    verify(siteManager, never()).createScheme();
+  }
+
+  @Test
+  void updateContext_description_forbidden_403() {
+    PSPublishingDesignRestService design = contextDesign();
+    design.setDesignWriteAllowed(() -> false);
+    PSContextSummary body = new PSContextSummary();
+    body.setDescription("Night notes");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateContext("5", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(siteManager, never()).loadContextModifiable(any());
+    verify(siteManager, never()).saveContext(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateContext_duplicateNameWithDescription_409_doesNotChangeDescription() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    IPSPublishingContext loaded = mock(IPSPublishingContext.class);
+    when(siteManager.loadContextModifiable(contextGuid)).thenReturn(loaded);
+
+    IPSGuid otherGuid = mock(IPSGuid.class);
+    IPSPublishingContext existing = mock(IPSPublishingContext.class);
+    when(existing.getName()).thenReturn("Taken");
+    when(existing.getGUID()).thenReturn(otherGuid);
+    when(otherGuid.getUUID()).thenReturn(99);
+    when(siteManager.findAllContexts()).thenReturn(List.of(existing));
+
+    PSContextSummary body = new PSContextSummary();
+    body.setName("Taken");
+    body.setDescription("new notes");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateContext("5", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setDefaultSchemeId(any());
+    verify(siteManager, never()).saveContext(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
   void deleteContentList_notFound_404() throws Exception {
     when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
     when(publisherService.loadContentList(contentListGuid))
