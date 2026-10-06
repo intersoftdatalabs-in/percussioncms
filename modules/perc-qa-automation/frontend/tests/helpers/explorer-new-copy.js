@@ -86,6 +86,64 @@ function isKnownExplorerNewCopyConsoleNoise(text) {
 }
 
 /**
+ * Multi-select confirm (#5247). Count is the number of pages and assets.
+ * @param {string | null | undefined} text
+ * @returns {boolean}
+ */
+function isMultiNewCopyConfirm(text) {
+  return /Create a new copy of \d+ selected items in the same folder/i.test(
+    String(text || ""),
+  );
+}
+
+/**
+ * @param {string | null | undefined} text
+ * @param {string} folderName
+ * @returns {boolean}
+ */
+function namesSkippedNewCopyFolder(text, folderName) {
+  return String(text || "").includes(`Folders are not copied: ${folderName}`);
+}
+
+/**
+ * One HTTP failure must not read as a full-selection copy.
+ * @param {string | null | undefined} text
+ * @param {string} itemName
+ * @param {number} status
+ * @returns {boolean}
+ */
+function isPartialNewCopy(text, itemName, status) {
+  const body = String(text || "");
+  return (
+    body.includes(`${itemName} (HTTP ${status})`) &&
+    /not every selected item got a new copy/i.test(body)
+  );
+}
+
+/**
+ * A listed copy id must already have a successful post. Listing before the
+ * post is not allowed.
+ *
+ * @param {readonly { type: string, id: string }[]} events
+ * @returns {boolean}
+ */
+function copyListedOnlyAfterPost(events) {
+  const posted = new Set();
+  const list = Array.isArray(events) ? events : [];
+  for (const event of list) {
+    if (!event) continue;
+    if (event.type === "post") {
+      posted.add(String(event.id));
+      continue;
+    }
+    if (event.type === "listed" && !posted.has(String(event.id))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
  * Next detail-list folder to open while looking for a content item.
  * Page walks prefer a folder whose name is exactly {@code Pages}. Rows
  * already opened ({@code seenIds}) are skipped so a path cell that merely
@@ -127,5 +185,9 @@ module.exports = {
   isNewCopySuccess,
   isNewCopyHttpFailure,
   isKnownExplorerNewCopyConsoleNoise,
+  isMultiNewCopyConfirm,
+  namesSkippedNewCopyFolder,
+  isPartialNewCopy,
+  copyListedOnlyAfterPost,
   pickContentFolderIndex,
 };

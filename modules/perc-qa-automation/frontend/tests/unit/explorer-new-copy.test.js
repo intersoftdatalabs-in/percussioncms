@@ -22,8 +22,12 @@ const assert = require("node:assert/strict");
 const {
   TEST_IDS,
   isItemNewCopyUrl,
+  copyListedOnlyAfterPost,
+  isMultiNewCopyConfirm,
   isNewCopyHttpFailure,
   isNewCopySuccess,
+  isPartialNewCopy,
+  namesSkippedNewCopyFolder,
   pickContentFolderIndex,
 } = require("../helpers/explorer-new-copy");
 
@@ -85,5 +89,49 @@ describe("explorer new copy helpers (#5006)", () => {
     assert.equal(pickContentFolderIndex(rows, "asset", []), 0);
     assert.equal(pickContentFolderIndex(rows, "page", ["site", "decoy", "pages"]), -1);
     assert.equal(pickContentFolderIndex([{ id: "", name: "Pages" }], "page", []), -1);
+  });
+});
+
+describe("explorer multi new copy helpers (#5247)", () => {
+  it("recognizes the one-confirm multi copy prompt", () => {
+    assert.equal(
+      isMultiNewCopyConfirm(
+        "Create a new copy of 2 selected items in the same folder? Folders in the selection are not copied.",
+      ),
+      true,
+    );
+    assert.equal(
+      isMultiNewCopyConfirm("Create a new copy of this item in the same folder?"),
+      false,
+    );
+  });
+
+  it("names a skipped folder and a partial HTTP failure", () => {
+    const text =
+      "Folders are not copied: News Not every selected item got a new copy. About (HTTP 409)";
+    assert.equal(namesSkippedNewCopyFolder(text, "News"), true);
+    assert.equal(namesSkippedNewCopyFolder(text, "Blog"), false);
+    assert.equal(isPartialNewCopy(text, "About", 409), true);
+    assert.equal(isPartialNewCopy(text, "About", 400), false);
+    assert.equal(isPartialNewCopy("New copy created", "About", 409), false);
+  });
+
+  it("does not list a copy before that item's post", () => {
+    assert.equal(
+      copyListedOnlyAfterPost([
+        { type: "post", id: "42" },
+        { type: "listed", id: "42" },
+        { type: "post", id: "43" },
+        { type: "listed", id: "43" },
+      ]),
+      true,
+    );
+    assert.equal(
+      copyListedOnlyAfterPost([
+        { type: "listed", id: "42" },
+        { type: "post", id: "42" },
+      ]),
+      false,
+    );
   });
 });

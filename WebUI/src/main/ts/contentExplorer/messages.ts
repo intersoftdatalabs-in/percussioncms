@@ -1321,6 +1321,16 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@This item could not be removed from the incremental queue (HTTP 409)",
   CONFIRM_NEW_COPY:
     "perc.ui.explorer@Create a new copy of this item in the same folder?",
+  CONFIRM_NEW_COPY_MULTI:
+    "perc.ui.explorer@Create a new copy of {count} selected items in the same folder? Folders in the selection are not copied.",
+  NEW_COPY_SKIPPED_FOLDERS:
+    "perc.ui.explorer@Folders are not copied: {names}",
+  NEW_COPY_SKIPPED_OTHER:
+    "perc.ui.explorer@These selected items are not pages or assets and were not copied: {names}",
+  NEW_COPY_BATCH_INCOMPLETE:
+    "perc.ui.explorer@Not every selected item got a new copy. {detail}",
+  NEW_COPY_NOTHING_ELIGIBLE:
+    "perc.ui.explorer@Nothing in the selection can be copied. Folders are not copied.",
   CONFIRM_PROMOTABLE:
     "perc.ui.explorer@Create a promotable version of this item in the same folder?",
   ACTION_FLUSH_OK: "perc.ui.explorer@Assembler cache flushed",

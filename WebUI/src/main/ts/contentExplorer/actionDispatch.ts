@@ -122,6 +122,7 @@ import {
   parseExplorerContentId,
 } from "./menuCatalogLoad";
 import { resolveFolderPathFromSelection } from "./folderPath";
+import { runMultiNewCopy } from "./multiSelectNewCopy";
 import { message } from "../i18n/message";
 import { EXPLORER_MSG } from "./messages";
 import {
@@ -248,6 +249,15 @@ export interface ActionDispatchContext {
   flushCache?: () => Promise<void>;
   resetNav?: () => Promise<void>;
   createCopy?: (itemId: string) => Promise<void>;
+  /**
+   * Folder list refresh after one same-folder new copy succeeds.
+   * Not called for cancel, a folder, or HTTP 400/403/409.
+   */
+  onItemCopied?: (copied: {
+    sourceId: string;
+    name: string;
+    copyId?: string;
+  }) => void | Promise<void>;
   createPromotable?: (itemId: string) => Promise<void>;
   approveIncremental?: (itemId: string) => Promise<void>;
   unapproveIncremental?: (itemId: string) => Promise<void>;
@@ -267,8 +277,8 @@ export interface ActionDispatchContext {
   /**
    * Checkbox multi-selection. When length is 2 or more, Publish now,
    * Stage, Take Down, Remove from Staging, Check Out, workflow
-   * transitions, and Copy URL use one action for every eligible page or
-   * asset and skip folders.
+   * transitions, Copy URL, and New Copy use one action for every eligible
+   * page or asset and skip folders.
    */
   selectedItems?: readonly PSPathItem[];
   onRemoveFromStaging?: (item: PSPathItem) => Promise<void>;
@@ -2214,8 +2224,25 @@ export async function dispatchAction(
   }
 
   if (name === "workflow_newversion") {
-    // Same-folder itemmanagement new copy (#5006). Folders, sites, and a
-    // blank selection are not a copy. HTTP 400/403/409 stay errors: no refresh.
+    // Same-folder itemmanagement new copy (#5006, multi-select #5247).
+    // Folders, sites, and a blank selection are not a copy. HTTP 400/403/409
+    // stay errors. Two or more checked rows copy each page and asset.
+    const checked = ctx.selectedItems ?? [];
+    if (checked.length >= 2) {
+      const batch = await runMultiNewCopy({
+        items: checked,
+        confirm: ctx.confirm ?? ((body) => window.confirm(body)),
+        copyOne: async (itemId) => {
+          if (ctx.createCopy) {
+            await ctx.createCopy(itemId);
+            return;
+          }
+          return createNewCopy(itemId);
+        },
+        onItemCopied: ctx.onItemCopied,
+      });
+      return { kind: "rest", ...batch };
+    }
     const copyId = item?.id == null ? "" : String(item.id).trim();
     if (!item || isFolder(item) || copyId.length === 0) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
