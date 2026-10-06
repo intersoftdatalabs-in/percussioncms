@@ -37,7 +37,9 @@ import {
   workflowTransitionDefaultPath,
   addTransitionAllowedRole,
   clearTransitionAllowedRoles,
+  removeTransitionAllowedRole,
   restrictTransitionToOneRole,
+  workflowTransitionRemoveAllowedRolePath,
   workflowTransitionAddAllowedRolePath,
   workflowTransitionAllowedRolePath,
   workflowTransitionClearAllowedRolesPath,
@@ -1893,6 +1895,56 @@ describe("clearTransitionAllowedRoles", () => {
     const init = fetchMock.mock.calls[0][1] as RequestInit;
     expect(init.method).toBe("DELETE");
     expect(String(fetchMock.mock.calls[0][0])).toBe(
+      workflowTransitionClearAllowedRolesPath("Nightly QA", "Draft", "Send", "Live"),
+    );
+    expect(init.body).toBeUndefined();
+  });
+});
+
+describe("removeTransitionAllowedRole", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("DELETEs one role and keeps the transition restricted", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          roles: ["Editor", "Author"],
+          edges: [
+            {
+              from: "Draft",
+              to: "Live",
+              label: "Send",
+              allowAllRoles: false,
+              allowedRoles: "Editor",
+              defaultTransition: false,
+              approvalsRequired: 4,
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await removeTransitionAllowedRole("Nightly QA", "Draft", "Send", "Author", "Live");
+    expect(graph.edges?.[0]?.allowAllRoles).toBe(false);
+    expect(graph.edges?.[0]?.allowedRoles).toEqual(["Editor"]);
+    expect(graph.edges?.[0]?.approvalsRequired).toBe(4);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("DELETE");
+    expect(String(fetchMock.mock.calls[0][0])).toBe(
+      workflowTransitionRemoveAllowedRolePath("Nightly QA", "Draft", "Send", "Author", "Live"),
+    );
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/transitions/allowed-roles/Author?");
+    expect(String(fetchMock.mock.calls[0][0])).not.toBe(
       workflowTransitionClearAllowedRolesPath("Nightly QA", "Draft", "Send", "Live"),
     );
     expect(init.body).toBeUndefined();

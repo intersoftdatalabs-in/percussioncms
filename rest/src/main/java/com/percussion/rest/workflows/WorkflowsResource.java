@@ -973,8 +973,10 @@ public class WorkflowsResource {
               + " restricted so every role may fire it. Query `from` is the source step and"
               + " `label` is the transition label (or trigger). Query `to` is required when more"
               + " than one transition on the source step shares the label. No request body. This"
-              + " is not POST allowed-roles, which appends one role, and not PUT allowed-role,"
-              + " which only replaces allow-all with one role. allowAllRoles becomes true and the"
+              + " is not POST allowed-roles, which appends one role, not PUT allowed-role,"
+              + " which only replaces allow-all with one role, and not DELETE"
+              + " allowed-roles/{roleName}, which removes one role and stays restricted."
+              + " allowAllRoles becomes true and the"
               + " role list is gone only after success. A transition that already allows every"
               + " role is 409 and the previous list is not changed. Does not add a role, edit"
               + " step roles, or change the label, destination, comment flag, approval count, or"
@@ -1018,6 +1020,80 @@ public class WorkflowsResource {
     } catch (Exception e) {
       log.error(
           "Failed to clear transition roles ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @DELETE
+  @Path("/{idOrName}/transitions/allowed-roles/{roleName}")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Remove one role allowed to fire a transition",
+      description =
+          "Slice 80 Admin. Removes one workflow role from one regular transition that already"
+              + " lists two or more roles. Query `from` is the source step and `label` is the"
+              + " transition label (or trigger). Query `to` is required when more than one"
+              + " transition on the source step shares the label. The path role must already be"
+              + " on that transition. The transition stays restricted. The remaining roles are"
+              + " listed, and the removed role is gone, only after success. This is not DELETE"
+              + " allowed-roles without a role name, which clears the list so every role may"
+              + " fire it, and not POST allowed-roles, which appends one role. The allow-all"
+              + " marker *ALL* is 409 and does not write. A transition that still allows every"
+              + " role is 409 and stays allow-all. A role that is not on the list is 409 and the"
+              + " list is not changed. Removing the last remaining role is 409; use the clear"
+              + " call instead. Does not edit step roles or change the label, destination,"
+              + " comment flag, approval count, or default flag. Aging transitions are 400."
+              + " Packaged default workflows are forbidden (403).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description =
+                "Updated; returns the graph with allowAllRoles false and that role removed",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description =
+                "Missing from, label, or role, ambiguous label, or the match is aging"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Workflow, step, transition, or role not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description =
+                "Allow-all marker, the transition still allows every role, the role is not on"
+                    + " the list, or it is the last remaining role; nothing was written"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph removeTransitionAllowedRole(
+      @PathParam("idOrName") String idOrName,
+      @PathParam("roleName") String roleName,
+      @QueryParam("from") String fromStep,
+      @QueryParam("label") String label,
+      @QueryParam("to") String toStep) {
+    if (roleName == null || roleName.isBlank()) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
+    if (fromStep == null || fromStep.isBlank() || label == null || label.isBlank()) {
+      throw new WebApplicationException("from and label are required", 400);
+    }
+    try {
+      return requireAdaptor()
+          .removeTransitionAllowedRole(
+              uriInfo.getBaseUri(), idOrName, fromStep, label, toStep, roleName);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to remove a transition role ({}): {}",
           e.getClass().getName(),
           e.getMessage(),
           e);
