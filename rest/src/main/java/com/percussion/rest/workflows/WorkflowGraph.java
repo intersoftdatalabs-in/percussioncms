@@ -144,10 +144,15 @@ public class WorkflowGraph {
     private Long intervalMinutes;
     /**
      * Aging type name ({@code ABSOLUTE}, {@code REPEATED}, or {@code SYSTEM_FIELD}). Omitted on
-     * regular edges. Repeated creates set {@code REPEATED}. Omitted create type stays {@code
-     * ABSOLUTE}.
+     * regular edges. Repeated creates set {@code REPEATED}. A system-field create sets {@code
+     * SYSTEM_FIELD}. Omitted create type stays {@code ABSOLUTE}.
      */
     private String agingType;
+    /**
+     * System field that supplies the aging time. Present only on {@code SYSTEM_FIELD} edges.
+     * One of {@code CONTENTSTARTDATE}, {@code CONTENTEXPIRYDATE}, or {@code REMINDERDATE}.
+     */
+    private String systemField;
 
     public String getFrom() {
       return from;
@@ -243,6 +248,14 @@ public class WorkflowGraph {
 
     public void setAgingType(String agingType) {
       this.agingType = agingType;
+    }
+
+    public String getSystemField() {
+      return systemField;
+    }
+
+    public void setSystemField(String systemField) {
+      this.systemField = systemField;
     }
   }
 }

@@ -193,9 +193,16 @@ public final class WorkflowGraphProjector {
       edge.setLabel(label);
       if (transition instanceof PSAgingTransition aging) {
         edge.setAging(true);
-        edge.setIntervalMinutes(aging.getInterval());
-        if (aging.getAgingTypeEnum() != null) {
-          edge.setAgingType(aging.getAgingTypeEnum().name());
+        if (aging.getAgingTypeEnum() == PSAgingTransition.PSAgingTypeEnum.SYSTEM_FIELD) {
+          edge.setAgingType(PSAgingTransition.PSAgingTypeEnum.SYSTEM_FIELD.name());
+          if (StringUtils.isNotBlank(aging.getSystemField())) {
+            edge.setSystemField(aging.getSystemField().trim());
+          }
+        } else {
+          edge.setIntervalMinutes(aging.getInterval());
+          if (aging.getAgingTypeEnum() != null) {
+            edge.setAgingType(aging.getAgingTypeEnum().name());
+          }
         }
       } else if (transition instanceof PSTransition regular) {
         edge.setCommentRequired(

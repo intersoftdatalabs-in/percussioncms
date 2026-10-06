@@ -2102,6 +2102,20 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@A repeated aging transition with that interval already goes to that step.",
   WF_REPEATED_INVALID:
     "perc.ui.developer@Choose an existing destination step and a positive interval in minutes for the repeated aging transition.",
+  WF_SYSTEM_FIELD_KIND: "perc.ui.developer@system field",
+  WF_SYSTEM_FIELD_LABEL: "perc.ui.developer@System field",
+  WF_SYSTEM_FIELD_BLANK: "perc.ui.developer@Select a system field",
+  WF_SYSTEM_FIELD_ADD: "perc.ui.developer@Add system-field aging transition",
+  WF_SYSTEM_FIELD_SAVED: "perc.ui.developer@System-field aging transition saved.",
+  WF_SYSTEM_FIELD_ERROR: "perc.ui.developer@Could not add the system-field aging transition.",
+  WF_SYSTEM_FIELD_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_SYSTEM_FIELD_BAD:
+    "perc.ui.developer@That system-field aging transition could not be saved. Check the steps and the system field.",
+  WF_SYSTEM_FIELD_CONFLICT:
+    "perc.ui.developer@A system-field aging transition for that field already goes to that step.",
+  WF_SYSTEM_FIELD_INVALID:
+    "perc.ui.developer@Choose an existing destination step and one system field. A blank system field is not saved.",
   WF_AGING_CHANGE: "perc.ui.developer@Change interval",
   WF_AGING_NEW_MINUTES: "perc.ui.developer@New interval (minutes)",
   WF_AGING_INTERVAL_SAVE: "perc.ui.developer@Save interval",

@@ -14,6 +14,8 @@ import {
   isNonNegativeApprovalCount,
   isPositiveMinuteInterval,
   isValidWorkflowName,
+  isWorkflowAgingSystemField,
+  WORKFLOW_AGING_SYSTEM_FIELDS,
   addTransitionAllowedRole,
   clearTransitionAllowedRoles,
   markTransitionAsDefault,
@@ -31,7 +33,7 @@ import { DEV_MSG } from "./messages";
 /**
  * State/transition graph for one workflow (slice 32 read, slice 31 transition write,
  * slice 33 transition delete, slice 34 step delete, slice 57 absolute aging create,
- * slice 75 repeated aging create,
+ * slice 75 repeated aging create, slice 76 system-field aging create,
  * slice 58 absolute aging interval change, slice 59 absolute aging delete,
  * slice 70 approvals required, slice 71 default transition,
  * slice 72 restrict one transition to a single role,
@@ -43,6 +45,9 @@ import { DEV_MSG } from "./messages";
  * Deleting an aging transition does not remove a regular transition.
  * A repeated aging row appears only after the server accepts it. Changing or
  * deleting that repeated edge is not offered here. Absolute aging rows stay.
+ * A system-field aging row appears only after the server accepts it. Absolute
+ * and repeated rows stay. Changing or deleting that system-field edge is not
+ * offered here.
  */
 
 type TransitionIdentity = { from: string; label: string; to: string };
@@ -89,6 +94,9 @@ export function WorkflowGraphView({
   const [repeatedFrom, setRepeatedFrom] = useState("");
   const [repeatedTo, setRepeatedTo] = useState("");
   const [repeatedMinutes, setRepeatedMinutes] = useState("");
+  const [systemFrom, setSystemFrom] = useState("");
+  const [systemTo, setSystemTo] = useState("");
+  const [systemField, setSystemField] = useState("");
   const [agingEdit, setAgingEdit] = useState<AgingIntervalIdentity | null>(null);
   const [agingNewMinutes, setAgingNewMinutes] = useState("");
   const [approvalsEdit, setApprovalsEdit] = useState<ApprovalsIdentity | null>(null);
@@ -116,6 +124,9 @@ export function WorkflowGraphView({
     setRepeatedFrom("");
     setRepeatedTo("");
     setRepeatedMinutes("");
+    setSystemFrom("");
+    setSystemTo("");
+    setSystemField("");
     setAgingEdit(null);
     setAgingNewMinutes("");
     setPendingAging(null);
@@ -163,6 +174,8 @@ export function WorkflowGraphView({
     setAgingTo((prev) => (prev && names.includes(prev) ? prev : ""));
     setRepeatedFrom((prev) => (prev && names.includes(prev) ? prev : (names[0] ?? "")));
     setRepeatedTo((prev) => (prev && names.includes(prev) ? prev : ""));
+    setSystemFrom((prev) => (prev && names.includes(prev) ? prev : (names[0] ?? "")));
+    setSystemTo((prev) => (prev && names.includes(prev) ? prev : ""));
   }, [graph, editing]);
 
   const onSaveTransition = useCallback(async () => {
@@ -300,6 +313,53 @@ export function WorkflowGraphView({
       setBusy(false);
     }
   }, [graph, repeatedFrom, repeatedMinutes, repeatedTo, workflowName]);
+
+  const onCancelSystemField = useCallback(() => {
+    setSystemTo("");
+    setSystemField("");
+    setError(null);
+  }, []);
+
+  const onAddSystemField = useCallback(async () => {
+    const names = (graph?.nodes ?? [])
+      .map((node) => node.name)
+      .filter((name): name is string => !!name && name.trim().length > 0);
+    const from = systemFrom || names[0] || "";
+    const to = systemTo.trim();
+    const field = systemField.trim().toUpperCase();
+    if (!isValidWorkflowName(from) || !isValidWorkflowName(to) || !isWorkflowAgingSystemField(field)) {
+      setError(DEV_MSG.WF_SYSTEM_FIELD_INVALID);
+      setNotice(null);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const next = await createWorkflowAgingTransition(workflowName, {
+        from: from.trim(),
+        to,
+        type: "SYSTEM_FIELD",
+        systemField: field,
+      });
+      setGraph(next);
+      setNotice(DEV_MSG.WF_SYSTEM_FIELD_SAVED);
+      setSystemField("");
+      setReloadToken((n) => n + 1);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 403) {
+        setError(DEV_MSG.WF_SYSTEM_FIELD_FORBIDDEN);
+      } else if (isApiError(err) && err.status === 409) {
+        setError(DEV_MSG.WF_SYSTEM_FIELD_CONFLICT);
+      } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
+        setError(DEV_MSG.WF_SYSTEM_FIELD_BAD);
+      } else {
+        setError(DEV_MSG.WF_SYSTEM_FIELD_ERROR);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [graph, systemField, systemFrom, systemTo, workflowName]);
 
   const onCancelAgingInterval = useCallback(() => {
     setAgingEdit(null);
@@ -922,6 +982,77 @@ export function WorkflowGraphView({
           </button>
         </form>
       ) : null}
+      {canWrite ? (
+        <form
+          data-testid="developer-wf-system-field-aging-form"
+          style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "end", marginBottom: "8px" }}
+          onSubmit={(ev) => {
+            ev.preventDefault();
+            void onAddSystemField();
+          }}
+        >
+          <label>
+            {DEV_MSG.WF_AGING_FROM}
+            <select
+              data-testid="developer-wf-system-field-aging-from"
+              value={systemFrom || stepNames[0] || ""}
+              disabled={busy}
+              onChange={(ev) => setSystemFrom(ev.target.value)}
+            >
+              {stepNames.map((name) => (
+                <option key={`system-from-${name}`} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {DEV_MSG.WF_AGING_TO}
+            <select
+              data-testid="developer-wf-system-field-aging-to"
+              value={systemTo}
+              disabled={busy}
+              onChange={(ev) => setSystemTo(ev.target.value)}
+            >
+              <option value="">{DEV_MSG.WF_AGING_TO_BLANK}</option>
+              {stepNames.map((name) => (
+                <option key={`system-to-${name}`} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {DEV_MSG.WF_SYSTEM_FIELD_LABEL}
+            <select
+              data-testid="developer-wf-system-field-aging-field"
+              value={systemField}
+              disabled={busy}
+              onChange={(ev) => setSystemField(ev.target.value)}
+            >
+              <option value="">{DEV_MSG.WF_SYSTEM_FIELD_BLANK}</option>
+              {WORKFLOW_AGING_SYSTEM_FIELDS.map((name) => (
+                <option key={`system-field-${name}`} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button type="submit" data-testid="developer-wf-system-field-aging-add" disabled={busy}>
+            {DEV_MSG.WF_SYSTEM_FIELD_ADD}
+          </button>
+          <button
+            type="button"
+            data-testid="developer-wf-system-field-aging-cancel"
+            disabled={busy}
+            onClick={() => {
+              onCancelSystemField();
+            }}
+          >
+            {DEV_MSG.WF_AGING_CANCEL}
+          </button>
+        </form>
+      ) : null}
       {nodes.length > 0 ? (
         <div
           data-testid="developer-wf-graph-nodes"
@@ -1363,12 +1494,18 @@ export function WorkflowGraphView({
                 data-to={edge.to || ""}
                 data-interval={edge.intervalMinutes ?? ""}
                 data-aging-type={edge.agingType || ""}
+                data-system-field={edge.systemField || ""}
               >
                 {edge.from || "—"} — {edge.label || "—"} → {edge.to || "—"}
-                {typeof edge.intervalMinutes === "number" ? ` (${edge.intervalMinutes} minutes)` : ""}
+                {edge.agingType === "SYSTEM_FIELD"
+                  ? ` (${edge.systemField ? `${edge.systemField} ` : ""}${DEV_MSG.WF_SYSTEM_FIELD_KIND})`
+                  : typeof edge.intervalMinutes === "number"
+                    ? ` (${edge.intervalMinutes} minutes)`
+                    : ""}
                 {edge.agingType === "REPEATED" ? ` (${DEV_MSG.WF_REPEATED_KIND})` : ""}
                 {canWrite &&
                 edge.agingType !== "REPEATED" &&
+                edge.agingType !== "SYSTEM_FIELD" &&
                 edge.from &&
                 edge.to &&
                 typeof edge.intervalMinutes === "number" ? (
@@ -1396,6 +1533,7 @@ export function WorkflowGraphView({
                 ) : null}
                 {canWrite &&
                 edge.agingType !== "REPEATED" &&
+                edge.agingType !== "SYSTEM_FIELD" &&
                 edge.from &&
                 edge.to &&
                 typeof edge.intervalMinutes === "number" &&
@@ -1423,6 +1561,7 @@ export function WorkflowGraphView({
                 ) : null}
                 {agingEdit &&
                 edge.agingType !== "REPEATED" &&
+                edge.agingType !== "SYSTEM_FIELD" &&
                 agingEdit.from === edge.from &&
                 agingEdit.to === edge.to &&
                 agingEdit.intervalMinutes === edge.intervalMinutes ? (

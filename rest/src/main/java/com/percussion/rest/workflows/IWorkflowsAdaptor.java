@@ -332,17 +332,21 @@ public interface IWorkflowsAdaptor {
 
   /**
    * Create one aging transition between existing steps (Admin, slice 57 absolute, slice 75
-   * repeated). Does not create steps, change an existing interval, or set comment-required.
-   * Omitted or {@code ABSOLUTE} type stays absolute. {@code REPEATED} inserts one repeated aging
-   * transition on the same resource. Does not add a second URL.
+   * repeated, slice 76 system-field). Does not create steps, change an existing interval, or set
+   * comment-required. Omitted or {@code ABSOLUTE} type stays absolute. {@code REPEATED} inserts
+   * one repeated aging transition. {@code SYSTEM_FIELD} inserts one system-field aging transition
+   * named by {@code systemField}. All three use this resource. Does not add a second URL.
    *
-   * @param body {@code from}, {@code to}, a positive {@code intervalMinutes}, and optional {@code
-   *     type}
+   * @param body {@code from}, {@code to}, a positive {@code intervalMinutes} for absolute or
+   *     repeated, and optional {@code type}. System-field creates require {@code systemField}
+   *     instead of an interval.
    * @return the graph after the insert, including the new aging edge
-   * @throws IllegalArgumentException when a name is blank, the interval is not positive, or {@code
-   *     type} is not absolute or repeated
+   * @throws IllegalArgumentException when a name is blank, an absolute or repeated interval is not
+   *     positive, {@code type} is unknown, or the system field is blank or not one of the three
+   *     content-status date columns
    * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow or
-   *     step, 409 when that aging edge of the same type and interval already exists
+   *     step, 409 when that aging edge of the same type and interval (or the same system field)
+   *     already exists
    */
   WorkflowGraph createAbsoluteAgingTransition(
       URI baseUri, String idOrName, WorkflowAgingTransitionWrite body);

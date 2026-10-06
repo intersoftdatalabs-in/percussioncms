@@ -67,7 +67,29 @@ public class WorkflowAgingTransitionWriteSerialDeserialTest {
     assertEquals("REPEATED", roundTrip.getType());
     assertEquals(WorkflowAgingTransitionWrite.Kind.REPEATED, roundTrip.kind());
 
-    roundTrip.setType("SYSTEM_FIELD");
+    roundTrip.setType("nope");
     assertThrows(IllegalArgumentException.class, roundTrip::kind);
+  }
+
+  @Test
+  public void systemFieldTypeRoundTripsAndBlankFieldIsRejected() {
+    WorkflowAgingTransitionWrite body = new WorkflowAgingTransitionWrite();
+    body.setFrom("Draft");
+    body.setTo("Review");
+    body.setType("SYSTEM_FIELD");
+    body.setSystemField("contentstartdate");
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(WorkflowAgingTransitionWrite.class);
+    String json = mapper.writeValueAsString(body);
+    assertTrue(json.contains("SYSTEM_FIELD"), json);
+    assertTrue(json.contains("contentstartdate"), json);
+    WorkflowAgingTransitionWrite roundTrip = mapper.readValue(json, WorkflowAgingTransitionWrite.class);
+    assertEquals(WorkflowAgingTransitionWrite.Kind.SYSTEM_FIELD, roundTrip.kind());
+    assertEquals("CONTENTSTARTDATE", roundTrip.canonicalSystemField());
+
+    roundTrip.setSystemField(" ");
+    assertThrows(IllegalArgumentException.class, roundTrip::canonicalSystemField);
+    roundTrip.setSystemField("sys_title");
+    assertThrows(IllegalArgumentException.class, roundTrip::canonicalSystemField);
   }
 }

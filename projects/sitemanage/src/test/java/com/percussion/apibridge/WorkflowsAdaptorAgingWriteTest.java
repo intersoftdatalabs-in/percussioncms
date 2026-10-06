@@ -257,15 +257,95 @@ class WorkflowsAdaptorAgingWriteTest {
   }
 
   @Test
-  void systemFieldTypeDoesNotSave() {
+  void blankOrUnknownSystemFieldDoesNotSave() {
     PSState draft = state(1, "Draft");
     PSWorkflow wf = workflow("Nightly QA", draft, state(2, "Review"));
     stub(wf, false);
-    WorkflowAgingTransitionWrite system = body("Draft", "Review", 15);
-    system.setType("SYSTEM_FIELD");
+    WorkflowAgingTransitionWrite blank = body("Draft", "Review", 0);
+    blank.setType("SYSTEM_FIELD");
     assertThrows(
         IllegalArgumentException.class,
-        () -> adaptor.createAbsoluteAgingTransition(null, "Nightly QA", system));
+        () -> adaptor.createAbsoluteAgingTransition(null, "Nightly QA", blank));
+    WorkflowAgingTransitionWrite unknown = body("Draft", "Review", 15);
+    unknown.setType("SYSTEM_FIELD");
+    unknown.setSystemField("sys_title");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> adaptor.createAbsoluteAgingTransition(null, "Nightly QA", unknown));
+    assertEquals(0, draft.getAgingTransitions().size());
+    verify(workflowService, never()).saveWorkflow(wf);
+    verify(workflowService, never()).createTransition(any(), any());
+  }
+
+  @Test
+  void createsSystemFieldAgingBesideAbsoluteAndRepeatedRows() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    PSWorkflow wf = workflow("Nightly QA", draft, review);
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15));
+    WorkflowAgingTransitionWrite repeated = body("Draft", "Review", 15);
+    repeated.setType("REPEATED");
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", repeated);
+
+    WorkflowAgingTransitionWrite system = new WorkflowAgingTransitionWrite();
+    system.setFrom("Draft");
+    system.setTo("Review");
+    system.setType("system_field");
+    system.setSystemField(" contentstartdate ");
+    WorkflowGraph graph = adaptor.createAbsoluteAgingTransition(null, "Nightly QA", system);
+
+    assertEquals(3, graph.getEdges().size());
+    WorkflowGraph.Edge systemEdge =
+        graph.getEdges().stream()
+            .filter(edge -> "SYSTEM_FIELD".equals(edge.getAgingType()))
+            .findFirst()
+            .orElseThrow();
+    assertTrue(systemEdge.isAging());
+    assertEquals("CONTENTSTARTDATE", systemEdge.getSystemField());
+    assertEquals(null, systemEdge.getIntervalMinutes());
+    assertEquals("System field aging CONTENTSTARTDATE", systemEdge.getLabel());
+    assertEquals("Draft", systemEdge.getFrom());
+    assertEquals("Review", systemEdge.getTo());
+    assertEquals(1, graph.getEdges().stream().filter(edge -> "ABSOLUTE".equals(edge.getAgingType())).count());
+    assertEquals(1, graph.getEdges().stream().filter(edge -> "REPEATED".equals(edge.getAgingType())).count());
+    assertEquals(3, draft.getAgingTransitions().size());
+    assertEquals(0, draft.getTransitions().size());
+    PSAgingTransition saved = draft.getAgingTransitions().get(2);
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.SYSTEM_FIELD, saved.getAgingTypeEnum());
+    assertEquals("CONTENTSTARTDATE", saved.getSystemField());
+    assertEquals(2, wf.getStates().size());
+    verify(workflowService, times(3)).saveWorkflow(wf);
+  }
+
+  @Test
+  void duplicateSystemFieldDoesNotSaveAgain() {
+    PSState draft = state(1, "Draft");
+    PSWorkflow wf = workflow("Nightly QA", draft, state(2, "Review"));
+    stub(wf, false);
+    WorkflowAgingTransitionWrite system = systemBody("Draft", "Review", "REMINDERDATE");
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", system);
+    WorkflowAgingTransitionWrite again = systemBody("Draft", "Review", "reminderdate");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.createAbsoluteAgingTransition(null, "Nightly QA", again));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(1, draft.getAgingTransitions().size());
+    verify(workflowService, times(1)).saveWorkflow(wf);
+  }
+
+  @Test
+  void packagedSystemFieldCreateIs403() {
+    PSWorkflow wf = workflow("Simple Workflow", state(1, "Draft"), state(2, "Review"));
+    stub(wf, false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.createAbsoluteAgingTransition(
+                    null, "Simple Workflow", systemBody("Draft", "Review", "CONTENTEXPIRYDATE")));
+    assertEquals(403, ex.getResponse().getStatus());
     verify(workflowService, never()).saveWorkflow(wf);
     verify(workflowService, never()).createTransition(any(), any());
   }
@@ -522,6 +602,15 @@ class WorkflowsAdaptorAgingWriteTest {
     body.setFrom(from);
     body.setTo(to);
     body.setIntervalMinutes(minutes);
+    return body;
+  }
+
+  private static WorkflowAgingTransitionWrite systemBody(String from, String to, String systemField) {
+    WorkflowAgingTransitionWrite body = new WorkflowAgingTransitionWrite();
+    body.setFrom(from);
+    body.setTo(to);
+    body.setType("SYSTEM_FIELD");
+    body.setSystemField(systemField);
     return body;
   }
 
