@@ -35,6 +35,7 @@ import { DEV_MSG } from "./messages";
  * slice 33 transition delete, slice 34 step delete, slice 57 absolute aging create,
  * slice 75 repeated aging create, slice 76 system-field aging create,
  * slice 58 absolute aging interval change, slice 59 absolute aging delete,
+ * slice 77 repeated and system-field aging delete,
  * slice 70 approvals required, slice 71 default transition,
  * slice 72 restrict one transition to a single role,
  * slice 73 add one more role to an already-restricted transition,
@@ -43,12 +44,40 @@ import { DEV_MSG } from "./messages";
  * do not take an approval count, cannot be the default, and are not role-restricted.
  * Adding a role does not clear the restriction. Clearing shows allow-all only after success.
  * Deleting an aging transition does not remove a regular transition.
- * A repeated aging row appears only after the server accepts it. Changing or
- * deleting that repeated edge is not offered here. Absolute aging rows stay.
- * A system-field aging row appears only after the server accepts it. Absolute
- * and repeated rows stay. Changing or deleting that system-field edge is not
- * offered here.
+ * A repeated aging row appears only after the server accepts it, and it can be
+ * deleted without removing an absolute row that uses the same interval.
+ * A system-field aging row appears only after the server accepts it, and it can
+ * be deleted without removing absolute or repeated rows. Changing a repeated
+ * interval is not offered here.
  */
+
+type AgingDeleteIdentity = {
+  from: string;
+  to: string;
+  intervalMinutes?: number;
+  agingType?: string;
+  systemField?: string;
+};
+
+function canDeleteAgingEdge(edge: WorkflowGraphEdge): boolean {
+  if (!edge.from || !edge.to) {
+    return false;
+  }
+  if (edge.agingType === "SYSTEM_FIELD") {
+    return typeof edge.systemField === "string" && edge.systemField.trim().length > 0;
+  }
+  return typeof edge.intervalMinutes === "number" && edge.intervalMinutes > 0;
+}
+
+function agingDeleteConfirm(pending: AgingDeleteIdentity): string {
+  if (pending.agingType === "SYSTEM_FIELD") {
+    return `${DEV_MSG.WF_AGING_DELETE_CONFIRM} ${pending.from} → ${pending.to} (${pending.systemField} ${DEV_MSG.WF_SYSTEM_FIELD_KIND})`;
+  }
+  if (pending.agingType === "REPEATED") {
+    return `${DEV_MSG.WF_AGING_DELETE_CONFIRM} ${pending.from} → ${pending.to} (${pending.intervalMinutes} minutes, ${DEV_MSG.WF_REPEATED_KIND})`;
+  }
+  return `${DEV_MSG.WF_AGING_DELETE_CONFIRM} ${pending.from} → ${pending.to} (${pending.intervalMinutes} minutes)`;
+}
 
 type TransitionIdentity = { from: string; label: string; to: string };
 
@@ -80,7 +109,7 @@ export function WorkflowGraphView({
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
   const [pending, setPending] = useState<WorkflowGraphEdge | null>(null);
-  const [pendingAging, setPendingAging] = useState<AgingIntervalIdentity | null>(null);
+  const [pendingAging, setPendingAging] = useState<AgingDeleteIdentity | null>(null);
   const [pendingStep, setPendingStep] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -419,12 +448,30 @@ export function WorkflowGraphView({
     setError(null);
     setNotice(null);
     try {
-      const next = await deleteWorkflowAgingTransition(
-        workflowName,
-        pendingAging.from,
-        pendingAging.to,
-        pendingAging.intervalMinutes,
-      );
+      const next =
+        pendingAging.agingType === "SYSTEM_FIELD"
+          ? await deleteWorkflowAgingTransition(
+              workflowName,
+              pendingAging.from,
+              pendingAging.to,
+              undefined,
+              "SYSTEM_FIELD",
+              pendingAging.systemField,
+            )
+          : pendingAging.agingType === "REPEATED"
+            ? await deleteWorkflowAgingTransition(
+                workflowName,
+                pendingAging.from,
+                pendingAging.to,
+                pendingAging.intervalMinutes,
+                "REPEATED",
+              )
+            : await deleteWorkflowAgingTransition(
+                workflowName,
+                pendingAging.from,
+                pendingAging.to,
+                pendingAging.intervalMinutes,
+              );
       setGraph(next);
       setNotice(DEV_MSG.WF_AGING_DELETED);
       setPendingAging(null);
@@ -434,7 +481,11 @@ export function WorkflowGraphView({
       if (isApiError(err) && err.status === 403) {
         setError(DEV_MSG.WF_AGING_DELETE_FORBIDDEN);
       } else if (isApiError(err) && err.status === 409) {
-        setError(DEV_MSG.WF_AGING_DELETE_CONFLICT);
+        setError(
+          pendingAging.agingType === "REPEATED" || pendingAging.agingType === "SYSTEM_FIELD"
+            ? DEV_MSG.WF_AGING_DELETE_TYPED_CONFLICT
+            : DEV_MSG.WF_AGING_DELETE_CONFLICT,
+        );
       } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
         setError(DEV_MSG.WF_AGING_DELETE_BAD);
       } else {
@@ -1531,13 +1582,7 @@ export function WorkflowGraphView({
                     {DEV_MSG.WF_AGING_CHANGE}
                   </button>
                 ) : null}
-                {canWrite &&
-                edge.agingType !== "REPEATED" &&
-                edge.agingType !== "SYSTEM_FIELD" &&
-                edge.from &&
-                edge.to &&
-                typeof edge.intervalMinutes === "number" &&
-                edge.intervalMinutes > 0 ? (
+                {canWrite && canDeleteAgingEdge(edge) ? (
                   <button
                     type="button"
                     data-testid={`developer-wf-aging-delete-${i}`}
@@ -1552,7 +1597,9 @@ export function WorkflowGraphView({
                       setPendingAging({
                         from: edge.from as string,
                         to: edge.to as string,
-                        intervalMinutes: edge.intervalMinutes as number,
+                        intervalMinutes: edge.intervalMinutes,
+                        agingType: edge.agingType,
+                        systemField: edge.systemField,
                       });
                     }}
                   >
@@ -1623,11 +1670,7 @@ export function WorkflowGraphView({
       <CatalogConfirmDialog
         open={pendingAging != null}
         busy={busy}
-        message={
-          pendingAging
-            ? `${DEV_MSG.WF_AGING_DELETE_CONFIRM} ${pendingAging.from} → ${pendingAging.to} (${pendingAging.intervalMinutes} minutes)`
-            : DEV_MSG.WF_AGING_DELETE_CONFIRM
-        }
+        message={pendingAging ? agingDeleteConfirm(pendingAging) : DEV_MSG.WF_AGING_DELETE_CONFIRM}
         onCancel={() => {
           if (!busy) {
             setPendingAging(null);

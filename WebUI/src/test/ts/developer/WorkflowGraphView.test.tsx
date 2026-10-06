@@ -474,7 +474,7 @@ describe("WorkflowGraphView step delete", () => {
       "ABSOLUTE",
     );
     expect(screen.queryByTestId("developer-wf-aging-change-1")).toBeNull();
-    expect(screen.queryByTestId("developer-wf-aging-delete-1")).toBeNull();
+    expect(screen.getByTestId("developer-wf-aging-delete-1")).toBeTruthy();
     expect(screen.getByTestId("developer-wf-aging-change-0")).toBeTruthy();
     expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
       "Repeated aging transition saved",
@@ -662,7 +662,7 @@ describe("WorkflowGraphView step delete", () => {
     expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
     expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain("Repeated aging 20");
     expect(screen.queryByTestId("developer-wf-aging-change-2")).toBeNull();
-    expect(screen.queryByTestId("developer-wf-aging-delete-2")).toBeNull();
+    expect(screen.getByTestId("developer-wf-aging-delete-2")).toBeTruthy();
     expect(screen.getByTestId("developer-wf-aging-change-0")).toBeTruthy();
     expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
       "System-field aging transition saved",
@@ -1008,6 +1008,243 @@ describe("WorkflowGraphView step delete", () => {
       expect(screen.getByTestId("developer-wf-graph-edge-0").textContent).toContain("Submit");
     }
     expect(deleteWorkflowTransition).not.toHaveBeenCalled();
+  });
+
+  it("removes a repeated aging row only after confirm and leaves the absolute row", async () => {
+    const initial = {
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        { from: "Draft", to: "Review", label: "Submit", commentRequired: false },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "ABSOLUTE",
+        },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Repeated aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "REPEATED",
+        },
+      ],
+    };
+    const updated = {
+      packaged: false,
+      nodes: initial.nodes,
+      edges: [initial.edges[0], initial.edges[1]],
+    };
+    let current = initial;
+    let release: (graph: typeof updated) => void = () => {};
+    getWorkflowGraph.mockImplementation(async () => current);
+    deleteWorkflowAgingTransition.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = (graph) => {
+            current = graph;
+            resolve(graph);
+          };
+        }),
+    );
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-aging-edge-1");
+    expect(screen.queryByTestId("developer-wf-aging-change-1")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-wf-aging-delete-1"));
+    expect(screen.getByTestId("developer-catalog-confirm-body").textContent).toContain("repeated");
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    expect(deleteWorkflowAgingTransition).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain("Repeated aging 15");
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
+
+    fireEvent.click(screen.getByTestId("developer-wf-aging-delete-1"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(deleteWorkflowAgingTransition).toHaveBeenCalledWith(
+        "Nightly QA",
+        "Draft",
+        "Review",
+        15,
+        "REPEATED",
+      );
+    });
+    expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain("Repeated aging 15");
+    expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+    release(updated);
+    await waitFor(() => {
+      expect(screen.queryByText(/Repeated aging 15/)).toBeNull();
+    });
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
+    expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-aging-type")).toBe(
+      "ABSOLUTE",
+    );
+    expect(screen.getByTestId("developer-wf-graph-edge-0").textContent).toContain("Submit");
+    expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
+      "Aging transition deleted",
+    );
+  });
+
+  it("removes a system-field aging row only after confirm and leaves absolute and repeated rows", async () => {
+    const initial = {
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Aging 1",
+          aging: true,
+          intervalMinutes: 1,
+          agingType: "ABSOLUTE",
+        },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Repeated aging 1",
+          aging: true,
+          intervalMinutes: 1,
+          agingType: "REPEATED",
+        },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "System field aging CONTENTSTARTDATE",
+          aging: true,
+          agingType: "SYSTEM_FIELD",
+          systemField: "CONTENTSTARTDATE",
+        },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "System field aging REMINDERDATE",
+          aging: true,
+          agingType: "SYSTEM_FIELD",
+          systemField: "REMINDERDATE",
+        },
+      ],
+    };
+    const updated = {
+      packaged: false,
+      nodes: initial.nodes,
+      edges: [initial.edges[0], initial.edges[1], initial.edges[3]],
+    };
+    let current = initial;
+    let release: (graph: typeof updated) => void = () => {};
+    getWorkflowGraph.mockImplementation(async () => current);
+    deleteWorkflowAgingTransition.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = (graph) => {
+            current = graph;
+            resolve(graph);
+          };
+        }),
+    );
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-aging-edge-2");
+    expect(screen.queryByTestId("developer-wf-aging-change-2")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-wf-aging-delete-2"));
+    expect(screen.getByTestId("developer-catalog-confirm-body").textContent).toContain(
+      "CONTENTSTARTDATE",
+    );
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    expect(deleteWorkflowAgingTransition).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-wf-aging-edge-2").textContent).toContain(
+      "System field aging CONTENTSTARTDATE",
+    );
+
+    fireEvent.click(screen.getByTestId("developer-wf-aging-delete-2"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(deleteWorkflowAgingTransition).toHaveBeenCalledWith(
+        "Nightly QA",
+        "Draft",
+        "Review",
+        undefined,
+        "SYSTEM_FIELD",
+        "CONTENTSTARTDATE",
+      );
+    });
+    expect(screen.getByTestId("developer-wf-aging-edge-2").textContent).toContain(
+      "System field aging CONTENTSTARTDATE",
+    );
+    release(updated);
+    await waitFor(() => {
+      expect(screen.queryByText(/System field aging CONTENTSTARTDATE/)).toBeNull();
+    });
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 1");
+    expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain("Repeated aging 1");
+    expect(screen.getByTestId("developer-wf-aging-edge-2").getAttribute("data-system-field")).toBe(
+      "REMINDERDATE",
+    );
+  });
+
+  it("does not remove a repeated or system-field row on 400, 403, or 409", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "ABSOLUTE",
+        },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Repeated aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "REPEATED",
+        },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "System field aging REMINDERDATE",
+          aging: true,
+          agingType: "SYSTEM_FIELD",
+          systemField: "REMINDERDATE",
+        },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-aging-delete-1");
+    for (const status of [400, 403, 409]) {
+      deleteWorkflowAgingTransition.mockRejectedValueOnce({ status, message: "no" });
+      fireEvent.click(screen.getByTestId("developer-wf-aging-delete-1"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-wf-graph-error")).toBeTruthy();
+      });
+      expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+      expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
+      expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain(
+        "Repeated aging 15",
+      );
+      expect(screen.getByTestId("developer-wf-aging-edge-2").textContent).toContain("REMINDERDATE");
+    }
+    for (const status of [400, 403, 409]) {
+      deleteWorkflowAgingTransition.mockRejectedValueOnce({ status, message: "no" });
+      fireEvent.click(screen.getByTestId("developer-wf-aging-delete-2"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-wf-graph-error")).toBeTruthy();
+      });
+      expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+      expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-aging-type")).toBe(
+        "ABSOLUTE",
+      );
+      expect(screen.getByTestId("developer-wf-aging-edge-2").getAttribute("data-system-field")).toBe(
+        "REMINDERDATE",
+      );
+    }
   });
 
   it("shows the new approval count only after save and cancel does not write", async () => {

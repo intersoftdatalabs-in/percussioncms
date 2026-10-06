@@ -788,12 +788,31 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
   @Override
   public WorkflowGraph deleteAbsoluteAgingTransition(
       URI baseUri, String idOrName, String fromStep, String toStep, long intervalMinutes) {
+    return deleteTypedAgingTransition(
+        baseUri, idOrName, fromStep, toStep, intervalMinutes, null, null);
+  }
+
+  @Override
+  public WorkflowGraph deleteTypedAgingTransition(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String toStep,
+      Long intervalMinutes,
+      String agingType,
+      String systemField) {
     requireAdmin();
     requireSessionUserForWrite();
     if (StringUtils.isBlank(fromStep) || StringUtils.isBlank(toStep)) {
       throw new IllegalArgumentException("from and to are required");
     }
-    if (intervalMinutes <= 0) {
+    WorkflowAgingTransitionWrite.Kind kind = agingDeleteKind(agingType);
+    String field = null;
+    if (kind == WorkflowAgingTransitionWrite.Kind.SYSTEM_FIELD) {
+      WorkflowAgingTransitionWrite probe = new WorkflowAgingTransitionWrite();
+      probe.setSystemField(systemField);
+      field = probe.canonicalSystemField();
+    } else if (intervalMinutes == null || intervalMinutes <= 0) {
       throw new IllegalArgumentException("interval must be a positive number of minutes");
     }
     PSWorkflow workflow = resolveWorkflow(idOrName);
@@ -803,13 +822,38 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     rejectPackagedWorkflow(workflow);
     List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
     int stepCount = states.size();
-    WorkflowTransitionRemover.removeAbsoluteAging(states, fromStep, toStep, intervalMinutes);
+    if (kind == WorkflowAgingTransitionWrite.Kind.SYSTEM_FIELD) {
+      WorkflowTransitionRemover.removeSystemFieldAging(states, fromStep, toStep, field);
+    } else if (kind == WorkflowAgingTransitionWrite.Kind.REPEATED) {
+      WorkflowTransitionRemover.removeRepeatedAging(
+          states, fromStep, toStep, intervalMinutes.longValue());
+    } else {
+      WorkflowTransitionRemover.removeAbsoluteAging(
+          states, fromStep, toStep, intervalMinutes.longValue());
+    }
     int after = workflow.getStates() == null ? 0 : workflow.getStates().size();
     if (after != stepCount) {
       throw new IllegalStateException("Deleting an aging transition must not delete steps");
     }
     workflowService.saveWorkflow(workflow);
     return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  private static WorkflowAgingTransitionWrite.Kind agingDeleteKind(String agingType) {
+    if (agingType == null || agingType.isBlank()) {
+      return WorkflowAgingTransitionWrite.Kind.ABSOLUTE;
+    }
+    String normalized = agingType.trim();
+    if ("ABSOLUTE".equalsIgnoreCase(normalized)) {
+      return WorkflowAgingTransitionWrite.Kind.ABSOLUTE;
+    }
+    if ("REPEATED".equalsIgnoreCase(normalized)) {
+      return WorkflowAgingTransitionWrite.Kind.REPEATED;
+    }
+    if ("SYSTEM_FIELD".equalsIgnoreCase(normalized)) {
+      return WorkflowAgingTransitionWrite.Kind.SYSTEM_FIELD;
+    }
+    throw new IllegalArgumentException("aging type must be ABSOLUTE, REPEATED, or SYSTEM_FIELD");
   }
 
   @Override

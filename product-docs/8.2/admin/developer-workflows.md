@@ -1,7 +1,7 @@
 ---
 id: admin-developer-workflows
 title: Developer Workflows
-description: Browse workflow definitions, create / copy / rename / update / delete workflows, set notify, inbox, and ad-hoc type on a step role, set how many approvals a regular transition requires, mark one transition as the default from its step, add one repeated aging transition, and edit allowed content types from Developer Workflows chrome
+description: Browse workflow definitions, create / copy / rename / update / delete workflows, set notify, inbox, and ad-hoc type on a step role, set how many approvals a regular transition requires, mark one transition as the default from its step, add or delete one repeated or system-field aging transition, and edit allowed content types from Developer Workflows chrome
 version: "8.2"
 order: 46
 tags: [admin, developer, workflows]
@@ -21,9 +21,10 @@ that already exists is rejected and does not overwrite.
 (`GET .../workflows/{id}/graph`). On a **custom** workflow an Admin can
 **add or update one transition** between existing steps, **add one absolute
 aging transition** (interval in minutes), **add one repeated aging
-transition** (interval in minutes), **change that absolute minute interval**,
-**delete that aging transition**, **delete one regular transition**, or
-**delete one step** that no transition still uses. An Admin can also set
+transition** (interval in minutes), **add one system-field aging
+transition**, **change that absolute minute interval**, **delete one
+absolute, repeated, or system-field aging transition**, **delete one regular
+transition**, or **delete one step** that no transition still uses. An Admin can also set
 Reader or Assignee on a role already assigned to a step, turn **notify** on
 or off for one role already on a step, turn **inbox** on or off for one
 Reader or Assignee already on a step, set the **ad-hoc type** (disabled,
@@ -31,8 +32,7 @@ enabled, or anonymous) on one Reader or Assignee already on a step, add one
 existing workflow role onto a step, and remove one Reader or Assignee role
 from a step. An Admin can set how many approvals one regular transition
 requires, and can mark one regular transition as the default from its step.
-Repeated or system-field aging, and writes on packaged workflows, stay
-outside this chrome.
+Writes on packaged workflows stay outside this chrome.
 The graph badge says **Packaged workflow** for Default Workflow, Simple
 Workflow, Local Content, and any workflow the server marks as the default;
 other workflows show **Custom workflow**. Missing workflows (`404`) and
@@ -142,10 +142,10 @@ The interval unit is minutes.
    `409`. Any type other than omitted, `ABSOLUTE`, `REPEATED`, or
    `SYSTEM_FIELD` is `400` and is not saved. HTTP `400`, `403`, and `409` do
    not show the saved notice and do not add the repeated row.
-6. This does not create steps, change or delete the repeated edge, change an
-   absolute interval, or assign roles. Comment required does not apply.
-   **Change interval** and **Delete aging transition** stay on absolute rows
-   only.
+6. This does not create steps, change the repeated interval, or assign roles.
+   Comment required does not apply. **Change interval** stays on absolute
+   rows only. **Delete aging transition** on the repeated row is a separate
+   action and does not remove an absolute row.
 
 The public call is the same
 `POST /services/workflows/{idOrName}/aging-transitions` resource, with a
@@ -176,10 +176,10 @@ The public call is the same
    already uses that from, to, and system field is `409`. HTTP `400`, `403`,
    and `409` do not show the saved notice and do not add the system-field
    row.
-6. This does not create steps, change or delete the system-field edge, change
-   an absolute or repeated interval, or assign roles. Comment required does
-   not apply. **Change interval** and **Delete aging transition** stay on
-   absolute rows only.
+6. This does not create steps, change an absolute or repeated interval, or
+   assign roles. Comment required does not apply. **Change interval** stays
+   on absolute rows only. **Delete aging transition** on the system-field row
+   is a separate action and does not remove absolute or repeated rows.
 
 The public call is the same
 `POST /services/workflows/{idOrName}/aging-transitions` resource, with a
@@ -233,6 +233,41 @@ with a `WorkflowAgingIntervalWrite` body (`from`, `to`, the current
 
 The public call is
 `DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&intervalMinutes={minutes}`.
+Omit `type`, or send `ABSOLUTE`. Sending `type` `REPEATED` or `SYSTEM_FIELD`
+is a different delete; see the next aging delete path.
+
+## Product path — delete one repeated or system-field aging transition (slice 77)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow that already
+   has a repeated or system-field aging transition.
+3. Under **Graph**, in **Aging transitions**, click **Delete aging
+   transition** on that repeated or system-field row. **Change interval**
+   stays on absolute rows only.
+4. **Cancel** closes the dialog and does not call the server. The row stays.
+   An absolute aging row on the same steps stays.
+5. Confirm in the in-app dialog. The repeated or system-field row disappears
+   only after the server accepts the delete. Reopening the workflow shows
+   that row gone. An absolute aging row that uses the same from, to, and
+   interval stays. A repeated row stays when a system-field row is deleted,
+   and the other system-field rows stay. A regular transition on the same
+   steps stays.
+6. Packaged workflows do not show **Delete aging transition** (`403` on the
+   API). A blank step, an unknown type, a non-positive repeated interval, or
+   a blank or unknown system field is `400`. A missing workflow, step, or
+   aging edge of that type is `404`. Asking to delete a repeated edge when
+   the only match at that interval is absolute or system-field is `409` and
+   does not delete the absolute row. HTTP `400`, `403`, and `409` do not
+   show the deleted notice and leave the previous row in place.
+7. This does not delete steps, remove a regular transition, change an aging
+   interval, or delete an absolute aging transition. Omitting `type` is still
+   the absolute delete.
+
+The public call is the same
+`DELETE /services/workflows/{idOrName}/aging-transitions` resource. A repeated
+delete adds `type=REPEATED` and keeps `intervalMinutes`. A system-field
+delete adds `type=SYSTEM_FIELD` and `systemField` (`CONTENTSTARTDATE`,
+`CONTENTEXPIRYDATE`, or `REMINDERDATE`) and does not send a minute interval.
 
 ## Product path — comment required on a transition (slice 38)
 
@@ -814,7 +849,9 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Create one repeated aging transition | `POST /services/workflows/{idOrName}/aging-transitions` (same resource; `type` `REPEATED`; does not replace an absolute edge that uses the same interval; duplicate repeated edge `409`; any other type `400`; packaged workflows `403`; the graph shows the repeated row only after success) |
 | Create one system-field aging transition | `POST /services/workflows/{idOrName}/aging-transitions` (same resource; `type` `SYSTEM_FIELD` and `systemField` of `CONTENTSTARTDATE`, `CONTENTEXPIRYDATE`, or `REMINDERDATE`; no minute interval; does not replace absolute or repeated edges; blank or unknown system field `400`; duplicate system field for that from and to `409`; packaged workflows `403`; the graph shows the system-field row only after success) |
 | Change one absolute aging interval | `PUT /services/workflows/{idOrName}/aging-transitions/interval` (`WorkflowAgingIntervalWrite` wrap: `from`, `to`, current `intervalMinutes`, and a different positive `newIntervalMinutes`; does not move the destination or change the aging type; duplicate new interval `409`; non-positive or unchanged interval `400`; missing edge `404`; packaged workflows `403`) |
-| Delete one absolute aging transition | `DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&intervalMinutes={minutes}` (Admin; does not delete steps or regular transitions; repeated or system-field match `409` and is not deleted; non-positive interval `400`; missing edge `404`; packaged workflows `403`) |
+| Delete one absolute aging transition | `DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&intervalMinutes={minutes}` (Admin; omit `type` or send `ABSOLUTE`; does not delete steps or regular transitions; repeated or system-field match `409` and is not deleted; non-positive interval `400`; missing edge `404`; packaged workflows `403`) |
+| Delete one repeated aging transition | `DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&intervalMinutes={minutes}&type=REPEATED` (same resource; deletes the repeated edge only; an absolute edge that shares from, to, and interval stays; the other type at that interval is `409` and is not deleted; non-positive interval `400`; missing repeated edge `404`; packaged workflows `403`; the row disappears only after success) |
+| Delete one system-field aging transition | `DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&type=SYSTEM_FIELD&systemField={field}` (same resource; `systemField` is `CONTENTSTARTDATE`, `CONTENTEXPIRYDATE`, or `REMINDERDATE`; no minute interval; absolute and repeated edges stay, including an absolute edge whose stored interval is 1; other system fields on those steps stay; blank or unknown system field `400`; missing field `404`; a non-system-field edge that stores that field is `409` and is not deleted; packaged workflows `403`; the row disappears only after success) |
 | Comment required | `PUT /services/workflows/{idOrName}/transitions/comment-required?from={step}&label={label}&to={step}` (`WorkflowTransitionComment` wrap `{ "commentRequired": true }`; Admin; existing transition only; packaged workflows `403`; aging transitions `400`; missing transition `404`) |
 | Approvals required | `PUT /services/workflows/{idOrName}/transitions/approvals-required?from={step}&label={label}&to={step}` (`WorkflowTransitionApprovals` wrap `{ "approvalsRequired": 2 }`; Admin; existing regular transition only; non-negative whole number including zero; unchanged, negative, ambiguous, or aging `400`; packaged or default `403`; missing transition `404`; stored each-role count `409` and is not overwritten; label, destination, comment flag, and other edges stay unchanged) |
 | Default transition | `PUT /services/workflows/{idOrName}/transitions/default?from={step}&label={label}&to={step}` (`WorkflowTransitionDefault` wrap `{ "defaultTransition": true }`; Admin; existing regular transition only; marks that transition and clears the flag on the other regular transitions from the same step; the graph shows the new default only after success; already the only default, ambiguous, or aging `400`; packaged or default `403`; missing transition `404`; `false` on the current default is `409` and does not clear it; label, destination, comment flag, approval count, and defaults on other steps stay unchanged) |
