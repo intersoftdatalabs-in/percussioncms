@@ -841,7 +841,35 @@ to discard. The shell posts
 
 HTTP **403** (not Admin or Designer) and **409** (location scheme name already exists in that
 context) are shown in the scheme editor error region — not as a successful save. Context save,
-delivery-type save, and edition save are separate Design actions.
+delivery-type save, and edition save are separate Design actions. Renaming a location scheme
+is described below and changes the name only.
+
+### Rename a location scheme (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. On a location scheme row, **Rename** loads
+that scheme (`GET …/sitemanage/publishingdesign/schemes/{schemeId}`) and opens
+**Rename location scheme**. The form shows the current **generator**, **description**,
+**content type**, **template**, and **parameters** and does not let you change them.
+Change **Name**. **Rename scheme** sends
+`PUT …/sitemanage/publishingdesign/schemes/{schemeId}` (the same update already used by
+Design; there is no second rename resource) with a `locationScheme` object that contains
+only the new name. Generator, description, content type, template, context, and
+`schemeParameter` entries are omitted, so the server leaves those stored. The scheme id
+does not change.
+
+The context's location-scheme list keeps the previous name until that update succeeds,
+then shows the new name. If the list refresh fails after a successful update, that row's
+name is still replaced and the other fields on the row stay.
+**Cancel** closes the form and does not update the scheme. A blank name, or a name longer
+than 50 characters (`RXLOCATIONSCHEME.SCHEMENAME`), is rejected in the form and does not
+call the update.
+
+HTTP **400** (name invalid), **403** (not Admin or Designer), and **409** (location scheme
+name already exists in that context) stay in the rename form error region. Those responses
+do not change the name on the list and do not change the generator, description, content
+type, template, or parameters. Saving a location scheme (which can also change those
+fields), copying one, and deleting one are separate actions.
 
 ### Copy a location scheme (Design)
 
@@ -867,7 +895,7 @@ server.
 
 HTTP **400** (name or generator invalid), **403** (not Admin or Designer), and **409** (that
 name already exists in the context) stay in the copy form error region. Those responses do
-not add the new name to the list. Editing a location scheme, deleting one, and copying an
+not add the new name to the list. Editing a location scheme, renaming one, deleting one, and copying an
 edition are separate actions.
 
 ### Delete a location scheme (Design)
@@ -883,9 +911,9 @@ is still removed. Other schemes on the context stay.
 
 HTTP **400** (scheme id missing or invalid), **403** (not allowed), and **409** (the scheme
 cannot be deleted, for example it is still in use) stay in the contexts error region.
-Those responses do not remove the row and do not claim the scheme was deleted. Saving or
-copying a location scheme, and deleting an edition, a content list, or a publishing
-context, are separate actions.
+Those responses do not remove the row and do not claim the scheme was deleted. Saving,
+renaming, or copying a location scheme, and deleting an edition, a content list, or a
+publishing context, are separate actions.
 
 ### Start or stop a publish job (Runtime)
 
