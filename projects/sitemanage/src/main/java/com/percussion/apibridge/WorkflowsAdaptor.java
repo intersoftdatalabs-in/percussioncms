@@ -22,6 +22,7 @@ import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.rest.workflows.IWorkflowsAdaptor;
 import com.percussion.rest.workflows.WorkflowContentTypesDesignLockException;
 import com.percussion.rest.workflows.WorkflowAgingIntervalWrite;
+import com.percussion.rest.workflows.WorkflowAgingSystemFieldWrite;
 import com.percussion.rest.workflows.WorkflowAgingTransitionWrite;
 import com.percussion.rest.workflows.WorkflowCreate;
 import com.percussion.rest.workflows.WorkflowGraph;
@@ -790,6 +791,38 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     int after = workflow.getStates() == null ? 0 : workflow.getStates().size();
     if (after != stepCount) {
       throw new IllegalStateException("Changing an aging interval must not add or delete steps");
+    }
+    workflowService.saveWorkflow(workflow);
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
+  public WorkflowGraph changeSystemFieldAging(
+      URI baseUri, String idOrName, WorkflowAgingSystemFieldWrite body) {
+    requireAdmin();
+    requireSessionUserForWrite();
+    if (body == null) {
+      throw new IllegalArgumentException("Workflow aging system field body is required");
+    }
+    String current = body.canonicalSystemField();
+    String next = body.canonicalNewSystemField();
+    if (current.equals(next)) {
+      throw new IllegalArgumentException(
+          "new system field must differ from the current system field");
+    }
+    PSWorkflow workflow = resolveWorkflow(idOrName);
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found: " + idOrName, 404);
+    }
+    rejectPackagedWorkflow(workflow);
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    int stepCount = states.size();
+    WorkflowTransitionWriter.changeSystemField(
+        states, body.getFrom(), body.getTo(), current, next);
+    int after = workflow.getStates() == null ? 0 : workflow.getStates().size();
+    if (after != stepCount) {
+      throw new IllegalStateException(
+          "Changing a system-field aging column must not add or delete steps");
     }
     workflowService.saveWorkflow(workflow);
     return getWorkflowGraph(baseUri, idOrName);

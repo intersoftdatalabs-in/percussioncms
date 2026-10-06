@@ -2129,6 +2129,19 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@An absolute aging transition with that interval already goes to that step.",
   WF_AGING_INTERVAL_INVALID:
     "perc.ui.developer@Enter a different positive interval in minutes.",
+  WF_AGING_FIELD_CHANGE: "perc.ui.developer@Change date column",
+  WF_AGING_NEW_FIELD: "perc.ui.developer@New system field",
+  WF_AGING_FIELD_SAVE: "perc.ui.developer@Save date column",
+  WF_AGING_FIELD_SAVED: "perc.ui.developer@System-field date column saved.",
+  WF_AGING_FIELD_ERROR: "perc.ui.developer@Could not change the system-field date column.",
+  WF_AGING_FIELD_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_AGING_FIELD_BAD:
+    "perc.ui.developer@That system field could not be changed. Choose a different content-status date column.",
+  WF_AGING_FIELD_CONFLICT:
+    "perc.ui.developer@A system-field aging transition for that field already goes to that step.",
+  WF_AGING_FIELD_INVALID:
+    "perc.ui.developer@Choose a different system field. A blank or unchanged column is not saved.",
   WF_AGING_DELETE: "perc.ui.developer@Delete aging transition",
   WF_AGING_DELETE_CONFIRM:
     "perc.ui.developer@Delete this aging transition? Regular transitions stay on the workflow.",
@@ -2154,7 +2167,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. How many approvals one regular transition requires can be set on the graph. One more existing workflow role can be added to a regular transition that is already limited to specific roles, and that list can be cleared so every role may fire it again. One repeated aging transition can be added on the graph and deleted without removing an absolute aging row that uses the same steps and interval. One system-field aging transition can be added on the graph and deleted without removing absolute or repeated rows. Changing a repeated interval stays outside this surface.",
+    "perc.ui.developer@Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. How many approvals one regular transition requires can be set on the graph. One more existing workflow role can be added to a regular transition that is already limited to specific roles, and that list can be cleared so every role may fire it again. One repeated aging transition can be added on the graph and deleted without removing an absolute aging row that uses the same steps and interval. One system-field aging transition can be added on the graph and deleted without removing absolute or repeated rows. The date column on one system-field aging row can be changed without moving absolute or repeated rows.",
   WF_ROLE_ASSIGN_TITLE: "perc.ui.developer@Assignment type",
   WF_ROLE_ASSIGN_HINT:
     "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Notify and inbox are separate confirms.",

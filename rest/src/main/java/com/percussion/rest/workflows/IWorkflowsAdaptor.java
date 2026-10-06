@@ -370,6 +370,22 @@ public interface IWorkflowsAdaptor {
       URI baseUri, String idOrName, WorkflowAgingIntervalWrite body);
 
   /**
+   * Change the content-status date column on one existing system-field aging transition (Admin,
+   * slice 79). Does not move the destination step, change the aging type, change a minute
+   * interval, or edit absolute or repeated aging.
+   *
+   * @param body {@code from}, {@code to}, and {@code systemField} identify the edge; {@code
+   *     newSystemField} is the replacement column
+   * @return the graph after the update, with the new column on that system-field edge
+   * @throws IllegalArgumentException when a name is blank, a column is blank or not one of the
+   *     three content-status date columns, or the new column is the same as the current column
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or system-field edge, 409 when the new column already exists for that from and to
+   */
+  WorkflowGraph changeSystemFieldAging(
+      URI baseUri, String idOrName, WorkflowAgingSystemFieldWrite body);
+
+  /**
    * Delete one absolute aging transition (Admin, slice 59). Does not delete steps or regular
    * transitions. A repeated or system-field aging transition that uses the same interval is not
    * removed.

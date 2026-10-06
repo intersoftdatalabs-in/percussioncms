@@ -1248,6 +1248,84 @@ public class WorkflowsResource {
     }
   }
 
+  @PUT
+  @Path("/{idOrName}/aging-transitions/system-field")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Change the date column on one system-field aging transition",
+      description =
+          "Slice 79 Admin. Changes the content-status date column on one existing system-field"
+              + " aging transition. Body from, to, and systemField identify the edge."
+              + " newSystemField is the replacement and must be a different column from"
+              + " CONTENTSTARTDATE, CONTENTEXPIRYDATE, or REMINDERDATE. The edge stays"
+              + " SYSTEM_FIELD. Absolute and repeated aging transitions are not changed. Does not"
+              + " move the destination step, change a minute interval, delete the transition, or"
+              + " edit packaged workflows. A duplicate system field for that from and to is 409."
+              + " A blank column, the same column, or a column outside that set is 400 and is not"
+              + " written. Jackson root wrap is WorkflowAgingSystemFieldWrite.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated; returns the graph with the new column on that aging edge",
+            content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
+        @ApiResponse(
+            responseCode = "400",
+            description =
+                "Missing body, blank from or to, a blank or unknown column, or a column that is"
+                    + " the same as the current one"),
+        @ApiResponse(
+            responseCode = "403",
+            description = "Admin required, or packaged/default workflow is protected"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Workflow, step, or system-field aging transition not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "That system field already exists for the same from and to"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public WorkflowGraph changeSystemFieldAging(
+      @PathParam("idOrName") String idOrName, WorkflowAgingSystemFieldWrite body) {
+    if (body == null) {
+      throw new WebApplicationException("Workflow aging system field body is required", 400);
+    }
+    if (body.getFrom() == null
+        || body.getFrom().isBlank()
+        || body.getTo() == null
+        || body.getTo().isBlank()) {
+      throw new WebApplicationException("from and to are required", 400);
+    }
+    final String current;
+    final String next;
+    try {
+      current = body.canonicalSystemField();
+      next = body.canonicalNewSystemField();
+    } catch (IllegalArgumentException ex) {
+      String message = ex.getMessage() != null ? ex.getMessage() : "system field is required";
+      throw new WebApplicationException(message, 400);
+    }
+    if (current.equals(next)) {
+      throw new WebApplicationException(
+          "new system field must differ from the current system field", 400);
+    }
+    try {
+      return requireAdaptor().changeSystemFieldAging(uriInfo.getBaseUri(), idOrName, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      log.error(
+          "Failed to change system-field aging column ({}): {}",
+          e.getClass().getName(),
+          e.getMessage(),
+          e);
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @DELETE
   @Path("/{idOrName}/aging-transitions")
   @Produces({MediaType.APPLICATION_JSON})

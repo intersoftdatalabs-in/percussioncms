@@ -36,7 +36,8 @@ import org.apache.commons.lang3.StringUtils;
  * go through {@link #createRepeatedAging}. System-field aging creates go through
  * {@link #createSystemFieldAging}. All three use the same resource. Absolute interval changes go
  * through {@link #changeAbsoluteInterval}. Repeated interval changes go through
- * {@link #changeRepeatedInterval}. Comment-required is not used for aging.
+ * {@link #changeRepeatedInterval}. System-field date-column changes go through
+ * {@link #changeSystemField}. Comment-required is not used for aging.
  */
 public final class WorkflowTransitionWriter {
 
@@ -412,6 +413,83 @@ public final class WorkflowTransitionWriter {
       hit.setDescription(nextLabel);
     }
     source.setAgingTransitions(copyAging(source));
+  }
+
+  /**
+   * Changes the content-status date column on one existing system-field aging transition. Absolute
+   * and repeated aging transitions are not changed. Does not change the destination, the aging
+   * type, or the minute interval. A generated {@code System field aging FIELD} label, trigger, and
+   * description are rewritten to the new column. A custom label is left alone.
+   */
+  public static void changeSystemField(
+      List<PSState> states,
+      String fromStep,
+      String toStep,
+      String currentField,
+      String newField) {
+    String current = canonicalSystemField(currentField);
+    String next = canonicalSystemField(newField);
+    if (current.equals(next)) {
+      throw new IllegalArgumentException(
+          "new system field must differ from the current system field");
+    }
+    String from = requireName(fromStep, "from");
+    String to = requireName(toStep, "to");
+    String nextLabel = systemFieldAgingLabel(next);
+    Index index = index(states);
+    PSState source = requireStep(index, from);
+    PSState dest = requireStep(index, to);
+    PSAgingTransition hit = locateSystemField(source, dest.getStateId(), current);
+    String oldLabel = systemFieldAgingLabel(current);
+    String previousLabel = StringUtils.defaultString(hit.getLabel()).trim();
+    boolean renameLabel = previousLabel.equalsIgnoreCase(oldLabel);
+    if (sameSystemField(source, dest.getStateId(), next)
+        || (renameLabel
+            && otherEdge(source, new Hit(true, hit), nextLabel, dest.getName(), index.names))) {
+      throw new WebApplicationException(
+          "Workflow aging transition already exists: " + nextLabel, 409);
+    }
+    String previousTrigger = StringUtils.defaultString(hit.getTrigger()).trim();
+    String previousDescription = StringUtils.defaultString(hit.getDescription()).trim();
+    hit.setSystemField(next);
+    if (previousLabel.equalsIgnoreCase(oldLabel)) {
+      hit.setLabel(nextLabel);
+    }
+    if (previousTrigger.equalsIgnoreCase(oldLabel)
+        || (previousTrigger.isEmpty() && previousLabel.equalsIgnoreCase(oldLabel))) {
+      hit.setTrigger(nextLabel);
+    }
+    if (previousDescription.equalsIgnoreCase(oldLabel)
+        || (previousDescription.isEmpty() && previousLabel.equalsIgnoreCase(oldLabel))) {
+      hit.setDescription(nextLabel);
+    }
+    source.setAgingTransitions(copyAging(source));
+  }
+
+  private static PSAgingTransition locateSystemField(
+      PSState source, long toStateId, String systemField) {
+    PSAgingTransition match = null;
+    for (PSAgingTransition existing : copyAging(source)) {
+      if (existing == null || existing.getToState() != toStateId) {
+        continue;
+      }
+      if (existing.getAgingTypeEnum() != PSAgingTypeEnum.SYSTEM_FIELD) {
+        continue;
+      }
+      String stored = existing.getSystemField();
+      if (stored == null || !stored.trim().equalsIgnoreCase(systemField)) {
+        continue;
+      }
+      if (match != null) {
+        throw new IllegalArgumentException(
+            "More than one system-field aging transition uses that field");
+      }
+      match = existing;
+    }
+    if (match == null) {
+      throw new WebApplicationException("Workflow aging transition not found", 404);
+    }
+    return match;
   }
 
   private static PSAgingTransition locateAbsolute(

@@ -29,6 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.rest.workflows.WorkflowAgingIntervalWrite;
+import com.percussion.rest.workflows.WorkflowAgingSystemFieldWrite;
 import com.percussion.rest.workflows.WorkflowAgingTransitionWrite;
 import com.percussion.rest.workflows.WorkflowGraph;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -596,6 +597,219 @@ class WorkflowsAdaptorAgingWriteTest {
   }
 
   @Test
+  void changesSystemFieldAndLeavesAbsoluteAndRepeatedRows() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    PSWorkflow wf = workflow("Nightly QA", draft, review);
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15));
+    WorkflowAgingTransitionWrite repeated = body("Draft", "Review", 15);
+    repeated.setType("REPEATED");
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", repeated);
+    adaptor.createAbsoluteAgingTransition(
+        null, "Nightly QA", systemBody("Draft", "Review", "CONTENTSTARTDATE"));
+    adaptor.createAbsoluteAgingTransition(
+        null, "Nightly QA", systemBody("Draft", "Review", "REMINDERDATE"));
+
+    WorkflowGraph graph =
+        adaptor.changeSystemFieldAging(
+            null,
+            "Nightly QA",
+            fieldBody("Draft", "Review", " contentstartdate ", "CONTENTEXPIRYDATE"));
+
+    PSAgingTransition absolute =
+        draft.getAgingTransitions().stream()
+            .filter(edge -> edge.getAgingTypeEnum() == PSAgingTransition.PSAgingTypeEnum.ABSOLUTE)
+            .findFirst()
+            .orElseThrow();
+    PSAgingTransition repeatedEdge =
+        draft.getAgingTransitions().stream()
+            .filter(edge -> edge.getAgingTypeEnum() == PSAgingTransition.PSAgingTypeEnum.REPEATED)
+            .findFirst()
+            .orElseThrow();
+    PSAgingTransition changed =
+        draft.getAgingTransitions().stream()
+            .filter(edge -> "CONTENTEXPIRYDATE".equals(edge.getSystemField()))
+            .findFirst()
+            .orElseThrow();
+    PSAgingTransition untouched =
+        draft.getAgingTransitions().stream()
+            .filter(edge -> "REMINDERDATE".equals(edge.getSystemField()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(15L, absolute.getInterval());
+    assertEquals("Aging 15", absolute.getLabel());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.ABSOLUTE, absolute.getAgingTypeEnum());
+    assertEquals(15L, repeatedEdge.getInterval());
+    assertEquals("Repeated aging 15", repeatedEdge.getLabel());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.REPEATED, repeatedEdge.getAgingTypeEnum());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.SYSTEM_FIELD, changed.getAgingTypeEnum());
+    assertEquals("CONTENTEXPIRYDATE", changed.getSystemField());
+    assertEquals("System field aging CONTENTEXPIRYDATE", changed.getLabel());
+    assertEquals("System field aging CONTENTEXPIRYDATE", changed.getTrigger());
+    assertEquals(1L, changed.getInterval());
+    assertEquals(2L, changed.getToState());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.SYSTEM_FIELD, untouched.getAgingTypeEnum());
+    assertEquals("REMINDERDATE", untouched.getSystemField());
+    assertEquals(4, draft.getAgingTransitions().size());
+    assertEquals(0, draft.getTransitions().size());
+    assertEquals(2, wf.getStates().size());
+    WorkflowGraph.Edge projected =
+        graph.getEdges().stream()
+            .filter(edge -> "CONTENTEXPIRYDATE".equals(edge.getSystemField()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals("SYSTEM_FIELD", projected.getAgingType());
+    assertEquals(null, projected.getIntervalMinutes());
+    assertEquals("System field aging CONTENTEXPIRYDATE", projected.getLabel());
+    assertEquals(1, graph.getEdges().stream().filter(edge -> "ABSOLUTE".equals(edge.getAgingType())).count());
+    assertEquals(1, graph.getEdges().stream().filter(edge -> "REPEATED".equals(edge.getAgingType())).count());
+    assertEquals(
+        15L,
+        graph.getEdges().stream()
+            .filter(edge -> "ABSOLUTE".equals(edge.getAgingType()))
+            .findFirst()
+            .orElseThrow()
+            .getIntervalMinutes());
+    verify(workflowService, times(5)).saveWorkflow(wf);
+  }
+
+  @Test
+  void systemFieldChangeDoesNotTouchAnAbsoluteIntervalOfOneMinute() {
+    PSState draft = state(1, "Draft");
+    PSWorkflow wf = workflow("Nightly QA", draft, state(2, "Review"));
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 1));
+    adaptor.createAbsoluteAgingTransition(
+        null, "Nightly QA", systemBody("Draft", "Review", "CONTENTSTARTDATE"));
+
+    adaptor.changeSystemFieldAging(
+        null, "Nightly QA", fieldBody("Draft", "Review", "CONTENTSTARTDATE", "REMINDERDATE"));
+
+    PSAgingTransition absolute = draft.getAgingTransitions().get(0);
+    PSAgingTransition system = draft.getAgingTransitions().get(1);
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.ABSOLUTE, absolute.getAgingTypeEnum());
+    assertEquals(1L, absolute.getInterval());
+    assertEquals("Aging 1", absolute.getLabel());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.SYSTEM_FIELD, system.getAgingTypeEnum());
+    assertEquals("REMINDERDATE", system.getSystemField());
+    assertEquals(1L, system.getInterval());
+    verify(workflowService, times(3)).saveWorkflow(wf);
+  }
+
+  @Test
+  void customSystemFieldLabelStaysWhileTheColumnChanges() {
+    PSState draft = state(1, "Draft");
+    PSWorkflow wf = workflow("Nightly QA", draft, state(2, "Review"));
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(
+        null, "Nightly QA", systemBody("Draft", "Review", "CONTENTSTARTDATE"));
+    draft.getAgingTransitions().get(0).setLabel("Keep me");
+
+    adaptor.changeSystemFieldAging(
+        null, "Nightly QA", fieldBody("Draft", "Review", "CONTENTSTARTDATE", "CONTENTEXPIRYDATE"));
+
+    PSAgingTransition system = draft.getAgingTransitions().get(0);
+    assertEquals("Keep me", system.getLabel());
+    assertEquals("CONTENTEXPIRYDATE", system.getSystemField());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.SYSTEM_FIELD, system.getAgingTypeEnum());
+    assertEquals("System field aging CONTENTEXPIRYDATE", system.getTrigger());
+    verify(workflowService, times(2)).saveWorkflow(wf);
+  }
+
+  @Test
+  void duplicateSystemFieldChangeDoesNotSave() {
+    PSState draft = state(1, "Draft");
+    PSWorkflow wf = workflow("Nightly QA", draft, state(2, "Review"));
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(
+        null, "Nightly QA", systemBody("Draft", "Review", "CONTENTSTARTDATE"));
+    adaptor.createAbsoluteAgingTransition(
+        null, "Nightly QA", systemBody("Draft", "Review", "REMINDERDATE"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.changeSystemFieldAging(
+                    null,
+                    "Nightly QA",
+                    fieldBody("Draft", "Review", "CONTENTSTARTDATE", "REMINDERDATE")));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals("CONTENTSTARTDATE", draft.getAgingTransitions().get(0).getSystemField());
+    assertEquals("REMINDERDATE", draft.getAgingTransitions().get(1).getSystemField());
+    verify(workflowService, times(2)).saveWorkflow(wf);
+  }
+
+  @Test
+  void missingSystemFieldChangeIs404AndDoesNotSave() {
+    PSState draft = state(1, "Draft");
+    PSWorkflow wf = workflow("Nightly QA", draft, state(2, "Review"));
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.changeSystemFieldAging(
+                    null,
+                    "Nightly QA",
+                    fieldBody("Draft", "Review", "CONTENTSTARTDATE", "REMINDERDATE")));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals(15L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(
+        PSAgingTransition.PSAgingTypeEnum.ABSOLUTE,
+        draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    verify(workflowService, times(1)).saveWorkflow(wf);
+  }
+
+  @Test
+  void blankSameOrUnknownSystemFieldChangeDoesNotSave() {
+    PSState draft = state(1, "Draft");
+    PSWorkflow wf = workflow("Nightly QA", draft, state(2, "Review"));
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(
+        null, "Nightly QA", systemBody("Draft", "Review", "CONTENTSTARTDATE"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            adaptor.changeSystemFieldAging(
+                null, "Nightly QA", fieldBody("Draft", "Review", " ", "REMINDERDATE")));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            adaptor.changeSystemFieldAging(
+                null, "Nightly QA", fieldBody("Draft", "Review", "CONTENTSTARTDATE", "sys_title")));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            adaptor.changeSystemFieldAging(
+                null,
+                "Nightly QA",
+                fieldBody("Draft", "Review", "contentstartdate", "CONTENTSTARTDATE")));
+    assertEquals("CONTENTSTARTDATE", draft.getAgingTransitions().get(0).getSystemField());
+    assertEquals(
+        PSAgingTransition.PSAgingTypeEnum.SYSTEM_FIELD,
+        draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    verify(workflowService, times(1)).saveWorkflow(wf);
+  }
+
+  @Test
+  void packagedSystemFieldChangeIs403() {
+    PSWorkflow wf = workflow("Simple Workflow", state(1, "Draft"), state(2, "Review"));
+    stub(wf, false);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                adaptor.changeSystemFieldAging(
+                    null,
+                    "Simple Workflow",
+                    fieldBody("Draft", "Review", "CONTENTSTARTDATE", "REMINDERDATE")));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  @Test
   void nonAdminIs403() {
     WorkflowsAdaptor locked =
         new WorkflowsAdaptor(
@@ -860,6 +1074,16 @@ class WorkflowsAdaptorAgingWriteTest {
     body.setTo(to);
     body.setType("SYSTEM_FIELD");
     body.setSystemField(systemField);
+    return body;
+  }
+
+  private static WorkflowAgingSystemFieldWrite fieldBody(
+      String from, String to, String current, String next) {
+    WorkflowAgingSystemFieldWrite body = new WorkflowAgingSystemFieldWrite();
+    body.setFrom(from);
+    body.setTo(to);
+    body.setSystemField(current);
+    body.setNewSystemField(next);
     return body;
   }
 

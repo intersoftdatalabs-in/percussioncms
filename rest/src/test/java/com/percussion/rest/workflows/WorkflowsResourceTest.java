@@ -1064,6 +1064,115 @@ public class WorkflowsResourceTest {
     verify(adaptor, never()).changeAbsoluteAgingInterval(any(), any(), any());
   }
 
+  private static WorkflowAgingSystemFieldWrite fieldBody(
+      String from, String to, String current, String next) {
+    WorkflowAgingSystemFieldWrite body = new WorkflowAgingSystemFieldWrite();
+    body.setFrom(from);
+    body.setTo(to);
+    body.setSystemField(current);
+    body.setNewSystemField(next);
+    return body;
+  }
+
+  @Test
+  public void changeSystemFieldAgingSuccess() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Nightly QA");
+    when(adaptor.changeSystemFieldAging(any(), eq("Nightly QA"), any())).thenReturn(graph);
+    WorkflowGraph out =
+        resource.changeSystemFieldAging(
+            "Nightly QA", fieldBody("Draft", "Review", "CONTENTSTARTDATE", "CONTENTEXPIRYDATE"));
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor)
+        .changeSystemFieldAging(
+            any(),
+            eq("Nightly QA"),
+            argThat(
+                written ->
+                    written != null
+                        && "CONTENTSTARTDATE".equals(written.getSystemField())
+                        && "CONTENTEXPIRYDATE".equals(written.getNewSystemField())));
+  }
+
+  @Test
+  public void changeSystemFieldAgingRequiresBody() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.changeSystemFieldAging("Nightly QA", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    verify(adaptor, never()).changeSystemFieldAging(any(), any(), any());
+  }
+
+  @Test
+  public void changeSystemFieldAgingRejectsBlankSameOrUnknownColumn() {
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.changeSystemFieldAging(
+                        "Nightly QA", fieldBody("Draft", " ", "CONTENTSTARTDATE", "REMINDERDATE")))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.changeSystemFieldAging(
+                        "Nightly QA", fieldBody("Draft", "Review", " ", "REMINDERDATE")))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.changeSystemFieldAging(
+                        "Nightly QA", fieldBody("Draft", "Review", "CONTENTSTARTDATE", "sys_title")))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.changeSystemFieldAging(
+                        "Nightly QA",
+                        fieldBody("Draft", "Review", "contentstartdate", "CONTENTSTARTDATE")))
+            .getResponse()
+            .getStatus());
+    verify(adaptor, never()).changeSystemFieldAging(any(), any(), any());
+  }
+
+  @Test
+  public void changeSystemFieldAgingPackagedIs403() {
+    when(adaptor.changeSystemFieldAging(any(), any(), any()))
+        .thenThrow(new WebApplicationException("packaged", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.changeSystemFieldAging(
+                    "Default Workflow",
+                    fieldBody("Draft", "Review", "CONTENTSTARTDATE", "REMINDERDATE")));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void changeSystemFieldAgingConflictIs409() {
+    when(adaptor.changeSystemFieldAging(any(), any(), any()))
+        .thenThrow(new WebApplicationException("exists", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.changeSystemFieldAging(
+                    "Nightly QA",
+                    fieldBody("Draft", "Review", "CONTENTSTARTDATE", "CONTENTEXPIRYDATE")));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
   @Test
   public void deleteAgingTransitionSuccess() {
     WorkflowGraph graph = new WorkflowGraph();
