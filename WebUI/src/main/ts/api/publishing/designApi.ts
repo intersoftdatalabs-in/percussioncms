@@ -336,8 +336,11 @@ export async function createContentList(
 /**
  * PUT update. A description change sends {@code description} only (empty
  * string clears it) so name, type, generator, legacy URL, and item filter stay
- * stored. HTTP 400 when the description is longer than 255 characters; 403
- * non-Admin/Designer; 409 duplicate name when a name is also sent.
+ * stored. A generator change sends {@code generator} only so name, description,
+ * type, legacy URL, and item filter stay stored. HTTP 400 when the description
+ * is longer than 255 characters, or when the generator is blank, longer than
+ * 256 characters, or sent for a legacy list; 403 non-Admin/Designer; 409
+ * duplicate name when a name is also sent.
  */
 export async function updateContentList(
   contentListId: string | number,

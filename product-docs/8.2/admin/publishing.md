@@ -492,6 +492,8 @@ mark the form dirty; leaving the editor prompts to discard. The shell posts
 HTTP **403** (not Admin or Designer) and **409** (content list name already exists) are shown in the
 content-list editor error region — not as a successful save. Setting only the description is
 described below and does not change the name, type, generator or legacy URL, or item filter.
+Setting only the generator on a modern list is also described below and does not change the name,
+description, type, item filter, or a legacy list URL.
 Edition save and delivery-type save are separate Design actions.
 
 ### Rename a content list (Design)
@@ -565,7 +567,33 @@ HTTP **400** (description longer than 255 characters), **403** (not Admin or Des
 **409** (for example a content list name conflict on the same update) stay in the description
 form error region. Those responses do not change the description on the list. Saving a content
 list (which can also change the name, generator or legacy URL, and item filter), renaming a
-content list, and setting the item filter are separate actions.
+content list, setting the item filter, and setting only the generator are separate actions.
+
+### Set a content list generator (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Content lists**.
+On a **modern** content list row, **Generator** opens **Content list generator** (it does not call
+the server). A legacy row has no **Generator** action, so this does not change a legacy URL.
+The form shows the current **name**, **description**, **type**, and **item filter**, and does not
+let you change them. Change **Generator**. **Save generator** sends
+`PUT …/sitemanage/publishingdesign/contentlists/{contentListId}` with a `contentList` object that
+contains only the generator. Name, description, type, legacy URL, and item filter are omitted, so
+the server leaves those stored.
+
+**Content lists** keeps the previous generator until that update succeeds, then shows the new
+generator with the same name, description, type, and item filter. **Cancel** closes the form and
+does not call the server. A blank generator is rejected in the form and does not call the server
+(clearing the generator would make a list with no expander and no item filter look legacy). A
+generator longer than 256 characters (`RXCONTENTLIST.GENERATOR`) is also rejected in the form and
+does not call the server.
+
+HTTP **400** (generator blank, longer than 256 characters, or sent for a legacy list), **403**
+(not Admin or Designer), and **409** (for example a content list name conflict on the same update)
+stay in the generator form error region. Those responses do not change the generator on the list.
+Saving a content list (which can also change the name, description, legacy URL, and item filter),
+renaming a content list, setting the item filter, and setting only the description are separate
+actions. The content list type stays disabled after create; this action does not switch a saved
+list between modern and legacy.
 
 ### Delete a content list (Design)
 
