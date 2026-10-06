@@ -9149,3 +9149,307 @@ describe("EditorHost clear community (#5091)", () => {
     expect(sent.fields.find((field) => field.name === "sys_communityid")?.value).toBe("");
   });
 });
+
+describe("EditorHost refuse clearing a required file (#5279)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function fileMeta(filename: string, present: boolean) {
+    return {
+      contentId: "42",
+      field: "item_file_attachment",
+      filename,
+      contentType: present ? "application/pdf" : "",
+      present,
+    };
+  }
+
+  function requiredFileHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    uploadBinary?: (id: string, field: string, file: File) => Promise<unknown>;
+    clearBinary?: (id: string, field: string) => Promise<unknown>;
+    storedName?: string;
+    present?: boolean;
+    meta?: { storedName: string; present: boolean };
+    fieldValue?: string | null;
+    required?: boolean;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const meta = opts.meta ?? {
+      storedName: opts.storedName ?? (opts.present === false ? "" : "brief.pdf"),
+      present: opts.present !== false,
+    };
+    const present = meta.present;
+    const storedName = meta.storedName;
+    const fieldValue = opts.fieldValue === undefined ? (present ? storedName : null) : opts.fieldValue;
+    const itemFields = [{ name: "sys_title", value: "Brief" }];
+    if (fieldValue != null) {
+      itemFields.push({ name: "item_file_attachment", value: fieldValue });
+    }
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percFile",
+          name: "Brief",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: itemFields,
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        uploadBinary={opts.uploadBinary ?? vi.fn()}
+        clearBinary={opts.clearBinary ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            { name: "sys_title", label: "Title", control: "sys_EditBox" },
+            {
+              name: "item_file_attachment",
+              label: "File",
+              control: "sys_File",
+              required: opts.required !== false,
+            },
+          ],
+        })}
+        loadBinaryMeta={async () => fileMeta(meta.storedName, meta.present)}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  function renderFileHost(element: React.ReactElement): void {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  async function openRequiredFile(
+    element: React.ReactElement,
+    filename = "brief.pdf",
+  ): Promise<void> {
+    renderFileHost(element);
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+        filename,
+      );
+    });
+  }
+
+  it("does not save a required file when nothing is stored and nothing is chosen", async () => {
+    const saveFields = vi.fn();
+    const uploadBinary = vi.fn();
+    const clearBinary = vi.fn();
+    renderFileHost(
+      requiredFileHost({
+        saveFields,
+        uploadBinary,
+        clearBinary,
+        present: false,
+        fieldValue: null,
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toMatch(
+        /no file attached/i,
+      );
+    });
+    expect(
+      screen.getByTestId("editor-field-row-item_file_attachment").getAttribute("data-required"),
+    ).toBe("true");
+    expect(screen.queryByTestId("editor-file-clear-item_file_attachment")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-item_file_attachment").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(document.activeElement).toBe(screen.getByTestId("editor-file-item_file_attachment"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(clearBinary).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(
+      screen.getByTestId("editor-field-row-item_file_attachment").getAttribute("data-required"),
+    ).toBe("true");
+  });
+
+  it("does not remove a required file on clear then save and reloads the previous file", async () => {
+    const saveFields = vi.fn();
+    const uploadBinary = vi.fn();
+    const clearBinary = vi.fn();
+    await openRequiredFile(
+      requiredFileHost({ saveFields, uploadBinary, clearBinary, fieldValue: "brief.pdf" }),
+    );
+    expect(
+      screen.getByTestId("editor-field-item_file_attachment").getAttribute("data-editor-kind"),
+    ).toBe("file");
+    fireEvent.click(screen.getByTestId("editor-file-clear-item_file_attachment"));
+    expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toMatch(
+      /no file attached/i,
+    );
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-item_file_attachment").textContent).toBe(
+        "This field is required.",
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(clearBinary).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toMatch(
+      /no file attached/i,
+    );
+    cleanup();
+    await openRequiredFile(requiredFileHost({ saveFields, uploadBinary, clearBinary }));
+    expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+      "brief.pdf",
+    );
+    expect(clearBinary).not.toHaveBeenCalled();
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not write when Close cancels a required file clear", async () => {
+    const saveFields = vi.fn();
+    const clearBinary = vi.fn();
+    await openRequiredFile(
+      requiredFileHost({
+        saveFields,
+        clearBinary,
+        fieldValue: "brief.pdf",
+        confirmLeaveUnsaved: () => false,
+      }),
+    );
+    fireEvent.click(screen.getByTestId("editor-file-clear-item_file_attachment"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(clearBinary).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toMatch(
+      /no file attached/i,
+    );
+    expect(
+      screen.getByTestId("editor-field-row-item_file_attachment").getAttribute("data-required"),
+    ).toBe("true");
+    cleanup();
+    await openRequiredFile(requiredFileHost({ saveFields, clearBinary }));
+    expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+      "brief.pdf",
+    );
+    expect(clearBinary).not.toHaveBeenCalled();
+  });
+
+  it("still saves a chosen non-image file on a required file field", async () => {
+    const meta = { storedName: "brief.pdf", present: true };
+    const notes = new File(["hello"], "notes.txt", { type: "text/plain" });
+    const uploadBinary = vi.fn(async () => {
+      meta.storedName = "notes.txt";
+      return fileMeta("notes.txt", true);
+    });
+    const clearBinary = vi.fn();
+    const saveFields = vi.fn(async () => ({
+      contentId: "42",
+      contentType: "percFile",
+      name: "Brief",
+      checkoutUser: "admin",
+      revision: 4,
+      fields: [
+        { name: "sys_title", value: "Brief" },
+        { name: "item_file_attachment", value: "notes.txt" },
+      ],
+    }));
+    await openRequiredFile(
+      requiredFileHost({
+        saveFields,
+        uploadBinary,
+        clearBinary,
+        meta,
+        fieldValue: "brief.pdf",
+      }),
+    );
+    fireEvent.change(screen.getByTestId("editor-file-item_file_attachment"), {
+      target: { files: [notes] },
+    });
+    expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+      "notes.txt",
+    );
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    expect(uploadBinary).toHaveBeenCalledWith("42", "item_file_attachment", notes);
+    expect(clearBinary).not.toHaveBeenCalled();
+    expect(saveFields).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+        "notes.txt",
+      );
+    });
+    cleanup();
+    renderFileHost(
+      requiredFileHost({
+        saveFields,
+        uploadBinary,
+        clearBinary,
+        meta,
+        fieldValue: "notes.txt",
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-item_file_attachment").textContent).toBe(
+        "notes.txt",
+      );
+    });
+  });
+
+  it("still clears an optional file on save", async () => {
+    const clearBinary = vi.fn().mockResolvedValue(fileMeta("", false));
+    const uploadBinary = vi.fn();
+    const saveFields = vi.fn(async () => ({
+      contentId: "42",
+      contentType: "percFile",
+      name: "Brief",
+      checkoutUser: "admin",
+      revision: 4,
+      fields: [
+        { name: "sys_title", value: "Brief" },
+        { name: "item_file_attachment", value: "brief.pdf" },
+      ],
+    }));
+    await openRequiredFile(
+      requiredFileHost({
+        saveFields,
+        uploadBinary,
+        clearBinary,
+        required: false,
+        fieldValue: "brief.pdf",
+      }),
+    );
+    expect(
+      screen.getByTestId("editor-field-row-item_file_attachment").getAttribute("data-required"),
+    ).toBe("false");
+    fireEvent.click(screen.getByTestId("editor-file-clear-item_file_attachment"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(clearBinary).toHaveBeenCalledWith("42", "item_file_attachment");
+    });
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(saveFields).toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-field-error-item_file_attachment")).toBeNull();
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+  });
+});

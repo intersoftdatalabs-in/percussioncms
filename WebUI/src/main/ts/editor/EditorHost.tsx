@@ -1330,6 +1330,7 @@ export function EditorHost({
       })),
       pendingFiles,
       message(EDITOR_MSG.FIELD_REQUIRED),
+      pendingClears,
     );
   }
 

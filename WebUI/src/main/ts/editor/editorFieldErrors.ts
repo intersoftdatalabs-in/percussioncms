@@ -66,7 +66,11 @@ export function isEmptyEditorFieldValue(
   kind: EditorWidgetKind,
   value: string,
   pendingFile?: File | null,
+  pendingClear?: boolean,
 ): boolean {
+  if (kind === "file" && pendingClear && !pendingFile) {
+    return true;
+  }
   if (kind === "file" || kind === "image") {
     return !pendingFile && !(value ?? "").trim();
   }
@@ -80,13 +84,21 @@ export function collectRequiredFieldErrors(
   rows: readonly EditorRequiredRow[],
   pendingFiles: Record<string, File>,
   requiredMessage: string,
+  pendingClears?: Readonly<Record<string, boolean>>,
 ): Record<string, string> {
   const out: Record<string, string> = {};
   for (const row of rows) {
     if (!row.required) {
       continue;
     }
-    if (isEmptyEditorFieldValue(row.kind, row.value, pendingFiles[row.name])) {
+    if (
+      isEmptyEditorFieldValue(
+        row.kind,
+        row.value,
+        pendingFiles[row.name],
+        pendingClears?.[row.name] === true,
+      )
+    ) {
       out[row.name] = requiredMessage;
     }
   }
