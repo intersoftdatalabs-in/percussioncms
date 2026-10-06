@@ -194,6 +194,9 @@ public final class WorkflowGraphProjector {
       if (transition instanceof PSAgingTransition aging) {
         edge.setAging(true);
         edge.setIntervalMinutes(aging.getInterval());
+        if (aging.getAgingTypeEnum() != null) {
+          edge.setAgingType(aging.getAgingTypeEnum().name());
+        }
       } else if (transition instanceof PSTransition regular) {
         edge.setCommentRequired(
             regular.getRequiresComment() == PSTransition.PSWorkflowCommentEnum.REQUIRED);

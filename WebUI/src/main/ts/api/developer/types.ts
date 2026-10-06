@@ -1287,8 +1287,13 @@ export interface WorkflowGraphEdge {
   allowedRoles?: string[];
   /** True for an aging transition. Comment-required and approvals required do not apply. */
   aging?: boolean;
-  /** Minutes on an absolute aging transition. */
+  /** Minutes on an absolute or repeated aging transition. */
   intervalMinutes?: number;
+  /**
+   * ABSOLUTE, REPEATED, or SYSTEM_FIELD. Omitted on regular edges.
+   * A repeated create sets REPEATED. An omitted create type stays ABSOLUTE.
+   */
+  agingType?: string;
 }
 
 export interface WorkflowGraph {

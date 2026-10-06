@@ -18,6 +18,8 @@
 package com.percussion.rest.workflows;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.JacksonContextResolver;
@@ -46,5 +48,26 @@ public class WorkflowAgingTransitionWriteSerialDeserialTest {
     assertEquals("Draft", roundTrip.getFrom());
     assertEquals("Review", roundTrip.getTo());
     assertEquals(15L, roundTrip.getIntervalMinutes());
+    assertNull(roundTrip.getType());
+    assertEquals(WorkflowAgingTransitionWrite.Kind.ABSOLUTE, roundTrip.kind());
+  }
+
+  @Test
+  public void repeatedTypeRoundTripsAndUnknownTypeIsRejected() {
+    WorkflowAgingTransitionWrite body = new WorkflowAgingTransitionWrite();
+    body.setFrom("Draft");
+    body.setTo("Review");
+    body.setIntervalMinutes(15);
+    body.setType("REPEATED");
+
+    ObjectMapper mapper = new JacksonContextResolver().getContext(WorkflowAgingTransitionWrite.class);
+    String json = mapper.writeValueAsString(body);
+    assertTrue(json.contains("REPEATED"), json);
+    WorkflowAgingTransitionWrite roundTrip = mapper.readValue(json, WorkflowAgingTransitionWrite.class);
+    assertEquals("REPEATED", roundTrip.getType());
+    assertEquals(WorkflowAgingTransitionWrite.Kind.REPEATED, roundTrip.kind());
+
+    roundTrip.setType("SYSTEM_FIELD");
+    assertThrows(IllegalArgumentException.class, roundTrip::kind);
   }
 }

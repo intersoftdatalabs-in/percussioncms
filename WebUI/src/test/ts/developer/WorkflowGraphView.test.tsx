@@ -393,6 +393,184 @@ describe("WorkflowGraphView step delete", () => {
     expect(screen.queryByTestId("developer-wf-aging-edge-0")).toBeNull();
   });
 
+  it("lists a repeated aging transition only after success and keeps the absolute row", async () => {
+    const initial = {
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        { from: "Draft", to: "Review", label: "Submit", commentRequired: false },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "ABSOLUTE",
+        },
+      ],
+    };
+    const updated = {
+      packaged: false,
+      nodes: initial.nodes,
+      edges: [
+        ...initial.edges,
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Repeated aging 20",
+          aging: true,
+          intervalMinutes: 20,
+          agingType: "REPEATED",
+        },
+      ],
+    };
+    let current = initial;
+    let release: (graph: typeof updated) => void = () => {};
+    getWorkflowGraph.mockImplementation(async () => current);
+    createWorkflowAgingTransition.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = (graph) => {
+            current = graph;
+            resolve(graph);
+          };
+        }),
+    );
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    expect(await screen.findByTestId("developer-wf-aging-edge-0")).toBeTruthy();
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
+    expect(screen.queryByText(/Repeated aging 20/)).toBeNull();
+    fireEvent.change(screen.getByTestId("developer-wf-repeated-aging-to"), {
+      target: { value: "Review" },
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-repeated-aging-minutes"), {
+      target: { value: "20" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-repeated-aging-add"));
+    await waitFor(() => {
+      expect(createWorkflowAgingTransition).toHaveBeenCalledWith("Nightly QA", {
+        from: "Draft",
+        to: "Review",
+        intervalMinutes: 20,
+        type: "REPEATED",
+      });
+    });
+    expect(screen.queryByText(/Repeated aging 20/)).toBeNull();
+    release(updated);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain(
+        "Repeated aging 20",
+      );
+    });
+    expect(screen.getByTestId("developer-wf-aging-edge-1").getAttribute("data-aging-type")).toBe(
+      "REPEATED",
+    );
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
+    expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-aging-type")).toBe(
+      "ABSOLUTE",
+    );
+    expect(screen.queryByTestId("developer-wf-aging-change-1")).toBeNull();
+    expect(screen.queryByTestId("developer-wf-aging-delete-1")).toBeNull();
+    expect(screen.getByTestId("developer-wf-aging-change-0")).toBeTruthy();
+    expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
+      "Repeated aging transition saved",
+    );
+  });
+
+  it("cancel and invalid repeated input do not call the server", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "ABSOLUTE",
+        },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    const minutes = await screen.findByTestId("developer-wf-repeated-aging-minutes");
+    fireEvent.change(minutes, { target: { value: "20" } });
+    fireEvent.click(screen.getByTestId("developer-wf-repeated-aging-cancel"));
+    expect(createWorkflowAgingTransition).not.toHaveBeenCalled();
+    expect(
+      (screen.getByTestId("developer-wf-repeated-aging-minutes") as HTMLInputElement).value,
+    ).toBe("");
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
+
+    fireEvent.change(screen.getByTestId("developer-wf-repeated-aging-minutes"), {
+      target: { value: "20" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-repeated-aging-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-error").textContent).toMatch(/repeated/i);
+    });
+    expect(createWorkflowAgingTransition).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-wf-aging-edge-1")).toBeNull();
+
+    fireEvent.change(screen.getByTestId("developer-wf-repeated-aging-to"), {
+      target: { value: "Review" },
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-repeated-aging-minutes"), {
+      target: { value: "0" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-repeated-aging-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-error").textContent).toMatch(/positive/i);
+    });
+    expect(createWorkflowAgingTransition).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
+  });
+
+  it("does not add a repeated aging row on 400, 403, or 409", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "ABSOLUTE",
+        },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    fireEvent.change(await screen.findByTestId("developer-wf-repeated-aging-to"), {
+      target: { value: "Review" },
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-repeated-aging-minutes"), {
+      target: { value: "20" },
+    });
+    for (const status of [400, 403, 409]) {
+      createWorkflowAgingTransition.mockRejectedValueOnce({ status, message: "no" });
+      fireEvent.click(screen.getByTestId("developer-wf-repeated-aging-add"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-wf-graph-error")).toBeTruthy();
+      });
+      expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+      expect(screen.queryByText(/Repeated aging/)).toBeNull();
+      expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
+    }
+  });
+
+  it("hides the repeated aging form on a packaged workflow", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: true,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [],
+    });
+    render(<WorkflowGraphView workflowName="Default Workflow" />);
+    await screen.findByTestId("developer-wf-graph-kind");
+    expect(screen.queryByTestId("developer-wf-repeated-aging-form")).toBeNull();
+  });
+
   it("does not claim success on 400, 403, or 409", async () => {
     getWorkflowGraph.mockResolvedValue({
       packaged: false,

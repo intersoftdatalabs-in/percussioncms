@@ -142,6 +142,12 @@ public class WorkflowGraph {
     private boolean aging;
     /** Minutes on an absolute or repeated aging transition. Omitted for regular edges. */
     private Long intervalMinutes;
+    /**
+     * Aging type name ({@code ABSOLUTE}, {@code REPEATED}, or {@code SYSTEM_FIELD}). Omitted on
+     * regular edges. Repeated creates set {@code REPEATED}. Omitted create type stays {@code
+     * ABSOLUTE}.
+     */
+    private String agingType;
 
     public String getFrom() {
       return from;
@@ -229,6 +235,14 @@ public class WorkflowGraph {
 
     public void setIntervalMinutes(Long intervalMinutes) {
       this.intervalMinutes = intervalMinutes;
+    }
+
+    public String getAgingType() {
+      return agingType;
+    }
+
+    public void setAgingType(String agingType) {
+      this.agingType = agingType;
     }
   }
 }

@@ -32,8 +32,9 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Creates or updates one workflow transition between existing steps. Does not add or delete
- * states. Absolute aging creates go through {@link #createAbsoluteAging}. Interval changes go
- * through {@link #changeAbsoluteInterval}. Comment-required is not used for aging.
+ * states. Absolute aging creates go through {@link #createAbsoluteAging}. Repeated aging creates
+ * go through {@link #createRepeatedAging} on the same resource. Interval changes go through
+ * {@link #changeAbsoluteInterval}. Comment-required is not used for aging.
  */
 public final class WorkflowTransitionWriter {
 
@@ -140,6 +141,69 @@ public final class WorkflowTransitionWriter {
   }
 
   private static boolean sameAbsoluteInterval(PSState source, long toStateId, long intervalMinutes) {
+    return sameTypedInterval(source, toStateId, intervalMinutes, PSAgingTypeEnum.ABSOLUTE);
+  }
+
+  /**
+   * Inserts one repeated aging transition. Interval is minutes. Does not add a regular transition,
+   * does not replace an absolute aging transition that uses the same interval, and does not add or
+   * delete states.
+   */
+  public static void createRepeatedAging(
+      List<PSState> states,
+      String fromStep,
+      String toStep,
+      long intervalMinutes,
+      TransitionFactory factory) {
+    if (factory == null) {
+      throw new IllegalStateException("Transition id factory is required");
+    }
+    if (intervalMinutes <= 0) {
+      throw new IllegalArgumentException("interval must be a positive number of minutes");
+    }
+    String from = requireName(fromStep, "from");
+    String to = requireName(toStep, "to");
+    String label = repeatedAgingLabel(intervalMinutes);
+    Index index = index(states);
+    PSState source = requireStep(index, from);
+    PSState dest = requireStep(index, to);
+    if (sameEdge(source, label, dest.getName(), index.names)
+        || sameTypedInterval(source, dest.getStateId(), intervalMinutes, PSAgingTypeEnum.REPEATED)) {
+      throw new WebApplicationException("Workflow aging transition already exists: " + label, 409);
+    }
+    PSTransition allocated = factory.allocate(source);
+    if (allocated == null) {
+      throw new IllegalStateException("Could not allocate a workflow transition id");
+    }
+    PSAgingTransition aging = new PSAgingTransition();
+    aging.setGUID(allocated.getGUID());
+    long workflowId = allocated.getWorkflowId();
+    if (workflowId == 0) {
+      workflowId = source.getWorkflowId();
+    }
+    aging.setWorkflowId(workflowId);
+    aging.setStateId(source.getStateId());
+    aging.setToState(dest.getStateId());
+    aging.setType(PSAgingTypeEnum.REPEATED);
+    aging.setInterval(intervalMinutes);
+    aging.setLabel(label);
+    aging.setTrigger(label);
+    if (StringUtils.isBlank(aging.getDescription())) {
+      aging.setDescription(label);
+    }
+    source.addAgingTransition(aging);
+  }
+
+  static String repeatedAgingLabel(long intervalMinutes) {
+    String label = "Repeated aging " + intervalMinutes;
+    if (label.length() > NAME_MAX) {
+      throw new IllegalArgumentException("interval is too large");
+    }
+    return label;
+  }
+
+  private static boolean sameTypedInterval(
+      PSState source, long toStateId, long intervalMinutes, PSAgingTypeEnum want) {
     for (PSAgingTransition existing : copyAging(source)) {
       if (existing == null || existing.getToState() != toStateId) {
         continue;
@@ -148,7 +212,11 @@ public final class WorkflowTransitionWriter {
         continue;
       }
       PSAgingTypeEnum type = existing.getAgingTypeEnum();
-      if (type == null || type == PSAgingTypeEnum.ABSOLUTE) {
+      if (want == PSAgingTypeEnum.ABSOLUTE) {
+        if (type == null || type == PSAgingTypeEnum.ABSOLUTE) {
+          return true;
+        }
+      } else if (type == want) {
         return true;
       }
     }

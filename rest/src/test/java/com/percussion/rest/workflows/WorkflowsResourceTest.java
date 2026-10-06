@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
@@ -860,6 +861,39 @@ public class WorkflowsResourceTest {
             WebApplicationException.class,
             () -> resource.createAbsoluteAgingTransition("Nightly QA", agingBody("Draft", "Review", 15)));
     assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void createRepeatedAgingPassesTypeOnTheSameResource() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Nightly QA");
+    when(adaptor.createAbsoluteAgingTransition(any(), eq("Nightly QA"), any())).thenReturn(graph);
+    WorkflowAgingTransitionWrite body = agingBody("Draft", "Review", 15);
+    body.setType("REPEATED");
+    WorkflowGraph out = resource.createAbsoluteAgingTransition("Nightly QA", body);
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor)
+        .createAbsoluteAgingTransition(
+            any(), eq("Nightly QA"), argThat(written -> "REPEATED".equals(written.getType())));
+  }
+
+  @Test
+  public void createAgingRejectsSystemFieldAndUnknownType() {
+    WorkflowAgingTransitionWrite system = agingBody("Draft", "Review", 15);
+    system.setType("SYSTEM_FIELD");
+    WebApplicationException systemField =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createAbsoluteAgingTransition("Nightly QA", system));
+    assertEquals(400, systemField.getResponse().getStatus());
+    WorkflowAgingTransitionWrite unknown = agingBody("Draft", "Review", 15);
+    unknown.setType("nope");
+    WebApplicationException rejected =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createAbsoluteAgingTransition("Nightly QA", unknown));
+    assertEquals(400, rejected.getResponse().getStatus());
+    verify(adaptor, never()).createAbsoluteAgingTransition(any(), any(), any());
   }
 
   private static WorkflowAgingIntervalWrite intervalBody(
