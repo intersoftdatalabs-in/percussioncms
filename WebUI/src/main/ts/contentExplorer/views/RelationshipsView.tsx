@@ -42,6 +42,7 @@ import {
   addSlotRelationship,
   changeSlotTemplateSlot,
   fetchSlotAllowedTemplates,
+  fetchSlotAllowedTypes,
   fetchSlotCanvas,
   moveSlotRelationship,
   type SlotAddRequest,
@@ -84,6 +85,23 @@ import {
   type LinkExistingBlock,
   type LinkSlotSelection,
 } from "../linkExistingItemToSlot";
+import {
+  applyCreatedItemToSlot,
+  gateCreateItemInSlot,
+  runCreateItemInSlot,
+  type CreateInSlotBlock,
+} from "../createItemInSlot";
+import {
+  createEditorItem,
+  type ItemCreateRequest,
+  type ItemCreateResult,
+} from "../../editor/itemCreateApi";
+import {
+  closeReservedWindow,
+  openEditorHost,
+  reserveEditorWindow,
+  type OpenEditorHostDeps,
+} from "../../editor/openEditorHost";
 import { OpenRelatedItemDialog } from "../OpenRelatedItemDialog";
 import {
   openRelatedItemInEditor,
@@ -91,10 +109,6 @@ import {
   type OpenRelatedItemRequest,
   type OpenRelatedItemResult,
 } from "../openRelatedItemInEditor";
-import {
-  closeReservedWindow,
-  reserveEditorWindow,
-} from "../../editor/openEditorHost";
 
 export interface RelationshipsViewProps {
   item: DependencyItemShared;
@@ -158,6 +172,35 @@ export interface RelationshipsViewProps {
    * Does not create an item and does not use the relationships-panel add.
    */
   linkExisting?: (request: SlotAddRequest) => Promise<SlotRelationship>;
+  /**
+   * Optional injection seam: content types allowed in one slot.
+   * Defaults to {@code GET …/slot-relationships/allowed-types}.
+   */
+  loadAllowedTypes?: (slotId: number) => Promise<SlotAllowedChoice[]>;
+  /**
+   * Optional injection seam: create one item before linking it into a slot.
+   * Defaults to {@code POST /services/itemmanagement/item/create}.
+   * Does not link by itself and does not open the editor.
+   */
+  createItem?: (
+    request: ItemCreateRequest,
+  ) => Promise<ItemCreateResult>;
+  /**
+   * Optional injection seam: link the item just created into the slot.
+   * Defaults to {@code POST /services/assembly/slot-relationships}.
+   * Separate from {@link linkExisting} so a failed create never posts a link.
+   */
+  linkCreated?: (request: SlotAddRequest) => Promise<SlotRelationship>;
+  /**
+   * Optional injection seam: open the React editor after the slot lists
+   * the new item. Defaults to EditorHost. Not called when create or link fails.
+   */
+  openCreated?: (
+    input: { id: number; mode: "edit" },
+    deps?: OpenEditorHostDeps,
+  ) => Promise<boolean>;
+  /** Optional injection seam: popup reserved on the create confirm gesture. */
+  reserveCreatedWindow?: () => Window | null;
   /**
    * Optional injection seam: open one related content item in EditorHost.
    * Defaults to a fields probe, then the React editor. Does not change the
@@ -236,6 +279,11 @@ export function RelationshipsView(
     moveToSlot = (relationshipId, slotId, templateId) =>
       changeSlotTemplateSlot(relationshipId, slotId, templateId),
     linkExisting = addSlotRelationship,
+    loadAllowedTypes = fetchSlotAllowedTypes,
+    createItem = createEditorItem,
+    linkCreated = addSlotRelationship,
+    openCreated = (input, deps) => openEditorHost(input, deps),
+    reserveCreatedWindow = reserveEditorWindow,
     openRelated = openRelatedItemInEditor,
     reserveRelatedWindow = reserveEditorWindow,
     composeSummary,
@@ -302,6 +350,17 @@ export function RelationshipsView(
   const [linkBusy, setLinkBusy] = React.useState(false);
   const [linkNotice, setLinkNotice] = React.useState(false);
   const [linkError, setLinkError] = React.useState<string | null>(null);
+  const [createSlotId, setCreateSlotId] = React.useState<number | null>(null);
+  const [createType, setCreateType] = React.useState("");
+  const [createFolder, setCreateFolder] = React.useState("");
+  const [createTypes, setCreateTypes] = React.useState<SlotAllowedChoice[]>([]);
+  const [createTemplates, setCreateTemplates] = React.useState<
+    SlotAllowedChoice[]
+  >([]);
+  const [createTemplate, setCreateTemplate] = React.useState("");
+  const [createBusy, setCreateBusy] = React.useState(false);
+  const [createNotice, setCreateNotice] = React.useState(false);
+  const [createError, setCreateError] = React.useState<string | null>(null);
   const [addOpen, setAddOpen] = React.useState(false);
   const [addTarget, setAddTarget] = React.useState("");
   const [addType, setAddType] = React.useState("Translation");
@@ -347,6 +406,14 @@ export function RelationshipsView(
       setLinkChoices([]);
       setLinkNotice(false);
       setLinkError(null);
+      setCreateSlotId(null);
+      setCreateType("");
+      setCreateFolder("");
+      setCreateTemplate("");
+      setCreateTypes([]);
+      setCreateTemplates([]);
+      setCreateNotice(false);
+      setCreateError(null);
       return;
     }
     setState({ kind: "loading" });
@@ -359,6 +426,7 @@ export function RelationshipsView(
     setSlotMoveRequest(null);
     setLinkSlotId(null);
     setLinkSelection(null);
+    setCreateSlotId(null);
     loadServerSummary(itemId)
       .then(async (summary) => {
         if (!alive) return;
@@ -424,6 +492,14 @@ export function RelationshipsView(
     setLinkChoices([]);
     setLinkNotice(false);
     setLinkError(null);
+    setCreateSlotId(null);
+    setCreateType("");
+    setCreateFolder("");
+    setCreateTemplate("");
+    setCreateTypes([]);
+    setCreateTemplates([]);
+    setCreateNotice(false);
+    setCreateError(null);
   }, [itemId]);
 
   function statusOf(err: unknown): number | undefined {
@@ -527,6 +603,35 @@ export function RelationshipsView(
       return message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_NOT_ALLOWED);
     }
     return message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_NOT_SLOT);
+  }
+
+  function createFailureMessage(err: unknown): string {
+    const status = statusOf(err);
+    if (status === 400) return message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_FAILED_400);
+    if (status === 403) return message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_FAILED_403);
+    if (status === 409) return message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_FAILED_409);
+    return err instanceof Error
+      ? err.message
+      : message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_FAILED);
+  }
+
+  function createGateMessage(reason: CreateInSlotBlock): string {
+    if (reason === "no_type") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_NO_TYPE);
+    }
+    if (reason === "type_not_allowed") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_TYPE_NOT_ALLOWED);
+    }
+    if (reason === "no_folder") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_NO_FOLDER);
+    }
+    if (reason === "no_template") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_NO_TEMPLATE);
+    }
+    if (reason === "not_allowed") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_NOT_ALLOWED);
+    }
+    return message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_NOT_SLOT);
   }
 
   function slotLabelFor(slotId: number): string {
@@ -911,6 +1016,9 @@ export function RelationshipsView(
     setLinkTarget("");
     setLinkTemplate("");
     setLinkChoices([]);
+    setCreateSlotId(null);
+    setCreateNotice(false);
+    setCreateError(null);
     setLinkSlotId(slotId);
     try {
       const choices = await loadAllowedTemplates(slotId);
@@ -976,6 +1084,161 @@ export function RelationshipsView(
       setLinkError(linkFailureMessage(err));
     } finally {
       setLinkBusy(false);
+    }
+  }
+
+  function refuseCreateBecauseSelectionIsNotSlot(): void {
+    setCreateNotice(false);
+    setCreateSlotId(null);
+    setCreateError(message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_NOT_SLOT));
+  }
+
+  async function openCreateSlot(slotId: number): Promise<void> {
+    const known = knownActiveAssemblySlotIds(edges);
+    if (!known.includes(slotId)) {
+      setLinkSelection({ kind: "other" });
+      refuseCreateBecauseSelectionIsNotSlot();
+      return;
+    }
+    setLinkSelection({ kind: "slot", slotId });
+    setRemovedNotice(null);
+    setRemoveError(null);
+    setMovedNotice(false);
+    setMoveError(null);
+    setOpenedNotice(false);
+    setOpenError(null);
+    setOpenPrompt(null);
+    setAddedNotice(false);
+    setAddError(null);
+    setConfirmId(null);
+    setConfirmAll(false);
+    setMoveRequest(null);
+    setAddOpen(false);
+    setTemplateRequest(null);
+    setTemplateNotice(false);
+    setTemplateError(null);
+    setSlotMoveRequest(null);
+    setSlotMoveNotice(false);
+    setSlotMoveError(null);
+    setLinkSlotId(null);
+    setLinkNotice(false);
+    setLinkError(null);
+    setCreateNotice(false);
+    setCreateError(null);
+    setCreateType("");
+    setCreateFolder("");
+    setCreateTemplate("");
+    setCreateTypes([]);
+    setCreateTemplates([]);
+    setCreateSlotId(slotId);
+    try {
+      const [types, templates] = await Promise.all([
+        loadAllowedTypes(slotId),
+        loadAllowedTemplates(slotId),
+      ]);
+      setCreateTypes(types);
+      setCreateTemplates(templates);
+    } catch (err: unknown) {
+      setCreateNotice(false);
+      setCreateError(createFailureMessage(err));
+    }
+  }
+
+  function openCreateFromSelection(): void {
+    if (linkSelection?.kind !== "slot") {
+      refuseCreateBecauseSelectionIsNotSlot();
+      return;
+    }
+    void openCreateSlot(linkSelection.slotId);
+  }
+
+  async function confirmCreate(): Promise<void> {
+    if (!itemId || createBusy || createSlotId == null) return;
+    const gate = gateCreateItemInSlot({
+      selection: { kind: "slot", slotId: createSlotId },
+      contentType: createType,
+      folderPath: createFolder,
+      templateId: Number(createTemplate),
+      allowedTemplateIds: createTemplates.map((choice) => choice.id),
+      allowedContentTypes: createTypes.map(
+        (choice) => choice.name.trim() || String(choice.id),
+      ),
+      knownSlotIds: knownActiveAssemblySlotIds(edges),
+      ownerId: Number(itemId),
+    });
+    if (!gate.ok) {
+      setCreateNotice(false);
+      setCreateError(createGateMessage(gate.reason));
+      return;
+    }
+    const templateName =
+      createTemplates.find((choice) => choice.id === gate.templateId)?.label ||
+      createTemplates.find((choice) => choice.id === gate.templateId)?.name ||
+      "";
+    const reserved = reserveCreatedWindow();
+    setCreateBusy(true);
+    setCreateNotice(false);
+    setCreateError(null);
+    try {
+      const result = await runCreateItemInSlot({
+        ownerId: gate.ownerId,
+        slotId: gate.slotId,
+        contentType: gate.contentType,
+        folderPath: gate.folderPath,
+        templateId: gate.templateId,
+        templateName,
+        create: createItem,
+        link: linkCreated,
+      });
+      if (!result.ok) {
+        closeReservedWindow(reserved);
+        setCreateNotice(false);
+        setCreateError(
+          result.error !== undefined
+            ? createFailureMessage(result.error)
+            : message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_FAILED),
+        );
+        return;
+      }
+      setEdges((current) =>
+        applyCreatedItemToSlot(
+          current,
+          result.linked,
+          result.templateName,
+          result.label,
+        ),
+      );
+      let opened = false;
+      try {
+        opened = await openCreated(
+          { id: result.contentId, mode: "edit" },
+          { reservedWindow: reserved },
+        );
+      } catch {
+        closeReservedWindow(reserved);
+        setCreateNotice(false);
+        setCreateError(
+          message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_EDITOR_FAILED),
+        );
+        return;
+      }
+      if (!opened) {
+        closeReservedWindow(reserved);
+        setCreateNotice(false);
+        setCreateError(
+          message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_EDITOR_FAILED),
+        );
+        return;
+      }
+      setCreateSlotId(null);
+      setCreateError(null);
+      setCreateNotice(true);
+    } catch (err: unknown) {
+      closeReservedWindow(reserved);
+      setCreateNotice(false);
+      setCreateError(createFailureMessage(err));
+    } finally {
+      setCreateBusy(false);
     }
   }
 
@@ -1316,6 +1579,16 @@ export function RelationshipsView(
             {linkError}
           </p>
         ) : null}
+        {createNotice ? (
+          <p role="status" data-testid="relationships-create-slot-done">
+            {message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_DONE)}
+          </p>
+        ) : null}
+        {createError ? (
+          <p role="alert" data-testid="relationships-create-slot-error">
+            {createError}
+          </p>
+        ) : null}
         <p>
           <button
             type="button"
@@ -1323,6 +1596,13 @@ export function RelationshipsView(
             onClick={() => openLinkFromSelection()}
           >
             {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT)}
+          </button>
+          <button
+            type="button"
+            data-testid="relationships-create-in-slot"
+            onClick={() => openCreateFromSelection()}
+          >
+            {message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT)}
           </button>
         </p>
         {edges.length === 0 ? (
@@ -1508,6 +1788,15 @@ export function RelationshipsView(
                           }}
                         >
                           {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT)}
+                        </button>
+                        <button
+                          type="button"
+                          data-testid={`relationships-create-slot-${group.slotId}`}
+                          onClick={() => {
+                            void openCreateSlot(group.slotId);
+                          }}
+                        >
+                          {message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT)}
                         </button>
                       </span>
                       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
@@ -1702,6 +1991,88 @@ export function RelationshipsView(
               }}
             >
               {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_DO)}
+            </button>
+          </div>
+        ) : null}
+        {createSlotId != null ? (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="relationships-create-slot-title"
+            data-testid="relationships-create-slot-dialog"
+            style={{ marginTop: 8, padding: 8, border: "1px solid #ccc" }}
+          >
+            <h3 id="relationships-create-slot-title" style={{ fontSize: "1rem" }}>
+              {message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_TITLE)}
+            </h3>
+            <label htmlFor="relationships-create-slot-type">
+              {message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_TYPE)}
+            </label>
+            <select
+              id="relationships-create-slot-type"
+              data-testid="relationships-create-slot-type"
+              value={createType}
+              onChange={(event) => setCreateType(event.target.value)}
+            >
+              <option value="">
+                {message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_TYPE_PLACEHOLDER)}
+              </option>
+              {createTypes.map((choice) => (
+                <option
+                  key={choice.id}
+                  value={choice.name.trim() || String(choice.id)}
+                >
+                  {choice.label || choice.name || String(choice.id)}
+                </option>
+              ))}
+            </select>
+            <label htmlFor="relationships-create-slot-folder">
+              {message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_FOLDER)}
+            </label>
+            <input
+              id="relationships-create-slot-folder"
+              data-testid="relationships-create-slot-folder"
+              value={createFolder}
+              onChange={(event) => setCreateFolder(event.target.value)}
+            />
+            <label htmlFor="relationships-create-slot-template">
+              {message(EXPLORER_MSG.RELATIONSHIPS_CHANGE_TEMPLATE_LABEL)}
+            </label>
+            <select
+              id="relationships-create-slot-template"
+              data-testid="relationships-create-slot-template"
+              value={createTemplate}
+              onChange={(event) => setCreateTemplate(event.target.value)}
+            >
+              <option value="">
+                {message(EXPLORER_MSG.RELATIONSHIPS_CHANGE_TEMPLATE_PLACEHOLDER)}
+              </option>
+              {createTemplates.map((choice) => (
+                <option key={choice.id} value={String(choice.id)}>
+                  {choice.label || choice.name || String(choice.id)}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              data-testid="relationships-create-slot-cancel"
+              onClick={() => {
+                if (!createBusy) {
+                  setCreateSlotId(null);
+                }
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_CANCEL)}
+            </button>
+            <button
+              type="button"
+              data-testid="relationships-create-slot-confirm"
+              disabled={createBusy}
+              onClick={() => {
+                void confirmCreate();
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_DO)}
             </button>
           </div>
         ) : null}

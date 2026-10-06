@@ -1017,9 +1017,31 @@ From the **View** menu you can also toggle:
   `templateId`. The slot lists that item only after the call returns the
   same slot and the same item. HTTP **400**, **403**, and **409** stay on
   the panel, do not show *Item linked into the slot.*, and do not list the
-  item in the slot. An empty selection or a folder
+  item in the slot. **Create new item** is on a slot that already lists an
+  Active Assembly row. It is not **Create Page** or **Create Asset** in a
+  folder, and it is not **Link existing item** (that links an item that
+  already exists and does not create one). Select the slot, or use
+  **Create new item** on that slot. The dialog asks for a content type
+  allowed for the slot
+  (`GET /services/assembly/slot-relationships/allowed-types?slotId=`), a
+  folder path, and a snippet template allowed for that slot
+  (`GET /services/assembly/slot-relationships/allowed-templates?slotId=`).
+  **Cancel**, a missing content type, a missing folder, or a missing snippet
+  template does not call the server and does not list a new row. A folder
+  row, a translation row, or any selection that is not a slot does not open
+  the create dialog and does not show *Created the item in the slot.*
+  **Create in slot** calls `POST /services/itemmanagement/item/create` with
+  that content type and folder, then
+  `POST /services/assembly/slot-relationships` with the page as `ownerId`,
+  the new item as `dependentId`, the selected `slotId`, and the chosen
+  `templateId`. The slot lists the new item only after the link returns the
+  same slot and the same item. The React Content Editor
+  (`spa.jsp?entry=editor`) opens only after that link succeeds. HTTP
+  **400**, **403**, and **409** on create or on the link stay on the panel,
+  do not show *Created the item in the slot.*, do not list the item in the
+  slot, and do not open the editor. An empty selection or a folder
   selection keeps the select-item hint and does not claim a relationship was
-  added, moved, moved to another slot, linked into a slot, opened, or its snippet template changed. When the
+  added, moved, moved to another slot, linked into a slot, created in a slot, opened, or its snippet template changed. When the
   item has relationship buckets, taxonomy nodes, local links, or Active
   Assembly links, those edges are listed. When every count is zero the panel
   says **No known dependencies for this item** — that is not a successful
