@@ -567,6 +567,11 @@ function parseWorkflowEdges(raw: unknown): NonNullable<WorkflowGraph["edges"]> {
     } else {
       delete next.allowedRoles;
     }
+    if (typeof next.agingType === "string" && next.agingType.trim()) {
+      next.agingType = next.agingType.trim();
+    } else {
+      delete next.agingType;
+    }
     return next;
   });
 }
@@ -851,11 +856,13 @@ export function wrapWorkflowTransitionWriteForWire(
 
 export const WORKFLOW_AGING_TRANSITION_WRITE_ROOT = "WorkflowAgingTransitionWrite";
 
-/** Writable fields for POST .../workflows/{id}/aging-transitions (slice 57). */
+/** Writable fields for POST .../workflows/{id}/aging-transitions (slice 57 absolute, slice 75 repeated). */
 export type WorkflowAgingTransitionWriteBody = {
   from: string;
   to: string;
   intervalMinutes: number;
+  /** Omit or ABSOLUTE for absolute. REPEATED adds one repeated aging transition. */
+  type?: "ABSOLUTE" | "REPEATED";
 };
 
 /** Positive whole minutes. Rejects blank, zero, negatives, and non-integers. */
@@ -880,7 +887,7 @@ export function wrapWorkflowAgingTransitionWriteForWire(
   return { [WORKFLOW_AGING_TRANSITION_WRITE_ROOT]: body };
 }
 
-/** POST /services/workflows/{id}/aging-transitions — one absolute aging edge. */
+/** POST /services/workflows/{id}/aging-transitions — one absolute or repeated aging edge. */
 export async function createWorkflowAgingTransition(
   idOrName: string,
   body: WorkflowAgingTransitionWriteBody,

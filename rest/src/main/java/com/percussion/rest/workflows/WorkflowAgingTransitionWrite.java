@@ -20,19 +20,28 @@ package com.percussion.rest.workflows;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.Locale;
 
 /**
- * Create body for one absolute aging transition between existing steps (slice 57).
+ * Create body for one aging transition between existing steps (slice 57 absolute, slice 75
+ * repeated).
  *
  * <p>{@code from}, {@code to}, and a positive {@code intervalMinutes} are required. The interval
- * is minutes, the unit on {@code IPSAgingTransition.setInterval}. Does not create steps, change an
- * existing interval, or set the comment-required flag. Jackson root wrap is {@code
- * WorkflowAgingTransitionWrite}.
+ * is minutes, the unit on {@code IPSAgingTransition.setInterval}. Optional {@code type} is {@code
+ * REPEATED} for one repeated aging transition. Omitted or {@code ABSOLUTE} stays an absolute aging
+ * transition. Does not create steps, change an existing interval, or set the comment-required
+ * flag. Jackson root wrap is {@code WorkflowAgingTransitionWrite}.
  */
 @XmlRootElement(name = "WorkflowAgingTransitionWrite")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Absolute aging transition create body between existing steps")
+@Schema(description = "Aging transition create body between existing steps")
 public class WorkflowAgingTransitionWrite {
+
+  /** Which aging transition this body creates. System-field aging is not a value. */
+  public enum Kind {
+    ABSOLUTE,
+    REPEATED
+  }
 
   @Schema(required = true, description = "Source step name. Must already exist on the workflow.")
   private String from;
@@ -42,10 +51,36 @@ public class WorkflowAgingTransitionWrite {
 
   @Schema(
       required = true,
-      description = "Aging interval in minutes. Must be a positive whole number. Absolute type only.")
+      description =
+          "Aging interval in minutes. Must be a positive whole number. Absolute when type is omitted;"
+              + " repeated when type is REPEATED.")
   private long intervalMinutes;
 
+  @Schema(
+      description =
+          "Optional aging type. Omit or ABSOLUTE for an absolute aging transition. REPEATED adds"
+              + " one repeated aging transition. SYSTEM_FIELD and any other value are rejected.")
+  private String type;
+
   public WorkflowAgingTransitionWrite() {}
+
+  /**
+   * Aging kind for this create. Blank and {@code ABSOLUTE} are absolute. {@code REPEATED} is
+   * repeated. Any other value, including system-field aging, is rejected.
+   */
+  public Kind kind() {
+    if (type == null || type.isBlank()) {
+      return Kind.ABSOLUTE;
+    }
+    String normalized = type.trim().toUpperCase(Locale.ROOT);
+    if ("ABSOLUTE".equals(normalized)) {
+      return Kind.ABSOLUTE;
+    }
+    if ("REPEATED".equals(normalized)) {
+      return Kind.REPEATED;
+    }
+    throw new IllegalArgumentException("aging type must be ABSOLUTE or REPEATED");
+  }
 
   public String getFrom() {
     return from;
@@ -69,5 +104,13 @@ public class WorkflowAgingTransitionWrite {
 
   public void setIntervalMinutes(long intervalMinutes) {
     this.intervalMinutes = intervalMinutes;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
   }
 }

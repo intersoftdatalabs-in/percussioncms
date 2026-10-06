@@ -1083,11 +1083,55 @@ describe("workflow transition write API (slice 31)", () => {
     expect(String(fetchMock.mock.calls[0][0])).toContain("/aging-transitions");
     expect(String(init.body)).toContain("WorkflowAgingTransitionWrite");
     expect(String(init.body)).toContain("15");
+    expect(String(init.body)).not.toContain("REPEATED");
     expect(isPositiveMinuteInterval("15")).toBe(true);
     expect(isPositiveMinuteInterval("0")).toBe(false);
     expect(isPositiveMinuteInterval("-3")).toBe(false);
     expect(isPositiveMinuteInterval("")).toBe(false);
     expect(isPositiveMinuteInterval("1.5")).toBe(false);
+  });
+
+  it("POSTs a repeated aging transition on the same resource and parses the type", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          packaged: false,
+          nodes: [{ name: "Draft" }, { name: "Review" }],
+          edges: [
+            {
+              from: "Draft",
+              to: "Review",
+              label: "Aging 15",
+              aging: true,
+              intervalMinutes: 15,
+              agingType: "ABSOLUTE",
+            },
+            {
+              from: "Draft",
+              to: "Review",
+              label: "Repeated aging 15",
+              aging: true,
+              intervalMinutes: 15,
+              agingType: "REPEATED",
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await createWorkflowAgingTransition("Nightly QA", {
+      from: "Draft",
+      to: "Review",
+      intervalMinutes: 15,
+      type: "REPEATED",
+    });
+    expect(graph.edges?.[1]?.agingType).toBe("REPEATED");
+    expect(graph.edges?.[0]?.agingType).toBe("ABSOLUTE");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/aging-transitions");
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("/repeated");
+    expect(String(init.body)).toContain("REPEATED");
   });
 
   it("propagates 409 when the aging transition already exists", async () => {

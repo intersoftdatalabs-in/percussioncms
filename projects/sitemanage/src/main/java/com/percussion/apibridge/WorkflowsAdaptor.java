@@ -719,12 +719,21 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     rejectPackagedWorkflow(workflow);
     List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
     int stepCount = states.size();
-    WorkflowTransitionWriter.createAbsoluteAging(
-        states,
-        body.getFrom(),
-        body.getTo(),
-        body.getIntervalMinutes(),
-        source -> allocateTransition(workflow, source));
+    if (body.kind() == WorkflowAgingTransitionWrite.Kind.REPEATED) {
+      WorkflowTransitionWriter.createRepeatedAging(
+          states,
+          body.getFrom(),
+          body.getTo(),
+          body.getIntervalMinutes(),
+          source -> allocateTransition(workflow, source));
+    } else {
+      WorkflowTransitionWriter.createAbsoluteAging(
+          states,
+          body.getFrom(),
+          body.getTo(),
+          body.getIntervalMinutes(),
+          source -> allocateTransition(workflow, source));
+    }
     int after = workflow.getStates() == null ? 0 : workflow.getStates().size();
     if (after != stepCount) {
       throw new IllegalStateException("Creating an aging transition must not add or delete steps");

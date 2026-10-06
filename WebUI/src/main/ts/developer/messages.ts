@@ -1965,7 +1965,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_AFTER_LABEL: "perc.ui.developer@Insert after",
   WF_STEP_ROLES_LABEL: "perc.ui.developer@Roles (comma-separated)",
   WF_STEP_HINT:
-    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. Custom workflows can add or update one transition between existing steps, add one absolute aging transition in minutes, delete that aging transition, delete one regular transition, or delete a step that no longer has transitions.",
+    "perc.ui.developer@Add or rename a step on a custom workflow. Packaged Default Workflow, Simple Workflow, and Local Content stay read-only. Custom workflows can add or update one transition between existing steps, add one absolute aging transition in minutes, add one repeated aging transition in minutes, delete that absolute aging transition, delete one regular transition, or delete a step that no longer has transitions.",
   WF_STEP_SAVED: "perc.ui.developer@Workflow step saved.",
   WF_STEP_ERROR: "perc.ui.developer@Could not save workflow step.",
   WF_STEP_INVALID:
@@ -1980,7 +1980,7 @@ export const DEV_MSG_KEYS = {
   WF_GRAPH_LOADING: "perc.ui.developer@Loading workflow graph...",
   WF_GRAPH_ERROR: "perc.ui.developer@Could not load workflow graph.",
   WF_GRAPH_HINT:
-    "perc.ui.developer@States and transitions. On a custom workflow, add or update one transition between existing steps, add one absolute aging transition in minutes, delete that aging transition, delete one regular transition, delete a step that no transition still uses, mark a transition as comment required, set how many approvals a transition requires, or mark one transition as the default from its step. Packaged workflows stay read-only.",
+    "perc.ui.developer@States and transitions. On a custom workflow, add or update one transition between existing steps, add one absolute aging transition in minutes, add one repeated aging transition in minutes, delete that absolute aging transition, delete one regular transition, delete a step that no transition still uses, mark a transition as comment required, set how many approvals a transition requires, or mark one transition as the default from its step. Packaged workflows stay read-only.",
   WF_GRAPH_COMMENT: "perc.ui.developer@Comment required",
   WF_GRAPH_COMMENT_SAVED: "perc.ui.developer@Comment requirement saved.",
   WF_GRAPH_COMMENT_ERROR: "perc.ui.developer@Could not save the comment requirement.",
@@ -2090,6 +2090,18 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@An absolute aging transition with that interval already goes to that step.",
   WF_AGING_INVALID:
     "perc.ui.developer@Choose an existing destination step and a positive interval in minutes.",
+  WF_REPEATED_KIND: "perc.ui.developer@repeated",
+  WF_REPEATED_ADD: "perc.ui.developer@Add repeated aging transition",
+  WF_REPEATED_SAVED: "perc.ui.developer@Repeated aging transition saved.",
+  WF_REPEATED_ERROR: "perc.ui.developer@Could not add the repeated aging transition.",
+  WF_REPEATED_FORBIDDEN:
+    "perc.ui.developer@Packaged or default workflows cannot be edited from this surface.",
+  WF_REPEATED_BAD:
+    "perc.ui.developer@That repeated aging transition could not be saved. Check the steps and a positive interval in minutes.",
+  WF_REPEATED_CONFLICT:
+    "perc.ui.developer@A repeated aging transition with that interval already goes to that step.",
+  WF_REPEATED_INVALID:
+    "perc.ui.developer@Choose an existing destination step and a positive interval in minutes for the repeated aging transition.",
   WF_AGING_CHANGE: "perc.ui.developer@Change interval",
   WF_AGING_NEW_MINUTES: "perc.ui.developer@New interval (minutes)",
   WF_AGING_INTERVAL_SAVE: "perc.ui.developer@Save interval",
@@ -2126,7 +2138,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. How many approvals one regular transition requires can be set on the graph. One more existing workflow role can be added to a regular transition that is already limited to specific roles, and that list can be cleared so every role may fire it again. The default transition, and repeated or system-field aging stay outside this surface.",
+    "perc.ui.developer@Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. How many approvals one regular transition requires can be set on the graph. One more existing workflow role can be added to a regular transition that is already limited to specific roles, and that list can be cleared so every role may fire it again. The default transition, and system-field aging, stay outside this surface. One repeated aging transition can be added on the graph. Changing or deleting that repeated transition stays outside this surface.",
   WF_ROLE_ASSIGN_TITLE: "perc.ui.developer@Assignment type",
   WF_ROLE_ASSIGN_HINT:
     "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Notify and inbox are separate confirms.",

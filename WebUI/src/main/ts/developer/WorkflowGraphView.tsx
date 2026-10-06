@@ -31,6 +31,7 @@ import { DEV_MSG } from "./messages";
 /**
  * State/transition graph for one workflow (slice 32 read, slice 31 transition write,
  * slice 33 transition delete, slice 34 step delete, slice 57 absolute aging create,
+ * slice 75 repeated aging create,
  * slice 58 absolute aging interval change, slice 59 absolute aging delete,
  * slice 70 approvals required, slice 71 default transition,
  * slice 72 restrict one transition to a single role,
@@ -40,6 +41,8 @@ import { DEV_MSG } from "./messages";
  * do not take an approval count, cannot be the default, and are not role-restricted.
  * Adding a role does not clear the restriction. Clearing shows allow-all only after success.
  * Deleting an aging transition does not remove a regular transition.
+ * A repeated aging row appears only after the server accepts it. Changing or
+ * deleting that repeated edge is not offered here. Absolute aging rows stay.
  */
 
 type TransitionIdentity = { from: string; label: string; to: string };
@@ -83,6 +86,9 @@ export function WorkflowGraphView({
   const [agingFrom, setAgingFrom] = useState("");
   const [agingTo, setAgingTo] = useState("");
   const [agingMinutes, setAgingMinutes] = useState("");
+  const [repeatedFrom, setRepeatedFrom] = useState("");
+  const [repeatedTo, setRepeatedTo] = useState("");
+  const [repeatedMinutes, setRepeatedMinutes] = useState("");
   const [agingEdit, setAgingEdit] = useState<AgingIntervalIdentity | null>(null);
   const [agingNewMinutes, setAgingNewMinutes] = useState("");
   const [approvalsEdit, setApprovalsEdit] = useState<ApprovalsIdentity | null>(null);
@@ -107,6 +113,9 @@ export function WorkflowGraphView({
     setAgingFrom("");
     setAgingTo("");
     setAgingMinutes("");
+    setRepeatedFrom("");
+    setRepeatedTo("");
+    setRepeatedMinutes("");
     setAgingEdit(null);
     setAgingNewMinutes("");
     setPendingAging(null);
@@ -152,6 +161,8 @@ export function WorkflowGraphView({
     setToStep((prev) => (prev && names.includes(prev) ? prev : (names[1] ?? names[0] ?? "")));
     setAgingFrom((prev) => (prev && names.includes(prev) ? prev : (names[0] ?? "")));
     setAgingTo((prev) => (prev && names.includes(prev) ? prev : ""));
+    setRepeatedFrom((prev) => (prev && names.includes(prev) ? prev : (names[0] ?? "")));
+    setRepeatedTo((prev) => (prev && names.includes(prev) ? prev : ""));
   }, [graph, editing]);
 
   const onSaveTransition = useCallback(async () => {
@@ -243,6 +254,52 @@ export function WorkflowGraphView({
       setBusy(false);
     }
   }, [agingFrom, agingMinutes, agingTo, graph, workflowName]);
+
+  const onCancelRepeated = useCallback(() => {
+    setRepeatedTo("");
+    setRepeatedMinutes("");
+    setError(null);
+  }, []);
+
+  const onAddRepeated = useCallback(async () => {
+    const names = (graph?.nodes ?? [])
+      .map((node) => node.name)
+      .filter((name): name is string => !!name && name.trim().length > 0);
+    const from = repeatedFrom || names[0] || "";
+    const to = repeatedTo.trim();
+    if (!isValidWorkflowName(from) || !isValidWorkflowName(to) || !isPositiveMinuteInterval(repeatedMinutes)) {
+      setError(DEV_MSG.WF_REPEATED_INVALID);
+      setNotice(null);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const next = await createWorkflowAgingTransition(workflowName, {
+        from: from.trim(),
+        to,
+        intervalMinutes: Number(repeatedMinutes.trim()),
+        type: "REPEATED",
+      });
+      setGraph(next);
+      setNotice(DEV_MSG.WF_REPEATED_SAVED);
+      setRepeatedMinutes("");
+      setReloadToken((n) => n + 1);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 403) {
+        setError(DEV_MSG.WF_REPEATED_FORBIDDEN);
+      } else if (isApiError(err) && err.status === 409) {
+        setError(DEV_MSG.WF_REPEATED_CONFLICT);
+      } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
+        setError(DEV_MSG.WF_REPEATED_BAD);
+      } else {
+        setError(DEV_MSG.WF_REPEATED_ERROR);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [graph, repeatedFrom, repeatedMinutes, repeatedTo, workflowName]);
 
   const onCancelAgingInterval = useCallback(() => {
     setAgingEdit(null);
@@ -800,6 +857,71 @@ export function WorkflowGraphView({
           </button>
         </form>
       ) : null}
+      {canWrite ? (
+        <form
+          data-testid="developer-wf-repeated-aging-form"
+          style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "end", marginBottom: "8px" }}
+          onSubmit={(ev) => {
+            ev.preventDefault();
+            void onAddRepeated();
+          }}
+        >
+          <label>
+            {DEV_MSG.WF_AGING_FROM}
+            <select
+              data-testid="developer-wf-repeated-aging-from"
+              value={repeatedFrom || stepNames[0] || ""}
+              disabled={busy}
+              onChange={(ev) => setRepeatedFrom(ev.target.value)}
+            >
+              {stepNames.map((name) => (
+                <option key={`repeated-from-${name}`} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {DEV_MSG.WF_AGING_TO}
+            <select
+              data-testid="developer-wf-repeated-aging-to"
+              value={repeatedTo}
+              disabled={busy}
+              onChange={(ev) => setRepeatedTo(ev.target.value)}
+            >
+              <option value="">{DEV_MSG.WF_AGING_TO_BLANK}</option>
+              {stepNames.map((name) => (
+                <option key={`repeated-to-${name}`} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            {DEV_MSG.WF_AGING_MINUTES}
+            <input
+              data-testid="developer-wf-repeated-aging-minutes"
+              inputMode="numeric"
+              value={repeatedMinutes}
+              disabled={busy}
+              onChange={(ev) => setRepeatedMinutes(ev.target.value)}
+            />
+          </label>
+          <button type="submit" data-testid="developer-wf-repeated-aging-add" disabled={busy}>
+            {DEV_MSG.WF_REPEATED_ADD}
+          </button>
+          <button
+            type="button"
+            data-testid="developer-wf-repeated-aging-cancel"
+            disabled={busy}
+            onClick={() => {
+              onCancelRepeated();
+            }}
+          >
+            {DEV_MSG.WF_AGING_CANCEL}
+          </button>
+        </form>
+      ) : null}
       {nodes.length > 0 ? (
         <div
           data-testid="developer-wf-graph-nodes"
@@ -1240,10 +1362,13 @@ export function WorkflowGraphView({
                 data-from={edge.from || ""}
                 data-to={edge.to || ""}
                 data-interval={edge.intervalMinutes ?? ""}
+                data-aging-type={edge.agingType || ""}
               >
                 {edge.from || "—"} — {edge.label || "—"} → {edge.to || "—"}
                 {typeof edge.intervalMinutes === "number" ? ` (${edge.intervalMinutes} minutes)` : ""}
+                {edge.agingType === "REPEATED" ? ` (${DEV_MSG.WF_REPEATED_KIND})` : ""}
                 {canWrite &&
+                edge.agingType !== "REPEATED" &&
                 edge.from &&
                 edge.to &&
                 typeof edge.intervalMinutes === "number" ? (
@@ -1270,6 +1395,7 @@ export function WorkflowGraphView({
                   </button>
                 ) : null}
                 {canWrite &&
+                edge.agingType !== "REPEATED" &&
                 edge.from &&
                 edge.to &&
                 typeof edge.intervalMinutes === "number" &&
@@ -1296,6 +1422,7 @@ export function WorkflowGraphView({
                   </button>
                 ) : null}
                 {agingEdit &&
+                edge.agingType !== "REPEATED" &&
                 agingEdit.from === edge.from &&
                 agingEdit.to === edge.to &&
                 agingEdit.intervalMinutes === edge.intervalMinutes ? (

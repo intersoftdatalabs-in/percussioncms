@@ -331,14 +331,18 @@ public interface IWorkflowsAdaptor {
   WorkflowGraph createWorkflowTransition(URI baseUri, String idOrName, WorkflowTransitionWrite body);
 
   /**
-   * Create one absolute aging transition between existing steps (Admin, slice 57). Does not create
-   * steps, change an existing interval, or set comment-required.
+   * Create one aging transition between existing steps (Admin, slice 57 absolute, slice 75
+   * repeated). Does not create steps, change an existing interval, or set comment-required.
+   * Omitted or {@code ABSOLUTE} type stays absolute. {@code REPEATED} inserts one repeated aging
+   * transition on the same resource. Does not add a second URL.
    *
-   * @param body {@code from}, {@code to}, and a positive {@code intervalMinutes}
+   * @param body {@code from}, {@code to}, a positive {@code intervalMinutes}, and optional {@code
+   *     type}
    * @return the graph after the insert, including the new aging edge
-   * @throws IllegalArgumentException when a name is blank or the interval is not positive
+   * @throws IllegalArgumentException when a name is blank, the interval is not positive, or {@code
+   *     type} is not absolute or repeated
    * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow or
-   *     step, 409 when that absolute aging edge already exists
+   *     step, 409 when that aging edge of the same type and interval already exists
    */
   WorkflowGraph createAbsoluteAgingTransition(
       URI baseUri, String idOrName, WorkflowAgingTransitionWrite body);
