@@ -20,6 +20,7 @@ import {
   createWorkflowAgingTransition,
   deleteWorkflowAgingTransition,
   updateWorkflowAgingInterval,
+  updateWorkflowAgingSystemField,
   deleteWorkflow,
   deleteWorkflowStep,
   createWorkflowTransition,
@@ -1312,6 +1313,95 @@ describe("workflow transition write API (slice 31)", () => {
         to: "Review",
         intervalMinutes: 15,
         newIntervalMinutes: 45,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+  });
+
+  it("PUTs a wrapped system-field column change and parses the new column", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          packaged: false,
+          nodes: [{ name: "Draft" }, { name: "Review" }],
+          edges: [
+            {
+              from: "Draft",
+              to: "Review",
+              label: "Aging 15",
+              aging: true,
+              agingType: "ABSOLUTE",
+              intervalMinutes: 15,
+            },
+            {
+              from: "Draft",
+              to: "Review",
+              label: "Repeated aging 20",
+              aging: true,
+              agingType: "REPEATED",
+              intervalMinutes: 20,
+            },
+            {
+              from: "Draft",
+              to: "Review",
+              label: "System field aging CONTENTEXPIRYDATE",
+              aging: true,
+              agingType: "SYSTEM_FIELD",
+              systemField: "CONTENTEXPIRYDATE",
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await updateWorkflowAgingSystemField("Nightly QA", {
+      from: "Draft",
+      to: "Review",
+      systemField: "CONTENTSTARTDATE",
+      newSystemField: "CONTENTEXPIRYDATE",
+    });
+    expect(graph.edges?.[0]?.agingType).toBe("ABSOLUTE");
+    expect(graph.edges?.[0]?.intervalMinutes).toBe(15);
+    expect(graph.edges?.[1]?.agingType).toBe("REPEATED");
+    expect(graph.edges?.[2]?.systemField).toBe("CONTENTEXPIRYDATE");
+    expect(graph.edges?.[2]?.agingType).toBe("SYSTEM_FIELD");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/aging-transitions/system-field");
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("/interval");
+    expect(String(init.body)).toContain("WorkflowAgingSystemFieldWrite");
+    expect(String(init.body)).toContain("CONTENTSTARTDATE");
+    expect(String(init.body)).toContain("CONTENTEXPIRYDATE");
+    expect(String(init.body)).not.toContain("intervalMinutes");
+  });
+
+  it("propagates 400 and 409 when a system-field column change is rejected", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "bad" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(
+      updateWorkflowAgingSystemField("Nightly QA", {
+        from: "Draft",
+        to: "Review",
+        systemField: "CONTENTSTARTDATE",
+        newSystemField: "sys_title",
+      }),
+    ).rejects.toMatchObject({ status: 400 });
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: "exists" }), {
+        status: 409,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(
+      updateWorkflowAgingSystemField("Nightly QA", {
+        from: "Draft",
+        to: "Review",
+        systemField: "CONTENTSTARTDATE",
+        newSystemField: "REMINDERDATE",
       }),
     ).rejects.toMatchObject({ status: 409 });
   });

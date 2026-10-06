@@ -20,6 +20,7 @@ package com.percussion.rest.test.apibridge;
 import com.percussion.rest.contenttypes.NamedObjectRef;
 import com.percussion.rest.workflows.IWorkflowsAdaptor;
 import com.percussion.rest.workflows.WorkflowAgingIntervalWrite;
+import com.percussion.rest.workflows.WorkflowAgingSystemFieldWrite;
 import com.percussion.rest.workflows.WorkflowAgingTransitionWrite;
 import com.percussion.rest.workflows.WorkflowCreate;
 import com.percussion.rest.workflows.WorkflowGraph;
@@ -144,6 +145,12 @@ public class TestWorkflowsAdaptor implements IWorkflowsAdaptor {
   @Override
   public WorkflowGraph changeAbsoluteAgingInterval(
       URI baseUri, String idOrName, WorkflowAgingIntervalWrite body) {
+    return getWorkflowGraph(baseUri, idOrName);
+  }
+
+  @Override
+  public WorkflowGraph changeSystemFieldAging(
+      URI baseUri, String idOrName, WorkflowAgingSystemFieldWrite body) {
     return getWorkflowGraph(baseUri, idOrName);
   }
 

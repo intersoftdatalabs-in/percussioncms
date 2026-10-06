@@ -23,6 +23,7 @@ import {
   updateTransitionApprovalsRequired,
   updateTransitionCommentRequired,
   updateWorkflowAgingInterval,
+  updateWorkflowAgingSystemField,
   updateWorkflowTransition,
 } from "../api/developer/workflowsApi";
 import type { WorkflowGraph, WorkflowGraphEdge } from "../api/developer/types";
@@ -35,6 +36,7 @@ import { DEV_MSG } from "./messages";
  * slice 33 transition delete, slice 34 step delete, slice 57 absolute aging create,
  * slice 75 repeated aging create, slice 76 system-field aging create,
  * slice 58 absolute aging interval change, slice 78 repeated aging interval change,
+ * slice 79 system-field date column change,
  * slice 59 absolute aging delete,
  * slice 77 repeated and system-field aging delete,
  * slice 70 approvals required, slice 71 default transition,
@@ -50,7 +52,9 @@ import { DEV_MSG } from "./messages";
  * A system-field aging row appears only after the server accepts it, and it can
  * be deleted without removing absolute or repeated rows. A repeated interval
  * can be changed without moving an absolute edge that uses the same from, to,
- * and old interval. System-field rows do not offer an interval change.
+ * and old interval. System-field rows do not offer an interval change. The
+ * date column on one system-field row can be changed without moving absolute
+ * or repeated rows, and the new column shows only after the server accepts it.
  */
 
 type AgingDeleteIdentity = {
@@ -140,6 +144,30 @@ function sameAgingIntervalEdit(edit: AgingIntervalIdentity, edge: WorkflowGraphE
     edit.intervalMinutes === edge.intervalMinutes
   );
 }
+
+type AgingFieldIdentity = {
+  from: string;
+  to: string;
+  systemField: string;
+};
+
+function canChangeSystemField(edge: WorkflowGraphEdge): boolean {
+  return (
+    edge.agingType === "SYSTEM_FIELD" &&
+    !!edge.from &&
+    !!edge.to &&
+    isWorkflowAgingSystemField(edge.systemField)
+  );
+}
+
+function sameAgingFieldEdit(edit: AgingFieldIdentity, edge: WorkflowGraphEdge): boolean {
+  return (
+    canChangeSystemField(edge) &&
+    edit.from === edge.from &&
+    edit.to === edge.to &&
+    edit.systemField.trim().toUpperCase() === (edge.systemField || "").trim().toUpperCase()
+  );
+}
 export function WorkflowGraphView({
   workflowName,
 }: {
@@ -168,6 +196,8 @@ export function WorkflowGraphView({
   const [systemField, setSystemField] = useState("");
   const [agingEdit, setAgingEdit] = useState<AgingIntervalIdentity | null>(null);
   const [agingNewMinutes, setAgingNewMinutes] = useState("");
+  const [fieldEdit, setFieldEdit] = useState<AgingFieldIdentity | null>(null);
+  const [agingNewField, setAgingNewField] = useState("");
   const [approvalsEdit, setApprovalsEdit] = useState<ApprovalsIdentity | null>(null);
   const [approvalsDraft, setApprovalsDraft] = useState("");
   const [defaultEdit, setDefaultEdit] = useState<TransitionIdentity | null>(null);
@@ -198,6 +228,8 @@ export function WorkflowGraphView({
     setSystemField("");
     setAgingEdit(null);
     setAgingNewMinutes("");
+    setFieldEdit(null);
+    setAgingNewField("");
     setPendingAging(null);
     setApprovalsEdit(null);
     setApprovalsDraft("");
@@ -484,6 +516,55 @@ export function WorkflowGraphView({
     }
   }, [agingEdit, agingNewMinutes, workflowName]);
 
+  const onCancelAgingField = useCallback(() => {
+    setFieldEdit(null);
+    setAgingNewField("");
+    setError(null);
+  }, []);
+
+  const onSaveAgingField = useCallback(async () => {
+    if (!fieldEdit) {
+      return;
+    }
+    const nextField = agingNewField.trim().toUpperCase();
+    if (
+      !isWorkflowAgingSystemField(nextField) ||
+      nextField === fieldEdit.systemField.trim().toUpperCase()
+    ) {
+      setError(DEV_MSG.WF_AGING_FIELD_INVALID);
+      setNotice(null);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const next = await updateWorkflowAgingSystemField(workflowName, {
+        from: fieldEdit.from,
+        to: fieldEdit.to,
+        systemField: fieldEdit.systemField,
+        newSystemField: nextField,
+      });
+      setGraph(next);
+      setNotice(DEV_MSG.WF_AGING_FIELD_SAVED);
+      setFieldEdit(null);
+      setAgingNewField("");
+      setReloadToken((n) => n + 1);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 403) {
+        setError(DEV_MSG.WF_AGING_FIELD_FORBIDDEN);
+      } else if (isApiError(err) && err.status === 409) {
+        setError(DEV_MSG.WF_AGING_FIELD_CONFLICT);
+      } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
+        setError(DEV_MSG.WF_AGING_FIELD_BAD);
+      } else {
+        setError(DEV_MSG.WF_AGING_FIELD_ERROR);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }, [agingNewField, fieldEdit, workflowName]);
+
   const onConfirmDeleteAging = useCallback(async () => {
     if (!pendingAging) {
       setPendingAging(null);
@@ -521,6 +602,8 @@ export function WorkflowGraphView({
       setNotice(DEV_MSG.WF_AGING_DELETED);
       setPendingAging(null);
       setAgingEdit(null);
+      setFieldEdit(null);
+      setAgingNewField("");
       setReloadToken((n) => n + 1);
     } catch (err: unknown) {
       if (isApiError(err) && err.status === 403) {
@@ -1611,6 +1694,8 @@ export function WorkflowGraphView({
                       setPending(null);
                       setPendingAging(null);
                       setPendingStep(null);
+                      setFieldEdit(null);
+                      setAgingNewField("");
                       setAgingEdit({
                         from: edge.from as string,
                         to: edge.to as string,
@@ -1622,6 +1707,31 @@ export function WorkflowGraphView({
                     }}
                   >
                     {DEV_MSG.WF_AGING_CHANGE}
+                  </button>
+                ) : null}
+                {canWrite && canChangeSystemField(edge) ? (
+                  <button
+                    type="button"
+                    data-testid={`developer-wf-aging-field-change-${i}`}
+                    style={{ marginLeft: 8 }}
+                    disabled={busy}
+                    onClick={() => {
+                      setNotice(null);
+                      setError(null);
+                      setPending(null);
+                      setPendingAging(null);
+                      setPendingStep(null);
+                      setAgingEdit(null);
+                      setAgingNewMinutes("");
+                      setFieldEdit({
+                        from: edge.from as string,
+                        to: edge.to as string,
+                        systemField: (edge.systemField as string).trim(),
+                      });
+                      setAgingNewField("");
+                    }}
+                  >
+                    {DEV_MSG.WF_AGING_FIELD_CHANGE}
                   </button>
                 ) : null}
                 {canWrite && canDeleteAgingEdge(edge) ? (
@@ -1636,6 +1746,8 @@ export function WorkflowGraphView({
                       setPending(null);
                       setPendingStep(null);
                       setAgingEdit(null);
+                      setFieldEdit(null);
+                      setAgingNewField("");
                       setPendingAging({
                         from: edge.from as string,
                         to: edge.to as string,
@@ -1676,6 +1788,46 @@ export function WorkflowGraphView({
                       disabled={busy}
                       onClick={() => {
                         onCancelAgingInterval();
+                      }}
+                    >
+                      {DEV_MSG.WF_AGING_CANCEL}
+                    </button>
+                  </form>
+                ) : null}
+                {fieldEdit && sameAgingFieldEdit(fieldEdit, edge) ? (
+                  <form
+                    data-testid="developer-wf-aging-field-form"
+                    style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "end", marginTop: 8 }}
+                    onSubmit={(ev) => {
+                      ev.preventDefault();
+                      void onSaveAgingField();
+                    }}
+                  >
+                    <label>
+                      {DEV_MSG.WF_AGING_NEW_FIELD}
+                      <select
+                        data-testid="developer-wf-aging-new-field"
+                        value={agingNewField}
+                        disabled={busy}
+                        onChange={(ev) => setAgingNewField(ev.target.value)}
+                      >
+                        <option value="">{DEV_MSG.WF_SYSTEM_FIELD_BLANK}</option>
+                        {WORKFLOW_AGING_SYSTEM_FIELDS.map((name) => (
+                          <option key={`aging-new-field-${name}`} value={name}>
+                            {name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <button type="submit" data-testid="developer-wf-aging-field-save" disabled={busy}>
+                      {DEV_MSG.WF_AGING_FIELD_SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-wf-aging-field-cancel"
+                      disabled={busy}
+                      onClick={() => {
+                        onCancelAgingField();
                       }}
                     >
                       {DEV_MSG.WF_AGING_CANCEL}

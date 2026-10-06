@@ -942,6 +942,38 @@ export function wrapWorkflowAgingIntervalWriteForWire(
   return { [WORKFLOW_AGING_INTERVAL_WRITE_ROOT]: body };
 }
 
+export const WORKFLOW_AGING_SYSTEM_FIELD_WRITE_ROOT = "WorkflowAgingSystemFieldWrite";
+
+/** Writable fields for PUT .../workflows/{id}/aging-transitions/system-field (slice 79). */
+export type WorkflowAgingSystemFieldWriteBody = {
+  from: string;
+  to: string;
+  systemField: string;
+  newSystemField: string;
+};
+
+export function wrapWorkflowAgingSystemFieldWriteForWire(
+  body: WorkflowAgingSystemFieldWriteBody,
+): Record<string, WorkflowAgingSystemFieldWriteBody> {
+  return { [WORKFLOW_AGING_SYSTEM_FIELD_WRITE_ROOT]: body };
+}
+
+/**
+ * PUT /services/workflows/{id}/aging-transitions/system-field.
+ * Changes the date column on one system-field aging transition. Absolute and repeated edges stay.
+ */
+export async function updateWorkflowAgingSystemField(
+  idOrName: string,
+  body: WorkflowAgingSystemFieldWriteBody,
+): Promise<WorkflowGraph> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.WORKFLOWS_ASSOC}/${key}/aging-transitions/system-field`,
+    wrapWorkflowAgingSystemFieldWriteForWire(body),
+  );
+  return parseWorkflowGraph(payload);
+}
+
 /**
  * PUT /services/workflows/{id}/aging-transitions/interval.
  * Omit type to change one absolute interval. type REPEATED changes one repeated interval and
