@@ -5257,6 +5257,189 @@ describe("EditorHost refuse blank required date (#5225)", () => {
   });
 });
 
+describe("EditorHost refuse blank required datetime (#5253)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function requiredDatetimeHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    eventAt?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const eventAt = opts.eventAt ?? "2026-01-01 09:00:00";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percEvent",
+          name: "Event",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "event_at", value: eventAt }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "event_at",
+              label: "Event at",
+              control: "sys_CalendarSimple",
+              dataType: "datetime",
+              required: opts.required !== false,
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openRequiredDatetime(element: React.ReactElement): Promise<HTMLInputElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-event_at") as HTMLInputElement).value).toBe(
+        "2026-01-01T09:00",
+      );
+    });
+    return screen.getByTestId("editor-field-event_at") as HTMLInputElement;
+  }
+
+  it("does not save a blank required datetime and reloads the previous date and time", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredDatetime(requiredDatetimeHost({ saveFields }));
+    expect(input.getAttribute("data-editor-kind")).toBe("datetime");
+    expect(input.type).toBe("datetime-local");
+    expect(input.getAttribute("aria-required")).toBe("true");
+    expect(screen.getByTestId("editor-field-row-event_at").getAttribute("data-required")).toBe(
+      "true",
+    );
+    fireEvent.click(screen.getByTestId("editor-date-clear-event_at"));
+    expect(input.value).toBe("");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-event_at").textContent).toMatch(/required/i);
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(document.activeElement).toBe(screen.getByTestId("editor-field-event_at"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-field-row-event_at").getAttribute("data-required")).toBe(
+      "true",
+    );
+    cleanup();
+    const reloaded = await openRequiredDatetime(requiredDatetimeHost({ saveFields }));
+    expect(reloaded.value).toBe("2026-01-01T09:00");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not save when the required datetime picker is emptied", async () => {
+    const saveFields = vi.fn();
+    const input = await openRequiredDatetime(requiredDatetimeHost({ saveFields }));
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-event_at").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-event_at") as HTMLInputElement).value).toBe("");
+    cleanup();
+    const reloaded = await openRequiredDatetime(requiredDatetimeHost({ saveFields }));
+    expect(reloaded.value).toBe("2026-01-01T09:00");
+  });
+
+  it("does not write when Close cancels a blank required datetime edit", async () => {
+    const saveFields = vi.fn();
+    await openRequiredDatetime(
+      requiredDatetimeHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.click(screen.getByTestId("editor-date-clear-event_at"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-event_at") as HTMLInputElement).value).toBe("");
+    expect(screen.getByTestId("editor-field-row-event_at").getAttribute("data-required")).toBe(
+      "true",
+    );
+  });
+
+  it("still saves a non-blank required datetime", async () => {
+    let eventAt = "2026-01-01 09:00:00";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      eventAt = body.fields.find((f) => f.name === "event_at")?.value ?? eventAt;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Event",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const input = await openRequiredDatetime(requiredDatetimeHost({ saveFields, eventAt }));
+    fireEvent.change(input, { target: { value: "2026-09-18T14:30" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "event_at")?.value).toBe("2026-09-18 14:30:00");
+    cleanup();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={requiredDatetimeHost({ saveFields, eventAt })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-event_at") as HTMLInputElement).value).toBe(
+        "2026-09-18T14:30",
+      );
+    });
+  });
+
+  it("still saves a cleared optional datetime", async () => {
+    let eventAt = "2026-01-01 09:00:00";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      eventAt = body.fields.find((f) => f.name === "event_at")?.value ?? eventAt;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Event",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const input = await openRequiredDatetime(
+      requiredDatetimeHost({ saveFields, eventAt, required: false }),
+    );
+    expect(input.getAttribute("aria-required")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-date-clear-event_at"));
+    expect(input.value).toBe("");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "event_at")?.value).toBe("");
+    expect(screen.queryByTestId("editor-field-error-event_at")).toBeNull();
+  });
+});
+
 describe("EditorHost refuse blank required link (#5226)", () => {
   afterEach(() => {
     cleanup();

@@ -83,6 +83,22 @@ describe("collectRequiredFieldErrors", () => {
     expect(errors).toEqual({ start: "This field is required." });
   });
 
+  it("refuses a blank required datetime and still allows an optional blank datetime", () => {
+    const errors = collectRequiredFieldErrors(
+      [
+        { name: "event_at", kind: "datetime", required: true, value: "" },
+        { name: "optionalAt", kind: "datetime", required: false, value: "   " },
+        { name: "ends", kind: "datetime", required: true, value: "2026-09-18 14:30:00" },
+      ],
+      {},
+      "This field is required.",
+    );
+    expect(errors).toEqual({ event_at: "This field is required." });
+    expect(isEmptyEditorFieldValue("datetime", "")).toBe(true);
+    expect(isEmptyEditorFieldValue("datetime", " \n\t ")).toBe(true);
+    expect(isEmptyEditorFieldValue("datetime", "2026-09-18 14:30:00")).toBe(false);
+  });
+
   it("refuses a blank required link and still allows an optional blank link", () => {
     const errors = collectRequiredFieldErrors(
       [
