@@ -926,12 +926,14 @@ export async function createWorkflowAgingTransition(
 
 export const WORKFLOW_AGING_INTERVAL_WRITE_ROOT = "WorkflowAgingIntervalWrite";
 
-/** Writable fields for PUT .../workflows/{id}/aging-transitions/interval (slice 58). */
+/** Writable fields for PUT .../workflows/{id}/aging-transitions/interval (slice 58 and 78). */
 export type WorkflowAgingIntervalWriteBody = {
   from: string;
   to: string;
   intervalMinutes: number;
   newIntervalMinutes: number;
+  /** Omit or ABSOLUTE for an absolute edge. REPEATED identifies one repeated edge. */
+  type?: "ABSOLUTE" | "REPEATED";
 };
 
 export function wrapWorkflowAgingIntervalWriteForWire(
@@ -940,7 +942,11 @@ export function wrapWorkflowAgingIntervalWriteForWire(
   return { [WORKFLOW_AGING_INTERVAL_WRITE_ROOT]: body };
 }
 
-/** PUT /services/workflows/{id}/aging-transitions/interval — change one absolute interval. */
+/**
+ * PUT /services/workflows/{id}/aging-transitions/interval.
+ * Omit type to change one absolute interval. type REPEATED changes one repeated interval and
+ * leaves an absolute edge that shares from, to, and the current interval.
+ */
 export async function updateWorkflowAgingInterval(
   idOrName: string,
   body: WorkflowAgingIntervalWriteBody,

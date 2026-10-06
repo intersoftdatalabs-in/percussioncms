@@ -402,6 +402,156 @@ class WorkflowTransitionWriterTest {
     assertEquals(PSAgingTransition.PSAgingTypeEnum.REPEATED, repeated.getAgingTypeEnum());
   }
 
+  @Test
+  void changesRepeatedIntervalAndLeavesTheAbsoluteEdge() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    WorkflowTransitionWriter.createAbsoluteAging(
+        List.of(draft, review), "Draft", "Review", 15, this::allocate);
+    WorkflowTransitionWriter.createRepeatedAging(
+        List.of(draft, review), "Draft", "Review", 15, this::allocate);
+    long beforeIds = ids.get();
+
+    WorkflowTransitionWriter.changeRepeatedInterval(List.of(draft, review), "Draft", "Review", 15, 30);
+
+    assertEquals(beforeIds, ids.get());
+    assertEquals(0, draft.getTransitions().size());
+    assertEquals(2, draft.getAgingTransitions().size());
+    PSAgingTransition absolute = draft.getAgingTransitions().get(0);
+    PSAgingTransition repeated = draft.getAgingTransitions().get(1);
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.ABSOLUTE, absolute.getAgingTypeEnum());
+    assertEquals(15L, absolute.getInterval());
+    assertEquals("Aging 15", absolute.getLabel());
+    assertEquals(2L, absolute.getToState());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.REPEATED, repeated.getAgingTypeEnum());
+    assertEquals(30L, repeated.getInterval());
+    assertEquals("Repeated aging 30", repeated.getLabel());
+    assertEquals("Repeated aging 30", repeated.getTrigger());
+    assertEquals("Repeated aging 30", repeated.getDescription());
+    assertEquals(2L, repeated.getToState());
+  }
+
+  @Test
+  void absoluteIntervalChangeLeavesTheRepeatedEdge() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    WorkflowTransitionWriter.createAbsoluteAging(
+        List.of(draft, review), "Draft", "Review", 15, this::allocate);
+    WorkflowTransitionWriter.createRepeatedAging(
+        List.of(draft, review), "Draft", "Review", 15, this::allocate);
+
+    WorkflowTransitionWriter.changeAbsoluteInterval(List.of(draft, review), "Draft", "Review", 15, 30);
+
+    assertEquals(30L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.ABSOLUTE, draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    assertEquals(15L, draft.getAgingTransitions().get(1).getInterval());
+    assertEquals("Repeated aging 15", draft.getAgingTransitions().get(1).getLabel());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.REPEATED, draft.getAgingTransitions().get(1).getAgingTypeEnum());
+  }
+
+  @Test
+  void repeatedChangeMayUseAnIntervalThatAnAbsoluteEdgeAlreadyHas() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    WorkflowTransitionWriter.createAbsoluteAging(
+        List.of(draft, review), "Draft", "Review", 30, this::allocate);
+    WorkflowTransitionWriter.createRepeatedAging(
+        List.of(draft, review), "Draft", "Review", 15, this::allocate);
+
+    WorkflowTransitionWriter.changeRepeatedInterval(List.of(draft, review), "Draft", "Review", 15, 30);
+
+    assertEquals(30L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.ABSOLUTE, draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    assertEquals(30L, draft.getAgingTransitions().get(1).getInterval());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.REPEATED, draft.getAgingTransitions().get(1).getAgingTypeEnum());
+    assertEquals("Repeated aging 30", draft.getAgingTransitions().get(1).getLabel());
+  }
+
+  @Test
+  void missingRepeatedIntervalWhenOnlyAbsoluteExistsIs404() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    WorkflowTransitionWriter.createAbsoluteAging(
+        List.of(draft, review), "Draft", "Review", 15, this::allocate);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowTransitionWriter.changeRepeatedInterval(
+                    List.of(draft, review), "Draft", "Review", 15, 30));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals(15L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.ABSOLUTE, draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    assertEquals("Aging 15", draft.getAgingTransitions().get(0).getLabel());
+  }
+
+  @Test
+  void duplicateRepeatedNewIntervalIs409AndLeavesBothEdges() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    WorkflowTransitionWriter.createAbsoluteAging(
+        List.of(draft, review), "Draft", "Review", 15, this::allocate);
+    WorkflowTransitionWriter.createRepeatedAging(
+        List.of(draft, review), "Draft", "Review", 15, this::allocate);
+    WorkflowTransitionWriter.createRepeatedAging(
+        List.of(draft, review), "Draft", "Review", 45, this::allocate);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowTransitionWriter.changeRepeatedInterval(
+                    List.of(draft, review), "Draft", "Review", 15, 45));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(15L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(15L, draft.getAgingTransitions().get(1).getInterval());
+    assertEquals(45L, draft.getAgingTransitions().get(2).getInterval());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.REPEATED, draft.getAgingTransitions().get(1).getAgingTypeEnum());
+  }
+
+  @Test
+  void nonPositiveRepeatedIntervalChangeDoesNotMutate() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    WorkflowTransitionWriter.createRepeatedAging(
+        List.of(draft, review), "Draft", "Review", 15, this::allocate);
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            WorkflowTransitionWriter.changeRepeatedInterval(
+                List.of(draft, review), "Draft", "Review", 15, 0));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            WorkflowTransitionWriter.changeRepeatedInterval(
+                List.of(draft, review), "Draft", "Review", 15, 15));
+    assertEquals(15L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals("Repeated aging 15", draft.getAgingTransitions().get(0).getLabel());
+  }
+
+  @Test
+  void keepsACustomRepeatedLabelWhenTheIntervalChanges() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    PSAgingTransition aging = new PSAgingTransition();
+    aging.setType(PSAgingTransition.PSAgingTypeEnum.REPEATED);
+    aging.setInterval(15);
+    aging.setToState(2L);
+    aging.setLabel("Nudge");
+    aging.setTrigger("Nudge");
+    aging.setDescription("Keep me");
+    draft.addAgingTransition(aging);
+
+    WorkflowTransitionWriter.changeRepeatedInterval(List.of(draft, review), "Draft", "Review", 15, 45);
+
+    PSAgingTransition updated = draft.getAgingTransitions().get(0);
+    assertEquals(45L, updated.getInterval());
+    assertEquals("Nudge", updated.getLabel());
+    assertEquals("Nudge", updated.getTrigger());
+    assertEquals("Keep me", updated.getDescription());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.REPEATED, updated.getAgingTypeEnum());
+    assertEquals(2L, updated.getToState());
+  }
+
   private PSTransition allocate(PSState source) {
     PSTransition transition = new PSTransition();
     transition.setGUID(new PSGuid(PSTypeEnum.WORKFLOW_TRANSITION, ids.incrementAndGet()));

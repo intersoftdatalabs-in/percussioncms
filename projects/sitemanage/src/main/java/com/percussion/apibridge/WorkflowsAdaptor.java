@@ -764,6 +764,7 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     if (body.getIntervalMinutes() == body.getNewIntervalMinutes()) {
       throw new IllegalArgumentException("new interval must differ from the current interval");
     }
+    WorkflowAgingTransitionWrite.Kind kind = body.intervalKind();
     PSWorkflow workflow = resolveWorkflow(idOrName);
     if (workflow == null) {
       throw new WebApplicationException("Workflow not found: " + idOrName, 404);
@@ -771,12 +772,21 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     rejectPackagedWorkflow(workflow);
     List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
     int stepCount = states.size();
-    WorkflowTransitionWriter.changeAbsoluteInterval(
-        states,
-        body.getFrom(),
-        body.getTo(),
-        body.getIntervalMinutes(),
-        body.getNewIntervalMinutes());
+    if (kind == WorkflowAgingTransitionWrite.Kind.REPEATED) {
+      WorkflowTransitionWriter.changeRepeatedInterval(
+          states,
+          body.getFrom(),
+          body.getTo(),
+          body.getIntervalMinutes(),
+          body.getNewIntervalMinutes());
+    } else {
+      WorkflowTransitionWriter.changeAbsoluteInterval(
+          states,
+          body.getFrom(),
+          body.getTo(),
+          body.getIntervalMinutes(),
+          body.getNewIntervalMinutes());
+    }
     int after = workflow.getStates() == null ? 0 : workflow.getStates().size();
     if (after != stepCount) {
       throw new IllegalStateException("Changing an aging interval must not add or delete steps");

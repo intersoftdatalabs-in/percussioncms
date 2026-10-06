@@ -459,6 +459,143 @@ class WorkflowsAdaptorAgingWriteTest {
   }
 
   @Test
+  void changesRepeatedIntervalAndLeavesTheAbsoluteEdge() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    PSWorkflow wf = workflow("Nightly QA", draft, review);
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15));
+    WorkflowAgingTransitionWrite repeated = body("Draft", "Review", 15);
+    repeated.setType("REPEATED");
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", repeated);
+
+    WorkflowAgingIntervalWrite change = intervalBody("Draft", "Review", 15, 30);
+    change.setType("REPEATED");
+    WorkflowGraph graph = adaptor.changeAbsoluteAgingInterval(null, "Nightly QA", change);
+
+    PSAgingTransition absolute =
+        draft.getAgingTransitions().stream()
+            .filter(edge -> edge.getAgingTypeEnum() == PSAgingTransition.PSAgingTypeEnum.ABSOLUTE)
+            .findFirst()
+            .orElseThrow();
+    PSAgingTransition updated =
+        draft.getAgingTransitions().stream()
+            .filter(edge -> edge.getAgingTypeEnum() == PSAgingTransition.PSAgingTypeEnum.REPEATED)
+            .findFirst()
+            .orElseThrow();
+    assertEquals(15L, absolute.getInterval());
+    assertEquals("Aging 15", absolute.getLabel());
+    assertEquals(30L, updated.getInterval());
+    assertEquals("Repeated aging 30", updated.getLabel());
+    assertEquals(PSAgingTransition.PSAgingTypeEnum.REPEATED, updated.getAgingTypeEnum());
+    assertEquals(2L, updated.getToState());
+    assertEquals(0, draft.getTransitions().size());
+    assertEquals(2, wf.getStates().size());
+    WorkflowGraph.Edge repeatedEdge =
+        graph.getEdges().stream()
+            .filter(edge -> "REPEATED".equals(edge.getAgingType()))
+            .findFirst()
+            .orElseThrow();
+    WorkflowGraph.Edge absoluteEdge =
+        graph.getEdges().stream()
+            .filter(edge -> "ABSOLUTE".equals(edge.getAgingType()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(30L, repeatedEdge.getIntervalMinutes());
+    assertEquals("Repeated aging 30", repeatedEdge.getLabel());
+    assertEquals(15L, absoluteEdge.getIntervalMinutes());
+    verify(workflowService, times(3)).saveWorkflow(wf);
+  }
+
+  @Test
+  void repeatedIntervalChangeDoesNotTouchAnAbsoluteOnlyEdge() {
+    PSState draft = state(1, "Draft");
+    PSWorkflow wf = workflow("Nightly QA", draft, state(2, "Review"));
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15));
+    WorkflowAgingIntervalWrite change = intervalBody("Draft", "Review", 15, 30);
+    change.setType("REPEATED");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.changeAbsoluteAgingInterval(null, "Nightly QA", change));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals(15L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(
+        PSAgingTransition.PSAgingTypeEnum.ABSOLUTE,
+        draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    verify(workflowService, times(1)).saveWorkflow(wf);
+  }
+
+  @Test
+  void duplicateRepeatedIntervalDoesNotSaveAndLeavesTheAbsoluteEdge() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    PSWorkflow wf = workflow("Nightly QA", draft, review);
+    stub(wf, false);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", body("Draft", "Review", 15));
+    WorkflowAgingTransitionWrite first = body("Draft", "Review", 15);
+    first.setType("REPEATED");
+    WorkflowAgingTransitionWrite second = body("Draft", "Review", 45);
+    second.setType("REPEATED");
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", first);
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", second);
+    WorkflowAgingIntervalWrite change = intervalBody("Draft", "Review", 15, 45);
+    change.setType("repeated");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.changeAbsoluteAgingInterval(null, "Nightly QA", change));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(15L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(15L, draft.getAgingTransitions().get(1).getInterval());
+    assertEquals(45L, draft.getAgingTransitions().get(2).getInterval());
+    assertEquals(
+        PSAgingTransition.PSAgingTypeEnum.ABSOLUTE,
+        draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    verify(workflowService, times(3)).saveWorkflow(wf);
+  }
+
+  @Test
+  void systemFieldOrUnknownIntervalTypeDoesNotSave() {
+    PSState draft = state(1, "Draft");
+    PSWorkflow wf = workflow("Nightly QA", draft, state(2, "Review"));
+    stub(wf, false);
+    WorkflowAgingTransitionWrite repeated = body("Draft", "Review", 15);
+    repeated.setType("REPEATED");
+    adaptor.createAbsoluteAgingTransition(null, "Nightly QA", repeated);
+    WorkflowAgingIntervalWrite system = intervalBody("Draft", "Review", 15, 30);
+    system.setType("SYSTEM_FIELD");
+    WorkflowAgingIntervalWrite unknown = intervalBody("Draft", "Review", 15, 30);
+    unknown.setType("NOPE");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> adaptor.changeAbsoluteAgingInterval(null, "Nightly QA", system));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> adaptor.changeAbsoluteAgingInterval(null, "Nightly QA", unknown));
+    assertEquals(15L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(
+        PSAgingTransition.PSAgingTypeEnum.REPEATED,
+        draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    verify(workflowService, times(1)).saveWorkflow(wf);
+  }
+
+  @Test
+  void packagedRepeatedIntervalChangeIs403() {
+    PSWorkflow wf = workflow("Simple Workflow", state(1, "Draft"), state(2, "Review"));
+    stub(wf, false);
+    WorkflowAgingIntervalWrite change = intervalBody("Draft", "Review", 15, 30);
+    change.setType("REPEATED");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> adaptor.changeAbsoluteAgingInterval(null, "Simple Workflow", change));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(workflowService, never()).saveWorkflow(wf);
+  }
+
+  @Test
   void nonAdminIs403() {
     WorkflowsAdaptor locked =
         new WorkflowsAdaptor(

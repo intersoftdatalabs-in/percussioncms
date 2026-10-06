@@ -1026,6 +1026,45 @@ public class WorkflowsResourceTest {
   }
 
   @Test
+  public void changeRepeatedAgingIntervalPassesTypeOnTheSameResource() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Nightly QA");
+    when(adaptor.changeAbsoluteAgingInterval(any(), eq("Nightly QA"), any())).thenReturn(graph);
+    WorkflowAgingIntervalWrite body = intervalBody("Draft", "Review", 15, 30);
+    body.setType("repeated");
+    WorkflowGraph out = resource.changeAbsoluteAgingInterval("Nightly QA", body);
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor)
+        .changeAbsoluteAgingInterval(
+            any(),
+            eq("Nightly QA"),
+            argThat(written -> written != null && "repeated".equals(written.getType())));
+  }
+
+  @Test
+  public void changeAgingIntervalRejectsSystemFieldAndUnknownType() {
+    WorkflowAgingIntervalWrite system = intervalBody("Draft", "Review", 15, 30);
+    system.setType("SYSTEM_FIELD");
+    WorkflowAgingIntervalWrite unknown = intervalBody("Draft", "Review", 15, 30);
+    unknown.setType("NOPE");
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () -> resource.changeAbsoluteAgingInterval("Nightly QA", system))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () -> resource.changeAbsoluteAgingInterval("Nightly QA", unknown))
+            .getResponse()
+            .getStatus());
+    verify(adaptor, never()).changeAbsoluteAgingInterval(any(), any(), any());
+  }
+
+  @Test
   public void deleteAgingTransitionSuccess() {
     WorkflowGraph graph = new WorkflowGraph();
     graph.setWorkflowName("Nightly QA");

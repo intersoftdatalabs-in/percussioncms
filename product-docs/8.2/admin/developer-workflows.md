@@ -142,10 +142,10 @@ The interval unit is minutes.
    `409`. Any type other than omitted, `ABSOLUTE`, `REPEATED`, or
    `SYSTEM_FIELD` is `400` and is not saved. HTTP `400`, `403`, and `409` do
    not show the saved notice and do not add the repeated row.
-6. This does not create steps, change the repeated interval, or assign roles.
-   Comment required does not apply. **Change interval** stays on absolute
-   rows only. **Delete aging transition** on the repeated row is a separate
-   action and does not remove an absolute row.
+6. This does not create steps or assign roles. Comment required does not
+   apply. **Change interval** on the repeated row is a separate action and
+   does not change an absolute row. **Delete aging transition** on the
+   repeated row is a separate action and does not remove an absolute row.
 
 The public call is the same
 `POST /services/workflows/{idOrName}/aging-transitions` resource, with a
@@ -178,7 +178,7 @@ The public call is the same
    row.
 6. This does not create steps, change an absolute or repeated interval, or
    assign roles. Comment required does not apply. **Change interval** stays
-   on absolute rows only. **Delete aging transition** on the system-field row
+   off system-field rows. **Delete aging transition** on the system-field row
    is a separate action and does not remove absolute or repeated rows.
 
 The public call is the same
@@ -209,7 +209,41 @@ The public call is the same
 
 The public call is `PUT /services/workflows/{idOrName}/aging-transitions/interval`
 with a `WorkflowAgingIntervalWrite` body (`from`, `to`, the current
-`intervalMinutes`, and a different positive `newIntervalMinutes`).
+`intervalMinutes`, and a different positive `newIntervalMinutes`). Omit
+`type`, or send `ABSOLUTE`.
+
+## Product path — change a repeated aging interval (slice 78)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow that already
+   has a repeated aging transition.
+3. Under **Graph**, in **Aging transitions**, click **Change interval** on
+   that repeated row (not on an absolute row that uses the same steps and the
+   same current minutes, and not on a system-field row). Enter a different
+   positive **New interval (minutes)**, and click **Save interval**.
+4. The repeated row shows the new minute count
+   (`from — Repeated aging {minutes} → to`, marked repeated) only after the
+   server accepts it. An absolute aging row that shares the old from, to, and
+   interval stays at the old minutes. Reopening the workflow shows the same
+   new repeated interval. **Cancel** closes the editor and does not call the
+   server. The destination step and the aging type do not change.
+5. A blank, zero, negative, or unchanged interval is rejected in the form and
+   does not show a saved notice. Packaged workflows do not show **Change
+   interval** (`403` on the API). A missing workflow, step, or repeated aging
+   edge is `404`, including when the only edge at that interval is absolute.
+   A repeated aging transition that already uses that from, to, and new
+   interval is `409`. An absolute edge that already uses the new interval is
+   not a conflict. `SYSTEM_FIELD` or any other type is `400` and is not
+   written. HTTP `400`, `403`, and `409` leave the previous minutes on both
+   the repeated row and the absolute row.
+6. This does not add or delete an aging transition, move the destination
+   step, change an absolute or system-field aging interval, or assign roles.
+
+The public call is the same
+`PUT /services/workflows/{idOrName}/aging-transitions/interval` resource, with
+a `WorkflowAgingIntervalWrite` body (`from`, `to`, the current
+`intervalMinutes`, a different positive `newIntervalMinutes`, and `type`
+`REPEATED`). There is no second URL.
 
 ## Product path — delete an absolute aging transition (slice 59)
 
@@ -242,8 +276,8 @@ is a different delete; see the next aging delete path.
 2. Open **Developer → Workflows** and open a **custom** workflow that already
    has a repeated or system-field aging transition.
 3. Under **Graph**, in **Aging transitions**, click **Delete aging
-   transition** on that repeated or system-field row. **Change interval**
-   stays on absolute rows only.
+   transition** on that repeated or system-field row. **Change interval** is
+   on absolute and repeated rows, not on system-field rows.
 4. **Cancel** closes the dialog and does not call the server. The row stays.
    An absolute aging row on the same steps stays.
 5. Confirm in the in-app dialog. The repeated or system-field row disappears
@@ -848,7 +882,8 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Create one absolute aging transition | `POST /services/workflows/{idOrName}/aging-transitions` (`WorkflowAgingTransitionWrite` wrap: required `from`, `to`, and a positive `intervalMinutes`; omit `type` or send `ABSOLUTE`; duplicate absolute edge `409`; packaged workflows `403`) |
 | Create one repeated aging transition | `POST /services/workflows/{idOrName}/aging-transitions` (same resource; `type` `REPEATED`; does not replace an absolute edge that uses the same interval; duplicate repeated edge `409`; any other type `400`; packaged workflows `403`; the graph shows the repeated row only after success) |
 | Create one system-field aging transition | `POST /services/workflows/{idOrName}/aging-transitions` (same resource; `type` `SYSTEM_FIELD` and `systemField` of `CONTENTSTARTDATE`, `CONTENTEXPIRYDATE`, or `REMINDERDATE`; no minute interval; does not replace absolute or repeated edges; blank or unknown system field `400`; duplicate system field for that from and to `409`; packaged workflows `403`; the graph shows the system-field row only after success) |
-| Change one absolute aging interval | `PUT /services/workflows/{idOrName}/aging-transitions/interval` (`WorkflowAgingIntervalWrite` wrap: `from`, `to`, current `intervalMinutes`, and a different positive `newIntervalMinutes`; does not move the destination or change the aging type; duplicate new interval `409`; non-positive or unchanged interval `400`; missing edge `404`; packaged workflows `403`) |
+| Change one absolute aging interval | `PUT /services/workflows/{idOrName}/aging-transitions/interval` (`WorkflowAgingIntervalWrite` wrap: `from`, `to`, current `intervalMinutes`, and a different positive `newIntervalMinutes`; omit `type` or send `ABSOLUTE`; does not move the destination or change the aging type; duplicate new interval `409`; non-positive or unchanged interval `400`; missing edge `404`; packaged workflows `403`) |
+| Change one repeated aging interval | `PUT /services/workflows/{idOrName}/aging-transitions/interval` (same resource; `type` `REPEATED`; changes the repeated edge only; an absolute edge that shares from, to, and the current interval stays; an absolute edge at the new interval is not a conflict; duplicate repeated interval `409`; non-positive, unchanged, `SYSTEM_FIELD`, or any other type `400`; missing repeated edge `404`; packaged workflows `403`; the row shows the new minutes only after success) |
 | Delete one absolute aging transition | `DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&intervalMinutes={minutes}` (Admin; omit `type` or send `ABSOLUTE`; does not delete steps or regular transitions; repeated or system-field match `409` and is not deleted; non-positive interval `400`; missing edge `404`; packaged workflows `403`) |
 | Delete one repeated aging transition | `DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&intervalMinutes={minutes}&type=REPEATED` (same resource; deletes the repeated edge only; an absolute edge that shares from, to, and interval stays; the other type at that interval is `409` and is not deleted; non-positive interval `400`; missing repeated edge `404`; packaged workflows `403`; the row disappears only after success) |
 | Delete one system-field aging transition | `DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&type=SYSTEM_FIELD&systemField={field}` (same resource; `systemField` is `CONTENTSTARTDATE`, `CONTENTEXPIRYDATE`, or `REMINDERDATE`; no minute interval; absolute and repeated edges stay, including an absolute edge whose stored interval is 1; other system fields on those steps stay; blank or unknown system field `400`; missing field `404`; a non-system-field edge that stores that field is `409` and is not deleted; packaged workflows `403`; the row disappears only after success) |
