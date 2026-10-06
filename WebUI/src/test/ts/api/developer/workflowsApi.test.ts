@@ -1234,6 +1234,55 @@ describe("workflow transition write API (slice 31)", () => {
     expect(String(init.body)).toContain("WorkflowAgingIntervalWrite");
     expect(String(init.body)).toContain("newIntervalMinutes");
     expect(String(init.body)).toContain("30");
+    expect(String(init.body)).not.toContain("REPEATED");
+  });
+
+  it("PUTs a repeated aging interval change on the same resource", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          packaged: false,
+          nodes: [{ name: "Draft" }, { name: "Review" }],
+          edges: [
+            {
+              from: "Draft",
+              to: "Review",
+              label: "Aging 15",
+              aging: true,
+              agingType: "ABSOLUTE",
+              intervalMinutes: 15,
+            },
+            {
+              from: "Draft",
+              to: "Review",
+              label: "Repeated aging 30",
+              aging: true,
+              agingType: "REPEATED",
+              intervalMinutes: 30,
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await updateWorkflowAgingInterval("Nightly QA", {
+      from: "Draft",
+      to: "Review",
+      intervalMinutes: 15,
+      newIntervalMinutes: 30,
+      type: "REPEATED",
+    });
+    expect(graph.edges?.[0]?.agingType).toBe("ABSOLUTE");
+    expect(graph.edges?.[0]?.intervalMinutes).toBe(15);
+    expect(graph.edges?.[1]?.agingType).toBe("REPEATED");
+    expect(graph.edges?.[1]?.intervalMinutes).toBe(30);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/aging-transitions/interval");
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("/repeated");
+    expect(String(init.body)).toContain("REPEATED");
+    expect(String(init.body)).toContain("newIntervalMinutes");
   });
 
   it("propagates 400 and 409 when an aging interval change is rejected", async () => {

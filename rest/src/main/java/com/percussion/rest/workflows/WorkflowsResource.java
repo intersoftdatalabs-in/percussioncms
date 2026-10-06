@@ -1175,14 +1175,17 @@ public class WorkflowsResource {
   @Consumes({MediaType.APPLICATION_JSON})
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
-      summary = "Change one absolute aging interval",
+      summary = "Change one absolute or repeated aging interval",
       description =
-          "Slice 58 Admin. Changes the minute interval on one existing absolute aging transition."
-              + " Body from, to, and intervalMinutes identify the edge. newIntervalMinutes is the"
-              + " replacement and must be a different positive number of minutes. Does not move"
-              + " the destination step, change the aging type, delete the transition, or edit"
-              + " packaged workflows. A duplicate absolute interval for that from and to is 409."
-              + " Jackson root wrap is WorkflowAgingIntervalWrite.",
+          "Slice 58 and slice 78 Admin. Changes the minute interval on one existing absolute or"
+              + " repeated aging transition. Body from, to, and intervalMinutes identify the edge."
+              + " Omit type, or send ABSOLUTE, to change one absolute edge. Send type REPEATED to"
+              + " change one repeated edge; an absolute edge that shares from, to, and the current"
+              + " interval stays. newIntervalMinutes is the replacement and must be a different"
+              + " positive number of minutes. Does not move the destination step, change the aging"
+              + " type, delete the transition, edit system-field aging, or edit packaged workflows."
+              + " A duplicate interval of that same type for that from and to is 409. Jackson root"
+              + " wrap is WorkflowAgingIntervalWrite.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -1191,16 +1194,17 @@ public class WorkflowsResource {
         @ApiResponse(
             responseCode = "400",
             description =
-                "Missing body, blank from or to, a non-positive interval, or an unchanged interval"),
+                "Missing body, blank from or to, a non-positive interval, an unchanged interval,"
+                    + " or a type other than omitted, ABSOLUTE, or REPEATED"),
         @ApiResponse(
             responseCode = "403",
             description = "Admin required, or packaged/default workflow is protected"),
         @ApiResponse(
             responseCode = "404",
-            description = "Workflow, step, or absolute aging transition not found"),
+            description = "Workflow, step, or aging transition of that type not found"),
         @ApiResponse(
             responseCode = "409",
-            description = "That absolute aging interval already exists"),
+            description = "That aging interval already exists for the same type"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
@@ -1220,6 +1224,13 @@ public class WorkflowsResource {
     }
     if (body.getIntervalMinutes() == body.getNewIntervalMinutes()) {
       throw new WebApplicationException("new interval must differ from the current interval", 400);
+    }
+    try {
+      body.intervalKind();
+    } catch (IllegalArgumentException ex) {
+      String message =
+          ex.getMessage() != null ? ex.getMessage() : "aging type must be ABSOLUTE or REPEATED";
+      throw new WebApplicationException(message, 400);
     }
     try {
       return requireAdaptor().changeAbsoluteAgingInterval(uriInfo.getBaseUri(), idOrName, body);

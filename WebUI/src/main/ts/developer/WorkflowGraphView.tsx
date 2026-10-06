@@ -34,7 +34,8 @@ import { DEV_MSG } from "./messages";
  * State/transition graph for one workflow (slice 32 read, slice 31 transition write,
  * slice 33 transition delete, slice 34 step delete, slice 57 absolute aging create,
  * slice 75 repeated aging create, slice 76 system-field aging create,
- * slice 58 absolute aging interval change, slice 59 absolute aging delete,
+ * slice 58 absolute aging interval change, slice 78 repeated aging interval change,
+ * slice 59 absolute aging delete,
  * slice 77 repeated and system-field aging delete,
  * slice 70 approvals required, slice 71 default transition,
  * slice 72 restrict one transition to a single role,
@@ -47,8 +48,9 @@ import { DEV_MSG } from "./messages";
  * A repeated aging row appears only after the server accepts it, and it can be
  * deleted without removing an absolute row that uses the same interval.
  * A system-field aging row appears only after the server accepts it, and it can
- * be deleted without removing absolute or repeated rows. Changing a repeated
- * interval is not offered here.
+ * be deleted without removing absolute or repeated rows. A repeated interval
+ * can be changed without moving an absolute edge that uses the same from, to,
+ * and old interval. System-field rows do not offer an interval change.
  */
 
 type AgingDeleteIdentity = {
@@ -81,6 +83,29 @@ function agingDeleteConfirm(pending: AgingDeleteIdentity): string {
 
 type TransitionIdentity = { from: string; label: string; to: string };
 
+type AgingIntervalKind = "ABSOLUTE" | "REPEATED";
+
+function agingIntervalKind(agingType: string | undefined): AgingIntervalKind | "SYSTEM_FIELD" {
+  if (agingType === "REPEATED") {
+    return "REPEATED";
+  }
+  if (agingType === "SYSTEM_FIELD") {
+    return "SYSTEM_FIELD";
+  }
+  return "ABSOLUTE";
+}
+
+function canChangeAgingInterval(edge: WorkflowGraphEdge): boolean {
+  const kind = agingIntervalKind(edge.agingType);
+  return (
+    (kind === "ABSOLUTE" || kind === "REPEATED") &&
+    !!edge.from &&
+    !!edge.to &&
+    typeof edge.intervalMinutes === "number" &&
+    edge.intervalMinutes > 0
+  );
+}
+
 /** One-element role lists arrive as a string on the live JSON wire (#5233). */
 function roleNameList(raw: unknown): string[] {
   if (typeof raw === "string") {
@@ -99,7 +124,22 @@ function rolesNotYetAllowed(all: unknown, allowed: unknown): string[] {
   return roleNameList(all).filter((name) => !taken.has(name.toLowerCase()));
 }
 type ApprovalsIdentity = TransitionIdentity & { current: number };
-type AgingIntervalIdentity = { from: string; to: string; intervalMinutes: number };
+type AgingIntervalIdentity = {
+  from: string;
+  to: string;
+  intervalMinutes: number;
+  agingType: AgingIntervalKind;
+};
+
+function sameAgingIntervalEdit(edit: AgingIntervalIdentity, edge: WorkflowGraphEdge): boolean {
+  return (
+    canChangeAgingInterval(edge) &&
+    edit.agingType === agingIntervalKind(edge.agingType) &&
+    edit.from === edge.from &&
+    edit.to === edge.to &&
+    edit.intervalMinutes === edge.intervalMinutes
+  );
+}
 export function WorkflowGraphView({
   workflowName,
 }: {
@@ -418,6 +458,7 @@ export function WorkflowGraphView({
         to: agingEdit.to,
         intervalMinutes: agingEdit.intervalMinutes,
         newIntervalMinutes: Number(nextMinutes),
+        ...(agingEdit.agingType === "REPEATED" ? { type: "REPEATED" as const } : {}),
       });
       setGraph(next);
       setNotice(DEV_MSG.WF_AGING_INTERVAL_SAVED);
@@ -428,7 +469,11 @@ export function WorkflowGraphView({
       if (isApiError(err) && err.status === 403) {
         setError(DEV_MSG.WF_AGING_INTERVAL_FORBIDDEN);
       } else if (isApiError(err) && err.status === 409) {
-        setError(DEV_MSG.WF_AGING_INTERVAL_CONFLICT);
+        setError(
+          agingEdit.agingType === "REPEATED"
+            ? DEV_MSG.WF_REPEATED_CONFLICT
+            : DEV_MSG.WF_AGING_INTERVAL_CONFLICT,
+        );
       } else if (isApiError(err) && (err.status === 400 || err.status === 404)) {
         setError(DEV_MSG.WF_AGING_INTERVAL_BAD);
       } else {
@@ -1554,12 +1599,7 @@ export function WorkflowGraphView({
                     ? ` (${edge.intervalMinutes} minutes)`
                     : ""}
                 {edge.agingType === "REPEATED" ? ` (${DEV_MSG.WF_REPEATED_KIND})` : ""}
-                {canWrite &&
-                edge.agingType !== "REPEATED" &&
-                edge.agingType !== "SYSTEM_FIELD" &&
-                edge.from &&
-                edge.to &&
-                typeof edge.intervalMinutes === "number" ? (
+                {canWrite && canChangeAgingInterval(edge) ? (
                   <button
                     type="button"
                     data-testid={`developer-wf-aging-change-${i}`}
@@ -1575,6 +1615,8 @@ export function WorkflowGraphView({
                         from: edge.from as string,
                         to: edge.to as string,
                         intervalMinutes: edge.intervalMinutes as number,
+                        agingType:
+                          agingIntervalKind(edge.agingType) === "REPEATED" ? "REPEATED" : "ABSOLUTE",
                       });
                       setAgingNewMinutes("");
                     }}
@@ -1606,12 +1648,7 @@ export function WorkflowGraphView({
                     {DEV_MSG.WF_AGING_DELETE}
                   </button>
                 ) : null}
-                {agingEdit &&
-                edge.agingType !== "REPEATED" &&
-                edge.agingType !== "SYSTEM_FIELD" &&
-                agingEdit.from === edge.from &&
-                agingEdit.to === edge.to &&
-                agingEdit.intervalMinutes === edge.intervalMinutes ? (
+                {agingEdit && sameAgingIntervalEdit(agingEdit, edge) ? (
                   <form
                     data-testid="developer-wf-aging-interval-form"
                     style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "end", marginTop: 8 }}

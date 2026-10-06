@@ -473,7 +473,7 @@ describe("WorkflowGraphView step delete", () => {
     expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-aging-type")).toBe(
       "ABSOLUTE",
     );
-    expect(screen.queryByTestId("developer-wf-aging-change-1")).toBeNull();
+    expect(screen.getByTestId("developer-wf-aging-change-1")).toBeTruthy();
     expect(screen.getByTestId("developer-wf-aging-delete-1")).toBeTruthy();
     expect(screen.getByTestId("developer-wf-aging-change-0")).toBeTruthy();
     expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
@@ -905,6 +905,185 @@ describe("WorkflowGraphView step delete", () => {
     expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-interval")).toBe("15");
   });
 
+  it("shows the new repeated minutes only after success and leaves the absolute row", async () => {
+    const initial = {
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "ABSOLUTE",
+        },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Repeated aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "REPEATED",
+        },
+      ],
+    };
+    const updated = {
+      packaged: false,
+      nodes: initial.nodes,
+      edges: [
+        initial.edges[0],
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Repeated aging 30",
+          aging: true,
+          intervalMinutes: 30,
+          agingType: "REPEATED",
+        },
+      ],
+    };
+    let current = initial;
+    let release: (graph: typeof updated) => void = () => {};
+    getWorkflowGraph.mockImplementation(async () => current);
+    updateWorkflowAgingInterval.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = (graph) => {
+            current = graph;
+            resolve(graph);
+          };
+        }),
+    );
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-aging-edge-1");
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("15 minutes");
+    expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain("15 minutes");
+    fireEvent.click(screen.getByTestId("developer-wf-aging-change-1"));
+    expect(
+      screen
+        .getByTestId("developer-wf-aging-edge-1")
+        .querySelector('[data-testid="developer-wf-aging-interval-form"]'),
+    ).toBeTruthy();
+    expect(
+      screen
+        .getByTestId("developer-wf-aging-edge-0")
+        .querySelector('[data-testid="developer-wf-aging-interval-form"]'),
+    ).toBeNull();
+    fireEvent.change(screen.getByTestId("developer-wf-aging-new-minutes"), {
+      target: { value: "30" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-aging-interval-save"));
+    await waitFor(() => {
+      expect(updateWorkflowAgingInterval).toHaveBeenCalledWith("Nightly QA", {
+        from: "Draft",
+        to: "Review",
+        intervalMinutes: 15,
+        newIntervalMinutes: 30,
+        type: "REPEATED",
+      });
+    });
+    expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain("15 minutes");
+    expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-interval")).toBe("15");
+    expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+    release(updated);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain("30 minutes");
+    });
+    expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain(
+      "Repeated aging 30",
+    );
+    expect(screen.getByTestId("developer-wf-aging-edge-1").getAttribute("data-aging-type")).toBe(
+      "REPEATED",
+    );
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
+    expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-interval")).toBe("15");
+    expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-aging-type")).toBe(
+      "ABSOLUTE",
+    );
+    expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
+      "Aging interval saved",
+    );
+  });
+
+  it("cancel, blank, unchanged, and failed repeated interval edits leave both rows", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "ABSOLUTE",
+        },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Repeated aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "REPEATED",
+        },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    await screen.findByTestId("developer-wf-aging-change-1");
+    fireEvent.click(screen.getByTestId("developer-wf-aging-change-1"));
+    fireEvent.change(screen.getByTestId("developer-wf-aging-new-minutes"), {
+      target: { value: "30" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-aging-interval-cancel"));
+    expect(updateWorkflowAgingInterval).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-wf-aging-interval-form")).toBeNull();
+    expect(screen.getByTestId("developer-wf-aging-edge-1").getAttribute("data-interval")).toBe("15");
+    expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-interval")).toBe("15");
+
+    fireEvent.click(screen.getByTestId("developer-wf-aging-change-1"));
+    fireEvent.change(screen.getByTestId("developer-wf-aging-new-minutes"), {
+      target: { value: " " },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-aging-interval-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-error").textContent).toMatch(/positive/i);
+    });
+    expect(updateWorkflowAgingInterval).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("developer-wf-aging-new-minutes"), {
+      target: { value: "15" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-aging-interval-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-error").textContent).toMatch(/different/i);
+    });
+    expect(updateWorkflowAgingInterval).not.toHaveBeenCalled();
+
+    for (const status of [400, 403, 409]) {
+      fireEvent.change(screen.getByTestId("developer-wf-aging-new-minutes"), {
+        target: { value: "30" },
+      });
+      updateWorkflowAgingInterval.mockRejectedValueOnce({ status, message: "no" });
+      fireEvent.click(screen.getByTestId("developer-wf-aging-interval-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-wf-graph-error")).toBeTruthy();
+      });
+      expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+      expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain("15 minutes");
+      expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).not.toContain(
+        "30 minutes",
+      );
+      expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-interval")).toBe(
+        "15",
+      );
+      expect(screen.getByTestId("developer-wf-aging-edge-0").getAttribute("data-aging-type")).toBe(
+        "ABSOLUTE",
+      );
+    }
+    expect(updateWorkflowAgingInterval).toHaveBeenCalledTimes(3);
+  });
+
   it("does not claim the interval changed on 400, 403, or 409", async () => {
     getWorkflowGraph.mockResolvedValue({
       packaged: false,
@@ -1053,7 +1232,7 @@ describe("WorkflowGraphView step delete", () => {
     );
     render(<WorkflowGraphView workflowName="Nightly QA" />);
     await screen.findByTestId("developer-wf-aging-edge-1");
-    expect(screen.queryByTestId("developer-wf-aging-change-1")).toBeNull();
+    expect(screen.getByTestId("developer-wf-aging-change-1")).toBeTruthy();
     fireEvent.click(screen.getByTestId("developer-wf-aging-delete-1"));
     expect(screen.getByTestId("developer-catalog-confirm-body").textContent).toContain("repeated");
     fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
