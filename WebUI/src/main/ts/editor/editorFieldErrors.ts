@@ -68,7 +68,7 @@ export function isEmptyEditorFieldValue(
   pendingFile?: File | null,
   pendingClear?: boolean,
 ): boolean {
-  if (kind === "file" && pendingClear && !pendingFile) {
+  if ((kind === "file" || kind === "image") && pendingClear && !pendingFile) {
     return true;
   }
   if (kind === "file" || kind === "image") {

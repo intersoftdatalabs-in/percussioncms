@@ -42,13 +42,18 @@ describe("isEmptyEditorFieldValue", () => {
     expect(isEmptyEditorFieldValue("file", "", null)).toBe(true);
   });
 
-  it("treats a cleared required file as empty even when the stored name remains", () => {
+  it("treats a cleared required file or image as empty even when the stored name remains", () => {
     const notes = new File(["x"], "notes.txt", { type: "text/plain" });
+    const hero = new File(["x"], "hero.png", { type: "image/png" });
     expect(isEmptyEditorFieldValue("file", "brief.pdf", null, true)).toBe(true);
     expect(isEmptyEditorFieldValue("file", "brief.pdf", notes, true)).toBe(false);
     expect(isEmptyEditorFieldValue("file", "brief.pdf", null, false)).toBe(false);
     expect(isEmptyEditorFieldValue("file", "   ", null, false)).toBe(true);
-    expect(isEmptyEditorFieldValue("image", "hero.png", null, true)).toBe(false);
+    expect(isEmptyEditorFieldValue("image", "hero.png", null, true)).toBe(true);
+    expect(isEmptyEditorFieldValue("image", "hero.png", hero, true)).toBe(false);
+    expect(isEmptyEditorFieldValue("image", "hero.png", null, false)).toBe(false);
+    expect(isEmptyEditorFieldValue("image", "", null)).toBe(true);
+    expect(isEmptyEditorFieldValue("image", "   ", null, false)).toBe(true);
   });
 });
 
@@ -176,6 +181,25 @@ describe("collectRequiredFieldErrors", () => {
     expect(errors).toEqual({
       item_file_attachment: "This field is required.",
       brief: "This field is required.",
+    });
+  });
+
+  it("refuses a required image with nothing chosen and a cleared stored name", () => {
+    const next = new File(["x"], "next.png", { type: "image/png" });
+    const errors = collectRequiredFieldErrors(
+      [
+        { name: "img", kind: "image", required: true, value: "" },
+        { name: "hero", kind: "image", required: true, value: "hero.png" },
+        { name: "optional_img", kind: "image", required: false, value: "old.png" },
+        { name: "replacement", kind: "image", required: true, value: "hero.png" },
+      ],
+      { replacement: next },
+      "This field is required.",
+      { hero: true, optional_img: true, replacement: true },
+    );
+    expect(errors).toEqual({
+      img: "This field is required.",
+      hero: "This field is required.",
     });
   });
 });
