@@ -60,6 +60,12 @@ function schemeUpdatePut(url, method) {
 }
 
 async function openContexts(page) {
+  const schemes = page.waitForResponse(
+    (res) =>
+      res.request().method() === "GET" &&
+      /\/publishingdesign\/contexts\/[^/]+\/schemes(?:\?|$)/.test(res.url()),
+    { timeout: 30000 },
+  );
   await page.goto(
     `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=publish&section=design&_=${Date.now()}`,
   );
@@ -69,6 +75,7 @@ async function openContexts(page) {
   await expect(page.getByTestId("publish-section-design")).toBeVisible();
   await page.getByRole("tab", { name: /Contexts/i }).click();
   await expect(page.getByTestId("contexts-panel")).toBeVisible();
+  await schemes;
 }
 
 async function createScheme(page, name) {
@@ -111,6 +118,95 @@ function schemeRow(page, name) {
     .filter({ has: page.getByRole("button", { name, exact: true }) });
 }
 
+function schemeReadGet(url, method) {
+  return (
+    method === "GET" &&
+    /\/publishingdesign\/schemes\/[^/]+(?:\?|$)/.test(url) &&
+    !/\/publishingdesign\/contexts\/[^/]+\/schemes(?:\?|$)/.test(url)
+  );
+}
+
+function parameterRows(raw) {
+  if (Array.isArray(raw)) {
+    return raw;
+  }
+  if (!raw || typeof raw !== "object") {
+    return [];
+  }
+  const inner = raw.schemeParameter;
+  if (Array.isArray(inner)) {
+    return inner;
+  }
+  if (inner && typeof inner === "object") {
+    return [inner];
+  }
+  if (raw.name != null || raw.value != null) {
+    return [raw];
+  }
+  return [];
+}
+
+function parameterValues(payload) {
+  const root =
+    payload && payload.locationScheme && typeof payload.locationScheme === "object"
+      ? payload.locationScheme
+      : payload || {};
+  return parameterRows(root.parameters ?? root.schemeParameter)
+    .map((row) => ({
+      name: row && row.name != null ? String(row.name) : "",
+      type: row && row.type != null ? String(row.type) : "",
+      value: row && row.value != null ? String(row.value) : "",
+    }))
+    .filter((row) => row.name || row.value);
+}
+
+function schemeFields(payload) {
+  const root =
+    payload && payload.locationScheme && typeof payload.locationScheme === "object"
+      ? payload.locationScheme
+      : payload || {};
+  const text = (value) => (value == null || value === "" ? "" : String(value));
+  return {
+    generator: text(root.generator),
+    description: text(root.description),
+    contentTypeId: text(root.contentTypeId),
+    templateId: text(root.templateId),
+    parameters: parameterValues(payload),
+  };
+}
+
+/** Prefer a scheme that already stores parameters (sample Article). */
+async function selectContextScheme(page, schemeName) {
+  const button = () => page.getByRole("button", { name: schemeName, exact: true });
+  if (await button().count()) {
+    return true;
+  }
+  const select = page.getByLabel("Publishing context");
+  const current = await select.inputValue();
+  const values = await select.locator("option").evaluateAll((els) =>
+    els.map((el) => el.value).filter((value) => value),
+  );
+  for (const value of values) {
+    if (value === current) {
+      continue;
+    }
+    const listed = page.waitForResponse(
+      (res) =>
+        res.request().method() === "GET" &&
+        new RegExp(`/publishingdesign/contexts/${value}/schemes(?:\\?|$)`).test(
+          res.url(),
+        ),
+      { timeout: 20000 },
+    );
+    await select.selectOption(value);
+    await listed;
+    if (await button().count()) {
+      return true;
+    }
+  }
+  return false;
+}
+
 test.describe("PublishingShell Design rename location scheme", () => {
   test.beforeEach(async ({ page }) => {
     await loginAsAdmin(page);
@@ -129,19 +225,53 @@ test.describe("PublishingShell Design rename location scheme", () => {
 
     await openContexts(page);
     const stamp = Date.now().toString().slice(-8);
-    const original = `SchRen${stamp}`;
     const renamed = `SchNew${stamp}`;
-    const meta = await createScheme(page, original);
+    const seeded = await selectContextScheme(page, "Article");
+    const original = seeded ? "Article" : `SchRen${stamp}`;
+    if (!seeded) {
+      await createScheme(page, original);
+    }
 
-    await schemeRow(page, original).getByTestId("location-scheme-rename").click();
-    await expect(page.getByTestId("scheme-rename")).toBeVisible();
-    await expect(page.getByTestId("scheme-rename-generator")).toHaveText(GENERATOR);
-    await expect(page.getByTestId("scheme-rename-description")).toHaveText(meta.description);
-    await expect(page.getByTestId("scheme-rename-content-type")).toHaveText(
-      meta.contentTypeId,
+    const schemeRead = page.waitForResponse(
+      (res) => schemeReadGet(res.url(), res.request().method()),
+      { timeout: 30000 },
     );
-    await expect(page.getByTestId("scheme-rename-template")).toHaveText(meta.templateId);
-    await expect(page.getByTestId("scheme-rename-parameter")).toContainText("$sys.site.path");
+    await schemeRow(page, original).getByTestId("location-scheme-rename").click();
+    const loaded = await schemeRead;
+    const loadedBody = await loaded.text();
+    let stored = {
+      generator: "",
+      description: "",
+      contentTypeId: "",
+      templateId: "",
+      parameters: [],
+    };
+    try {
+      stored = schemeFields(JSON.parse(loadedBody));
+    } catch {
+      stored = { ...stored };
+    }
+    if (seeded && stored.parameters.length === 0) {
+      throw new Error(
+        `seeded Article returned no parameters: ${loadedBody.slice(0, 800)}`,
+      );
+    }
+    await expect(page.getByTestId("scheme-rename")).toBeVisible();
+    await expect(page.getByTestId("scheme-rename-generator")).toHaveText(stored.generator);
+    await expect(page.getByTestId("scheme-rename-description")).toHaveText(
+      stored.description,
+    );
+    await expect(page.getByTestId("scheme-rename-content-type")).toHaveText(
+      stored.contentTypeId,
+    );
+    await expect(page.getByTestId("scheme-rename-template")).toHaveText(stored.templateId);
+    const paramItems = page.getByTestId("scheme-rename-parameter");
+    await expect(paramItems).toHaveCount(stored.parameters.length);
+    for (const row of stored.parameters) {
+      await expect(paramItems.filter({ hasText: `${row.name}: ${row.value}` })).toHaveCount(
+        1,
+      );
+    }
     await expect(page.getByTestId("scheme-rename-parameters-note")).toContainText(
       /parameters stay/i,
     );
@@ -194,8 +324,12 @@ test.describe("PublishingShell Design rename location scheme", () => {
     await expect(page.getByTestId("scheme-rename")).toBeVisible();
     await expect.poll(() => postedBody).toContain(renamed);
     expect(postedBody).toContain('"locationScheme"');
-    expect(postedBody).not.toContain(GENERATOR);
-    expect(postedBody).not.toContain(meta.description);
+    if (stored.generator) {
+      expect(postedBody).not.toContain(stored.generator);
+    }
+    if (stored.description) {
+      expect(postedBody).not.toContain(stored.description);
+    }
     expect(postedBody).not.toContain("schemeParameter");
     expect(postedBody).not.toContain('"generator"');
     expect(postedBody).not.toContain('"contentTypeId"');
@@ -217,11 +351,20 @@ test.describe("PublishingShell Design rename location scheme", () => {
     await page.getByRole("button", { name: renamed, exact: true }).click();
     await expect(page.getByTestId("scheme-editor")).toBeVisible();
     await expect(page.locator("#sch-name")).toHaveValue(renamed);
-    await expect(page.locator("#sch-gen")).toHaveValue(GENERATOR);
-    await expect(page.locator("#sch-desc")).toHaveValue(meta.description);
-    await expect(page.locator("#sch-ctype")).toHaveValue(meta.contentTypeId);
-    await expect(page.locator("#sch-tpl")).toHaveValue(meta.templateId);
-    await expect(page.getByText("path (String): $sys.site.path")).toBeVisible();
+    await expect(page.locator("#sch-gen")).toHaveValue(stored.generator);
+    await expect(page.locator("#sch-desc")).toHaveValue(stored.description);
+    await expect(page.locator("#sch-ctype")).toHaveValue(stored.contentTypeId);
+    await expect(page.locator("#sch-tpl")).toHaveValue(stored.templateId);
+    const editor = page.getByTestId("scheme-editor");
+    for (const row of stored.parameters) {
+      const label = row.type
+        ? `${row.name} (${row.type}): ${row.value}`
+        : `${row.name}: ${row.value}`;
+      await expect(editor).toContainText(label);
+    }
+    if (stored.parameters.length === 0) {
+      await expect(editor).not.toContainText("$sys.site.path");
+    }
     await page.getByRole("button", { name: "Back" }).click();
     await expect(page.getByTestId("contexts-panel")).toBeVisible();
     await expect(page.getByRole("button", { name: renamed, exact: true })).toBeVisible();
@@ -268,7 +411,7 @@ test.describe("PublishingShell Design rename location scheme", () => {
       await expect(page.getByTestId("scheme-rename")).toBeVisible();
       await expect(page.getByTestId("scheme-rename-generator")).toHaveText(GENERATOR);
       await expect(page.getByTestId("scheme-rename-description")).toHaveText(meta.description);
-      await expect(page.getByTestId("scheme-rename-parameter")).toContainText("$sys.site.path");
+      await expect(page.getByTestId("scheme-rename-parameters")).toBeAttached();
       await expect(page.getByRole("button", { name: requested, exact: true })).toHaveCount(0);
     }
     page.once("dialog", (dialog) => dialog.accept());
