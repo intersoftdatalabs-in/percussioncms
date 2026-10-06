@@ -141,6 +141,13 @@ public class PSPublishingDesignRestService {
 
   static final String DELIVERY_TYPE_DESCRIPTION_TOO_LONG =
       "Delivery type description must be 255 characters or fewer";
+  /** Matches {@code PSX_DELIVERY_TYPE.BEAN_NAME} VARCHAR(255). */
+  static final int MAX_DELIVERY_TYPE_BEAN_NAME_LENGTH = 255;
+
+  static final String DELIVERY_TYPE_BEAN_NAME_REQUIRED = "Bean name is required";
+
+  static final String DELIVERY_TYPE_BEAN_NAME_TOO_LONG =
+      "Delivery type bean name must be 255 characters or fewer";
   /**
    * A content list URL still names this delivery type ({@code sys_deliverytype}). Changing that
    * list is a separate action.
@@ -695,6 +702,18 @@ public class PSPublishingDesignRestService {
           nextDescription = null;
         }
       }
+      // Reject a blank or overlong bean before any field is written. A null bean is omitted
+      // so a name-only or description-only update leaves the stored bean. Blank does not clear it.
+      String nextBeanName = null;
+      if (body.getBeanName() != null) {
+        nextBeanName = body.getBeanName().trim();
+        if (nextBeanName.isEmpty()) {
+          throw badRequest(DELIVERY_TYPE_BEAN_NAME_REQUIRED);
+        }
+        if (nextBeanName.length() > MAX_DELIVERY_TYPE_BEAN_NAME_LENGTH) {
+          throw badRequest(DELIVERY_TYPE_BEAN_NAME_TOO_LONG);
+        }
+      }
       if (!isBlank(body.getName())) {
         String trimmedName = body.getName().trim();
         if (trimmedName.length() > MAX_DELIVERY_TYPE_NAME_LENGTH) {
@@ -703,8 +722,8 @@ public class PSPublishingDesignRestService {
         requireUniqueDeliveryTypeName(trimmedName, deliveryTypeId);
         t.setName(trimmedName);
       }
-      if (!isBlank(body.getBeanName())) {
-        t.setBeanName(body.getBeanName().trim());
+      if (nextBeanName != null) {
+        t.setBeanName(nextBeanName);
       }
       if (applyDescription) {
         t.setDescription(nextDescription);
