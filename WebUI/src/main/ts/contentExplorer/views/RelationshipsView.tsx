@@ -41,8 +41,10 @@ import type { PSExplorerRelationshipEdge } from "../../api/contentExplorer/relat
 import {
   changeSlotTemplateSlot,
   fetchSlotAllowedTemplates,
+  fetchSlotCanvas,
   moveSlotRelationship,
   type SlotAllowedChoice,
+  type SlotCanvasSlot,
   type SlotRelationship,
 } from "../../api/contentExplorer/slotRelationshipApi";
 import {
@@ -63,6 +65,16 @@ import {
   relationshipTemplateLabel,
   type RelationshipTemplateBlock,
 } from "../changeRelationshipTemplate";
+import {
+  applyRelationshipSlotMove,
+  canMoveRelationshipToAnotherSlot,
+  destinationSlotChoices,
+  gateMoveRelationshipToSlot,
+  groupActiveAssemblyBySlot,
+  slotChoiceLabel,
+  type RelationshipSlotChoice,
+  type RelationshipSlotMoveBlock,
+} from "../moveRelationshipSlot";
 import { OpenRelatedItemDialog } from "../OpenRelatedItemDialog";
 import {
   openRelatedItemInEditor,
@@ -114,6 +126,22 @@ export interface RelationshipsViewProps {
     slotId: number,
     templateId: number,
     index: number,
+  ) => Promise<SlotRelationship>;
+  /**
+   * Optional injection seam: slots on the selected page.
+   * Defaults to {@code GET …/slot-relationships/canvas}.
+   */
+  loadPageSlots?: (ownerId: number) => Promise<SlotCanvasSlot[]>;
+  /**
+   * Optional injection seam: move one relationship to another slot.
+   * Defaults to {@code POST …/slot-relationships/{id}/template-slot}
+   * with the destination slot and the current snippet template.
+   * Index is omitted so the server appends on the destination.
+   */
+  moveToSlot?: (
+    relationshipId: number,
+    slotId: number,
+    templateId: number,
   ) => Promise<SlotRelationship>;
   /**
    * Optional injection seam: open one related content item in EditorHost.
@@ -189,6 +217,9 @@ export function RelationshipsView(
       moveSlotRelationship(relationshipId, direction),
     loadAllowedTemplates = fetchSlotAllowedTemplates,
     changeTemplate = changeSlotTemplateSlot,
+    loadPageSlots = async (ownerId) => (await fetchSlotCanvas(ownerId)).slots,
+    moveToSlot = (relationshipId, slotId, templateId) =>
+      changeSlotTemplateSlot(relationshipId, slotId, templateId),
     openRelated = openRelatedItemInEditor,
     reserveRelatedWindow = reserveEditorWindow,
     composeSummary,
@@ -234,6 +265,17 @@ export function RelationshipsView(
   const [templateBusy, setTemplateBusy] = React.useState(false);
   const [templateNotice, setTemplateNotice] = React.useState(false);
   const [templateError, setTemplateError] = React.useState<string | null>(null);
+  const [slotMoveRequest, setSlotMoveRequest] = React.useState<number | null>(
+    null,
+  );
+  const [pageSlots, setPageSlots] = React.useState<SlotCanvasSlot[]>([]);
+  const [slotChoices, setSlotChoices] = React.useState<RelationshipSlotChoice[]>(
+    [],
+  );
+  const [pickedSlot, setPickedSlot] = React.useState("");
+  const [slotMoveBusy, setSlotMoveBusy] = React.useState(false);
+  const [slotMoveNotice, setSlotMoveNotice] = React.useState(false);
+  const [slotMoveError, setSlotMoveError] = React.useState<string | null>(null);
   const [addOpen, setAddOpen] = React.useState(false);
   const [addTarget, setAddTarget] = React.useState("");
   const [addType, setAddType] = React.useState("Translation");
@@ -266,6 +308,12 @@ export function RelationshipsView(
       setTemplateNotice(false);
       setTemplateError(null);
       setPickedTemplate("");
+      setSlotMoveRequest(null);
+      setSlotMoveNotice(false);
+      setSlotMoveError(null);
+      setPickedSlot("");
+      setSlotChoices([]);
+      setPageSlots([]);
       return;
     }
     setState({ kind: "loading" });
@@ -275,6 +323,7 @@ export function RelationshipsView(
     setAddOpen(false);
     setOpenPrompt(null);
     setTemplateRequest(null);
+    setSlotMoveRequest(null);
     loadServerSummary(itemId)
       .then(async (summary) => {
         if (!alive) return;
@@ -327,6 +376,12 @@ export function RelationshipsView(
     setTemplateNotice(false);
     setTemplateError(null);
     setPickedTemplate("");
+    setSlotMoveRequest(null);
+    setSlotMoveNotice(false);
+    setSlotMoveError(null);
+    setPickedSlot("");
+    setSlotChoices([]);
+    setPageSlots([]);
   }, [itemId]);
 
   function statusOf(err: unknown): number | undefined {
@@ -382,6 +437,37 @@ export function RelationshipsView(
       return message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_NOT_ALLOWED);
     }
     return message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_NEEDS);
+  }
+
+  function slotMoveFailureMessage(err: unknown): string {
+    const status = statusOf(err);
+    if (status === 400) return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_FAILED_400);
+    if (status === 403) return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_FAILED_403);
+    if (status === 409) return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_FAILED_409);
+    return err instanceof Error
+      ? err.message
+      : message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_FAILED);
+  }
+
+  function slotMoveGateMessage(reason: RelationshipSlotMoveBlock): string {
+    if (reason === "folder") return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_FOLDER);
+    if (reason === "not_assembly") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_NOT_ASSEMBLY);
+    }
+    if (reason === "no_slot") return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_NO_SLOT);
+    if (reason === "no_template") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_NO_TEMPLATE);
+    }
+    if (reason === "same") return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_SAME);
+    if (reason === "not_allowed") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_NOT_ALLOWED);
+    }
+    return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_NEEDS);
+  }
+
+  function slotLabelFor(slotId: number): string {
+    const found = pageSlots.find((slot) => slot.slotId === slotId);
+    return found ? slotChoiceLabel(found) : String(slotId);
   }
 
   function openFailureMessage(result: OpenRelatedItemResult): string {
@@ -565,6 +651,9 @@ export function RelationshipsView(
     setConfirmAll(false);
     setMoveRequest(null);
     setAddOpen(false);
+    setSlotMoveRequest(null);
+    setSlotMoveNotice(false);
+    setSlotMoveError(null);
     clearTemplateChrome();
     setPickedTemplate("");
     setTemplateChoices([]);
@@ -625,6 +714,98 @@ export function RelationshipsView(
       setTemplateError(templateFailureMessage(err));
     } finally {
       setTemplateBusy(false);
+    }
+  }
+
+  async function openSlotMove(edge: PSExplorerRelationshipEdge): Promise<void> {
+    if (!canMoveRelationshipToAnotherSlot(edge)) {
+      setSlotMoveRequest(null);
+      setSlotMoveNotice(false);
+      setSlotMoveError(message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_NOT_ASSEMBLY));
+      return;
+    }
+    setRemovedNotice(null);
+    setRemoveError(null);
+    setMovedNotice(false);
+    setMoveError(null);
+    setOpenedNotice(false);
+    setOpenError(null);
+    setOpenPrompt(null);
+    setAddedNotice(false);
+    setAddError(null);
+    setConfirmId(null);
+    setConfirmAll(false);
+    setMoveRequest(null);
+    setAddOpen(false);
+    setTemplateRequest(null);
+    setTemplateNotice(false);
+    setTemplateError(null);
+    setSlotMoveNotice(false);
+    setSlotMoveError(null);
+    setPickedSlot("");
+    setSlotChoices([]);
+    setSlotMoveRequest(edge.relationshipId);
+    const ownerId = Number(itemId);
+    if (!(ownerId > 0)) {
+      setSlotMoveError(message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_NO_SLOT));
+      return;
+    }
+    try {
+      const slots = await loadPageSlots(ownerId);
+      setPageSlots(slots);
+      setSlotChoices(destinationSlotChoices(Number(edge.slotId), slots));
+    } catch (err: unknown) {
+      setSlotMoveNotice(false);
+      setSlotMoveError(slotMoveFailureMessage(err));
+    }
+  }
+
+  async function confirmSlotMove(): Promise<void> {
+    if (!itemId || slotMoveBusy || slotMoveRequest == null) return;
+    const edge = edges.find(
+      (candidate) => candidate.relationshipId === slotMoveRequest,
+    );
+    const gate = gateMoveRelationshipToSlot({
+      edge,
+      destinationSlotId: Number(pickedSlot),
+      pageSlotIds: pageSlots.map((slot) => slot.slotId),
+    });
+    if (!gate.ok) {
+      setSlotMoveNotice(false);
+      setSlotMoveError(slotMoveGateMessage(gate.reason));
+      return;
+    }
+    setSlotMoveBusy(true);
+    setSlotMoveNotice(false);
+    setSlotMoveError(null);
+    try {
+      const updated = await moveToSlot(
+        gate.relationshipId,
+        gate.destinationSlotId,
+        gate.templateId,
+      );
+      if (updated.slotId !== gate.destinationSlotId) {
+        setSlotMoveNotice(false);
+        setSlotMoveError(message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_FAILED));
+        return;
+      }
+      setEdges((current) =>
+        applyRelationshipSlotMove(current, gate.relationshipId, {
+          relationshipId: updated.relationshipId,
+          slotId: updated.slotId,
+          templateId:
+            updated.templateId > 0 ? updated.templateId : gate.templateId,
+          sortRank: updated.sortRank,
+        }),
+      );
+      setSlotMoveRequest(null);
+      setSlotMoveError(null);
+      setSlotMoveNotice(true);
+    } catch (err: unknown) {
+      setSlotMoveNotice(false);
+      setSlotMoveError(slotMoveFailureMessage(err));
+    } finally {
+      setSlotMoveBusy(false);
     }
   }
 
@@ -926,6 +1107,16 @@ export function RelationshipsView(
             {templateError}
           </p>
         ) : null}
+        {slotMoveNotice ? (
+          <p role="status" data-testid="relationships-slot-moved">
+            {message(EXPLORER_MSG.RELATIONSHIPS_SLOT_MOVED)}
+          </p>
+        ) : null}
+        {slotMoveError ? (
+          <p role="alert" data-testid="relationships-slot-move-error">
+            {slotMoveError}
+          </p>
+        ) : null}
         {removableOwnedEdges(edges).length > 0 ? (
           <p>
             <button
@@ -954,7 +1145,9 @@ export function RelationshipsView(
             data-testid="relationships-edge-list"
             style={{ listStyle: "none", padding: 0, margin: 0 }}
           >
-            {edges.map((edge) => {
+            {(() => {
+              const grouped = groupActiveAssemblyBySlot(edges);
+              const renderEdge = (edge: PSExplorerRelationshipEdge) => {
               const ends = relationshipMoveEnds(edges, edge);
               const openTarget = relatedItemOpenTarget(edge);
               const templateText = relationshipTemplateLabel(edge);
@@ -962,6 +1155,7 @@ export function RelationshipsView(
               <li
                 key={edge.relationshipId}
                 data-testid={`relationships-edge-${edge.relationshipId}`}
+                data-slot-id={String(Number(edge.slotId ?? 0))}
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -971,6 +1165,17 @@ export function RelationshipsView(
               >
                 <span>
                   {edge.label}
+                  {Number(edge.slotId) > 0 &&
+                  canMoveRelationshipToAnotherSlot(edge) ? (
+                    <span
+                      data-testid={`relationships-slot-${edge.relationshipId}`}
+                      data-slot-id={String(edge.slotId)}
+                    >
+                      {" "}
+                      {message(EXPLORER_MSG.RELATIONSHIPS_SLOT_LABEL)}{" "}
+                      {slotLabelFor(Number(edge.slotId))}
+                    </span>
+                  ) : null}
                   {templateText ? (
                     <span
                       data-testid={`relationships-template-${edge.relationshipId}`}
@@ -993,6 +1198,17 @@ export function RelationshipsView(
                       }}
                     >
                       {message(EXPLORER_MSG.RELATIONSHIPS_CHANGE_TEMPLATE)}
+                    </button>
+                  ) : null}
+                  {canMoveRelationshipToAnotherSlot(edge) ? (
+                    <button
+                      type="button"
+                      data-testid={`relationships-move-slot-${edge.relationshipId}`}
+                      onClick={() => {
+                        void openSlotMove(edge);
+                      }}
+                    >
+                      {message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT)}
                     </button>
                   ) : null}
                   {openTarget.kind === "content" ? (
@@ -1050,7 +1266,28 @@ export function RelationshipsView(
                 </span>
               </li>
               );
-            })}
+              };
+              return (
+                <>
+                  {grouped.groups.map((group) => (
+                    <li
+                      key={`slot-${group.slotId}`}
+                      data-testid={`relationships-slot-group-${group.slotId}`}
+                      data-slot-id={String(group.slotId)}
+                    >
+                      <span>
+                        {message(EXPLORER_MSG.RELATIONSHIPS_SLOT_LABEL)}{" "}
+                        {slotLabelFor(group.slotId)}
+                      </span>
+                      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                        {group.edges.map((edge) => renderEdge(edge))}
+                      </ul>
+                    </li>
+                  ))}
+                  {grouped.rest.map((edge) => renderEdge(edge))}
+                </>
+              );
+            })()}
           </ul>
         )}
         {confirmAll ? (
@@ -1125,6 +1362,54 @@ export function RelationshipsView(
               }}
             >
               {message(EXPLORER_MSG.RELATIONSHIPS_CHANGE_TEMPLATE_DO)}
+            </button>
+          </div>
+        ) : null}
+        {slotMoveRequest != null ? (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="relationships-slot-move-title"
+            data-testid="relationships-slot-move-dialog"
+            style={{ marginTop: 8, padding: 8, border: "1px solid #ccc" }}
+          >
+            <h3 id="relationships-slot-move-title" style={{ fontSize: "1rem" }}>
+              {message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_TITLE)}
+            </h3>
+            <label htmlFor="relationships-slot-move-select">
+              {message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_LABEL)}
+            </label>
+            <select
+              id="relationships-slot-move-select"
+              data-testid="relationships-slot-move-select"
+              value={pickedSlot}
+              onChange={(event) => setPickedSlot(event.target.value)}
+            >
+              <option value="">
+                {message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_PLACEHOLDER)}
+              </option>
+              {slotChoices.map((choice) => (
+                <option key={choice.slotId} value={String(choice.slotId)}>
+                  {choice.label}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              data-testid="relationships-slot-move-cancel"
+              onClick={() => setSlotMoveRequest(null)}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_CANCEL)}
+            </button>
+            <button
+              type="button"
+              data-testid="relationships-slot-move-confirm"
+              disabled={slotMoveBusy}
+              onClick={() => {
+                void confirmSlotMove();
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_DO)}
             </button>
           </div>
         ) : null}

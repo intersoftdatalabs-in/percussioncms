@@ -1037,4 +1037,215 @@ describe("RelationshipsView", () => {
     );
     await renderA11yGate(container);
   });
+
+  const pageSlots = [
+    { slotId: 5, name: "sidebar", label: "Sidebar", items: [] },
+    { slotId: 9, name: "list", label: "List", items: [] },
+  ];
+  const noSlot = {
+    relationshipId: 74,
+    configName: "ActiveAssembly",
+    category: "rs_activeassembly",
+    dependentId: 6,
+    label: "AA no slot",
+    slotId: 0,
+    templateId: 4,
+    templateName: "Brief",
+  };
+
+  function slotOf(relationshipId: number): string | null {
+    return screen
+      .getByTestId(`relationships-edge-${relationshipId}`)
+      .getAttribute("data-slot-id");
+  }
+
+  it("a folder and a slot with no relationship do not offer a move (#5265)", async () => {
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [folderEdge, translationEdge, noSlot]}
+        loadPageSlots={async () => pageSlots}
+        moveToSlot={vi.fn()}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-82")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-move-slot-82")).toBeNull();
+    expect(screen.queryByTestId("relationships-move-slot-73")).toBeNull();
+    expect(screen.queryByTestId("relationships-move-slot-74")).toBeNull();
+    expect(screen.queryByTestId("relationships-slot-moved")).toBeNull();
+    expect(screen.queryByTestId("relationships-slot-group-5")).toBeNull();
+  });
+
+  it("cancel and an empty slot choice do not move the relationship (#5265)", async () => {
+    const move = vi.fn();
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted, slottedSibling, folderEdge]}
+        loadPageSlots={async () => pageSlots}
+        moveToSlot={move}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-move-slot-71")).toBeTruthy(),
+    );
+    expect(slotOf(71)).toBe("5");
+    expect(screen.getByTestId("relationships-slot-group-5")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("relationships-move-slot-71"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "List" })).toBeTruthy(),
+    );
+    expect(screen.queryByRole("option", { name: "Sidebar" })).toBeNull();
+    fireEvent.click(screen.getByTestId("relationships-slot-move-confirm"));
+    expect(move).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-slot-moved")).toBeNull();
+    expect(screen.getByTestId("relationships-slot-move-error")).toBeTruthy();
+    expect(slotOf(71)).toBe("5");
+
+    fireEvent.change(screen.getByTestId("relationships-slot-move-select"), {
+      target: { value: "9" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-slot-move-cancel"));
+    expect(move).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-slot-move-dialog")).toBeNull();
+    expect(slotOf(71)).toBe("5");
+    expect(screen.queryByTestId("relationships-slot-group-9")).toBeNull();
+  });
+
+  it("confirm lists the item in the destination slot only after success (#5265)", async () => {
+    let release: (value: {
+      relationshipId: number;
+      ownerId: number;
+      dependentId: number;
+      slotId: number;
+      templateId: number;
+      sortRank: number;
+    }) => void = () => {};
+    const gate = new Promise<{
+      relationshipId: number;
+      ownerId: number;
+      dependentId: number;
+      slotId: number;
+      templateId: number;
+      sortRank: number;
+    }>((resolve) => {
+      release = resolve;
+    });
+    const move = vi.fn().mockReturnValue(gate);
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted, slottedSibling]}
+        loadPageSlots={async () => pageSlots}
+        moveToSlot={move}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-move-slot-71")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-move-slot-71"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "List" })).toBeTruthy(),
+    );
+    fireEvent.change(screen.getByTestId("relationships-slot-move-select"), {
+      target: { value: "9" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-slot-move-confirm"));
+    expect(move).toHaveBeenCalledWith(71, 9, 4);
+    expect(slotOf(71)).toBe("5");
+    expect(slotOf(72)).toBe("5");
+    expect(screen.queryByTestId("relationships-slot-moved")).toBeNull();
+    expect(screen.queryByTestId("relationships-slot-group-9")).toBeNull();
+    release({
+      relationshipId: 91,
+      ownerId: 42,
+      dependentId: 4,
+      slotId: 9,
+      templateId: 4,
+      sortRank: 0,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-slot-moved")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-edge-71")).toBeNull();
+    expect(slotOf(91)).toBe("9");
+    expect(slotOf(72)).toBe("5");
+    expect(screen.getByTestId("relationships-slot-group-9")).toBeTruthy();
+    expect(
+      screen.getByTestId("relationships-slot-91").getAttribute("data-slot-id"),
+    ).toBe("9");
+    expect(templateText(91)).toContain("Brief");
+    expect(move).toHaveBeenCalledTimes(1);
+  });
+
+  async function expectSlotStays(status: number): Promise<void> {
+    const move = vi
+      .fn()
+      .mockRejectedValue(Object.assign(new Error("no"), { status }));
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted, slottedSibling]}
+        loadPageSlots={async () => pageSlots}
+        moveToSlot={move}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-move-slot-71")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-move-slot-71"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "List" })).toBeTruthy(),
+    );
+    fireEvent.change(screen.getByTestId("relationships-slot-move-select"), {
+      target: { value: "9" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-slot-move-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-slot-move-error")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-slot-moved")).toBeNull();
+    expect(slotOf(71)).toBe("5");
+    expect(slotOf(72)).toBe("5");
+    expect(screen.queryByTestId("relationships-slot-group-9")).toBeNull();
+    expect(move).toHaveBeenCalledWith(71, 9, 4);
+  }
+
+  it("HTTP 400 leaves the relationship on the previous slot (#5265)", async () => {
+    await expectSlotStays(400);
+  });
+
+  it("HTTP 403 leaves the relationship on the previous slot (#5265)", async () => {
+    await expectSlotStays(403);
+  });
+
+  it("HTTP 409 leaves the relationship on the previous slot (#5265)", async () => {
+    await expectSlotStays(409);
+  });
+
+  it("move-to-slot dialog passes the zero serious/critical axe-core gate (#5265)", async () => {
+    const { container } = render(
+      <RelationshipsView
+        item={{ id: "42", folderPath: "/p" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted, folderEdge]}
+        loadPageSlots={async () => pageSlots}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-move-slot-71")).toBeTruthy(),
+    );
+    await renderA11yGate(container);
+    fireEvent.click(screen.getByTestId("relationships-move-slot-71"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "List" })).toBeTruthy(),
+    );
+    await renderA11yGate(container);
+  });
 });
