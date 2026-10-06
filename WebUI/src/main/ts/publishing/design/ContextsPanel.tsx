@@ -54,6 +54,11 @@ import {
   validateContextRenameName,
 } from "../contextRename";
 import {
+  buildContextDescriptionBody,
+  contextsAfterSuccessfulDescription,
+  validateContextDescription,
+} from "../contextDescription";
+import {
   contextsAfterSuccessfulDelete,
   mapContextDeleteError,
 } from "../contextDelete";
@@ -77,6 +82,7 @@ type Mode =
   | { kind: "context-edit"; context: ContextSummary | null }
   | { kind: "context-copy"; source: ContextSummary }
   | { kind: "context-rename"; source: ContextSummary }
+  | { kind: "context-describe"; source: ContextSummary }
   | { kind: "scheme-edit"; scheme: LocationSchemeSummary | null; contextId: string }
   | { kind: "scheme-copy"; source: LocationSchemeSummary; contextId: string };
 
@@ -109,6 +115,7 @@ export function ContextsPanel(): React.ReactElement {
   const [saving, setSaving] = useState(false);
   const [copyName, setCopyName] = useState("");
   const [renameName, setRenameName] = useState("");
+  const [describeText, setDescribeText] = useState("");
   const { setDirty, confirmIfDirty } = useDirtyForm();
 
   function reloadContexts(): void {
@@ -224,6 +231,72 @@ export function ContextsPanel(): React.ReactElement {
         refreshed = null;
       }
       const next = contextsAfterSuccessfulRename(refreshed, id, validated.name, previous);
+      setContexts(next);
+      setSelected((current) => {
+        if (next.some((row) => String(row.contextId ?? "") === current)) {
+          return current;
+        }
+        return next.some((row) => String(row.contextId ?? "") === id) ? id : current;
+      });
+    } catch (e) {
+      setError(mapContextSaveError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function openContextDescribe(): void {
+    const source = contexts.find((row) => String(row.contextId ?? "") === selected);
+    if (!source?.contextId) {
+      return;
+    }
+    setDescribeText(source.description ?? "");
+    setError(null);
+    setDirty(false);
+    setMode({ kind: "context-describe", source });
+  }
+
+  function closeContextDescribe(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setMode({ kind: "list" });
+  }
+
+  async function saveContextDescription(): Promise<void> {
+    if (mode.kind !== "context-describe" || !mode.source.contextId || saving) {
+      return;
+    }
+    const validated = validateContextDescription(describeText);
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    const id = String(mode.source.contextId);
+    setError(null);
+    setSaving(true);
+    const previous = contexts;
+    try {
+      await updateContext(id, buildContextDescriptionBody(validated.description));
+      setDirty(false);
+      setMode({ kind: "list" });
+      let refreshed: ContextSummary[] | null = null;
+      try {
+        refreshed = await listContexts();
+      } catch {
+        refreshed = null;
+      }
+      const next = contextsAfterSuccessfulDescription(
+        refreshed,
+        id,
+        validated.description,
+        previous,
+      );
       setContexts(next);
       setSelected((current) => {
         if (next.some((row) => String(row.contextId ?? "") === current)) {
@@ -558,6 +631,64 @@ export function ContextsPanel(): React.ReactElement {
           </button>
           <button type="button" style={buttonStyle} onClick={() => closeContextEditor()}>
             {message(MSG.PUBLISH_BACK)}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode.kind === "context-describe") {
+    return (
+      <div data-testid="context-describe-form">
+        <h3>Context description</h3>
+        <p>
+          Name:{" "}
+          <span data-testid="context-describe-name">{mode.source.name ?? ""}</span>
+        </p>
+        <p data-testid="context-describe-schemes-note">
+          Location schemes stay on this context.
+        </p>
+        <ul data-testid="context-describe-schemes" style={listStyle}>
+          {schemes.map((s) => (
+            <li key={s.schemeId ?? s.name} data-testid="context-describe-scheme">
+              {s.name ?? ""}
+            </li>
+          ))}
+        </ul>
+        <div style={formRowStyle}>
+          <label htmlFor="context-describe-description">Description</label>
+          <input
+            id="context-describe-description"
+            value={describeText}
+            onChange={(e) => {
+              setDescribeText(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="context-describe-submit"
+            disabled={saving}
+            onClick={() => void saveContextDescription()}
+          >
+            Save description
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="context-describe-cancel"
+            disabled={saving}
+            onClick={closeContextDescribe}
+          >
+            Cancel
           </button>
         </div>
       </div>
@@ -901,6 +1032,15 @@ export function ContextsPanel(): React.ReactElement {
             <button
               type="button"
               style={buttonStyle}
+              data-testid="context-describe"
+              disabled={saving}
+              onClick={openContextDescribe}
+            >
+              Description
+            </button>
+            <button
+              type="button"
+              style={buttonStyle}
               data-testid="context-copy"
               disabled={saving}
               onClick={openContextCopy}
@@ -929,6 +1069,15 @@ export function ContextsPanel(): React.ReactElement {
       </div>
       {!loading && contexts.length === 0 && (
         <p style={emptyStyle}>No publishing contexts.</p>
+      )}
+      {selected && (
+        <p>
+          Description:{" "}
+          <span data-testid={`context-description-${selected}`}>
+            {contexts.find((row) => String(row.contextId ?? "") === selected)?.description ??
+              ""}
+          </span>
+        </p>
       )}
       <h4>Location schemes</h4>
       {schemes.length === 0 ? (

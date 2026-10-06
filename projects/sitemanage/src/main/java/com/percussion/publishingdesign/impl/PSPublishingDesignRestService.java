@@ -161,6 +161,11 @@ public class PSPublishingDesignRestService {
 
   static final String CONTEXT_NAME_TOO_LONG =
       "Publishing context name must be 50 characters or fewer";
+  /** Matches {@code RXCONTEXT.CONTEXTDESC} VARCHAR(255). */
+  static final int MAX_CONTEXT_DESCRIPTION_LENGTH = 255;
+
+  static final String CONTEXT_DESCRIPTION_TOO_LONG =
+      "Publishing context description must be 255 characters or fewer";
   /**
    * Location schemes still belong to this context. Removing those schemes is a separate action.
    */
@@ -1076,6 +1081,12 @@ public class PSPublishingDesignRestService {
     }
   }
 
+  /**
+   * Update one publishing context. A description-only body leaves the name and default scheme
+   * stored and does not create or move location schemes. A blank description clears it. A
+   * description longer than {@link #MAX_CONTEXT_DESCRIPTION_LENGTH} is HTTP 400 and writes
+   * nothing.
+   */
   @PUT
   @Path("/contexts/{contextId}")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -1091,6 +1102,18 @@ public class PSPublishingDesignRestService {
     try {
       IPSPublishingContext ctx =
           siteManager.loadContextModifiable(guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT));
+      // Reject an overlong description before any field is written so 400 leaves name and schemes.
+      String nextDescription = null;
+      boolean applyDescription = body.getDescription() != null;
+      if (applyDescription) {
+        nextDescription = body.getDescription().trim();
+        if (nextDescription.length() > MAX_CONTEXT_DESCRIPTION_LENGTH) {
+          throw badRequest(CONTEXT_DESCRIPTION_TOO_LONG);
+        }
+        if (nextDescription.isEmpty()) {
+          nextDescription = null;
+        }
+      }
       if (!isBlank(body.getName())) {
         String trimmedName = body.getName().trim();
         if (trimmedName.length() > MAX_CONTEXT_NAME_LENGTH) {
@@ -1099,8 +1122,8 @@ public class PSPublishingDesignRestService {
         requireUniqueContextName(trimmedName, contextId);
         ctx.setName(trimmedName);
       }
-      if (body.getDescription() != null) {
-        ctx.setDescription(body.getDescription());
+      if (applyDescription) {
+        ctx.setDescription(nextDescription);
       }
       if (body.getDefaultSchemeId() != null) {
         if (body.getDefaultSchemeId().isBlank()) {
