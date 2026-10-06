@@ -85,6 +85,128 @@ class WorkflowTransitionRemoverTest {
   }
 
   @Test
+  void removesRepeatedAgingAndLeavesTheAbsoluteEdgeWithTheSameInterval() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    draft.addTransition(regular("Submit", 2));
+    draft.addAgingTransition(absolute("Aging 15", 2, 15));
+    PSAgingTransition repeated = absolute("Repeated aging 15", 2, 15);
+    repeated.setType(PSAgingTypeEnum.REPEATED);
+    draft.addAgingTransition(repeated);
+    PSAgingTransition system = absolute("System field aging CONTENTSTARTDATE", 2, 1);
+    system.setType(PSAgingTypeEnum.SYSTEM_FIELD);
+    system.setSystemField("CONTENTSTARTDATE");
+    draft.addAgingTransition(system);
+
+    WorkflowTransitionRemover.removeRepeatedAging(List.of(draft, review), "Draft", "Review", 15);
+
+    assertEquals(2, draft.getAgingTransitions().size());
+    assertEquals(PSAgingTypeEnum.ABSOLUTE, draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    assertEquals(15L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(PSAgingTypeEnum.SYSTEM_FIELD, draft.getAgingTransitions().get(1).getAgingTypeEnum());
+    assertEquals(1, draft.getTransitions().size());
+    assertEquals("Submit", draft.getTransitions().get(0).getLabel());
+  }
+
+  @Test
+  void repeatedDeleteOfAbsoluteOnlyIs409AndLeavesTheAbsoluteEdge() {
+    PSState draft = state(1, "Draft");
+    draft.addAgingTransition(absolute("Aging 15", 2, 15));
+    draft.addTransition(regular("Submit", 2));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowTransitionRemover.removeRepeatedAging(
+                    List.of(draft, state(2, "Review")), "Draft", "Review", 15));
+
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(1, draft.getAgingTransitions().size());
+    assertEquals(PSAgingTypeEnum.ABSOLUTE, draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    assertEquals(1, draft.getTransitions().size());
+  }
+
+  @Test
+  void removesOneSystemFieldAndLeavesAbsoluteRepeatedAndTheOtherField() {
+    PSState draft = state(1, "Draft");
+    PSState review = state(2, "Review");
+    draft.addTransition(regular("Submit", 2));
+    draft.addAgingTransition(absolute("Aging 1", 2, 1));
+    PSAgingTransition repeated = absolute("Repeated aging 1", 2, 1);
+    repeated.setType(PSAgingTypeEnum.REPEATED);
+    draft.addAgingTransition(repeated);
+    PSAgingTransition start = absolute("System field aging CONTENTSTARTDATE", 2, 1);
+    start.setType(PSAgingTypeEnum.SYSTEM_FIELD);
+    start.setSystemField("CONTENTSTARTDATE");
+    draft.addAgingTransition(start);
+    PSAgingTransition reminder = absolute("System field aging REMINDERDATE", 2, 1);
+    reminder.setType(PSAgingTypeEnum.SYSTEM_FIELD);
+    reminder.setSystemField("REMINDERDATE");
+    draft.addAgingTransition(reminder);
+
+    WorkflowTransitionRemover.removeSystemFieldAging(
+        List.of(draft, review), "Draft", "Review", "contentstartdate");
+
+    assertEquals(3, draft.getAgingTransitions().size());
+    assertEquals(PSAgingTypeEnum.ABSOLUTE, draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    assertEquals(1L, draft.getAgingTransitions().get(0).getInterval());
+    assertEquals(PSAgingTypeEnum.REPEATED, draft.getAgingTransitions().get(1).getAgingTypeEnum());
+    assertEquals("REMINDERDATE", draft.getAgingTransitions().get(2).getSystemField());
+    assertEquals(1, draft.getTransitions().size());
+  }
+
+  @Test
+  void systemFieldDeleteOfANonSystemFieldMatchIs409() {
+    PSState draft = state(1, "Draft");
+    PSAgingTransition absolute = absolute("Aging 1", 2, 1);
+    absolute.setSystemField("CONTENTSTARTDATE");
+    draft.addAgingTransition(absolute);
+    draft.addTransition(regular("Submit", 2));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowTransitionRemover.removeSystemFieldAging(
+                    List.of(draft, state(2, "Review")), "Draft", "Review", "CONTENTSTARTDATE"));
+
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(1, draft.getAgingTransitions().size());
+    assertEquals(PSAgingTypeEnum.ABSOLUTE, draft.getAgingTransitions().get(0).getAgingTypeEnum());
+    assertEquals(1, draft.getTransitions().size());
+  }
+
+  @Test
+  void missingSystemFieldAgingIs404() {
+    PSState draft = state(1, "Draft");
+    draft.addAgingTransition(absolute("Aging 15", 2, 15));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                WorkflowTransitionRemover.removeSystemFieldAging(
+                    List.of(draft, state(2, "Review")), "Draft", "Review", "REMINDERDATE"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals(1, draft.getAgingTransitions().size());
+  }
+
+  @Test
+  void blankSystemFieldDoesNotRemove() {
+    PSState draft = state(1, "Draft");
+    PSAgingTransition start = absolute("System field aging CONTENTSTARTDATE", 2, 1);
+    start.setType(PSAgingTypeEnum.SYSTEM_FIELD);
+    start.setSystemField("CONTENTSTARTDATE");
+    draft.addAgingTransition(start);
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            WorkflowTransitionRemover.removeSystemFieldAging(
+                List.of(draft, state(2, "Review")), "Draft", "Review", " "));
+    assertEquals(1, draft.getAgingTransitions().size());
+  }
+
+  @Test
   void nonPositiveIntervalDoesNotRemove() {
     PSState draft = state(1, "Draft");
     draft.addAgingTransition(absolute("Aging 15", 2, 15));

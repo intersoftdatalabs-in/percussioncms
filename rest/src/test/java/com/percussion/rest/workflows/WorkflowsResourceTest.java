@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -1032,7 +1033,7 @@ public class WorkflowsResourceTest {
             any(), eq("Nightly QA"), eq("Draft"), eq("Review"), eq(15L)))
         .thenReturn(graph);
     WorkflowGraph out =
-        resource.deleteAbsoluteAgingTransition("Nightly QA", "Draft", "Review", "15");
+        resource.deleteAbsoluteAgingTransition("Nightly QA", "Draft", "Review", "15", null, null);
     assertEquals("Nightly QA", out.getWorkflowName());
     verify(adaptor)
         .deleteAbsoluteAgingTransition(any(), eq("Nightly QA"), eq("Draft"), eq("Review"), eq(15L));
@@ -1044,35 +1045,35 @@ public class WorkflowsResourceTest {
         400,
         assertThrows(
                 WebApplicationException.class,
-                () -> resource.deleteAbsoluteAgingTransition("Nightly QA", " ", "Review", "15"))
+                () -> resource.deleteAbsoluteAgingTransition("Nightly QA", " ", "Review", "15", null, null))
             .getResponse()
             .getStatus());
     assertEquals(
         400,
         assertThrows(
                 WebApplicationException.class,
-                () -> resource.deleteAbsoluteAgingTransition("Nightly QA", "Draft", " ", "15"))
+                () -> resource.deleteAbsoluteAgingTransition("Nightly QA", "Draft", " ", "15", null, null))
             .getResponse()
             .getStatus());
     assertEquals(
         400,
         assertThrows(
                 WebApplicationException.class,
-                () -> resource.deleteAbsoluteAgingTransition("Nightly QA", "Draft", "Review", "0"))
+                () -> resource.deleteAbsoluteAgingTransition("Nightly QA", "Draft", "Review", "0", null, null))
             .getResponse()
             .getStatus());
     assertEquals(
         400,
         assertThrows(
                 WebApplicationException.class,
-                () -> resource.deleteAbsoluteAgingTransition("Nightly QA", "Draft", "Review", "-5"))
+                () -> resource.deleteAbsoluteAgingTransition("Nightly QA", "Draft", "Review", "-5", null, null))
             .getResponse()
             .getStatus());
     assertEquals(
         400,
         assertThrows(
                 WebApplicationException.class,
-                () -> resource.deleteAbsoluteAgingTransition("Nightly QA", "Draft", "Review", "no"))
+                () -> resource.deleteAbsoluteAgingTransition("Nightly QA", "Draft", "Review", "no", null, null))
             .getResponse()
             .getStatus());
     verify(adaptor, never()).deleteAbsoluteAgingTransition(any(), any(), any(), any(), anyLong());
@@ -1086,7 +1087,7 @@ public class WorkflowsResourceTest {
         assertThrows(
             WebApplicationException.class,
             () ->
-                resource.deleteAbsoluteAgingTransition("Default Workflow", "Draft", "Review", "15"));
+                resource.deleteAbsoluteAgingTransition("Default Workflow", "Draft", "Review", "15", null, null));
     assertEquals(403, ex.getResponse().getStatus());
   }
 
@@ -1097,7 +1098,84 @@ public class WorkflowsResourceTest {
     WebApplicationException ex =
         assertThrows(
             WebApplicationException.class,
-            () -> resource.deleteAbsoluteAgingTransition("Nightly QA", "Draft", "Review", "15"));
+            () -> resource.deleteAbsoluteAgingTransition("Nightly QA", "Draft", "Review", "15", null, null));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteRepeatedAgingTransitionPassesTypeAndLeavesAbsolutePath() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Nightly QA");
+    when(adaptor.deleteTypedAgingTransition(
+            any(), eq("Nightly QA"), eq("Draft"), eq("Review"), eq(15L), eq("REPEATED"), isNull()))
+        .thenReturn(graph);
+    WorkflowGraph out =
+        resource.deleteAbsoluteAgingTransition(
+            "Nightly QA", "Draft", "Review", "15", "REPEATED", null);
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor)
+        .deleteTypedAgingTransition(
+            any(), eq("Nightly QA"), eq("Draft"), eq("Review"), eq(15L), eq("REPEATED"), isNull());
+    verify(adaptor, never()).deleteAbsoluteAgingTransition(any(), any(), any(), any(), anyLong());
+  }
+
+  @Test
+  public void deleteSystemFieldAgingIgnoresIntervalAndRequiresField() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Nightly QA");
+    when(adaptor.deleteTypedAgingTransition(
+            any(),
+            eq("Nightly QA"),
+            eq("Draft"),
+            eq("Review"),
+            isNull(),
+            eq("SYSTEM_FIELD"),
+            eq("CONTENTSTARTDATE")))
+        .thenReturn(graph);
+    WorkflowGraph out =
+        resource.deleteAbsoluteAgingTransition(
+            "Nightly QA", "Draft", "Review", null, "system_field", "CONTENTSTARTDATE");
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor)
+        .deleteTypedAgingTransition(
+            any(),
+            eq("Nightly QA"),
+            eq("Draft"),
+            eq("Review"),
+            isNull(),
+            eq("SYSTEM_FIELD"),
+            eq("CONTENTSTARTDATE"));
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.deleteAbsoluteAgingTransition(
+                        "Nightly QA", "Draft", "Review", null, "SYSTEM_FIELD", " "))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.deleteAbsoluteAgingTransition(
+                        "Nightly QA", "Draft", "Review", "15", "NOPE", null))
+            .getResponse()
+            .getStatus());
+    verify(adaptor, never()).deleteAbsoluteAgingTransition(any(), any(), any(), any(), anyLong());
+  }
+
+  @Test
+  public void deleteTypedAgingConflictStays409() {
+    when(adaptor.deleteTypedAgingTransition(any(), any(), any(), any(), any(), any(), any()))
+        .thenThrow(new WebApplicationException("absolute", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.deleteAbsoluteAgingTransition(
+                    "Nightly QA", "Draft", "Review", "15", "REPEATED", null));
     assertEquals(409, ex.getResponse().getStatus());
   }
 

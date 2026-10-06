@@ -953,30 +953,59 @@ export async function updateWorkflowAgingInterval(
   return parseWorkflowGraph(payload);
 }
 
-/** DELETE /services/workflows/{id}/aging-transitions?from&to&intervalMinutes */
+/**
+ * DELETE /services/workflows/{id}/aging-transitions.
+ * Absolute and repeated use intervalMinutes. SYSTEM_FIELD uses systemField and omits the interval.
+ * Omit agingType for the absolute delete.
+ */
 export function workflowAgingDeletePath(
   idOrName: string,
   fromStep: string,
   toStep: string,
-  intervalMinutes: number,
+  intervalMinutes?: number,
+  agingType?: string,
+  systemField?: string,
 ): string {
   const key = encodeURIComponent(idOrName);
   const q = new URLSearchParams();
   q.set("from", fromStep);
   q.set("to", toStep);
-  q.set("intervalMinutes", String(intervalMinutes));
+  const type = agingType?.trim().toUpperCase() ?? "";
+  if (type === "REPEATED" || type === "SYSTEM_FIELD") {
+    q.set("type", type);
+  }
+  if (type === "SYSTEM_FIELD") {
+    if (systemField && systemField.trim()) {
+      q.set("systemField", systemField.trim());
+    }
+  } else if (typeof intervalMinutes === "number") {
+    q.set("intervalMinutes", String(intervalMinutes));
+  }
   return `${PATHS.WORKFLOWS_ASSOC}/${key}/aging-transitions?${q.toString()}`;
 }
 
-/** DELETE one absolute aging edge. Does not delete a regular transition. */
+/**
+ * DELETE one aging edge. Omit agingType to delete an absolute edge. REPEATED deletes one repeated
+ * edge and leaves an absolute edge that shares the interval. SYSTEM_FIELD deletes one system-field
+ * edge and leaves absolute and repeated edges. Does not delete a regular transition.
+ */
 export async function deleteWorkflowAgingTransition(
   idOrName: string,
   fromStep: string,
   toStep: string,
-  intervalMinutes: number,
+  intervalMinutes?: number,
+  agingType?: string,
+  systemField?: string,
 ): Promise<WorkflowGraph> {
   const payload = await del<unknown>(
-    workflowAgingDeletePath(idOrName, fromStep, toStep, intervalMinutes),
+    workflowAgingDeletePath(
+      idOrName,
+      fromStep,
+      toStep,
+      intervalMinutes,
+      agingType,
+      systemField,
+    ),
   );
   return parseWorkflowGraph(payload);
 }

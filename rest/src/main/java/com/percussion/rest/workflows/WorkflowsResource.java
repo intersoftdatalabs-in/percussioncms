@@ -40,6 +40,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Locale;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1240,13 +1241,18 @@ public class WorkflowsResource {
   @Path("/{idOrName}/aging-transitions")
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
-      summary = "Delete one absolute aging transition",
+      summary = "Delete one aging transition",
       description =
-          "Slice 59 Admin. Deletes one absolute aging transition identified by query from, to,"
-              + " and intervalMinutes. The edge disappears only after the delete succeeds. Does"
-              + " not delete steps or regular transitions. A repeated or system-field aging"
-              + " transition that uses the same interval is not deleted (409). Packaged default"
-              + " workflows are forbidden (403).",
+          "Slice 59 and slice 77 Admin. Deletes one aging transition on this same resource."
+              + " Query from and to are required. Omit type, or send ABSOLUTE, with a positive"
+              + " intervalMinutes to delete one absolute aging transition. Send type REPEATED and"
+              + " intervalMinutes to delete one repeated aging transition; an absolute edge that"
+              + " shares from, to, and interval stays. Send type SYSTEM_FIELD and systemField"
+              + " (CONTENTSTARTDATE, CONTENTEXPIRYDATE, or REMINDERDATE) to delete one"
+              + " system-field aging transition; do not send a minute interval. Absolute and"
+              + " repeated edges stay. The edge disappears only after the delete succeeds. Does"
+              + " not delete steps or regular transitions. A match of a different aging type is"
+              + " not deleted (409). Packaged default workflows are forbidden (403).",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -1254,16 +1260,18 @@ public class WorkflowsResource {
             content = @Content(schema = @Schema(implementation = WorkflowGraph.class))),
         @ApiResponse(
             responseCode = "400",
-            description = "Missing from or to, or a non-positive interval"),
+            description =
+                "Missing from or to, an unknown type, a non-positive absolute or repeated"
+                    + " interval, or a blank or unknown system field"),
         @ApiResponse(
             responseCode = "403",
             description = "Admin required, or packaged/default workflow is protected"),
         @ApiResponse(
             responseCode = "404",
-            description = "Workflow, step, or absolute aging transition not found"),
+            description = "Workflow, step, or aging transition of that type not found"),
         @ApiResponse(
             responseCode = "409",
-            description = "The matching aging transition is not absolute"),
+            description = "The matching aging transition is a different type and was not deleted"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
@@ -1271,12 +1279,41 @@ public class WorkflowsResource {
       @PathParam("idOrName") String idOrName,
       @QueryParam("from") String fromStep,
       @QueryParam("to") String toStep,
-      @QueryParam("intervalMinutes") String intervalMinutes) {
+      @QueryParam("intervalMinutes") String intervalMinutes,
+      @QueryParam("type") String agingType,
+      @QueryParam("systemField") String systemField) {
     if (fromStep == null || fromStep.isBlank() || toStep == null || toStep.isBlank()) {
       throw new WebApplicationException("from and to are required", 400);
     }
+    String type = normalizeAgingDeleteType(agingType);
+    if ("SYSTEM_FIELD".equals(type)) {
+      if (systemField == null || systemField.isBlank()) {
+        throw new WebApplicationException("system field is required", 400);
+      }
+      try {
+        return requireAdaptor()
+            .deleteTypedAgingTransition(
+                uriInfo.getBaseUri(), idOrName, fromStep, toStep, null, type, systemField);
+      } catch (WebApplicationException e) {
+        throw e;
+      } catch (RuntimeException e) {
+        throw mapMutationFailure(e);
+      } catch (Exception e) {
+        log.error(
+            "Failed to delete aging transition ({}): {}",
+            e.getClass().getName(),
+            e.getMessage(),
+            e);
+        throw new WebApplicationException(e, 500);
+      }
+    }
     long minutes = parsePositiveMinutes(intervalMinutes);
     try {
+      if ("REPEATED".equals(type)) {
+        return requireAdaptor()
+            .deleteTypedAgingTransition(
+                uriInfo.getBaseUri(), idOrName, fromStep, toStep, minutes, type, null);
+      }
       return requireAdaptor()
           .deleteAbsoluteAgingTransition(
               uriInfo.getBaseUri(), idOrName, fromStep, toStep, minutes);
@@ -1292,6 +1329,20 @@ public class WorkflowsResource {
           e);
       throw new WebApplicationException(e, 500);
     }
+  }
+
+  private static String normalizeAgingDeleteType(String agingType) {
+    if (agingType == null || agingType.isBlank()) {
+      return "ABSOLUTE";
+    }
+    String normalized = agingType.trim().toUpperCase(Locale.ROOT);
+    if (!"ABSOLUTE".equals(normalized)
+        && !"REPEATED".equals(normalized)
+        && !"SYSTEM_FIELD".equals(normalized)) {
+      throw new WebApplicationException(
+          "aging type must be ABSOLUTE, REPEATED, or SYSTEM_FIELD", 400);
+    }
+    return normalized;
   }
 
   private static long parsePositiveMinutes(String raw) {

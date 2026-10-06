@@ -1289,7 +1289,51 @@ describe("workflow transition write API (slice 31)", () => {
     expect(url).toContain("from=Draft");
     expect(url).toContain("to=Review");
     expect(url).toContain("intervalMinutes=15");
+    expect(url).not.toContain("type=");
     expect(url).not.toContain("/transitions?");
+  });
+
+  it("DELETEs one repeated aging transition by type and one system-field aging transition by field", async () => {
+    fetchMock.mockImplementation(
+      () =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify({
+              workflowName: "Nightly QA",
+              packaged: false,
+              nodes: [{ name: "Draft" }, { name: "Review" }],
+              edges: [
+                {
+                  from: "Draft",
+                  to: "Review",
+                  label: "Aging 15",
+                  aging: true,
+                  agingType: "ABSOLUTE",
+                  intervalMinutes: 15,
+                },
+              ],
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          ),
+        ),
+    );
+    await deleteWorkflowAgingTransition("Nightly QA", "Draft", "Review", 15, "REPEATED");
+    const repeatedUrl = String(fetchMock.mock.calls[0][0]);
+    expect(repeatedUrl).toContain("type=REPEATED");
+    expect(repeatedUrl).toContain("intervalMinutes=15");
+    expect(repeatedUrl).not.toContain("systemField=");
+    await deleteWorkflowAgingTransition(
+      "Nightly QA",
+      "Draft",
+      "Review",
+      undefined,
+      "SYSTEM_FIELD",
+      "CONTENTSTARTDATE",
+    );
+    const systemUrl = String(fetchMock.mock.calls[1][0]);
+    expect(systemUrl).toContain("type=SYSTEM_FIELD");
+    expect(systemUrl).toContain("systemField=CONTENTSTARTDATE");
+    expect(systemUrl).not.toContain("intervalMinutes=");
   });
 
   it("propagates 400 and 409 when an aging delete is rejected", async () => {

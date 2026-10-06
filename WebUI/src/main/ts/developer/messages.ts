@@ -2140,6 +2140,8 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@That aging transition could not be deleted. Check the steps and interval.",
   WF_AGING_DELETE_CONFLICT:
     "perc.ui.developer@That aging transition was not deleted. Only an absolute aging transition can be removed here.",
+  WF_AGING_DELETE_TYPED_CONFLICT:
+    "perc.ui.developer@That aging transition was not deleted. The previous row stays, including any absolute aging transition on the same steps.",
   WF_STEP_DELETE: "perc.ui.developer@Delete step",
   WF_STEP_DELETE_CONFIRM:
     "perc.ui.developer@Delete this step? It is removed only when no transition still uses it.",
@@ -2152,7 +2154,7 @@ export const DEV_MSG_KEYS = {
   WF_STEP_DELETE_CONFLICT:
     "perc.ui.developer@That step is still used by a transition. Delete those transitions first.",
   WF_GAP_GRAPH:
-    "perc.ui.developer@Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. How many approvals one regular transition requires can be set on the graph. One more existing workflow role can be added to a regular transition that is already limited to specific roles, and that list can be cleared so every role may fire it again. The default transition, and system-field aging, stay outside this surface. One repeated aging transition can be added on the graph. Changing or deleting that repeated transition stays outside this surface.",
+    "perc.ui.developer@Ad-hoc type can be set to disabled, enabled, or anonymous for one Reader or Assignee role already assigned to a step. Inbox can be turned on or off for one Reader or Assignee role already assigned to a step. Notify can be turned on or off for one role already assigned to a step. Reader or Assignee can be set for one role already assigned to a step, and one Reader or Assignee role can be removed from a step. How many approvals one regular transition requires can be set on the graph. One more existing workflow role can be added to a regular transition that is already limited to specific roles, and that list can be cleared so every role may fire it again. One repeated aging transition can be added on the graph and deleted without removing an absolute aging row that uses the same steps and interval. One system-field aging transition can be added on the graph and deleted without removing absolute or repeated rows. Changing a repeated interval stays outside this surface.",
   WF_ROLE_ASSIGN_TITLE: "perc.ui.developer@Assignment type",
   WF_ROLE_ASSIGN_HINT:
     "perc.ui.developer@Change Reader or Assignee for one role already on a step. The table updates only after the server accepts it. Notify and inbox are separate confirms.",

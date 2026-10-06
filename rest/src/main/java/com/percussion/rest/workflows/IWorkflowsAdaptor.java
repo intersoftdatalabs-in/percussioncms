@@ -384,6 +384,36 @@ public interface IWorkflowsAdaptor {
       URI baseUri, String idOrName, String fromStep, String toStep, long intervalMinutes);
 
   /**
+   * Delete one aging transition identified by type (Admin, slice 59 absolute, slice 77 repeated and
+   * system-field). Omitted or {@code ABSOLUTE} deletes one absolute edge. {@code REPEATED} deletes
+   * one repeated edge and leaves an absolute edge that shares from, to, and interval. {@code
+   * SYSTEM_FIELD} deletes one system-field edge named by {@code systemField} and leaves absolute
+   * and repeated edges. Does not delete steps or regular transitions.
+   *
+   * @param fromStep source step name
+   * @param toStep destination step name
+   * @param intervalMinutes minute interval for absolute and repeated deletes; ignored for {@code
+   *     SYSTEM_FIELD}
+   * @param agingType {@code ABSOLUTE}, {@code REPEATED}, or {@code SYSTEM_FIELD}; blank is absolute
+   * @param systemField content-status date column; required when {@code agingType} is {@code
+   *     SYSTEM_FIELD}
+   * @return the graph after the delete
+   * @throws IllegalArgumentException when a step name is blank, the type is unknown, an absolute
+   *     or repeated interval is not positive, the system field is blank or unknown, or more than
+   *     one edge of the requested type matches
+   * @throws jakarta.ws.rs.WebApplicationException 403 packaged/default, 404 missing workflow, step,
+   *     or aging edge of that type, 409 when the only match is a different aging type
+   */
+  WorkflowGraph deleteTypedAgingTransition(
+      URI baseUri,
+      String idOrName,
+      String fromStep,
+      String toStep,
+      Long intervalMinutes,
+      String agingType,
+      String systemField);
+
+  /**
    * Update the label and/or destination of one existing transition (Admin, slice 31). Does not
    * move the source step and does not create steps.
    *
