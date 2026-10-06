@@ -338,6 +338,107 @@ public class WorkflowsResourceTransitionAllowedRoleTest {
     assertEquals(409, ex.getResponse().getStatus());
   }
 
+  @Test
+  public void deleteRemovesOneRoleAndStaysRestricted() {
+    WorkflowGraph graph = graph();
+    graph.getEdges().get(0).setAllowedRoles(List.of("Editor"));
+    when(adaptor.removeTransitionAllowedRole(
+            any(), eq("Nightly QA"), eq("Draft"), eq("Send"), eq("Live"), eq("Author")))
+        .thenReturn(graph);
+
+    WorkflowGraph out =
+        resource.removeTransitionAllowedRole("Nightly QA", "Author", "Draft", "Send", "Live");
+    assertEquals(Boolean.FALSE, out.getEdges().get(0).getAllowAllRoles());
+    assertEquals(List.of("Editor"), out.getEdges().get(0).getAllowedRoles());
+    verify(adaptor)
+        .removeTransitionAllowedRole(
+            any(), eq("Nightly QA"), eq("Draft"), eq("Send"), eq("Live"), eq("Author"));
+    verify(adaptor, never()).clearTransitionAllowedRoles(any(), any(), any(), any(), any());
+    verify(adaptor, never()).addTransitionAllowedRole(any(), any(), any(), any(), any(), any());
+    verify(adaptor, never())
+        .restrictTransitionToOneRole(any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  public void removeBlankRoleAndBlankFromDoNotCallAdaptor() {
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () -> resource.removeTransitionAllowedRole("Nightly QA", " ", "Draft", "Send", "Live"))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () -> resource.removeTransitionAllowedRole("Nightly QA", "Author", " ", "Send", "Live"))
+            .getResponse()
+            .getStatus());
+    assertEquals(
+        400,
+        assertThrows(
+                WebApplicationException.class,
+                () ->
+                    resource.removeTransitionAllowedRole("Nightly QA", "Author", "Draft", " ", "Live"))
+            .getResponse()
+            .getStatus());
+    verify(adaptor, never())
+        .removeTransitionAllowedRole(any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  public void removeAgingFromAdaptorIs400() {
+    when(adaptor.removeTransitionAllowedRole(any(), any(), any(), any(), any(), eq("Author")))
+        .thenThrow(new IllegalArgumentException("not aging transitions"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.removeTransitionAllowedRole(
+                    "Nightly QA", "Author", "Live", "Expire", "Archive"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void removeAdaptor404Is404() {
+    when(adaptor.removeTransitionAllowedRole(any(), any(), any(), any(), any(), eq("Missing")))
+        .thenThrow(new WebApplicationException("missing", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.removeTransitionAllowedRole(
+                    "Nightly QA", "Missing", "Draft", "Send", "Live"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void removeAdaptor403Is403() {
+    when(adaptor.removeTransitionAllowedRole(any(), any(), any(), any(), any(), eq("Author")))
+        .thenThrow(new WebApplicationException("protected", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.removeTransitionAllowedRole(
+                    "Simple Workflow", "Author", "Draft", "Send", "Live"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void removeAdaptor409Is409() {
+    when(adaptor.removeTransitionAllowedRole(any(), any(), any(), any(), any(), eq("Editor")))
+        .thenThrow(new WebApplicationException("last role", 409));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                resource.removeTransitionAllowedRole(
+                    "Nightly QA", "Editor", "Draft", "Send", "Live"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
   private static WorkflowTransitionAllowedRole body(String roleName) {
     WorkflowTransitionAllowedRole body = new WorkflowTransitionAllowedRole();
     body.setRoleName(roleName);

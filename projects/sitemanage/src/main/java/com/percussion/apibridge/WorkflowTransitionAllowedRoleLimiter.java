@@ -36,9 +36,10 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Role list changes for one existing regular transition. {@link #apply} replaces allow-all with
  * exactly one role. {@link #addOne} appends one role to a list that is already restricted. {@link
- * #clear} drops that list so every role may fire the transition again. None of these calls edit
- * step roles or change aging transitions. The label, destination, comment flag, approval count,
- * and default flag stay as they were.
+ * #removeOne} drops one role from a list that still has another role and leaves the transition
+ * restricted. {@link #clear} drops that list so every role may fire the transition again. None of
+ * these calls edit step roles or change aging transitions. The label, destination, comment flag,
+ * approval count, and default flag stay as they were.
  */
 public final class WorkflowTransitionAllowedRoleLimiter {
 
@@ -278,6 +279,108 @@ public final class WorkflowTransitionAllowedRoleLimiter {
     }
     chosen.setAllowAllRoles(true);
     chosen.setTransitionRoles(new ArrayList<>());
+    source.setTransitions(regular);
+  }
+
+  /**
+   * Drops one existing workflow role from a regular transition that already lists two or more
+   * roles. The transition stays restricted. Does not clear the list, perform the first
+   * restriction, append a role, or change aging transitions. Removing the last stored role is
+   * refused so the caller uses {@link #clear} instead.
+   */
+  public static void removeOne(
+      PSWorkflow workflow, String fromStep, String label, String toStep, String roleName) {
+    if (workflow == null) {
+      throw new WebApplicationException("Workflow not found", 404);
+    }
+    if (StringUtils.isBlank(fromStep)) {
+      throw new IllegalArgumentException("from is required");
+    }
+    if (StringUtils.isBlank(label)) {
+      throw new IllegalArgumentException("label is required");
+    }
+    if (StringUtils.isBlank(roleName)) {
+      throw new IllegalArgumentException("role name is required");
+    }
+    String from = fromStep.trim();
+    String wantLabel = label.trim();
+    String wantTo = toStep == null ? "" : toStep.trim();
+    String wantRole = roleName.trim();
+    if (IPSTransitionsContext.NO_TRANSITION_ROLE_RESTRICTION.equalsIgnoreCase(wantRole)) {
+      throw new WebApplicationException(
+          "Allow-all is not a role. This call does not clear the role list.", 409);
+    }
+
+    List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
+    Map<Long, String> names = new LinkedHashMap<>();
+    PSState source = null;
+    for (PSState state : states) {
+      if (state == null || StringUtils.isBlank(state.getName())) {
+        continue;
+      }
+      names.put(state.getStateId(), state.getName().trim());
+      if (state.getName().trim().equalsIgnoreCase(from)) {
+        source = state;
+      }
+    }
+    if (source == null) {
+      throw new WebApplicationException("Workflow step not found: " + from, 404);
+    }
+
+    List<PSTransition> regular = new ArrayList<>();
+    if (source.getTransitions() != null) {
+      regular.addAll(source.getTransitions());
+    }
+    List<PSAgingTransition> aging = safeAging(source);
+    List<Integer> regularHits = matching(regular, wantLabel, wantTo, names);
+    List<Integer> agingHits = matching(aging, wantLabel, wantTo, names);
+    int total = regularHits.size() + agingHits.size();
+    if (total == 0) {
+      throw new WebApplicationException("Workflow transition not found: " + wantLabel, 404);
+    }
+    if (total > 1) {
+      throw new IllegalArgumentException(
+          "More than one transition named " + wantLabel + " on step " + from + "; specify to");
+    }
+    if (regularHits.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Transition role restriction applies only to workflow transitions, not aging transitions");
+    }
+
+    PSTransition chosen = regular.get(regularHits.get(0));
+    if (chosen == null || chosen.isAllowAllRoles()) {
+      throw new WebApplicationException(
+          "Transition still allows every role. The role list was not changed.", 409);
+    }
+
+    PSWorkflowRole role = findRole(workflow.getRoles(), wantRole);
+    long roleId = role.getGUID().longValue();
+    List<PSTransitionRole> current =
+        chosen.getTransitionRoles() != null ? chosen.getTransitionRoles() : List.of();
+    boolean present = false;
+    List<PSTransitionRole> next = new ArrayList<>();
+    for (PSTransitionRole existing : current) {
+      if (existing == null) {
+        continue;
+      }
+      if (existing.getRoleId() == roleId) {
+        present = true;
+        continue;
+      }
+      next.add(existing);
+    }
+    if (!present) {
+      throw new WebApplicationException(
+          "That role is not allowed to fire this transition. The role list was not changed.", 409);
+    }
+    if (next.isEmpty()) {
+      throw new WebApplicationException(
+          "Removing the last role is not allowed. Clear the restriction so every role may fire"
+              + " it. The role list was not changed.",
+          409);
+    }
+    chosen.setAllowAllRoles(false);
+    chosen.setTransitionRoles(next);
     source.setTransitions(regular);
   }
 

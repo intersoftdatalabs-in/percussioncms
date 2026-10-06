@@ -487,6 +487,38 @@ The public call is
 `DELETE /services/workflows/{idOrName}/transitions/allowed-roles?from={step}&label={label}&to={step}`
 with no request body.
 
+## Product path — remove one role from a restricted transition (slice 80)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow.
+3. Restrict one regular transition and add at least one more role (see the
+   previous sections) so the edge lists two or more roles and does not say
+   **All roles**. An edge that lists only one role does not offer this
+   action; use **Allow every role** to clear that last role.
+4. On that edge, click **Remove a role**, choose one role that is already
+   allowed to fire the transition, then click **Remove role**.
+5. The edge lists the roles that remain, and not the removed role, and still
+   does not say **All roles**, only after the server accepts the removal.
+   Reopening the workflow shows the same remaining roles. **Cancel** closes
+   the editor and does not call the server. The label, destination,
+   comment-required flag, approval count, default flag, and every other edge
+   stay as they were. The transition stays restricted. Aging rows and edges
+   that still allow every role do not offer **Remove a role**.
+6. Packaged workflows hide **Remove a role** (`403` on the API). A missing
+   workflow, step, transition, or role is `404`. A blank step, label, or
+   role, an ambiguous label, or an aging transition is `400`. A transition
+   that still allows every role, a role that is not on the list, the
+   allow-all marker `*ALL*` used as the role name, or removing the last
+   remaining role is `409` and does not change the stored list. HTTP `400`,
+   `403`, and `409` leave the previous role list in place.
+7. This does not perform the first restriction, add a role, clear the list so
+   every role may fire the transition, assign the role to a step, or edit
+   notify, inbox, or ad-hoc type.
+
+The public call is
+`DELETE /services/workflows/{idOrName}/transitions/allowed-roles/{roleName}?from={step}&label={label}&to={step}`
+with no request body.
+
 ## Product path — delete one transition (slice 33)
 
 1. Sign in as **Admin**.
@@ -932,6 +964,7 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Restrict one transition role | `PUT /services/workflows/{idOrName}/transitions/allowed-role?from={step}&label={label}&to={step}` (`WorkflowTransitionAllowedRole` wrap `{ "roleName": "Editor" }`; Admin; one existing regular transition that still allows every role; sets that transition to the one named workflow role; the graph shows that role, and not all roles, only after success; already restricted or the allow-all marker `*ALL*` is `409` and does not change the list; blank, ambiguous, or aging `400`; packaged or default `403`; missing workflow, step, transition, or role `404`; label, destination, comment flag, approval count, default flag, other edges, and aging stay unchanged) |
 | Add one more transition role | `POST /services/workflows/{idOrName}/transitions/allowed-roles?from={step}&label={label}&to={step}` (`WorkflowTransitionAllowedRole` wrap `{ "roleName": "Author" }`; Admin; one existing regular transition that is already restricted; appends that workflow role and keeps every role already on the list; the graph shows both roles, and not all roles, only after success; still allow-all, the role already on the list, or the allow-all marker `*ALL*` is `409` and does not change the list; blank, ambiguous, or aging `400`; packaged or default `403`; missing workflow, step, transition, or role `404`; label, destination, comment flag, approval count, default flag, other edges, and aging stay unchanged; the transition stays restricted) |
 | Allow every role again | `DELETE /services/workflows/{idOrName}/transitions/allowed-roles?from={step}&label={label}&to={step}` (no body; Admin; one existing regular transition that is already restricted; clears that role list so every role may fire it; the graph says all roles, and not the previous list, only after success; already allow-all is `409` and does not change the list; blank, ambiguous, or aging `400`; packaged or default `403`; missing workflow, step, or transition `404`; label, destination, comment flag, approval count, default flag, other edges, and aging stay unchanged) |
+| Remove one transition role | `DELETE /services/workflows/{idOrName}/transitions/allowed-roles/{roleName}?from={step}&label={label}&to={step}` (no body; Admin; one existing regular transition that already lists two or more roles; removes that workflow role and keeps the rest; the graph shows the remaining roles, and not all roles, only after success; the transition stays restricted; still allow-all, a role that is not on the list, the allow-all marker `*ALL*`, or the last remaining role is `409` and does not change the list; blank, ambiguous, or aging `400`; packaged or default `403`; missing workflow, step, transition, or role `404`; label, destination, comment flag, approval count, default flag, other edges, and aging stay unchanged; not the clear call, which drops the whole list) |
 | Delete one step | `DELETE /services/workflows/{idOrName}/steps/{stepName}` (Admin; only when no transition still uses the step; returns the updated graph; packaged workflows `403`; missing workflow or step `404`; invalid step name `400`; step still referenced `409`) |
 | List allowed content types | `GET /services/workflows/{idOrName}/allowedContentTypes` |
 | Replace allowed content types | `PUT /services/workflows/{idOrName}/allowedContentTypes` (`WorkflowContentTypes` wrap) |
