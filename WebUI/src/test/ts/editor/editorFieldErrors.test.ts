@@ -114,6 +114,26 @@ describe("collectRequiredFieldErrors", () => {
     expect(isEmptyEditorFieldValue("html", " \n\t ")).toBe(true);
     expect(isEmptyEditorFieldValue("html", "<p>Hi</p>")).toBe(false);
   });
+
+  it("refuses a blank required keyword and still allows an optional blank keyword", () => {
+    const errors = collectRequiredFieldErrors(
+      [
+        { name: "keywords", kind: "keyword", required: true, value: "" },
+        { name: "tags", kind: "keyword", required: true, value: "   " },
+        { name: "optionalKeywords", kind: "keyword", required: false, value: "" },
+        { name: "topic", kind: "keyword", required: true, value: "news" },
+      ],
+      {},
+      "This field is required.",
+    );
+    expect(errors).toEqual({
+      keywords: "This field is required.",
+      tags: "This field is required.",
+    });
+    expect(isEmptyEditorFieldValue("keyword", "")).toBe(true);
+    expect(isEmptyEditorFieldValue("keyword", " \n\t ")).toBe(true);
+    expect(isEmptyEditorFieldValue("keyword", "news")).toBe(false);
+  });
 });
 
 describe("firstInvalidEditorFieldName", () => {

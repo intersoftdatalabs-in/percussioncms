@@ -5556,6 +5556,232 @@ describe("EditorHost refuse blank required HTML (#5251)", () => {
   });
 });
 
+describe("EditorHost refuse blank required keyword (#5252)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  const keywordCatalog = async () => [
+    {
+      value: "keywords",
+      label: "Keywords",
+      choices: [
+        { value: "news", label: "News" },
+        { value: "events", label: "Events" },
+      ],
+    },
+  ];
+
+  function requiredKeywordHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    choice?: string;
+    confirmLeaveUnsaved?: (message: string) => boolean;
+  }) {
+    const choice = opts.choice ?? "news";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percEvent",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "keywords", value: choice }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "keywords",
+              label: "Keywords",
+              control: "sys_DropDownSingle",
+              required: true,
+            },
+          ],
+        })}
+        loadKeywords={keywordCatalog}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openRequiredKeyword(
+    element: React.ReactElement,
+    expected = "news",
+  ): Promise<HTMLSelectElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-keywords") as HTMLSelectElement).value).toBe(
+        expected,
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "Events" })).toBeTruthy();
+    });
+    return screen.getByTestId("editor-field-keywords") as HTMLSelectElement;
+  }
+
+  it("does not save a required keyword with no choice and reloads the previous choice", async () => {
+    const saveFields = vi.fn();
+    const select = await openRequiredKeyword(requiredKeywordHost({ saveFields }));
+    expect(select.getAttribute("data-editor-kind")).toBe("keyword");
+    expect(screen.getByTestId("editor-field-row-keywords").getAttribute("data-required")).toBe(
+      "true",
+    );
+    fireEvent.click(screen.getByTestId("editor-keyword-clear-keywords"));
+    expect(select.value).toBe("");
+    expect(screen.queryByTestId("editor-keyword-clear-keywords")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-keywords").textContent).toMatch(/required/i);
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(document.activeElement).toBe(screen.getByTestId("editor-field-keywords"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-field-row-keywords").getAttribute("data-required")).toBe(
+      "true",
+    );
+    cleanup();
+    const reloaded = await openRequiredKeyword(requiredKeywordHost({ saveFields }));
+    expect(reloaded.value).toBe("news");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not save when the required keyword empty option is chosen", async () => {
+    const saveFields = vi.fn();
+    const select = await openRequiredKeyword(requiredKeywordHost({ saveFields }));
+    fireEvent.change(select, { target: { value: "" } });
+    expect(select.value).toBe("");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-keywords").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    cleanup();
+    const reloaded = await openRequiredKeyword(requiredKeywordHost({ saveFields }));
+    expect(reloaded.value).toBe("news");
+  });
+
+  it("does not write when Close cancels a blank required keyword edit", async () => {
+    const saveFields = vi.fn();
+    await openRequiredKeyword(
+      requiredKeywordHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.click(screen.getByTestId("editor-keyword-clear-keywords"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-keywords") as HTMLSelectElement).value).toBe("");
+    expect(screen.getByTestId("editor-field-row-keywords").getAttribute("data-required")).toBe(
+      "true",
+    );
+  });
+
+  it("still saves a listed catalog choice", async () => {
+    let choice = "news";
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
+      choice = payload.fields.find((f) => f.name === "keywords")?.value ?? choice;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: payload.fields,
+      };
+    });
+    const select = await openRequiredKeyword(requiredKeywordHost({ saveFields, choice }));
+    fireEvent.change(select, { target: { value: "events" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "keywords")?.value).toBe("events");
+    cleanup();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={requiredKeywordHost({ saveFields, choice })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-keywords") as HTMLSelectElement).value).toBe(
+        "events",
+      );
+    });
+  });
+
+  it("still saves a cleared optional keyword", async () => {
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => ({
+      contentId: "42",
+      contentType: "percEvent",
+      name: "Home",
+      checkoutUser: "admin",
+      revision: 4,
+      fields: payload.fields,
+    }));
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percEvent",
+                  name: "Home",
+                  checkoutUser: "admin",
+                  revision: 3,
+                  fields: [{ name: "keywords", value: "news" }],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    {
+                      name: "keywords",
+                      label: "Keywords",
+                      control: "sys_DropDownSingle",
+                      required: false,
+                    },
+                  ],
+                })}
+                loadKeywords={keywordCatalog}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-keyword-clear-keywords")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-keyword-clear-keywords"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "keywords")?.value).toBe("");
+    expect(screen.queryByTestId("editor-field-error-keywords")).toBeNull();
+  });
+});
+
 describe("EditorHost page link fields", () => {
   afterEach(() => {
     cleanup();
