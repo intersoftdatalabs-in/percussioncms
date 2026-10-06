@@ -709,7 +709,8 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     if (body == null) {
       throw new IllegalArgumentException("Workflow aging transition body is required");
     }
-    if (body.getIntervalMinutes() <= 0) {
+    WorkflowAgingTransitionWrite.Kind kind = body.kind();
+    if (kind != WorkflowAgingTransitionWrite.Kind.SYSTEM_FIELD && body.getIntervalMinutes() <= 0) {
       throw new IllegalArgumentException("interval must be a positive number of minutes");
     }
     PSWorkflow workflow = resolveWorkflow(idOrName);
@@ -719,7 +720,14 @@ public class WorkflowsAdaptor implements IWorkflowsAdaptor {
     rejectPackagedWorkflow(workflow);
     List<PSState> states = workflow.getStates() != null ? workflow.getStates() : List.of();
     int stepCount = states.size();
-    if (body.kind() == WorkflowAgingTransitionWrite.Kind.REPEATED) {
+    if (kind == WorkflowAgingTransitionWrite.Kind.SYSTEM_FIELD) {
+      WorkflowTransitionWriter.createSystemFieldAging(
+          states,
+          body.getFrom(),
+          body.getTo(),
+          body.getSystemField(),
+          source -> allocateTransition(workflow, source));
+    } else if (kind == WorkflowAgingTransitionWrite.Kind.REPEATED) {
       WorkflowTransitionWriter.createRepeatedAging(
           states,
           body.getFrom(),

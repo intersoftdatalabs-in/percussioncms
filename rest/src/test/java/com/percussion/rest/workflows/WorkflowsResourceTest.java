@@ -878,14 +878,22 @@ public class WorkflowsResourceTest {
   }
 
   @Test
-  public void createAgingRejectsSystemFieldAndUnknownType() {
-    WorkflowAgingTransitionWrite system = agingBody("Draft", "Review", 15);
+  public void createAgingRejectsBlankSystemFieldAndUnknownType() {
+    WorkflowAgingTransitionWrite system = agingBody("Draft", "Review", 0);
     system.setType("SYSTEM_FIELD");
-    WebApplicationException systemField =
+    WebApplicationException blank =
         assertThrows(
             WebApplicationException.class,
             () -> resource.createAbsoluteAgingTransition("Nightly QA", system));
-    assertEquals(400, systemField.getResponse().getStatus());
+    assertEquals(400, blank.getResponse().getStatus());
+    WorkflowAgingTransitionWrite unknownField = agingBody("Draft", "Review", 0);
+    unknownField.setType("SYSTEM_FIELD");
+    unknownField.setSystemField("sys_title");
+    WebApplicationException unknownName =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.createAbsoluteAgingTransition("Nightly QA", unknownField));
+    assertEquals(400, unknownName.getResponse().getStatus());
     WorkflowAgingTransitionWrite unknown = agingBody("Draft", "Review", 15);
     unknown.setType("nope");
     WebApplicationException rejected =
@@ -894,6 +902,28 @@ public class WorkflowsResourceTest {
             () -> resource.createAbsoluteAgingTransition("Nightly QA", unknown));
     assertEquals(400, rejected.getResponse().getStatus());
     verify(adaptor, never()).createAbsoluteAgingTransition(any(), any(), any());
+  }
+
+  @Test
+  public void createSystemFieldAgingPassesFieldOnTheSameResource() {
+    WorkflowGraph graph = new WorkflowGraph();
+    graph.setWorkflowName("Nightly QA");
+    when(adaptor.createAbsoluteAgingTransition(any(), eq("Nightly QA"), any())).thenReturn(graph);
+    WorkflowAgingTransitionWrite body = new WorkflowAgingTransitionWrite();
+    body.setFrom("Draft");
+    body.setTo("Review");
+    body.setType("SYSTEM_FIELD");
+    body.setSystemField("contentstartdate");
+    WorkflowGraph out = resource.createAbsoluteAgingTransition("Nightly QA", body);
+    assertEquals("Nightly QA", out.getWorkflowName());
+    verify(adaptor)
+        .createAbsoluteAgingTransition(
+            any(),
+            eq("Nightly QA"),
+            argThat(
+                written ->
+                    "SYSTEM_FIELD".equals(written.getType())
+                        && "contentstartdate".equals(written.getSystemField())));
   }
 
   private static WorkflowAgingIntervalWrite intervalBody(

@@ -1083,18 +1083,21 @@ public class WorkflowsResource {
   @Consumes({MediaType.APPLICATION_JSON})
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
-      summary = "Create one absolute or repeated aging transition",
+      summary = "Create one absolute, repeated, or system-field aging transition",
       description =
-          "Slice 57 and slice 75 Admin. Inserts one aging transition between two existing steps"
-              + " on this resource. Body from, to, and a positive intervalMinutes (minutes,"
-              + " IPSAgingTransition setInterval) are required. Optional type REPEATED inserts one"
-              + " repeated aging transition. Omitted type, or ABSOLUTE, stays absolute. Does not"
-              + " create steps, change an existing interval, delete an edge, or set"
-              + " comment-required. SYSTEM_FIELD and any other type are 400 and are not saved. A"
-              + " duplicate aging edge of that same type for that from, to, and interval is 409."
-              + " An absolute edge with the same interval does not block a repeated create."
-              + " Packaged default workflows are forbidden (403). Jackson root wrap is"
-              + " WorkflowAgingTransitionWrite.",
+          "Slice 57, slice 75, and slice 76 Admin. Inserts one aging transition between two"
+              + " existing steps on this resource. Body from and to are required. A positive"
+              + " intervalMinutes (minutes, IPSAgingTransition setInterval) is required for"
+              + " absolute and repeated. Optional type REPEATED inserts one repeated aging"
+              + " transition. Type SYSTEM_FIELD plus systemField (CONTENTSTARTDATE,"
+              + " CONTENTEXPIRYDATE, or REMINDERDATE) inserts one system-field aging transition"
+              + " and does not use the interval. Omitted type, or ABSOLUTE, stays absolute. Does"
+              + " not create steps, change an existing interval, delete an edge, or set"
+              + " comment-required. Any other type, a blank system field, or an unknown system"
+              + " field is 400 and is not saved. A duplicate aging edge of that same type for that"
+              + " from, to, and interval (or the same system field) is 409. An absolute or"
+              + " repeated edge does not block a system-field create. Packaged default workflows"
+              + " are forbidden (403). Jackson root wrap is WorkflowAgingTransitionWrite.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -1103,15 +1106,18 @@ public class WorkflowsResource {
         @ApiResponse(
             responseCode = "400",
             description =
-                "Missing body, blank from or to, a non-positive interval, or a type other than"
-                    + " ABSOLUTE or REPEATED"),
+                "Missing body, blank from or to, a non-positive interval for absolute or"
+                    + " repeated, a blank or unknown system field, or a type other than ABSOLUTE,"
+                    + " REPEATED, or SYSTEM_FIELD"),
         @ApiResponse(
             responseCode = "403",
             description = "Admin required, or packaged/default workflow is protected"),
         @ApiResponse(responseCode = "404", description = "Workflow or step not found"),
         @ApiResponse(
             responseCode = "409",
-            description = "That aging transition of the same type and interval already exists"),
+            description =
+                "That aging transition of the same type and interval, or the same system field,"
+                    + " already exists"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
@@ -1126,15 +1132,25 @@ public class WorkflowsResource {
         || body.getTo().isBlank()) {
       throw new WebApplicationException("from and to are required", 400);
     }
-    if (body.getIntervalMinutes() <= 0) {
-      throw new WebApplicationException("interval must be a positive number of minutes", 400);
-    }
+    final WorkflowAgingTransitionWrite.Kind kind;
     try {
-      body.kind();
+      kind = body.kind();
     } catch (IllegalArgumentException ex) {
       String message =
-          ex.getMessage() != null ? ex.getMessage() : "aging type must be ABSOLUTE or REPEATED";
+          ex.getMessage() != null
+              ? ex.getMessage()
+              : "aging type must be ABSOLUTE, REPEATED, or SYSTEM_FIELD";
       throw new WebApplicationException(message, 400);
+    }
+    if (kind == WorkflowAgingTransitionWrite.Kind.SYSTEM_FIELD) {
+      try {
+        body.canonicalSystemField();
+      } catch (IllegalArgumentException ex) {
+        String message = ex.getMessage() != null ? ex.getMessage() : "system field is required";
+        throw new WebApplicationException(message, 400);
+      }
+    } else if (body.getIntervalMinutes() <= 0) {
+      throw new WebApplicationException("interval must be a positive number of minutes", 400);
     }
     try {
       return requireAdaptor()

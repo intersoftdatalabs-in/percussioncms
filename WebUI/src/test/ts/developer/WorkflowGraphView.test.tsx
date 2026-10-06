@@ -39,6 +39,10 @@ vi.mock("../../../main/ts/api/developer/workflowsApi", () => ({
     }
     return /^[1-9]\d*$/.test(raw.trim());
   },
+  WORKFLOW_AGING_SYSTEM_FIELDS: ["CONTENTSTARTDATE", "CONTENTEXPIRYDATE", "REMINDERDATE"],
+  isWorkflowAgingSystemField: (raw: string | null | undefined) =>
+    typeof raw === "string" &&
+    ["CONTENTSTARTDATE", "CONTENTEXPIRYDATE", "REMINDERDATE"].includes(raw.trim().toUpperCase()),
   updateWorkflowTransition: vi.fn(),
   isValidWorkflowName: (name: string | null | undefined) =>
     !!name && name.trim().length > 0 && name.trim().length <= 50 && /^[\s\w-]+$/.test(name.trim()),
@@ -569,6 +573,199 @@ describe("WorkflowGraphView step delete", () => {
     render(<WorkflowGraphView workflowName="Default Workflow" />);
     await screen.findByTestId("developer-wf-graph-kind");
     expect(screen.queryByTestId("developer-wf-repeated-aging-form")).toBeNull();
+  });
+
+  it("lists a system-field aging transition only after success and keeps absolute and repeated rows", async () => {
+    const initial = {
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        { from: "Draft", to: "Review", label: "Submit", commentRequired: false },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "ABSOLUTE",
+        },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Repeated aging 20",
+          aging: true,
+          intervalMinutes: 20,
+          agingType: "REPEATED",
+        },
+      ],
+    };
+    const updated = {
+      packaged: false,
+      nodes: initial.nodes,
+      edges: [
+        ...initial.edges,
+        {
+          from: "Draft",
+          to: "Review",
+          label: "System field aging CONTENTSTARTDATE",
+          aging: true,
+          agingType: "SYSTEM_FIELD",
+          systemField: "CONTENTSTARTDATE",
+        },
+      ],
+    };
+    let current = initial;
+    let release: (graph: typeof updated) => void = () => {};
+    getWorkflowGraph.mockImplementation(async () => current);
+    createWorkflowAgingTransition.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = (graph) => {
+            current = graph;
+            resolve(graph);
+          };
+        }),
+    );
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    expect(await screen.findByTestId("developer-wf-aging-edge-0")).toBeTruthy();
+    expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain("Repeated aging 20");
+    expect(screen.queryByText(/System field aging/)).toBeNull();
+    fireEvent.change(screen.getByTestId("developer-wf-system-field-aging-to"), {
+      target: { value: "Review" },
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-system-field-aging-field"), {
+      target: { value: "CONTENTSTARTDATE" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-system-field-aging-add"));
+    await waitFor(() => {
+      expect(createWorkflowAgingTransition).toHaveBeenCalledWith("Nightly QA", {
+        from: "Draft",
+        to: "Review",
+        type: "SYSTEM_FIELD",
+        systemField: "CONTENTSTARTDATE",
+      });
+    });
+    expect(screen.queryByText(/System field aging/)).toBeNull();
+    release(updated);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-aging-edge-2").textContent).toContain(
+        "System field aging CONTENTSTARTDATE",
+      );
+    });
+    expect(screen.getByTestId("developer-wf-aging-edge-2").getAttribute("data-aging-type")).toBe(
+      "SYSTEM_FIELD",
+    );
+    expect(screen.getByTestId("developer-wf-aging-edge-2").getAttribute("data-system-field")).toBe(
+      "CONTENTSTARTDATE",
+    );
+    expect(screen.getByTestId("developer-wf-aging-edge-2").textContent).toContain("system field");
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
+    expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain("Repeated aging 20");
+    expect(screen.queryByTestId("developer-wf-aging-change-2")).toBeNull();
+    expect(screen.queryByTestId("developer-wf-aging-delete-2")).toBeNull();
+    expect(screen.getByTestId("developer-wf-aging-change-0")).toBeTruthy();
+    expect(screen.getByTestId("developer-wf-graph-notice").textContent).toContain(
+      "System-field aging transition saved",
+    );
+  });
+
+  it("cancel and a blank system field do not call the server", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "ABSOLUTE",
+        },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Repeated aging 20",
+          aging: true,
+          intervalMinutes: 20,
+          agingType: "REPEATED",
+        },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    const field = await screen.findByTestId("developer-wf-system-field-aging-field");
+    fireEvent.change(field, { target: { value: "REMINDERDATE" } });
+    fireEvent.click(screen.getByTestId("developer-wf-system-field-aging-cancel"));
+    expect(createWorkflowAgingTransition).not.toHaveBeenCalled();
+    expect(
+      (screen.getByTestId("developer-wf-system-field-aging-field") as HTMLSelectElement).value,
+    ).toBe("");
+    expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
+    expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain("Repeated aging 20");
+
+    fireEvent.change(screen.getByTestId("developer-wf-system-field-aging-to"), {
+      target: { value: "Review" },
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-system-field-aging-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-graph-error").textContent).toMatch(/system field/i);
+    });
+    expect(createWorkflowAgingTransition).not.toHaveBeenCalled();
+    expect(screen.queryByText(/System field aging/)).toBeNull();
+  });
+
+  it("does not add a system-field aging row on 400, 403, or 409", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: false,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Aging 15",
+          aging: true,
+          intervalMinutes: 15,
+          agingType: "ABSOLUTE",
+        },
+        {
+          from: "Draft",
+          to: "Review",
+          label: "Repeated aging 20",
+          aging: true,
+          intervalMinutes: 20,
+          agingType: "REPEATED",
+        },
+      ],
+    });
+    render(<WorkflowGraphView workflowName="Nightly QA" />);
+    fireEvent.change(await screen.findByTestId("developer-wf-system-field-aging-to"), {
+      target: { value: "Review" },
+    });
+    fireEvent.change(screen.getByTestId("developer-wf-system-field-aging-field"), {
+      target: { value: "CONTENTEXPIRYDATE" },
+    });
+    for (const status of [400, 403, 409]) {
+      createWorkflowAgingTransition.mockRejectedValueOnce({ status, message: "no" });
+      fireEvent.click(screen.getByTestId("developer-wf-system-field-aging-add"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-wf-graph-error")).toBeTruthy();
+      });
+      expect(screen.queryByTestId("developer-wf-graph-notice")).toBeNull();
+      expect(screen.queryByText(/System field aging/)).toBeNull();
+      expect(screen.getByTestId("developer-wf-aging-edge-0").textContent).toContain("Aging 15");
+      expect(screen.getByTestId("developer-wf-aging-edge-1").textContent).toContain("Repeated aging 20");
+    }
+  });
+
+  it("hides the system-field aging form on a packaged workflow", async () => {
+    getWorkflowGraph.mockResolvedValue({
+      packaged: true,
+      nodes: [{ name: "Draft" }, { name: "Review" }],
+      edges: [],
+    });
+    render(<WorkflowGraphView workflowName="Default Workflow" />);
+    await screen.findByTestId("developer-wf-graph-kind");
+    expect(screen.queryByTestId("developer-wf-system-field-aging-form")).toBeNull();
   });
 
   it("does not claim success on 400, 403, or 409", async () => {

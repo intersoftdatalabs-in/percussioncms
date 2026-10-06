@@ -139,9 +139,9 @@ The interval unit is minutes.
    the form and does not show a saved notice. Packaged workflows do not show
    the form (`403` on the API). A missing workflow or step is `404`. A
    repeated aging transition that already uses that from, to, and interval is
-   `409`. `type` `SYSTEM_FIELD`, or any other type, is `400` and is not
-   saved. HTTP `400`, `403`, and `409` do not show the saved notice and do
-   not add the repeated row.
+   `409`. Any type other than omitted, `ABSOLUTE`, `REPEATED`, or
+   `SYSTEM_FIELD` is `400` and is not saved. HTTP `400`, `403`, and `409` do
+   not show the saved notice and do not add the repeated row.
 6. This does not create steps, change or delete the repeated edge, change an
    absolute interval, or assign roles. Comment required does not apply.
    **Change interval** and **Delete aging transition** stay on absolute rows
@@ -151,6 +151,40 @@ The public call is the same
 `POST /services/workflows/{idOrName}/aging-transitions` resource, with a
 `WorkflowAgingTransitionWrite` body (`from`, `to`, a positive
 `intervalMinutes`, and `type` `REPEATED`). There is no second URL.
+
+## Product path — add one system-field aging transition (slice 76)
+
+1. Sign in as **Admin**.
+2. Open **Developer → Workflows** and open a **custom** workflow (not Default
+   Workflow, Simple Workflow, or Local Content, and not the system default).
+3. Under **Graph**, in **Add system-field aging transition**, choose **Aging
+   from step** and **Aging to step** (both steps must already exist), choose
+   one **System field** (`CONTENTSTARTDATE`, `CONTENTEXPIRYDATE`, or
+   `REMINDERDATE`), and click **Add system-field aging transition**. This is
+   not the absolute **Add aging transition** button and not **Add repeated
+   aging transition**.
+4. The system-field row appears only after the server accepts it
+   (`from — System field aging {field} → to`, marked system field). Absolute
+   and repeated aging rows that were already on the graph stay, including
+   when they use the same steps. Reopening the workflow shows the same
+   system-field row. **Cancel** clears the draft and does not call the
+   server.
+5. A blank destination or a blank system field is rejected in the form and
+   does not show a saved notice. An unknown system field is `400` and is not
+   saved. Packaged workflows do not show the form (`403` on the API). A
+   missing workflow or step is `404`. A system-field aging transition that
+   already uses that from, to, and system field is `409`. HTTP `400`, `403`,
+   and `409` do not show the saved notice and do not add the system-field
+   row.
+6. This does not create steps, change or delete the system-field edge, change
+   an absolute or repeated interval, or assign roles. Comment required does
+   not apply. **Change interval** and **Delete aging transition** stay on
+   absolute rows only.
+
+The public call is the same
+`POST /services/workflows/{idOrName}/aging-transitions` resource, with a
+`WorkflowAgingTransitionWrite` body (`from`, `to`, `type` `SYSTEM_FIELD`, and
+`systemField`). Do not send a minute interval. There is no second URL.
 
 ## Product path — change an absolute aging interval (slice 58)
 
@@ -777,7 +811,8 @@ detail — see [Developer Content Types](id:admin-developer-content-types).
 | Update one transition | `PUT /services/workflows/{idOrName}/transitions?from={step}&label={label}&to={step}` (`WorkflowTransitionWrite` wrap: new `label` and `to`; does not move the source step; ambiguous label `400`; missing transition `404`; colliding edge `409`; packaged workflows `403`) |
 | Delete one transition | `DELETE /services/workflows/{idOrName}/transitions?from={step}&label={label}&to={step}` (Admin; does not delete steps; packaged workflows `403`; missing workflow/step/transition `404`; blank or ambiguous label `400`) |
 | Create one absolute aging transition | `POST /services/workflows/{idOrName}/aging-transitions` (`WorkflowAgingTransitionWrite` wrap: required `from`, `to`, and a positive `intervalMinutes`; omit `type` or send `ABSOLUTE`; duplicate absolute edge `409`; packaged workflows `403`) |
-| Create one repeated aging transition | `POST /services/workflows/{idOrName}/aging-transitions` (same resource; `type` `REPEATED`; does not replace an absolute edge that uses the same interval; duplicate repeated edge `409`; `SYSTEM_FIELD` or any other type `400`; packaged workflows `403`; the graph shows the repeated row only after success) |
+| Create one repeated aging transition | `POST /services/workflows/{idOrName}/aging-transitions` (same resource; `type` `REPEATED`; does not replace an absolute edge that uses the same interval; duplicate repeated edge `409`; any other type `400`; packaged workflows `403`; the graph shows the repeated row only after success) |
+| Create one system-field aging transition | `POST /services/workflows/{idOrName}/aging-transitions` (same resource; `type` `SYSTEM_FIELD` and `systemField` of `CONTENTSTARTDATE`, `CONTENTEXPIRYDATE`, or `REMINDERDATE`; no minute interval; does not replace absolute or repeated edges; blank or unknown system field `400`; duplicate system field for that from and to `409`; packaged workflows `403`; the graph shows the system-field row only after success) |
 | Change one absolute aging interval | `PUT /services/workflows/{idOrName}/aging-transitions/interval` (`WorkflowAgingIntervalWrite` wrap: `from`, `to`, current `intervalMinutes`, and a different positive `newIntervalMinutes`; does not move the destination or change the aging type; duplicate new interval `409`; non-positive or unchanged interval `400`; missing edge `404`; packaged workflows `403`) |
 | Delete one absolute aging transition | `DELETE /services/workflows/{idOrName}/aging-transitions?from={step}&to={step}&intervalMinutes={minutes}` (Admin; does not delete steps or regular transitions; repeated or system-field match `409` and is not deleted; non-positive interval `400`; missing edge `404`; packaged workflows `403`) |
 | Comment required | `PUT /services/workflows/{idOrName}/transitions/comment-required?from={step}&label={label}&to={step}` (`WorkflowTransitionComment` wrap `{ "commentRequired": true }`; Admin; existing transition only; packaged workflows `403`; aging transitions `400`; missing transition `404`) |

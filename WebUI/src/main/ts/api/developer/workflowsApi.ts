@@ -572,6 +572,11 @@ function parseWorkflowEdges(raw: unknown): NonNullable<WorkflowGraph["edges"]> {
     } else {
       delete next.agingType;
     }
+    if (typeof next.systemField === "string" && next.systemField.trim()) {
+      next.systemField = next.systemField.trim();
+    } else {
+      delete next.systemField;
+    }
     return next;
   });
 }
@@ -856,13 +861,32 @@ export function wrapWorkflowTransitionWriteForWire(
 
 export const WORKFLOW_AGING_TRANSITION_WRITE_ROOT = "WorkflowAgingTransitionWrite";
 
-/** Writable fields for POST .../workflows/{id}/aging-transitions (slice 57 absolute, slice 75 repeated). */
+/** Content-status date columns that can drive one system-field aging transition. */
+export const WORKFLOW_AGING_SYSTEM_FIELDS = [
+  "CONTENTSTARTDATE",
+  "CONTENTEXPIRYDATE",
+  "REMINDERDATE",
+] as const;
+
+/** True when {@code raw} is one of {@link WORKFLOW_AGING_SYSTEM_FIELDS}. */
+export function isWorkflowAgingSystemField(raw: string | null | undefined): boolean {
+  if (typeof raw !== "string") {
+    return false;
+  }
+  const name = raw.trim().toUpperCase();
+  return (WORKFLOW_AGING_SYSTEM_FIELDS as readonly string[]).includes(name);
+}
+
+/** Writable fields for POST .../workflows/{id}/aging-transitions (slice 57, 75, and 76). */
 export type WorkflowAgingTransitionWriteBody = {
   from: string;
   to: string;
-  intervalMinutes: number;
-  /** Omit or ABSOLUTE for absolute. REPEATED adds one repeated aging transition. */
-  type?: "ABSOLUTE" | "REPEATED";
+  /** Required for absolute and repeated. Omit for SYSTEM_FIELD. */
+  intervalMinutes?: number;
+  /** Omit or ABSOLUTE for absolute. REPEATED or SYSTEM_FIELD select the other kinds. */
+  type?: "ABSOLUTE" | "REPEATED" | "SYSTEM_FIELD";
+  /** Required when type is SYSTEM_FIELD. One of WORKFLOW_AGING_SYSTEM_FIELDS. */
+  systemField?: string;
 };
 
 /** Positive whole minutes. Rejects blank, zero, negatives, and non-integers. */
@@ -887,7 +911,7 @@ export function wrapWorkflowAgingTransitionWriteForWire(
   return { [WORKFLOW_AGING_TRANSITION_WRITE_ROOT]: body };
 }
 
-/** POST /services/workflows/{id}/aging-transitions — one absolute or repeated aging edge. */
+/** POST /services/workflows/{id}/aging-transitions — one absolute, repeated, or system-field edge. */
 export async function createWorkflowAgingTransition(
   idOrName: string,
   body: WorkflowAgingTransitionWriteBody,

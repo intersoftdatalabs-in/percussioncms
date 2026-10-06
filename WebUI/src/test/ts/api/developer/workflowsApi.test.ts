@@ -1134,6 +1134,62 @@ describe("workflow transition write API (slice 31)", () => {
     expect(String(init.body)).toContain("REPEATED");
   });
 
+  it("POSTs a system-field aging transition on the same resource and parses the field", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          workflowName: "Nightly QA",
+          packaged: false,
+          nodes: [{ name: "Draft" }, { name: "Review" }],
+          edges: [
+            {
+              from: "Draft",
+              to: "Review",
+              label: "Aging 15",
+              aging: true,
+              intervalMinutes: 15,
+              agingType: "ABSOLUTE",
+            },
+            {
+              from: "Draft",
+              to: "Review",
+              label: "Repeated aging 15",
+              aging: true,
+              intervalMinutes: 15,
+              agingType: "REPEATED",
+            },
+            {
+              from: "Draft",
+              to: "Review",
+              label: "System field aging CONTENTSTARTDATE",
+              aging: true,
+              agingType: "SYSTEM_FIELD",
+              systemField: "CONTENTSTARTDATE",
+            },
+          ],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const graph = await createWorkflowAgingTransition("Nightly QA", {
+      from: "Draft",
+      to: "Review",
+      type: "SYSTEM_FIELD",
+      systemField: "CONTENTSTARTDATE",
+    });
+    expect(graph.edges?.[2]?.agingType).toBe("SYSTEM_FIELD");
+    expect(graph.edges?.[2]?.systemField).toBe("CONTENTSTARTDATE");
+    expect(graph.edges?.[2]?.intervalMinutes).toBeUndefined();
+    expect(graph.edges?.[0]?.agingType).toBe("ABSOLUTE");
+    expect(graph.edges?.[1]?.agingType).toBe("REPEATED");
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(String(fetchMock.mock.calls[0][0])).toContain("/aging-transitions");
+    expect(String(fetchMock.mock.calls[0][0])).not.toContain("/system-field");
+    expect(String(init.body)).toContain("SYSTEM_FIELD");
+    expect(String(init.body)).toContain("CONTENTSTARTDATE");
+    expect(String(init.body)).not.toContain("intervalMinutes");
+  });
+
   it("propagates 409 when the aging transition already exists", async () => {
     fetchMock.mockResolvedValueOnce(
       new Response(JSON.stringify({ error: "exists" }), {

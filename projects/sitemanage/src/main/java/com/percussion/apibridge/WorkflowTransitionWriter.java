@@ -33,7 +33,8 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Creates or updates one workflow transition between existing steps. Does not add or delete
  * states. Absolute aging creates go through {@link #createAbsoluteAging}. Repeated aging creates
- * go through {@link #createRepeatedAging} on the same resource. Interval changes go through
+ * go through {@link #createRepeatedAging}. System-field aging creates go through
+ * {@link #createSystemFieldAging}. All three use the same resource. Interval changes go through
  * {@link #changeAbsoluteInterval}. Comment-required is not used for aging.
  */
 public final class WorkflowTransitionWriter {
@@ -200,6 +201,93 @@ public final class WorkflowTransitionWriter {
       throw new IllegalArgumentException("interval is too large");
     }
     return label;
+  }
+
+  /**
+   * Inserts one system-field aging transition. The system field is one of the content-status date
+   * columns. Does not use the minute interval as identity, does not replace an absolute or
+   * repeated aging transition, and does not add or delete states.
+   */
+  public static void createSystemFieldAging(
+      List<PSState> states,
+      String fromStep,
+      String toStep,
+      String systemField,
+      TransitionFactory factory) {
+    if (factory == null) {
+      throw new IllegalStateException("Transition id factory is required");
+    }
+    String field = canonicalSystemField(systemField);
+    String from = requireName(fromStep, "from");
+    String to = requireName(toStep, "to");
+    String label = systemFieldAgingLabel(field);
+    Index index = index(states);
+    PSState source = requireStep(index, from);
+    PSState dest = requireStep(index, to);
+    if (sameEdge(source, label, dest.getName(), index.names)
+        || sameSystemField(source, dest.getStateId(), field)) {
+      throw new WebApplicationException("Workflow aging transition already exists: " + label, 409);
+    }
+    PSTransition allocated = factory.allocate(source);
+    if (allocated == null) {
+      throw new IllegalStateException("Could not allocate a workflow transition id");
+    }
+    PSAgingTransition aging = new PSAgingTransition();
+    aging.setGUID(allocated.getGUID());
+    long workflowId = allocated.getWorkflowId();
+    if (workflowId == 0) {
+      workflowId = source.getWorkflowId();
+    }
+    aging.setWorkflowId(workflowId);
+    aging.setStateId(source.getStateId());
+    aging.setToState(dest.getStateId());
+    aging.setType(PSAgingTypeEnum.SYSTEM_FIELD);
+    aging.setSystemField(field);
+    aging.setInterval(1L);
+    aging.setLabel(label);
+    aging.setTrigger(label);
+    if (StringUtils.isBlank(aging.getDescription())) {
+      aging.setDescription(label);
+    }
+    source.addAgingTransition(aging);
+  }
+
+  static String systemFieldAgingLabel(String systemField) {
+    String label = "System field aging " + systemField;
+    if (label.length() > NAME_MAX) {
+      throw new IllegalArgumentException("system field name is too long");
+    }
+    return label;
+  }
+
+  static String canonicalSystemField(String systemField) {
+    if (systemField == null || systemField.isBlank()) {
+      throw new IllegalArgumentException("system field is required");
+    }
+    String normalized = systemField.trim().toUpperCase(Locale.ROOT);
+    if (!"CONTENTSTARTDATE".equals(normalized)
+        && !"CONTENTEXPIRYDATE".equals(normalized)
+        && !"REMINDERDATE".equals(normalized)) {
+      throw new IllegalArgumentException(
+          "system field must be CONTENTSTARTDATE, CONTENTEXPIRYDATE, or REMINDERDATE");
+    }
+    return normalized;
+  }
+
+  private static boolean sameSystemField(PSState source, long toStateId, String systemField) {
+    for (PSAgingTransition existing : copyAging(source)) {
+      if (existing == null || existing.getToState() != toStateId) {
+        continue;
+      }
+      if (existing.getAgingTypeEnum() != PSAgingTypeEnum.SYSTEM_FIELD) {
+        continue;
+      }
+      String stored = existing.getSystemField();
+      if (stored != null && stored.trim().equalsIgnoreCase(systemField)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private static boolean sameTypedInterval(
