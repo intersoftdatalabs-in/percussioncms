@@ -428,9 +428,10 @@ export async function createDeliveryType(
  * PUT update. A rename sends {@code name} only so bean name, description, and
  * the unpublishing-requires-assembly flag stay stored. A description change
  * sends {@code description} only (empty string clears it) so name and bean
- * stay stored.
- * HTTP 400 invalid name or overlong description; 403 non-Admin/Designer;
- * 409 duplicate name.
+ * stay stored. A bean-name change sends {@code beanName} only so name and
+ * description stay stored. A blank bean name is not a clear.
+ * HTTP 400 invalid name, blank or overlong bean, or overlong description;
+ * 403 non-Admin/Designer; 409 duplicate name.
  */
 export async function updateDeliveryType(
   id: string | number,

@@ -1189,6 +1189,87 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void updateDeliveryType_beanOnly_keepsNameAndDescription() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.DELIVERY_TYPE))).thenReturn(deliveryTypeGuid);
+    IPSDeliveryType loaded = mock(IPSDeliveryType.class);
+    when(publisherService.loadDeliveryTypeModifiable(deliveryTypeGuid)).thenReturn(loaded);
+    when(loaded.getGUID()).thenReturn(deliveryTypeGuid);
+    when(deliveryTypeGuid.getUUID()).thenReturn(5);
+    when(loaded.getName()).thenReturn("filesystem");
+    when(loaded.getBeanName()).thenReturn("sys_ftpDeliveryHandler");
+    when(loaded.getDescription()).thenReturn("kept description");
+    when(loaded.isUnpublishingRequiresAssembly()).thenReturn(true);
+
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setBeanName("  sys_ftpDeliveryHandler  ");
+
+    PSDeliveryTypeSummary saved = service.updateDeliveryType("5", body);
+    assertEquals("5", saved.getDeliveryTypeId());
+    assertEquals("filesystem", saved.getName());
+    assertEquals("sys_ftpDeliveryHandler", saved.getBeanName());
+    assertEquals("kept description", saved.getDescription());
+    assertTrue(saved.isUnpublishingRequiresAssembly());
+    verify(loaded).setBeanName("sys_ftpDeliveryHandler");
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setUnpublishingRequiresAssembly(anyBoolean());
+    verify(publisherService, never()).loadDeliveryType(any(String.class));
+    verify(publisherService).saveDeliveryType(loaded);
+  }
+
+  @Test
+  void updateDeliveryType_blankBean_400_doesNotWrite() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.DELIVERY_TYPE))).thenReturn(deliveryTypeGuid);
+    IPSDeliveryType loaded = mock(IPSDeliveryType.class);
+    when(publisherService.loadDeliveryTypeModifiable(deliveryTypeGuid)).thenReturn(loaded);
+
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setName("Renamed");
+    body.setBeanName("   ");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateDeliveryType("5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.DELIVERY_TYPE_BEAN_NAME_REQUIRED, ex.getMessage());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setBeanName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(publisherService, never()).saveDeliveryType(any());
+  }
+
+  @Test
+  void updateDeliveryType_beanTooLong_400_doesNotChangeNameOrDescription() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.DELIVERY_TYPE))).thenReturn(deliveryTypeGuid);
+    IPSDeliveryType loaded = mock(IPSDeliveryType.class);
+    when(publisherService.loadDeliveryTypeModifiable(deliveryTypeGuid)).thenReturn(loaded);
+
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setName("Renamed");
+    body.setDescription("new notes");
+    body.setBeanName(
+        "b".repeat(PSPublishingDesignRestService.MAX_DELIVERY_TYPE_BEAN_NAME_LENGTH + 1));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateDeliveryType("5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.DELIVERY_TYPE_BEAN_NAME_TOO_LONG, ex.getMessage());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setBeanName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(publisherService, never()).saveDeliveryType(any());
+  }
+
+  @Test
+  void updateDeliveryType_bean_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setBeanName("sys_ftpDeliveryHandler");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateDeliveryType("5", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(publisherService, never()).loadDeliveryTypeModifiable(any());
+    verify(publisherService, never()).saveDeliveryType(any());
+  }
+
+  @Test
   void updateDeliveryType_duplicateNameWithDescription_409_doesNotChangeDescription()
       throws Exception {
     when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.DELIVERY_TYPE))).thenReturn(deliveryTypeGuid);
