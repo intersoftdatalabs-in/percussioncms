@@ -773,6 +773,134 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void updateContentList_generatorOnly_keepsNameDescriptionTypeUrlAndFilter() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = contentListForSummary("NightCl");
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+    when(loaded.getDescription()).thenReturn("Night notes");
+    when(loaded.getGenerator()).thenReturn("sys_Changed");
+    when(loaded.getUrl()).thenReturn("/Rhythmyx/contentlist");
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setGenerator("  sys_Changed  ");
+
+    PSContentListSummary saved = service.updateContentList("5", body);
+    assertEquals("NightCl", saved.getName());
+    assertEquals("modern", saved.getListType());
+    assertEquals("Night notes", saved.getDescription());
+    assertEquals("sys_Changed", saved.getGenerator());
+    assertEquals("/Rhythmyx/contentlist", saved.getUrl());
+    verify(loaded).setGenerator("sys_Changed");
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setUrl(any());
+    verify(loaded, never()).setFilterId(any());
+    verify(loaded, never()).setContentListType(any());
+    verify(publisherService).saveContentList(loaded);
+  }
+
+  @Test
+  void updateContentList_blankGenerator_400_doesNotChangeFields() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = mock(IPSContentList.class);
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setDescription("Night notes");
+    body.setGenerator("   ");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTENT_LIST_GENERATOR_REQUIRED, ex.getMessage());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setGenerator(any());
+    verify(loaded, never()).setUrl(any());
+    verify(loaded, never()).setFilterId(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void updateContentList_generatorTooLong_400_doesNotChangeFields() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = mock(IPSContentList.class);
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setDescription("Night notes");
+    body.setGenerator(
+        "g".repeat(PSPublishingDesignRestService.MAX_CONTENT_LIST_GENERATOR_LENGTH + 1));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTENT_LIST_GENERATOR_TOO_LONG, ex.getMessage());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setGenerator(any());
+    verify(loaded, never()).setUrl(any());
+    verify(loaded, never()).setFilterId(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void updateContentList_generatorOnLegacy_400_doesNotChangeUrl() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = mock(IPSContentList.class);
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+    when(loaded.isLegacy()).thenReturn(true);
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setGenerator("sys_Search");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTENT_LIST_GENERATOR_LEGACY, ex.getMessage());
+    verify(loaded, never()).setGenerator(any());
+    verify(loaded, never()).setUrl(any());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setFilterId(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void updateContentList_generator_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+    PSContentListSummary body = new PSContentListSummary();
+    body.setGenerator("sys_Changed");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(publisherService, never()).loadContentListModifiable(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void updateContentList_duplicateNameWithGenerator_409_doesNotChangeGenerator() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = mock(IPSContentList.class);
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+
+    IPSGuid otherGuid = mock(IPSGuid.class);
+    IPSContentList existing = mock(IPSContentList.class);
+    when(existing.getGUID()).thenReturn(otherGuid);
+    when(otherGuid.getUUID()).thenReturn(99);
+    when(publisherService.findContentListByName("Taken")).thenReturn(Optional.of(existing));
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setName("Taken");
+    body.setGenerator("sys_Changed");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setGenerator(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
   void updateContentList_unknownItemFilter_400() throws Exception {
     IPSGuid missing = mock(IPSGuid.class);
     when(guidManager.makeGuid(eq("999"), eq(PSTypeEnum.ITEM_FILTER))).thenReturn(missing);

@@ -26,13 +26,18 @@ import {
 import { message, MSG } from "../../i18n/message";
 import { contentListsAfterSuccessfulCopy } from "../contentListCopy";
 import { contentListsAfterSuccessfulDescription } from "../contentListDescription";
+import { contentListsAfterSuccessfulGenerator } from "../contentListGenerator";
 import { storedItemFilterLabel } from "../contentListItemFilter";
 import { editionsAfterSuccessfulComment } from "../editionComment";
 import { editionsAfterSuccessfulPriority } from "../editionPriority";
 import { ContentListCopyPanel } from "../design/ContentListCopyPanel";
 import { ContentListDescriptionPanel } from "../design/ContentListDescriptionPanel";
+import { ContentListGeneratorPanel } from "../design/ContentListGeneratorPanel";
 import { ContentListEditor } from "../design/ContentListEditor";
-import { isLegacyContentList } from "../design/designLegacyTypes";
+import {
+  isLegacyContentList,
+  normalizeListType,
+} from "../design/designLegacyTypes";
 import { ContextsPanel } from "../design/ContextsPanel";
 import { DeliveryTypesPanel } from "../design/DeliveryTypesPanel";
 import { EditionCommentPanel } from "../design/EditionCommentPanel";
@@ -78,6 +83,7 @@ export function DesignSection(): React.ReactElement {
   const [clEdit, setClEdit] = useState<ContentListSummary | null | "new">(null);
   const [clCopy, setClCopy] = useState<ContentListSummary | null>(null);
   const [clDescribe, setClDescribe] = useState<ContentListSummary | null>(null);
+  const [clGenerator, setClGenerator] = useState<ContentListSummary | null>(null);
 
   useEffect(() => {
     fetchSites()
@@ -251,6 +257,36 @@ export function DesignSection(): React.ReactElement {
                 refreshed,
                 id,
                 description,
+                prev,
+              ),
+            );
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (clGenerator !== null) {
+    const edited = clGenerator;
+    return (
+      <div data-testid="publish-section-design">
+        <ContentListGeneratorPanel
+          contentList={edited}
+          onCancel={() => setClGenerator(null)}
+          onSaved={async (generator) => {
+            const id = edited.contentListId ?? "";
+            setClGenerator(null);
+            let refreshed: ContentListSummary[] | null = null;
+            try {
+              refreshed = await listContentLists();
+            } catch {
+              refreshed = null;
+            }
+            setContentLists((prev) =>
+              contentListsAfterSuccessfulGenerator(
+                refreshed,
+                id,
+                generator,
                 prev,
               ),
             );
@@ -457,6 +493,17 @@ export function DesignSection(): React.ReactElement {
                     Description
                   </button>
                 )}
+                {c.contentListId &&
+                  normalizeListType(c.listType) === "modern" && (
+                    <button
+                      type="button"
+                      style={buttonStyle}
+                      data-testid={`design-content-list-generator-${c.contentListId}`}
+                      onClick={() => setClGenerator(c)}
+                    >
+                      Generator
+                    </button>
+                  )}
                 <span
                   style={{ color: "#666" }}
                   data-testid={

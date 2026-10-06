@@ -120,6 +120,16 @@ public class PSPublishingDesignRestService {
 
   static final String CONTENT_LIST_DESCRIPTION_TOO_LONG =
       "Content list description must be 255 characters or fewer";
+  /** Matches {@code RXCONTENTLIST.GENERATOR} VARCHAR(256). */
+  static final int MAX_CONTENT_LIST_GENERATOR_LENGTH = 256;
+
+  static final String CONTENT_LIST_GENERATOR_REQUIRED = "Content list generator is required";
+
+  static final String CONTENT_LIST_GENERATOR_TOO_LONG =
+      "Content list generator must be 256 characters or fewer";
+
+  static final String CONTENT_LIST_GENERATOR_LEGACY =
+      "A legacy content list does not use a generator";
   /** Request named an item filter that is not on the system. */
   static final String UNKNOWN_ITEM_FILTER = "Unknown item filter";
   /** Still linked to at least one edition. Removing that association is a separate action. */
@@ -512,7 +522,10 @@ public class PSPublishingDesignRestService {
   /**
    * Update one content list. A description-only body leaves the name, type, generator, URL, and
    * item filter stored. A blank description clears it. A description longer than
-   * {@link #MAX_CONTENT_LIST_DESCRIPTION_LENGTH} is HTTP 400 and writes nothing.
+   * {@link #MAX_CONTENT_LIST_DESCRIPTION_LENGTH} is HTTP 400 and writes nothing. A generator-only
+   * body leaves the name, description, type, URL, and item filter stored. A blank generator, a
+   * generator longer than {@link #MAX_CONTENT_LIST_GENERATOR_LENGTH}, or a generator sent for a
+   * legacy list is HTTP 400 and writes nothing, including the legacy URL.
    */
   @PUT
   @Path("/contentlists/{contentListId}")
@@ -1461,13 +1474,30 @@ public class PSPublishingDesignRestService {
         nextDescription = null;
       }
     }
+    // Reject a bad generator before any field is written so 400 leaves the stored row.
+    String nextGenerator = null;
+    boolean applyGenerator = !isCreate && body.getGenerator() != null;
+    if (applyGenerator) {
+      nextGenerator = body.getGenerator().trim();
+      if (nextGenerator.isEmpty()) {
+        throw badRequest(CONTENT_LIST_GENERATOR_REQUIRED);
+      }
+      if (nextGenerator.length() > MAX_CONTENT_LIST_GENERATOR_LENGTH) {
+        throw badRequest(CONTENT_LIST_GENERATOR_TOO_LONG);
+      }
+      if (cl.isLegacy()) {
+        throw badRequest(CONTENT_LIST_GENERATOR_LEGACY);
+      }
+    }
     if (!isBlank(body.getName()) && !isCreate) {
       cl.setName(body.getName().trim());
     }
     if (applyDescription) {
       cl.setDescription(nextDescription);
     }
-    if (body.getGenerator() != null) {
+    if (applyGenerator) {
+      cl.setGenerator(nextGenerator);
+    } else if (isCreate && body.getGenerator() != null) {
       cl.setGenerator(body.getGenerator());
     }
     if (body.getUrl() != null && !body.getUrl().isBlank()) {
