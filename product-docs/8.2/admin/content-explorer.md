@@ -932,7 +932,7 @@ From the **View** menu you can also toggle:
   shows the error and does not claim that every relationship was removed.
   A folder row (`rs_folder` / `folder`), if present, has no Remove control and
   is left in place. Folder membership is otherwise not listed. A folder with no page or asset selected keeps
-  the select-item hint and does not claim a relationship was removed, added, moved, moved to another slot, opened, or its snippet template changed.
+  the select-item hint and does not claim a relationship was removed, added, moved, moved to another slot, linked into a slot, opened, or its snippet template changed.
   **Add relationship** asks for a target content id and a non-folder relationship
   type (for example **Translation**). **Cancel** does not call the server.
   **Add relationship** in the dialog calls
@@ -1001,9 +1001,25 @@ From the **View** menu you can also toggle:
   call returns the destination slot. HTTP **400**, **403**, and **409** stay
   on the panel, keep the previous slot, and do not show *Relationship moved
   to the other slot.* A folder selection keeps the select-item hint and does
-  not claim a move. An empty selection or a folder
+  not claim a move. **Link existing item** is on a slot that already lists
+  an Active Assembly row. It is not **Add relationship** (that writes a
+  non-folder relationship type and does not choose a slot) and it does not
+  create a new item. Select the slot, or use **Link existing item** on that
+  slot. The dialog asks for the id of a page or asset that already exists
+  and a snippet template allowed for that slot
+  (`GET /services/assembly/slot-relationships/allowed-templates?slotId=`).
+  **Cancel**, a blank id, or an id that is not a page or asset does not call
+  the server and does not list a new row. A folder row, a translation row,
+  or any selection that is not a slot does not open the add and does not
+  show *Item linked into the slot.* **Link into slot** calls
+  `POST /services/assembly/slot-relationships` with the page as `ownerId`,
+  the existing item as `dependentId`, the selected `slotId`, and the chosen
+  `templateId`. The slot lists that item only after the call returns the
+  same slot and the same item. HTTP **400**, **403**, and **409** stay on
+  the panel, do not show *Item linked into the slot.*, and do not list the
+  item in the slot. An empty selection or a folder
   selection keeps the select-item hint and does not claim a relationship was
-  added, moved, moved to another slot, opened, or its snippet template changed. When the
+  added, moved, moved to another slot, linked into a slot, opened, or its snippet template changed. When the
   item has relationship buckets, taxonomy nodes, local links, or Active
   Assembly links, those edges are listed. When every count is zero the panel
   says **No known dependencies for this item** — that is not a successful

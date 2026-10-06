@@ -39,10 +39,12 @@ import { composeFromServerSummary, labelFor } from "./dependencyModel";
 import { parseExplorerContentId } from "../../api/contentExplorer/pathItemId";
 import type { PSExplorerRelationshipEdge } from "../../api/contentExplorer/relationship";
 import {
+  addSlotRelationship,
   changeSlotTemplateSlot,
   fetchSlotAllowedTemplates,
   fetchSlotCanvas,
   moveSlotRelationship,
+  type SlotAddRequest,
   type SlotAllowedChoice,
   type SlotCanvasSlot,
   type SlotRelationship,
@@ -75,6 +77,13 @@ import {
   type RelationshipSlotChoice,
   type RelationshipSlotMoveBlock,
 } from "../moveRelationshipSlot";
+import {
+  applyLinkedItemToSlot,
+  gateLinkExistingItem,
+  knownActiveAssemblySlotIds,
+  type LinkExistingBlock,
+  type LinkSlotSelection,
+} from "../linkExistingItemToSlot";
 import { OpenRelatedItemDialog } from "../OpenRelatedItemDialog";
 import {
   openRelatedItemInEditor,
@@ -143,6 +152,12 @@ export interface RelationshipsViewProps {
     slotId: number,
     templateId: number,
   ) => Promise<SlotRelationship>;
+  /**
+   * Optional injection seam: link one existing page or asset into a slot.
+   * Defaults to {@code POST /services/assembly/slot-relationships}.
+   * Does not create an item and does not use the relationships-panel add.
+   */
+  linkExisting?: (request: SlotAddRequest) => Promise<SlotRelationship>;
   /**
    * Optional injection seam: open one related content item in EditorHost.
    * Defaults to a fields probe, then the React editor. Does not change the
@@ -220,6 +235,7 @@ export function RelationshipsView(
     loadPageSlots = async (ownerId) => (await fetchSlotCanvas(ownerId)).slots,
     moveToSlot = (relationshipId, slotId, templateId) =>
       changeSlotTemplateSlot(relationshipId, slotId, templateId),
+    linkExisting = addSlotRelationship,
     openRelated = openRelatedItemInEditor,
     reserveRelatedWindow = reserveEditorWindow,
     composeSummary,
@@ -276,6 +292,16 @@ export function RelationshipsView(
   const [slotMoveBusy, setSlotMoveBusy] = React.useState(false);
   const [slotMoveNotice, setSlotMoveNotice] = React.useState(false);
   const [slotMoveError, setSlotMoveError] = React.useState<string | null>(null);
+  const [linkSelection, setLinkSelection] = React.useState<LinkSlotSelection>(
+    null,
+  );
+  const [linkSlotId, setLinkSlotId] = React.useState<number | null>(null);
+  const [linkTarget, setLinkTarget] = React.useState("");
+  const [linkChoices, setLinkChoices] = React.useState<SlotAllowedChoice[]>([]);
+  const [linkTemplate, setLinkTemplate] = React.useState("");
+  const [linkBusy, setLinkBusy] = React.useState(false);
+  const [linkNotice, setLinkNotice] = React.useState(false);
+  const [linkError, setLinkError] = React.useState<string | null>(null);
   const [addOpen, setAddOpen] = React.useState(false);
   const [addTarget, setAddTarget] = React.useState("");
   const [addType, setAddType] = React.useState("Translation");
@@ -314,6 +340,13 @@ export function RelationshipsView(
       setPickedSlot("");
       setSlotChoices([]);
       setPageSlots([]);
+      setLinkSelection(null);
+      setLinkSlotId(null);
+      setLinkTarget("");
+      setLinkTemplate("");
+      setLinkChoices([]);
+      setLinkNotice(false);
+      setLinkError(null);
       return;
     }
     setState({ kind: "loading" });
@@ -324,6 +357,8 @@ export function RelationshipsView(
     setOpenPrompt(null);
     setTemplateRequest(null);
     setSlotMoveRequest(null);
+    setLinkSlotId(null);
+    setLinkSelection(null);
     loadServerSummary(itemId)
       .then(async (summary) => {
         if (!alive) return;
@@ -382,6 +417,13 @@ export function RelationshipsView(
     setPickedSlot("");
     setSlotChoices([]);
     setPageSlots([]);
+    setLinkSelection(null);
+    setLinkSlotId(null);
+    setLinkTarget("");
+    setLinkTemplate("");
+    setLinkChoices([]);
+    setLinkNotice(false);
+    setLinkError(null);
   }, [itemId]);
 
   function statusOf(err: unknown): number | undefined {
@@ -463,6 +505,28 @@ export function RelationshipsView(
       return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_NOT_ALLOWED);
     }
     return message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_NEEDS);
+  }
+
+  function linkFailureMessage(err: unknown): string {
+    const status = statusOf(err);
+    if (status === 400) return message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_FAILED_400);
+    if (status === 403) return message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_FAILED_403);
+    if (status === 409) return message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_FAILED_409);
+    return err instanceof Error
+      ? err.message
+      : message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_FAILED);
+  }
+
+  function linkGateMessage(reason: LinkExistingBlock): string {
+    if (reason === "blank") return message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_BLANK);
+    if (reason === "missing") return message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_MISSING);
+    if (reason === "no_template") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_NO_TEMPLATE);
+    }
+    if (reason === "not_allowed") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_NOT_ALLOWED);
+    }
+    return message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_NOT_SLOT);
   }
 
   function slotLabelFor(slotId: number): string {
@@ -809,6 +873,112 @@ export function RelationshipsView(
     }
   }
 
+  function refuseLinkBecauseSelectionIsNotSlot(): void {
+    setLinkNotice(false);
+    setLinkSlotId(null);
+    setLinkError(message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_NOT_SLOT));
+  }
+
+  async function openLinkSlot(slotId: number): Promise<void> {
+    const known = knownActiveAssemblySlotIds(edges);
+    if (!known.includes(slotId)) {
+      setLinkSelection({ kind: "other" });
+      refuseLinkBecauseSelectionIsNotSlot();
+      return;
+    }
+    setLinkSelection({ kind: "slot", slotId });
+    setRemovedNotice(null);
+    setRemoveError(null);
+    setMovedNotice(false);
+    setMoveError(null);
+    setOpenedNotice(false);
+    setOpenError(null);
+    setOpenPrompt(null);
+    setAddedNotice(false);
+    setAddError(null);
+    setConfirmId(null);
+    setConfirmAll(false);
+    setMoveRequest(null);
+    setAddOpen(false);
+    setTemplateRequest(null);
+    setTemplateNotice(false);
+    setTemplateError(null);
+    setSlotMoveRequest(null);
+    setSlotMoveNotice(false);
+    setSlotMoveError(null);
+    setLinkNotice(false);
+    setLinkError(null);
+    setLinkTarget("");
+    setLinkTemplate("");
+    setLinkChoices([]);
+    setLinkSlotId(slotId);
+    try {
+      const choices = await loadAllowedTemplates(slotId);
+      setLinkChoices(choices);
+    } catch (err: unknown) {
+      setLinkNotice(false);
+      setLinkError(linkFailureMessage(err));
+    }
+  }
+
+  function openLinkFromSelection(): void {
+    if (linkSelection?.kind !== "slot") {
+      refuseLinkBecauseSelectionIsNotSlot();
+      return;
+    }
+    void openLinkSlot(linkSelection.slotId);
+  }
+
+  async function confirmLink(): Promise<void> {
+    if (!itemId || linkBusy || linkSlotId == null) return;
+    const gate = gateLinkExistingItem({
+      selection: { kind: "slot", slotId: linkSlotId },
+      targetRaw: linkTarget,
+      templateId: Number(linkTemplate),
+      allowedTemplateIds: linkChoices.map((choice) => choice.id),
+      knownSlotIds: knownActiveAssemblySlotIds(edges),
+      ownerId: Number(itemId),
+    });
+    if (!gate.ok) {
+      setLinkNotice(false);
+      setLinkError(linkGateMessage(gate.reason));
+      return;
+    }
+    setLinkBusy(true);
+    setLinkNotice(false);
+    setLinkError(null);
+    try {
+      const created = await linkExisting({
+        ownerId: gate.ownerId,
+        dependentId: gate.dependentId,
+        slotId: gate.slotId,
+        templateId: gate.templateId,
+      });
+      if (
+        created.slotId !== gate.slotId ||
+        created.dependentId !== gate.dependentId ||
+        !(created.relationshipId > 0)
+      ) {
+        setLinkNotice(false);
+        setLinkError(message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_FAILED));
+        return;
+      }
+      const templateName =
+        linkChoices.find((choice) => choice.id === gate.templateId)?.label ||
+        linkChoices.find((choice) => choice.id === gate.templateId)?.name ||
+        "";
+      setEdges((current) => applyLinkedItemToSlot(current, created, templateName));
+      setLinkSlotId(null);
+      setLinkError(null);
+      setLinkNotice(true);
+    } catch (err: unknown) {
+      setLinkNotice(false);
+      setLinkError(linkFailureMessage(err));
+    } finally {
+      setLinkBusy(false);
+    }
+  }
+
   async function confirmAdd(): Promise<void> {
     if (!itemId || adding) return;
     const target = addTarget.trim();
@@ -1136,6 +1306,25 @@ export function RelationshipsView(
             </button>
           </p>
         ) : null}
+        {linkNotice ? (
+          <p role="status" data-testid="relationships-link-slot-done">
+            {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_DONE)}
+          </p>
+        ) : null}
+        {linkError ? (
+          <p role="alert" data-testid="relationships-link-slot-error">
+            {linkError}
+          </p>
+        ) : null}
+        <p>
+          <button
+            type="button"
+            data-testid="relationships-link-existing"
+            onClick={() => openLinkFromSelection()}
+          >
+            {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT)}
+          </button>
+        </p>
         {edges.length === 0 ? (
           <p data-testid="relationships-remove-empty">
             {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_EMPTY)}
@@ -1147,7 +1336,10 @@ export function RelationshipsView(
           >
             {(() => {
               const grouped = groupActiveAssemblyBySlot(edges);
-              const renderEdge = (edge: PSExplorerRelationshipEdge) => {
+              const renderEdge = (
+                edge: PSExplorerRelationshipEdge,
+                inSlot: boolean,
+              ) => {
               const ends = relationshipMoveEnds(edges, edge);
               const openTarget = relatedItemOpenTarget(edge);
               const templateText = relationshipTemplateLabel(edge);
@@ -1156,6 +1348,7 @@ export function RelationshipsView(
                 key={edge.relationshipId}
                 data-testid={`relationships-edge-${edge.relationshipId}`}
                 data-slot-id={String(Number(edge.slotId ?? 0))}
+                data-dependent-id={String(Number(edge.dependentId ?? 0))}
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
@@ -1239,6 +1432,20 @@ export function RelationshipsView(
                       {message(EXPLORER_MSG.RELATIONSHIPS_MOVE_DOWN)}
                     </button>
                   ) : null}
+                  {!inSlot ? (
+                    <button
+                      type="button"
+                      data-testid={`relationships-select-edge-${edge.relationshipId}`}
+                      onClick={() => {
+                        setLinkSelection({ kind: "other" });
+                        setLinkNotice(false);
+                        setLinkSlotId(null);
+                        setLinkError(null);
+                      }}
+                    >
+                      {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_SELECT_ROW)}
+                    </button>
+                  ) : null}
                   {removableOwnedEdges([edge]).length === 0 ? (
                     <span data-testid={`relationships-folder-${edge.relationshipId}`}>
                       {edge.category}
@@ -1276,15 +1483,39 @@ export function RelationshipsView(
                       data-slot-id={String(group.slotId)}
                     >
                       <span>
-                        {message(EXPLORER_MSG.RELATIONSHIPS_SLOT_LABEL)}{" "}
-                        {slotLabelFor(group.slotId)}
+                        <button
+                          type="button"
+                          data-testid={`relationships-select-slot-${group.slotId}`}
+                          aria-pressed={
+                            linkSelection?.kind === "slot" &&
+                            linkSelection.slotId === group.slotId
+                          }
+                          onClick={() =>
+                            setLinkSelection({
+                              kind: "slot",
+                              slotId: group.slotId,
+                            })
+                          }
+                        >
+                          {message(EXPLORER_MSG.RELATIONSHIPS_SLOT_LABEL)}{" "}
+                          {slotLabelFor(group.slotId)}
+                        </button>
+                        <button
+                          type="button"
+                          data-testid={`relationships-link-slot-${group.slotId}`}
+                          onClick={() => {
+                            void openLinkSlot(group.slotId);
+                          }}
+                        >
+                          {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT)}
+                        </button>
                       </span>
                       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                        {group.edges.map((edge) => renderEdge(edge))}
+                        {group.edges.map((edge) => renderEdge(edge, true))}
                       </ul>
                     </li>
                   ))}
-                  {grouped.rest.map((edge) => renderEdge(edge))}
+                  {grouped.rest.map((edge) => renderEdge(edge, false))}
                 </>
               );
             })()}
@@ -1410,6 +1641,67 @@ export function RelationshipsView(
               }}
             >
               {message(EXPLORER_MSG.RELATIONSHIPS_MOVE_SLOT_DO)}
+            </button>
+          </div>
+        ) : null}
+        {linkSlotId != null ? (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="relationships-link-slot-title"
+            data-testid="relationships-link-slot-dialog"
+            style={{ marginTop: 8, padding: 8, border: "1px solid #ccc" }}
+          >
+            <h3 id="relationships-link-slot-title" style={{ fontSize: "1rem" }}>
+              {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_TITLE)}
+            </h3>
+            <label htmlFor="relationships-link-slot-target">
+              {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_TARGET)}
+            </label>
+            <input
+              id="relationships-link-slot-target"
+              data-testid="relationships-link-slot-target"
+              value={linkTarget}
+              onChange={(event) => setLinkTarget(event.target.value)}
+            />
+            <label htmlFor="relationships-link-slot-template">
+              {message(EXPLORER_MSG.RELATIONSHIPS_CHANGE_TEMPLATE_LABEL)}
+            </label>
+            <select
+              id="relationships-link-slot-template"
+              data-testid="relationships-link-slot-template"
+              value={linkTemplate}
+              onChange={(event) => setLinkTemplate(event.target.value)}
+            >
+              <option value="">
+                {message(EXPLORER_MSG.RELATIONSHIPS_CHANGE_TEMPLATE_PLACEHOLDER)}
+              </option>
+              {linkChoices.map((choice) => (
+                <option key={choice.id} value={String(choice.id)}>
+                  {choice.label || choice.name || String(choice.id)}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              data-testid="relationships-link-slot-cancel"
+              onClick={() => {
+                if (!linkBusy) {
+                  setLinkSlotId(null);
+                }
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_CANCEL)}
+            </button>
+            <button
+              type="button"
+              data-testid="relationships-link-slot-confirm"
+              disabled={linkBusy}
+              onClick={() => {
+                void confirmLink();
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_DO)}
             </button>
           </div>
         ) : null}

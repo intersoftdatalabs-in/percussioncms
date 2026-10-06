@@ -471,6 +471,31 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@That slot is not on this page",
   RELATIONSHIPS_MOVE_SLOT_FAILED:
     "perc.ui.explorer@Could not move the relationship to another slot",
+  RELATIONSHIPS_LINK_SLOT: "perc.ui.explorer@Link existing item",
+  RELATIONSHIPS_LINK_SLOT_DO: "perc.ui.explorer@Link into slot",
+  RELATIONSHIPS_LINK_SLOT_TITLE:
+    "perc.ui.explorer@Link an existing item into this slot",
+  RELATIONSHIPS_LINK_SLOT_TARGET: "perc.ui.explorer@Existing item id",
+  RELATIONSHIPS_LINK_SLOT_DONE: "perc.ui.explorer@Item linked into the slot.",
+  RELATIONSHIPS_LINK_SLOT_FAILED_400:
+    "perc.ui.explorer@The item could not be linked into that slot (HTTP 400)",
+  RELATIONSHIPS_LINK_SLOT_FAILED_403:
+    "perc.ui.explorer@You are not allowed to link an item into that slot (HTTP 403)",
+  RELATIONSHIPS_LINK_SLOT_FAILED_409:
+    "perc.ui.explorer@This item could not be linked into that slot (HTTP 409)",
+  RELATIONSHIPS_LINK_SLOT_BLANK:
+    "perc.ui.explorer@Enter the id of an existing page or asset.",
+  RELATIONSHIPS_LINK_SLOT_MISSING:
+    "perc.ui.explorer@That target is not an existing page or asset.",
+  RELATIONSHIPS_LINK_SLOT_NOT_SLOT:
+    "perc.ui.explorer@Select a slot before linking an existing item",
+  RELATIONSHIPS_LINK_SLOT_NO_TEMPLATE:
+    "perc.ui.explorer@Choose a snippet template before linking.",
+  RELATIONSHIPS_LINK_SLOT_NOT_ALLOWED:
+    "perc.ui.explorer@That snippet template is not allowed for this slot",
+  RELATIONSHIPS_LINK_SLOT_FAILED:
+    "perc.ui.explorer@Could not link the item into the slot",
+  RELATIONSHIPS_LINK_SLOT_SELECT_ROW: "perc.ui.explorer@Select row",
   // US5 P-Search / search panel (FR-017, FR-018, SC-005)
   SEARCH_TITLE: "perc.ui.explorer@Search",
   SEARCH_PLACEHOLDER: "perc.ui.explorer@Type to search…",

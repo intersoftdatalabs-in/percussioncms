@@ -1248,4 +1248,231 @@ describe("RelationshipsView", () => {
     );
     await renderA11yGate(container);
   });
+
+  function idsInSlot(slotId: number): string[] {
+    const group = screen.queryByTestId(`relationships-slot-group-${slotId}`);
+    if (!group) {
+      return [];
+    }
+    return Array.from(group.querySelectorAll("[data-testid^='relationships-edge-']")).map(
+      (el) => (el.getAttribute("data-testid") ?? "").replace("relationships-edge-", ""),
+    );
+  }
+
+  it("a folder row is not a slot and does not link an item (#5266)", async () => {
+    const link = vi.fn();
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [folderEdge, translationEdge]}
+        loadAllowedTemplates={async () => allowed}
+        linkExisting={link}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-82")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-link-slot-5")).toBeNull();
+    expect(screen.queryByTestId("relationships-link-slot-done")).toBeNull();
+    fireEvent.click(screen.getByTestId("relationships-select-edge-82"));
+    fireEvent.click(screen.getByTestId("relationships-link-existing"));
+    expect(link).not.toHaveBeenCalled();
+    expect(screen.getByTestId("relationships-link-slot-error")).toBeTruthy();
+    expect(screen.queryByTestId("relationships-link-slot-dialog")).toBeNull();
+    expect(screen.queryByTestId("relationships-link-slot-done")).toBeNull();
+  });
+
+  it("cancel and a blank or missing target do not link into the slot (#5266)", async () => {
+    const link = vi.fn();
+    const add = vi.fn();
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted, slottedSibling, folderEdge]}
+        loadAllowedTemplates={async () => allowed}
+        linkExisting={link}
+        addEdge={add}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-link-slot-5")).toBeTruthy(),
+    );
+    expect(idsInSlot(5)).toEqual(["71", "72"]);
+    fireEvent.click(screen.getByTestId("relationships-link-slot-5"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Full story" })).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-link-slot-confirm"));
+    expect(link).not.toHaveBeenCalled();
+    expect(add).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-link-slot-done")).toBeNull();
+    expect(screen.getByTestId("relationships-link-slot-error")).toBeTruthy();
+    expect(idsInSlot(5)).toEqual(["71", "72"]);
+
+    fireEvent.change(screen.getByTestId("relationships-link-slot-target"), {
+      target: { value: "not-an-item" },
+    });
+    fireEvent.change(screen.getByTestId("relationships-link-slot-template"), {
+      target: { value: "8" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-link-slot-confirm"));
+    expect(link).not.toHaveBeenCalled();
+    expect(idsInSlot(5)).toEqual(["71", "72"]);
+
+    fireEvent.change(screen.getByTestId("relationships-link-slot-target"), {
+      target: { value: "88" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-link-slot-cancel"));
+    expect(link).not.toHaveBeenCalled();
+    expect(add).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-link-slot-dialog")).toBeNull();
+    expect(screen.queryByTestId("relationships-link-slot-done")).toBeNull();
+    expect(idsInSlot(5)).toEqual(["71", "72"]);
+  });
+
+  it("lists the item in the selected slot only after the slot add succeeds (#5266)", async () => {
+    let release: (value: {
+      relationshipId: number;
+      ownerId: number;
+      dependentId: number;
+      slotId: number;
+      templateId: number;
+      sortRank: number;
+    }) => void = () => {};
+    const gate = new Promise<{
+      relationshipId: number;
+      ownerId: number;
+      dependentId: number;
+      slotId: number;
+      templateId: number;
+      sortRank: number;
+    }>((resolve) => {
+      release = resolve;
+    });
+    const link = vi.fn().mockReturnValue(gate);
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted, slottedSibling]}
+        loadAllowedTemplates={async () => allowed}
+        linkExisting={link}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-link-slot-5")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-select-slot-5"));
+    fireEvent.click(screen.getByTestId("relationships-link-existing"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Brief" })).toBeTruthy(),
+    );
+    fireEvent.change(screen.getByTestId("relationships-link-slot-target"), {
+      target: { value: "88" },
+    });
+    fireEvent.change(screen.getByTestId("relationships-link-slot-template"), {
+      target: { value: "4" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-link-slot-confirm"));
+    expect(link).toHaveBeenCalledWith({
+      ownerId: 42,
+      dependentId: 88,
+      slotId: 5,
+      templateId: 4,
+    });
+    expect(screen.queryByTestId("relationships-edge-91")).toBeNull();
+    expect(screen.queryByTestId("relationships-link-slot-done")).toBeNull();
+    expect(idsInSlot(5)).toEqual(["71", "72"]);
+    release({
+      relationshipId: 91,
+      ownerId: 42,
+      dependentId: 88,
+      slotId: 5,
+      templateId: 4,
+      sortRank: 2,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-link-slot-done")).toBeTruthy(),
+    );
+    expect(idsInSlot(5)).toEqual(["71", "72", "91"]);
+    expect(screen.getByTestId("relationships-edge-91")).toHaveAttribute(
+      "data-dependent-id",
+      "88",
+    );
+    expect(screen.getByTestId("relationships-edge-91")).toHaveAttribute(
+      "data-slot-id",
+      "5",
+    );
+    expect(link).toHaveBeenCalledTimes(1);
+  });
+
+  async function expectLinkStays(status: number): Promise<void> {
+    const link = vi
+      .fn()
+      .mockRejectedValue(Object.assign(new Error("no"), { status }));
+    render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted]}
+        loadAllowedTemplates={async () => allowed}
+        linkExisting={link}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-link-slot-5")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-link-slot-5"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Full story" })).toBeTruthy(),
+    );
+    fireEvent.change(screen.getByTestId("relationships-link-slot-target"), {
+      target: { value: "88" },
+    });
+    fireEvent.change(screen.getByTestId("relationships-link-slot-template"), {
+      target: { value: "8" },
+    });
+    fireEvent.click(screen.getByTestId("relationships-link-slot-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-link-slot-error")).toBeTruthy(),
+    );
+    expect(screen.queryByTestId("relationships-link-slot-done")).toBeNull();
+    expect(screen.queryByTestId("relationships-edge-91")).toBeNull();
+    expect(idsInSlot(5)).toEqual(["71"]);
+    expect(link).toHaveBeenCalledTimes(1);
+  }
+
+  it("HTTP 400 does not list the item in the slot (#5266)", async () => {
+    await expectLinkStays(400);
+  });
+
+  it("HTTP 403 does not list the item in the slot (#5266)", async () => {
+    await expectLinkStays(403);
+  });
+
+  it("HTTP 409 does not list the item in the slot (#5266)", async () => {
+    await expectLinkStays(409);
+  });
+
+  it("link-into-slot dialog passes the zero serious/critical axe-core gate (#5266)", async () => {
+    const { container } = render(
+      <RelationshipsView
+        item={{ id: "42", folderPath: "/p" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted, folderEdge]}
+        loadAllowedTemplates={async () => allowed}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-link-slot-5")).toBeTruthy(),
+    );
+    await renderA11yGate(container);
+    fireEvent.click(screen.getByTestId("relationships-link-slot-5"));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Brief" })).toBeTruthy(),
+    );
+    await renderA11yGate(container);
+  });
 });
