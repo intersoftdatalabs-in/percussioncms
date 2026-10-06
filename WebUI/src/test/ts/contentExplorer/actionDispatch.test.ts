@@ -1084,6 +1084,93 @@ describe("actionDispatch", () => {
     expect(result.refresh).toBeUndefined();
   });
 
+  it("New Copy on two checked rows copies each page and asset and names folders", async () => {
+    const order: string[] = [];
+    const createCopy = vi.fn(async (id: string) => {
+      order.push(`copy:${id}`);
+    });
+    const onItemCopied = vi.fn(async (copied: { sourceId: string }) => {
+      order.push(`shown:${copied.sourceId}`);
+    });
+    const result = await dispatchAction(action({ name: "Workflow_NewVersion" }), {
+      item: item(),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({
+          id: "7",
+          name: "News",
+          type: "Folder",
+          category: "folder",
+          path: "/Sites/Demo/News/",
+        }),
+        item({
+          id: "88",
+          name: "Logo",
+          type: "percImage",
+          category: "asset",
+          path: "/Assets/uploads/logo.png",
+        }),
+      ],
+      createCopy,
+      onItemCopied,
+      confirm: (body) => {
+        expect(body).toContain("Create a new copy of 2 selected items");
+        expect(body).toContain("Folders in the selection are not copied");
+        return true;
+      },
+    });
+    expect(order).toEqual(["copy:42", "shown:42", "copy:88", "shown:88"]);
+    expect(createCopy).not.toHaveBeenCalledWith("7");
+    expect(result.refresh).toBe(true);
+    expect(result.outcome).toBeUndefined();
+    expect(result.messageText).toContain("Folders are not copied: News");
+    expect(result.messageKey).toBe(EXPLORER_MSG.NEW_COPY_SKIPPED_FOLDERS);
+  });
+
+  it("New Copy multi-select cancel copies nothing", async () => {
+    const createCopy = vi.fn();
+    const onItemCopied = vi.fn();
+    const result = await dispatchAction(action({ name: "Workflow_NewVersion" }), {
+      item: item(),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About", path: "/Sites/Demo/About" }),
+      ],
+      createCopy,
+      onItemCopied,
+      confirm: () => false,
+    });
+    expect(createCopy).not.toHaveBeenCalled();
+    expect(onItemCopied).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageKey).toBeUndefined();
+  });
+
+  it("New Copy HTTP 409 on one checked item does not claim the whole selection", async () => {
+    const shown: string[] = [];
+    const result = await dispatchAction(action({ name: "Workflow_NewVersion" }), {
+      item: item(),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About", path: "/Sites/Demo/About" }),
+      ],
+      createCopy: async (id: string) => {
+        if (id === "43") {
+          throw { status: 409, statusText: "conflict", body: {} };
+        }
+      },
+      onItemCopied: (copied) => {
+        shown.push(copied.sourceId);
+      },
+      confirm: () => true,
+    });
+    expect(shown).toEqual(["42"]);
+    expect(result.refresh).toBe(true);
+    expect(result.outcome).toBeUndefined();
+    expect(result.messageText).toContain("About (HTTP 409)");
+    expect(result.messageText).toContain("Not every selected item got a new copy");
+  });
+
   it("Promotable Version cancel does not create", async () => {
     const createPromotable = vi.fn();
     const result = await dispatchAction(

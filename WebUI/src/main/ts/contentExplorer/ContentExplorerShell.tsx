@@ -1754,6 +1754,9 @@ function ContentExplorerShellInner({
             item: current.item,
             folderPath: current.folderPath,
             selectedItems: Array.from(multiSelectedItemsRef.current.values()),
+            onItemCopied: () => {
+              setListEpoch((n) => n + 1);
+            },
             parentName:
               action.parentName ??
               findMenuParentName(
