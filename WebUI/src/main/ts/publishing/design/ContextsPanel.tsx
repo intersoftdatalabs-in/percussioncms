@@ -73,6 +73,11 @@ import {
   suggestedLocationSchemeCopyName,
   validateLocationSchemeCopyName,
 } from "../locationSchemeCopy";
+import {
+  buildLocationSchemeRenameBody,
+  schemesAfterSuccessfulRename,
+  validateLocationSchemeRenameName,
+} from "../locationSchemeRename";
 import { useDirtyForm } from "../dirtyFormContext";
 import { normalizeSchemeType } from "./designLegacyTypes";
 import { SiteRootBrowser } from "./SiteRootBrowser";
@@ -84,7 +89,8 @@ type Mode =
   | { kind: "context-rename"; source: ContextSummary }
   | { kind: "context-describe"; source: ContextSummary }
   | { kind: "scheme-edit"; scheme: LocationSchemeSummary | null; contextId: string }
-  | { kind: "scheme-copy"; source: LocationSchemeSummary; contextId: string };
+  | { kind: "scheme-copy"; source: LocationSchemeSummary; contextId: string }
+  | { kind: "scheme-rename"; source: LocationSchemeSummary; contextId: string };
 
 /**
  * Contexts CRUD + location schemes with parameters and path browser.
@@ -408,6 +414,67 @@ export function ContextsPanel(): React.ReactElement {
     setDirty(false);
     setError(null);
     setMode({ kind: "list" });
+  }
+
+  async function openSchemeRename(source: LocationSchemeSummary): Promise<void> {
+    if (!source.schemeId || !selected || saving) {
+      return;
+    }
+    setError(null);
+    setDirty(false);
+    const contextId = selected;
+    let full = source;
+    try {
+      full = await getScheme(source.schemeId);
+    } catch {
+      full = source;
+    }
+    setRenameName(full.name ?? source.name ?? "");
+    setMode({ kind: "scheme-rename", source: full, contextId });
+  }
+
+  function closeSchemeRename(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setMode({ kind: "list" });
+  }
+
+  async function renameScheme(): Promise<void> {
+    if (mode.kind !== "scheme-rename" || !mode.source.schemeId || saving) {
+      return;
+    }
+    const validated = validateLocationSchemeRenameName(renameName);
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    const id = String(mode.source.schemeId);
+    const contextId = mode.contextId;
+    setError(null);
+    setSaving(true);
+    const previous = schemes;
+    try {
+      await updateScheme(id, buildLocationSchemeRenameBody(validated.name));
+      setDirty(false);
+      setMode({ kind: "list" });
+      let refreshed: LocationSchemeSummary[] | null = null;
+      try {
+        refreshed = await listSchemesForContext(contextId);
+      } catch {
+        refreshed = null;
+      }
+      setSchemes(schemesAfterSuccessfulRename(refreshed, id, validated.name, previous));
+    } catch (e) {
+      setError(mapLocationSchemeSaveError(e));
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function copyScheme(): Promise<void> {
@@ -929,6 +996,82 @@ export function ContextsPanel(): React.ReactElement {
     );
   }
 
+  if (mode.kind === "scheme-rename") {
+    const source = mode.source;
+    return (
+      <div data-testid="scheme-rename">
+        <h3>Rename location scheme</h3>
+        <p>
+          Generator:{" "}
+          <span data-testid="scheme-rename-generator">{source.generator ?? ""}</span>
+        </p>
+        <p>
+          Description:{" "}
+          <span data-testid="scheme-rename-description">{source.description ?? ""}</span>
+        </p>
+        <p>
+          Content type:{" "}
+          <span data-testid="scheme-rename-content-type">
+            {source.contentTypeId != null ? String(source.contentTypeId) : ""}
+          </span>
+        </p>
+        <p>
+          Template:{" "}
+          <span data-testid="scheme-rename-template">
+            {source.templateId != null ? String(source.templateId) : ""}
+          </span>
+        </p>
+        <p data-testid="scheme-rename-parameters-note">
+          Generator, description, content type, template, and parameters stay on this
+          scheme.
+        </p>
+        <ul data-testid="scheme-rename-parameters" style={listStyle}>
+          {(source.parameters ?? []).map((p, i) => (
+            <li key={`${p.name}-${i}`} data-testid="scheme-rename-parameter">
+              {p.name}: {p.value}
+            </li>
+          ))}
+        </ul>
+        <div style={formRowStyle}>
+          <label htmlFor="scheme-rename-name">* Name</label>
+          <input
+            id="scheme-rename-name"
+            value={renameName}
+            onChange={(e) => {
+              setRenameName(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="location-scheme-rename-submit"
+            disabled={saving}
+            onClick={() => void renameScheme()}
+          >
+            Rename scheme
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="location-scheme-rename-cancel"
+            disabled={saving}
+            onClick={closeSchemeRename}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (mode.kind === "scheme-copy") {
     return (
       <div data-testid="scheme-copy">
@@ -1099,6 +1242,15 @@ export function ContextsPanel(): React.ReactElement {
               </span>
               {s.schemeId && (
                 <>
+                  <button
+                    type="button"
+                    style={buttonStyle}
+                    data-testid="location-scheme-rename"
+                    disabled={saving}
+                    onClick={() => void openSchemeRename(s)}
+                  >
+                    Rename
+                  </button>
                   <button
                     type="button"
                     style={buttonStyle}
