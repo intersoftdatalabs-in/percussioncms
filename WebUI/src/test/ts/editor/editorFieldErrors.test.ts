@@ -41,6 +41,15 @@ describe("isEmptyEditorFieldValue", () => {
     expect(isEmptyEditorFieldValue("image", "", file)).toBe(false);
     expect(isEmptyEditorFieldValue("file", "", null)).toBe(true);
   });
+
+  it("treats a cleared required file as empty even when the stored name remains", () => {
+    const notes = new File(["x"], "notes.txt", { type: "text/plain" });
+    expect(isEmptyEditorFieldValue("file", "brief.pdf", null, true)).toBe(true);
+    expect(isEmptyEditorFieldValue("file", "brief.pdf", notes, true)).toBe(false);
+    expect(isEmptyEditorFieldValue("file", "brief.pdf", null, false)).toBe(false);
+    expect(isEmptyEditorFieldValue("file", "   ", null, false)).toBe(true);
+    expect(isEmptyEditorFieldValue("image", "hero.png", null, true)).toBe(false);
+  });
 });
 
 describe("collectRequiredFieldErrors", () => {
@@ -149,6 +158,25 @@ describe("collectRequiredFieldErrors", () => {
     expect(isEmptyEditorFieldValue("keyword", "")).toBe(true);
     expect(isEmptyEditorFieldValue("keyword", " \n\t ")).toBe(true);
     expect(isEmptyEditorFieldValue("keyword", "news")).toBe(false);
+  });
+
+  it("refuses a required file with nothing chosen and a cleared stored name", () => {
+    const notes = new File(["x"], "notes.txt", { type: "text/plain" });
+    const errors = collectRequiredFieldErrors(
+      [
+        { name: "item_file_attachment", kind: "file", required: true, value: "" },
+        { name: "brief", kind: "file", required: true, value: "brief.pdf" },
+        { name: "optional_file", kind: "file", required: false, value: "" },
+        { name: "img", kind: "image", required: true, value: "hero.png" },
+      ],
+      { notes: notes },
+      "This field is required.",
+      { brief: true, optional_file: true },
+    );
+    expect(errors).toEqual({
+      item_file_attachment: "This field is required.",
+      brief: "This field is required.",
+    });
   });
 });
 
