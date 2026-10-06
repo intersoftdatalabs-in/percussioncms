@@ -9453,3 +9453,295 @@ describe("EditorHost refuse clearing a required file (#5279)", () => {
     });
   });
 });
+
+describe("EditorHost refuse clearing a required image (#5280)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function imageMeta(filename: string, present: boolean) {
+    return {
+      contentId: "42",
+      field: "img",
+      filename,
+      contentType: present ? "image/png" : "",
+      present,
+    };
+  }
+
+  function requiredImageHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    uploadBinary?: (id: string, field: string, file: File) => Promise<unknown>;
+    clearBinary?: (id: string, field: string) => Promise<unknown>;
+    storedName?: string;
+    present?: boolean;
+    meta?: { storedName: string; present: boolean };
+    fieldValue?: string | null;
+    required?: boolean;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const meta = opts.meta ?? {
+      storedName: opts.storedName ?? (opts.present === false ? "" : "hero.png"),
+      present: opts.present !== false,
+    };
+    const present = meta.present;
+    const storedName = meta.storedName;
+    const fieldValue = opts.fieldValue === undefined ? (present ? storedName : null) : opts.fieldValue;
+    const itemFields = [{ name: "sys_title", value: "Hero" }];
+    if (fieldValue != null) {
+      itemFields.push({ name: "img", value: fieldValue });
+    }
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percImage",
+          name: "Hero",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: itemFields,
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        uploadBinary={opts.uploadBinary ?? vi.fn()}
+        clearBinary={opts.clearBinary ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            { name: "sys_title", label: "Title", control: "sys_EditBox" },
+            {
+              name: "img",
+              label: "Image",
+              control: "sys_webImageFX",
+              required: opts.required !== false,
+            },
+          ],
+        })}
+        loadBinaryMeta={async () => imageMeta(meta.storedName, meta.present)}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  function renderImageHost(element: React.ReactElement): void {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  async function openRequiredImage(
+    element: React.ReactElement,
+    filename = "hero.png",
+  ): Promise<void> {
+    renderImageHost(element);
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-img").textContent).toBe(filename);
+    });
+  }
+
+  it("does not save a required image when nothing is stored and nothing is chosen", async () => {
+    const saveFields = vi.fn();
+    const uploadBinary = vi.fn();
+    const clearBinary = vi.fn();
+    renderImageHost(
+      requiredImageHost({
+        saveFields,
+        uploadBinary,
+        clearBinary,
+        present: false,
+        fieldValue: null,
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-img").textContent).toMatch(
+        /no image attached/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-img").getAttribute("data-editor-kind")).toBe(
+      "image",
+    );
+    expect(screen.getByTestId("editor-field-row-img").getAttribute("data-required")).toBe(
+      "true",
+    );
+    expect(screen.queryByTestId("editor-file-clear-img")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-img").textContent).toBe(
+        "This field is required.",
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(document.activeElement).toBe(screen.getByTestId("editor-file-img"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(clearBinary).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-field-row-img").getAttribute("data-required")).toBe(
+      "true",
+    );
+  });
+
+  it("does not remove a required image on clear then save and reloads the previous image", async () => {
+    const saveFields = vi.fn();
+    const uploadBinary = vi.fn();
+    const clearBinary = vi.fn();
+    await openRequiredImage(
+      requiredImageHost({ saveFields, uploadBinary, clearBinary, fieldValue: "hero.png" }),
+    );
+    fireEvent.click(screen.getByTestId("editor-file-clear-img"));
+    expect(screen.getByTestId("editor-file-name-img").textContent).toMatch(
+      /no image attached/i,
+    );
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-img").textContent).toBe(
+        "This field is required.",
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(clearBinary).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-file-name-img").textContent).toMatch(
+      /no image attached/i,
+    );
+    cleanup();
+    await openRequiredImage(requiredImageHost({ saveFields, uploadBinary, clearBinary }));
+    expect(screen.getByTestId("editor-file-name-img").textContent).toBe("hero.png");
+    expect(clearBinary).not.toHaveBeenCalled();
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not write when Close cancels a required image clear", async () => {
+    const saveFields = vi.fn();
+    const clearBinary = vi.fn();
+    await openRequiredImage(
+      requiredImageHost({
+        saveFields,
+        clearBinary,
+        fieldValue: "hero.png",
+        confirmLeaveUnsaved: () => false,
+      }),
+    );
+    fireEvent.click(screen.getByTestId("editor-file-clear-img"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(clearBinary).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-file-name-img").textContent).toMatch(
+      /no image attached/i,
+    );
+    expect(screen.getByTestId("editor-field-row-img").getAttribute("data-required")).toBe(
+      "true",
+    );
+    cleanup();
+    await openRequiredImage(requiredImageHost({ saveFields, clearBinary }));
+    expect(screen.getByTestId("editor-file-name-img").textContent).toBe("hero.png");
+    expect(clearBinary).not.toHaveBeenCalled();
+  });
+
+  it("still saves a chosen image on a required image field", async () => {
+    const meta = { storedName: "hero.png", present: true };
+    const photo = new File(["png"], "photo.png", { type: "image/png" });
+    const uploadBinary = vi.fn(async () => {
+      meta.storedName = "photo.png";
+      return imageMeta("photo.png", true);
+    });
+    const clearBinary = vi.fn();
+    const saveFields = vi.fn(async () => ({
+      contentId: "42",
+      contentType: "percImage",
+      name: "Hero",
+      checkoutUser: "admin",
+      revision: 4,
+      fields: [
+        { name: "sys_title", value: "Hero" },
+        { name: "img", value: "photo.png" },
+      ],
+    }));
+    await openRequiredImage(
+      requiredImageHost({
+        saveFields,
+        uploadBinary,
+        clearBinary,
+        meta,
+        fieldValue: "hero.png",
+      }),
+    );
+    fireEvent.change(screen.getByTestId("editor-file-img"), {
+      target: { files: [photo] },
+    });
+    expect(screen.getByTestId("editor-file-name-img").textContent).toBe("photo.png");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    expect(uploadBinary).toHaveBeenCalledWith("42", "img", photo);
+    expect(clearBinary).not.toHaveBeenCalled();
+    expect(saveFields).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-img").textContent).toBe("photo.png");
+    });
+    cleanup();
+    renderImageHost(
+      requiredImageHost({
+        saveFields,
+        uploadBinary,
+        clearBinary,
+        meta,
+        fieldValue: "photo.png",
+      }),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-file-name-img").textContent).toBe("photo.png");
+    });
+  });
+
+  it("still clears an optional image on save", async () => {
+    const clearBinary = vi.fn().mockResolvedValue(imageMeta("", false));
+    const uploadBinary = vi.fn();
+    const saveFields = vi.fn(async () => ({
+      contentId: "42",
+      contentType: "percImage",
+      name: "Hero",
+      checkoutUser: "admin",
+      revision: 4,
+      fields: [
+        { name: "sys_title", value: "Hero" },
+        { name: "img", value: "hero.png" },
+      ],
+    }));
+    await openRequiredImage(
+      requiredImageHost({
+        saveFields,
+        uploadBinary,
+        clearBinary,
+        required: false,
+        fieldValue: "hero.png",
+      }),
+    );
+    expect(screen.getByTestId("editor-field-row-img").getAttribute("data-required")).toBe(
+      "false",
+    );
+    fireEvent.click(screen.getByTestId("editor-file-clear-img"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(clearBinary).toHaveBeenCalledWith("42", "img");
+    });
+    expect(uploadBinary).not.toHaveBeenCalled();
+    expect(saveFields).toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-field-error-img")).toBeNull();
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+  });
+});
