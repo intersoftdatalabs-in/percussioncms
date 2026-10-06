@@ -571,6 +571,27 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   npm run test:surface -- --path tests/editor-host-date-fields.spec.js
 ```
 
+### Editor host blank required datetime (#5253 / parent #4532)
+
+H2 operator proof that a required datetime cannot be saved blank. **Clear date**
+or emptying the picker, then **Save**, stays on the form and does not PUT.
+Reopening the item still shows the previous date and time. **Close** then
+**Cancel** does not write. A non-blank datetime still saves. Optional datetime
+clear is covered by `editor-host-date-fields.spec.js` and is not changed here.
+
+| Item | Value |
+|------|--------|
+| Spec | `frontend/tests/editor-host-datetime-required-blank.spec.js` |
+| Tags | `@explorer-content-editor` `@editor` |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/editor-host-datetime-required-blank.spec.js
+```
+
 ### Architecture Create section no-skip (#3589 / #3661 / #3672 / parent #3092)
 
 H2 operator proof that **Create section** is enabled on
