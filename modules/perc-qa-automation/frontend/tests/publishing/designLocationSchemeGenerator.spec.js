@@ -160,6 +160,38 @@ function parameterValues(payload) {
     .filter((row) => row.name || row.value);
 }
 
+/** Prefer a scheme that already stores parameters (sample Article). */
+async function selectContextScheme(page, schemeName) {
+  const button = () => page.getByRole("button", { name: schemeName, exact: true });
+  if (await button().count()) {
+    return true;
+  }
+  const select = page.getByLabel("Publishing context");
+  const current = await select.inputValue();
+  const values = await select.locator("option").evaluateAll((els) =>
+    els.map((el) => el.value).filter((value) => value),
+  );
+  for (const value of values) {
+    if (value === current) {
+      continue;
+    }
+    const listed = page.waitForResponse(
+      (res) =>
+        res.request().method() === "GET" &&
+        new RegExp(`/publishingdesign/contexts/${value}/schemes(?:\\?|$)`).test(
+          res.url(),
+        ),
+      { timeout: 20000 },
+    );
+    await select.selectOption(value);
+    await listed;
+    if (await button().count()) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function schemeFields(payload) {
   const root =
     payload && payload.locationScheme && typeof payload.locationScheme === "object"
@@ -195,8 +227,9 @@ test.describe("PublishingShell Design set location scheme generator", () => {
     await openContexts(page);
     const stamp = Date.now().toString().slice(-8);
     const nextGenerator = `sys_Gen${stamp}`;
-    const name = `SchGen${stamp}`;
-    const meta = await createScheme(page, name);
+    const seeded = await selectContextScheme(page, "Article");
+    const name = seeded ? "Article" : `SchGen${stamp}`;
+    const meta = seeded ? null : await createScheme(page, name);
 
     const schemeRead = page.waitForResponse(
       (res) => schemeReadGet(res.url(), res.request().method()),
@@ -211,20 +244,31 @@ test.describe("PublishingShell Design set location scheme generator", () => {
     } catch {
       stored = schemeFields({});
     }
+    if (seeded && stored.parameters.length === 0) {
+      throw new Error(
+        `seeded Article returned no parameters: ${loadedBody.slice(0, 800)}`,
+      );
+    }
     await expect(page.getByTestId("scheme-generator")).toBeVisible();
-    await expect(page.getByTestId("scheme-generator-name")).toHaveText(name);
+    await expect(page.getByTestId("scheme-generator-name")).toHaveText(
+      stored.name || name,
+    );
     await expect(page.getByTestId("scheme-generator-description")).toHaveText(
-      stored.description || meta.description,
+      stored.description || (meta ? meta.description : ""),
     );
     await expect(page.getByTestId("scheme-generator-content-type")).toHaveText(
-      stored.contentTypeId || meta.contentTypeId,
+      stored.contentTypeId || (meta ? meta.contentTypeId : ""),
     );
     await expect(page.getByTestId("scheme-generator-template")).toHaveText(
-      stored.templateId || meta.templateId,
+      stored.templateId || (meta ? meta.templateId : ""),
     );
-    await expect(page.getByTestId("scheme-generator-parameter")).toContainText(
-      "$sys.site.path",
-    );
+    const paramItems = page.getByTestId("scheme-generator-parameter");
+    await expect(paramItems).toHaveCount(stored.parameters.length);
+    for (const row of stored.parameters) {
+      await expect(paramItems.filter({ hasText: `${row.name}: ${row.value}` })).toHaveCount(
+        1,
+      );
+    }
     await expect(page.getByTestId("scheme-generator-parameters-note")).toContainText(
       /parameters stay/i,
     );
@@ -306,13 +350,16 @@ test.describe("PublishingShell Design set location scheme generator", () => {
     await expect(page.getByTestId("scheme-editor")).toBeVisible();
     await expect(page.locator("#sch-name")).toHaveValue(name);
     await expect(page.locator("#sch-gen")).toHaveValue(nextGenerator);
-    await expect(page.locator("#sch-desc")).toHaveValue(stored.description || meta.description);
-    await expect(page.locator("#sch-ctype")).toHaveValue(
-      stored.contentTypeId || meta.contentTypeId,
-    );
-    await expect(page.locator("#sch-tpl")).toHaveValue(stored.templateId || meta.templateId);
-    await expect(page.getByTestId("scheme-editor")).toContainText("path");
-    await expect(page.getByTestId("scheme-editor")).toContainText("$sys.site.path");
+    await expect(page.locator("#sch-desc")).toHaveValue(stored.description);
+    await expect(page.locator("#sch-ctype")).toHaveValue(stored.contentTypeId);
+    await expect(page.locator("#sch-tpl")).toHaveValue(stored.templateId);
+    const editor = page.getByTestId("scheme-editor");
+    for (const row of stored.parameters) {
+      const label = row.type
+        ? `${row.name} (${row.type}): ${row.value}`
+        : `${row.name}: ${row.value}`;
+      await expect(editor).toContainText(label);
+    }
     await page.getByRole("button", { name: "Back" }).click();
     await expect(page.getByTestId("contexts-panel")).toBeVisible();
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
