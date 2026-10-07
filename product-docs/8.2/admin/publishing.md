@@ -842,7 +842,8 @@ to discard. The shell posts
 HTTP **403** (not Admin or Designer) and **409** (location scheme name already exists in that
 context) are shown in the scheme editor error region — not as a successful save. Context save,
 delivery-type save, and edition save are separate Design actions. Renaming a location scheme
-is described below and changes the name only.
+is described below and changes the name only. Setting only the generator is also described
+below and does not change the name, description, content type, template, or parameters.
 
 ### Rename a location scheme (Design)
 
@@ -869,7 +870,36 @@ HTTP **400** (name invalid), **403** (not Admin or Designer), and **409** (locat
 name already exists in that context) stay in the rename form error region. Those responses
 do not change the name on the list and do not change the generator, description, content
 type, template, or parameters. Saving a location scheme (which can also change those
-fields), copying one, and deleting one are separate actions.
+fields), setting only the generator, copying one, and deleting one are separate actions.
+
+### Set a location scheme generator (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. On a location scheme row, **Generator** loads
+that scheme (`GET …/sitemanage/publishingdesign/schemes/{schemeId}`) and opens
+**Location scheme generator**. The form shows the current **name**, **description**,
+**content type**, **template**, and **parameters** and does not let you change them.
+Change **Generator**. **Save generator** sends
+`PUT …/sitemanage/publishingdesign/schemes/{schemeId}` (the same update already used by
+Design; there is no second generator resource) with a `locationScheme` object that contains
+only the generator. Name, description, content type, template, context, and
+`schemeParameter` entries are omitted, so the server leaves those stored. The scheme id
+does not change.
+
+The context's location-scheme list keeps the previous generator until that update succeeds,
+then shows the new generator with the same name. If the list refresh fails after a successful
+update, that row's generator is still replaced and the other fields on the row stay.
+**Cancel** closes the form and does not update the scheme. A blank or whitespace generator,
+or a generator longer than 255 characters (`RXLOCATIONSCHEME.GENERATOR`), is rejected in the
+form and does not call the update.
+
+HTTP **400** (generator blank or longer than 255 characters), **403** (not Admin or Designer),
+and **409** (location scheme name already exists in that context, when a name is also sent)
+stay in the generator form error region. Those responses do not change the generator on the
+list and do not change the name, description, content type, template, or parameters. Saving a
+location scheme (which can also change the generator together with other fields), renaming one,
+copying one, and deleting one are separate actions. Content list generators are a separate
+Design action.
 
 ### Copy a location scheme (Design)
 

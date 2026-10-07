@@ -172,6 +172,14 @@ public class PSPublishingDesignRestService {
 
   static final String LOCATION_SCHEME_NAME_TOO_LONG =
       "Location scheme name must be 50 characters or fewer";
+  /** Matches {@code RXLOCATIONSCHEME.GENERATOR} VARCHAR(255). */
+  static final int MAX_LOCATION_SCHEME_GENERATOR_LENGTH = 255;
+
+  static final String LOCATION_SCHEME_GENERATOR_REQUIRED =
+      "Location scheme generator is required";
+
+  static final String LOCATION_SCHEME_GENERATOR_TOO_LONG =
+      "Location scheme generator must be 255 characters or fewer";
   static final String CONTEXT_NAME_CONFLICT = "Publishing context name already exists";
   /** Matches {@code RXCONTEXT.CONTEXTNAME} VARCHAR(50). */
   static final int MAX_CONTEXT_NAME_LENGTH = 50;
@@ -1296,6 +1304,12 @@ public class PSPublishingDesignRestService {
     }
   }
 
+  /**
+   * Update one location scheme. A generator-only body leaves the name, description, content type,
+   * template, context, and parameters stored. A blank or whitespace generator, or one longer than
+   * {@link #MAX_LOCATION_SCHEME_GENERATOR_LENGTH}, is HTTP 400 and writes nothing. Omitting the
+   * generator leaves it stored so a rename does not change it.
+   */
   @PUT
   @Path("/schemes/{schemeId}")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -1312,6 +1326,19 @@ public class PSPublishingDesignRestService {
       IPSLocationScheme scheme =
           siteManager.loadSchemeModifiable(
               guidManager.makeGuid(schemeId, PSTypeEnum.LOCATION_SCHEME));
+      // Reject a bad generator before any field is written so 400 leaves the stored row.
+      // A null generator is omitted (rename and other partial updates) and is not applied.
+      String nextGenerator = null;
+      boolean applyGenerator = body.getGenerator() != null;
+      if (applyGenerator) {
+        nextGenerator = body.getGenerator().trim();
+        if (nextGenerator.isEmpty()) {
+          throw badRequest(LOCATION_SCHEME_GENERATOR_REQUIRED);
+        }
+        if (nextGenerator.length() > MAX_LOCATION_SCHEME_GENERATOR_LENGTH) {
+          throw badRequest(LOCATION_SCHEME_GENERATOR_TOO_LONG);
+        }
+      }
       String contextId =
           !isBlank(body.getContextId())
               ? body.getContextId().trim()
@@ -1324,8 +1351,8 @@ public class PSPublishingDesignRestService {
       if (!isBlank(body.getName())) {
         scheme.setName(body.getName().trim());
       }
-      if (!isBlank(body.getGenerator())) {
-        scheme.setGenerator(body.getGenerator().trim());
+      if (applyGenerator) {
+        scheme.setGenerator(nextGenerator);
       }
       if (body.getDescription() != null) {
         scheme.setDescription(body.getDescription());

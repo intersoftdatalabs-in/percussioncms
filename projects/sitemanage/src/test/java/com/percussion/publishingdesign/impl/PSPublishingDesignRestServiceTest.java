@@ -1655,6 +1655,164 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void updateScheme_generatorOnly_keepsNameDescriptionTypeTemplateAndParameters() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeSummary("sys_Changed");
+
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setGenerator("  sys_Changed  ");
+
+    PSLocationSchemeSummary saved = design.updateScheme("11", body);
+    assertEquals("Article", saved.getName());
+    assertEquals("Pages", saved.getDescription());
+    assertEquals("sys_Changed", saved.getGenerator());
+    assertEquals(4L, saved.getContentTypeId());
+    assertEquals(8L, saved.getTemplateId());
+    assertTrue(saved.getParameters() == null || saved.getParameters().isEmpty());
+    verify(scheme).setGenerator("sys_Changed");
+    verify(scheme, never()).setName(any());
+    verify(scheme, never()).setDescription(any());
+    verify(scheme, never()).setContentTypeId(any());
+    verify(scheme, never()).setTemplateId(any());
+    verify(scheme, never()).setContextId(any());
+    verify(scheme, never()).addParameter(any(), any(int.class), any(), any());
+    verify(scheme, never()).removeParameter(any());
+    verify(siteManager).saveScheme(scheme);
+    verify(siteManager, never()).findSchemesByContextId(any());
+  }
+
+  @Test
+  void updateScheme_nameOnly_keepsGenerator() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeSummary("sys_Jexl");
+    when(scheme.getName()).thenReturn("Renamed");
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    when(siteManager.findSchemesByContextId(contextGuid)).thenReturn(List.of());
+
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setName("Renamed");
+
+    PSLocationSchemeSummary saved = design.updateScheme("11", body);
+    assertEquals("Renamed", saved.getName());
+    assertEquals("sys_Jexl", saved.getGenerator());
+    assertEquals("Pages", saved.getDescription());
+    verify(scheme).setName("Renamed");
+    verify(scheme, never()).setGenerator(any());
+    verify(scheme, never()).setDescription(any());
+    verify(scheme, never()).setContentTypeId(any());
+    verify(scheme, never()).setTemplateId(any());
+    verify(scheme, never()).addParameter(any(), any(int.class), any(), any());
+    verify(scheme, never()).removeParameter(any());
+    verify(siteManager).saveScheme(scheme);
+  }
+
+  @Test
+  void updateScheme_blankGenerator_400_doesNotChangeFields() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setName("Renamed");
+    body.setDescription("Pages");
+    body.setGenerator("   ");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.LOCATION_SCHEME_GENERATOR_REQUIRED, ex.getMessage());
+    verify(scheme, never()).setName(any());
+    verify(scheme, never()).setDescription(any());
+    verify(scheme, never()).setGenerator(any());
+    verify(scheme, never()).setContentTypeId(any());
+    verify(scheme, never()).setTemplateId(any());
+    verify(siteManager, never()).saveScheme(any());
+    verify(siteManager, never()).findSchemesByContextId(any());
+  }
+
+  @Test
+  void updateScheme_generatorTooLong_400_doesNotChangeFields() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setGenerator(
+        "g".repeat(PSPublishingDesignRestService.MAX_LOCATION_SCHEME_GENERATOR_LENGTH + 1));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_GENERATOR_TOO_LONG, ex.getMessage());
+    verify(scheme, never()).setGenerator(any());
+    verify(scheme, never()).setName(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_generator_forbidden_403() {
+    PSPublishingDesignRestService design = contextDesign();
+    design.setDesignWriteAllowed(() -> false);
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setGenerator("sys_Changed");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(siteManager, never()).loadSchemeModifiable(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_duplicateNameWithGenerator_409_doesNotChangeGenerator() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+    when(scheme.getContextId()).thenReturn(contextGuid);
+    when(contextGuid.getUUID()).thenReturn(3);
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+
+    IPSGuid otherGuid = mock(IPSGuid.class);
+    IPSLocationScheme other = mock(IPSLocationScheme.class);
+    when(other.getName()).thenReturn("Taken");
+    when(other.getGUID()).thenReturn(otherGuid);
+    when(otherGuid.getUUID()).thenReturn(99);
+    when(siteManager.findSchemesByContextId(contextGuid)).thenReturn(List.of(other));
+
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setName("Taken");
+    body.setGenerator("sys_Changed");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.LOCATION_SCHEME_NAME_CONFLICT, ex.getMessage());
+    verify(scheme, never()).setName(any());
+    verify(scheme, never()).setGenerator(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  private IPSLocationScheme stubSchemeLoadOnly() throws Exception {
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.LOCATION_SCHEME))).thenReturn(schemeGuid);
+    IPSLocationScheme scheme = mock(IPSLocationScheme.class);
+    when(siteManager.loadSchemeModifiable(schemeGuid)).thenReturn(scheme);
+    return scheme;
+  }
+
+  private IPSLocationScheme stubSchemeSummary(String generator) throws Exception {
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+    when(schemeGuid.getUUID()).thenReturn(11);
+    when(scheme.getGUID()).thenReturn(schemeGuid);
+    when(scheme.getName()).thenReturn("Article");
+    when(scheme.getDescription()).thenReturn("Pages");
+    when(scheme.getGenerator()).thenReturn(generator);
+    when(scheme.getContextId()).thenReturn(contextGuid);
+    when(contextGuid.getUUID()).thenReturn(3);
+    when(scheme.getContentTypeId()).thenReturn(4L);
+    when(scheme.getTemplateId()).thenReturn(8L);
+    when(scheme.getParameterNames()).thenReturn(List.of());
+    return scheme;
+  }
+
+  @Test
   void createContext_forbidden_403() {
     PSPublishingDesignRestService design =
         new PSPublishingDesignRestService(publisherService, guidManager, siteManager);
