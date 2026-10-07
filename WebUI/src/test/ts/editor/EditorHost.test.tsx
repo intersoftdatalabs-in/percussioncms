@@ -5097,6 +5097,171 @@ describe("EditorHost refuse blank required number (#5224)", () => {
   });
 });
 
+describe("EditorHost refuse a number outside its range (#5312)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function numberHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    qty?: string;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const qty = opts.qty ?? "4";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "qty", value: qty }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "qty",
+              label: "Quantity",
+              control: "sys_Number",
+              dataType: "integer",
+              controlProperties: [
+                { name: "minimum", value: "0" },
+                { name: "maximum", value: "10" },
+              ],
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openNumber(
+    element: React.ReactElement,
+    expected = "4",
+  ): Promise<HTMLInputElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-qty") as HTMLInputElement).value).toBe(expected);
+    });
+    return screen.getByTestId("editor-field-qty") as HTMLInputElement;
+  }
+
+  it("does not save a number below the minimum or above the maximum", async () => {
+    const saveFields = vi.fn();
+    const input = await openNumber(numberHost({ saveFields }));
+    expect(input.getAttribute("data-editor-kind")).toBe("number");
+    fireEvent.change(input, { target: { value: "-1" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(
+        /outside the allowed range/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /number fields before saving/i,
+    );
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(document.activeElement).toBe(input);
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.change(input, { target: { value: "11" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(
+        /outside the allowed range/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    cleanup();
+    const reloaded = await openNumber(numberHost({ saveFields }));
+    expect(reloaded.value).toBe("4");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not write when Close cancels an out-of-range edit", async () => {
+    const saveFields = vi.fn();
+    const input = await openNumber(
+      numberHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.change(input, { target: { value: "-1" } });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-qty") as HTMLInputElement).value).toBe("-1");
+  });
+
+  it("still saves an in-range number including the inclusive bounds", async () => {
+    let qty = "4";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      qty = body.fields.find((f) => f.name === "qty")?.value ?? qty;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const input = await openNumber(numberHost({ saveFields, qty }));
+    fireEvent.change(input, { target: { value: "0" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    expect(saveFields.mock.calls[0][1].fields.find((f: { name: string }) => f.name === "qty")).toMatchObject({
+      value: "0",
+      dataType: "integer",
+      minimum: "0",
+      maximum: "10",
+    });
+    cleanup();
+    const atMin = await openNumber(numberHost({ saveFields, qty }), "0");
+    fireEvent.change(atMin, { target: { value: "10" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalledTimes(2);
+    });
+    expect(saveFields.mock.calls[1][1].fields.find((f: { name: string }) => f.name === "qty")?.value).toBe(
+      "10",
+    );
+    cleanup();
+    const reloaded = await openNumber(numberHost({ saveFields, qty }), "10");
+    expect(reloaded.value).toBe("10");
+  });
+
+  it("does not claim success when an in-range number save returns HTTP 400", async () => {
+    const saveFields = vi.fn().mockRejectedValue({
+      status: 400,
+      body: { message: "Field 'qty' is outside the allowed range." },
+    });
+    const input = await openNumber(numberHost({ saveFields }));
+    fireEvent.change(input, { target: { value: "7" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/range/i);
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(/could not be saved/i);
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(1);
+    cleanup();
+    const reloaded = await openNumber(numberHost({ saveFields }));
+    expect(reloaded.value).toBe("4");
+  });
+});
+
 describe("EditorHost refuse blank required date (#5225)", () => {
   afterEach(() => {
     cleanup();

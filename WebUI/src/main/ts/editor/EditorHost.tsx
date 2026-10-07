@@ -1409,6 +1409,7 @@ export function EditorHost({
       message(EDITOR_MSG.NUMBER_RANGE),
     );
     if (Object.keys(invalidNumbers).length > 0) {
+      queueFocusFirstInvalid(invalidNumbers);
       setFieldErrors(invalidNumbers);
       setSaveErrorKey(EDITOR_MSG.NUMBER_INVALID_SAVE);
       setSaving(false);
