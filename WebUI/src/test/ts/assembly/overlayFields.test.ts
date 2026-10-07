@@ -19,12 +19,15 @@ import { describe, expect, it, vi } from "vitest";
 import type { ItemEditorFields } from "../../../main/ts/editor/itemFieldsApi";
 import {
   applyFieldOverlay,
+  changedOverlayEdits,
   mergeOverlayEdits,
+  overlayEditKey,
   parseAaFieldObjectId,
   persistOverlayEdits,
   readOverlayEdits,
   restoreOverlayValues,
   scalarOverlayFields,
+  singleLineText,
   stripLeftoverAaChrome,
 } from "../../../main/ts/assembly/overlayFields";
 
@@ -187,9 +190,79 @@ describe("applyFieldOverlay", () => {
     ) as HTMLElement;
     expect(edited.contentEditable).toMatch(/true/i);
     expect(edited.getAttribute("onclick")).toBeNull();
+    expect(edited.getAttribute("data-assembly-value")).toBe("text");
     edited.textContent = "Updated";
     expect(readOverlayEdits(root, "42")).toEqual([
       { contentId: "42", name: "displaytitle", value: "Updated" },
+    ]);
+  });
+
+  it("saves a single-line text field as one line and keeps long-text breaks", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `
+      <h1 data-perc-field="displaytitle">Welcome</h1>
+      <p data-perc-field="notes">A long note</p>
+    `;
+    const fields = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [
+          { name: "displaytitle", value: "Welcome" },
+          { name: "notes", value: "A long note" },
+        ],
+      },
+      [
+        { name: "displaytitle", control: "sys_EditBox" },
+        { name: "notes", control: "sys_TextArea" },
+      ],
+    );
+    applyFieldOverlay(root, fields, "42");
+    const title = root.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    const notes = root.querySelector(
+      '[data-testid="assembly-inline-field-notes"]',
+    ) as HTMLElement;
+    expect(title.getAttribute("data-assembly-value")).toBe("text");
+    expect(notes.getAttribute("data-assembly-value")).toBeNull();
+    title.textContent = "Updated\nwelcome";
+    notes.textContent = "Line one\nLine two";
+    const edits = readOverlayEdits(root, "42");
+    expect(edits.find((edit) => edit.name === "displaytitle")?.value).toBe(
+      "Updated welcome",
+    );
+    expect(edits.find((edit) => edit.name === "notes")?.value).toBe(
+      "Line one\nLine two",
+    );
+    const enter = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
+    title.dispatchEvent(enter);
+    expect(enter.defaultPrevented).toBe(true);
+    expect(singleLineText("  a\r\n\nb  ")).toBe("a b");
+  });
+
+  it("drops unchanged fields so one text edit does not rewrite the rest", () => {
+    const baseline = new Map<string, string>([
+      [overlayEditKey({ contentId: "42", name: "displaytitle" }), "Welcome"],
+      [overlayEditKey({ contentId: "42", name: "notes" }), "A long note"],
+      [overlayEditKey({ contentId: "42", name: "description" }), "<p>About the site</p>"],
+      [overlayEditKey({ contentId: "42", name: "pagelink" }), "//Sites/Example/index"],
+    ]);
+    const changed = changedOverlayEdits(
+      [
+        { contentId: "42", name: "displaytitle", value: "Updated welcome" },
+        { contentId: "42", name: "notes", value: "A long note" },
+        { contentId: "42", name: "description", value: "<p>About the site</p>" },
+        {
+          contentId: "42",
+          name: "pagelink",
+          value: "//Sites/Example/index",
+          dataType: "link",
+        },
+      ],
+      baseline,
+    );
+    expect(changed).toEqual([
+      { contentId: "42", name: "displaytitle", value: "Updated welcome" },
     ]);
   });
 

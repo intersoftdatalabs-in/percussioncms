@@ -18,9 +18,10 @@
 /**
  * Preview-first Active Assembly host. Renders the assembled page or snippet
  * template in an iframe with a light overlay. Slot add / create / arrange
- * use relationship REST (no Data Flow HTML). Text, long-text, and HTML
- * field edits use the assembled nodes (HTML keeps its markup) and persist
- * through itemmanagement — not leftover Content Editor HTML.
+ * use relationship REST (no Data Flow HTML). Single-line text, long-text,
+ * HTML, and link field edits use the assembled nodes (HTML keeps its markup;
+ * single-line text stays one line) and persist through itemmanagement — not
+ * leftover Content Editor HTML.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -64,6 +65,8 @@ import styles from "./AssemblyHost.module.css";
 import { ASSEMBLY_MSG } from "./messages";
 import {
   applyFieldOverlay,
+  changedOverlayEdits,
+  overlayEditKey,
   persistOverlayEdits,
   readOverlayEdits,
   restoreOverlayValues,
@@ -198,6 +201,30 @@ export function previewDocumentFromFrame(
   }
 }
 
+function fieldBarNode(): ParentNode | null {
+  if (typeof document === "undefined") {
+    return null;
+  }
+  return document.querySelector('[data-testid="assembly-field-bar"]');
+}
+
+/** Values on the painted overlay, before the author changes a field. */
+export function snapshotFieldBaseline(
+  ownerId: string,
+  roots: Array<ParentNode | null>,
+): Map<string, string> {
+  const next = new Map<string, string>();
+  for (const root of roots) {
+    if (root == null) {
+      continue;
+    }
+    for (const edit of readOverlayEdits(root, ownerId)) {
+      next.set(overlayEditKey(edit), edit.value);
+    }
+  }
+  return next;
+}
+
 export function AssemblyHost({
   fetchPreview = fetchPreviewLocation,
   loadTemplates = loadAssemblyTemplates,
@@ -241,6 +268,8 @@ export function AssemblyHost({
   const [fieldNotice, setFieldNotice] = useState<string | null>(null);
   const [savingFields, setSavingFields] = useState(false);
   const frameRef = useRef<HTMLIFrameElement | null>(null);
+  /** Values read after the overlay is painted, before the author edits. */
+  const fieldBaselineRef = useRef<Map<string, string>>(new Map());
   const slotPickerRef = useRef<SlotDependentPickerSession | null>(null);
   const slotCreatePickerRef = useRef<SlotCreatePickerSession | null>(null);
   const slotTemplatePickerRef = useRef<SlotTemplateSlotPickerSession | null>(
@@ -414,8 +443,10 @@ export function AssemblyHost({
       setInlineFieldNames([]);
       return;
     }
-    const hits = applyFieldOverlay(doc, overlayFields, String(contentId));
+    const ownerId = String(contentId);
+    const hits = applyFieldOverlay(doc, overlayFields, ownerId);
     setInlineFieldNames([...new Set(hits.map((h) => h.name))]);
+    fieldBaselineRef.current = snapshotFieldBaseline(ownerId, [doc, fieldBarNode()]);
   }, [contentId, overlayFields, getPreviewDocument, schemaReady]);
 
   useEffect(() => {
@@ -577,13 +608,12 @@ export function AssemblyHost({
     const ownerId = String(contentId);
     const doc = getPreviewDocument(frameRef.current);
     const iframeEdits = doc != null ? readOverlayEdits(doc, ownerId) : [];
-    const bar = typeof document !== "undefined"
-      ? document.querySelector('[data-testid="assembly-field-bar"]')
-      : null;
+    const bar = fieldBarNode();
     const barEdits = bar != null ? readOverlayEdits(bar, ownerId) : [];
     const allowed = new Set(overlayFields.map((field) => field.name));
-    const edits = [...iframeEdits, ...barEdits].filter((edit) =>
-      allowed.has(edit.name),
+    const edits = changedOverlayEdits(
+      [...iframeEdits, ...barEdits].filter((edit) => allowed.has(edit.name)),
+      fieldBaselineRef.current,
     );
     try {
       const saved = await persistOverlayEdits({
@@ -596,19 +626,34 @@ export function AssemblyHost({
       });
       setFieldPayload(saved);
       setFieldNotice(message(ASSEMBLY_MSG.FIELD_SAVED));
-      paintFieldOverlay();
+      const savedOverlay = scalarOverlayFields(saved, schemaFields);
+      const savedDoc = getPreviewDocument(frameRef.current);
+      if (savedDoc != null) {
+        const hits = applyFieldOverlay(savedDoc, savedOverlay, ownerId);
+        restoreOverlayValues(savedDoc, savedOverlay);
+        setInlineFieldNames([...new Set(hits.map((hit) => hit.name))]);
+      }
+      const savedBar = fieldBarNode();
+      if (savedBar != null) {
+        restoreOverlayValues(savedBar, savedOverlay);
+      }
+      fieldBaselineRef.current = snapshotFieldBaseline(ownerId, [
+        savedDoc,
+        savedBar,
+      ]);
     } catch {
       const failedDoc = getPreviewDocument(frameRef.current);
       if (failedDoc != null) {
         restoreOverlayValues(failedDoc, overlayFields);
       }
-      const failedBar =
-        typeof document !== "undefined"
-          ? document.querySelector('[data-testid="assembly-field-bar"]')
-          : null;
+      const failedBar = fieldBarNode();
       if (failedBar != null) {
         restoreOverlayValues(failedBar, overlayFields);
       }
+      fieldBaselineRef.current = snapshotFieldBaseline(ownerId, [
+        failedDoc,
+        failedBar,
+      ]);
       setFieldNotice(message(ASSEMBLY_MSG.FIELD_SAVE_FAILED));
     } finally {
       setSavingFields(false);
@@ -805,6 +850,19 @@ export function AssemblyHost({
                       data-assembly-value="html"
                       data-testid={`assembly-overlay-field-${field.name}`}
                       aria-label={field.label}
+                    />
+                  ) : field.kind === "text" ? (
+                    <input
+                      className={styles.fieldEdit}
+                      type="text"
+                      defaultValue={field.value}
+                      data-assembly-field={field.name}
+                      data-assembly-content-id={String(contentId ?? "")}
+                      data-assembly-value="text"
+                      data-testid={`assembly-overlay-field-${field.name}`}
+                      aria-label={field.label}
+                      spellCheck={false}
+                      autoComplete="off"
                     />
                   ) : field.kind === "link" ? (
                     <input

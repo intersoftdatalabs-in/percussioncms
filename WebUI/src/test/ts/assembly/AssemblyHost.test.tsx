@@ -456,7 +456,11 @@ describe("AssemblyHost", () => {
     await waitFor(() => {
       expect(screen.getByTestId("assembly-overlay-field-sys_title")).toBeTruthy();
     });
-    screen.getByTestId("assembly-overlay-field-sys_title").textContent = "Renamed";
+    const titleInput = screen.getByTestId(
+      "assembly-overlay-field-sys_title",
+    ) as HTMLInputElement;
+    expect(titleInput.tagName).toBe("INPUT");
+    titleInput.value = "Renamed";
     fireEvent.click(screen.getByTestId("assembly-field-save"));
     await waitFor(() => {
       expect(saveFields).toHaveBeenCalled();
@@ -899,4 +903,217 @@ describe("AssemblyHost", () => {
       dataType: "link",
     });
   });
+
+  const OLD_TEXT = "Welcome";
+  const NEW_TEXT = "Updated welcome";
+  const LONG_NOTE = "A long note";
+  const BODY_HTML = "<p>About the site</p>";
+
+  const textFields: ItemEditorFields = {
+    contentId: "42",
+    contentType: "percPage",
+    name: "Home",
+    checkoutUser: "admin",
+    fields: [
+      { name: "displaytitle", value: OLD_TEXT },
+      { name: "notes", value: LONG_NOTE },
+      { name: "description", value: BODY_HTML },
+      { name: "pagelink", value: "//Sites/Example/index" },
+    ],
+  };
+
+  const textSchema = {
+    fields: [
+      { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+      { name: "notes", label: "Notes", control: "sys_TextArea" },
+      { name: "description", label: "Body", control: "sys_tinymce" },
+      { name: "pagelink", label: "Page link", control: "sys_PageLink" },
+    ],
+  };
+
+  function textPreviewDoc(title = OLD_TEXT): Document {
+    const previewDoc = document.implementation.createHTMLDocument("preview");
+    previewDoc.body.innerHTML = `
+      <h1 data-perc-field="displaytitle">${title}</h1>
+      <p data-perc-field="notes">${LONG_NOTE}</p>
+      <div class="PsAaField" id='[3,42,7,0,0,0,0,1,0,0,0,"description",42,"Body",0]'>${BODY_HTML}</div>
+      <a data-perc-field="pagelink" href="//Sites/Example/index">Example</a>
+    `;
+    return previewDoc;
+  }
+
+  function renderTextHost(
+    previewDoc: Document,
+    saveFields: ReturnType<typeof vi.fn>,
+    loadFields: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(textFields),
+    schema: { fields: Array<Record<string, unknown>> } = textSchema,
+  ): void {
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview: vi.fn().mockResolvedValue({
+        previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+        contentId: 42,
+        templateId: 7,
+        revision: 1,
+      }),
+      loadTemplates: vi.fn().mockResolvedValue([
+        {
+          name: "rffPgGeneric",
+          label: "Generic Page",
+          url: "../assembler/render?sys_template=7",
+          sortRank: 0,
+          menuType: "MENUITEM",
+        } satisfies MenuAction,
+      ]),
+      checkout: vi.fn().mockResolvedValue(undefined),
+      loadFields,
+      saveFields,
+      loadType: vi.fn().mockResolvedValue(schema),
+      getPreviewDocument: () => previewDoc,
+    });
+  }
+
+  it("saves one single-line text field and leaves the other fields unchanged", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderTextHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    expect(title.getAttribute("data-assembly-value")).toBe("text");
+    title.textContent = "Updated\nwelcome";
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "displaytitle")).toEqual({
+      name: "displaytitle",
+      value: NEW_TEXT,
+    });
+    expect(saved.fields.find((f) => f.name === "notes")).toEqual({
+      name: "notes",
+      value: LONG_NOTE,
+    });
+    expect(saved.fields.find((f) => f.name === "description")).toEqual({
+      name: "description",
+      value: BODY_HTML,
+    });
+    expect(saved.fields.find((f) => f.name === "pagelink")).toEqual({
+      name: "pagelink",
+      value: "//Sites/Example/index",
+    });
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    expect(title.textContent).toBe(NEW_TEXT);
+  });
+
+  it("reloads the assembly host with the single-line text that was saved", async () => {
+    const savedPayload: ItemEditorFields = {
+      ...textFields,
+      fields: textFields.fields.map((field) =>
+        field.name === "displaytitle" ? { ...field, value: NEW_TEXT } : field,
+      ),
+    };
+    const previewDoc = textPreviewDoc(NEW_TEXT);
+    renderTextHost(
+      previewDoc,
+      vi.fn().mockResolvedValue(savedPayload),
+      vi.fn().mockResolvedValue(savedPayload),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    expect(title.textContent).toBe(NEW_TEXT);
+    expect(
+      (previewDoc.querySelector('[data-testid="assembly-inline-field-notes"]') as HTMLElement)
+        .textContent,
+    ).toBe(LONG_NOTE);
+  });
+
+  it("does not write a read-only single-line text field", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderTextHost(previewDoc, saveFields, vi.fn().mockResolvedValue(textFields), {
+      fields: [
+        {
+          name: "displaytitle",
+          label: "Display title",
+          control: "sys_EditBox",
+          readOnly: true,
+        },
+        { name: "notes", label: "Notes", control: "sys_TextArea" },
+        { name: "description", label: "Body", control: "sys_tinymce" },
+        { name: "pagelink", label: "Page link", control: "sys_PageLink" },
+      ],
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-inline-notes")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("assembly-field-chip-displaytitle")).toBeNull();
+    expect(
+      previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+    ).toBeNull();
+    const notes = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-notes"]',
+    ) as HTMLElement;
+    notes.textContent = "Updated note";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "displaytitle")?.value).toBe(OLD_TEXT);
+    expect(saved.fields.find((f) => f.name === "notes")?.value).toBe("Updated note");
+    expect(saved.fields.find((f) => f.name === "description")?.value).toBe(BODY_HTML);
+    expect(saved.fields.find((f) => f.name === "pagelink")?.value).toBe(
+      "//Sites/Example/index",
+    );
+    expect(saved.fields.find((f) => f.name === "pagelink")?.dataType).toBeUndefined();
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s leaves the previous single-line text in place",
+    async (status) => {
+      const previewDoc = textPreviewDoc();
+      const saveFields = vi.fn().mockRejectedValue({ status });
+      renderTextHost(previewDoc, saveFields);
+      await waitFor(() => {
+        expect(
+          previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+        ).toBeTruthy();
+      });
+      const title = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-displaytitle"]',
+      ) as HTMLElement;
+      title.textContent = NEW_TEXT;
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+          /could not save/i,
+        );
+        const live = previewDoc.querySelector(
+          '[data-testid="assembly-inline-field-displaytitle"]',
+        ) as HTMLElement | null;
+        expect(live?.textContent).toBe(OLD_TEXT);
+      });
+      expect(saveFields).toHaveBeenCalled();
+      const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+      expect(sent.fields.find((field) => field.name === "displaytitle")?.value).toBe(
+        NEW_TEXT,
+      );
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+    },
+  );
 });
