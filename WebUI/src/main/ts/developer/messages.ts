@@ -408,7 +408,8 @@ export const DEV_MSG_KEYS = {
   KW_LOADING: "perc.ui.developer@Loading keywords...",
   KW_EMPTY: "perc.ui.developer@No keywords returned.",
   KW_ERROR: "perc.ui.developer@Could not load keywords.",
-  KW_HINT: "perc.ui.developer@Create, edit, or delete keyword definitions and their choices.",
+  KW_HINT:
+    "perc.ui.developer@Create, edit, or delete keyword definitions. On an existing keyword, add one choice; it appears only after that save succeeds.",
   KW_COL_LABEL: "perc.ui.developer@Label",
   KW_COL_VALUE: "perc.ui.developer@Value",
   KW_COL_CHOICES: "perc.ui.developer@Choices",
@@ -430,6 +431,22 @@ export const DEV_MSG_KEYS = {
   KW_DELETE_CONFIRM: "perc.ui.developer@Delete this keyword and all of its choices?",
   KW_SAVED: "perc.ui.developer@Keyword saved.",
   KW_DELETED: "perc.ui.developer@Keyword deleted.",
+  KW_CHOICES_TITLE: "perc.ui.developer@Saved choices",
+  KW_CHOICES_EMPTY: "perc.ui.developer@No choices on this keyword.",
+  KW_ADD_CHOICE_LABEL: "perc.ui.developer@Choice label",
+  KW_ADD_CHOICE_VALUE: "perc.ui.developer@Choice value",
+  KW_ADD_CHOICE_SAVE: "perc.ui.developer@Add choice",
+  KW_ADD_CHOICE_HINT:
+    "perc.ui.developer@Adds one choice with the keyword update. The choice appears only after the server accepts it. The keyword label, description, sequence, and the other choices stay as they were. A blank choice is not sent. Cancel does not add. A duplicate label or value does not add a second row.",
+  KW_ADD_CHOICE_SAVED: "perc.ui.developer@Choice added.",
+  KW_ADD_CHOICE_ERROR: "perc.ui.developer@Could not add the choice.",
+  KW_ADD_CHOICE_BLANK: "perc.ui.developer@Enter a choice label. A blank choice was not saved.",
+  KW_ADD_CHOICE_DUPLICATE:
+    "perc.ui.developer@That choice is already on this keyword. A second row was not added.",
+  KW_ADD_CHOICE_FORBIDDEN: "perc.ui.developer@You need the Admin role to add a choice.",
+  KW_ADD_CHOICE_INVALID: "perc.ui.developer@The choice was not added.",
+  KW_ADD_CHOICE_CONFLICT:
+    "perc.ui.developer@The choice was not added. Previous choices are unchanged.",
   TPL_LOADING: "perc.ui.developer@Loading templates...",
   TPL_EMPTY: "perc.ui.developer@No templates returned.",
   TPL_ERROR: "perc.ui.developer@Could not load templates.",
