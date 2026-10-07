@@ -543,6 +543,16 @@ the host as errors — they are not treated as success and the item stays open.
 **View** and **Promote** do not show Recycle. This is not Explorer **Empty
 recycle bin** or a permanent purge.
 
+A content-type field marked **read-only** (`readOnly` on
+`GET /services/contenttypes/{type}`) cannot be edited in **Edit**. The control
+stays read-only and **Clear** stays hidden. Saving a different field still
+succeeds. That fields PUT omits the read-only field, so a client edit is never
+sent and the stored value is left unchanged. Reopening the item shows the
+previous read-only value. **Close** and then **Cancel** does not write. HTTP
+**400**, **403**, and **409** are not success and do not change the read-only
+value. This is the content-type flag, not **View** mode (every field is already
+read-only there). File and image widgets are unchanged.
+
 The host does not request leftover Content Editor HTML (`checkoutedit.xml`,
 `contenteditorurls.html`, `?view=editor`).
 

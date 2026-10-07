@@ -89,6 +89,34 @@ describe("editorDraftIsDirty", () => {
       ),
     ).toBe(true);
   });
+
+  it("ignores a client edit of a schema read-only field", () => {
+    const readOnly = new Set(["displaytitle"]);
+    expect(
+      editorDraftIsDirty(
+        [
+          { name: "sys_title", value: "Home" },
+          { name: "displaytitle", value: "Welcome" },
+        ],
+        { sys_title: "Home", displaytitle: "Hacked" },
+        {},
+        undefined,
+        readOnly,
+      ),
+    ).toBe(false);
+    expect(
+      editorDraftIsDirty(
+        [
+          { name: "sys_title", value: "Home" },
+          { name: "displaytitle", value: "Welcome" },
+        ],
+        { sys_title: "Updated", displaytitle: "Hacked" },
+        {},
+        undefined,
+        readOnly,
+      ),
+    ).toBe(true);
+  });
 });
 
 describe("previewEditorItem", () => {

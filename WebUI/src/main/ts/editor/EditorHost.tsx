@@ -193,6 +193,10 @@ import {
 import { editorBinaryErrorReason, isImageFile } from "./editorBinary";
 import { editorSaveErrorReason } from "./editorSave";
 import {
+  fieldsForEditorSave,
+  schemaReadOnlyFieldNames,
+} from "./editorReadOnlySave";
+import {
   changePageTemplate,
   isAllowedPageTemplate,
   pageTemplateIdFromFields,
@@ -801,6 +805,10 @@ export function EditorHost({
 
   const [payload, setPayload] = useState<ItemEditorFields | null>(null);
   const [schema, setSchema] = useState<ContentTypeFieldSummary[]>([]);
+  const schemaReadOnlyNames = useMemo(
+    () => schemaReadOnlyFieldNames(schema),
+    [schema],
+  );
   const [allowedTemplateCount, setAllowedTemplateCount] = useState(0);
   const [loadedAllowedTemplates, setLoadedAllowedTemplates] = useState<
     NamedObjectRef[] | null
@@ -991,7 +999,13 @@ export function EditorHost({
   useEffect(() => {
     const onBeforeUnload = (event: BeforeUnloadEvent) => {
       if (
-        !editorDraftIsDirty(payload?.fields, draft, pendingFiles, pendingClears)
+        !editorDraftIsDirty(
+          payload?.fields,
+          draft,
+          pendingFiles,
+          pendingClears,
+          schemaReadOnlyNames,
+        )
       ) {
         return;
       }
@@ -1000,7 +1014,7 @@ export function EditorHost({
     };
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, [payload, draft, pendingFiles, pendingClears]);
+  }, [payload, draft, pendingFiles, pendingClears, schemaReadOnlyNames]);
 
   useEffect(() => {
     // Drop binaries from the previous item or mode. A confirmed leave and a
@@ -1221,12 +1235,17 @@ export function EditorHost({
     if (!payload) {
       return [];
     }
+    const storedByName = new Map(
+      payload.fields.map((field) => [field.name, fieldValueAsString(field.value)]),
+    );
     return mergeEditorRows(
       {
         ...payload,
         fields: payload.fields.map((f) => ({
           name: f.name,
-          value: fieldValueAsString(draft[f.name] ?? f.value),
+          value: schemaReadOnlyNames.has(f.name)
+            ? (storedByName.get(f.name) ?? "")
+            : fieldValueAsString(draft[f.name] ?? f.value),
         })),
       },
       schema,
@@ -1240,9 +1259,11 @@ export function EditorHost({
       )
       .map((row) => ({
         ...row,
-        value: fieldValueAsString(draft[row.name] ?? row.value),
+        value: row.readOnly
+          ? (storedByName.get(row.name) ?? "")
+          : fieldValueAsString(draft[row.name] ?? row.value),
       }));
-  }, [payload, draft, schema]);
+  }, [payload, draft, schema, schemaReadOnlyNames]);
 
   useEffect(() => {
     const errors = focusInvalidRef.current;
@@ -1270,6 +1291,9 @@ export function EditorHost({
   }
 
   function setField(name: string, value: string): void {
+    if (schemaReadOnlyNames.has(name)) {
+      return;
+    }
     setDraft((prev) => ({ ...prev, [name]: value }));
     setFieldErrors((prev) => {
       if (!(name in prev)) {
@@ -1282,6 +1306,9 @@ export function EditorHost({
   }
 
   function setFile(name: string, file: File | null): void {
+    if (schemaReadOnlyNames.has(name)) {
+      return;
+    }
     setPendingFiles((prev) => {
       const next = { ...prev };
       if (file) {
@@ -1304,6 +1331,9 @@ export function EditorHost({
   }
 
   function markBinaryClear(name: string, hadStored: boolean): void {
+    if (schemaReadOnlyNames.has(name)) {
+      return;
+    }
     setPendingFiles((prev) => {
       if (!(name in prev)) {
         return prev;
@@ -1329,7 +1359,7 @@ export function EditorHost({
         name: row.name,
         kind: row.kind,
         required: row.required,
-        value: fieldValueAsString(draft[row.name] ?? row.value),
+        value: row.value,
       })),
       pendingFiles,
       message(EDITOR_MSG.FIELD_REQUIRED),
@@ -1351,7 +1381,7 @@ export function EditorHost({
         name: row.name,
         kind: row.kind,
         required: row.required,
-        value: fieldValueAsString(draft[row.name] ?? row.value),
+        value: row.value,
       })),
       message(EDITOR_MSG.FIELD_INVALID_DATE),
     );
@@ -1373,7 +1403,7 @@ export function EditorHost({
       rows.map((row) => ({
         name: row.name,
         kind: row.kind,
-        value: fieldValueAsString(draft[row.name] ?? row.value),
+        value: row.value,
       })),
       message(EDITOR_MSG.HTML_UNSAFE),
     );
@@ -1388,7 +1418,7 @@ export function EditorHost({
       rows.map((row) => ({
         name: row.name,
         kind: row.kind,
-        value: fieldValueAsString(draft[row.name] ?? row.value),
+        value: row.value,
       })),
       message(EDITOR_MSG.LONGTEXT_INVALID),
     );
@@ -1402,7 +1432,7 @@ export function EditorHost({
       rows.map((row) => ({
         name: row.name,
         kind: row.kind,
-        value: fieldValueAsString(draft[row.name] ?? row.value),
+        value: row.value,
         numericInteger: row.numericInteger,
         numericMinimum: row.numericMinimum,
         numericMaximum: row.numericMaximum,
@@ -1421,7 +1451,7 @@ export function EditorHost({
       rows.map((row) => ({
         name: row.name,
         kind: row.kind,
-        value: fieldValueAsString(draft[row.name] ?? row.value),
+        value: row.value,
       })),
       message(EDITOR_MSG.LINK_INVALID),
     );
@@ -1436,7 +1466,7 @@ export function EditorHost({
         name: row.name,
         kind: row.kind,
         label: row.label,
-        value: fieldValueAsString(draft[row.name] ?? row.value),
+        value: row.value,
       })),
       keywordChoicesRef.current,
       keywordOutsideCatalogMessage,
@@ -1464,21 +1494,7 @@ export function EditorHost({
       const itemId = String(contentId);
       const next: ItemEditorFields = {
         ...payload,
-        fields: rows
-          .filter((row) => row.kind !== "file" && row.kind !== "image")
-          .map((row) => ({
-            name: row.name,
-            value: fieldValueAsString(draft[row.name] ?? row.value),
-            ...(row.kind === "number"
-              ? {
-                  dataType: row.numericInteger === false ? "float" : "integer",
-                  minimum: row.numericMinimum,
-                  maximum: row.numericMaximum,
-                }
-              : row.kind === "link"
-                ? { dataType: "link" }
-                : {}),
-          })),
+        fields: fieldsForEditorSave(rows),
       };
       if (
         isExplorerPageType(payload.contentType) &&
@@ -2556,7 +2572,15 @@ export function EditorHost({
       setPreviewErrorKey(EDITOR_MSG.PREVIEW_UNAVAILABLE);
       return;
     }
-    if (editorDraftIsDirty(payload?.fields, draft, pendingFiles, pendingClears)) {
+    if (
+      editorDraftIsDirty(
+        payload?.fields,
+        draft,
+        pendingFiles,
+        pendingClears,
+        schemaReadOnlyNames,
+      )
+    ) {
       const confirmFn =
         confirmUnsavedPreview ??
         ((body: string) =>
@@ -2692,7 +2716,15 @@ export function EditorHost({
   }
 
   function allowLeave(): boolean {
-    if (!editorDraftIsDirty(payload?.fields, draft, pendingFiles, pendingClears)) {
+    if (
+      !editorDraftIsDirty(
+        payload?.fields,
+        draft,
+        pendingFiles,
+        pendingClears,
+        schemaReadOnlyNames,
+      )
+    ) {
       return true;
     }
     const confirmFn =
