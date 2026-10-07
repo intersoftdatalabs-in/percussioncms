@@ -180,6 +180,11 @@ public class PSPublishingDesignRestService {
 
   static final String LOCATION_SCHEME_GENERATOR_TOO_LONG =
       "Location scheme generator must be 255 characters or fewer";
+  /** Matches {@code RXLOCATIONSCHEME.DESCRIPTION} VARCHAR(255). */
+  static final int MAX_LOCATION_SCHEME_DESCRIPTION_LENGTH = 255;
+
+  static final String LOCATION_SCHEME_DESCRIPTION_TOO_LONG =
+      "Location scheme description must be 255 characters or fewer";
   static final String CONTEXT_NAME_CONFLICT = "Publishing context name already exists";
   /** Matches {@code RXCONTEXT.CONTEXTNAME} VARCHAR(50). */
   static final int MAX_CONTEXT_NAME_LENGTH = 50;
@@ -1308,7 +1313,10 @@ public class PSPublishingDesignRestService {
    * Update one location scheme. A generator-only body leaves the name, description, content type,
    * template, context, and parameters stored. A blank or whitespace generator, or one longer than
    * {@link #MAX_LOCATION_SCHEME_GENERATOR_LENGTH}, is HTTP 400 and writes nothing. Omitting the
-   * generator leaves it stored so a rename does not change it.
+   * generator leaves it stored so a rename does not change it. A description-only body leaves the
+   * name, generator, content type, template, context, and parameters stored. A blank description
+   * clears it. A description longer than {@link #MAX_LOCATION_SCHEME_DESCRIPTION_LENGTH} is HTTP
+   * 400 and writes nothing. Omitting the description leaves it stored.
    */
   @PUT
   @Path("/schemes/{schemeId}")
@@ -1339,6 +1347,20 @@ public class PSPublishingDesignRestService {
           throw badRequest(LOCATION_SCHEME_GENERATOR_TOO_LONG);
         }
       }
+      // Reject an overlong description before any field is written so 400 leaves the stored row.
+      // A null description is omitted (rename and generator updates) and is not applied.
+      // Blank or whitespace clears the stored description.
+      String nextDescription = null;
+      boolean applyDescription = body.getDescription() != null;
+      if (applyDescription) {
+        nextDescription = body.getDescription().trim();
+        if (nextDescription.length() > MAX_LOCATION_SCHEME_DESCRIPTION_LENGTH) {
+          throw badRequest(LOCATION_SCHEME_DESCRIPTION_TOO_LONG);
+        }
+        if (nextDescription.isEmpty()) {
+          nextDescription = null;
+        }
+      }
       String contextId =
           !isBlank(body.getContextId())
               ? body.getContextId().trim()
@@ -1354,8 +1376,8 @@ public class PSPublishingDesignRestService {
       if (applyGenerator) {
         scheme.setGenerator(nextGenerator);
       }
-      if (body.getDescription() != null) {
-        scheme.setDescription(body.getDescription());
+      if (applyDescription) {
+        scheme.setDescription(nextDescription);
       }
       if (body.getContentTypeId() != null) {
         scheme.setContentTypeId(body.getContentTypeId());
