@@ -931,11 +931,11 @@ describe("AssemblyHost", () => {
     ],
   };
 
-  function textPreviewDoc(title = OLD_TEXT): Document {
+  function textPreviewDoc(title = OLD_TEXT, notes = LONG_NOTE): Document {
     const previewDoc = document.implementation.createHTMLDocument("preview");
     previewDoc.body.innerHTML = `
       <h1 data-perc-field="displaytitle">${title}</h1>
-      <p data-perc-field="notes">${LONG_NOTE}</p>
+      <p data-perc-field="notes">${notes}</p>
       <div class="PsAaField" id='[3,42,7,0,0,0,0,1,0,0,0,"description",42,"Body",0]'>${BODY_HTML}</div>
       <a data-perc-field="pagelink" href="//Sites/Example/index">Example</a>
     `;
@@ -1116,4 +1116,192 @@ describe("AssemblyHost", () => {
       );
     },
   );
+
+  const NEW_NOTE = "Line one\nLine two";
+
+  it("saves one long-text field and leaves the other fields unchanged", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderTextHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-notes"]'),
+      ).toBeTruthy();
+    });
+    const notes = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-notes"]',
+    ) as HTMLElement;
+    expect(notes.getAttribute("data-assembly-value")).toBe("longtext");
+    expect(notes.style.whiteSpace).toBe("pre-wrap");
+    notes.innerHTML = "Line one<br>Line two";
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "notes")).toEqual({
+      name: "notes",
+      value: NEW_NOTE,
+    });
+    expect(saved.fields.find((f) => f.name === "displaytitle")).toEqual({
+      name: "displaytitle",
+      value: OLD_TEXT,
+    });
+    expect(saved.fields.find((f) => f.name === "description")).toEqual({
+      name: "description",
+      value: BODY_HTML,
+    });
+    expect(saved.fields.find((f) => f.name === "pagelink")).toEqual({
+      name: "pagelink",
+      value: "//Sites/Example/index",
+    });
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    expect(notes.textContent).toBe(NEW_NOTE);
+    expect(notes.style.whiteSpace).toBe("pre-wrap");
+  });
+
+  it("does not write a long-text edit that is left unsaved", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderTextHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-notes"]'),
+      ).toBeTruthy();
+    });
+    const notes = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-notes"]',
+    ) as HTMLElement;
+    notes.textContent = NEW_NOTE;
+    fireEvent.click(screen.getByTestId("assembly-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(notes.textContent).toBe(NEW_NOTE);
+  });
+
+  it("reloads the assembly host with the long text that was saved", async () => {
+    const savedPayload: ItemEditorFields = {
+      ...textFields,
+      fields: textFields.fields.map((field) =>
+        field.name === "notes" ? { ...field, value: NEW_NOTE } : field,
+      ),
+    };
+    const previewDoc = textPreviewDoc(OLD_TEXT, NEW_NOTE);
+    renderTextHost(
+      previewDoc,
+      vi.fn().mockResolvedValue(savedPayload),
+      vi.fn().mockResolvedValue(savedPayload),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-notes"]'),
+      ).toBeTruthy();
+    });
+    const notes = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-notes"]',
+    ) as HTMLElement;
+    expect(notes.textContent).toBe(NEW_NOTE);
+    expect(notes.getAttribute("data-assembly-value")).toBe("longtext");
+    expect(
+      (previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-displaytitle"]',
+      ) as HTMLElement).textContent,
+    ).toBe(OLD_TEXT);
+  });
+
+  it("does not write a read-only long-text field", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderTextHost(previewDoc, saveFields, vi.fn().mockResolvedValue(textFields), {
+      fields: [
+        { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+        { name: "notes", label: "Notes", control: "sys_TextArea", readOnly: true },
+        { name: "description", label: "Body", control: "sys_tinymce" },
+        { name: "pagelink", label: "Page link", control: "sys_PageLink" },
+      ],
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-inline-displaytitle")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("assembly-field-chip-notes")).toBeNull();
+    expect(
+      previewDoc.querySelector('[data-testid="assembly-inline-field-notes"]'),
+    ).toBeNull();
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = NEW_TEXT;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "notes")?.value).toBe(LONG_NOTE);
+    expect(saved.fields.find((f) => f.name === "displaytitle")?.value).toBe(NEW_TEXT);
+    expect(saved.fields.find((f) => f.name === "description")?.value).toBe(BODY_HTML);
+    expect(saved.fields.find((f) => f.name === "pagelink")?.value).toBe(
+      "//Sites/Example/index",
+    );
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s leaves the previous long text in place",
+    async (status) => {
+      const previewDoc = textPreviewDoc();
+      const saveFields = vi.fn().mockRejectedValue({ status });
+      renderTextHost(previewDoc, saveFields);
+      await waitFor(() => {
+        expect(
+          previewDoc.querySelector('[data-testid="assembly-inline-field-notes"]'),
+        ).toBeTruthy();
+      });
+      const notes = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-notes"]',
+      ) as HTMLElement;
+      notes.textContent = NEW_NOTE;
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+          /could not save/i,
+        );
+        const live = previewDoc.querySelector(
+          '[data-testid="assembly-inline-field-notes"]',
+        ) as HTMLElement | null;
+        expect(live?.textContent).toBe(LONG_NOTE);
+      });
+      expect(saveFields).toHaveBeenCalled();
+      const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+      expect(sent.fields.find((field) => field.name === "notes")?.value).toBe(NEW_NOTE);
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+    },
+  );
+
+  it("saves long text from the overlay strip when the page has no node", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderTextHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-notes")).toBeTruthy();
+    });
+    const area = screen.getByTestId("assembly-overlay-field-notes") as HTMLTextAreaElement;
+    expect(area.tagName).toBe("TEXTAREA");
+    expect(area.getAttribute("data-assembly-value")).toBe("longtext");
+    expect(area.value).toBe(LONG_NOTE);
+    area.value = NEW_NOTE;
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "notes")).toEqual({
+      name: "notes",
+      value: NEW_NOTE,
+    });
+    expect(saved.fields.find((f) => f.name === "displaytitle")?.value).toBe(OLD_TEXT);
+    expect(area.value).toBe(NEW_NOTE);
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+  });
 });

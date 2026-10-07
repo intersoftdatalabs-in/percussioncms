@@ -33,8 +33,11 @@ export const ASSEMBLY_VALUE_HTML = "html";
 /** Link edits send {@code dataType: link} on the existing item field save. */
 export const ASSEMBLY_VALUE_LINK = "link";
 
-/** Single-line text is one line. Long text is not marked with this value. */
+/** Single-line text is one line. Long text uses {@link ASSEMBLY_VALUE_LONGTEXT}. */
 export const ASSEMBLY_VALUE_TEXT = "text";
+
+/** Long text keeps line breaks. Single-line text is not marked with this value. */
+export const ASSEMBLY_VALUE_LONGTEXT = "longtext";
 
 /**
  * Collapse line breaks so a single-line text field cannot store a new line.
@@ -42,6 +45,57 @@ export const ASSEMBLY_VALUE_TEXT = "text";
  */
 export function singleLineText(value: string): string {
   return value.replace(/\s*[\r\n]+\s*/g, " ").trim();
+}
+
+/**
+ * Normalize long text to `\n` line breaks and trim only the ends.
+ * Internal breaks stay. Single-line text does not use this.
+ */
+export function longTextValue(value: string): string {
+  return value.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+}
+
+const LONG_TEXT_BLOCK =
+  /^(ADDRESS|ARTICLE|BLOCKQUOTE|DD|DIV|DL|DT|FIGCAPTION|FIGURE|H1|H2|H3|H4|H5|H6|LI|P|PRE|SECTION|TR)$/;
+
+/**
+ * Read long text from an assembled node. A content-editable break is a
+ * `<br>` or a block element; those must survive the item field save.
+ */
+export function longTextFromElement(el: Element): string {
+  if (el.childElementCount === 0) {
+    return longTextValue(el.textContent ?? "");
+  }
+  const parts: string[] = [];
+  const appendBreak = (): void => {
+    if (parts.length > 0 && !parts[parts.length - 1].endsWith("\n")) {
+      parts.push("\n");
+    }
+  };
+  const walk = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      parts.push(node.textContent ?? "");
+      return;
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return;
+    }
+    const child = node as Element;
+    if (child.tagName === "BR") {
+      parts.push("\n");
+      return;
+    }
+    const block = LONG_TEXT_BLOCK.test(child.tagName);
+    if (block) {
+      appendBreak();
+    }
+    child.childNodes.forEach((grand) => walk(grand));
+    if (block) {
+      appendBreak();
+    }
+  };
+  el.childNodes.forEach((node) => walk(node));
+  return longTextValue(parts.join(""));
 }
 
 export function overlayEditKey(
@@ -53,7 +107,7 @@ export function overlayEditKey(
 /**
  * Edits whose value differs from the post-paint snapshot.
  * A field missing from the snapshot is kept. Unchanged fields are dropped so
- * a single-line text save does not rewrite HTML, long text, or links.
+ * one field save does not rewrite the other fields on the page.
  */
 export function changedOverlayEdits(
   edits: OverlayFieldEdit[],
@@ -406,6 +460,9 @@ export function clearFieldOverlay(root: ParentNode): void {
     const html = el as HTMLElement;
     html.contentEditable = "false";
     html.removeAttribute("contenteditable");
+    if (html.getAttribute("data-assembly-value") === ASSEMBLY_VALUE_LONGTEXT) {
+      html.style.whiteSpace = "";
+    }
     html.removeAttribute("data-assembly-field");
     html.removeAttribute("data-assembly-content-id");
     html.removeAttribute("data-assembly-value");
@@ -442,6 +499,9 @@ export function applyFieldOverlay(
     } else if (field?.kind === "text") {
       html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_TEXT);
       bindSingleLineGuard(html);
+    } else if (field?.kind === "longtext") {
+      html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_LONGTEXT);
+      html.style.whiteSpace = "pre-wrap";
     }
   }
   return hits;
@@ -487,23 +547,36 @@ function readNodeValue(el: Element): string {
   }
   if (isFormValueElement(el)) {
     const raw = formValue(el);
-    return valueKind === ASSEMBLY_VALUE_TEXT ? singleLineText(raw) : raw;
+    if (valueKind === ASSEMBLY_VALUE_TEXT) {
+      return singleLineText(raw);
+    }
+    if (valueKind === ASSEMBLY_VALUE_LONGTEXT) {
+      return longTextValue(raw);
+    }
+    return raw;
   }
   if (valueKind === ASSEMBLY_VALUE_HTML) {
     return (el as HTMLElement).innerHTML.trim();
+  }
+  if (valueKind === ASSEMBLY_VALUE_LONGTEXT) {
+    return longTextFromElement(el);
   }
   const text = (el.textContent ?? "").trim();
   return valueKind === ASSEMBLY_VALUE_TEXT ? singleLineText(text) : text;
 }
 
 function writeNodeValue(el: Element, value: string): void {
+  const valueKind = el.getAttribute("data-assembly-value");
   if (isFormValueElement(el)) {
     (el as HTMLInputElement).value = value;
     return;
   }
-  if (el.getAttribute("data-assembly-value") === ASSEMBLY_VALUE_HTML) {
+  if (valueKind === ASSEMBLY_VALUE_HTML) {
     (el as HTMLElement).innerHTML = value;
     return;
+  }
+  if (valueKind === ASSEMBLY_VALUE_LONGTEXT) {
+    (el as HTMLElement).style.whiteSpace = "pre-wrap";
   }
   el.textContent = value;
 }
