@@ -806,6 +806,19 @@ export function AssemblyHost({
                       data-testid={`assembly-overlay-field-${field.name}`}
                       aria-label={field.label}
                     />
+                  ) : field.kind === "link" ? (
+                    <input
+                      className={styles.fieldEdit}
+                      type="text"
+                      defaultValue={field.value}
+                      data-assembly-field={field.name}
+                      data-assembly-content-id={String(contentId ?? "")}
+                      data-assembly-value="link"
+                      data-testid={`assembly-overlay-field-${field.name}`}
+                      aria-label={field.label}
+                      spellCheck={false}
+                      autoComplete="off"
+                    />
                   ) : (
                     <span
                       className={styles.fieldEdit}

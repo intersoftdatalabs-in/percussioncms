@@ -25,7 +25,7 @@ export const ASSEMBLY_MSG = {
   CONTENT_ID: "perc.ui.assembly@Content",
   TEMPLATE_LABEL: "perc.ui.assembly@Template",
   TEMPLATE_PLACEHOLDER: "perc.ui.assembly@Select a page or snippet template",
-  NOTE: "perc.ui.assembly@Assembled with the selected page or snippet template. Known text fields edit inline and save through itemmanagement.",
+  NOTE: "perc.ui.assembly@Assembled with the selected page or snippet template. Known text, HTML, and link fields edit inline and save through itemmanagement.",
   MISSING_ITEM: "perc.ui.assembly@Open Active Assembly from Explorer with a content item selected.",
   NO_TEMPLATE: "perc.ui.assembly@No page or snippet template is available for this item.",
   TEMPLATE_MISMATCH:
@@ -56,7 +56,7 @@ export const ASSEMBLY_MSG = {
   SLOT_APPLY: "perc.ui.assembly@Apply",
   SLOT_CANCEL: "perc.ui.assembly@Cancel",
   FIELDS: "perc.ui.assembly@Fields",
-  FIELD_EMPTY: "perc.ui.assembly@No known text or HTML fields on this item.",
+  FIELD_EMPTY: "perc.ui.assembly@No known text, HTML, or link fields on this item.",
   FIELD_SAVE: "perc.ui.assembly@Save fields",
   FIELD_SAVING: "perc.ui.assembly@Saving fields…",
   FIELD_SAVED: "perc.ui.assembly@Fields saved",

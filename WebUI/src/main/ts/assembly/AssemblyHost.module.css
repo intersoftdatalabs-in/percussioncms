@@ -245,3 +245,9 @@ textarea.fieldEdit {
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   resize: vertical;
 }
+
+input.fieldEdit {
+  background: #0f172a;
+  color: #f8fafc;
+  font: inherit;
+}
