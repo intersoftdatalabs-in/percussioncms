@@ -160,3 +160,280 @@ describe("EditorHost table field", () => {
     expect(screen.queryByTestId("editor-save")).toBeNull();
   });
 });
+
+const STORED_GRID = JSON.stringify({ columns: ["day"], rows: [["Mon"]] });
+
+describe("EditorHost refuse saving an empty required table (#5281)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function tableHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    hours?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const hours = opts.hours ?? STORED_GRID;
+    const required = opts.required !== false;
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [
+            { name: "sys_title", value: "Home" },
+            { name: "hours", value: hours },
+          ],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            { name: "sys_title", label: "Title", control: "sys_EditBox" },
+            {
+              name: "hours",
+              label: "Hours",
+              control: "sys_Table",
+              required,
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  function renderTableHost(element: React.ReactElement): void {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  async function openStoredGrid(element: React.ReactElement): Promise<void> {
+    renderTableHost(element);
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-table-cell-hours-0-0") as HTMLInputElement).value,
+      ).toBe("Mon");
+    });
+  }
+
+  it("does not save an emptied required table and reloads the previous grid", async () => {
+    const saveFields = vi.fn();
+    await openStoredGrid(tableHost({ saveFields }));
+    expect(screen.getByTestId("editor-field-hours").getAttribute("data-editor-kind")).toBe(
+      "table",
+    );
+    expect(screen.getByTestId("editor-field-row-hours").getAttribute("data-required")).toBe(
+      "true",
+    );
+    fireEvent.click(screen.getByTestId("editor-table-remove-hours-0"));
+    expect(screen.queryByTestId("editor-table-cell-hours-0-0")).toBeNull();
+    expect(screen.getByRole("columnheader", { name: "day" })).toBeTruthy();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-hours").textContent).toBe(
+        "This field is required.",
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-field-hours").getAttribute("data-editor-kind")).toBe(
+      "table",
+    );
+    expect(screen.getByRole("columnheader", { name: "day" })).toBeTruthy();
+    expect(screen.getByTestId("editor-field-row-hours").getAttribute("data-required")).toBe(
+      "true",
+    );
+    cleanup();
+    await openStoredGrid(tableHost({ saveFields }));
+    expect(
+      (screen.getByTestId("editor-table-cell-hours-0-0") as HTMLInputElement).value,
+    ).toBe("Mon");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not save a required table that was never filled", async () => {
+    const saveFields = vi.fn();
+    renderTableHost(tableHost({ saveFields, hours: "" }));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-hours").getAttribute("data-editor-kind")).toBe(
+        "table",
+      );
+    });
+    expect(screen.getByTestId("editor-field-row-hours").getAttribute("data-required")).toBe(
+      "true",
+    );
+    expect(screen.queryByTestId("editor-table-cell-hours-0-0")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-hours").textContent).toBe(
+        "This field is required.",
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-table-add-hours")).toBeTruthy();
+    expect(screen.getByTestId("editor-field-row-hours").getAttribute("data-required")).toBe(
+      "true",
+    );
+  });
+
+  it("does not save whitespace-only cells on a required table", async () => {
+    const saveFields = vi.fn();
+    await openStoredGrid(tableHost({ saveFields }));
+    fireEvent.change(screen.getByTestId("editor-table-cell-hours-0-0"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-hours").textContent).toBe(
+        "This field is required.",
+      );
+    });
+    expect(document.activeElement).toBe(screen.getByTestId("editor-table-cell-hours-0-0"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(
+      (screen.getByTestId("editor-table-cell-hours-0-0") as HTMLInputElement).value,
+    ).toBe("   ");
+    cleanup();
+    await openStoredGrid(tableHost({ saveFields }));
+    expect(
+      (screen.getByTestId("editor-table-cell-hours-0-0") as HTMLInputElement).value,
+    ).toBe("Mon");
+  });
+
+  it("does not write when Close cancels an emptied required table", async () => {
+    const saveFields = vi.fn();
+    await openStoredGrid(
+      tableHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.click(screen.getByTestId("editor-table-remove-hours-0"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.queryByTestId("editor-table-cell-hours-0-0")).toBeNull();
+    expect(screen.getByTestId("editor-field-row-hours").getAttribute("data-required")).toBe(
+      "true",
+    );
+    cleanup();
+    await openStoredGrid(tableHost({ saveFields }));
+    expect(
+      (screen.getByTestId("editor-table-cell-hours-0-0") as HTMLInputElement).value,
+    ).toBe("Mon");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("still saves a required table that has a column and cell text", async () => {
+    let hours = STORED_GRID;
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      hours = body.fields.find((row) => row.name === "hours")?.value ?? hours;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    await openStoredGrid(tableHost({ saveFields, hours }));
+    fireEvent.change(screen.getByTestId("editor-table-cell-hours-0-0"), {
+      target: { value: "Tue" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((row) => row.name === "sys_title")?.value).toBe("Home");
+    expect(saved.fields.find((row) => row.name === "hours")?.value).toBe(
+      JSON.stringify({ columns: ["day"], rows: [["Tue"]] }),
+    );
+    expect(screen.queryByTestId("editor-field-error-hours")).toBeNull();
+    cleanup();
+    renderTableHost(tableHost({ saveFields, hours }));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-table-cell-hours-0-0") as HTMLInputElement).value,
+      ).toBe("Tue");
+    });
+    expect(screen.getByRole("columnheader", { name: "day" })).toBeTruthy();
+  });
+
+  it("still saves cell text added to an empty required table", async () => {
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => ({
+      contentId: "42",
+      contentType: "percPage",
+      name: "Home",
+      checkoutUser: "admin",
+      revision: 4,
+      fields: body.fields,
+    }));
+    renderTableHost(tableHost({ saveFields, hours: "" }));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-table-add-hours")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-table-add-hours"));
+    fireEvent.change(screen.getByTestId("editor-table-cell-hours-0-0"), {
+      target: { value: "Mon" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((row) => row.name === "hours")?.value).toBe(
+      JSON.stringify({ columns: ["value"], rows: [["Mon"]] }),
+    );
+    expect(screen.queryByTestId("editor-field-error-hours")).toBeNull();
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+  });
+
+  it("still saves an optional empty table", async () => {
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => ({
+      contentId: "42",
+      contentType: "percPage",
+      name: "Home",
+      checkoutUser: "admin",
+      revision: 4,
+      fields: body.fields,
+    }));
+    renderTableHost(tableHost({ saveFields, hours: "", required: false }));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-field-row-hours").getAttribute("data-required")).toBe(
+      "false",
+    );
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((row) => row.name === "hours")?.value).toBe("");
+    expect(saved.fields.find((row) => row.name === "sys_title")?.value).toBe("Home");
+    expect(screen.queryByTestId("editor-field-error-hours")).toBeNull();
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+  });
+});
