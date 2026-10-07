@@ -844,6 +844,8 @@ context) are shown in the scheme editor error region — not as a successful sav
 delivery-type save, and edition save are separate Design actions. Renaming a location scheme
 is described below and changes the name only. Setting only the generator is also described
 below and does not change the name, description, content type, template, or parameters.
+Setting only the description is also described below and does not change the name, generator,
+content type, template, or parameters.
 
 ### Rename a location scheme (Design)
 
@@ -870,7 +872,8 @@ HTTP **400** (name invalid), **403** (not Admin or Designer), and **409** (locat
 name already exists in that context) stay in the rename form error region. Those responses
 do not change the name on the list and do not change the generator, description, content
 type, template, or parameters. Saving a location scheme (which can also change those
-fields), setting only the generator, copying one, and deleting one are separate actions.
+fields), setting only the generator, setting only the description, copying one, and deleting
+one are separate actions.
 
 ### Set a location scheme generator (Design)
 
@@ -898,8 +901,38 @@ and **409** (location scheme name already exists in that context, when a name is
 stay in the generator form error region. Those responses do not change the generator on the
 list and do not change the name, description, content type, template, or parameters. Saving a
 location scheme (which can also change the generator together with other fields), renaming one,
-copying one, and deleting one are separate actions. Content list generators are a separate
-Design action.
+setting only the description, copying one, and deleting one are separate actions. Content list
+generators are a separate Design action.
+
+### Set a location scheme description (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. On a location scheme row, **Description** loads
+that scheme (`GET …/sitemanage/publishingdesign/schemes/{schemeId}`) and opens
+**Location scheme description**. The form shows the current **name**, **generator**,
+**content type**, **template**, and **parameters** and does not let you change them.
+Change **Description**. **Save description** sends
+`PUT …/sitemanage/publishingdesign/schemes/{schemeId}` (the same update already used by
+Design; there is no second description resource) with a `locationScheme` object that contains
+only the description. Name, generator, content type, template, context, and
+`schemeParameter` entries are omitted, so the server leaves those stored. The scheme id
+does not change. A blank description clears the stored description.
+
+The context's location-scheme list keeps the previous description until that update succeeds,
+then shows the new description (or none, when cleared) with the same name and generator. If
+the list refresh fails after a successful update, that row's description is still replaced and
+the other fields on the row stay.
+**Cancel** closes the form and does not update the scheme. A description longer than 255
+characters (`RXLOCATIONSCHEME.DESCRIPTION`) is rejected in the form and does not call the
+update.
+
+HTTP **400** (description longer than 255 characters), **403** (not Admin or Designer), and
+**409** (location scheme name already exists in that context, when a name is also sent)
+stay in the description form error region. Those responses do not change the description on
+the list and do not change the name, generator, content type, template, or parameters. Saving a
+location scheme (which can also change the description together with other fields), renaming
+one, setting only the generator, copying one, and deleting one are separate actions. Publishing
+context descriptions and content list descriptions are separate Design actions.
 
 ### Copy a location scheme (Design)
 
