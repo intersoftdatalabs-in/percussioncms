@@ -22,7 +22,7 @@ Machine analysis found **26** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 19 analyzed
+- Files: 21 analyzed
 - In-diff: 0 finding(s); preexisting: 25
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
@@ -273,7 +273,7 @@ approve
 - File: system/src/main/java/com/percussion/cms/handlers/PSCommandHandler.java:942 (preexisting)
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
-- Description: Function `processFieldValidation` cognitive=24 (max 15), cyclomatic=11 (max 15)
+- Description: Function `processFieldValidation` cognitive=25 (max 15), cyclomatic=12 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
 
@@ -297,12 +297,8 @@ approve
 
 ## Interpreter note (night-issue-prs-erlang)
 
-Independent review of PR #5314. CLI in-diff machine bugs: 0. The preexisting `paths.hardcoded_sep` and cognitive-complexity rows are outside this diff and do not block. `llm.error` is Ollama `dev-coder` CUDA OOM, not a defect.
+Re-review after `881d1d24`. CLI in-diff machine bugs: 0. Preexisting `paths.hardcoded_sep` and cognitive-complexity rows are outside this diff and do not block. `llm.error` is Ollama `dev-coder` CUDA OOM, not a defect.
 
-**Gate: BLOCK.** One in-diff bug the pack did not see.
+The earlier block is fixed. `skipRequiredCheck` returns false unless `PSItemPropertiesDisplayTitleClear.isActive()` is true, and `processFieldValidation` checks `isActive()` before it reads `sys_allowBlankDisplayTitle` (`PSCommandHandler.java` around the new guard; `PSItemPropertiesDisplayTitleClear.java` `skipRequiredCheck`). `getNewRequest()` builds a request from the security token only, so an inbound content-editor POST does not copy that parameter onto the modify. `FolderAdaptor.saveItemPropertiesFields` opens the scope only when the trimmed display title is empty, sets that empty value, and closes in `finally`. Tests cover the parameter alone, an active scope, scope open only during the clear save, and scope closed after a failed save.
 
-`processFieldValidation` skips every `displaytitle` rule when HTML parameter `sys_allowBlankDisplayTitle` is `yes` (`system/src/main/java/com/percussion/cms/handlers/PSCommandHandler.java:961`). `PSRequest.setParameter` stores that name in the HTTP parameter map (`system/src/main/java/com/percussion/server/PSRequest.java:1271`). A content-editor modify POST can send the same parameter and skip `isValidSysDisplayTitle`. The validation site never reads `PSItemPropertiesDisplayTitleClear.isActive()`, so the thread scope does not keep other saves on the required-title rule.
-
-`PSContentWs.saveItems` sets the parameter on a new request only while the scope is open (`system/webservices/src/com/percussion/webservices/content/impl/PSContentWs.java:2054`) and `serverItem.save(request)` runs on that thread before `close()`. Explorer clear still works if the skip also requires `isActive()`, or if the flag is a `PSRequest` private object rather than an HTML parameter. Add a test that the parameter alone does not skip, and that an active scope still allows an empty `displaytitle`.
-
-Recommendation: request-changes. Do not merge.
+Recommendation: approve. May merge: yes.
