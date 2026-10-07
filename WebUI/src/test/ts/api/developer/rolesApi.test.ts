@@ -22,14 +22,18 @@ import {
   deleteRole,
   isRoleCreateReady,
   isSystemRoleName,
+  loadRole,
   normalizeRoleBrowseGroupFilter,
+  normalizeRoleUsers,
   roleCreateUrl,
   roleDeleteUrl,
+  roleReadUrl,
   roleUpdateDescriptionUrl,
   roleUpdateHomePageUrl,
   rolesInBrowseGroup,
   unwrapCreatedRole,
   unwrapRoleBrowseCatalog,
+  unwrapRoleRead,
   unwrapUpdatedRoleHomePage,
   updateRoleDescription,
   updateRoleHomePage,
@@ -462,6 +466,96 @@ describe("updateRoleHomePage", () => {
     });
     expect(() => unwrapUpdatedRoleHomePage(null)).toThrow(/empty/);
     expect(() => unwrapUpdatedRoleHomePage({ homePage: "Home" })).toThrow(/name/);
+  });
+});
+
+describe("normalizeRoleUsers", () => {
+  it("keeps stored names and drops blanks and duplicates", () => {
+    expect(normalizeRoleUsers([" Ada ", "", "Ada", "Bea"])).toEqual(["Ada", "Bea"]);
+    expect(normalizeRoleUsers("Ada")).toEqual(["Ada"]);
+    expect(normalizeRoleUsers(null)).toEqual([]);
+    expect(normalizeRoleUsers({ user: ["Ada", "  "] })).toEqual(["Ada"]);
+  });
+
+  it("does not invent members from unknown object keys", () => {
+    expect(normalizeRoleUsers({ message: "Invented", users: ["Ada"] })).toEqual(["Ada"]);
+    expect(normalizeRoleUsers({ message: "Invented" })).toEqual([]);
+    expect(normalizeRoleUsers([{ name: "Invented" }])).toEqual([]);
+  });
+});
+
+describe("unwrapRoleRead", () => {
+  it("reads users from a Role envelope and treats a missing list as empty", () => {
+    expect(
+      unwrapRoleRead({
+        Role: { name: " Author ", description: "Editors", users: ["Ada", "Bea"] },
+      }),
+    ).toEqual({
+      name: "Author",
+      description: "Editors",
+      users: ["Ada", "Bea"],
+    });
+    expect(unwrapRoleRead({ name: "Author" })).toEqual({
+      name: "Author",
+      users: [],
+    });
+    expect(unwrapRoleRead({ name: "Author", users: "Ada" })).toEqual({
+      name: "Author",
+      users: ["Ada"],
+    });
+  });
+
+  it("rejects a nameless body so its users are not a membership list", () => {
+    expect(() => unwrapRoleRead(null)).toThrow(/empty/);
+    expect(() => unwrapRoleRead({ users: ["Invented"] })).toThrow(/name/);
+    expect(() => unwrapRoleRead({ Role: { users: ["Invented"] } })).toThrow(/name/);
+  });
+});
+
+describe("loadRole", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      statusText: status === 200 ? "OK" : "Error",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("does not GET a blank name", async () => {
+    await expect(loadRole("   ")).rejects.toThrow(/required/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("GETs the encoded role and returns its users", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ Role: { name: "Night Role", users: ["Ada"] } }),
+    );
+    const read = await loadRole(" Night Role ");
+    expect(read).toEqual({ name: "Night Role", users: ["Ada"] });
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(String(url)).toBe(roleReadUrl("Night Role"));
+    expect(String(url)).toBe(`${PATHS.ROLES}/Night%20Role`);
+    expect(init.method).toBe("GET");
+  });
+
+  it("rejects HTTP 403 and 404 without returning users from the body", async () => {
+    for (const status of [403, 404]) {
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({ Role: { name: "Author", users: ["Invented"] } }, status),
+      );
+      await expect(loadRole("Author")).rejects.toMatchObject({ status });
+    }
   });
 });
 

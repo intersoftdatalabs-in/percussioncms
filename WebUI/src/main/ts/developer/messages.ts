@@ -723,7 +723,7 @@ export const DEV_MSG_KEYS = {
   ROLES_EMPTY: "perc.ui.developer@No roles returned.",
   ROLES_ERROR: "perc.ui.developer@Could not load roles catalog.",
   ROLES_HINT:
-    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role, edit one role's description, set or clear one role's home page, and delete one non-system role after confirming. Membership edits are not done here. System and Default cannot be deleted.",
+    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role, open one role to see its users, edit one role's description, set or clear one role's home page, and delete one non-system role after confirming. Membership edits are not done here. System and Default cannot be deleted.",
   ROLES_EDIT_TITLE: "perc.ui.developer@Edit role description",
   ROLES_EDIT_NAME: "perc.ui.developer@Role name",
   ROLES_EDIT_DESCRIPTION: "perc.ui.developer@Description",
@@ -784,6 +784,17 @@ export const DEV_MSG_KEYS = {
   ROLES_COL_HOMEPAGE: "perc.ui.developer@Home page",
   ROLES_COL_COMMUNITIES: "perc.ui.developer@Communities",
   ROLES_COL_WORKFLOWS: "perc.ui.developer@Workflows",
+  ROLES_MEMBERS_TITLE: "perc.ui.developer@Users",
+  ROLES_MEMBERS_LABEL: "perc.ui.developer@Users on this role",
+  ROLES_MEMBERS_HINT:
+    "perc.ui.developer@These names come from the role. This list is read-only. Saving the description does not add or remove users.",
+  ROLES_MEMBERS_LOADING: "perc.ui.developer@Loading users...",
+  ROLES_MEMBERS_EMPTY: "perc.ui.developer@No users on this role.",
+  ROLES_MEMBERS_ERROR: "perc.ui.developer@Could not load users for this role.",
+  ROLES_MEMBERS_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to view users on this role.",
+  ROLES_MEMBERS_NOT_FOUND:
+    "perc.ui.developer@That role was not found. No users are shown.",
   CVN_LOADING: "perc.ui.developer@Loading community visibility navigator...",
   CVN_EMPTY: "perc.ui.developer@No communities returned for the visibility navigator.",
   CVN_ERROR: "perc.ui.developer@Could not load communities for the visibility navigator.",

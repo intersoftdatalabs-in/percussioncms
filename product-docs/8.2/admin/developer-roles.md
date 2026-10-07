@@ -1,7 +1,7 @@
 ---
 id: admin-developer-roles
 title: Developer Roles
-description: Browse CMS security roles, create a role, update one description, set or clear one home page, and delete one role
+description: Browse CMS security roles, view the users on one role, create a role, update one description, set or clear one home page, and delete one role
 version: "8.2"
 order: 46
 tags: [admin, developer, roles, security]
@@ -19,15 +19,17 @@ It mirrors the classic Workbench **Security Design → Roles** navigator folders
 | **Unassigned** | Role is in neither community nor workflow membership |
 
 A role that is both community- and workflow-assigned appears under **both** groups.
-An Admin can **create** one role (name and description), **edit the description**
+An Admin can **create** one role (name and description), **open** one role to see
+the users who belong to it, **edit the description**
 of one existing role, **set or clear the home page** of one existing role, and
 **delete** one existing role from this catalog.
 **System** and **Default** cannot be deleted.
-This chrome does **not** change membership —
-use **Admin → Roles** for user membership and **Developer → Communities** detail for
+Opening a role lists stored user names. A role with no users shows an empty
+membership state, not an error. This chrome does **not** add or remove users —
+use **Admin → Roles** for membership changes and **Developer → Communities** detail for
 community role association. Packaged roles such as Admin and Designer are not
 created by this form. If the server rejects a description change or a delete,
-the catalog keeps the previous row.
+the catalog keeps the previous row. A failed user read does not invent members.
 
 ## Product path — browse
 
@@ -81,6 +83,21 @@ rejects the update), **403** (not Admin), and **404** (the role no longer
 exists) leave the form in an error state. The catalog row keeps the previous
 description. `update=true` does not create a missing role.
 
+## Product path — view users on one role
+
+1. Sign in as **Admin**.
+2. Open **Developer → Roles** and wait for the catalog.
+3. Select the row of an existing role. The detail loads that role
+   (`GET /services/roles/{roleName}`) and lists each stored user name.
+4. A role with no users shows **No users on this role.** That is not an error.
+5. The list is read-only. There is no control here to add or remove a user.
+6. **Cancel** closes the detail and does not change membership.
+
+HTTP **403** (not allowed to read the role) and **404** (the role no longer
+exists) show an error on the detail and do not list members, even when the
+error body contains names. The catalog row stays. Saving a description or a
+home page still does not add or drop users.
+
 ## Product path — set or clear a home page
 
 1. Sign in as **Admin**.
@@ -130,9 +147,10 @@ role was deleted.
 
 ## Limits
 
-- Create is name and description only. Description save changes the description
+- Create is name and description only. Opening a role shows its users and does
+  not change them. Description save changes the description
   only. Home-page save changes the home page only (a blank value clears it).
-  Delete removes one CMS role. Membership CRUD remains on **Admin → Roles**
+  Delete removes one CMS role. Adding or removing users remains on **Admin → Roles**
   and community **Save roles**.
 - **System** and **Default** cannot be deleted.
 - A duplicate name is rejected. It does not update the existing role.
@@ -148,11 +166,17 @@ The chrome calls:
 | Action | Request |
 |--------|---------|
 | Full catalog | `GET /services/roles/catalog` |
+| One role, including users | `GET /services/roles/{roleName}` |
 | Filtered | `GET /services/roles/catalog?group=community\|workflow\|unassigned` |
 | Create | `PUT /services/roles/?create=true` with a `Role` object: `name` (required) and optional `description` |
 | Update description | `PUT /services/roles/?update=true` with a `Role` object: `name` (required) and `description` (blank clears) |
 | Set or clear home page | `PUT /services/roles/?homePage=true` with a `Role` object: `name` (required) and `homePage` (blank clears). Description and users on the body are ignored |
 | Delete | `DELETE /services/roles/{roleName}` |
+
+`GET /services/roles/{roleName}` returns the role's `users` list. An empty or
+missing list means the role has no users. HTTP **403** and **404** are errors
+and are not membership. Description and home-page saves do not send `users`;
+the server keeps the stored members.
 
 Create always uses the role create service (`create=true`). It does not update
 an existing role. A blank name is **400**. A caller who is not Admin is **403**.
