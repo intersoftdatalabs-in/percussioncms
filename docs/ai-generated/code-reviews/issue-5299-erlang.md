@@ -6,7 +6,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 8 analyzed
+- Files: 9 analyzed
 - In-diff: 1 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
@@ -44,6 +44,6 @@ approve
 
 Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
 
-In-diff bugs: 0. Missing behavioral tests: no (generator-only success, blank, overlong, 403, and 409 are covered in `PSPublishingDesignRestServiceTest`; Vitest covers the Design form). Non-portable paths: none in this diff. Cognitive complexity on `updateScheme` is a suggestion, not a bug. The Ollama CUDA OOM is an LLM-stage warning; machine findings were kept. Gate: PASS. May commit/push: yes.
+Re-run after the Playwright spec follow-up (9 files). In-diff bugs: 0. Missing behavioral tests: no (generator-only success, blank, overlong, 403, and 409 are covered in `PSPublishingDesignRestServiceTest`; Vitest covers the Design form; H2 surface spec covers the shell). Non-portable paths: none in this diff. Cognitive complexity on `updateScheme` is a suggestion, not a bug. The Ollama CUDA OOM is an LLM-stage warning; machine findings were kept. Gate: PASS. May commit/push: yes.
 
 > Co-Authored by Grok Build 1.0.46 using grok-4.7 with agent night-issue-prs.
