@@ -6,7 +6,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 8 analyzed
+- Files: 9 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
@@ -40,7 +40,6 @@ approve
 
 - Status: open
 
-
 ## Agent gate (night-issue-prs)
 
-In-diff bugs: 0. The cognitive-complexity row is preexisting (`mapAssembledFieldElements` was already over the pack threshold) and does not block. The LLM stage failed with CUDA OOM (`llama-server` exit 1); machine findings were kept. Recommendation: approve. May commit/push: yes.
+In-diff bugs: 0. The cognitive-complexity row is preexisting (`mapAssembledFieldElements` was already over the pack threshold) and does not block. The LLM stage failed with CUDA OOM (`llama-server` exit 1); machine findings were kept. Re-ran after the read-only schema fix (HEAD includes that commit). Recommendation: approve. May commit/push: yes.
