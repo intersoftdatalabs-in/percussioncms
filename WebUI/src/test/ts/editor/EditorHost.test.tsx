@@ -5262,6 +5262,231 @@ describe("EditorHost refuse a number outside its range (#5312)", () => {
   });
 });
 
+describe("EditorHost save a decimal number (#5346)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function decimalHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    rate?: string;
+    qty?: string;
+    fields?: "both" | "float";
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const rate = opts.rate ?? "1";
+    const qty = opts.qty ?? "4";
+    const floatOnly = opts.fields === "float";
+    const rateSchema = {
+      name: "rate",
+      label: "Rate",
+      control: "sys_Number",
+      dataType: "float",
+    };
+    const qtySchema = {
+      name: "qty",
+      label: "Quantity",
+      control: "sys_Number",
+      dataType: "integer",
+      controlProperties: [
+        { name: "minimum", value: "0" },
+        { name: "maximum", value: "10" },
+      ],
+    };
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: floatOnly
+            ? [{ name: "rate", value: rate }]
+            : [
+                { name: "rate", value: rate },
+                { name: "qty", value: qty },
+              ],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: floatOnly ? [rateSchema] : [rateSchema, qtySchema],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  function requireQty(qty: HTMLInputElement | null): HTMLInputElement {
+    if (!qty) {
+      throw new Error("integer field missing");
+    }
+    return qty;
+  }
+
+  async function openDecimal(
+    element: React.ReactElement,
+    expectedRate = "1",
+    expectedQty: string | null = "4",
+  ): Promise<{ rate: HTMLInputElement; qty: HTMLInputElement | null }> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-rate") as HTMLInputElement).value).toBe(
+        expectedRate,
+      );
+    });
+    const qty =
+      expectedQty == null
+        ? null
+        : (screen.getByTestId("editor-field-qty") as HTMLInputElement);
+    if (qty) {
+      expect(qty.value).toBe(expectedQty);
+    }
+    return {
+      rate: screen.getByTestId("editor-field-rate") as HTMLInputElement,
+      qty,
+    };
+  }
+
+  it("saves 1.5 on a float field and shows that decimal after reload", async () => {
+    let rate = "1";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      rate = body.fields.find((f) => f.name === "rate")?.value ?? rate;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const { rate: input } = await openDecimal(decimalHost({ saveFields, rate }));
+    expect(input.getAttribute("data-editor-kind")).toBe("number");
+    expect(input.getAttribute("inputmode")).toBe("decimal");
+    fireEvent.change(input, { target: { value: "1.5" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    expect(saveFields.mock.calls[0][1].fields.find((f: { name: string }) => f.name === "rate")).toMatchObject({
+      value: "1.5",
+      dataType: "float",
+    });
+    expect((screen.getByTestId("editor-field-rate") as HTMLInputElement).value).toBe("1.5");
+    cleanup();
+    const reloaded = await openDecimal(decimalHost({ saveFields, rate }), "1.5");
+    expect(reloaded.rate.value).toBe("1.5");
+  });
+
+  it("does not save a decimal on an integer field and reloads the previous integer", async () => {
+    const saveFields = vi.fn();
+    const opened = await openDecimal(decimalHost({ saveFields }));
+    const qty = requireQty(opened.qty);
+    expect(qty.getAttribute("inputmode")).toBe("numeric");
+    fireEvent.change(qty, { target: { value: "1.5" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/valid number/i);
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /number fields before saving/i,
+    );
+    expect(qty.getAttribute("aria-invalid")).toBe("true");
+    expect(document.activeElement).toBe(qty);
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    cleanup();
+    const reloaded = await openDecimal(decimalHost({ saveFields }));
+    expect(requireQty(reloaded.qty).value).toBe("4");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not write when Close cancels an unsaved decimal", async () => {
+    const saveFields = vi.fn();
+    const { rate } = await openDecimal(
+      decimalHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.change(rate, { target: { value: "1.5" } });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-rate") as HTMLInputElement).value).toBe("1.5");
+  });
+
+  it("does not claim success for HTTP 400, 403, or 409 on a decimal save", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    const { rate } = await openDecimal(
+      decimalHost({ saveFields, fields: "float" }),
+      "1",
+      null,
+    );
+    fireEvent.change(rate, { target: { value: "1.5" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-rate").textContent).toMatch(/could not be saved/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-rate").textContent).toMatch(/not allowed/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/newer revision/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(3);
+    cleanup();
+    const reloaded = await openDecimal(decimalHost({ saveFields, fields: "float" }), "1", null);
+    expect(reloaded.rate.value).toBe("1");
+  });
+
+  it("still saves an in-range integer", async () => {
+    let qty = "4";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      qty = body.fields.find((f) => f.name === "qty")?.value ?? qty;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const opened = await openDecimal(decimalHost({ saveFields, qty }));
+    const input = requireQty(opened.qty);
+    fireEvent.change(input, { target: { value: "7" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    expect(saveFields.mock.calls[0][1].fields.find((f: { name: string }) => f.name === "qty")).toMatchObject({
+      value: "7",
+      dataType: "integer",
+      minimum: "0",
+      maximum: "10",
+    });
+    cleanup();
+    const reloaded = await openDecimal(decimalHost({ saveFields, qty }), "1", "7");
+    expect(requireQty(reloaded.qty).value).toBe("7");
+  });
+});
+
 describe("EditorHost refuse blank required date (#5225)", () => {
   afterEach(() => {
     cleanup();
