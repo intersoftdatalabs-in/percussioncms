@@ -56,7 +56,7 @@ export const ASSEMBLY_MSG = {
   SLOT_APPLY: "perc.ui.assembly@Apply",
   SLOT_CANCEL: "perc.ui.assembly@Cancel",
   FIELDS: "perc.ui.assembly@Fields",
-  FIELD_EMPTY: "perc.ui.assembly@No known text fields on this item.",
+  FIELD_EMPTY: "perc.ui.assembly@No known text or HTML fields on this item.",
   FIELD_SAVE: "perc.ui.assembly@Save fields",
   FIELD_SAVING: "perc.ui.assembly@Saving fields…",
   FIELD_SAVED: "perc.ui.assembly@Fields saved",

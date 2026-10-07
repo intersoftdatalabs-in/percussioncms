@@ -16,16 +16,19 @@
  */
 
 /**
- * Map known scalar itemmanagement fields onto assembled preview nodes
- * and persist edits through the same fields API as the React editor.
- * Does not open leftover Active Assembly or Content Editor HTML.
+ * Map known text, long-text, and HTML itemmanagement fields onto assembled
+ * preview nodes and persist edits through the same fields API as the React
+ * editor. Does not open leftover Active Assembly or Content Editor HTML.
  */
 
 import type { ContentTypeFieldSummary } from "../api/developer/types";
 import { classifyEditorControl } from "../editor/controlKinds";
 import type { ItemEditorField, ItemEditorFields } from "../editor/itemFieldsApi";
 
-export type OverlayFieldKind = "text" | "longtext";
+export type OverlayFieldKind = "text" | "longtext" | "html";
+
+/** Assembled HTML nodes store markup in innerHTML, not stripped text. */
+export const ASSEMBLY_VALUE_HTML = "html";
 
 export interface OverlayField {
   name: string;
@@ -72,13 +75,18 @@ const SKIP_VALUE_TAGS = new Set([
 
 export function isScalarOverlayKind(
   kind: string,
-): kind is OverlayFieldKind {
+): kind is "text" | "longtext" {
   return kind === "text" || kind === "longtext";
 }
 
+export function isOverlayFieldKind(kind: string): kind is OverlayFieldKind {
+  return isScalarOverlayKind(kind) || kind === "html";
+}
+
 /**
- * Scalar text / longtext rows from itemmanagement + content-type controls.
- * Rich / binary / keyword / community stay on the Content Editor host.
+ * Text, long-text, and HTML rows from itemmanagement + content-type controls.
+ * File, image, keyword, community, link, and table stay on the Content Editor.
+ * Read-only rows are omitted so the overlay cannot write them.
  */
 export function scalarOverlayFields(
   payload: ItemEditorFields,
@@ -89,7 +97,7 @@ export function scalarOverlayFields(
   for (const field of payload.fields) {
     const schema = byName.get(field.name);
     const kind = classifyEditorControl(schema, field.name);
-    if (!isScalarOverlayKind(kind) || schema?.readOnly === true) {
+    if (!isOverlayFieldKind(kind) || schema?.readOnly === true) {
       continue;
     }
     out.push({
@@ -227,10 +235,32 @@ export function mapAssembledFieldElements(
 
   for (const field of fields) {
     const value = field.value.trim();
-    if (value.length < 2) {
+    if (hits.some((h) => h.name === field.name && h.contentId === owner)) {
       continue;
     }
-    if (hits.some((h) => h.name === field.name && h.contentId === owner)) {
+    if (field.kind === "html" && value.includes("<")) {
+      const matches: Element[] = [];
+      candidates.forEach((el) => {
+        if (claimed.has(el) || SKIP_VALUE_TAGS.has(el.tagName)) {
+          return;
+        }
+        if ((el.innerHTML ?? "").trim() === value) {
+          matches.push(el);
+        }
+      });
+      if (matches.length === 1) {
+        const el = matches[0];
+        claimed.add(el);
+        hits.push({
+          contentId: owner,
+          name: field.name,
+          element: el,
+          source: "value",
+        });
+      }
+      continue;
+    }
+    if (value.length < 2) {
       continue;
     }
     const matches: Element[] = [];
@@ -259,22 +289,66 @@ export function mapAssembledFieldElements(
   return hits;
 }
 
+/** Drop markers from a previous paint so a field that is no longer editable cannot be saved. */
+export function clearFieldOverlay(root: ParentNode): void {
+  root.querySelectorAll("[data-assembly-field]").forEach((el) => {
+    const html = el as HTMLElement;
+    html.contentEditable = "false";
+    html.removeAttribute("contenteditable");
+    html.removeAttribute("data-assembly-field");
+    html.removeAttribute("data-assembly-content-id");
+    html.removeAttribute("data-assembly-value");
+    html.removeAttribute("spellcheck");
+    const testId = html.getAttribute("data-testid") ?? "";
+    if (testId.startsWith("assembly-inline-field-")) {
+      html.removeAttribute("data-testid");
+    }
+  });
+}
+
 export function applyFieldOverlay(
   root: ParentNode,
   fields: OverlayField[],
   ownerId: string,
 ): OverlayFieldHit[] {
   stripLeftoverAaChrome(root);
+  clearFieldOverlay(root);
   const hits = mapAssembledFieldElements(root, fields, ownerId);
   for (const hit of hits) {
     const html = hit.element as HTMLElement;
+    const field = fields.find((row) => row.name === hit.name);
     html.contentEditable = "true";
     html.setAttribute("data-assembly-field", hit.name);
     html.setAttribute("data-assembly-content-id", hit.contentId);
     html.setAttribute("data-testid", `assembly-inline-field-${hit.name}`);
     html.setAttribute("spellcheck", "false");
+    if (field?.kind === "html") {
+      html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_HTML);
+    }
   }
   return hits;
+}
+
+function readNodeValue(el: Element): string {
+  if (el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement) {
+    return el.value;
+  }
+  if (el.getAttribute("data-assembly-value") === ASSEMBLY_VALUE_HTML) {
+    return (el as HTMLElement).innerHTML.trim();
+  }
+  return (el.textContent ?? "").trim();
+}
+
+function writeNodeValue(el: Element, value: string): void {
+  if (el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement) {
+    el.value = value;
+    return;
+  }
+  if (el.getAttribute("data-assembly-value") === ASSEMBLY_VALUE_HTML) {
+    (el as HTMLElement).innerHTML = value;
+    return;
+  }
+  el.textContent = value;
 }
 
 export function readOverlayEdits(
@@ -292,10 +366,26 @@ export function readOverlayEdits(
       contentId:
         el.getAttribute("data-assembly-content-id")?.trim() || fallbackOwnerId,
       name,
-      value: (el.textContent ?? "").trim(),
+      value: readNodeValue(el),
     });
   });
   return edits;
+}
+
+/** Put the last saved field values back into overlay nodes after a failed save. */
+export function restoreOverlayValues(
+  root: ParentNode,
+  fields: OverlayField[],
+): void {
+  const byName = new Map(fields.map((field) => [field.name, field]));
+  root.querySelectorAll("[data-assembly-field]").forEach((el) => {
+    const name = el.getAttribute("data-assembly-field")?.trim() ?? "";
+    const field = byName.get(name);
+    if (!field) {
+      return;
+    }
+    writeNodeValue(el, field.value);
+  });
 }
 
 export function mergeOverlayEdits(

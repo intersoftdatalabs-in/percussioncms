@@ -23,6 +23,7 @@ import {
   parseAaFieldObjectId,
   persistOverlayEdits,
   readOverlayEdits,
+  restoreOverlayValues,
   scalarOverlayFields,
   stripLeftoverAaChrome,
 } from "../../../main/ts/assembly/overlayFields";
@@ -60,16 +61,54 @@ function aaId(contentId: string, field: string): string {
 }
 
 describe("scalarOverlayFields", () => {
-  it("keeps scalar text and drops rich / binary kinds", () => {
-    const rows = scalarOverlayFields(payload, [
-      { name: "sys_title", label: "Title", control: "sys_EditBox" },
-      { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
-      { name: "description", label: "Body", control: "sys_tinymce" },
+  it("keeps text, long text, and HTML, and drops binary kinds", () => {
+    const rows = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [
+          ...payload.fields,
+          { name: "notes", value: "A long note" },
+          { name: "photo", value: "" },
+        ],
+      },
+      [
+        { name: "sys_title", label: "Title", control: "sys_EditBox" },
+        { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+        { name: "description", label: "Body", control: "sys_tinymce" },
+        { name: "notes", label: "Notes", control: "sys_TextArea" },
+        { name: "photo", label: "Photo", control: "sys_file" },
+      ],
+    );
+    expect(rows.map((r) => r.name)).toEqual([
+      "sys_title",
+      "displaytitle",
+      "description",
+      "notes",
     ]);
-    expect(rows.map((r) => r.name)).toEqual(["sys_title", "displaytitle"]);
     expect(rows.find((r) => r.name === "displaytitle")?.label).toBe(
       "Display title",
     );
+    expect(rows.find((r) => r.name === "description")?.kind).toBe("html");
+    expect(rows.find((r) => r.name === "notes")?.kind).toBe("longtext");
+  });
+
+  it("omits a read-only HTML field so the overlay cannot write it", () => {
+    const rows = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [...payload.fields, { name: "body", value: "<p>Old</p>" }],
+      },
+      [
+        { name: "body", label: "Body", control: "sys_tinymce", readOnly: true },
+        { name: "displaytitle", control: "sys_EditBox" },
+      ],
+    );
+    expect(rows.map((r) => r.name)).toEqual([
+      "sys_title",
+      "displaytitle",
+      "description",
+    ]);
+    expect(rows.some((r) => r.name === "body")).toBe(false);
   });
 });
 
@@ -153,6 +192,92 @@ describe("applyFieldOverlay", () => {
     ]);
     expect(applyFieldOverlay(root, fields, "42")).toEqual([]);
   });
+
+  it("saves assembled HTML markup instead of stripped text", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<div class="PsAaField" id='${aaId("42", "description")}'><p>About the site</p></div>`;
+    const htmlPayload: ItemEditorFields = {
+      ...payload,
+      fields: payload.fields.map((field) =>
+        field.name === "description"
+          ? { name: field.name, value: "<p>About the site</p>" }
+          : field,
+      ),
+    };
+    const fields = scalarOverlayFields(htmlPayload, [
+      { name: "description", label: "Body", control: "sys_tinymce" },
+    ]);
+    const hits = applyFieldOverlay(root, fields, "42");
+    expect(hits).toHaveLength(1);
+    expect(hits[0]?.name).toBe("description");
+    const edited = root.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    expect(edited.getAttribute("data-assembly-value")).toBe("html");
+    edited.innerHTML = "<p>Updated body</p>";
+    expect(readOverlayEdits(root, "42")).toEqual([
+      { contentId: "42", name: "description", value: "<p>Updated body</p>" },
+    ]);
+    restoreOverlayValues(root, fields);
+    expect(edited.innerHTML.trim()).toBe("<p>About the site</p>");
+  });
+
+  it("maps a unique HTML block by markup when markers are absent", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<section><p>About the site</p></section><p>footer</p>`;
+    const htmlPayload: ItemEditorFields = {
+      ...payload,
+      fields: payload.fields.map((field) =>
+        field.name === "description"
+          ? { name: field.name, value: "<p>About the site</p>" }
+          : field,
+      ),
+    };
+    const fields = scalarOverlayFields(htmlPayload, [
+      { name: "description", control: "sys_tinymce" },
+    ]);
+    const hits = applyFieldOverlay(root, fields, "42");
+    expect(hits).toHaveLength(1);
+    expect(hits[0]?.source).toBe("value");
+    expect(hits[0]?.element.tagName).toBe("SECTION");
+  });
+
+  it("clears a previous HTML marker when the field is no longer editable", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<div data-perc-field="description"><p>About the site</p></div>`;
+    const htmlPayload: ItemEditorFields = {
+      ...payload,
+      fields: [{ name: "description", value: "<p>About the site</p>" }],
+    };
+    const editable = scalarOverlayFields(htmlPayload, [
+      { name: "description", control: "sys_tinymce" },
+    ]);
+    applyFieldOverlay(root, editable, "42");
+    expect(
+      root.querySelector('[data-testid="assembly-inline-field-description"]'),
+    ).toBeTruthy();
+    const readOnly = scalarOverlayFields(htmlPayload, [
+      { name: "description", control: "sys_tinymce", readOnly: true },
+    ]);
+    expect(applyFieldOverlay(root, readOnly, "42")).toEqual([]);
+    expect(
+      root.querySelector('[data-testid="assembly-inline-field-description"]'),
+    ).toBeNull();
+    expect(root.querySelector("[data-assembly-field]")).toBeNull();
+  });
+
+  it("does not guess when the same HTML block appears twice", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<section><p>About the site</p></section><div><p>About the site</p></div>`;
+    const htmlPayload: ItemEditorFields = {
+      ...payload,
+      fields: [{ name: "description", value: "<p>About the site</p>" }],
+    };
+    const fields = scalarOverlayFields(htmlPayload, [
+      { name: "description", control: "sys_tinymce" },
+    ]);
+    expect(applyFieldOverlay(root, fields, "42")).toEqual([]);
+  });
 });
 
 describe("stripLeftoverAaChrome", () => {
@@ -205,5 +330,30 @@ describe("mergeOverlayEdits / persistOverlayEdits", () => {
     ).toBe("Updated");
     const snippetCall = saveFields.mock.calls.find((c) => c[0] === "99");
     expect(snippetCall?.[1].fields[0]?.value).toBe("Snippet title");
+  });
+
+  it("persists HTML markup through the same item field save", async () => {
+    const htmlPayload: ItemEditorFields = {
+      ...payload,
+      fields: [
+        { name: "sys_title", value: "Home" },
+        { name: "description", value: "<p>About the site</p>" },
+      ],
+    };
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => body);
+    await persistOverlayEdits({
+      ownerId: "42",
+      ownerPayload: htmlPayload,
+      edits: [
+        { contentId: "42", name: "description", value: "<p>Updated body</p>" },
+      ],
+      loadFields: vi.fn(),
+      saveFields,
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "description")?.value).toBe(
+      "<p>Updated body</p>",
+    );
+    expect(saved.fields.find((f) => f.name === "sys_title")?.value).toBe("Home");
   });
 });

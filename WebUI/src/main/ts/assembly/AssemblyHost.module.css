@@ -239,3 +239,9 @@
 .fieldEdit:focus {
   border-color: #93c5fd;
 }
+
+textarea.fieldEdit {
+  min-height: 3.5rem;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  resize: vertical;
+}

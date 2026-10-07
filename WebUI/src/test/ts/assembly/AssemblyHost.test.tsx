@@ -464,4 +464,206 @@ describe("AssemblyHost", () => {
     const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
     expect(saved.fields.find((f) => f.name === "sys_title")?.value).toBe("Renamed");
   });
+
+  const htmlFields: ItemEditorFields = {
+    contentId: "42",
+    contentType: "percPage",
+    name: "Home",
+    checkoutUser: "admin",
+    fields: [
+      { name: "displaytitle", value: "Welcome" },
+      { name: "description", value: "<p>About the site</p>" },
+    ],
+  };
+
+  const htmlSchema = {
+    fields: [
+      { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+      { name: "description", label: "Body", control: "sys_tinymce" },
+    ],
+  };
+
+  function htmlPreviewDoc(): Document {
+    const previewDoc = document.implementation.createHTMLDocument("preview");
+    previewDoc.body.innerHTML = `
+      <div class="PsAaField" id='[3,42,7,0,0,0,0,1,0,0,0,"description",42,"Body",0]'><p>About the site</p></div>
+      <h1 data-perc-field="displaytitle">Welcome</h1>
+    `;
+    return previewDoc;
+  }
+
+  function renderHtmlHost(
+    previewDoc: Document,
+    saveFields: ReturnType<typeof vi.fn>,
+    loadFields: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(htmlFields),
+    schema: { fields: Array<Record<string, unknown>> } = htmlSchema,
+  ): void {
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview: vi.fn().mockResolvedValue({
+        previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+        contentId: 42,
+        templateId: 7,
+        revision: 1,
+      }),
+      loadTemplates: vi.fn().mockResolvedValue([
+        {
+          name: "rffPgGeneric",
+          label: "Generic Page",
+          url: "../assembler/render?sys_template=7",
+          sortRank: 0,
+          menuType: "MENUITEM",
+        } satisfies MenuAction,
+      ]),
+      checkout: vi.fn().mockResolvedValue(undefined),
+      loadFields,
+      saveFields,
+      loadType: vi.fn().mockResolvedValue(schema),
+      getPreviewDocument: () => previewDoc,
+    });
+  }
+
+  it("saves one assembled HTML field through itemmanagement without stripping markup", async () => {
+    const previewDoc = htmlPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderHtmlHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+      ).toBeTruthy();
+    });
+    const inline = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    inline.innerHTML = "<p>Updated body</p>";
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "description")?.value).toBe(
+      "<p>Updated body</p>",
+    );
+    expect(saved.fields.find((f) => f.name === "displaytitle")?.value).toBe(
+      "Welcome",
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+  });
+
+  it("reloads the assembly host with the HTML that was saved", async () => {
+    const savedHtml = "<p>Updated body</p>";
+    const savedPayload: ItemEditorFields = {
+      ...htmlFields,
+      fields: [
+        { name: "displaytitle", value: "Welcome" },
+        { name: "description", value: savedHtml },
+      ],
+    };
+    const previewDoc = document.implementation.createHTMLDocument("preview");
+    previewDoc.body.innerHTML = `
+      <div class="PsAaField" id='[3,42,7,0,0,0,0,1,0,0,0,"description",42,"Body",0]'>${savedHtml}</div>
+    `;
+    renderHtmlHost(
+      previewDoc,
+      vi.fn().mockResolvedValue(savedPayload),
+      vi.fn().mockResolvedValue(savedPayload),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+      ).toBeTruthy();
+    });
+    const inline = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    expect(inline.innerHTML.trim()).toBe(savedHtml);
+  });
+
+  it("does not write a read-only HTML field", async () => {
+    const previewDoc = htmlPreviewDoc();
+    const saveFields = vi.fn().mockResolvedValue(htmlFields);
+    renderHtmlHost(previewDoc, saveFields, vi.fn().mockResolvedValue(htmlFields), {
+      fields: [
+        { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+        {
+          name: "description",
+          label: "Body",
+          control: "sys_tinymce",
+          readOnly: true,
+        },
+      ],
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-inline-displaytitle")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("assembly-field-chip-description")).toBeNull();
+    expect(
+      previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+    ).toBeNull();
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = "Renamed";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "description")?.value).toBe(
+      "<p>About the site</p>",
+    );
+    expect(saved.fields.find((f) => f.name === "displaytitle")?.value).toBe(
+      "Renamed",
+    );
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s leaves the previous HTML in place",
+    async (status) => {
+      const previewDoc = htmlPreviewDoc();
+      const saveFields = vi.fn().mockRejectedValue({ status });
+      renderHtmlHost(previewDoc, saveFields);
+      await waitFor(() => {
+        expect(
+          previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+        ).toBeTruthy();
+      });
+      const inline = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-description"]',
+      ) as HTMLElement;
+      inline.innerHTML = "<p>Should not stick</p>";
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+          /could not save/i,
+        );
+      });
+      expect(inline.innerHTML.trim()).toBe("<p>About the site</p>");
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+    },
+  );
+
+  it("edits HTML from the overlay strip when the page has no marker and still saves markup", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderHtmlHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-description")).toBeTruthy();
+    });
+    const area = screen.getByTestId(
+      "assembly-overlay-field-description",
+    ) as HTMLTextAreaElement;
+    expect(area.tagName).toBe("TEXTAREA");
+    area.value = "<p>From the strip</p>";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "description")?.value).toBe(
+      "<p>From the strip</p>",
+    );
+  });
 });

@@ -18,9 +18,9 @@
 /**
  * Preview-first Active Assembly host. Renders the assembled page or snippet
  * template in an iframe with a light overlay. Slot add / create / arrange
- * use relationship REST (no Data Flow HTML). Scalar field edits use
- * contenteditable on known assembled nodes and persist through
- * itemmanagement — not leftover Content Editor HTML.
+ * use relationship REST (no Data Flow HTML). Text, long-text, and HTML
+ * field edits use the assembled nodes (HTML keeps its markup) and persist
+ * through itemmanagement — not leftover Content Editor HTML.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -66,6 +66,7 @@ import {
   applyFieldOverlay,
   persistOverlayEdits,
   readOverlayEdits,
+  restoreOverlayValues,
   scalarOverlayFields,
   type OverlayField,
 } from "./overlayFields";
@@ -235,6 +236,7 @@ export function AssemblyHost({
   >(null);
   const [fieldPayload, setFieldPayload] = useState<ItemEditorFields | null>(null);
   const [schemaFields, setSchemaFields] = useState<ContentTypeFieldSummary[]>([]);
+  const [schemaReady, setSchemaReady] = useState(false);
   const [inlineFieldNames, setInlineFieldNames] = useState<string[]>([]);
   const [fieldNotice, setFieldNotice] = useState<string | null>(null);
   const [savingFields, setSavingFields] = useState(false);
@@ -349,19 +351,21 @@ export function AssemblyHost({
   }, [templates, templateId]);
 
   const overlayFields: OverlayField[] = useMemo(() => {
-    if (fieldPayload == null) {
+    if (fieldPayload == null || !schemaReady) {
       return [];
     }
     return scalarOverlayFields(fieldPayload, schemaFields);
-  }, [fieldPayload, schemaFields]);
+  }, [fieldPayload, schemaFields, schemaReady]);
 
   useEffect(() => {
     if (contentId == null) {
       setFieldPayload(null);
       setSchemaFields([]);
+      setSchemaReady(false);
       return;
     }
     let cancelled = false;
+    setSchemaReady(false);
     void (async () => {
       try {
         await checkout(String(contentId));
@@ -385,10 +389,17 @@ export function AssemblyHost({
               setSchemaFields([]);
             }
           }
+        } else if (!cancelled) {
+          setSchemaFields([]);
         }
       } catch {
         if (!cancelled) {
           setFieldPayload(null);
+          setSchemaFields([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setSchemaReady(true);
         }
       }
     })();
@@ -399,13 +410,13 @@ export function AssemblyHost({
 
   const paintFieldOverlay = useCallback(() => {
     const doc = getPreviewDocument(frameRef.current);
-    if (doc == null || overlayFields.length === 0 || contentId == null) {
+    if (doc == null || contentId == null || !schemaReady) {
       setInlineFieldNames([]);
       return;
     }
     const hits = applyFieldOverlay(doc, overlayFields, String(contentId));
     setInlineFieldNames([...new Set(hits.map((h) => h.name))]);
-  }, [contentId, overlayFields, getPreviewDocument]);
+  }, [contentId, overlayFields, getPreviewDocument, schemaReady]);
 
   useEffect(() => {
     paintFieldOverlay();
@@ -570,7 +581,10 @@ export function AssemblyHost({
       ? document.querySelector('[data-testid="assembly-field-bar"]')
       : null;
     const barEdits = bar != null ? readOverlayEdits(bar, ownerId) : [];
-    const edits = [...iframeEdits, ...barEdits];
+    const allowed = new Set(overlayFields.map((field) => field.name));
+    const edits = [...iframeEdits, ...barEdits].filter((edit) =>
+      allowed.has(edit.name),
+    );
     try {
       const saved = await persistOverlayEdits({
         ownerId,
@@ -584,6 +598,17 @@ export function AssemblyHost({
       setFieldNotice(message(ASSEMBLY_MSG.FIELD_SAVED));
       paintFieldOverlay();
     } catch {
+      const failedDoc = getPreviewDocument(frameRef.current);
+      if (failedDoc != null) {
+        restoreOverlayValues(failedDoc, overlayFields);
+      }
+      const failedBar =
+        typeof document !== "undefined"
+          ? document.querySelector('[data-testid="assembly-field-bar"]')
+          : null;
+      if (failedBar != null) {
+        restoreOverlayValues(failedBar, overlayFields);
+      }
       setFieldNotice(message(ASSEMBLY_MSG.FIELD_SAVE_FAILED));
     } finally {
       setSavingFields(false);
@@ -770,6 +795,17 @@ export function AssemblyHost({
                     <span data-testid={`assembly-field-inline-${field.name}`}>
                       {message(ASSEMBLY_MSG.FIELD_INLINE)}
                     </span>
+                  ) : field.kind === "html" ? (
+                    <textarea
+                      className={styles.fieldEdit}
+                      rows={4}
+                      defaultValue={field.value}
+                      data-assembly-field={field.name}
+                      data-assembly-content-id={String(contentId ?? "")}
+                      data-assembly-value="html"
+                      data-testid={`assembly-overlay-field-${field.name}`}
+                      aria-label={field.label}
+                    />
                   ) : (
                     <span
                       className={styles.fieldEdit}

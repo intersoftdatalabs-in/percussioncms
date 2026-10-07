@@ -3452,7 +3452,7 @@ Response JSON (`PreviewLocation`):
 | `revision` | Revision used (current revision when the query omits `revision`) |
 
 `400` if `contentId` or `templateId` is missing or not positive. `404` if the item has no
-summary/revision. Template **menus** remain `GET /services/actions/find/templates/{id}`. Explorer **Active Assembly** uses the same location with `isAA=true` template menus and opens the chrome-less SPA entry `spa.jsp?entry=assembly&contentId=&templateId=` (client path `/cm/app/assembly`). The AA overlay maps known scalar fields on the assembled HTML and saves with `PUT /services/itemmanagement/item/fields/{id}` (same contract as the React Content Editor). It does not call leftover Active Assembly or Content Editor HTML.
+summary/revision. Template **menus** remain `GET /services/actions/find/templates/{id}`. Explorer **Active Assembly** uses the same location with `isAA=true` template menus and opens the chrome-less SPA entry `spa.jsp?entry=assembly&contentId=&templateId=` (client path `/cm/app/assembly`). The AA overlay maps known scalar text, long text, and HTML fields on the assembled page and saves with `PUT /services/itemmanagement/item/fields/{id}` (same contract as the React Content Editor). HTML is stored as the field markup. A read-only HTML field is not written. HTTP 400, 403, and 409 leave the previous HTML in place. It does not call leftover Active Assembly or Content Editor HTML.
 
 ### Active Assembly slot relationships
 
