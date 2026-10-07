@@ -34,6 +34,7 @@ vi.mock("../../../main/ts/api/developer/rolesApi", async (importOriginal) => {
     updateRoleDescription: vi.fn(),
     updateRoleHomePage: vi.fn(),
     addRoleUser: vi.fn(),
+    removeRoleUser: vi.fn(),
     deleteRole: vi.fn(),
     loadRole: vi.fn(),
   };
@@ -44,6 +45,7 @@ const createRole = rolesApi.createRole as ReturnType<typeof vi.fn>;
 const updateRoleDescription = rolesApi.updateRoleDescription as ReturnType<typeof vi.fn>;
 const updateRoleHomePage = rolesApi.updateRoleHomePage as ReturnType<typeof vi.fn>;
 const addRoleUser = rolesApi.addRoleUser as ReturnType<typeof vi.fn>;
+const removeRoleUser = rolesApi.removeRoleUser as ReturnType<typeof vi.fn>;
 const deleteRole = rolesApi.deleteRole as ReturnType<typeof vi.fn>;
 const loadRole = rolesApi.loadRole as ReturnType<typeof vi.fn>;
 
@@ -57,6 +59,7 @@ describe("RolesPanel", () => {
     updateRoleDescription.mockReset();
     updateRoleHomePage.mockReset();
     addRoleUser.mockReset();
+    removeRoleUser.mockReset();
     deleteRole.mockReset();
     loadRole.mockReset();
     loadRole.mockImplementation(async (name: string) => ({
@@ -828,6 +831,79 @@ describe("RolesPanel", () => {
     expect(addRoleUser).not.toHaveBeenCalled();
     expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
     expect(screen.queryByTestId("developer-roles-member")).toBeNull();
+  });
+
+  it("drops one user only after confirm and leaves that user on 400, 403, and 409", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    loadRole.mockResolvedValue({ name: "Author", users: ["Bea", "Ada"] });
+    let resolveRemove: (value: { name: string; users: string[] }) => void = () => {};
+    removeRoleUser.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveRemove = resolve;
+        }),
+    );
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    await waitFor(() => {
+      expect(screen.getAllByTestId("developer-roles-member")).toHaveLength(2);
+    });
+
+    fireEvent.click(screen.getAllByTestId("developer-roles-remove-user")[0]);
+    // First button is Bea (list order).
+    expect(screen.getByTestId("developer-catalog-confirm-body").textContent).toContain("Bea");
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    expect(removeRoleUser).not.toHaveBeenCalled();
+    expect(
+      screen.getAllByTestId("developer-roles-member").map((node) => node.getAttribute("data-user-name")),
+    ).toEqual(["Bea", "Ada"]);
+    expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
+
+    const adaRemove = document.querySelector(
+      '[data-testid="developer-roles-remove-user"][data-user-name="Ada"]',
+    ) as Element;
+    fireEvent.click(adaRemove);
+    expect(removeRoleUser).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    expect(removeRoleUser).toHaveBeenCalledWith({ name: "Author", userName: "Ada" });
+    expect(
+      screen.getAllByTestId("developer-roles-member").map((node) => node.getAttribute("data-user-name")),
+    ).toEqual(["Bea", "Ada"]);
+
+    resolveRemove({ name: "Author", users: ["Bea"] });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-remove-user-notice").textContent).toBe(
+        DEV_MSG.ROLES_REMOVE_USER_SAVED,
+      );
+    });
+    expect(
+      screen.getAllByTestId("developer-roles-member").map((node) => node.getAttribute("data-user-name")),
+    ).toEqual(["Bea"]);
+    expect(screen.queryByTestId("developer-roles-remove-user-error")).toBeNull();
+
+    for (const status of [400, 403, 409]) {
+      removeRoleUser.mockRejectedValue({
+        status,
+        statusText: "Error",
+        body: { message: `forced ${status}`, users: [] },
+      });
+      fireEvent.click(
+        document.querySelector(
+          '[data-testid="developer-roles-remove-user"][data-user-name="Bea"]',
+        ) as Element,
+      );
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-roles-remove-user-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(screen.getByTestId("developer-roles-member").getAttribute("data-user-name")).toBe("Bea");
+      expect(screen.queryByTestId("developer-roles-remove-user-notice")).toBeNull();
+    }
   });
 
   it("does not delete a system role and cancel does not call the server", async () => {

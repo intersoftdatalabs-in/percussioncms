@@ -723,7 +723,7 @@ export const DEV_MSG_KEYS = {
   ROLES_EMPTY: "perc.ui.developer@No roles returned.",
   ROLES_ERROR: "perc.ui.developer@Could not load roles catalog.",
   ROLES_HINT:
-    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role, open one role to see its users, add one existing user, edit one role's description, set or clear one role's home page, and delete one non-system role after confirming. Removing a user is not done here. System and Default cannot be deleted.",
+    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role, open one role to see its users, add one existing user, remove one user after confirming, edit one role's description, set or clear one role's home page, and delete one non-system role after confirming. System and Default cannot be deleted.",
   ROLES_EDIT_TITLE: "perc.ui.developer@Edit role description",
   ROLES_EDIT_NAME: "perc.ui.developer@Role name",
   ROLES_EDIT_DESCRIPTION: "perc.ui.developer@Description",
@@ -787,7 +787,19 @@ export const DEV_MSG_KEYS = {
   ROLES_MEMBERS_TITLE: "perc.ui.developer@Users",
   ROLES_MEMBERS_LABEL: "perc.ui.developer@Users on this role",
   ROLES_MEMBERS_HINT:
-    "perc.ui.developer@These names come from the role. A user appears here only after the server accepts the add. Saving the description or home page does not add or remove users. This list does not remove users.",
+    "perc.ui.developer@These names come from the role. A user appears here only after the server accepts the add, and leaves only after the server accepts the remove. Saving the description or home page does not change members.",
+  ROLES_REMOVE_USER: "perc.ui.developer@Remove",
+  ROLES_REMOVE_USER_CONFIRM:
+    "perc.ui.developer@Remove this user from the role? The name stays until the server succeeds. Cancel does not remove.",
+  ROLES_REMOVE_USER_SAVED: "perc.ui.developer@User removed from the role.",
+  ROLES_REMOVE_USER_ERROR: "perc.ui.developer@Could not remove the user from this role.",
+  ROLES_REMOVE_USER_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to remove a user from a role.",
+  ROLES_REMOVE_USER_INVALID: "perc.ui.developer@The user was not removed.",
+  ROLES_REMOVE_USER_CONFLICT:
+    "perc.ui.developer@That user is still on the role. Removing them was not accepted.",
+  ROLES_REMOVE_USER_NOT_FOUND:
+    "perc.ui.developer@That role was not found. The user was not removed.",
   ROLES_ADD_USER_LABEL: "perc.ui.developer@Existing user",
   ROLES_ADD_USER_SAVE: "perc.ui.developer@Add user",
   ROLES_ADD_USER_HINT:

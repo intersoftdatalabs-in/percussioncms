@@ -61,6 +61,19 @@ public interface IRoleAdaptor {
   Role addRoleUser(URI baseUri, Role role);
 
   /**
+   * Removes one existing member from an existing role. Description, home page, name, and the other
+   * members stay as stored. Does not add users, does not create a missing role, and does not
+   * delete the role.
+   *
+   * @throws jakarta.ws.rs.WebApplicationException 400 when the role name is blank, the user name
+   *     is blank, more than one user is supplied, the user is unknown, or the user is not a
+   *     member; 403 when the caller is not Admin; 404 when no role has that exact name; 409 when
+   *     removal would leave that user unable to log in, or when the caller would remove themselves
+   *     from Admin
+   */
+  Role removeRoleUser(URI baseUri, Role role);
+
+  /**
    * Creates a role via the role service create path.
    *
    * @throws jakarta.ws.rs.WebApplicationException 400 when the name is blank or rejected by role

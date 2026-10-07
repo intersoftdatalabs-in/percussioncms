@@ -162,7 +162,9 @@ test.describe("Developer show the users on one role (#5308)", () => {
         page.locator(`[data-testid="developer-roles-member"][data-user-name="${userName}"]`),
       ).toBeVisible();
     }
-    await expect(page.locator('[data-testid="developer-roles-members"] button')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-roles-remove-user"]')).toHaveCount(
+      adminUsers.length,
+    );
 
     await page.locator('[data-testid="developer-roles-edit-cancel"]').click();
     const names = await roleNames(page);

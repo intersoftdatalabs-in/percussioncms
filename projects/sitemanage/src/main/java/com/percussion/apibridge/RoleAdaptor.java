@@ -82,6 +82,9 @@ public class RoleAdaptor implements IRoleAdaptor {
 
   static final String ADMIN_REQUIRED_ADD_USER = "Admin role required to add a user to a role";
 
+  static final String ADMIN_REQUIRED_REMOVE_USER =
+      "Admin role required to remove a user from a role";
+
   static final String ADD_USER_REQUIRED = "User name is required";
 
   static final String ADD_USER_ONE = "Add exactly one existing user";
@@ -89,6 +92,10 @@ public class RoleAdaptor implements IRoleAdaptor {
   static final String ADD_USER_UNKNOWN = "Unknown user";
 
   static final String ADD_USER_ALREADY = "User is already a member of this role";
+
+  static final String REMOVE_USER_NOT_MEMBER = "User is not a member of this role";
+
+  static final String REMOVE_USER_SELF_ADMIN = "Cannot remove yourself from \"Admin\" role.";
 
   static final String HOMEPAGE_INVALID = "Role home page is not a known landing page.";
 
@@ -288,6 +295,127 @@ public class RoleAdaptor implements IRoleAdaptor {
     } catch (PSDataServiceException e) {
       throw new WebApplicationException(e);
     }
+  }
+
+  /**
+   * Admin remove of one existing member. Copies the stored description and home page and drops
+   * only that user. A blank name, more than one name, an unknown user, or a user who is not a
+   * member is HTTP 400 and is not saved. A user who would be left unable to log in, or the current
+   * user leaving Admin, is HTTP 409 and is not saved. Missing roles are 404. A client description
+   * or home page on the body is ignored. Other members stay.
+   */
+  @Override
+  public Role removeRoleUser(URI baseURI, Role role) {
+    requireAdmin(ADMIN_REQUIRED_REMOVE_USER);
+    if (role == null || StringUtils.isBlank(role.getName())) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
+    role.setName(role.getName().trim());
+    var requested = singleUserName(role);
+    if (!roleExists(baseURI, role.getName())) {
+      throw new WebApplicationException("Role not found", 404);
+    }
+    var canonical = canonicalUserName(requested);
+    try {
+      var existing = roleService.find(new PSStringWrapper(role.getName()));
+      if (existing == null || StringUtils.isBlank(existing.getName())) {
+        throw new WebApplicationException("Role not found", 404);
+      }
+      var members = new ArrayList<String>();
+      if (existing.getUsers() != null) {
+        for (String member : existing.getUsers()) {
+          if (StringUtils.isNotBlank(member)) {
+            members.add(member);
+          }
+        }
+      }
+      if (!containsUser(members, canonical)) {
+        throw new WebApplicationException(REMOVE_USER_NOT_MEMBER, 400);
+      }
+      rejectStrandedRemoval(canonical);
+      rejectSelfAdminRemoval(existing.getName(), canonical);
+      var remaining = new ArrayList<String>();
+      for (String member : members) {
+        if (!member.equalsIgnoreCase(canonical)) {
+          remaining.add(member);
+        }
+      }
+      var toUpdate = new PSRole();
+      toUpdate.setName(existing.getName());
+      toUpdate.setDescription(existing.getDescription());
+      toUpdate.setHomepage(existing.getHomepage());
+      toUpdate.setUsers(remaining);
+      var updated = roleService.update(toUpdate);
+      var wire = ApiUtils.convertRole(updated);
+      if (wire == null || StringUtils.isBlank(wire.getName())) {
+        throw new WebApplicationException("Role update returned no role", 500);
+      }
+      return wire;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(validationMessage(e), removeFailureStatus(e));
+    } catch (PSDataServiceException e) {
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /**
+   * The role service refuses a removal that would leave the user with no role. That is HTTP 409
+   * and must not fall through to {@code update}.
+   */
+  private void rejectStrandedRemoval(String userName) {
+    if (roleService == null) {
+      throw new WebApplicationException("Role service is not available", 500);
+    }
+    var probe = new PSUserList();
+    probe.setUsers(List.of(userName));
+    try {
+      roleService.validateDeleteUsersFromRole(probe);
+    } catch (PSValidationException e) {
+      throw new WebApplicationException(validationMessage(e), 409);
+    } catch (PSDataServiceException e) {
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /**
+   * The signed-in user cannot drop themselves from Admin. HTTP 409, and {@code update} is not
+   * called.
+   */
+  private void rejectSelfAdminRemoval(String roleName, String userName) {
+    if (roleName == null || !"Admin".equalsIgnoreCase(roleName.trim())) {
+      return;
+    }
+    if (userService == null) {
+      throw new WebApplicationException("User service is not available", 500);
+    }
+    PSCurrentUser current;
+    try {
+      current = userService.getCurrentUser();
+    } catch (PSDataServiceException e) {
+      throw new WebApplicationException(e);
+    }
+    if (current != null
+        && StringUtils.isNotBlank(current.getName())
+        && current.getName().trim().equalsIgnoreCase(userName)) {
+      throw new WebApplicationException(REMOVE_USER_SELF_ADMIN, 409);
+    }
+  }
+
+  /**
+   * Map role-service validation from a membership remove. Missing roles are 404. A removal that
+   * would leave a user unable to log in, or that drops the caller from Admin, is 409.
+   */
+  static int removeFailureStatus(PSValidationException e) {
+    var message = validationMessage(e).toLowerCase(Locale.ROOT);
+    if (message.contains("not found")) {
+      return 404;
+    }
+    if (message.contains("unable to login") || message.contains("cannot remove yourself")) {
+      return 409;
+    }
+    return 400;
   }
 
   /**

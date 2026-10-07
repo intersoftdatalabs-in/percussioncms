@@ -20,6 +20,7 @@ import { isApiError } from "../api/client";
 import {
   addRoleUser,
   browseRoles,
+  removeRoleUser,
   createRole,
   deleteRole,
   isRoleCreateReady,
@@ -154,6 +155,24 @@ function addUserFailureMessage(err: unknown): string {
   return panelErrMsg(err, DEV_MSG.ROLES_ADD_USER_ERROR);
 }
 
+function removeUserFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.ROLES_REMOVE_USER_FORBIDDEN);
+    }
+    if (err.status === 409) {
+      return panelErrMsg(err, DEV_MSG.ROLES_REMOVE_USER_CONFLICT);
+    }
+    if (err.status === 404) {
+      return panelErrMsg(err, DEV_MSG.ROLES_REMOVE_USER_NOT_FOUND);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.ROLES_REMOVE_USER_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.ROLES_REMOVE_USER_ERROR);
+}
+
 function deleteFailureMessage(err: unknown): string {
   if (isApiError(err)) {
     if (err.status === 403) {
@@ -189,11 +208,15 @@ function RoleMembers({
   loading,
   error,
   users,
+  removeBusy,
+  onRemoveUser,
 }: {
   loading: boolean;
   error: string | null;
   /** null until a successful read. An empty array is a real empty role. */
   users: string[] | null;
+  removeBusy: boolean;
+  onRemoveUser: (userName: string) => void;
 }): React.ReactElement {
   return (
     <section
@@ -232,9 +255,28 @@ function RoleMembers({
               key={userName}
               data-testid="developer-roles-member"
               data-user-name={userName}
-              style={monoCell}
+              style={{ ...monoCell, display: "flex", alignItems: "center", gap: "8px" }}
             >
-              {userName}
+              <span>{userName}</span>
+              <button
+                type="button"
+                data-testid="developer-roles-remove-user"
+                data-user-name={userName}
+                aria-label={`${DEV_MSG.ROLES_REMOVE_USER} ${userName}`}
+                disabled={removeBusy || loading}
+                onClick={() => onRemoveUser(userName)}
+                style={{
+                  padding: "2px 8px",
+                  background: removeBusy ? catalogColors.disabled : catalogColors.error,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: removeBusy || loading ? "not-allowed" : "pointer",
+                  font: "inherit",
+                }}
+              >
+                {DEV_MSG.ROLES_REMOVE_USER}
+              </button>
             </li>
           ))}
         </ul>
@@ -371,11 +413,13 @@ function RoleGroupSection({
  * Admins create one role (name + description) via PUT ?create=true, edit
  * one existing role's description via PUT ?update=true, set or clear one
  * role's home page via PUT ?homePage=true, add one existing user via
- * PUT ?addUser=true, and delete one non-system role via DELETE after confirm.
+ * PUT ?addUser=true, remove one member via PUT ?removeUser=true after confirm,
+ * and delete one non-system role via DELETE after confirm.
  * Opening a role GETs its stored users. An empty user list is an empty state.
  * HTTP 403 and 404 do not show members. The added user appears only after a
- * successful save. HTTP 400, 403, and 409 leave the previous list. Description
- * and home-page saves do not send users. Removing a user stays out of scope.
+ * successful save. A removed user leaves the list only after a successful save.
+ * HTTP 400, 403, and 409 leave the previous list, including a 409 that would
+ * strand the user. Description and home-page saves do not send users.
  */
 export function RolesPanel(): React.ReactElement {
   const [catalog, setCatalog] = useState<RoleBrowseEntry[] | null>(null);
@@ -404,6 +448,10 @@ export function RolesPanel(): React.ReactElement {
   const [addError, setAddError] = useState<string | null>(null);
   const [addNotice, setAddNotice] = useState<string | null>(null);
   const [addBusy, setAddBusy] = useState(false);
+  const [pendingRemove, setPendingRemove] = useState<string | null>(null);
+  const [removeError, setRemoveError] = useState<string | null>(null);
+  const [removeNotice, setRemoveNotice] = useState<string | null>(null);
+  const [removeBusy, setRemoveBusy] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
@@ -417,6 +465,7 @@ export function RolesPanel(): React.ReactElement {
   const editInflight = useRef(false);
   const homeInflight = useRef(false);
   const addInflight = useRef(false);
+  const removeInflight = useRef(false);
   const deleteInflight = useRef(false);
   const membersGen = useRef(0);
   const editNameRef = useRef<string | null>(null);
@@ -512,7 +561,7 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function openDelete(role: RoleBrowseEntry) {
-    if (createBusy || editBusy || homeBusy || addBusy || deleteBusy || !role.name) return;
+    if (createBusy || editBusy || homeBusy || addBusy || removeBusy || deleteBusy || !role.name) return;
     if (isSystemRoleName(role.name)) return;
     setDeleteError(null);
     setDeleteNotice(null);
@@ -561,7 +610,7 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function openCreate() {
-    if (editBusy || homeBusy || addBusy || deleteBusy) return;
+    if (editBusy || homeBusy || addBusy || removeBusy || deleteBusy) return;
     editNameRef.current = null;
     clearMembers();
     setEditName(null);
@@ -569,6 +618,9 @@ export function RolesPanel(): React.ReactElement {
     setHomeError(null);
     setAddError(null);
     setAddNotice(null);
+    setRemoveError(null);
+    setRemoveNotice(null);
+    setPendingRemove(null);
     setDraftUser("");
     setEditDescription("");
     setEditHomePage("");
@@ -589,7 +641,7 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function openEdit(role: RoleBrowseEntry) {
-    if (createBusy || editBusy || homeBusy || addBusy || deleteBusy || !role.name) return;
+    if (createBusy || editBusy || homeBusy || addBusy || removeBusy || deleteBusy || !role.name) return;
     setCreating(false);
     setCreateError(null);
     setCreateNotice(null);
@@ -597,6 +649,9 @@ export function RolesPanel(): React.ReactElement {
     setHomeError(null);
     setAddError(null);
     setAddNotice(null);
+    setRemoveError(null);
+    setRemoveNotice(null);
+    setPendingRemove(null);
     setDraftUser("");
     setEditNotice(null);
     setHomeNotice(null);
@@ -610,7 +665,7 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function cancelEdit() {
-    if (editBusy || homeBusy || addBusy) return;
+    if (editBusy || homeBusy || addBusy || removeBusy) return;
     editNameRef.current = null;
     clearMembers();
     setEditName(null);
@@ -618,6 +673,9 @@ export function RolesPanel(): React.ReactElement {
     setHomeError(null);
     setAddError(null);
     setAddNotice(null);
+    setRemoveError(null);
+    setRemoveNotice(null);
+    setPendingRemove(null);
     setDraftUser("");
     setEditDescription("");
     setEditHomePage("");
@@ -661,7 +719,13 @@ export function RolesPanel(): React.ReactElement {
   }
 
   async function handleEdit(): Promise<void> {
-    if (!editName || editInflight.current || homeInflight.current || addInflight.current) {
+    if (
+      !editName ||
+      editInflight.current ||
+      homeInflight.current ||
+      addInflight.current ||
+      removeInflight.current
+    ) {
       return;
     }
     editInflight.current = true;
@@ -692,7 +756,13 @@ export function RolesPanel(): React.ReactElement {
   }
 
   async function handleHomePage(): Promise<void> {
-    if (!editName || homeInflight.current || editInflight.current || addInflight.current) {
+    if (
+      !editName ||
+      homeInflight.current ||
+      editInflight.current ||
+      addInflight.current ||
+      removeInflight.current
+    ) {
       return;
     }
     homeInflight.current = true;
@@ -724,7 +794,14 @@ export function RolesPanel(): React.ReactElement {
 
   async function handleAddUser(): Promise<void> {
     const userName = draftUser.trim();
-    if (!editName || !userName || addInflight.current || editInflight.current || homeInflight.current) {
+    if (
+      !editName ||
+      !userName ||
+      addInflight.current ||
+      editInflight.current ||
+      homeInflight.current ||
+      removeInflight.current
+    ) {
       return;
     }
     addInflight.current = true;
@@ -757,8 +834,72 @@ export function RolesPanel(): React.ReactElement {
     }
   }
 
+  function openRemoveUser(userName: string): void {
+    const name = userName.trim();
+    if (!name || editBusy || homeBusy || addBusy || removeBusy || membersLoading || pendingRemove != null) {
+      return;
+    }
+    setRemoveError(null);
+    setRemoveNotice(null);
+    setPendingRemove(name);
+  }
+
+  function cancelRemoveUser(): void {
+    if (removeBusy) return;
+    setPendingRemove(null);
+  }
+
+  async function handleRemoveUser(): Promise<void> {
+    const userName = pendingRemove?.trim() ?? "";
+    if (
+      !editName ||
+      !userName ||
+      removeInflight.current ||
+      addInflight.current ||
+      editInflight.current ||
+      homeInflight.current
+    ) {
+      return;
+    }
+    removeInflight.current = true;
+    setRemoveBusy(true);
+    setRemoveError(null);
+    setRemoveNotice(null);
+    const name = editName.trim();
+    const previousUsers = memberUsers;
+    try {
+      const saved = await removeRoleUser({ name, userName });
+      if (!mountedRef.current) return;
+      const stillThere = saved.users.some(
+        (member) => member.trim().toLowerCase() === userName.toLowerCase(),
+      );
+      if (!sameRoleName(saved.name, name) || stillThere) {
+        setMemberUsers(previousUsers);
+        setPendingRemove(null);
+        setRemoveError(DEV_MSG.ROLES_REMOVE_USER_ERROR);
+        return;
+      }
+      setMemberUsers(saved.users);
+      setMembersError(null);
+      setMembersLoading(false);
+      setPendingRemove(null);
+      setRemoveNotice(DEV_MSG.ROLES_REMOVE_USER_SAVED);
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setMemberUsers(previousUsers);
+      setPendingRemove(null);
+      setRemoveError(removeUserFailureMessage(err));
+      setRemoveNotice(null);
+    } finally {
+      removeInflight.current = false;
+      if (mountedRef.current) {
+        setRemoveBusy(false);
+      }
+    }
+  }
+
   const canCreate = !createBusy && isRoleCreateReady(draftName);
-  const detailLocked = editBusy || homeBusy || addBusy;
+  const detailLocked = editBusy || homeBusy || addBusy || removeBusy;
   const canSaveDescription = !detailLocked && editName != null && editName.trim().length > 0;
   const canSaveHomePage = canSaveDescription;
   const canAddUser =
@@ -877,7 +1018,26 @@ export function RolesPanel(): React.ReactElement {
               {DEV_MSG.ROLES_HOME_HINT}
             </span>
           </div>
-          <RoleMembers loading={membersLoading} error={membersError} users={memberUsers} />
+          <RoleMembers
+            loading={membersLoading}
+            error={membersError}
+            users={memberUsers}
+            removeBusy={removeBusy}
+            onRemoveUser={openRemoveUser}
+          />
+          {removeError ? (
+            <div role="alert" data-testid="developer-roles-remove-user-error" style={errorAlert}>
+              {removeError}
+            </div>
+          ) : null}
+          {removeNotice ? (
+            <div
+              data-testid="developer-roles-remove-user-notice"
+              style={{ color: "#276749", marginBottom: "8px" }}
+            >
+              {removeNotice}
+            </div>
+          ) : null}
           <section
             aria-label={DEV_MSG.ROLES_ADD_USER_LABEL}
             data-testid="developer-roles-add-user"
@@ -1151,6 +1311,17 @@ export function RolesPanel(): React.ReactElement {
         }
         onCancel={cancelDelete}
         onConfirm={() => void handleDelete()}
+      />
+      <CatalogConfirmDialog
+        open={pendingRemove != null}
+        busy={removeBusy}
+        message={
+          pendingRemove
+            ? `${DEV_MSG.ROLES_REMOVE_USER_CONFIRM} ${pendingRemove}`
+            : ""
+        }
+        onCancel={cancelRemoveUser}
+        onConfirm={() => void handleRemoveUser()}
       />
     </div>
   );
