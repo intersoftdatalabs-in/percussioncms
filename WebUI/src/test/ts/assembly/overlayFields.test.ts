@@ -110,6 +110,37 @@ describe("scalarOverlayFields", () => {
     ]);
     expect(rows.some((r) => r.name === "body")).toBe(false);
   });
+
+  it("keeps a link field and omits a read-only link", () => {
+    const rows = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [
+          ...payload.fields,
+          { name: "pagelink", value: "//Sites/Example/index" },
+          { name: "lockedlink", value: "594" },
+          { name: "photo", value: "" },
+        ],
+      },
+      [
+        { name: "pagelink", label: "Page link", control: "sys_PageLink" },
+        {
+          name: "lockedlink",
+          label: "Locked",
+          control: "sys_ManagedLink",
+          readOnly: true,
+        },
+        { name: "photo", control: "sys_file" },
+        { name: "displaytitle", control: "sys_EditBox" },
+        { name: "description", control: "sys_tinymce" },
+      ],
+    );
+    expect(rows.find((r) => r.name === "pagelink")?.kind).toBe("link");
+    expect(rows.find((r) => r.name === "description")?.kind).toBe("html");
+    expect(rows.find((r) => r.name === "displaytitle")?.kind).toBe("text");
+    expect(rows.some((r) => r.name === "lockedlink")).toBe(false);
+    expect(rows.some((r) => r.name === "photo")).toBe(false);
+  });
 });
 
 describe("parseAaFieldObjectId", () => {
@@ -266,6 +297,102 @@ describe("applyFieldOverlay", () => {
     expect(root.querySelector("[data-assembly-field]")).toBeNull();
   });
 
+  it("edits one assembled link from an anchor href and does not save the label", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<a href="//Sites/Example/index">Example</a><p>Welcome</p>`;
+    const linkPayload: ItemEditorFields = {
+      ...payload,
+      fields: [
+        ...payload.fields,
+        { name: "pagelink", value: "//Sites/Example/index" },
+      ],
+    };
+    const fields = scalarOverlayFields(linkPayload, [
+      { name: "pagelink", label: "Page link", control: "sys_PageLink" },
+      { name: "displaytitle", control: "sys_EditBox" },
+    ]);
+    const hits = applyFieldOverlay(root, fields, "42");
+    expect(hits.find((h) => h.name === "pagelink")?.source).toBe("value");
+    const input = root.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    expect(input.tagName).toBe("INPUT");
+    expect(input.value).toBe("//Sites/Example/index");
+    expect(input.getAttribute("data-assembly-value")).toBe("link");
+    const anchor = root.querySelector("a") as HTMLAnchorElement;
+    expect(anchor.getAttribute("data-assembly-field")).toBeNull();
+    expect(anchor.contentEditable).not.toMatch(/true/i);
+    input.value = "//Sites/Example/about";
+    expect(readOverlayEdits(root, "42")).toEqual(
+      expect.arrayContaining([
+        {
+          contentId: "42",
+          name: "pagelink",
+          value: "//Sites/Example/about",
+          dataType: "link",
+        },
+      ]),
+    );
+    restoreOverlayValues(root, fields);
+    expect(input.value).toBe("//Sites/Example/index");
+  });
+
+  it("places a link input on a PsAaField wrapper", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<div class="PsAaField" id='${aaId("42", "pagelink")}'>//Sites/Example/index</div>`;
+    const linkPayload: ItemEditorFields = {
+      ...payload,
+      fields: [{ name: "pagelink", value: "//Sites/Example/index" }],
+    };
+    const fields = scalarOverlayFields(linkPayload, [
+      { name: "pagelink", label: "Page link", control: "sys_PageLink" },
+    ]);
+    const hits = applyFieldOverlay(root, fields, "42");
+    expect(hits).toHaveLength(1);
+    expect(hits[0]?.source).toBe("aa-object-id");
+    const input = root.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    expect(input.value).toBe("//Sites/Example/index");
+    expect(input.parentElement?.classList.contains("PsAaField")).toBe(true);
+  });
+
+  it("does not guess when the same link href appears twice", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<a href="//Sites/Example/index">A</a><a href="//Sites/Example/index">B</a>`;
+    const fields = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [{ name: "pagelink", value: "//Sites/Example/index" }],
+      },
+      [{ name: "pagelink", control: "sys_PageLink" }],
+    );
+    expect(applyFieldOverlay(root, fields, "42")).toEqual([]);
+    expect(root.querySelector("input")).toBeNull();
+  });
+
+  it("clears a previous link input when the field is no longer editable", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<a data-perc-field="pagelink" href="//Sites/Example/index">Example</a>`;
+    const linkPayload: ItemEditorFields = {
+      ...payload,
+      fields: [{ name: "pagelink", value: "//Sites/Example/index" }],
+    };
+    const editable = scalarOverlayFields(linkPayload, [
+      { name: "pagelink", control: "sys_PageLink" },
+    ]);
+    applyFieldOverlay(root, editable, "42");
+    expect(
+      root.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+    ).toBeTruthy();
+    const readOnly = scalarOverlayFields(linkPayload, [
+      { name: "pagelink", control: "sys_PageLink", readOnly: true },
+    ]);
+    expect(applyFieldOverlay(root, readOnly, "42")).toEqual([]);
+    expect(root.querySelector("input")).toBeNull();
+    expect(root.querySelector("[data-assembly-field]")).toBeNull();
+  });
+
   it("does not guess when the same HTML block appears twice", () => {
     const root = document.createElement("div");
     root.innerHTML = `<section><p>About the site</p></section><div><p>About the site</p></div>`;
@@ -355,5 +482,45 @@ describe("mergeOverlayEdits / persistOverlayEdits", () => {
       "<p>Updated body</p>",
     );
     expect(saved.fields.find((f) => f.name === "sys_title")?.value).toBe("Home");
+  });
+
+  it("persists one link and does not stamp dataType onto text or HTML", async () => {
+    const mixed: ItemEditorFields = {
+      ...payload,
+      fields: [
+        { name: "displaytitle", value: "Welcome" },
+        { name: "description", value: "<p>About the site</p>" },
+        { name: "pagelink", value: "//Sites/Example/index" },
+      ],
+    };
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => body);
+    await persistOverlayEdits({
+      ownerId: "42",
+      ownerPayload: mixed,
+      edits: [
+        {
+          contentId: "42",
+          name: "pagelink",
+          value: "//Sites/Example/about",
+          dataType: "link",
+        },
+      ],
+      loadFields: vi.fn(),
+      saveFields,
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "pagelink")).toEqual({
+      name: "pagelink",
+      value: "//Sites/Example/about",
+      dataType: "link",
+    });
+    expect(saved.fields.find((f) => f.name === "displaytitle")).toEqual({
+      name: "displaytitle",
+      value: "Welcome",
+    });
+    expect(saved.fields.find((f) => f.name === "description")?.value).toBe(
+      "<p>About the site</p>",
+    );
+    expect(saved.fields.find((f) => f.name === "description")?.dataType).toBeUndefined();
   });
 });

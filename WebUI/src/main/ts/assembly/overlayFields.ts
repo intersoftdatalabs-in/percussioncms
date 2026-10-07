@@ -16,7 +16,7 @@
  */
 
 /**
- * Map known text, long-text, and HTML itemmanagement fields onto assembled
+ * Map known text, long-text, HTML, and link itemmanagement fields onto assembled
  * preview nodes and persist edits through the same fields API as the React
  * editor. Does not open leftover Active Assembly or Content Editor HTML.
  */
@@ -25,10 +25,15 @@ import type { ContentTypeFieldSummary } from "../api/developer/types";
 import { classifyEditorControl } from "../editor/controlKinds";
 import type { ItemEditorField, ItemEditorFields } from "../editor/itemFieldsApi";
 
-export type OverlayFieldKind = "text" | "longtext" | "html";
+export type OverlayFieldKind = "text" | "longtext" | "html" | "link";
 
 /** Assembled HTML nodes store markup in innerHTML, not stripped text. */
 export const ASSEMBLY_VALUE_HTML = "html";
+
+/** Link edits send {@code dataType: link} on the existing item field save. */
+export const ASSEMBLY_VALUE_LINK = "link";
+
+const LINK_INPUT_ATTR = "data-assembly-link-input";
 
 export interface OverlayField {
   name: string;
@@ -49,6 +54,8 @@ export interface OverlayFieldEdit {
   contentId: string;
   name: string;
   value: string;
+  /** Present for link fields so the item field save stores a link. */
+  dataType?: string;
 }
 
 /** PSAAObjectId JSON array: index 1 = content id, 11 = field name. */
@@ -80,12 +87,12 @@ export function isScalarOverlayKind(
 }
 
 export function isOverlayFieldKind(kind: string): kind is OverlayFieldKind {
-  return isScalarOverlayKind(kind) || kind === "html";
+  return isScalarOverlayKind(kind) || kind === "html" || kind === "link";
 }
 
 /**
- * Text, long-text, and HTML rows from itemmanagement + content-type controls.
- * File, image, keyword, community, link, and table stay on the Content Editor.
+ * Text, long-text, HTML, and link rows from itemmanagement + content-type controls.
+ * File, image, keyword, community, and table stay on the Content Editor.
  * Read-only rows are omitted so the overlay cannot write them.
  */
 export function scalarOverlayFields(
@@ -260,6 +267,32 @@ export function mapAssembledFieldElements(
       }
       continue;
     }
+    if (field.kind === "link") {
+      if (!value) {
+        continue;
+      }
+      const matches: Element[] = [];
+      candidates.forEach((el) => {
+        if (claimed.has(el) || SKIP_VALUE_TAGS.has(el.tagName)) {
+          return;
+        }
+        if (!linkValueMatches(el, value)) {
+          return;
+        }
+        matches.push(el);
+      });
+      if (matches.length === 1) {
+        const el = matches[0];
+        claimed.add(el);
+        hits.push({
+          contentId: owner,
+          name: field.name,
+          element: el,
+          source: "value",
+        });
+      }
+      continue;
+    }
     if (value.length < 2) {
       continue;
     }
@@ -289,8 +322,54 @@ export function mapAssembledFieldElements(
   return hits;
 }
 
+function linkValueMatches(el: Element, value: string): boolean {
+  if (!value) {
+    return false;
+  }
+  if (el.tagName === "A" && (el.getAttribute("href") ?? "").trim() === value) {
+    return true;
+  }
+  if (el.childElementCount > 0) {
+    return false;
+  }
+  return (el.textContent ?? "").trim() === value;
+}
+
+function mountLinkInput(
+  host: HTMLElement,
+  hit: OverlayFieldHit,
+  field: OverlayField,
+): void {
+  host.contentEditable = "false";
+  host.removeAttribute("contenteditable");
+  const input = host.ownerDocument.createElement("input");
+  input.type = "text";
+  input.value = field.value;
+  input.setAttribute("data-assembly-field", hit.name);
+  input.setAttribute("data-assembly-content-id", hit.contentId);
+  input.setAttribute("data-assembly-value", ASSEMBLY_VALUE_LINK);
+  input.setAttribute("data-testid", `assembly-inline-field-${hit.name}`);
+  input.setAttribute(LINK_INPUT_ATTR, hit.name);
+  input.setAttribute("spellcheck", "false");
+  input.setAttribute("aria-label", field.label || hit.name);
+  input.autocomplete = "off";
+  input.setAttribute(
+    "style",
+    "display:inline-block;min-width:12rem;margin-left:4px;color:#0f172a;background:#fff;border:1px solid #64748b;font:inherit;",
+  );
+  // An input inside an anchor is invalid and would navigate on click.
+  if (host.tagName === "A") {
+    host.insertAdjacentElement("afterend", input);
+  } else {
+    host.appendChild(input);
+  }
+}
+
 /** Drop markers from a previous paint so a field that is no longer editable cannot be saved. */
 export function clearFieldOverlay(root: ParentNode): void {
+  root.querySelectorAll(`input[${LINK_INPUT_ATTR}]`).forEach((el) => {
+    el.remove();
+  });
   root.querySelectorAll("[data-assembly-field]").forEach((el) => {
     const html = el as HTMLElement;
     html.contentEditable = "false";
@@ -317,6 +396,10 @@ export function applyFieldOverlay(
   for (const hit of hits) {
     const html = hit.element as HTMLElement;
     const field = fields.find((row) => row.name === hit.name);
+    if (field?.kind === "link") {
+      mountLinkInput(html, hit, field);
+      continue;
+    }
     html.contentEditable = "true";
     html.setAttribute("data-assembly-field", hit.name);
     html.setAttribute("data-assembly-content-id", hit.contentId);
@@ -329,9 +412,27 @@ export function applyFieldOverlay(
   return hits;
 }
 
+/**
+ * Preview nodes live in the iframe realm, so {@code instanceof HTMLInputElement}
+ * against the assembly host window is false. Tag name is realm-safe.
+ */
+function isFormValueElement(el: Element): boolean {
+  return el.tagName === "INPUT" || el.tagName === "TEXTAREA";
+}
+
+function formValue(el: Element): string {
+  return (el as HTMLInputElement).value;
+}
+
 function readNodeValue(el: Element): string {
-  if (el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement) {
-    return el.value;
+  if (el.getAttribute("data-assembly-value") === ASSEMBLY_VALUE_LINK) {
+    if (isFormValueElement(el)) {
+      return formValue(el).trim();
+    }
+    return (el.textContent ?? "").trim();
+  }
+  if (isFormValueElement(el)) {
+    return formValue(el);
   }
   if (el.getAttribute("data-assembly-value") === ASSEMBLY_VALUE_HTML) {
     return (el as HTMLElement).innerHTML.trim();
@@ -340,8 +441,8 @@ function readNodeValue(el: Element): string {
 }
 
 function writeNodeValue(el: Element, value: string): void {
-  if (el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement) {
-    el.value = value;
+  if (isFormValueElement(el)) {
+    (el as HTMLInputElement).value = value;
     return;
   }
   if (el.getAttribute("data-assembly-value") === ASSEMBLY_VALUE_HTML) {
@@ -362,11 +463,13 @@ export function readOverlayEdits(
     if (!name) {
       return;
     }
+    const valueKind = el.getAttribute("data-assembly-value");
     edits.push({
       contentId:
         el.getAttribute("data-assembly-content-id")?.trim() || fallbackOwnerId,
       name,
       value: readNodeValue(el),
+      ...(valueKind === ASSEMBLY_VALUE_LINK ? { dataType: "link" } : {}),
     });
   });
   return edits;
@@ -392,20 +495,26 @@ export function mergeOverlayEdits(
   payload: ItemEditorFields,
   edits: OverlayFieldEdit[],
 ): ItemEditorFields {
-  const byName = new Map<string, string>();
+  const byName = new Map<string, OverlayFieldEdit>();
   for (const edit of edits) {
     if (edit.contentId && edit.contentId !== String(payload.contentId)) {
       continue;
     }
-    byName.set(edit.name, edit.value);
+    byName.set(edit.name, edit);
   }
   return {
     ...payload,
-    fields: payload.fields.map((field: ItemEditorField) =>
-      byName.has(field.name)
-        ? { name: field.name, value: byName.get(field.name) ?? field.value }
-        : field,
-    ),
+    fields: payload.fields.map((field: ItemEditorField) => {
+      const edit = byName.get(field.name);
+      if (!edit) {
+        return field;
+      }
+      const next: ItemEditorField = { ...field, value: edit.value };
+      if (edit.dataType) {
+        next.dataType = edit.dataType;
+      }
+      return next;
+    }),
   };
 }
 

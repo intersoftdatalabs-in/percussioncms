@@ -666,4 +666,237 @@ describe("AssemblyHost", () => {
       "<p>From the strip</p>",
     );
   });
+
+  const OLD_LINK = "//Sites/Example/index";
+  const NEW_LINK = "//Sites/Example/about";
+
+  const linkFields: ItemEditorFields = {
+    contentId: "42",
+    contentType: "percPage",
+    name: "Home",
+    checkoutUser: "admin",
+    fields: [
+      { name: "displaytitle", value: "Welcome" },
+      { name: "description", value: "<p>About the site</p>" },
+      { name: "pagelink", value: OLD_LINK },
+    ],
+  };
+
+  const linkSchema = {
+    fields: [
+      { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+      { name: "description", label: "Body", control: "sys_tinymce" },
+      { name: "pagelink", label: "Page link", control: "sys_PageLink" },
+    ],
+  };
+
+  function linkPreviewDoc(link = OLD_LINK): Document {
+    const previewDoc = document.implementation.createHTMLDocument("preview");
+    previewDoc.body.innerHTML = `
+      <h1 data-perc-field="displaytitle">Welcome</h1>
+      <div class="PsAaField" id='[3,42,7,0,0,0,0,1,0,0,0,"description",42,"Body",0]'><p>About the site</p></div>
+      <a data-perc-field="pagelink" href="${link}">Example</a>
+    `;
+    return previewDoc;
+  }
+
+  function renderLinkHost(
+    previewDoc: Document,
+    saveFields: ReturnType<typeof vi.fn>,
+    loadFields: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(linkFields),
+    schema: { fields: Array<Record<string, unknown>> } = linkSchema,
+  ): void {
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview: vi.fn().mockResolvedValue({
+        previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+        contentId: 42,
+        templateId: 7,
+        revision: 1,
+      }),
+      loadTemplates: vi.fn().mockResolvedValue([
+        {
+          name: "rffPgGeneric",
+          label: "Generic Page",
+          url: "../assembler/render?sys_template=7",
+          sortRank: 0,
+          menuType: "MENUITEM",
+        } satisfies MenuAction,
+      ]),
+      checkout: vi.fn().mockResolvedValue(undefined),
+      loadFields,
+      saveFields,
+      loadType: vi.fn().mockResolvedValue(schema),
+      getPreviewDocument: () => previewDoc,
+    });
+  }
+
+  it("saves one assembled link and does not write before Save", async () => {
+    const previewDoc = linkPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderLinkHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+      ).toBeTruthy();
+    });
+    const input = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    expect(input.value).toBe(OLD_LINK);
+    input.value = NEW_LINK;
+    expect(saveFields).not.toHaveBeenCalled();
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = "Renamed";
+    const html = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    html.innerHTML = "<p>Updated body</p>";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "pagelink")).toEqual({
+      name: "pagelink",
+      value: NEW_LINK,
+      dataType: "link",
+    });
+    expect(saved.fields.find((f) => f.name === "displaytitle")?.value).toBe("Renamed");
+    expect(saved.fields.find((f) => f.name === "description")?.value).toBe(
+      "<p>Updated body</p>",
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    expect(screen.getByTestId("assembly-field-inline-pagelink")).toBeTruthy();
+  });
+
+  it("reloads the assembly host with the link that was saved", async () => {
+    const savedPayload: ItemEditorFields = {
+      ...linkFields,
+      fields: linkFields.fields.map((field) =>
+        field.name === "pagelink" ? { ...field, value: NEW_LINK } : field,
+      ),
+    };
+    const previewDoc = linkPreviewDoc(NEW_LINK);
+    renderLinkHost(
+      previewDoc,
+      vi.fn().mockResolvedValue(savedPayload),
+      vi.fn().mockResolvedValue(savedPayload),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+      ).toBeTruthy();
+    });
+    const input = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    expect(input.value).toBe(NEW_LINK);
+    expect(previewDoc.querySelector("a")?.getAttribute("href")).toBe(NEW_LINK);
+  });
+
+  it("does not write a read-only link field", async () => {
+    const previewDoc = linkPreviewDoc();
+    const saveFields = vi.fn().mockResolvedValue(linkFields);
+    renderLinkHost(previewDoc, saveFields, vi.fn().mockResolvedValue(linkFields), {
+      fields: [
+        { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+        { name: "description", label: "Body", control: "sys_tinymce" },
+        {
+          name: "pagelink",
+          label: "Page link",
+          control: "sys_PageLink",
+          readOnly: true,
+        },
+      ],
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-inline-displaytitle")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("assembly-field-chip-pagelink")).toBeNull();
+    expect(
+      previewDoc.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+    ).toBeNull();
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = "Renamed";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "pagelink")?.value).toBe(OLD_LINK);
+    expect(saved.fields.find((f) => f.name === "pagelink")?.dataType).toBeUndefined();
+    expect(saved.fields.find((f) => f.name === "displaytitle")?.value).toBe("Renamed");
+    expect(saved.fields.find((f) => f.name === "description")?.value).toBe(
+      "<p>About the site</p>",
+    );
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s leaves the previous link in place",
+    async (status) => {
+      const previewDoc = linkPreviewDoc();
+      const saveFields = vi.fn().mockRejectedValue({ status });
+      renderLinkHost(previewDoc, saveFields);
+      await waitFor(() => {
+        expect(
+          previewDoc.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+        ).toBeTruthy();
+      });
+      const input = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-pagelink"]',
+      ) as HTMLInputElement;
+      input.value = NEW_LINK;
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      // A late preview load repaints the link input. Assert the connected node,
+      // not the input that existed before Save.
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+          /could not save/i,
+        );
+        const live = previewDoc.querySelector(
+          '[data-testid="assembly-inline-field-pagelink"]',
+        ) as HTMLInputElement | null;
+        expect(live?.isConnected).toBe(true);
+        expect(live?.value).toBe(OLD_LINK);
+      });
+      expect(saveFields).toHaveBeenCalled();
+      const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+      expect(sent.fields.find((field) => field.name === "pagelink")?.value).toBe(
+        NEW_LINK,
+      );
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+    },
+  );
+
+  it("edits a link from the overlay strip when the page has no marker", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderLinkHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-pagelink")).toBeTruthy();
+    });
+    const input = screen.getByTestId(
+      "assembly-overlay-field-pagelink",
+    ) as HTMLInputElement;
+    expect(input.tagName).toBe("INPUT");
+    expect(input.value).toBe(OLD_LINK);
+    input.value = NEW_LINK;
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((f) => f.name === "pagelink")).toEqual({
+      name: "pagelink",
+      value: NEW_LINK,
+      dataType: "link",
+    });
+  });
 });
