@@ -6,7 +6,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 7 analyzed
+- Files: 8 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
@@ -24,7 +24,7 @@ approve
 
 ### Issue 1 -- Severity: suggestion
 
-- File: WebUI/src/main/ts/assembly/overlayFields.ts:524 (preexisting)
+- File: WebUI/src/main/ts/assembly/overlayFields.ts:529 (preexisting)
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
 - Description: Function `applyFieldOverlay` cognitive=18 (max 15), cyclomatic=7 (max 15)
