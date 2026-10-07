@@ -85,6 +85,8 @@ export function editorDraftIsDirty(
   draft: Record<string, string>,
   pendingFiles: Record<string, File>,
   pendingClears?: Record<string, boolean>,
+  /** Schema read-only names. A client edit of those fields is not an unsaved change. */
+  ignoredNames?: ReadonlySet<string>,
 ): boolean {
   if (Object.keys(pendingFiles).length > 0) {
     return true;
@@ -96,6 +98,9 @@ export function editorDraftIsDirty(
     return false;
   }
   for (const field of saved) {
+    if (ignoredNames?.has(field.name)) {
+      continue;
+    }
     const current = Object.prototype.hasOwnProperty.call(draft, field.name)
       ? draft[field.name]
       : fieldAsString(field.value);
