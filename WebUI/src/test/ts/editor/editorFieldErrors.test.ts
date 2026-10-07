@@ -184,6 +184,35 @@ describe("collectRequiredFieldErrors", () => {
     });
   });
 
+  it("refuses an empty required table and still allows cell text or an optional empty table", () => {
+    const withCells = JSON.stringify({ columns: ["day"], rows: [["Mon"]] });
+    const columnsOnly = JSON.stringify({ columns: ["day", "hours"], rows: [] });
+    const blankRow = JSON.stringify({ columns: ["value"], rows: [[""]] });
+    const errors = collectRequiredFieldErrors(
+      [
+        { name: "hours", kind: "table", required: true, value: "" },
+        { name: "spaces", kind: "table", required: true, value: "   " },
+        { name: "blank", kind: "table", required: true, value: blankRow },
+        { name: "headers", kind: "table", required: true, value: columnsOnly },
+        { name: "optional", kind: "table", required: false, value: "" },
+        { name: "days", kind: "table", required: true, value: withCells },
+      ],
+      {},
+      "This field is required.",
+    );
+    expect(errors).toEqual({
+      hours: "This field is required.",
+      spaces: "This field is required.",
+      blank: "This field is required.",
+      headers: "This field is required.",
+    });
+    expect(isEmptyEditorFieldValue("table", "")).toBe(true);
+    expect(isEmptyEditorFieldValue("table", "   ")).toBe(true);
+    expect(isEmptyEditorFieldValue("table", blankRow)).toBe(true);
+    expect(isEmptyEditorFieldValue("table", columnsOnly)).toBe(true);
+    expect(isEmptyEditorFieldValue("table", withCells)).toBe(false);
+  });
+
   it("refuses a required image with nothing chosen and a cleared stored name", () => {
     const next = new File(["x"], "next.png", { type: "image/png" });
     const errors = collectRequiredFieldErrors(
