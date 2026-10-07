@@ -955,13 +955,15 @@ public abstract class PSCommandHandler extends PSDataHandler {
       }
 
       if (objEval instanceof PSFieldValidationRulesEvaluator) {
-        /* Explorer item-properties clear posts an empty displaytitle. The shared
-         * field rule still rejects a blank title from every other save (#5297).
+        /* Explorer item-properties clear posts an empty displaytitle. The HTML
+         * parameter alone must not skip the rule: a content-editor modify can
+         * send it. The clear scope has to be open on this thread (#5297).
          */
-        if (PSItemPropertiesDisplayTitleClear.skipRequiredCheck(
-            (String) objFieldName,
-            data.getRequest()
-                .getParameter(PSItemPropertiesDisplayTitleClear.REQUEST_PARAM))) {
+        if (PSItemPropertiesDisplayTitleClear.isActive()
+            && PSItemPropertiesDisplayTitleClear.skipRequiredCheck(
+                (String) objFieldName,
+                data.getRequest()
+                    .getParameter(PSItemPropertiesDisplayTitleClear.REQUEST_PARAM))) {
           continue;
         }
         /* if there is no applyWhen, make sure the field has a value before

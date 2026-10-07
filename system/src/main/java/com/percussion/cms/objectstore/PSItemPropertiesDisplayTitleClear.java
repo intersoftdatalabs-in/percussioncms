@@ -23,7 +23,9 @@ import org.apache.commons.lang3.StringUtils;
  *
  * <p>FastForward marks {@code displaytitle} required ({@code isValidSysDisplayTitle}). That rule
  * still applies to content-editor saves. Explorer clear opens this scope on the calling thread
- * only for the save that posts an empty title. {@link #close()} always clears the scope.
+ * only for the save that posts an empty title. The request parameter is stored with the other HTML
+ * parameters, so it does not skip the rule unless this scope is open. {@link #close()} always
+ * clears the scope.
  */
 public final class PSItemPropertiesDisplayTitleClear implements AutoCloseable {
 
@@ -46,11 +48,14 @@ public final class PSItemPropertiesDisplayTitleClear implements AutoCloseable {
   }
 
   /**
-   * True only for the {@code displaytitle} field when the clear parameter is {@code yes}. Other
-   * fields, and a display title without the parameter, keep the required-title rule.
+   * True only for the {@code displaytitle} field when this thread's clear scope is open and the
+   * clear parameter is {@code yes}. The parameter alone does not skip: a content-editor modify can
+   * post it (#5297). Other fields, and a display title without the parameter, keep the
+   * required-title rule.
    */
   public static boolean skipRequiredCheck(String fieldName, String allowParam) {
-    return "displaytitle".equalsIgnoreCase(StringUtils.trimToEmpty(fieldName))
+    return isActive()
+        && "displaytitle".equalsIgnoreCase(StringUtils.trimToEmpty(fieldName))
         && "yes".equalsIgnoreCase(StringUtils.trimToEmpty(allowParam));
   }
 

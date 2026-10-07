@@ -32,17 +32,26 @@ class PSItemPropertiesDisplayTitleClearTest {
   }
 
   @Test
-  void skipOnlyDisplayTitleWhenClearParamIsYes() {
-    assertTrue(
-        PSItemPropertiesDisplayTitleClear.skipRequiredCheck("displaytitle", "yes"));
-    assertTrue(
-        PSItemPropertiesDisplayTitleClear.skipRequiredCheck("DisplayTitle", "YES"));
-    assertFalse(
-        PSItemPropertiesDisplayTitleClear.skipRequiredCheck("displaytitle", null));
-    assertFalse(
-        PSItemPropertiesDisplayTitleClear.skipRequiredCheck("displaytitle", "no"));
-    assertFalse(PSItemPropertiesDisplayTitleClear.skipRequiredCheck("sys_title", "yes"));
-    assertFalse(PSItemPropertiesDisplayTitleClear.skipRequiredCheck(null, "yes"));
+  void htmlParameterAloneDoesNotSkipRequiredDisplayTitle() {
+    assertFalse(PSItemPropertiesDisplayTitleClear.isActive());
+    assertFalse(PSItemPropertiesDisplayTitleClear.skipRequiredCheck("displaytitle", "yes"));
+    assertFalse(PSItemPropertiesDisplayTitleClear.skipRequiredCheck("DisplayTitle", "YES"));
+  }
+
+  @Test
+  void activeScopeSkipsOnlyDisplayTitleWhenClearParamIsYes() {
+    PSItemPropertiesDisplayTitleClear scope = PSItemPropertiesDisplayTitleClear.open();
+    try {
+      assertTrue(PSItemPropertiesDisplayTitleClear.skipRequiredCheck("displaytitle", "yes"));
+      assertTrue(PSItemPropertiesDisplayTitleClear.skipRequiredCheck("DisplayTitle", "YES"));
+      assertFalse(PSItemPropertiesDisplayTitleClear.skipRequiredCheck("displaytitle", null));
+      assertFalse(PSItemPropertiesDisplayTitleClear.skipRequiredCheck("displaytitle", "no"));
+      assertFalse(PSItemPropertiesDisplayTitleClear.skipRequiredCheck("sys_title", "yes"));
+      assertFalse(PSItemPropertiesDisplayTitleClear.skipRequiredCheck(null, "yes"));
+    } finally {
+      scope.close();
+    }
+    assertFalse(PSItemPropertiesDisplayTitleClear.skipRequiredCheck("displaytitle", "yes"));
   }
 
   @Test
