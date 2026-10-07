@@ -47,6 +47,7 @@ export interface HtmlFieldWidgetProps {
   name: string;
   value: string;
   readOnly: boolean;
+  invalid?: boolean;
   onChange: (value: string) => void;
   loadScript?: (src: string) => Promise<void>;
 }
@@ -84,6 +85,7 @@ export function HtmlFieldWidget({
   name,
   value,
   readOnly,
+  invalid = false,
   onChange,
   loadScript = defaultLoadTinyMceScript,
 }: HtmlFieldWidgetProps): React.ReactElement {
@@ -151,6 +153,7 @@ export function HtmlFieldWidget({
       name={name}
       value={value}
       readOnly={readOnly}
+      aria-invalid={invalid ? true : undefined}
       aria-label={message(EDITOR_MSG.HTML_LABEL)}
       onChange={(e) => onChange(e.target.value)}
     />

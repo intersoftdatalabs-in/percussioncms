@@ -495,6 +495,7 @@ function EditorFieldControl({
           name={row.name}
           value={row.value}
           readOnly={locked}
+          invalid={invalid}
           onChange={(value) => onChange(row.name, value)}
         />
         {showClear ? (
@@ -1377,6 +1378,7 @@ export function EditorHost({
       message(EDITOR_MSG.HTML_UNSAFE),
     );
     if (Object.keys(unsafeHtml).length > 0) {
+      queueFocusFirstInvalid(unsafeHtml);
       setFieldErrors(unsafeHtml);
       setSaveErrorKey(EDITOR_MSG.HTML_INVALID_SAVE);
       setSaving(false);

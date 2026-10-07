@@ -5904,6 +5904,165 @@ describe("EditorHost refuse blank required HTML (#5251)", () => {
   });
 });
 
+describe("EditorHost refuse unsafe HTML on save (#5313)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function htmlHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    body?: string;
+    confirmLeaveUnsaved?: (message: string) => boolean;
+  }) {
+    const body = opts.body ?? "<p>Hi</p>";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percRichText",
+          name: "Intro",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "text", value: body }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "text",
+              label: "Body",
+              control: "sys_tinymce",
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openHtml(
+    element: React.ReactElement,
+    expected = "<p>Hi</p>",
+  ): Promise<HTMLTextAreaElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
+        expected,
+      );
+    });
+    return screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
+  }
+
+  it("does not save script, event-handler, or javascript URL HTML", async () => {
+    const saveFields = vi.fn();
+    const input = await openHtml(htmlHost({ saveFields }));
+    expect(input.getAttribute("data-editor-kind")).toBe("html");
+    fireEvent.change(input, { target: { value: "<p><script>alert(1)</script></p>" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
+        /script or event markup/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /HTML fields before saving/i,
+    );
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(document.activeElement).toBe(input);
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.change(input, { target: { value: '<img src="x" onerror="alert(1)">' } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
+        /script or event markup/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.change(input, { target: { value: '<a href="javascript:alert(1)">x</a>' } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(input.getAttribute("aria-invalid")).toBe("true");
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    cleanup();
+    const reloaded = await openHtml(htmlHost({ saveFields }));
+    expect(reloaded.value).toBe("<p>Hi</p>");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not write when Close cancels an unsafe HTML edit", async () => {
+    const saveFields = vi.fn();
+    const input = await openHtml(htmlHost({ saveFields, confirmLeaveUnsaved: () => false }));
+    fireEvent.change(input, { target: { value: "<script>x</script>" } });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
+      "<script>x</script>",
+    );
+  });
+
+  it("still saves ordinary HTML", async () => {
+    let body = "<p>Hi</p>";
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
+      body = payload.fields.find((f) => f.name === "text")?.value ?? body;
+      return {
+        contentId: "42",
+        contentType: "percRichText",
+        name: "Intro",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: payload.fields,
+      };
+    });
+    const input = await openHtml(htmlHost({ saveFields, body }));
+    fireEvent.change(input, { target: { value: "<p>Bye <strong>there</strong></p>" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "text")?.value).toBe(
+      "<p>Bye <strong>there</strong></p>",
+    );
+    cleanup();
+    const reloaded = await openHtml(
+      htmlHost({ saveFields, body }),
+      "<p>Bye <strong>there</strong></p>",
+    );
+    expect(reloaded.value).toBe("<p>Bye <strong>there</strong></p>");
+  });
+
+  it("does not claim success when a safe HTML save returns HTTP 400", async () => {
+    const saveFields = vi.fn().mockRejectedValue({
+      status: 400,
+      body: { message: "Field 'text' contains script that cannot be saved." },
+    });
+    const input = await openHtml(htmlHost({ saveFields }));
+    fireEvent.change(input, { target: { value: "<p>Ok</p>" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(/script/i);
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(/could not be saved/i);
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(1);
+    cleanup();
+    const reloaded = await openHtml(htmlHost({ saveFields }));
+    expect(reloaded.value).toBe("<p>Hi</p>");
+  });
+});
+
 describe("EditorHost refuse blank required keyword (#5252)", () => {
   afterEach(() => {
     cleanup();
