@@ -26,6 +26,7 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSCloningOptions;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSCoreItem;
+import com.percussion.cms.objectstore.PSItemPropertiesDisplayTitleClear;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.share.dao.impl.PSFolderHelper;
@@ -2274,6 +2275,12 @@ public class FolderAdaptor implements IFolderAdaptor {
       String wanted,
       String correctedItemPath,
       String displayTitle) {
+    // Empty (including whitespace already trimmed by the caller) is a clear. Null leaves
+    // the stored title alone. The content editor rejects a blank displaytitle unless this
+    // save opened the clear scope (#5297).
+    boolean clearDisplayTitle = displayTitle != null && displayTitle.isEmpty();
+    PSItemPropertiesDisplayTitleClear allowBlank =
+        clearDisplayTitle ? PSItemPropertiesDisplayTitleClear.open() : null;
     try {
       boolean isPage = sourceItem.isPage();
       IPSGuid guid = idMapper.getGuid(sourceItem.getId());
@@ -2304,7 +2311,12 @@ public class FolderAdaptor implements IFolderAdaptor {
     } catch (BackendException e) {
       throw new RuntimeException(e);
     } catch (PSErrorResultsException e) {
+      log.error("item properties save failed: {}", e.getAllErrorString());
       throw new RuntimeException(e);
+    } finally {
+      if (allowBlank != null) {
+        allowBlank.close();
+      }
     }
   }
 

@@ -844,6 +844,44 @@ describe("moveItem / copyFolder wire envelopes (#3362)", () => {
     expect(saved.name).toBe("qa-name");
     expect(saved.displayTitle).toBe("qa-title");
   });
+
+  it("saveItemProperties posts an empty displayTitle (#5297)", async () => {
+    let posted: unknown;
+    mockFetch(async (_input, init) => {
+      posted = JSON.parse(String((init as RequestInit)?.body ?? "{}"));
+      return new Response(
+        JSON.stringify({
+          ItemProperties: {
+            itemPath: "/Assets/qa5297",
+            name: "qa-name",
+            displayTitle: "",
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    });
+    const saved = await saveItemProperties({
+      itemPath: "/Assets/qa5297",
+      name: "qa-name",
+      displayTitle: "",
+    });
+    expect(posted).toEqual(
+      wrapItemPropertiesRequest({
+        itemPath: "/Assets/qa5297",
+        name: "qa-name",
+        displayTitle: "",
+      }),
+    );
+    expect(
+      (posted as { ItemPropertiesRequest: { displayTitle: string } })
+        .ItemPropertiesRequest.displayTitle,
+    ).toBe("");
+    expect(saved.name).toBe("qa-name");
+    expect(saved.displayTitle).toBe("");
+  });
 });
 
 /**

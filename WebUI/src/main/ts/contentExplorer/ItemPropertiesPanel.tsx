@@ -16,11 +16,13 @@
  */
 
 /**
- * Explorer item properties panel (#4701, #5246): name + display title save.
+ * Explorer item properties panel (#4701, #5246, #5297): name + display title.
  *
  * <p>The saved display title is the value returned by a reload after POST.
- * Cancel does not post. HTTP 400, 403, and 409 put the previous display
- * title back. A title-only save posts the loaded name.</p>
+ * Clear empties the draft and does not post. Save of that empty title keeps
+ * the name and shows an empty title only after reload. Cancel does not post.
+ * HTTP 400, 403, and 409 put the previous display title back. A non-empty
+ * title still saves. Folders are not offered clear.</p>
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -34,6 +36,7 @@ import { formatItemPropertiesError } from "./itemPropertiesErrors";
 import { EXPLORER_MSG } from "./messages";
 import {
   committedDisplayTitleAfterAttempt,
+  displayTitleDraftAfterClear,
   displayTitleDraftAfterFailure,
   itemPropertiesPathAfterSave,
   planItemPropertiesSave,
@@ -44,6 +47,11 @@ export interface ItemPropertiesPanelProps {
   itemName?: string;
   /** When false, inputs and save are disabled (view-only). */
   canEdit: boolean;
+  /**
+   * When false, Clear display title is not rendered. Folders pass false.
+   * Defaults to true for an editable page, file, or asset.
+   */
+  allowClearDisplayTitle?: boolean;
   load?: typeof getItemProperties;
   save?: typeof saveItemProperties;
   onSaved?: (name: string) => void;
@@ -68,6 +76,7 @@ export function ItemPropertiesPanel(
     itemPath,
     itemName,
     canEdit,
+    allowClearDisplayTitle = true,
     load = getItemProperties,
     save = saveItemProperties,
     onSaved,
@@ -130,6 +139,23 @@ export function ItemPropertiesPanel(
         outcome: "cancelled",
       }),
       dirty: false,
+    });
+    setSaveMessage(null);
+  };
+
+  const handleClearDisplayTitle = (): void => {
+    if (pending || !canEdit || !allowClearDisplayTitle) {
+      return;
+    }
+    const cleared = displayTitleDraftAfterClear({
+      committedName: status.committedName,
+      draftName: status.name,
+      committedDisplayTitle: status.committedDisplayTitle,
+    });
+    setStatus({
+      ...status,
+      displayTitle: cleared.displayTitle,
+      dirty: cleared.dirty,
     });
     setSaveMessage(null);
   };
@@ -290,6 +316,16 @@ export function ItemPropertiesPanel(
           }
         />
       </div>
+      {allowClearDisplayTitle && canEdit ? (
+        <button
+          type="button"
+          data-testid="item-properties-clear-display-title"
+          disabled={pending || status.displayTitle.trim() === ""}
+          onClick={handleClearDisplayTitle}
+        >
+          {message(EXPLORER_MSG.ITEM_PROPS_CLEAR_DISPLAY_TITLE)}
+        </button>
+      ) : null}
       <button
         type="button"
         data-testid="item-properties-cancel"

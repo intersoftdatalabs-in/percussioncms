@@ -211,6 +211,153 @@ describe("ItemPropertiesPanel (#4701)", () => {
     },
   );
 
+  it("clear then save reloads an empty title and the same name (#5297)", async () => {
+    let releaseReload: (value: { name: string; displayTitle: string }) => void =
+      () => undefined;
+    const reload = new Promise<{ name: string; displayTitle: string }>(
+      (resolve) => {
+        releaseReload = resolve;
+      },
+    );
+    const load = vi
+      .fn()
+      .mockResolvedValueOnce({ name: "qa-item", displayTitle: "Old title" })
+      .mockImplementationOnce(() => reload);
+    const save = vi.fn().mockResolvedValue({
+      name: "qa-item",
+      displayTitle: "",
+    });
+    render(
+      <ItemPropertiesPanel
+        itemPath="/Assets/folder/qa-item"
+        canEdit
+        load={load}
+        save={save}
+      />,
+    );
+    await waitFor(() => {
+      expect(shownTitle()).toBe("Old title");
+    });
+    fireEvent.click(screen.getByTestId("item-properties-clear-display-title"));
+    expect(save).not.toHaveBeenCalled();
+    expect(shownTitle()).toBe("Old title");
+    expect(
+      (screen.getByTestId("item-properties-display-title") as HTMLInputElement)
+        .value,
+    ).toBe("");
+    expect(
+      (screen.getByTestId("item-properties-name") as HTMLInputElement).value,
+    ).toBe("qa-item");
+    fireEvent.click(screen.getByTestId("item-properties-save"));
+    await waitFor(() => {
+      expect(save).toHaveBeenCalledWith({
+        itemPath: "/Assets/folder/qa-item",
+        name: "qa-item",
+        displayTitle: "",
+      });
+    });
+    expect(shownTitle()).toBe("Old title");
+    releaseReload({ name: "qa-item", displayTitle: "" });
+    await waitFor(() => {
+      expect(shownTitle()).toBe("");
+    });
+    expect(
+      (screen.getByTestId("item-properties-display-title") as HTMLInputElement)
+        .value,
+    ).toBe("");
+    expect(
+      (screen.getByTestId("item-properties-name") as HTMLInputElement).value,
+    ).toBe("qa-item");
+    expect(load).toHaveBeenNthCalledWith(2, "/Assets/folder/qa-item");
+  });
+
+  it("clear then cancel does not write (#5297)", async () => {
+    const load = vi.fn().mockResolvedValue({
+      name: "qa-item",
+      displayTitle: "Old title",
+    });
+    const save = vi.fn();
+    render(
+      <ItemPropertiesPanel
+        itemPath="/Assets/item"
+        canEdit
+        load={load}
+        save={save}
+      />,
+    );
+    await waitFor(() => {
+      expect(shownTitle()).toBe("Old title");
+    });
+    fireEvent.click(screen.getByTestId("item-properties-clear-display-title"));
+    fireEvent.click(screen.getByTestId("item-properties-cancel"));
+    expect(save).not.toHaveBeenCalled();
+    expect(
+      (screen.getByTestId("item-properties-display-title") as HTMLInputElement)
+        .value,
+    ).toBe("Old title");
+    expect(shownTitle()).toBe("Old title");
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s after clear leaves the previous display title (#5297)",
+    async (status) => {
+      const load = vi.fn().mockResolvedValue({
+        name: "qa-item",
+        displayTitle: "Old title",
+      });
+      const save = vi.fn().mockRejectedValue({
+        status,
+        statusText: String(status),
+        body: null,
+      });
+      render(
+        <ItemPropertiesPanel
+          itemPath="/Assets/item"
+          canEdit
+          load={load}
+          save={save}
+        />,
+      );
+      await waitFor(() => {
+        expect(shownTitle()).toBe("Old title");
+      });
+      fireEvent.click(screen.getByTestId("item-properties-clear-display-title"));
+      fireEvent.click(screen.getByTestId("item-properties-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("item-properties-status")).toBeTruthy();
+      });
+      expect(
+        (screen.getByTestId("item-properties-display-title") as HTMLInputElement)
+          .value,
+      ).toBe("Old title");
+      expect(shownTitle()).toBe("Old title");
+      expect(
+        (screen.getByTestId("item-properties-name") as HTMLInputElement).value,
+      ).toBe("qa-item");
+      expect(load).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it("does not offer clear when the caller says so (#5297)", async () => {
+    const load = vi.fn().mockResolvedValue({
+      name: "qa-item",
+      displayTitle: "Old title",
+    });
+    render(
+      <ItemPropertiesPanel
+        itemPath="/Sites/folder"
+        canEdit
+        allowClearDisplayTitle={false}
+        load={load}
+        save={vi.fn()}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("item-properties-display-title")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("item-properties-clear-display-title")).toBeNull();
+  });
+
   it("view-only disables save", async () => {
     const load = vi.fn().mockResolvedValue({ name: "Old", displayTitle: "" });
     render(
@@ -227,5 +374,6 @@ describe("ItemPropertiesPanel (#4701)", () => {
     expect(
       (screen.getByTestId("item-properties-save") as HTMLButtonElement).disabled,
     ).toBe(true);
+    expect(screen.queryByTestId("item-properties-clear-display-title")).toBeNull();
   });
 });

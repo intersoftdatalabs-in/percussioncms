@@ -30,6 +30,7 @@ import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemChild;
 import com.percussion.cms.objectstore.PSItemChildEntry;
 import com.percussion.cms.objectstore.PSItemDefinition;
+import com.percussion.cms.objectstore.PSItemPropertiesDisplayTitleClear;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.PSObjectAclEntry;
 import com.percussion.cms.objectstore.PSObjectPermissions;
@@ -2050,6 +2051,9 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
          {
             // create new request for each iteration
             PSRequest request = getNewRequest();
+            if (PSItemPropertiesDisplayTitleClear.isActive()) {
+              request.setParameter(PSItemPropertiesDisplayTitleClear.REQUEST_PARAM, "yes");
+            }
 
             if (folderId != null)
             {

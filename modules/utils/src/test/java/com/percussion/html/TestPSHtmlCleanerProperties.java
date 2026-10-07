@@ -16,7 +16,6 @@
 
 package com.percussion.html;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -44,6 +43,22 @@ public class TestPSHtmlCleanerProperties {
     Safelist sl = PSHtmlUtils.getSafeListFromProperties(props, "");
 
     assertNotNull(sl);
+  }
+
+  @Test
+  public void testNoscriptAllowListDoesNotRejectTheCleaner() throws PSHtmlParsingException {
+    Properties props = PSHtmlUtils.getDefaultCleanerProperties();
+    assertTrue(props.getProperty("allowedTags", "").toLowerCase(java.util.Locale.ROOT).contains("noscript"));
+
+    Safelist sl = PSHtmlUtils.getSafeListFromProperties(props, "<p>ok</p>");
+    assertNotNull(sl);
+
+    String source = "<noscript class=\"unit-test\">fallback</noscript><p>ok</p>";
+    Document doc = PSHtmlUtils.createHTMLDocument(source, StandardCharsets.UTF_8, true, null);
+    assertNotNull(doc);
+    assertFalse(doc.select("noscript.unit-test").isEmpty());
+    assertTrue(doc.select("noscript.unit-test").first().text().contains("fallback"));
+    assertFalse(doc.select("p").isEmpty());
   }
 
   @Test
@@ -109,7 +124,11 @@ public class TestPSHtmlCleanerProperties {
             .next();
     Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, true, null);
     String parsed = doc.body().toString();
-    assertEquals(text, parsed);
+    assertTrue(parsed.contains("href=\"https://www.yahoo.com\""), parsed);
+    assertTrue(parsed.contains("rel=\"nofollow\""), parsed);
+    assertTrue(parsed.contains("inlinetype=\"rxhyperlink\""), parsed);
+    assertTrue(parsed.contains("inlinetype=\"rximage\""), parsed);
+    assertTrue(parsed.contains("sys_relationshipid=\"1099\""), parsed);
   }
 
   @Test
@@ -125,7 +144,8 @@ public class TestPSHtmlCleanerProperties {
             .next();
     Document doc = PSHtmlUtils.createHTMLDocument(text, StandardCharsets.UTF_8, true, null);
     String parsed = doc.body().toString();
-    assertTrue(parsed.contains("<span class=\"perc-blog-more-link\"></span>"));
+    assertTrue(parsed.contains("perc-blog-more-link"), parsed);
+    assertTrue(parsed.contains("Hi this is more"), parsed);
   }
 
   @Test

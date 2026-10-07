@@ -24,14 +24,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.PSItemField;
+import com.percussion.cms.objectstore.PSItemPropertiesDisplayTitleClear;
 import com.percussion.cms.objectstore.PSTextValue;
 import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.pagemanagement.assembler.IPSRenderAssemblyBridge;
@@ -177,6 +181,60 @@ class FolderAdaptorSaveItemPropertiesTest {
     verify(core).setTextField("sys_title", "qa-name");
     verify(core).setTextField("displaytitle", "qa-title");
     verify(contentService).releaseFromEdit(status, false);
+    assertFalse(PSItemPropertiesDisplayTitleClear.isActive());
+  }
+
+  @Test
+  void saveItemPropertiesClearsEmptyDisplayTitleAndKeepsTheName() throws Exception {
+    PSCoreItem core = stubSavableItemCore();
+    AtomicBoolean sawClear = new AtomicBoolean();
+    when(contentService.saveItems(anyList(), eq(false), eq(false), any()))
+        .thenAnswer(
+            invocation -> {
+              sawClear.set(PSItemPropertiesDisplayTitleClear.isActive());
+              return List.of(new PSLegacyGuid(101, 1));
+            });
+
+    ItemProperties saved =
+        adaptor.saveItemProperties(base, "/Assets/src/item", "qa-name", "  ");
+
+    assertEquals("qa-name", saved.getName());
+    assertEquals("", saved.getDisplayTitle());
+    assertTrue(sawClear.get());
+    assertFalse(PSItemPropertiesDisplayTitleClear.isActive());
+    verify(core).setTextField("sys_title", "qa-name");
+    verify(core).setTextField("displaytitle", "");
+  }
+
+  @Test
+  void saveItemPropertiesOmitsDisplayTitleWhenItIsNull() throws Exception {
+    PSCoreItem core = stubSavableItemCore();
+    AtomicBoolean sawClear = new AtomicBoolean(true);
+    when(contentService.saveItems(anyList(), eq(false), eq(false), any()))
+        .thenAnswer(
+            invocation -> {
+              sawClear.set(PSItemPropertiesDisplayTitleClear.isActive());
+              return List.of(new PSLegacyGuid(101, 1));
+            });
+
+    adaptor.saveItemProperties(base, "/Assets/src/item", "qa-name", null);
+
+    assertFalse(sawClear.get());
+    assertFalse(PSItemPropertiesDisplayTitleClear.isActive());
+    verify(core).setTextField("sys_title", "qa-name");
+    verify(core, never()).setTextField(eq("displaytitle"), any());
+  }
+
+  @Test
+  void clearScopeClosesWhenTheSaveFails() throws Exception {
+    stubSavableItemCore();
+    when(contentService.saveItems(anyList(), eq(false), eq(false), any()))
+        .thenThrow(new RuntimeException("save failed"));
+
+    assertThrows(
+        BackendException.class,
+        () -> adaptor.saveItemProperties(base, "/Assets/src/item", "qa-name", ""));
+    assertFalse(PSItemPropertiesDisplayTitleClear.isActive());
   }
 
   @Test
@@ -269,6 +327,13 @@ class FolderAdaptorSaveItemPropertiesTest {
   }
 
   private void stubSavableItem() throws Exception {
+    stubSavableItemCore();
+    PSLegacyGuid guid = new PSLegacyGuid(101, 1);
+    when(contentService.saveItems(anyList(), eq(false), eq(false), eq(guid)))
+        .thenReturn(List.of(guid));
+  }
+
+  private PSCoreItem stubSavableItemCore() throws Exception {
     PSDataItemSummary source = new PSDataItemSummary();
     source.setId("1-101-7");
     source.setType("percSimpleTextAsset");
@@ -282,8 +347,7 @@ class FolderAdaptorSaveItemPropertiesTest {
     when(contentService.loadItems(anyList(), eq(false), eq(false), eq(false), eq(false)))
         .thenReturn(Collections.singletonList(core));
     when(contentService.getIdByPath("//Folders/$System$/Assets/src")).thenReturn(guid);
-    when(contentService.saveItems(anyList(), eq(false), eq(false), eq(guid)))
-        .thenReturn(List.of(guid));
+    return core;
   }
 
   @Test
@@ -325,5 +389,27 @@ class FolderAdaptorSaveItemPropertiesTest {
 
     assertEquals("listed", loaded.getName());
     assertEquals("Home banner", loaded.getDisplayTitle());
+  }
+
+  @Test
+  void getItemPropertiesReadsABlankDisplayTitleAsEmpty() throws Exception {
+    PSDataItemSummary source = new PSDataItemSummary();
+    source.setId("1-101-7");
+    source.setType("percFileAsset");
+    source.setName("listed");
+    when(folderHelper.findItem("//Folders/$System$/Assets/src/item")).thenReturn(source);
+    PSLegacyGuid guid = new PSLegacyGuid(101, 1);
+    when(idMapper.getGuid("1-101-7")).thenReturn(guid);
+    PSCoreItem core = mock(PSCoreItem.class);
+    PSItemField field = mock(PSItemField.class);
+    when(field.getValue()).thenReturn(new PSTextValue("  "));
+    when(core.getFieldByName("displaytitle")).thenReturn(field);
+    when(contentService.loadItems(anyList(), eq(false), eq(false), eq(false), eq(false)))
+        .thenReturn(Collections.singletonList(core));
+
+    ItemProperties loaded = adaptor.getItemProperties(base, "/Assets/src/item");
+
+    assertEquals("listed", loaded.getName());
+    assertNull(loaded.getDisplayTitle());
   }
 }

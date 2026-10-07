@@ -169,10 +169,23 @@ public class PSHtmlUtils {
       props = getDefaultCleanerProperties();
     }
 
+    // jsoup 1.23 Safelist.addTags rejects noscript. Shield the element so a content-editor
+    // modify of an HTML field still cleans, and the tag is restored after clean (#5297).
+    boolean restoreNoscript = fragment.toLowerCase(Locale.ROOT).contains("<noscript");
+    if (restoreNoscript) {
+      fragment = fragment.replaceAll("(?i)<(/?)noscript\\b", "<$1perc-noscript");
+    }
+
     Safelist safe = getSafeListFromProperties(props, fragment);
+    if (restoreNoscript) {
+      safe.addTags("perc-noscript");
+    }
     Document.OutputSettings settings = getOutputSettings(props, encoding);
 
     cleansed = Jsoup.clean(fragment, "https://parser", safe, settings);
+    if (restoreNoscript) {
+      cleansed = cleansed.replaceAll("(?i)<(/?)perc-noscript\\b", "<$1noscript");
+    }
 
     return cleansed;
   }
@@ -352,8 +365,21 @@ public class PSHtmlUtils {
 
     if (propVal == null || StringUtils.isEmpty(propVal.trim())) return ret;
     String[] tags = propVal.split(",");
-    String[] trimmedTags = Arrays.stream(tags).map(String::trim).toArray(String[]::new);
-    ret.addTags(trimmedTags);
+    List<String> supported = new ArrayList<>();
+    for (String tag : tags) {
+      String trimmed = tag == null ? "" : tag.trim();
+      if (trimmed.isEmpty()) {
+        continue;
+      }
+      // jsoup 1.23 throws from addTags("noscript") (script-mode parser mismatch).
+      if ("noscript".equalsIgnoreCase(trimmed)) {
+        continue;
+      }
+      supported.add(trimmed);
+    }
+    if (!supported.isEmpty()) {
+      ret.addTags(supported.toArray(String[]::new));
+    }
 
     return ret;
   }
