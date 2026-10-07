@@ -81,6 +81,12 @@ export interface LocationSchemeSummary {
    * append. The server does not replace the stored set.
    */
   addParameter?: boolean;
+  /**
+   * Update-only. When true, {@code parameters} is exactly one parameter to
+   * remove by name. The server does not replace the stored set and does not
+   * delete the scheme.
+   */
+  removeParameter?: boolean;
 }
 
 export interface SiteDesignSummary {
@@ -653,6 +659,9 @@ export function wrapLocationScheme(body: LocationSchemeSummary): {
   }
   if (body.addParameter) {
     wire.addParameter = true;
+  }
+  if (body.removeParameter) {
+    wire.removeParameter = true;
   }
   if (body.parameters && body.parameters.length > 0) {
     // JAXB wrapper the publishing-design resource binds. A bare schemeParameter

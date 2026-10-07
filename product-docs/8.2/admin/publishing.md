@@ -1035,8 +1035,43 @@ sent with the add already exists in the context) stay in the add-parameter form 
 Those responses do not change the parameter list and do not change the name, generator,
 description, content type, or template. Saving a location scheme (which can replace the whole
 parameter list together with other fields), renaming one, setting only the generator, setting
-only the description, copying one, and deleting one are separate actions. Removing or editing
-an existing parameter is not this action.
+only the description, copying one, and deleting one are separate actions. Removing one
+parameter is described below and is not this action. Editing a parameter value in place is
+not this action.
+
+### Remove one location scheme parameter (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. On a location scheme that already lists
+parameters, **Remove** next to one parameter loads that scheme
+(`GET …/sitemanage/publishingdesign/schemes/{schemeId}`) and opens
+**Remove location scheme parameter**. The form shows the current **name**, **generator**,
+**description**, **content type**, **template**, the parameter to remove, and the other
+parameters. It does not let you change those fields. **Remove parameter** sends
+`PUT …/sitemanage/publishingdesign/schemes/{schemeId}` (the same update already used by
+Design; there is no second parameter resource) with a `locationScheme` object that contains
+`removeParameter` set to true and that one parameter under `parameters.schemeParameter`
+(the name; type and value may be sent and are not written onto the parameters that stay).
+Name, generator, description, content type, template, and context are omitted, so the server
+leaves those stored. The scheme id does not change. The server removes only that parameter
+name. Other parameters stay, including their sequence and values. Removing the last
+parameter leaves an empty parameter list and does not delete the scheme.
+
+The parameter leaves that scheme's list only after the update succeeds. Until then the
+previous parameter list stays, including while the request is still in progress. If the list
+refresh fails after a successful update, that scheme still drops the removed parameter and
+keeps the others. Other schemes on the context stay.
+**Cancel** closes the form and does not update the scheme.
+
+HTTP **400** (the remove does not name exactly one parameter, or the name is blank or longer
+than 50 characters), **403** (not Admin or Designer), and **409** (that parameter name is not
+on the scheme, or a scheme name sent with the update already exists in the context) stay in
+the remove-parameter form error region. Those responses do not change the parameter list and
+do not change the name, generator, description, content type, or template. Saving a location
+scheme (which can replace the whole parameter list together with other fields), adding one
+parameter, renaming one, setting only the generator, setting only the description, setting
+only the content type, setting only the template, copying one, and deleting one are separate
+actions.
 
 ### Copy a location scheme (Design)
 

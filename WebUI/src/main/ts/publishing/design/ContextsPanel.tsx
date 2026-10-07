@@ -103,6 +103,11 @@ import {
   schemesAfterSuccessfulAdd,
   validateLocationSchemeAddParameter,
 } from "../locationSchemeAddParameter";
+import {
+  buildLocationSchemeRemoveParameterBody,
+  schemesAfterSuccessfulRemove,
+  validateLocationSchemeRemoveParameter,
+} from "../locationSchemeRemoveParameter";
 import { useDirtyForm } from "../dirtyFormContext";
 import { normalizeSchemeType } from "./designLegacyTypes";
 import { SiteRootBrowser } from "./SiteRootBrowser";
@@ -124,6 +129,12 @@ type Mode =
       kind: "scheme-add-parameter";
       source: LocationSchemeSummary;
       contextId: string;
+    }
+  | {
+      kind: "scheme-remove-parameter";
+      source: LocationSchemeSummary;
+      contextId: string;
+      parameter: SchemeParameter;
     };
 
 /**
@@ -841,6 +852,82 @@ export function ContextsPanel(): React.ReactElement {
         refreshed = null;
       }
       setSchemes(schemesAfterSuccessfulAdd(refreshed, id, added, previous));
+    } catch (e) {
+      setError(mapLocationSchemeSaveError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function openSchemeRemoveParameter(
+    source: LocationSchemeSummary,
+    parameter: SchemeParameter,
+  ): Promise<void> {
+    if (!source.schemeId || !selected || saving || !(parameter.name ?? "").trim()) {
+      return;
+    }
+    setError(null);
+    setDirty(false);
+    const contextId = selected;
+    let full = source;
+    try {
+      full = await getScheme(source.schemeId);
+    } catch {
+      full = source;
+    }
+    const name = (parameter.name ?? "").trim();
+    const loaded = (full.parameters ?? source.parameters ?? []).find(
+      (row) => (row.name ?? "").trim() === name,
+    );
+    setMode({
+      kind: "scheme-remove-parameter",
+      source: full,
+      contextId,
+      parameter: loaded ?? parameter,
+    });
+  }
+
+  function closeSchemeRemoveParameter(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setMode({ kind: "list" });
+  }
+
+  async function saveSchemeRemoveParameter(): Promise<void> {
+    if (mode.kind !== "scheme-remove-parameter" || !mode.source.schemeId || saving) {
+      return;
+    }
+    const validated = validateLocationSchemeRemoveParameter(
+      mode.parameter.name ?? "",
+      mode.source.parameters,
+    );
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    const id = String(mode.source.schemeId);
+    const contextId = mode.contextId;
+    const removed = validated.parameter;
+    setError(null);
+    setSaving(true);
+    const previous = schemes;
+    try {
+      await updateScheme(id, buildLocationSchemeRemoveParameterBody(removed));
+      setDirty(false);
+      setMode({ kind: "list" });
+      let refreshed: LocationSchemeSummary[] | null = null;
+      try {
+        refreshed = await listSchemesForContext(contextId);
+      } catch {
+        refreshed = null;
+      }
+      setSchemes(schemesAfterSuccessfulRemove(refreshed, id, removed.name, previous));
     } catch (e) {
       setError(mapLocationSchemeSaveError(e));
     } finally {
@@ -1844,6 +1931,85 @@ export function ContextsPanel(): React.ReactElement {
     );
   }
 
+  if (mode.kind === "scheme-remove-parameter") {
+    const source = mode.source;
+    const targetName = (mode.parameter.name ?? "").trim();
+    const others = (source.parameters ?? []).filter(
+      (p) => (p.name ?? "").trim() !== targetName,
+    );
+    return (
+      <div data-testid="scheme-remove-parameter">
+        <h3>Remove location scheme parameter</h3>
+        <p>
+          Name: <span data-testid="scheme-remove-parameter-name">{source.name ?? ""}</span>
+        </p>
+        <p>
+          Generator:{" "}
+          <span data-testid="scheme-remove-parameter-generator">
+            {source.generator ?? ""}
+          </span>
+        </p>
+        <p>
+          Description:{" "}
+          <span data-testid="scheme-remove-parameter-description">
+            {source.description ?? ""}
+          </span>
+        </p>
+        <p>
+          Content type:{" "}
+          <span data-testid="scheme-remove-parameter-content-type">
+            {source.contentTypeId != null ? String(source.contentTypeId) : ""}
+          </span>
+        </p>
+        <p>
+          Template:{" "}
+          <span data-testid="scheme-remove-parameter-template">
+            {source.templateId != null ? String(source.templateId) : ""}
+          </span>
+        </p>
+        <p data-testid="scheme-remove-parameter-fields-note">
+          Name, generator, description, content type, and template stay on this scheme.
+          Other parameters stay. Removing the last parameter does not delete the scheme.
+        </p>
+        <p data-testid="scheme-remove-parameter-target">
+          {targetName} ({mode.parameter.type ?? ""}): {mode.parameter.value ?? ""}
+        </p>
+        <ul data-testid="scheme-remove-parameter-others" style={listStyle}>
+          {others.map((p, i) => (
+            <li key={`${p.name}-${i}`} data-testid="scheme-remove-parameter-other">
+              {p.name} ({p.type ?? ""}): {p.value}
+            </li>
+          ))}
+        </ul>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="location-scheme-remove-parameter-confirm"
+            disabled={saving}
+            onClick={() => void saveSchemeRemoveParameter()}
+          >
+            Remove parameter
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="location-scheme-remove-parameter-cancel"
+            disabled={saving}
+            onClick={closeSchemeRemoveParameter}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (mode.kind === "scheme-copy") {
     return (
       <div data-testid="scheme-copy">
@@ -2039,7 +2205,16 @@ export function ContextsPanel(): React.ReactElement {
                 <div data-testid={`scheme-list-parameters-${s.schemeId}`}>
                   {(s.parameters ?? []).map((p, i) => (
                     <span key={`${p.name}-${i}`} data-testid="scheme-list-parameter">
-                      {p.name} ({p.type ?? ""}): {p.value}
+                      {p.name} ({p.type ?? ""}): {p.value}{" "}
+                      <button
+                        type="button"
+                        style={buttonStyle}
+                        data-testid="location-scheme-remove-parameter"
+                        disabled={saving}
+                        onClick={() => void openSchemeRemoveParameter(s, p)}
+                      >
+                        Remove
+                      </button>
                     </span>
                   ))}
                 </div>
