@@ -845,8 +845,10 @@ delivery-type save, and edition save are separate Design actions. Renaming a loc
 is described below and changes the name only. Setting only the generator is also described
 below and does not change the name, description, content type, template, or parameters.
 Setting only the description is also described below and does not change the name, generator,
-content type, template, or parameters. Adding one parameter is also described below and does
-not change the name, generator, description, content type, or template.
+content type, template, or parameters. Setting only the content type is also described below
+and does not change the name, generator, description, template, or parameters. Adding one
+parameter is also described below and does not change the name, generator, description,
+content type, or template.
 
 ### Rename a location scheme (Design)
 
@@ -932,9 +934,40 @@ HTTP **400** (description longer than 255 characters), **403** (not Admin or Des
 stay in the description form error region. Those responses do not change the description on
 the list and do not change the name, generator, content type, template, or parameters. Saving a
 location scheme (which can also change the description together with other fields), renaming
-one, setting only the generator, adding one parameter, copying one, and deleting one are
-separate actions. Publishing context descriptions and content list descriptions are separate
-Design actions.
+one, setting only the generator, setting only the content type, adding one parameter, copying
+one, and deleting one are separate actions. Publishing context descriptions and content list
+descriptions are separate Design actions.
+
+### Set a location scheme content type (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. On a location scheme row, **Content type** loads
+that scheme (`GET …/sitemanage/publishingdesign/schemes/{schemeId}`) and opens
+**Location scheme content type**. The form shows the current **name**, **generator**,
+**description**, **template**, and **parameters** and does not let you change them.
+Change **Content type id**. **Save content type** sends
+`PUT …/sitemanage/publishingdesign/schemes/{schemeId}` (the same update already used by
+Design; there is no second content-type resource) with a `locationScheme` object that contains
+only the content type id. Name, generator, description, template, context, and
+`schemeParameter` entries are omitted, so the server leaves those stored. The scheme id
+does not change. A blank content type does not clear the stored id.
+
+The context's location-scheme list keeps the previous content type until that update succeeds,
+then shows the new content type id with the same name, generator, and description. If the list
+refresh fails after a successful update, that row's content type is still replaced and the
+other fields on the row stay.
+**Cancel** closes the form and does not update the scheme. A blank or whitespace content type,
+zero, a negative value, or any value that is not a positive whole number is rejected in the
+form and does not call the update.
+
+HTTP **400** (content type is not a positive number), **403** (not Admin or Designer), and
+**409** (another location scheme in that context already uses this template and content type,
+or a scheme name sent with the update already exists in the context) stay in the content-type
+form error region. Those responses do not change the content type on the list and do not
+change the name, generator, description, template, or parameters. Saving a location scheme
+(which can also change the content type together with other fields), renaming one, setting
+only the generator, setting only the description, adding one parameter, copying one, and
+deleting one are separate actions. Setting a location scheme template is not this action.
 
 ### Add one location scheme parameter (Design)
 
