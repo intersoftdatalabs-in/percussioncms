@@ -16,12 +16,12 @@
  */
 
 /**
- * Item properties display title (#5246 / parent #4530).
+ * Item properties display title (#5246 / #5297 / parent #4530).
  *
  * <p>A title-only save posts the loaded item name so the name does not change.
- * Editing Name still posts the new name. The committed display title updates
- * only after a successful save and reload. Cancel and HTTP 400/403/409 keep
- * the previous title.</p>
+ * An empty display title is a clear: the name stays, and the committed title
+ * becomes empty only after save and reload. Cancel and HTTP 400/403/409 keep
+ * the previous title. Folders are not offered the clear.</p>
  */
 
 export type ItemPropertiesSavePlan =
@@ -98,6 +98,32 @@ export function committedDisplayTitleAfterAttempt(
     return previous;
   }
   return attempt.reloadedTitle;
+}
+
+/**
+ * Clear is only for an editable page, file, or asset. Folders are not offered it.
+ */
+export function offerClearDisplayTitle(input: {
+  isFolder: boolean;
+  canEdit: boolean;
+}): boolean {
+  return !input.isFolder && input.canEdit;
+}
+
+/**
+ * Empty the draft display title without writing. The name is unchanged.
+ * Dirty stays true when the committed title was non-empty or the name draft differs.
+ */
+export function displayTitleDraftAfterClear(input: {
+  committedName: string;
+  draftName: string;
+  committedDisplayTitle: string;
+}): { displayTitle: string; dirty: boolean } {
+  const nameDirty =
+    String(input.draftName ?? "").trim() !==
+    String(input.committedName ?? "").trim();
+  const titleWillChange = String(input.committedDisplayTitle ?? "") !== "";
+  return { displayTitle: "", dirty: nameDirty || titleWillChange };
 }
 
 /** HTTP 400, 403, and 409 must put the previous display title back in the field. */

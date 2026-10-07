@@ -18,8 +18,10 @@
 import { describe, expect, it } from "vitest";
 import {
   committedDisplayTitleAfterAttempt,
+  displayTitleDraftAfterClear,
   displayTitleDraftAfterFailure,
   itemPropertiesPathAfterSave,
+  offerClearDisplayTitle,
   planItemPropertiesSave,
 } from "../../../main/ts/contentExplorer/setItemDisplayTitle";
 
@@ -62,6 +64,75 @@ describe("set item display title (#5246)", () => {
     expect(
       itemPropertiesPathAfterSave("/Assets/folder/qa-item", "qa-item", false),
     ).toBe("/Assets/folder/qa-item");
+  });
+
+  it("posts an empty display title and the loaded name (#5297)", () => {
+    const plan = planItemPropertiesSave({
+      itemPath: "/Assets/folder/qa-item",
+      loadedName: "qa-item",
+      draftName: "qa-item",
+      draftDisplayTitle: "",
+    });
+    expect(plan).toEqual({
+      ok: true,
+      itemPath: "/Assets/folder/qa-item",
+      name: "qa-item",
+      displayTitle: "",
+      nameChanged: false,
+    });
+    if (!plan.ok) {
+      return;
+    }
+    expect(
+      itemPropertiesPathAfterSave(plan.itemPath, plan.name, plan.nameChanged),
+    ).toBe("/Assets/folder/qa-item");
+    expect(
+      committedDisplayTitleAfterAttempt("Old title", {
+        outcome: "saved",
+        reloadedTitle: "",
+      }),
+    ).toBe("");
+  });
+
+  it("does not offer clear for a folder or a view-only item (#5297)", () => {
+    expect(offerClearDisplayTitle({ isFolder: true, canEdit: true })).toBe(
+      false,
+    );
+    expect(offerClearDisplayTitle({ isFolder: false, canEdit: false })).toBe(
+      false,
+    );
+    expect(offerClearDisplayTitle({ isFolder: false, canEdit: true })).toBe(
+      true,
+    );
+  });
+
+  it("clear empties the draft and does not write until save (#5297)", () => {
+    expect(
+      displayTitleDraftAfterClear({
+        committedName: "qa-item",
+        draftName: "qa-item",
+        committedDisplayTitle: "Old title",
+      }),
+    ).toEqual({ displayTitle: "", dirty: true });
+    expect(
+      displayTitleDraftAfterClear({
+        committedName: "qa-item",
+        draftName: "qa-item",
+        committedDisplayTitle: "",
+      }),
+    ).toEqual({ displayTitle: "", dirty: false });
+    expect(
+      committedDisplayTitleAfterAttempt("Old title", { outcome: "cancelled" }),
+    ).toBe("Old title");
+    expect(displayTitleDraftAfterFailure("Old title", "", 400)).toBe(
+      "Old title",
+    );
+    expect(displayTitleDraftAfterFailure("Old title", "", 403)).toBe(
+      "Old title",
+    );
+    expect(displayTitleDraftAfterFailure("Old title", "", 409)).toBe(
+      "Old title",
+    );
   });
 
   it("rejects a blank name before any write", () => {

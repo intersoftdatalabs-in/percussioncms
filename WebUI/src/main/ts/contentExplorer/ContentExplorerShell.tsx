@@ -261,6 +261,7 @@ import {
 import { FolderSecurityPanel } from "./FolderSecurityPanel";
 import { CheckoutOwnerPanel } from "./CheckoutOwnerPanel";
 import { ItemPropertiesPanel } from "./ItemPropertiesPanel";
+import { offerClearDisplayTitle } from "./setItemDisplayTitle";
 import type { ExplorerMenuCommandId } from "./menuBarModel";
 import { EXPLORER_MSG } from "./messages";
 import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
@@ -3971,6 +3972,11 @@ function ContentExplorerShellInner({
               canEdit={
                 !itemPropertiesReadOnly && canWrite(selection.item)
               }
+              allowClearDisplayTitle={offerClearDisplayTitle({
+                isFolder: isFolder(selection.item),
+                canEdit:
+                  !itemPropertiesReadOnly && canWrite(selection.item),
+              })}
               onSaved={() => {
                 setListEpoch((n) => n + 1);
               }}

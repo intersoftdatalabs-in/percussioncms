@@ -23,6 +23,7 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.cms.PSEditorChangeEvent;
 import com.percussion.cms.PSPageInfo;
 import com.percussion.cms.objectstore.PSComponentSummary;
+import com.percussion.cms.objectstore.PSItemPropertiesDisplayTitleClear;
 import com.percussion.data.IPSDataExtractor;
 import com.percussion.data.PSConditionalExitEvaluator;
 import com.percussion.data.PSConditionalUrlEvaluator;
@@ -954,6 +955,15 @@ public abstract class PSCommandHandler extends PSDataHandler {
       }
 
       if (objEval instanceof PSFieldValidationRulesEvaluator) {
+        /* Explorer item-properties clear posts an empty displaytitle. The shared
+         * field rule still rejects a blank title from every other save (#5297).
+         */
+        if (PSItemPropertiesDisplayTitleClear.skipRequiredCheck(
+            (String) objFieldName,
+            data.getRequest()
+                .getParameter(PSItemPropertiesDisplayTitleClear.REQUEST_PARAM))) {
+          continue;
+        }
         /* if there is no applyWhen, make sure the field has a value before
          * we try to validate
          */
