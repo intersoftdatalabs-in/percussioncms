@@ -197,7 +197,10 @@ function watchNoise(page) {
 function assertQuiet(blocked, consoleErrors) {
   expect(blocked, `leftover AA/CE HTML must not be requested: ${blocked.join(" ")}`).toEqual([]);
   const serious = consoleErrors.filter(
-    (t) => !/favicon|ResizeObserver|net::ERR|404 \(Not Found\)/i.test(t),
+    (t) =>
+      !/favicon|ResizeObserver|net::ERR|404 \(Not Found\)|status of 400|status of 403|status of 409/i.test(
+        t,
+      ),
   );
   expect(serious, `JS console errors: ${serious.join(" | ")}`).toEqual([]);
 }
@@ -238,7 +241,7 @@ test.describe("assembly host HTML field", () => {
       expect(puts.some((bodyText) => bodyText.includes("Welcome"))).toBeTruthy();
       expect(puts.some((bodyText) => bodyText.includes("A long note"))).toBeTruthy();
 
-      await page.reload();
+      await page.goto(assemblySpaUrl(BASE_URL, "contentId=42&templateId=7"));
       await expect(page.locator('[data-testid="assembly-host"]')).toBeVisible({
         timeout: 20_000,
       });

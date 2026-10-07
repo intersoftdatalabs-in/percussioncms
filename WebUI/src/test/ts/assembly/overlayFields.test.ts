@@ -242,6 +242,30 @@ describe("applyFieldOverlay", () => {
     expect(hits[0]?.element.tagName).toBe("SECTION");
   });
 
+  it("clears a previous HTML marker when the field is no longer editable", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<div data-perc-field="description"><p>About the site</p></div>`;
+    const htmlPayload: ItemEditorFields = {
+      ...payload,
+      fields: [{ name: "description", value: "<p>About the site</p>" }],
+    };
+    const editable = scalarOverlayFields(htmlPayload, [
+      { name: "description", control: "sys_tinymce" },
+    ]);
+    applyFieldOverlay(root, editable, "42");
+    expect(
+      root.querySelector('[data-testid="assembly-inline-field-description"]'),
+    ).toBeTruthy();
+    const readOnly = scalarOverlayFields(htmlPayload, [
+      { name: "description", control: "sys_tinymce", readOnly: true },
+    ]);
+    expect(applyFieldOverlay(root, readOnly, "42")).toEqual([]);
+    expect(
+      root.querySelector('[data-testid="assembly-inline-field-description"]'),
+    ).toBeNull();
+    expect(root.querySelector("[data-assembly-field]")).toBeNull();
+  });
+
   it("does not guess when the same HTML block appears twice", () => {
     const root = document.createElement("div");
     root.innerHTML = `<section><p>About the site</p></section><div><p>About the site</p></div>`;

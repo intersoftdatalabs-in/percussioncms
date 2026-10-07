@@ -289,12 +289,30 @@ export function mapAssembledFieldElements(
   return hits;
 }
 
+/** Drop markers from a previous paint so a field that is no longer editable cannot be saved. */
+export function clearFieldOverlay(root: ParentNode): void {
+  root.querySelectorAll("[data-assembly-field]").forEach((el) => {
+    const html = el as HTMLElement;
+    html.contentEditable = "false";
+    html.removeAttribute("contenteditable");
+    html.removeAttribute("data-assembly-field");
+    html.removeAttribute("data-assembly-content-id");
+    html.removeAttribute("data-assembly-value");
+    html.removeAttribute("spellcheck");
+    const testId = html.getAttribute("data-testid") ?? "";
+    if (testId.startsWith("assembly-inline-field-")) {
+      html.removeAttribute("data-testid");
+    }
+  });
+}
+
 export function applyFieldOverlay(
   root: ParentNode,
   fields: OverlayField[],
   ownerId: string,
 ): OverlayFieldHit[] {
   stripLeftoverAaChrome(root);
+  clearFieldOverlay(root);
   const hits = mapAssembledFieldElements(root, fields, ownerId);
   for (const hit of hits) {
     const html = hit.element as HTMLElement;

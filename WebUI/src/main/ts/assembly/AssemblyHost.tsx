@@ -236,6 +236,7 @@ export function AssemblyHost({
   >(null);
   const [fieldPayload, setFieldPayload] = useState<ItemEditorFields | null>(null);
   const [schemaFields, setSchemaFields] = useState<ContentTypeFieldSummary[]>([]);
+  const [schemaReady, setSchemaReady] = useState(false);
   const [inlineFieldNames, setInlineFieldNames] = useState<string[]>([]);
   const [fieldNotice, setFieldNotice] = useState<string | null>(null);
   const [savingFields, setSavingFields] = useState(false);
@@ -350,19 +351,21 @@ export function AssemblyHost({
   }, [templates, templateId]);
 
   const overlayFields: OverlayField[] = useMemo(() => {
-    if (fieldPayload == null) {
+    if (fieldPayload == null || !schemaReady) {
       return [];
     }
     return scalarOverlayFields(fieldPayload, schemaFields);
-  }, [fieldPayload, schemaFields]);
+  }, [fieldPayload, schemaFields, schemaReady]);
 
   useEffect(() => {
     if (contentId == null) {
       setFieldPayload(null);
       setSchemaFields([]);
+      setSchemaReady(false);
       return;
     }
     let cancelled = false;
+    setSchemaReady(false);
     void (async () => {
       try {
         await checkout(String(contentId));
@@ -386,10 +389,17 @@ export function AssemblyHost({
               setSchemaFields([]);
             }
           }
+        } else if (!cancelled) {
+          setSchemaFields([]);
         }
       } catch {
         if (!cancelled) {
           setFieldPayload(null);
+          setSchemaFields([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setSchemaReady(true);
         }
       }
     })();
@@ -400,13 +410,13 @@ export function AssemblyHost({
 
   const paintFieldOverlay = useCallback(() => {
     const doc = getPreviewDocument(frameRef.current);
-    if (doc == null || overlayFields.length === 0 || contentId == null) {
+    if (doc == null || contentId == null || !schemaReady) {
       setInlineFieldNames([]);
       return;
     }
     const hits = applyFieldOverlay(doc, overlayFields, String(contentId));
     setInlineFieldNames([...new Set(hits.map((h) => h.name))]);
-  }, [contentId, overlayFields, getPreviewDocument]);
+  }, [contentId, overlayFields, getPreviewDocument, schemaReady]);
 
   useEffect(() => {
     paintFieldOverlay();
@@ -571,7 +581,10 @@ export function AssemblyHost({
       ? document.querySelector('[data-testid="assembly-field-bar"]')
       : null;
     const barEdits = bar != null ? readOverlayEdits(bar, ownerId) : [];
-    const edits = [...iframeEdits, ...barEdits];
+    const allowed = new Set(overlayFields.map((field) => field.name));
+    const edits = [...iframeEdits, ...barEdits].filter((edit) =>
+      allowed.has(edit.name),
+    );
     try {
       const saved = await persistOverlayEdits({
         ownerId,
