@@ -31,6 +31,7 @@ import { panelErrMsg } from "./errors";
 import {
   asKeywordChoices,
   keywordUpdateForAddedChoice,
+  keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
   savedChoicesAfterAdd,
   unwrapKeywordPayload,
@@ -100,6 +101,21 @@ function removeChoiceFailureMessage(err: unknown): string {
   return panelErrMsg(err, DEV_MSG.KW_REMOVE_CHOICE_ERROR);
 }
 
+function relabelChoiceFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_LABEL_FORBIDDEN);
+    }
+    if (err.status === 409) {
+      return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_LABEL_CONFLICT);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_LABEL_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_LABEL_ERROR);
+}
+
 const fieldStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -153,11 +169,18 @@ export function KeywordEditorPanel({
   const [removeNotice, setRemoveNotice] = useState<string | null>(null);
   const removeInflight = useRef(false);
   const [pendingRemoveIndex, setPendingRemoveIndex] = useState<number | null>(null);
+  const [labelEditIndex, setLabelEditIndex] = useState<number | null>(null);
+  const [labelDraft, setLabelDraft] = useState("");
+  const [labelBusy, setLabelBusy] = useState(false);
+  const [labelError, setLabelError] = useState<string | null>(null);
+  const [labelNotice, setLabelNotice] = useState<string | null>(null);
+  const labelInflight = useRef(false);
   const [busy, setBusy] = useState(false);
   const [confirmKind, setConfirmKind] = useState<null | "keyword" | "choice">(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const choiceWriteBusy = addBusy || removeBusy;
+  const choiceWriteBusy = addBusy || removeBusy || labelBusy;
+  const labelEditOpen = labelEditIndex != null;
 
   useEffect(() => {
     if (!id || isNew) return;
@@ -190,7 +213,16 @@ export function KeywordEditorPanel({
   }
 
   async function handleSave() {
-    if (choiceWriteBusy || addInflight.current || removeInflight.current || confirmKind) return;
+    if (
+      choiceWriteBusy ||
+      addInflight.current ||
+      removeInflight.current ||
+      labelInflight.current ||
+      confirmKind ||
+      labelEditOpen
+    ) {
+      return;
+    }
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -234,7 +266,10 @@ export function KeywordEditorPanel({
       !detailReady ||
       addInflight.current ||
       removeInflight.current ||
+      labelInflight.current ||
       removeBusy ||
+      labelBusy ||
+      labelEditOpen ||
       busy ||
       confirmKind
     ) {
@@ -294,6 +329,7 @@ export function KeywordEditorPanel({
       choiceWriteBusy ||
       busy ||
       confirmKind === "keyword" ||
+      labelEditOpen ||
       !Number.isInteger(index) ||
       index < 0 ||
       index >= listedChoices.length
@@ -323,7 +359,9 @@ export function KeywordEditorPanel({
       !detailReady ||
       index == null ||
       removeInflight.current ||
+      labelInflight.current ||
       addBusy ||
+      labelBusy ||
       busy
     ) {
       return;
@@ -366,8 +404,115 @@ export function KeywordEditorPanel({
     }
   }
 
+  function cancelChoiceLabelEdit(): void {
+    if (labelBusy || labelInflight.current) return;
+    setLabelEditIndex(null);
+    setLabelDraft("");
+    setLabelError(null);
+  }
+
+  function startChoiceLabelEdit(index: number): void {
+    if (
+      !id ||
+      isNew ||
+      !detailReady ||
+      choiceWriteBusy ||
+      busy ||
+      confirmKind != null ||
+      labelInflight.current ||
+      !Number.isInteger(index) ||
+      index < 0 ||
+      index >= listedChoices.length
+    ) {
+      return;
+    }
+    setLabelEditIndex(index);
+    setLabelDraft(listedChoices[index]?.label || "");
+    setLabelError(null);
+    setLabelNotice(null);
+  }
+
+  async function handleChoiceLabelSave(): Promise<void> {
+    const index = labelEditIndex;
+    if (
+      !id ||
+      isNew ||
+      !serverKeyword ||
+      !detailReady ||
+      index == null ||
+      labelInflight.current ||
+      addInflight.current ||
+      removeInflight.current ||
+      addBusy ||
+      removeBusy ||
+      busy ||
+      confirmKind
+    ) {
+      return;
+    }
+    const sent = keywordUpdateForRelabeledChoice(
+      serverKeyword,
+      listedChoices,
+      index,
+      labelDraft,
+    );
+    if (sent === "missing") {
+      setLabelError(DEV_MSG.KW_CHANGE_CHOICE_LABEL_ERROR);
+      setLabelNotice(null);
+      return;
+    }
+    if (sent === "blank") {
+      setLabelError(DEV_MSG.KW_CHANGE_CHOICE_LABEL_BLANK);
+      setLabelNotice(null);
+      return;
+    }
+    if (sent === "duplicate") {
+      setLabelError(DEV_MSG.KW_CHANGE_CHOICE_LABEL_DUPLICATE);
+      setLabelNotice(null);
+      return;
+    }
+    if (sent === "unchanged") {
+      setLabelEditIndex(null);
+      setLabelDraft("");
+      setLabelError(null);
+      return;
+    }
+    labelInflight.current = true;
+    setLabelBusy(true);
+    setLabelError(null);
+    setLabelNotice(null);
+    const previous = listedChoices;
+    try {
+      const payload = await updateKeyword(id, sent);
+      const accepted = savedChoicesAfterAdd(sent, payload);
+      if (!accepted) {
+        setListedChoices(previous);
+        setLabelError(DEV_MSG.KW_CHANGE_CHOICE_LABEL_ERROR);
+        setLabelNotice(null);
+        return;
+      }
+      const saved = unwrapKeywordPayload(payload);
+      if (saved) {
+        applyLoadedKeyword({ ...saved, choices: accepted });
+      } else {
+        setListedChoices(accepted);
+        setChoicesText(choicesToText(accepted));
+      }
+      setLabelEditIndex(null);
+      setLabelDraft("");
+      setLabelNotice(DEV_MSG.KW_CHANGE_CHOICE_LABEL_SAVED);
+    } catch (err: unknown) {
+      setListedChoices(previous);
+      setLabelError(relabelChoiceFailureMessage(err));
+      setLabelNotice(null);
+    } finally {
+      labelInflight.current = false;
+      setLabelBusy(false);
+    }
+  }
+
   function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
-    if (!id || isNew || choiceWriteBusy || confirmKind === "choice") return;
+    if (!id || isNew || choiceWriteBusy || confirmKind === "choice" || labelEditOpen) return;
     captureDialogOpener(ev.currentTarget);
     setPendingRemoveIndex(null);
     setConfirmKind("keyword");
@@ -468,6 +613,9 @@ export function KeywordEditorPanel({
           <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>
             {DEV_MSG.KW_REMOVE_CHOICE_HINT}
           </p>
+          <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>
+            {DEV_MSG.KW_CHANGE_CHOICE_LABEL_HINT}
+          </p>
           {addError ? (
             <div role="alert" data-testid="developer-kw-add-choice-error" style={errorAlert}>
               {addError}
@@ -486,6 +634,16 @@ export function KeywordEditorPanel({
           {removeNotice ? (
             <div data-testid="developer-kw-remove-choice-notice" style={{ color: "#276749" }}>
               {removeNotice}
+            </div>
+          ) : null}
+          {labelError ? (
+            <div role="alert" data-testid="developer-kw-choice-label-error" style={errorAlert}>
+              {labelError}
+            </div>
+          ) : null}
+          {labelNotice ? (
+            <div data-testid="developer-kw-choice-label-notice" style={{ color: "#276749" }}>
+              {labelNotice}
             </div>
           ) : null}
           {listedChoices.length === 0 ? (
@@ -508,10 +666,32 @@ export function KeywordEditorPanel({
                       marginBottom: "6px",
                     }}
                   >
-                    <span>
+                    <span data-testid="developer-kw-choice-label-text">
                       {choiceLabel}
                       {choiceValue ? ` (${choiceValue})` : ""}
                     </span>
+                    <button
+                      type="button"
+                      data-testid="developer-kw-choice-label-edit"
+                      data-choice-label={choiceLabel}
+                      aria-label={DEV_MSG.KW_CHANGE_CHOICE_LABEL_ACTION.replace(
+                        "{0}",
+                        choiceLabel || String(index + 1),
+                      )}
+                      disabled={
+                        choiceWriteBusy || busy || !detailReady || confirmKind != null || labelEditOpen
+                      }
+                      onClick={() => startChoiceLabelEdit(index)}
+                      style={{
+                        padding: "4px 10px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: choiceWriteBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {DEV_MSG.KW_CHANGE_CHOICE_LABEL}
+                    </button>
                     <button
                       type="button"
                       data-testid="developer-kw-choice-remove"
@@ -520,7 +700,9 @@ export function KeywordEditorPanel({
                         "{0}",
                         choiceLabel || String(index + 1),
                       )}
-                      disabled={choiceWriteBusy || busy || !detailReady || confirmKind != null}
+                      disabled={
+                        choiceWriteBusy || busy || !detailReady || confirmKind != null || labelEditOpen
+                      }
                       onClick={(ev) => requestRemoveChoice(index, ev)}
                       style={{
                         padding: "4px 10px",
@@ -538,6 +720,60 @@ export function KeywordEditorPanel({
               })}
             </ul>
           )}
+          {labelEditOpen ? (
+            <div data-testid="developer-kw-choice-label-editor" style={{ marginBottom: "16px" }}>
+              <div style={fieldStyle}>
+                <label htmlFor="kw-choice-label-input">{DEV_MSG.KW_ADD_CHOICE_LABEL}</label>
+                <input
+                  id="kw-choice-label-input"
+                  data-testid="developer-kw-choice-label-input"
+                  style={inputStyle}
+                  value={labelDraft}
+                  onChange={(e) => setLabelDraft(e.target.value)}
+                />
+              </div>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  data-testid="developer-kw-choice-label-save"
+                  aria-label={DEV_MSG.KW_CHANGE_CHOICE_LABEL_SAVE}
+                  disabled={
+                    choiceWriteBusy ||
+                    busy ||
+                    !detailReady ||
+                    confirmKind != null ||
+                    labelDraft.trim().length === 0
+                  }
+                  onClick={() => void handleChoiceLabelSave()}
+                  style={{
+                    padding: "8px 16px",
+                    background: catalogColors.accent,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: labelBusy ? "wait" : "pointer",
+                  }}
+                >
+                  {DEV_MSG.KW_CHANGE_CHOICE_LABEL_SAVE}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-kw-choice-label-cancel"
+                  disabled={labelBusy}
+                  onClick={cancelChoiceLabelEdit}
+                  style={{
+                    padding: "8px 16px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {DEV_MSG.KW_CANCEL}
+                </button>
+              </div>
+            </div>
+          ) : null}
           <div style={fieldStyle}>
             <label htmlFor="kw-add-choice-label">{DEV_MSG.KW_ADD_CHOICE_LABEL}</label>
             <input
@@ -568,6 +804,7 @@ export function KeywordEditorPanel({
                 busy ||
                 !detailReady ||
                 confirmKind != null ||
+                labelEditOpen ||
                 draftLabel.trim().length === 0
               }
               onClick={() => void handleAddChoice()}
@@ -606,7 +843,7 @@ export function KeywordEditorPanel({
           type="button"
           data-testid="developer-kw-save"
           aria-label="Save keyword"
-          disabled={busy || choiceWriteBusy || confirmKind != null || !label.trim()}
+          disabled={busy || choiceWriteBusy || confirmKind != null || labelEditOpen || !label.trim()}
           onClick={() => void handleSave()}
           style={{
             padding: "8px 16px",
@@ -639,7 +876,7 @@ export function KeywordEditorPanel({
             type="button"
             data-testid="developer-kw-delete"
             aria-label="Delete keyword"
-            disabled={busy || choiceWriteBusy || confirmKind === "choice"}
+            disabled={busy || choiceWriteBusy || confirmKind === "choice" || labelEditOpen}
             onClick={requestDelete}
             style={{
               padding: "8px 16px",

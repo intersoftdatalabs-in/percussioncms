@@ -165,6 +165,57 @@ function choiceForUpdate(choice: KeywordChoiceSummary): KeywordChoiceSummary {
 
 export type RemoveChoiceRejection = "missing";
 
+export type RelabelChoiceRejection = "blank" | "duplicate" | "missing" | "unchanged";
+
+/**
+ * Body for the existing keyword update that changes one choice label.
+ * Keyword label, description, and sequence are copied from the loaded keyword.
+ * That choice keeps its value, description, and sequence. The other choices
+ * stay. A blank label is not a body. The same label is not a write. A label
+ * that matches another choice, ignoring case, is not a body, so that choice
+ * is not replaced.
+ */
+export function keywordUpdateForRelabeledChoice(
+  baseline: Pick<KeywordSummary, "label" | "description" | "sequence">,
+  existing: KeywordChoiceSummary[],
+  index: number,
+  nextLabel: string,
+): KeywordSummary | RelabelChoiceRejection {
+  if (!Number.isInteger(index) || index < 0 || index >= existing.length) {
+    return "missing";
+  }
+  const label = nextLabel.trim();
+  if (!label) {
+    return "blank";
+  }
+  const current = (existing[index]?.label ?? "").trim();
+  if (current === label) {
+    return "unchanged";
+  }
+  const lower = label.toLowerCase();
+  const duplicate = existing.some((choice, i) => {
+    if (i === index) {
+      return false;
+    }
+    return (choice.label ?? "").trim().toLowerCase() === lower;
+  });
+  if (duplicate) {
+    return "duplicate";
+  }
+  return {
+    label: baseline.label,
+    description: baseline.description,
+    sequence: baseline.sequence,
+    choices: existing.map((choice, i) => {
+      const copy = choiceForUpdate(choice);
+      if (i === index) {
+        return { ...copy, label };
+      }
+      return copy;
+    }),
+  };
+}
+
 /**
  * Body for the existing keyword update that drops one choice by list index.
  * Keyword label, description, and sequence are copied from the loaded keyword.

@@ -487,3 +487,227 @@ describe("KeywordEditorPanel remove one choice", () => {
     );
   });
 });
+
+function changeLabelButton(label: string): HTMLButtonElement {
+  const button = document.querySelector(
+    `[data-testid="developer-kw-choice-label-edit"][data-choice-label="${label}"]`,
+  );
+  if (!(button instanceof HTMLButtonElement)) {
+    throw new Error(`missing change-label button for ${label}`);
+  }
+  return button;
+}
+
+describe("KeywordEditorPanel change one choice label", () => {
+  beforeEach(() => {
+    (window as unknown as { I18N?: { message: (key: string) => string } }).I18N = {
+      message: (key: string) => key,
+    };
+    getKeyword.mockReset();
+    updateKeyword.mockReset();
+    createKeyword.mockReset();
+    deleteKeyword.mockReset();
+    getKeyword.mockResolvedValue(withTwoChoices);
+    updateKeyword.mockResolvedValue(withTwoChoices);
+  });
+
+  async function openLabelEditor(label: string): Promise<void> {
+    await waitFor(() => {
+      expect(changeLabelButton(label).disabled).toBe(false);
+    });
+    fireEvent.click(changeLabelButton(label));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-choice-label-input")).toBeTruthy();
+    });
+  }
+
+  it("does not show the draft label before save", async () => {
+    renderEditor(withTwoChoices);
+    await openLabelEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-label-input"), {
+      target: { value: "Medium" },
+    });
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.getAllByTestId("developer-kw-choice")).toHaveLength(2);
+    expect(
+      document.querySelector('[data-testid="developer-kw-choice"][data-choice-label="Medium"]'),
+    ).toBeNull();
+    expect(
+      document.querySelector('[data-testid="developer-kw-choice"][data-choice-label="Low"]'),
+    ).toBeTruthy();
+  });
+
+  it("does not write a blank label", async () => {
+    renderEditor(withTwoChoices);
+    await openLabelEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-label-input"), {
+      target: { value: "   " },
+    });
+    const button = screen.getByTestId("developer-kw-choice-label-save") as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+    fireEvent.click(button);
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(
+      document.querySelector('[data-testid="developer-kw-choice"][data-choice-label="Low"]'),
+    ).toBeTruthy();
+  });
+
+  it("does not write when the label edit is cancelled", async () => {
+    renderEditor(withTwoChoices);
+    await openLabelEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-label-input"), {
+      target: { value: "Medium" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-label-cancel"));
+    expect(screen.queryByTestId("developer-kw-choice-label-input")).toBeNull();
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(
+      document.querySelector('[data-testid="developer-kw-choice"][data-choice-label="Low"]'),
+    ).toBeTruthy();
+    expect(screen.getByTestId("developer-kw-add-choice-save")).toBeTruthy();
+    expect(removeButton("Low").disabled).toBe(false);
+  });
+
+  it("does not write when the label is unchanged", async () => {
+    renderEditor(withTwoChoices);
+    await openLabelEditor("Low");
+    fireEvent.click(screen.getByTestId("developer-kw-choice-label-save"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-kw-choice-label-input")).toBeNull();
+    expect(
+      document.querySelector('[data-testid="developer-kw-choice"][data-choice-label="Low"]'),
+    ).toBeTruthy();
+  });
+
+  it("does not replace another choice when the label is a duplicate", async () => {
+    renderEditor(withTwoChoices);
+    await openLabelEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-label-input"), {
+      target: { value: "HIGH" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-label-save"));
+    expect(screen.getByTestId("developer-kw-choice-label-error").textContent).toBe(
+      DEV_MSG.KW_CHANGE_CHOICE_LABEL_DUPLICATE,
+    );
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.getAllByTestId("developer-kw-choice")).toHaveLength(2);
+    expect(
+      document.querySelector('[data-testid="developer-kw-choice"][data-choice-label="High"]'),
+    ).toBeTruthy();
+    expect(
+      document.querySelector('[data-testid="developer-kw-choice"][data-choice-label="Low"]'),
+    ).toBeTruthy();
+    expect(screen.queryByTestId("developer-kw-choice-label-notice")).toBeNull();
+  });
+
+  it("shows the new label only after the keyword update succeeds", async () => {
+    updateKeyword.mockImplementation(async (_id: string, body: KeywordSummary) => body);
+    renderEditor(withTwoChoices);
+    await openLabelEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-label-input"), {
+      target: { value: " Medium " },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-label-save"));
+    await waitFor(() => {
+      expect(
+        document.querySelector('[data-testid="developer-kw-choice"][data-choice-label="Medium"]'),
+      ).toBeTruthy();
+    });
+    expect(updateKeyword).toHaveBeenCalledWith(
+      "42",
+      expect.objectContaining({
+        label: "Priority",
+        description: "Item priority",
+        sequence: 4,
+        choices: [
+          { label: "High", value: "high", description: "top", sequence: 1 },
+          { label: "Medium", value: "low", description: "bottom", sequence: 2 },
+        ],
+      }),
+    );
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-kw-choice-label-notice").textContent).toBe(
+      DEV_MSG.KW_CHANGE_CHOICE_LABEL_SAVED,
+    );
+    expect(
+      document.querySelector('[data-testid="developer-kw-choice"][data-choice-label="Low"]'),
+    ).toBeNull();
+    expect(
+      document.querySelector('[data-testid="developer-kw-choice"][data-choice-label="High"]'),
+    ).toBeTruthy();
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe(
+      "Priority",
+    );
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+    expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("4");
+    expect(screen.queryByTestId("developer-kw-choice-label-input")).toBeNull();
+  });
+
+  it.each([400, 403, 409])(
+    "keeps the previous label when the update returns HTTP %s",
+    async (status) => {
+      updateKeyword.mockRejectedValue({
+        status,
+        statusText: "no",
+        body: {
+          message: `forced ${status}`,
+          label: "Renamed",
+          choices: [{ label: "Later", value: "later", sequence: 9 }],
+        },
+      });
+      renderEditor(withTwoChoices);
+      await openLabelEditor("Low");
+      fireEvent.change(screen.getByTestId("developer-kw-choice-label-input"), {
+        target: { value: "Later" },
+      });
+      fireEvent.click(screen.getByTestId("developer-kw-choice-label-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-kw-choice-label-error")).toBeTruthy();
+      });
+      expect(screen.getByTestId("developer-kw-choice-label-error").textContent).toContain(
+        `forced ${status}`,
+      );
+      expect(screen.getAllByTestId("developer-kw-choice")).toHaveLength(2);
+      expect(screen.getByTestId("developer-kw-saved-choices").textContent).not.toContain(
+        "Later",
+      );
+      expect(
+        document.querySelector('[data-testid="developer-kw-choice"][data-choice-label="Low"]'),
+      ).toBeTruthy();
+      expect(screen.queryByTestId("developer-kw-choice-label-notice")).toBeNull();
+      expect(deleteKeyword).not.toHaveBeenCalled();
+    },
+  );
+
+  it("does not replace the list when a 200 changes the keyword label", async () => {
+    updateKeyword.mockResolvedValue({
+      ...withTwoChoices,
+      label: "Renamed",
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Medium", value: "low", description: "bottom", sequence: 2 },
+      ],
+    });
+    renderEditor(withTwoChoices);
+    await openLabelEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-label-input"), {
+      target: { value: "Medium" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-choice-label-error").textContent).toBe(
+        DEV_MSG.KW_CHANGE_CHOICE_LABEL_ERROR,
+      );
+    });
+    expect(screen.getAllByTestId("developer-kw-choice")).toHaveLength(2);
+    expect(
+      document.querySelector('[data-testid="developer-kw-choice"][data-choice-label="Low"]'),
+    ).toBeTruthy();
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe(
+      "Priority",
+    );
+  });
+});

@@ -21,6 +21,7 @@ import {
   isBlankChoiceDraft,
   isDuplicateChoice,
   keywordUpdateForAddedChoice,
+  keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
   savedChoicesAfterAdd,
   unwrapKeywordPayload,
@@ -101,6 +102,47 @@ describe("keywordUpdateForRemovedChoice", () => {
       description: "Item priority",
       sequence: 4,
       choices: [],
+    });
+  });
+});
+
+describe("keywordUpdateForRelabeledChoice", () => {
+  const two: KeywordChoiceSummary[] = [
+    { label: "High", value: "high", description: "top", sequence: 1 },
+    { label: "Low", value: "low", description: "bottom", sequence: 2 },
+  ];
+
+  it("does not build a write for a blank label, the same label, or a missing choice", () => {
+    expect(keywordUpdateForRelabeledChoice(baseline, two, 1, "   ")).toBe("blank");
+    expect(keywordUpdateForRelabeledChoice(baseline, two, 1, "Low")).toBe("unchanged");
+    expect(keywordUpdateForRelabeledChoice(baseline, two, 1, " Low ")).toBe("unchanged");
+    expect(keywordUpdateForRelabeledChoice(baseline, two, -1, "Medium")).toBe("missing");
+    expect(keywordUpdateForRelabeledChoice(baseline, two, 2, "Medium")).toBe("missing");
+  });
+
+  it("does not build a write when the label matches another choice", () => {
+    expect(keywordUpdateForRelabeledChoice(baseline, two, 1, "HIGH")).toBe("duplicate");
+    expect(keywordUpdateForRelabeledChoice(baseline, two, 0, " low ")).toBe("duplicate");
+  });
+
+  it("changes one label and keeps value, description, sequence, and the other choice", () => {
+    expect(keywordUpdateForRelabeledChoice(baseline, two, 1, " Medium ")).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Medium", value: "low", description: "bottom", sequence: 2 },
+      ],
+    });
+    expect(keywordUpdateForRelabeledChoice(baseline, two, 0, "HIGH")).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "HIGH", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "low", description: "bottom", sequence: 2 },
+      ],
     });
   });
 });
