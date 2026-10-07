@@ -38,6 +38,7 @@ import com.percussion.services.filter.IPSItemFilter;
 import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.filter.PSFilterServiceLocator;
 import com.percussion.services.guidmgr.IPSGuidManager;
+import com.percussion.services.guidmgr.PSGuidHelper;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.publisher.IPSContentList;
 import com.percussion.services.publisher.IPSDeliveryType;
@@ -52,6 +53,8 @@ import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
+import com.percussion.services.sitemgr.data.PSLocationScheme;
+import com.percussion.services.sitemgr.data.PSLocationSchemeParameter;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -1324,6 +1327,7 @@ public class PSPublishingDesignRestService {
         scheme.setTemplateId(templateId);
       }
       applySchemeParameters(scheme, body.getParameters(), true);
+      assignMissingParameterIds(scheme);
       siteManager.saveScheme(scheme);
       return toSchemeSummary(scheme, true);
     } catch (WebApplicationException e) {
@@ -1428,6 +1432,7 @@ public class PSPublishingDesignRestService {
       } else {
         applySchemeParameters(scheme, body.getParameters(), false);
       }
+      assignMissingParameterIds(scheme);
       siteManager.saveScheme(scheme);
       return toSchemeSummary(scheme, true);
     } catch (PSNotFoundException e) {
@@ -1886,6 +1891,23 @@ public class PSPublishingDesignRestService {
   }
 
   private record SchemeParameterAddition(String name, int sequence, String type, String value) {}
+
+  /**
+   * {@code RXLOCATIONSCHEMEPARAMS.SCHEMEPARAMID} is assigned, not generated. New rows from
+   * add-one and from a full parameter replace need a next-number id before {@code persist}.
+   * Mocks and other {@link IPSLocationScheme} implementations are left alone.
+   */
+  private void assignMissingParameterIds(IPSLocationScheme scheme) {
+    if (!(scheme instanceof PSLocationScheme concrete)) {
+      return;
+    }
+    for (PSLocationSchemeParameter param : concrete.getParameterSet()) {
+      if (param != null && param.getParameterId() == null) {
+        param.setParameterId(
+            Math.toIntExact(PSGuidHelper.generateNextLong(PSTypeEnum.LOCATION_PROPERTY)));
+      }
+    }
+  }
 
   /**
    * Replace or append scheme parameters. When {@code replaceAll} is false and parameters is null,

@@ -1,16 +1,12 @@
-# Pre-push local code review — issue 5301
-
-Author-reviewer disclosure: the same night-issue-prs session (Grok Build 1.0.46, grok-4.7) authored this diff and invoked `mkd-code-review`. The machine gate below is authoritative. The three complexity suggestions are not bugs, missing behavioral tests, or non-portable path handling, so they do not block.
-
 ## Summary
 
 Machine analysis found **3** finding(s), **0** bug(s).
 
 ## Scope
 
-- Base: origin/main
-- Head: HEAD
-- Files: 11 analyzed
+- Base: (unspecified)
+- Head: (unspecified)
+- Files: 13 analyzed
 - In-diff: 3 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
@@ -28,7 +24,7 @@ approve
 
 ### Issue 1 -- Severity: suggestion
 
-- File: projects/sitemanage/src/main/java/com/percussion/publishingdesign/impl/PSPublishingDesignRestService.java:1350 (in-diff)
+- File: projects/sitemanage/src/main/java/com/percussion/publishingdesign/impl/PSPublishingDesignRestService.java:1354 (in-diff)
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
 - Description: Function `updateScheme` cognitive=27 (max 15), cyclomatic=23 (max 15)
@@ -37,7 +33,7 @@ approve
 
 ### Issue 2 -- Severity: suggestion
 
-- File: projects/sitemanage/src/main/java/com/percussion/publishingdesign/impl/PSPublishingDesignRestService.java:1834 (in-diff)
+- File: projects/sitemanage/src/main/java/com/percussion/publishingdesign/impl/PSPublishingDesignRestService.java:1839 (in-diff)
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
 - Description: Function `prepareSchemeParameterAddition` cognitive=17 (max 15), cyclomatic=16 (max 15)
@@ -46,9 +42,11 @@ approve
 
 ### Issue 3 -- Severity: suggestion
 
-- File: projects/sitemanage/src/main/java/com/percussion/publishingdesign/impl/PSPublishingDesignRestService.java:1895 (in-diff)
+- File: projects/sitemanage/src/main/java/com/percussion/publishingdesign/impl/PSPublishingDesignRestService.java:1917 (in-diff)
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
 - Description: Function `applySchemeParameters` cognitive=16 (max 15), cyclomatic=13 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
+
+Reviewed with `mkd-code-review analyze --pack percussion --format markdown --gate advisory --diff` covering the branch plus the uncommitted persistence and wire-shape fix (13 files vs origin/main). Cognitive complexity on `updateScheme`, `prepareSchemeParameterAddition`, and `applySchemeParameters` is a suggestion only. No in-diff bugs, missing behavioral tests, or non-portable paths. May commit/push: yes.

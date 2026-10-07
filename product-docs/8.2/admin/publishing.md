@@ -947,7 +947,7 @@ those fields. Enter one parameter **name**, **type** (`String` or `BackendColumn
 **value**. **Add parameter** sends
 `PUT …/sitemanage/publishingdesign/schemes/{schemeId}` (the same update already used by
 Design; there is no second parameter resource) with a `locationScheme` object that contains
-`addParameter` set to true and one `schemeParameter` (name, type, and value). Name, generator,
+`addParameter` set to true and one parameter under `parameters.schemeParameter` (name, type, and value). Name, generator,
 description, content type, template, and context are omitted, so the server leaves those
 stored. The scheme id does not change. Stored parameters stay; the server appends this one
 and assigns the next sequence. The context scheme list includes each scheme's parameters.

@@ -47,6 +47,10 @@ import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
+import com.percussion.services.guidmgr.IPSGuidManager;
+import com.percussion.services.guidmgr.PSGuidManagerLocator;
+import com.percussion.services.sitemgr.data.PSLocationScheme;
+import com.percussion.services.sitemgr.data.PSLocationSchemeParameter;
 import com.percussion.services.filter.IPSFilterService;
 import com.percussion.services.filter.IPSItemFilter;
 import com.percussion.services.guidmgr.IPSGuidManager;
@@ -61,6 +65,8 @@ import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
+import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -1949,6 +1955,49 @@ class PSPublishingDesignRestServiceTest {
     verify(scheme, never()).setContextId(any());
     verify(siteManager).saveScheme(scheme);
     verify(siteManager, never()).findSchemesByContextId(any());
+  }
+
+  @Test
+  void updateScheme_addParameter_assignsSchemeParamId() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.LOCATION_SCHEME))).thenReturn(schemeGuid);
+    PSLocationScheme scheme = new PSLocationScheme();
+    when(siteManager.loadSchemeModifiable(schemeGuid)).thenReturn(scheme);
+
+    IPSGuidManager guidMgr = mock(IPSGuidManager.class);
+    IPSGuid paramGuid = mock(IPSGuid.class);
+    when(paramGuid.getUUID()).thenReturn(4242);
+    when(guidMgr.createGuid(PSTypeEnum.LOCATION_PROPERTY)).thenReturn(paramGuid);
+    AtomicReference<IPSGuidManager> ref = guidManagerRef();
+    IPSGuidManager previous = ref.get();
+    ref.set(guidMgr);
+    try {
+      PSSchemeParameter added = new PSSchemeParameter();
+      added.setName("suffix");
+      added.setType("String");
+      added.setValue("article");
+      PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+      body.setAddParameter(Boolean.TRUE);
+      body.setParameters(List.of(added));
+
+      PSLocationSchemeSummary saved = design.updateScheme("11", body);
+      assertEquals(1, saved.getParameters().size());
+      assertEquals("suffix", saved.getParameters().get(0).getName());
+      assertEquals("article", saved.getParameters().get(0).getValue());
+      PSLocationSchemeParameter stored =
+          scheme.getParameterSet().stream().findFirst().orElseThrow();
+      assertEquals(4242, stored.getParameterId());
+      verify(siteManager).saveScheme(scheme);
+    } finally {
+      ref.set(previous);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static AtomicReference<IPSGuidManager> guidManagerRef() throws Exception {
+    Field field = PSGuidManagerLocator.class.getDeclaredField("GUID_MANAGER_REF");
+    field.setAccessible(true);
+    return (AtomicReference<IPSGuidManager>) field.get(null);
   }
 
   @Test

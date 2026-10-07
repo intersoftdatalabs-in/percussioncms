@@ -130,13 +130,15 @@ describe("buildLocationSchemeAddParameterBody", () => {
       contentTypeId: undefined,
       templateId: undefined,
       addParameter: true,
-      schemeParameter: [
-        {
-          name: "suffix",
-          type: "BackendColumn",
-          value: "Contentstatus.contentid",
-        },
-      ],
+      parameters: {
+        schemeParameter: [
+          {
+            name: "suffix",
+            type: "BackendColumn",
+            value: "Contentstatus.contentid",
+          },
+        ],
+      },
     });
     expect(buildLocationSchemeRenameBody("Renamed")).toEqual({ name: "Renamed" });
   });

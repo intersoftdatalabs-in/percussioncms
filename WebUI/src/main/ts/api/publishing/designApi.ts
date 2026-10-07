@@ -631,7 +631,8 @@ export async function updateScheme(
 
 /**
  * JAXB/Jackson root wrap expected by {@code PSLocationSchemeSummary}.
- * Parameters are the {@code schemeParameter} array, not a {@code parameters} field.
+ * Parameters are nested as {@code parameters.schemeParameter}, the JAXB wrapper
+ * the resource binds. A bare {@code schemeParameter} array is not stored.
  */
 export function wrapLocationScheme(body: LocationSchemeSummary): {
   locationScheme: Record<string, unknown>;
@@ -654,7 +655,9 @@ export function wrapLocationScheme(body: LocationSchemeSummary): {
     wire.addParameter = true;
   }
   if (body.parameters && body.parameters.length > 0) {
-    wire.schemeParameter = body.parameters;
+    // JAXB wrapper the publishing-design resource binds. A bare schemeParameter
+    // array on locationScheme is ignored, so create and add-one would drop it.
+    wire.parameters = { schemeParameter: body.parameters };
   }
   return { locationScheme: wire };
 }
