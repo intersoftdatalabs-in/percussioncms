@@ -845,7 +845,8 @@ delivery-type save, and edition save are separate Design actions. Renaming a loc
 is described below and changes the name only. Setting only the generator is also described
 below and does not change the name, description, content type, template, or parameters.
 Setting only the description is also described below and does not change the name, generator,
-content type, template, or parameters.
+content type, template, or parameters. Adding one parameter is also described below and does
+not change the name, generator, description, content type, or template.
 
 ### Rename a location scheme (Design)
 
@@ -931,8 +932,43 @@ HTTP **400** (description longer than 255 characters), **403** (not Admin or Des
 stay in the description form error region. Those responses do not change the description on
 the list and do not change the name, generator, content type, template, or parameters. Saving a
 location scheme (which can also change the description together with other fields), renaming
-one, setting only the generator, copying one, and deleting one are separate actions. Publishing
-context descriptions and content list descriptions are separate Design actions.
+one, setting only the generator, adding one parameter, copying one, and deleting one are
+separate actions. Publishing context descriptions and content list descriptions are separate
+Design actions.
+
+### Add one location scheme parameter (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. On a location scheme row, **Add parameter** loads
+that scheme (`GET …/sitemanage/publishingdesign/schemes/{schemeId}`) and opens
+**Add location scheme parameter**. The form shows the current **name**, **generator**,
+**description**, **content type**, **template**, and **parameters** and does not let you change
+those fields. Enter one parameter **name**, **type** (`String` or `BackendColumn`), and
+**value**. **Add parameter** sends
+`PUT …/sitemanage/publishingdesign/schemes/{schemeId}` (the same update already used by
+Design; there is no second parameter resource) with a `locationScheme` object that contains
+`addParameter` set to true and one parameter under `parameters.schemeParameter` (name, type, and value). Name, generator,
+description, content type, template, and context are omitted, so the server leaves those
+stored. The scheme id does not change. Stored parameters stay; the server appends this one
+and assigns the next sequence. The context scheme list includes each scheme's parameters.
+
+The new parameter is listed on that scheme only after the update succeeds. Until then the
+previous parameter list stays, including while the request is still in progress. If the list
+refresh fails after a successful update, that scheme still shows the previous parameters plus
+the one just added. Other schemes on the context stay.
+**Cancel** closes the form and does not update the scheme. A blank name, a blank value, a name
+or type longer than 50 characters (`RXLOCATIONSCHEMEPARAMS.NAME` and `TYPE`), or a name that
+already exists on the scheme is rejected in the form and does not call the update. A duplicate
+name does not add a second row and does not change the stored parameter.
+
+HTTP **400** (the parameter is missing, blank, or longer than its column), **403** (not Admin
+or Designer), and **409** (that parameter name already exists on the scheme, or a scheme name
+sent with the add already exists in the context) stay in the add-parameter form error region.
+Those responses do not change the parameter list and do not change the name, generator,
+description, content type, or template. Saving a location scheme (which can replace the whole
+parameter list together with other fields), renaming one, setting only the generator, setting
+only the description, copying one, and deleting one are separate actions. Removing or editing
+an existing parameter is not this action.
 
 ### Copy a location scheme (Design)
 

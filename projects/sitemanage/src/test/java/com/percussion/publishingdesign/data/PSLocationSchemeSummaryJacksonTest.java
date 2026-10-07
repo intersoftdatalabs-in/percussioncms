@@ -87,6 +87,22 @@ class PSLocationSchemeSummaryJacksonTest {
   }
 
   @Test
+  void addParameterFlagBindsOneSchemeParameter() {
+    String json =
+        """
+        {"locationScheme":{"addParameter":true,"schemeParameter":[{"name":"suffix","type":"BackendColumn","value":"Contentstatus.contentid"}]}}
+        """;
+    PSLocationSchemeSummary body = mapper.readValue(json, PSLocationSchemeSummary.class);
+    assertEquals(Boolean.TRUE, body.getAddParameter());
+    assertTrue(body.getName() == null || body.getName().isBlank());
+    assertNotNull(body.getParameters());
+    assertEquals(1, body.getParameters().size());
+    assertEquals("suffix", body.getParameters().get(0).getName());
+    assertEquals("BackendColumn", body.getParameters().get(0).getType());
+    assertEquals("Contentstatus.contentid", body.getParameters().get(0).getValue());
+  }
+
+  @Test
   void flatBodyDoesNotBindName() {
     String flat =
         "{\"name\":\"Article copy\",\"generator\":\"Java/global/percussion/contentassembler/sys_JexlAssemblyLocation\"}";

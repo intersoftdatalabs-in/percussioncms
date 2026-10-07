@@ -88,6 +88,11 @@ import {
   schemesAfterSuccessfulDescription,
   validateLocationSchemeDescription,
 } from "../locationSchemeDescription";
+import {
+  buildLocationSchemeAddParameterBody,
+  schemesAfterSuccessfulAdd,
+  validateLocationSchemeAddParameter,
+} from "../locationSchemeAddParameter";
 import { useDirtyForm } from "../dirtyFormContext";
 import { normalizeSchemeType } from "./designLegacyTypes";
 import { SiteRootBrowser } from "./SiteRootBrowser";
@@ -102,7 +107,12 @@ type Mode =
   | { kind: "scheme-copy"; source: LocationSchemeSummary; contextId: string }
   | { kind: "scheme-rename"; source: LocationSchemeSummary; contextId: string }
   | { kind: "scheme-generator"; source: LocationSchemeSummary; contextId: string }
-  | { kind: "scheme-describe"; source: LocationSchemeSummary; contextId: string };
+  | { kind: "scheme-describe"; source: LocationSchemeSummary; contextId: string }
+  | {
+      kind: "scheme-add-parameter";
+      source: LocationSchemeSummary;
+      contextId: string;
+    };
 
 /**
  * Contexts CRUD + location schemes with parameters and path browser.
@@ -135,6 +145,9 @@ export function ContextsPanel(): React.ReactElement {
   const [renameName, setRenameName] = useState("");
   const [schemeGenerator, setSchemeGenerator] = useState("");
   const [schemeDescription, setSchemeDescription] = useState("");
+  const [paramAddName, setParamAddName] = useState("");
+  const [paramAddType, setParamAddType] = useState("String");
+  const [paramAddValue, setParamAddValue] = useState("");
   const [describeText, setDescribeText] = useState("");
   const { setDirty, confirmIfDirty } = useDirtyForm();
 
@@ -610,6 +623,77 @@ export function ContextsPanel(): React.ReactElement {
       setSchemes(
         schemesAfterSuccessfulDescription(refreshed, id, validated.description, previous),
       );
+    } catch (e) {
+      setError(mapLocationSchemeSaveError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function openSchemeAddParameter(
+    source: LocationSchemeSummary,
+  ): Promise<void> {
+    if (!source.schemeId || !selected || saving) {
+      return;
+    }
+    setError(null);
+    setDirty(false);
+    const contextId = selected;
+    let full = source;
+    try {
+      full = await getScheme(source.schemeId);
+    } catch {
+      full = source;
+    }
+    setParamAddName("");
+    setParamAddType("String");
+    setParamAddValue("");
+    setMode({ kind: "scheme-add-parameter", source: full, contextId });
+  }
+
+  function closeSchemeAddParameter(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setMode({ kind: "list" });
+  }
+
+  async function saveSchemeAddParameter(): Promise<void> {
+    if (mode.kind !== "scheme-add-parameter" || !mode.source.schemeId || saving) {
+      return;
+    }
+    const validated = validateLocationSchemeAddParameter(
+      paramAddName,
+      paramAddType,
+      paramAddValue,
+      mode.source.parameters,
+    );
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    const id = String(mode.source.schemeId);
+    const contextId = mode.contextId;
+    const added = validated.parameter;
+    setError(null);
+    setSaving(true);
+    const previous = schemes;
+    try {
+      await updateScheme(id, buildLocationSchemeAddParameterBody(added));
+      setDirty(false);
+      setMode({ kind: "list" });
+      let refreshed: LocationSchemeSummary[] | null = null;
+      try {
+        refreshed = await listSchemesForContext(contextId);
+      } catch {
+        refreshed = null;
+      }
+      setSchemes(schemesAfterSuccessfulAdd(refreshed, id, added, previous));
     } catch (e) {
       setError(mapLocationSchemeSaveError(e));
     } finally {
@@ -1360,6 +1444,113 @@ export function ContextsPanel(): React.ReactElement {
     );
   }
 
+  if (mode.kind === "scheme-add-parameter") {
+    const source = mode.source;
+    return (
+      <div data-testid="scheme-add-parameter">
+        <h3>Add location scheme parameter</h3>
+        <p>
+          Name: <span data-testid="scheme-add-parameter-name">{source.name ?? ""}</span>
+        </p>
+        <p>
+          Generator:{" "}
+          <span data-testid="scheme-add-parameter-generator">
+            {source.generator ?? ""}
+          </span>
+        </p>
+        <p>
+          Description:{" "}
+          <span data-testid="scheme-add-parameter-description">
+            {source.description ?? ""}
+          </span>
+        </p>
+        <p>
+          Content type:{" "}
+          <span data-testid="scheme-add-parameter-content-type">
+            {source.contentTypeId != null ? String(source.contentTypeId) : ""}
+          </span>
+        </p>
+        <p>
+          Template:{" "}
+          <span data-testid="scheme-add-parameter-template">
+            {source.templateId != null ? String(source.templateId) : ""}
+          </span>
+        </p>
+        <p data-testid="scheme-add-parameter-fields-note">
+          Name, generator, description, content type, and template stay on this scheme.
+        </p>
+        <ul data-testid="scheme-add-parameter-existing" style={listStyle}>
+          {(source.parameters ?? []).map((p, i) => (
+            <li key={`${p.name}-${i}`} data-testid="scheme-add-parameter-existing-row">
+              {p.name} ({p.type ?? ""}): {p.value}
+            </li>
+          ))}
+        </ul>
+        <div style={formRowStyle}>
+          <label htmlFor="scheme-add-parameter-name-input">* Name</label>
+          <input
+            id="scheme-add-parameter-name-input"
+            value={paramAddName}
+            onChange={(e) => {
+              setParamAddName(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        <div style={formRowStyle}>
+          <label htmlFor="scheme-add-parameter-type-input">* Type</label>
+          <select
+            id="scheme-add-parameter-type-input"
+            value={paramAddType}
+            onChange={(e) => {
+              setParamAddType(e.target.value);
+              setDirty(true);
+            }}
+          >
+            <option value="String">String</option>
+            <option value="BackendColumn">BackendColumn</option>
+          </select>
+        </div>
+        <div style={formRowStyle}>
+          <label htmlFor="scheme-add-parameter-value-input">* Value</label>
+          <input
+            id="scheme-add-parameter-value-input"
+            value={paramAddValue}
+            onChange={(e) => {
+              setParamAddValue(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="location-scheme-add-parameter-save"
+            disabled={saving}
+            onClick={() => void saveSchemeAddParameter()}
+          >
+            Add parameter
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="location-scheme-add-parameter-cancel"
+            disabled={saving}
+            onClick={closeSchemeAddParameter}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (mode.kind === "scheme-copy") {
     return (
       <div data-testid="scheme-copy">
@@ -1543,6 +1734,15 @@ export function ContextsPanel(): React.ReactElement {
                   </>
                 ) : null}
               </span>
+              {s.schemeId && (s.parameters ?? []).length > 0 ? (
+                <div data-testid={`scheme-list-parameters-${s.schemeId}`}>
+                  {(s.parameters ?? []).map((p, i) => (
+                    <span key={`${p.name}-${i}`} data-testid="scheme-list-parameter">
+                      {p.name} ({p.type ?? ""}): {p.value}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
               {s.schemeId && (
                 <>
                   <button
@@ -1571,6 +1771,15 @@ export function ContextsPanel(): React.ReactElement {
                     onClick={() => void openSchemeDescribe(s)}
                   >
                     Description
+                  </button>
+                  <button
+                    type="button"
+                    style={buttonStyle}
+                    data-testid="location-scheme-add-parameter"
+                    disabled={saving}
+                    onClick={() => void openSchemeAddParameter(s)}
+                  >
+                    Add parameter
                   </button>
                   <button
                     type="button"

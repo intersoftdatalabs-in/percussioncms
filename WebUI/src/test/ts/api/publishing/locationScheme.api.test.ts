@@ -74,9 +74,11 @@ describe("location scheme wire shape", () => {
           generator: "gen",
           contentTypeId: undefined,
           templateId: undefined,
-          schemeParameter: [
-            { name: "path", type: "String", value: "$sys.site.path", sequence: 0 },
-          ],
+          parameters: {
+            schemeParameter: [
+              { name: "path", type: "String", value: "$sys.site.path", sequence: 0 },
+            ],
+          },
         },
       },
     );

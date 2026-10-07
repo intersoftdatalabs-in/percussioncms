@@ -76,6 +76,11 @@ export interface LocationSchemeSummary {
   copy?: boolean;
   schemeType?: string;
   parameters?: SchemeParameter[];
+  /**
+   * Update-only. When true, {@code parameters} is exactly one parameter to
+   * append. The server does not replace the stored set.
+   */
+  addParameter?: boolean;
 }
 
 export interface SiteDesignSummary {
@@ -626,7 +631,8 @@ export async function updateScheme(
 
 /**
  * JAXB/Jackson root wrap expected by {@code PSLocationSchemeSummary}.
- * Parameters are the {@code schemeParameter} array, not a {@code parameters} field.
+ * Parameters are nested as {@code parameters.schemeParameter}, the JAXB wrapper
+ * the resource binds. A bare {@code schemeParameter} array is not stored.
  */
 export function wrapLocationScheme(body: LocationSchemeSummary): {
   locationScheme: Record<string, unknown>;
@@ -645,8 +651,13 @@ export function wrapLocationScheme(body: LocationSchemeSummary): {
   if (body.copy) {
     wire.copy = true;
   }
+  if (body.addParameter) {
+    wire.addParameter = true;
+  }
   if (body.parameters && body.parameters.length > 0) {
-    wire.schemeParameter = body.parameters;
+    // JAXB wrapper the publishing-design resource binds. A bare schemeParameter
+    // array on locationScheme is ignored, so create and add-one would drop it.
+    wire.parameters = { schemeParameter: body.parameters };
   }
   return { locationScheme: wire };
 }

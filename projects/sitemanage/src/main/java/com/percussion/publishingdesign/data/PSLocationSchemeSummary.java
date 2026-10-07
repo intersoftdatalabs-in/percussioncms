@@ -43,6 +43,12 @@ public class PSLocationSchemeSummary {
 
   private List<PSSchemeParameter> parameters;
 
+  /**
+   * When true, {@code parameters} is exactly one parameter to append. Stored parameters stay.
+   * Other scheme fields are still applied only when present on the body.
+   */
+  private Boolean addParameter;
+
   public String getSchemeId() {
     return schemeId;
   }
@@ -123,5 +129,13 @@ public class PSLocationSchemeSummary {
 
   public void setParameters(List<PSSchemeParameter> parameters) {
     this.parameters = parameters;
+  }
+
+  public Boolean getAddParameter() {
+    return addParameter;
+  }
+
+  public void setAddParameter(Boolean addParameter) {
+    this.addParameter = addParameter;
   }
 }
