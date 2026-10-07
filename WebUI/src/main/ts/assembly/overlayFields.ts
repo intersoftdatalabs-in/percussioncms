@@ -33,6 +33,38 @@ export const ASSEMBLY_VALUE_HTML = "html";
 /** Link edits send {@code dataType: link} on the existing item field save. */
 export const ASSEMBLY_VALUE_LINK = "link";
 
+/** Single-line text is one line. Long text is not marked with this value. */
+export const ASSEMBLY_VALUE_TEXT = "text";
+
+/**
+ * Collapse line breaks so a single-line text field cannot store a new line.
+ * Long text does not use this.
+ */
+export function singleLineText(value: string): string {
+  return value.replace(/\s*[\r\n]+\s*/g, " ").trim();
+}
+
+export function overlayEditKey(
+  edit: Pick<OverlayFieldEdit, "contentId" | "name">,
+): string {
+  return `${edit.contentId}\n${edit.name}`;
+}
+
+/**
+ * Edits whose value differs from the post-paint snapshot.
+ * A field missing from the snapshot is kept. Unchanged fields are dropped so
+ * a single-line text save does not rewrite HTML, long text, or links.
+ */
+export function changedOverlayEdits(
+  edits: OverlayFieldEdit[],
+  baseline: ReadonlyMap<string, string>,
+): OverlayFieldEdit[] {
+  return edits.filter((edit) => {
+    const previous = baseline.get(overlayEditKey(edit));
+    return previous === undefined || previous !== edit.value;
+  });
+}
+
 const LINK_INPUT_ATTR = "data-assembly-link-input";
 
 export interface OverlayField {
@@ -407,9 +439,30 @@ export function applyFieldOverlay(
     html.setAttribute("spellcheck", "false");
     if (field?.kind === "html") {
       html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_HTML);
+    } else if (field?.kind === "text") {
+      html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_TEXT);
+      bindSingleLineGuard(html);
     }
   }
   return hits;
+}
+
+const TEXT_GUARD_ATTR = "data-assembly-text-guard";
+
+/**
+ * Enter in an in-place single-line field must not insert a line break.
+ * The flag stays on the node so a later paint does not stack listeners.
+ */
+function bindSingleLineGuard(el: HTMLElement): void {
+  if (el.getAttribute(TEXT_GUARD_ATTR) === "true") {
+    return;
+  }
+  el.setAttribute(TEXT_GUARD_ATTR, "true");
+  el.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+    }
+  });
 }
 
 /**
@@ -425,19 +478,22 @@ function formValue(el: Element): string {
 }
 
 function readNodeValue(el: Element): string {
-  if (el.getAttribute("data-assembly-value") === ASSEMBLY_VALUE_LINK) {
+  const valueKind = el.getAttribute("data-assembly-value");
+  if (valueKind === ASSEMBLY_VALUE_LINK) {
     if (isFormValueElement(el)) {
       return formValue(el).trim();
     }
     return (el.textContent ?? "").trim();
   }
   if (isFormValueElement(el)) {
-    return formValue(el);
+    const raw = formValue(el);
+    return valueKind === ASSEMBLY_VALUE_TEXT ? singleLineText(raw) : raw;
   }
-  if (el.getAttribute("data-assembly-value") === ASSEMBLY_VALUE_HTML) {
+  if (valueKind === ASSEMBLY_VALUE_HTML) {
     return (el as HTMLElement).innerHTML.trim();
   }
-  return (el.textContent ?? "").trim();
+  const text = (el.textContent ?? "").trim();
+  return valueKind === ASSEMBLY_VALUE_TEXT ? singleLineText(text) : text;
 }
 
 function writeNodeValue(el: Element, value: string): void {
