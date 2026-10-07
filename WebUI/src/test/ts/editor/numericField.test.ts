@@ -35,7 +35,17 @@ describe("numericFieldProblem", () => {
       "invalid",
     );
     expect(numericFieldProblem("1.5", { integer: true })).toBe("invalid");
+    expect(numericFieldProblem("-1", { integer: true, minimum: "0", maximum: "10" })).toBe(
+      "range",
+    );
     expect(numericFieldProblem("11", { integer: true, minimum: "0", maximum: "10" })).toBe(
+      "range",
+    );
+    expect(numericFieldProblem("0", { integer: true, minimum: "0", maximum: "10" })).toBeNull();
+    expect(numericFieldProblem("-0.1", { integer: false, minimum: "0", maximum: "2" })).toBe(
+      "range",
+    );
+    expect(numericFieldProblem("2.1", { integer: false, minimum: "0", maximum: "2" })).toBe(
       "range",
     );
     expect(numericFieldProblem("9223372036854775808", { integer: true })).toBe("range");
@@ -54,6 +64,16 @@ describe("numericMetaForSchema", () => {
         ],
       }),
     ).toEqual({ integer: true, minimum: "0", maximum: "10" });
+    expect(
+      numericMetaForSchema({
+        control: "sys_Number",
+        dataType: "float",
+        controlProperties: [
+          { name: "min", value: "0" },
+          { name: "max", value: "2" },
+        ],
+      }),
+    ).toEqual({ integer: false, minimum: "0", maximum: "2" });
     expect(numericMetaForSchema({ control: "sys_EditBox", dataType: "text" })).toBeNull();
   });
 });
@@ -76,5 +96,31 @@ describe("collectInvalidNumericFieldErrors", () => {
       "range",
     );
     expect(errors).toEqual({ qty: "bad" });
+  });
+
+  it("maps a below-minimum and an above-maximum value to the range message", () => {
+    const errors = collectInvalidNumericFieldErrors(
+      [
+        {
+          name: "low",
+          kind: "number",
+          value: "-1",
+          numericInteger: true,
+          numericMinimum: "0",
+          numericMaximum: "10",
+        },
+        {
+          name: "high",
+          kind: "number",
+          value: "11",
+          numericInteger: true,
+          numericMinimum: "0",
+          numericMaximum: "10",
+        },
+      ],
+      "bad",
+      "outside",
+    );
+    expect(errors).toEqual({ low: "outside", high: "outside" });
   });
 });
