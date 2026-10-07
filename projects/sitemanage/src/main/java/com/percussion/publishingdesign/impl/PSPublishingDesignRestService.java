@@ -188,6 +188,13 @@ public class PSPublishingDesignRestService {
 
   static final String LOCATION_SCHEME_DESCRIPTION_TOO_LONG =
       "Location scheme description must be 255 characters or fewer";
+
+  /**
+   * {@code RXLOCATIONSCHEME.CONTENTTYPEID} is a required positive id. Zero, a negative value, or
+   * a blank field must not replace the stored id.
+   */
+  static final String LOCATION_SCHEME_CONTENT_TYPE_INVALID =
+      "Location scheme content type must be a number";
   /** Matches {@code RXLOCATIONSCHEMEPARAMS.NAME} VARCHAR(50). */
   static final int MAX_LOCATION_SCHEME_PARAMETER_NAME_LENGTH = 50;
 
@@ -1347,9 +1354,13 @@ public class PSPublishingDesignRestService {
    * 400 and writes nothing. Omitting the description leaves it stored. When {@code addParameter}
    * is true, the body carries exactly one parameter to append. Stored parameters are not removed
    * or rewritten. Name, generator, description, content type, and template change only when those
-   * fields are present. A blank parameter name, type, or value, or a name or type longer than its
-   * column, is HTTP 400 and writes nothing. A parameter name that already exists on the scheme is
-   * HTTP 409 and writes nothing.
+   * fields are present. A content-type-only body leaves the name, generator, description,
+   * template, context, and parameters stored. A content type that is not a positive number is
+   * HTTP 400 and writes nothing. Omitting the content type leaves the stored id. A content type
+   * that is already stored for the same context and template ({@code UIX_RXLOCSCHEME}) is HTTP
+   * 409 and writes nothing. A blank parameter name, type, or value, or a name or type longer than
+   * its column, is HTTP 400 and writes nothing. A parameter name that already exists on the scheme
+   * is HTTP 409 and writes nothing.
    */
   @PUT
   @Path("/schemes/{schemeId}")
@@ -1372,50 +1383,27 @@ public class PSPublishingDesignRestService {
       if (Boolean.TRUE.equals(body.getAddParameter())) {
         addition = prepareSchemeParameterAddition(scheme, body.getParameters());
       }
-      // Reject a bad generator before any field is written so 400 leaves the stored row.
-      // A null generator is omitted (rename and other partial updates) and is not applied.
-      String nextGenerator = null;
-      boolean applyGenerator = body.getGenerator() != null;
-      if (applyGenerator) {
-        nextGenerator = body.getGenerator().trim();
-        if (nextGenerator.isEmpty()) {
-          throw badRequest(LOCATION_SCHEME_GENERATOR_REQUIRED);
-        }
-        if (nextGenerator.length() > MAX_LOCATION_SCHEME_GENERATOR_LENGTH) {
-          throw badRequest(LOCATION_SCHEME_GENERATOR_TOO_LONG);
-        }
-      }
-      // Reject an overlong description before any field is written so 400 leaves the stored row.
-      // A null description is omitted (rename and generator updates) and is not applied.
-      // Blank or whitespace clears the stored description.
-      String nextDescription = null;
-      boolean applyDescription = body.getDescription() != null;
-      if (applyDescription) {
-        nextDescription = body.getDescription().trim();
-        if (nextDescription.length() > MAX_LOCATION_SCHEME_DESCRIPTION_LENGTH) {
-          throw badRequest(LOCATION_SCHEME_DESCRIPTION_TOO_LONG);
-        }
-        if (nextDescription.isEmpty()) {
-          nextDescription = null;
-        }
-      }
+      // Reject a bad generator, description, or content type before any field is written.
+      SchemeTextChange generatorChange = prepareLocationSchemeGenerator(body.getGenerator());
+      SchemeTextChange descriptionChange = prepareLocationSchemeDescription(body.getDescription());
       String contextId =
           !isBlank(body.getContextId())
               ? body.getContextId().trim()
               : (scheme.getContextId() != null
                   ? String.valueOf(scheme.getContextId().getUUID())
                   : null);
+      rejectLocationSchemeContentType(scheme, body, contextId, schemeId);
       if (!isBlank(body.getName()) && contextId != null) {
         requireUniqueLocationSchemeName(contextId, body.getName().trim(), schemeId);
       }
       if (!isBlank(body.getName())) {
         scheme.setName(body.getName().trim());
       }
-      if (applyGenerator) {
-        scheme.setGenerator(nextGenerator);
+      if (generatorChange.apply()) {
+        scheme.setGenerator(generatorChange.value());
       }
-      if (applyDescription) {
-        scheme.setDescription(nextDescription);
+      if (descriptionChange.apply()) {
+        scheme.setDescription(descriptionChange.value());
       }
       if (body.getContentTypeId() != null) {
         scheme.setContentTypeId(body.getContentTypeId());
@@ -2287,6 +2275,111 @@ public class PSPublishingDesignRestService {
       }
     }
     return false;
+  }
+
+  /**
+   * Generator text for one update. {@code apply} is false when the field was omitted. A blank
+   * generator is HTTP 400. An empty prepared value is never stored.
+   */
+  private static SchemeTextChange prepareLocationSchemeGenerator(String raw) {
+    if (raw == null) {
+      return SchemeTextChange.omit();
+    }
+    String next = raw.trim();
+    if (next.isEmpty()) {
+      throw badRequest(LOCATION_SCHEME_GENERATOR_REQUIRED);
+    }
+    if (next.length() > MAX_LOCATION_SCHEME_GENERATOR_LENGTH) {
+      throw badRequest(LOCATION_SCHEME_GENERATOR_TOO_LONG);
+    }
+    return SchemeTextChange.apply(next);
+  }
+
+  /**
+   * Description text for one update. {@code apply} is false when the field was omitted. Blank or
+   * whitespace clears the stored description. An overlong description is HTTP 400.
+   */
+  private static SchemeTextChange prepareLocationSchemeDescription(String raw) {
+    if (raw == null) {
+      return SchemeTextChange.omit();
+    }
+    String next = raw.trim();
+    if (next.length() > MAX_LOCATION_SCHEME_DESCRIPTION_LENGTH) {
+      throw badRequest(LOCATION_SCHEME_DESCRIPTION_TOO_LONG);
+    }
+    if (next.isEmpty()) {
+      return SchemeTextChange.apply(null);
+    }
+    return SchemeTextChange.apply(next);
+  }
+
+  /**
+   * Reject a non-positive content type (HTTP 400) or a context/template/content-type triple that
+   * another scheme already uses (HTTP 409). A null content type is omitted. Nothing is written
+   * here.
+   */
+  private void rejectLocationSchemeContentType(
+      IPSLocationScheme scheme,
+      PSLocationSchemeSummary body,
+      String contextId,
+      String schemeId) {
+    if (body.getContentTypeId() == null) {
+      return;
+    }
+    long nextContentType = body.getContentTypeId();
+    if (nextContentType <= 0) {
+      throw badRequest(LOCATION_SCHEME_CONTENT_TYPE_INVALID);
+    }
+    Long storedTemplate = scheme.getTemplateId();
+    long templateId =
+        body.getTemplateId() != null
+            ? body.getTemplateId()
+            : (storedTemplate != null ? storedTemplate.longValue() : -1L);
+    if (templateId > 0 && contextId != null) {
+      requireUniqueLocationSchemeAssignment(contextId, templateId, nextContentType, schemeId);
+    }
+  }
+
+  /** Present text change, or an omitted field that must not be written. */
+  private record SchemeTextChange(boolean apply, String value) {
+    static SchemeTextChange omit() {
+      return new SchemeTextChange(false, null);
+    }
+
+    static SchemeTextChange apply(String value) {
+      return new SchemeTextChange(true, value);
+    }
+  }
+
+  /**
+   * One scheme per context, template, and content type ({@code UIX_RXLOCSCHEME}). The scheme being
+   * updated is not a conflict with itself. Called only after the content type is known to be a
+   * positive id, and before any field is written.
+   */
+  private void requireUniqueLocationSchemeAssignment(
+      String contextId, long templateId, long contentTypeId, String currentSchemeId) {
+    IPSGuid ctxGuid = guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT);
+    List<IPSLocationScheme> schemes = siteManager.findSchemesByContextId(ctxGuid);
+    if (schemes == null) {
+      return;
+    }
+    for (IPSLocationScheme existing : schemes) {
+      if (existing == null
+          || existing.getTemplateId() == null
+          || existing.getContentTypeId() == null) {
+        continue;
+      }
+      if (existing.getTemplateId().longValue() != templateId
+          || existing.getContentTypeId().longValue() != contentTypeId) {
+        continue;
+      }
+      String existingId =
+          existing.getGUID() != null ? String.valueOf(existing.getGUID().getUUID()) : null;
+      if (currentSchemeId != null && currentSchemeId.equals(existingId)) {
+        continue;
+      }
+      throw conflict(LOCATION_SCHEME_ASSIGNMENT_CONFLICT);
+    }
   }
 
   private void requireUniqueLocationSchemeName(
