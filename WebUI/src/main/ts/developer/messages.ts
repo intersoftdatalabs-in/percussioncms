@@ -478,6 +478,23 @@ export const DEV_MSG_KEYS = {
   KW_CHANGE_CHOICE_LABEL_INVALID: "perc.ui.developer@The choice label was not changed.",
   KW_CHANGE_CHOICE_LABEL_CONFLICT:
     "perc.ui.developer@The choice label was not changed. The previous label is unchanged.",
+  KW_CHANGE_CHOICE_VALUE: "perc.ui.developer@Change value",
+  /** Aria label; `{0}` is the choice label. */
+  KW_CHANGE_CHOICE_VALUE_ACTION: "perc.ui.developer@Change value of {0}",
+  KW_CHANGE_CHOICE_VALUE_HINT:
+    "perc.ui.developer@Changes the value of one choice with the keyword update. The new value shows only after that save succeeds. The choice label, description, and sequence stay. The keyword label, description, sequence, and the other choices stay. Cancel does not write. A blank value is the choice label. A duplicate value does not replace another choice.",
+  KW_CHANGE_CHOICE_VALUE_SAVE: "perc.ui.developer@Save value",
+  KW_CHANGE_CHOICE_VALUE_SAVED: "perc.ui.developer@Choice value saved.",
+  KW_CHANGE_CHOICE_VALUE_ERROR: "perc.ui.developer@Could not change the choice value.",
+  KW_CHANGE_CHOICE_VALUE_BLANK:
+    "perc.ui.developer@Enter a choice value, or a choice label to use as the value. A blank value was not saved.",
+  KW_CHANGE_CHOICE_VALUE_DUPLICATE:
+    "perc.ui.developer@That value is already on another choice. The other choice was not replaced.",
+  KW_CHANGE_CHOICE_VALUE_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to change a choice value.",
+  KW_CHANGE_CHOICE_VALUE_INVALID: "perc.ui.developer@The choice value was not changed.",
+  KW_CHANGE_CHOICE_VALUE_CONFLICT:
+    "perc.ui.developer@The choice value was not changed. The previous value is unchanged.",
   TPL_LOADING: "perc.ui.developer@Loading templates...",
   TPL_EMPTY: "perc.ui.developer@No templates returned.",
   TPL_ERROR: "perc.ui.developer@Could not load templates.",

@@ -23,6 +23,7 @@ import {
   keywordUpdateForAddedChoice,
   keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
+  keywordUpdateForRevaluedChoice,
   savedChoicesAfterAdd,
   unwrapKeywordPayload,
 } from "../../../main/ts/developer/keywordChoiceAdd";
@@ -142,6 +143,87 @@ describe("keywordUpdateForRelabeledChoice", () => {
       choices: [
         { label: "HIGH", value: "high", description: "top", sequence: 1 },
         { label: "Low", value: "low", description: "bottom", sequence: 2 },
+      ],
+    });
+  });
+});
+
+describe("keywordUpdateForRevaluedChoice", () => {
+  const two: KeywordChoiceSummary[] = [
+    { label: "High", value: "high", description: "top", sequence: 1 },
+    { label: "Low", value: "low", description: "bottom", sequence: 2 },
+  ];
+
+  it("does not build a write for a missing choice or the same value", () => {
+    expect(keywordUpdateForRevaluedChoice(baseline, two, -1, "mid")).toBe("missing");
+    expect(keywordUpdateForRevaluedChoice(baseline, two, 2, "mid")).toBe("missing");
+    expect(keywordUpdateForRevaluedChoice(baseline, two, 1.5, "mid")).toBe("missing");
+    expect(keywordUpdateForRevaluedChoice(baseline, two, 1, "low")).toBe("unchanged");
+    expect(keywordUpdateForRevaluedChoice(baseline, two, 1, " low ")).toBe("unchanged");
+  });
+
+  it("does not build a write when a blank value already means the label", () => {
+    expect(keywordUpdateForRevaluedChoice(baseline, two, 1, "   ")).toBe("unchanged");
+    const storedAsLabel: KeywordChoiceSummary[] = [
+      { label: "High", value: "high", sequence: 1 },
+      { label: "Low", value: "Low", sequence: 2 },
+    ];
+    expect(keywordUpdateForRevaluedChoice(baseline, storedAsLabel, 1, "")).toBe("unchanged");
+    const emptyValue: KeywordChoiceSummary[] = [
+      { label: "High", value: "high", sequence: 1 },
+      { label: "Low", value: "", sequence: 2 },
+    ];
+    expect(keywordUpdateForRevaluedChoice(baseline, emptyValue, 1, "  ")).toBe("unchanged");
+  });
+
+  it("does not build a write when the label and the value are both blank", () => {
+    const blank: KeywordChoiceSummary[] = [{ label: "  ", value: "keep", sequence: 1 }];
+    expect(keywordUpdateForRevaluedChoice(baseline, blank, 0, "   ")).toBe("blank");
+  });
+
+  it("does not build a write when the value matches another choice", () => {
+    expect(keywordUpdateForRevaluedChoice(baseline, two, 1, "HIGH")).toBe("duplicate");
+    expect(keywordUpdateForRevaluedChoice(baseline, two, 0, " Low ")).toBe("duplicate");
+    const distinct: KeywordChoiceSummary[] = [
+      { label: "High", value: "low", description: "top", sequence: 1 },
+      { label: "Low", value: "mid", description: "bottom", sequence: 2 },
+    ];
+    expect(keywordUpdateForRevaluedChoice(baseline, distinct, 1, "   ")).toBe("duplicate");
+  });
+
+  it("changes one value and keeps label, description, sequence, and the other choice", () => {
+    expect(keywordUpdateForRevaluedChoice(baseline, two, 1, " mid ")).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "mid", description: "bottom", sequence: 2 },
+      ],
+    });
+    expect(keywordUpdateForRevaluedChoice(baseline, two, 0, "HIGH")).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "HIGH", description: "top", sequence: 1 },
+        { label: "Low", value: "low", description: "bottom", sequence: 2 },
+      ],
+    });
+  });
+
+  it("stores a blank value as the label when that value is not already in use", () => {
+    const distinct: KeywordChoiceSummary[] = [
+      { label: "High", value: "high", description: "top", sequence: 1 },
+      { label: "Low", value: "mid", description: "bottom", sequence: 2 },
+    ];
+    expect(keywordUpdateForRevaluedChoice(baseline, distinct, 1, "  ")).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "Low", description: "bottom", sequence: 2 },
       ],
     });
   });
