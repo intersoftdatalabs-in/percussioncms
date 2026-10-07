@@ -27,6 +27,8 @@ import {
   longTextValue,
   readOverlayEdits,
   restoreOverlayValues,
+  blankRequiredTextFieldNames,
+  markAssemblyFieldErrors,
   scalarOverlayFields,
   singleLineText,
   stripLeftoverAaChrome,
@@ -175,6 +177,28 @@ describe("scalarOverlayFields", () => {
     expect(rows.find((r) => r.name === "notes")?.kind).toBe("longtext");
     expect(rows.some((r) => r.name === "bodycopy")).toBe(false);
     expect(rows.find((r) => r.name === "displaytitle")?.kind).toBe("text");
+  });
+
+  it("copies the content-type required flag onto single-line text", () => {
+    const rows = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [
+          { name: "displaytitle", value: "Welcome" },
+          { name: "summary", value: "Optional" },
+          { name: "notes", value: "A long note" },
+        ],
+      },
+      [
+        { name: "displaytitle", control: "sys_EditBox", required: true },
+        { name: "summary", control: "sys_EditBox", required: false },
+        { name: "notes", control: "sys_TextArea", required: true },
+      ],
+    );
+    expect(rows.find((r) => r.name === "displaytitle")?.required).toBe(true);
+    expect(rows.find((r) => r.name === "summary")?.required).toBe(false);
+    expect(rows.find((r) => r.name === "notes")?.required).toBe(true);
+    expect(rows.find((r) => r.name === "notes")?.kind).toBe("longtext");
   });
 });
 
@@ -667,5 +691,52 @@ describe("mergeOverlayEdits / persistOverlayEdits", () => {
       "<p>About the site</p>",
     );
     expect(saved.fields.find((f) => f.name === "description")?.dataType).toBeUndefined();
+  });
+});
+
+describe("blankRequiredTextFieldNames", () => {
+  const fields = [
+    { name: "displaytitle", kind: "text" as const, required: true, value: "Welcome" },
+    { name: "summary", kind: "text" as const, required: false, value: "Optional" },
+    { name: "notes", kind: "longtext" as const, required: true, value: "A long note" },
+  ];
+
+  it("names a blank or whitespace required text field and ignores other kinds", () => {
+    expect(
+      blankRequiredTextFieldNames(fields, [
+        { name: "displaytitle", value: "" },
+        { name: "summary", value: "" },
+        { name: "notes", value: "   " },
+      ]),
+    ).toEqual(["displaytitle"]);
+    expect(
+      blankRequiredTextFieldNames(fields, [
+        { name: "displaytitle", value: "   " },
+      ]),
+    ).toEqual(["displaytitle"]);
+    expect(
+      blankRequiredTextFieldNames(fields, [
+        { name: "displaytitle", value: "Updated welcome" },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("marks only the named overlay control invalid", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `
+      <h1 data-assembly-field="displaytitle">Welcome</h1>
+      <p data-assembly-field="notes">A long note</p>
+    `;
+    markAssemblyFieldErrors(root, { displaytitle: "This field is required." });
+    expect(
+      root.querySelector('[data-assembly-field="displaytitle"]')?.getAttribute("aria-invalid"),
+    ).toBe("true");
+    expect(
+      root.querySelector('[data-assembly-field="notes"]')?.hasAttribute("aria-invalid"),
+    ).toBe(false);
+    markAssemblyFieldErrors(root, {});
+    expect(
+      root.querySelector('[data-assembly-field="displaytitle"]')?.hasAttribute("aria-invalid"),
+    ).toBe(false);
   });
 });

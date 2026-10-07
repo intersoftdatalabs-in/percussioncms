@@ -119,6 +119,50 @@ export function changedOverlayEdits(
   });
 }
 
+/**
+ * Required single-line text fields whose current value is blank or whitespace.
+ * Long text, HTML, and link are not checked here. Later edits for the same
+ * name win so the overlay strip and the assembled node agree.
+ */
+export function blankRequiredTextFieldNames(
+  fields: readonly Pick<OverlayField, "name" | "kind" | "required" | "value">[],
+  edits: readonly Pick<OverlayFieldEdit, "name" | "value">[],
+): string[] {
+  const values = new Map<string, string>();
+  for (const edit of edits) {
+    values.set(edit.name, edit.value);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "text" || field.required !== true) {
+      continue;
+    }
+    const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
+    if (value.trim().length === 0) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/** Mark overlay controls invalid when a required-text save was refused. */
+export function markAssemblyFieldErrors(
+  root: ParentNode | null,
+  errors: Readonly<Record<string, string>>,
+): void {
+  if (root == null) {
+    return;
+  }
+  root.querySelectorAll("[data-assembly-field]").forEach((el) => {
+    const name = el.getAttribute("data-assembly-field")?.trim() ?? "";
+    if (name && errors[name]) {
+      el.setAttribute("aria-invalid", "true");
+    } else {
+      el.removeAttribute("aria-invalid");
+    }
+  });
+}
+
 const LINK_INPUT_ATTR = "data-assembly-link-input";
 
 export interface OverlayField {
@@ -127,6 +171,8 @@ export interface OverlayField {
   label: string;
   kind: OverlayFieldKind;
   readOnly: boolean;
+  /** Content-type required flag. Only single-line text is enforced on save. */
+  required: boolean;
 }
 
 export interface OverlayFieldHit {
@@ -199,6 +245,7 @@ export function scalarOverlayFields(
       label: schema?.label || field.name,
       kind,
       readOnly: false,
+      required: schema?.required === true,
     });
   }
   return out;
@@ -498,6 +545,10 @@ export function applyFieldOverlay(
       html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_HTML);
     } else if (field?.kind === "text") {
       html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_TEXT);
+      if (field.required) {
+        html.setAttribute("aria-required", "true");
+        html.setAttribute("data-assembly-required", "true");
+      }
       bindSingleLineGuard(html);
     } else if (field?.kind === "longtext") {
       html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_LONGTEXT);

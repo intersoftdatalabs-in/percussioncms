@@ -1304,4 +1304,286 @@ describe("AssemblyHost", () => {
     expect(area.value).toBe(NEW_NOTE);
     expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
   });
+
+  function requiredTextSchema(required = true) {
+    return {
+      fields: textSchema.fields.map((field) =>
+        field.name === "displaytitle" ? { ...field, required } : field,
+      ),
+    };
+  }
+
+  it("does not save a blank required text field and reloads the previous text", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn();
+    renderTextHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(textFields),
+      requiredTextSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    expect(title.getAttribute("aria-required")).toBe("true");
+    expect(title.getAttribute("data-assembly-required")).toBe("true");
+    expect(
+      screen.getByTestId("assembly-field-chip-displaytitle").getAttribute("data-required"),
+    ).toBe("true");
+    title.textContent = "";
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-displaytitle").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/required/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    await waitFor(() => {
+      expect(title.getAttribute("aria-invalid")).toBe("true");
+    });
+    expect(title.textContent).toBe("");
+    cleanup();
+    const reloaded = textPreviewDoc();
+    renderTextHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(textFields),
+      requiredTextSchema(),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-displaytitle"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(OLD_TEXT);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+  });
+
+  it("does not save whitespace-only required text and keeps the previous value", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn();
+    renderTextHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(textFields),
+      requiredTextSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = "  \n  ";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-displaytitle").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    cleanup();
+    const reloaded = textPreviewDoc();
+    renderTextHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(textFields),
+      requiredTextSchema(),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-displaytitle"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(OLD_TEXT);
+    });
+  });
+
+  it("does not write when Close leaves a blank required text edit", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn();
+    renderTextHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(textFields),
+      requiredTextSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = "";
+    fireEvent.click(screen.getByTestId("assembly-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(title.textContent).toBe("");
+    expect(
+      screen.getByTestId("assembly-field-chip-displaytitle").getAttribute("data-required"),
+    ).toBe("true");
+  });
+
+  it("still saves a non-blank required text value", async () => {
+    let titleValue = OLD_TEXT;
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      titleValue = body.fields.find((field) => field.name === "displaytitle")?.value ?? titleValue;
+      return {
+        ...textFields,
+        fields: textFields.fields.map((field) =>
+          field.name === "displaytitle" ? { ...field, value: titleValue } : field,
+        ),
+      };
+    });
+    const previewDoc = textPreviewDoc();
+    renderTextHost(
+      previewDoc,
+      saveFields,
+      vi.fn(async () => ({
+        ...textFields,
+        fields: textFields.fields.map((field) =>
+          field.name === "displaytitle" ? { ...field, value: titleValue } : field,
+        ),
+      })),
+      requiredTextSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = NEW_TEXT;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    });
+    const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "displaytitle")?.value).toBe(NEW_TEXT);
+    expect(sent.fields.find((field) => field.name === "notes")?.value).toBe(LONG_NOTE);
+    expect(screen.queryByTestId("assembly-field-error-displaytitle")).toBeNull();
+    cleanup();
+    const reloaded = textPreviewDoc(NEW_TEXT);
+    renderTextHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue({
+        ...textFields,
+        fields: textFields.fields.map((field) =>
+          field.name === "displaytitle" ? { ...field, value: NEW_TEXT } : field,
+        ),
+      }),
+      requiredTextSchema(),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-displaytitle"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(NEW_TEXT);
+    });
+  });
+
+  it("still clears an optional single-line text field", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderTextHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    expect(title.hasAttribute("aria-required")).toBe(false);
+    expect(
+      screen.getByTestId("assembly-field-chip-displaytitle").getAttribute("data-required"),
+    ).toBe("false");
+    title.textContent = "   ";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "displaytitle")?.value).toBe("");
+    expect(saved.fields.find((field) => field.name === "notes")?.value).toBe(LONG_NOTE);
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    expect(screen.queryByTestId("assembly-field-error-displaytitle")).toBeNull();
+  });
+
+  it("HTTP 400 on a required text field does not claim success", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn().mockRejectedValue({ status: 400 });
+    renderTextHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(textFields),
+      requiredTextSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = NEW_TEXT;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/could not save/i);
+      const live = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-displaytitle"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(OLD_TEXT);
+    });
+    expect(saveFields).toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(screen.queryByTestId("assembly-field-error-displaytitle")).toBeNull();
+  });
+
+  it("refuses a blank required text field on the overlay strip", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn();
+    renderTextHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(textFields),
+      requiredTextSchema(),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-displaytitle")).toBeTruthy();
+    });
+    const input = screen.getByTestId(
+      "assembly-overlay-field-displaytitle",
+    ) as HTMLInputElement;
+    expect(input.getAttribute("aria-required")).toBe("true");
+    input.value = "   ";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-displaytitle").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+  });
 });
