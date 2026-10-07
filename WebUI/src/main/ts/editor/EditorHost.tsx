@@ -559,6 +559,8 @@ function EditorFieldControl({
         name={row.name}
         value={row.value}
         readOnly={locked}
+        invalid={invalid}
+        required={row.required}
         loadCommunities={loadCommunities}
         onChange={(value) => onChange(row.name, value)}
       />

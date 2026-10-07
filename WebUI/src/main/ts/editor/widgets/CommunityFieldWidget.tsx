@@ -34,6 +34,8 @@ export interface CommunityFieldWidgetProps {
   name: string;
   value: string;
   readOnly: boolean;
+  invalid?: boolean;
+  required?: boolean;
   onChange: (value: string) => void;
   loadCommunities?: () => Promise<CommunitySummary[]>;
 }
@@ -42,6 +44,8 @@ export function CommunityFieldWidget({
   name,
   value,
   readOnly,
+  invalid,
+  required,
   onChange,
   loadCommunities = listCommunities,
 }: CommunityFieldWidgetProps): React.ReactElement {
@@ -73,6 +77,8 @@ export function CommunityFieldWidget({
       name={name}
       value={value}
       disabled={readOnly}
+      aria-invalid={invalid ? true : undefined}
+      aria-required={required ? true : undefined}
       onChange={(e) => onChange(e.target.value)}
     >
       <option value="">{message(EDITOR_MSG.COMMUNITY_EMPTY)}</option>

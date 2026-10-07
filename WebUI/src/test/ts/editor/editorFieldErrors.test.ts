@@ -165,6 +165,26 @@ describe("collectRequiredFieldErrors", () => {
     expect(isEmptyEditorFieldValue("keyword", "news")).toBe(false);
   });
 
+  it("refuses an empty required community and still allows an optional empty community", () => {
+    const errors = collectRequiredFieldErrors(
+      [
+        { name: "sys_communityid", kind: "community", required: true, value: "" },
+        { name: "otherCommunity", kind: "community", required: true, value: "   " },
+        { name: "optionalCommunity", kind: "community", required: false, value: "" },
+        { name: "kept", kind: "community", required: true, value: "10" },
+      ],
+      {},
+      "This field is required.",
+    );
+    expect(errors).toEqual({
+      sys_communityid: "This field is required.",
+      otherCommunity: "This field is required.",
+    });
+    expect(isEmptyEditorFieldValue("community", "")).toBe(true);
+    expect(isEmptyEditorFieldValue("community", " \n\t ")).toBe(true);
+    expect(isEmptyEditorFieldValue("community", "10")).toBe(false);
+  });
+
   it("refuses a required file with nothing chosen and a cleared stored name", () => {
     const notes = new File(["x"], "notes.txt", { type: "text/plain" });
     const errors = collectRequiredFieldErrors(
