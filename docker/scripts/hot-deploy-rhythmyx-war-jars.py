@@ -14,7 +14,7 @@
 #
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Hot-deploy perc-system / rest / sitemanage SNAPSHOTs into an H2 QA WAR.
+"""Hot-deploy perc-system / rest / sitemanage / utils SNAPSHOTs into an H2 QA WAR.
 
 Cross-platform (Windows / Linux / macOS). Stdlib only. ``subprocess.run``
 uses ``shell=False`` (root AGENTS.md).
@@ -33,6 +33,14 @@ while WEB-INF/lib still lacked ``commons-email2-core`` /
 (``sys_emailQueueListener`` / ``PSEmailMessageHandler`` /
 ``NoClassDefFoundError: EmailException``). This script also copies those
 mail2 jars and removes stale ``commons-email-*.jar`` (1.x) files.
+
+Cycle Verify #5323: the same skip-image-build cell left
+``WEB-INF/lib/utils-*.jar`` from the installer. That ``PSHtmlUtils`` still
+calls ``Safelist.addTags("noscript")``, which jsoup 1.23 rejects, so
+checkout/save of FastForward pages whose body contains ``<noscript>`` fails
+(``explorer-clear-display-title`` seed POST). This script also copies
+``modules/utils`` when the jar contains the ``perc-noscript`` shield, falling
+back to the local Maven repository when ``target/`` is stale or missing.
 
 This script copies matching module ``target/*.jar`` files into:
 
@@ -86,6 +94,11 @@ SERVER_LOG = "/opt/Percussion/jetty/base/logs/server.log"
 SITEMAP_XML_CLASS = (
     "com/percussion/services/virtualsite/PSSitemapXmlVirtualSiteSource.class"
 )
+# jsoup 1.23 rejects Safelist.addTags("noscript"). PSHtmlUtils renames the
+# element to this token before clean (#5297 / #5323).
+NOSCRIPT_SHIELD_MARKER = b"perc-noscript"
+PS_HTML_UTILS_CLASS = "com/percussion/html/PSHtmlUtils.class"
+UTILS_M2_GROUP = ("com", "percussion", "utils")
 SKIP_JAR_SUFFIXES = ("-sources.jar", "-javadoc.jar", "-tests.jar")
 
 # (module dir relative to repo root, Maven artifactId)
@@ -94,6 +107,7 @@ DEFAULT_MODULES: tuple[tuple[str, str], ...] = (
     ("rest", "rest"),
     ("projects/sitemanage", "sitemanage"),
     ("modules/extensions-workflow", "extensions-workflow"),
+    ("modules/utils", "utils"),
 )
 
 # perc-system compile deps (GH-4411 / #4456). Skip-image-build cells do not
@@ -289,16 +303,69 @@ def jar_has_sitemap_xml_source(jar_path: Path) -> bool:
         return False
 
 
-def resolve_module_jars(repo_root: Path) -> tuple[list[tuple[str, Path]], int]:
+def jar_has_noscript_shield(jar_path: Path) -> bool:
+    """True when utils ships the jsoup 1.23 noscript rename (#5323)."""
+    try:
+        with zipfile.ZipFile(jar_path, "r") as zf:
+            data = zf.read(PS_HTML_UTILS_CLASS)
+    except (OSError, zipfile.BadZipFile, KeyError):
+        return False
+    return NOSCRIPT_SHIELD_MARKER in data
+
+
+def resolve_utils_from_m2(m2_root: Path) -> Optional[Path]:
+    """Return a local-repo utils SNAPSHOT that contains the noscript shield."""
+    base = m2_root.joinpath(*UTILS_M2_GROUP)
+    if not base.is_dir():
+        return None
+    candidates: list[Path] = []
+    for version_dir in base.iterdir():
+        if not version_dir.is_dir():
+            continue
+        for jar in version_dir.glob("utils-*-SNAPSHOT.jar"):
+            if not is_snapshot_primary_jar(jar.name, "utils"):
+                continue
+            if jar_has_noscript_shield(jar):
+                candidates.append(jar)
+    if not candidates:
+        return None
+    return max(candidates, key=lambda item: item.name)
+
+
+def resolve_module_jars(
+    repo_root: Path, *, m2_root: Optional[Path] = None
+) -> tuple[list[tuple[str, Path]], int]:
     """Return ``[(artifactId, jar_path), ...]`` or an exit code on failure."""
+    resolved_m2 = m2_root if m2_root is not None else default_m2_root()
     found: list[tuple[str, Path]] = []
     for rel, artifact_id in DEFAULT_MODULES:
         jar = newest_primary_jar(repo_root / rel / "target", artifact_id)
+        if artifact_id == "utils":
+            if jar is None or not jar_has_noscript_shield(jar):
+                m2_jar = resolve_utils_from_m2(resolved_m2)
+                if m2_jar is not None:
+                    LOG.info(
+                        "Using m2 utils jar with noscript shield: %s "
+                        "(target was %s, #5323).",
+                        m2_jar,
+                        jar,
+                    )
+                    jar = m2_jar
+                elif jar is not None:
+                    LOG.error(
+                        "%s lacks %s in %s — rebuild modules/utils so "
+                        "checkout can clean <noscript> (#5323).",
+                        jar,
+                        NOSCRIPT_SHIELD_MARKER.decode("ascii"),
+                        PS_HTML_UTILS_CLASS,
+                    )
+                    return [], EXIT_MARKER_MISSING
         if jar is None:
             LOG.error(
                 "SNAPSHOT jar not found for %s under %s/target "
                 "(build the module, then re-run). Needed so skip-image-build "
-                "QA cells pick up sitemap-xml allow-list (#4174).",
+                "QA cells pick up sitemap-xml allow-list (#4174) and the "
+                "utils noscript shield (#5323).",
                 artifact_id,
                 rel,
             )
@@ -439,6 +506,11 @@ def _remove_artifact_jars(
         if artifact_id in extra_ids:
             if not is_versioned_artifact_jar(name, artifact_id):
                 continue
+        elif artifact_id == "utils":
+            # software.amazon.awssdk:utils is utils-2.50.2.jar / utils-lite-*.jar.
+            # A prefix match deletes the AWS SDK and ROOT fails startup (#5323).
+            if not is_snapshot_primary_jar(name, artifact_id):
+                continue
         else:
             if not name.startswith(prefix) or not name.endswith(".jar"):
                 continue
@@ -479,7 +551,18 @@ def _remove_stale_commons_email1(
 
 def is_artifact_backup_name(name: str, artifact_id: str) -> bool:
     """True for ``<artifactId>-*.jar.bak.<ts>`` next to a deployed SNAPSHOT."""
+    if artifact_id == "utils":
+        return is_utils_snapshot_backup_name(name)
     return name.startswith(artifact_id + "-") and ".bak." in name
+
+
+def is_utils_snapshot_backup_name(name: str) -> bool:
+    """True only for ``utils-<ver>-SNAPSHOT.jar.bak.<ts>``, not AWS ``utils-2.*.jar``."""
+    marker = ".jar.bak."
+    if marker not in name:
+        return False
+    jar_name = name.split(marker, 1)[0] + ".jar"
+    return is_snapshot_primary_jar(jar_name, "utils")
 
 
 def _prune_artifact_backups(
@@ -648,7 +731,7 @@ def deploy(
     if not dest.startswith("/"):
         LOG.error("unsupported --dest (must be absolute POSIX): %s", dest)
         return EXIT_INVOCATION
-    jars, rc = resolve_module_jars(repo_root)
+    jars, rc = resolve_module_jars(repo_root, m2_root=m2_root)
     if rc != EXIT_OK:
         return rc
     for artifact_id, jar in jars:
@@ -660,6 +743,12 @@ def deploy(
                     SITEMAP_XML_CLASS,
                 )
                 return EXIT_MARKER_MISSING
+        if artifact_id == "utils" and not jar_has_noscript_shield(jar):
+            LOG.error(
+                "%s lacks the noscript shield — rebuild modules/utils (#5323).",
+                jar,
+            )
+            return EXIT_MARKER_MISSING
     mail2, rc = resolve_mail2_jars(repo_root, m2_root=m2_root)
     if rc != EXIT_OK:
         return rc

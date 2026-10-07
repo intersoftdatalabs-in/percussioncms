@@ -84,11 +84,20 @@ def _stub_subprocess(*, docker_ps_names=("perc-matrix-cms-h2",), lib_listing=Non
     return calls, fake_run
 
 
-def _write_jar(path: Path, *entries: str) -> None:
+def _write_jar(path: Path, *entries: str, payload: bytes = b"class") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(path, "w") as zf:
         for name in entries:
-            zf.writestr(name, b"class")
+            zf.writestr(name, payload)
+
+
+def _write_utils_jar(root: Path, *, shield: bool = True) -> None:
+    body = b"perc-noscript" if shield else b"legacy-cleaner"
+    _write_jar(
+        root / "modules" / "utils" / "target" / "utils-8.2.0-SNAPSHOT.jar",
+        hdj.PS_HTML_UTILS_CLASS,
+        payload=body,
+    )
 
 
 MAIL2_VERSION = "2.0.0-M1"
@@ -144,6 +153,7 @@ def _layout(root: Path, *, sitemap: bool = True, mail2: bool = True) -> Path:
         root / "modules" / "extensions-workflow" / "target" / "extensions-workflow-8.2.0-SNAPSHOT.jar",
         "com/percussion/workflow/mail/PSSecureMailProgram.class",
     )
+    _write_utils_jar(root)
     _write_jar(
         root / "system" / "target" / "perc-system-8.2.0-SNAPSHOT-javadoc.jar",
         "index.html",
@@ -193,6 +203,18 @@ class TestNewestPrimaryJar(unittest.TestCase):
             hdj.is_artifact_backup_name(
                 "perc-system-8.2.0-SNAPSHOT.jar",
                 "perc-system",
+            )
+        )
+        self.assertFalse(
+            hdj.is_artifact_backup_name(
+                "utils-2.50.2.jar.bak.20261007102315",
+                "utils",
+            )
+        )
+        self.assertTrue(
+            hdj.is_artifact_backup_name(
+                "utils-8.2.0-SNAPSHOT.jar.bak.20261007102315",
+                "utils",
             )
         )
         self.assertFalse(
@@ -311,6 +333,35 @@ class TestDeploy(unittest.TestCase):
             rc = hdj.deploy(root, dry_run=True)
             self.assertEqual(rc, hdj.EXIT_MARKER_MISSING)
 
+    def test_missing_noscript_shield(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = _layout(Path(td))
+            _write_utils_jar(root, shield=False)
+            rc = hdj.deploy(root, dry_run=True, m2_root=Path(td) / "empty-m2")
+            self.assertEqual(rc, hdj.EXIT_MARKER_MISSING)
+
+    def test_utils_m2_fallback_when_target_lacks_shield(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = _layout(Path(td))
+            _write_utils_jar(root, shield=False)
+            m2 = Path(td) / "m2"
+            shielded = (
+                m2.joinpath(*hdj.UTILS_M2_GROUP)
+                / "8.2.0-SNAPSHOT"
+                / "utils-8.2.0-SNAPSHOT.jar"
+            )
+            _write_jar(
+                shielded,
+                hdj.PS_HTML_UTILS_CLASS,
+                payload=b"perc-noscript",
+            )
+            jars, rc = hdj.resolve_module_jars(root, m2_root=m2)
+            self.assertEqual(rc, hdj.EXIT_OK)
+            utils = [path for artifact, path in jars if artifact == "utils"]
+            self.assertEqual(len(utils), 1)
+            self.assertIn("m2", utils[0].parts)
+            self.assertTrue(hdj.jar_has_noscript_shield(utils[0]))
+
     def test_container_not_running(self):
         with tempfile.TemporaryDirectory() as td:
             root = _layout(Path(td))
@@ -328,7 +379,7 @@ class TestDeploy(unittest.TestCase):
             )
             self.assertEqual(rc, hdj.EXIT_JAR_NOT_FOUND)
 
-    def test_copies_three_jars_and_does_not_docker_restart(self):
+    def test_copies_snapshots_and_does_not_docker_restart(self):
         with tempfile.TemporaryDirectory() as td:
             root = _layout(Path(td))
             calls, fake = _stub_subprocess(
@@ -338,13 +389,14 @@ class TestDeploy(unittest.TestCase):
                 rc = hdj.deploy(root, dry_run=False, restart_jetty=False)
             self.assertEqual(rc, hdj.EXIT_OK)
             cp = [c for c in calls if c[:2] == ["docker", "cp"]]
-            self.assertEqual(len(cp), 7)
+            self.assertEqual(len(cp), 8)
             dests = [c[-1] for c in cp]
             self.assertTrue(all("WEB-INF/lib/" in d.replace("\\", "/") for d in dests))
             self.assertTrue(any("perc-system-8.2.0-SNAPSHOT.jar" in d for d in dests))
             self.assertTrue(any("rest-8.2.0-SNAPSHOT.jar" in d for d in dests))
             self.assertTrue(any("sitemanage-8.2.0-SNAPSHOT.jar" in d for d in dests))
             self.assertTrue(any("extensions-workflow-8.2.0-SNAPSHOT.jar" in d for d in dests))
+            self.assertTrue(any("utils-8.2.0-SNAPSHOT.jar" in d for d in dests))
             self.assertTrue(any("commons-email2-core-2.0.0-M1.jar" in d for d in dests))
             self.assertTrue(any("commons-email2-jakarta-2.0.0-M1.jar" in d for d in dests))
             self.assertTrue(any("jakarta.mail-2.0.2.jar" in d for d in dests))
@@ -354,6 +406,27 @@ class TestDeploy(unittest.TestCase):
                 any("perc-system-old.jar" in c[-1] for c in rms),
                 msg=rms,
             )
+
+    def test_does_not_remove_aws_sdk_utils_jars(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = _layout(Path(td))
+            calls, fake = _stub_subprocess(
+                lib_listing=[
+                    "utils-2.50.2.jar",
+                    "utils-lite-2.50.2.jar",
+                    "utils-8.1.0-SNAPSHOT.jar",
+                    "json-utils-2.50.2.jar",
+                ]
+            )
+            with unittest.mock.patch.object(hdj.subprocess, "run", side_effect=fake):
+                rc = hdj.deploy(root, dry_run=False, restart_jetty=False)
+            self.assertEqual(rc, hdj.EXIT_OK)
+            rms = [c for c in calls if c[:2] == ["docker", "exec"] and "rm" in c]
+            removed = [c[-1] for c in rms]
+            self.assertTrue(any(path.endswith("utils-8.1.0-SNAPSHOT.jar") for path in removed))
+            self.assertFalse(any(path.endswith("utils-2.50.2.jar") for path in removed))
+            self.assertFalse(any(path.endswith("utils-lite-2.50.2.jar") for path in removed))
+            self.assertFalse(any(path.endswith("json-utils-2.50.2.jar") for path in removed))
 
     def test_removes_stale_commons_email1(self):
         with tempfile.TemporaryDirectory() as td:
