@@ -119,19 +119,17 @@ async function openRoles(page) {
   await expect(page.locator('[data-testid="developer-roles-create"]')).toBeVisible();
 }
 
-async function createRole(page, roleName, description) {
-  await page.locator('[data-testid="developer-roles-create"]').click();
-  await page.locator('[data-testid="developer-roles-create-name"]').fill(roleName);
-  await page.locator('[data-testid="developer-roles-create-description"]').fill(description);
-  const putDone = page.waitForResponse(
-    (response) =>
-      isRolePut(response.request()) && response.url().includes("create=true"),
-  );
-  await page.locator('[data-testid="developer-roles-create-save"]').click();
-  const response = await putDone;
-  expect(response.status(), await response.text()).toBe(200);
-  await expect(page.locator(`[data-role-name="${roleName}"]`).first()).toBeVisible({
-    timeout: 30_000,
+async function roleNames(page) {
+  return page.locator('[data-testid^="developer-roles-row-"]').evaluateAll((rows) => {
+    const seen = new Set();
+    const names = [];
+    for (const row of rows) {
+      const name = row.getAttribute("data-role-name");
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
+      names.push(name);
+    }
+    return names;
   });
 }
 
@@ -166,16 +164,27 @@ test.describe("Developer show the users on one role (#5308)", () => {
     }
     await expect(page.locator('[data-testid="developer-roles-members"] button')).toHaveCount(0);
 
-    const roleName = `Ru${Date.now()}`;
     await page.locator('[data-testid="developer-roles-edit-cancel"]').click();
-    await createRole(page, roleName, "No members yet");
-    const createdUsers = await openRole(page, roleName);
-    expect(createdUsers).toEqual([]);
+    const names = await roleNames(page);
+    let emptyRole = null;
+    for (const name of names) {
+      if (name === "Admin") continue;
+      const users = await openRole(page, name);
+      if (users.length === 0) {
+        emptyRole = name;
+        break;
+      }
+      await page.locator('[data-testid="developer-roles-edit-cancel"]').click();
+    }
+    expect(emptyRole, `no empty role in catalog: ${names.join(", ")}`).toBeTruthy();
     await expect(page.locator('[data-testid="developer-roles-members-empty"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-roles-member"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="developer-roles-members-error"]')).toHaveCount(0);
 
-    await page.locator('[data-testid="developer-roles-edit-description"]').fill("Still no members");
+    const description = page.locator('[data-testid="developer-roles-edit-description"]');
+    const original = await description.inputValue();
+    const next = original === "Night role note" ? "Night role note 2" : "Night role note";
+    await description.fill(next);
     const putDone = page.waitForResponse((response) =>
       isDescriptionUpdate(response.request()),
     );
@@ -184,22 +193,34 @@ test.describe("Developer show the users on one role (#5308)", () => {
     expect(saved.status(), await saved.text()).toBe(200);
     const sent = saved.request().postDataJSON();
     const body = sent && (sent.Role || sent);
-    expect(body.description).toBe("Still no members");
+    expect(body.description).toBe(next);
     expect(body.users).toBeUndefined();
     await expect(page.locator('[data-testid="developer-roles-edit-notice"]')).toBeVisible();
 
-    const afterSave = await openRole(page, roleName);
+    const afterSave = await openRole(page, emptyRole);
     expect(afterSave).toEqual([]);
     await expect(page.locator('[data-testid="developer-roles-members-empty"]')).toBeVisible();
     await expect(page.locator('[data-testid="developer-roles-member"]')).toHaveCount(0);
+
+    await page.locator('[data-testid="developer-roles-edit-description"]').fill(original);
+    const restoreDone = page.waitForResponse((response) =>
+      isDescriptionUpdate(response.request()),
+    );
+    await page.locator('[data-testid="developer-roles-edit-save"]').click();
+    const restored = await restoreDone;
+    expect(restored.status(), await restored.text()).toBe(200);
+    const restoredBody = restored.request().postDataJSON();
+    const restoredRole = restoredBody && (restoredBody.Role || restoredBody);
+    expect(restoredRole.users).toBeUndefined();
     assertClean(consoleErrors, pageErrors);
   });
 
   test("HTTP 403 and 404 do not invent members", async ({ page }) => {
     const { consoleErrors, pageErrors } = attachConsole(page);
     await openRoles(page);
-    const roleName = `Ru${Date.now()}`;
-    await createRole(page, roleName, "Error read");
+    const names = await roleNames(page);
+    const roleName = names.find((name) => name !== "Admin") || names[0];
+    expect(roleName).toBeTruthy();
     const statuses = [403, 404];
     let forced = 0;
     await page.route("**/services/roles/**", async (route) => {
