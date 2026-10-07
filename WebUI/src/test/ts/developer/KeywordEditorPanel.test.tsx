@@ -318,3 +318,172 @@ describe("KeywordEditorPanel add one choice", () => {
     });
   });
 });
+
+const withTwoChoices: KeywordSummary = {
+  ...loaded,
+  choices: [
+    { label: "High", value: "high", description: "top", sequence: 1 },
+    { label: "Low", value: "low", description: "bottom", sequence: 2 },
+  ],
+};
+
+function removeButton(label: string): HTMLButtonElement {
+  const button = document.querySelector(
+    `[data-testid="developer-kw-choice-remove"][data-choice-label="${label}"]`,
+  );
+  if (!(button instanceof HTMLButtonElement)) {
+    throw new Error(`missing remove button for ${label}`);
+  }
+  return button;
+}
+
+describe("KeywordEditorPanel remove one choice", () => {
+  beforeEach(() => {
+    (window as unknown as { I18N?: { message: (key: string) => string } }).I18N = {
+      message: (key: string) => key,
+    };
+    getKeyword.mockReset();
+    updateKeyword.mockReset();
+    createKeyword.mockReset();
+    deleteKeyword.mockReset();
+    getKeyword.mockResolvedValue(withTwoChoices);
+    updateKeyword.mockResolvedValue(withTwoChoices);
+  });
+
+  it("does not write when remove is cancelled", async () => {
+    renderEditor(withTwoChoices);
+    await waitFor(() => {
+      expect(removeButton("Low").disabled).toBe(false);
+    });
+    fireEvent.click(removeButton("Low"));
+    expect(screen.getByTestId("developer-catalog-confirm-body").textContent).toContain("Low");
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(screen.getAllByTestId("developer-kw-choice")).toHaveLength(2);
+    expect(screen.queryByTestId("developer-kw-remove-choice-notice")).toBeNull();
+  });
+
+  it("drops one choice only after the keyword update succeeds", async () => {
+    updateKeyword.mockImplementation(async (_id: string, body: KeywordSummary) => body);
+    renderEditor(withTwoChoices);
+    await waitFor(() => {
+      expect(removeButton("Low").disabled).toBe(false);
+    });
+    fireEvent.click(removeButton("Low"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getAllByTestId("developer-kw-choice")).toHaveLength(1);
+    });
+    expect(updateKeyword).toHaveBeenCalledWith(
+      "42",
+      expect.objectContaining({
+        label: "Priority",
+        description: "Item priority",
+        sequence: 4,
+        choices: [{ label: "High", value: "high", description: "top", sequence: 1 }],
+      }),
+    );
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-kw-remove-choice-notice").textContent).toBe(
+      DEV_MSG.KW_REMOVE_CHOICE_SAVED,
+    );
+    expect(screen.getByTestId("developer-kw-choice").getAttribute("data-choice-label")).toBe(
+      "High",
+    );
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe(
+      "Priority",
+    );
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+    expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("4");
+    expect(screen.getByTestId("developer-kw-delete")).toBeTruthy();
+  });
+
+  it.each([400, 403, 409])(
+    "keeps previous choices when remove returns HTTP %s",
+    async (status) => {
+      updateKeyword.mockRejectedValue({
+        status,
+        statusText: "no",
+        body: {
+          message: `forced ${status}`,
+          label: "Renamed",
+          choices: [{ label: "Invented", value: "invented", sequence: 9 }],
+        },
+      });
+      renderEditor(withTwoChoices);
+      await waitFor(() => {
+        expect(removeButton("Low").disabled).toBe(false);
+      });
+      fireEvent.click(removeButton("Low"));
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-kw-remove-choice-error")).toBeTruthy();
+      });
+      expect(screen.getByTestId("developer-kw-remove-choice-error").textContent).toContain(
+        `forced ${status}`,
+      );
+      expect(screen.getAllByTestId("developer-kw-choice")).toHaveLength(2);
+      expect(screen.getByTestId("developer-kw-saved-choices").textContent).not.toContain(
+        "Invented",
+      );
+      expect(screen.queryByTestId("developer-kw-remove-choice-notice")).toBeNull();
+      expect(deleteKeyword).not.toHaveBeenCalled();
+    },
+  );
+
+  it("clears the last choice without deleting the keyword", async () => {
+    getKeyword.mockResolvedValue(loaded);
+    updateKeyword.mockImplementation(async (_id: string, body: KeywordSummary) => ({
+      ...loaded,
+      choices: body.choices,
+    }));
+    renderEditor();
+    await waitFor(() => {
+      expect(removeButton("High").disabled).toBe(false);
+    });
+    fireEvent.click(removeButton("High"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-choices-empty")).toBeTruthy();
+    });
+    expect(updateKeyword).toHaveBeenCalledWith(
+      "42",
+      expect.objectContaining({
+        label: "Priority",
+        description: "Item priority",
+        sequence: 4,
+        choices: [],
+      }),
+    );
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(screen.queryAllByTestId("developer-kw-choice")).toHaveLength(0);
+    expect(screen.getByTestId("developer-kw-editor")).toBeTruthy();
+    expect(screen.getByTestId("developer-kw-delete")).toBeTruthy();
+  });
+
+  it("does not replace the list when a 200 changes the keyword label", async () => {
+    updateKeyword.mockResolvedValue({
+      ...withTwoChoices,
+      label: "Renamed",
+      choices: [{ label: "High", value: "high", description: "top", sequence: 1 }],
+    });
+    renderEditor(withTwoChoices);
+    await waitFor(() => {
+      expect(removeButton("Low").disabled).toBe(false);
+    });
+    fireEvent.click(removeButton("Low"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-remove-choice-error").textContent).toBe(
+        DEV_MSG.KW_REMOVE_CHOICE_ERROR,
+      );
+    });
+    expect(screen.getAllByTestId("developer-kw-choice")).toHaveLength(2);
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe(
+      "Priority",
+    );
+  });
+});

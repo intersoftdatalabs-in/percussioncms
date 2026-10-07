@@ -31,6 +31,7 @@ import { panelErrMsg } from "./errors";
 import {
   asKeywordChoices,
   keywordUpdateForAddedChoice,
+  keywordUpdateForRemovedChoice,
   savedChoicesAfterAdd,
   unwrapKeywordPayload,
 } from "./keywordChoiceAdd";
@@ -84,6 +85,21 @@ function addChoiceFailureMessage(err: unknown): string {
   return panelErrMsg(err, DEV_MSG.KW_ADD_CHOICE_ERROR);
 }
 
+function removeChoiceFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.KW_REMOVE_CHOICE_FORBIDDEN);
+    }
+    if (err.status === 409) {
+      return panelErrMsg(err, DEV_MSG.KW_REMOVE_CHOICE_CONFLICT);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.KW_REMOVE_CHOICE_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.KW_REMOVE_CHOICE_ERROR);
+}
+
 const fieldStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -132,10 +148,16 @@ export function KeywordEditorPanel({
   const [addError, setAddError] = useState<string | null>(null);
   const [addNotice, setAddNotice] = useState<string | null>(null);
   const addInflight = useRef(false);
+  const [removeBusy, setRemoveBusy] = useState(false);
+  const [removeError, setRemoveError] = useState<string | null>(null);
+  const [removeNotice, setRemoveNotice] = useState<string | null>(null);
+  const removeInflight = useRef(false);
+  const [pendingRemoveIndex, setPendingRemoveIndex] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmKind, setConfirmKind] = useState<null | "keyword" | "choice">(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const choiceWriteBusy = addBusy || removeBusy;
 
   useEffect(() => {
     if (!id || isNew) return;
@@ -168,7 +190,7 @@ export function KeywordEditorPanel({
   }
 
   async function handleSave() {
-    if (addBusy || addInflight.current) return;
+    if (choiceWriteBusy || addInflight.current || removeInflight.current || confirmKind) return;
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -205,7 +227,17 @@ export function KeywordEditorPanel({
   }
 
   async function handleAddChoice(): Promise<void> {
-    if (!id || isNew || !serverKeyword || !detailReady || addInflight.current || busy) {
+    if (
+      !id ||
+      isNew ||
+      !serverKeyword ||
+      !detailReady ||
+      addInflight.current ||
+      removeInflight.current ||
+      removeBusy ||
+      busy ||
+      confirmKind
+    ) {
       return;
     }
     const sent = keywordUpdateForAddedChoice(serverKeyword, listedChoices, {
@@ -254,15 +286,97 @@ export function KeywordEditorPanel({
     }
   }
 
-  function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
-    if (!id || isNew || addBusy) return;
+  function requestRemoveChoice(index: number, ev: React.MouseEvent<HTMLElement>): void {
+    if (
+      !id ||
+      isNew ||
+      !detailReady ||
+      choiceWriteBusy ||
+      busy ||
+      confirmKind === "keyword" ||
+      !Number.isInteger(index) ||
+      index < 0 ||
+      index >= listedChoices.length
+    ) {
+      return;
+    }
     captureDialogOpener(ev.currentTarget);
-    setConfirmOpen(true);
+    setPendingRemoveIndex(index);
+    setConfirmKind("choice");
+    setRemoveError(null);
+  }
+
+  function cancelConfirm(): void {
+    if (busy || removeBusy) return;
+    setConfirmKind(null);
+    setPendingRemoveIndex(null);
+  }
+
+  async function handleRemoveChoice(): Promise<void> {
+    const index = pendingRemoveIndex;
+    setConfirmKind(null);
+    setPendingRemoveIndex(null);
+    if (
+      !id ||
+      isNew ||
+      !serverKeyword ||
+      !detailReady ||
+      index == null ||
+      removeInflight.current ||
+      addBusy ||
+      busy
+    ) {
+      return;
+    }
+    const sent = keywordUpdateForRemovedChoice(serverKeyword, listedChoices, index);
+    if (sent === "missing") {
+      setRemoveError(DEV_MSG.KW_REMOVE_CHOICE_ERROR);
+      setRemoveNotice(null);
+      return;
+    }
+    removeInflight.current = true;
+    setRemoveBusy(true);
+    setRemoveError(null);
+    setRemoveNotice(null);
+    const previous = listedChoices;
+    try {
+      const payload = await updateKeyword(id, sent);
+      const accepted = savedChoicesAfterAdd(sent, payload);
+      if (!accepted) {
+        setListedChoices(previous);
+        setRemoveError(DEV_MSG.KW_REMOVE_CHOICE_ERROR);
+        setRemoveNotice(null);
+        return;
+      }
+      const saved = unwrapKeywordPayload(payload);
+      if (saved) {
+        applyLoadedKeyword({ ...saved, choices: accepted });
+      } else {
+        setListedChoices(accepted);
+        setChoicesText(choicesToText(accepted));
+      }
+      setRemoveNotice(DEV_MSG.KW_REMOVE_CHOICE_SAVED);
+    } catch (err: unknown) {
+      setListedChoices(previous);
+      setRemoveError(removeChoiceFailureMessage(err));
+      setRemoveNotice(null);
+    } finally {
+      removeInflight.current = false;
+      setRemoveBusy(false);
+    }
+  }
+
+  function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
+    if (!id || isNew || choiceWriteBusy || confirmKind === "choice") return;
+    captureDialogOpener(ev.currentTarget);
+    setPendingRemoveIndex(null);
+    setConfirmKind("keyword");
   }
 
   async function handleDelete() {
     if (!id || isNew) return;
-    setConfirmOpen(false);
+    setConfirmKind(null);
+    setPendingRemoveIndex(null);
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -351,6 +465,9 @@ export function KeywordEditorPanel({
           <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>
             {DEV_MSG.KW_ADD_CHOICE_HINT}
           </p>
+          <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>
+            {DEV_MSG.KW_REMOVE_CHOICE_HINT}
+          </p>
           {addError ? (
             <div role="alert" data-testid="developer-kw-add-choice-error" style={errorAlert}>
               {addError}
@@ -359,6 +476,16 @@ export function KeywordEditorPanel({
           {addNotice ? (
             <div data-testid="developer-kw-add-choice-notice" style={{ color: "#276749" }}>
               {addNotice}
+            </div>
+          ) : null}
+          {removeError ? (
+            <div role="alert" data-testid="developer-kw-remove-choice-error" style={errorAlert}>
+              {removeError}
+            </div>
+          ) : null}
+          {removeNotice ? (
+            <div data-testid="developer-kw-remove-choice-notice" style={{ color: "#276749" }}>
+              {removeNotice}
             </div>
           ) : null}
           {listedChoices.length === 0 ? (
@@ -374,9 +501,38 @@ export function KeywordEditorPanel({
                     data-testid="developer-kw-choice"
                     data-choice-label={choiceLabel}
                     data-choice-value={choiceValue}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      marginBottom: "6px",
+                    }}
                   >
-                    {choiceLabel}
-                    {choiceValue ? ` (${choiceValue})` : ""}
+                    <span>
+                      {choiceLabel}
+                      {choiceValue ? ` (${choiceValue})` : ""}
+                    </span>
+                    <button
+                      type="button"
+                      data-testid="developer-kw-choice-remove"
+                      data-choice-label={choiceLabel}
+                      aria-label={DEV_MSG.KW_REMOVE_CHOICE_ACTION.replace(
+                        "{0}",
+                        choiceLabel || String(index + 1),
+                      )}
+                      disabled={choiceWriteBusy || busy || !detailReady || confirmKind != null}
+                      onClick={(ev) => requestRemoveChoice(index, ev)}
+                      style={{
+                        padding: "4px 10px",
+                        background: "transparent",
+                        color: "#c53030",
+                        border: "1px solid #c53030",
+                        borderRadius: "4px",
+                        cursor: choiceWriteBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {DEV_MSG.KW_REMOVE_CHOICE}
+                    </button>
                   </li>
                 );
               })}
@@ -408,7 +564,11 @@ export function KeywordEditorPanel({
               data-testid="developer-kw-add-choice-save"
               aria-label={DEV_MSG.KW_ADD_CHOICE_SAVE}
               disabled={
-                addBusy || busy || !detailReady || draftLabel.trim().length === 0
+                choiceWriteBusy ||
+                busy ||
+                !detailReady ||
+                confirmKind != null ||
+                draftLabel.trim().length === 0
               }
               onClick={() => void handleAddChoice()}
               style={{
@@ -425,7 +585,7 @@ export function KeywordEditorPanel({
             <button
               type="button"
               data-testid="developer-kw-add-choice-cancel"
-              disabled={addBusy}
+              disabled={choiceWriteBusy}
               onClick={cancelAddChoice}
               style={{
                 padding: "8px 16px",
@@ -446,7 +606,7 @@ export function KeywordEditorPanel({
           type="button"
           data-testid="developer-kw-save"
           aria-label="Save keyword"
-          disabled={busy || addBusy || !label.trim()}
+          disabled={busy || choiceWriteBusy || confirmKind != null || !label.trim()}
           onClick={() => void handleSave()}
           style={{
             padding: "8px 16px",
@@ -479,7 +639,7 @@ export function KeywordEditorPanel({
             type="button"
             data-testid="developer-kw-delete"
             aria-label="Delete keyword"
-            disabled={busy}
+            disabled={busy || choiceWriteBusy || confirmKind === "choice"}
             onClick={requestDelete}
             style={{
               padding: "8px 16px",
@@ -496,11 +656,26 @@ export function KeywordEditorPanel({
         ) : null}
       </div>
       <CatalogConfirmDialog
-        open={confirmOpen}
-        busy={busy}
-        message={DEV_MSG.KW_DELETE_CONFIRM}
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={() => void handleDelete()}
+        open={confirmKind != null}
+        busy={busy || removeBusy}
+        message={
+          confirmKind === "choice"
+            ? DEV_MSG.KW_REMOVE_CHOICE_CONFIRM.replace(
+                "{0}",
+                pendingRemoveIndex != null
+                  ? listedChoices[pendingRemoveIndex]?.label || ""
+                  : "",
+              )
+            : DEV_MSG.KW_DELETE_CONFIRM
+        }
+        onCancel={cancelConfirm}
+        onConfirm={() => {
+          if (confirmKind === "choice") {
+            void handleRemoveChoice();
+          } else {
+            void handleDelete();
+          }
+        }}
       />
     </div>
   );

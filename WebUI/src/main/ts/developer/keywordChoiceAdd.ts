@@ -163,6 +163,31 @@ function choiceForUpdate(choice: KeywordChoiceSummary): KeywordChoiceSummary {
   };
 }
 
+export type RemoveChoiceRejection = "missing";
+
+/**
+ * Body for the existing keyword update that drops one choice by list index.
+ * Keyword label, description, and sequence are copied from the loaded keyword.
+ * The other choices keep their label, value, description, and sequence.
+ * An empty list is a valid body: it clears choices and does not delete the keyword.
+ * Returns a rejection instead of a body when the index is not a current choice.
+ */
+export function keywordUpdateForRemovedChoice(
+  baseline: Pick<KeywordSummary, "label" | "description" | "sequence">,
+  existing: KeywordChoiceSummary[],
+  index: number,
+): KeywordSummary | RemoveChoiceRejection {
+  if (!Number.isInteger(index) || index < 0 || index >= existing.length) {
+    return "missing";
+  }
+  return {
+    label: baseline.label,
+    description: baseline.description,
+    sequence: baseline.sequence,
+    choices: existing.filter((_, i) => i !== index).map(choiceForUpdate),
+  };
+}
+
 /**
  * Body for the existing keyword update that appends one choice.
  * Keyword label, description, and sequence are copied from the loaded keyword.
@@ -198,17 +223,19 @@ export function keywordUpdateForAddedChoice(
 /**
  * Choices to show after a successful add, or null when the response must not
  * replace the previous list (metadata changed, a previous choice is missing,
- * or the new choice is not present exactly once).
+ * or the new choice is not present exactly once). An empty sent list is
+ * accepted only when the response is also empty, so removing the last choice
+ * can clear the list without treating a partial body as success.
  */
 export function savedChoicesAfterAdd(
   sent: KeywordSummary,
   payload: unknown,
 ): KeywordChoiceSummary[] | null {
   const saved = unwrapKeywordPayload(payload);
-  const sentChoices = sent.choices ?? [];
-  if (!saved || sentChoices.length === 0) {
+  if (!saved) {
     return null;
   }
+  const sentChoices = sent.choices ?? [];
   if (!sameOptionalText(sent.label ?? null, saved.label ?? null)) {
     return null;
   }
@@ -221,6 +248,9 @@ export function savedChoicesAfterAdd(
   const next = saved.choices ?? [];
   if (next.length !== sentChoices.length) {
     return null;
+  }
+  if (sentChoices.length === 0) {
+    return next;
   }
   const remaining = new Map<string, number>();
   for (const choice of next) {

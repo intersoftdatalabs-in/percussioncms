@@ -123,6 +123,19 @@ label) is not sent, so it does not add a second row. HTTP **400**, **403**, and 
 errors: the editor keeps the previous choices and does not apply a choice list from the error
 body. Create, label or description save, and delete stay on this resource and are unchanged.
 
+### Remove one choice
+
+**Developer → Keywords** removes one choice with the existing `PUT /services/keywords/{id}`
+(the same update used to add a choice or to save a label, description, or sequence). The
+body is wrapped as `Keyword`. It keeps the stored keyword `label`, `description`, and
+`sequence`, and sends `choices` as the previous choices without that one choice. The
+removed choice disappears only when that update succeeds and the response lists exactly
+the remaining choices. Cancel is not a request. HTTP **400**, **403**, and **409** are
+errors: the editor keeps the previous choices and does not apply a choice list from the
+error body. Removing the last choice sends `"choices": []`. That clears the list and does
+not delete the keyword (`DELETE /services/keywords/{id}` is a separate action). Add,
+label or description save, and delete stay on this resource and are unchanged.
+
 ## Locales (design catalog)
 
 CMS locale definitions (Workbench **Locales** / content design) are exposed under `/services/locales`.
