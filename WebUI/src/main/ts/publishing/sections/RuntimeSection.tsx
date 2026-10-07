@@ -338,7 +338,7 @@ export function RuntimeSection({
         </label>
       </div>
 
-      {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
+      {loading && editions.length === 0 && <p>{message(MSG.PUBLISH_LOADING)}</p>}
       {(error ?? loadError) && (
         <p style={errorStyle} role="alert">
           {error ?? loadError}
@@ -351,7 +351,10 @@ export function RuntimeSection({
           {message(RT.EDITIONS_EMPTY)}
         </p>
       )}
-      {!loading && editions.length > 0 && visibleEditions.length === 0 && (
+      {/* A refresh sets loading again after the first list arrives (publish
+          server id, Refresh). Keep the no-match empty state; do not replace
+          it with Loading or drop the name filter. */}
+      {editions.length > 0 && visibleEditions.length === 0 && (
         <p style={emptyStyle} data-testid="runtime-editions-filter-empty">
           {message(MSG.PUBLISH_EMPTY_RUNTIME_NAME_FILTER)}
         </p>

@@ -320,6 +320,55 @@ test.describe("PublishingShell Runtime start/stop", () => {
     await filter.fill("no-such-edition");
     await expect(page.getByTestId("runtime-editions-filter-empty")).toBeVisible();
     await expect(page.getByRole("alert")).toHaveCount(0);
+
+    let markRefreshStarted = () => {};
+    const refreshStarted = new Promise((resolve) => {
+      markRefreshStarted = resolve;
+    });
+    let releaseRefresh = () => {};
+    const refreshHung = new Promise((resolve) => {
+      releaseRefresh = resolve;
+    });
+    await page.unroute("**/services/sitemanage/publishingdesign/runtime/editions?**");
+    await page.route(
+      "**/services/sitemanage/publishingdesign/runtime/editions?**",
+      async (route) => {
+        if (route.request().method() !== "GET") {
+          return route.continue();
+        }
+        markRefreshStarted();
+        await refreshHung;
+        return route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            {
+              editionId: "10",
+              name: "H2Full",
+              runningJobId: 0,
+              pubServerId: "7",
+            },
+            {
+              editionId: "11",
+              name: "H2Demand",
+              runningJobId: 0,
+              pubServerId: "7",
+            },
+          ]),
+        });
+      },
+    );
+    await page.getByRole("button", { name: "Refresh" }).click();
+    await refreshStarted;
+    await expect(page.getByTestId("runtime-editions-filter-empty")).toBeVisible();
+    await expect(page.getByTestId("runtime-edition-filter")).toHaveValue(
+      "no-such-edition",
+    );
+    await expect(page.getByText("Loading", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    releaseRefresh();
+    await expect(page.getByTestId("runtime-editions-filter-empty")).toBeVisible();
+
     await filter.fill("");
     await expect(page.getByTestId("runtime-start-10")).toBeVisible();
     await expect(page.getByTestId("runtime-start-11")).toBeVisible();

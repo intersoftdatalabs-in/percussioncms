@@ -972,7 +972,9 @@ started/cancelled (or the job state) plus job id. Listing may pass `pubServerId`
 editions on the selected server appear. **Filter editions by name** narrows that
 loaded list (case-insensitive substring). Clearing the filter shows every edition
 again. No name match is an empty state, not an error; start and stop errors stay
-in the alert. **Start** and **Stop** still act only on the edition whose button
+in the alert. **Refresh** (or the list reload that runs when the publish server
+finishes loading) does not clear the name filter and does not replace that empty
+state with Loading while the new list is still on the way. **Start** and **Stop** still act only on the edition whose button
 you use. Design edition save and Sites list filter are separate sections. Runtime chrome (site, publish server, refresh, idle, start,
 demand publish, content ids, queue demand, clear site record, purge log, and the
 related prompts) is loaded from the publishing message catalog. The default
