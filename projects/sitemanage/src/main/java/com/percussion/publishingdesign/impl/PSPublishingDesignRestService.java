@@ -185,6 +185,29 @@ public class PSPublishingDesignRestService {
 
   static final String LOCATION_SCHEME_DESCRIPTION_TOO_LONG =
       "Location scheme description must be 255 characters or fewer";
+  /** Matches {@code RXLOCATIONSCHEMEPARAMS.NAME} VARCHAR(50). */
+  static final int MAX_LOCATION_SCHEME_PARAMETER_NAME_LENGTH = 50;
+
+  /** Matches {@code RXLOCATIONSCHEMEPARAMS.TYPE} VARCHAR(50). */
+  static final int MAX_LOCATION_SCHEME_PARAMETER_TYPE_LENGTH = 50;
+
+  static final String LOCATION_SCHEME_PARAMETER_ONE_REQUIRED =
+      "Add one location scheme parameter at a time";
+
+  static final String LOCATION_SCHEME_PARAMETER_NAME_REQUIRED = "Parameter name is required";
+
+  static final String LOCATION_SCHEME_PARAMETER_NAME_TOO_LONG =
+      "Parameter name must be 50 characters or fewer";
+
+  static final String LOCATION_SCHEME_PARAMETER_TYPE_REQUIRED = "Parameter type is required";
+
+  static final String LOCATION_SCHEME_PARAMETER_TYPE_TOO_LONG =
+      "Parameter type must be 50 characters or fewer";
+
+  static final String LOCATION_SCHEME_PARAMETER_VALUE_REQUIRED = "Parameter value is required";
+
+  static final String LOCATION_SCHEME_PARAMETER_EXISTS =
+      "Parameter name already exists on this scheme";
   static final String CONTEXT_NAME_CONFLICT = "Publishing context name already exists";
   /** Matches {@code RXCONTEXT.CONTEXTNAME} VARCHAR(50). */
   static final int MAX_CONTEXT_NAME_LENGTH = 50;
@@ -1221,7 +1244,8 @@ public class PSPublishingDesignRestService {
       List<IPSLocationScheme> schemes = siteManager.findSchemesByContextId(ctxGuid);
       List<PSLocationSchemeSummary> out = new ArrayList<>();
       for (IPSLocationScheme scheme : schemes) {
-        out.add(toSchemeSummary(scheme, false));
+        // Include parameters so Design can list a parameter that was stored.
+        out.add(toSchemeSummary(scheme, true));
       }
       return out;
     } catch (WebApplicationException e) {
@@ -1316,7 +1340,12 @@ public class PSPublishingDesignRestService {
    * generator leaves it stored so a rename does not change it. A description-only body leaves the
    * name, generator, content type, template, context, and parameters stored. A blank description
    * clears it. A description longer than {@link #MAX_LOCATION_SCHEME_DESCRIPTION_LENGTH} is HTTP
-   * 400 and writes nothing. Omitting the description leaves it stored.
+   * 400 and writes nothing. Omitting the description leaves it stored. When {@code addParameter}
+   * is true, the body carries exactly one parameter to append. Stored parameters are not removed
+   * or rewritten. Name, generator, description, content type, and template change only when those
+   * fields are present. A blank parameter name, type, or value, or a name or type longer than its
+   * column, is HTTP 400 and writes nothing. A parameter name that already exists on the scheme is
+   * HTTP 409 and writes nothing.
    */
   @PUT
   @Path("/schemes/{schemeId}")
@@ -1334,6 +1363,11 @@ public class PSPublishingDesignRestService {
       IPSLocationScheme scheme =
           siteManager.loadSchemeModifiable(
               guidManager.makeGuid(schemeId, PSTypeEnum.LOCATION_SCHEME));
+      // Reject a bad add before any field is written so 400/409 leaves the stored row.
+      SchemeParameterAddition addition = null;
+      if (Boolean.TRUE.equals(body.getAddParameter())) {
+        addition = prepareSchemeParameterAddition(scheme, body.getParameters());
+      }
       // Reject a bad generator before any field is written so 400 leaves the stored row.
       // A null generator is omitted (rename and other partial updates) and is not applied.
       String nextGenerator = null;
@@ -1388,7 +1422,12 @@ public class PSPublishingDesignRestService {
       if (!isBlank(body.getContextId())) {
         scheme.setContextId(guidManager.makeGuid(body.getContextId(), PSTypeEnum.CONTEXT));
       }
-      applySchemeParameters(scheme, body.getParameters(), false);
+      if (addition != null) {
+        scheme.addParameter(
+            addition.name(), addition.sequence(), addition.type(), addition.value());
+      } else {
+        applySchemeParameters(scheme, body.getParameters(), false);
+      }
       siteManager.saveScheme(scheme);
       return toSchemeSummary(scheme, true);
     } catch (PSNotFoundException e) {
@@ -1788,8 +1827,70 @@ public class PSPublishingDesignRestService {
   }
 
   /**
+   * Validate one parameter to append. Does not change the scheme. Blank name, type, or value, a
+   * name or type longer than its column, or any count other than one is HTTP 400. A name already
+   * stored on the scheme is HTTP 409.
+   */
+  private SchemeParameterAddition prepareSchemeParameterAddition(
+      IPSLocationScheme scheme, List<PSSchemeParameter> parameters) {
+    if (parameters == null || parameters.size() != 1 || parameters.get(0) == null) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_ONE_REQUIRED);
+    }
+    PSSchemeParameter incoming = parameters.get(0);
+    String name = incoming.getName() == null ? "" : incoming.getName().trim();
+    String value = incoming.getValue() == null ? "" : incoming.getValue().trim();
+    String type = incoming.getType() == null ? "" : incoming.getType().trim();
+    if (name.isEmpty()) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_NAME_REQUIRED);
+    }
+    if (name.length() > MAX_LOCATION_SCHEME_PARAMETER_NAME_LENGTH) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_NAME_TOO_LONG);
+    }
+    if (type.isEmpty()) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_TYPE_REQUIRED);
+    }
+    if (type.length() > MAX_LOCATION_SCHEME_PARAMETER_TYPE_LENGTH) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_TYPE_TOO_LONG);
+    }
+    if (value.isEmpty()) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_VALUE_REQUIRED);
+    }
+    List<String> existingNames = scheme.getParameterNames();
+    if (existingNames != null) {
+      for (String existingName : existingNames) {
+        if (existingName != null && name.equals(existingName.trim())) {
+          throw conflict(LOCATION_SCHEME_PARAMETER_EXISTS);
+        }
+      }
+    }
+    return new SchemeParameterAddition(name, nextParameterSequence(scheme), type, value);
+  }
+
+  /** Next sequence is one past the highest stored sequence, or zero when none are stored. */
+  private int nextParameterSequence(IPSLocationScheme scheme) {
+    int next = 0;
+    List<String> existingNames = scheme.getParameterNames();
+    if (existingNames == null) {
+      return next;
+    }
+    for (String existingName : existingNames) {
+      if (existingName == null) {
+        continue;
+      }
+      Integer sequence = scheme.getParameterSequence(existingName);
+      if (sequence != null && sequence >= next && sequence < Integer.MAX_VALUE) {
+        next = sequence + 1;
+      }
+    }
+    return next;
+  }
+
+  private record SchemeParameterAddition(String name, int sequence, String type, String value) {}
+
+  /**
    * Replace or append scheme parameters. When {@code replaceAll} is false and parameters is null,
    * leaves existing params unchanged; when non-null, clears unknown names then sets listed ones.
+   * An add-one update does not use this path.
    */
   private void applySchemeParameters(
       IPSLocationScheme scheme, List<PSSchemeParameter> parameters, boolean isCreate) {

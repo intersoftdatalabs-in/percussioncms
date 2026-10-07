@@ -76,6 +76,11 @@ export interface LocationSchemeSummary {
   copy?: boolean;
   schemeType?: string;
   parameters?: SchemeParameter[];
+  /**
+   * Update-only. When true, {@code parameters} is exactly one parameter to
+   * append. The server does not replace the stored set.
+   */
+  addParameter?: boolean;
 }
 
 export interface SiteDesignSummary {
@@ -644,6 +649,9 @@ export function wrapLocationScheme(body: LocationSchemeSummary): {
   }
   if (body.copy) {
     wire.copy = true;
+  }
+  if (body.addParameter) {
+    wire.addParameter = true;
   }
   if (body.parameters && body.parameters.length > 0) {
     wire.schemeParameter = body.parameters;
