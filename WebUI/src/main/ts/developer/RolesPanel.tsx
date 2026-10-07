@@ -20,18 +20,21 @@ import { isApiError } from "../api/client";
 import {
   addRoleUser,
   browseRoles,
+  copyOneRole,
   removeRoleUser,
   createRole,
   deleteRole,
   isRoleCreateReady,
   isSystemRoleName,
   loadRole,
+  RoleCopyFailure,
   ROLE_BROWSE_GROUPS,
   rolesInBrowseGroup,
   updateRoleDescription,
   updateRoleHomePage,
   type RoleBrowseEntry,
   type RoleBrowseGroupKey,
+  type RoleRead,
 } from "../api/developer/rolesApi";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
@@ -173,6 +176,35 @@ function removeUserFailureMessage(err: unknown): string {
   return panelErrMsg(err, DEV_MSG.ROLES_REMOVE_USER_ERROR);
 }
 
+function copyFailureMessage(err: unknown, partial: boolean): string {
+  if (partial) {
+    if (isApiError(err)) {
+      if (err.status === 403) {
+        return panelErrMsg(err, DEV_MSG.ROLES_COPY_PARTIAL_FORBIDDEN);
+      }
+      if (err.status === 409) {
+        return panelErrMsg(err, DEV_MSG.ROLES_COPY_PARTIAL_CONFLICT);
+      }
+      if (err.status === 400 || err.status === 404) {
+        return panelErrMsg(err, DEV_MSG.ROLES_COPY_PARTIAL_INVALID);
+      }
+    }
+    return panelErrMsg(err, DEV_MSG.ROLES_COPY_PARTIAL);
+  }
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.ROLES_COPY_FORBIDDEN);
+    }
+    if (err.status === 409) {
+      return panelErrMsg(err, DEV_MSG.ROLES_COPY_CONFLICT);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.ROLES_COPY_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.ROLES_COPY_ERROR);
+}
+
 function deleteFailureMessage(err: unknown): string {
   if (isApiError(err)) {
     if (err.status === 403) {
@@ -291,7 +323,9 @@ function RoleGroupSection({
   expanded,
   onToggle,
   onOpenRole,
+  onCopyRole,
   onDeleteRole,
+  copyBusy,
   deleteBusy,
 }: {
   group: RoleBrowseGroupKey;
@@ -299,7 +333,9 @@ function RoleGroupSection({
   expanded: boolean;
   onToggle: () => void;
   onOpenRole: (role: RoleBrowseEntry) => void;
+  onCopyRole: (role: RoleBrowseEntry) => void;
   onDeleteRole: (role: RoleBrowseEntry) => void;
+  copyBusy: boolean;
   deleteBusy: boolean;
 }): React.ReactElement {
   const label = groupLabel(group);
@@ -366,38 +402,70 @@ function RoleGroupSection({
                   <span key="w" style={mutedCell}>
                     {joinNames(r.workflows)}
                   </span>,
-                  <button
-                    key="del"
-                    type="button"
-                    data-testid="developer-roles-delete"
-                    data-role-name={r.name}
-                    aria-label={`${DEV_MSG.ROLES_DELETE} ${r.name}`}
-                    title={
-                      isSystemRoleName(r.name) ? DEV_MSG.ROLES_DELETE_SYSTEM : undefined
-                    }
-                    disabled={deleteBusy || isSystemRoleName(r.name)}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onDeleteRole(r);
-                    }}
-                    onKeyDown={(event) => {
-                      event.stopPropagation();
-                    }}
-                    style={{
-                      padding: "4px 10px",
-                      background: isSystemRoleName(r.name)
-                        ? catalogColors.disabled
-                        : catalogColors.error,
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor:
-                        deleteBusy || isSystemRoleName(r.name) ? "not-allowed" : "pointer",
-                      font: "inherit",
-                    }}
-                  >
-                    {DEV_MSG.ROLES_DELETE}
-                  </button>,
+                  <span key="actions" style={{ display: "flex", gap: "6px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-roles-copy"
+                      data-role-name={r.name}
+                      aria-label={`${DEV_MSG.ROLES_COPY} ${r.name}`}
+                      disabled={copyBusy || deleteBusy}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onCopyRole(r);
+                      }}
+                      onKeyDown={(event) => {
+                        event.stopPropagation();
+                      }}
+                      style={{
+                        padding: "4px 10px",
+                        background:
+                          copyBusy || deleteBusy
+                            ? catalogColors.disabled
+                            : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: copyBusy || deleteBusy ? "not-allowed" : "pointer",
+                        font: "inherit",
+                      }}
+                    >
+                      {DEV_MSG.ROLES_COPY}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-roles-delete"
+                      data-role-name={r.name}
+                      aria-label={`${DEV_MSG.ROLES_DELETE} ${r.name}`}
+                      title={
+                        isSystemRoleName(r.name) ? DEV_MSG.ROLES_DELETE_SYSTEM : undefined
+                      }
+                      disabled={deleteBusy || copyBusy || isSystemRoleName(r.name)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDeleteRole(r);
+                      }}
+                      onKeyDown={(event) => {
+                        event.stopPropagation();
+                      }}
+                      style={{
+                        padding: "4px 10px",
+                        background:
+                          isSystemRoleName(r.name) || copyBusy
+                            ? catalogColors.disabled
+                            : catalogColors.error,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor:
+                          deleteBusy || copyBusy || isSystemRoleName(r.name)
+                            ? "not-allowed"
+                            : "pointer",
+                        font: "inherit",
+                      }}
+                    >
+                      {DEV_MSG.ROLES_DELETE}
+                    </button>
+                  </span>,
                 ],
               }))}
             />
@@ -410,16 +478,20 @@ function RoleGroupSection({
 
 /**
  * SE-03 Roles catalog grouped by community / workflow / unassigned.
- * Admins create one role (name + description) via PUT ?create=true, edit
- * one existing role's description via PUT ?update=true, set or clear one
- * role's home page via PUT ?homePage=true, add one existing user via
- * PUT ?addUser=true, remove one member via PUT ?removeUser=true after confirm,
- * and delete one non-system role via DELETE after confirm.
+ * Admins create one role (name + description) via PUT ?create=true, copy one
+ * role onto a new name (create, then description, home page, and one addUser
+ * per member), edit one existing role's description via PUT ?update=true, set
+ * or clear one role's home page via PUT ?homePage=true, add one existing user
+ * via PUT ?addUser=true, remove one member via PUT ?removeUser=true after
+ * confirm, and delete one non-system role via DELETE after confirm.
  * Opening a role GETs its stored users. An empty user list is an empty state.
  * HTTP 403 and 404 do not show members. The added user appears only after a
  * successful save. A removed user leaves the list only after a successful save.
  * HTTP 400, 403, and 409 leave the previous list, including a 409 that would
  * strand the user. Description and home-page saves do not send users.
+ * A copied role appears in the catalog only after every copy step succeeds.
+ * A failed create does not add a row. A later copy step that fails stays an
+ * error and does not claim the copy finished.
  */
 export function RolesPanel(): React.ReactElement {
   const [catalog, setCatalog] = useState<RoleBrowseEntry[] | null>(null);
@@ -456,6 +528,15 @@ export function RolesPanel(): React.ReactElement {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
+  const [copySourceName, setCopySourceName] = useState<string | null>(null);
+  /** Stored role from GET. Null until that read succeeds. */
+  const [copyRead, setCopyRead] = useState<RoleRead | null>(null);
+  const [copyName, setCopyName] = useState("");
+  const [copyUsersLoading, setCopyUsersLoading] = useState(false);
+  const [copyUsersError, setCopyUsersError] = useState<string | null>(null);
+  const [copyError, setCopyError] = useState<string | null>(null);
+  const [copyNotice, setCopyNotice] = useState<string | null>(null);
+  const [copyBusy, setCopyBusy] = useState(false);
   /** null until GET succeeds. [] is a real empty role; errors stay null. */
   const [memberUsers, setMemberUsers] = useState<string[] | null>(null);
   const [membersError, setMembersError] = useState<string | null>(null);
@@ -467,8 +548,11 @@ export function RolesPanel(): React.ReactElement {
   const addInflight = useRef(false);
   const removeInflight = useRef(false);
   const deleteInflight = useRef(false);
+  const copyInflight = useRef(false);
   const membersGen = useRef(0);
+  const copyUsersGen = useRef(0);
   const editNameRef = useRef<string | null>(null);
+  const copySourceRef = useRef<string | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -560,8 +644,59 @@ export function RolesPanel(): React.ReactElement {
     });
   }
 
+  function closeCopyDraft() {
+    copyUsersGen.current += 1;
+    copySourceRef.current = null;
+    setCopySourceName(null);
+    setCopyRead(null);
+    setCopyName("");
+    setCopyUsersLoading(false);
+    setCopyUsersError(null);
+    setCopyError(null);
+  }
+
+  function requestCopyUsers(name: string) {
+    const requested = name.trim();
+    const gen = ++copyUsersGen.current;
+    setCopyRead(null);
+    setCopyUsersError(null);
+    setCopyUsersLoading(true);
+    void loadRole(requested)
+      .then((read) => {
+        if (!mountedRef.current || gen !== copyUsersGen.current) return;
+        const openName = copySourceRef.current;
+        if (openName == null || !sameRoleName(openName, requested)) return;
+        if (!sameRoleName(read.name, requested)) {
+          setCopyUsersLoading(false);
+          setCopyRead(null);
+          setCopyUsersError(DEV_MSG.ROLES_COPY_USERS_ERROR);
+          return;
+        }
+        setCopyRead(read);
+        setCopyUsersError(null);
+        setCopyUsersLoading(false);
+      })
+      .catch((err: unknown) => {
+        if (!mountedRef.current || gen !== copyUsersGen.current) return;
+        setCopyUsersLoading(false);
+        setCopyRead(null);
+        setCopyUsersError(membersFailureMessage(err));
+      });
+  }
+
   function openDelete(role: RoleBrowseEntry) {
-    if (createBusy || editBusy || homeBusy || addBusy || removeBusy || deleteBusy || !role.name) return;
+    if (
+      createBusy ||
+      editBusy ||
+      homeBusy ||
+      addBusy ||
+      removeBusy ||
+      deleteBusy ||
+      copyBusy ||
+      !role.name
+    ) {
+      return;
+    }
     if (isSystemRoleName(role.name)) return;
     setDeleteError(null);
     setDeleteNotice(null);
@@ -610,7 +745,8 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function openCreate() {
-    if (editBusy || homeBusy || addBusy || removeBusy || deleteBusy) return;
+    if (editBusy || homeBusy || addBusy || removeBusy || deleteBusy || copyBusy) return;
+    closeCopyDraft();
     editNameRef.current = null;
     clearMembers();
     setEditName(null);
@@ -640,8 +776,117 @@ export function RolesPanel(): React.ReactElement {
     setDraftDescription("");
   }
 
+  function openCopy(role: RoleBrowseEntry) {
+    if (
+      createBusy ||
+      editBusy ||
+      homeBusy ||
+      addBusy ||
+      removeBusy ||
+      deleteBusy ||
+      copyBusy ||
+      !role.name
+    ) {
+      return;
+    }
+    setCreating(false);
+    setCreateError(null);
+    setCreateNotice(null);
+    editNameRef.current = null;
+    clearMembers();
+    setEditName(null);
+    setEditError(null);
+    setHomeError(null);
+    setAddError(null);
+    setAddNotice(null);
+    setRemoveError(null);
+    setRemoveNotice(null);
+    setPendingRemove(null);
+    setDraftUser("");
+    setEditDescription("");
+    setEditHomePage("");
+    setEditNotice(null);
+    setHomeNotice(null);
+    setCopyNotice(null);
+    copySourceRef.current = role.name;
+    setCopySourceName(role.name);
+    setCopyName("");
+    setCopyError(null);
+    requestCopyUsers(role.name);
+  }
+
+  function cancelCopy() {
+    if (copyBusy) return;
+    closeCopyDraft();
+  }
+
+  async function handleCopy(): Promise<void> {
+    if (
+      !copySourceName ||
+      !copyRead ||
+      copyUsersLoading ||
+      copyUsersError ||
+      copyInflight.current
+    ) {
+      return;
+    }
+    const name = copyName.trim();
+    if (!isRoleCreateReady(name)) return;
+    const duplicate = (catalog ?? []).some((role) => sameRoleName(role.name, name));
+    if (duplicate) {
+      setCopyError(DEV_MSG.ROLES_COPY_DUPLICATE);
+      setCopyNotice(null);
+      return;
+    }
+    copyInflight.current = true;
+    setCopyBusy(true);
+    setCopyError(null);
+    setCopyNotice(null);
+    try {
+      await copyOneRole(
+        {
+          description: copyRead.description,
+          homePage: copyRead.homePage,
+          users: copyRead.users,
+        },
+        name,
+      );
+      if (!mountedRef.current) return;
+      closeCopyDraft();
+      setCopyNotice(DEV_MSG.ROLES_COPIED);
+      if (filter !== null) {
+        setFilter(null);
+      } else {
+        await reload();
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      const partial = err instanceof RoleCopyFailure && err.partial;
+      const cause = err instanceof RoleCopyFailure ? err.cause : err;
+      setCopyNotice(null);
+      setCopyError(copyFailureMessage(cause, partial));
+    } finally {
+      copyInflight.current = false;
+      if (mountedRef.current) {
+        setCopyBusy(false);
+      }
+    }
+  }
+
   function openEdit(role: RoleBrowseEntry) {
-    if (createBusy || editBusy || homeBusy || addBusy || removeBusy || deleteBusy || !role.name) return;
+    if (
+      createBusy ||
+      editBusy ||
+      homeBusy ||
+      addBusy ||
+      removeBusy ||
+      deleteBusy ||
+      copyBusy ||
+      !role.name
+    ) {
+      return;
+    }
+    closeCopyDraft();
     setCreating(false);
     setCreateError(null);
     setCreateNotice(null);
@@ -899,6 +1144,13 @@ export function RolesPanel(): React.ReactElement {
   }
 
   const canCreate = !createBusy && isRoleCreateReady(draftName);
+  const canCopy =
+    !copyBusy &&
+    !copyUsersLoading &&
+    copyUsersError == null &&
+    copyRead != null &&
+    copySourceName != null &&
+    isRoleCreateReady(copyName);
   const detailLocked = editBusy || homeBusy || addBusy || removeBusy;
   const canSaveDescription = !detailLocked && editName != null && editName.trim().length > 0;
   const canSaveHomePage = canSaveDescription;
@@ -941,6 +1193,11 @@ export function RolesPanel(): React.ReactElement {
       {deleteNotice ? (
         <div data-testid="developer-roles-delete-notice" style={{ color: "#276749", marginBottom: "12px" }}>
           {deleteNotice}
+        </div>
+      ) : null}
+      {copyNotice ? (
+        <div data-testid="developer-roles-copy-notice" style={{ color: "#276749", marginBottom: "12px" }}>
+          {copyNotice}
         </div>
       ) : null}
       {deleteError ? (
@@ -1228,7 +1485,7 @@ export function RolesPanel(): React.ReactElement {
             </button>
           </div>
         </form>
-      ) : editName ? null : (
+      ) : editName || copySourceName ? null : (
         <div style={{ marginBottom: "16px" }}>
           <button
             type="button"
@@ -1247,6 +1504,137 @@ export function RolesPanel(): React.ReactElement {
           </button>
         </div>
       )}
+      {!creating && !editName && copySourceName ? (
+        <form
+          data-testid="developer-roles-copy-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void handleCopy();
+          }}
+          style={{
+            marginBottom: "16px",
+            padding: "12px",
+            border: `1px solid ${catalogColors.softBorder}`,
+            borderRadius: "4px",
+          }}
+        >
+          {copyError ? (
+            <div role="alert" data-testid="developer-roles-copy-error" style={errorAlert}>
+              {copyError}
+            </div>
+          ) : null}
+          <h2 style={{ margin: "0 0 12px" }} data-testid="developer-roles-copy-title">
+            {DEV_MSG.ROLES_COPY_TITLE}
+          </h2>
+          <p style={{ color: catalogColors.muted, margin: "0 0 12px", fontSize: "0.9rem" }}>
+            {DEV_MSG.ROLES_COPY_HINT}
+          </p>
+          <div style={fieldStyle}>
+            <label htmlFor="developer-roles-copy-source">{DEV_MSG.ROLES_COPY_SOURCE}</label>
+            <input
+              id="developer-roles-copy-source"
+              data-testid="developer-roles-copy-source"
+              style={{ ...inputStyle, fontFamily: "monospace" }}
+              value={copySourceName}
+              readOnly
+              disabled={copyBusy}
+            />
+          </div>
+          <div style={fieldStyle}>
+            <label htmlFor="developer-roles-copy-name">{DEV_MSG.ROLES_COPY_NAME}</label>
+            <input
+              id="developer-roles-copy-name"
+              data-testid="developer-roles-copy-name"
+              style={{ ...inputStyle, fontFamily: "monospace" }}
+              value={copyName}
+              disabled={copyBusy}
+              autoComplete="off"
+              onChange={(event) => setCopyName(event.target.value)}
+            />
+            <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+              {DEV_MSG.ROLES_COPY_NAME_REQUIRED}
+            </span>
+          </div>
+          <div style={fieldStyle}>
+            <span>{DEV_MSG.ROLES_COPY_DESCRIPTION}</span>
+            <span data-testid="developer-roles-copy-description">
+              {copyRead?.description ?? ""}
+            </span>
+          </div>
+          <div style={fieldStyle}>
+            <span>{DEV_MSG.ROLES_COPY_HOME}</span>
+            <span data-testid="developer-roles-copy-homepage">{copyRead?.homePage ?? ""}</span>
+          </div>
+          <div style={fieldStyle}>
+            <span>{DEV_MSG.ROLES_COPY_USERS}</span>
+            {copyUsersLoading ? (
+              <CatalogStatus testId="developer-roles-copy-users-loading">
+                {DEV_MSG.ROLES_COPY_USERS_LOADING}
+              </CatalogStatus>
+            ) : null}
+            {copyUsersError ? (
+              <div role="alert" data-testid="developer-roles-copy-users-error" style={errorAlert}>
+                {copyUsersError}
+              </div>
+            ) : null}
+            {!copyUsersLoading && !copyUsersError && copyRead && copyRead.users.length === 0 ? (
+              <CatalogStatus testId="developer-roles-copy-users-empty">
+                {DEV_MSG.ROLES_COPY_USERS_EMPTY}
+              </CatalogStatus>
+            ) : null}
+            {!copyUsersLoading && !copyUsersError && copyRead && copyRead.users.length > 0 ? (
+              <ul
+                data-testid="developer-roles-copy-users"
+                style={{ margin: "0", paddingLeft: "1.25rem" }}
+              >
+                {copyRead.users.map((userName) => (
+                  <li
+                    key={userName}
+                    data-testid="developer-roles-copy-user"
+                    data-user-name={userName}
+                    style={monoCell}
+                  >
+                    {userName}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <button
+              type="submit"
+              data-testid="developer-roles-copy-save"
+              aria-label={DEV_MSG.ROLES_COPY_SAVE}
+              disabled={!canCopy}
+              style={{
+                padding: "8px 16px",
+                background: canCopy ? catalogColors.accent : catalogColors.disabled,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: canCopy ? "pointer" : "not-allowed",
+              }}
+            >
+              {DEV_MSG.ROLES_COPY_SAVE}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-roles-copy-cancel"
+              disabled={copyBusy}
+              onClick={cancelCopy}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              {DEV_MSG.ROLES_COPY_CANCEL}
+            </button>
+          </div>
+        </form>
+      ) : null}
       <div
         role="group"
         aria-label={DEV_MSG.ROLES_FILTER_LABEL}
@@ -1295,7 +1683,9 @@ export function RolesPanel(): React.ReactElement {
               expanded={expanded.has(g)}
               onToggle={() => toggleGroup(g)}
               onOpenRole={openEdit}
+              onCopyRole={openCopy}
               onDeleteRole={openDelete}
+              copyBusy={copyBusy}
               deleteBusy={deleteBusy}
             />
           ))}

@@ -526,3 +526,108 @@ export async function removeRoleUser(input: {
   );
   return unwrapRoleRead(payload);
 }
+
+/**
+ * Failure from {@link copyOneRole}. {@code partial} is true only after create
+ * already succeeded, so a later description, home-page, or membership write failed.
+ * {@code cause} is the rejected step (often an {@code ApiError}).
+ */
+export class RoleCopyFailure extends Error {
+  readonly partial: boolean;
+  readonly cause: unknown;
+
+  constructor(cause: unknown, partial: boolean) {
+    super(partial ? "Role copy did not finish" : "Role was not copied");
+    this.name = "RoleCopyFailure";
+    this.partial = partial;
+    this.cause = cause;
+  }
+}
+
+/** Stored fields copied onto a new role. The source role name is not sent. */
+export type RoleCopySource = {
+  description?: string;
+  homePage?: string;
+  users?: readonly string[];
+};
+
+function sameCopiedRoleName(left: string, right: string): boolean {
+  return left.trim().toLowerCase() === right.trim().toLowerCase();
+}
+
+/** Trimmed member names. Case-insensitive duplicates are dropped so add-user is not repeated. */
+function copyMemberNames(raw: readonly string[] | undefined): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const name of normalizeRoleUsers(raw ?? [])) {
+    const key = name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(name);
+  }
+  return out;
+}
+
+/**
+ * Copy description, home page, and users onto a new role name.
+ * Uses create ({@code create=true}, name only), then the description write,
+ * the home-page write, and one {@code addUser=true} per member.
+ * Does not rename the source and does not send a second membership API.
+ * A blank new name throws before any request. If create fails, {@link RoleCopyFailure}
+ * has {@code partial === false}. If a later step fails, {@code partial === true}
+ * and this function does not report success.
+ */
+export async function copyOneRole(
+  source: RoleCopySource,
+  newName: string,
+): Promise<{ name: string }> {
+  const name = typeof newName === "string" ? newName.trim() : "";
+  if (!isRoleCreateReady(name)) {
+    throw new Error("Role name is required");
+  }
+  const description =
+    typeof source.description === "string" ? source.description.trim() : "";
+  const homePage = typeof source.homePage === "string" ? source.homePage.trim() : "";
+  const users = copyMemberNames(source.users);
+
+  let createdName: string;
+  try {
+    const created = await createRole({ name });
+    createdName = created.name.trim();
+    if (!sameCopiedRoleName(createdName, name)) {
+      throw new RoleCopyFailure(new Error("Created role name did not match"), true);
+    }
+  } catch (err) {
+    if (err instanceof RoleCopyFailure) throw err;
+    throw new RoleCopyFailure(err, false);
+  }
+
+  try {
+    if (description) {
+      const saved = await updateRoleDescription({ name: createdName, description });
+      if (
+        !sameCopiedRoleName(saved.name, createdName) ||
+        (saved.description ?? "").trim() !== description
+      ) {
+        throw new Error("Description was not copied");
+      }
+    }
+    if (homePage) {
+      const saved = await updateRoleHomePage({ name: createdName, homePage });
+      if (!sameCopiedRoleName(saved.name, createdName) || !saved.homePage) {
+        throw new Error("Home page was not copied");
+      }
+    }
+    for (const userName of users) {
+      const saved = await addRoleUser({ name: createdName, userName });
+      const present = saved.users.some((member) => sameCopiedRoleName(member, userName));
+      if (!sameCopiedRoleName(saved.name, createdName) || !present) {
+        throw new Error("User was not copied");
+      }
+    }
+  } catch (err) {
+    if (err instanceof RoleCopyFailure) throw err;
+    throw new RoleCopyFailure(err, true);
+  }
+  return { name: createdName };
+}

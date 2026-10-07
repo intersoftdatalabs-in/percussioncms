@@ -723,7 +723,7 @@ export const DEV_MSG_KEYS = {
   ROLES_EMPTY: "perc.ui.developer@No roles returned.",
   ROLES_ERROR: "perc.ui.developer@Could not load roles catalog.",
   ROLES_HINT:
-    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role, open one role to see its users, add one existing user, remove one user after confirming, edit one role's description, set or clear one role's home page, and delete one non-system role after confirming. System and Default cannot be deleted.",
+    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role, copy one role's description, home page, and users to a new name, open one role to see its users, add one existing user, remove one user after confirming, edit one role's description, set or clear one role's home page, and delete one non-system role after confirming. System and Default cannot be deleted.",
   ROLES_EDIT_TITLE: "perc.ui.developer@Edit role description",
   ROLES_EDIT_NAME: "perc.ui.developer@Role name",
   ROLES_EDIT_DESCRIPTION: "perc.ui.developer@Description",
@@ -761,6 +761,38 @@ export const DEV_MSG_KEYS = {
   ROLES_CREATE_ERROR: "perc.ui.developer@Could not create the role.",
   ROLES_CREATE_FORBIDDEN: "perc.ui.developer@You need the Admin role to create a role.",
   ROLES_CREATE_INVALID: "perc.ui.developer@The role was not created.",
+  ROLES_COPY: "perc.ui.developer@Copy",
+  ROLES_COPY_TITLE: "perc.ui.developer@Copy role",
+  ROLES_COPY_SOURCE: "perc.ui.developer@Source role",
+  ROLES_COPY_NAME: "perc.ui.developer@New role name",
+  ROLES_COPY_DESCRIPTION: "perc.ui.developer@Description",
+  ROLES_COPY_HOME: "perc.ui.developer@Home page",
+  ROLES_COPY_USERS: "perc.ui.developer@Users",
+  ROLES_COPY_SAVE: "perc.ui.developer@Copy role",
+  ROLES_COPY_CANCEL: "perc.ui.developer@Cancel",
+  ROLES_COPY_HINT:
+    "perc.ui.developer@Creates one role with this description, home page, and users. The source role stays. Workflow and community assignments are not copied. The new role appears only after every step succeeds. Cancel does not call the server.",
+  ROLES_COPY_NAME_REQUIRED:
+    "perc.ui.developer@Enter a new role name. A blank or duplicate name is not created.",
+  ROLES_COPY_DUPLICATE:
+    "perc.ui.developer@A role with that name already exists. Nothing was copied.",
+  ROLES_COPIED: "perc.ui.developer@Role copied.",
+  ROLES_COPY_ERROR: "perc.ui.developer@Could not copy the role.",
+  ROLES_COPY_FORBIDDEN: "perc.ui.developer@You need the Admin role to copy a role.",
+  ROLES_COPY_INVALID: "perc.ui.developer@The role was not copied.",
+  ROLES_COPY_CONFLICT: "perc.ui.developer@The role was not copied.",
+  ROLES_COPY_PARTIAL:
+    "perc.ui.developer@The copy did not finish. The new role may exist without the full description, home page, or users.",
+  ROLES_COPY_PARTIAL_FORBIDDEN:
+    "perc.ui.developer@The copy did not finish. You need the Admin role to finish copying this role.",
+  ROLES_COPY_PARTIAL_INVALID:
+    "perc.ui.developer@The copy did not finish. The new role was not fully copied.",
+  ROLES_COPY_PARTIAL_CONFLICT:
+    "perc.ui.developer@The copy did not finish. A later step was rejected.",
+  ROLES_COPY_USERS_LOADING: "perc.ui.developer@Loading users to copy...",
+  ROLES_COPY_USERS_EMPTY: "perc.ui.developer@This role has no users to copy.",
+  ROLES_COPY_USERS_ERROR:
+    "perc.ui.developer@Could not load users to copy. Nothing was copied.",
   ROLES_DELETE: "perc.ui.developer@Delete",
   ROLES_COL_ACTIONS: "perc.ui.developer@Actions",
   ROLES_DELETE_CONFIRM:

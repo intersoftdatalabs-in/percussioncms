@@ -37,6 +37,7 @@ vi.mock("../../../main/ts/api/developer/rolesApi", async (importOriginal) => {
     removeRoleUser: vi.fn(),
     deleteRole: vi.fn(),
     loadRole: vi.fn(),
+    copyOneRole: vi.fn(),
   };
 });
 
@@ -48,6 +49,7 @@ const addRoleUser = rolesApi.addRoleUser as ReturnType<typeof vi.fn>;
 const removeRoleUser = rolesApi.removeRoleUser as ReturnType<typeof vi.fn>;
 const deleteRole = rolesApi.deleteRole as ReturnType<typeof vi.fn>;
 const loadRole = rolesApi.loadRole as ReturnType<typeof vi.fn>;
+const copyOneRole = rolesApi.copyOneRole as ReturnType<typeof vi.fn>;
 
 describe("RolesPanel", () => {
   beforeEach(() => {
@@ -62,6 +64,7 @@ describe("RolesPanel", () => {
     removeRoleUser.mockReset();
     deleteRole.mockReset();
     loadRole.mockReset();
+    copyOneRole.mockReset();
     loadRole.mockImplementation(async (name: string) => ({
       name: name.trim(),
       users: [],
@@ -1020,6 +1023,226 @@ describe("RolesPanel", () => {
       expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
       expect(screen.queryByTestId("developer-roles-delete-notice")).toBeNull();
     }
+    expect(browseRoles).toHaveBeenCalledTimes(1);
+  });
+
+  async function openCopy(roleName = "Author") {
+    fireEvent.click(
+      document.querySelector(
+        `[data-testid="developer-roles-copy"][data-role-name="${roleName}"]`,
+      ) as Element,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-copy-form")).toBeTruthy();
+    });
+  }
+
+  it("does not copy a blank or duplicate name and cancel does not write", async () => {
+    browseRoles.mockResolvedValue(authorCatalog("Authors content", "Developer"));
+    loadRole.mockResolvedValue({
+      name: "Author",
+      description: "Authors content",
+      homePage: "Developer",
+      users: ["Ada"],
+    });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    await openCopy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-copy-user").textContent).toBe("Ada");
+    });
+    expect(screen.getByTestId("developer-roles-copy-description").textContent).toBe(
+      "Authors content",
+    );
+    expect(screen.getByTestId("developer-roles-copy-homepage").textContent).toBe("Developer");
+    const save = screen.getByTestId("developer-roles-copy-save");
+    expect(save).toBeDisabled();
+    fireEvent.change(screen.getByTestId("developer-roles-copy-name"), {
+      target: { value: "   " },
+    });
+    expect(screen.getByTestId("developer-roles-copy-save")).toBeDisabled();
+    fireEvent.click(screen.getByTestId("developer-roles-copy-save"));
+    expect(copyOneRole).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("developer-roles-copy-name"), {
+      target: { value: "author" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-copy-save"));
+    expect(copyOneRole).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-roles-copy-error").textContent).toBe(
+      DEV_MSG.ROLES_COPY_DUPLICATE,
+    );
+    expect(screen.queryByTestId("developer-roles-copy-notice")).toBeNull();
+    expect(document.querySelector('[data-role-name="author"]')).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-roles-copy-cancel"));
+    expect(copyOneRole).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-roles-copy-form")).toBeNull();
+    expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+      "Authors content",
+    );
+    expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe(
+      "Developer",
+    );
+  });
+
+  it("shows the new role only after copy succeeds and leaves the source", async () => {
+    browseRoles
+      .mockResolvedValueOnce(authorCatalog("Authors content", "Developer"))
+      .mockResolvedValueOnce({
+        roles: [
+          {
+            name: "Author",
+            description: "Authors content",
+            homePage: "Developer",
+            groups: ["workflow"],
+            communities: [],
+            workflows: ["Simple Workflow"],
+          },
+          {
+            name: "NightCopy",
+            description: "Authors content",
+            homePage: "Developer",
+            groups: ["workflow"],
+            communities: [],
+            workflows: ["Simple Workflow"],
+          },
+        ],
+      });
+    loadRole.mockResolvedValue({
+      name: "Author",
+      description: "Authors content",
+      homePage: "Developer",
+      users: ["Ada", "Bea"],
+    });
+    let resolveCopy: (value: { name: string }) => void = () => {};
+    copyOneRole.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveCopy = resolve;
+        }),
+    );
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    await openCopy();
+    await waitFor(() => {
+      expect(screen.getAllByTestId("developer-roles-copy-user")).toHaveLength(2);
+    });
+    fireEvent.change(screen.getByTestId("developer-roles-copy-name"), {
+      target: { value: "NightCopy" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-copy-save"));
+    expect(copyOneRole).toHaveBeenCalledWith(
+      {
+        description: "Authors content",
+        homePage: "Developer",
+        users: ["Ada", "Bea"],
+      },
+      "NightCopy",
+    );
+    expect(document.querySelector('[data-role-name="NightCopy"]')).toBeNull();
+    expect(screen.queryByTestId("developer-roles-copy-notice")).toBeNull();
+    resolveCopy({ name: "NightCopy" });
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="NightCopy"]')).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-roles-copy-notice").textContent).toBe(
+      DEV_MSG.ROLES_COPIED,
+    );
+    expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+      "Authors content",
+    );
+    expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe(
+      "Developer",
+    );
+    expect(browseRoles).toHaveBeenCalledTimes(2);
+    expect(createRole).not.toHaveBeenCalled();
+    expect(updateRoleDescription).not.toHaveBeenCalled();
+    expect(updateRoleHomePage).not.toHaveBeenCalled();
+    expect(addRoleUser).not.toHaveBeenCalled();
+  });
+
+  it("does not claim a copy on HTTP 400, 403, or 409", async () => {
+    browseRoles.mockResolvedValue(authorCatalog("Authors content", "Developer"));
+    loadRole.mockResolvedValue({
+      name: "Author",
+      description: "Authors content",
+      homePage: "Developer",
+      users: ["Ada"],
+    });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    await openCopy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-copy-user").textContent).toBe("Ada");
+    });
+    fireEvent.change(screen.getByTestId("developer-roles-copy-name"), {
+      target: { value: "NightCopy" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-copy-save")).toBeEnabled();
+    });
+
+    for (const status of [400, 403, 409]) {
+      copyOneRole.mockRejectedValue(
+        new rolesApi.RoleCopyFailure({ status, statusText: "Error", body: null }, false),
+      );
+      fireEvent.click(screen.getByTestId("developer-roles-copy-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-roles-copy-error").textContent).toContain(
+          `(${status})`,
+        );
+      });
+      expect(document.querySelector('[data-role-name="NightCopy"]')).toBeNull();
+      expect(screen.queryByTestId("developer-roles-copy-notice")).toBeNull();
+      expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+        "Authors content",
+      );
+    }
+    expect(browseRoles).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps a later-step failure visible and does not claim the copy finished", async () => {
+    browseRoles.mockResolvedValue(authorCatalog("Authors content", "Developer"));
+    loadRole.mockResolvedValue({
+      name: "Author",
+      description: "Authors content",
+      homePage: "Developer",
+      users: ["Ada"],
+    });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    await openCopy();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-copy-user").textContent).toBe("Ada");
+    });
+    fireEvent.change(screen.getByTestId("developer-roles-copy-name"), {
+      target: { value: "NightCopy" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-copy-save")).toBeEnabled();
+    });
+    copyOneRole.mockRejectedValue(
+      new rolesApi.RoleCopyFailure({ status: 400, statusText: "Bad Request", body: null }, true),
+    );
+    fireEvent.click(screen.getByTestId("developer-roles-copy-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-copy-error").textContent).toContain(
+        DEV_MSG.ROLES_COPY_PARTIAL_INVALID,
+      );
+    });
+    expect(screen.getByTestId("developer-roles-copy-error").textContent).toContain("(400)");
+    expect(screen.queryByTestId("developer-roles-copy-notice")).toBeNull();
+    expect(document.querySelector('[data-role-name="NightCopy"]')).toBeNull();
+    expect(screen.getByTestId("developer-roles-copy-form")).toBeTruthy();
     expect(browseRoles).toHaveBeenCalledTimes(1);
   });
 });

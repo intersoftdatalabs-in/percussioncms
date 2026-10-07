@@ -1,7 +1,7 @@
 ---
 id: admin-developer-roles
 title: Developer Roles
-description: Browse CMS security roles, view the users on one role, add or remove one user, create a role, update one description, set or clear one home page, and delete one role
+description: Browse CMS security roles, view the users on one role, add or remove one user, create a role, copy one role, update one description, set or clear one home page, and delete one role
 version: "8.2"
 order: 46
 tags: [admin, developer, roles, security]
@@ -19,7 +19,8 @@ It mirrors the classic Workbench **Security Design → Roles** navigator folders
 | **Unassigned** | Role is in neither community nor workflow membership |
 
 A role that is both community- and workflow-assigned appears under **both** groups.
-An Admin can **create** one role (name and description), **open** one role to see
+An Admin can **create** one role (name and description), **copy** one role to a
+new name (same description, home page, and users), **open** one role to see
 the users who belong to it, **add one existing user** to that role, **remove one
 user** from that role after confirming, **edit the description**
 of one existing role, **set or clear the home page** of one existing role, and
@@ -68,6 +69,34 @@ error. An empty catalog is a valid **200** with no rows.
 
 HTTP **400** (blank, invalid, or duplicate name) and **403** (not Admin) leave
 the form in an error state. The catalog does not show the role as created.
+
+## Product path — copy one role
+
+1. Sign in as **Admin**.
+2. Open **Developer → Roles** and wait for the catalog.
+3. On a role row, choose **Copy**. The form shows the source role name
+   (read-only) and loads that role's description, home page, and users.
+   **Cancel** closes the form and does not call the server. The source role
+   stays as it was.
+4. Enter a new role name. A blank or whitespace-only name keeps **Copy role**
+   disabled and is not sent. A name that is already in the catalog is not
+   created; the form shows an error and does not call the server.
+5. Choose **Copy role**. The catalog does not list the new role until every
+   step succeeds, then the catalog reloads. The new role has the same
+   description, home page, and users as the source. The source role's name,
+   description, home page, and users stay. Workflow-step assignments and
+   community membership are not copied. This form does not create a user and
+   does not rename the source role.
+6. Copy uses the existing role create (`create=true`, name only), then the
+   description write when the source has a description, the home-page write
+   when the source has a home page, and one `addUser=true` per user. It does
+   not send a second membership API.
+
+HTTP **400**, **403**, and **409** on create leave an error on the form. The
+catalog does not show a new role, and the panel does not say the copy finished.
+If create succeeded and a later step fails, the error stays on the form. The
+panel does not say the copy finished, and it does not add the new role to the
+catalog until a later successful reload. The source role is not changed.
 
 ## Product path — update a description
 
@@ -199,7 +228,9 @@ role was deleted.
 
 ## Limits
 
-- Create is name and description only. Opening a role shows its users.
+- Create is name and description only. **Copy** makes one new role with the
+  same description, home page, and users. It does not copy workflow or
+  community assignments and does not rename the source. Opening a role shows its users.
   **Add user** adds one existing user. **Remove** drops one member after
   confirm and does not replace the rest of the list. Description
   save changes the description only. Home-page save changes the home page only
@@ -223,6 +254,7 @@ The chrome calls:
 | One role, including users | `GET /services/roles/{roleName}` |
 | Filtered | `GET /services/roles/catalog?group=community\|workflow\|unassigned` |
 | Create | `PUT /services/roles/?create=true` with a `Role` object: `name` (required) and optional `description` |
+| Copy one role | The same create (name only), then description write, home-page write, and one add-user per member. No separate copy resource |
 | Update description | `PUT /services/roles/?update=true` with a `Role` object: `name` (required) and `description` (blank clears) |
 | Set or clear home page | `PUT /services/roles/?homePage=true` with a `Role` object: `name` (required) and `homePage` (blank clears). Description and users on the body are ignored |
 | Add one user | `PUT /services/roles/?addUser=true` with a `Role` object: `name` (required) and `users` containing exactly one existing user name. Description and home page on the body are ignored |
