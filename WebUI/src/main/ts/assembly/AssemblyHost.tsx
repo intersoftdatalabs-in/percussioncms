@@ -66,7 +66,9 @@ import { ASSEMBLY_MSG } from "./messages";
 import {
   applyFieldOverlay,
   ASSEMBLY_VALUE_LONGTEXT,
+  blankRequiredTextFieldNames,
   changedOverlayEdits,
+  markAssemblyFieldErrors,
   overlayEditKey,
   persistOverlayEdits,
   readOverlayEdits,
@@ -267,6 +269,8 @@ export function AssemblyHost({
   const [schemaReady, setSchemaReady] = useState(false);
   const [inlineFieldNames, setInlineFieldNames] = useState<string[]>([]);
   const [fieldNotice, setFieldNotice] = useState<string | null>(null);
+  const [fieldNoticeRole, setFieldNoticeRole] = useState<"status" | "alert">("status");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [savingFields, setSavingFields] = useState(false);
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   /** Values read after the overlay is painted, before the author edits. */
@@ -454,6 +458,11 @@ export function AssemblyHost({
     paintFieldOverlay();
   }, [paintFieldOverlay, previewHref]);
 
+  useEffect(() => {
+    markAssemblyFieldErrors(getPreviewDocument(frameRef.current), fieldErrors);
+    markAssemblyFieldErrors(fieldBarNode(), fieldErrors);
+  }, [fieldErrors, getPreviewDocument, previewHref, inlineFieldNames]);
+
   const refreshCanvas = useCallback(async () => {
     if (contentId == null) {
       setCanvas(null);
@@ -604,18 +613,32 @@ export function AssemblyHost({
     if (contentId == null || fieldPayload == null) {
       return;
     }
-    setSavingFields(true);
     setFieldNotice(null);
+    setFieldNoticeRole("status");
     const ownerId = String(contentId);
     const doc = getPreviewDocument(frameRef.current);
     const iframeEdits = doc != null ? readOverlayEdits(doc, ownerId) : [];
     const bar = fieldBarNode();
     const barEdits = bar != null ? readOverlayEdits(bar, ownerId) : [];
     const allowed = new Set(overlayFields.map((field) => field.name));
-    const edits = changedOverlayEdits(
-      [...iframeEdits, ...barEdits].filter((edit) => allowed.has(edit.name)),
-      fieldBaselineRef.current,
+    const visibleEdits = [...iframeEdits, ...barEdits].filter((edit) =>
+      allowed.has(edit.name),
     );
+    const blankRequired = blankRequiredTextFieldNames(overlayFields, visibleEdits);
+    if (blankRequired.length > 0) {
+      const requiredText = message(ASSEMBLY_MSG.FIELD_REQUIRED);
+      const errors: Record<string, string> = {};
+      for (const name of blankRequired) {
+        errors[name] = requiredText;
+      }
+      setFieldErrors(errors);
+      setFieldNotice(requiredText);
+      setFieldNoticeRole("alert");
+      return;
+    }
+    setFieldErrors({});
+    setSavingFields(true);
+    const edits = changedOverlayEdits(visibleEdits, fieldBaselineRef.current);
     try {
       const saved = await persistOverlayEdits({
         ownerId,
@@ -626,6 +649,8 @@ export function AssemblyHost({
         checkout,
       });
       setFieldPayload(saved);
+      setFieldErrors({});
+      setFieldNoticeRole("status");
       setFieldNotice(message(ASSEMBLY_MSG.FIELD_SAVED));
       const savedOverlay = scalarOverlayFields(saved, schemaFields);
       const savedDoc = getPreviewDocument(frameRef.current);
@@ -655,6 +680,8 @@ export function AssemblyHost({
         failedDoc,
         failedBar,
       ]);
+      setFieldErrors({});
+      setFieldNoticeRole("alert");
       setFieldNotice(message(ASSEMBLY_MSG.FIELD_SAVE_FAILED));
     } finally {
       setSavingFields(false);
@@ -835,6 +862,7 @@ export function AssemblyHost({
                   key={field.name}
                   className={styles.fieldChip}
                   data-testid={`assembly-field-chip-${field.name}`}
+                  data-required={field.kind === "text" && field.required ? "true" : "false"}
                 >
                   <span>{field.label}</span>
                   {inline ? (
@@ -860,8 +888,11 @@ export function AssemblyHost({
                       data-assembly-field={field.name}
                       data-assembly-content-id={String(contentId ?? "")}
                       data-assembly-value="text"
+                      data-assembly-required={field.required ? "true" : undefined}
                       data-testid={`assembly-overlay-field-${field.name}`}
                       aria-label={field.label}
+                      aria-required={field.required ? true : undefined}
+                      aria-invalid={fieldErrors[field.name] ? true : undefined}
                       spellCheck={false}
                       autoComplete="off"
                     />
@@ -891,6 +922,15 @@ export function AssemblyHost({
                       spellCheck={false}
                     />
                   )}
+                  {fieldErrors[field.name] ? (
+                    <span
+                      className={styles.fieldError}
+                      role="alert"
+                      data-testid={`assembly-field-error-${field.name}`}
+                    >
+                      {fieldErrors[field.name]}
+                    </span>
+                  ) : null}
                 </label>
               );
             })}
@@ -910,7 +950,7 @@ export function AssemblyHost({
           )}
         </button>
         {fieldNotice ? (
-          <span role="status" data-testid="assembly-field-notice">
+          <span role={fieldNoticeRole} data-testid="assembly-field-notice">
             {fieldNotice}
           </span>
         ) : null}

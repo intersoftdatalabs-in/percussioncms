@@ -251,3 +251,8 @@ input.fieldEdit {
   color: #f8fafc;
   font: inherit;
 }
+
+.fieldError {
+  color: #fecaca;
+  font-size: 12px;
+}

@@ -61,5 +61,6 @@ export const ASSEMBLY_MSG = {
   FIELD_SAVING: "perc.ui.assembly@Saving fields…",
   FIELD_SAVED: "perc.ui.assembly@Fields saved",
   FIELD_SAVE_FAILED: "perc.ui.assembly@Could not save fields",
+  FIELD_REQUIRED: "perc.ui.assembly@This field is required.",
   FIELD_INLINE: "perc.ui.assembly@Inline on preview",
 };
