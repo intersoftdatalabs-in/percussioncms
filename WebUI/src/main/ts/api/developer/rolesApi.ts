@@ -496,3 +496,33 @@ export async function addRoleUser(input: {
   );
   return unwrapRoleRead(payload);
 }
+
+/** PUT /services/roles/?removeUser=true — drop one member of an existing role, never a delete. */
+export function roleRemoveUserUrl(): string {
+  return `${PATHS.ROLES}/?removeUser=true`;
+}
+
+/**
+ * PUT /services/roles/?removeUser=true — Admin remove of one existing member.
+ * Sends the role name and that single user. Does not send description or home page.
+ * HTTP 400, 403, and 409 reject; this function does not return a membership list for those.
+ * A blank role name or user name throws before fetch.
+ */
+export async function removeRoleUser(input: {
+  name: string;
+  userName: string;
+}): Promise<RoleRead> {
+  const name = input.name.trim();
+  const userName = input.userName?.trim() ?? "";
+  if (!isRoleCreateReady(name)) {
+    throw new Error("Role name is required");
+  }
+  if (!isRoleCreateReady(userName)) {
+    throw new Error("User name is required");
+  }
+  const payload = await put<unknown>(
+    roleRemoveUserUrl(),
+    wrapRoleCreateForWire({ name, users: [userName] }),
+  );
+  return unwrapRoleRead(payload);
+}

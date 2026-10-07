@@ -36,7 +36,9 @@ import {
   unwrapRoleRead,
   unwrapUpdatedRoleHomePage,
   addRoleUser,
+  removeRoleUser,
   roleAddUserUrl,
+  roleRemoveUserUrl,
   updateRoleDescription,
   updateRoleHomePage,
 } from "../../../../main/ts/api/developer/rolesApi";
@@ -514,6 +516,7 @@ describe("addRoleUser", () => {
     expect(String(url)).not.toContain("update=true");
     expect(String(url)).not.toContain("create=true");
     expect(String(url)).not.toContain("homePage=true");
+    expect(String(url)).not.toContain("removeUser=true");
     expect(init.method).toBe("PUT");
     expect(JSON.parse(String(init.body))).toEqual({
       Role: { name: "Author", users: ["Ada"] },
@@ -526,6 +529,68 @@ describe("addRoleUser", () => {
         jsonResponse({ Role: { name: "Author", users: ["Invented"] } }, status),
       );
       await expect(addRoleUser({ name: "Author", userName: "Ada" })).rejects.toMatchObject({
+        status,
+      });
+    }
+  });
+});
+
+describe("removeRoleUser", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      statusText: status === 200 ? "OK" : "Error",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("does not PUT a blank role or user name", async () => {
+    await expect(removeRoleUser({ name: "  ", userName: "Ada" })).rejects.toThrow(/required/);
+    await expect(removeRoleUser({ name: "Author", userName: "   " })).rejects.toThrow(/required/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("PUTs removeUser=true with one user and no description or home page", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        Role: { name: "Author", description: "Keep me", users: ["Bea"] },
+      }),
+    );
+    const saved = await removeRoleUser({ name: " Author ", userName: " Ada " });
+    expect(saved).toEqual({
+      name: "Author",
+      description: "Keep me",
+      users: ["Bea"],
+    });
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(String(url)).toBe(roleRemoveUserUrl());
+    expect(String(url)).not.toContain("update=true");
+    expect(String(url)).not.toContain("create=true");
+    expect(String(url)).not.toContain("homePage=true");
+    expect(String(url)).not.toContain("addUser=true");
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(String(init.body))).toEqual({
+      Role: { name: "Author", users: ["Ada"] },
+    });
+  });
+
+  it("rejects HTTP 400, 403, and 409 without returning users from the body", async () => {
+    for (const status of [400, 403, 409]) {
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({ Role: { name: "Author", users: [] } }, status),
+      );
+      await expect(removeRoleUser({ name: "Author", userName: "Ada" })).rejects.toMatchObject({
         status,
       });
     }

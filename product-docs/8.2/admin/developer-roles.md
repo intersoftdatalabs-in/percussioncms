@@ -1,7 +1,7 @@
 ---
 id: admin-developer-roles
 title: Developer Roles
-description: Browse CMS security roles, view the users on one role, add one existing user, create a role, update one description, set or clear one home page, and delete one role
+description: Browse CMS security roles, view the users on one role, add or remove one user, create a role, update one description, set or clear one home page, and delete one role
 version: "8.2"
 order: 46
 tags: [admin, developer, roles, security]
@@ -20,17 +20,21 @@ It mirrors the classic Workbench **Security Design → Roles** navigator folders
 
 A role that is both community- and workflow-assigned appears under **both** groups.
 An Admin can **create** one role (name and description), **open** one role to see
-the users who belong to it, **add one existing user** to that role, **edit the description**
+the users who belong to it, **add one existing user** to that role, **remove one
+user** from that role after confirming, **edit the description**
 of one existing role, **set or clear the home page** of one existing role, and
 **delete** one existing role from this catalog.
 **System** and **Default** cannot be deleted.
 Opening a role lists stored user names. A role with no users shows an empty
-membership state, not an error. This chrome adds one existing user at a time.
-It does **not** remove a user or replace the member list — use **Admin → Roles**
-to remove users, and **Developer → Communities** detail for community role
+membership state, not an error. This chrome adds or removes one user at a time.
+It does **not** replace the whole member list — use **Admin → Roles** for bulk
+membership edits, and **Developer → Communities** detail for community role
 association. Packaged roles such as Admin and Designer are not
-created by this form. If the server rejects a description change, an add, or a delete,
-the catalog keeps the previous row and the member list stays as it was. A failed user read does not invent members.
+created by this form. If the server rejects a description change, an add, a
+remove, or a delete, the catalog keeps the previous row and the member list
+stays as it was. A failed user read does not invent members. A remove that
+would leave a user unable to log in stays a visible error; that user stays
+on the role.
 
 ## Product path — browse
 
@@ -91,8 +95,8 @@ description. `update=true` does not create a missing role.
 3. Select the row of an existing role. The detail loads that role
    (`GET /services/roles/{roleName}`) and lists each stored user name.
 4. A role with no users shows **No users on this role.** That is not an error.
-5. The list itself does not remove a user. Use **Add user** below the list to
-   add one existing user (see the next section).
+5. Use **Add user** below the list to add one existing user, or **Remove**
+   beside a name to drop that one user (see the next sections).
 6. **Cancel** closes the detail and does not change membership.
 
 HTTP **403** (not allowed to read the role) and **404** (the role no longer
@@ -118,9 +122,33 @@ home page still does not add or drop users.
 
 `addUser=true` does not create a missing role (**404**) and does not create a
 user. Do not send `addUser=true` together with `create=true`, `update=true`,
-or `homePage=true` (**400**). Sending more than one user name is **400** and
+`homePage=true`, or `removeUser=true` (**400**). Sending more than one user name is **400** and
 does not replace the member list. A description save still ignores a client
 user list.
+
+## Product path — remove one user
+
+1. Sign in as **Admin**.
+2. Open **Developer → Roles** and wait for the catalog.
+3. Select the row of an existing role. The detail lists that role's users.
+4. Choose **Remove** beside one user. **Cancel** closes the confirm dialog and
+   does not call the server. That user stays on the list. Other members stay.
+5. Choose **Remove** in the dialog. The name stays in the list until the server
+   returns success. The list then shows the stored members without that user.
+   The role name, description, and home page stay the same. Other members stay.
+6. Closing the detail with **Cancel** does not remove a user.
+
+HTTP **400** (blank name, more than one name, unknown user, or a user who is
+not a member), **403** (not Admin), and **409** (the user would be left unable
+to log in, or you would remove yourself from **Admin**) leave that user on the
+role. The panel shows the error. It does not say the user was removed. A **409**
+body that omits the user is still an error, not a success.
+
+`removeUser=true` does not create a missing role (**404**) and does not delete
+the role. Do not send `removeUser=true` together with `create=true`,
+`update=true`, `homePage=true`, or `addUser=true` (**400**). Sending more than
+one user name is **400** and does not replace the member list. A description
+save still ignores a client user list.
 
 ## Product path — set or clear a home page
 
@@ -172,10 +200,11 @@ role was deleted.
 ## Limits
 
 - Create is name and description only. Opening a role shows its users.
-  **Add user** adds one existing user and does not remove anyone. Description
+  **Add user** adds one existing user. **Remove** drops one member after
+  confirm and does not replace the rest of the list. Description
   save changes the description only. Home-page save changes the home page only
-  (a blank value clears it). Delete removes one CMS role. Removing a user
-  remains on **Admin → Roles**. Community **Save roles** still assigns roles
+  (a blank value clears it). Delete removes one CMS role. Bulk membership edits
+  remain on **Admin → Roles**. Community **Save roles** still assigns roles
   to a community; it is not this user list.
 - **System** and **Default** cannot be deleted.
 - A duplicate name is rejected. It does not update the existing role.
@@ -197,6 +226,7 @@ The chrome calls:
 | Update description | `PUT /services/roles/?update=true` with a `Role` object: `name` (required) and `description` (blank clears) |
 | Set or clear home page | `PUT /services/roles/?homePage=true` with a `Role` object: `name` (required) and `homePage` (blank clears). Description and users on the body are ignored |
 | Add one user | `PUT /services/roles/?addUser=true` with a `Role` object: `name` (required) and `users` containing exactly one existing user name. Description and home page on the body are ignored |
+| Remove one user | `PUT /services/roles/?removeUser=true` with a `Role` object: `name` (required) and `users` containing exactly one current member. Description and home page on the body are ignored |
 | Delete | `DELETE /services/roles/{roleName}` |
 
 `GET /services/roles/{roleName}` returns the role's `users` list. An empty or
@@ -219,10 +249,18 @@ unknown user is **400** and does not change membership. A user who is already
 a member is **409** and does not change membership. The save does not change
 the description, home page, or role name. Description update still ignores a
 client `users` list, including an empty list, so it cannot clear members.
-Without `create=true`, `update=true`, `homePage=true`, or `addUser=true`,
-`PUT` still creates a role that is not already defined and updates the
-description of a role that is. Do not combine `create=true`, `update=true`,
-`homePage=true`, and `addUser=true` (**400**).
+`removeUser=true` removes one current member of an existing role and does not
+create a missing name (**404**) or delete the role. A blank user name, more
+than one user name, an unknown user, or a user who is not a member is **400**
+and does not change membership. A removal that would leave the user unable to
+log in, or that would remove the caller from **Admin**, is **409** and does
+not change membership. The save does not change the description, home page,
+role name, or the other members. Description update still ignores a client
+`users` list.
+Without `create=true`, `update=true`, `homePage=true`, `addUser=true`, or
+`removeUser=true`, `PUT` still creates a role that is not already defined and
+updates the description of a role that is. Do not combine `create=true`,
+`update=true`, `homePage=true`, `addUser=true`, and `removeUser=true` (**400**).
 Delete is **Admin** only (**403** otherwise). **System** and **Default** are
 **400**. A missing name is **404**. A role that would strand a user, or that a
 workflow still assigns beyond reader, is **409** and is not deleted. A
