@@ -711,3 +711,238 @@ describe("KeywordEditorPanel change one choice label", () => {
     );
   });
 });
+
+function changeValueButton(label: string): HTMLButtonElement {
+  const button = document.querySelector(
+    `[data-testid="developer-kw-choice-value-edit"][data-choice-label="${label}"]`,
+  );
+  if (!(button instanceof HTMLButtonElement)) {
+    throw new Error(`missing change-value button for ${label}`);
+  }
+  return button;
+}
+
+function choiceByLabel(label: string): Element | null {
+  return document.querySelector(
+    `[data-testid="developer-kw-choice"][data-choice-label="${label}"]`,
+  );
+}
+
+describe("KeywordEditorPanel change one choice value", () => {
+  beforeEach(() => {
+    (window as unknown as { I18N?: { message: (key: string) => string } }).I18N = {
+      message: (key: string) => key,
+    };
+    getKeyword.mockReset();
+    updateKeyword.mockReset();
+    createKeyword.mockReset();
+    deleteKeyword.mockReset();
+    getKeyword.mockResolvedValue(withTwoChoices);
+    updateKeyword.mockResolvedValue(withTwoChoices);
+  });
+
+  async function openValueEditor(label: string): Promise<void> {
+    await waitFor(() => {
+      expect(changeValueButton(label).disabled).toBe(false);
+    });
+    fireEvent.click(changeValueButton(label));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-choice-value-input")).toBeTruthy();
+    });
+  }
+
+  it("does not show the draft value before save", async () => {
+    renderEditor(withTwoChoices);
+    await openValueEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-value-input"), {
+      target: { value: "mid" },
+    });
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-value")).toBe("high");
+  });
+
+  it("does not write when the value edit is cancelled", async () => {
+    renderEditor(withTwoChoices);
+    await openValueEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-value-input"), {
+      target: { value: "mid" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-value-cancel"));
+    expect(screen.queryByTestId("developer-kw-choice-value-input")).toBeNull();
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+    expect(screen.getByTestId("developer-kw-add-choice-save")).toBeTruthy();
+    expect(changeLabelButton("Low").disabled).toBe(false);
+    expect(removeButton("Low").disabled).toBe(false);
+  });
+
+  it("does not write when the value is unchanged or already the label", async () => {
+    renderEditor(withTwoChoices);
+    await openValueEditor("Low");
+    fireEvent.click(screen.getByTestId("developer-kw-choice-value-save"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-kw-choice-value-input")).toBeNull();
+    await openValueEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-value-input"), {
+      target: { value: "   " },
+    });
+    const button = screen.getByTestId("developer-kw-choice-value-save") as HTMLButtonElement;
+    expect(button.disabled).toBe(false);
+    fireEvent.click(button);
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+  });
+
+  it("does not replace another choice when the value is a duplicate", async () => {
+    renderEditor(withTwoChoices);
+    await openValueEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-value-input"), {
+      target: { value: "HIGH" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-value-save"));
+    expect(screen.getByTestId("developer-kw-choice-value-error").textContent).toBe(
+      DEV_MSG.KW_CHANGE_CHOICE_VALUE_DUPLICATE,
+    );
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-value")).toBe("high");
+    expect(screen.queryByTestId("developer-kw-choice-value-notice")).toBeNull();
+  });
+
+  it("shows the new value only after the keyword update succeeds", async () => {
+    updateKeyword.mockImplementation(async (_id: string, body: KeywordSummary) => body);
+    renderEditor(withTwoChoices);
+    await openValueEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-value-input"), {
+      target: { value: " mid " },
+    });
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+    fireEvent.click(screen.getByTestId("developer-kw-choice-value-save"));
+    await waitFor(() => {
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("mid");
+    });
+    expect(updateKeyword).toHaveBeenCalledWith(
+      "42",
+      expect.objectContaining({
+        label: "Priority",
+        description: "Item priority",
+        sequence: 4,
+        choices: [
+          { label: "High", value: "high", description: "top", sequence: 1 },
+          { label: "Low", value: "mid", description: "bottom", sequence: 2 },
+        ],
+      }),
+    );
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-kw-choice-value-notice").textContent).toBe(
+      DEV_MSG.KW_CHANGE_CHOICE_VALUE_SAVED,
+    );
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-value")).toBe("high");
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe(
+      "Priority",
+    );
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+    expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("4");
+    expect(screen.queryByTestId("developer-kw-choice-value-input")).toBeNull();
+    expect((screen.getByTestId("developer-kw-choices") as HTMLTextAreaElement).value).toContain(
+      "Low|mid|2",
+    );
+  });
+
+  it("stores a blank value as the label when that value is free", async () => {
+    const distinct: KeywordSummary = {
+      ...withTwoChoices,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "mid", description: "bottom", sequence: 2 },
+      ],
+    };
+    getKeyword.mockResolvedValue(distinct);
+    updateKeyword.mockImplementation(async (_id: string, body: KeywordSummary) => body);
+    renderEditor(distinct);
+    await openValueEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-value-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-value-save"));
+    await waitFor(() => {
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("Low");
+    });
+    expect(updateKeyword).toHaveBeenCalledWith(
+      "42",
+      expect.objectContaining({
+        choices: [
+          { label: "High", value: "high", description: "top", sequence: 1 },
+          { label: "Low", value: "Low", description: "bottom", sequence: 2 },
+        ],
+      }),
+    );
+    expect(choiceByLabel("High")?.getAttribute("data-choice-label")).toBe("High");
+  });
+
+  it.each([400, 403, 409])(
+    "keeps the previous value when the update returns HTTP %s",
+    async (status) => {
+      updateKeyword.mockRejectedValue({
+        status,
+        statusText: "no",
+        body: {
+          message: `forced ${status}`,
+          label: "Renamed",
+          choices: [{ label: "Low", value: "later", sequence: 9 }],
+        },
+      });
+      renderEditor(withTwoChoices);
+      await openValueEditor("Low");
+      fireEvent.change(screen.getByTestId("developer-kw-choice-value-input"), {
+        target: { value: "later" },
+      });
+      fireEvent.click(screen.getByTestId("developer-kw-choice-value-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-kw-choice-value-error")).toBeTruthy();
+      });
+      expect(screen.getByTestId("developer-kw-choice-value-error").textContent).toContain(
+        `forced ${status}`,
+      );
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+      expect(screen.getByTestId("developer-kw-saved-choices").textContent).not.toContain(
+        "later",
+      );
+      expect(screen.queryByTestId("developer-kw-choice-value-notice")).toBeNull();
+      expect(deleteKeyword).not.toHaveBeenCalled();
+    },
+  );
+
+  it("does not replace the list when a 200 changes the keyword label", async () => {
+    updateKeyword.mockResolvedValue({
+      ...withTwoChoices,
+      label: "Renamed",
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "mid", description: "bottom", sequence: 2 },
+      ],
+    });
+    renderEditor(withTwoChoices);
+    await openValueEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-value-input"), {
+      target: { value: "mid" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-value-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-choice-value-error").textContent).toBe(
+        DEV_MSG.KW_CHANGE_CHOICE_VALUE_ERROR,
+      );
+    });
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe(
+      "Priority",
+    );
+  });
+});

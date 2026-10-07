@@ -167,6 +167,8 @@ export type RemoveChoiceRejection = "missing";
 
 export type RelabelChoiceRejection = "blank" | "duplicate" | "missing" | "unchanged";
 
+export type RevalueChoiceRejection = "blank" | "duplicate" | "missing" | "unchanged";
+
 /**
  * Body for the existing keyword update that changes one choice label.
  * Keyword label, description, and sequence are copied from the loaded keyword.
@@ -210,6 +212,75 @@ export function keywordUpdateForRelabeledChoice(
       const copy = choiceForUpdate(choice);
       if (i === index) {
         return { ...copy, label };
+      }
+      return copy;
+    }),
+  };
+}
+
+/**
+ * Value stored for one choice. A blank draft is the choice label, same as add.
+ */
+function storedChoiceValue(choice: KeywordChoiceSummary, nextValue: string): string {
+  const raw = nextValue.trim();
+  if (raw) {
+    return raw;
+  }
+  return (choice.label ?? "").trim();
+}
+
+/**
+ * Body for the existing keyword update that changes one choice value.
+ * Keyword label, description, and sequence are copied from the loaded keyword.
+ * That choice keeps its label, description, and sequence. The other choices
+ * stay. A blank value is compared and stored as the choice label. The same
+ * value is not a write. A blank value that already means the label is not a
+ * write. A value that matches another choice, ignoring case, is not a body,
+ * so that choice is not replaced. An empty label and an empty value are not
+ * a body.
+ */
+export function keywordUpdateForRevaluedChoice(
+  baseline: Pick<KeywordSummary, "label" | "description" | "sequence">,
+  existing: KeywordChoiceSummary[],
+  index: number,
+  nextValue: string,
+): KeywordSummary | RevalueChoiceRejection {
+  if (!Number.isInteger(index) || index < 0 || index >= existing.length) {
+    return "missing";
+  }
+  const currentChoice = existing[index];
+  if (!currentChoice) {
+    return "missing";
+  }
+  const value = storedChoiceValue(currentChoice, nextValue);
+  if (!value) {
+    return "blank";
+  }
+  const currentStored = (currentChoice.value ?? "").trim();
+  if (currentStored === value) {
+    return "unchanged";
+  }
+  if (!nextValue.trim() && effectiveValue(currentChoice) === value.toLowerCase()) {
+    return "unchanged";
+  }
+  const nextEffective = value.toLowerCase();
+  const duplicate = existing.some((choice, i) => {
+    if (i === index) {
+      return false;
+    }
+    return effectiveValue(choice) === nextEffective;
+  });
+  if (duplicate) {
+    return "duplicate";
+  }
+  return {
+    label: baseline.label,
+    description: baseline.description,
+    sequence: baseline.sequence,
+    choices: existing.map((choice, i) => {
+      const copy = choiceForUpdate(choice);
+      if (i === index) {
+        return { ...copy, value };
       }
       return copy;
     }),
