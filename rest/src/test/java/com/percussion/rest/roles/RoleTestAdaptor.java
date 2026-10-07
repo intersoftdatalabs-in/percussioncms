@@ -41,6 +41,11 @@ public class RoleTestAdaptor implements IRoleAdaptor {
   }
 
   @Override
+  public Role addRoleUser(URI baseURI, Role role) {
+    return null;
+  }
+
+  @Override
   public Role createRole(URI baseURI, Role role) {
     return null;
   }

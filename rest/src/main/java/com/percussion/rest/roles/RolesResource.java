@@ -140,33 +140,40 @@ public class RolesResource {
   }
 
   /**
-   * Create a role, update an existing role's description, or set its home page.
+   * Create a role, update an existing role's description, set its home page, or add one user.
    *
    * <p>{@code create=true} always uses {@link IRoleAdaptor#createRole} (role service create). A
    * name that is not already defined also uses create. {@code update=true} always uses {@link
    * IRoleAdaptor#updateRole} and does not create a missing role. {@code homePage=true} always uses
-   * {@link IRoleAdaptor#updateRoleHomePage} and does not create a missing role. An existing name
-   * is updated only when {@code create} is not true — a create payload must not clear members.
-   * Description update does not change membership, home page, or name. Home-page update does not
-   * change description, membership, or name. A blank home page clears the stored value.
+   * {@link IRoleAdaptor#updateRoleHomePage} and does not create a missing role. {@code
+   * addUser=true} always uses {@link IRoleAdaptor#addRoleUser} and does not create a missing role
+   * or user. An existing name is updated only when {@code create} is not true — a create payload
+   * must not clear members. Description update does not change membership, home page, or name.
+   * Home-page update does not change description, membership, or name. A blank home page clears
+   * the stored value. Add-user appends one existing user and does not change description, home
+   * page, or name.
    */
   @PUT
   @Path("/")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
-      summary = "Create a role, update its description, or set its home page",
+      summary = "Create a role, update its description, set its home page, or add one user",
       description =
           "Creates a role via adaptor createRole / role service create when create=true, or when"
-              + " the name is not already defined and update and homePage are not true."
+              + " the name is not already defined and update, homePage, and addUser are not true."
               + " update=true changes the description of an existing role only (members, home"
-              + " page, and name stay as stored) and is 404 when the role is missing."
+              + " page, and name stay as stored) and is 404 when the role is missing. A client"
+              + " user list on update=true is ignored."
               + " homePage=true changes the home page of an existing role only (description,"
               + " members, and name stay as stored). A blank home page clears it. An unknown home"
-              + " page is 400. Blank name is 400. Create, description update, and home-page"
-              + " update require the Admin role (403). A duplicate create is 400 and does not"
+              + " page is 400. addUser=true adds one existing user to an existing role. A blank"
+              + " user name, more than one user, or an unknown user is 400 and does not change"
+              + " membership. A user who is already a member is 409 and does not change membership."
+              + " Blank role name is 400. Create, description update, home-page update, and"
+              + " add-user require the Admin role (403). A duplicate create is 400 and does not"
               + " update. A description longer than 255 characters is 400. Do not combine create,"
-              + " update, and homePage. Returns the resulting Role.",
+              + " update, homePage, and addUser. Returns the resulting Role.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -176,11 +183,15 @@ public class RolesResource {
             responseCode = "400",
             description =
                 "Blank name, invalid role, description longer than 255 characters, unknown home"
-                    + " page, or more than one of create, update, and homePage"),
+                    + " page, blank or unknown user, more than one user, or more than one of"
+                    + " create, update, homePage, and addUser"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(
             responseCode = "404",
-            description = "Role not found (update=true or homePage=true)"),
+            description = "Role not found (update=true, homePage=true, or addUser=true)"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "User is already a member of the role (addUser=true)"),
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
@@ -194,7 +205,8 @@ public class RolesResource {
       @Parameter(
               description =
                   "When true, update the description of an existing role. Missing names are 404"
-                      + " and are not created. Cannot be combined with create=true or homePage=true.",
+                      + " and are not created. A client user list is ignored. Cannot be combined"
+                      + " with create=true, homePage=true, or addUser=true.",
               name = "update")
           @QueryParam("update")
           Boolean update,
@@ -202,21 +214,33 @@ public class RolesResource {
               description =
                   "When true, update the home page of an existing role. A blank home page clears"
                       + " it. Missing names are 404 and are not created. Cannot be combined with"
-                      + " create=true or update=true.",
+                      + " create=true, update=true, or addUser=true.",
               name = "homePage")
           @QueryParam("homePage")
           Boolean homePage,
+      @Parameter(
+              description =
+                  "When true, add exactly one existing user from the role users list. Missing"
+                      + " roles are 404 and are not created. An unknown user is 400. A user who"
+                      + " is already a member is 409. Cannot be combined with create=true,"
+                      + " update=true, or homePage=true.",
+              name = "addUser")
+          @QueryParam("addUser")
+          Boolean addUser,
       @Parameter(description = "The body containing a JSON payload", name = "body") Role role) {
     if (role == null || isBlank(role.getName())) {
       throw new WebApplicationException("Role name is required", 400);
     }
-    if (moreThanOneSaveFlag(create, update, homePage)) {
+    if (moreThanOneSaveFlag(create, update, homePage, addUser)) {
       throw new WebApplicationException(
-          "Specify create, update, or homePage, not more than one", 400);
+          "Specify create, update, homePage, or addUser, not more than one", 400);
     }
     role.setName(role.getName().trim());
     var base = uriInfo != null ? uriInfo.getBaseUri() : null;
     try {
+      if (Boolean.TRUE.equals(addUser)) {
+        return requireAdaptor().addRoleUser(base, role);
+      }
       if (Boolean.TRUE.equals(homePage)) {
         return requireAdaptor().updateRoleHomePage(base, role);
       }
@@ -240,12 +264,22 @@ public class RolesResource {
     }
   }
 
+  /**
+   * Same as {@link #updateRole(Boolean, Boolean, Boolean, Boolean, Role)} with {@code addUser}
+   * unset. Kept so callers that only create, describe, or set a home page do not have to pass the
+   * membership flag.
+   */
+  public Role updateRole(Boolean create, Boolean update, Boolean homePage, Role role) {
+    return updateRole(create, update, homePage, null, role);
+  }
+
   private static boolean isBlank(String value) {
     return value == null || value.trim().isEmpty();
   }
 
-  /** True when more than one of create, update, or homePage is explicitly true. */
-  private static boolean moreThanOneSaveFlag(Boolean create, Boolean update, Boolean homePage) {
+  /** True when more than one of create, update, homePage, or addUser is explicitly true. */
+  private static boolean moreThanOneSaveFlag(
+      Boolean create, Boolean update, Boolean homePage, Boolean addUser) {
     int selected = 0;
     if (Boolean.TRUE.equals(create)) {
       selected++;
@@ -254,6 +288,9 @@ public class RolesResource {
       selected++;
     }
     if (Boolean.TRUE.equals(homePage)) {
+      selected++;
+    }
+    if (Boolean.TRUE.equals(addUser)) {
       selected++;
     }
     return selected > 1;

@@ -723,7 +723,7 @@ export const DEV_MSG_KEYS = {
   ROLES_EMPTY: "perc.ui.developer@No roles returned.",
   ROLES_ERROR: "perc.ui.developer@Could not load roles catalog.",
   ROLES_HINT:
-    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role, open one role to see its users, edit one role's description, set or clear one role's home page, and delete one non-system role after confirming. Membership edits are not done here. System and Default cannot be deleted.",
+    "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role, open one role to see its users, add one existing user, edit one role's description, set or clear one role's home page, and delete one non-system role after confirming. Removing a user is not done here. System and Default cannot be deleted.",
   ROLES_EDIT_TITLE: "perc.ui.developer@Edit role description",
   ROLES_EDIT_NAME: "perc.ui.developer@Role name",
   ROLES_EDIT_DESCRIPTION: "perc.ui.developer@Description",
@@ -787,7 +787,21 @@ export const DEV_MSG_KEYS = {
   ROLES_MEMBERS_TITLE: "perc.ui.developer@Users",
   ROLES_MEMBERS_LABEL: "perc.ui.developer@Users on this role",
   ROLES_MEMBERS_HINT:
-    "perc.ui.developer@These names come from the role. This list is read-only. Saving the description does not add or remove users.",
+    "perc.ui.developer@These names come from the role. A user appears here only after the server accepts the add. Saving the description or home page does not add or remove users. This list does not remove users.",
+  ROLES_ADD_USER_LABEL: "perc.ui.developer@Existing user",
+  ROLES_ADD_USER_SAVE: "perc.ui.developer@Add user",
+  ROLES_ADD_USER_HINT:
+    "perc.ui.developer@Adds one existing user. The name appears in the list only after the server accepts it. A blank name is not sent. Cancel does not add a user.",
+  ROLES_ADD_USER_SAVED: "perc.ui.developer@User added to the role.",
+  ROLES_ADD_USER_ERROR: "perc.ui.developer@Could not add the user to this role.",
+  ROLES_ADD_USER_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to add a user to a role.",
+  ROLES_ADD_USER_INVALID:
+    "perc.ui.developer@The user was not added. Enter one existing user name.",
+  ROLES_ADD_USER_CONFLICT:
+    "perc.ui.developer@That user is already a member. The list was not changed.",
+  ROLES_ADD_USER_NOT_FOUND:
+    "perc.ui.developer@That role was not found. The user was not added.",
   ROLES_MEMBERS_LOADING: "perc.ui.developer@Loading users...",
   ROLES_MEMBERS_EMPTY: "perc.ui.developer@No users on this role.",
   ROLES_MEMBERS_ERROR: "perc.ui.developer@Could not load users for this role.",

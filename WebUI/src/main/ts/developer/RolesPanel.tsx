@@ -18,6 +18,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isApiError } from "../api/client";
 import {
+  addRoleUser,
   browseRoles,
   createRole,
   deleteRole,
@@ -133,6 +134,24 @@ function homePageFailureMessage(err: unknown): string {
     }
   }
   return panelErrMsg(err, DEV_MSG.ROLES_HOME_ERROR);
+}
+
+function addUserFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.ROLES_ADD_USER_FORBIDDEN);
+    }
+    if (err.status === 409) {
+      return panelErrMsg(err, DEV_MSG.ROLES_ADD_USER_CONFLICT);
+    }
+    if (err.status === 404) {
+      return panelErrMsg(err, DEV_MSG.ROLES_ADD_USER_NOT_FOUND);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.ROLES_ADD_USER_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.ROLES_ADD_USER_ERROR);
 }
 
 function deleteFailureMessage(err: unknown): string {
@@ -351,11 +370,12 @@ function RoleGroupSection({
  * SE-03 Roles catalog grouped by community / workflow / unassigned.
  * Admins create one role (name + description) via PUT ?create=true, edit
  * one existing role's description via PUT ?update=true, set or clear one
- * role's home page via PUT ?homePage=true, and delete one non-system role
- * via DELETE after confirm. Opening a role GETs its stored users (read-only).
- * An empty user list is an empty state. HTTP 403 and 404 do not show members.
- * Description and home-page saves do not send users. Membership edits stay
- * out of scope.
+ * role's home page via PUT ?homePage=true, add one existing user via
+ * PUT ?addUser=true, and delete one non-system role via DELETE after confirm.
+ * Opening a role GETs its stored users. An empty user list is an empty state.
+ * HTTP 403 and 404 do not show members. The added user appears only after a
+ * successful save. HTTP 400, 403, and 409 leave the previous list. Description
+ * and home-page saves do not send users. Removing a user stays out of scope.
  */
 export function RolesPanel(): React.ReactElement {
   const [catalog, setCatalog] = useState<RoleBrowseEntry[] | null>(null);
@@ -380,6 +400,10 @@ export function RolesPanel(): React.ReactElement {
   const [homeError, setHomeError] = useState<string | null>(null);
   const [homeNotice, setHomeNotice] = useState<string | null>(null);
   const [homeBusy, setHomeBusy] = useState(false);
+  const [draftUser, setDraftUser] = useState("");
+  const [addError, setAddError] = useState<string | null>(null);
+  const [addNotice, setAddNotice] = useState<string | null>(null);
+  const [addBusy, setAddBusy] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
@@ -392,6 +416,7 @@ export function RolesPanel(): React.ReactElement {
   const createInflight = useRef(false);
   const editInflight = useRef(false);
   const homeInflight = useRef(false);
+  const addInflight = useRef(false);
   const deleteInflight = useRef(false);
   const membersGen = useRef(0);
   const editNameRef = useRef<string | null>(null);
@@ -487,7 +512,7 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function openDelete(role: RoleBrowseEntry) {
-    if (createBusy || editBusy || deleteBusy || !role.name) return;
+    if (createBusy || editBusy || homeBusy || addBusy || deleteBusy || !role.name) return;
     if (isSystemRoleName(role.name)) return;
     setDeleteError(null);
     setDeleteNotice(null);
@@ -536,12 +561,15 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function openCreate() {
-    if (editBusy || homeBusy || deleteBusy) return;
+    if (editBusy || homeBusy || addBusy || deleteBusy) return;
     editNameRef.current = null;
     clearMembers();
     setEditName(null);
     setEditError(null);
     setHomeError(null);
+    setAddError(null);
+    setAddNotice(null);
+    setDraftUser("");
     setEditDescription("");
     setEditHomePage("");
     setCreating(true);
@@ -561,12 +589,15 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function openEdit(role: RoleBrowseEntry) {
-    if (createBusy || editBusy || homeBusy || deleteBusy || !role.name) return;
+    if (createBusy || editBusy || homeBusy || addBusy || deleteBusy || !role.name) return;
     setCreating(false);
     setCreateError(null);
     setCreateNotice(null);
     setEditError(null);
     setHomeError(null);
+    setAddError(null);
+    setAddNotice(null);
+    setDraftUser("");
     setEditNotice(null);
     setHomeNotice(null);
     editNameRef.current = role.name;
@@ -579,12 +610,15 @@ export function RolesPanel(): React.ReactElement {
   }
 
   function cancelEdit() {
-    if (editBusy || homeBusy) return;
+    if (editBusy || homeBusy || addBusy) return;
     editNameRef.current = null;
     clearMembers();
     setEditName(null);
     setEditError(null);
     setHomeError(null);
+    setAddError(null);
+    setAddNotice(null);
+    setDraftUser("");
     setEditDescription("");
     setEditHomePage("");
   }
@@ -627,7 +661,7 @@ export function RolesPanel(): React.ReactElement {
   }
 
   async function handleEdit(): Promise<void> {
-    if (!editName || editInflight.current || homeInflight.current) {
+    if (!editName || editInflight.current || homeInflight.current || addInflight.current) {
       return;
     }
     editInflight.current = true;
@@ -658,7 +692,7 @@ export function RolesPanel(): React.ReactElement {
   }
 
   async function handleHomePage(): Promise<void> {
-    if (!editName || homeInflight.current || editInflight.current) {
+    if (!editName || homeInflight.current || editInflight.current || addInflight.current) {
       return;
     }
     homeInflight.current = true;
@@ -688,10 +722,47 @@ export function RolesPanel(): React.ReactElement {
     }
   }
 
+  async function handleAddUser(): Promise<void> {
+    const userName = draftUser.trim();
+    if (!editName || !userName || addInflight.current || editInflight.current || homeInflight.current) {
+      return;
+    }
+    addInflight.current = true;
+    setAddBusy(true);
+    setAddError(null);
+    setAddNotice(null);
+    const name = editName.trim();
+    const previousUsers = memberUsers;
+    try {
+      const saved = await addRoleUser({ name, userName });
+      if (!mountedRef.current) return;
+      if (!sameRoleName(saved.name, name)) {
+        setAddError(DEV_MSG.ROLES_ADD_USER_ERROR);
+        return;
+      }
+      setMemberUsers(saved.users);
+      setMembersError(null);
+      setMembersLoading(false);
+      setDraftUser("");
+      setAddNotice(DEV_MSG.ROLES_ADD_USER_SAVED);
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setMemberUsers(previousUsers);
+      setAddError(addUserFailureMessage(err));
+    } finally {
+      addInflight.current = false;
+      if (mountedRef.current) {
+        setAddBusy(false);
+      }
+    }
+  }
+
   const canCreate = !createBusy && isRoleCreateReady(draftName);
-  const detailLocked = editBusy || homeBusy;
+  const detailLocked = editBusy || homeBusy || addBusy;
   const canSaveDescription = !detailLocked && editName != null && editName.trim().length > 0;
   const canSaveHomePage = canSaveDescription;
+  const canAddUser =
+    canSaveDescription && !membersLoading && draftUser.trim().length > 0;
 
   if (error) {
     return (
@@ -807,6 +878,58 @@ export function RolesPanel(): React.ReactElement {
             </span>
           </div>
           <RoleMembers loading={membersLoading} error={membersError} users={memberUsers} />
+          <section
+            aria-label={DEV_MSG.ROLES_ADD_USER_LABEL}
+            data-testid="developer-roles-add-user"
+            style={{ marginBottom: "12px" }}
+          >
+            {addError ? (
+              <div role="alert" data-testid="developer-roles-add-user-error" style={errorAlert}>
+                {addError}
+              </div>
+            ) : null}
+            {addNotice ? (
+              <div
+                data-testid="developer-roles-add-user-notice"
+                style={{ color: "#276749", marginBottom: "8px" }}
+              >
+                {addNotice}
+              </div>
+            ) : null}
+            <div style={fieldStyle}>
+              <label htmlFor="developer-roles-add-user-name">{DEV_MSG.ROLES_ADD_USER_LABEL}</label>
+              <input
+                id="developer-roles-add-user-name"
+                data-testid="developer-roles-add-user-name"
+                style={inputStyle}
+                value={draftUser}
+                disabled={detailLocked || membersLoading}
+                onChange={(event) => setDraftUser(event.target.value)}
+              />
+              <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
+                {DEV_MSG.ROLES_ADD_USER_HINT}
+              </span>
+            </div>
+            <button
+              type="button"
+              data-testid="developer-roles-add-user-save"
+              aria-label={DEV_MSG.ROLES_ADD_USER_SAVE}
+              disabled={!canAddUser}
+              onClick={() => {
+                void handleAddUser();
+              }}
+              style={{
+                padding: "8px 16px",
+                background: canAddUser ? catalogColors.accent : catalogColors.disabled,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: canAddUser ? "pointer" : "not-allowed",
+              }}
+            >
+              {DEV_MSG.ROLES_ADD_USER_SAVE}
+            </button>
+          </section>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             <button
               type="submit"
