@@ -57,4 +57,21 @@ describe("HtmlFieldWidget", () => {
     const area = screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
     expect(area.readOnly).toBe(true);
   });
+
+  it("marks the textarea invalid when the editor refuses the HTML", () => {
+    render(
+      <HtmlFieldWidget
+        name="text"
+        value={'<script>alert(1)</script>'}
+        readOnly={false}
+        invalid
+        onChange={vi.fn()}
+        loadScript={async () => {
+          /* do not attach TinyMCE in unit tests */
+        }}
+      />,
+    );
+    const area = screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
+    expect(area.getAttribute("aria-invalid")).toBe("true");
+  });
 });
