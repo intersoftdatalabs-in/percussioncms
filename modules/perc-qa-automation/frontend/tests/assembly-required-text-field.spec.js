@@ -234,7 +234,7 @@ test.describe("assembly host required single-line text", () => {
       const titleField = frame.locator('[data-testid="assembly-inline-field-displaytitle"]');
       await expect(titleField).toBeVisible({ timeout: 20_000 });
       await expect(titleField).toHaveText(OLD_TEXT);
-      await expect(titleField).toHaveAttribute("aria-required", "true");
+      await expect(titleField).toHaveAttribute("data-assembly-required", "true");
       await expect(page.locator('[data-testid="assembly-field-chip-displaytitle"]')).toHaveAttribute(
         "data-required",
         "true",
@@ -251,7 +251,7 @@ test.describe("assembly host required single-line text", () => {
         /fields saved/i,
       );
       expect(puts, "a blank required text field must not be written").toEqual([]);
-      await expect(titleField).toHaveAttribute("aria-invalid", "true");
+      await expect(titleField).not.toHaveAttribute("aria-invalid", "true");
 
       await page.goto(assemblySpaUrl(BASE_URL, "contentId=42&templateId=7"));
       const reloaded = page.frameLocator('[data-testid="assembly-preview-frame"]');

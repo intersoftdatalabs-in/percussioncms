@@ -1330,7 +1330,7 @@ describe("AssemblyHost", () => {
     const title = previewDoc.querySelector(
       '[data-testid="assembly-inline-field-displaytitle"]',
     ) as HTMLElement;
-    expect(title.getAttribute("aria-required")).toBe("true");
+    expect(title.hasAttribute("aria-required")).toBe(false);
     expect(title.getAttribute("data-assembly-required")).toBe("true");
     expect(
       screen.getByTestId("assembly-field-chip-displaytitle").getAttribute("data-required"),
@@ -1347,9 +1347,7 @@ describe("AssemblyHost", () => {
     expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/required/i);
     expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
     expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
-    await waitFor(() => {
-      expect(title.getAttribute("aria-invalid")).toBe("true");
-    });
+    expect(title.hasAttribute("aria-invalid")).toBe(false);
     expect(title.textContent).toBe("");
     cleanup();
     const reloaded = textPreviewDoc();

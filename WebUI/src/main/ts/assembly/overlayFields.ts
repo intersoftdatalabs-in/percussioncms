@@ -154,6 +154,11 @@ export function markAssemblyFieldErrors(
     return;
   }
   root.querySelectorAll("[data-assembly-field]").forEach((el) => {
+    const tag = el.tagName;
+    if (tag !== "INPUT" && tag !== "TEXTAREA") {
+      el.removeAttribute("aria-invalid");
+      return;
+    }
     const name = el.getAttribute("data-assembly-field")?.trim() ?? "";
     if (name && errors[name]) {
       el.setAttribute("aria-invalid", "true");
@@ -546,7 +551,8 @@ export function applyFieldOverlay(
     } else if (field?.kind === "text") {
       html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_TEXT);
       if (field.required) {
-        html.setAttribute("aria-required", "true");
+        // A heading or other assembled node is contenteditable. aria-required
+        // is not allowed on that role; the overlay input carries it instead.
         html.setAttribute("data-assembly-required", "true");
       }
       bindSingleLineGuard(html);

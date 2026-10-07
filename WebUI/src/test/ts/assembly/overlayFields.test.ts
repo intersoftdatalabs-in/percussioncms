@@ -724,13 +724,17 @@ describe("blankRequiredTextFieldNames", () => {
   it("marks only the named overlay control invalid", () => {
     const root = document.createElement("div");
     root.innerHTML = `
+      <input data-assembly-field="displaytitle" value="Welcome" />
       <h1 data-assembly-field="displaytitle">Welcome</h1>
       <p data-assembly-field="notes">A long note</p>
     `;
     markAssemblyFieldErrors(root, { displaytitle: "This field is required." });
     expect(
-      root.querySelector('[data-assembly-field="displaytitle"]')?.getAttribute("aria-invalid"),
+      root.querySelector("input")?.getAttribute("aria-invalid"),
     ).toBe("true");
+    expect(
+      root.querySelector("h1")?.hasAttribute("aria-invalid"),
+    ).toBe(false);
     expect(
       root.querySelector('[data-assembly-field="notes"]')?.hasAttribute("aria-invalid"),
     ).toBe(false);
