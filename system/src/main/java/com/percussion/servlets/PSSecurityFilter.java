@@ -270,8 +270,12 @@ public class PSSecurityFilter implements Filter {
    */
   public static final String SUBJECT = "RX_AUTHENTICATED_SUBJECT";
 
-  /** These entries are created from the system and user security configurations. */
-  private List<SecurityEntry> m_configuredEntries = null;
+  /**
+   * Entries from the system and user security configurations. Published only after a reload has
+   * finished reading both files, so concurrent requests never observe an empty list. Volatile so
+   * that publication is visible to other request threads.
+   */
+  private volatile List<SecurityEntry> m_configuredEntries = null;
 
   /** Determines if redirection to the login servlet should use https. */
   private boolean m_forceSecureLogin = false;
@@ -309,14 +313,14 @@ public class PSSecurityFilter implements Filter {
   private File m_userSecurityConfig = null;
 
   /**
-   * The time the system security config was lastmodified, updated each time {@link #loadConfigs()}
-   * is called.
+   * Last-modified time of the system security config captured when that file was reloaded. Stays
+   * unchanged when {@link #loadConfigs()} finds the same mtime.
    */
   private long m_systemConfigLastModified = 0;
 
   /**
-   * The time the user security config was last modified, updated each time {@link #loadConfigs()}
-   * is called.
+   * Last-modified time of the user security config captured when that file was reloaded. Stays
+   * unchanged when the file is missing or {@link #loadConfigs()} finds the same mtime.
    */
   private long m_userConfigLastModified = 0;
 
@@ -385,12 +389,14 @@ public class PSSecurityFilter implements Filter {
 
   /**
    * Loads the configurations if they've never been loaded or if they've been modified since the
-   * last time they were loaded.
+   * last time they were loaded. A reload builds the replacement list locally and publishes it only
+   * after both configs have been read, so a concurrent request cannot see an empty rule list and
+   * fall through to form login. Package access for unit testing only.
    *
    * @throws ServletException If the system security config is not found or a config cannot be
    *     loaded.
    */
-  private void loadConfigs() throws ServletException {
+  void loadConfigs() throws ServletException {
     if (!m_systemSecurityConfig.exists())
       throw new ServletException(
           "System security config file not found: " + m_systemSecurityConfig);
@@ -401,16 +407,18 @@ public class PSSecurityFilter implements Filter {
       m_systemConfigLastModified = m_systemSecurityConfig.lastModified();
     }
 
-    boolean doLoadUser = (m_userSecurityConfig.exists());
-    if (doLoadUser && m_userSecurityConfig.lastModified() != m_userConfigLastModified) {
+    boolean doLoadUser = false;
+    if (m_userSecurityConfig.exists()
+        && m_userSecurityConfig.lastModified() != m_userConfigLastModified) {
       doLoadUser = true;
       m_userConfigLastModified = m_userSecurityConfig.lastModified();
     }
 
     if (doLoadSystem || doLoadUser) {
-      m_configuredEntries = new CopyOnWriteArrayList<>();
-      loadConfig(m_systemSecurityConfig, false, m_configuredEntries);
-      m_forceSecureLogin = loadConfig(m_userSecurityConfig, true, m_configuredEntries);
+      List<SecurityEntry> loaded = new CopyOnWriteArrayList<>();
+      loadConfig(m_systemSecurityConfig, false, loaded);
+      m_forceSecureLogin = loadConfig(m_userSecurityConfig, true, loaded);
+      m_configuredEntries = loaded;
     }
   }
 
