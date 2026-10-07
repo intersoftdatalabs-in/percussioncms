@@ -519,6 +519,7 @@ Existing role get / list / create-update / delete remain:
 | `PUT` | `/services/roles/?create=true` | Create a role (does not update an existing name) |
 | `PUT` | `/services/roles/?update=true` | Update an existing role's description only (404 if missing; does not change members or the home page) |
 | `PUT` | `/services/roles/?homePage=true` | Update an existing role's home page only (404 if missing). Blank `homePage` clears it. Unknown values are 400. Does not change the description or members. Do not combine with `create=true` or `update=true` |
+| `PUT` | `/services/roles/?addUser=true` | Add one existing user to an existing role (404 if the role is missing). `users` must contain exactly one known user name. A blank or unknown user is 400 and does not change membership. A user who is already a member is 409. Does not change the description, home page, or other members. Do not combine with `create=true`, `update=true`, or `homePage=true`. Description update still ignores a client user list |
 | `PUT` | `/services/roles/` | Create a role that is not defined, or update the description of one that is |
 | `DELETE` | `/services/roles/{roleName}` | **Admin.** Delete one CMS role. System and Default are `400`. Missing is `404`. In use (stranded users or a non-reader workflow assignment) is `409` and is not deleted. A directory group loses only the CMS link |
 

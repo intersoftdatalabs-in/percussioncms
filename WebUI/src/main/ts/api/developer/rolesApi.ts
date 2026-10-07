@@ -188,12 +188,14 @@ export async function browseRoles(
   return unwrapRoleBrowseCatalog(payload);
 }
 
-/** Wire body for PUT /services/roles/. Description and home page are optional. */
+/** Wire body for PUT /services/roles/. Description, home page, and users are optional. */
 export type RoleCreateBody = {
   name: string;
   description?: string;
   /** Sent only by the home-page save. Blank clears. */
   homePage?: string;
+  /** Sent only by add-one-user. Exactly one name. Description update must not set this. */
+  users?: string[];
 };
 
 /** Role returned by a successful create. */
@@ -463,4 +465,34 @@ export async function updateRoleHomePage(input: {
     wrapRoleCreateForWire({ name, homePage }),
   );
   return unwrapUpdatedRoleHomePage(payload);
+}
+
+/** PUT /services/roles/?addUser=true — one existing user on an existing role, never a create. */
+export function roleAddUserUrl(): string {
+  return `${PATHS.ROLES}/?addUser=true`;
+}
+
+/**
+ * PUT /services/roles/?addUser=true — Admin add of one existing user.
+ * Sends the role name and that single user. Does not send description or home page.
+ * HTTP 400, 403, and 409 reject; this function does not return a membership list for those.
+ * A blank role name or user name throws before fetch.
+ */
+export async function addRoleUser(input: {
+  name: string;
+  userName: string;
+}): Promise<RoleRead> {
+  const name = input.name.trim();
+  const userName = input.userName?.trim() ?? "";
+  if (!isRoleCreateReady(name)) {
+    throw new Error("Role name is required");
+  }
+  if (!isRoleCreateReady(userName)) {
+    throw new Error("User name is required");
+  }
+  const payload = await put<unknown>(
+    roleAddUserUrl(),
+    wrapRoleCreateForWire({ name, users: [userName] }),
+  );
+  return unwrapRoleRead(payload);
 }

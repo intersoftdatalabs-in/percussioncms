@@ -33,6 +33,7 @@ vi.mock("../../../main/ts/api/developer/rolesApi", async (importOriginal) => {
     createRole: vi.fn(),
     updateRoleDescription: vi.fn(),
     updateRoleHomePage: vi.fn(),
+    addRoleUser: vi.fn(),
     deleteRole: vi.fn(),
     loadRole: vi.fn(),
   };
@@ -42,6 +43,7 @@ const browseRoles = rolesApi.browseRoles as ReturnType<typeof vi.fn>;
 const createRole = rolesApi.createRole as ReturnType<typeof vi.fn>;
 const updateRoleDescription = rolesApi.updateRoleDescription as ReturnType<typeof vi.fn>;
 const updateRoleHomePage = rolesApi.updateRoleHomePage as ReturnType<typeof vi.fn>;
+const addRoleUser = rolesApi.addRoleUser as ReturnType<typeof vi.fn>;
 const deleteRole = rolesApi.deleteRole as ReturnType<typeof vi.fn>;
 const loadRole = rolesApi.loadRole as ReturnType<typeof vi.fn>;
 
@@ -54,6 +56,7 @@ describe("RolesPanel", () => {
     createRole.mockReset();
     updateRoleDescription.mockReset();
     updateRoleHomePage.mockReset();
+    addRoleUser.mockReset();
     deleteRole.mockReset();
     loadRole.mockReset();
     loadRole.mockImplementation(async (name: string) => ({
@@ -733,6 +736,96 @@ describe("RolesPanel", () => {
       expect(screen.getByTestId("developer-roles-edit-notice")).toBeTruthy();
       expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
     });
+    expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
+    expect(screen.queryByTestId("developer-roles-member")).toBeNull();
+  });
+
+  it("shows the added user only after save and leaves the list on 400, 403, and 409", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    loadRole.mockResolvedValue({ name: "Author", users: ["Bea"] });
+    let resolveAdd: (value: { name: string; users: string[] }) => void = () => {};
+    addRoleUser.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveAdd = resolve;
+        }),
+    );
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-member").getAttribute("data-user-name")).toBe(
+        "Bea",
+      );
+    });
+
+    const nameInput = screen.getByTestId("developer-roles-add-user-name") as HTMLInputElement;
+    const save = screen.getByTestId("developer-roles-add-user-save") as HTMLButtonElement;
+    fireEvent.change(nameInput, { target: { value: "   " } });
+    expect(save.disabled).toBe(true);
+    fireEvent.click(save);
+    expect(addRoleUser).not.toHaveBeenCalled();
+
+    fireEvent.change(nameInput, { target: { value: "Ada" } });
+    expect(save.disabled).toBe(false);
+    fireEvent.click(save);
+    expect(addRoleUser).toHaveBeenCalledWith({ name: "Author", userName: "Ada" });
+    expect(screen.getAllByTestId("developer-roles-member")).toHaveLength(1);
+    expect(screen.getByTestId("developer-roles-member").getAttribute("data-user-name")).toBe("Bea");
+
+    resolveAdd({ name: "Author", users: ["Bea", "Ada"] });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-add-user-notice").textContent).toBe(
+        DEV_MSG.ROLES_ADD_USER_SAVED,
+      );
+    });
+    const shown = screen
+      .getAllByTestId("developer-roles-member")
+      .map((node) => node.getAttribute("data-user-name"));
+    expect(shown).toEqual(["Bea", "Ada"]);
+    expect(screen.queryByTestId("developer-roles-add-user-error")).toBeNull();
+
+    for (const status of [400, 403, 409]) {
+      addRoleUser.mockRejectedValue({
+        status,
+        statusText: "Error",
+        body: { users: ["Mallory"] },
+      });
+      fireEvent.change(screen.getByTestId("developer-roles-add-user-name"), {
+        target: { value: "Mallory" },
+      });
+      fireEvent.click(screen.getByTestId("developer-roles-add-user-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-roles-add-user-error").textContent).toContain(
+          `(${status})`,
+        );
+      });
+      const after = screen
+        .getAllByTestId("developer-roles-member")
+        .map((node) => node.getAttribute("data-user-name"));
+      expect(after).toEqual(["Bea", "Ada"]);
+      expect(screen.getByTestId("developer-roles-members").textContent).not.toContain("Mallory");
+    }
+  });
+
+  it("cancel does not add a user", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    loadRole.mockResolvedValue({ name: "Author", users: ["Bea"] });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-add-user-name")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-roles-add-user-name"), {
+      target: { value: "Ada" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-edit-cancel"));
+    expect(addRoleUser).not.toHaveBeenCalled();
     expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
     expect(screen.queryByTestId("developer-roles-member")).toBeNull();
   });

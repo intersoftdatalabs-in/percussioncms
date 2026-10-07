@@ -38,6 +38,7 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
+import com.percussion.user.data.PSUserList;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.user.service.impl.PSUserService;
 import com.percussion.utils.guid.IPSGuid;
@@ -79,6 +80,16 @@ public class RoleAdaptor implements IRoleAdaptor {
 
   static final String ADMIN_REQUIRED_HOMEPAGE = "Admin role required to update a role home page";
 
+  static final String ADMIN_REQUIRED_ADD_USER = "Admin role required to add a user to a role";
+
+  static final String ADD_USER_REQUIRED = "User name is required";
+
+  static final String ADD_USER_ONE = "Add exactly one existing user";
+
+  static final String ADD_USER_UNKNOWN = "Unknown user";
+
+  static final String ADD_USER_ALREADY = "User is already a member of this role";
+
   static final String HOMEPAGE_INVALID = "Role home page is not a known landing page.";
 
   static final String ADMIN_REQUIRED_DELETE = "Admin role required to delete a role";
@@ -113,7 +124,8 @@ public class RoleAdaptor implements IRoleAdaptor {
     this(roleService, securityDesignWs, workflowService, adminChecker, null);
   }
 
-  private RoleAdaptor(
+  /** Package-visible for unit tests. {@code null} userService cannot resolve an existing user. */
+  RoleAdaptor(
       PSRoleService roleService,
       IPSSecurityDesignWs securityDesignWs,
       IPSWorkflowService workflowService,
@@ -220,6 +232,115 @@ public class RoleAdaptor implements IRoleAdaptor {
     } catch (PSDataServiceException e) {
       throw new WebApplicationException(e);
     }
+  }
+
+  /**
+   * Admin add of one existing user. Copies the stored description and home page and appends the
+   * catalog name of that user. A blank name, more than one name, or an unknown user is HTTP 400
+   * and is not saved. A user who is already a member is HTTP 409 and is not saved. Missing roles
+   * are 404, not creates. A client description or home page on the body is ignored.
+   */
+  @Override
+  public Role addRoleUser(URI baseURI, Role role) {
+    requireAdmin(ADMIN_REQUIRED_ADD_USER);
+    if (role == null || StringUtils.isBlank(role.getName())) {
+      throw new WebApplicationException("Role name is required", 400);
+    }
+    role.setName(role.getName().trim());
+    var requested = singleUserName(role);
+    if (!roleExists(baseURI, role.getName())) {
+      throw new WebApplicationException("Role not found", 404);
+    }
+    var canonical = canonicalUserName(requested);
+    try {
+      var existing = roleService.find(new PSStringWrapper(role.getName()));
+      if (existing == null || StringUtils.isBlank(existing.getName())) {
+        throw new WebApplicationException("Role not found", 404);
+      }
+      var members = new ArrayList<String>();
+      if (existing.getUsers() != null) {
+        for (String member : existing.getUsers()) {
+          if (StringUtils.isNotBlank(member)) {
+            members.add(member);
+          }
+        }
+      }
+      if (containsUser(members, canonical)) {
+        throw new WebApplicationException(ADD_USER_ALREADY, 409);
+      }
+      members.add(canonical);
+      var toUpdate = new PSRole();
+      toUpdate.setName(existing.getName());
+      toUpdate.setDescription(existing.getDescription());
+      toUpdate.setHomepage(existing.getHomepage());
+      toUpdate.setUsers(members);
+      var updated = roleService.update(toUpdate);
+      var wire = ApiUtils.convertRole(updated);
+      if (wire == null || StringUtils.isBlank(wire.getName())) {
+        throw new WebApplicationException("Role update returned no role", 500);
+      }
+      return wire;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (PSValidationException e) {
+      var status = isNotFound(e) ? 404 : 400;
+      throw new WebApplicationException(validationMessage(e), status);
+    } catch (PSDataServiceException e) {
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /**
+   * Exactly one non-blank user name. A missing or blank list is HTTP 400. More than one non-blank
+   * name is HTTP 400 so this write cannot replace the member list.
+   */
+  private static String singleUserName(Role role) {
+    var names = new ArrayList<String>();
+    if (role.getUsers() != null) {
+      for (String user : role.getUsers()) {
+        if (StringUtils.isNotBlank(user)) {
+          names.add(user.trim());
+        }
+      }
+    }
+    if (names.isEmpty()) {
+      throw new WebApplicationException(ADD_USER_REQUIRED, 400);
+    }
+    if (names.size() != 1) {
+      throw new WebApplicationException(ADD_USER_ONE, 400);
+    }
+    return names.get(0);
+  }
+
+  /** Catalog spelling of {@code requested}. Unknown names are HTTP 400 and are not saved. */
+  private String canonicalUserName(String requested) {
+    if (userService == null) {
+      throw new WebApplicationException("User service is not available", 500);
+    }
+    PSUserList catalog;
+    try {
+      catalog = userService.getUsers();
+    } catch (PSDataServiceException e) {
+      throw new WebApplicationException(e);
+    }
+    if (catalog == null || catalog.getUsers() == null) {
+      throw new WebApplicationException(ADD_USER_UNKNOWN, 400);
+    }
+    for (String known : catalog.getUsers()) {
+      if (known != null && known.trim().equalsIgnoreCase(requested)) {
+        return known.trim();
+      }
+    }
+    throw new WebApplicationException(ADD_USER_UNKNOWN, 400);
+  }
+
+  private static boolean containsUser(List<String> members, String userName) {
+    for (String member : members) {
+      if (member != null && member.equalsIgnoreCase(userName)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
