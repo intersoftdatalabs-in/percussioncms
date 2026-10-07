@@ -195,6 +195,13 @@ public class PSPublishingDesignRestService {
    */
   static final String LOCATION_SCHEME_CONTENT_TYPE_INVALID =
       "Location scheme content type must be a number";
+
+  /**
+   * {@code RXLOCATIONSCHEME.TEMPLATEID} is a required positive id when the field is sent. Zero or
+   * a negative value must not replace the stored id. A blank field is omitted by the client.
+   */
+  static final String LOCATION_SCHEME_TEMPLATE_INVALID =
+      "Location scheme template must be a number";
   /** Matches {@code RXLOCATIONSCHEMEPARAMS.NAME} VARCHAR(50). */
   static final int MAX_LOCATION_SCHEME_PARAMETER_NAME_LENGTH = 50;
 
@@ -1358,7 +1365,11 @@ public class PSPublishingDesignRestService {
    * template, context, and parameters stored. A content type that is not a positive number is
    * HTTP 400 and writes nothing. Omitting the content type leaves the stored id. A content type
    * that is already stored for the same context and template ({@code UIX_RXLOCSCHEME}) is HTTP
-   * 409 and writes nothing. A blank parameter name, type, or value, or a name or type longer than
+   * 409 and writes nothing. A template-only body leaves the name, generator, description, content
+   * type, context, and parameters stored. A template that is not a positive number is HTTP 400
+   * and writes nothing. Omitting the template leaves the stored id. A template that is already
+   * stored for the same context and content type ({@code UIX_RXLOCSCHEME}) is HTTP 409 and writes
+   * nothing. A blank parameter name, type, or value, or a name or type longer than
    * its column, is HTTP 400 and writes nothing. A parameter name that already exists on the scheme
    * is HTTP 409 and writes nothing.
    */
@@ -1383,7 +1394,7 @@ public class PSPublishingDesignRestService {
       if (Boolean.TRUE.equals(body.getAddParameter())) {
         addition = prepareSchemeParameterAddition(scheme, body.getParameters());
       }
-      // Reject a bad generator, description, or content type before any field is written.
+      // Reject a bad generator, description, content type, or template before any field is written.
       SchemeTextChange generatorChange = prepareLocationSchemeGenerator(body.getGenerator());
       SchemeTextChange descriptionChange = prepareLocationSchemeDescription(body.getDescription());
       String contextId =
@@ -1393,6 +1404,7 @@ public class PSPublishingDesignRestService {
                   ? String.valueOf(scheme.getContextId().getUUID())
                   : null);
       rejectLocationSchemeContentType(scheme, body, contextId, schemeId);
+      rejectLocationSchemeTemplate(scheme, body, contextId, schemeId);
       if (!isBlank(body.getName()) && contextId != null) {
         requireUniqueLocationSchemeName(contextId, body.getName().trim(), schemeId);
       }
@@ -2337,6 +2349,32 @@ public class PSPublishingDesignRestService {
             : (storedTemplate != null ? storedTemplate.longValue() : -1L);
     if (templateId > 0 && contextId != null) {
       requireUniqueLocationSchemeAssignment(contextId, templateId, nextContentType, schemeId);
+    }
+  }
+
+  /**
+   * Reject a non-positive template (HTTP 400) or a context/template/content-type triple that
+   * another scheme already uses (HTTP 409). A null template is omitted. Nothing is written here.
+   */
+  private void rejectLocationSchemeTemplate(
+      IPSLocationScheme scheme,
+      PSLocationSchemeSummary body,
+      String contextId,
+      String schemeId) {
+    if (body.getTemplateId() == null) {
+      return;
+    }
+    long nextTemplate = body.getTemplateId();
+    if (nextTemplate <= 0) {
+      throw badRequest(LOCATION_SCHEME_TEMPLATE_INVALID);
+    }
+    Long storedContentType = scheme.getContentTypeId();
+    long contentTypeId =
+        body.getContentTypeId() != null
+            ? body.getContentTypeId()
+            : (storedContentType != null ? storedContentType.longValue() : -1L);
+    if (contentTypeId > 0 && contextId != null) {
+      requireUniqueLocationSchemeAssignment(contextId, nextTemplate, contentTypeId, schemeId);
     }
   }
 

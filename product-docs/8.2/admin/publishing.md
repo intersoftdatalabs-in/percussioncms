@@ -846,7 +846,9 @@ is described below and changes the name only. Setting only the generator is also
 below and does not change the name, description, content type, template, or parameters.
 Setting only the description is also described below and does not change the name, generator,
 content type, template, or parameters. Setting only the content type is also described below
-and does not change the name, generator, description, template, or parameters. Adding one
+and does not change the name, generator, description, template, or parameters. Setting only
+the template is also described below and does not change the name, generator, description,
+content type, or parameters. Adding one
 parameter is also described below and does not change the name, generator, description,
 content type, or template.
 
@@ -967,7 +969,40 @@ form error region. Those responses do not change the content type on the list an
 change the name, generator, description, template, or parameters. Saving a location scheme
 (which can also change the content type together with other fields), renaming one, setting
 only the generator, setting only the description, adding one parameter, copying one, and
-deleting one are separate actions. Setting a location scheme template is not this action.
+deleting one are separate actions. Setting only the template is described below and is not
+this action.
+
+### Set a location scheme template (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. On a location scheme row, **Template** loads
+that scheme (`GET …/sitemanage/publishingdesign/schemes/{schemeId}`) and opens
+**Location scheme template**. The form shows the current **name**, **generator**,
+**description**, **content type**, and **parameters** and does not let you change them.
+Change **Template id**. **Save template** sends
+`PUT …/sitemanage/publishingdesign/schemes/{schemeId}` (the same update already used by
+Design; there is no second template resource) with a `locationScheme` object that contains
+only the template id. Name, generator, description, content type, context, and
+`schemeParameter` entries are omitted, so the server leaves those stored. The scheme id
+does not change. A blank template does not clear the stored id.
+
+The context's location-scheme list keeps the previous template until that update succeeds,
+then shows the new template id with the same name, generator, description, and content type.
+If the list refresh fails after a successful update, that row's template is still replaced
+and the other fields on the row stay.
+**Cancel** closes the form and does not update the scheme. A blank or whitespace template,
+zero, a negative value, or any value that is not a positive whole number is rejected in the
+form and does not call the update.
+
+HTTP **400** (template is not a positive number), **403** (not Admin or Designer), and
+**409** (another location scheme in that context already uses this template and content type,
+or a scheme name sent with the update already exists in the context) stay in the template
+form error region. Those responses do not change the template on the list and do not
+change the name, generator, description, content type, or parameters. Saving a location scheme
+(which can also change the template together with other fields), renaming one, setting
+only the generator, setting only the description, setting only the content type, adding one
+parameter, copying one, and deleting one are separate actions. Copying a location scheme may
+store a different template id only so the copy stays unique; that is not this action.
 
 ### Add one location scheme parameter (Design)
 
