@@ -94,6 +94,11 @@ import {
   validateLocationSchemeContentType,
 } from "../locationSchemeContentType";
 import {
+  buildLocationSchemeTemplateBody,
+  schemesAfterSuccessfulTemplate,
+  validateLocationSchemeTemplate,
+} from "../locationSchemeTemplate";
+import {
   buildLocationSchemeAddParameterBody,
   schemesAfterSuccessfulAdd,
   validateLocationSchemeAddParameter,
@@ -114,6 +119,7 @@ type Mode =
   | { kind: "scheme-generator"; source: LocationSchemeSummary; contextId: string }
   | { kind: "scheme-describe"; source: LocationSchemeSummary; contextId: string }
   | { kind: "scheme-content-type"; source: LocationSchemeSummary; contextId: string }
+  | { kind: "scheme-template"; source: LocationSchemeSummary; contextId: string }
   | {
       kind: "scheme-add-parameter";
       source: LocationSchemeSummary;
@@ -152,6 +158,7 @@ export function ContextsPanel(): React.ReactElement {
   const [schemeGenerator, setSchemeGenerator] = useState("");
   const [schemeDescription, setSchemeDescription] = useState("");
   const [schemeContentType, setSchemeContentType] = useState("");
+  const [schemeTemplate, setSchemeTemplate] = useState("");
   const [paramAddName, setParamAddName] = useState("");
   const [paramAddType, setParamAddType] = useState("String");
   const [paramAddValue, setParamAddValue] = useState("");
@@ -698,6 +705,70 @@ export function ContextsPanel(): React.ReactElement {
           validated.contentTypeId,
           previous,
         ),
+      );
+    } catch (e) {
+      setError(mapLocationSchemeSaveError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function openSchemeTemplate(source: LocationSchemeSummary): Promise<void> {
+    if (!source.schemeId || !selected || saving) {
+      return;
+    }
+    setError(null);
+    setDirty(false);
+    const contextId = selected;
+    let full = source;
+    try {
+      full = await getScheme(source.schemeId);
+    } catch {
+      full = source;
+    }
+    const stored = full.templateId ?? source.templateId;
+    setSchemeTemplate(stored != null ? String(stored) : "");
+    setMode({ kind: "scheme-template", source: full, contextId });
+  }
+
+  function closeSchemeTemplate(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setMode({ kind: "list" });
+  }
+
+  async function saveSchemeTemplate(): Promise<void> {
+    if (mode.kind !== "scheme-template" || !mode.source.schemeId || saving) {
+      return;
+    }
+    const validated = validateLocationSchemeTemplate(schemeTemplate);
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    const id = String(mode.source.schemeId);
+    const contextId = mode.contextId;
+    setError(null);
+    setSaving(true);
+    const previous = schemes;
+    try {
+      await updateScheme(id, buildLocationSchemeTemplateBody(validated.templateId));
+      setDirty(false);
+      setMode({ kind: "list" });
+      let refreshed: LocationSchemeSummary[] | null = null;
+      try {
+        refreshed = await listSchemesForContext(contextId);
+      } catch {
+        refreshed = null;
+      }
+      setSchemes(
+        schemesAfterSuccessfulTemplate(refreshed, id, validated.templateId, previous),
       );
     } catch (e) {
       setError(mapLocationSchemeSaveError(e));
@@ -1594,6 +1665,78 @@ export function ContextsPanel(): React.ReactElement {
     );
   }
 
+  if (mode.kind === "scheme-template") {
+    const source = mode.source;
+    return (
+      <div data-testid="scheme-template">
+        <h3>Location scheme template</h3>
+        <p>
+          Name: <span data-testid="scheme-template-name">{source.name ?? ""}</span>
+        </p>
+        <p>
+          Generator:{" "}
+          <span data-testid="scheme-template-generator">{source.generator ?? ""}</span>
+        </p>
+        <p>
+          Description:{" "}
+          <span data-testid="scheme-template-description">{source.description ?? ""}</span>
+        </p>
+        <p>
+          Content type:{" "}
+          <span data-testid="scheme-template-content-type">
+            {source.contentTypeId != null ? String(source.contentTypeId) : ""}
+          </span>
+        </p>
+        <p data-testid="scheme-template-parameters-note">
+          Name, generator, description, content type, and parameters stay on this scheme.
+        </p>
+        <ul data-testid="scheme-template-parameters" style={listStyle}>
+          {(source.parameters ?? []).map((p, i) => (
+            <li key={`${p.name}-${i}`} data-testid="scheme-template-parameter">
+              {p.name}: {p.value}
+            </li>
+          ))}
+        </ul>
+        <div style={formRowStyle}>
+          <label htmlFor="scheme-template-input">* Template id</label>
+          <input
+            id="scheme-template-input"
+            value={schemeTemplate}
+            onChange={(e) => {
+              setSchemeTemplate(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="location-scheme-template-save"
+            disabled={saving}
+            onClick={() => void saveSchemeTemplate()}
+          >
+            Save template
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="location-scheme-template-cancel"
+            disabled={saving}
+            onClick={closeSchemeTemplate}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (mode.kind === "scheme-add-parameter") {
     const source = mode.source;
     return (
@@ -1885,6 +2028,10 @@ export function ContextsPanel(): React.ReactElement {
                     <span data-testid={`scheme-list-content-type-${s.schemeId}`}>
                       {s.contentTypeId != null ? String(s.contentTypeId) : ""}
                     </span>
+                    {" · "}
+                    <span data-testid={`scheme-list-template-${s.schemeId}`}>
+                      {s.templateId != null ? String(s.templateId) : ""}
+                    </span>
                   </>
                 ) : null}
               </span>
@@ -1934,6 +2081,15 @@ export function ContextsPanel(): React.ReactElement {
                     onClick={() => void openSchemeContentType(s)}
                   >
                     Content type
+                  </button>
+                  <button
+                    type="button"
+                    style={buttonStyle}
+                    data-testid="location-scheme-template"
+                    disabled={saving}
+                    onClick={() => void openSchemeTemplate(s)}
+                  >
+                    Template
                   </button>
                   <button
                     type="button"
