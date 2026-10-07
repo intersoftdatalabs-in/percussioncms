@@ -18,9 +18,9 @@
 /**
  * Preview-first Active Assembly host. Renders the assembled page or snippet
  * template in an iframe with a light overlay. Slot add / create / arrange
- * use relationship REST (no Data Flow HTML). Scalar field edits use
- * contenteditable on known assembled nodes and persist through
- * itemmanagement — not leftover Content Editor HTML.
+ * use relationship REST (no Data Flow HTML). Text, long-text, and HTML
+ * field edits use the assembled nodes (HTML keeps its markup) and persist
+ * through itemmanagement — not leftover Content Editor HTML.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -66,6 +66,7 @@ import {
   applyFieldOverlay,
   persistOverlayEdits,
   readOverlayEdits,
+  restoreOverlayValues,
   scalarOverlayFields,
   type OverlayField,
 } from "./overlayFields";
@@ -584,6 +585,17 @@ export function AssemblyHost({
       setFieldNotice(message(ASSEMBLY_MSG.FIELD_SAVED));
       paintFieldOverlay();
     } catch {
+      const failedDoc = getPreviewDocument(frameRef.current);
+      if (failedDoc != null) {
+        restoreOverlayValues(failedDoc, overlayFields);
+      }
+      const failedBar =
+        typeof document !== "undefined"
+          ? document.querySelector('[data-testid="assembly-field-bar"]')
+          : null;
+      if (failedBar != null) {
+        restoreOverlayValues(failedBar, overlayFields);
+      }
       setFieldNotice(message(ASSEMBLY_MSG.FIELD_SAVE_FAILED));
     } finally {
       setSavingFields(false);
@@ -770,6 +782,17 @@ export function AssemblyHost({
                     <span data-testid={`assembly-field-inline-${field.name}`}>
                       {message(ASSEMBLY_MSG.FIELD_INLINE)}
                     </span>
+                  ) : field.kind === "html" ? (
+                    <textarea
+                      className={styles.fieldEdit}
+                      rows={4}
+                      defaultValue={field.value}
+                      data-assembly-field={field.name}
+                      data-assembly-content-id={String(contentId ?? "")}
+                      data-assembly-value="html"
+                      data-testid={`assembly-overlay-field-${field.name}`}
+                      aria-label={field.label}
+                    />
                   ) : (
                     <span
                       className={styles.fieldEdit}
