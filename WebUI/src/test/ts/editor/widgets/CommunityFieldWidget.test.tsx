@@ -87,4 +87,27 @@ describe("CommunityFieldWidget", () => {
     });
     expect(onChange).toHaveBeenCalledWith("");
   });
+
+  it("marks a required community invalid without blocking the empty option", async () => {
+    const onChange = vi.fn();
+    render(
+      <CommunityFieldWidget
+        name="sys_communityid"
+        value="10"
+        readOnly={false}
+        required
+        invalid
+        onChange={onChange}
+        loadCommunities={async () => [{ id: 10, name: "Default", label: "Default" }]}
+      />,
+    );
+    const select = screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement;
+    expect(select.getAttribute("aria-required")).toBe("true");
+    expect(select.getAttribute("aria-invalid")).toBe("true");
+    await waitFor(() => {
+      expect(screen.getByText("Default")).toBeTruthy();
+    });
+    fireEvent.change(select, { target: { value: "" } });
+    expect(onChange).toHaveBeenCalledWith("");
+  });
 });

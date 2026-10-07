@@ -9150,6 +9150,194 @@ describe("EditorHost clear community (#5091)", () => {
   });
 });
 
+describe("EditorHost refuse clearing a required community (#5311)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  const communities = async () => [
+    { id: 10, name: "Default", label: "Default" },
+    { id: 20, name: "Enterprise", label: "Enterprise" },
+  ];
+
+  function requiredCommunityHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    communityId?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const communityId = opts.communityId ?? "10";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percEvent",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "sys_communityid", value: communityId }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "sys_communityid",
+              label: "Community",
+              control: "sys_DropDownSingle",
+              required: opts.required !== false,
+            },
+          ],
+        })}
+        loadCommunities={communities}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openRequiredCommunity(
+    element: React.ReactElement,
+    expected = "10",
+  ): Promise<HTMLSelectElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement).value,
+      ).toBe(expected);
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "Enterprise" })).toBeTruthy();
+    });
+    return screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement;
+  }
+
+  it("does not save a required community cleared to the empty option and reloads the previous id", async () => {
+    const saveFields = vi.fn();
+    const select = await openRequiredCommunity(requiredCommunityHost({ saveFields }));
+    expect(select.getAttribute("data-editor-kind")).toBe("community");
+    expect(select.getAttribute("aria-required")).toBe("true");
+    expect(screen.getByTestId("editor-field-row-sys_communityid").getAttribute("data-required")).toBe(
+      "true",
+    );
+    fireEvent.change(select, { target: { value: "" } });
+    expect(select.value).toBe("");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_communityid").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /required fields before saving/i,
+    );
+    expect(select.getAttribute("aria-invalid")).toBe("true");
+    expect(document.activeElement).toBe(screen.getByTestId("editor-field-sys_communityid"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(screen.getByTestId("editor-field-row-sys_communityid").getAttribute("data-required")).toBe(
+      "true",
+    );
+    cleanup();
+    const reloaded = await openRequiredCommunity(requiredCommunityHost({ saveFields }));
+    expect(reloaded.value).toBe("10");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not write when Close cancels an empty required community edit", async () => {
+    const saveFields = vi.fn();
+    await openRequiredCommunity(
+      requiredCommunityHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.change(screen.getByTestId("editor-field-sys_communityid"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement).value).toBe(
+      "",
+    );
+    expect(screen.getByTestId("editor-field-row-sys_communityid").getAttribute("data-required")).toBe(
+      "true",
+    );
+  });
+
+  it("still saves a listed catalog community", async () => {
+    let communityId = "10";
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
+      communityId =
+        payload.fields.find((field) => field.name === "sys_communityid")?.value ?? communityId;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: payload.fields,
+      };
+    });
+    const select = await openRequiredCommunity(
+      requiredCommunityHost({ saveFields, communityId }),
+    );
+    fireEvent.change(select, { target: { value: "20" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "sys_communityid")?.value).toBe("20");
+    cleanup();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={requiredCommunityHost({ saveFields, communityId })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement).value,
+      ).toBe("20");
+    });
+  });
+
+  it("still saves a cleared optional community", async () => {
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => ({
+      contentId: "42",
+      contentType: "percEvent",
+      name: "Home",
+      checkoutUser: "admin",
+      revision: 4,
+      fields: payload.fields,
+    }));
+    const select = await openRequiredCommunity(
+      requiredCommunityHost({ saveFields, required: false }),
+    );
+    expect(select.getAttribute("aria-required")).toBeNull();
+    expect(screen.getByTestId("editor-field-row-sys_communityid").getAttribute("data-required")).toBe(
+      "false",
+    );
+    fireEvent.change(select, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "sys_communityid")?.value).toBe("");
+    expect(screen.queryByTestId("editor-field-error-sys_communityid")).toBeNull();
+  });
+});
+
 describe("EditorHost refuse clearing a required file (#5279)", () => {
   afterEach(() => {
     cleanup();

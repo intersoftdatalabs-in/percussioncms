@@ -105,6 +105,12 @@ describe("mergeEditorRows", () => {
     const rows = mergeEditorRows(payload, [
       { name: "sys_title", label: "Title", required: true },
       { name: "text", label: "Body", control: "sys_tinymce", occurrence: "required" },
+      {
+        name: "sys_communityid",
+        label: "Community",
+        control: "sys_DropDownSingle",
+        required: true,
+      },
     ]);
     expect(isEditorFieldRequired({ required: true })).toBe(true);
     expect(isEditorFieldRequired({ occurrence: "oneOrMore" })).toBe(true);
@@ -113,5 +119,8 @@ describe("mergeEditorRows", () => {
     );
     expect(rows.find((r) => r.name === "sys_title")?.required).toBe(true);
     expect(rows.find((r) => r.name === "text")?.required).toBe(true);
+    const community = rows.find((r) => r.name === "sys_communityid");
+    expect(community?.kind).toBe("community");
+    expect(community?.required).toBe(true);
   });
 });
