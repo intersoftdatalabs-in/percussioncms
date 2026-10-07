@@ -49,6 +49,13 @@ public class PSLocationSchemeSummary {
    */
   private Boolean addParameter;
 
+  /**
+   * When true, {@code parameters} is exactly one parameter to remove by name. Other stored
+   * parameters stay. Other scheme fields are still applied only when present on the body.
+   * Cannot be combined with {@link #addParameter}.
+   */
+  private Boolean removeParameter;
+
   public String getSchemeId() {
     return schemeId;
   }
@@ -137,5 +144,13 @@ public class PSLocationSchemeSummary {
 
   public void setAddParameter(Boolean addParameter) {
     this.addParameter = addParameter;
+  }
+
+  public Boolean getRemoveParameter() {
+    return removeParameter;
+  }
+
+  public void setRemoveParameter(Boolean removeParameter) {
+    this.removeParameter = removeParameter;
   }
 }

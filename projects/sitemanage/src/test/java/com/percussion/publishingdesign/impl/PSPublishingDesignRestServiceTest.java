@@ -2492,6 +2492,224 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void updateScheme_removeParameter_keepsOtherParameterAndIdentity() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.LOCATION_SCHEME))).thenReturn(schemeGuid);
+    PSLocationScheme scheme = storedScheme();
+    scheme.addParameter("path", 0, "String", "$sys.site.path");
+    scheme.addParameter("suffix", 1, "BackendColumn", "article");
+    parameterId(scheme, "path", 77);
+    parameterId(scheme, "suffix", 88);
+    when(siteManager.loadSchemeModifiable(schemeGuid)).thenReturn(scheme);
+
+    PSSchemeParameter removed = new PSSchemeParameter();
+    removed.setName(" suffix ");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setRemoveParameter(Boolean.TRUE);
+    body.setParameters(List.of(removed));
+
+    PSLocationSchemeSummary saved = design.updateScheme("11", body);
+    assertEquals("Article", saved.getName());
+    assertEquals("Pages", saved.getDescription());
+    assertEquals("sys_Jexl", saved.getGenerator());
+    assertEquals(4L, saved.getContentTypeId());
+    assertEquals(8L, saved.getTemplateId());
+    assertEquals(1, saved.getParameters().size());
+    assertEquals("path", saved.getParameters().get(0).getName());
+    assertEquals("String", saved.getParameters().get(0).getType());
+    assertEquals("$sys.site.path", saved.getParameters().get(0).getValue());
+    assertEquals(0, saved.getParameters().get(0).getSequence());
+    assertEquals(1, scheme.getParameterNames().size());
+    assertEquals("path", scheme.getParameterNames().get(0));
+    assertEquals(77, parameterId(scheme, "path", null));
+    assertEquals(0, scheme.getParameterSequence("path"));
+    verify(siteManager).saveScheme(scheme);
+    verify(siteManager, never()).deleteScheme(any());
+  }
+
+  @Test
+  void updateScheme_removeParameter_lastParameterLeavesEmptyListAndKeepsScheme() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.LOCATION_SCHEME))).thenReturn(schemeGuid);
+    PSLocationScheme scheme = storedScheme();
+    scheme.addParameter("path", 0, "String", "$sys.site.path");
+    when(siteManager.loadSchemeModifiable(schemeGuid)).thenReturn(scheme);
+
+    PSSchemeParameter removed = new PSSchemeParameter();
+    removed.setName("path");
+    removed.setType("String");
+    removed.setValue("$sys.site.path");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setRemoveParameter(Boolean.TRUE);
+    body.setParameters(List.of(removed));
+
+    PSLocationSchemeSummary saved = design.updateScheme("11", body);
+    assertEquals("Article", saved.getName());
+    assertEquals("sys_Jexl", saved.getGenerator());
+    assertEquals("Pages", saved.getDescription());
+    assertEquals(4L, saved.getContentTypeId());
+    assertEquals(8L, saved.getTemplateId());
+    assertNotNull(saved.getParameters());
+    assertEquals(0, saved.getParameters().size());
+    assertTrue(scheme.getParameterNames().isEmpty());
+    verify(siteManager).saveScheme(scheme);
+    verify(siteManager, never()).deleteScheme(any());
+  }
+
+  @Test
+  void updateScheme_removeParameter_blankName_400_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+
+    PSSchemeParameter removed = new PSSchemeParameter();
+    removed.setName("   ");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setRemoveParameter(Boolean.TRUE);
+    body.setParameters(List.of(removed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_NAME_REQUIRED, ex.getMessage());
+    verify(scheme, never()).removeParameter(any());
+    verify(scheme, never()).addParameter(any(), any(int.class), any(), any());
+    verify(scheme, never()).setName(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_removeParameter_nameTooLong_400_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+
+    PSSchemeParameter removed = new PSSchemeParameter();
+    removed.setName("n".repeat(51));
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setRemoveParameter(Boolean.TRUE);
+    body.setParameters(List.of(removed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_NAME_TOO_LONG, ex.getMessage());
+    verify(scheme, never()).removeParameter(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_removeParameter_notExactlyOne_400_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setRemoveParameter(Boolean.TRUE);
+    body.setParameters(List.of());
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_REMOVE_ONE_REQUIRED,
+        ex.getMessage());
+    verify(scheme, never()).removeParameter(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_removeParameter_missingName_409_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+    when(scheme.getParameterNames()).thenReturn(List.of("path"));
+
+    PSSchemeParameter removed = new PSSchemeParameter();
+    removed.setName("suffix");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setRemoveParameter(Boolean.TRUE);
+    body.setParameters(List.of(removed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_NOT_ON_SCHEME, ex.getMessage());
+    verify(scheme, never()).removeParameter(any());
+    verify(scheme, never()).setName(any());
+    verify(scheme, never()).setGenerator(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_removeParameter_forbidden_403() {
+    PSPublishingDesignRestService design = contextDesign();
+    design.setDesignWriteAllowed(() -> false);
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setRemoveParameter(Boolean.TRUE);
+    PSSchemeParameter removed = new PSSchemeParameter();
+    removed.setName("path");
+    body.setParameters(List.of(removed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(siteManager, never()).loadSchemeModifiable(any());
+    verify(siteManager, never()).saveScheme(any());
+    verify(siteManager, never()).deleteScheme(any());
+  }
+
+  @Test
+  void updateScheme_removeParameter_duplicateSchemeName_409_doesNotRemove() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+    when(scheme.getContextId()).thenReturn(contextGuid);
+    when(scheme.getParameterNames()).thenReturn(List.of("path", "suffix"));
+    when(contextGuid.getUUID()).thenReturn(3);
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+
+    IPSGuid otherGuid = mock(IPSGuid.class);
+    IPSLocationScheme other = mock(IPSLocationScheme.class);
+    when(other.getName()).thenReturn("Taken");
+    when(other.getGUID()).thenReturn(otherGuid);
+    when(otherGuid.getUUID()).thenReturn(99);
+    when(siteManager.findSchemesByContextId(contextGuid)).thenReturn(List.of(other));
+
+    PSSchemeParameter removed = new PSSchemeParameter();
+    removed.setName("suffix");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setName("Taken");
+    body.setRemoveParameter(Boolean.TRUE);
+    body.setParameters(List.of(removed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.LOCATION_SCHEME_NAME_CONFLICT, ex.getMessage());
+    verify(scheme, never()).removeParameter(any());
+    verify(scheme, never()).setName(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_addAndRemoveParameter_400_doesNotLoad() {
+    PSPublishingDesignRestService design = contextDesign();
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setAddParameter(Boolean.TRUE);
+    body.setRemoveParameter(Boolean.TRUE);
+    PSSchemeParameter parameter = new PSSchemeParameter();
+    parameter.setName("path");
+    body.setParameters(List.of(parameter));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_ADD_AND_REMOVE, ex.getMessage());
+    verify(siteManager, never()).loadSchemeModifiable(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
   void listSchemesForContext_includesParameters() throws Exception {
     PSPublishingDesignRestService design = contextDesign();
     when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
@@ -2512,6 +2730,30 @@ class PSPublishingDesignRestServiceTest {
     assertNotNull(listed.get(0).getParameters());
     assertEquals("path", listed.get(0).getParameters().get(0).getName());
     assertEquals("$sys.site.path", listed.get(0).getParameters().get(0).getValue());
+  }
+
+  private static PSLocationScheme storedScheme() {
+    PSLocationScheme scheme = new PSLocationScheme();
+    scheme.setId(11);
+    scheme.setName("Article");
+    scheme.setDescription("Pages");
+    scheme.setGenerator("sys_Jexl");
+    scheme.setContentTypeId(4L);
+    scheme.setTemplateId(8L);
+    return scheme;
+  }
+
+  /** Sets {@code id} when non-null and returns the stored id, or {@code -1} when the name is gone. */
+  private static int parameterId(PSLocationScheme scheme, String name, Integer id) {
+    for (PSLocationSchemeParameter parameter : scheme.getParameterSet()) {
+      if (parameter != null && name.equals(parameter.getName())) {
+        if (id != null) {
+          parameter.setParameterId(id);
+        }
+        return parameter.getParameterId() == null ? -1 : parameter.getParameterId();
+      }
+    }
+    return -1;
   }
 
   private IPSLocationScheme stubSchemeLoadOnly() throws Exception {

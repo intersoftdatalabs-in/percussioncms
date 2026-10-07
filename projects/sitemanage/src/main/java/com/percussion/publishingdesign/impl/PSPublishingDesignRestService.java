@@ -225,6 +225,16 @@ public class PSPublishingDesignRestService {
 
   static final String LOCATION_SCHEME_PARAMETER_EXISTS =
       "Parameter name already exists on this scheme";
+
+  static final String LOCATION_SCHEME_PARAMETER_REMOVE_ONE_REQUIRED =
+      "Remove one location scheme parameter at a time";
+
+  static final String LOCATION_SCHEME_PARAMETER_NOT_ON_SCHEME =
+      "Parameter is not on this scheme";
+
+  static final String LOCATION_SCHEME_PARAMETER_ADD_AND_REMOVE =
+      "Cannot add and remove a location scheme parameter in one update";
+
   static final String CONTEXT_NAME_CONFLICT = "Publishing context name already exists";
   /** Matches {@code RXCONTEXT.CONTEXTNAME} VARCHAR(50). */
   static final int MAX_CONTEXT_NAME_LENGTH = 50;
@@ -1371,7 +1381,12 @@ public class PSPublishingDesignRestService {
    * stored for the same context and content type ({@code UIX_RXLOCSCHEME}) is HTTP 409 and writes
    * nothing. A blank parameter name, type, or value, or a name or type longer than
    * its column, is HTTP 400 and writes nothing. A parameter name that already exists on the scheme
-   * is HTTP 409 and writes nothing.
+   * is HTTP 409 and writes nothing. When {@code removeParameter} is true, the body carries exactly
+   * one parameter name to remove. Other stored parameters stay, including when this removal leaves
+   * none. The scheme itself is not deleted. Name, generator, description, content type, and
+   * template change only when those fields are present. A blank name, a name longer than its
+   * column, or any count other than one is HTTP 400 and writes nothing. A name that is not stored
+   * on the scheme is HTTP 409 and writes nothing. Add and remove cannot be combined.
    */
   @PUT
   @Path("/schemes/{schemeId}")
@@ -1385,13 +1400,20 @@ public class PSPublishingDesignRestService {
     if (body == null) {
       throw badRequest("body is required");
     }
+    if (Boolean.TRUE.equals(body.getAddParameter())
+        && Boolean.TRUE.equals(body.getRemoveParameter())) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_ADD_AND_REMOVE);
+    }
     try {
       IPSLocationScheme scheme =
           siteManager.loadSchemeModifiable(
               guidManager.makeGuid(schemeId, PSTypeEnum.LOCATION_SCHEME));
-      // Reject a bad add before any field is written so 400/409 leaves the stored row.
+      // Reject a bad add or remove before any field is written so 400/409 leaves the stored row.
       SchemeParameterAddition addition = null;
-      if (Boolean.TRUE.equals(body.getAddParameter())) {
+      SchemeParameterRemoval removal = null;
+      if (Boolean.TRUE.equals(body.getRemoveParameter())) {
+        removal = prepareSchemeParameterRemoval(scheme, body.getParameters());
+      } else if (Boolean.TRUE.equals(body.getAddParameter())) {
         addition = prepareSchemeParameterAddition(scheme, body.getParameters());
       }
       // Reject a bad generator, description, content type, or template before any field is written.
@@ -1429,6 +1451,8 @@ public class PSPublishingDesignRestService {
       if (addition != null) {
         scheme.addParameter(
             addition.name(), addition.sequence(), addition.type(), addition.value());
+      } else if (removal != null) {
+        scheme.removeParameter(removal.name());
       } else {
         applySchemeParameters(scheme, body.getParameters(), false);
       }
@@ -1893,6 +1917,38 @@ public class PSPublishingDesignRestService {
   private record SchemeParameterAddition(String name, int sequence, String type, String value) {}
 
   /**
+   * Validate one parameter name to remove. Does not change the scheme. Any count other than one,
+   * a blank name, or a name longer than its column is HTTP 400. A name that is not stored is HTTP
+   * 409. The returned name is the stored spelling so {@link IPSLocationScheme#removeParameter}
+   * matches that row and leaves every other parameter alone.
+   */
+  private SchemeParameterRemoval prepareSchemeParameterRemoval(
+      IPSLocationScheme scheme, List<PSSchemeParameter> parameters) {
+    if (parameters == null || parameters.size() != 1 || parameters.get(0) == null) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_REMOVE_ONE_REQUIRED);
+    }
+    String name =
+        parameters.get(0).getName() == null ? "" : parameters.get(0).getName().trim();
+    if (name.isEmpty()) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_NAME_REQUIRED);
+    }
+    if (name.length() > MAX_LOCATION_SCHEME_PARAMETER_NAME_LENGTH) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_NAME_TOO_LONG);
+    }
+    List<String> existingNames = scheme.getParameterNames();
+    if (existingNames != null) {
+      for (String existingName : existingNames) {
+        if (existingName != null && name.equals(existingName.trim())) {
+          return new SchemeParameterRemoval(existingName);
+        }
+      }
+    }
+    throw conflict(LOCATION_SCHEME_PARAMETER_NOT_ON_SCHEME);
+  }
+
+  private record SchemeParameterRemoval(String name) {}
+
+  /**
    * {@code RXLOCATIONSCHEMEPARAMS.SCHEMEPARAMID} is assigned, not generated. New rows from
    * add-one and from a full parameter replace need a next-number id before {@code persist}.
    * Mocks and other {@link IPSLocationScheme} implementations are left alone.
@@ -1912,7 +1968,7 @@ public class PSPublishingDesignRestService {
   /**
    * Replace or append scheme parameters. When {@code replaceAll} is false and parameters is null,
    * leaves existing params unchanged; when non-null, clears unknown names then sets listed ones.
-   * An add-one update does not use this path.
+   * An add-one or remove-one update does not use this path.
    */
   private void applySchemeParameters(
       IPSLocationScheme scheme, List<PSSchemeParameter> parameters, boolean isCreate) {

@@ -103,6 +103,21 @@ class PSLocationSchemeSummaryJacksonTest {
   }
 
   @Test
+  void removeParameterFlagBindsOneSchemeParameterName() {
+    String json =
+        """
+        {"locationScheme":{"removeParameter":true,"schemeParameter":[{"name":"suffix","type":"BackendColumn","value":"article"}]}}
+        """;
+    PSLocationSchemeSummary body = mapper.readValue(json, PSLocationSchemeSummary.class);
+    assertEquals(Boolean.TRUE, body.getRemoveParameter());
+    assertTrue(body.getAddParameter() == null || !body.getAddParameter());
+    assertTrue(body.getName() == null || body.getName().isBlank());
+    assertNotNull(body.getParameters());
+    assertEquals(1, body.getParameters().size());
+    assertEquals("suffix", body.getParameters().get(0).getName());
+  }
+
+  @Test
   void flatBodyDoesNotBindName() {
     String flat =
         "{\"name\":\"Article copy\",\"generator\":\"Java/global/percussion/contentassembler/sys_JexlAssemblyLocation\"}";
