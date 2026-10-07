@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { captureDialogOpener } from "../architecture/useDialogEscape";
+import { isApiError } from "../api/client";
 import {
   createKeyword,
   deleteKeyword,
@@ -27,6 +28,12 @@ import type { KeywordChoiceSummary, KeywordSummary } from "../api/developer/type
 import { catalogColors, backButton, errorAlert } from "./catalogStyles";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
+import {
+  asKeywordChoices,
+  keywordUpdateForAddedChoice,
+  savedChoicesAfterAdd,
+  unwrapKeywordPayload,
+} from "./keywordChoiceAdd";
 import { DEV_MSG } from "./messages";
 
 function choicesToText(choices: KeywordChoiceSummary[] | undefined): string {
@@ -60,6 +67,21 @@ function keywordId(kw: KeywordSummary): string | null {
   if (kw.guid?.uuid != null) return String(kw.guid.uuid);
   if (kw.guid?.stringValue) return kw.guid.stringValue;
   return null;
+}
+
+function addChoiceFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.KW_ADD_CHOICE_FORBIDDEN);
+    }
+    if (err.status === 409) {
+      return panelErrMsg(err, DEV_MSG.KW_ADD_CHOICE_CONFLICT);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.KW_ADD_CHOICE_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.KW_ADD_CHOICE_ERROR);
 }
 
 const fieldStyle: React.CSSProperties = {
@@ -96,7 +118,20 @@ export function KeywordEditorPanel({
   const [sequence, setSequence] = useState(
     initial?.sequence != null ? String(initial.sequence) : "0",
   );
-  const [choicesText, setChoicesText] = useState(choicesToText(initial?.choices));
+  const [choicesText, setChoicesText] = useState(
+    choicesToText(asKeywordChoices(initial?.choices)),
+  );
+  const [listedChoices, setListedChoices] = useState<KeywordChoiceSummary[]>(
+    asKeywordChoices(initial?.choices),
+  );
+  const [serverKeyword, setServerKeyword] = useState<KeywordSummary | null>(initial);
+  const [detailReady, setDetailReady] = useState(isNew || !id);
+  const [draftLabel, setDraftLabel] = useState("");
+  const [draftValue, setDraftValue] = useState("");
+  const [addBusy, setAddBusy] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
+  const [addNotice, setAddNotice] = useState<string | null>(null);
+  const addInflight = useRef(false);
   const [busy, setBusy] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,12 +141,17 @@ export function KeywordEditorPanel({
     if (!id || isNew) return;
     let cancelled = false;
     getKeyword(id)
-      .then((kw) => {
+      .then((payload) => {
         if (cancelled) return;
+        const kw = unwrapKeywordPayload(payload) ?? payload;
+        const choices = asKeywordChoices(kw.choices);
+        setServerKeyword({ ...kw, choices });
+        setListedChoices(choices);
         setLabel(kw.label || "");
         setDescription(kw.description || "");
         setSequence(kw.sequence != null ? String(kw.sequence) : "0");
-        setChoicesText(choicesToText(kw.choices));
+        setChoicesText(choicesToText(choices));
+        setDetailReady(true);
       })
       .catch((err: unknown) => {
         if (!cancelled) setError(panelErrMsg(err, DEV_MSG.KW_ERROR));
@@ -121,7 +161,14 @@ export function KeywordEditorPanel({
     };
   }, [id, isNew]);
 
+  function applyLoadedKeyword(kw: KeywordSummary): void {
+    setServerKeyword(kw);
+    setListedChoices(kw.choices ?? []);
+    setChoicesText(choicesToText(kw.choices));
+  }
+
   async function handleSave() {
+    if (addBusy || addInflight.current) return;
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -145,8 +192,70 @@ export function KeywordEditorPanel({
     }
   }
 
+  function clearChoiceDraft(): void {
+    setDraftLabel("");
+    setDraftValue("");
+    setAddError(null);
+    setAddNotice(null);
+  }
+
+  function cancelAddChoice(): void {
+    if (addBusy || addInflight.current) return;
+    clearChoiceDraft();
+  }
+
+  async function handleAddChoice(): Promise<void> {
+    if (!id || isNew || !serverKeyword || !detailReady || addInflight.current || busy) {
+      return;
+    }
+    const sent = keywordUpdateForAddedChoice(serverKeyword, listedChoices, {
+      label: draftLabel,
+      value: draftValue,
+    });
+    if (sent === "blank") {
+      setAddError(DEV_MSG.KW_ADD_CHOICE_BLANK);
+      setAddNotice(null);
+      return;
+    }
+    if (sent === "duplicate") {
+      setAddError(DEV_MSG.KW_ADD_CHOICE_DUPLICATE);
+      setAddNotice(null);
+      return;
+    }
+    addInflight.current = true;
+    setAddBusy(true);
+    setAddError(null);
+    setAddNotice(null);
+    const previous = listedChoices;
+    try {
+      const payload = await updateKeyword(id, sent);
+      const accepted = savedChoicesAfterAdd(sent, payload);
+      if (!accepted) {
+        setListedChoices(previous);
+        setAddError(DEV_MSG.KW_ADD_CHOICE_ERROR);
+        return;
+      }
+      const saved = unwrapKeywordPayload(payload);
+      if (saved) {
+        applyLoadedKeyword({ ...saved, choices: accepted });
+      } else {
+        setListedChoices(accepted);
+        setChoicesText(choicesToText(accepted));
+      }
+      clearChoiceDraft();
+      setAddNotice(DEV_MSG.KW_ADD_CHOICE_SAVED);
+    } catch (err: unknown) {
+      setListedChoices(previous);
+      setAddError(addChoiceFailureMessage(err));
+      setAddNotice(null);
+    } finally {
+      addInflight.current = false;
+      setAddBusy(false);
+    }
+  }
+
   function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
-    if (!id || isNew) return;
+    if (!id || isNew || addBusy) return;
     captureDialogOpener(ev.currentTarget);
     setConfirmOpen(true);
   }
@@ -236,12 +345,108 @@ export function KeywordEditorPanel({
         />
       </div>
 
+      {!isNew && id ? (
+        <section data-testid="developer-kw-add-choice" aria-label={DEV_MSG.KW_ADD_CHOICE_SAVE}>
+          <h3 style={{ marginBottom: "8px" }}>{DEV_MSG.KW_CHOICES_TITLE}</h3>
+          <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>
+            {DEV_MSG.KW_ADD_CHOICE_HINT}
+          </p>
+          {addError ? (
+            <div role="alert" data-testid="developer-kw-add-choice-error" style={errorAlert}>
+              {addError}
+            </div>
+          ) : null}
+          {addNotice ? (
+            <div data-testid="developer-kw-add-choice-notice" style={{ color: "#276749" }}>
+              {addNotice}
+            </div>
+          ) : null}
+          {listedChoices.length === 0 ? (
+            <p data-testid="developer-kw-choices-empty">{DEV_MSG.KW_CHOICES_EMPTY}</p>
+          ) : (
+            <ul data-testid="developer-kw-saved-choices" style={{ paddingLeft: "1.2rem" }}>
+              {listedChoices.map((choice, index) => {
+                const choiceLabel = choice.label || "";
+                const choiceValue = choice.value || "";
+                return (
+                  <li
+                    key={`${choiceLabel}-${choiceValue}-${choice.sequence ?? index}`}
+                    data-testid="developer-kw-choice"
+                    data-choice-label={choiceLabel}
+                    data-choice-value={choiceValue}
+                  >
+                    {choiceLabel}
+                    {choiceValue ? ` (${choiceValue})` : ""}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <div style={fieldStyle}>
+            <label htmlFor="kw-add-choice-label">{DEV_MSG.KW_ADD_CHOICE_LABEL}</label>
+            <input
+              id="kw-add-choice-label"
+              data-testid="developer-kw-add-choice-label"
+              style={inputStyle}
+              value={draftLabel}
+              onChange={(e) => setDraftLabel(e.target.value)}
+            />
+          </div>
+          <div style={fieldStyle}>
+            <label htmlFor="kw-add-choice-value">{DEV_MSG.KW_ADD_CHOICE_VALUE}</label>
+            <input
+              id="kw-add-choice-value"
+              data-testid="developer-kw-add-choice-value"
+              style={inputStyle}
+              value={draftValue}
+              onChange={(e) => setDraftValue(e.target.value)}
+            />
+          </div>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
+            <button
+              type="button"
+              data-testid="developer-kw-add-choice-save"
+              aria-label={DEV_MSG.KW_ADD_CHOICE_SAVE}
+              disabled={
+                addBusy || busy || !detailReady || draftLabel.trim().length === 0
+              }
+              onClick={() => void handleAddChoice()}
+              style={{
+                padding: "8px 16px",
+                background: catalogColors.accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: addBusy ? "wait" : "pointer",
+              }}
+            >
+              {DEV_MSG.KW_ADD_CHOICE_SAVE}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-kw-add-choice-cancel"
+              disabled={addBusy}
+              onClick={cancelAddChoice}
+              style={{
+                padding: "8px 16px",
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              {DEV_MSG.KW_CANCEL}
+            </button>
+          </div>
+        </section>
+      ) : null}
+
       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
         <button
           type="button"
           data-testid="developer-kw-save"
           aria-label="Save keyword"
-          disabled={busy || !label.trim()}
+          disabled={busy || addBusy || !label.trim()}
           onClick={() => void handleSave()}
           style={{
             padding: "8px 16px",

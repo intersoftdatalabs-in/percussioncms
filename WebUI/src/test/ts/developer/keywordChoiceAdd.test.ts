@@ -1,0 +1,136 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { describe, expect, it } from "vitest";
+import type { KeywordChoiceSummary, KeywordSummary } from "../../../main/ts/api/developer/types";
+import {
+  isBlankChoiceDraft,
+  isDuplicateChoice,
+  keywordUpdateForAddedChoice,
+  savedChoicesAfterAdd,
+  unwrapKeywordPayload,
+} from "../../../main/ts/developer/keywordChoiceAdd";
+
+const previous: KeywordChoiceSummary[] = [
+  { label: "High", value: "high", description: "top", sequence: 1 },
+];
+
+const baseline: KeywordSummary = {
+  label: "Priority",
+  description: "Item priority",
+  sequence: 4,
+  choices: previous,
+};
+
+describe("keywordUpdateForAddedChoice", () => {
+  it("does not build a write for a blank label", () => {
+    expect(isBlankChoiceDraft({ label: "   ", value: "x" })).toBe(true);
+    expect(
+      keywordUpdateForAddedChoice(baseline, previous, { label: "  ", value: "low" }),
+    ).toBe("blank");
+  });
+
+  it("does not build a write when the label or value already exists", () => {
+    expect(isDuplicateChoice(previous, { label: "HIGH", value: "other" })).toBe(true);
+    expect(isDuplicateChoice(previous, { label: "Other", value: "mid" })).toBe(false);
+    expect(isDuplicateChoice(previous, { label: "Other", value: " HIGH " })).toBe(true);
+    expect(
+      keywordUpdateForAddedChoice(baseline, previous, { label: "high", value: "high" }),
+    ).toBe("duplicate");
+    expect(
+      keywordUpdateForAddedChoice(baseline, previous, { label: "Other", value: "high" }),
+    ).toBe("duplicate");
+  });
+
+  it("appends one choice and keeps keyword label, description, and sequence", () => {
+    const sent = keywordUpdateForAddedChoice(baseline, previous, {
+      label: " Low ",
+      value: "",
+    });
+    expect(sent).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "Low", sequence: 2 },
+      ],
+    });
+  });
+});
+
+describe("savedChoicesAfterAdd", () => {
+  const sent = keywordUpdateForAddedChoice(baseline, previous, {
+    label: "Low",
+    value: "low",
+  }) as KeywordSummary;
+
+  it("accepts a response that keeps metadata and previous choices", () => {
+    const listed = savedChoicesAfterAdd(sent, {
+      ...sent,
+      guid: { uuid: 9 },
+    });
+    expect(listed).toEqual(sent.choices);
+  });
+
+  it("accepts a Keyword envelope", () => {
+    expect(unwrapKeywordPayload({ Keyword: sent })?.label).toBe("Priority");
+    expect(savedChoicesAfterAdd(sent, { Keyword: sent })).toEqual(sent.choices);
+  });
+
+  it("accepts one JAXB choice object and a KeywordChoice list", () => {
+    const one: KeywordSummary = {
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [{ label: "High", value: "high", sequence: 1 }],
+    };
+    expect(
+      savedChoicesAfterAdd(one, {
+        ...one,
+        choices: { label: "High", value: "high", sequence: 1 },
+      } as unknown as KeywordSummary),
+    ).toEqual(one.choices);
+    expect(
+      savedChoicesAfterAdd(sent, {
+        ...sent,
+        choices: { KeywordChoice: sent.choices },
+      } as unknown as KeywordSummary),
+    ).toEqual(sent.choices);
+  });
+
+  it("rejects a response that changes the keyword or drops a previous choice", () => {
+    expect(savedChoicesAfterAdd(sent, { ...sent, label: "Renamed" })).toBeNull();
+    expect(savedChoicesAfterAdd(sent, { ...sent, description: "changed" })).toBeNull();
+    expect(savedChoicesAfterAdd(sent, { ...sent, sequence: 9 })).toBeNull();
+    expect(
+      savedChoicesAfterAdd(sent, {
+        ...sent,
+        choices: [{ label: "Low", value: "low", sequence: 2 }],
+      }),
+    ).toBeNull();
+    expect(
+      savedChoicesAfterAdd(sent, {
+        ...sent,
+        choices: [
+          ...(sent.choices ?? []),
+          { label: "Invented", value: "invented", sequence: 3 },
+        ],
+      }),
+    ).toBeNull();
+  });
+});

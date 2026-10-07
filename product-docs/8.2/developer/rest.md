@@ -59,20 +59,28 @@ create, update, and delete use the same design locks and session identity classi
 ### Request / response shape
 
 JSON objects use the `Keyword` wire type (fields include `guid`, `label`, `value`, `description`,
-`sequence`, and `choices[]` with `label` / `value` / `description` / `sequence`). Prefer the
-generated OpenAPI schema as the integration source of truth.
+`sequence`, and `choices` with `label` / `value` / `description` / `sequence`). Prefer the
+generated OpenAPI schema as the integration source of truth. On GET, `choices` is a JSON array
+when the keyword has several choices. A keyword with exactly one choice is often a single JSON
+object rather than a one-element array (JAXB/Jackson). Clients must accept both. POST and PUT
+should send `choices` as an array.
+
+POST and PUT JSON use a `Keyword` root (JAXB/Jackson root wrap). A flat
+`{ "label": "..." }` body fails with unexpected element `label`.
 
 Example create body:
 
 ```json
 {
-  "label": "Priority",
-  "description": "Item priority",
-  "sequence": 1,
-  "choices": [
-    { "label": "High", "value": "high", "sequence": 1 },
-    { "label": "Low", "value": "low", "sequence": 2 }
-  ]
+  "Keyword": {
+    "label": "Priority",
+    "description": "Item priority",
+    "sequence": 1,
+    "choices": [
+      { "label": "High", "value": "high", "sequence": 1 },
+      { "label": "Low", "value": "low", "sequence": 2 }
+    ]
+  }
 }
 ```
 
@@ -100,6 +108,20 @@ Example create body:
   convenience in tooling.
 - The Developer SPA Keyword editor uses these endpoints; integrators can call the same surface
   without the UI.
+
+### Add one choice
+
+**Developer → Keywords** adds one choice with the existing `PUT /services/keywords/{id}`
+(the same update used to save a label, description, or sequence). The body is wrapped as
+`Keyword`. It keeps the stored keyword `label`, `description`, and `sequence`, and sends
+`choices` as the previous choices plus the one new choice (`label`, `value`, and the next
+`sequence`). The new choice
+is shown only when that update succeeds and the response still contains every previous choice
+plus that one new choice. A blank label is not sent. Cancel is not a request. A choice whose
+label or value matches an existing choice (ignoring case; a blank value is compared as the
+label) is not sent, so it does not add a second row. HTTP **400**, **403**, and **409** are
+errors: the editor keeps the previous choices and does not apply a choice list from the error
+body. Create, label or description save, and delete stay on this resource and are unchanged.
 
 ## Locales (design catalog)
 

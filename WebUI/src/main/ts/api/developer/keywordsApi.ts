@@ -17,9 +17,83 @@
 
 import { del, get, post, put } from "../client";
 import { PATHS } from "../paths";
-import type { KeywordSummary } from "./types";
+import type { KeywordChoiceSummary, KeywordSummary } from "./types";
+
+/** Jackson / JAXB root for KeywordSummary. A flat body is HTTP 400. */
+export const KEYWORD_ROOT = "Keyword";
+
+/** Wire JSON for POST/PUT — JAXB rejects a bare `label` element. */
+export function wrapKeywordForWire(
+  body: KeywordSummary,
+): Record<string, KeywordSummary> {
+  return { [KEYWORD_ROOT]: body };
+}
+
+/**
+ * One JAXB choice is a JSON object. Several choices are an array, sometimes
+ * under KeywordChoice. Always return a list.
+ */
+function asChoiceList(raw: unknown): KeywordChoiceSummary[] {
+  if (raw == null) {
+    return [];
+  }
+  if (Array.isArray(raw)) {
+    const out: KeywordChoiceSummary[] = [];
+    for (const item of raw) {
+      out.push(...asChoiceList(item));
+    }
+    return out;
+  }
+  if (typeof raw !== "object") {
+    return [];
+  }
+  const record = raw as Record<string, unknown>;
+  const nested = record.KeywordChoice ?? record.keywordChoice;
+  if (nested != null) {
+    return asChoiceList(nested);
+  }
+  if ("label" in record || "value" in record) {
+    return [raw as KeywordChoiceSummary];
+  }
+  return [];
+}
+
+function withChoiceList(keyword: KeywordSummary): KeywordSummary {
+  return { ...keyword, choices: asChoiceList(keyword.choices) };
+}
+
+/** Accept a flat keyword or a `{ Keyword }` object envelope. */
+export function unwrapKeywordPayload(payload: unknown): KeywordSummary | null {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return null;
+  }
+  const record = payload as Record<string, unknown>;
+  const nested = record.Keyword ?? record.keyword;
+  if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+    return withChoiceList(nested as KeywordSummary);
+  }
+  if (
+    "label" in record ||
+    "choices" in record ||
+    "description" in record ||
+    "guid" in record ||
+    "sequence" in record
+  ) {
+    return withChoiceList(payload as KeywordSummary);
+  }
+  return null;
+}
+
+function asKeyword(payload: unknown): KeywordSummary {
+  return unwrapKeywordPayload(payload) ?? {};
+}
 
 function asKeywordList(payload: unknown): KeywordSummary[] {
+  const rows = keywordRows(payload);
+  return rows.map((row) => withChoiceList(row));
+}
+
+function keywordRows(payload: unknown): KeywordSummary[] {
   if (Array.isArray(payload)) {
     return payload as KeywordSummary[];
   }
@@ -46,16 +120,18 @@ export async function listKeywords(
 
 /** GET /services/keywords/{idOrValue} */
 export async function getKeyword(idOrValue: string): Promise<KeywordSummary> {
-  return get<KeywordSummary>(
+  const payload = await get<unknown>(
     `${PATHS.KEYWORDS}/${encodeURIComponent(idOrValue)}`,
   );
+  return asKeyword(payload);
 }
 
 /** POST /services/keywords */
 export async function createKeyword(
   body: KeywordSummary,
 ): Promise<KeywordSummary> {
-  return post<KeywordSummary>(PATHS.KEYWORDS, body);
+  const payload = await post<unknown>(PATHS.KEYWORDS, wrapKeywordForWire(body));
+  return asKeyword(payload);
 }
 
 /** PUT /services/keywords/{id} */
@@ -63,10 +139,11 @@ export async function updateKeyword(
   id: string,
   body: KeywordSummary,
 ): Promise<KeywordSummary> {
-  return put<KeywordSummary>(
+  const payload = await put<unknown>(
     `${PATHS.KEYWORDS}/${encodeURIComponent(id)}`,
-    body,
+    wrapKeywordForWire(body),
   );
+  return asKeyword(payload);
 }
 
 /** DELETE /services/keywords/{id} */

@@ -44,6 +44,15 @@ Operators using **Developer → Communities** create/delete chrome: [Developer C
 
 Operators using **Developer → Roles** browse, create, add-one-user, remove-one-user, description-edit, and delete chrome: [Developer Roles](id:admin-developer-roles).
 
+Operators using **Developer → Keywords** create, edit, and delete keyword
+definitions, and add one choice on an existing keyword. The new choice is
+listed only after the existing keyword update succeeds. The keyword label,
+description, sequence, and the other choices stay as they were. A blank choice
+is not sent. Cancel does not write. A duplicate label or value does not add a
+second row. HTTP 400, 403, and 409 leave the previous choices in place.
+Deep link: `spa.jsp?entry=developer&section=keywords`. Contract:
+[REST API](id:developer-rest).
+
 Operators using **Developer → Views** create/delete chrome: [Developer Views](id:admin-developer-views).
 
 Operators using **Developer → Display Formats** create/delete, column add/remove/reorder, and default sort chrome: [Developer Display Formats](id:admin-developer-display-formats).
