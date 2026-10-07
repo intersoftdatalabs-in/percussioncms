@@ -47,6 +47,26 @@ final class ItemPropertiesSystemFields {
     return false;
   }
 
+  /**
+   * Point the save at the checkout edit revision.
+   *
+   * <p>Checkout of any revision other than the first unlocked revision allocates a new edit
+   * revision and copies the rows. The modify pipe then requires {@code sys_revision} to equal
+   * {@code CONTENTSTATUS.EDITREVISION}. The preview load still carries the pre-checkout revision,
+   * so a later save is rejected as a stale edit revision (#5318).
+   */
+  static void useCheckoutEditRevision(PSCoreItem core, PSComponentSummary summary) {
+    if (core == null || summary == null) {
+      return;
+    }
+    Integer editRevision = summary.getEditRevision();
+    if (editRevision == null || editRevision <= 0 || core.getRevision() == editRevision) {
+      return;
+    }
+    core.setRevision(editRevision);
+    core.setEditRevision(editRevision);
+  }
+
   static void preserveBlank(PSCoreItem core, PSComponentSummary summary) {
     if (core == null || summary == null) {
       return;

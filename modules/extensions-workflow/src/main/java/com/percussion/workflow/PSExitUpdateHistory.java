@@ -256,8 +256,9 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
                 transitionComment,
                 request);
 
-        wfContext.setHistoryid(contentstatushistoryid);
-        if (0 == contentstatushistoryid) {
+        // updateHistory returns 0 when the base revision is not the current revision
+        // (revision restore). setHistoryid rejects 0, which aborted check-in (#5318).
+        if (!recordHistoryId(wfContext, contentstatushistoryid)) {
           PSWorkFlowUtils.printWorkflowMessage(request, "No status history was written.");
         }
 
@@ -291,6 +292,20 @@ public class PSExitUpdateHistory implements IPSResultDocumentProcessor {
     }
 
     return resDoc;
+  }
+
+  /**
+   * Stores a written history id. A skipped write is {@code 0}; {@link
+   * PSWorkFlowContext#setHistoryid(int)} rejects that value.
+   *
+   * @return {@code true} when the id was stored
+   */
+  static boolean recordHistoryId(PSWorkFlowContext wfContext, int contentStatusHistoryId) {
+    if (contentStatusHistoryId <= 0) {
+      return false;
+    }
+    wfContext.setHistoryid(contentStatusHistoryId);
+    return true;
   }
 
   /**

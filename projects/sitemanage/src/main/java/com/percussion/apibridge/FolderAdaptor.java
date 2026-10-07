@@ -2287,6 +2287,7 @@ public class FolderAdaptor implements IFolderAdaptor {
       boolean loadBinary = isPage || isFileAssetType(sourceItem.getType());
       PSItemStatus status = prepareForEdit(guid, isPage);
       try {
+        alignSavedItemWithCheckout(core, guid.getUUID());
         core.setTextField("sys_title", wanted);
         if (loadBinary) {
           core.setTextField("filename", wanted);
@@ -2328,6 +2329,19 @@ public class FolderAdaptor implements IFolderAdaptor {
       releaseFromEdit(status);
     } catch (Exception e) {
       log.warn("rename/item releaseFromEdit failed", e);
+    }
+  }
+
+  /**
+   * Reads the edit revision checkout just committed. A missing summary must not fail the save; the
+   * modify pipe still validates the revision the preview load already has.
+   */
+  private void alignSavedItemWithCheckout(PSCoreItem core, int contentId) {
+    try {
+      ItemPropertiesSystemFields.useCheckoutEditRevision(core, getItemSummary(contentId, true));
+    } catch (Exception e) {
+      log.warn(
+          "item properties could not read the checkout revision for content id {}", contentId, e);
     }
   }
 
