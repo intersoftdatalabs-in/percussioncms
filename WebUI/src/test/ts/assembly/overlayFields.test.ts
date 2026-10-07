@@ -24,6 +24,7 @@ import {
   overlayEditKey,
   parseAaFieldObjectId,
   persistOverlayEdits,
+  longTextValue,
   readOverlayEdits,
   restoreOverlayValues,
   scalarOverlayFields,
@@ -144,6 +145,37 @@ describe("scalarOverlayFields", () => {
     expect(rows.some((r) => r.name === "lockedlink")).toBe(false);
     expect(rows.some((r) => r.name === "photo")).toBe(false);
   });
+
+  it("treats maxtext as long text and omits a read-only long-text field", () => {
+    const rows = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [
+          { name: "notes", value: "A long note" },
+          { name: "bodycopy", value: "Locked copy" },
+          { name: "displaytitle", value: "Welcome" },
+        ],
+      },
+      [
+        {
+          name: "notes",
+          label: "Notes",
+          control: "sys_EditBox",
+          dataType: "maxtext",
+        },
+        {
+          name: "bodycopy",
+          label: "Body copy",
+          control: "sys_TextArea",
+          readOnly: true,
+        },
+        { name: "displaytitle", control: "sys_EditBox" },
+      ],
+    );
+    expect(rows.find((r) => r.name === "notes")?.kind).toBe("longtext");
+    expect(rows.some((r) => r.name === "bodycopy")).toBe(false);
+    expect(rows.find((r) => r.name === "displaytitle")?.kind).toBe("text");
+  });
 });
 
 describe("parseAaFieldObjectId", () => {
@@ -224,7 +256,8 @@ describe("applyFieldOverlay", () => {
       '[data-testid="assembly-inline-field-notes"]',
     ) as HTMLElement;
     expect(title.getAttribute("data-assembly-value")).toBe("text");
-    expect(notes.getAttribute("data-assembly-value")).toBeNull();
+    expect(notes.getAttribute("data-assembly-value")).toBe("longtext");
+    expect(notes.style.whiteSpace).toBe("pre-wrap");
     title.textContent = "Updated\nwelcome";
     notes.textContent = "Line one\nLine two";
     const edits = readOverlayEdits(root, "42");
@@ -238,6 +271,45 @@ describe("applyFieldOverlay", () => {
     title.dispatchEvent(enter);
     expect(enter.defaultPrevented).toBe(true);
     expect(singleLineText("  a\r\n\nb  ")).toBe("a b");
+    expect(longTextValue("  a\r\nb  ")).toBe("a\nb");
+  });
+
+  it("keeps long-text breaks from br and block elements", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<p data-perc-field="notes">A long note</p>`;
+    const fields = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [{ name: "notes", value: "A long note" }],
+      },
+      [{ name: "notes", control: "sys_TextArea" }],
+    );
+    applyFieldOverlay(root, fields, "42");
+    const notes = root.querySelector(
+      '[data-testid="assembly-inline-field-notes"]',
+    ) as HTMLElement;
+    notes.innerHTML = "Line one<br>Line two";
+    expect(readOverlayEdits(root, "42")).toEqual([
+      { contentId: "42", name: "notes", value: "Line one\nLine two" },
+    ]);
+    notes.innerHTML = "<div>Line one</div><div>Line two</div>";
+    expect(readOverlayEdits(root, "42")[0]?.value).toBe("Line one\nLine two");
+    restoreOverlayValues(root, fields);
+    expect(notes.textContent).toBe("A long note");
+    expect(notes.style.whiteSpace).toBe("pre-wrap");
+  });
+
+  it("reads a long-text textarea without collapsing lines", () => {
+    const root = document.createElement("div");
+    const area = document.createElement("textarea");
+    area.setAttribute("data-assembly-field", "notes");
+    area.setAttribute("data-assembly-content-id", "42");
+    area.setAttribute("data-assembly-value", "longtext");
+    area.value = "  Line one\r\nLine two  ";
+    root.appendChild(area);
+    expect(readOverlayEdits(root, "42")).toEqual([
+      { contentId: "42", name: "notes", value: "Line one\nLine two" },
+    ]);
   });
 
   it("drops unchanged fields so one text edit does not rewrite the rest", () => {

@@ -20,8 +20,8 @@
  * template in an iframe with a light overlay. Slot add / create / arrange
  * use relationship REST (no Data Flow HTML). Single-line text, long-text,
  * HTML, and link field edits use the assembled nodes (HTML keeps its markup;
- * single-line text stays one line) and persist through itemmanagement — not
- * leftover Content Editor HTML.
+ * single-line text stays one line; long text keeps line breaks) and persist
+ * through itemmanagement — not leftover Content Editor HTML.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -65,6 +65,7 @@ import styles from "./AssemblyHost.module.css";
 import { ASSEMBLY_MSG } from "./messages";
 import {
   applyFieldOverlay,
+  ASSEMBLY_VALUE_LONGTEXT,
   changedOverlayEdits,
   overlayEditKey,
   persistOverlayEdits,
@@ -878,18 +879,17 @@ export function AssemblyHost({
                       autoComplete="off"
                     />
                   ) : (
-                    <span
+                    <textarea
                       className={styles.fieldEdit}
-                      contentEditable
-                      suppressContentEditableWarning
+                      rows={4}
+                      defaultValue={field.value}
                       data-assembly-field={field.name}
                       data-assembly-content-id={String(contentId ?? "")}
+                      data-assembly-value={ASSEMBLY_VALUE_LONGTEXT}
                       data-testid={`assembly-overlay-field-${field.name}`}
-                      role="textbox"
                       aria-label={field.label}
-                    >
-                      {field.value}
-                    </span>
+                      spellCheck={false}
+                    />
                   )}
                 </label>
               );
