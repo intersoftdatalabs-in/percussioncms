@@ -34,6 +34,7 @@ vi.mock("../../../main/ts/api/developer/rolesApi", async (importOriginal) => {
     updateRoleDescription: vi.fn(),
     updateRoleHomePage: vi.fn(),
     deleteRole: vi.fn(),
+    loadRole: vi.fn(),
   };
 });
 
@@ -42,6 +43,7 @@ const createRole = rolesApi.createRole as ReturnType<typeof vi.fn>;
 const updateRoleDescription = rolesApi.updateRoleDescription as ReturnType<typeof vi.fn>;
 const updateRoleHomePage = rolesApi.updateRoleHomePage as ReturnType<typeof vi.fn>;
 const deleteRole = rolesApi.deleteRole as ReturnType<typeof vi.fn>;
+const loadRole = rolesApi.loadRole as ReturnType<typeof vi.fn>;
 
 describe("RolesPanel", () => {
   beforeEach(() => {
@@ -53,6 +55,11 @@ describe("RolesPanel", () => {
     updateRoleDescription.mockReset();
     updateRoleHomePage.mockReset();
     deleteRole.mockReset();
+    loadRole.mockReset();
+    loadRole.mockImplementation(async (name: string) => ({
+      name: name.trim(),
+      users: [],
+    }));
   });
 
   it("lists roles grouped by community / workflow / unassigned", async () => {
@@ -605,6 +612,131 @@ describe("RolesPanel", () => {
     expect(browseRoles).toHaveBeenCalledTimes(1);
   });
 
+  it("shows each user returned for the open role", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    loadRole.mockResolvedValue({ name: "Author", users: ["Ada", "Bea"] });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-members-list")).toBeTruthy();
+    });
+    expect(
+      screen.getAllByTestId("developer-roles-member").map((el) => el.getAttribute("data-user-name")),
+    ).toEqual(["Ada", "Bea"]);
+    expect(screen.queryByTestId("developer-roles-members-empty")).toBeNull();
+    expect(screen.queryByTestId("developer-roles-members-error")).toBeNull();
+    expect(loadRole).toHaveBeenCalledWith("Author");
+  });
+
+  it("shows an empty membership state when the role has no users", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    loadRole.mockResolvedValue({ name: "Author", users: [] });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-members-empty").textContent).toBe(
+        DEV_MSG.ROLES_MEMBERS_EMPTY,
+      );
+    });
+    expect(screen.queryByTestId("developer-roles-member")).toBeNull();
+    expect(screen.queryByTestId("developer-roles-members-error")).toBeNull();
+  });
+
+  it("does not invent members on HTTP 403 or 404", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    loadRole.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { users: ["Invented"], Role: { name: "Author", users: ["Invented"] } },
+    });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-members-error").textContent).toContain("(403)");
+    });
+    expect(screen.queryByTestId("developer-roles-member")).toBeNull();
+    expect(screen.queryByTestId("developer-roles-members-empty")).toBeNull();
+    expect(screen.getByTestId("developer-roles-members-error").textContent).not.toContain(
+      "Invented",
+    );
+
+    loadRole.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "missing", users: ["Invented"] },
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-members-error").textContent).toContain(
+        "No users are shown",
+      );
+    });
+    expect(screen.getByTestId("developer-roles-members-error").textContent).toContain("missing");
+    expect(screen.queryByTestId("developer-roles-member")).toBeNull();
+    expect(screen.queryByTestId("developer-roles-members-empty")).toBeNull();
+    expect(screen.getByTestId("developer-roles-members-error").textContent).not.toContain(
+      "Invented",
+    );
+  });
+
+  it("does not show users when the read names a different role", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    loadRole.mockResolvedValue({ name: "Other", users: ["Ghost"] });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-members-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-roles-member")).toBeNull();
+    expect(screen.getByTestId("developer-roles-members").textContent).not.toContain("Ghost");
+  });
+
+  it("description save does not send users", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    loadRole.mockResolvedValue({ name: "Author", users: ["Ada"] });
+    updateRoleDescription.mockResolvedValue({ name: "Author", description: "Updated copy" });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-member").getAttribute("data-user-name")).toBe(
+        "Ada",
+      );
+    });
+    fireEvent.change(screen.getByTestId("developer-roles-edit-description"), {
+      target: { value: "Updated copy" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-edit-save"));
+    await waitFor(() => {
+      expect(updateRoleDescription).toHaveBeenCalledWith({
+        name: "Author",
+        description: "Updated copy",
+      });
+    });
+    const sent = updateRoleDescription.mock.calls[0]?.[0] as { users?: unknown };
+    expect(sent.users).toBeUndefined();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-edit-notice")).toBeTruthy();
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
+    expect(screen.queryByTestId("developer-roles-member")).toBeNull();
+  });
+
   it("does not delete a system role and cancel does not call the server", async () => {
     browseRoles.mockResolvedValue({
       roles: [
@@ -634,6 +766,13 @@ describe("RolesPanel", () => {
     fireEvent.click(systemDelete);
     expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
     expect(deleteRole).not.toHaveBeenCalled();
+    // jsdom still bubbles a click on a disabled button to the row.
+    if (screen.queryByTestId("developer-roles-edit-form")) {
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-roles-members-empty")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("developer-roles-edit-cancel"));
+    }
 
     fireEvent.click(
       document.querySelector(

@@ -215,9 +215,99 @@ export function isSystemRoleName(name: string | null | undefined): boolean {
   return SYSTEM_ROLE_NAMES.some((system) => system.toLowerCase() === trimmed);
 }
 
+/** GET or DELETE /services/roles/{roleName}. The name is encoded once. */
+export function roleReadUrl(name: string): string {
+  return `${PATHS.ROLES}/${encodeURIComponent(name.trim())}`;
+}
+
 /** DELETE /services/roles/{roleName}. The name is encoded once. */
 export function roleDeleteUrl(name: string): string {
-  return `${PATHS.ROLES}/${encodeURIComponent(name.trim())}`;
+  return roleReadUrl(name);
+}
+
+/** One role as returned by GET /services/roles/{roleName}. Users are read-only. */
+export type RoleRead = {
+  name: string;
+  description?: string;
+  homePage?: string;
+  /** Stored user names. Empty when the role has none. Never invented from an error. */
+  users: string[];
+};
+
+/**
+ * User names on a role read. Accepts a string array, a Jackson one-item string,
+ * or a JAXB {@code { user }} / {@code { users }} wrap. Blank names are dropped.
+ * Unknown object keys are ignored so an error body cannot become a member list.
+ */
+export function normalizeRoleUsers(raw: unknown): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const name of collectRoleUserNames(raw, 0)) {
+    const trimmed = name.trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    out.push(trimmed);
+  }
+  return out;
+}
+
+function collectRoleUserNames(raw: unknown, depth: number): string[] {
+  if (depth > 4 || raw == null) return [];
+  if (typeof raw === "string" || Array.isArray(raw)) {
+    return asStringArray(raw);
+  }
+  const obj = asRecord(raw);
+  if (!obj) return [];
+  if ("user" in obj || "User" in obj) {
+    return collectRoleUserNames(obj.user ?? obj.User, depth + 1);
+  }
+  if ("users" in obj || "Users" in obj) {
+    return collectRoleUserNames(obj.users ?? obj.Users, depth + 1);
+  }
+  return [];
+}
+
+/**
+ * Unwrap a flat Role body or a {@code {Role:{…}}} envelope from GET.
+ * Missing {@code users} is an empty membership, not a failed read.
+ * Throws when the payload has no name so callers do not show a nameless user list.
+ */
+export function unwrapRoleRead(payload: unknown): RoleRead {
+  const obj = asRecord(payload);
+  const wrapped = obj ? (asRecord(obj.Role) ?? asRecord(obj.role)) : null;
+  const body = wrapped ?? obj;
+  if (!body) {
+    throw new Error("Role read returned an empty body");
+  }
+  const name = typeof body.name === "string" ? body.name.trim() : "";
+  if (!name) {
+    throw new Error("Role read returned no name");
+  }
+  const result: RoleRead = {
+    name,
+    users: normalizeRoleUsers(body.users ?? body.Users),
+  };
+  if (typeof body.description === "string") {
+    result.description = body.description;
+  }
+  const homePage = typeof body.homePage === "string" ? body.homePage.trim() : "";
+  if (homePage) {
+    result.homePage = homePage;
+  }
+  return result;
+}
+
+/**
+ * GET /services/roles/{roleName}. HTTP 403 and 404 reject before users are read,
+ * so an error body cannot be shown as membership.
+ */
+export async function loadRole(name: string): Promise<RoleRead> {
+  const trimmed = typeof name === "string" ? name.trim() : "";
+  if (!isRoleCreateReady(trimmed)) {
+    throw new Error("Role name is required");
+  }
+  const payload = await get<unknown>(roleReadUrl(trimmed));
+  return unwrapRoleRead(payload);
 }
 
 /**

@@ -23,6 +23,7 @@ import {
   deleteRole,
   isRoleCreateReady,
   isSystemRoleName,
+  loadRole,
   ROLE_BROWSE_GROUPS,
   rolesInBrowseGroup,
   updateRoleDescription,
@@ -147,6 +148,80 @@ function deleteFailureMessage(err: unknown): string {
     }
   }
   return panelErrMsg(err, DEV_MSG.ROLES_DELETE_ERROR);
+}
+
+function membersFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.ROLES_MEMBERS_FORBIDDEN);
+    }
+    if (err.status === 404) {
+      return panelErrMsg(err, DEV_MSG.ROLES_MEMBERS_NOT_FOUND);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.ROLES_MEMBERS_ERROR);
+}
+
+function sameRoleName(left: string, right: string): boolean {
+  return left.trim().toLowerCase() === right.trim().toLowerCase();
+}
+
+function RoleMembers({
+  loading,
+  error,
+  users,
+}: {
+  loading: boolean;
+  error: string | null;
+  /** null until a successful read. An empty array is a real empty role. */
+  users: string[] | null;
+}): React.ReactElement {
+  return (
+    <section
+      aria-label={DEV_MSG.ROLES_MEMBERS_LABEL}
+      data-testid="developer-roles-members"
+      style={{ marginBottom: "12px" }}
+    >
+      <h3 style={{ margin: "0 0 4px", fontSize: "1rem" }} data-testid="developer-roles-members-title">
+        {DEV_MSG.ROLES_MEMBERS_TITLE}
+      </h3>
+      <p style={{ color: catalogColors.muted, margin: "0 0 8px", fontSize: "0.85rem" }}>
+        {DEV_MSG.ROLES_MEMBERS_HINT}
+      </p>
+      {loading ? (
+        <CatalogStatus testId="developer-roles-members-loading">
+          {DEV_MSG.ROLES_MEMBERS_LOADING}
+        </CatalogStatus>
+      ) : null}
+      {error ? (
+        <div role="alert" data-testid="developer-roles-members-error" style={errorAlert}>
+          {error}
+        </div>
+      ) : null}
+      {!loading && !error && users != null && users.length === 0 ? (
+        <CatalogStatus testId="developer-roles-members-empty">
+          {DEV_MSG.ROLES_MEMBERS_EMPTY}
+        </CatalogStatus>
+      ) : null}
+      {!loading && !error && users != null && users.length > 0 ? (
+        <ul
+          data-testid="developer-roles-members-list"
+          style={{ margin: "0", paddingLeft: "1.25rem" }}
+        >
+          {users.map((userName) => (
+            <li
+              key={userName}
+              data-testid="developer-roles-member"
+              data-user-name={userName}
+              style={monoCell}
+            >
+              {userName}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </section>
+  );
 }
 
 function RoleGroupSection({
@@ -277,8 +352,10 @@ function RoleGroupSection({
  * Admins create one role (name + description) via PUT ?create=true, edit
  * one existing role's description via PUT ?update=true, set or clear one
  * role's home page via PUT ?homePage=true, and delete one non-system role
- * via DELETE after confirm. The catalog shows a new home page only after
- * that save succeeds. Membership edits stay out of scope.
+ * via DELETE after confirm. Opening a role GETs its stored users (read-only).
+ * An empty user list is an empty state. HTTP 403 and 404 do not show members.
+ * Description and home-page saves do not send users. Membership edits stay
+ * out of scope.
  */
 export function RolesPanel(): React.ReactElement {
   const [catalog, setCatalog] = useState<RoleBrowseEntry[] | null>(null);
@@ -307,18 +384,61 @@ export function RolesPanel(): React.ReactElement {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
+  /** null until GET succeeds. [] is a real empty role; errors stay null. */
+  const [memberUsers, setMemberUsers] = useState<string[] | null>(null);
+  const [membersError, setMembersError] = useState<string | null>(null);
+  const [membersLoading, setMembersLoading] = useState(false);
   const mountedRef = useRef(true);
   const createInflight = useRef(false);
   const editInflight = useRef(false);
   const homeInflight = useRef(false);
   const deleteInflight = useRef(false);
+  const membersGen = useRef(0);
+  const editNameRef = useRef<string | null>(null);
 
   useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      membersGen.current += 1;
     };
   }, []);
+
+  function clearMembers() {
+    membersGen.current += 1;
+    setMemberUsers(null);
+    setMembersError(null);
+    setMembersLoading(false);
+  }
+
+  function requestMembers(name: string) {
+    const requested = name.trim();
+    const gen = ++membersGen.current;
+    setMemberUsers(null);
+    setMembersError(null);
+    setMembersLoading(true);
+    void loadRole(requested)
+      .then((read) => {
+        if (!mountedRef.current || gen !== membersGen.current) return;
+        const openName = editNameRef.current;
+        if (openName == null || !sameRoleName(openName, requested)) return;
+        if (!sameRoleName(read.name, requested)) {
+          setMembersLoading(false);
+          setMemberUsers(null);
+          setMembersError(DEV_MSG.ROLES_MEMBERS_ERROR);
+          return;
+        }
+        setMemberUsers(read.users);
+        setMembersError(null);
+        setMembersLoading(false);
+      })
+      .catch((err: unknown) => {
+        if (!mountedRef.current || gen !== membersGen.current) return;
+        setMembersLoading(false);
+        setMemberUsers(null);
+        setMembersError(membersFailureMessage(err));
+      });
+  }
 
   const reload = useCallback(() => {
     if (!mountedRef.current) {
@@ -393,6 +513,8 @@ export function RolesPanel(): React.ReactElement {
       if (!mountedRef.current) return;
       setPendingDelete(null);
       if (editName === name) {
+        editNameRef.current = null;
+        clearMembers();
         setEditName(null);
         setEditDescription("");
         setEditHomePage("");
@@ -415,6 +537,8 @@ export function RolesPanel(): React.ReactElement {
 
   function openCreate() {
     if (editBusy || homeBusy || deleteBusy) return;
+    editNameRef.current = null;
+    clearMembers();
     setEditName(null);
     setEditError(null);
     setHomeError(null);
@@ -445,15 +569,19 @@ export function RolesPanel(): React.ReactElement {
     setHomeError(null);
     setEditNotice(null);
     setHomeNotice(null);
+    editNameRef.current = role.name;
     if (editName !== role.name) {
       setEditDescription(role.description ?? "");
       setEditHomePage(role.homePage ?? "");
       setEditName(role.name);
     }
+    requestMembers(role.name);
   }
 
   function cancelEdit() {
     if (editBusy || homeBusy) return;
+    editNameRef.current = null;
+    clearMembers();
     setEditName(null);
     setEditError(null);
     setHomeError(null);
@@ -511,6 +639,8 @@ export function RolesPanel(): React.ReactElement {
     try {
       await updateRoleDescription({ name, description });
       if (!mountedRef.current) return;
+      editNameRef.current = null;
+      clearMembers();
       setEditName(null);
       setEditDescription("");
       setEditHomePage("");
@@ -540,6 +670,8 @@ export function RolesPanel(): React.ReactElement {
     try {
       await updateRoleHomePage({ name, homePage });
       if (!mountedRef.current) return;
+      editNameRef.current = null;
+      clearMembers();
       setEditName(null);
       setEditDescription("");
       setEditHomePage("");
@@ -674,6 +806,7 @@ export function RolesPanel(): React.ReactElement {
               {DEV_MSG.ROLES_HOME_HINT}
             </span>
           </div>
+          <RoleMembers loading={membersLoading} error={membersError} users={memberUsers} />
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             <button
               type="submit"
