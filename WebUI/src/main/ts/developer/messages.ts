@@ -409,7 +409,7 @@ export const DEV_MSG_KEYS = {
   KW_EMPTY: "perc.ui.developer@No keywords returned.",
   KW_ERROR: "perc.ui.developer@Could not load keywords.",
   KW_HINT:
-    "perc.ui.developer@Create, edit, or delete keyword definitions. On an existing keyword, add one choice; it appears only after that save succeeds.",
+    "perc.ui.developer@Create, edit, or delete keyword definitions. On an existing keyword, add one choice or remove one choice; the list changes only after that save succeeds.",
   KW_COL_LABEL: "perc.ui.developer@Label",
   KW_COL_VALUE: "perc.ui.developer@Value",
   KW_COL_CHOICES: "perc.ui.developer@Choices",
@@ -447,6 +447,20 @@ export const DEV_MSG_KEYS = {
   KW_ADD_CHOICE_INVALID: "perc.ui.developer@The choice was not added.",
   KW_ADD_CHOICE_CONFLICT:
     "perc.ui.developer@The choice was not added. Previous choices are unchanged.",
+  KW_REMOVE_CHOICE: "perc.ui.developer@Remove choice",
+  /** Aria label; `{0}` is the choice label. */
+  KW_REMOVE_CHOICE_ACTION: "perc.ui.developer@Remove choice {0}",
+  /** Confirm body; `{0}` is the choice label. */
+  KW_REMOVE_CHOICE_CONFIRM:
+    "perc.ui.developer@Remove the choice {0}? The keyword is not deleted. The label, description, sequence, and the other choices stay.",
+  KW_REMOVE_CHOICE_HINT:
+    "perc.ui.developer@Removes one choice with the keyword update. The choice is gone only after that save succeeds. Cancel does not write. Removing the last choice clears the list and does not delete the keyword.",
+  KW_REMOVE_CHOICE_SAVED: "perc.ui.developer@Choice removed.",
+  KW_REMOVE_CHOICE_ERROR: "perc.ui.developer@Could not remove the choice.",
+  KW_REMOVE_CHOICE_FORBIDDEN: "perc.ui.developer@You need the Admin role to remove a choice.",
+  KW_REMOVE_CHOICE_INVALID: "perc.ui.developer@The choice was not removed.",
+  KW_REMOVE_CHOICE_CONFLICT:
+    "perc.ui.developer@The choice was not removed. Previous choices are unchanged.",
   TPL_LOADING: "perc.ui.developer@Loading templates...",
   TPL_EMPTY: "perc.ui.developer@No templates returned.",
   TPL_ERROR: "perc.ui.developer@Could not load templates.",

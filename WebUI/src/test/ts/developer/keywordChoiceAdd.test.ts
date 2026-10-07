@@ -21,6 +21,7 @@ import {
   isBlankChoiceDraft,
   isDuplicateChoice,
   keywordUpdateForAddedChoice,
+  keywordUpdateForRemovedChoice,
   savedChoicesAfterAdd,
   unwrapKeywordPayload,
 } from "../../../main/ts/developer/keywordChoiceAdd";
@@ -73,6 +74,37 @@ describe("keywordUpdateForAddedChoice", () => {
   });
 });
 
+describe("keywordUpdateForRemovedChoice", () => {
+  const two: KeywordChoiceSummary[] = [
+    { label: "High", value: "high", description: "top", sequence: 1 },
+    { label: "Low", value: "low", description: "bottom", sequence: 2 },
+  ];
+
+  it("does not build a write for an index that is not a choice", () => {
+    expect(keywordUpdateForRemovedChoice(baseline, two, -1)).toBe("missing");
+    expect(keywordUpdateForRemovedChoice(baseline, two, 2)).toBe("missing");
+    expect(keywordUpdateForRemovedChoice(baseline, two, 1.5)).toBe("missing");
+  });
+
+  it("drops one choice and keeps keyword label, description, sequence, and the other choice", () => {
+    expect(keywordUpdateForRemovedChoice(baseline, two, 0)).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [{ label: "Low", value: "low", description: "bottom", sequence: 2 }],
+    });
+  });
+
+  it("clears the list when the last choice is removed and does not omit choices", () => {
+    expect(keywordUpdateForRemovedChoice(baseline, previous, 0)).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [],
+    });
+  });
+});
+
 describe("savedChoicesAfterAdd", () => {
   const sent = keywordUpdateForAddedChoice(baseline, previous, {
     label: "Low",
@@ -111,6 +143,26 @@ describe("savedChoicesAfterAdd", () => {
         choices: { KeywordChoice: sent.choices },
       } as unknown as KeywordSummary),
     ).toEqual(sent.choices);
+  });
+
+  it("accepts an empty choice list only when the response is also empty", () => {
+    const cleared: KeywordSummary = {
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [],
+    };
+    expect(savedChoicesAfterAdd(cleared, cleared)).toEqual([]);
+    expect(savedChoicesAfterAdd(cleared, { Keyword: { ...cleared, choices: null } })).toEqual(
+      [],
+    );
+    expect(
+      savedChoicesAfterAdd(cleared, {
+        ...cleared,
+        choices: [{ label: "High", value: "high", sequence: 1 }],
+      }),
+    ).toBeNull();
+    expect(savedChoicesAfterAdd(cleared, { ...cleared, label: "Renamed" })).toBeNull();
   });
 
   it("rejects a response that changes the keyword or drops a previous choice", () => {
