@@ -78,6 +78,11 @@ import {
   schemesAfterSuccessfulRename,
   validateLocationSchemeRenameName,
 } from "../locationSchemeRename";
+import {
+  buildLocationSchemeGeneratorBody,
+  schemesAfterSuccessfulGenerator,
+  validateLocationSchemeGenerator,
+} from "../locationSchemeGenerator";
 import { useDirtyForm } from "../dirtyFormContext";
 import { normalizeSchemeType } from "./designLegacyTypes";
 import { SiteRootBrowser } from "./SiteRootBrowser";
@@ -90,7 +95,8 @@ type Mode =
   | { kind: "context-describe"; source: ContextSummary }
   | { kind: "scheme-edit"; scheme: LocationSchemeSummary | null; contextId: string }
   | { kind: "scheme-copy"; source: LocationSchemeSummary; contextId: string }
-  | { kind: "scheme-rename"; source: LocationSchemeSummary; contextId: string };
+  | { kind: "scheme-rename"; source: LocationSchemeSummary; contextId: string }
+  | { kind: "scheme-generator"; source: LocationSchemeSummary; contextId: string };
 
 /**
  * Contexts CRUD + location schemes with parameters and path browser.
@@ -121,6 +127,7 @@ export function ContextsPanel(): React.ReactElement {
   const [saving, setSaving] = useState(false);
   const [copyName, setCopyName] = useState("");
   const [renameName, setRenameName] = useState("");
+  const [schemeGenerator, setSchemeGenerator] = useState("");
   const [describeText, setDescribeText] = useState("");
   const { setDirty, confirmIfDirty } = useDirtyForm();
 
@@ -470,6 +477,69 @@ export function ContextsPanel(): React.ReactElement {
         refreshed = null;
       }
       setSchemes(schemesAfterSuccessfulRename(refreshed, id, validated.name, previous));
+    } catch (e) {
+      setError(mapLocationSchemeSaveError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function openSchemeGenerator(source: LocationSchemeSummary): Promise<void> {
+    if (!source.schemeId || !selected || saving) {
+      return;
+    }
+    setError(null);
+    setDirty(false);
+    const contextId = selected;
+    let full = source;
+    try {
+      full = await getScheme(source.schemeId);
+    } catch {
+      full = source;
+    }
+    setSchemeGenerator(full.generator ?? source.generator ?? "");
+    setMode({ kind: "scheme-generator", source: full, contextId });
+  }
+
+  function closeSchemeGenerator(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setMode({ kind: "list" });
+  }
+
+  async function saveSchemeGenerator(): Promise<void> {
+    if (mode.kind !== "scheme-generator" || !mode.source.schemeId || saving) {
+      return;
+    }
+    const validated = validateLocationSchemeGenerator(schemeGenerator);
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    const id = String(mode.source.schemeId);
+    const contextId = mode.contextId;
+    setError(null);
+    setSaving(true);
+    const previous = schemes;
+    try {
+      await updateScheme(id, buildLocationSchemeGeneratorBody(validated.generator));
+      setDirty(false);
+      setMode({ kind: "list" });
+      let refreshed: LocationSchemeSummary[] | null = null;
+      try {
+        refreshed = await listSchemesForContext(contextId);
+      } catch {
+        refreshed = null;
+      }
+      setSchemes(
+        schemesAfterSuccessfulGenerator(refreshed, id, validated.generator, previous),
+      );
     } catch (e) {
       setError(mapLocationSchemeSaveError(e));
     } finally {
@@ -1072,6 +1142,80 @@ export function ContextsPanel(): React.ReactElement {
     );
   }
 
+  if (mode.kind === "scheme-generator") {
+    const source = mode.source;
+    return (
+      <div data-testid="scheme-generator">
+        <h3>Location scheme generator</h3>
+        <p>
+          Name: <span data-testid="scheme-generator-name">{source.name ?? ""}</span>
+        </p>
+        <p>
+          Description:{" "}
+          <span data-testid="scheme-generator-description">{source.description ?? ""}</span>
+        </p>
+        <p>
+          Content type:{" "}
+          <span data-testid="scheme-generator-content-type">
+            {source.contentTypeId != null ? String(source.contentTypeId) : ""}
+          </span>
+        </p>
+        <p>
+          Template:{" "}
+          <span data-testid="scheme-generator-template">
+            {source.templateId != null ? String(source.templateId) : ""}
+          </span>
+        </p>
+        <p data-testid="scheme-generator-parameters-note">
+          Name, description, content type, template, and parameters stay on this scheme.
+        </p>
+        <ul data-testid="scheme-generator-parameters" style={listStyle}>
+          {(source.parameters ?? []).map((p, i) => (
+            <li key={`${p.name}-${i}`} data-testid="scheme-generator-parameter">
+              {p.name}: {p.value}
+            </li>
+          ))}
+        </ul>
+        <div style={formRowStyle}>
+          <label htmlFor="scheme-generator-input">* Generator</label>
+          <input
+            id="scheme-generator-input"
+            value={schemeGenerator}
+            onChange={(e) => {
+              setSchemeGenerator(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="location-scheme-generator-save"
+            disabled={saving}
+            onClick={() => void saveSchemeGenerator()}
+          >
+            Save generator
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="location-scheme-generator-cancel"
+            disabled={saving}
+            onClick={closeSchemeGenerator}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (mode.kind === "scheme-copy") {
     return (
       <div data-testid="scheme-copy">
@@ -1238,7 +1382,14 @@ export function ContextsPanel(): React.ReactElement {
               </button>
               <span style={{ color: "#666" }}>
                 {normalizeSchemeType(s.schemeType, s.generator)}
-                {s.generator ? ` · ${s.generator}` : ""}
+                {s.generator ? (
+                  <>
+                    {" · "}
+                    <span data-testid={`scheme-list-generator-${s.schemeId}`}>
+                      {s.generator}
+                    </span>
+                  </>
+                ) : null}
               </span>
               {s.schemeId && (
                 <>
@@ -1250,6 +1401,15 @@ export function ContextsPanel(): React.ReactElement {
                     onClick={() => void openSchemeRename(s)}
                   >
                     Rename
+                  </button>
+                  <button
+                    type="button"
+                    style={buttonStyle}
+                    data-testid="location-scheme-generator"
+                    disabled={saving}
+                    onClick={() => void openSchemeGenerator(s)}
+                  >
+                    Generator
                   </button>
                   <button
                     type="button"
