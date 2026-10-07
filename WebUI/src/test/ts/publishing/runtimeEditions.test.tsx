@@ -95,11 +95,22 @@ describe("runtime edition helpers", () => {
   });
 });
 
+const runtimeEditionRows = [
+  { editionId: "10", name: "Full", runningJobId: 0, pubServerId: "7" },
+  { editionId: "11", name: "Demand", runningJobId: 99, jobStatus: "Running" },
+];
+
 describe("RuntimeSection", () => {
   const demandKey = MSG.PUBLISH.SECTIONS.RUNTIME.DEMAND_HEADING;
 
   afterEach(() => {
     delete window.I18N;
+    vi.mocked(runtimeApi.listRuntimeEditions).mockReset();
+    vi.mocked(runtimeApi.listRuntimeEditions).mockResolvedValue(runtimeEditionRows);
+    vi.mocked(listServers).mockReset();
+    vi.mocked(listServers).mockResolvedValue([
+      { serverId: "7", serverName: "LocalFS" },
+    ]);
   });
 
   it("renders demand heading from the catalog, not a hardcoded node", () => {
@@ -308,11 +319,62 @@ describe("RuntimeSection", () => {
     fireEvent.change(screen.getByTestId("runtime-edition-filter"), {
       target: { value: "missing" },
     });
-    expect(screen.getByTestId("runtime-editions-filter-empty").textContent).toMatch(
-      /no editions match/i,
-    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("runtime-editions-filter-empty").textContent,
+      ).toMatch(/no editions match/i);
+    });
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.queryByTestId("runtime-start-10")).toBeNull();
+    expect(
+      (screen.getByTestId("runtime-edition-filter") as HTMLInputElement).value,
+    ).toBe("missing");
+    expect(screen.queryByText("Loading")).toBeNull();
+  });
+
+  it("keeps the no-match empty state while a refresh is still loading", async () => {
+    let hang = false;
+    let release: (rows: typeof runtimeEditionRows) => void = () => {};
+    vi.mocked(runtimeApi.listRuntimeEditions).mockImplementation(() => {
+      if (!hang) {
+        return Promise.resolve(runtimeEditionRows);
+      }
+      return new Promise((resolve) => {
+        release = resolve;
+      });
+    });
+    render(<RuntimeSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("runtime-start-10")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("runtime-edition-filter"), {
+      target: { value: "missing" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("runtime-editions-filter-empty")).toBeTruthy();
+    });
+    hang = true;
+    try {
+      fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+      expect(
+        (screen.getByTestId("runtime-edition-filter") as HTMLInputElement).value,
+      ).toBe("missing");
+      expect(
+        screen.getByTestId("runtime-editions-filter-empty").textContent,
+      ).toMatch(/no editions match/i);
+      expect(screen.queryByText("Loading")).toBeNull();
+      expect(screen.queryByRole("alert")).toBeNull();
+      expect(screen.queryByTestId("runtime-start-10")).toBeNull();
+    } finally {
+      hang = false;
+      await act(async () => {
+        release(runtimeEditionRows);
+      });
+    }
+    expect(
+      (screen.getByTestId("runtime-edition-filter") as HTMLInputElement).value,
+    ).toBe("missing");
+    expect(screen.getByTestId("runtime-editions-filter-empty")).toBeTruthy();
   });
 
   it("keeps a start error visible while the name filter changes", async () => {
