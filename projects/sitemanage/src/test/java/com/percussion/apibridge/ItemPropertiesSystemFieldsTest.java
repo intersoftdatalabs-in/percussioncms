@@ -19,6 +19,7 @@ package com.percussion.apibridge;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -90,6 +91,43 @@ class ItemPropertiesSystemFieldsTest {
     ItemPropertiesSystemFields.preserveBlank(core, summary);
 
     verify(core, never()).setTextField(org.mockito.ArgumentMatchers.eq("sys_workflowid"), any());
+  }
+
+  @Test
+  void checkoutEditRevisionReplacesThePreviewRevision() {
+    PSCoreItem core = mock(PSCoreItem.class);
+    when(core.getRevision()).thenReturn(10);
+    PSComponentSummary summary = mock(PSComponentSummary.class);
+    when(summary.getEditRevision()).thenReturn(11);
+
+    ItemPropertiesSystemFields.useCheckoutEditRevision(core, summary);
+
+    verify(core).setRevision(11);
+    verify(core).setEditRevision(11);
+  }
+
+  @Test
+  void matchingCheckoutRevisionIsLeftAlone() {
+    PSCoreItem core = mock(PSCoreItem.class);
+    when(core.getRevision()).thenReturn(1);
+    PSComponentSummary summary = mock(PSComponentSummary.class);
+    when(summary.getEditRevision()).thenReturn(1);
+
+    ItemPropertiesSystemFields.useCheckoutEditRevision(core, summary);
+
+    verify(core, never()).setRevision(anyInt());
+    verify(core, never()).setEditRevision(anyInt());
+  }
+
+  @Test
+  void uncheckedItemKeepsTheLoadedRevision() {
+    PSCoreItem core = mock(PSCoreItem.class);
+    PSComponentSummary summary = mock(PSComponentSummary.class);
+    when(summary.getEditRevision()).thenReturn(-1);
+
+    ItemPropertiesSystemFields.useCheckoutEditRevision(core, summary);
+
+    verify(core, never()).setRevision(anyInt());
   }
 
   private static PSItemField blankField() {
