@@ -45,11 +45,13 @@ Operators using **Developer → Communities** create/delete chrome: [Developer C
 Operators using **Developer → Roles** browse, create, add-one-user, remove-one-user, description-edit, and delete chrome: [Developer Roles](id:admin-developer-roles).
 
 Operators using **Developer → Keywords** create, edit, and delete keyword
-definitions, and add or remove one choice on an existing keyword. The list
-changes only after the existing keyword update succeeds. The keyword label,
-description, sequence, and the other choices stay as they were. A blank choice
-is not sent. Cancel does not write. A duplicate label or value does not add a
-second row. Removing the last choice clears the list and does not delete the
+definitions, and add, relabel, or remove one choice on an existing keyword. The
+list changes only after the existing keyword update succeeds. The keyword label,
+description, sequence, and the other choices stay as they were. Changing a
+choice label leaves that choice's value, description, and sequence. A blank
+choice or label is not sent. Cancel does not write. A duplicate label or value
+does not add a second row, and a duplicate label does not replace another
+choice. Removing the last choice clears the list and does not delete the
 keyword. HTTP 400, 403, and 409 leave the previous choices in place.
 Deep link: `spa.jsp?entry=developer&section=keywords`. Contract:
 [REST API](id:developer-rest).

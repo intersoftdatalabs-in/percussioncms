@@ -136,6 +136,22 @@ error body. Removing the last choice sends `"choices": []`. That clears the list
 not delete the keyword (`DELETE /services/keywords/{id}` is a separate action). Add,
 label or description save, and delete stay on this resource and are unchanged.
 
+### Change one choice label
+
+**Developer → Keywords** changes the label of one choice with the existing
+`PUT /services/keywords/{id}` (the same update used to add or remove a choice).
+The body is wrapped as `Keyword`. It keeps the stored keyword `label`,
+`description`, and `sequence`, and sends `choices` as the previous choices with
+that one choice's `label` replaced. The choice `value`, `description`, and
+`sequence` stay, and the other choices stay. The new label is shown only when
+that update succeeds and the response lists the same choices with that label.
+A blank label is not sent. Cancel is not a request. The same label is not a
+request. A label that matches another choice (ignoring case) is not sent, so
+that other choice is not replaced. HTTP **400**, **403**, and **409** are
+errors: the editor keeps the previous label and does not apply a choice list
+from the error body. Add, remove, and delete stay on this resource and are
+unchanged.
+
 ## Locales (design catalog)
 
 CMS locale definitions (Workbench **Locales** / content design) are exposed under `/services/locales`.

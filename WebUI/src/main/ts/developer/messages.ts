@@ -409,7 +409,7 @@ export const DEV_MSG_KEYS = {
   KW_EMPTY: "perc.ui.developer@No keywords returned.",
   KW_ERROR: "perc.ui.developer@Could not load keywords.",
   KW_HINT:
-    "perc.ui.developer@Create, edit, or delete keyword definitions. On an existing keyword, add one choice or remove one choice; the list changes only after that save succeeds.",
+    "perc.ui.developer@Create, edit, or delete keyword definitions. On an existing keyword, add one choice, change one choice label, or remove one choice; the list changes only after that save succeeds.",
   KW_COL_LABEL: "perc.ui.developer@Label",
   KW_COL_VALUE: "perc.ui.developer@Value",
   KW_COL_CHOICES: "perc.ui.developer@Choices",
@@ -461,6 +461,23 @@ export const DEV_MSG_KEYS = {
   KW_REMOVE_CHOICE_INVALID: "perc.ui.developer@The choice was not removed.",
   KW_REMOVE_CHOICE_CONFLICT:
     "perc.ui.developer@The choice was not removed. Previous choices are unchanged.",
+  KW_CHANGE_CHOICE_LABEL: "perc.ui.developer@Change label",
+  /** Aria label; `{0}` is the choice label. */
+  KW_CHANGE_CHOICE_LABEL_ACTION: "perc.ui.developer@Change label of {0}",
+  KW_CHANGE_CHOICE_LABEL_HINT:
+    "perc.ui.developer@Changes the label of one choice with the keyword update. The new label shows only after that save succeeds. The choice value, description, and sequence stay. The keyword label, description, sequence, and the other choices stay. A blank label is not sent. Cancel does not write. A duplicate label does not replace another choice.",
+  KW_CHANGE_CHOICE_LABEL_SAVE: "perc.ui.developer@Save label",
+  KW_CHANGE_CHOICE_LABEL_SAVED: "perc.ui.developer@Choice label saved.",
+  KW_CHANGE_CHOICE_LABEL_ERROR: "perc.ui.developer@Could not change the choice label.",
+  KW_CHANGE_CHOICE_LABEL_BLANK:
+    "perc.ui.developer@Enter a choice label. A blank label was not saved.",
+  KW_CHANGE_CHOICE_LABEL_DUPLICATE:
+    "perc.ui.developer@That label is already on another choice. The other choice was not replaced.",
+  KW_CHANGE_CHOICE_LABEL_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to change a choice label.",
+  KW_CHANGE_CHOICE_LABEL_INVALID: "perc.ui.developer@The choice label was not changed.",
+  KW_CHANGE_CHOICE_LABEL_CONFLICT:
+    "perc.ui.developer@The choice label was not changed. The previous label is unchanged.",
   TPL_LOADING: "perc.ui.developer@Loading templates...",
   TPL_EMPTY: "perc.ui.developer@No templates returned.",
   TPL_ERROR: "perc.ui.developer@Could not load templates.",
