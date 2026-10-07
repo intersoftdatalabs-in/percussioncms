@@ -37,6 +37,8 @@ import {
   unwrapUpdatedRoleHomePage,
   addRoleUser,
   removeRoleUser,
+  copyOneRole,
+  RoleCopyFailure,
   roleAddUserUrl,
   roleRemoveUserUrl,
   updateRoleDescription,
@@ -735,5 +737,143 @@ describe("deleteRole", () => {
       fetchMock.mockResolvedValueOnce(jsonResponse({ message: "no" }, status));
       await expect(deleteRole("Author")).rejects.toMatchObject({ status });
     }
+  });
+});
+
+describe("copyOneRole", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      statusText: status === 200 ? "OK" : "Error",
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  function putBodies(): { url: string; body: Record<string, unknown> }[] {
+    return fetchMock.mock.calls.map((call) => {
+      const [url, init] = call as [string, RequestInit];
+      const parsed = JSON.parse(String(init.body)) as { Role?: Record<string, unknown> };
+      return { url: String(url), body: parsed.Role ?? parsed };
+    });
+  }
+
+  it("does not call the server for a blank name", async () => {
+    await expect(
+      copyOneRole({ description: "Editors", homePage: "Home", users: ["Ada"] }, "  "),
+    ).rejects.toThrow(/required/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("creates the new name, then writes description, home page, and each user", async () => {
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ Role: { name: "NightCopy" } }))
+      .mockResolvedValueOnce(
+        jsonResponse({ Role: { name: "NightCopy", description: "Editors" } }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          Role: { name: "NightCopy", description: "Editors", homePage: "Developer" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({ Role: { name: "NightCopy", users: ["Ada"] } }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({ Role: { name: "NightCopy", users: ["Ada", "Bea"] } }),
+      );
+    const saved = await copyOneRole(
+      {
+        description: " Editors ",
+        homePage: " Developer ",
+        users: [" Ada ", "Ada", "ada", "Bea", ""],
+      },
+      " NightCopy ",
+    );
+    expect(saved).toEqual({ name: "NightCopy" });
+    const calls = putBodies();
+    expect(calls).toHaveLength(5);
+    expect(calls[0].url).toContain("create=true");
+    expect(calls[0].url).not.toContain("addUser=true");
+    expect(calls[0].body).toEqual({ name: "NightCopy" });
+    expect(calls[1].url).toContain("update=true");
+    expect(calls[1].body).toEqual({ name: "NightCopy", description: "Editors" });
+    expect(calls[1].body.users).toBeUndefined();
+    expect(calls[2].url).toContain("homePage=true");
+    expect(calls[2].body).toEqual({ name: "NightCopy", homePage: "Developer" });
+    expect(calls[3].url).toContain("addUser=true");
+    expect(calls[3].body).toEqual({ name: "NightCopy", users: ["Ada"] });
+    expect(calls[4].body).toEqual({ name: "NightCopy", users: ["Bea"] });
+    expect(calls.every((call) => call.body.name !== "Author")).toBe(true);
+  });
+
+  it("skips description, home page, and users when the source has none", async () => {
+    fetchMock.mockResolvedValueOnce(jsonResponse({ Role: { name: "NightCopy" } }));
+    await copyOneRole({ description: "  ", homePage: "", users: [] }, "NightCopy");
+    expect(putBodies()).toEqual([{ url: expect.stringContaining("create=true"), body: { name: "NightCopy" } }]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not continue after create fails with 400, 403, or 409", async () => {
+    for (const status of [400, 403, 409]) {
+      fetchMock.mockReset();
+      fetchMock.mockResolvedValueOnce(jsonResponse({ message: "no" }, status));
+      await expect(
+        copyOneRole({ description: "Editors", homePage: "Home", users: ["Ada"] }, "NightCopy"),
+      ).rejects.toMatchObject({ partial: false, cause: { status } });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(String(fetchMock.mock.calls[0][0])).toContain("create=true");
+    }
+  });
+
+  it("stops after a later step fails and does not report success", async () => {
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ Role: { name: "NightCopy" } }))
+      .mockResolvedValueOnce(jsonResponse({ message: "too long" }, 400));
+    const error = await copyOneRole(
+      { description: "Editors", homePage: "Home", users: ["Ada"] },
+      "NightCopy",
+    ).catch((err: unknown) => err);
+    expect(error).toBeInstanceOf(RoleCopyFailure);
+    expect(error).toMatchObject({ partial: true, cause: { status: 400 } });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(String(fetchMock.mock.calls[1][0])).toContain("update=true");
+
+    fetchMock.mockReset();
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ Role: { name: "NightCopy" } }))
+      .mockResolvedValueOnce(
+        jsonResponse({ Role: { name: "NightCopy", description: "Editors" } }),
+      )
+      .mockResolvedValueOnce(jsonResponse({ message: "bad home" }, 409));
+    await expect(
+      copyOneRole({ description: "Editors", homePage: "Home", users: ["Ada"] }, "NightCopy"),
+    ).rejects.toMatchObject({ partial: true, cause: { status: 409 } });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+
+    fetchMock.mockReset();
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ Role: { name: "NightCopy" } }))
+      .mockResolvedValueOnce(
+        jsonResponse({ Role: { name: "NightCopy", description: "Editors" } }),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({ Role: { name: "NightCopy", homePage: "Home" } }),
+      )
+      .mockResolvedValueOnce(jsonResponse({ message: "forbidden" }, 403));
+    await expect(
+      copyOneRole({ description: "Editors", homePage: "Home", users: ["Ada"] }, "NightCopy"),
+    ).rejects.toMatchObject({ partial: true, cause: { status: 403 } });
+    expect(String(fetchMock.mock.calls[3][0])).toContain("addUser=true");
   });
 });
