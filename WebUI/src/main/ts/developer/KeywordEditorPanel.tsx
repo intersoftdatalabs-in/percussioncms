@@ -33,11 +33,14 @@ import {
   keywordUpdateForAddedChoice,
   keywordUpdateForClearedChoiceDescription,
   keywordUpdateForDescribedChoice,
+  keywordUpdateForKeywordDescription,
   keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
   keywordUpdateForResequencedChoice,
   keywordUpdateForRevaluedChoice,
   savedChoicesAfterAdd,
+  savedKeywordDescription,
+  storedKeywordDescription,
   unwrapKeywordPayload,
 } from "./keywordChoiceAdd";
 import { DEV_MSG } from "./messages";
@@ -181,6 +184,21 @@ function clearChoiceDescriptionFailureMessage(err: unknown): string {
   return panelErrMsg(err, DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_ERROR);
 }
 
+function keywordDescriptionFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.KW_SET_DESCRIPTION_FORBIDDEN);
+    }
+    if (err.status === 409) {
+      return panelErrMsg(err, DEV_MSG.KW_SET_DESCRIPTION_CONFLICT);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.KW_SET_DESCRIPTION_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.KW_SET_DESCRIPTION_ERROR);
+}
+
 function resequenceChoiceFailureMessage(err: unknown): string {
   if (isApiError(err)) {
     if (err.status === 403) {
@@ -267,6 +285,15 @@ export function KeywordEditorPanel({
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
   const descriptionInflight = useRef(false);
+  const [keywordDescriptionShown, setKeywordDescriptionShown] = useState(
+    storedKeywordDescription(initial?.description),
+  );
+  const [keywordDescriptionEditing, setKeywordDescriptionEditing] = useState(false);
+  const [keywordDescriptionDraft, setKeywordDescriptionDraft] = useState("");
+  const [keywordDescriptionBusy, setKeywordDescriptionBusy] = useState(false);
+  const [keywordDescriptionError, setKeywordDescriptionError] = useState<string | null>(null);
+  const [keywordDescriptionNotice, setKeywordDescriptionNotice] = useState<string | null>(null);
+  const keywordDescriptionInflight = useRef(false);
   const [pendingClearDescriptionIndex, setPendingClearDescriptionIndex] = useState<number | null>(
     null,
   );
@@ -285,13 +312,23 @@ export function KeywordEditorPanel({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const choiceWriteBusy =
-    addBusy || removeBusy || labelBusy || valueBusy || descriptionBusy || sequenceBusy;
+    addBusy ||
+    removeBusy ||
+    labelBusy ||
+    valueBusy ||
+    descriptionBusy ||
+    sequenceBusy ||
+    keywordDescriptionBusy;
   const labelEditOpen = labelEditIndex != null;
   const valueEditOpen = valueEditIndex != null;
   const descriptionEditOpen = descriptionEditIndex != null;
   const sequenceEditOpen = sequenceEditIndex != null;
   const choiceEditOpen =
-    labelEditOpen || valueEditOpen || descriptionEditOpen || sequenceEditOpen;
+    labelEditOpen ||
+    valueEditOpen ||
+    descriptionEditOpen ||
+    sequenceEditOpen ||
+    keywordDescriptionEditing;
 
   useEffect(() => {
     if (!id || isNew) return;
@@ -305,6 +342,7 @@ export function KeywordEditorPanel({
         setListedChoices(choices);
         setLabel(kw.label || "");
         setDescription(kw.description || "");
+        setKeywordDescriptionShown(storedKeywordDescription(kw.description));
         setSequence(kw.sequence != null ? String(kw.sequence) : "0");
         setChoicesText(choicesToText(choices));
         setDetailReady(true);
@@ -330,7 +368,7 @@ export function KeywordEditorPanel({
       removeInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       sequenceInflight.current ||
       confirmKind ||
       choiceEditOpen
@@ -382,7 +420,7 @@ export function KeywordEditorPanel({
       removeInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       sequenceInflight.current ||
       removeBusy ||
       labelBusy ||
@@ -479,7 +517,7 @@ export function KeywordEditorPanel({
       busy ||
       confirmKind != null ||
       choiceEditOpen ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       !Number.isInteger(index) ||
       index < 0 ||
       index >= listedChoices.length
@@ -503,7 +541,7 @@ export function KeywordEditorPanel({
       !serverKeyword ||
       !detailReady ||
       index == null ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
       sequenceInflight.current ||
@@ -576,7 +614,7 @@ export function KeywordEditorPanel({
       removeInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       sequenceInflight.current ||
       addBusy ||
       labelBusy ||
@@ -642,7 +680,7 @@ export function KeywordEditorPanel({
       confirmKind != null ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       sequenceInflight.current ||
       valueEditOpen ||
       descriptionEditOpen ||
@@ -669,7 +707,7 @@ export function KeywordEditorPanel({
       index == null ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       sequenceInflight.current ||
       addInflight.current ||
       removeInflight.current ||
@@ -761,7 +799,7 @@ export function KeywordEditorPanel({
       confirmKind != null ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       sequenceInflight.current ||
       labelEditOpen ||
       valueEditOpen ||
@@ -789,7 +827,7 @@ export function KeywordEditorPanel({
       index == null ||
       valueInflight.current ||
       labelInflight.current ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       sequenceInflight.current ||
       addInflight.current ||
       removeInflight.current ||
@@ -865,7 +903,7 @@ export function KeywordEditorPanel({
   }
 
   function cancelChoiceDescriptionEdit(): void {
-    if (descriptionBusy || descriptionInflight.current) return;
+    if (descriptionBusy || descriptionInflight.current || keywordDescriptionInflight.current) return;
     setDescriptionEditIndex(null);
     setDescriptionDraft("");
     setDescriptionError(null);
@@ -881,7 +919,7 @@ export function KeywordEditorPanel({
       confirmKind != null ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       sequenceInflight.current ||
       labelEditOpen ||
       valueEditOpen ||
@@ -907,7 +945,7 @@ export function KeywordEditorPanel({
       !serverKeyword ||
       !detailReady ||
       index == null ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
       sequenceInflight.current ||
@@ -996,7 +1034,7 @@ export function KeywordEditorPanel({
       confirmKind != null ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       sequenceInflight.current ||
       labelEditOpen ||
       valueEditOpen ||
@@ -1026,7 +1064,7 @@ export function KeywordEditorPanel({
       sequenceInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current ||
       addInflight.current ||
       removeInflight.current ||
       addBusy ||
@@ -1097,6 +1135,104 @@ export function KeywordEditorPanel({
     } finally {
       sequenceInflight.current = false;
       setSequenceBusy(false);
+    }
+  }
+
+  function cancelKeywordDescriptionEdit(): void {
+    if (keywordDescriptionBusy || keywordDescriptionInflight.current) return;
+    setKeywordDescriptionEditing(false);
+    setKeywordDescriptionDraft("");
+    setKeywordDescriptionError(null);
+  }
+
+  function startKeywordDescriptionEdit(): void {
+    if (
+      !id ||
+      isNew ||
+      !detailReady ||
+      choiceWriteBusy ||
+      busy ||
+      confirmKind != null ||
+      choiceEditOpen ||
+      keywordDescriptionInflight.current ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      valueInflight.current ||
+      sequenceInflight.current ||
+      addInflight.current ||
+      removeInflight.current
+    ) {
+      return;
+    }
+    setKeywordDescriptionEditing(true);
+    setKeywordDescriptionDraft(keywordDescriptionShown);
+    setKeywordDescriptionError(null);
+    setKeywordDescriptionNotice(null);
+  }
+
+  async function handleKeywordDescriptionSave(): Promise<void> {
+    if (
+      !id ||
+      isNew ||
+      !serverKeyword ||
+      !detailReady ||
+      !keywordDescriptionEditing ||
+      keywordDescriptionInflight.current ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      valueInflight.current ||
+      sequenceInflight.current ||
+      addInflight.current ||
+      removeInflight.current ||
+      addBusy ||
+      removeBusy ||
+      labelBusy ||
+      valueBusy ||
+      descriptionBusy ||
+      sequenceBusy ||
+      busy ||
+      confirmKind
+    ) {
+      return;
+    }
+    const sent = keywordUpdateForKeywordDescription(serverKeyword, keywordDescriptionDraft);
+    if (sent === "unchanged") {
+      setKeywordDescriptionEditing(false);
+      setKeywordDescriptionDraft("");
+      setKeywordDescriptionError(null);
+      return;
+    }
+    keywordDescriptionInflight.current = true;
+    setKeywordDescriptionBusy(true);
+    setKeywordDescriptionError(null);
+    setKeywordDescriptionNotice(null);
+    const previousShown = keywordDescriptionShown;
+    try {
+      const payload = await updateKeyword(id, sent);
+      const accepted = savedKeywordDescription(sent, listedChoices, payload);
+      if (accepted == null) {
+        setKeywordDescriptionShown(previousShown);
+        setDescription(previousShown);
+        setKeywordDescriptionError(DEV_MSG.KW_SET_DESCRIPTION_ERROR);
+        setKeywordDescriptionNotice(null);
+        return;
+      }
+      setKeywordDescriptionShown(accepted);
+      setDescription(accepted);
+      setServerKeyword({ ...serverKeyword, description: accepted });
+      setKeywordDescriptionEditing(false);
+      setKeywordDescriptionDraft("");
+      setKeywordDescriptionNotice(
+        accepted ? DEV_MSG.KW_SET_DESCRIPTION_SAVED : DEV_MSG.KW_SET_DESCRIPTION_CLEARED,
+      );
+    } catch (err: unknown) {
+      setKeywordDescriptionShown(previousShown);
+      setDescription(previousShown);
+      setKeywordDescriptionError(keywordDescriptionFailureMessage(err));
+      setKeywordDescriptionNotice(null);
+    } finally {
+      keywordDescriptionInflight.current = false;
+      setKeywordDescriptionBusy(false);
     }
   }
 
@@ -1182,6 +1318,116 @@ export function KeywordEditorPanel({
           onChange={(e) => setDescription(e.target.value)}
         />
       </div>
+      {!isNew && id ? (
+        <section
+          data-testid="developer-kw-keyword-description"
+          aria-label={DEV_MSG.KW_SET_DESCRIPTION_ACTION}
+          style={{ marginBottom: "16px" }}
+        >
+          <h3 style={{ marginBottom: "8px" }}>{DEV_MSG.KW_SET_DESCRIPTION}</h3>
+          <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>
+            {DEV_MSG.KW_SET_DESCRIPTION_HINT}
+          </p>
+          <p
+            data-testid="developer-kw-keyword-description-text"
+            data-keyword-description={keywordDescriptionShown}
+            style={{ marginTop: 0 }}
+          >
+            {keywordDescriptionShown}
+          </p>
+          {keywordDescriptionError ? (
+            <div
+              role="alert"
+              data-testid="developer-kw-keyword-description-error"
+              style={errorAlert}
+            >
+              {keywordDescriptionError}
+            </div>
+          ) : null}
+          {keywordDescriptionNotice ? (
+            <div
+              data-testid="developer-kw-keyword-description-notice"
+              style={{ color: "#276749" }}
+            >
+              {keywordDescriptionNotice}
+            </div>
+          ) : null}
+          {keywordDescriptionEditing ? (
+            <div data-testid="developer-kw-keyword-description-editor">
+              <label htmlFor="kw-keyword-description-input">
+                {DEV_MSG.KW_SET_DESCRIPTION_FIELD}
+              </label>
+              <input
+                id="kw-keyword-description-input"
+                data-testid="developer-kw-keyword-description-input"
+                style={inputStyle}
+                value={keywordDescriptionDraft}
+                onChange={(e) => setKeywordDescriptionDraft(e.target.value)}
+              />
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                <button
+                  type="button"
+                  data-testid="developer-kw-keyword-description-save"
+                  aria-label={DEV_MSG.KW_SET_DESCRIPTION_SAVE}
+                  disabled={keywordDescriptionBusy}
+                  onClick={() => void handleKeywordDescriptionSave()}
+                  style={{
+                    padding: "8px 16px",
+                    background: catalogColors.accent,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: keywordDescriptionBusy ? "wait" : "pointer",
+                  }}
+                >
+                  {DEV_MSG.KW_SET_DESCRIPTION_SAVE}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-kw-keyword-description-cancel"
+                  disabled={keywordDescriptionBusy}
+                  onClick={cancelKeywordDescriptionEdit}
+                  style={{
+                    padding: "8px 16px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {DEV_MSG.KW_CANCEL}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              data-testid="developer-kw-keyword-description-edit"
+              aria-label={DEV_MSG.KW_SET_DESCRIPTION_ACTION}
+              disabled={
+                choiceWriteBusy ||
+                busy ||
+                !detailReady ||
+                confirmKind != null ||
+                labelEditOpen ||
+                valueEditOpen ||
+                descriptionEditOpen ||
+                sequenceEditOpen
+              }
+              onClick={startKeywordDescriptionEdit}
+              style={{
+                padding: "4px 10px",
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                cursor: choiceWriteBusy ? "wait" : "pointer",
+              }}
+            >
+              {DEV_MSG.KW_SET_DESCRIPTION}
+            </button>
+          )}
+        </section>
+      ) : null}
       <div style={fieldStyle}>
         <label htmlFor="kw-seq">{DEV_MSG.KW_FORM_SEQUENCE}</label>
         <input

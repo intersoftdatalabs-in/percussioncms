@@ -23,11 +23,13 @@ import {
   keywordUpdateForAddedChoice,
   keywordUpdateForClearedChoiceDescription,
   keywordUpdateForDescribedChoice,
+  keywordUpdateForKeywordDescription,
   keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
   keywordUpdateForResequencedChoice,
   keywordUpdateForRevaluedChoice,
   savedChoicesAfterAdd,
+  savedKeywordDescription,
   unwrapKeywordPayload,
 } from "../../../main/ts/developer/keywordChoiceAdd";
 
@@ -535,5 +537,93 @@ describe("savedChoicesAfterAdd", () => {
         ],
       }),
     ).toBeNull();
+  });
+});
+
+describe("keywordUpdateForKeywordDescription", () => {
+  const choices: KeywordChoiceSummary[] = [
+    { label: "High", value: "high", description: "top", sequence: 1 },
+    { label: "Low", value: "low", description: "bottom", sequence: 2 },
+  ];
+
+  it("does not write when the description is unchanged", () => {
+    expect(keywordUpdateForKeywordDescription(baseline, "Item priority")).toBe("unchanged");
+    expect(keywordUpdateForKeywordDescription(baseline, "  Item priority  ")).toBe("unchanged");
+    expect(keywordUpdateForKeywordDescription({ ...baseline, description: "  " }, "\n")).toBe(
+      "unchanged",
+    );
+  });
+
+  it("sets the keyword description and omits choices", () => {
+    const sent = keywordUpdateForKeywordDescription(baseline, " note ");
+    expect(sent).toEqual({
+      label: "Priority",
+      description: "note",
+      sequence: 4,
+    });
+    expect(sent).not.toHaveProperty("choices");
+  });
+
+  it("clears a stored description with an empty string and still omits choices", () => {
+    const sent = keywordUpdateForKeywordDescription(baseline, "   ");
+    expect(sent).toEqual({
+      label: "Priority",
+      description: "",
+      sequence: 4,
+    });
+    expect(sent).not.toHaveProperty("choices");
+  });
+
+  it("does not copy a choice description onto the keyword", () => {
+    const sent = keywordUpdateForKeywordDescription(baseline, "top");
+    expect(sent).toEqual({
+      label: "Priority",
+      description: "top",
+      sequence: 4,
+    });
+  });
+
+  it("accepts a response that keeps the label, sequence, and choices", () => {
+    const sent = keywordUpdateForKeywordDescription(baseline, "note");
+    if (typeof sent === "string") {
+      throw new Error(sent);
+    }
+    expect(savedKeywordDescription(sent, choices, { ...sent, choices })).toBe("note");
+    expect(
+      savedKeywordDescription(sent, choices, {
+        Keyword: { ...sent, choices, description: " note " },
+      }),
+    ).toBe("note");
+  });
+
+  it("accepts a cleared description when the response omits it", () => {
+    const sent = keywordUpdateForKeywordDescription(baseline, "");
+    if (typeof sent === "string") {
+      throw new Error(sent);
+    }
+    expect(
+      savedKeywordDescription(sent, choices, {
+        label: "Priority",
+        sequence: 4,
+        choices,
+      }),
+    ).toBe("");
+  });
+
+  it("rejects a response that changes choices, label, or sequence", () => {
+    const sent = keywordUpdateForKeywordDescription(baseline, "note");
+    if (typeof sent === "string") {
+      throw new Error(sent);
+    }
+    expect(savedKeywordDescription(sent, choices, { ...sent, choices: choices.slice(0, 1) })).toBe(
+      null,
+    );
+    expect(savedKeywordDescription(sent, choices, { ...sent, choices, label: "Renamed" })).toBe(
+      null,
+    );
+    expect(savedKeywordDescription(sent, choices, { ...sent, choices, sequence: 9 })).toBe(null);
+    expect(savedKeywordDescription({ ...sent, choices }, choices, { ...sent, choices })).toBe(
+      null,
+    );
   });
 });

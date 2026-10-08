@@ -17,14 +17,18 @@
 
 package com.percussion.rest.keywords;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement(name = "Keyword")
+@JsonRootName("Keyword")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Keyword definition with optional choices")
 public class KeywordSummary {
@@ -34,7 +38,20 @@ public class KeywordSummary {
   private String value;
   private String description;
   private Integer sequence;
+
+  /**
+   * Live Jackson uses the getter as the collection setter and adds elements here without calling
+   * {@link #setChoices(List)}. The list must be this field, not a throwaway from {@link
+   * #getChoices()}. An omitted property leaves it empty and does not replace stored choices.
+   */
   private List<KeywordChoiceSummary> choices = new ArrayList<>();
+
+  /**
+   * True when {@link #setChoices(List)} was called with a list, including an empty array. Getter
+   * mutation of a non-empty {@link #choices} does not set this; {@link #isChoicesSpecified()}
+   * checks both.
+   */
+  @JsonIgnore @XmlTransient private boolean choicesSpecified;
 
   public KeywordSummary() {}
 
@@ -79,10 +96,34 @@ public class KeywordSummary {
   }
 
   public List<KeywordChoiceSummary> getChoices() {
+    if (choices == null) {
+      choices = new ArrayList<>();
+    }
     return choices;
   }
 
+  /**
+   * @param choices the choice list when the request included {@code choices}; {@code null} means
+   *     the property was not a list and does not replace stored choices
+   */
   public void setChoices(List<KeywordChoiceSummary> choices) {
-    this.choices = choices != null ? choices : new ArrayList<>();
+    if (choices == null) {
+      this.choicesSpecified = false;
+      this.choices = new ArrayList<>();
+      return;
+    }
+    this.choicesSpecified = true;
+    this.choices = choices;
+  }
+
+  /**
+   * Whether the request included {@code choices}, including an empty list. True when {@link
+   * #setChoices(List)} stored a list, or when Jackson added choices through {@link #getChoices()}
+   * without that setter.
+   */
+  @JsonIgnore
+  @XmlTransient
+  public boolean isChoicesSpecified() {
+    return choicesSpecified || (choices != null && !choices.isEmpty());
   }
 }

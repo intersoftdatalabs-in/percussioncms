@@ -227,6 +227,25 @@ choice list from the error body. Add, remove, label change, value change,
 description change, description clear, and delete stay on this resource and
 are unchanged.
 
+### Set the keyword description
+
+**Developer → Keywords** sets the keyword description with the existing
+`PUT /services/keywords/{id}` (the same update used to add or remove a
+choice, or to change a choice label, value, description, or sequence).
+The body is wrapped as `Keyword`. It keeps the stored keyword `label`
+and `sequence`, and sends `description`. It omits `choices`, so stored
+choices stay. An empty `choices` array is a different request: that
+clears the choice list. The keyword description is the `description`
+field on the keyword, not the `description` field on a choice. The new
+description is shown only when that update succeeds and the response
+keeps the same label, sequence, and choices with that description. A
+blank description is sent as `""` and clears the keyword description.
+Cancel is not a request. The same description is not a request. HTTP
+**400**, **403**, and **409** are errors: the editor keeps the previous
+description and does not apply a choice list from the error body. Add,
+remove, choice label, value, description, sequence, and delete stay on
+this resource and are unchanged.
+
 ## Locales (design catalog)
 
 CMS locale definitions (Workbench **Locales** / content design) are exposed under `/services/locales`.

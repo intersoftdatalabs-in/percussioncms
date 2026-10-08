@@ -559,3 +559,94 @@ export function savedChoicesAfterAdd(
   }
   return remaining.size === 0 ? next : null;
 }
+
+export type KeywordDescriptionRejection = "unchanged";
+
+/** Stored keyword description with surrounding space and line breaks removed. */
+export function storedKeywordDescription(value?: string | null): string {
+  return (value ?? "").replace(/[\r\n]+/g, " ").trim();
+}
+
+function sameChoiceList(
+  left: KeywordChoiceSummary[],
+  right: KeywordChoiceSummary[],
+): boolean {
+  if (left.length !== right.length) {
+    return false;
+  }
+  const remaining = new Map<string, number>();
+  for (const choice of right) {
+    const key = choiceSnapshot(choice);
+    remaining.set(key, (remaining.get(key) ?? 0) + 1);
+  }
+  for (const choice of left) {
+    const key = choiceSnapshot(choice);
+    const count = remaining.get(key) ?? 0;
+    if (count < 1) {
+      return false;
+    }
+    if (count === 1) {
+      remaining.delete(key);
+    } else {
+      remaining.set(key, count - 1);
+    }
+  }
+  return remaining.size === 0;
+}
+
+/**
+ * Body for the existing keyword update that sets the keyword description.
+ * Label and sequence are copied from the loaded keyword. Choices are omitted
+ * so stored choices stay. A blank description is an empty string and clears
+ * a stored description. The same description is not a write. This is not a
+ * choice description.
+ */
+export function keywordUpdateForKeywordDescription(
+  baseline: Pick<KeywordSummary, "label" | "description" | "sequence">,
+  nextDescription: string,
+): KeywordSummary | KeywordDescriptionRejection {
+  const description = storedKeywordDescription(nextDescription);
+  const current = storedKeywordDescription(baseline.description);
+  if (description === current) {
+    return "unchanged";
+  }
+  return {
+    label: baseline.label,
+    description,
+    sequence: baseline.sequence,
+  };
+}
+
+/**
+ * Description to show after a keyword-description update, or null when the
+ * response must not replace the previous description (metadata changed, the
+ * description is not the one sent, or stored choices are not the previous
+ * list). The sent body must omit choices.
+ */
+export function savedKeywordDescription(
+  sent: KeywordSummary,
+  previousChoices: KeywordChoiceSummary[],
+  payload: unknown,
+): string | null {
+  if ("choices" in sent) {
+    return null;
+  }
+  const saved = unwrapKeywordPayload(payload);
+  if (!saved) {
+    return null;
+  }
+  if (!sameOptionalText(sent.label ?? null, saved.label ?? null)) {
+    return null;
+  }
+  if (!sameOptionalNumber(sent.sequence ?? null, saved.sequence ?? null)) {
+    return null;
+  }
+  const sentDescription = storedKeywordDescription(sent.description);
+  if (storedKeywordDescription(saved.description) !== sentDescription) {
+    return null;
+  }
+  if (!sameChoiceList(previousChoices, saved.choices ?? [])) {
+    return null;
+  }
+  return sentDescription;
+}

@@ -295,6 +295,83 @@ class KeywordsAdaptorDesignWsTest {
   }
 
   @Test
+  void updateKeyword_omittedChoicesKeepStoredChoicesAndBlankDescriptionClears() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.KEYWORD_DEF, 9L);
+    PSKeyword kw = new PSKeyword();
+    kw.setGUID(guid);
+    kw.setLabel("Priority");
+    kw.setValue("priority");
+    kw.setDescription("Item priority");
+    kw.setSequence(4);
+    PSKeywordChoice high = new PSKeywordChoice();
+    high.setLabel("High");
+    high.setValue("high");
+    high.setDescription("top");
+    high.setSequence(1);
+    kw.setChoices(List.of(high));
+
+    when(designWs.loadKeywords(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(kw));
+    when(designWs.findKeywords("Priority")).thenReturn(Collections.emptyList());
+    when(designWs.loadKeywords(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(kw));
+
+    KeywordSummary body = new KeywordSummary();
+    body.setLabel("Priority");
+    body.setDescription("");
+    body.setSequence(4);
+    assertFalse(body.isChoicesSpecified());
+
+    KeywordsAdaptor adaptor = new KeywordsAdaptor(designWs);
+    KeywordSummary out = adaptor.updateKeyword(null, String.valueOf(guid.getUUID()), body);
+
+    assertNotNull(out);
+    assertEquals("", kw.getDescription());
+    assertEquals("Priority", kw.getLabel());
+    assertEquals(4, kw.getSequence());
+    assertEquals(1, kw.getChoices().size());
+    assertEquals("High", kw.getChoices().get(0).getLabel());
+    assertEquals("high", kw.getChoices().get(0).getValue());
+    assertEquals("top", kw.getChoices().get(0).getDescription());
+    assertEquals("", out.getDescription());
+    assertEquals(1, out.getChoices().size());
+  }
+
+  @Test
+  void updateKeyword_emptyChoicesClearStoredChoices() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.KEYWORD_DEF, 9L);
+    PSKeyword kw = new PSKeyword();
+    kw.setGUID(guid);
+    kw.setLabel("Priority");
+    kw.setValue("priority");
+    PSKeywordChoice high = new PSKeywordChoice();
+    high.setLabel("High");
+    high.setValue("high");
+    high.setSequence(1);
+    kw.setChoices(List.of(high));
+
+    when(designWs.loadKeywords(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(kw));
+    when(designWs.loadKeywords(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(kw));
+
+    KeywordSummary body = new KeywordSummary();
+    body.setDescription("note");
+    body.setChoices(List.of());
+    assertTrue(body.isChoicesSpecified());
+
+    KeywordsAdaptor adaptor = new KeywordsAdaptor(designWs);
+    KeywordSummary out = adaptor.updateKeyword(null, String.valueOf(guid.getUUID()), body);
+
+    assertNotNull(out);
+    assertEquals("note", kw.getDescription());
+    assertTrue(kw.getChoices().isEmpty());
+    assertTrue(out.getChoices().isEmpty());
+  }
+
+  @Test
   void updateKeyword_notFoundViaIsNotFound_returnsNull() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     IPSGuid guid = new PSGuid(PSTypeEnum.KEYWORD_DEF, 11L);

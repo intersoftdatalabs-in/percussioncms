@@ -409,7 +409,7 @@ export const DEV_MSG_KEYS = {
   KW_EMPTY: "perc.ui.developer@No keywords returned.",
   KW_ERROR: "perc.ui.developer@Could not load keywords.",
   KW_HINT:
-    "perc.ui.developer@Create, edit, or delete keyword definitions. On an existing keyword, add one choice, change one choice label, value, or description, or remove one choice; the list changes only after that save succeeds.",
+    "perc.ui.developer@Create, edit, or delete keyword definitions. On an existing keyword, set the keyword description, add one choice, change one choice label, value, description, or sequence, or remove one choice. The keyword description and the choice list change only after that save succeeds.",
   KW_COL_LABEL: "perc.ui.developer@Label",
   KW_COL_VALUE: "perc.ui.developer@Value",
   KW_COL_CHOICES: "perc.ui.developer@Choices",
@@ -545,6 +545,20 @@ export const DEV_MSG_KEYS = {
   KW_CHANGE_CHOICE_SEQUENCE_INVALID: "perc.ui.developer@The choice sequence was not changed.",
   KW_CHANGE_CHOICE_SEQUENCE_CONFLICT:
     "perc.ui.developer@The choice sequence was not changed. The previous sequence is unchanged.",
+  KW_SET_DESCRIPTION: "perc.ui.developer@Set description",
+  KW_SET_DESCRIPTION_ACTION: "perc.ui.developer@Set keyword description",
+  KW_SET_DESCRIPTION_HINT:
+    "perc.ui.developer@Sets the keyword description with the keyword update. The new description shows only after that save succeeds. The keyword label and sequence stay. Choices stay because this update does not send them. A blank description clears the keyword description. This is not a choice description. Cancel does not write.",
+  KW_SET_DESCRIPTION_FIELD: "perc.ui.developer@Keyword description",
+  KW_SET_DESCRIPTION_SAVE: "perc.ui.developer@Save description",
+  KW_SET_DESCRIPTION_SAVED: "perc.ui.developer@Keyword description saved.",
+  KW_SET_DESCRIPTION_CLEARED: "perc.ui.developer@Keyword description cleared.",
+  KW_SET_DESCRIPTION_ERROR: "perc.ui.developer@Could not change the keyword description.",
+  KW_SET_DESCRIPTION_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to change a keyword description.",
+  KW_SET_DESCRIPTION_INVALID: "perc.ui.developer@The keyword description was not changed.",
+  KW_SET_DESCRIPTION_CONFLICT:
+    "perc.ui.developer@The keyword description was not changed. The previous description is unchanged.",
   TPL_LOADING: "perc.ui.developer@Loading templates...",
   TPL_EMPTY: "perc.ui.developer@No templates returned.",
   TPL_ERROR: "perc.ui.developer@Could not load templates.",
