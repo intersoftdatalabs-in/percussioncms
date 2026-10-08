@@ -235,6 +235,12 @@ public class PSPublishingDesignRestService {
   static final String LOCATION_SCHEME_PARAMETER_ADD_AND_REMOVE =
       "Cannot add and remove a location scheme parameter in one update";
 
+  static final String LOCATION_SCHEME_PARAMETER_VALUE_ONE_REQUIRED =
+      "Change one location scheme parameter value at a time";
+
+  static final String LOCATION_SCHEME_PARAMETER_VALUE_NOT_WITH_ADD_OR_REMOVE =
+      "Cannot change a location scheme parameter value while adding or removing one";
+
   static final String CONTEXT_NAME_CONFLICT = "Publishing context name already exists";
   /** Matches {@code RXCONTEXT.CONTEXTNAME} VARCHAR(50). */
   static final int MAX_CONTEXT_NAME_LENGTH = 50;
@@ -1386,7 +1392,14 @@ public class PSPublishingDesignRestService {
    * none. The scheme itself is not deleted. Name, generator, description, content type, and
    * template change only when those fields are present. A blank name, a name longer than its
    * column, or any count other than one is HTTP 400 and writes nothing. A name that is not stored
-   * on the scheme is HTTP 409 and writes nothing. Add and remove cannot be combined.
+   * on the scheme is HTTP 409 and writes nothing. When {@code updateParameterValue} is true, the
+   * body carries exactly one stored parameter name and a new value. That parameter's name, type,
+   * and sequence stay. Other stored parameters stay. The stored set is not replaced. Name,
+   * generator, description, content type, and template change only when those fields are present.
+   * A blank or whitespace value does not clear the stored value: it is HTTP 400 and writes
+   * nothing. A blank name, a name longer than its column, or any count other than one is HTTP 400
+   * and writes nothing. A name that is not stored is HTTP 409 and writes nothing. Add, remove, and
+   * a value change cannot be combined.
    */
   @PUT
   @Path("/schemes/{schemeId}")
@@ -1404,14 +1417,22 @@ public class PSPublishingDesignRestService {
         && Boolean.TRUE.equals(body.getRemoveParameter())) {
       throw badRequest(LOCATION_SCHEME_PARAMETER_ADD_AND_REMOVE);
     }
+    if (Boolean.TRUE.equals(body.getUpdateParameterValue())
+        && (Boolean.TRUE.equals(body.getAddParameter())
+            || Boolean.TRUE.equals(body.getRemoveParameter()))) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_VALUE_NOT_WITH_ADD_OR_REMOVE);
+    }
     try {
       IPSLocationScheme scheme =
           siteManager.loadSchemeModifiable(
               guidManager.makeGuid(schemeId, PSTypeEnum.LOCATION_SCHEME));
-      // Reject a bad add or remove before any field is written so 400/409 leaves the stored row.
+      // Reject a bad add, remove, or value change before any field is written.
       SchemeParameterAddition addition = null;
       SchemeParameterRemoval removal = null;
-      if (Boolean.TRUE.equals(body.getRemoveParameter())) {
+      SchemeParameterValueChange valueChange = null;
+      if (Boolean.TRUE.equals(body.getUpdateParameterValue())) {
+        valueChange = prepareSchemeParameterValueChange(scheme, body.getParameters());
+      } else if (Boolean.TRUE.equals(body.getRemoveParameter())) {
         removal = prepareSchemeParameterRemoval(scheme, body.getParameters());
       } else if (Boolean.TRUE.equals(body.getAddParameter())) {
         addition = prepareSchemeParameterAddition(scheme, body.getParameters());
@@ -1448,7 +1469,10 @@ public class PSPublishingDesignRestService {
       if (!isBlank(body.getContextId())) {
         scheme.setContextId(guidManager.makeGuid(body.getContextId(), PSTypeEnum.CONTEXT));
       }
-      if (addition != null) {
+      if (valueChange != null) {
+        scheme.addParameter(
+            valueChange.name(), valueChange.sequence(), valueChange.type(), valueChange.value());
+      } else if (addition != null) {
         scheme.addParameter(
             addition.name(), addition.sequence(), addition.type(), addition.value());
       } else if (removal != null) {
@@ -1949,6 +1973,50 @@ public class PSPublishingDesignRestService {
   private record SchemeParameterRemoval(String name) {}
 
   /**
+   * Validate one stored parameter value to replace. Does not change the scheme. Any count other
+   * than one, a blank name, or a name longer than its column is HTTP 400. A blank or whitespace
+   * value is HTTP 400 and does not clear the stored value. A name that is not stored is HTTP 409.
+   * The returned name, type, and sequence are the stored ones. A type or sequence on the request
+   * is ignored so this update does not replace the parameter row.
+   */
+  private SchemeParameterValueChange prepareSchemeParameterValueChange(
+      IPSLocationScheme scheme, List<PSSchemeParameter> parameters) {
+    if (parameters == null || parameters.size() != 1 || parameters.get(0) == null) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_VALUE_ONE_REQUIRED);
+    }
+    PSSchemeParameter incoming = parameters.get(0);
+    String name = incoming.getName() == null ? "" : incoming.getName().trim();
+    String value = incoming.getValue() == null ? "" : incoming.getValue().trim();
+    if (name.isEmpty()) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_NAME_REQUIRED);
+    }
+    if (name.length() > MAX_LOCATION_SCHEME_PARAMETER_NAME_LENGTH) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_NAME_TOO_LONG);
+    }
+    if (value.isEmpty()) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_VALUE_REQUIRED);
+    }
+    List<String> existingNames = scheme.getParameterNames();
+    if (existingNames != null) {
+      for (String existingName : existingNames) {
+        if (existingName != null && name.equals(existingName.trim())) {
+          String storedType = scheme.getParameterType(existingName);
+          if (isBlank(storedType)) {
+            throw badRequest(LOCATION_SCHEME_PARAMETER_TYPE_REQUIRED);
+          }
+          Integer storedSequence = scheme.getParameterSequence(existingName);
+          int sequence = storedSequence == null ? 0 : storedSequence;
+          return new SchemeParameterValueChange(existingName, sequence, storedType, value);
+        }
+      }
+    }
+    throw conflict(LOCATION_SCHEME_PARAMETER_NOT_ON_SCHEME);
+  }
+
+  private record SchemeParameterValueChange(
+      String name, int sequence, String type, String value) {}
+
+  /**
    * {@code RXLOCATIONSCHEMEPARAMS.SCHEMEPARAMID} is assigned, not generated. New rows from
    * add-one and from a full parameter replace need a next-number id before {@code persist}.
    * Mocks and other {@link IPSLocationScheme} implementations are left alone.
@@ -1968,7 +2036,7 @@ public class PSPublishingDesignRestService {
   /**
    * Replace or append scheme parameters. When {@code replaceAll} is false and parameters is null,
    * leaves existing params unchanged; when non-null, clears unknown names then sets listed ones.
-   * An add-one or remove-one update does not use this path.
+   * An add-one, remove-one, or value-one update does not use this path.
    */
   private void applySchemeParameters(
       IPSLocationScheme scheme, List<PSSchemeParameter> parameters, boolean isCreate) {
