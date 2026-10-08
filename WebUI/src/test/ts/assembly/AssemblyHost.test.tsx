@@ -1863,6 +1863,265 @@ describe("AssemblyHost", () => {
     expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
   });
 
+  function requiredNumberSchema(required = true) {
+    return {
+      fields: numberSchema.fields.map((field) =>
+        field.name === "qty" ? { ...field, required } : field,
+      ),
+    };
+  }
+
+  it("does not save a blank required number and reloads the previous number", async () => {
+    const previewDoc = numberPreviewDoc();
+    const saveFields = vi.fn();
+    renderNumberHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(numberFields),
+      requiredNumberSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-qty"]'),
+      ).toBeTruthy();
+    });
+    const qty = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-qty"]',
+    ) as HTMLElement;
+    expect(qty.hasAttribute("aria-required")).toBe(false);
+    expect(qty.getAttribute("data-assembly-required")).toBe("true");
+    expect(screen.getByTestId("assembly-field-chip-qty").getAttribute("data-required")).toBe(
+      "true",
+    );
+    qty.textContent = "";
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-qty").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/required/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/whole number/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(qty.hasAttribute("aria-invalid")).toBe(false);
+    expect(qty.textContent).toBe("");
+    cleanup();
+    const reloaded = numberPreviewDoc();
+    renderNumberHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(numberFields),
+      requiredNumberSchema(),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-qty"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(OLD_QTY);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+  });
+
+  it("does not save whitespace-only required number and keeps the previous value", async () => {
+    const previewDoc = numberPreviewDoc();
+    const saveFields = vi.fn();
+    renderNumberHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(numberFields),
+      requiredNumberSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-qty"]'),
+      ).toBeTruthy();
+    });
+    const qty = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-qty"]',
+    ) as HTMLElement;
+    qty.textContent = "  \n  ";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-qty").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/whole number/i);
+    cleanup();
+    const reloaded = numberPreviewDoc();
+    renderNumberHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(numberFields),
+      requiredNumberSchema(),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-qty"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(OLD_QTY);
+    });
+  });
+
+  it("does not write when Cancel leaves a blank required number edit", async () => {
+    const previewDoc = numberPreviewDoc();
+    const saveFields = vi.fn();
+    renderNumberHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(numberFields),
+      requiredNumberSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-qty"]'),
+      ).toBeTruthy();
+    });
+    const qty = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-qty"]',
+    ) as HTMLElement;
+    qty.textContent = "";
+    fireEvent.click(screen.getByTestId("assembly-field-cancel"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(qty.textContent).toBe(OLD_QTY);
+    expect(screen.queryByTestId("assembly-field-error-qty")).toBeNull();
+  });
+
+  it("still saves a non-blank required whole number", async () => {
+    let qtyValue = OLD_QTY;
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      qtyValue = body.fields.find((field) => field.name === "qty")?.value ?? qtyValue;
+      return {
+        ...numberFields,
+        fields: numberFields.fields.map((field) =>
+          field.name === "qty" ? { ...field, value: qtyValue } : field,
+        ),
+      };
+    });
+    const previewDoc = numberPreviewDoc();
+    renderNumberHost(
+      previewDoc,
+      saveFields,
+      vi.fn(async () => ({
+        ...numberFields,
+        fields: numberFields.fields.map((field) =>
+          field.name === "qty" ? { ...field, value: qtyValue } : field,
+        ),
+      })),
+      requiredNumberSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-qty"]'),
+      ).toBeTruthy();
+    });
+    const qty = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-qty"]',
+    ) as HTMLElement;
+    qty.textContent = NEW_QTY;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    });
+    const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "qty")).toEqual({
+      name: "qty",
+      value: NEW_QTY,
+      dataType: "integer",
+    });
+    expect(sent.fields.find((field) => field.name === "displaytitle")?.value).toBe(OLD_TEXT);
+    expect(sent.fields.find((field) => field.name === "notes")?.value).toBe(LONG_NOTE);
+    expect(screen.queryByTestId("assembly-field-error-qty")).toBeNull();
+    cleanup();
+    const reloaded = numberPreviewDoc(NEW_QTY);
+    renderNumberHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue({
+        ...numberFields,
+        fields: numberFields.fields.map((field) =>
+          field.name === "qty" ? { ...field, value: NEW_QTY } : field,
+        ),
+      }),
+      requiredNumberSchema(),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-qty"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(NEW_QTY);
+    });
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s on a required number does not claim success",
+    async (status) => {
+      const previewDoc = numberPreviewDoc();
+      const saveFields = vi.fn().mockRejectedValue({ status });
+      renderNumberHost(
+        previewDoc,
+        saveFields,
+        vi.fn().mockResolvedValue(numberFields),
+        requiredNumberSchema(),
+      );
+      await waitFor(() => {
+        expect(
+          previewDoc.querySelector('[data-testid="assembly-inline-field-qty"]'),
+        ).toBeTruthy();
+      });
+      const qty = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-qty"]',
+      ) as HTMLElement;
+      qty.textContent = NEW_QTY;
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+          /could not save/i,
+        );
+        const live = previewDoc.querySelector(
+          '[data-testid="assembly-inline-field-qty"]',
+        ) as HTMLElement | null;
+        expect(live?.textContent).toBe(OLD_QTY);
+      });
+      expect(saveFields).toHaveBeenCalled();
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+      expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+      expect(screen.queryByTestId("assembly-field-error-qty")).toBeNull();
+    },
+  );
+
+  it("refuses a blank required number on the overlay strip", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn();
+    renderNumberHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(numberFields),
+      requiredNumberSchema(),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-qty")).toBeTruthy();
+    });
+    const input = screen.getByTestId("assembly-overlay-field-qty") as HTMLInputElement;
+    expect(input.getAttribute("aria-required")).toBe("true");
+    expect(input.getAttribute("data-assembly-required")).toBe("true");
+    input.value = "   ";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-qty").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/whole number/i);
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(input.value).toBe("   ");
+  });
+
   const OLD_DATE = "2026-10-07";
   const NEW_DATE = "2026-11-02";
 

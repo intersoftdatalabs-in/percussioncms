@@ -21,8 +21,9 @@
  * use relationship REST (no Data Flow HTML). Single-line text, long-text,
  * HTML, link, whole-number, and calendar-date field edits use the assembled
  * nodes (HTML keeps its markup; single-line text stays one line; long text
- * keeps line breaks; a number is one whole number; a date is one calendar
- * day) and persist through itemmanagement — not leftover Content Editor HTML.
+ * keeps line breaks; a number is one whole number and a required number
+ * cannot be saved blank; a date is one calendar day) and persist through
+ * itemmanagement — not leftover Content Editor HTML.
  * Datetime stays on the Content Editor.
  */
 
@@ -68,6 +69,7 @@ import { ASSEMBLY_MSG } from "./messages";
 import {
   applyFieldOverlay,
   ASSEMBLY_VALUE_LONGTEXT,
+  blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
   changedOverlayEdits,
   invalidChangedDateFieldNames,
@@ -629,6 +631,10 @@ export function AssemblyHost({
       allowed.has(edit.name),
     );
     const blankRequired = blankRequiredTextFieldNames(overlayFields, visibleEdits);
+    const blankRequiredNumbers = blankRequiredNumberFieldNames(
+      overlayFields,
+      visibleEdits,
+    );
     const badNumbers = invalidChangedNumberFieldNames(
       overlayFields,
       visibleEdits,
@@ -639,12 +645,20 @@ export function AssemblyHost({
       visibleEdits,
       fieldBaselineRef.current,
     );
-    if (blankRequired.length > 0 || badNumbers.length > 0 || badDates.length > 0) {
+    if (
+      blankRequired.length > 0 ||
+      blankRequiredNumbers.length > 0 ||
+      badNumbers.length > 0 ||
+      badDates.length > 0
+    ) {
       const requiredText = message(ASSEMBLY_MSG.FIELD_REQUIRED);
       const numberText = message(ASSEMBLY_MSG.FIELD_NUMBER);
       const dateText = message(ASSEMBLY_MSG.FIELD_DATE);
       const errors: Record<string, string> = {};
       for (const name of blankRequired) {
+        errors[name] = requiredText;
+      }
+      for (const name of blankRequiredNumbers) {
         errors[name] = requiredText;
       }
       for (const name of badNumbers) {
@@ -666,7 +680,11 @@ export function AssemblyHost({
       }
       setFieldErrors(errors);
       setFieldNotice(
-        blankRequired.length > 0 ? requiredText : badNumbers.length > 0 ? numberText : dateText,
+        blankRequired.length > 0 || blankRequiredNumbers.length > 0
+          ? requiredText
+          : badNumbers.length > 0
+            ? numberText
+            : dateText,
       );
       setFieldNoticeRole("alert");
       return;
@@ -916,7 +934,11 @@ export function AssemblyHost({
                   key={field.name}
                   className={styles.fieldChip}
                   data-testid={`assembly-field-chip-${field.name}`}
-                  data-required={field.kind === "text" && field.required ? "true" : "false"}
+                  data-required={
+                    (field.kind === "text" || field.kind === "number") && field.required
+                      ? "true"
+                      : "false"
+                  }
                 >
                   <span>{field.label}</span>
                   {inline ? (
@@ -972,8 +994,10 @@ export function AssemblyHost({
                       data-assembly-field={field.name}
                       data-assembly-content-id={String(contentId ?? "")}
                       data-assembly-value="number"
+                      data-assembly-required={field.required ? "true" : undefined}
                       data-testid={`assembly-overlay-field-${field.name}`}
                       aria-label={field.label}
+                      aria-required={field.required ? true : undefined}
                       aria-invalid={fieldErrors[field.name] ? true : undefined}
                       spellCheck={false}
                       autoComplete="off"
