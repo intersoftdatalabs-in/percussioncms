@@ -103,6 +103,25 @@ class PSLocationSchemeSummaryJacksonTest {
   }
 
   @Test
+  void updateParameterValueFlagBindsOneSchemeParameter() {
+    String json =
+        """
+        {"locationScheme":{"updateParameterValue":true,"schemeParameter":[{"name":"suffix","type":"String","sequence":99,"value":"page.html"}]}}
+        """;
+    PSLocationSchemeSummary body = mapper.readValue(json, PSLocationSchemeSummary.class);
+    assertEquals(Boolean.TRUE, body.getUpdateParameterValue());
+    assertTrue(body.getAddParameter() == null || !body.getAddParameter());
+    assertTrue(body.getRemoveParameter() == null || !body.getRemoveParameter());
+    assertTrue(body.getName() == null || body.getName().isBlank());
+    assertNotNull(body.getParameters());
+    assertEquals(1, body.getParameters().size());
+    assertEquals("suffix", body.getParameters().get(0).getName());
+    assertEquals("page.html", body.getParameters().get(0).getValue());
+    assertEquals("String", body.getParameters().get(0).getType());
+    assertEquals(99, body.getParameters().get(0).getSequence());
+  }
+
+  @Test
   void removeParameterFlagBindsOneSchemeParameterName() {
     String json =
         """
