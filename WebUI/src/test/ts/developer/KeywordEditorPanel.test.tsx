@@ -22,6 +22,7 @@ import * as keywordsApi from "../../../main/ts/api/developer/keywordsApi";
 import type { KeywordSummary } from "../../../main/ts/api/developer/types";
 import { KeywordEditorPanel } from "../../../main/ts/developer/KeywordEditorPanel";
 import { KW_LABEL_MSG } from "../../../main/ts/developer/keywordLabelMessages";
+import { KW_SEQUENCE_MSG } from "../../../main/ts/developer/keywordSequenceMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
 vi.mock("../../../main/ts/api/developer/keywordsApi", () => ({
@@ -2006,6 +2007,224 @@ describe("KeywordEditorPanel change keyword label", () => {
     expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
     expect(choiceByLabel("High")?.getAttribute("data-choice-label")).toBe("High");
     expect(screen.queryByText("Only")).toBeNull();
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+  });
+});
+
+function keywordSequenceText(): Element {
+  return screen.getByTestId("developer-kw-keyword-sequence-text");
+}
+
+describe("KeywordEditorPanel change keyword sequence", () => {
+  beforeEach(() => {
+    (window as unknown as { I18N?: { message: (key: string) => string } }).I18N = {
+      message: (key: string) => key,
+    };
+    getKeyword.mockReset();
+    updateKeyword.mockReset();
+    createKeyword.mockReset();
+    deleteKeyword.mockReset();
+    getKeyword.mockResolvedValue(withTwoChoices);
+    updateKeyword.mockResolvedValue(withTwoChoices);
+  });
+
+  async function openKeywordSequenceEditor(): Promise<void> {
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-kw-keyword-sequence-edit") as HTMLButtonElement).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-sequence-edit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-keyword-sequence-input")).toBeTruthy();
+    });
+  }
+
+  it("hides the keyword sequence editor on create", () => {
+    renderEditor(null);
+    expect(screen.queryByTestId("developer-kw-keyword-sequence")).toBeNull();
+  });
+
+  it("does not show the draft sequence before save", async () => {
+    renderEditor(withTwoChoices);
+    await openKeywordSequenceEditor();
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-sequence-input"), {
+      target: { value: "9" },
+    });
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(keywordSequenceText().getAttribute("data-keyword-sequence")).toBe("4");
+    expect(keywordSequenceText().textContent).toBe("4");
+    expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("4");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-sequence")).toBe("2");
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe("Priority");
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+  });
+
+  it("does not write when the sequence edit is cancelled", async () => {
+    renderEditor(withTwoChoices);
+    await openKeywordSequenceEditor();
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-sequence-input"), {
+      target: { value: "9" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-sequence-cancel"));
+    expect(screen.queryByTestId("developer-kw-keyword-sequence-input")).toBeNull();
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(keywordSequenceText().getAttribute("data-keyword-sequence")).toBe("4");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-sequence")).toBe("2");
+  });
+
+  it("does not write when the sequence is unchanged", async () => {
+    renderEditor(withTwoChoices);
+    await openKeywordSequenceEditor();
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-sequence-input"), {
+      target: { value: " 04 " },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-sequence-save"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-kw-keyword-sequence-input")).toBeNull();
+    expect(keywordSequenceText().getAttribute("data-keyword-sequence")).toBe("4");
+  });
+
+  it("does not write a blank or non-numeric keyword sequence", async () => {
+    renderEditor(withTwoChoices);
+    await openKeywordSequenceEditor();
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-sequence-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-sequence-save"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-kw-keyword-sequence-error").textContent).toBe(
+      KW_SEQUENCE_MSG.BLANK,
+    );
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-sequence-input"), {
+      target: { value: "1.5" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-sequence-save"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-kw-keyword-sequence-error").textContent).toBe(
+      KW_SEQUENCE_MSG.INVALID,
+    );
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-sequence-input"), {
+      target: { value: "-3" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-sequence-save"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(keywordSequenceText().getAttribute("data-keyword-sequence")).toBe("4");
+    expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("4");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe("Priority");
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+  });
+
+  it("shows the new sequence only after the keyword update succeeds and omits choices", async () => {
+    updateKeyword.mockImplementation(async (_id: string, body: KeywordSummary) => ({
+      ...withTwoChoices,
+      sequence: body.sequence,
+    }));
+    renderEditor(withTwoChoices);
+    await openKeywordSequenceEditor();
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-sequence-input"), {
+      target: { value: " 9 " },
+    });
+    expect(keywordSequenceText().getAttribute("data-keyword-sequence")).toBe("4");
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-sequence-save"));
+    await waitFor(() => {
+      expect(keywordSequenceText().getAttribute("data-keyword-sequence")).toBe("9");
+    });
+    const body = updateKeyword.mock.calls[0]?.[1] as KeywordSummary;
+    expect(updateKeyword).toHaveBeenCalledWith("42", body);
+    expect(body).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 9,
+    });
+    expect(body).not.toHaveProperty("choices");
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-kw-keyword-sequence-notice").textContent).toBe(
+      KW_SEQUENCE_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("9");
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe("Priority");
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-sequence")).toBe("2");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-description")).toBe("top");
+    expect(screen.queryByTestId("developer-kw-keyword-sequence-input")).toBeNull();
+  });
+
+  it.each([400, 403, 409])(
+    "keeps the previous sequence when the update returns HTTP %s",
+    async (status) => {
+      updateKeyword.mockRejectedValue({
+        status,
+        statusText: "no",
+        body: {
+          message: `forced ${status}`,
+          label: "Renamed",
+          description: "changed",
+          sequence: 9,
+          choices: [{ label: "Low", value: "low", description: "later", sequence: 8 }],
+        },
+      });
+      renderEditor(withTwoChoices);
+      await openKeywordSequenceEditor();
+      fireEvent.change(screen.getByTestId("developer-kw-keyword-sequence-input"), {
+        target: { value: "9" },
+      });
+      fireEvent.click(screen.getByTestId("developer-kw-keyword-sequence-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-kw-keyword-sequence-error")).toBeTruthy();
+      });
+      expect(screen.getByTestId("developer-kw-keyword-sequence-error").textContent).toContain(
+        `forced ${status}`,
+      );
+      expect(keywordSequenceText().getAttribute("data-keyword-sequence")).toBe("4");
+      expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("4");
+      expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe("Priority");
+      expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+        "Item priority",
+      );
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-sequence")).toBe("2");
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+      expect(choiceByLabel("High")?.getAttribute("data-choice-description")).toBe("top");
+      expect(screen.getByTestId("developer-kw-saved-choices").textContent).not.toContain("Later");
+      expect(screen.queryByTestId("developer-kw-keyword-sequence-notice")).toBeNull();
+      expect(deleteKeyword).not.toHaveBeenCalled();
+    },
+  );
+
+  it("does not replace the sequence when a 200 changes the choices", async () => {
+    updateKeyword.mockResolvedValue({
+      ...withTwoChoices,
+      sequence: 9,
+      choices: [{ label: "Only", value: "only", sequence: 1 }],
+    });
+    renderEditor(withTwoChoices);
+    await openKeywordSequenceEditor();
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-sequence-input"), {
+      target: { value: "9" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-sequence-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-keyword-sequence-error").textContent).toBe(
+        KW_SEQUENCE_MSG.ERROR,
+      );
+    });
+    expect(keywordSequenceText().getAttribute("data-keyword-sequence")).toBe("4");
+    expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("4");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-label")).toBe("High");
+    expect(screen.queryByText("Only")).toBeNull();
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe("Priority");
     expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
       "Item priority",
     );
