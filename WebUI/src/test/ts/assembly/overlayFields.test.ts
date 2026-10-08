@@ -33,6 +33,8 @@ import {
   blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
   calendarDateText,
+  longTextContainsNul,
+  nulLongTextFieldNames,
   nulSingleLineTextFieldNames,
   singleLineTextContainsNul,
   datetimeText,
@@ -795,6 +797,49 @@ describe("nulSingleLineTextFieldNames", () => {
         [],
       ),
     ).toEqual(["displaytitle"]);
+  });
+});
+
+describe("nulLongTextFieldNames", () => {
+  const fields = [
+    { name: "displaytitle", kind: "text" as const, value: "Welcome" },
+    { name: "summary", kind: "text" as const, value: "Optional" },
+    { name: "notes", kind: "longtext" as const, value: "Line one\nLine two" },
+    { name: "description", kind: "html" as const, value: "<p>About</p>" },
+    { name: "pagelink", kind: "link" as const, value: "//Sites/Example/index" },
+  ];
+
+  it("names a long-text NUL and ignores line breaks and other kinds", () => {
+    expect(longTextContainsNul("Line one\nLine two")).toBe(false);
+    expect(longTextContainsNul("")).toBe(false);
+    expect(longTextContainsNul("Line one\nbad\u0000value")).toBe(true);
+    expect(
+      nulLongTextFieldNames(fields, [
+        { name: "displaytitle", value: "bad\u0000value" },
+        { name: "notes", value: "Line one\nbad\u0000value" },
+        { name: "description", value: "z\u0000" },
+        { name: "pagelink", value: "//Sites/\u0000" },
+      ]),
+    ).toEqual(["notes"]);
+    expect(
+      nulLongTextFieldNames(fields, [
+        { name: "notes", value: "Line one\nLine two" },
+      ]),
+    ).toEqual([]);
+    expect(
+      nulSingleLineTextFieldNames(fields, [
+        { name: "notes", value: "Line one\nbad\u0000value" },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("uses the loaded long text when the field was not edited", () => {
+    expect(
+      nulLongTextFieldNames(
+        [{ name: "notes", kind: "longtext", value: "Line one\nbad\u0000stored" }],
+        [],
+      ),
+    ).toEqual(["notes"]);
   });
 });
 

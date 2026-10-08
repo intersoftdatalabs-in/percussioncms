@@ -1305,6 +1305,185 @@ describe("AssemblyHost", () => {
     expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
   });
 
+  const PREV_NOTE = "Line one\nLine two";
+
+  function notesPayload(notes: string): ItemEditorFields {
+    return {
+      ...textFields,
+      fields: textFields.fields.map((field) =>
+        field.name === "notes" ? { ...field, value: notes } : field,
+      ),
+    };
+  }
+
+  it("refuses a long-text NUL before save and reloads the previous text including line breaks", async () => {
+    const previewDoc = textPreviewDoc(OLD_TEXT, PREV_NOTE);
+    const saveFields = vi.fn();
+    renderTextHost(previewDoc, saveFields, vi.fn().mockResolvedValue(notesPayload(PREV_NOTE)));
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-notes"]'),
+      ).toBeTruthy();
+    });
+    const notes = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-notes"]',
+    ) as HTMLElement;
+    expect(notes.textContent).toBe(PREV_NOTE);
+    expect(notes.getAttribute("data-assembly-value")).toBe("longtext");
+    notes.textContent = "Line one\nbad\u0000value";
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-notes").textContent).toMatch(
+        /long text contains a character that cannot be saved/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+      /long text contains a character that cannot be saved/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(screen.queryByTestId("assembly-field-error-displaytitle")).toBeNull();
+    expect(notes.hasAttribute("aria-invalid")).toBe(false);
+    expect(notes.textContent).toContain("\u0000");
+    cleanup();
+    const reloaded = textPreviewDoc(OLD_TEXT, PREV_NOTE);
+    renderTextHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(notesPayload(PREV_NOTE)),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-notes"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(PREV_NOTE);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+  });
+
+  it("does not write when Cancel leaves a long-text NUL edit", async () => {
+    const previewDoc = textPreviewDoc(OLD_TEXT, PREV_NOTE);
+    const saveFields = vi.fn();
+    renderTextHost(previewDoc, saveFields, vi.fn().mockResolvedValue(notesPayload(PREV_NOTE)));
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-notes"]'),
+      ).toBeTruthy();
+    });
+    const notes = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-notes"]',
+    ) as HTMLElement;
+    notes.textContent = "Line one\nbad\u0000value";
+    fireEvent.click(screen.getByTestId("assembly-field-cancel"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(notes.textContent).toBe(PREV_NOTE);
+    expect(notes.textContent).toContain("\n");
+    expect(notes.textContent).not.toContain("\u0000");
+    expect(screen.queryByTestId("assembly-field-error-notes")).toBeNull();
+  });
+
+  it("still saves a multiline long-text value without a NUL", async () => {
+    let notesValue = PREV_NOTE;
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      notesValue = body.fields.find((field) => field.name === "notes")?.value ?? notesValue;
+      return notesPayload(notesValue);
+    });
+    const previewDoc = textPreviewDoc(OLD_TEXT, PREV_NOTE);
+    renderTextHost(
+      previewDoc,
+      saveFields,
+      vi.fn(async () => notesPayload(notesValue)),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-notes"]'),
+      ).toBeTruthy();
+    });
+    const notes = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-notes"]',
+    ) as HTMLElement;
+    const next = "Updated line\nsecond line";
+    notes.innerHTML = "Updated line<br>second line";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    });
+    const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "notes")?.value).toBe(next);
+    expect(String(sent.fields.find((field) => field.name === "notes")?.value)).not.toContain(
+      "\u0000",
+    );
+    expect(sent.fields.find((field) => field.name === "displaytitle")?.value).toBe(OLD_TEXT);
+    expect(screen.queryByTestId("assembly-field-error-notes")).toBeNull();
+    cleanup();
+    const reloaded = textPreviewDoc(OLD_TEXT, next);
+    renderTextHost(reloaded, saveFields, vi.fn().mockResolvedValue(notesPayload(next)));
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-notes"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(next);
+    });
+  });
+
+  it("HTTP 400 on a long-text save does not claim success and keeps line breaks", async () => {
+    const previewDoc = textPreviewDoc(OLD_TEXT, PREV_NOTE);
+    const saveFields = vi.fn().mockRejectedValue({ status: 400 });
+    renderTextHost(previewDoc, saveFields, vi.fn().mockResolvedValue(notesPayload(PREV_NOTE)));
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-notes"]'),
+      ).toBeTruthy();
+    });
+    const notes = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-notes"]',
+    ) as HTMLElement;
+    notes.innerHTML = "Updated line<br>second line";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/could not save/i);
+      const live = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-notes"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(PREV_NOTE);
+    });
+    expect(saveFields).toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(screen.queryByTestId("assembly-field-error-notes")).toBeNull();
+  });
+
+  it("refuses a long-text NUL on the overlay strip", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn();
+    renderTextHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(notesPayload(PREV_NOTE)),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-notes")).toBeTruthy();
+    });
+    const area = screen.getByTestId("assembly-overlay-field-notes") as HTMLTextAreaElement;
+    expect(area.value).toBe(PREV_NOTE);
+    area.value = "Line one\nbad\u0000value";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-notes").textContent).toMatch(
+        /long text contains a character that cannot be saved/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(area.getAttribute("aria-invalid")).toBe("true");
+    expect(area.value).toContain("\u0000");
+    expect(area.value).toContain("\n");
+  });
+
   function requiredTextSchema(required = true) {
     return {
       fields: textSchema.fields.map((field) =>
