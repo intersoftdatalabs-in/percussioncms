@@ -113,6 +113,12 @@ import {
   schemesAfterSuccessfulParameterValue,
   validateLocationSchemeParameterValue,
 } from "../locationSchemeParameterValue";
+import {
+  buildLocationSchemeParameterTypeBody,
+  locationSchemeParameterTypeChoices,
+  schemesAfterSuccessfulParameterType,
+  validateLocationSchemeParameterType,
+} from "../locationSchemeParameterType";
 import { useDirtyForm } from "../dirtyFormContext";
 import { normalizeSchemeType } from "./designLegacyTypes";
 import { SiteRootBrowser } from "./SiteRootBrowser";
@@ -143,6 +149,12 @@ type Mode =
     }
   | {
       kind: "scheme-parameter-value";
+      source: LocationSchemeSummary;
+      contextId: string;
+      parameter: SchemeParameter;
+    }
+  | {
+      kind: "scheme-parameter-type";
       source: LocationSchemeSummary;
       contextId: string;
       parameter: SchemeParameter;
@@ -185,6 +197,7 @@ export function ContextsPanel(): React.ReactElement {
   const [paramAddType, setParamAddType] = useState("String");
   const [paramAddValue, setParamAddValue] = useState("");
   const [paramValueDraft, setParamValueDraft] = useState("");
+  const [paramTypeDraft, setParamTypeDraft] = useState("");
   const [describeText, setDescribeText] = useState("");
   const { setDirty, confirmIfDirty } = useDirtyForm();
 
@@ -1019,6 +1032,85 @@ export function ContextsPanel(): React.ReactElement {
         refreshed = null;
       }
       setSchemes(schemesAfterSuccessfulParameterValue(refreshed, id, updated, previous));
+    } catch (e) {
+      setError(mapLocationSchemeSaveError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function openSchemeParameterType(
+    source: LocationSchemeSummary,
+    parameter: SchemeParameter,
+  ): Promise<void> {
+    if (!source.schemeId || !selected || saving || !(parameter.name ?? "").trim()) {
+      return;
+    }
+    setError(null);
+    setDirty(false);
+    const contextId = selected;
+    let full = source;
+    try {
+      full = await getScheme(source.schemeId);
+    } catch {
+      full = source;
+    }
+    const name = (parameter.name ?? "").trim();
+    const loaded = (full.parameters ?? source.parameters ?? []).find(
+      (row) => (row.name ?? "").trim() === name,
+    );
+    const shown = loaded ?? parameter;
+    setParamTypeDraft((shown.type ?? "").trim());
+    setMode({
+      kind: "scheme-parameter-type",
+      source: full,
+      contextId,
+      parameter: shown,
+    });
+  }
+
+  function closeSchemeParameterType(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setMode({ kind: "list" });
+  }
+
+  async function saveSchemeParameterType(): Promise<void> {
+    if (mode.kind !== "scheme-parameter-type" || !mode.source.schemeId || saving) {
+      return;
+    }
+    const validated = validateLocationSchemeParameterType(
+      mode.parameter.name ?? "",
+      paramTypeDraft,
+      mode.source.parameters,
+    );
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    const id = String(mode.source.schemeId);
+    const contextId = mode.contextId;
+    const updated = validated.parameter;
+    setError(null);
+    setSaving(true);
+    const previous = schemes;
+    try {
+      await updateScheme(id, buildLocationSchemeParameterTypeBody(updated));
+      setDirty(false);
+      setMode({ kind: "list" });
+      let refreshed: LocationSchemeSummary[] | null = null;
+      try {
+        refreshed = await listSchemesForContext(contextId);
+      } catch {
+        refreshed = null;
+      }
+      setSchemes(schemesAfterSuccessfulParameterType(refreshed, id, updated, previous));
     } catch (e) {
       setError(mapLocationSchemeSaveError(e));
     } finally {
@@ -2118,6 +2210,111 @@ export function ContextsPanel(): React.ReactElement {
     );
   }
 
+  if (mode.kind === "scheme-parameter-type") {
+    const source = mode.source;
+    const targetName = (mode.parameter.name ?? "").trim();
+    const storedType = (mode.parameter.type ?? "").trim();
+    const typeChoices = locationSchemeParameterTypeChoices(storedType);
+    const others = (source.parameters ?? []).filter(
+      (p) => (p.name ?? "").trim() !== targetName,
+    );
+    return (
+      <div data-testid="scheme-parameter-type">
+        <h3>Change location scheme parameter type</h3>
+        <p>
+          Name: <span data-testid="scheme-parameter-type-name">{source.name ?? ""}</span>
+        </p>
+        <p>
+          Generator:{" "}
+          <span data-testid="scheme-parameter-type-generator">{source.generator ?? ""}</span>
+        </p>
+        <p>
+          Description:{" "}
+          <span data-testid="scheme-parameter-type-description">
+            {source.description ?? ""}
+          </span>
+        </p>
+        <p>
+          Content type:{" "}
+          <span data-testid="scheme-parameter-type-content-type">
+            {source.contentTypeId != null ? String(source.contentTypeId) : ""}
+          </span>
+        </p>
+        <p>
+          Template:{" "}
+          <span data-testid="scheme-parameter-type-template">
+            {source.templateId != null ? String(source.templateId) : ""}
+          </span>
+        </p>
+        <p data-testid="scheme-parameter-type-fields-note">
+          Name, generator, description, content type, and template stay on this scheme.
+          This parameter name, value, and sequence stay. Other parameters stay.
+        </p>
+        <p data-testid="scheme-parameter-type-target">
+          <span data-testid="scheme-parameter-type-parameter-name">{targetName}</span>
+          {" ("}
+          <span data-testid="scheme-parameter-type-current">{storedType}</span>
+          {") #"}
+          <span data-testid="scheme-parameter-type-sequence">
+            {mode.parameter.sequence != null ? String(mode.parameter.sequence) : ""}
+          </span>
+          {": "}
+          <span data-testid="scheme-parameter-type-value">{mode.parameter.value ?? ""}</span>
+        </p>
+        <ul data-testid="scheme-parameter-type-others" style={listStyle}>
+          {others.map((p, i) => (
+            <li key={`${p.name}-${i}`} data-testid="scheme-parameter-type-other">
+              {p.name} ({p.type ?? ""}): {p.value}
+            </li>
+          ))}
+        </ul>
+        <div style={formRowStyle}>
+          <label htmlFor="scheme-parameter-type-input">* Type</label>
+          <select
+            id="scheme-parameter-type-input"
+            value={paramTypeDraft}
+            onChange={(e) => {
+              setParamTypeDraft(e.target.value);
+              setDirty(true);
+            }}
+          >
+            <option value="" />
+            {typeChoices.map((choice) => (
+              <option key={choice} value={choice}>
+                {choice}
+              </option>
+            ))}
+          </select>
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="location-scheme-parameter-type-save"
+            disabled={saving}
+            onClick={() => void saveSchemeParameterType()}
+          >
+            Save type
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="location-scheme-parameter-type-cancel"
+            disabled={saving}
+            onClick={closeSchemeParameterType}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (mode.kind === "scheme-remove-parameter") {
     const source = mode.source;
     const targetName = (mode.parameter.name ?? "").trim();
@@ -2401,6 +2598,15 @@ export function ContextsPanel(): React.ReactElement {
                         onClick={() => void openSchemeParameterValue(s, p)}
                       >
                         Value
+                      </button>
+                      <button
+                        type="button"
+                        style={buttonStyle}
+                        data-testid="location-scheme-parameter-type"
+                        disabled={saving}
+                        onClick={() => void openSchemeParameterType(s, p)}
+                      >
+                        Type
                       </button>
                       <button
                         type="button"

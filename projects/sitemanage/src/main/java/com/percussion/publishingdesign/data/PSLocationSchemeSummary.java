@@ -52,17 +52,26 @@ public class PSLocationSchemeSummary {
   /**
    * When true, {@code parameters} is exactly one parameter to remove by name. Other stored
    * parameters stay. Other scheme fields are still applied only when present on the body.
-   * Cannot be combined with {@link #addParameter} or {@link #updateParameterValue}.
+   * Cannot be combined with {@link #addParameter}, {@link #updateParameterValue}, or
+   * {@link #updateParameterType}.
    */
   private Boolean removeParameter;
 
   /**
    * When true, {@code parameters} is exactly one stored parameter whose value is replaced. Name,
    * type, and sequence of that parameter stay. Other stored parameters stay. Other scheme fields
-   * are still applied only when present on the body. Cannot be combined with {@link #addParameter}
-   * or {@link #removeParameter}.
+   * are still applied only when present on the body. Cannot be combined with {@link #addParameter},
+   * {@link #removeParameter}, or {@link #updateParameterType}.
    */
   private Boolean updateParameterValue;
+
+  /**
+   * When true, {@code parameters} is exactly one stored parameter whose type is replaced. Name,
+   * value, and sequence of that parameter stay. Other stored parameters stay. Other scheme fields
+   * are still applied only when present on the body. Cannot be combined with {@link #addParameter},
+   * {@link #removeParameter}, or {@link #updateParameterValue}.
+   */
+  private Boolean updateParameterType;
 
   public String getSchemeId() {
     return schemeId;
@@ -168,5 +177,13 @@ public class PSLocationSchemeSummary {
 
   public void setUpdateParameterValue(Boolean updateParameterValue) {
     this.updateParameterValue = updateParameterValue;
+  }
+
+  public Boolean getUpdateParameterType() {
+    return updateParameterType;
+  }
+
+  public void setUpdateParameterType(Boolean updateParameterType) {
+    this.updateParameterType = updateParameterType;
   }
 }
