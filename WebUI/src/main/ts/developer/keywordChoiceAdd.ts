@@ -650,3 +650,75 @@ export function savedKeywordDescription(
   }
   return sentDescription;
 }
+
+export type KeywordLabelRejection = "blank" | "unchanged";
+
+/** Stored keyword label with surrounding space and line breaks removed. */
+export function storedKeywordLabel(value?: string | null): string {
+  return (value ?? "").replace(/[\r\n]+/g, " ").trim();
+}
+
+/**
+ * Body for the existing keyword update that changes the keyword label.
+ * Description is copied when the loaded keyword has one, and sequence is
+ * copied. Choices are omitted so stored choices stay. A blank label is not a
+ * write. The same label is not a write. This is not a choice label.
+ */
+export function keywordUpdateForKeywordLabel(
+  baseline: Pick<KeywordSummary, "label" | "description" | "sequence">,
+  nextLabel: string,
+): KeywordSummary | KeywordLabelRejection {
+  const label = storedKeywordLabel(nextLabel);
+  if (!label) {
+    return "blank";
+  }
+  if (label === storedKeywordLabel(baseline.label)) {
+    return "unchanged";
+  }
+  const body: KeywordSummary = {
+    label,
+    sequence: baseline.sequence,
+  };
+  if (baseline.description != null) {
+    body.description = baseline.description;
+  }
+  return body;
+}
+
+/**
+ * Label to show after a keyword-label update, or null when the response must
+ * not replace the previous label (metadata changed, the label is not the one
+ * sent, or stored choices are not the previous list). The sent body must omit
+ * choices.
+ */
+export function savedKeywordLabel(
+  sent: KeywordSummary,
+  previousChoices: KeywordChoiceSummary[],
+  payload: unknown,
+): string | null {
+  if ("choices" in sent) {
+    return null;
+  }
+  const saved = unwrapKeywordPayload(payload);
+  if (!saved) {
+    return null;
+  }
+  const sentLabel = storedKeywordLabel(sent.label);
+  if (!sentLabel || storedKeywordLabel(saved.label) !== sentLabel) {
+    return null;
+  }
+  if ("description" in sent) {
+    if (!sameOptionalText(sent.description ?? null, saved.description ?? null)) {
+      return null;
+    }
+  } else if (storedKeywordDescription(saved.description) !== "") {
+    return null;
+  }
+  if (!sameOptionalNumber(sent.sequence ?? null, saved.sequence ?? null)) {
+    return null;
+  }
+  if (!sameChoiceList(previousChoices, saved.choices ?? [])) {
+    return null;
+  }
+  return sentLabel;
+}

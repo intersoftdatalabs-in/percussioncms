@@ -246,6 +246,24 @@ description and does not apply a choice list from the error body. Add,
 remove, choice label, value, description, sequence, and delete stay on
 this resource and are unchanged.
 
+### Change the keyword label
+
+**Developer → Keywords** changes the keyword label with the existing
+`PUT /services/keywords/{id}` (the same update used to add or remove a
+choice, or to set the keyword description). The body is wrapped as
+`Keyword`. It keeps the stored keyword `description` and `sequence`, and
+sends `label`. It omits `choices`, so stored choices stay. An empty
+`choices` array is a different request: that clears the choice list. The
+keyword label is the `label` field on the keyword, not the `label` field
+on a choice. The new label is shown only when that update succeeds and
+the response keeps the same description, sequence, and choices with that
+label. A blank or whitespace label is not sent. Cancel is not a request.
+The same label is not a request. HTTP **400**, **403**, and **409** are
+errors: the editor keeps the previous label and does not apply a choice
+list from the error body. Add, remove, choice label, value, description,
+sequence, keyword description, and delete stay on this resource and are
+unchanged.
+
 ## Locales (design catalog)
 
 CMS locale definitions (Workbench **Locales** / content design) are exposed under `/services/locales`.

@@ -21,6 +21,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as keywordsApi from "../../../main/ts/api/developer/keywordsApi";
 import type { KeywordSummary } from "../../../main/ts/api/developer/types";
 import { KeywordEditorPanel } from "../../../main/ts/developer/KeywordEditorPanel";
+import { KW_LABEL_MSG } from "../../../main/ts/developer/keywordLabelMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
 vi.mock("../../../main/ts/api/developer/keywordsApi", () => ({
@@ -1805,5 +1806,208 @@ describe("KeywordEditorPanel set keyword description", () => {
     expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
     expect(choiceByLabel("High")?.getAttribute("data-choice-label")).toBe("High");
     expect(screen.queryByText("Only")).toBeNull();
+  });
+});
+
+function keywordLabelText(): Element {
+  return screen.getByTestId("developer-kw-keyword-label-text");
+}
+
+describe("KeywordEditorPanel change keyword label", () => {
+  beforeEach(() => {
+    (window as unknown as { I18N?: { message: (key: string) => string } }).I18N = {
+      message: (key: string) => key,
+    };
+    getKeyword.mockReset();
+    updateKeyword.mockReset();
+    createKeyword.mockReset();
+    deleteKeyword.mockReset();
+    getKeyword.mockResolvedValue(withTwoChoices);
+    updateKeyword.mockResolvedValue(withTwoChoices);
+  });
+
+  async function openKeywordLabelEditor(): Promise<void> {
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-kw-keyword-label-edit") as HTMLButtonElement).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-label-edit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-keyword-label-input")).toBeTruthy();
+    });
+  }
+
+  it("hides the keyword label editor on create", () => {
+    renderEditor(null);
+    expect(screen.queryByTestId("developer-kw-keyword-label")).toBeNull();
+  });
+
+  it("does not show the draft label before save", async () => {
+    renderEditor(withTwoChoices);
+    await openKeywordLabelEditor();
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-label-input"), {
+      target: { value: "Rank" },
+    });
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(keywordLabelText().getAttribute("data-keyword-label")).toBe("Priority");
+    expect(keywordLabelText().textContent).toBe("Priority");
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe("Priority");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+  });
+
+  it("does not write when the label edit is cancelled", async () => {
+    renderEditor(withTwoChoices);
+    await openKeywordLabelEditor();
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-label-input"), {
+      target: { value: "Rank" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-label-cancel"));
+    expect(screen.queryByTestId("developer-kw-keyword-label-input")).toBeNull();
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(keywordLabelText().getAttribute("data-keyword-label")).toBe("Priority");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+  });
+
+  it("does not write when the label is unchanged", async () => {
+    renderEditor(withTwoChoices);
+    await openKeywordLabelEditor();
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-label-input"), {
+      target: { value: "  Priority  " },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-label-save"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-kw-keyword-label-input")).toBeNull();
+    expect(keywordLabelText().getAttribute("data-keyword-label")).toBe("Priority");
+  });
+
+  it("does not write a blank keyword label", async () => {
+    renderEditor(withTwoChoices);
+    await openKeywordLabelEditor();
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-label-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-label-save"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-kw-keyword-label-error").textContent).toBe(
+      KW_LABEL_MSG.BLANK,
+    );
+    expect(keywordLabelText().getAttribute("data-keyword-label")).toBe("Priority");
+    expect(screen.getByTestId("developer-kw-keyword-label-input")).toBeTruthy();
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+    expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("4");
+  });
+
+  it("shows the new label only after the keyword update succeeds and omits choices", async () => {
+    updateKeyword.mockImplementation(async (_id: string, body: KeywordSummary) => ({
+      ...withTwoChoices,
+      label: body.label,
+    }));
+    renderEditor(withTwoChoices);
+    await openKeywordLabelEditor();
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-label-input"), {
+      target: { value: " Rank " },
+    });
+    expect(keywordLabelText().getAttribute("data-keyword-label")).toBe("Priority");
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-label-save"));
+    await waitFor(() => {
+      expect(keywordLabelText().getAttribute("data-keyword-label")).toBe("Rank");
+    });
+    const body = updateKeyword.mock.calls[0]?.[1] as KeywordSummary;
+    expect(updateKeyword).toHaveBeenCalledWith("42", body);
+    expect(body).toEqual({
+      label: "Rank",
+      description: "Item priority",
+      sequence: 4,
+    });
+    expect(body).not.toHaveProperty("choices");
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-kw-keyword-label-notice").textContent).toBe(
+      KW_LABEL_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe("Rank");
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+    expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("4");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-label")).toBe("High");
+    expect(screen.queryByTestId("developer-kw-keyword-label-input")).toBeNull();
+  });
+
+  it.each([400, 403, 409])(
+    "keeps the previous label when the update returns HTTP %s",
+    async (status) => {
+      updateKeyword.mockRejectedValue({
+        status,
+        statusText: "no",
+        body: {
+          message: `forced ${status}`,
+          label: "Renamed",
+          description: "changed",
+          sequence: 9,
+          choices: [{ label: "Low", value: "low", description: "later", sequence: 8 }],
+        },
+      });
+      renderEditor(withTwoChoices);
+      await openKeywordLabelEditor();
+      fireEvent.change(screen.getByTestId("developer-kw-keyword-label-input"), {
+        target: { value: "Later" },
+      });
+      fireEvent.click(screen.getByTestId("developer-kw-keyword-label-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-kw-keyword-label-error")).toBeTruthy();
+      });
+      expect(screen.getByTestId("developer-kw-keyword-label-error").textContent).toContain(
+        `forced ${status}`,
+      );
+      expect(keywordLabelText().getAttribute("data-keyword-label")).toBe("Priority");
+      expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe("Priority");
+      expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+        "Item priority",
+      );
+      expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("4");
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+      expect(choiceByLabel("High")?.getAttribute("data-choice-description")).toBe("top");
+      expect(screen.getByTestId("developer-kw-saved-choices").textContent).not.toContain("Later");
+      expect(screen.queryByTestId("developer-kw-keyword-label-notice")).toBeNull();
+      expect(deleteKeyword).not.toHaveBeenCalled();
+    },
+  );
+
+  it("does not replace the label when a 200 changes the choices", async () => {
+    updateKeyword.mockResolvedValue({
+      ...withTwoChoices,
+      label: "Rank",
+      choices: [{ label: "Only", value: "only", sequence: 1 }],
+    });
+    renderEditor(withTwoChoices);
+    await openKeywordLabelEditor();
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-label-input"), {
+      target: { value: "Rank" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-keyword-label-error").textContent).toBe(
+        KW_LABEL_MSG.ERROR,
+      );
+    });
+    expect(keywordLabelText().getAttribute("data-keyword-label")).toBe("Priority");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-label")).toBe("High");
+    expect(screen.queryByText("Only")).toBeNull();
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
   });
 });
