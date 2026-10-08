@@ -256,6 +256,12 @@ public class PSPublishingDesignRestService {
   static final String LOCATION_SCHEME_PARAMETER_SEQUENCE_INVALID =
       "Parameter sequence must be a number";
 
+  static final String LOCATION_SCHEME_PARAMETER_NAME_ONE_REQUIRED =
+      "Rename one location scheme parameter at a time";
+
+  static final String LOCATION_SCHEME_PARAMETER_NAME_NOT_WITH_OTHER =
+      "Cannot rename a location scheme parameter while adding, removing, or changing a value, type, or sequence";
+
   static final String CONTEXT_NAME_CONFLICT = "Publishing context name already exists";
   /** Matches {@code RXCONTEXT.CONTEXTNAME} VARCHAR(50). */
   static final int MAX_CONTEXT_NAME_LENGTH = 50;
@@ -1427,7 +1433,17 @@ public class PSPublishingDesignRestService {
    * content type, and template change only when those fields are present. A missing sequence is
    * HTTP 400 and writes nothing. A blank name, a name longer than its column, or any count other
    * than one is HTTP 400 and writes nothing. A name that is not stored is HTTP 409 and writes
-   * nothing. Add, remove, a value change, a type change, and a sequence change cannot be combined.
+   * nothing. When {@code updateParameterName} is true, the body carries exactly one stored
+   * parameter name and {@code newName}. That parameter's type, value, and sequence stay. Other
+   * stored parameters stay. The stored set is not replaced. Name, generator, description, content
+   * type, and template change only when those fields are present. A blank or whitespace new name
+   * does not clear the stored name: it is HTTP 400 and writes nothing. A new name longer than its
+   * column is HTTP 400 and writes nothing. A new name already stored on a different parameter is
+   * HTTP 409 and writes nothing. A blank stored name, a stored name longer than its column, or
+   * any count other than one is HTTP 400 and writes nothing. A stored name that is not on the
+   * scheme is HTTP 409 and writes nothing. A type, value, or sequence sent with the rename is not
+   * applied. Add, remove, a value change, a type change, a sequence change, and a rename cannot
+   * be combined.
    */
   @PUT
   @Path("/schemes/{schemeId}")
@@ -1883,8 +1899,9 @@ public class PSPublishingDesignRestService {
   /**
    * Add and remove cannot be combined. A value change cannot be combined with add or remove. A
    * type change cannot be combined with add, remove, or a value change. A sequence change cannot
-   * be combined with add, remove, a value change, or a type change. Any mix is HTTP 400 and
-   * writes nothing.
+   * be combined with add, remove, a value change, or a type change. A rename cannot be combined
+   * with add, remove, a value change, a type change, or a sequence change. Any mix is HTTP 400
+   * and writes nothing.
    */
   private void rejectCombinedSchemeParameterModes(PSLocationSchemeSummary body) {
     boolean add = Boolean.TRUE.equals(body.getAddParameter());
@@ -1892,6 +1909,7 @@ public class PSPublishingDesignRestService {
     boolean value = Boolean.TRUE.equals(body.getUpdateParameterValue());
     boolean type = Boolean.TRUE.equals(body.getUpdateParameterType());
     boolean sequence = Boolean.TRUE.equals(body.getUpdateParameterSequence());
+    boolean name = Boolean.TRUE.equals(body.getUpdateParameterName());
     if (add && remove) {
       throw badRequest(LOCATION_SCHEME_PARAMETER_ADD_AND_REMOVE);
     }
@@ -1903,6 +1921,9 @@ public class PSPublishingDesignRestService {
     }
     if (sequence && (add || remove || value || type)) {
       throw badRequest(LOCATION_SCHEME_PARAMETER_SEQUENCE_NOT_WITH_OTHER);
+    }
+    if (name && (add || remove || value || type || sequence)) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_NAME_NOT_WITH_OTHER);
     }
   }
 
@@ -1923,6 +1944,10 @@ public class PSPublishingDesignRestService {
     if (Boolean.TRUE.equals(body.getUpdateParameterSequence())) {
       return SchemeParameterMutation.sequenceChange(
           prepareSchemeParameterSequenceChange(scheme, body.getParameters()));
+    }
+    if (Boolean.TRUE.equals(body.getUpdateParameterName())) {
+      return SchemeParameterMutation.nameChange(
+          prepareSchemeParameterNameChange(scheme, body.getParameters()));
     }
     if (Boolean.TRUE.equals(body.getRemoveParameter())) {
       return SchemeParameterMutation.removal(
@@ -1959,6 +1984,11 @@ public class PSPublishingDesignRestService {
           sequenceChange.value());
       return;
     }
+    SchemeParameterNameChange nameChange = mutation.nameChange();
+    if (nameChange != null) {
+      applySchemeParameterNameChange(scheme, nameChange);
+      return;
+    }
     SchemeParameterAddition addition = mutation.addition();
     if (addition != null) {
       scheme.addParameter(addition.name(), addition.sequence(), addition.type(), addition.value());
@@ -1974,38 +2004,43 @@ public class PSPublishingDesignRestService {
 
   /**
    * Exactly one of the parameter fields is set. {@code parameters} is the replace-all list and is
-   * null for add, remove, value change, type change, and sequence change.
+   * null for add, remove, value change, type change, sequence change, and rename.
    */
   private record SchemeParameterMutation(
       SchemeParameterValueChange valueChange,
       SchemeParameterTypeChange typeChange,
       SchemeParameterSequenceChange sequenceChange,
+      SchemeParameterNameChange nameChange,
       SchemeParameterAddition addition,
       SchemeParameterRemoval removal,
       List<PSSchemeParameter> parameters) {
 
     static SchemeParameterMutation valueChange(SchemeParameterValueChange valueChange) {
-      return new SchemeParameterMutation(valueChange, null, null, null, null, null);
+      return new SchemeParameterMutation(valueChange, null, null, null, null, null, null);
     }
 
     static SchemeParameterMutation typeChange(SchemeParameterTypeChange typeChange) {
-      return new SchemeParameterMutation(null, typeChange, null, null, null, null);
+      return new SchemeParameterMutation(null, typeChange, null, null, null, null, null);
     }
 
     static SchemeParameterMutation sequenceChange(SchemeParameterSequenceChange sequenceChange) {
-      return new SchemeParameterMutation(null, null, sequenceChange, null, null, null);
+      return new SchemeParameterMutation(null, null, sequenceChange, null, null, null, null);
+    }
+
+    static SchemeParameterMutation nameChange(SchemeParameterNameChange nameChange) {
+      return new SchemeParameterMutation(null, null, null, nameChange, null, null, null);
     }
 
     static SchemeParameterMutation addition(SchemeParameterAddition addition) {
-      return new SchemeParameterMutation(null, null, null, addition, null, null);
+      return new SchemeParameterMutation(null, null, null, null, addition, null, null);
     }
 
     static SchemeParameterMutation removal(SchemeParameterRemoval removal) {
-      return new SchemeParameterMutation(null, null, null, null, removal, null);
+      return new SchemeParameterMutation(null, null, null, null, null, removal, null);
     }
 
     static SchemeParameterMutation replace(List<PSSchemeParameter> parameters) {
-      return new SchemeParameterMutation(null, null, null, null, null, parameters);
+      return new SchemeParameterMutation(null, null, null, null, null, null, parameters);
     }
   }
 
@@ -2244,6 +2279,104 @@ public class PSPublishingDesignRestService {
       String name, int sequence, String type, String value) {}
 
   /**
+   * Validate one stored parameter name to replace. Does not change the scheme. Any count other
+   * than one, a blank stored name, or a stored name longer than its column is HTTP 400. A blank
+   * or whitespace new name is HTTP 400 and does not clear the stored name. A new name longer than
+   * its column is HTTP 400. A stored name that is not on the scheme is HTTP 409. A new name that
+   * matches a different stored parameter is HTTP 409. The returned stored name is the spelling
+   * already on the scheme. A type, value, or sequence on the request is ignored. The same name,
+   * after trim, is not a duplicate of itself.
+   */
+  private SchemeParameterNameChange prepareSchemeParameterNameChange(
+      IPSLocationScheme scheme, List<PSSchemeParameter> parameters) {
+    if (parameters == null || parameters.size() != 1 || parameters.get(0) == null) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_NAME_ONE_REQUIRED);
+    }
+    PSSchemeParameter incoming = parameters.get(0);
+    String lookup = incoming.getName() == null ? "" : incoming.getName().trim();
+    String next = incoming.getNewName() == null ? "" : incoming.getNewName().trim();
+    if (lookup.isEmpty() || next.isEmpty()) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_NAME_REQUIRED);
+    }
+    if (lookup.length() > MAX_LOCATION_SCHEME_PARAMETER_NAME_LENGTH
+        || next.length() > MAX_LOCATION_SCHEME_PARAMETER_NAME_LENGTH) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_NAME_TOO_LONG);
+    }
+    String storedName = storedParameterName(scheme, lookup);
+    if (storedName == null) {
+      throw conflict(LOCATION_SCHEME_PARAMETER_NOT_ON_SCHEME);
+    }
+    List<String> existingNames = scheme.getParameterNames();
+    if (existingNames != null) {
+      for (String existingName : existingNames) {
+        if (existingName == null) {
+          continue;
+        }
+        if (next.equals(existingName.trim()) && !storedName.equals(existingName)) {
+          throw conflict(LOCATION_SCHEME_PARAMETER_EXISTS);
+        }
+      }
+    }
+    return new SchemeParameterNameChange(storedName, next);
+  }
+
+  /** Stored spelling of {@code lookup}, or null when that parameter is not on the scheme. */
+  private String storedParameterName(IPSLocationScheme scheme, String lookup) {
+    List<String> existingNames = scheme.getParameterNames();
+    if (existingNames == null) {
+      return null;
+    }
+    for (String existingName : existingNames) {
+      if (existingName != null && lookup.equals(existingName.trim())) {
+        return existingName;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Rename one parameter in place so its id, type, value, and sequence stay. A name that already
+   * matches is left alone. {@link PSLocationSchemeParameter#hashCode()} is the name, so the row is
+   * removed before the name changes and then put back on the same instance. Other implementations
+   * remove and add, which cannot keep the id.
+   */
+  private void applySchemeParameterNameChange(
+      IPSLocationScheme scheme, SchemeParameterNameChange change) {
+    if (change.storedName().equals(change.newName())) {
+      return;
+    }
+    if (scheme instanceof PSLocationScheme concrete) {
+      PSLocationSchemeParameter target = null;
+      for (PSLocationSchemeParameter param : concrete.getParameterSet()) {
+        if (param != null && change.storedName().equals(param.getName())) {
+          target = param;
+          break;
+        }
+      }
+      if (target == null) {
+        throw conflict(LOCATION_SCHEME_PARAMETER_NOT_ON_SCHEME);
+      }
+      concrete.removeParameter(change.storedName());
+      target.setName(change.newName());
+      var rows = concrete.getParameterSet();
+      rows.add(target);
+      concrete.setParameterSet(rows);
+      return;
+    }
+    String type = scheme.getParameterType(change.storedName());
+    String value = scheme.getParameterValue(change.storedName());
+    Integer sequence = scheme.getParameterSequence(change.storedName());
+    scheme.removeParameter(change.storedName());
+    scheme.addParameter(
+        change.newName(),
+        sequence == null ? 0 : sequence,
+        type,
+        value);
+  }
+
+  private record SchemeParameterNameChange(String storedName, String newName) {}
+
+  /**
    * {@code RXLOCATIONSCHEMEPARAMS.SCHEMEPARAMID} is assigned, not generated. New rows from
    * add-one and from a full parameter replace need a next-number id before {@code persist}.
    * Mocks and other {@link IPSLocationScheme} implementations are left alone.
@@ -2263,7 +2396,8 @@ public class PSPublishingDesignRestService {
   /**
    * Replace or append scheme parameters. When {@code replaceAll} is false and parameters is null,
    * leaves existing params unchanged; when non-null, clears unknown names then sets listed ones.
-   * An add-one, remove-one, value-one, type-one, or sequence-one update does not use this path.
+   * An add-one, remove-one, value-one, type-one, sequence-one, or rename-one update does not use
+   * this path.
    */
   private void applySchemeParameters(
       IPSLocationScheme scheme, List<PSSchemeParameter> parameters, boolean isCreate) {

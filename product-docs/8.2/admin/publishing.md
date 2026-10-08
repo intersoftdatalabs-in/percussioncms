@@ -1192,6 +1192,47 @@ removing one parameter, changing a parameter value, changing a parameter type, r
 one, setting only the generator, setting only the description, setting only the content
 type, setting only the template, copying one, and deleting one are separate actions.
 
+### Rename one location scheme parameter (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. On a location scheme that already lists
+parameters, **Name** next to one parameter loads that scheme
+(`GET …/sitemanage/publishingdesign/schemes/{schemeId}`) and opens
+**Rename location scheme parameter**. The form shows the current **name**, **generator**,
+**description**, **content type**, **template**, the parameter name, type, sequence, and
+value, and the other parameters. It does not let you change the scheme identity or that
+parameter's type, value, or sequence. Enter the new **name**. **Save name** sends
+`PUT …/sitemanage/publishingdesign/schemes/{schemeId}` (the same update already used by
+Design; there is no second parameter resource) with a `locationScheme` object that contains
+`updateParameterName` set to true and that one parameter under `parameters.schemeParameter`
+(the stored `name` and the new `newName`). The scheme name, generator, description, content
+type, template, and context are omitted, so the server leaves those stored. The scheme id
+does not change. The server replaces only that parameter's name. Its type, value, and
+sequence stay. Other parameters stay. The stored parameter set is not replaced. A type,
+value, or sequence sent with the rename is not applied.
+
+The new name is listed on that scheme only after the update succeeds. Until then the
+previous name stays, including while the request is still in progress. If the list refresh
+fails after a successful update, that scheme still shows the new name and keeps the type,
+value, sequence, and the other parameters. Other schemes on the context stay.
+**Cancel** closes the form and does not update the scheme. A blank or whitespace name, a
+name longer than 50 characters (`RXLOCATIONSCHEMEPARAMS.NAME`), or a name already used by
+another parameter on the scheme is rejected in the form and does not call the update, so
+it does not clear or replace the stored name.
+
+HTTP **400** (the update does not name exactly one parameter, or the stored name or the
+new name is blank or longer than 50 characters), **403** (not Admin or Designer), and
+**409** (that parameter name is not on the scheme, the new name is already on a different
+parameter, or a scheme name sent with the update already exists in the context) stay in
+the name form error region. Those responses do not change the previous name and do not
+change the type, value, sequence, the other parameters, the scheme name, generator,
+description, content type, or template. Saving a location scheme (which can replace the
+whole parameter list together with other fields), adding one parameter, removing one
+parameter, changing a parameter value, changing a parameter type, changing a parameter
+sequence, renaming the scheme, setting only the generator, setting only the description,
+setting only the content type, setting only the template, copying one, and deleting one
+are separate actions.
+
 ### Copy a location scheme (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then

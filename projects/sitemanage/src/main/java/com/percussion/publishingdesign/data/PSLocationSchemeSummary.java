@@ -53,7 +53,7 @@ public class PSLocationSchemeSummary {
    * When true, {@code parameters} is exactly one parameter to remove by name. Other stored
    * parameters stay. Other scheme fields are still applied only when present on the body.
    * Cannot be combined with {@link #addParameter}, {@link #updateParameterValue},
-   * {@link #updateParameterType}, or {@link #updateParameterSequence}.
+   * {@link #updateParameterType}, {@link #updateParameterSequence}, or {@link #updateParameterName}.
    */
   private Boolean removeParameter;
 
@@ -61,7 +61,8 @@ public class PSLocationSchemeSummary {
    * When true, {@code parameters} is exactly one stored parameter whose value is replaced. Name,
    * type, and sequence of that parameter stay. Other stored parameters stay. Other scheme fields
    * are still applied only when present on the body. Cannot be combined with {@link #addParameter},
-   * {@link #removeParameter}, {@link #updateParameterType}, or {@link #updateParameterSequence}.
+   * {@link #removeParameter}, {@link #updateParameterType}, {@link #updateParameterSequence}, or
+   * {@link #updateParameterName}.
    */
   private Boolean updateParameterValue;
 
@@ -69,7 +70,8 @@ public class PSLocationSchemeSummary {
    * When true, {@code parameters} is exactly one stored parameter whose type is replaced. Name,
    * value, and sequence of that parameter stay. Other stored parameters stay. Other scheme fields
    * are still applied only when present on the body. Cannot be combined with {@link #addParameter},
-   * {@link #removeParameter}, {@link #updateParameterValue}, or {@link #updateParameterSequence}.
+   * {@link #removeParameter}, {@link #updateParameterValue}, {@link #updateParameterSequence}, or
+   * {@link #updateParameterName}.
    */
   private Boolean updateParameterType;
 
@@ -78,9 +80,19 @@ public class PSLocationSchemeSummary {
    * type, and value of that parameter stay. Other stored parameters stay, including their
    * sequences. Other scheme fields are still applied only when present on the body. Cannot be
    * combined with {@link #addParameter}, {@link #removeParameter}, {@link #updateParameterValue},
-   * or {@link #updateParameterType}.
+   * {@link #updateParameterType}, or {@link #updateParameterName}.
    */
   private Boolean updateParameterSequence;
+
+  /**
+   * When true, {@code parameters} is exactly one stored parameter whose name is replaced.
+   * {@link PSSchemeParameter#getName()} is the stored name. {@link PSSchemeParameter#getNewName()}
+   * is the new name. Type, value, and sequence of that parameter stay. Other stored parameters
+   * stay. Other scheme fields are still applied only when present on the body. Cannot be combined
+   * with {@link #addParameter}, {@link #removeParameter}, {@link #updateParameterValue}, {@link
+   * #updateParameterType}, or {@link #updateParameterSequence}.
+   */
+  private Boolean updateParameterName;
 
   public String getSchemeId() {
     return schemeId;
@@ -202,5 +214,13 @@ public class PSLocationSchemeSummary {
 
   public void setUpdateParameterSequence(Boolean updateParameterSequence) {
     this.updateParameterSequence = updateParameterSequence;
+  }
+
+  public Boolean getUpdateParameterName() {
+    return updateParameterName;
+  }
+
+  public void setUpdateParameterName(Boolean updateParameterName) {
+    this.updateParameterName = updateParameterName;
   }
 }

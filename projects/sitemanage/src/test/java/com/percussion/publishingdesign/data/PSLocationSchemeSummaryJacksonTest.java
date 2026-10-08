@@ -163,6 +163,24 @@ class PSLocationSchemeSummaryJacksonTest {
   }
 
   @Test
+  void updateParameterNameFlagBindsStoredNameAndNewName() {
+    String json =
+        """
+        {"locationScheme":{"updateParameterName":true,"schemeParameter":[{"name":"suffix","newName":"fileSuffix","type":"String","sequence":99,"value":"article"}]}}
+        """;
+    PSLocationSchemeSummary body = mapper.readValue(json, PSLocationSchemeSummary.class);
+    assertEquals(Boolean.TRUE, body.getUpdateParameterName());
+    assertTrue(body.getUpdateParameterSequence() == null || !body.getUpdateParameterSequence());
+    assertTrue(body.getUpdateParameterType() == null || !body.getUpdateParameterType());
+    assertTrue(body.getUpdateParameterValue() == null || !body.getUpdateParameterValue());
+    assertTrue(body.getName() == null || body.getName().isBlank());
+    assertNotNull(body.getParameters());
+    assertEquals(1, body.getParameters().size());
+    assertEquals("suffix", body.getParameters().get(0).getName());
+    assertEquals("fileSuffix", body.getParameters().get(0).getNewName());
+  }
+
+  @Test
   void removeParameterFlagBindsOneSchemeParameterName() {
     String json =
         """
