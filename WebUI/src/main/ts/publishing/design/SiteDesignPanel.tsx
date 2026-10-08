@@ -33,6 +33,11 @@ import {
   contextVariablesAfterSuccessfulCreate,
   validateContextVariable,
 } from "../contextVariable";
+import {
+  contextVariablesAfterSuccessfulDelete,
+  mapContextVariableDeleteError,
+  validateContextVariableDelete,
+} from "../contextVariableDelete";
 import { mapContextVariableSaveError } from "../contextVariableSaveErrors";
 import {
   buildContextVariableValueBody,
@@ -67,6 +72,9 @@ export function SiteDesignPanel(): React.ReactElement {
   const [valueDraft, setValueDraft] = useState("");
   const [valueError, setValueError] = useState<string | null>(null);
   const [valueSaving, setValueSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteSaving, setDeleteSaving] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -89,6 +97,8 @@ export function SiteDesignPanel(): React.ReactElement {
     setValueTarget(null);
     setValueDraft("");
     setValueError(null);
+    setDeleteTarget(null);
+    setDeleteError(null);
     if (!selectedId || !contextId) {
       setProps([]);
       return;
@@ -103,9 +113,11 @@ export function SiteDesignPanel(): React.ReactElement {
   const valueCurrent =
     props.find((row) => (row.name ?? "").trim() === valueName)?.value ?? "";
   const valueOthers = props.filter((row) => (row.name ?? "").trim() !== valueName);
+  const deleteName = (deleteTarget ?? "").trim();
+  const deleteOthers = props.filter((row) => (row.name ?? "").trim() !== deleteName);
 
   async function saveProp(): Promise<void> {
-    if (saving) {
+    if (saving || valueSaving || deleteSaving) {
       return;
     }
     if (!selectedId || !contextId) {
@@ -156,6 +168,11 @@ export function SiteDesignPanel(): React.ReactElement {
   }
 
   function openValueChange(row: SitePropertyDto): void {
+    if (valueSaving || deleteSaving) {
+      return;
+    }
+    setDeleteTarget(null);
+    setDeleteError(null);
     setValueTarget(row.name ?? "");
     setValueDraft("");
     setValueError(null);
@@ -171,7 +188,7 @@ export function SiteDesignPanel(): React.ReactElement {
   }
 
   async function saveValue(): Promise<void> {
-    if (valueSaving || saving || !valueTarget) {
+    if (valueSaving || saving || deleteSaving || !valueTarget) {
       return;
     }
     if (!selectedId || !contextId) {
@@ -217,15 +234,59 @@ export function SiteDesignPanel(): React.ReactElement {
     }
   }
 
-  async function removeProp(name: string): Promise<void> {
-    if (!window.confirm(message(MSG.PUBLISH_CONFIRM_DELETE_DESIGN))) {
+  function openDelete(row: SitePropertyDto): void {
+    if (deleteSaving || valueSaving) {
       return;
     }
+    const name = (row.name ?? "").trim();
+    if (!name) {
+      return;
+    }
+    setValueTarget(null);
+    setValueDraft("");
+    setValueError(null);
+    setDeleteTarget(name);
+    setDeleteError(null);
+  }
+
+  function closeDelete(): void {
+    if (deleteSaving) {
+      return;
+    }
+    setDeleteTarget(null);
+    setDeleteError(null);
+  }
+
+  async function confirmDelete(): Promise<void> {
+    if (deleteSaving || saving || valueSaving || !deleteTarget) {
+      return;
+    }
+    if (!selectedId || !contextId) {
+      setDeleteError("Site, context, and property name are required");
+      return;
+    }
+    const validated = validateContextVariableDelete(deleteTarget, props);
+    if (!validated.ok) {
+      setDeleteError(validated.error);
+      return;
+    }
+    const previous = props;
+    setDeleteSaving(true);
+    setDeleteError(null);
     try {
-      await deleteSiteProperty(selectedId, name, contextId);
-      setProps(await listSiteProperties(selectedId, contextId));
+      await deleteSiteProperty(selectedId, validated.name, contextId);
+      let refreshed: SitePropertyDto[] | null = null;
+      try {
+        refreshed = await listSiteProperties(selectedId, contextId);
+      } catch {
+        refreshed = null;
+      }
+      setProps(contextVariablesAfterSuccessfulDelete(refreshed, validated.name, previous));
+      setDeleteTarget(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setDeleteError(mapContextVariableDeleteError(e));
+    } finally {
+      setDeleteSaving(false);
     }
   }
 
@@ -298,13 +359,57 @@ export function SiteDesignPanel(): React.ReactElement {
             <button
               type="button"
               style={buttonStyle}
-              onClick={() => void removeProp(p.name!)}
+              data-testid="context-variable-delete"
+              onClick={() => openDelete(p)}
             >
               Delete
             </button>
           </li>
         ))}
       </ul>
+      {deleteTarget && (
+        <div data-testid="context-variable-delete-form">
+          <h4>Delete context variable</h4>
+          <p data-testid="context-variable-delete-fields-note">
+            Confirm removes only this name after the server accepts. Other variables stay.
+          </p>
+          <p>
+            Name: <span data-testid="context-variable-delete-name">{deleteName}</span>
+          </p>
+          <ul data-testid="context-variable-delete-others" style={listStyle}>
+            {deleteOthers.map((row) => (
+              <li key={row.name} data-testid="context-variable-delete-other">
+                {row.name}: {row.value}
+              </li>
+            ))}
+          </ul>
+          {deleteError && (
+            <p style={errorStyle} role="alert" data-testid="context-variable-delete-error">
+              {deleteError}
+            </p>
+          )}
+          <div style={toolbarStyle}>
+            <button
+              type="button"
+              style={primaryButtonStyle}
+              data-testid="context-variable-delete-confirm"
+              disabled={deleteSaving}
+              onClick={() => void confirmDelete()}
+            >
+              Delete variable
+            </button>
+            <button
+              type="button"
+              style={buttonStyle}
+              data-testid="context-variable-delete-cancel"
+              disabled={deleteSaving}
+              onClick={closeDelete}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
       {valueTarget && (
         <div data-testid="context-variable-value-form">
           <h4>Change context variable value</h4>

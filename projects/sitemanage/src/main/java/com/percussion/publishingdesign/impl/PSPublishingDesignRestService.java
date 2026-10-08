@@ -305,8 +305,8 @@ public class PSPublishingDesignRestService {
   static final String CONTEXT_VARIABLE_EXISTS = "Context variable already exists";
 
   /**
-   * A value change names a variable that is not stored on this context. The request does not
-   * create it.
+   * A value change or delete names a variable that is not stored on this context. The request does
+   * not create it and does not remove another variable.
    */
   static final String CONTEXT_VARIABLE_NOT_LISTED = "Context variable is not listed";
 
@@ -1070,20 +1070,40 @@ public class PSPublishingDesignRestService {
     return null;
   }
 
+  /**
+   * Delete one context variable. A blank name or context, or a name longer than its column, is HTTP
+   * 400 and saves nothing. HTTP 403 when the caller is not Admin or Designer. HTTP 409 when the
+   * name is not listed on this context, and nothing is saved. A successful delete removes only that
+   * stored name. Other variables on the context stay.
+   */
   @DELETE
   @Path("/sites/{siteId}/properties")
   public void deleteSiteProperty(
       @PathParam("siteId") String siteId,
       @QueryParam("name") String name,
       @QueryParam("contextId") String contextId) {
+    requireDesignWrite();
     requireSiteManager();
     requireNonBlank(siteId, "siteId");
-    requireNonBlank(name, "name");
-    requireNonBlank(contextId, "contextId");
+    String trimmedName = name == null ? "" : name.trim();
+    String trimmedContext = contextId == null ? "" : contextId.trim();
+    if (trimmedName.isEmpty()) {
+      throw badRequest(CONTEXT_VARIABLE_NAME_REQUIRED);
+    }
+    if (trimmedContext.isEmpty()) {
+      throw badRequest("contextId is required");
+    }
+    if (trimmedName.length() > MAX_CONTEXT_VARIABLE_NAME_LENGTH) {
+      throw badRequest(CONTEXT_VARIABLE_NAME_TOO_LONG);
+    }
     try {
       IPSSite site = siteManager.loadSiteModifiable(toSiteGuid(siteId));
-      IPSGuid ctx = guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT);
-      site.removeProperty(name.trim(), ctx);
+      IPSGuid ctx = guidManager.makeGuid(trimmedContext, PSTypeEnum.CONTEXT);
+      String storedName = storedContextVariableName(site, ctx, trimmedName);
+      if (storedName == null) {
+        throw conflict(CONTEXT_VARIABLE_NOT_LISTED);
+      }
+      site.removeProperty(storedName, ctx);
       siteManager.saveSite(site);
     } catch (PSNotFoundException e) {
       throw notFound("Site not found");
