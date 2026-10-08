@@ -19,10 +19,11 @@
  * Preview-first Active Assembly host. Renders the assembled page or snippet
  * template in an iframe with a light overlay. Slot add / create / arrange
  * use relationship REST (no Data Flow HTML). Single-line text, long-text,
- * HTML, link, and whole-number field edits use the assembled nodes (HTML keeps
- * its markup; single-line text stays one line; long text keeps line breaks;
- * a number is one whole number) and persist through itemmanagement — not
- * leftover Content Editor HTML.
+ * HTML, link, whole-number, and calendar-date field edits use the assembled
+ * nodes (HTML keeps its markup; single-line text stays one line; long text
+ * keeps line breaks; a number is one whole number; a date is one calendar
+ * day) and persist through itemmanagement — not leftover Content Editor HTML.
+ * Datetime stays on the Content Editor.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -69,6 +70,7 @@ import {
   ASSEMBLY_VALUE_LONGTEXT,
   blankRequiredTextFieldNames,
   changedOverlayEdits,
+  invalidChangedDateFieldNames,
   invalidChangedNumberFieldNames,
   markAssemblyFieldErrors,
   overlayEditKey,
@@ -632,9 +634,15 @@ export function AssemblyHost({
       visibleEdits,
       fieldBaselineRef.current,
     );
-    if (blankRequired.length > 0 || badNumbers.length > 0) {
+    const badDates = invalidChangedDateFieldNames(
+      overlayFields,
+      visibleEdits,
+      fieldBaselineRef.current,
+    );
+    if (blankRequired.length > 0 || badNumbers.length > 0 || badDates.length > 0) {
       const requiredText = message(ASSEMBLY_MSG.FIELD_REQUIRED);
       const numberText = message(ASSEMBLY_MSG.FIELD_NUMBER);
+      const dateText = message(ASSEMBLY_MSG.FIELD_DATE);
       const errors: Record<string, string> = {};
       for (const name of blankRequired) {
         errors[name] = requiredText;
@@ -642,19 +650,24 @@ export function AssemblyHost({
       for (const name of badNumbers) {
         errors[name] = numberText;
       }
-      if (badNumbers.length > 0) {
-        const numberFields = overlayFields.filter((field) =>
-          badNumbers.includes(field.name),
-        );
+      for (const name of badDates) {
+        errors[name] = dateText;
+      }
+      const refused = overlayFields.filter(
+        (field) => badNumbers.includes(field.name) || badDates.includes(field.name),
+      );
+      if (refused.length > 0) {
         if (doc != null) {
-          restoreOverlayValues(doc, numberFields);
+          restoreOverlayValues(doc, refused);
         }
         if (bar != null) {
-          restoreOverlayValues(bar, numberFields);
+          restoreOverlayValues(bar, refused);
         }
       }
       setFieldErrors(errors);
-      setFieldNotice(blankRequired.length > 0 ? requiredText : numberText);
+      setFieldNotice(
+        blankRequired.length > 0 ? requiredText : badNumbers.length > 0 ? numberText : dateText,
+      );
       setFieldNoticeRole("alert");
       return;
     }
@@ -708,6 +721,25 @@ export function AssemblyHost({
     } finally {
       setSavingFields(false);
     }
+  }
+
+  function handleCancelFields(): void {
+    if (contentId == null) {
+      return;
+    }
+    const ownerId = String(contentId);
+    const doc = getPreviewDocument(frameRef.current);
+    if (doc != null) {
+      restoreOverlayValues(doc, overlayFields);
+    }
+    const bar = fieldBarNode();
+    if (bar != null) {
+      restoreOverlayValues(bar, overlayFields);
+    }
+    fieldBaselineRef.current = snapshotFieldBaseline(ownerId, [doc, bar]);
+    setFieldErrors({});
+    setFieldNotice(null);
+    setFieldNoticeRole("status");
   }
 
   return (
@@ -946,6 +978,18 @@ export function AssemblyHost({
                       spellCheck={false}
                       autoComplete="off"
                     />
+                  ) : field.kind === "date" ? (
+                    <input
+                      className={styles.fieldEdit}
+                      type="date"
+                      defaultValue={field.value}
+                      data-assembly-field={field.name}
+                      data-assembly-content-id={String(contentId ?? "")}
+                      data-assembly-value="date"
+                      data-testid={`assembly-overlay-field-${field.name}`}
+                      aria-label={field.label}
+                      aria-invalid={fieldErrors[field.name] ? true : undefined}
+                    />
                   ) : (
                     <textarea
                       className={styles.fieldEdit}
@@ -985,6 +1029,17 @@ export function AssemblyHost({
           {message(
             savingFields ? ASSEMBLY_MSG.FIELD_SAVING : ASSEMBLY_MSG.FIELD_SAVE,
           )}
+        </button>
+        <button
+          type="button"
+          className={styles.slotBtn}
+          data-testid="assembly-field-cancel"
+          disabled={
+            savingFields || fieldPayload == null || overlayFields.length === 0
+          }
+          onClick={handleCancelFields}
+        >
+          {message(ASSEMBLY_MSG.SLOT_CANCEL)}
         </button>
         {fieldNotice ? (
           <span role={fieldNoticeRole} data-testid="assembly-field-notice">

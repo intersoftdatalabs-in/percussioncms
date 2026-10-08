@@ -1862,4 +1862,305 @@ describe("AssemblyHost", () => {
     expect(input.value).toBe(NEW_QTY);
     expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
   });
+
+  const OLD_DATE = "2026-10-07";
+  const NEW_DATE = "2026-11-02";
+
+  const dateFields: ItemEditorFields = {
+    contentId: "42",
+    contentType: "percPage",
+    name: "Home",
+    checkoutUser: "admin",
+    fields: [
+      { name: "event_on", value: OLD_DATE },
+      { name: "displaytitle", value: OLD_TEXT },
+      { name: "notes", value: LONG_NOTE },
+    ],
+  };
+
+  const dateSchema = {
+    fields: [
+      {
+        name: "event_on",
+        label: "Event on",
+        control: "sys_CalendarSimple",
+        dataType: "date",
+      },
+      { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+      { name: "notes", label: "Notes", control: "sys_TextArea" },
+    ],
+  };
+
+  function datePreviewDoc(eventOn = OLD_DATE): Document {
+    const previewDoc = document.implementation.createHTMLDocument("preview");
+    previewDoc.body.innerHTML = `
+      <span data-perc-field="event_on">${eventOn}</span>
+      <h1 data-perc-field="displaytitle">${OLD_TEXT}</h1>
+      <p data-perc-field="notes">${LONG_NOTE}</p>
+    `;
+    return previewDoc;
+  }
+
+  function renderDateHost(
+    previewDoc: Document,
+    saveFields: ReturnType<typeof vi.fn>,
+    loadFields: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(dateFields),
+    schema: { fields: Array<Record<string, unknown>> } = dateSchema,
+  ): void {
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview: vi.fn().mockResolvedValue({
+        previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+        contentId: 42,
+        templateId: 7,
+        revision: 1,
+      }),
+      loadTemplates: vi.fn().mockResolvedValue([
+        {
+          name: "rffPgGeneric",
+          label: "Generic Page",
+          url: "../assembler/render?sys_template=7",
+          sortRank: 0,
+          menuType: "MENUITEM",
+        } satisfies MenuAction,
+      ]),
+      checkout: vi.fn().mockResolvedValue(undefined),
+      loadFields,
+      saveFields,
+      loadType: vi.fn().mockResolvedValue(schema),
+      getPreviewDocument: () => previewDoc,
+    });
+  }
+
+  function dateInput(previewDoc: Document): HTMLInputElement {
+    return previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-event_on"]',
+    ) as HTMLInputElement;
+  }
+
+  it("saves one calendar date and leaves the other fields unchanged", async () => {
+    const previewDoc = datePreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderDateHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(dateInput(previewDoc)).toBeTruthy();
+    });
+    const eventOn = dateInput(previewDoc);
+    expect(eventOn.type).toBe("date");
+    expect(eventOn.getAttribute("data-assembly-value")).toBe("date");
+    expect(eventOn.value).toBe(OLD_DATE);
+    eventOn.value = NEW_DATE;
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "event_on")).toEqual({
+      name: "event_on",
+      value: NEW_DATE,
+      dataType: "date",
+    });
+    expect(saved.fields.find((field) => field.name === "displaytitle")).toEqual({
+      name: "displaytitle",
+      value: OLD_TEXT,
+    });
+    expect(saved.fields.find((field) => field.name === "notes")).toEqual({
+      name: "notes",
+      value: LONG_NOTE,
+    });
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    expect(dateInput(previewDoc).value).toBe(NEW_DATE);
+  });
+
+  it("reloads the assembly host with the calendar date that was saved", async () => {
+    const savedPayload: ItemEditorFields = {
+      ...dateFields,
+      fields: dateFields.fields.map((field) =>
+        field.name === "event_on" ? { ...field, value: NEW_DATE } : field,
+      ),
+    };
+    const previewDoc = datePreviewDoc(NEW_DATE);
+    renderDateHost(
+      previewDoc,
+      vi.fn().mockResolvedValue(savedPayload),
+      vi.fn().mockResolvedValue(savedPayload),
+    );
+    await waitFor(() => {
+      expect(dateInput(previewDoc)).toBeTruthy();
+    });
+    expect(dateInput(previewDoc).value).toBe(NEW_DATE);
+    expect(
+      (previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-displaytitle"]',
+      ) as HTMLElement).textContent,
+    ).toBe(OLD_TEXT);
+  });
+
+  it("Cancel does not write a date edit", async () => {
+    const previewDoc = datePreviewDoc();
+    const saveFields = vi.fn();
+    renderDateHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(dateInput(previewDoc)).toBeTruthy();
+    });
+    dateInput(previewDoc).value = NEW_DATE;
+    fireEvent.click(screen.getByTestId("assembly-field-cancel"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(dateInput(previewDoc).value).toBe(OLD_DATE);
+  });
+
+  it.each(["", "2026-02-31", "2026-10-07 15:30:00"])(
+    "does not save %j and leaves the previous date",
+    async (next) => {
+      const previewDoc = datePreviewDoc();
+      const saveFields = vi.fn();
+      renderDateHost(previewDoc, saveFields);
+      await waitFor(() => {
+        expect(dateInput(previewDoc)).toBeTruthy();
+      });
+      dateInput(previewDoc).value = next;
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-error-event_on").textContent).toMatch(
+          /calendar date/i,
+        );
+      });
+      expect(saveFields).not.toHaveBeenCalled();
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/calendar date/i);
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+      expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+      expect(dateInput(previewDoc).value).toBe(OLD_DATE);
+    },
+  );
+
+  it("does not write a read-only date field", async () => {
+    const previewDoc = datePreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderDateHost(previewDoc, saveFields, vi.fn().mockResolvedValue(dateFields), {
+      fields: [
+        {
+          name: "event_on",
+          label: "Event on",
+          control: "sys_CalendarSimple",
+          dataType: "date",
+          readOnly: true,
+        },
+        { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+        { name: "notes", label: "Notes", control: "sys_TextArea" },
+      ],
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-inline-displaytitle")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("assembly-field-chip-event_on")).toBeNull();
+    expect(previewDoc.querySelector('[data-testid="assembly-inline-field-event_on"]')).toBeNull();
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = NEW_TEXT;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "event_on")?.value).toBe(OLD_DATE);
+    expect(saved.fields.find((field) => field.name === "event_on")?.dataType).toBeUndefined();
+    expect(saved.fields.find((field) => field.name === "displaytitle")?.value).toBe(NEW_TEXT);
+    expect(saved.fields.find((field) => field.name === "notes")?.value).toBe(LONG_NOTE);
+  });
+
+  it("does not edit a datetime field on the assembly host", async () => {
+    const previewDoc = datePreviewDoc();
+    previewDoc.body.insertAdjacentHTML(
+      "beforeend",
+      `<span data-perc-field="event_at">2026-10-07 15:30:00</span>`,
+    );
+    const saveFields = vi.fn();
+    renderDateHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue({
+        ...dateFields,
+        fields: [
+          ...dateFields.fields,
+          { name: "event_at", value: "2026-10-07 15:30:00" },
+        ],
+      }),
+      {
+        fields: [
+          ...dateSchema.fields,
+          {
+            name: "event_at",
+            label: "Event at",
+            control: "sys_CalendarSimple",
+            dataType: "datetime",
+          },
+        ],
+      },
+    );
+    await waitFor(() => {
+      expect(dateInput(previewDoc)).toBeTruthy();
+    });
+    expect(screen.queryByTestId("assembly-field-chip-event_at")).toBeNull();
+    expect(previewDoc.querySelector('[data-testid="assembly-inline-field-event_at"]')).toBeNull();
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s leaves the previous date in place",
+    async (status) => {
+      const previewDoc = datePreviewDoc();
+      const saveFields = vi.fn().mockRejectedValue({ status });
+      renderDateHost(previewDoc, saveFields);
+      await waitFor(() => {
+        expect(dateInput(previewDoc)).toBeTruthy();
+      });
+      dateInput(previewDoc).value = NEW_DATE;
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+          /could not save/i,
+        );
+        expect(dateInput(previewDoc).value).toBe(OLD_DATE);
+      });
+      expect(saveFields).toHaveBeenCalled();
+      const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+      expect(sent.fields.find((field) => field.name === "event_on")?.value).toBe(NEW_DATE);
+      expect(sent.fields.find((field) => field.name === "event_on")?.dataType).toBe("date");
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+    },
+  );
+
+  it("saves a calendar date from the overlay strip when the page has no node", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderDateHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-event_on")).toBeTruthy();
+    });
+    const input = screen.getByTestId("assembly-overlay-field-event_on") as HTMLInputElement;
+    expect(input.tagName).toBe("INPUT");
+    expect(input.type).toBe("date");
+    expect(input.getAttribute("data-assembly-value")).toBe("date");
+    expect(input.value).toBe(OLD_DATE);
+    input.value = NEW_DATE;
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "event_on")).toEqual({
+      name: "event_on",
+      value: NEW_DATE,
+      dataType: "date",
+    });
+    expect(saved.fields.find((field) => field.name === "displaytitle")?.value).toBe(OLD_TEXT);
+    expect(input.value).toBe(NEW_DATE);
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+  });
 });

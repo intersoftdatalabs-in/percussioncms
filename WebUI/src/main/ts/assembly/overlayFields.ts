@@ -16,16 +16,18 @@
  */
 
 /**
- * Map known text, long-text, HTML, link, and whole-number itemmanagement fields
- * onto assembled preview nodes and persist edits through the same fields API as
- * the React editor. Does not open leftover Active Assembly or Content Editor HTML.
+ * Map known text, long-text, HTML, link, whole-number, and calendar-date
+ * itemmanagement fields onto assembled preview nodes and persist edits through
+ * the same fields API as the React editor. Does not open leftover Active
+ * Assembly or Content Editor HTML. Datetime stays on the Content Editor.
  */
 
 import type { ContentTypeFieldSummary } from "../api/developer/types";
 import { classifyEditorControl } from "../editor/controlKinds";
+import { toWidgetValue } from "../editor/dateField";
 import type { ItemEditorField, ItemEditorFields } from "../editor/itemFieldsApi";
 
-export type OverlayFieldKind = "text" | "longtext" | "html" | "link" | "number";
+export type OverlayFieldKind = "text" | "longtext" | "html" | "link" | "number" | "date";
 
 /** Assembled HTML nodes store markup in innerHTML, not stripped text. */
 export const ASSEMBLY_VALUE_HTML = "html";
@@ -42,6 +44,9 @@ export const ASSEMBLY_VALUE_LONGTEXT = "longtext";
 /** Whole-number edits send {@code dataType: integer} on the item field save. */
 export const ASSEMBLY_VALUE_NUMBER = "number";
 
+/** Calendar-date edits send {@code dataType: date} and {@code yyyy-MM-dd}. */
+export const ASSEMBLY_VALUE_DATE = "date";
+
 const WHOLE_NUMBER_RE = /^-?\d+$/;
 
 /**
@@ -54,6 +59,19 @@ export function wholeNumberText(value: string): string | null {
     return null;
   }
   return text;
+}
+
+/**
+ * One calendar date ({@code yyyy-MM-dd}), or null when blank, invalid, or a datetime.
+ * A blank result must not be written over a stored date.
+ */
+export function calendarDateText(value: string): string | null {
+  const text = value.trim();
+  if (!text) {
+    return null;
+  }
+  const widget = toWidgetValue("date", text);
+  return widget === text ? text : null;
 }
 
 /**
@@ -198,6 +216,43 @@ export function invalidChangedNumberFieldNames(
   return names;
 }
 
+/**
+ * Date fields the author changed to blank or to something other than one calendar date.
+ * Unchanged values, including a blank that was already stored, are not listed.
+ * A blank change is named so the save can leave the stored date in place.
+ * Datetime text is not a calendar date. Long text, HTML, link, and numbers are not checked.
+ */
+export function invalidChangedDateFieldNames(
+  fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
+  edits: readonly Pick<OverlayFieldEdit, "contentId" | "name" | "value">[],
+  baseline: ReadonlyMap<string, string>,
+): string[] {
+  const latest = new Map<string, (typeof edits)[number]>();
+  for (const edit of edits) {
+    latest.set(edit.name, edit);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "date") {
+      continue;
+    }
+    const edit = latest.get(field.name);
+    if (!edit) {
+      continue;
+    }
+    const previous = baseline.has(overlayEditKey(edit))
+      ? (baseline.get(overlayEditKey(edit)) ?? "")
+      : field.value;
+    if (edit.value.trim() === previous.trim()) {
+      continue;
+    }
+    if (calendarDateText(edit.value) == null) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
 /** Mark overlay controls invalid when a required-text save was refused. */
 export function markAssemblyFieldErrors(
   root: ParentNode | null,
@@ -222,6 +277,7 @@ export function markAssemblyFieldErrors(
 }
 
 const LINK_INPUT_ATTR = "data-assembly-link-input";
+const DATE_INPUT_ATTR = "data-assembly-date-input";
 
 export interface OverlayField {
   name: string;
@@ -281,13 +337,14 @@ export function isOverlayFieldKind(kind: string): kind is OverlayFieldKind {
     isScalarOverlayKind(kind) ||
     kind === "html" ||
     kind === "link" ||
-    kind === "number"
+    kind === "number" ||
+    kind === "date"
   );
 }
 
 /**
- * Text, long-text, HTML, link, and whole-number rows from itemmanagement.
- * File, image, keyword, community, table, date, and float stay on the Content Editor.
+ * Text, long-text, HTML, link, whole-number, and calendar-date rows from itemmanagement.
+ * File, image, keyword, community, table, datetime, and float stay on the Content Editor.
  * Read-only rows are omitted so the overlay cannot write them.
  */
 export function scalarOverlayFields(
@@ -305,9 +362,10 @@ export function scalarOverlayFields(
     if (kind === "number" && (schema?.dataType ?? "").trim().toLowerCase() === "float") {
       continue;
     }
+    const rawValue = field.value ?? "";
     out.push({
       name: field.name,
-      value: field.value,
+      value: kind === "date" ? toWidgetValue("date", rawValue) : rawValue,
       label: schema?.label || field.name,
       kind,
       readOnly: false,
@@ -564,9 +622,40 @@ function mountLinkInput(
   }
 }
 
+function mountDateInput(
+  host: HTMLElement,
+  hit: OverlayFieldHit,
+  field: OverlayField,
+): void {
+  host.contentEditable = "false";
+  host.removeAttribute("contenteditable");
+  const input = host.ownerDocument.createElement("input");
+  input.type = "date";
+  input.value = toWidgetValue("date", field.value);
+  input.setAttribute("data-assembly-field", hit.name);
+  input.setAttribute("data-assembly-content-id", hit.contentId);
+  input.setAttribute("data-assembly-value", ASSEMBLY_VALUE_DATE);
+  input.setAttribute("data-testid", `assembly-inline-field-${hit.name}`);
+  input.setAttribute(DATE_INPUT_ATTR, hit.name);
+  input.setAttribute("aria-label", field.label || hit.name);
+  input.setAttribute(
+    "style",
+    "display:inline-block;margin-left:4px;color:#0f172a;background:#fff;border:1px solid #64748b;font:inherit;",
+  );
+  if (host.tagName === "A") {
+    host.insertAdjacentElement("afterend", input);
+  } else {
+    host.textContent = "";
+    host.appendChild(input);
+  }
+}
+
 /** Drop markers from a previous paint so a field that is no longer editable cannot be saved. */
 export function clearFieldOverlay(root: ParentNode): void {
   root.querySelectorAll(`input[${LINK_INPUT_ATTR}]`).forEach((el) => {
+    el.remove();
+  });
+  root.querySelectorAll(`input[${DATE_INPUT_ATTR}]`).forEach((el) => {
     el.remove();
   });
   root.querySelectorAll("[data-assembly-field]").forEach((el) => {
@@ -600,6 +689,10 @@ export function applyFieldOverlay(
     const field = fields.find((row) => row.name === hit.name);
     if (field?.kind === "link") {
       mountLinkInput(html, hit, field);
+      continue;
+    }
+    if (field?.kind === "date") {
+      mountDateInput(html, hit, field);
       continue;
     }
     html.contentEditable = "true";
@@ -677,6 +770,9 @@ function readNodeValue(el: Element): string {
     if (valueKind === ASSEMBLY_VALUE_NUMBER) {
       return raw.trim();
     }
+    if (valueKind === ASSEMBLY_VALUE_DATE) {
+      return raw.trim();
+    }
     return raw;
   }
   if (valueKind === ASSEMBLY_VALUE_HTML) {
@@ -686,6 +782,9 @@ function readNodeValue(el: Element): string {
     return longTextFromElement(el);
   }
   if (valueKind === ASSEMBLY_VALUE_NUMBER) {
+    return (el.textContent ?? "").trim();
+  }
+  if (valueKind === ASSEMBLY_VALUE_DATE) {
     return (el.textContent ?? "").trim();
   }
   const text = (el.textContent ?? "").trim();
@@ -727,6 +826,7 @@ export function readOverlayEdits(
       value: readNodeValue(el),
       ...(valueKind === ASSEMBLY_VALUE_LINK ? { dataType: "link" } : {}),
       ...(valueKind === ASSEMBLY_VALUE_NUMBER ? { dataType: "integer" } : {}),
+      ...(valueKind === ASSEMBLY_VALUE_DATE ? { dataType: "date" } : {}),
     });
   });
   return edits;
