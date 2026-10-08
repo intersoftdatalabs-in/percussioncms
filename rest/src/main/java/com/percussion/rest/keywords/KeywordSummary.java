@@ -38,12 +38,18 @@ public class KeywordSummary {
   private String value;
   private String description;
   private Integer sequence;
+
+  /**
+   * Live Jackson uses the getter as the collection setter and adds elements here without calling
+   * {@link #setChoices(List)}. The list must be this field, not a throwaway from {@link
+   * #getChoices()}. An omitted property leaves it empty and does not replace stored choices.
+   */
   private List<KeywordChoiceSummary> choices = new ArrayList<>();
 
   /**
-   * True only when the request included {@code choices}. An omitted property, or JSON {@code null},
-   * leaves this false so an update can change the keyword description without replacing stored
-   * choices. An empty array is present and clears choices.
+   * True when {@link #setChoices(List)} was called with a list, including an empty array. Getter
+   * mutation of a non-empty {@link #choices} does not set this; {@link #isChoicesSpecified()}
+   * checks both.
    */
   @JsonIgnore @XmlTransient private boolean choicesSpecified;
 
@@ -90,6 +96,9 @@ public class KeywordSummary {
   }
 
   public List<KeywordChoiceSummary> getChoices() {
+    if (choices == null) {
+      choices = new ArrayList<>();
+    }
     return choices;
   }
 
@@ -107,10 +116,14 @@ public class KeywordSummary {
     this.choices = choices;
   }
 
-  /** Whether {@link #setChoices(List)} was called with a list, including an empty list. */
+  /**
+   * Whether the request included {@code choices}, including an empty list. True when {@link
+   * #setChoices(List)} stored a list, or when Jackson added choices through {@link #getChoices()}
+   * without that setter.
+   */
   @JsonIgnore
   @XmlTransient
   public boolean isChoicesSpecified() {
-    return choicesSpecified;
+    return choicesSpecified || (choices != null && !choices.isEmpty());
   }
 }

@@ -267,7 +267,7 @@ test.describe("Developer set a keyword description (#5365)", () => {
     await page.reload({ waitUntil: "networkidle" });
     await openKeywords(page);
     await expect(
-      page.locator('[data-testid="developer-kw-row"]').filter({ hasText: label }),
+      page.locator('[data-testid^="developer-kw-row-"]').filter({ hasText: label }),
     ).toContainText("note");
     await openKeyword(page, label);
     await expect(keywordDescriptionText(page)).toHaveAttribute("data-keyword-description", "note");

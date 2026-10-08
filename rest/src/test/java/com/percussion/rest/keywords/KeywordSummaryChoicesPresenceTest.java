@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.rest.JacksonContextResolver;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
@@ -86,6 +88,39 @@ class KeywordSummaryChoicesPresenceTest {
     KeywordSummary body = new KeywordSummary();
     body.setChoices(List.of(new KeywordChoiceSummary()));
     body.setChoices(null);
+
+    assertFalse(body.isChoicesSpecified());
+    assertTrue(body.getChoices().isEmpty());
+  }
+
+  @Test
+  void omittedFieldIsNotSpecified() {
+    KeywordSummary body = new KeywordSummary();
+
+    assertFalse(body.isChoicesSpecified());
+    assertTrue(body.getChoices().isEmpty());
+  }
+
+  @Test
+  void getterMutationWithoutSetterStillCountsAsSpecified() {
+    KeywordSummary body = new KeywordSummary();
+    assertFalse(body.isChoicesSpecified());
+
+    KeywordChoiceSummary choice = new KeywordChoiceSummary();
+    choice.setLabel("Low");
+    choice.setDescription("bottom");
+    body.getChoices().add(choice);
+
+    assertTrue(body.isChoicesSpecified());
+    assertEquals("bottom", body.getChoices().get(0).getDescription());
+  }
+
+  @Test
+  void emptyListWithoutSetterIsNotSpecified() throws Exception {
+    KeywordSummary body = new KeywordSummary();
+    Field field = KeywordSummary.class.getDeclaredField("choices");
+    field.setAccessible(true);
+    field.set(body, new ArrayList<KeywordChoiceSummary>());
 
     assertFalse(body.isChoicesSpecified());
     assertTrue(body.getChoices().isEmpty());
