@@ -102,6 +102,17 @@ test.describe("React Content Editor long-text NUL", () => {
         }
         pageErrors.push(text);
       });
+      // Catch editor lookups the scenario does not exercise so they stay in
+      // the browser. Later, more specific routes override these.
+      await page.route("**/sys_resources/**", (route) =>
+        route.fulfill({ status: 404, body: "" }),
+      );
+      await page.route("**/services/**", (route) =>
+        route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/**", (route) =>
+        route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+      );
       await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
         route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
       );
