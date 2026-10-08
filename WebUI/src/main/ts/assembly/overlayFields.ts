@@ -19,15 +19,22 @@
  * Map known text, long-text, HTML, link, whole-number, and calendar-date
  * itemmanagement fields onto assembled preview nodes and persist edits through
  * the same fields API as the React editor. Does not open leftover Active
- * Assembly or Content Editor HTML. Datetime stays on the Content Editor.
+ * Assembly or Content Editor HTML. Float stays on the Content Editor.
  */
 
 import type { ContentTypeFieldSummary } from "../api/developer/types";
 import { classifyEditorControl } from "../editor/controlKinds";
-import { toWidgetValue } from "../editor/dateField";
+import { fromWidgetValue, toWidgetValue } from "../editor/dateField";
 import type { ItemEditorField, ItemEditorFields } from "../editor/itemFieldsApi";
 
-export type OverlayFieldKind = "text" | "longtext" | "html" | "link" | "number" | "date";
+export type OverlayFieldKind =
+  | "text"
+  | "longtext"
+  | "html"
+  | "link"
+  | "number"
+  | "date"
+  | "datetime";
 
 /** Assembled HTML nodes store markup in innerHTML, not stripped text. */
 export const ASSEMBLY_VALUE_HTML = "html";
@@ -46,6 +53,12 @@ export const ASSEMBLY_VALUE_NUMBER = "number";
 
 /** Calendar-date edits send {@code dataType: date} and {@code yyyy-MM-dd}. */
 export const ASSEMBLY_VALUE_DATE = "date";
+
+/**
+ * Datetime edits send {@code dataType: datetime} and {@code yyyy-MM-dd HH:mm:ss}.
+ * The picker value is {@code yyyy-MM-ddTHH:mm}.
+ */
+export const ASSEMBLY_VALUE_DATETIME = "datetime";
 
 const WHOLE_NUMBER_RE = /^-?\d+$/;
 
@@ -72,6 +85,48 @@ export function calendarDateText(value: string): string | null {
   }
   const widget = toWidgetValue("date", text);
   return widget === text ? text : null;
+}
+
+/**
+ * CMS datetime ({@code yyyy-MM-dd HH:mm:ss}), or null when blank or not a
+ * date and time. A blank is not a datetime; callers decide whether a blank
+ * may clear an optional field.
+ */
+export function datetimeText(value: string): string | null {
+  const text = value.trim();
+  if (!text) {
+    return null;
+  }
+  const widget = toWidgetValue("datetime", text);
+  if (!widget) {
+    return null;
+  }
+  const cms = fromWidgetValue("datetime", widget);
+  if (text === widget || text === cms) {
+    return cms;
+  }
+  const kept = fromWidgetValue("datetime", text);
+  if (kept === text && toWidgetValue("datetime", kept) === widget) {
+    return kept;
+  }
+  return null;
+}
+
+/**
+ * Value read from a datetime picker. Blank stays blank. A valid picker or
+ * CMS value becomes {@code yyyy-MM-dd HH:mm:ss}. Anything else is returned
+ * unchanged so the save can refuse it.
+ */
+export function assemblyDatetimeValue(raw: string): string {
+  const text = raw.trim();
+  if (!text) {
+    return "";
+  }
+  const widget = toWidgetValue("datetime", text);
+  if (!widget) {
+    return text;
+  }
+  return fromWidgetValue("datetime", widget);
 }
 
 /**
@@ -328,6 +383,77 @@ export function invalidChangedDateFieldNames(
   return names;
 }
 
+/**
+ * Required datetime fields whose current value is blank or whitespace.
+ * An optional blank is a clear and is not named here. A non-blank value that
+ * is not a date and time is not named here. Calendar dates, numbers, and
+ * text are not checked. Later edits for the same name win.
+ */
+export function blankRequiredDatetimeFieldNames(
+  fields: readonly (Pick<OverlayField, "name" | "kind" | "value"> & {
+    required?: boolean;
+  })[],
+  edits: readonly Pick<OverlayFieldEdit, "name" | "value">[],
+): string[] {
+  const values = new Map<string, string>();
+  for (const edit of edits) {
+    values.set(edit.name, edit.value);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "datetime" || field.required !== true) {
+      continue;
+    }
+    const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
+    if (value.trim().length === 0) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/**
+ * Datetime fields the author changed to something other than one date and time.
+ * A blank is not listed: a required blank is {@link blankRequiredDatetimeFieldNames},
+ * and an optional blank may clear. Unchanged values, including a blank that was
+ * already stored, are not listed. Calendar dates, numbers, and text are not checked.
+ */
+export function invalidChangedDatetimeFieldNames(
+  fields: readonly (Pick<OverlayField, "name" | "kind" | "value"> & {
+    required?: boolean;
+  })[],
+  edits: readonly Pick<OverlayFieldEdit, "contentId" | "name" | "value">[],
+  baseline: ReadonlyMap<string, string>,
+): string[] {
+  const latest = new Map<string, (typeof edits)[number]>();
+  for (const edit of edits) {
+    latest.set(edit.name, edit);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "datetime") {
+      continue;
+    }
+    const edit = latest.get(field.name);
+    if (!edit) {
+      continue;
+    }
+    const previous = baseline.has(overlayEditKey(edit))
+      ? (baseline.get(overlayEditKey(edit)) ?? "")
+      : field.value;
+    if (edit.value.trim() === previous.trim()) {
+      continue;
+    }
+    if (edit.value.trim().length === 0) {
+      continue;
+    }
+    if (datetimeText(edit.value) == null) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
 /** Mark overlay controls invalid when a required-text save was refused. */
 export function markAssemblyFieldErrors(
   root: ParentNode | null,
@@ -353,6 +479,7 @@ export function markAssemblyFieldErrors(
 
 const LINK_INPUT_ATTR = "data-assembly-link-input";
 const DATE_INPUT_ATTR = "data-assembly-date-input";
+const DATETIME_INPUT_ATTR = "data-assembly-datetime-input";
 
 export interface OverlayField {
   name: string;
@@ -360,7 +487,7 @@ export interface OverlayField {
   label: string;
   kind: OverlayFieldKind;
   readOnly: boolean;
-  /** Content-type required flag. Single-line text, whole numbers, and calendar dates are enforced on save. */
+  /** Content-type required flag. Single-line text, whole numbers, calendar dates, and datetimes are enforced on save. */
   required: boolean;
 }
 
@@ -413,14 +540,15 @@ export function isOverlayFieldKind(kind: string): kind is OverlayFieldKind {
     kind === "html" ||
     kind === "link" ||
     kind === "number" ||
-    kind === "date"
+    kind === "date" ||
+    kind === "datetime"
   );
 }
 
 /**
- * Text, long-text, HTML, link, whole-number, and calendar-date rows from itemmanagement.
- * File, image, keyword, community, table, datetime, and float stay on the Content Editor.
- * Read-only rows are omitted so the overlay cannot write them.
+ * Text, long-text, HTML, link, whole-number, calendar-date, and datetime rows
+ * from itemmanagement. File, image, keyword, community, table, and float stay
+ * on the Content Editor. Read-only rows are omitted so the overlay cannot write them.
  */
 export function scalarOverlayFields(
   payload: ItemEditorFields,
@@ -438,9 +566,15 @@ export function scalarOverlayFields(
       continue;
     }
     const rawValue = field.value ?? "";
+    const value =
+      kind === "date"
+        ? toWidgetValue("date", rawValue)
+        : kind === "datetime"
+          ? toWidgetValue("datetime", rawValue)
+          : rawValue;
     out.push({
       name: field.name,
-      value: kind === "date" ? toWidgetValue("date", rawValue) : rawValue,
+      value,
       label: schema?.label || field.name,
       kind,
       readOnly: false,
@@ -625,6 +759,41 @@ export function mapAssembledFieldElements(
       }
       continue;
     }
+    if (field.kind === "datetime") {
+      const widget = field.value.trim();
+      if (!widget) {
+        continue;
+      }
+      const cms = fromWidgetValue("datetime", widget);
+      const matches: Element[] = [];
+      candidates.forEach((el) => {
+        if (claimed.has(el) || SKIP_VALUE_TAGS.has(el.tagName)) {
+          return;
+        }
+        if (el.childElementCount > 0) {
+          return;
+        }
+        const text = (el.textContent ?? "").trim();
+        if (
+          text === widget ||
+          text === cms ||
+          (text.length > 0 && toWidgetValue("datetime", text) === widget)
+        ) {
+          matches.push(el);
+        }
+      });
+      if (matches.length === 1) {
+        const el = matches[0];
+        claimed.add(el);
+        hits.push({
+          contentId: owner,
+          name: field.name,
+          element: el,
+          source: "value",
+        });
+      }
+      continue;
+    }
     if (value.length < 2) {
       continue;
     }
@@ -729,12 +898,47 @@ function mountDateInput(
   }
 }
 
+function mountDatetimeInput(
+  host: HTMLElement,
+  hit: OverlayFieldHit,
+  field: OverlayField,
+): void {
+  host.contentEditable = "false";
+  host.removeAttribute("contenteditable");
+  const input = host.ownerDocument.createElement("input");
+  input.type = "datetime-local";
+  input.value = toWidgetValue("datetime", field.value);
+  input.setAttribute("data-assembly-field", hit.name);
+  input.setAttribute("data-assembly-content-id", hit.contentId);
+  input.setAttribute("data-assembly-value", ASSEMBLY_VALUE_DATETIME);
+  input.setAttribute("data-testid", `assembly-inline-field-${hit.name}`);
+  input.setAttribute(DATETIME_INPUT_ATTR, hit.name);
+  input.setAttribute("aria-label", field.label || hit.name);
+  if (field.required) {
+    input.setAttribute("aria-required", "true");
+    input.setAttribute("data-assembly-required", "true");
+  }
+  input.setAttribute(
+    "style",
+    "display:inline-block;margin-left:4px;color:#0f172a;background:#fff;border:1px solid #64748b;font:inherit;",
+  );
+  if (host.tagName === "A") {
+    host.insertAdjacentElement("afterend", input);
+  } else {
+    host.textContent = "";
+    host.appendChild(input);
+  }
+}
+
 /** Drop markers from a previous paint so a field that is no longer editable cannot be saved. */
 export function clearFieldOverlay(root: ParentNode): void {
   root.querySelectorAll(`input[${LINK_INPUT_ATTR}]`).forEach((el) => {
     el.remove();
   });
   root.querySelectorAll(`input[${DATE_INPUT_ATTR}]`).forEach((el) => {
+    el.remove();
+  });
+  root.querySelectorAll(`input[${DATETIME_INPUT_ATTR}]`).forEach((el) => {
     el.remove();
   });
   root.querySelectorAll("[data-assembly-field]").forEach((el) => {
@@ -773,6 +977,10 @@ export function applyFieldOverlay(
     }
     if (field?.kind === "date") {
       mountDateInput(html, hit, field);
+      continue;
+    }
+    if (field?.kind === "datetime") {
+      mountDatetimeInput(html, hit, field);
       continue;
     }
     html.contentEditable = "true";
@@ -858,6 +1066,9 @@ function readNodeValue(el: Element): string {
     if (valueKind === ASSEMBLY_VALUE_DATE) {
       return raw.trim();
     }
+    if (valueKind === ASSEMBLY_VALUE_DATETIME) {
+      return assemblyDatetimeValue(raw);
+    }
     return raw;
   }
   if (valueKind === ASSEMBLY_VALUE_HTML) {
@@ -872,6 +1083,9 @@ function readNodeValue(el: Element): string {
   if (valueKind === ASSEMBLY_VALUE_DATE) {
     return (el.textContent ?? "").trim();
   }
+  if (valueKind === ASSEMBLY_VALUE_DATETIME) {
+    return assemblyDatetimeValue(el.textContent ?? "");
+  }
   const text = (el.textContent ?? "").trim();
   return valueKind === ASSEMBLY_VALUE_TEXT ? singleLineText(text) : text;
 }
@@ -879,7 +1093,11 @@ function readNodeValue(el: Element): string {
 function writeNodeValue(el: Element, value: string): void {
   const valueKind = el.getAttribute("data-assembly-value");
   if (isFormValueElement(el)) {
-    (el as HTMLInputElement).value = value;
+    const next =
+      valueKind === ASSEMBLY_VALUE_DATETIME
+        ? toWidgetValue("datetime", value) || value
+        : value;
+    (el as HTMLInputElement).value = next;
     return;
   }
   if (valueKind === ASSEMBLY_VALUE_HTML) {
@@ -912,6 +1130,7 @@ export function readOverlayEdits(
       ...(valueKind === ASSEMBLY_VALUE_LINK ? { dataType: "link" } : {}),
       ...(valueKind === ASSEMBLY_VALUE_NUMBER ? { dataType: "integer" } : {}),
       ...(valueKind === ASSEMBLY_VALUE_DATE ? { dataType: "date" } : {}),
+      ...(valueKind === ASSEMBLY_VALUE_DATETIME ? { dataType: "datetime" } : {}),
     });
   });
   return edits;

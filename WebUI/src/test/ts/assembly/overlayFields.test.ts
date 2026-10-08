@@ -27,11 +27,15 @@ import {
   longTextValue,
   readOverlayEdits,
   restoreOverlayValues,
+  assemblyDatetimeValue,
   blankRequiredDateFieldNames,
+  blankRequiredDatetimeFieldNames,
   blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
   calendarDateText,
+  datetimeText,
   invalidChangedDateFieldNames,
+  invalidChangedDatetimeFieldNames,
   invalidChangedNumberFieldNames,
   markAssemblyFieldErrors,
   scalarOverlayFields,
@@ -969,7 +973,7 @@ describe("calendar date overlay fields", () => {
     ],
   };
 
-  it("keeps a calendar date and omits datetime and read-only dates", () => {
+  it("keeps a calendar date and a datetime and omits a read-only date", () => {
     const rows = scalarOverlayFields(datePayload, [
       {
         name: "event_on",
@@ -997,7 +1001,11 @@ describe("calendar date overlay fields", () => {
       value: OLD_DATE,
       label: "Event on",
     });
-    expect(rows.some((row) => row.name === "event_at")).toBe(false);
+    expect(rows.find((row) => row.name === "event_at")).toMatchObject({
+      kind: "datetime",
+      value: "2026-10-07T15:30",
+      label: "Event at",
+    });
     expect(rows.some((row) => row.name === "locked_on")).toBe(false);
     expect(rows.find((row) => row.name === "displaytitle")?.kind).toBe("text");
   });
@@ -1176,5 +1184,254 @@ describe("calendar date overlay fields", () => {
     });
     expect(saved.fields.find((field) => field.name === "notes")?.value).toBe("A long note");
     expect(saved.fields.find((field) => field.name === "notes")?.dataType).toBeUndefined();
+  });
+});
+
+describe("datetime overlay fields", () => {
+  const OLD_AT = "2026-10-07 15:30:00";
+  const OLD_WIDGET = "2026-10-07T15:30";
+  const NEW_AT = "2026-11-02 09:05:00";
+  const NEW_WIDGET = "2026-11-02T09:05";
+  const datetimePayload: ItemEditorFields = {
+    ...payload,
+    fields: [
+      { name: "event_at", value: OLD_AT },
+      { name: "locked_at", value: "2026-01-01 08:00:00" },
+      { name: "event_on", value: "2026-10-07" },
+      { name: "displaytitle", value: "Welcome" },
+    ],
+  };
+  const datetimeSchema = [
+    {
+      name: "event_at",
+      label: "Event at",
+      control: "sys_CalendarSimple",
+      dataType: "datetime",
+    },
+    { name: "displaytitle", control: "sys_EditBox" },
+  ];
+
+  it("normalizes a stored datetime to the picker and omits a read-only datetime", () => {
+    const rows = scalarOverlayFields(datetimePayload, [
+      ...datetimeSchema,
+      {
+        name: "locked_at",
+        label: "Locked at",
+        control: "sys_CalendarSimple",
+        dataType: "datetime",
+        readOnly: true,
+      },
+      { name: "event_on", control: "sys_CalendarSimple", dataType: "date" },
+    ]);
+    expect(rows.find((row) => row.name === "event_at")).toMatchObject({
+      kind: "datetime",
+      value: OLD_WIDGET,
+      label: "Event at",
+      required: false,
+    });
+    expect(rows.some((row) => row.name === "locked_at")).toBe(false);
+    expect(rows.find((row) => row.name === "event_on")?.kind).toBe("date");
+  });
+
+  it("reads one assembled datetime as CMS text and restores the picker", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<span data-perc-field="event_at">${OLD_AT}</span><h1 data-perc-field="displaytitle">Welcome</h1>`;
+    const fields = scalarOverlayFields(datetimePayload, datetimeSchema);
+    const hits = applyFieldOverlay(root, fields, "42");
+    expect(hits.find((hit) => hit.name === "event_at")?.source).toBe("marker");
+    const eventAt = root.querySelector(
+      '[data-testid="assembly-inline-field-event_at"]',
+    ) as HTMLInputElement;
+    expect(eventAt.tagName).toBe("INPUT");
+    expect(eventAt.type).toBe("datetime-local");
+    expect(eventAt.getAttribute("data-assembly-value")).toBe("datetime");
+    expect(eventAt.value).toBe(OLD_WIDGET);
+    eventAt.value = NEW_WIDGET;
+    expect(assemblyDatetimeValue(NEW_WIDGET)).toBe(NEW_AT);
+    expect(datetimeText(NEW_AT)).toBe(NEW_AT);
+    expect(datetimeText("")).toBeNull();
+    expect(datetimeText("2026-02-31T09:05")).toBeNull();
+    expect(datetimeText("not-a-date")).toBeNull();
+    expect(readOverlayEdits(root, "42")).toEqual(
+      expect.arrayContaining([
+        { contentId: "42", name: "event_at", value: NEW_AT, dataType: "datetime" },
+        { contentId: "42", name: "displaytitle", value: "Welcome" },
+      ]),
+    );
+    restoreOverlayValues(root, fields);
+    expect(eventAt.value).toBe(OLD_WIDGET);
+  });
+
+  it("matches a unique assembled datetime string when there is no marker", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<p>${OLD_AT}</p><h1>Welcome</h1>`;
+    const fields = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [
+          { name: "event_at", value: OLD_AT },
+          { name: "displaytitle", value: "Welcome" },
+        ],
+      },
+      datetimeSchema,
+    );
+    const hits = applyFieldOverlay(root, fields, "42");
+    expect(hits.find((hit) => hit.name === "event_at")?.source).toBe("value");
+    const eventAt = root.querySelector(
+      '[data-testid="assembly-inline-field-event_at"]',
+    ) as HTMLInputElement;
+    expect(eventAt.value).toBe(OLD_WIDGET);
+  });
+
+  it("names an invalid datetime change and allows an optional clear", () => {
+    const fields = [
+      { name: "event_at", kind: "datetime" as const, value: OLD_WIDGET },
+      { name: "optional_at", kind: "datetime" as const, value: "" },
+      { name: "displaytitle", kind: "text" as const, value: "Welcome" },
+    ];
+    const baseline = new Map<string, string>([
+      ["42\nevent_at", OLD_AT],
+      ["42\noptional_at", ""],
+      ["42\ndisplaytitle", "Welcome"],
+    ]);
+    expect(
+      invalidChangedDatetimeFieldNames(
+        fields,
+        [
+          { contentId: "42", name: "event_at", value: "" },
+          { contentId: "42", name: "optional_at", value: "" },
+          { contentId: "42", name: "displaytitle", value: "nope" },
+        ],
+        baseline,
+      ),
+    ).toEqual([]);
+    expect(
+      invalidChangedDatetimeFieldNames(
+        fields,
+        [{ contentId: "42", name: "event_at", value: "not-a-date" }],
+        baseline,
+      ),
+    ).toEqual(["event_at"]);
+    expect(
+      invalidChangedDatetimeFieldNames(
+        fields,
+        [{ contentId: "42", name: "event_at", value: NEW_AT }],
+        baseline,
+      ),
+    ).toEqual([]);
+    expect(
+      invalidChangedDatetimeFieldNames(
+        [{ name: "event_at", kind: "datetime", value: OLD_WIDGET, required: true }],
+        [{ contentId: "42", name: "event_at", value: "   " }],
+        baseline,
+      ),
+    ).toEqual([]);
+  });
+
+  it("names a blank or whitespace required datetime and ignores an optional clear", () => {
+    const fields = [
+      { name: "event_at", kind: "datetime" as const, required: true, value: OLD_WIDGET },
+      { name: "optional_at", kind: "datetime" as const, required: false, value: OLD_WIDGET },
+      { name: "displaytitle", kind: "text" as const, required: true, value: "Welcome" },
+    ];
+    expect(
+      blankRequiredDatetimeFieldNames(fields, [
+        { name: "event_at", value: "" },
+        { name: "optional_at", value: "" },
+        { name: "displaytitle", value: "   " },
+      ]),
+    ).toEqual(["event_at"]);
+    expect(
+      blankRequiredDatetimeFieldNames(fields, [{ name: "event_at", value: "  \n  " }]),
+    ).toEqual(["event_at"]);
+    expect(
+      blankRequiredDatetimeFieldNames(fields, [{ name: "event_at", value: NEW_AT }]),
+    ).toEqual([]);
+    expect(
+      blankRequiredDatetimeFieldNames(fields, [{ name: "event_at", value: "not-a-date" }]),
+    ).toEqual([]);
+  });
+
+  it("marks a required datetime on the assembled node", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<span data-perc-field="event_at">${OLD_AT}</span>`;
+    const fields = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [{ name: "event_at", value: OLD_AT }],
+      },
+      [
+        {
+          name: "event_at",
+          label: "Event at",
+          control: "sys_CalendarSimple",
+          dataType: "datetime",
+          required: true,
+        },
+      ],
+    );
+    expect(fields[0]?.required).toBe(true);
+    applyFieldOverlay(root, fields, "42");
+    const eventAt = root.querySelector(
+      '[data-testid="assembly-inline-field-event_at"]',
+    ) as HTMLInputElement;
+    expect(eventAt.getAttribute("aria-required")).toBe("true");
+    expect(eventAt.getAttribute("data-assembly-required")).toBe("true");
+  });
+
+  it("persists one datetime with dataType datetime and leaves other fields", async () => {
+    const mixed: ItemEditorFields = {
+      ...payload,
+      fields: [
+        { name: "event_at", value: OLD_AT },
+        { name: "displaytitle", value: "Welcome" },
+        { name: "notes", value: "A long note" },
+      ],
+    };
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => body);
+    await persistOverlayEdits({
+      ownerId: "42",
+      ownerPayload: mixed,
+      edits: [{ contentId: "42", name: "event_at", value: NEW_AT, dataType: "datetime" }],
+      loadFields: vi.fn(),
+      saveFields,
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "event_at")).toEqual({
+      name: "event_at",
+      value: NEW_AT,
+      dataType: "datetime",
+    });
+    expect(saved.fields.find((field) => field.name === "displaytitle")).toEqual({
+      name: "displaytitle",
+      value: "Welcome",
+    });
+    expect(saved.fields.find((field) => field.name === "notes")?.value).toBe("A long note");
+    expect(saved.fields.find((field) => field.name === "notes")?.dataType).toBeUndefined();
+  });
+
+  it("persists an optional datetime clear as a blank value", async () => {
+    const mixed: ItemEditorFields = {
+      ...payload,
+      fields: [
+        { name: "event_at", value: OLD_AT },
+        { name: "displaytitle", value: "Welcome" },
+      ],
+    };
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => body);
+    await persistOverlayEdits({
+      ownerId: "42",
+      ownerPayload: mixed,
+      edits: [{ contentId: "42", name: "event_at", value: "", dataType: "datetime" }],
+      loadFields: vi.fn(),
+      saveFields,
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "event_at")).toEqual({
+      name: "event_at",
+      value: "",
+      dataType: "datetime",
+    });
+    expect(saved.fields.find((field) => field.name === "displaytitle")?.value).toBe("Welcome");
   });
 });
