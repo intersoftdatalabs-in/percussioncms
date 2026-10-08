@@ -55,6 +55,12 @@ import {
   openSnippetLibrary,
 } from "./SnippetLibraryDialog";
 import {
+  savedTemplateDescription,
+  storedTemplateDescription,
+  templateDescriptionWrite,
+} from "./templateDescription";
+import { TPL_DESC_MSG } from "./templateDescriptionMessages";
+import {
   SOURCE_TOKEN_COLORS,
   copyTextToClipboard,
   highlightTemplateSource,
@@ -113,11 +119,21 @@ const inputStyle: React.CSSProperties = {
 function asBindingList(raw: unknown): TemplateBindingSummary[] {
   if (Array.isArray(raw)) return raw;
   if (raw && typeof raw === "object") {
-    const env = raw as { Binding?: unknown; TemplateBinding?: unknown };
+    const env = raw as {
+      Binding?: unknown;
+      TemplateBinding?: unknown;
+      variable?: unknown;
+      expression?: unknown;
+      executionOrder?: unknown;
+    };
     const nested = env.Binding ?? env.TemplateBinding;
     if (Array.isArray(nested)) return nested as TemplateBindingSummary[];
     if (nested && typeof nested === "object") {
       return [nested as TemplateBindingSummary];
+    }
+    // Jackson emits one binding as the object itself, not a one-element array.
+    if ("variable" in env || "expression" in env || "executionOrder" in env) {
+      return [raw as TemplateBindingSummary];
     }
   }
   return [];
@@ -144,7 +160,7 @@ function cloneBindings(list: unknown): TemplateBindingSummary[] {
   return asBindingList(list).map((b) => ({
     executionOrder: b.executionOrder,
     variable: b.variable || "",
-    expression: b.expression || "",
+    expression: b.expression == null ? "" : String(b.expression),
   }));
 }
 
@@ -255,11 +271,14 @@ export function TemplateDetailPanel({
   idOrName,
   catalogGuid,
   onBack,
+  onSaved,
 }: {
   idOrName: string;
   /** GUID from catalog list (templateId synthesis) when detail omits Guid (#3319). */
   catalogGuid?: string | null;
   onBack: () => void;
+  /** Refresh the catalog after a successful template update. */
+  onSaved?: (detail: TemplateDetail) => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<TemplateDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -268,6 +287,12 @@ export function TemplateDetailPanel({
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionShown, setDescriptionShown] = useState("");
+  const [descriptionEditing, setDescriptionEditing] = useState(false);
+  const [descriptionDraft, setDescriptionDraft] = useState("");
+  const [descriptionError, setDescriptionError] = useState<string | null>(null);
+  const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
+  const [descriptionBusy, setDescriptionBusy] = useState(false);
   const [source, setSource] = useState("");
   const [bindings, setBindings] = useState<TemplateBindingSummary[]>([]);
   const [slotKeys, setSlotKeys] = useState<Set<string>>(new Set());
@@ -282,6 +307,7 @@ export function TemplateDetailPanel({
   const [heldLock, setHeldLock] = useState(false);
   const heldLockRef = useRef(false);
   const inflight = useRef(false);
+  const descriptionInflight = useRef(false);
   /** Pending caret after snippet insert (applied when textarea remounts/edits). */
   const pendingCaretRef = useRef<number | null>(null);
   /** Row indices with expanded long binding expressions (UI-SRC-02). */
@@ -314,6 +340,11 @@ export function TemplateDetailPanel({
           setDetail(d);
           setLabel(d?.label || "");
           setDescription(d?.description || "");
+          setDescriptionShown(storedTemplateDescription(d?.description));
+          setDescriptionEditing(false);
+          setDescriptionDraft("");
+          setDescriptionError(null);
+          setDescriptionNotice(null);
           setSource(sourceText);
           setBindings(cloneBindings(d?.bindings));
           setExpandedExprRows(new Set());
@@ -530,12 +561,94 @@ export function TemplateDetailPanel({
     onBack();
   }
 
+  function descriptionSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return TPL_DESC_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return TPL_DESC_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return TPL_DESC_MSG.CONFLICT;
+    return TPL_DESC_MSG.ERROR;
+  }
+
+  function startDescriptionEdit(): void {
+    if (!detail || busy || descriptionBusy || descriptionInflight.current || inflight.current) {
+      return;
+    }
+    setDescriptionDraft(descriptionShown);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    setDescriptionEditing(true);
+  }
+
+  function cancelDescriptionEdit(): void {
+    if (descriptionBusy || descriptionInflight.current) return;
+    setDescriptionEditing(false);
+    setDescriptionDraft("");
+    setDescriptionError(null);
+  }
+
+  async function handleDescriptionSave(): Promise<void> {
+    if (
+      !detail ||
+      !descriptionEditing ||
+      !heldLock ||
+      descriptionBusy ||
+      descriptionInflight.current ||
+      inflight.current ||
+      busy
+    ) {
+      if (!heldLock && descriptionEditing && !descriptionBusy) {
+        setDescriptionError(DEV_MSG.TPL_LOCK_REQUIRED);
+      }
+      return;
+    }
+    const sent = templateDescriptionWrite(detail, descriptionDraft);
+    if (sent === "unchanged") {
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
+      setDescriptionError(null);
+      return;
+    }
+    descriptionInflight.current = true;
+    setDescriptionBusy(true);
+    setBusy(true);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    const previousShown = descriptionShown;
+    try {
+      const saved = await updateTemplateDetail(idOrName, sent);
+      const accepted = savedTemplateDescription(sent, detail, saved);
+      if (accepted == null) {
+        setDescription(previousShown);
+        setDescriptionShown(previousShown);
+        setDescriptionError(TPL_DESC_MSG.ERROR);
+        setDescriptionNotice(null);
+        return;
+      }
+      const nextDetail: TemplateDetail = { ...detail, description: accepted };
+      setDetail(nextDetail);
+      setDescription(accepted);
+      setDescriptionShown(accepted);
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
+      setDescriptionNotice(accepted ? TPL_DESC_MSG.SAVED : TPL_DESC_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setDescription(previousShown);
+      setDescriptionShown(previousShown);
+      setDescriptionError(panelErrMsg(err, descriptionSaveFallback(err)));
+      setDescriptionNotice(null);
+    } finally {
+      descriptionInflight.current = false;
+      setDescriptionBusy(false);
+      setBusy(false);
+    }
+  }
+
   async function handleSave() {
     if (!heldLock) {
       setError(DEV_MSG.TPL_LOCK_REQUIRED);
       return;
     }
-    if (inflight.current) return;
+    if (inflight.current || descriptionInflight.current || descriptionEditing) return;
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -585,6 +698,11 @@ export function TemplateDetailPanel({
       setDetail(saved);
       setLabel(saved.label || "");
       setDescription(saved.description || "");
+      setDescriptionShown(storedTemplateDescription(saved.description));
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
+      setDescriptionError(null);
+      setDescriptionNotice(null);
       setSource(asSourceText(saved.templateSource));
       setBindings(cloneBindings(saved.bindings));
       setSlotKeys(
@@ -597,6 +715,7 @@ export function TemplateDetailPanel({
       setContentTypes(cloneNamedObjectRefs(saved.associatedContentTypes));
       setCtError(null);
       setNotice(DEV_MSG.TPL_SAVED);
+      onSaved?.(saved);
     } catch (err: unknown) {
       setError(panelErrMsg(err, DEV_MSG.TPL_SAVE_ERROR));
     } finally {
@@ -761,15 +880,18 @@ export function TemplateDetailPanel({
           type="button"
           data-testid="developer-tpl-save"
           aria-label={DEV_MSG.TPL_SAVE}
-          disabled={busy || !heldLock || !dirty}
+          disabled={busy || !heldLock || !dirty || descriptionEditing}
           onClick={() => void handleSave()}
           style={{
             padding: "8px 16px",
-            background: heldLock && dirty ? catalogColors.accent : catalogColors.disabled,
+            background:
+              heldLock && dirty && !descriptionEditing
+                ? catalogColors.accent
+                : catalogColors.disabled,
             color: "#fff",
             border: "none",
             borderRadius: "4px",
-            cursor: busy || !heldLock || !dirty ? "not-allowed" : "pointer",
+            cursor: busy || !heldLock || !dirty || descriptionEditing ? "not-allowed" : "pointer",
           }}
         >
           {DEV_MSG.TPL_SAVE}
@@ -834,9 +956,111 @@ export function TemplateDetailPanel({
                 data-testid="developer-tpl-description"
                 style={inputStyle}
                 value={description}
+                disabled={descriptionBusy}
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
+            <section
+              data-testid="developer-tpl-set-description"
+              aria-label={TPL_DESC_MSG.ACTION}
+              style={{ marginTop: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{TPL_DESC_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.9rem" }}>
+                {TPL_DESC_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-tpl-set-description-text"
+                data-tpl-description={descriptionShown}
+                style={{ marginTop: 0 }}
+              >
+                {descriptionShown}
+              </p>
+              {descriptionError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-tpl-set-description-error"
+                  style={{ color: catalogColors.error }}
+                >
+                  {descriptionError}
+                </div>
+              ) : null}
+              {descriptionNotice ? (
+                <div
+                  data-testid="developer-tpl-set-description-notice"
+                  style={{ color: "#276749" }}
+                >
+                  {descriptionNotice}
+                </div>
+              ) : null}
+              {descriptionEditing ? (
+                <div data-testid="developer-tpl-set-description-editor">
+                  <label htmlFor="tpl-set-description-input">{TPL_DESC_MSG.FIELD}</label>
+                  <input
+                    id="tpl-set-description-input"
+                    data-testid="developer-tpl-set-description-input"
+                    style={inputStyle}
+                    value={descriptionDraft}
+                    disabled={descriptionBusy}
+                    onChange={(e) => setDescriptionDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-tpl-set-description-save"
+                      aria-label={TPL_DESC_MSG.SAVE}
+                      disabled={descriptionBusy || !heldLock}
+                      onClick={() => void handleDescriptionSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background:
+                          descriptionBusy || !heldLock
+                            ? catalogColors.disabled
+                            : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: descriptionBusy ? "wait" : heldLock ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      {TPL_DESC_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-tpl-set-description-cancel"
+                      disabled={descriptionBusy}
+                      onClick={cancelDescriptionEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: descriptionBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {TPL_DESC_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-tpl-set-description-edit"
+                  aria-label={TPL_DESC_MSG.ACTION}
+                  disabled={busy || descriptionBusy}
+                  onClick={startDescriptionEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {TPL_DESC_MSG.ACTION}
+                </button>
+              )}
+            </section>
             <dl style={metaGrid}>
               <dt>{DEV_MSG.TPL_META_ASSEMBLER}</dt>
               <dd style={{ margin: 0, ...monoCell }}>{detail.assembler || "—"}</dd>

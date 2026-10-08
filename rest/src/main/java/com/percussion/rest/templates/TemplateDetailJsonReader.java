@@ -111,9 +111,12 @@ public class TemplateDetailJsonReader implements MessageBodyReader<TemplateDetai
     JsonNode nested = firstObject(root, "TemplateDetail", "templateDetail");
     JsonNode fields = nested != null ? nested : root;
     JsonNode fieldsForDto = fields;
-    if (fields.isObject() && fields.has("associatedContentTypes")) {
+    if (fields.isObject()) {
       ObjectNode copy = (ObjectNode) fields.deepCopy();
+      // Defaults on these lists are "replace". Strip them so an omitted property stays null.
       copy.remove("associatedContentTypes");
+      copy.remove("bindings");
+      copy.remove("slots");
       fieldsForDto = copy;
     }
     TemplateDetail out;
@@ -129,7 +132,101 @@ public class TemplateDetailJsonReader implements MessageBodyReader<TemplateDetai
     if (fields.has("associatedContentTypes") && !fields.get("associatedContentTypes").isNull()) {
       out.setAssociatedContentTypes(refsFromNode(fields.get("associatedContentTypes")));
     }
+    out.setBindings(optionalList(fields, "bindings", TemplateDetailJsonReader::bindingsFromNode));
+    out.setSlots(optionalList(fields, "slots", TemplateDetailJsonReader::slotsFromNode));
     return out;
+  }
+
+  /**
+   * {@code null} when the property is omitted or JSON null (leave unchanged). A present value is
+   * the replacement list, including empty.
+   */
+  private static <T> List<T> optionalList(
+      JsonNode fields, String name, java.util.function.Function<JsonNode, List<T>> parse) {
+    if (fields == null || !fields.has(name) || fields.get(name).isNull()) {
+      return null;
+    }
+    return parse.apply(fields.get(name));
+  }
+
+  static List<TemplateBindingSummary> bindingsFromNode(JsonNode raw) {
+    if (raw == null || raw.isNull() || raw.isMissingNode()) {
+      return new ArrayList<>();
+    }
+    if (raw.isArray()) {
+      List<TemplateBindingSummary> out = new ArrayList<>();
+      for (JsonNode n : raw) {
+        TemplateBindingSummary row = bindingFromNode(n);
+        if (row != null) {
+          out.add(row);
+        }
+      }
+      return out;
+    }
+    if (raw.isObject()) {
+      JsonNode wrapped = raw.get("TemplateBinding");
+      if (wrapped == null) {
+        wrapped = raw.get("Binding");
+      }
+      if (wrapped != null) {
+        return bindingsFromNode(wrapped);
+      }
+      TemplateBindingSummary row = bindingFromNode(raw);
+      if (row != null) {
+        return List.of(row);
+      }
+    }
+    return new ArrayList<>();
+  }
+
+  private static TemplateBindingSummary bindingFromNode(JsonNode n) {
+    if (n == null || n.isNull() || !n.isObject()) {
+      return null;
+    }
+    if (!n.has("variable") && !n.has("expression") && !n.has("executionOrder")) {
+      return null;
+    }
+    return MAPPER.convertValue(n, TemplateBindingSummary.class);
+  }
+
+  static List<TemplateSlotSummary> slotsFromNode(JsonNode raw) {
+    if (raw == null || raw.isNull() || raw.isMissingNode()) {
+      return new ArrayList<>();
+    }
+    if (raw.isArray()) {
+      List<TemplateSlotSummary> out = new ArrayList<>();
+      for (JsonNode n : raw) {
+        TemplateSlotSummary row = slotFromNode(n);
+        if (row != null) {
+          out.add(row);
+        }
+      }
+      return out;
+    }
+    if (raw.isObject()) {
+      JsonNode wrapped = raw.get("TemplateSlot");
+      if (wrapped == null) {
+        wrapped = raw.get("Slot");
+      }
+      if (wrapped != null) {
+        return slotsFromNode(wrapped);
+      }
+      TemplateSlotSummary row = slotFromNode(raw);
+      if (row != null) {
+        return List.of(row);
+      }
+    }
+    return new ArrayList<>();
+  }
+
+  private static TemplateSlotSummary slotFromNode(JsonNode n) {
+    if (n == null || n.isNull() || !n.isObject()) {
+      return null;
+    }
+    if (!n.has("name") && !n.has("guid") && !n.has("label")) {
+      return null;
+    }
+    return MAPPER.convertValue(n, TemplateSlotSummary.class);
   }
 
   static List<NamedObjectRef> refsFromNode(JsonNode raw) {
