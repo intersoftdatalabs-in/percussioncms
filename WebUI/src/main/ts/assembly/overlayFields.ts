@@ -254,13 +254,48 @@ export function invalidChangedNumberFieldNames(
 }
 
 /**
- * Date fields the author changed to blank or to something other than one calendar date.
- * Unchanged values, including a blank that was already stored, are not listed.
- * A blank change is named so the save can leave the stored date in place.
- * Datetime text is not a calendar date. Long text, HTML, link, and numbers are not checked.
+ * Required calendar-date fields whose current value is blank or whitespace.
+ * Optional dates stay on {@link invalidChangedDateFieldNames} so a clear is
+ * not written. A non-blank value that is not one calendar date is not named
+ * here. Long text, HTML, link, numbers, and single-line text are not checked.
+ * Later edits for the same name win so the overlay strip and the assembled
+ * node agree.
+ */
+export function blankRequiredDateFieldNames(
+  fields: readonly (Pick<OverlayField, "name" | "kind" | "value"> & {
+    required?: boolean;
+  })[],
+  edits: readonly Pick<OverlayFieldEdit, "name" | "value">[],
+): string[] {
+  const values = new Map<string, string>();
+  for (const edit of edits) {
+    values.set(edit.name, edit.value);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "date" || field.required !== true) {
+      continue;
+    }
+    const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
+    if (value.trim().length === 0) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/**
+ * Date fields the author changed to something other than one calendar date.
+ * A blank or whitespace required date is not listed; that refusal is
+ * {@link blankRequiredDateFieldNames}. An optional blank is still listed so
+ * a clear is not written. Unchanged values, including a blank that was already
+ * stored, are not listed. Datetime text is not a calendar date. Long text,
+ * HTML, link, and numbers are not checked.
  */
 export function invalidChangedDateFieldNames(
-  fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
+  fields: readonly (Pick<OverlayField, "name" | "kind" | "value"> & {
+    required?: boolean;
+  })[],
   edits: readonly Pick<OverlayFieldEdit, "contentId" | "name" | "value">[],
   baseline: ReadonlyMap<string, string>,
 ): string[] {
@@ -281,6 +316,9 @@ export function invalidChangedDateFieldNames(
       ? (baseline.get(overlayEditKey(edit)) ?? "")
       : field.value;
     if (edit.value.trim() === previous.trim()) {
+      continue;
+    }
+    if (field.required === true && edit.value.trim().length === 0) {
       continue;
     }
     if (calendarDateText(edit.value) == null) {
@@ -322,7 +360,7 @@ export interface OverlayField {
   label: string;
   kind: OverlayFieldKind;
   readOnly: boolean;
-  /** Content-type required flag. Single-line text and whole numbers are enforced on save. */
+  /** Content-type required flag. Single-line text, whole numbers, and calendar dates are enforced on save. */
   required: boolean;
 }
 
@@ -675,6 +713,10 @@ function mountDateInput(
   input.setAttribute("data-testid", `assembly-inline-field-${hit.name}`);
   input.setAttribute(DATE_INPUT_ATTR, hit.name);
   input.setAttribute("aria-label", field.label || hit.name);
+  if (field.required) {
+    input.setAttribute("aria-required", "true");
+    input.setAttribute("data-assembly-required", "true");
+  }
   input.setAttribute(
     "style",
     "display:inline-block;margin-left:4px;color:#0f172a;background:#fff;border:1px solid #64748b;font:inherit;",

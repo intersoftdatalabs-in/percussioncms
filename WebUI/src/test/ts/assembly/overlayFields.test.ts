@@ -27,6 +27,7 @@ import {
   longTextValue,
   readOverlayEdits,
   restoreOverlayValues,
+  blankRequiredDateFieldNames,
   blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
   calendarDateText,
@@ -1079,6 +1080,71 @@ describe("calendar date overlay fields", () => {
         baseline,
       ),
     ).toEqual([]);
+    expect(
+      invalidChangedDateFieldNames(
+        [{ name: "event_on", kind: "date", value: OLD_DATE, required: true }],
+        [{ contentId: "42", name: "event_on", value: "   " }],
+        baseline,
+      ),
+    ).toEqual([]);
+    expect(
+      invalidChangedDateFieldNames(
+        [{ name: "event_on", kind: "date", value: OLD_DATE, required: true }],
+        [{ contentId: "42", name: "event_on", value: "2026-10-07 15:30:00" }],
+        baseline,
+      ),
+    ).toEqual(["event_on"]);
+  });
+
+  it("names a blank or whitespace required date and ignores optional and other kinds", () => {
+    const fields = [
+      { name: "event_on", kind: "date" as const, required: true, value: OLD_DATE },
+      { name: "optional_on", kind: "date" as const, required: false, value: OLD_DATE },
+      { name: "displaytitle", kind: "text" as const, required: true, value: "Welcome" },
+    ];
+    expect(
+      blankRequiredDateFieldNames(fields, [
+        { name: "event_on", value: "" },
+        { name: "optional_on", value: "" },
+        { name: "displaytitle", value: "   " },
+      ]),
+    ).toEqual(["event_on"]);
+    expect(
+      blankRequiredDateFieldNames(fields, [{ name: "event_on", value: "  \n  " }]),
+    ).toEqual(["event_on"]);
+    expect(
+      blankRequiredDateFieldNames(fields, [{ name: "event_on", value: NEW_DATE }]),
+    ).toEqual([]);
+    expect(
+      blankRequiredDateFieldNames(fields, [{ name: "event_on", value: "2026-02-31" }]),
+    ).toEqual([]);
+  });
+
+  it("marks a required calendar date on the assembled node", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<span data-perc-field="event_on">${OLD_DATE}</span>`;
+    const fields = scalarOverlayFields(
+      {
+        ...datePayload,
+        fields: [{ name: "event_on", value: OLD_DATE }],
+      },
+      [
+        {
+          name: "event_on",
+          label: "Event on",
+          control: "sys_CalendarSimple",
+          dataType: "date",
+          required: true,
+        },
+      ],
+    );
+    expect(fields[0]?.required).toBe(true);
+    applyFieldOverlay(root, fields, "42");
+    const eventOn = root.querySelector(
+      '[data-testid="assembly-inline-field-event_on"]',
+    ) as HTMLInputElement;
+    expect(eventOn.getAttribute("aria-required")).toBe("true");
+    expect(eventOn.getAttribute("data-assembly-required")).toBe("true");
   });
 
   it("persists one calendar date with dataType date and leaves other fields", async () => {

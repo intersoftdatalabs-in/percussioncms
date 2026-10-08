@@ -2422,4 +2422,272 @@ describe("AssemblyHost", () => {
     expect(input.value).toBe(NEW_DATE);
     expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
   });
+
+  function requiredDateSchema(required = true) {
+    return {
+      fields: dateSchema.fields.map((field) =>
+        field.name === "event_on" ? { ...field, required } : field,
+      ),
+    };
+  }
+
+  it("does not save a blank required date and reloads the previous date", async () => {
+    const previewDoc = datePreviewDoc();
+    const saveFields = vi.fn();
+    renderDateHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(dateFields),
+      requiredDateSchema(),
+    );
+    await waitFor(() => {
+      expect(dateInput(previewDoc)).toBeTruthy();
+    });
+    const eventOn = dateInput(previewDoc);
+    expect(eventOn.getAttribute("aria-required")).toBe("true");
+    expect(eventOn.getAttribute("data-assembly-required")).toBe("true");
+    expect(
+      screen.getByTestId("assembly-field-chip-event_on").getAttribute("data-required"),
+    ).toBe("true");
+    eventOn.value = "";
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-event_on").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/required/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /calendar date/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /fields saved/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(eventOn.getAttribute("aria-invalid")).toBe("true");
+    expect(eventOn.value).toBe("");
+    cleanup();
+    const reloaded = datePreviewDoc();
+    renderDateHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(dateFields),
+      requiredDateSchema(),
+    );
+    await waitFor(() => {
+      expect(dateInput(reloaded).value).toBe(OLD_DATE);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+  });
+
+  it("does not save whitespace-only required date and keeps the previous value", async () => {
+    const previewDoc = datePreviewDoc();
+    const saveFields = vi.fn();
+    renderDateHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(dateFields),
+      requiredDateSchema(),
+    );
+    await waitFor(() => {
+      expect(dateInput(previewDoc)).toBeTruthy();
+    });
+    dateInput(previewDoc).value = "  \n  ";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-event_on").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /fields saved/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /calendar date/i,
+    );
+    cleanup();
+    const reloaded = datePreviewDoc();
+    renderDateHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(dateFields),
+      requiredDateSchema(),
+    );
+    await waitFor(() => {
+      expect(dateInput(reloaded).value).toBe(OLD_DATE);
+    });
+  });
+
+  it("does not write when Cancel leaves a blank required date edit", async () => {
+    const previewDoc = datePreviewDoc();
+    const saveFields = vi.fn();
+    renderDateHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(dateFields),
+      requiredDateSchema(),
+    );
+    await waitFor(() => {
+      expect(dateInput(previewDoc)).toBeTruthy();
+    });
+    dateInput(previewDoc).value = "";
+    fireEvent.click(screen.getByTestId("assembly-field-cancel"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(dateInput(previewDoc).value).toBe(OLD_DATE);
+    expect(screen.queryByTestId("assembly-field-error-event_on")).toBeNull();
+  });
+
+  it("still saves a non-blank required calendar date", async () => {
+    let eventOnValue = OLD_DATE;
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      eventOnValue =
+        body.fields.find((field) => field.name === "event_on")?.value ?? eventOnValue;
+      return {
+        ...dateFields,
+        fields: dateFields.fields.map((field) =>
+          field.name === "event_on" ? { ...field, value: eventOnValue } : field,
+        ),
+      };
+    });
+    const previewDoc = datePreviewDoc();
+    renderDateHost(
+      previewDoc,
+      saveFields,
+      vi.fn(async () => ({
+        ...dateFields,
+        fields: dateFields.fields.map((field) =>
+          field.name === "event_on" ? { ...field, value: eventOnValue } : field,
+        ),
+      })),
+      requiredDateSchema(),
+    );
+    await waitFor(() => {
+      expect(dateInput(previewDoc)).toBeTruthy();
+    });
+    dateInput(previewDoc).value = NEW_DATE;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    });
+    const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "event_on")).toEqual({
+      name: "event_on",
+      value: NEW_DATE,
+      dataType: "date",
+    });
+    expect(sent.fields.find((field) => field.name === "displaytitle")?.value).toBe(OLD_TEXT);
+    expect(sent.fields.find((field) => field.name === "notes")?.value).toBe(LONG_NOTE);
+    expect(screen.queryByTestId("assembly-field-error-event_on")).toBeNull();
+    cleanup();
+    const reloaded = datePreviewDoc(NEW_DATE);
+    renderDateHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue({
+        ...dateFields,
+        fields: dateFields.fields.map((field) =>
+          field.name === "event_on" ? { ...field, value: NEW_DATE } : field,
+        ),
+      }),
+      requiredDateSchema(),
+    );
+    await waitFor(() => {
+      expect(dateInput(reloaded).value).toBe(NEW_DATE);
+    });
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s on a required date does not claim success",
+    async (status) => {
+      const previewDoc = datePreviewDoc();
+      const saveFields = vi.fn().mockRejectedValue({ status });
+      renderDateHost(
+        previewDoc,
+        saveFields,
+        vi.fn().mockResolvedValue(dateFields),
+        requiredDateSchema(),
+      );
+      await waitFor(() => {
+        expect(dateInput(previewDoc)).toBeTruthy();
+      });
+      dateInput(previewDoc).value = NEW_DATE;
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+          /could not save/i,
+        );
+        expect(dateInput(previewDoc).value).toBe(OLD_DATE);
+      });
+      expect(saveFields).toHaveBeenCalled();
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+      expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+      expect(screen.queryByTestId("assembly-field-error-event_on")).toBeNull();
+    },
+  );
+
+  it("refuses a blank required date on the overlay strip", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn();
+    renderDateHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(dateFields),
+      requiredDateSchema(),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-event_on")).toBeTruthy();
+    });
+    const input = screen.getByTestId("assembly-overlay-field-event_on") as HTMLInputElement;
+    expect(input.getAttribute("aria-required")).toBe("true");
+    expect(input.getAttribute("data-assembly-required")).toBe("true");
+    input.value = "   ";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-event_on").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /fields saved/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /calendar date/i,
+    );
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+  });
+
+  it("still refuses an optional blank date instead of clearing it", async () => {
+    const previewDoc = datePreviewDoc();
+    const saveFields = vi.fn();
+    renderDateHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(dateFields),
+      requiredDateSchema(false),
+    );
+    await waitFor(() => {
+      expect(dateInput(previewDoc)).toBeTruthy();
+    });
+    dateInput(previewDoc).value = "";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-event_on").textContent).toMatch(
+        /calendar date/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/required/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /fields saved/i,
+    );
+    expect(dateInput(previewDoc).value).toBe(OLD_DATE);
+  });
 });
