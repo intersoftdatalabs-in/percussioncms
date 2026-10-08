@@ -1455,22 +1455,7 @@ export function KeywordEditorPanel({
       !detailReady ||
       !keywordSequenceEditing ||
       keywordSequenceInflight.current ||
-      keywordLabelInflight.current ||
-      keywordDescriptionInflight.current ||
-      descriptionInflight.current ||
-      labelInflight.current ||
-      valueInflight.current ||
-      sequenceInflight.current ||
-      addInflight.current ||
-      removeInflight.current ||
-      addBusy ||
-      removeBusy ||
-      labelBusy ||
-      valueBusy ||
-      descriptionBusy ||
-      sequenceBusy ||
-      keywordLabelBusy ||
-      keywordDescriptionBusy ||
+      choiceWriteBusy ||
       busy ||
       confirmKind
     ) {
