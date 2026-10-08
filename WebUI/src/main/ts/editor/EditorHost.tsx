@@ -69,7 +69,10 @@ import {
 } from "./htmlField";
 import { collectInvalidLongTextFieldErrors } from "./longTextField";
 import { collectInvalidSingleLineTextFieldErrors } from "./singleLineTextField";
-import { collectInvalidLinkFieldErrors } from "./linkField";
+import {
+  collectInvalidLinkFieldErrors,
+  collectLinkNulFieldErrors,
+} from "./linkField";
 import { collectInvalidNumericFieldErrors } from "./numericField";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
 import { TableFieldWidget } from "./widgets/TableFieldWidget";
@@ -1477,6 +1480,21 @@ export function EditorHost({
       queueFocusFirstInvalid(invalidNumbers);
       setFieldErrors(invalidNumbers);
       setSaveErrorKey(EDITOR_MSG.NUMBER_INVALID_SAVE);
+      setSaving(false);
+      return;
+    }
+    const linkNuls = collectLinkNulFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: row.value,
+      })),
+      message(EDITOR_MSG.LINK_NUL),
+    );
+    if (Object.keys(linkNuls).length > 0) {
+      queueFocusFirstInvalid(linkNuls);
+      setFieldErrors(linkNuls);
+      setSaveErrorKey(EDITOR_MSG.LINK_INVALID_SAVE);
       setSaving(false);
       return;
     }
