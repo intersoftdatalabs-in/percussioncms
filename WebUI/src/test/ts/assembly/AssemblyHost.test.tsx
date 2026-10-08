@@ -671,6 +671,175 @@ describe("AssemblyHost", () => {
     );
   });
 
+  const PREV_HTML = "<p>About the site</p>";
+
+  function descriptionPayload(html: string): ItemEditorFields {
+    return {
+      ...htmlFields,
+      fields: htmlFields.fields.map((field) =>
+        field.name === "description" ? { ...field, value: html } : field,
+      ),
+    };
+  }
+
+  it("refuses an HTML NUL before save and reloads the previous markup", async () => {
+    const previewDoc = htmlPreviewDoc();
+    const saveFields = vi.fn();
+    renderHtmlHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+      ).toBeTruthy();
+    });
+    const body = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    expect(body.innerHTML.trim()).toBe(PREV_HTML);
+    expect(body.getAttribute("data-assembly-value")).toBe("html");
+    body.appendChild(previewDoc.createTextNode("bad\u0000"));
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-description").textContent).toMatch(
+        /HTML contains a character that cannot be saved/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+      /HTML contains a character that cannot be saved/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(screen.queryByTestId("assembly-field-error-displaytitle")).toBeNull();
+    expect(body.hasAttribute("aria-invalid")).toBe(false);
+    expect(body.textContent).toContain("\u0000");
+    cleanup();
+    const reloaded = htmlPreviewDoc();
+    renderHtmlHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-description"]',
+      ) as HTMLElement | null;
+      expect(live?.innerHTML.trim()).toBe(PREV_HTML);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+  });
+
+  it("does not write when Cancel leaves an HTML NUL edit", async () => {
+    const previewDoc = htmlPreviewDoc();
+    const saveFields = vi.fn();
+    renderHtmlHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+      ).toBeTruthy();
+    });
+    const body = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    body.appendChild(previewDoc.createTextNode("bad\u0000"));
+    fireEvent.click(screen.getByTestId("assembly-field-cancel"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(body.innerHTML.trim()).toBe(PREV_HTML);
+    expect(body.textContent).not.toContain("\u0000");
+    expect(screen.queryByTestId("assembly-field-error-description")).toBeNull();
+  });
+
+  it("still saves ordinary HTML without a NUL", async () => {
+    let htmlValue = PREV_HTML;
+    const next = "<p>Updated body</p>";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      htmlValue = body.fields.find((field) => field.name === "description")?.value ?? htmlValue;
+      return descriptionPayload(htmlValue);
+    });
+    const previewDoc = htmlPreviewDoc();
+    renderHtmlHost(
+      previewDoc,
+      saveFields,
+      vi.fn(async () => descriptionPayload(htmlValue)),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+      ).toBeTruthy();
+    });
+    const body = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    body.innerHTML = next;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    });
+    const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "description")?.value).toBe(next);
+    expect(String(sent.fields.find((field) => field.name === "description")?.value)).not.toContain(
+      "\u0000",
+    );
+    expect(sent.fields.find((field) => field.name === "displaytitle")?.value).toBe("Welcome");
+    expect(screen.queryByTestId("assembly-field-error-description")).toBeNull();
+    cleanup();
+    const reloaded = document.implementation.createHTMLDocument("preview");
+    reloaded.body.innerHTML = `
+      <div class="PsAaField" id='[3,42,7,0,0,0,0,1,0,0,0,"description",42,"Body",0]'>${next}</div>
+      <h1 data-perc-field="displaytitle">Welcome</h1>
+    `;
+    renderHtmlHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(next)),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-description"]',
+      ) as HTMLElement | null;
+      expect(live?.innerHTML.trim()).toBe(next);
+    });
+  });
+
+  it("refuses an HTML NUL on the overlay strip", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn();
+    renderHtmlHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-description")).toBeTruthy();
+    });
+    const area = screen.getByTestId(
+      "assembly-overlay-field-description",
+    ) as HTMLTextAreaElement;
+    expect(area.value).toBe(PREV_HTML);
+    area.value = "<p>bad\u0000value</p>";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-description").textContent).toMatch(
+        /HTML contains a character that cannot be saved/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(area.getAttribute("aria-invalid")).toBe("true");
+    expect(area.value).toContain("\u0000");
+    expect(area.value).toContain("<p>");
+  });
+
   const OLD_LINK = "//Sites/Example/index";
   const NEW_LINK = "//Sites/Example/about";
 

@@ -27,7 +27,8 @@
  * cannot be saved blank; a datetime is one date and time, a required datetime
  * cannot be saved blank, and an optional datetime may be cleared; a single-line
  * text value that contains a NUL is not saved; a long-text value that contains
- * a NUL is not saved, and the previous long text keeps its line breaks) and
+ * a NUL is not saved, and the previous long text keeps its line breaks; an HTML
+ * value that contains a NUL is not saved, and the previous markup stays) and
  * persist through itemmanagement — not leftover Content Editor HTML.
  */
 
@@ -78,6 +79,7 @@ import {
   blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
   changedOverlayEdits,
+  nulHtmlFieldNames,
   nulLongTextFieldNames,
   nulSingleLineTextFieldNames,
   invalidChangedDateFieldNames,
@@ -642,6 +644,7 @@ export function AssemblyHost({
     const blankRequired = blankRequiredTextFieldNames(overlayFields, visibleEdits);
     const nulText = nulSingleLineTextFieldNames(overlayFields, visibleEdits);
     const nulLongText = nulLongTextFieldNames(overlayFields, visibleEdits);
+    const nulHtml = nulHtmlFieldNames(overlayFields, visibleEdits);
     const blankRequiredNumbers = blankRequiredNumberFieldNames(
       overlayFields,
       visibleEdits,
@@ -678,7 +681,8 @@ export function AssemblyHost({
       badDates.length > 0 ||
       badDatetimes.length > 0 ||
       nulText.length > 0 ||
-      nulLongText.length > 0
+      nulLongText.length > 0 ||
+      nulHtml.length > 0
     ) {
       const requiredText = message(ASSEMBLY_MSG.FIELD_REQUIRED);
       const numberText = message(ASSEMBLY_MSG.FIELD_NUMBER);
@@ -686,6 +690,7 @@ export function AssemblyHost({
       const datetimeText = message(ASSEMBLY_MSG.FIELD_DATETIME);
       const textNul = message(ASSEMBLY_MSG.FIELD_TEXT_NUL);
       const longTextNul = message(ASSEMBLY_MSG.FIELD_LONGTEXT_NUL);
+      const htmlNul = message(ASSEMBLY_MSG.FIELD_HTML_NUL);
       const errors: Record<string, string> = {};
       for (const name of blankRequired) {
         errors[name] = requiredText;
@@ -715,6 +720,9 @@ export function AssemblyHost({
       }
       for (const name of nulLongText) {
         errors[name] = longTextNul;
+      }
+      for (const name of nulHtml) {
+        errors[name] = htmlNul;
       }
       const refused = overlayFields.filter(
         (field) =>
@@ -750,7 +758,9 @@ export function AssemblyHost({
                 ? datetimeText
                 : nulText.length > 0
                   ? textNul
-                  : longTextNul,
+                  : nulLongText.length > 0
+                    ? longTextNul
+                    : htmlNul,
       );
       setFieldNoticeRole("alert");
       return;

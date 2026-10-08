@@ -263,9 +263,10 @@ export function singleLineTextContainsNul(value: string): boolean {
 /**
  * Single-line text fields whose current value contains a NUL.
  * Long text, HTML, link, numbers, dates, and datetimes are not checked here.
- * A long-text NUL is {@link nulLongTextFieldNames}. Later edits for the same
- * name win so the overlay strip and the assembled node agree. A blank required
- * field stays on {@link blankRequiredTextFieldNames}.
+ * A long-text NUL is {@link nulLongTextFieldNames}. An HTML NUL is
+ * {@link nulHtmlFieldNames}. Later edits for the same name win so the overlay
+ * strip and the assembled node agree. A blank required field stays on
+ * {@link blankRequiredTextFieldNames}.
  */
 export function nulSingleLineTextFieldNames(
   fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
@@ -300,8 +301,9 @@ export function longTextContainsNul(value: string): boolean {
 /**
  * Long-text fields whose current value contains a NUL.
  * Single-line text, HTML, link, numbers, dates, and datetimes are not checked
- * here. Later edits for the same name win so the overlay strip and the
- * assembled node agree. Line breaks without a NUL are not named.
+ * here. An HTML NUL is {@link nulHtmlFieldNames}. Later edits for the same
+ * name win so the overlay strip and the assembled node agree. Line breaks
+ * without a NUL are not named.
  */
 export function nulLongTextFieldNames(
   fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
@@ -318,6 +320,43 @@ export function nulLongTextFieldNames(
     }
     const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
     if (longTextContainsNul(value)) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/**
+ * True when HTML markup contains a NUL.
+ * A NUL cannot be stored in item field XML / JDBC text.
+ * Ordinary tags are not a NUL. Single-line text uses {@link singleLineTextContainsNul}.
+ * Long text uses {@link longTextContainsNul}.
+ */
+export function htmlContainsNul(value: string): boolean {
+  return (value ?? "").includes("\u0000");
+}
+
+/**
+ * HTML fields whose current value contains a NUL.
+ * Single-line text, long text, link, numbers, dates, and datetimes are not
+ * checked here. Later edits for the same name win so the overlay strip and
+ * the assembled node agree. Ordinary markup without a NUL is not named.
+ */
+export function nulHtmlFieldNames(
+  fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
+  edits: readonly Pick<OverlayFieldEdit, "name" | "value">[],
+): string[] {
+  const values = new Map<string, string>();
+  for (const edit of edits) {
+    values.set(edit.name, edit.value);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "html") {
+      continue;
+    }
+    const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
+    if (htmlContainsNul(value)) {
       names.push(field.name);
     }
   }
@@ -1148,6 +1187,22 @@ function formValue(el: Element): string {
   return (el as HTMLInputElement).value;
 }
 
+/**
+ * Markup that would be saved for an assembled HTML node.
+ * HTML serialization drops a NUL text node. Keep one NUL on the value so the
+ * save gate can refuse the edit instead of writing the stripped markup.
+ */
+function htmlMarkupFromElement(el: Element): string {
+  const markup = ((el as HTMLElement).innerHTML ?? "").trim();
+  if (markup.includes("\u0000")) {
+    return markup;
+  }
+  if ((el.textContent ?? "").includes("\u0000")) {
+    return `${markup}\u0000`;
+  }
+  return markup;
+}
+
 function readNodeValue(el: Element): string {
   const valueKind = el.getAttribute("data-assembly-value");
   if (valueKind === ASSEMBLY_VALUE_LINK) {
@@ -1176,7 +1231,7 @@ function readNodeValue(el: Element): string {
     return raw;
   }
   if (valueKind === ASSEMBLY_VALUE_HTML) {
-    return (el as HTMLElement).innerHTML.trim();
+    return htmlMarkupFromElement(el);
   }
   if (valueKind === ASSEMBLY_VALUE_LONGTEXT) {
     return longTextFromElement(el);
