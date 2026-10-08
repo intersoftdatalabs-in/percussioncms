@@ -1413,30 +1413,13 @@ public class PSPublishingDesignRestService {
     if (body == null) {
       throw badRequest("body is required");
     }
-    if (Boolean.TRUE.equals(body.getAddParameter())
-        && Boolean.TRUE.equals(body.getRemoveParameter())) {
-      throw badRequest(LOCATION_SCHEME_PARAMETER_ADD_AND_REMOVE);
-    }
-    if (Boolean.TRUE.equals(body.getUpdateParameterValue())
-        && (Boolean.TRUE.equals(body.getAddParameter())
-            || Boolean.TRUE.equals(body.getRemoveParameter()))) {
-      throw badRequest(LOCATION_SCHEME_PARAMETER_VALUE_NOT_WITH_ADD_OR_REMOVE);
-    }
+    rejectCombinedSchemeParameterModes(body);
     try {
       IPSLocationScheme scheme =
           siteManager.loadSchemeModifiable(
               guidManager.makeGuid(schemeId, PSTypeEnum.LOCATION_SCHEME));
-      // Reject a bad add, remove, or value change before any field is written.
-      SchemeParameterAddition addition = null;
-      SchemeParameterRemoval removal = null;
-      SchemeParameterValueChange valueChange = null;
-      if (Boolean.TRUE.equals(body.getUpdateParameterValue())) {
-        valueChange = prepareSchemeParameterValueChange(scheme, body.getParameters());
-      } else if (Boolean.TRUE.equals(body.getRemoveParameter())) {
-        removal = prepareSchemeParameterRemoval(scheme, body.getParameters());
-      } else if (Boolean.TRUE.equals(body.getAddParameter())) {
-        addition = prepareSchemeParameterAddition(scheme, body.getParameters());
-      }
+      // Validate the parameter change before any field is written. Apply it after the other fields.
+      SchemeParameterMutation parameterMutation = prepareSchemeParameterMutation(scheme, body);
       // Reject a bad generator, description, content type, or template before any field is written.
       SchemeTextChange generatorChange = prepareLocationSchemeGenerator(body.getGenerator());
       SchemeTextChange descriptionChange = prepareLocationSchemeDescription(body.getDescription());
@@ -1469,17 +1452,7 @@ public class PSPublishingDesignRestService {
       if (!isBlank(body.getContextId())) {
         scheme.setContextId(guidManager.makeGuid(body.getContextId(), PSTypeEnum.CONTEXT));
       }
-      if (valueChange != null) {
-        scheme.addParameter(
-            valueChange.name(), valueChange.sequence(), valueChange.type(), valueChange.value());
-      } else if (addition != null) {
-        scheme.addParameter(
-            addition.name(), addition.sequence(), addition.type(), addition.value());
-      } else if (removal != null) {
-        scheme.removeParameter(removal.name());
-      } else {
-        applySchemeParameters(scheme, body.getParameters(), false);
-      }
+      applySchemeParameterMutation(scheme, parameterMutation);
       assignMissingParameterIds(scheme);
       siteManager.saveScheme(scheme);
       return toSchemeSummary(scheme, true);
@@ -1877,6 +1850,92 @@ public class PSPublishingDesignRestService {
     s.setFolderRoot(site.getFolderRoot());
     s.setBaseUrl(site.getBaseUrl());
     return s;
+  }
+
+  /**
+   * Add and remove cannot be combined. A value change cannot be combined with add or remove.
+   * Either mix is HTTP 400 and writes nothing.
+   */
+  private void rejectCombinedSchemeParameterModes(PSLocationSchemeSummary body) {
+    if (Boolean.TRUE.equals(body.getAddParameter())
+        && Boolean.TRUE.equals(body.getRemoveParameter())) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_ADD_AND_REMOVE);
+    }
+    if (Boolean.TRUE.equals(body.getUpdateParameterValue())
+        && (Boolean.TRUE.equals(body.getAddParameter())
+            || Boolean.TRUE.equals(body.getRemoveParameter()))) {
+      throw badRequest(LOCATION_SCHEME_PARAMETER_VALUE_NOT_WITH_ADD_OR_REMOVE);
+    }
+  }
+
+  /**
+   * Choose the one parameter change for this request. Does not change the scheme. Combined flags
+   * are rejected earlier. No flag means the stored set is replaced from the body list.
+   */
+  private SchemeParameterMutation prepareSchemeParameterMutation(
+      IPSLocationScheme scheme, PSLocationSchemeSummary body) {
+    if (Boolean.TRUE.equals(body.getUpdateParameterValue())) {
+      return SchemeParameterMutation.valueChange(
+          prepareSchemeParameterValueChange(scheme, body.getParameters()));
+    }
+    if (Boolean.TRUE.equals(body.getRemoveParameter())) {
+      return SchemeParameterMutation.removal(
+          prepareSchemeParameterRemoval(scheme, body.getParameters()));
+    }
+    if (Boolean.TRUE.equals(body.getAddParameter())) {
+      return SchemeParameterMutation.addition(
+          prepareSchemeParameterAddition(scheme, body.getParameters()));
+    }
+    return SchemeParameterMutation.replace(body.getParameters());
+  }
+
+  /** Apply a change already validated by {@link #prepareSchemeParameterMutation}. */
+  private void applySchemeParameterMutation(
+      IPSLocationScheme scheme, SchemeParameterMutation mutation) {
+    SchemeParameterValueChange valueChange = mutation.valueChange();
+    if (valueChange != null) {
+      scheme.addParameter(
+          valueChange.name(), valueChange.sequence(), valueChange.type(), valueChange.value());
+      return;
+    }
+    SchemeParameterAddition addition = mutation.addition();
+    if (addition != null) {
+      scheme.addParameter(addition.name(), addition.sequence(), addition.type(), addition.value());
+      return;
+    }
+    SchemeParameterRemoval removal = mutation.removal();
+    if (removal != null) {
+      scheme.removeParameter(removal.name());
+      return;
+    }
+    applySchemeParameters(scheme, mutation.parameters(), false);
+  }
+
+  /**
+   * Exactly one of the parameter fields is set. {@code parameters} is the replace-all list and is
+   * null for add, remove, and value change.
+   */
+  private record SchemeParameterMutation(
+      SchemeParameterValueChange valueChange,
+      SchemeParameterAddition addition,
+      SchemeParameterRemoval removal,
+      List<PSSchemeParameter> parameters) {
+
+    static SchemeParameterMutation valueChange(SchemeParameterValueChange valueChange) {
+      return new SchemeParameterMutation(valueChange, null, null, null);
+    }
+
+    static SchemeParameterMutation addition(SchemeParameterAddition addition) {
+      return new SchemeParameterMutation(null, addition, null, null);
+    }
+
+    static SchemeParameterMutation removal(SchemeParameterRemoval removal) {
+      return new SchemeParameterMutation(null, null, removal, null);
+    }
+
+    static SchemeParameterMutation replace(List<PSSchemeParameter> parameters) {
+      return new SchemeParameterMutation(null, null, null, parameters);
+    }
   }
 
   /**
