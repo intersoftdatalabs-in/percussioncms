@@ -304,6 +304,12 @@ public class PSPublishingDesignRestService {
 
   static final String CONTEXT_VARIABLE_EXISTS = "Context variable already exists";
 
+  /**
+   * A value change names a variable that is not stored on this context. The request does not
+   * create it.
+   */
+  static final String CONTEXT_VARIABLE_NOT_LISTED = "Context variable is not listed";
+
   private final IPSPublisherService publisherService;
   private final IPSGuidManager guidManager;
   private final IPSSiteManager siteManager;
@@ -959,6 +965,14 @@ public class PSPublishingDesignRestService {
     }
   }
 
+  /**
+   * Create one context variable, or when {@code updateValue} is true replace the value of one that
+   * is already listed. A create whose name is already stored is HTTP 409 and writes nothing. A
+   * value change whose name is not stored is HTTP 409 and does not create it. A blank name or
+   * value, or a name or value longer than its column, is HTTP 400 and writes nothing. A blank
+   * value does not clear a stored variable. The name stays on a value change. Other variables on
+   * the context stay.
+   */
   @PUT
   @Path("/sites/{siteId}/properties")
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -974,6 +988,33 @@ public class PSPublishingDesignRestService {
     String name = body.getName() == null ? "" : body.getName().trim();
     String contextId = body.getContextId() == null ? "" : body.getContextId().trim();
     String value = body.getValue() == null ? "" : body.getValue().trim();
+    boolean updateValue = Boolean.TRUE.equals(body.getUpdateValue());
+    requireContextVariableFields(name, contextId, value);
+    try {
+      IPSSite site = siteManager.loadSiteModifiable(toSiteGuid(siteId));
+      IPSGuid ctx = guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT);
+      String writtenName = contextVariableNameToWrite(site, ctx, name, updateValue);
+      site.setProperty(writtenName, ctx, value);
+      siteManager.saveSite(site);
+      PSSitePropertyDto out = new PSSitePropertyDto();
+      out.setName(writtenName);
+      out.setContextId(contextId);
+      out.setValue(site.getProperty(writtenName, ctx));
+      return out;
+    } catch (PSNotFoundException e) {
+      throw notFound("Site not found");
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw internalError(e);
+    }
+  }
+
+  /**
+   * Blank or overlong name or value is HTTP 400. A blank value does not clear a stored variable.
+   * Does not load or save the site.
+   */
+  private static void requireContextVariableFields(String name, String contextId, String value) {
     if (name.isEmpty()) {
       throw badRequest(CONTEXT_VARIABLE_NAME_REQUIRED);
     }
@@ -989,44 +1030,44 @@ public class PSPublishingDesignRestService {
     if (value.length() > MAX_CONTEXT_VARIABLE_VALUE_LENGTH) {
       throw badRequest(CONTEXT_VARIABLE_VALUE_TOO_LONG);
     }
-    try {
-      IPSSite site = siteManager.loadSiteModifiable(toSiteGuid(siteId));
-      IPSGuid ctx = guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT);
-      if (contextVariableNameExists(site, ctx, name)) {
-        throw conflict(CONTEXT_VARIABLE_EXISTS);
-      }
-      site.setProperty(name, ctx, value);
-      siteManager.saveSite(site);
-      PSSitePropertyDto out = new PSSitePropertyDto();
-      out.setName(name);
-      out.setContextId(contextId);
-      out.setValue(site.getProperty(name, ctx));
-      return out;
-    } catch (PSNotFoundException e) {
-      throw notFound("Site not found");
-    } catch (WebApplicationException e) {
-      throw e;
-    } catch (Exception e) {
-      throw internalError(e);
-    }
   }
 
   /**
-   * True when this context already stores {@code name}. Does not change the site. A blank stored
-   * name does not match. Comparison is the trimmed spelling, so a second variable on the context
-   * is left alone.
+   * Name to pass to {@code setProperty}. A value change uses the stored spelling and is HTTP 409
+   * when the name is not listed, so it does not create a variable. A create is HTTP 409 when the
+   * name is already stored. Does not change the site.
    */
-  private static boolean contextVariableNameExists(IPSSite site, IPSGuid contextId, String name) {
+  private static String contextVariableNameToWrite(
+      IPSSite site, IPSGuid contextId, String name, boolean updateValue) {
+    String storedName = storedContextVariableName(site, contextId, name);
+    if (updateValue) {
+      if (storedName == null) {
+        throw conflict(CONTEXT_VARIABLE_NOT_LISTED);
+      }
+      return storedName;
+    }
+    if (storedName != null) {
+      throw conflict(CONTEXT_VARIABLE_EXISTS);
+    }
+    return name;
+  }
+
+  /**
+   * Stored spelling of {@code name} on this context, or {@code null} when it is not listed. Does
+   * not change the site. A blank stored name does not match. Comparison is the trimmed spelling,
+   * so a second variable on the context is left alone.
+   */
+  private static String storedContextVariableName(IPSSite site, IPSGuid contextId, String name) {
     var existingNames = site.getPropertyNames(contextId);
     if (existingNames == null) {
-      return false;
+      return null;
     }
     for (String existingName : existingNames) {
       if (existingName != null && name.equals(existingName.trim())) {
-        return true;
+        return existingName;
       }
     }
-    return false;
+    return null;
   }
 
   @DELETE

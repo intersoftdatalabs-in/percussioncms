@@ -25,6 +25,12 @@ public class PSSitePropertyDto {
   private String contextId;
   private String value;
 
+  /**
+   * When true, replace the value of a variable that is already listed. The name stays. This is not
+   * a create. Omit or false to add a new name.
+   */
+  private Boolean updateValue;
+
   public String getName() {
     return name;
   }
@@ -47,5 +53,13 @@ public class PSSitePropertyDto {
 
   public void setValue(String value) {
     this.value = value;
+  }
+
+  public Boolean getUpdateValue() {
+    return updateValue;
+  }
+
+  public void setUpdateValue(Boolean updateValue) {
+    this.updateValue = updateValue;
   }
 }
