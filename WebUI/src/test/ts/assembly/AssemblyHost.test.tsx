@@ -1584,4 +1584,282 @@ describe("AssemblyHost", () => {
     expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
     expect(input.getAttribute("aria-invalid")).toBe("true");
   });
+
+  const OLD_QTY = "12";
+  const NEW_QTY = "27";
+
+  const numberFields: ItemEditorFields = {
+    contentId: "42",
+    contentType: "percPage",
+    name: "Home",
+    checkoutUser: "admin",
+    fields: [
+      { name: "qty", value: OLD_QTY },
+      { name: "displaytitle", value: OLD_TEXT },
+      { name: "notes", value: LONG_NOTE },
+    ],
+  };
+
+  const numberSchema = {
+    fields: [
+      { name: "qty", label: "Quantity", control: "sys_Number", dataType: "integer" },
+      { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+      { name: "notes", label: "Notes", control: "sys_TextArea" },
+    ],
+  };
+
+  function numberPreviewDoc(qty = OLD_QTY): Document {
+    const previewDoc = document.implementation.createHTMLDocument("preview");
+    previewDoc.body.innerHTML = `
+      <span data-perc-field="qty">${qty}</span>
+      <h1 data-perc-field="displaytitle">${OLD_TEXT}</h1>
+      <p data-perc-field="notes">${LONG_NOTE}</p>
+    `;
+    return previewDoc;
+  }
+
+  function renderNumberHost(
+    previewDoc: Document,
+    saveFields: ReturnType<typeof vi.fn>,
+    loadFields: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(numberFields),
+    schema: { fields: Array<Record<string, unknown>> } = numberSchema,
+  ): void {
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview: vi.fn().mockResolvedValue({
+        previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+        contentId: 42,
+        templateId: 7,
+        revision: 1,
+      }),
+      loadTemplates: vi.fn().mockResolvedValue([
+        {
+          name: "rffPgGeneric",
+          label: "Generic Page",
+          url: "../assembler/render?sys_template=7",
+          sortRank: 0,
+          menuType: "MENUITEM",
+        } satisfies MenuAction,
+      ]),
+      checkout: vi.fn().mockResolvedValue(undefined),
+      loadFields,
+      saveFields,
+      loadType: vi.fn().mockResolvedValue(schema),
+      getPreviewDocument: () => previewDoc,
+    });
+  }
+
+  it("saves one whole number and leaves the other fields unchanged", async () => {
+    const previewDoc = numberPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderNumberHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-qty"]'),
+      ).toBeTruthy();
+    });
+    const qty = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-qty"]',
+    ) as HTMLElement;
+    expect(qty.getAttribute("data-assembly-value")).toBe("number");
+    expect(qty.textContent).toBe(OLD_QTY);
+    qty.textContent = ` ${NEW_QTY} `;
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "qty")).toEqual({
+      name: "qty",
+      value: NEW_QTY,
+      dataType: "integer",
+    });
+    expect(saved.fields.find((field) => field.name === "displaytitle")).toEqual({
+      name: "displaytitle",
+      value: OLD_TEXT,
+    });
+    expect(saved.fields.find((field) => field.name === "notes")).toEqual({
+      name: "notes",
+      value: LONG_NOTE,
+    });
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    expect(qty.textContent).toBe(NEW_QTY);
+  });
+
+  it("reloads the assembly host with the whole number that was saved", async () => {
+    const savedPayload: ItemEditorFields = {
+      ...numberFields,
+      fields: numberFields.fields.map((field) =>
+        field.name === "qty" ? { ...field, value: NEW_QTY } : field,
+      ),
+    };
+    const previewDoc = numberPreviewDoc(NEW_QTY);
+    renderNumberHost(
+      previewDoc,
+      vi.fn().mockResolvedValue(savedPayload),
+      vi.fn().mockResolvedValue(savedPayload),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-qty"]'),
+      ).toBeTruthy();
+    });
+    const qty = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-qty"]',
+    ) as HTMLElement;
+    expect(qty.textContent).toBe(NEW_QTY);
+    expect(
+      (previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-displaytitle"]',
+      ) as HTMLElement).textContent,
+    ).toBe(OLD_TEXT);
+  });
+
+  it("does not write a number edit that is left unsaved", async () => {
+    const previewDoc = numberPreviewDoc();
+    const saveFields = vi.fn();
+    renderNumberHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-qty"]'),
+      ).toBeTruthy();
+    });
+    const qty = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-qty"]',
+    ) as HTMLElement;
+    qty.textContent = NEW_QTY;
+    fireEvent.click(screen.getByTestId("assembly-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(qty.textContent).toBe(NEW_QTY);
+  });
+
+  it.each(["12.5", "abc", ""])(
+    "does not save %j and leaves the previous number",
+    async (next) => {
+      const previewDoc = numberPreviewDoc();
+      const saveFields = vi.fn();
+      renderNumberHost(previewDoc, saveFields);
+      await waitFor(() => {
+        expect(
+          previewDoc.querySelector('[data-testid="assembly-inline-field-qty"]'),
+        ).toBeTruthy();
+      });
+      const qty = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-qty"]',
+      ) as HTMLElement;
+      qty.textContent = next;
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-error-qty").textContent).toMatch(
+          /whole number/i,
+        );
+      });
+      expect(saveFields).not.toHaveBeenCalled();
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/whole number/i);
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+      expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+      expect(qty.textContent).toBe(OLD_QTY);
+    },
+  );
+
+  it("does not write a read-only number field", async () => {
+    const previewDoc = numberPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderNumberHost(previewDoc, saveFields, vi.fn().mockResolvedValue(numberFields), {
+      fields: [
+        {
+          name: "qty",
+          label: "Quantity",
+          control: "sys_Number",
+          dataType: "integer",
+          readOnly: true,
+        },
+        { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+        { name: "notes", label: "Notes", control: "sys_TextArea" },
+      ],
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-inline-displaytitle")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("assembly-field-chip-qty")).toBeNull();
+    expect(previewDoc.querySelector('[data-testid="assembly-inline-field-qty"]')).toBeNull();
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = NEW_TEXT;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "qty")?.value).toBe(OLD_QTY);
+    expect(saved.fields.find((field) => field.name === "qty")?.dataType).toBeUndefined();
+    expect(saved.fields.find((field) => field.name === "displaytitle")?.value).toBe(NEW_TEXT);
+    expect(saved.fields.find((field) => field.name === "notes")?.value).toBe(LONG_NOTE);
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s leaves the previous number in place",
+    async (status) => {
+      const previewDoc = numberPreviewDoc();
+      const saveFields = vi.fn().mockRejectedValue({ status });
+      renderNumberHost(previewDoc, saveFields);
+      await waitFor(() => {
+        expect(
+          previewDoc.querySelector('[data-testid="assembly-inline-field-qty"]'),
+        ).toBeTruthy();
+      });
+      const qty = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-qty"]',
+      ) as HTMLElement;
+      qty.textContent = NEW_QTY;
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+          /could not save/i,
+        );
+        const live = previewDoc.querySelector(
+          '[data-testid="assembly-inline-field-qty"]',
+        ) as HTMLElement | null;
+        expect(live?.textContent).toBe(OLD_QTY);
+      });
+      expect(saveFields).toHaveBeenCalled();
+      const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+      expect(sent.fields.find((field) => field.name === "qty")?.value).toBe(NEW_QTY);
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+    },
+  );
+
+  it("saves a whole number from the overlay strip when the page has no node", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderNumberHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-qty")).toBeTruthy();
+    });
+    const input = screen.getByTestId("assembly-overlay-field-qty") as HTMLInputElement;
+    expect(input.tagName).toBe("INPUT");
+    expect(input.getAttribute("data-assembly-value")).toBe("number");
+    expect(input.value).toBe(OLD_QTY);
+    input.value = NEW_QTY;
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "qty")).toEqual({
+      name: "qty",
+      value: NEW_QTY,
+      dataType: "integer",
+    });
+    expect(saved.fields.find((field) => field.name === "displaytitle")?.value).toBe(OLD_TEXT);
+    expect(input.value).toBe(NEW_QTY);
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+  });
 });

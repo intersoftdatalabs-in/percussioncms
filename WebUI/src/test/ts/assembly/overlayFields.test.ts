@@ -28,10 +28,12 @@ import {
   readOverlayEdits,
   restoreOverlayValues,
   blankRequiredTextFieldNames,
+  invalidChangedNumberFieldNames,
   markAssemblyFieldErrors,
   scalarOverlayFields,
   singleLineText,
   stripLeftoverAaChrome,
+  wholeNumberText,
 } from "../../../main/ts/assembly/overlayFields";
 
 const payload: ItemEditorFields = {
@@ -742,5 +744,138 @@ describe("blankRequiredTextFieldNames", () => {
     expect(
       root.querySelector('[data-assembly-field="displaytitle"]')?.hasAttribute("aria-invalid"),
     ).toBe(false);
+  });
+});
+
+describe("whole number overlay fields", () => {
+  const numberPayload: ItemEditorFields = {
+    ...payload,
+    fields: [
+      { name: "qty", value: "12" },
+      { name: "rate", value: "1.5" },
+      { name: "lockedqty", value: "4" },
+      { name: "displaytitle", value: "Welcome" },
+    ],
+  };
+
+  it("keeps a whole-number field and omits float and read-only numbers", () => {
+    const rows = scalarOverlayFields(numberPayload, [
+      { name: "qty", label: "Quantity", control: "sys_Number", dataType: "integer" },
+      { name: "rate", label: "Rate", control: "sys_Number", dataType: "float" },
+      {
+        name: "lockedqty",
+        label: "Locked quantity",
+        control: "sys_Number",
+        dataType: "number",
+        readOnly: true,
+      },
+      { name: "displaytitle", control: "sys_EditBox" },
+    ]);
+    expect(rows.find((row) => row.name === "qty")).toMatchObject({
+      kind: "number",
+      value: "12",
+      label: "Quantity",
+    });
+    expect(rows.some((row) => row.name === "rate")).toBe(false);
+    expect(rows.some((row) => row.name === "lockedqty")).toBe(false);
+    expect(rows.find((row) => row.name === "displaytitle")?.kind).toBe("text");
+  });
+
+  it("reads one assembled whole number and restores the previous value", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<span data-perc-field="qty">12</span><h1 data-perc-field="displaytitle">Welcome</h1>`;
+    const fields = scalarOverlayFields(numberPayload, [
+      { name: "qty", label: "Quantity", control: "sys_Number", dataType: "integer" },
+      { name: "displaytitle", control: "sys_EditBox" },
+    ]);
+    const hits = applyFieldOverlay(root, fields, "42");
+    expect(hits.find((hit) => hit.name === "qty")?.source).toBe("marker");
+    const qty = root.querySelector(
+      '[data-testid="assembly-inline-field-qty"]',
+    ) as HTMLElement;
+    expect(qty.getAttribute("data-assembly-value")).toBe("number");
+    qty.textContent = " 27 ";
+    expect(readOverlayEdits(root, "42")).toEqual(
+      expect.arrayContaining([
+        { contentId: "42", name: "qty", value: "27", dataType: "integer" },
+        { contentId: "42", name: "displaytitle", value: "Welcome" },
+      ]),
+    );
+    expect(wholeNumberText("27")).toBe("27");
+    expect(wholeNumberText("12.5")).toBeNull();
+    expect(wholeNumberText("abc")).toBeNull();
+    expect(wholeNumberText("")).toBeNull();
+    restoreOverlayValues(root, fields);
+    expect(qty.textContent).toBe("12");
+  });
+
+  it("names a changed decimal or non-numeric number and ignores an unchanged blank", () => {
+    const fields = [
+      { name: "qty", kind: "number" as const, value: "12" },
+      { name: "optional", kind: "number" as const, value: "" },
+      { name: "displaytitle", kind: "text" as const, value: "Welcome" },
+    ];
+    const baseline = new Map<string, string>([
+      ["42\nqty", "12"],
+      ["42\noptional", ""],
+      ["42\ndisplaytitle", "Welcome"],
+    ]);
+    expect(
+      invalidChangedNumberFieldNames(
+        fields,
+        [
+          { contentId: "42", name: "qty", value: "12.5" },
+          { contentId: "42", name: "optional", value: "" },
+          { contentId: "42", name: "displaytitle", value: "nope" },
+        ],
+        baseline,
+      ),
+    ).toEqual(["qty"]);
+    expect(
+      invalidChangedNumberFieldNames(
+        fields,
+        [{ contentId: "42", name: "qty", value: "abc" }],
+        baseline,
+      ),
+    ).toEqual(["qty"]);
+    expect(
+      invalidChangedNumberFieldNames(
+        fields,
+        [{ contentId: "42", name: "qty", value: "27" }],
+        baseline,
+      ),
+    ).toEqual([]);
+  });
+
+  it("persists one whole number with dataType integer and leaves other fields", async () => {
+    const mixed: ItemEditorFields = {
+      ...payload,
+      fields: [
+        { name: "qty", value: "12" },
+        { name: "displaytitle", value: "Welcome" },
+        { name: "description", value: "<p>About the site</p>" },
+      ],
+    };
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => body);
+    await persistOverlayEdits({
+      ownerId: "42",
+      ownerPayload: mixed,
+      edits: [
+        { contentId: "42", name: "qty", value: "27", dataType: "integer" },
+      ],
+      loadFields: vi.fn(),
+      saveFields,
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "qty")).toEqual({
+      name: "qty",
+      value: "27",
+      dataType: "integer",
+    });
+    expect(saved.fields.find((field) => field.name === "displaytitle")).toEqual({
+      name: "displaytitle",
+      value: "Welcome",
+    });
+    expect(saved.fields.find((field) => field.name === "description")?.dataType).toBeUndefined();
   });
 });
