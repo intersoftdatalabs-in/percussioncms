@@ -263,8 +263,9 @@ export function singleLineTextContainsNul(value: string): boolean {
 /**
  * Single-line text fields whose current value contains a NUL.
  * Long text, HTML, link, numbers, dates, and datetimes are not checked here.
- * Later edits for the same name win so the overlay strip and the assembled
- * node agree. A blank required field stays on {@link blankRequiredTextFieldNames}.
+ * A long-text NUL is {@link nulLongTextFieldNames}. Later edits for the same
+ * name win so the overlay strip and the assembled node agree. A blank required
+ * field stays on {@link blankRequiredTextFieldNames}.
  */
 export function nulSingleLineTextFieldNames(
   fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
@@ -281,6 +282,42 @@ export function nulSingleLineTextFieldNames(
     }
     const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
     if (singleLineTextContainsNul(value)) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/**
+ * True when a long-text value contains a NUL.
+ * A NUL cannot be stored in item field XML / JDBC text.
+ * Line breaks are not a NUL. Single-line text uses {@link singleLineTextContainsNul}.
+ */
+export function longTextContainsNul(value: string): boolean {
+  return (value ?? "").includes("\u0000");
+}
+
+/**
+ * Long-text fields whose current value contains a NUL.
+ * Single-line text, HTML, link, numbers, dates, and datetimes are not checked
+ * here. Later edits for the same name win so the overlay strip and the
+ * assembled node agree. Line breaks without a NUL are not named.
+ */
+export function nulLongTextFieldNames(
+  fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
+  edits: readonly Pick<OverlayFieldEdit, "name" | "value">[],
+): string[] {
+  const values = new Map<string, string>();
+  for (const edit of edits) {
+    values.set(edit.name, edit.value);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "longtext") {
+      continue;
+    }
+    const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
+    if (longTextContainsNul(value)) {
       names.push(field.name);
     }
   }
