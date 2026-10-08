@@ -908,6 +908,154 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void updateContentList_urlOnly_keepsNameDescriptionTypeAndFilter() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = contentListForSummary("LegacyCl");
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+    when(loaded.isLegacy()).thenReturn(true);
+    when(loaded.getDescription()).thenReturn("legacy notes");
+    when(loaded.getUrl()).thenReturn("/Rhythmyx/night-next");
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setUrl("  /Rhythmyx/night-next  ");
+
+    PSContentListSummary saved = service.updateContentList("5", body);
+    assertEquals("LegacyCl", saved.getName());
+    assertEquals("legacy", saved.getListType());
+    assertEquals("legacy notes", saved.getDescription());
+    assertEquals("/Rhythmyx/night-next", saved.getUrl());
+    assertNull(saved.getItemFilterId());
+    verify(loaded).setUrl("/Rhythmyx/night-next");
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setGenerator(any());
+    verify(loaded, never()).setFilterId(any());
+    verify(loaded, never()).setContentListType(any());
+    verify(publisherService).saveContentList(loaded);
+  }
+
+  @Test
+  void updateContentList_blankUrl_400_doesNotChangeFields() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = mock(IPSContentList.class);
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setDescription("legacy notes");
+    body.setUrl("   ");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTENT_LIST_URL_REQUIRED, ex.getMessage());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setGenerator(any());
+    verify(loaded, never()).setUrl(any());
+    verify(loaded, never()).setFilterId(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void updateContentList_urlTooLong_400_doesNotChangeFields() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = mock(IPSContentList.class);
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setDescription("legacy notes");
+    body.setUrl("u".repeat(PSPublishingDesignRestService.MAX_CONTENT_LIST_URL_LENGTH + 1));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTENT_LIST_URL_TOO_LONG, ex.getMessage());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setUrl(any());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setFilterId(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void updateContentList_urlAtMaxLength_setsUrl() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = contentListForSummary("LegacyCl");
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+    when(loaded.isLegacy()).thenReturn(true);
+    String maxUrl = "u".repeat(PSPublishingDesignRestService.MAX_CONTENT_LIST_URL_LENGTH);
+    when(loaded.getUrl()).thenReturn(maxUrl);
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setUrl(maxUrl);
+
+    PSContentListSummary saved = service.updateContentList("5", body);
+    assertEquals(maxUrl, saved.getUrl());
+    verify(loaded).setUrl(maxUrl);
+    verify(publisherService).saveContentList(loaded);
+  }
+
+  @Test
+  void updateContentList_urlOnModern_400_doesNotChangeFields() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = mock(IPSContentList.class);
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+    when(loaded.isLegacy()).thenReturn(false);
+    when(publisherService.findContentListByName("Renamed")).thenReturn(Optional.empty());
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setName("Renamed");
+    body.setUrl("/Rhythmyx/not-legacy");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTENT_LIST_URL_MODERN, ex.getMessage());
+    verify(loaded, never()).setUrl(any());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded, never()).setGenerator(any());
+    verify(loaded, never()).setFilterId(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void updateContentList_url_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+    PSContentListSummary body = new PSContentListSummary();
+    body.setUrl("/Rhythmyx/night-next");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(publisherService, never()).loadContentListModifiable(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
+  void updateContentList_duplicateNameWithUrl_409_doesNotChangeUrl() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.CONTENT_LIST))).thenReturn(contentListGuid);
+    IPSContentList loaded = mock(IPSContentList.class);
+    when(publisherService.loadContentListModifiable(contentListGuid)).thenReturn(loaded);
+
+    IPSGuid otherGuid = mock(IPSGuid.class);
+    IPSContentList existing = mock(IPSContentList.class);
+    when(existing.getGUID()).thenReturn(otherGuid);
+    when(otherGuid.getUUID()).thenReturn(99);
+    when(publisherService.findContentListByName("Taken")).thenReturn(Optional.of(existing));
+
+    PSContentListSummary body = new PSContentListSummary();
+    body.setName("Taken");
+    body.setUrl("/Rhythmyx/night-next");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateContentList("5", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setUrl(any());
+    verify(loaded, never()).setDescription(any());
+    verify(publisherService, never()).saveContentList(any());
+  }
+
+  @Test
   void updateContentList_unknownItemFilter_400() throws Exception {
     IPSGuid missing = mock(IPSGuid.class);
     when(guidManager.makeGuid(eq("999"), eq(PSTypeEnum.ITEM_FILTER))).thenReturn(missing);

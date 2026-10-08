@@ -133,6 +133,16 @@ public class PSPublishingDesignRestService {
 
   static final String CONTENT_LIST_GENERATOR_LEGACY =
       "A legacy content list does not use a generator";
+  /** Matches {@code RXCONTENTLIST.URL} VARCHAR(2100). */
+  static final int MAX_CONTENT_LIST_URL_LENGTH = 2100;
+
+  static final String CONTENT_LIST_URL_REQUIRED = "Content list URL is required";
+
+  static final String CONTENT_LIST_URL_TOO_LONG =
+      "Content list URL must be 2100 characters or fewer";
+
+  static final String CONTENT_LIST_URL_MODERN =
+      "A modern content list does not use a legacy URL";
   /** Request named an item filter that is not on the system. */
   static final String UNKNOWN_ITEM_FILTER = "Unknown item filter";
   /** Still linked to at least one edition. Removing that association is a separate action. */
@@ -615,7 +625,10 @@ public class PSPublishingDesignRestService {
    * {@link #MAX_CONTENT_LIST_DESCRIPTION_LENGTH} is HTTP 400 and writes nothing. A generator-only
    * body leaves the name, description, type, URL, and item filter stored. A blank generator, a
    * generator longer than {@link #MAX_CONTENT_LIST_GENERATOR_LENGTH}, or a generator sent for a
-   * legacy list is HTTP 400 and writes nothing, including the legacy URL.
+   * legacy list is HTTP 400 and writes nothing, including the legacy URL. A URL-only body on a
+   * legacy list leaves the name, description, type, and item filter stored. A blank URL, a URL
+   * longer than {@link #MAX_CONTENT_LIST_URL_LENGTH}, or a URL sent for a modern list is HTTP 400
+   * and writes nothing.
    */
   @PUT
   @Path("/contentlists/{contentListId}")
@@ -1647,6 +1660,23 @@ public class PSPublishingDesignRestService {
         throw badRequest(CONTENT_LIST_GENERATOR_LEGACY);
       }
     }
+    // Reject a bad legacy URL before any field is written so 400 leaves the stored row.
+    // Create still ignores a blank URL (the full editor may omit it). An omitted URL on update
+    // leaves the stored URL.
+    String nextUrl = null;
+    boolean applyUrl = !isCreate && body.getUrl() != null;
+    if (applyUrl) {
+      nextUrl = body.getUrl().trim();
+      if (nextUrl.isEmpty()) {
+        throw badRequest(CONTENT_LIST_URL_REQUIRED);
+      }
+      if (nextUrl.length() > MAX_CONTENT_LIST_URL_LENGTH) {
+        throw badRequest(CONTENT_LIST_URL_TOO_LONG);
+      }
+      if (!cl.isLegacy()) {
+        throw badRequest(CONTENT_LIST_URL_MODERN);
+      }
+    }
     if (!isBlank(body.getName()) && !isCreate) {
       cl.setName(body.getName().trim());
     }
@@ -1658,7 +1688,9 @@ public class PSPublishingDesignRestService {
     } else if (isCreate && body.getGenerator() != null) {
       cl.setGenerator(body.getGenerator());
     }
-    if (body.getUrl() != null && !body.getUrl().isBlank()) {
+    if (applyUrl) {
+      cl.setUrl(nextUrl);
+    } else if (isCreate && body.getUrl() != null && !body.getUrl().isBlank()) {
       cl.setUrl(body.getUrl().trim());
     }
     if (filterUpdate.apply()) {
