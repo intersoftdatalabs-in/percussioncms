@@ -181,12 +181,46 @@ export function blankRequiredTextFieldNames(
 }
 
 /**
- * Number fields the author changed to a decimal, a non-numeric value, or blank.
- * Unchanged values, including a blank that was already stored, are not listed.
- * Long text, HTML, link, and single-line text are not checked here.
+ * Required whole-number fields whose current value is blank or whitespace.
+ * Optional numbers stay on {@link invalidChangedNumberFieldNames} so a clear
+ * is not written. Decimals and non-numeric text are not named here. Long text,
+ * HTML, link, date, and single-line text are not checked here. Later edits for
+ * the same name win so the overlay strip and the assembled node agree.
+ */
+export function blankRequiredNumberFieldNames(
+  fields: readonly (Pick<OverlayField, "name" | "kind" | "value"> & {
+    required?: boolean;
+  })[],
+  edits: readonly Pick<OverlayFieldEdit, "name" | "value">[],
+): string[] {
+  const values = new Map<string, string>();
+  for (const edit of edits) {
+    values.set(edit.name, edit.value);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "number" || field.required !== true) {
+      continue;
+    }
+    const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
+    if (value.trim().length === 0) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/**
+ * Number fields the author changed to a decimal, a non-numeric value, or an
+ * optional blank. A blank or whitespace required number is not listed; that
+ * refusal is {@link blankRequiredNumberFieldNames}. Unchanged values, including
+ * a blank that was already stored, are not listed. Long text, HTML, link, and
+ * single-line text are not checked here.
  */
 export function invalidChangedNumberFieldNames(
-  fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
+  fields: readonly (Pick<OverlayField, "name" | "kind" | "value"> & {
+    required?: boolean;
+  })[],
   edits: readonly Pick<OverlayFieldEdit, "contentId" | "name" | "value">[],
   baseline: ReadonlyMap<string, string>,
 ): string[] {
@@ -207,6 +241,9 @@ export function invalidChangedNumberFieldNames(
       ? (baseline.get(overlayEditKey(edit)) ?? "")
       : field.value;
     if (edit.value.trim() === previous.trim()) {
+      continue;
+    }
+    if (field.required === true && edit.value.trim().length === 0) {
       continue;
     }
     if (wholeNumberText(edit.value) == null) {
@@ -285,7 +322,7 @@ export interface OverlayField {
   label: string;
   kind: OverlayFieldKind;
   readOnly: boolean;
-  /** Content-type required flag. Only single-line text is enforced on save. */
+  /** Content-type required flag. Single-line text and whole numbers are enforced on save. */
   required: boolean;
 }
 
@@ -668,6 +705,7 @@ export function clearFieldOverlay(root: ParentNode): void {
     html.removeAttribute("data-assembly-field");
     html.removeAttribute("data-assembly-content-id");
     html.removeAttribute("data-assembly-value");
+    html.removeAttribute("data-assembly-required");
     html.removeAttribute("spellcheck");
     const testId = html.getAttribute("data-testid") ?? "";
     if (testId.startsWith("assembly-inline-field-")) {
@@ -715,6 +753,11 @@ export function applyFieldOverlay(
       html.style.whiteSpace = "pre-wrap";
     } else if (field?.kind === "number") {
       html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_NUMBER);
+      if (field.required) {
+        // A heading or other assembled node is contenteditable. aria-required
+        // is not allowed on that role; the overlay input carries it instead.
+        html.setAttribute("data-assembly-required", "true");
+      }
       bindSingleLineGuard(html);
     }
   }

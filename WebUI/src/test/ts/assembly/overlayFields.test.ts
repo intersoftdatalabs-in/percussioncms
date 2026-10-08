@@ -27,6 +27,7 @@ import {
   longTextValue,
   readOverlayEdits,
   restoreOverlayValues,
+  blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
   calendarDateText,
   invalidChangedDateFieldNames,
@@ -847,6 +848,78 @@ describe("whole number overlay fields", () => {
         baseline,
       ),
     ).toEqual([]);
+    expect(
+      invalidChangedNumberFieldNames(
+        fields,
+        [{ contentId: "42", name: "qty", value: "" }],
+        baseline,
+      ),
+    ).toEqual(["qty"]);
+    expect(
+      invalidChangedNumberFieldNames(
+        [{ name: "qty", kind: "number", value: "12", required: true }],
+        [{ contentId: "42", name: "qty", value: "   " }],
+        baseline,
+      ),
+    ).toEqual([]);
+    expect(
+      invalidChangedNumberFieldNames(
+        [{ name: "qty", kind: "number", value: "12", required: true }],
+        [{ contentId: "42", name: "qty", value: "12.5" }],
+        baseline,
+      ),
+    ).toEqual(["qty"]);
+  });
+
+  it("names a blank or whitespace required number and ignores optional and other kinds", () => {
+    const fields = [
+      { name: "qty", kind: "number" as const, required: true, value: "12" },
+      { name: "optional", kind: "number" as const, required: false, value: "4" },
+      { name: "displaytitle", kind: "text" as const, required: true, value: "Welcome" },
+    ];
+    expect(
+      blankRequiredNumberFieldNames(fields, [
+        { name: "qty", value: "" },
+        { name: "optional", value: "" },
+        { name: "displaytitle", value: "   " },
+      ]),
+    ).toEqual(["qty"]);
+    expect(
+      blankRequiredNumberFieldNames(fields, [{ name: "qty", value: "  \n  " }]),
+    ).toEqual(["qty"]);
+    expect(
+      blankRequiredNumberFieldNames(fields, [{ name: "qty", value: "27" }]),
+    ).toEqual([]);
+    expect(
+      blankRequiredNumberFieldNames(fields, [{ name: "qty", value: "12.5" }]),
+    ).toEqual([]);
+  });
+
+  it("marks a required whole number on the assembled node", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<span data-perc-field="qty">12</span>`;
+    const fields = scalarOverlayFields(
+      {
+        ...numberPayload,
+        fields: [{ name: "qty", value: "12" }],
+      },
+      [
+        {
+          name: "qty",
+          label: "Quantity",
+          control: "sys_Number",
+          dataType: "integer",
+          required: true,
+        },
+      ],
+    );
+    expect(fields[0]?.required).toBe(true);
+    applyFieldOverlay(root, fields, "42");
+    const qty = root.querySelector(
+      '[data-testid="assembly-inline-field-qty"]',
+    ) as HTMLElement;
+    expect(qty.getAttribute("data-assembly-required")).toBe("true");
+    expect(qty.hasAttribute("aria-required")).toBe(false);
   });
 
   it("persists one whole number with dataType integer and leaves other fields", async () => {
