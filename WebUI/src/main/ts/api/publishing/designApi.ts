@@ -811,7 +811,7 @@ export async function listSiteProperties(
   siteId: string | number,
   contextId: string | number,
 ): Promise<SitePropertyDto[]> {
-  return normalizeArray(
+  return unwrapSitePropertyList(
     await get<unknown>(
       `${designRoot()}/sites/${encodeURIComponent(String(siteId))}/properties?contextId=${encodeURIComponent(String(contextId))}`,
     ),
@@ -822,10 +822,67 @@ export async function putSiteProperty(
   siteId: string | number,
   body: SitePropertyDto,
 ): Promise<SitePropertyDto> {
-  return (await put<unknown>(
-    `${designRoot()}/sites/${encodeURIComponent(String(siteId))}/properties`,
-    body,
-  )) as SitePropertyDto;
+  return unwrapSiteProperty(
+    await put<unknown>(
+      `${designRoot()}/sites/${encodeURIComponent(String(siteId))}/properties`,
+      wrapSiteProperty(body),
+    ),
+  );
+}
+
+/**
+ * JAXB root wrap expected by {@code PSSitePropertyDto} ({@code @XmlRootElement}
+ * name {@code siteProperty}). A flat {@code name} document is rejected.
+ */
+export function wrapSiteProperty(body: SitePropertyDto): {
+  siteProperty: SitePropertyDto;
+} {
+  return {
+    siteProperty: {
+      name: body.name,
+      contextId: body.contextId,
+      value: body.value,
+    },
+  };
+}
+
+/** Accept a wrapped {@code siteProperty} document or an already-flat property. */
+export function unwrapSiteProperty(data: unknown): SitePropertyDto {
+  if (!data || typeof data !== "object" || Array.isArray(data)) {
+    return {};
+  }
+  const record = data as Record<string, unknown>;
+  const nested = record.siteProperty;
+  const source =
+    nested && typeof nested === "object" && !Array.isArray(nested)
+      ? (nested as Record<string, unknown>)
+      : record;
+  return {
+    name: textField(source.name),
+    contextId: idText(source.contextId),
+    value: textField(source.value),
+  };
+}
+
+/**
+ * List payload may be a bare array, {@code { siteProperty: [...] }}, or a single
+ * {@code { siteProperty: { name, contextId, value } }} document.
+ */
+export function unwrapSitePropertyList(data: unknown): SitePropertyDto[] {
+  if (Array.isArray(data)) {
+    return data.map((row) => unwrapSiteProperty(row));
+  }
+  if (!data || typeof data !== "object") {
+    return [];
+  }
+  const nested = (data as Record<string, unknown>).siteProperty;
+  if (Array.isArray(nested)) {
+    return nested.map((row) => unwrapSiteProperty(row));
+  }
+  if (nested && typeof nested === "object") {
+    return [unwrapSiteProperty(nested)];
+  }
+  return normalizeArray<unknown>(data).map((row) => unwrapSiteProperty(row));
 }
 
 export async function deleteSiteProperty(

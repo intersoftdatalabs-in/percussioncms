@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
@@ -42,6 +43,7 @@ import com.percussion.publishingdesign.data.PSDeliveryTypeSummary;
 import com.percussion.publishingdesign.data.PSEditionSummary;
 import com.percussion.publishingdesign.data.PSContextSummary;
 import com.percussion.publishingdesign.data.PSLocationSchemeSummary;
+import com.percussion.publishingdesign.data.PSSitePropertyDto;
 import com.percussion.publishingdesign.data.PSSchemeParameter;
 import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSRxPublisherService;
@@ -62,6 +64,7 @@ import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.data.PSEditionType;
 import com.percussion.services.sitemgr.IPSLocationScheme;
 import com.percussion.services.sitemgr.IPSPublishingContext;
+import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
@@ -5377,5 +5380,110 @@ class PSPublishingDesignRestServiceTest {
         assertThrows(WebApplicationException.class, () -> service.createContext(body));
     // Without site manager the service fails closed with 503
     assertEquals(503, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void putSiteProperty_addsOneAndLeavesTheOther() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSSite site = siteWithKeptVariable();
+    when(site.getProperty("nightVar", contextGuid)).thenReturn("night-value");
+
+    PSSitePropertyDto body = contextVariableBody("  nightVar  ", "  night-value  ");
+    PSSitePropertyDto saved = design.putSiteProperty("42", body);
+
+    assertEquals("nightVar", saved.getName());
+    assertEquals("3", saved.getContextId());
+    assertEquals("night-value", saved.getValue());
+    verify(site).setProperty("nightVar", contextGuid, "night-value");
+    verify(site, never()).setProperty(eq("kept"), any(IPSGuid.class), anyString());
+    verify(site, never()).removeProperty(anyString(), any(IPSGuid.class));
+    verify(siteManager).saveSite(site);
+  }
+
+  @Test
+  void putSiteProperty_blankName_400_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    PSSitePropertyDto body = contextVariableBody("   ", "night-value");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_NAME_REQUIRED, ex.getMessage());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_blankValue_400_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    PSSitePropertyDto body = contextVariableBody("nightVar", "   ");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_VALUE_REQUIRED, ex.getMessage());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_nameTooLong_400_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    PSSitePropertyDto body =
+        contextVariableBody(
+            "n".repeat(PSPublishingDesignRestService.MAX_CONTEXT_VARIABLE_NAME_LENGTH + 1),
+            "night-value");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_NAME_TOO_LONG, ex.getMessage());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_existingName_409_doesNotChangeTheOther() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSSite site = siteWithKeptVariable();
+    PSSitePropertyDto body = contextVariableBody("kept", "replaced");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_EXISTS, ex.getMessage());
+    verify(site, never()).setProperty(anyString(), any(IPSGuid.class), anyString());
+    verify(site, never()).removeProperty(anyString(), any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_forbidden_403_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+    design.setDesignWriteAllowed(() -> false);
+    PSSitePropertyDto body = contextVariableBody("nightVar", "night-value");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  private IPSSite siteWithKeptVariable() throws Exception {
+    when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.SITE))).thenReturn(siteGuid);
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+    IPSSite site = mock(IPSSite.class);
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(site);
+    when(site.getPropertyNames(contextGuid)).thenReturn(java.util.Set.of("kept"));
+    return site;
+  }
+
+  private static PSSitePropertyDto contextVariableBody(String name, String value) {
+    PSSitePropertyDto body = new PSSitePropertyDto();
+    body.setName(name);
+    body.setContextId("3");
+    body.setValue(value);
+    return body;
   }
 }

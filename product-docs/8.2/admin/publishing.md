@@ -302,6 +302,29 @@ From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish s
 
 **Clear queue** (shown when the preview has at least one row) asks for confirmation, then calls `DELETE …/sitemanage/publish/incremental/content/{site}/{server}` with no content id. Confirm deletes the incremental queue for that site and server (live or staging) and reloads the list. An empty reload shows the empty-queue message. If the server still returns rows, those rows stay and the workspace says some items are still queued. Cancel does not call the server. HTTP **403** and **404** (site or server not found) stay on the workspace as errors; this is not incremental publish and not remove-one-row.
 
+### Set one context variable (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Sites**.
+Choose a **site** and a **context**. The list shows that site's context variables (site
+properties) for the context. Enter a new **name** and **value**, then **Save property**.
+The shell calls `PUT …/sitemanage/publishingdesign/sites/{siteId}/properties`. The JSON
+document root is `siteProperty` with `name`, `contextId`, and `value`. The new row appears in the list only after
+the save succeeds. Other variables on the same context stay, including their values. If
+the list refresh fails after a successful save, the previous variables stay and the new
+one is still shown.
+
+A blank name, a blank value, a name longer than 50 characters
+(`RXASSEMBLERPROPERTIES.PROPERTYNAME`), or a value longer than 255 characters
+(`RXASSEMBLERPROPERTIES.PROPERTYVALUE`) is rejected in the form and does not call the
+server. A name that is already listed does not call the server and does not change that
+variable's value. A blank value does not remove a stored variable.
+
+HTTP **400** (name or value missing or longer than its column), **403** (not Admin or
+Designer), and **409** (that name already exists on the context) stay in the form error
+region. Those responses do not add a row and do not change the other variables. Changing
+the value of a variable that is already listed, and deleting a variable, are separate
+actions. Delivery-server properties are not these context variables.
+
 ### Create a publish edition (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
