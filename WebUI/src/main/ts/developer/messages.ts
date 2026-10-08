@@ -500,7 +500,7 @@ export const DEV_MSG_KEYS = {
   /** Aria label; `{0}` is the choice label. */
   KW_CHANGE_CHOICE_DESCRIPTION_ACTION: "perc.ui.developer@Change description of {0}",
   KW_CHANGE_CHOICE_DESCRIPTION_HINT:
-    "perc.ui.developer@Sets the description of one choice with the keyword update. The new description shows only after that save succeeds. The choice label, value, and sequence stay. The keyword label, description, sequence, and the other choices stay. A blank description is not sent and does not clear a stored description. Cancel does not write.",
+    "perc.ui.developer@Sets the description of one choice with the keyword update. The new description shows only after that save succeeds. The choice label, value, and sequence stay. The keyword label, description, sequence, and the other choices stay. A blank description is not sent and does not clear a stored description. Clear description removes a stored description after confirm. Cancel does not write.",
   KW_CHANGE_CHOICE_DESCRIPTION_FIELD: "perc.ui.developer@Choice description",
   KW_CHANGE_CHOICE_DESCRIPTION_SAVE: "perc.ui.developer@Save description",
   KW_CHANGE_CHOICE_DESCRIPTION_SAVED: "perc.ui.developer@Choice description saved.",
@@ -512,6 +512,21 @@ export const DEV_MSG_KEYS = {
   KW_CHANGE_CHOICE_DESCRIPTION_INVALID: "perc.ui.developer@The choice description was not changed.",
   KW_CHANGE_CHOICE_DESCRIPTION_CONFLICT:
     "perc.ui.developer@The choice description was not changed. The previous description is unchanged.",
+  KW_CLEAR_CHOICE_DESCRIPTION: "perc.ui.developer@Clear description",
+  /** Aria label; `{0}` is the choice label. */
+  KW_CLEAR_CHOICE_DESCRIPTION_ACTION: "perc.ui.developer@Clear description of {0}",
+  KW_CLEAR_CHOICE_DESCRIPTION_HINT:
+    "perc.ui.developer@Clears the description of one choice with the keyword update after confirm. The description is empty only after that save succeeds. The choice label, value, and sequence stay. The keyword label, description, sequence, and the other choices stay. Cancel does not write. Change description still does not clear a blank description.",
+  /** Confirm body; `{0}` is the choice label. */
+  KW_CLEAR_CHOICE_DESCRIPTION_CONFIRM:
+    "perc.ui.developer@Clear the description of {0}? The choice label, value, and sequence stay. The keyword and the other choices stay.",
+  KW_CLEAR_CHOICE_DESCRIPTION_SAVED: "perc.ui.developer@Choice description cleared.",
+  KW_CLEAR_CHOICE_DESCRIPTION_ERROR: "perc.ui.developer@Could not clear the choice description.",
+  KW_CLEAR_CHOICE_DESCRIPTION_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to clear a choice description.",
+  KW_CLEAR_CHOICE_DESCRIPTION_INVALID: "perc.ui.developer@The choice description was not cleared.",
+  KW_CLEAR_CHOICE_DESCRIPTION_CONFLICT:
+    "perc.ui.developer@The choice description was not cleared. The previous description is unchanged.",
   KW_CHANGE_CHOICE_SEQUENCE: "perc.ui.developer@Change sequence",
   /** Aria label; `{0}` is the choice label. */
   KW_CHANGE_CHOICE_SEQUENCE_ACTION: "perc.ui.developer@Change sequence of {0}",

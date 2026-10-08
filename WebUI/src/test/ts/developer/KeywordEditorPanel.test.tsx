@@ -1165,6 +1165,193 @@ describe("KeywordEditorPanel set one choice description", () => {
   });
 });
 
+function clearDescriptionButton(label: string): HTMLButtonElement {
+  const button = document.querySelector(
+    `[data-testid="developer-kw-choice-description-clear"][data-choice-label="${label}"]`,
+  );
+  if (!(button instanceof HTMLButtonElement)) {
+    throw new Error(`missing clear-description button for ${label}`);
+  }
+  return button;
+}
+
+describe("KeywordEditorPanel clear one choice description", () => {
+  beforeEach(() => {
+    (window as unknown as { I18N?: { message: (key: string) => string } }).I18N = {
+      message: (key: string) => key,
+    };
+    getKeyword.mockReset();
+    updateKeyword.mockReset();
+    createKeyword.mockReset();
+    deleteKeyword.mockReset();
+    getKeyword.mockResolvedValue(withTwoChoices);
+    updateKeyword.mockResolvedValue(withTwoChoices);
+  });
+
+  async function openClearConfirm(label: string): Promise<void> {
+    await waitFor(() => {
+      expect(clearDescriptionButton(label).disabled).toBe(false);
+    });
+    fireEvent.click(clearDescriptionButton(label));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-catalog-confirm-body").textContent).toContain(label);
+    });
+  }
+
+  it("does not write when clear is cancelled", async () => {
+    renderEditor(withTwoChoices);
+    await openClearConfirm("Low");
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-description")).toBe("top");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+  });
+
+  it("does not write when the description is already empty", async () => {
+    const emptyDescription: KeywordSummary = {
+      ...withTwoChoices,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "low", description: "   ", sequence: 2 },
+      ],
+    };
+    getKeyword.mockResolvedValue(emptyDescription);
+    renderEditor(emptyDescription);
+    await openClearConfirm("Low");
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-description")).toBe("top");
+  });
+
+  it("does not clear a stored description from the set form when the draft is blank", async () => {
+    renderEditor(withTwoChoices);
+    await waitFor(() => {
+      expect(changeDescriptionButton("Low").disabled).toBe(false);
+    });
+    fireEvent.click(changeDescriptionButton("Low"));
+    fireEvent.change(screen.getByTestId("developer-kw-choice-description-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-description-save"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-kw-choice-description-error").textContent).toBe(
+      DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_BLANK,
+    );
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+  });
+
+  it("shows an empty description only after the keyword update succeeds", async () => {
+    updateKeyword.mockImplementation(async (_id: string, body: KeywordSummary) => ({
+      ...body,
+      choices: body.choices?.map((choice) =>
+        choice.description ? choice : { ...choice, description: undefined },
+      ),
+    }));
+    renderEditor(withTwoChoices);
+    await openClearConfirm("Low");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("");
+    });
+    expect(updateKeyword).toHaveBeenCalledWith(
+      "42",
+      expect.objectContaining({
+        label: "Priority",
+        description: "Item priority",
+        sequence: 4,
+        choices: [
+          { label: "High", value: "high", description: "top", sequence: 1 },
+          { label: "Low", value: "low", description: "", sequence: 2 },
+        ],
+      }),
+    );
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-kw-choice-description-clear-notice").textContent).toBe(
+      DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_SAVED,
+    );
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-sequence")).toBe("2");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-description")).toBe("top");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-label")).toBe("High");
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe("Priority");
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+    expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("4");
+    expect((screen.getByTestId("developer-kw-choices") as HTMLTextAreaElement).value).not.toContain(
+      "bottom",
+    );
+  });
+
+  it.each([400, 403, 409])(
+    "keeps the previous description when the clear returns HTTP %s",
+    async (status) => {
+      updateKeyword.mockRejectedValue({
+        status,
+        statusText: "no",
+        body: {
+          message: `forced ${status}`,
+          label: "Renamed",
+          description: "changed",
+          choices: [{ label: "Low", value: "low", description: "", sequence: 9 }],
+        },
+      });
+      renderEditor(withTwoChoices);
+      await openClearConfirm("Low");
+      fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-kw-choice-description-clear-error")).toBeTruthy();
+      });
+      expect(
+        screen.getByTestId("developer-kw-choice-description-clear-error").textContent,
+      ).toContain(`forced ${status}`);
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+      expect(choiceByLabel("High")?.getAttribute("data-choice-description")).toBe("top");
+      expect(screen.getByTestId("developer-kw-saved-choices").textContent).toContain("bottom");
+      expect(screen.queryByTestId("developer-kw-choice-description-clear-notice")).toBeNull();
+      expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+        "Item priority",
+      );
+      expect(deleteKeyword).not.toHaveBeenCalled();
+    },
+  );
+
+  it("does not replace the list when a 200 changes the keyword description", async () => {
+    updateKeyword.mockResolvedValue({
+      ...withTwoChoices,
+      description: "changed keyword",
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "low", description: "", sequence: 2 },
+      ],
+    });
+    renderEditor(withTwoChoices);
+    await openClearConfirm("Low");
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-choice-description-clear-error").textContent).toBe(
+        DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_ERROR,
+      );
+    });
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+  });
+});
+
 function changeSequenceButton(label: string): HTMLButtonElement {
   const button = document.querySelector(
     `[data-testid="developer-kw-choice-sequence-edit"][data-choice-label="${label}"]`,

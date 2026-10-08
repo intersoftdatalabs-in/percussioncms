@@ -21,6 +21,7 @@ import {
   isBlankChoiceDraft,
   isDuplicateChoice,
   keywordUpdateForAddedChoice,
+  keywordUpdateForClearedChoiceDescription,
   keywordUpdateForDescribedChoice,
   keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
@@ -293,6 +294,67 @@ describe("keywordUpdateForDescribedChoice", () => {
     expect(sent.description).toBe("Item priority");
     expect(sent.choices?.[1]?.description).toBe("Item priority");
     expect(sent.choices?.[0]?.description).toBe("top");
+    expect(sent.choices?.[1]?.label).toBe("Low");
+    expect(sent.choices?.[1]?.value).toBe("low");
+    expect(sent.choices?.[1]?.sequence).toBe(2);
+  });
+});
+
+describe("keywordUpdateForClearedChoiceDescription", () => {
+  const two: KeywordChoiceSummary[] = [
+    { label: "High", value: "high", description: "top", sequence: 1 },
+    { label: "Low", value: "low", description: "bottom", sequence: 2 },
+  ];
+
+  it("does not build a write for a missing choice or an empty description", () => {
+    expect(keywordUpdateForClearedChoiceDescription(baseline, two, -1)).toBe("missing");
+    expect(keywordUpdateForClearedChoiceDescription(baseline, two, 2)).toBe("missing");
+    expect(keywordUpdateForClearedChoiceDescription(baseline, two, 1.5)).toBe("missing");
+    const empty: KeywordChoiceSummary[] = [
+      { label: "High", value: "high", sequence: 1 },
+      { label: "Low", value: "low", description: "   ", sequence: 2 },
+    ];
+    expect(keywordUpdateForClearedChoiceDescription(baseline, empty, 1)).toBe("unchanged");
+    expect(keywordUpdateForClearedChoiceDescription(baseline, empty, 0)).toBe("unchanged");
+  });
+
+  it("still refuses a blank description on the set action", () => {
+    expect(keywordUpdateForDescribedChoice(baseline, two, 1, "")).toBe("blank");
+    expect(keywordUpdateForDescribedChoice(baseline, two, 1, "   ")).toBe("blank");
+  });
+
+  it("sends an empty description for one choice and keeps the rest", () => {
+    expect(keywordUpdateForClearedChoiceDescription(baseline, two, 1)).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "low", description: "", sequence: 2 },
+      ],
+    });
+  });
+
+  it("accepts a response that omits the cleared description", () => {
+    const sent = keywordUpdateForClearedChoiceDescription(baseline, two, 1);
+    if (typeof sent === "string") {
+      throw new Error(sent);
+    }
+    const accepted = savedChoicesAfterAdd(sent, {
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "low", sequence: 2 },
+      ],
+    });
+    expect(accepted).toEqual([
+      { label: "High", value: "high", description: "top", sequence: 1 },
+      { label: "Low", value: "low", sequence: 2 },
+    ]);
+    expect(sent.description).toBe("Item priority");
+    expect(sent.choices?.[1]?.description).toBe("");
     expect(sent.choices?.[1]?.label).toBe("Low");
     expect(sent.choices?.[1]?.value).toBe("low");
     expect(sent.choices?.[1]?.sequence).toBe(2);
