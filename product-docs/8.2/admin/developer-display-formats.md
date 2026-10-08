@@ -1,7 +1,7 @@
 ---
 id: admin-developer-display-formats
 title: Developer Display Formats
-description: Create, delete, edit columns, set default sort, and set allowed communities on Content Explorer display formats from Developer Display Formats chrome
+description: Create, delete, edit columns, set default sort, set a description, and set allowed communities on Content Explorer display formats from Developer Display Formats chrome
 version: "8.2"
 order: 47
 tags: [admin, developer, display-formats]
@@ -13,7 +13,7 @@ tags: [admin, developer, display-formats]
 (Workbench **Display Format** editor: unique internal name, label, description,
 and column catalog). Admins can **create** a user display format, **delete** a
 selected user format, **add**, **remove**, and **reorder columns**, set the
-**default sort column and direction**, and set
+**default sort column and direction**, **set or clear the description**, and set
 **allowed communities** on a **user** format from this chrome. The **name** is required, must be unique
 (case-insensitive), and must not contain spaces, wildcards (`*` / `%`), or path
 characters. Name cannot be renamed after create.
@@ -41,7 +41,9 @@ allowed communities.
    lists the new format (including its columns) only then.
    `GET /services/displayformats/{name}` returns that user format (not **404**,
    and not a packaged format such as **By_Author**).
-5. Optional: change label or description and **Save** again.
+5. Optional: change the label and **Save** again. That save sends the label
+   with the description already stored. It does not replace columns or
+   communities.
 6. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    REST `DELETE /services/displayformats/{name}` returns **204**; a following
    GET is **404** and the catalog no longer lists that format.
@@ -71,6 +73,24 @@ allowed communities.
 5. Open a packaged format such as **By_Author**. The column table is
    read-only (including default sort); add/remove/save controls are not shown.
 
+## Product path — set a description
+
+1. Open an existing display format. Detail shows the stored description and
+   **Set display format description**. The description on the page is the
+   stored value. Typing a new description does not change that text until
+   save succeeds.
+2. Click **Set display format description**. Enter the new description, or
+   leave it blank to clear the stored description. **Cancel** closes the
+   editor and does not call the server. Saving the same description does not
+   call the server.
+3. Click **Save description**. The request is
+   `PUT /services/displayformats/{name}` with the description only. The name
+   stays the catalog key. Columns and allowed communities are omitted, so the
+   stored lists stay. An empty description clears the stored description.
+   After a successful save, the detail and the catalog description show the
+   new value. HTTP 400, 403, and 409 leave the previous description on the
+   page.
+
 ## Product path — allowed communities on a user format
 
 1. Open a **user** format (not a packaged/system name). Detail shows **Allowed
@@ -92,6 +112,7 @@ unchanged. See [Users, roles & security](id:admin-users-roles).
 ## Limits
 
 - Name is immutable after create.
+- **Save description** writes the description only. A blank description clears it. Omitting columns or allowed communities on that update does not remove them.
 - Packaged/system formats cannot be column-edited, sort-edited, or community-edited from this catalog.
 - Empty allowed-communities and all-communities are the same persist state.
   There is no “visible to no communities” value.
@@ -108,7 +129,8 @@ The chrome calls:
 | List | `GET /services/displayformats` |
 | Load | `GET /services/displayformats/{idOrName}` |
 | Create | `POST /services/displayformats` (`name` required; unique, no spaces) |
-| Save | `PUT /services/displayformats/{idOrName}` (label, description) |
+| Save | `PUT /services/displayformats/{idOrName}` (label, and the description already on the form) |
+| Save description | `PUT /services/displayformats/{idOrName}` (`description` only; omit `columns` and `allowedCommunities`; blank description clears) |
 | Save columns | `PUT /services/displayformats/{idOrName}` (`columns` replaces the list; `sortedColumnNames` persists default sort — with `columns` uses that column's `ascendingSort`; without `columns` matches the stored list) |
 | Save communities | `PUT /services/displayformats/{idOrName}` (`allowedCommunities` array; empty array is all communities) |
 | Delete | `DELETE /services/displayformats/{idOrName}` (`204` on success) |

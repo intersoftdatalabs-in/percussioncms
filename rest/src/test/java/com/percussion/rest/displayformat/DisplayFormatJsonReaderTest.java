@@ -64,6 +64,27 @@ class DisplayFormatJsonReaderTest {
   }
 
   @Test
+  void parse_descriptionOnlyOmitsColumnsAndCommunities() {
+    DisplayFormat df =
+        DisplayFormatJsonReader.parse(
+            "{\"DisplayFormat\":{\"description\":\"Folder list\"}}");
+    assertEquals("Folder list", df.getDescription());
+    assertNull(df.getColumns());
+    assertNull(df.getAllowedCommunities());
+    assertNull(df.getName());
+    assertNull(df.getLabel());
+  }
+
+  @Test
+  void parse_blankDescriptionIsEmptyNotNull() {
+    DisplayFormat df =
+        DisplayFormatJsonReader.parse("{\"DisplayFormat\":{\"description\":\"\"}}");
+    assertEquals("", df.getDescription());
+    assertNull(df.getColumns());
+    assertNull(df.getAllowedCommunities());
+  }
+
+  @Test
   void parse_flatBody() {
     DisplayFormat df =
         DisplayFormatJsonReader.parse(

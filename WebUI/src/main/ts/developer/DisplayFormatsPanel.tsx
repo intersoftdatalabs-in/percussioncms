@@ -219,7 +219,13 @@ export function DisplayFormatsPanel(): React.ReactElement {
                 <span key="u" style={{ fontSize: "0.85rem" }}>
                   {usage.length ? usage.join(", ") : "—"}
                 </span>,
-                <span key="d" style={mutedCell}>
+                <span
+                  key="d"
+                  style={mutedCell}
+                  data-testid="developer-df-catalog-description"
+                  data-df-name={openKey}
+                  data-df-description={f.description || ""}
+                >
                   {f.description || ""}
                 </span>,
               ],

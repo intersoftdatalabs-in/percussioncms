@@ -68,6 +68,12 @@ import {
   toAllowedCommunitiesWriteBody,
   type AllowedCommunityMap,
 } from "./displayFormatCommunities";
+import {
+  displayFormatDescriptionWrite,
+  savedDisplayFormatDescription,
+  storedDisplayFormatDescription,
+} from "./displayFormatDescription";
+import { DF_DESC_MSG } from "./displayFormatDescriptionMessages";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -119,6 +125,12 @@ export function DisplayFormatDetailPanel({
   const [name, setName] = useState("");
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionShown, setDescriptionShown] = useState("");
+  const [descriptionEditing, setDescriptionEditing] = useState(false);
+  const [descriptionDraft, setDescriptionDraft] = useState("");
+  const [descriptionError, setDescriptionError] = useState<string | null>(null);
+  const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
+  const [descriptionBusy, setDescriptionBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -134,6 +146,7 @@ export function DisplayFormatDetailPanel({
     () => new Set(),
   );
   const inflight = useRef(false);
+  const descriptionInflight = useRef(false);
 
   useEffect(() => {
     if (idOrName == null) {
@@ -156,7 +169,13 @@ export function DisplayFormatDetailPanel({
         setDetail(d);
         setName(d.name || d.internalName || idOrName);
         setLabel(d.label || d.displayName || "");
-        setDescription(d.description || "");
+        const loadedDesc = storedDisplayFormatDescription(d.description);
+        setDescription(loadedDesc);
+        setDescriptionShown(loadedDesc);
+        setDescriptionEditing(false);
+        setDescriptionDraft("");
+        setDescriptionError(null);
+        setDescriptionNotice(null);
         const cols = reindexColumns(normalizeColumns(d.columns));
         setDraftColumns(cols);
         setSortSource(defaultSortSource(cols, d.sortedColumnNames));
@@ -189,7 +208,7 @@ export function DisplayFormatDetailPanel({
 
   const loadedName = normalizeDisplayFormatName(detail?.name || detail?.internalName || idOrName || "");
   const loadedLabel = detail?.label || detail?.displayName || "";
-  const loadedDescription = detail?.description || "";
+  const loadedDescription = storedDisplayFormatDescription(detail?.description);
   const dirty =
     isNew ||
     normalizeDisplayFormatName(name) !== loadedName ||
@@ -300,7 +319,7 @@ export function DisplayFormatDetailPanel({
   }
 
   async function handleSave(): Promise<void> {
-    if (!canSave || inflight.current) return;
+    if (!canSave || inflight.current || descriptionInflight.current) return;
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -316,7 +335,11 @@ export function DisplayFormatDetailPanel({
       }
       setName(saved.name || saved.internalName || name);
       setLabel(saved.label || saved.displayName || "");
-      setDescription(saved.description || "");
+      const savedDescription = storedDisplayFormatDescription(saved.description);
+      setDescription(savedDescription);
+      setDescriptionShown(savedDescription);
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
       const cols = reindexColumns(normalizeColumns(saved.columns));
       setDraftColumns(cols);
       setSortSource(defaultSortSource(cols, saved.sortedColumnNames));
@@ -331,6 +354,88 @@ export function DisplayFormatDetailPanel({
       setError(panelErrMsg(err, saveFallback(err)));
     } finally {
       inflight.current = false;
+      setBusy(false);
+    }
+  }
+
+  function descriptionSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return DF_DESC_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return DF_DESC_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return DF_DESC_MSG.CONFLICT;
+    return DF_DESC_MSG.ERROR;
+  }
+
+  function startDescriptionEdit(): void {
+    if (isNew || !detail || busy || descriptionBusy || descriptionInflight.current || inflight.current) {
+      return;
+    }
+    setDescriptionDraft(descriptionShown);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    setDescriptionEditing(true);
+  }
+
+  function cancelDescriptionEdit(): void {
+    if (descriptionBusy || descriptionInflight.current) return;
+    setDescriptionEditing(false);
+    setDescriptionDraft("");
+    setDescriptionError(null);
+  }
+
+  async function handleDescriptionSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !descriptionEditing ||
+      descriptionBusy ||
+      descriptionInflight.current ||
+      inflight.current ||
+      busy
+    ) {
+      return;
+    }
+    const sent = displayFormatDescriptionWrite(detail, descriptionDraft);
+    if (sent === "unchanged") {
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
+      setDescriptionError(null);
+      return;
+    }
+    descriptionInflight.current = true;
+    setDescriptionBusy(true);
+    setBusy(true);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    const previousShown = descriptionShown;
+    try {
+      const saved = await updateDisplayFormat(writeKey, sent);
+      const accepted = savedDisplayFormatDescription(sent, detail, saved);
+      if (accepted == null) {
+        setDescriptionShown(previousShown);
+        setDescription(previousShown);
+        setDescriptionError(DF_DESC_MSG.ERROR);
+        setDescriptionNotice(null);
+        return;
+      }
+      const nextDetail: DisplayFormat = { ...detail, ...saved, description: accepted };
+      setDetail(nextDetail);
+      setDescriptionShown(accepted);
+      setDescription(accepted);
+      setName(nextDetail.name || nextDetail.internalName || name);
+      setLabel(nextDetail.label || nextDetail.displayName || label);
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
+      setDescriptionNotice(accepted ? DF_DESC_MSG.SAVED : DF_DESC_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setDescriptionShown(previousShown);
+      setDescription(previousShown);
+      setDescriptionError(panelErrMsg(err, descriptionSaveFallback(err)));
+      setDescriptionNotice(null);
+    } finally {
+      descriptionInflight.current = false;
+      setDescriptionBusy(false);
       setBusy(false);
     }
   }
@@ -402,7 +507,7 @@ export function DisplayFormatDetailPanel({
   }
 
   async function handleSaveColumns(): Promise<void> {
-    if (!canSaveColumns || inflight.current || packaged || !writeKey) {
+    if (!canSaveColumns || inflight.current || descriptionInflight.current || packaged || !writeKey) {
       return;
     }
     inflight.current = true;
@@ -477,7 +582,7 @@ export function DisplayFormatDetailPanel({
   }
 
   async function handleSaveCommunities(): Promise<void> {
-    if (!canSaveCommunities || inflight.current || packaged || !writeKey) {
+    if (!canSaveCommunities || inflight.current || descriptionInflight.current || packaged || !writeKey) {
       return;
     }
     inflight.current = true;
@@ -618,6 +723,107 @@ export function DisplayFormatDetailPanel({
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
+
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-df-set-description"
+              aria-label={DF_DESC_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{DF_DESC_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.9rem" }}>
+                {DF_DESC_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-df-set-description-text"
+                data-df-description={descriptionShown}
+                style={{ marginTop: 0 }}
+              >
+                {descriptionShown}
+              </p>
+              {descriptionError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-df-set-description-error"
+                  style={errorAlert}
+                >
+                  {descriptionError}
+                </div>
+              ) : null}
+              {descriptionNotice ? (
+                <div
+                  data-testid="developer-df-set-description-notice"
+                  style={{ color: "#276749" }}
+                >
+                  {descriptionNotice}
+                </div>
+              ) : null}
+              {descriptionEditing ? (
+                <div data-testid="developer-df-set-description-editor">
+                  <label htmlFor="df-set-description-input">{DF_DESC_MSG.FIELD}</label>
+                  <input
+                    id="df-set-description-input"
+                    data-testid="developer-df-set-description-input"
+                    style={inputStyle}
+                    value={descriptionDraft}
+                    disabled={descriptionBusy}
+                    onChange={(e) => setDescriptionDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-df-set-description-save"
+                      aria-label={DF_DESC_MSG.SAVE}
+                      disabled={descriptionBusy}
+                      onClick={() => void handleDescriptionSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: descriptionBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {DF_DESC_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-df-set-description-cancel"
+                      disabled={descriptionBusy}
+                      onClick={cancelDescriptionEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {DEV_MSG.DF_CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-df-set-description-edit"
+                  aria-label={DF_DESC_MSG.ACTION}
+                  disabled={busy || descriptionBusy}
+                  onClick={startDescriptionEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {DF_DESC_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
 
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
             <button

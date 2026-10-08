@@ -247,6 +247,36 @@ class PSUiDesignWsDisplayFormatPersistTest {
               PSDisplayFormat.PROP_COMMUNITY, PSDisplayFormat.PROP_COMMUNITY_ALL));
       assertFalse(loadedAll.doesPropertyHaveValue(PSDisplayFormat.PROP_COMMUNITY, "1001"));
 
+      source.setDescription("Folder list");
+      PSUiDesignWs.DisplayFormatRowSpec described =
+          PSUiDesignWs.displayFormatRowSpec(source);
+      PSUiDesignWs.updateDisplayFormatDescription(conn, described);
+      PSDisplayFormat loadedDescribed =
+          PSUiDesignWs.loadDisplayFormatFromDb(conn, spec.displayId, spec.internalName);
+      assertEquals("Folder list", loadedDescribed.getDescription());
+      assertEquals("QA H2 DF", loadedDescribed.getDisplayName());
+
+      source.setDisplayName("changed label");
+      source.setDescription("note");
+      PSUiDesignWs.DisplayFormatRowSpec renamed =
+          PSUiDesignWs.displayFormatRowSpec(source);
+      assertEquals("note", renamed.description);
+      PSUiDesignWs.updateDisplayFormatDescription(conn, renamed);
+      PSDisplayFormat loadedNote =
+          PSUiDesignWs.loadDisplayFormatFromDb(conn, spec.displayId, spec.internalName);
+      assertEquals("note", loadedNote.getDescription());
+      assertEquals("QA H2 DF", loadedNote.getDisplayName());
+      assertEquals("QaH2Df", loadedNote.getName());
+
+      source.setDescription("");
+      PSUiDesignWs.DisplayFormatRowSpec cleared = PSUiDesignWs.displayFormatRowSpec(source);
+      assertNull(cleared.description);
+      PSUiDesignWs.updateDisplayFormatDescription(conn, cleared);
+      PSDisplayFormat loadedCleared =
+          PSUiDesignWs.loadDisplayFormatFromDb(conn, spec.displayId, spec.internalName);
+      assertEquals("", loadedCleared.getDescription());
+      assertEquals("QA H2 DF", loadedCleared.getDisplayName());
+
       PSUiDesignWs.deleteDisplayFormatRow(conn, spec.displayId);
       assertFalse(PSUiDesignWs.displayFormatRowExists(conn, spec.displayId, spec.internalName));
       assertFalse(PSUiDesignWs.displayFormatColumnExists(conn, spec.displayId, "sys_title"));
