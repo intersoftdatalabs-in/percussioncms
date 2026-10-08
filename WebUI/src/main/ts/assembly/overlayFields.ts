@@ -253,6 +253,41 @@ export function blankRequiredTextFieldNames(
 }
 
 /**
+ * True when a single-line text value contains a NUL.
+ * A NUL cannot be stored in item field XML / JDBC text.
+ */
+export function singleLineTextContainsNul(value: string): boolean {
+  return (value ?? "").includes("\u0000");
+}
+
+/**
+ * Single-line text fields whose current value contains a NUL.
+ * Long text, HTML, link, numbers, dates, and datetimes are not checked here.
+ * Later edits for the same name win so the overlay strip and the assembled
+ * node agree. A blank required field stays on {@link blankRequiredTextFieldNames}.
+ */
+export function nulSingleLineTextFieldNames(
+  fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
+  edits: readonly Pick<OverlayFieldEdit, "name" | "value">[],
+): string[] {
+  const values = new Map<string, string>();
+  for (const edit of edits) {
+    values.set(edit.name, edit.value);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "text") {
+      continue;
+    }
+    const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
+    if (singleLineTextContainsNul(value)) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/**
  * Required whole-number fields whose current value is blank or whitespace.
  * Optional numbers stay on {@link invalidChangedNumberFieldNames} so a clear
  * is not written. Decimals and non-numeric text are not named here. Long text,

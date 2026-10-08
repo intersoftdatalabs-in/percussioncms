@@ -1585,6 +1585,181 @@ describe("AssemblyHost", () => {
     expect(input.getAttribute("aria-invalid")).toBe("true");
   });
 
+  it("refuses a single-line NUL before save and reloads the previous text", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn();
+    renderTextHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    expect(title.getAttribute("data-assembly-value")).toBe("text");
+    title.textContent = "bad\u0000value";
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-displaytitle").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+      /character that cannot be saved/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(title.hasAttribute("aria-invalid")).toBe(false);
+    expect(title.textContent).toBe("bad\u0000value");
+    cleanup();
+    const reloaded = textPreviewDoc();
+    renderTextHost(reloaded, saveFields);
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-displaytitle"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(OLD_TEXT);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+  });
+
+  it("does not write when Cancel leaves a single-line NUL edit", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn();
+    renderTextHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = "bad\u0000value";
+    fireEvent.click(screen.getByTestId("assembly-field-cancel"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(title.textContent).toBe(OLD_TEXT);
+    expect(screen.queryByTestId("assembly-field-error-displaytitle")).toBeNull();
+  });
+
+  it("still saves an ordinary single-line value", async () => {
+    let titleValue = OLD_TEXT;
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      titleValue = body.fields.find((field) => field.name === "displaytitle")?.value ?? titleValue;
+      return {
+        ...textFields,
+        fields: textFields.fields.map((field) =>
+          field.name === "displaytitle" ? { ...field, value: titleValue } : field,
+        ),
+      };
+    });
+    const previewDoc = textPreviewDoc();
+    renderTextHost(
+      previewDoc,
+      saveFields,
+      vi.fn(async () => ({
+        ...textFields,
+        fields: textFields.fields.map((field) =>
+          field.name === "displaytitle" ? { ...field, value: titleValue } : field,
+        ),
+      })),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = NEW_TEXT;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    });
+    const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "displaytitle")?.value).toBe(NEW_TEXT);
+    expect(String(sent.fields.find((field) => field.name === "displaytitle")?.value)).not.toContain(
+      "\u0000",
+    );
+    expect(sent.fields.find((field) => field.name === "notes")?.value).toBe(LONG_NOTE);
+    expect(screen.queryByTestId("assembly-field-error-displaytitle")).toBeNull();
+    cleanup();
+    const reloaded = textPreviewDoc(NEW_TEXT);
+    renderTextHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue({
+        ...textFields,
+        fields: textFields.fields.map((field) =>
+          field.name === "displaytitle" ? { ...field, value: NEW_TEXT } : field,
+        ),
+      }),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-displaytitle"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(NEW_TEXT);
+    });
+  });
+
+  it("HTTP 400 on a single-line text save does not claim success", async () => {
+    const previewDoc = textPreviewDoc();
+    const saveFields = vi.fn().mockRejectedValue({ status: 400 });
+    renderTextHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-displaytitle"]'),
+      ).toBeTruthy();
+    });
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = NEW_TEXT;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/could not save/i);
+      const live = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-displaytitle"]',
+      ) as HTMLElement | null;
+      expect(live?.textContent).toBe(OLD_TEXT);
+    });
+    expect(saveFields).toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(screen.queryByTestId("assembly-field-error-displaytitle")).toBeNull();
+  });
+
+  it("refuses a single-line NUL on the overlay strip", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn();
+    renderTextHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-displaytitle")).toBeTruthy();
+    });
+    const input = screen.getByTestId(
+      "assembly-overlay-field-displaytitle",
+    ) as HTMLInputElement;
+    expect(input.getAttribute("data-assembly-value")).toBe("text");
+    input.value = "bad\u0000value";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-displaytitle").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(input.value).toBe("bad\u0000value");
+  });
+
   const OLD_QTY = "12";
   const NEW_QTY = "27";
 

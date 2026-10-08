@@ -62,6 +62,8 @@ export const ASSEMBLY_MSG = {
   FIELD_SAVED: "perc.ui.assembly@Fields saved",
   FIELD_SAVE_FAILED: "perc.ui.assembly@Could not save fields",
   FIELD_REQUIRED: "perc.ui.assembly@This field is required.",
+  FIELD_TEXT_NUL:
+    "perc.ui.assembly@That text contains a character that cannot be saved.",
   FIELD_NUMBER: "perc.ui.assembly@Enter a whole number.",
   FIELD_DECIMAL: "perc.ui.assembly@Enter a number.",
   FIELD_DATE:
