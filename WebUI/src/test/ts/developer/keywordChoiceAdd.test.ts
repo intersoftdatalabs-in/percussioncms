@@ -24,12 +24,14 @@ import {
   keywordUpdateForClearedChoiceDescription,
   keywordUpdateForDescribedChoice,
   keywordUpdateForKeywordDescription,
+  keywordUpdateForKeywordLabel,
   keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
   keywordUpdateForResequencedChoice,
   keywordUpdateForRevaluedChoice,
   savedChoicesAfterAdd,
   savedKeywordDescription,
+  savedKeywordLabel,
   unwrapKeywordPayload,
 } from "../../../main/ts/developer/keywordChoiceAdd";
 
@@ -625,5 +627,92 @@ describe("keywordUpdateForKeywordDescription", () => {
     expect(savedKeywordDescription({ ...sent, choices }, choices, { ...sent, choices })).toBe(
       null,
     );
+  });
+});
+
+describe("keywordUpdateForKeywordLabel", () => {
+  const choices: KeywordChoiceSummary[] = [
+    { label: "High", value: "high", description: "top", sequence: 1 },
+    { label: "Low", value: "low", description: "bottom", sequence: 2 },
+  ];
+
+  it("does not write a blank or unchanged keyword label", () => {
+    expect(keywordUpdateForKeywordLabel(baseline, "   ")).toBe("blank");
+    expect(keywordUpdateForKeywordLabel(baseline, "\n")).toBe("blank");
+    expect(keywordUpdateForKeywordLabel(baseline, "Priority")).toBe("unchanged");
+    expect(keywordUpdateForKeywordLabel(baseline, "  Priority  ")).toBe("unchanged");
+    expect(keywordUpdateForKeywordLabel({ ...baseline, label: "  Priority \n" }, "Priority")).toBe(
+      "unchanged",
+    );
+  });
+
+  it("changes the keyword label and omits choices", () => {
+    const sent = keywordUpdateForKeywordLabel(baseline, " Rank ");
+    expect(sent).toEqual({
+      label: "Rank",
+      description: "Item priority",
+      sequence: 4,
+    });
+    expect(sent).not.toHaveProperty("choices");
+  });
+
+  it("does not send a description when the keyword has none", () => {
+    const sent = keywordUpdateForKeywordLabel({ ...baseline, description: undefined }, "Rank");
+    expect(sent).toEqual({
+      label: "Rank",
+      sequence: 4,
+    });
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("choices");
+  });
+
+  it("does not copy a choice label onto the keyword", () => {
+    const sent = keywordUpdateForKeywordLabel(baseline, "High");
+    expect(sent).toEqual({
+      label: "High",
+      description: "Item priority",
+      sequence: 4,
+    });
+  });
+
+  it("accepts a response that keeps the description, sequence, and choices", () => {
+    const sent = keywordUpdateForKeywordLabel(baseline, "Rank");
+    if (typeof sent === "string") {
+      throw new Error(sent);
+    }
+    expect(savedKeywordLabel(sent, choices, { ...sent, choices })).toBe("Rank");
+    expect(
+      savedKeywordLabel(sent, choices, {
+        Keyword: { ...sent, choices, label: " Rank " },
+      }),
+    ).toBe("Rank");
+  });
+
+  it("accepts a response that keeps a missing description", () => {
+    const sent = keywordUpdateForKeywordLabel({ ...baseline, description: undefined }, "Rank");
+    if (typeof sent === "string") {
+      throw new Error(sent);
+    }
+    expect(
+      savedKeywordLabel(sent, choices, {
+        label: "Rank",
+        sequence: 4,
+        choices,
+      }),
+    ).toBe("Rank");
+  });
+
+  it("rejects a response that changes choices, description, or sequence", () => {
+    const sent = keywordUpdateForKeywordLabel(baseline, "Rank");
+    if (typeof sent === "string") {
+      throw new Error(sent);
+    }
+    expect(savedKeywordLabel(sent, choices, { ...sent, choices: choices.slice(0, 1) })).toBeNull();
+    expect(
+      savedKeywordLabel(sent, choices, { ...sent, choices, description: "changed" }),
+    ).toBeNull();
+    expect(savedKeywordLabel(sent, choices, { ...sent, choices, sequence: 9 })).toBeNull();
+    expect(savedKeywordLabel(sent, choices, { ...sent, choices, label: "Other" })).toBeNull();
+    expect(savedKeywordLabel({ ...sent, choices }, choices, { ...sent, choices })).toBeNull();
   });
 });

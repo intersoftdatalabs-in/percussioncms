@@ -34,15 +34,19 @@ import {
   keywordUpdateForClearedChoiceDescription,
   keywordUpdateForDescribedChoice,
   keywordUpdateForKeywordDescription,
+  keywordUpdateForKeywordLabel,
   keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
   keywordUpdateForResequencedChoice,
   keywordUpdateForRevaluedChoice,
   savedChoicesAfterAdd,
   savedKeywordDescription,
+  savedKeywordLabel,
   storedKeywordDescription,
+  storedKeywordLabel,
   unwrapKeywordPayload,
 } from "./keywordChoiceAdd";
+import { KW_LABEL_MSG } from "./keywordLabelMessages";
 import { DEV_MSG } from "./messages";
 
 function choiceDescriptionText(choice: KeywordChoiceSummary): string {
@@ -199,6 +203,21 @@ function keywordDescriptionFailureMessage(err: unknown): string {
   return panelErrMsg(err, DEV_MSG.KW_SET_DESCRIPTION_ERROR);
 }
 
+function keywordLabelFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, KW_LABEL_MSG.FORBIDDEN);
+    }
+    if (err.status === 409) {
+      return panelErrMsg(err, KW_LABEL_MSG.CONFLICT);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, KW_LABEL_MSG.INVALID);
+    }
+  }
+  return panelErrMsg(err, KW_LABEL_MSG.ERROR);
+}
+
 function resequenceChoiceFailureMessage(err: unknown): string {
   if (isApiError(err)) {
     if (err.status === 403) {
@@ -294,6 +313,13 @@ export function KeywordEditorPanel({
   const [keywordDescriptionError, setKeywordDescriptionError] = useState<string | null>(null);
   const [keywordDescriptionNotice, setKeywordDescriptionNotice] = useState<string | null>(null);
   const keywordDescriptionInflight = useRef(false);
+  const [keywordLabelShown, setKeywordLabelShown] = useState(storedKeywordLabel(initial?.label));
+  const [keywordLabelEditing, setKeywordLabelEditing] = useState(false);
+  const [keywordLabelDraft, setKeywordLabelDraft] = useState("");
+  const [keywordLabelBusy, setKeywordLabelBusy] = useState(false);
+  const [keywordLabelError, setKeywordLabelError] = useState<string | null>(null);
+  const [keywordLabelNotice, setKeywordLabelNotice] = useState<string | null>(null);
+  const keywordLabelInflight = useRef(false);
   const [pendingClearDescriptionIndex, setPendingClearDescriptionIndex] = useState<number | null>(
     null,
   );
@@ -318,7 +344,8 @@ export function KeywordEditorPanel({
     valueBusy ||
     descriptionBusy ||
     sequenceBusy ||
-    keywordDescriptionBusy;
+    keywordDescriptionBusy ||
+    keywordLabelBusy;
   const labelEditOpen = labelEditIndex != null;
   const valueEditOpen = valueEditIndex != null;
   const descriptionEditOpen = descriptionEditIndex != null;
@@ -328,7 +355,8 @@ export function KeywordEditorPanel({
     valueEditOpen ||
     descriptionEditOpen ||
     sequenceEditOpen ||
-    keywordDescriptionEditing;
+    keywordDescriptionEditing ||
+    keywordLabelEditing;
 
   useEffect(() => {
     if (!id || isNew) return;
@@ -341,6 +369,7 @@ export function KeywordEditorPanel({
         setServerKeyword({ ...kw, choices });
         setListedChoices(choices);
         setLabel(kw.label || "");
+        setKeywordLabelShown(storedKeywordLabel(kw.label));
         setDescription(kw.description || "");
         setKeywordDescriptionShown(storedKeywordDescription(kw.description));
         setSequence(kw.sequence != null ? String(kw.sequence) : "0");
@@ -368,7 +397,7 @@ export function KeywordEditorPanel({
       removeInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       sequenceInflight.current ||
       confirmKind ||
       choiceEditOpen
@@ -420,7 +449,7 @@ export function KeywordEditorPanel({
       removeInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       sequenceInflight.current ||
       removeBusy ||
       labelBusy ||
@@ -517,7 +546,7 @@ export function KeywordEditorPanel({
       busy ||
       confirmKind != null ||
       choiceEditOpen ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       !Number.isInteger(index) ||
       index < 0 ||
       index >= listedChoices.length
@@ -541,7 +570,7 @@ export function KeywordEditorPanel({
       !serverKeyword ||
       !detailReady ||
       index == null ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
       sequenceInflight.current ||
@@ -614,7 +643,7 @@ export function KeywordEditorPanel({
       removeInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       sequenceInflight.current ||
       addBusy ||
       labelBusy ||
@@ -680,7 +709,7 @@ export function KeywordEditorPanel({
       confirmKind != null ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       sequenceInflight.current ||
       valueEditOpen ||
       descriptionEditOpen ||
@@ -707,7 +736,7 @@ export function KeywordEditorPanel({
       index == null ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       sequenceInflight.current ||
       addInflight.current ||
       removeInflight.current ||
@@ -799,7 +828,7 @@ export function KeywordEditorPanel({
       confirmKind != null ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       sequenceInflight.current ||
       labelEditOpen ||
       valueEditOpen ||
@@ -827,7 +856,7 @@ export function KeywordEditorPanel({
       index == null ||
       valueInflight.current ||
       labelInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       sequenceInflight.current ||
       addInflight.current ||
       removeInflight.current ||
@@ -903,7 +932,13 @@ export function KeywordEditorPanel({
   }
 
   function cancelChoiceDescriptionEdit(): void {
-    if (descriptionBusy || descriptionInflight.current || keywordDescriptionInflight.current) return;
+    if (
+      descriptionBusy ||
+      descriptionInflight.current ||
+      keywordDescriptionInflight.current ||
+      keywordLabelInflight.current
+    )
+      return;
     setDescriptionEditIndex(null);
     setDescriptionDraft("");
     setDescriptionError(null);
@@ -919,7 +954,7 @@ export function KeywordEditorPanel({
       confirmKind != null ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       sequenceInflight.current ||
       labelEditOpen ||
       valueEditOpen ||
@@ -945,7 +980,7 @@ export function KeywordEditorPanel({
       !serverKeyword ||
       !detailReady ||
       index == null ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
       sequenceInflight.current ||
@@ -1034,7 +1069,7 @@ export function KeywordEditorPanel({
       confirmKind != null ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       sequenceInflight.current ||
       labelEditOpen ||
       valueEditOpen ||
@@ -1064,7 +1099,7 @@ export function KeywordEditorPanel({
       sequenceInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
-      descriptionInflight.current || keywordDescriptionInflight.current ||
+      descriptionInflight.current || keywordDescriptionInflight.current || keywordLabelInflight.current ||
       addInflight.current ||
       removeInflight.current ||
       addBusy ||
@@ -1139,7 +1174,8 @@ export function KeywordEditorPanel({
   }
 
   function cancelKeywordDescriptionEdit(): void {
-    if (keywordDescriptionBusy || keywordDescriptionInflight.current) return;
+    if (keywordDescriptionBusy || keywordDescriptionInflight.current || keywordLabelInflight.current)
+      return;
     setKeywordDescriptionEditing(false);
     setKeywordDescriptionDraft("");
     setKeywordDescriptionError(null);
@@ -1154,7 +1190,7 @@ export function KeywordEditorPanel({
       busy ||
       confirmKind != null ||
       choiceEditOpen ||
-      keywordDescriptionInflight.current ||
+      keywordDescriptionInflight.current || keywordLabelInflight.current ||
       descriptionInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
@@ -1177,7 +1213,7 @@ export function KeywordEditorPanel({
       !serverKeyword ||
       !detailReady ||
       !keywordDescriptionEditing ||
-      keywordDescriptionInflight.current ||
+      keywordDescriptionInflight.current || keywordLabelInflight.current ||
       descriptionInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
@@ -1236,6 +1272,110 @@ export function KeywordEditorPanel({
     }
   }
 
+  function cancelKeywordLabelEdit(): void {
+    if (keywordLabelBusy || keywordLabelInflight.current) return;
+    setKeywordLabelEditing(false);
+    setKeywordLabelDraft("");
+    setKeywordLabelError(null);
+  }
+
+  function startKeywordLabelEdit(): void {
+    if (
+      !id ||
+      isNew ||
+      !detailReady ||
+      choiceWriteBusy ||
+      busy ||
+      confirmKind != null ||
+      choiceEditOpen ||
+      keywordLabelInflight.current ||
+      keywordDescriptionInflight.current ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      valueInflight.current ||
+      sequenceInflight.current ||
+      addInflight.current ||
+      removeInflight.current
+    ) {
+      return;
+    }
+    setKeywordLabelEditing(true);
+    setKeywordLabelDraft(keywordLabelShown);
+    setKeywordLabelError(null);
+    setKeywordLabelNotice(null);
+  }
+
+  async function handleKeywordLabelSave(): Promise<void> {
+    if (
+      !id ||
+      isNew ||
+      !serverKeyword ||
+      !detailReady ||
+      !keywordLabelEditing ||
+      keywordLabelInflight.current ||
+      keywordDescriptionInflight.current ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      valueInflight.current ||
+      sequenceInflight.current ||
+      addInflight.current ||
+      removeInflight.current ||
+      addBusy ||
+      removeBusy ||
+      labelBusy ||
+      valueBusy ||
+      descriptionBusy ||
+      sequenceBusy ||
+      keywordDescriptionBusy ||
+      busy ||
+      confirmKind
+    ) {
+      return;
+    }
+    const sent = keywordUpdateForKeywordLabel(serverKeyword, keywordLabelDraft);
+    if (sent === "blank") {
+      setKeywordLabelError(KW_LABEL_MSG.BLANK);
+      setKeywordLabelNotice(null);
+      return;
+    }
+    if (sent === "unchanged") {
+      setKeywordLabelEditing(false);
+      setKeywordLabelDraft("");
+      setKeywordLabelError(null);
+      return;
+    }
+    keywordLabelInflight.current = true;
+    setKeywordLabelBusy(true);
+    setKeywordLabelError(null);
+    setKeywordLabelNotice(null);
+    const previousShown = keywordLabelShown;
+    try {
+      const payload = await updateKeyword(id, sent);
+      const accepted = savedKeywordLabel(sent, listedChoices, payload);
+      if (accepted == null) {
+        setKeywordLabelShown(previousShown);
+        setLabel(previousShown);
+        setKeywordLabelError(KW_LABEL_MSG.ERROR);
+        setKeywordLabelNotice(null);
+        return;
+      }
+      setKeywordLabelShown(accepted);
+      setLabel(accepted);
+      setServerKeyword({ ...serverKeyword, label: accepted });
+      setKeywordLabelEditing(false);
+      setKeywordLabelDraft("");
+      setKeywordLabelNotice(KW_LABEL_MSG.SAVED);
+    } catch (err: unknown) {
+      setKeywordLabelShown(previousShown);
+      setLabel(previousShown);
+      setKeywordLabelError(keywordLabelFailureMessage(err));
+      setKeywordLabelNotice(null);
+    } finally {
+      keywordLabelInflight.current = false;
+      setKeywordLabelBusy(false);
+    }
+  }
+
   function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
     if (
       !id ||
@@ -1284,7 +1424,7 @@ export function KeywordEditorPanel({
       </button>
 
       <h2 style={{ marginTop: 0 }}>
-        {isNew ? DEV_MSG.KW_NEW : `${DEV_MSG.KW_EDIT}: ${initial?.label || id}`}
+        {isNew ? DEV_MSG.KW_NEW : `${DEV_MSG.KW_EDIT}: ${keywordLabelShown || id}`}
       </h2>
 
       {error ? (
@@ -1308,6 +1448,106 @@ export function KeywordEditorPanel({
           onChange={(e) => setLabel(e.target.value)}
         />
       </div>
+      {!isNew && id ? (
+        <section
+          data-testid="developer-kw-keyword-label"
+          aria-label={KW_LABEL_MSG.ACTION}
+          style={{ marginBottom: "16px" }}
+        >
+          <h3 style={{ marginBottom: "8px" }}>{KW_LABEL_MSG.ACTION}</h3>
+          <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>{KW_LABEL_MSG.HINT}</p>
+          <p
+            data-testid="developer-kw-keyword-label-text"
+            data-keyword-label={keywordLabelShown}
+            style={{ marginTop: 0 }}
+          >
+            {keywordLabelShown}
+          </p>
+          {keywordLabelError ? (
+            <div role="alert" data-testid="developer-kw-keyword-label-error" style={errorAlert}>
+              {keywordLabelError}
+            </div>
+          ) : null}
+          {keywordLabelNotice ? (
+            <div data-testid="developer-kw-keyword-label-notice" style={{ color: "#276749" }}>
+              {keywordLabelNotice}
+            </div>
+          ) : null}
+          {keywordLabelEditing ? (
+            <div data-testid="developer-kw-keyword-label-editor">
+              <label htmlFor="kw-keyword-label-input">{KW_LABEL_MSG.FIELD}</label>
+              <input
+                id="kw-keyword-label-input"
+                data-testid="developer-kw-keyword-label-input"
+                style={inputStyle}
+                value={keywordLabelDraft}
+                onChange={(e) => setKeywordLabelDraft(e.target.value)}
+              />
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                <button
+                  type="button"
+                  data-testid="developer-kw-keyword-label-save"
+                  aria-label={KW_LABEL_MSG.SAVE}
+                  disabled={keywordLabelBusy}
+                  onClick={() => void handleKeywordLabelSave()}
+                  style={{
+                    padding: "8px 16px",
+                    background: catalogColors.accent,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: keywordLabelBusy ? "wait" : "pointer",
+                  }}
+                >
+                  {KW_LABEL_MSG.SAVE}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-kw-keyword-label-cancel"
+                  disabled={keywordLabelBusy}
+                  onClick={cancelKeywordLabelEdit}
+                  style={{
+                    padding: "8px 16px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {DEV_MSG.KW_CANCEL}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              data-testid="developer-kw-keyword-label-edit"
+              aria-label={KW_LABEL_MSG.ACTION}
+              disabled={
+                choiceWriteBusy ||
+                busy ||
+                !detailReady ||
+                confirmKind != null ||
+                labelEditOpen ||
+                valueEditOpen ||
+                descriptionEditOpen ||
+                sequenceEditOpen ||
+                keywordDescriptionEditing
+              }
+              onClick={startKeywordLabelEdit}
+              style={{
+                padding: "4px 10px",
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                cursor: choiceWriteBusy ? "wait" : "pointer",
+              }}
+            >
+              {KW_LABEL_MSG.ACTION}
+            </button>
+          )}
+        </section>
+      ) : null}
       <div style={fieldStyle}>
         <label htmlFor="kw-desc">{DEV_MSG.KW_FORM_DESCRIPTION}</label>
         <input
@@ -1412,7 +1652,8 @@ export function KeywordEditorPanel({
                 labelEditOpen ||
                 valueEditOpen ||
                 descriptionEditOpen ||
-                sequenceEditOpen
+                sequenceEditOpen ||
+                keywordLabelEditing
               }
               onClick={startKeywordDescriptionEdit}
               style={{
