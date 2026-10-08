@@ -171,6 +171,11 @@ export type RevalueChoiceRejection = "blank" | "duplicate" | "missing" | "unchan
 
 export type DescribeChoiceRejection = "blank" | "missing" | "unchanged";
 
+export type ResequenceChoiceRejection = "blank" | "invalid" | "missing" | "unchanged";
+
+/** Java {@code Integer.MAX_VALUE}. The server stores choice sequence as an Integer >= 0. */
+const CHOICE_SEQUENCE_MAX = 2_147_483_647;
+
 function storedChoiceDescription(choice: KeywordChoiceSummary): string {
   return (choice.description ?? "").trim();
 }
@@ -329,6 +334,80 @@ export function keywordUpdateForDescribedChoice(
       const copy = choiceForUpdate(choice);
       if (i === index) {
         return { ...copy, description };
+      }
+      return copy;
+    }),
+  };
+}
+
+/**
+ * Whole number from a choice-sequence draft. Blank and non-integers are not
+ * numbers. Leading and trailing space is ignored. {@code 03} is {@code 3}.
+ * A negative number, a fraction, or a value above {@code Integer.MAX_VALUE}
+ * is not a sequence, so the caller does not write it.
+ */
+function parseChoiceSequence(raw: string): number | "blank" | "invalid" {
+  const text = raw.replace(/[\r\n]+/g, " ").trim();
+  if (!text) {
+    return "blank";
+  }
+  if (!/^\d+$/.test(text)) {
+    return "invalid";
+  }
+  const value = Number(text);
+  if (!Number.isSafeInteger(value) || value > CHOICE_SEQUENCE_MAX) {
+    return "invalid";
+  }
+  return value;
+}
+
+function storedChoiceSequence(choice: KeywordChoiceSummary): number | null {
+  const sequence = choice.sequence;
+  if (typeof sequence !== "number" || !Number.isInteger(sequence)) {
+    return null;
+  }
+  if (sequence < 0 || sequence > CHOICE_SEQUENCE_MAX) {
+    return null;
+  }
+  return sequence;
+}
+
+/**
+ * Body for the existing keyword update that changes one choice sequence.
+ * Keyword label, description, and sequence are copied from the loaded keyword.
+ * That choice keeps its label, value, and description. The other choices stay.
+ * A blank sequence is not a body. A non-integer, a negative number, or a
+ * value above {@code Integer.MAX_VALUE} is not a body. The same sequence is
+ * not a write. Sequences are not unique across choices.
+ */
+export function keywordUpdateForResequencedChoice(
+  baseline: Pick<KeywordSummary, "label" | "description" | "sequence">,
+  existing: KeywordChoiceSummary[],
+  index: number,
+  nextSequenceText: string,
+): KeywordSummary | ResequenceChoiceRejection {
+  if (!Number.isInteger(index) || index < 0 || index >= existing.length) {
+    return "missing";
+  }
+  const currentChoice = existing[index];
+  if (!currentChoice) {
+    return "missing";
+  }
+  const parsed = parseChoiceSequence(nextSequenceText);
+  if (parsed === "blank" || parsed === "invalid") {
+    return parsed;
+  }
+  if (storedChoiceSequence(currentChoice) === parsed) {
+    return "unchanged";
+  }
+  return {
+    label: baseline.label,
+    description: baseline.description,
+    sequence: baseline.sequence,
+    choices: existing.map((choice, i) => {
+      const copy = choiceForUpdate(choice);
+      if (i === index) {
+        return { ...copy, sequence: parsed };
       }
       return copy;
     }),

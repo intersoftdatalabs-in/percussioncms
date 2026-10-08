@@ -512,6 +512,24 @@ export const DEV_MSG_KEYS = {
   KW_CHANGE_CHOICE_DESCRIPTION_INVALID: "perc.ui.developer@The choice description was not changed.",
   KW_CHANGE_CHOICE_DESCRIPTION_CONFLICT:
     "perc.ui.developer@The choice description was not changed. The previous description is unchanged.",
+  KW_CHANGE_CHOICE_SEQUENCE: "perc.ui.developer@Change sequence",
+  /** Aria label; `{0}` is the choice label. */
+  KW_CHANGE_CHOICE_SEQUENCE_ACTION: "perc.ui.developer@Change sequence of {0}",
+  KW_CHANGE_CHOICE_SEQUENCE_HINT:
+    "perc.ui.developer@Changes the sequence of one choice with the keyword update. The new sequence shows only after that save succeeds. The choice label, value, and description stay. The keyword label, description, sequence, and the other choices stay. A blank sequence is not sent. A sequence that is not a whole number from 0 up is not sent. Cancel does not write.",
+  KW_CHANGE_CHOICE_SEQUENCE_FIELD: "perc.ui.developer@Choice sequence",
+  KW_CHANGE_CHOICE_SEQUENCE_SAVE: "perc.ui.developer@Save sequence",
+  KW_CHANGE_CHOICE_SEQUENCE_SAVED: "perc.ui.developer@Choice sequence saved.",
+  KW_CHANGE_CHOICE_SEQUENCE_ERROR: "perc.ui.developer@Could not change the choice sequence.",
+  KW_CHANGE_CHOICE_SEQUENCE_BLANK:
+    "perc.ui.developer@Enter a choice sequence. A blank sequence was not saved.",
+  KW_CHANGE_CHOICE_SEQUENCE_NOT_INTEGER:
+    "perc.ui.developer@Enter a whole number from 0 up. A sequence that is not a whole number was not saved.",
+  KW_CHANGE_CHOICE_SEQUENCE_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to change a choice sequence.",
+  KW_CHANGE_CHOICE_SEQUENCE_INVALID: "perc.ui.developer@The choice sequence was not changed.",
+  KW_CHANGE_CHOICE_SEQUENCE_CONFLICT:
+    "perc.ui.developer@The choice sequence was not changed. The previous sequence is unchanged.",
   TPL_LOADING: "perc.ui.developer@Loading templates...",
   TPL_EMPTY: "perc.ui.developer@No templates returned.",
   TPL_ERROR: "perc.ui.developer@Could not load templates.",

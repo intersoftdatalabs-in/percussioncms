@@ -24,6 +24,7 @@ import {
   keywordUpdateForDescribedChoice,
   keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
+  keywordUpdateForResequencedChoice,
   keywordUpdateForRevaluedChoice,
   savedChoicesAfterAdd,
   unwrapKeywordPayload,
@@ -295,6 +296,101 @@ describe("keywordUpdateForDescribedChoice", () => {
     expect(sent.choices?.[1]?.label).toBe("Low");
     expect(sent.choices?.[1]?.value).toBe("low");
     expect(sent.choices?.[1]?.sequence).toBe(2);
+  });
+});
+
+describe("keywordUpdateForResequencedChoice", () => {
+  const two: KeywordChoiceSummary[] = [
+    { label: "High", value: "high", description: "top", sequence: 1 },
+    { label: "Low", value: "low", description: "bottom", sequence: 2 },
+  ];
+
+  it("does not build a write for a missing choice or the same sequence", () => {
+    expect(keywordUpdateForResequencedChoice(baseline, two, -1, "9")).toBe("missing");
+    expect(keywordUpdateForResequencedChoice(baseline, two, 2, "9")).toBe("missing");
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1.5, "9")).toBe("missing");
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, "2")).toBe("unchanged");
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, " 2 ")).toBe("unchanged");
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, "02")).toBe("unchanged");
+  });
+
+  it("does not write a blank sequence", () => {
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, "")).toBe("blank");
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, "   ")).toBe("blank");
+    expect(keywordUpdateForResequencedChoice(baseline, two, 0, "\n")).toBe("blank");
+  });
+
+  it("does not write a non-integer or a negative sequence", () => {
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, "1.5")).toBe("invalid");
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, "9a")).toBe("invalid");
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, "-1")).toBe("invalid");
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, "+3")).toBe("invalid");
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, "1e2")).toBe("invalid");
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, "2147483648")).toBe("invalid");
+  });
+
+  it("changes one sequence and keeps label, value, description, and the other choice", () => {
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, " 9 ")).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "low", description: "bottom", sequence: 9 },
+      ],
+    });
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, "2147483647")).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "low", description: "bottom", sequence: 2147483647 },
+      ],
+    });
+  });
+
+  it("allows the same sequence on another choice", () => {
+    expect(keywordUpdateForResequencedChoice(baseline, two, 1, "1")).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "low", description: "bottom", sequence: 1 },
+      ],
+    });
+  });
+
+  it("does not copy the keyword sequence onto the choice", () => {
+    const sent = keywordUpdateForResequencedChoice(baseline, two, 1, "4");
+    expect(sent).not.toBe("unchanged");
+    if (typeof sent === "string") {
+      throw new Error(sent);
+    }
+    expect(sent.sequence).toBe(4);
+    expect(sent.description).toBe("Item priority");
+    expect(sent.choices?.[1]?.sequence).toBe(4);
+    expect(sent.choices?.[0]?.sequence).toBe(1);
+    expect(sent.choices?.[1]?.label).toBe("Low");
+    expect(sent.choices?.[1]?.value).toBe("low");
+    expect(sent.choices?.[1]?.description).toBe("bottom");
+  });
+
+  it("writes zero when the stored sequence is missing", () => {
+    const missing: KeywordChoiceSummary[] = [
+      { label: "High", value: "high", description: "top", sequence: 1 },
+      { label: "Low", value: "low", description: "bottom" },
+    ];
+    expect(keywordUpdateForResequencedChoice(baseline, missing, 1, "0")).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "low", description: "bottom", sequence: 0 },
+      ],
+    });
   });
 });
 
