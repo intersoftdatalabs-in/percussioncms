@@ -5084,6 +5084,269 @@ describe("EditorHost refuse a single-line text NUL (#5388)", () => {
   });
 });
 
+describe("EditorHost refuse an HTML NUL (#5389)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function htmlHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    html?: string;
+    notes?: string;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+    includeLongText?: boolean;
+  }) {
+    const html = opts.html ?? "<p>Hi</p>";
+    const notes = opts.notes ?? "line one";
+    const fields = opts.includeLongText
+      ? [
+          { name: "text", value: html },
+          { name: "description", value: notes },
+        ]
+      : [{ name: "text", value: html }];
+    const typeFields = opts.includeLongText
+      ? [
+          { name: "text", label: "Body", control: "sys_tinymce" },
+          { name: "description", label: "Description", control: "sys_TextArea" },
+        ]
+      : [{ name: "text", label: "Body", control: "sys_tinymce" }];
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percRichText",
+          name: "Intro",
+          checkoutUser: "admin",
+          revision: 3,
+          fields,
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({ fields: typeFields })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  it("refuses an HTML NUL before PUT and keeps the previous HTML after reload", async () => {
+    const saveFields = vi.fn();
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={htmlHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
+        "<p>Hi</p>",
+      );
+    });
+    const area = screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
+    expect(area.getAttribute("data-editor-kind")).toBe("html");
+    fireEvent.change(area, { target: { value: "<p>bad\u0000value</p>" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /correct the HTML fields before saving/i,
+    );
+    expect(screen.getByTestId("editor-field-text").getAttribute("aria-invalid")).toBe("true");
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={htmlHost({ saveFields: vi.fn() })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
+        "<p>Hi</p>",
+      );
+    });
+  });
+
+  it("does not write when Close cancels an unsaved HTML NUL", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={htmlHost({ saveFields, confirmLeaveUnsaved: () => false })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-text")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-text"), {
+      target: { value: "<p>bad\u0000value</p>" },
+    });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("still saves ordinary HTML", async () => {
+    let html = "<p>Hi</p>";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      html = body.fields.find((f) => f.name === "text")?.value ?? html;
+      return {
+        contentId: "42",
+        contentType: "percRichText",
+        name: "Intro",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={htmlHost({ saveFields, html })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
+        "<p>Hi</p>",
+      );
+    });
+    fireEvent.change(screen.getByTestId("editor-field-text"), {
+      target: { value: "<p>Bye</p>" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "text")?.value).toBe("<p>Bye</p>");
+    expect(String(sent.fields.find((f) => f.name === "text")?.value)).not.toContain("\u0000");
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={htmlHost({ saveFields: vi.fn(), html })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
+        "<p>Bye</p>",
+      );
+    });
+  });
+
+  it("does not treat HTTP 400 on an HTML save as success", async () => {
+    const saveFields = vi.fn().mockRejectedValue({
+      status: 400,
+      body: { message: "rejected" },
+    });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={htmlHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
+        "<p>Hi</p>",
+      );
+    });
+    fireEvent.change(screen.getByTestId("editor-field-text"), {
+      target: { value: "<p>Rejected</p>" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(/could not be saved/i);
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(1);
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={htmlHost({ saveFields: vi.fn() })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
+        "<p>Hi</p>",
+      );
+    });
+  });
+
+  it("still refuses unsafe HTML with the unsafe-HTML message", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={htmlHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-text")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-text"), {
+      target: { value: "<p><script>alert(1)</script></p>" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
+        /script or event markup/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("still refuses a long-text NUL with the long-text message", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={htmlHost({ saveFields, includeLongText: true })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-description")).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("editor-field-description").getAttribute("data-editor-kind"),
+    ).toBe("longtext");
+    fireEvent.change(screen.getByTestId("editor-field-description"), {
+      target: { value: "x\u0000y" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-description").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /long text fields before saving/i,
+    );
+    expect(screen.queryByTestId("editor-field-error-text")).toBeNull();
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+});
+
 describe("EditorHost refuse blank required single-line text (#5207)", () => {
   afterEach(() => {
     cleanup();

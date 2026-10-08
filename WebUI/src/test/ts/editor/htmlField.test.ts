@@ -16,8 +16,12 @@
  */
 
 import { describe, expect, it } from "vitest";
+import { collectInvalidLongTextFieldErrors } from "../../../main/ts/editor/longTextField";
+import { collectInvalidSingleLineTextFieldErrors } from "../../../main/ts/editor/singleLineTextField";
 import {
+  collectInvalidHtmlFieldErrors,
   collectUnsafeHtmlFieldErrors,
+  htmlContainsNul,
   htmlLooksUnsafe,
 } from "../../../main/ts/editor/htmlField";
 
@@ -43,5 +47,42 @@ describe("collectUnsafeHtmlFieldErrors", () => {
       "unsafe",
     );
     expect(errors).toEqual({ text: "unsafe" });
+  });
+});
+
+describe("htmlContainsNul", () => {
+  it("accepts ordinary HTML and rejects an embedded NUL", () => {
+    expect(htmlContainsNul("<p>Hello</p>")).toBe(false);
+    expect(htmlContainsNul("")).toBe(false);
+    expect(htmlContainsNul("<p>bad\u0000value</p>")).toBe(true);
+  });
+});
+
+describe("collectInvalidHtmlFieldErrors", () => {
+  it("flags only HTML rows and leaves the other NUL gates alone", () => {
+    const rows = [
+      { name: "body", kind: "html" as const, value: "<p>bad\u0000</p>" },
+      { name: "intro", kind: "html" as const, value: "<p>ok</p>" },
+      { name: "summary", kind: "text" as const, value: "z\u0000" },
+      { name: "notes", kind: "longtext" as const, value: "x\u0000y" },
+    ];
+    expect(collectInvalidHtmlFieldErrors(rows, "cannot save")).toEqual({
+      body: "cannot save",
+    });
+    expect(collectUnsafeHtmlFieldErrors(rows, "unsafe")).toEqual({});
+    expect(collectInvalidSingleLineTextFieldErrors(rows, "text cannot save")).toEqual({
+      summary: "text cannot save",
+    });
+    expect(collectInvalidLongTextFieldErrors(rows, "long cannot save")).toEqual({
+      notes: "long cannot save",
+    });
+  });
+
+  it("does not treat unsafe markup without a NUL as a NUL error", () => {
+    const rows = [
+      { name: "body", kind: "html" as const, value: "<script>x</script>" },
+    ];
+    expect(collectInvalidHtmlFieldErrors(rows, "cannot save")).toEqual({});
+    expect(collectUnsafeHtmlFieldErrors(rows, "unsafe")).toEqual({ body: "unsafe" });
   });
 });
