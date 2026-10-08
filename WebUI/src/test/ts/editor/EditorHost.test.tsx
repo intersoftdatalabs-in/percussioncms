@@ -6332,6 +6332,185 @@ describe("EditorHost save a decimal number (#5346)", () => {
   });
 });
 
+describe("EditorHost clear optional decimal (#5415)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function decimalClearHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    rate?: string;
+    qty?: string;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const rate = opts.rate ?? "1.5";
+    const qty = opts.qty ?? "4";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [
+            { name: "rate", value: rate },
+            { name: "qty", value: qty },
+          ],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "rate",
+              label: "Rate",
+              control: "sys_Number",
+              dataType: "float",
+            },
+            {
+              name: "qty",
+              label: "Quantity",
+              control: "sys_Number",
+              dataType: "integer",
+              controlProperties: [
+                { name: "minimum", value: "0" },
+                { name: "maximum", value: "10" },
+              ],
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openDecimalClear(
+    element: React.ReactElement,
+    expectedRate = "1.5",
+    expectedQty = "4",
+  ): Promise<{ rate: HTMLInputElement; qty: HTMLInputElement }> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-rate") as HTMLInputElement).value).toBe(
+        expectedRate,
+      );
+    });
+    const qty = screen.getByTestId("editor-field-qty") as HTMLInputElement;
+    expect(qty.value).toBe(expectedQty);
+    return {
+      rate: screen.getByTestId("editor-field-rate") as HTMLInputElement,
+      qty,
+    };
+  }
+
+  it("clears an optional float on save and leaves the integer", async () => {
+    let rate = "1.5";
+    const qty = "4";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      rate = body.fields.find((f) => f.name === "rate")?.value ?? rate;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const opened = await openDecimalClear(decimalClearHost({ saveFields, rate, qty }));
+    expect(opened.rate.getAttribute("data-editor-numeric")).toBe("float");
+    expect(opened.qty.getAttribute("data-editor-numeric")).toBe("integer");
+    const clearRate = screen.getByTestId("editor-number-clear-rate");
+    expect(clearRate.getAttribute("data-editor-numeric")).toBe("float");
+    fireEvent.click(clearRate);
+    expect(opened.rate.value).toBe("");
+    expect(opened.qty.value).toBe("4");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "rate")).toMatchObject({
+      value: "",
+      dataType: "float",
+    });
+    expect(sent.fields.find((f) => f.name === "qty")).toMatchObject({
+      value: "4",
+      dataType: "integer",
+    });
+    expect(screen.queryByTestId("editor-number-clear-rate")).toBeNull();
+    expect(screen.getByTestId("editor-number-clear-qty")).toBeTruthy();
+    cleanup();
+    const reloaded = await openDecimalClear(decimalClearHost({ saveFields, rate, qty }), "", "4");
+    expect(reloaded.rate.value).toBe("");
+    expect(reloaded.qty.value).toBe("4");
+    expect(screen.queryByTestId("editor-number-clear-rate")).toBeNull();
+    expect(screen.getByTestId("editor-number-clear-qty")).toBeTruthy();
+  });
+
+  it("does not write when Close cancels an unsaved decimal clear", async () => {
+    const saveFields = vi.fn();
+    const opened = await openDecimalClear(
+      decimalClearHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.click(screen.getByTestId("editor-number-clear-rate"));
+    expect(opened.rate.value).toBe("");
+    expect(opened.qty.value).toBe("4");
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-rate") as HTMLInputElement).value).toBe("");
+    expect((screen.getByTestId("editor-field-qty") as HTMLInputElement).value).toBe("4");
+    cleanup();
+    const reloaded = await openDecimalClear(decimalClearHost({ saveFields }));
+    expect(reloaded.rate.value).toBe("1.5");
+    expect(reloaded.qty.value).toBe("4");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not claim success for HTTP 400, 403, or 409 on a decimal clear", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "Field 'rate' rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "Field 'rate' denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    await openDecimalClear(decimalClearHost({ saveFields }));
+    fireEvent.click(screen.getByTestId("editor-number-clear-rate"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/could not be saved/i);
+    });
+    expect(screen.getByTestId("editor-field-error-rate").textContent).toMatch(/rate/i);
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/not allowed/i);
+    });
+    expect(screen.getByTestId("editor-field-error-rate").textContent).toMatch(/rate/i);
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/newer revision/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(3);
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "qty")?.value).toBe("4");
+    cleanup();
+    const reloaded = await openDecimalClear(decimalClearHost({ saveFields }));
+    expect(reloaded.rate.value).toBe("1.5");
+    expect(reloaded.qty.value).toBe("4");
+  });
+});
+
 describe("EditorHost refuse blank required date (#5225)", () => {
   afterEach(() => {
     cleanup();

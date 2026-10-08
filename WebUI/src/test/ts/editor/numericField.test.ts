@@ -28,6 +28,8 @@ describe("numericFieldProblem", () => {
     expect(numericFieldProblem("   ", { integer: true, minimum: "0", maximum: "10" })).toBeNull();
     expect(numericFieldProblem("10", { integer: true, minimum: "0", maximum: "10" })).toBeNull();
     expect(numericFieldProblem("1.5", { integer: false, minimum: "0", maximum: "2" })).toBeNull();
+    expect(numericFieldProblem("", { integer: false, minimum: "0", maximum: "2" })).toBeNull();
+    expect(numericFieldProblem("   ", { integer: false })).toBeNull();
   });
 
   it("rejects non-numeric text and values outside the inclusive bounds", () => {
@@ -122,5 +124,24 @@ describe("collectInvalidNumericFieldErrors", () => {
       "outside",
     );
     expect(errors).toEqual({ low: "outside", high: "outside" });
+  });
+
+  it("accepts a cleared optional float without flagging a sibling integer", () => {
+    const errors = collectInvalidNumericFieldErrors(
+      [
+        { name: "rate", kind: "number", value: "", numericInteger: false },
+        {
+          name: "qty",
+          kind: "number",
+          value: "4",
+          numericInteger: true,
+          numericMinimum: "0",
+          numericMaximum: "10",
+        },
+      ],
+      "bad",
+      "outside",
+    );
+    expect(errors).toEqual({});
   });
 });
