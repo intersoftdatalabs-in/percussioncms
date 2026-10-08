@@ -169,7 +169,11 @@ public class KeywordsResource {
   @Produces({MediaType.APPLICATION_JSON})
   @Operation(
       summary = "Update keyword",
-      description = "Update keyword label/description/sequence/choices by uuid.",
+      description =
+          "Update keyword label, description, and sequence by uuid. "
+              + "Choices are replaced only when the body includes choices; "
+              + "omitting choices leaves stored choices. "
+              + "A blank description clears the keyword description.",
       responses = {
         @ApiResponse(
             responseCode = "200",

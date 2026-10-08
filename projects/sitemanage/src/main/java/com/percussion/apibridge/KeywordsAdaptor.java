@@ -179,7 +179,8 @@ public class KeywordsAdaptor implements IKeywordsAdaptor {
       if (body.getSequence() != null) {
         kw.setSequence(body.getSequence());
       }
-      if (body.getChoices() != null) {
+      // Omitted choices (and JSON null) are not a list. An empty list still clears.
+      if (body.isChoicesSpecified()) {
         applyChoices(kw, body.getChoices());
       }
       designWs.saveKeywords(Collections.singletonList(kw), true, session, user);

@@ -17,14 +17,18 @@
 
 package com.percussion.rest.keywords;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement(name = "Keyword")
+@JsonRootName("Keyword")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Keyword definition with optional choices")
 public class KeywordSummary {
@@ -35,6 +39,13 @@ public class KeywordSummary {
   private String description;
   private Integer sequence;
   private List<KeywordChoiceSummary> choices = new ArrayList<>();
+
+  /**
+   * True only when the request included {@code choices}. An omitted property, or JSON {@code null},
+   * leaves this false so an update can change the keyword description without replacing stored
+   * choices. An empty array is present and clears choices.
+   */
+  @JsonIgnore @XmlTransient private boolean choicesSpecified;
 
   public KeywordSummary() {}
 
@@ -82,7 +93,24 @@ public class KeywordSummary {
     return choices;
   }
 
+  /**
+   * @param choices the choice list when the request included {@code choices}; {@code null} means
+   *     the property was not a list and does not replace stored choices
+   */
   public void setChoices(List<KeywordChoiceSummary> choices) {
-    this.choices = choices != null ? choices : new ArrayList<>();
+    if (choices == null) {
+      this.choicesSpecified = false;
+      this.choices = new ArrayList<>();
+      return;
+    }
+    this.choicesSpecified = true;
+    this.choices = choices;
+  }
+
+  /** Whether {@link #setChoices(List)} was called with a list, including an empty list. */
+  @JsonIgnore
+  @XmlTransient
+  public boolean isChoicesSpecified() {
+    return choicesSpecified;
   }
 }
