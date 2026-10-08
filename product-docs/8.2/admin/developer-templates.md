@@ -89,6 +89,18 @@ Integrators can call `POST /services/templates/{idOrName}/lock`, `PUT
 
 **Save template** still saves the other fields on the form, including a description typed in the description box. **Save description** does not change those fields.
 
+## Set a template label
+
+**Save label** writes the label only. Lock the template first.
+
+1. Open an existing template and choose **Lock**.
+2. Choose **Set template label**. The label on the page stays the stored value until save succeeds.
+3. Enter a new label. **Cancel** does not call the server. Saving the same label does not call the server.
+4. Choose **Save label**. The request is `PUT /services/templates/{idOrName}` with the label only. Name, description, bindings, slots, content-type associations, and source are omitted, so they stay. After a successful save, the detail and the catalog label show the new value. HTTP 400, 403, and 409 leave the previous label.
+5. A blank label clears the stored label and does not change the template name. The catalog returns the template name when the stored label is blank, so the page shows that name. The name itself is not cleared.
+
+**Save template** still saves the other fields on the form. **Save label** does not change those fields.
+
 ## Edit from detail
 
 Open a template row to **Lock**, then change label, description, template source, JEXL

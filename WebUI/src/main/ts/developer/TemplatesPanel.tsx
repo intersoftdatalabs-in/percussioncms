@@ -137,6 +137,8 @@ export function TemplatesPanel(): React.ReactElement {
                     type="button"
                     style={openButtonStyle}
                     aria-label={`Open ${t.templateLabel || t.templateName || openKey}`}
+                    data-testid="developer-tpl-catalog-label"
+                    data-tpl-label={t.templateLabel || ""}
                     onClick={() => openTemplate(t)}
                   >
                     {t.templateLabel || "—"}
