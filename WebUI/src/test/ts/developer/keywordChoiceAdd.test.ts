@@ -25,6 +25,7 @@ import {
   keywordUpdateForDescribedChoice,
   keywordUpdateForKeywordDescription,
   keywordUpdateForKeywordLabel,
+  keywordUpdateForKeywordSequence,
   keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
   keywordUpdateForResequencedChoice,
@@ -32,6 +33,7 @@ import {
   savedChoicesAfterAdd,
   savedKeywordDescription,
   savedKeywordLabel,
+  savedKeywordSequence,
   unwrapKeywordPayload,
 } from "../../../main/ts/developer/keywordChoiceAdd";
 
@@ -714,5 +716,94 @@ describe("keywordUpdateForKeywordLabel", () => {
     expect(savedKeywordLabel(sent, choices, { ...sent, choices, sequence: 9 })).toBeNull();
     expect(savedKeywordLabel(sent, choices, { ...sent, choices, label: "Other" })).toBeNull();
     expect(savedKeywordLabel({ ...sent, choices }, choices, { ...sent, choices })).toBeNull();
+  });
+});
+
+describe("keywordUpdateForKeywordSequence", () => {
+  const choices: KeywordChoiceSummary[] = [
+    { label: "High", value: "high", description: "top", sequence: 1 },
+    { label: "Low", value: "low", description: "bottom", sequence: 2 },
+  ];
+
+  it("does not write a blank, non-numeric, or unchanged keyword sequence", () => {
+    expect(keywordUpdateForKeywordSequence(baseline, "   ")).toBe("blank");
+    expect(keywordUpdateForKeywordSequence(baseline, "\n")).toBe("blank");
+    expect(keywordUpdateForKeywordSequence(baseline, "abc")).toBe("invalid");
+    expect(keywordUpdateForKeywordSequence(baseline, "1.5")).toBe("invalid");
+    expect(keywordUpdateForKeywordSequence(baseline, "-1")).toBe("invalid");
+    expect(keywordUpdateForKeywordSequence(baseline, "2147483648")).toBe("invalid");
+    expect(keywordUpdateForKeywordSequence(baseline, "4")).toBe("unchanged");
+    expect(keywordUpdateForKeywordSequence(baseline, " 04 ")).toBe("unchanged");
+  });
+
+  it("changes the keyword sequence and omits choices", () => {
+    const sent = keywordUpdateForKeywordSequence(baseline, " 9 ");
+    expect(sent).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 9,
+    });
+    expect(sent).not.toHaveProperty("choices");
+  });
+
+  it("does not send a description when the keyword has none", () => {
+    const sent = keywordUpdateForKeywordSequence({ ...baseline, description: undefined }, "9");
+    expect(sent).toEqual({
+      label: "Priority",
+      sequence: 9,
+    });
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("choices");
+  });
+
+  it("does not copy a choice sequence onto the keyword", () => {
+    const sent = keywordUpdateForKeywordSequence(baseline, "1");
+    expect(sent).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 1,
+    });
+    expect(sent).not.toHaveProperty("choices");
+  });
+
+  it("accepts a response that keeps the label, description, and choices", () => {
+    const sent = keywordUpdateForKeywordSequence(baseline, "9");
+    if (typeof sent === "string") {
+      throw new Error(sent);
+    }
+    expect(savedKeywordSequence(sent, choices, { ...sent, choices })).toBe(9);
+    expect(
+      savedKeywordSequence(sent, choices, {
+        Keyword: { ...sent, choices, sequence: 9 },
+      }),
+    ).toBe(9);
+  });
+
+  it("accepts a response that keeps a missing description", () => {
+    const sent = keywordUpdateForKeywordSequence({ ...baseline, description: undefined }, "0");
+    if (typeof sent === "string") {
+      throw new Error(sent);
+    }
+    expect(
+      savedKeywordSequence(sent, choices, {
+        label: "Priority",
+        sequence: 0,
+        choices,
+      }),
+    ).toBe(0);
+  });
+
+  it("rejects a response that changes choices, label, or description", () => {
+    const sent = keywordUpdateForKeywordSequence(baseline, "9");
+    if (typeof sent === "string") {
+      throw new Error(sent);
+    }
+    expect(savedKeywordSequence(sent, choices, { ...sent, choices: choices.slice(0, 1) })).toBeNull();
+    expect(savedKeywordSequence(sent, choices, { ...sent, choices, label: "Renamed" })).toBeNull();
+    expect(
+      savedKeywordSequence(sent, choices, { ...sent, choices, description: "changed" }),
+    ).toBeNull();
+    expect(savedKeywordSequence(sent, choices, { ...sent, choices, sequence: 4 })).toBeNull();
+    expect(savedKeywordSequence({ ...sent, choices }, choices, { ...sent, choices })).toBeNull();
   });
 });

@@ -722,3 +722,118 @@ export function savedKeywordLabel(
   }
   return sentLabel;
 }
+
+/** Java {@code Integer.MAX_VALUE}. The server stores keyword sequence as an Integer >= 0. */
+const KEYWORD_SEQUENCE_MAX = 2_147_483_647;
+
+export type KeywordSequenceRejection = "blank" | "invalid" | "unchanged";
+
+/**
+ * Whole number from a keyword-sequence draft. Blank and non-integers are not
+ * numbers. Leading and trailing space is ignored. {@code 03} is {@code 3}.
+ * A negative number, a fraction, or a value above {@code Integer.MAX_VALUE}
+ * is not a sequence, so the caller does not write it.
+ */
+export function parseKeywordSequence(raw: string): number | "blank" | "invalid" {
+  const text = raw.replace(/[\r\n]+/g, " ").trim();
+  if (!text) {
+    return "blank";
+  }
+  if (!/^\d+$/.test(text)) {
+    return "invalid";
+  }
+  const value = Number(text);
+  if (!Number.isSafeInteger(value) || value > KEYWORD_SEQUENCE_MAX) {
+    return "invalid";
+  }
+  return value;
+}
+
+/** Stored keyword sequence, or null when it is not a whole number from 0 through {@code Integer.MAX_VALUE}. */
+export function storedKeywordSequence(value?: number | null): number | null {
+  if (typeof value !== "number" || !Number.isInteger(value)) {
+    return null;
+  }
+  if (value < 0 || value > KEYWORD_SEQUENCE_MAX) {
+    return null;
+  }
+  return value;
+}
+
+/** Text for the stored keyword sequence. Missing or out of range is empty, not zero. */
+export function formatKeywordSequence(value?: number | null): string {
+  const stored = storedKeywordSequence(value);
+  return stored == null ? "" : String(stored);
+}
+
+/**
+ * Body for the existing keyword update that changes the keyword sequence.
+ * Label and description are copied from the loaded keyword. Choices are
+ * omitted so stored choices stay. A blank sequence is not a write. A
+ * non-integer, a negative number, or a value above {@code Integer.MAX_VALUE}
+ * is not a write. The same sequence is not a write. This is not a choice
+ * sequence.
+ */
+export function keywordUpdateForKeywordSequence(
+  baseline: Pick<KeywordSummary, "label" | "description" | "sequence">,
+  nextSequenceText: string,
+): KeywordSummary | KeywordSequenceRejection {
+  const parsed = parseKeywordSequence(nextSequenceText);
+  if (parsed === "blank" || parsed === "invalid") {
+    return parsed;
+  }
+  if (storedKeywordSequence(baseline.sequence) === parsed) {
+    return "unchanged";
+  }
+  const body: KeywordSummary = {
+    sequence: parsed,
+  };
+  if (baseline.label != null) {
+    body.label = baseline.label;
+  }
+  if (baseline.description != null) {
+    body.description = baseline.description;
+  }
+  return body;
+}
+
+/**
+ * Sequence to show after a keyword-sequence update, or null when the response
+ * must not replace the previous sequence (metadata changed, the sequence is
+ * not the one sent, or stored choices are not the previous list). The sent
+ * body must omit choices.
+ */
+export function savedKeywordSequence(
+  sent: KeywordSummary,
+  previousChoices: KeywordChoiceSummary[],
+  payload: unknown,
+): number | null {
+  if ("choices" in sent) {
+    return null;
+  }
+  const saved = unwrapKeywordPayload(payload);
+  if (!saved) {
+    return null;
+  }
+  if ("label" in sent) {
+    if (!sameOptionalText(sent.label ?? null, saved.label ?? null)) {
+      return null;
+    }
+  } else if (storedKeywordLabel(saved.label) !== "") {
+    return null;
+  }
+  if ("description" in sent) {
+    if (!sameOptionalText(sent.description ?? null, saved.description ?? null)) {
+      return null;
+    }
+  } else if (storedKeywordDescription(saved.description) !== "") {
+    return null;
+  }
+  if (typeof sent.sequence !== "number" || saved.sequence !== sent.sequence) {
+    return null;
+  }
+  if (!sameChoiceList(previousChoices, saved.choices ?? [])) {
+    return null;
+  }
+  return sent.sequence;
+}

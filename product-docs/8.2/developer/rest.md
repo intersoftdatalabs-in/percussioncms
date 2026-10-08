@@ -264,6 +264,25 @@ list from the error body. Add, remove, choice label, value, description,
 sequence, keyword description, and delete stay on this resource and are
 unchanged.
 
+### Change the keyword sequence
+
+**Developer → Keywords** changes the keyword sequence with the existing
+`PUT /services/keywords/{id}` (the same update used to add or remove a
+choice, or to change the keyword label or description). The body is wrapped
+as `Keyword`. It keeps the stored keyword `label` and `description`, and
+sends `sequence`. It omits `choices`, so stored choices stay. An empty
+`choices` array is a different request: that clears the choice list. The
+keyword sequence is the `sequence` field on the keyword, not the `sequence`
+field on a choice. The new sequence is shown only when that update succeeds
+and the response keeps the same label, description, and choices with that
+sequence. A blank sequence is not sent. A value that is not a whole number
+from 0 through 2147483647 (a fraction, a negative number, or a larger
+number) is not sent. Cancel is not a request. The same sequence is not a
+request. HTTP **400**, **403**, and **409** are errors: the editor keeps
+the previous sequence and does not apply a choice list from the error body.
+Add, remove, choice label, value, description, sequence, keyword label,
+keyword description, and delete stay on this resource and are unchanged.
+
 ## Locales (design catalog)
 
 CMS locale definitions (Workbench **Locales** / content design) are exposed under `/services/locales`.
