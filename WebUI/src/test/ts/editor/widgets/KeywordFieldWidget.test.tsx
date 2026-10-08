@@ -26,6 +26,7 @@ import {
   keywordOutsideCatalogMessage,
   keywordValueOutsideCatalog,
   KeywordFieldWidget,
+  type KeywordOption,
 } from "../../../../main/ts/editor/widgets/KeywordFieldWidget";
 
 const catalog: KeywordSummary[] = [
@@ -160,6 +161,41 @@ describe("KeywordFieldWidget", () => {
     });
     expect(screen.getByTestId("editor-field-keywords")).toBeTruthy();
     expect(onChoices).not.toHaveBeenCalled();
+  });
+
+  it("publishes catalog choices in the same commit as the options", async () => {
+    const onChoices = vi.fn();
+    const publishedWhenOptionInserted: boolean[] = [];
+    const observer = new MutationObserver(() => {
+      if (document.querySelector('option[value="events"]')) {
+        publishedWhenOptionInserted.push(onChoices.mock.calls.length > 0);
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    try {
+      render(
+        <KeywordFieldWidget
+          name="keywords"
+          value="legacy"
+          readOnly={false}
+          onChange={vi.fn()}
+          onChoices={onChoices}
+          loadKeywords={async () => catalog}
+        />,
+      );
+      await waitFor(() => {
+        expect(document.querySelector('option[value="events"]')).toBeTruthy();
+        expect(onChoices).toHaveBeenCalled();
+      });
+    } finally {
+      observer.disconnect();
+    }
+    expect(publishedWhenOptionInserted.length).toBeGreaterThan(0);
+    expect(publishedWhenOptionInserted.every(Boolean)).toBe(true);
+    expect(onChoices.mock.calls[0][0].map((option: KeywordOption) => option.value)).toEqual([
+      "news",
+      "events",
+    ]);
   });
 
   it("renders choices and reports the selected value", async () => {

@@ -1188,7 +1188,8 @@ describe("EditorHost rich controls", () => {
       </MemoryRouter>,
     );
     await waitFor(() => {
-      expect(screen.getByRole("option", { name: "Events" })).toBeTruthy();
+      const select = screen.getByTestId("editor-field-keywords");
+      expect(select.querySelector('option[value="events"]')).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("editor-save"));
     expect(saveFields).not.toHaveBeenCalled();

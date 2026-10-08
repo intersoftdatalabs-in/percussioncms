@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { listKeywords } from "../../api/developer/keywordsApi";
 import type { KeywordChoiceSummary, KeywordSummary } from "../../api/developer/types";
 import { message } from "../../i18n/message";
@@ -172,7 +172,9 @@ export function KeywordFieldWidget({
     [keywords, name],
   );
 
-  useEffect(() => {
+  // Same commit as the <option> nodes. A passive effect can run after Save
+  // already sees those options and would PUT a value outside the catalog.
+  useLayoutEffect(() => {
     if (loaded) {
       onChoicesRef.current?.(options);
     }
