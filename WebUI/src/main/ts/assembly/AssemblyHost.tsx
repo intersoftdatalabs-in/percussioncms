@@ -23,9 +23,10 @@
  * nodes (HTML keeps its markup; single-line text stays one line; long text
  * keeps line breaks; a number is one whole number and a required number
  * cannot be saved blank; a date is one calendar day and a required date
- * cannot be saved blank) and persist through
- * itemmanagement — not leftover Content Editor HTML.
- * Datetime stays on the Content Editor.
+ * cannot be saved blank; a datetime is one date and time, a required datetime
+ * cannot be saved blank, and an optional datetime may be cleared) and persist
+ * through itemmanagement — not leftover Content Editor HTML.
+ * Float stays on the Content Editor.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -71,10 +72,12 @@ import {
   applyFieldOverlay,
   ASSEMBLY_VALUE_LONGTEXT,
   blankRequiredDateFieldNames,
+  blankRequiredDatetimeFieldNames,
   blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
   changedOverlayEdits,
   invalidChangedDateFieldNames,
+  invalidChangedDatetimeFieldNames,
   invalidChangedNumberFieldNames,
   markAssemblyFieldErrors,
   overlayEditKey,
@@ -641,6 +644,10 @@ export function AssemblyHost({
       overlayFields,
       visibleEdits,
     );
+    const blankRequiredDatetimes = blankRequiredDatetimeFieldNames(
+      overlayFields,
+      visibleEdits,
+    );
     const badNumbers = invalidChangedNumberFieldNames(
       overlayFields,
       visibleEdits,
@@ -651,16 +658,24 @@ export function AssemblyHost({
       visibleEdits,
       fieldBaselineRef.current,
     );
+    const badDatetimes = invalidChangedDatetimeFieldNames(
+      overlayFields,
+      visibleEdits,
+      fieldBaselineRef.current,
+    );
     if (
       blankRequired.length > 0 ||
       blankRequiredNumbers.length > 0 ||
       blankRequiredDates.length > 0 ||
+      blankRequiredDatetimes.length > 0 ||
       badNumbers.length > 0 ||
-      badDates.length > 0
+      badDates.length > 0 ||
+      badDatetimes.length > 0
     ) {
       const requiredText = message(ASSEMBLY_MSG.FIELD_REQUIRED);
       const numberText = message(ASSEMBLY_MSG.FIELD_NUMBER);
       const dateText = message(ASSEMBLY_MSG.FIELD_DATE);
+      const datetimeText = message(ASSEMBLY_MSG.FIELD_DATETIME);
       const errors: Record<string, string> = {};
       for (const name of blankRequired) {
         errors[name] = requiredText;
@@ -671,14 +686,23 @@ export function AssemblyHost({
       for (const name of blankRequiredDates) {
         errors[name] = requiredText;
       }
+      for (const name of blankRequiredDatetimes) {
+        errors[name] = requiredText;
+      }
       for (const name of badNumbers) {
         errors[name] = numberText;
       }
       for (const name of badDates) {
         errors[name] = dateText;
       }
+      for (const name of badDatetimes) {
+        errors[name] = datetimeText;
+      }
       const refused = overlayFields.filter(
-        (field) => badNumbers.includes(field.name) || badDates.includes(field.name),
+        (field) =>
+          badNumbers.includes(field.name) ||
+          badDates.includes(field.name) ||
+          badDatetimes.includes(field.name),
       );
       if (refused.length > 0) {
         if (doc != null) {
@@ -692,11 +716,14 @@ export function AssemblyHost({
       setFieldNotice(
         blankRequired.length > 0 ||
         blankRequiredNumbers.length > 0 ||
-        blankRequiredDates.length > 0
+        blankRequiredDates.length > 0 ||
+        blankRequiredDatetimes.length > 0
           ? requiredText
           : badNumbers.length > 0
             ? numberText
-            : dateText,
+            : badDates.length > 0
+              ? dateText
+              : datetimeText,
       );
       setFieldNoticeRole("alert");
       return;
@@ -949,7 +976,8 @@ export function AssemblyHost({
                   data-required={
                     (field.kind === "text" ||
                       field.kind === "number" ||
-                      field.kind === "date") &&
+                      field.kind === "date" ||
+                      field.kind === "datetime") &&
                     field.required
                       ? "true"
                       : "false"
@@ -1025,6 +1053,20 @@ export function AssemblyHost({
                       data-assembly-field={field.name}
                       data-assembly-content-id={String(contentId ?? "")}
                       data-assembly-value="date"
+                      data-assembly-required={field.required ? "true" : undefined}
+                      data-testid={`assembly-overlay-field-${field.name}`}
+                      aria-label={field.label}
+                      aria-required={field.required ? true : undefined}
+                      aria-invalid={fieldErrors[field.name] ? true : undefined}
+                    />
+                  ) : field.kind === "datetime" ? (
+                    <input
+                      className={styles.fieldEdit}
+                      type="datetime-local"
+                      defaultValue={field.value}
+                      data-assembly-field={field.name}
+                      data-assembly-content-id={String(contentId ?? "")}
+                      data-assembly-value="datetime"
                       data-assembly-required={field.required ? "true" : undefined}
                       data-testid={`assembly-overlay-field-${field.name}`}
                       aria-label={field.label}

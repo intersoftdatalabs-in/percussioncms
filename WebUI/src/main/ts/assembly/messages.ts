@@ -25,7 +25,7 @@ export const ASSEMBLY_MSG = {
   CONTENT_ID: "perc.ui.assembly@Content",
   TEMPLATE_LABEL: "perc.ui.assembly@Template",
   TEMPLATE_PLACEHOLDER: "perc.ui.assembly@Select a page or snippet template",
-  NOTE: "perc.ui.assembly@Assembled with the selected page or snippet template. Known single-line text, long text, HTML, link, whole-number, and calendar-date fields edit inline and save through itemmanagement.",
+  NOTE: "perc.ui.assembly@Assembled with the selected page or snippet template. Known single-line text, long text, HTML, link, whole-number, calendar-date, and datetime fields edit inline and save through itemmanagement.",
   MISSING_ITEM: "perc.ui.assembly@Open Active Assembly from Explorer with a content item selected.",
   NO_TEMPLATE: "perc.ui.assembly@No page or snippet template is available for this item.",
   TEMPLATE_MISMATCH:
@@ -56,7 +56,7 @@ export const ASSEMBLY_MSG = {
   SLOT_APPLY: "perc.ui.assembly@Apply",
   SLOT_CANCEL: "perc.ui.assembly@Cancel",
   FIELDS: "perc.ui.assembly@Fields",
-  FIELD_EMPTY: "perc.ui.assembly@No known text, HTML, link, number, or date fields on this item.",
+  FIELD_EMPTY: "perc.ui.assembly@No known text, HTML, link, number, date, or datetime fields on this item.",
   FIELD_SAVE: "perc.ui.assembly@Save fields",
   FIELD_SAVING: "perc.ui.assembly@Saving fields…",
   FIELD_SAVED: "perc.ui.assembly@Fields saved",
@@ -65,5 +65,6 @@ export const ASSEMBLY_MSG = {
   FIELD_NUMBER: "perc.ui.assembly@Enter a whole number.",
   FIELD_DATE:
     "perc.ui.assembly@Enter a calendar date. A blank date does not clear a stored date.",
+  FIELD_DATETIME: "perc.ui.assembly@Enter a date and time.",
   FIELD_INLINE: "perc.ui.assembly@Inline on preview",
 };
