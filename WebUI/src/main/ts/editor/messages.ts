@@ -106,6 +106,8 @@ export const EDITOR_MSG = {
   LINK_INVALID: "perc.ui.editor@Enter a content id or a site path.",
   LINK_INVALID_SAVE:
     "perc.ui.editor@Correct the link fields before saving.",
+  LINK_NUL:
+    "perc.ui.editor@That link contains a character that cannot be saved.",
   LINK_BAD_REQUEST: "perc.ui.editor@That link could not be saved.",
   LINK_NOT_FOUND: "perc.ui.editor@That link target was not found.",
   LINK_FORBIDDEN: "perc.ui.editor@You are not allowed to use that link target.",

@@ -19,6 +19,8 @@
  * Client-side managed-link / page-link checks for EditorHost save (#4753).
  * Blank clears the field. A target is a content id, a hyphenated content GUID,
  * or a site folder path. Slot relationships are not reordered here.
+ * A NUL cannot be stored in item field XML / JDBC text (#5390).
+ * The shape gate in {@link linkFieldProblem} stays unchanged.
  */
 
 import type { EditorWidgetKind } from "./controlKinds";
@@ -67,6 +69,27 @@ export function collectInvalidLinkFieldErrors(
       continue;
     }
     if (linkFieldProblem(row.value) === "invalid") {
+      out[row.name] = invalidMessage;
+    }
+  }
+  return out;
+}
+
+export function linkContainsNul(value: string): boolean {
+  return (value ?? "").includes("\u0000");
+}
+
+/** NUL only. Shape errors stay in {@link collectInvalidLinkFieldErrors}. */
+export function collectLinkNulFieldErrors(
+  rows: readonly EditorLinkRow[],
+  invalidMessage: string,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const row of rows) {
+    if (row.kind !== "link") {
+      continue;
+    }
+    if (linkContainsNul(row.value)) {
       out[row.name] = invalidMessage;
     }
   }

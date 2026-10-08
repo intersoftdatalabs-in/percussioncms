@@ -16,7 +16,12 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { collectInvalidLinkFieldErrors, linkFieldProblem } from "../../../main/ts/editor/linkField";
+import {
+  collectInvalidLinkFieldErrors,
+  collectLinkNulFieldErrors,
+  linkContainsNul,
+  linkFieldProblem,
+} from "../../../main/ts/editor/linkField";
 
 describe("linkFieldProblem", () => {
   it("allows a clear, a content id, a GUID, and a site path", () => {
@@ -46,5 +51,44 @@ describe("collectInvalidLinkFieldErrors", () => {
       "bad",
     );
     expect(errors).toEqual({ page: "bad" });
+  });
+
+  it("still rejects a NUL link as an invalid shape", () => {
+    expect(linkFieldProblem("594\u0000")).toBe("invalid");
+    expect(
+      collectInvalidLinkFieldErrors(
+        [{ name: "page", kind: "link", value: "594\u0000" }],
+        "bad shape",
+      ),
+    ).toEqual({ page: "bad shape" });
+  });
+});
+
+describe("linkContainsNul", () => {
+  it("accepts a content id, a GUID, and a folder path, and rejects an embedded NUL", () => {
+    expect(linkContainsNul("594")).toBe(false);
+    expect(linkContainsNul("0-101-594")).toBe(false);
+    expect(linkContainsNul("/Sites/Example/index")).toBe(false);
+    expect(linkContainsNul("")).toBe(false);
+    expect(linkContainsNul("594\u0000")).toBe(true);
+  });
+});
+
+describe("collectLinkNulFieldErrors", () => {
+  it("flags only link rows and leaves the shape gate for values without a NUL", () => {
+    const rows = [
+      { name: "page", kind: "link" as const, value: "594\u0000" },
+      { name: "related", kind: "link" as const, value: "0-101-594" },
+      { name: "folder", kind: "link" as const, value: "/Sites/Example/index" },
+      { name: "title", kind: "text" as const, value: "z\u0000" },
+      { name: "scheme", kind: "link" as const, value: "javascript:alert(1)" },
+    ];
+    expect(collectLinkNulFieldErrors(rows, "cannot save")).toEqual({
+      page: "cannot save",
+    });
+    expect(collectInvalidLinkFieldErrors(rows, "bad shape")).toEqual({
+      page: "bad shape",
+      scheme: "bad shape",
+    });
   });
 });

@@ -5347,6 +5347,290 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
   });
 });
 
+describe("EditorHost refuse a link NUL (#5390)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function linkNulHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    page?: string;
+    summary?: string;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+    includeText?: boolean;
+  }) {
+    const page = opts.page ?? "594";
+    const summary = opts.summary ?? "Hello";
+    const fields = opts.includeText
+      ? [
+          { name: "summary", value: summary },
+          { name: "page", value: page },
+        ]
+      : [{ name: "page", value: page }];
+    const typeFields = opts.includeText
+      ? [
+          {
+            name: "summary",
+            label: "Summary",
+            control: "sys_EditBox",
+            dataType: "text",
+          },
+          {
+            name: "page",
+            label: "Page link",
+            control: "sys_PageLink",
+            dataType: "text",
+          },
+        ]
+      : [
+          {
+            name: "page",
+            label: "Page link",
+            control: "sys_PageLink",
+            dataType: "text",
+          },
+        ];
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields,
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({ fields: typeFields })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  it("refuses a link NUL before PUT and keeps the previous link after reload", async () => {
+    const saveFields = vi.fn();
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={linkNulHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe("594");
+    });
+    const input = screen.getByTestId("editor-field-page") as HTMLInputElement;
+    expect(input.getAttribute("data-editor-kind")).toBe("link");
+    fireEvent.change(input, { target: { value: "594\u0000" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-page").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-error-page").textContent).not.toMatch(
+      /content id or a site path/i,
+    );
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /correct the link fields before saving/i,
+    );
+    expect(screen.getByTestId("editor-field-page").getAttribute("aria-invalid")).toBe("true");
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={linkNulHost({ saveFields: vi.fn() })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe("594");
+    });
+  });
+
+  it("does not write when Close cancels an unsaved link NUL", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={linkNulHost({ saveFields, confirmLeaveUnsaved: () => false })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-page")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-page"), {
+      target: { value: "594\u0000" },
+    });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("still saves a content id, a GUID, and a folder path", async () => {
+    let page = "594";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      page = body.fields.find((f) => f.name === "page")?.value ?? page;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={linkNulHost({ saveFields, page })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe("594");
+    });
+    const cases = ["595", "0-101-594", "/Sites/Example/index"];
+    for (let index = 0; index < cases.length; index += 1) {
+      fireEvent.change(screen.getByTestId("editor-field-page"), {
+        target: { value: cases[index] },
+      });
+      fireEvent.click(screen.getByTestId("editor-save"));
+      await waitFor(() => {
+        expect(saveFields).toHaveBeenCalledTimes(index + 1);
+      });
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    }
+    expect(saveFields).toHaveBeenCalledTimes(3);
+    const sent = saveFields.mock.calls.map((call) => {
+      const body = call[1] as ItemEditorFields;
+      return body.fields.find((f) => f.name === "page");
+    });
+    expect(sent[0]).toMatchObject({ value: "595", dataType: "link" });
+    expect(sent[1]).toMatchObject({ value: "0-101-594", dataType: "link" });
+    expect(sent[2]).toMatchObject({ value: "/Sites/Example/index", dataType: "link" });
+    expect(sent.every((field) => !String(field?.value).includes("\u0000"))).toBe(true);
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={linkNulHost({ saveFields: vi.fn(), page })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe(
+        "/Sites/Example/index",
+      );
+    });
+  });
+
+  it("does not treat HTTP 400 on a link save as success", async () => {
+    const saveFields = vi.fn().mockRejectedValue({
+      status: 400,
+      body: { message: "rejected" },
+    });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={linkNulHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe("594");
+    });
+    fireEvent.change(screen.getByTestId("editor-field-page"), { target: { value: "595" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-page").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(/could not be saved/i);
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(1);
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={linkNulHost({ saveFields: vi.fn() })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-page") as HTMLInputElement).value).toBe("594");
+    });
+  });
+
+  it("still refuses an invalid link with the shape message", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={linkNulHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-page")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-page"), {
+      target: { value: "javascript:alert(1)" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-page").textContent).toMatch(
+        /content id or a site path/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-error-page").textContent).not.toMatch(
+      /character that cannot be saved/i,
+    );
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("still refuses a single-line NUL with the text message", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={linkNulHost({ saveFields, includeText: true })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-summary")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-field-summary").getAttribute("data-editor-kind")).toBe(
+      "text",
+    );
+    fireEvent.change(screen.getByTestId("editor-field-summary"), {
+      target: { value: "bad\u0000value" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /text fields before saving/i,
+    );
+    expect(screen.queryByTestId("editor-field-error-page")).toBeNull();
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+});
+
 describe("EditorHost refuse blank required single-line text (#5207)", () => {
   afterEach(() => {
     cleanup();
