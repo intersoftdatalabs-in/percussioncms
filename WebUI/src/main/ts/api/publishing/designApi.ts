@@ -99,6 +99,12 @@ export interface LocationSchemeSummary {
    * not replace the stored set.
    */
   updateParameterType?: boolean;
+  /**
+   * Update-only. When true, {@code parameters} is exactly one stored parameter
+   * whose sequence is replaced. Name, type, and value stay. Other parameters
+   * stay, including their sequences. The server does not replace the stored set.
+   */
+  updateParameterSequence?: boolean;
 }
 
 export interface SiteDesignSummary {
@@ -680,6 +686,9 @@ export function wrapLocationScheme(body: LocationSchemeSummary): {
   }
   if (body.updateParameterType) {
     wire.updateParameterType = true;
+  }
+  if (body.updateParameterSequence) {
+    wire.updateParameterSequence = true;
   }
   if (body.parameters && body.parameters.length > 0) {
     // JAXB wrapper the publishing-design resource binds. A bare schemeParameter

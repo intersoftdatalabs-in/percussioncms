@@ -142,6 +142,27 @@ class PSLocationSchemeSummaryJacksonTest {
   }
 
   @Test
+  void updateParameterSequenceFlagBindsOneSchemeParameter() {
+    String json =
+        """
+        {"locationScheme":{"updateParameterSequence":true,"schemeParameter":[{"name":"suffix","type":"String","sequence":4,"value":"article"}]}}
+        """;
+    PSLocationSchemeSummary body = mapper.readValue(json, PSLocationSchemeSummary.class);
+    assertEquals(Boolean.TRUE, body.getUpdateParameterSequence());
+    assertTrue(body.getUpdateParameterType() == null || !body.getUpdateParameterType());
+    assertTrue(body.getUpdateParameterValue() == null || !body.getUpdateParameterValue());
+    assertTrue(body.getAddParameter() == null || !body.getAddParameter());
+    assertTrue(body.getRemoveParameter() == null || !body.getRemoveParameter());
+    assertTrue(body.getName() == null || body.getName().isBlank());
+    assertNotNull(body.getParameters());
+    assertEquals(1, body.getParameters().size());
+    assertEquals("suffix", body.getParameters().get(0).getName());
+    assertEquals("String", body.getParameters().get(0).getType());
+    assertEquals("article", body.getParameters().get(0).getValue());
+    assertEquals(4, body.getParameters().get(0).getSequence());
+  }
+
+  @Test
   void removeParameterFlagBindsOneSchemeParameterName() {
     String json =
         """

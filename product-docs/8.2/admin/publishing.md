@@ -1150,6 +1150,48 @@ a parameter sequence, renaming one, setting only the generator, setting only the
 description, setting only the content type, setting only the template, copying one, and
 deleting one are separate actions.
 
+### Change one location scheme parameter sequence (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. On a location scheme that already lists
+parameters, **Sequence** next to one parameter loads that scheme
+(`GET …/sitemanage/publishingdesign/schemes/{schemeId}`) and opens
+**Change location scheme parameter sequence**. The form shows the current **name**,
+**generator**, **description**, **content type**, **template**, the parameter name, type,
+current sequence, and value, and the other parameters with their sequences. It does not
+let you change the scheme identity or that parameter's name, type, or value. Enter the
+new **sequence** (`RXLOCATIONSCHEMEPARAMS.SEQUENCE`, a SQL integer). **Save sequence**
+sends `PUT …/sitemanage/publishingdesign/schemes/{schemeId}` (the same update already
+used by Design; there is no second parameter resource) with a `locationScheme` object
+that contains `updateParameterSequence` set to true and that one parameter under
+`parameters.schemeParameter` (the stored name and the new sequence). Name, generator,
+description, content type, template, and context are omitted, so the server leaves those
+stored. The scheme id does not change. The server replaces only that parameter's
+sequence. Its name, type, and value stay. Other parameters stay, including their
+sequences. The stored parameter set is not replaced. A type or value sent with the
+sequence is not applied.
+
+The new sequence is listed on that scheme only after the update succeeds. Until then the
+previous sequence stays, including while the request is still in progress. If the list
+refresh fails after a successful update, that scheme still shows the new sequence and
+keeps the type, value, and the other parameters and their sequences. Other schemes on
+the context stay.
+**Cancel** closes the form and does not update the scheme. A blank sequence, or a value
+that is not an integer, is rejected in the form and does not call the update, so it does
+not clear the stored sequence.
+
+HTTP **400** (the update does not name exactly one parameter, the name is blank or longer
+than 50 characters, the sequence is missing, or the stored type or value is blank),
+**403** (not Admin or Designer), and **409** (that parameter name is not on the scheme,
+or a scheme name sent with the update already exists in the context) stay in the sequence
+form error region. Those responses do not change the previous sequence and do not change
+the name, type, value, the other parameters or their sequences, the scheme name,
+generator, description, content type, or template. Saving a location scheme (which can
+replace the whole parameter list together with other fields), adding one parameter,
+removing one parameter, changing a parameter value, changing a parameter type, renaming
+one, setting only the generator, setting only the description, setting only the content
+type, setting only the template, copying one, and deleting one are separate actions.
+
 ### Copy a location scheme (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then

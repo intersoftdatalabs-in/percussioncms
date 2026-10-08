@@ -119,6 +119,11 @@ import {
   schemesAfterSuccessfulParameterType,
   validateLocationSchemeParameterType,
 } from "../locationSchemeParameterType";
+import {
+  buildLocationSchemeParameterSequenceBody,
+  schemesAfterSuccessfulParameterSequence,
+  validateLocationSchemeParameterSequence,
+} from "../locationSchemeParameterSequence";
 import { useDirtyForm } from "../dirtyFormContext";
 import { normalizeSchemeType } from "./designLegacyTypes";
 import { SiteRootBrowser } from "./SiteRootBrowser";
@@ -155,6 +160,12 @@ type Mode =
     }
   | {
       kind: "scheme-parameter-type";
+      source: LocationSchemeSummary;
+      contextId: string;
+      parameter: SchemeParameter;
+    }
+  | {
+      kind: "scheme-parameter-sequence";
       source: LocationSchemeSummary;
       contextId: string;
       parameter: SchemeParameter;
@@ -198,6 +209,7 @@ export function ContextsPanel(): React.ReactElement {
   const [paramAddValue, setParamAddValue] = useState("");
   const [paramValueDraft, setParamValueDraft] = useState("");
   const [paramTypeDraft, setParamTypeDraft] = useState("");
+  const [paramSequenceDraft, setParamSequenceDraft] = useState("");
   const [describeText, setDescribeText] = useState("");
   const { setDirty, confirmIfDirty } = useDirtyForm();
 
@@ -1111,6 +1123,85 @@ export function ContextsPanel(): React.ReactElement {
         refreshed = null;
       }
       setSchemes(schemesAfterSuccessfulParameterType(refreshed, id, updated, previous));
+    } catch (e) {
+      setError(mapLocationSchemeSaveError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function openSchemeParameterSequence(
+    source: LocationSchemeSummary,
+    parameter: SchemeParameter,
+  ): Promise<void> {
+    if (!source.schemeId || !selected || saving || !(parameter.name ?? "").trim()) {
+      return;
+    }
+    setError(null);
+    setDirty(false);
+    const contextId = selected;
+    let full = source;
+    try {
+      full = await getScheme(source.schemeId);
+    } catch {
+      full = source;
+    }
+    const name = (parameter.name ?? "").trim();
+    const loaded = (full.parameters ?? source.parameters ?? []).find(
+      (row) => (row.name ?? "").trim() === name,
+    );
+    const shown = loaded ?? parameter;
+    setParamSequenceDraft(shown.sequence != null ? String(shown.sequence) : "");
+    setMode({
+      kind: "scheme-parameter-sequence",
+      source: full,
+      contextId,
+      parameter: shown,
+    });
+  }
+
+  function closeSchemeParameterSequence(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setMode({ kind: "list" });
+  }
+
+  async function saveSchemeParameterSequence(): Promise<void> {
+    if (mode.kind !== "scheme-parameter-sequence" || !mode.source.schemeId || saving) {
+      return;
+    }
+    const validated = validateLocationSchemeParameterSequence(
+      mode.parameter.name ?? "",
+      paramSequenceDraft,
+      mode.source.parameters,
+    );
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    const id = String(mode.source.schemeId);
+    const contextId = mode.contextId;
+    const updated = validated.parameter;
+    setError(null);
+    setSaving(true);
+    const previous = schemes;
+    try {
+      await updateScheme(id, buildLocationSchemeParameterSequenceBody(updated));
+      setDirty(false);
+      setMode({ kind: "list" });
+      let refreshed: LocationSchemeSummary[] | null = null;
+      try {
+        refreshed = await listSchemesForContext(contextId);
+      } catch {
+        refreshed = null;
+      }
+      setSchemes(schemesAfterSuccessfulParameterSequence(refreshed, id, updated, previous));
     } catch (e) {
       setError(mapLocationSchemeSaveError(e));
     } finally {
@@ -2315,6 +2406,111 @@ export function ContextsPanel(): React.ReactElement {
     );
   }
 
+  if (mode.kind === "scheme-parameter-sequence") {
+    const source = mode.source;
+    const targetName = (mode.parameter.name ?? "").trim();
+    const storedSequence =
+      mode.parameter.sequence != null ? String(mode.parameter.sequence) : "";
+    const others = (source.parameters ?? []).filter(
+      (p) => (p.name ?? "").trim() !== targetName,
+    );
+    return (
+      <div data-testid="scheme-parameter-sequence">
+        <h3>Change location scheme parameter sequence</h3>
+        <p>
+          Name:{" "}
+          <span data-testid="scheme-parameter-sequence-name">{source.name ?? ""}</span>
+        </p>
+        <p>
+          Generator:{" "}
+          <span data-testid="scheme-parameter-sequence-generator">
+            {source.generator ?? ""}
+          </span>
+        </p>
+        <p>
+          Description:{" "}
+          <span data-testid="scheme-parameter-sequence-description">
+            {source.description ?? ""}
+          </span>
+        </p>
+        <p>
+          Content type:{" "}
+          <span data-testid="scheme-parameter-sequence-content-type">
+            {source.contentTypeId != null ? String(source.contentTypeId) : ""}
+          </span>
+        </p>
+        <p>
+          Template:{" "}
+          <span data-testid="scheme-parameter-sequence-template">
+            {source.templateId != null ? String(source.templateId) : ""}
+          </span>
+        </p>
+        <p data-testid="scheme-parameter-sequence-fields-note">
+          Name, generator, description, content type, and template stay on this scheme.
+          This parameter name, type, and value stay. Other parameters stay, including
+          their sequences.
+        </p>
+        <p data-testid="scheme-parameter-sequence-target">
+          <span data-testid="scheme-parameter-sequence-parameter-name">{targetName}</span>
+          {" ("}
+          <span data-testid="scheme-parameter-sequence-type">
+            {mode.parameter.type ?? ""}
+          </span>
+          {") #"}
+          <span data-testid="scheme-parameter-sequence-current">{storedSequence}</span>
+          {": "}
+          <span data-testid="scheme-parameter-sequence-value">
+            {mode.parameter.value ?? ""}
+          </span>
+        </p>
+        <ul data-testid="scheme-parameter-sequence-others" style={listStyle}>
+          {others.map((p, i) => (
+            <li key={`${p.name}-${i}`} data-testid="scheme-parameter-sequence-other">
+              {p.name} ({p.type ?? ""}) #{p.sequence != null ? String(p.sequence) : ""}:{" "}
+              {p.value}
+            </li>
+          ))}
+        </ul>
+        <div style={formRowStyle}>
+          <label htmlFor="scheme-parameter-sequence-input">* Sequence</label>
+          <input
+            id="scheme-parameter-sequence-input"
+            value={paramSequenceDraft}
+            onChange={(e) => {
+              setParamSequenceDraft(e.target.value);
+              setDirty(true);
+            }}
+          />
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="location-scheme-parameter-sequence-save"
+            disabled={saving}
+            onClick={() => void saveSchemeParameterSequence()}
+          >
+            Save sequence
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="location-scheme-parameter-sequence-cancel"
+            disabled={saving}
+            onClick={closeSchemeParameterSequence}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (mode.kind === "scheme-remove-parameter") {
     const source = mode.source;
     const targetName = (mode.parameter.name ?? "").trim();
@@ -2590,6 +2786,10 @@ export function ContextsPanel(): React.ReactElement {
                   {(s.parameters ?? []).map((p, i) => (
                     <span key={`${p.name}-${i}`} data-testid="scheme-list-parameter">
                       {p.name} ({p.type ?? ""}): {p.value}{" "}
+                      #
+                      <span data-testid="scheme-list-parameter-sequence">
+                        {p.sequence != null ? String(p.sequence) : ""}
+                      </span>{" "}
                       <button
                         type="button"
                         style={buttonStyle}
@@ -2607,6 +2807,15 @@ export function ContextsPanel(): React.ReactElement {
                         onClick={() => void openSchemeParameterType(s, p)}
                       >
                         Type
+                      </button>
+                      <button
+                        type="button"
+                        style={buttonStyle}
+                        data-testid="location-scheme-parameter-sequence"
+                        disabled={saving}
+                        onClick={() => void openSchemeParameterSequence(s, p)}
+                      >
+                        Sequence
                       </button>
                       <button
                         type="button"
