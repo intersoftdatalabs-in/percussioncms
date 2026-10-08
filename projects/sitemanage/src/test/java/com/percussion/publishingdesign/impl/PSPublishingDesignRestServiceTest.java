@@ -5546,6 +5546,78 @@ class PSPublishingDesignRestServiceTest {
     verify(siteManager, never()).saveSite(any());
   }
 
+  @Test
+  void deleteSiteProperty_removesOneAndLeavesTheOther() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSSite site = siteWithKeptVariable();
+    when(site.getPropertyNames(contextGuid)).thenReturn(java.util.Set.of("kept", "nightVar"));
+
+    design.deleteSiteProperty("42", "  nightVar  ", "3");
+
+    verify(site).removeProperty("nightVar", contextGuid);
+    verify(site, never()).removeProperty(eq("kept"), any(IPSGuid.class));
+    verify(site, never()).setProperty(anyString(), any(IPSGuid.class), anyString());
+    verify(siteManager).saveSite(site);
+  }
+
+  @Test
+  void deleteSiteProperty_blankName_400_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> design.deleteSiteProperty("42", "   ", "3"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_NAME_REQUIRED, ex.getMessage());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void deleteSiteProperty_nameTooLong_400_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                design.deleteSiteProperty(
+                    "42",
+                    "n".repeat(PSPublishingDesignRestService.MAX_CONTEXT_VARIABLE_NAME_LENGTH + 1),
+                    "3"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_NAME_TOO_LONG, ex.getMessage());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void deleteSiteProperty_missingName_409_doesNotRemoveTheOther() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSSite site = siteWithKeptVariable();
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> design.deleteSiteProperty("42", "nightVar", "3"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_NOT_LISTED, ex.getMessage());
+    verify(site, never()).removeProperty(anyString(), any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void deleteSiteProperty_forbidden_403_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+    design.setDesignWriteAllowed(() -> false);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> design.deleteSiteProperty("42", "nightVar", "3"));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
   private IPSSite siteWithKeptVariable() throws Exception {
     when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.SITE))).thenReturn(siteGuid);
     when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);

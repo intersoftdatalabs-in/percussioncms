@@ -323,8 +323,8 @@ HTTP **400** (name or value missing or longer than its column), **403** (not Adm
 Designer), and **409** (that name already exists on the context) stay in the form error
 region. Those responses do not add a row and do not change the other variables. Changing
 the value of a variable that is already listed is described under **Change one context
-variable value**. Deleting a variable is a separate action. Delivery-server properties are
-not these context variables.
+variable value**. Deleting a variable is described under **Delete one context variable**.
+Delivery-server properties are not these context variables.
 
 ### Change one context variable value (Design)
 
@@ -347,7 +347,28 @@ A name that is not listed does not call the server and does not create one.
 HTTP **400** (value missing or longer than its column), **403** (not Admin or Designer),
 and **409** (that name is not listed on the context) stay in the value form error region.
 Those responses do not change the displayed value and do not change the other variables.
-Adding a new name and deleting a variable are separate actions.
+Adding a new name is described under **Set one context variable**. Deleting a variable is
+described under **Delete one context variable**.
+
+### Delete one context variable (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Sites**.
+Choose a **site** and a **context**. On a variable that is already listed, choose **Delete**.
+The name is shown and is not edited. Other variables on that context are listed and are not
+the ones this action removes.
+
+**Cancel** does not call the server and leaves the row.
+
+**Delete variable** calls
+`DELETE …/sitemanage/publishingdesign/sites/{siteId}/properties?name={name}&contextId={contextId}`.
+That name leaves the list only after the server accepts. Another variable on the same context
+stays, including its value. If the list refresh fails after a successful delete, the previous
+variables stay except the deleted name.
+
+HTTP **400** (the name or context is missing, or the name is longer than 50 characters),
+**403** (not Admin or Designer), and **409** (that name is not listed on the context) stay in
+the delete form error region. Those responses keep the row and do not change the other
+variables. Adding a name and changing a value are separate actions.
 
 ### Create a publish edition (Design)
 
