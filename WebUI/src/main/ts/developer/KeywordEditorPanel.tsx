@@ -31,6 +31,7 @@ import { panelErrMsg } from "./errors";
 import {
   asKeywordChoices,
   keywordUpdateForAddedChoice,
+  keywordUpdateForDescribedChoice,
   keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
   keywordUpdateForRevaluedChoice,
@@ -39,12 +40,20 @@ import {
 } from "./keywordChoiceAdd";
 import { DEV_MSG } from "./messages";
 
+function choiceDescriptionText(choice: KeywordChoiceSummary): string {
+  return (choice.description ?? "").replace(/[\r\n]+/g, " ").trim();
+}
+
 function choicesToText(choices: KeywordChoiceSummary[] | undefined): string {
   if (!choices?.length) return "";
   return choices
-    .map((c) => {
+    .map((c, index) => {
       const parts = [c.label || "", c.value || ""];
-      if (c.sequence != null) parts.push(String(c.sequence));
+      const description = choiceDescriptionText(c);
+      if (c.sequence != null || description) {
+        parts.push(c.sequence != null ? String(c.sequence) : String(index));
+      }
+      if (description) parts.push(description);
       return parts.join("|");
     })
     .join("\n");
@@ -56,13 +65,21 @@ function textToChoices(text: string): KeywordChoiceSummary[] {
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line, index) => {
-      const [label, value, seq] = line.split("|").map((s) => s.trim());
+      const pieces = line.split("|").map((s) => s.trim());
+      const label = pieces[0] ?? "";
+      const value = pieces[1] ?? "";
+      const seq = pieces[2];
+      const description = pieces.length > 3 ? pieces.slice(3).join("|").trim() : "";
       const parsed = seq != null && seq !== "" ? Number(seq) : NaN;
-      return {
+      const choice: KeywordChoiceSummary = {
         label: label || `choice-${index + 1}`,
         value: value || label || "",
         sequence: Number.isFinite(parsed) ? parsed : index,
       };
+      if (description) {
+        choice.description = description;
+      }
+      return choice;
     });
 }
 
@@ -132,6 +149,21 @@ function revalueChoiceFailureMessage(err: unknown): string {
   return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_VALUE_ERROR);
 }
 
+function describeChoiceFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_FORBIDDEN);
+    }
+    if (err.status === 409) {
+      return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_CONFLICT);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_ERROR);
+}
+
 const fieldStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -197,14 +229,21 @@ export function KeywordEditorPanel({
   const [valueError, setValueError] = useState<string | null>(null);
   const [valueNotice, setValueNotice] = useState<string | null>(null);
   const valueInflight = useRef(false);
+  const [descriptionEditIndex, setDescriptionEditIndex] = useState<number | null>(null);
+  const [descriptionDraft, setDescriptionDraft] = useState("");
+  const [descriptionBusy, setDescriptionBusy] = useState(false);
+  const [descriptionError, setDescriptionError] = useState<string | null>(null);
+  const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
+  const descriptionInflight = useRef(false);
   const [busy, setBusy] = useState(false);
   const [confirmKind, setConfirmKind] = useState<null | "keyword" | "choice">(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const choiceWriteBusy = addBusy || removeBusy || labelBusy || valueBusy;
+  const choiceWriteBusy = addBusy || removeBusy || labelBusy || valueBusy || descriptionBusy;
   const labelEditOpen = labelEditIndex != null;
   const valueEditOpen = valueEditIndex != null;
-  const choiceEditOpen = labelEditOpen || valueEditOpen;
+  const descriptionEditOpen = descriptionEditIndex != null;
+  const choiceEditOpen = labelEditOpen || valueEditOpen || descriptionEditOpen;
 
   useEffect(() => {
     if (!id || isNew) return;
@@ -243,6 +282,7 @@ export function KeywordEditorPanel({
       removeInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
+      descriptionInflight.current ||
       confirmKind ||
       choiceEditOpen
     ) {
@@ -293,9 +333,11 @@ export function KeywordEditorPanel({
       removeInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
+      descriptionInflight.current ||
       removeBusy ||
       labelBusy ||
       valueBusy ||
+      descriptionBusy ||
       choiceEditOpen ||
       busy ||
       confirmKind
@@ -388,9 +430,11 @@ export function KeywordEditorPanel({
       removeInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
+      descriptionInflight.current ||
       addBusy ||
       labelBusy ||
       valueBusy ||
+      descriptionBusy ||
       busy
     ) {
       return;
@@ -450,7 +494,9 @@ export function KeywordEditorPanel({
       confirmKind != null ||
       labelInflight.current ||
       valueInflight.current ||
+      descriptionInflight.current ||
       valueEditOpen ||
+      descriptionEditOpen ||
       !Number.isInteger(index) ||
       index < 0 ||
       index >= listedChoices.length
@@ -473,11 +519,13 @@ export function KeywordEditorPanel({
       index == null ||
       labelInflight.current ||
       valueInflight.current ||
+      descriptionInflight.current ||
       addInflight.current ||
       removeInflight.current ||
       addBusy ||
       removeBusy ||
       valueBusy ||
+      descriptionBusy ||
       busy ||
       confirmKind
     ) {
@@ -561,8 +609,10 @@ export function KeywordEditorPanel({
       confirmKind != null ||
       labelInflight.current ||
       valueInflight.current ||
+      descriptionInflight.current ||
       labelEditOpen ||
       valueEditOpen ||
+      descriptionEditOpen ||
       !Number.isInteger(index) ||
       index < 0 ||
       index >= listedChoices.length
@@ -585,11 +635,13 @@ export function KeywordEditorPanel({
       index == null ||
       valueInflight.current ||
       labelInflight.current ||
+      descriptionInflight.current ||
       addInflight.current ||
       removeInflight.current ||
       addBusy ||
       removeBusy ||
       labelBusy ||
+      descriptionBusy ||
       busy ||
       confirmKind
     ) {
@@ -653,6 +705,117 @@ export function KeywordEditorPanel({
     } finally {
       valueInflight.current = false;
       setValueBusy(false);
+    }
+  }
+
+  function cancelChoiceDescriptionEdit(): void {
+    if (descriptionBusy || descriptionInflight.current) return;
+    setDescriptionEditIndex(null);
+    setDescriptionDraft("");
+    setDescriptionError(null);
+  }
+
+  function startChoiceDescriptionEdit(index: number): void {
+    if (
+      !id ||
+      isNew ||
+      !detailReady ||
+      choiceWriteBusy ||
+      busy ||
+      confirmKind != null ||
+      labelInflight.current ||
+      valueInflight.current ||
+      descriptionInflight.current ||
+      labelEditOpen ||
+      valueEditOpen ||
+      descriptionEditOpen ||
+      !Number.isInteger(index) ||
+      index < 0 ||
+      index >= listedChoices.length
+    ) {
+      return;
+    }
+    setDescriptionEditIndex(index);
+    setDescriptionDraft(listedChoices[index]?.description || "");
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+  }
+
+  async function handleChoiceDescriptionSave(): Promise<void> {
+    const index = descriptionEditIndex;
+    if (
+      !id ||
+      isNew ||
+      !serverKeyword ||
+      !detailReady ||
+      index == null ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      valueInflight.current ||
+      addInflight.current ||
+      removeInflight.current ||
+      addBusy ||
+      removeBusy ||
+      labelBusy ||
+      valueBusy ||
+      busy ||
+      confirmKind
+    ) {
+      return;
+    }
+    const sent = keywordUpdateForDescribedChoice(
+      serverKeyword,
+      listedChoices,
+      index,
+      descriptionDraft,
+    );
+    if (sent === "missing") {
+      setDescriptionError(DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_ERROR);
+      setDescriptionNotice(null);
+      return;
+    }
+    if (sent === "blank") {
+      setDescriptionError(DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_BLANK);
+      setDescriptionNotice(null);
+      return;
+    }
+    if (sent === "unchanged") {
+      setDescriptionEditIndex(null);
+      setDescriptionDraft("");
+      setDescriptionError(null);
+      return;
+    }
+    descriptionInflight.current = true;
+    setDescriptionBusy(true);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    const previous = listedChoices;
+    try {
+      const payload = await updateKeyword(id, sent);
+      const accepted = savedChoicesAfterAdd(sent, payload);
+      if (!accepted) {
+        setListedChoices(previous);
+        setDescriptionError(DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_ERROR);
+        setDescriptionNotice(null);
+        return;
+      }
+      const saved = unwrapKeywordPayload(payload);
+      if (saved) {
+        applyLoadedKeyword({ ...saved, choices: accepted });
+      } else {
+        setListedChoices(accepted);
+        setChoicesText(choicesToText(accepted));
+      }
+      setDescriptionEditIndex(null);
+      setDescriptionDraft("");
+      setDescriptionNotice(DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_SAVED);
+    } catch (err: unknown) {
+      setListedChoices(previous);
+      setDescriptionError(describeChoiceFailureMessage(err));
+      setDescriptionNotice(null);
+    } finally {
+      descriptionInflight.current = false;
+      setDescriptionBusy(false);
     }
   }
 
@@ -764,6 +927,9 @@ export function KeywordEditorPanel({
           <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>
             {DEV_MSG.KW_CHANGE_CHOICE_VALUE_HINT}
           </p>
+          <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>
+            {DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_HINT}
+          </p>
           {addError ? (
             <div role="alert" data-testid="developer-kw-add-choice-error" style={errorAlert}>
               {addError}
@@ -804,6 +970,20 @@ export function KeywordEditorPanel({
               {valueNotice}
             </div>
           ) : null}
+          {descriptionError ? (
+            <div
+              role="alert"
+              data-testid="developer-kw-choice-description-error"
+              style={errorAlert}
+            >
+              {descriptionError}
+            </div>
+          ) : null}
+          {descriptionNotice ? (
+            <div data-testid="developer-kw-choice-description-notice" style={{ color: "#276749" }}>
+              {descriptionNotice}
+            </div>
+          ) : null}
           {listedChoices.length === 0 ? (
             <p data-testid="developer-kw-choices-empty">{DEV_MSG.KW_CHOICES_EMPTY}</p>
           ) : (
@@ -811,12 +991,14 @@ export function KeywordEditorPanel({
               {listedChoices.map((choice, index) => {
                 const choiceLabel = choice.label || "";
                 const choiceValue = choice.value || "";
+                const choiceDescription = choiceDescriptionText(choice);
                 return (
                   <li
                     key={`${choiceLabel}-${choiceValue}-${choice.sequence ?? index}`}
                     data-testid="developer-kw-choice"
                     data-choice-label={choiceLabel}
                     data-choice-value={choiceValue}
+                    data-choice-description={choiceDescription}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -827,6 +1009,9 @@ export function KeywordEditorPanel({
                     <span data-testid="developer-kw-choice-label-text">
                       {choiceLabel}
                       {choiceValue ? ` (${choiceValue})` : ""}
+                    </span>
+                    <span data-testid="developer-kw-choice-description-text">
+                      {choiceDescription ? ` — ${choiceDescription}` : ""}
                     </span>
                     <button
                       type="button"
@@ -871,6 +1056,28 @@ export function KeywordEditorPanel({
                       }}
                     >
                       {DEV_MSG.KW_CHANGE_CHOICE_VALUE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-kw-choice-description-edit"
+                      data-choice-label={choiceLabel}
+                      aria-label={DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_ACTION.replace(
+                        "{0}",
+                        choiceLabel || String(index + 1),
+                      )}
+                      disabled={
+                        choiceWriteBusy || busy || !detailReady || confirmKind != null || choiceEditOpen
+                      }
+                      onClick={() => startChoiceDescriptionEdit(index)}
+                      style={{
+                        padding: "4px 10px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: choiceWriteBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION}
                     </button>
                     <button
                       type="button"
@@ -989,6 +1196,59 @@ export function KeywordEditorPanel({
                   data-testid="developer-kw-choice-value-cancel"
                   disabled={valueBusy}
                   onClick={cancelChoiceValueEdit}
+                  style={{
+                    padding: "8px 16px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {DEV_MSG.KW_CANCEL}
+                </button>
+              </div>
+            </div>
+          ) : null}
+          {descriptionEditOpen ? (
+            <div
+              data-testid="developer-kw-choice-description-editor"
+              style={{ marginBottom: "16px" }}
+            >
+              <div style={fieldStyle}>
+                <label htmlFor="kw-choice-description-input">
+                  {DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_FIELD}
+                </label>
+                <input
+                  id="kw-choice-description-input"
+                  data-testid="developer-kw-choice-description-input"
+                  style={inputStyle}
+                  value={descriptionDraft}
+                  onChange={(e) => setDescriptionDraft(e.target.value)}
+                />
+              </div>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  data-testid="developer-kw-choice-description-save"
+                  aria-label={DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_SAVE}
+                  disabled={choiceWriteBusy || busy || !detailReady || confirmKind != null}
+                  onClick={() => void handleChoiceDescriptionSave()}
+                  style={{
+                    padding: "8px 16px",
+                    background: catalogColors.accent,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: descriptionBusy ? "wait" : "pointer",
+                  }}
+                >
+                  {DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_SAVE}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-kw-choice-description-cancel"
+                  disabled={descriptionBusy}
+                  onClick={cancelChoiceDescriptionEdit}
                   style={{
                     padding: "8px 16px",
                     background: "transparent",

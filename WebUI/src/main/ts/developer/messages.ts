@@ -409,7 +409,7 @@ export const DEV_MSG_KEYS = {
   KW_EMPTY: "perc.ui.developer@No keywords returned.",
   KW_ERROR: "perc.ui.developer@Could not load keywords.",
   KW_HINT:
-    "perc.ui.developer@Create, edit, or delete keyword definitions. On an existing keyword, add one choice, change one choice label, or remove one choice; the list changes only after that save succeeds.",
+    "perc.ui.developer@Create, edit, or delete keyword definitions. On an existing keyword, add one choice, change one choice label, value, or description, or remove one choice; the list changes only after that save succeeds.",
   KW_COL_LABEL: "perc.ui.developer@Label",
   KW_COL_VALUE: "perc.ui.developer@Value",
   KW_COL_CHOICES: "perc.ui.developer@Choices",
@@ -425,7 +425,8 @@ export const DEV_MSG_KEYS = {
   KW_FORM_LABEL: "perc.ui.developer@Label",
   KW_FORM_DESCRIPTION: "perc.ui.developer@Description",
   KW_FORM_SEQUENCE: "perc.ui.developer@Sequence",
-  KW_FORM_CHOICES: "perc.ui.developer@Choices (label, value, sequence per line: label|value|seq)",
+  KW_FORM_CHOICES:
+    "perc.ui.developer@Choices (one per line: label|value|seq, optional description after another |)",
   KW_SAVE_ERROR: "perc.ui.developer@Could not save keyword.",
   KW_DELETE_ERROR: "perc.ui.developer@Could not delete keyword.",
   KW_DELETE_CONFIRM: "perc.ui.developer@Delete this keyword and all of its choices?",
@@ -495,6 +496,22 @@ export const DEV_MSG_KEYS = {
   KW_CHANGE_CHOICE_VALUE_INVALID: "perc.ui.developer@The choice value was not changed.",
   KW_CHANGE_CHOICE_VALUE_CONFLICT:
     "perc.ui.developer@The choice value was not changed. The previous value is unchanged.",
+  KW_CHANGE_CHOICE_DESCRIPTION: "perc.ui.developer@Change description",
+  /** Aria label; `{0}` is the choice label. */
+  KW_CHANGE_CHOICE_DESCRIPTION_ACTION: "perc.ui.developer@Change description of {0}",
+  KW_CHANGE_CHOICE_DESCRIPTION_HINT:
+    "perc.ui.developer@Sets the description of one choice with the keyword update. The new description shows only after that save succeeds. The choice label, value, and sequence stay. The keyword label, description, sequence, and the other choices stay. A blank description is not sent and does not clear a stored description. Cancel does not write.",
+  KW_CHANGE_CHOICE_DESCRIPTION_FIELD: "perc.ui.developer@Choice description",
+  KW_CHANGE_CHOICE_DESCRIPTION_SAVE: "perc.ui.developer@Save description",
+  KW_CHANGE_CHOICE_DESCRIPTION_SAVED: "perc.ui.developer@Choice description saved.",
+  KW_CHANGE_CHOICE_DESCRIPTION_ERROR: "perc.ui.developer@Could not change the choice description.",
+  KW_CHANGE_CHOICE_DESCRIPTION_BLANK:
+    "perc.ui.developer@A blank description was not saved. The stored choice description was not cleared.",
+  KW_CHANGE_CHOICE_DESCRIPTION_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to change a choice description.",
+  KW_CHANGE_CHOICE_DESCRIPTION_INVALID: "perc.ui.developer@The choice description was not changed.",
+  KW_CHANGE_CHOICE_DESCRIPTION_CONFLICT:
+    "perc.ui.developer@The choice description was not changed. The previous description is unchanged.",
   TPL_LOADING: "perc.ui.developer@Loading templates...",
   TPL_EMPTY: "perc.ui.developer@No templates returned.",
   TPL_ERROR: "perc.ui.developer@Could not load templates.",

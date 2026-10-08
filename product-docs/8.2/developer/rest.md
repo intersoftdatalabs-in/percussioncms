@@ -170,6 +170,23 @@ as its label) is not sent, so that other choice is not replaced. HTTP **400**,
 not apply a choice list from the error body. Add, remove, label change, and
 delete stay on this resource and are unchanged.
 
+### Set one choice description
+
+**Developer → Keywords** sets the description of one choice with the existing
+`PUT /services/keywords/{id}` (the same update used to add or remove a choice,
+or to change a choice label or value). The body is wrapped as `Keyword`. It
+keeps the stored keyword `label`, `description`, and `sequence`, and sends
+`choices` as the previous choices with that one choice's `description`
+replaced. The choice `label`, `value`, and `sequence` stay, and the other
+choices stay. The choice description is the `description` field on that choice,
+not the keyword `description`. The new description is shown only when that
+update succeeds and the response lists the same choices with that description.
+Cancel is not a request. The same description is not a request. A blank
+description is not sent, so it does not clear a stored choice description.
+HTTP **400**, **403**, and **409** are errors: the editor keeps the previous
+description and does not apply a choice list from the error body. Add, remove,
+label change, value change, and delete stay on this resource and are unchanged.
+
 ## Locales (design catalog)
 
 CMS locale definitions (Workbench **Locales** / content design) are exposed under `/services/locales`.
