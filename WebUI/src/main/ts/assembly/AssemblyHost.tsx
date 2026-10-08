@@ -22,11 +22,11 @@
  * HTML, link, whole-number, and calendar-date field edits use the assembled
  * nodes (HTML keeps its markup; single-line text stays one line; long text
  * keeps line breaks; a number is one whole number and a required number
- * cannot be saved blank; a date is one calendar day and a required date
+ * cannot be saved blank; a float saves one decimal such as 1.5 and an integer
+ * still rejects that decimal; a date is one calendar day and a required date
  * cannot be saved blank; a datetime is one date and time, a required datetime
  * cannot be saved blank, and an optional datetime may be cleared) and persist
  * through itemmanagement — not leftover Content Editor HTML.
- * Float stays on the Content Editor.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -689,8 +689,10 @@ export function AssemblyHost({
       for (const name of blankRequiredDatetimes) {
         errors[name] = requiredText;
       }
+      const decimalText = message(ASSEMBLY_MSG.FIELD_DECIMAL);
       for (const name of badNumbers) {
-        errors[name] = numberText;
+        const row = overlayFields.find((field) => field.name === name);
+        errors[name] = row?.numericFloat === true ? decimalText : numberText;
       }
       for (const name of badDates) {
         errors[name] = dateText;
@@ -720,7 +722,12 @@ export function AssemblyHost({
         blankRequiredDatetimes.length > 0
           ? requiredText
           : badNumbers.length > 0
-            ? numberText
+            ? badNumbers.every(
+                (name) =>
+                  overlayFields.find((field) => field.name === name)?.numericFloat === true,
+              )
+              ? message(ASSEMBLY_MSG.FIELD_DECIMAL)
+              : numberText
             : badDates.length > 0
               ? dateText
               : datetimeText,
@@ -1032,11 +1039,12 @@ export function AssemblyHost({
                     <input
                       className={styles.fieldEdit}
                       type="text"
-                      inputMode="numeric"
+                      inputMode={field.numericFloat ? "decimal" : "numeric"}
                       defaultValue={field.value}
                       data-assembly-field={field.name}
                       data-assembly-content-id={String(contentId ?? "")}
                       data-assembly-value="number"
+                      data-assembly-number={field.numericFloat ? "float" : undefined}
                       data-assembly-required={field.required ? "true" : undefined}
                       data-testid={`assembly-overlay-field-${field.name}`}
                       aria-label={field.label}

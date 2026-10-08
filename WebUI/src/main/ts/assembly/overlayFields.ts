@@ -16,10 +16,11 @@
  */
 
 /**
- * Map known text, long-text, HTML, link, whole-number, and calendar-date
- * itemmanagement fields onto assembled preview nodes and persist edits through
- * the same fields API as the React editor. Does not open leftover Active
- * Assembly or Content Editor HTML. Float stays on the Content Editor.
+ * Map known text, long-text, HTML, link, whole-number, decimal-number, and
+ * calendar-date itemmanagement fields onto assembled preview nodes and persist
+ * edits through the same fields API as the React editor. Does not open leftover
+ * Active Assembly or Content Editor HTML. A float is one decimal number. An
+ * integer still rejects a decimal.
  */
 
 import type { ContentTypeFieldSummary } from "../api/developer/types";
@@ -51,6 +52,9 @@ export const ASSEMBLY_VALUE_LONGTEXT = "longtext";
 /** Whole-number edits send {@code dataType: integer} on the item field save. */
 export const ASSEMBLY_VALUE_NUMBER = "number";
 
+/** Float edits send {@code dataType: float}. The value kind stays {@link ASSEMBLY_VALUE_NUMBER}. */
+export const ASSEMBLY_NUMBER_FLOAT = "float";
+
 /** Calendar-date edits send {@code dataType: date} and {@code yyyy-MM-dd}. */
 export const ASSEMBLY_VALUE_DATE = "date";
 
@@ -61,6 +65,7 @@ export const ASSEMBLY_VALUE_DATE = "date";
 export const ASSEMBLY_VALUE_DATETIME = "datetime";
 
 const WHOLE_NUMBER_RE = /^-?\d+$/;
+const DECIMAL_NUMBER_RE = /^-?(?:\d+(?:\.\d+)?|\.\d+)$/;
 
 /**
  * Trimmed whole number, or null when the text is blank, a decimal, or not numeric.
@@ -69,6 +74,18 @@ const WHOLE_NUMBER_RE = /^-?\d+$/;
 export function wholeNumberText(value: string): string | null {
   const text = value.trim();
   if (!WHOLE_NUMBER_RE.test(text)) {
+    return null;
+  }
+  return text;
+}
+
+/**
+ * Trimmed decimal or whole number, or null when blank or not numeric.
+ * Integer fields do not use this. Range checks and optional clear stay out.
+ */
+export function decimalNumberText(value: string): string | null {
+  const text = value.trim();
+  if (!DECIMAL_NUMBER_RE.test(text)) {
     return null;
   }
   return text;
@@ -266,15 +283,18 @@ export function blankRequiredNumberFieldNames(
 }
 
 /**
- * Number fields the author changed to a decimal, a non-numeric value, or an
- * optional blank. A blank or whitespace required number is not listed; that
- * refusal is {@link blankRequiredNumberFieldNames}. Unchanged values, including
- * a blank that was already stored, are not listed. Long text, HTML, link, and
- * single-line text are not checked here.
+ * Number fields the author changed to a value that field cannot store.
+ * A whole number rejects a decimal, a non-numeric value, or an optional blank.
+ * A float accepts one decimal such as {@code 1.5} and still rejects a
+ * non-numeric value or an optional blank. A blank or whitespace required
+ * number is not listed; that refusal is {@link blankRequiredNumberFieldNames}.
+ * Unchanged values, including a blank that was already stored, are not listed.
+ * Long text, HTML, link, and single-line text are not checked here.
  */
 export function invalidChangedNumberFieldNames(
   fields: readonly (Pick<OverlayField, "name" | "kind" | "value"> & {
     required?: boolean;
+    numericFloat?: boolean;
   })[],
   edits: readonly Pick<OverlayFieldEdit, "contentId" | "name" | "value">[],
   baseline: ReadonlyMap<string, string>,
@@ -301,7 +321,11 @@ export function invalidChangedNumberFieldNames(
     if (field.required === true && edit.value.trim().length === 0) {
       continue;
     }
-    if (wholeNumberText(edit.value) == null) {
+    const numeric =
+      field.numericFloat === true
+        ? decimalNumberText(edit.value)
+        : wholeNumberText(edit.value);
+    if (numeric == null) {
       names.push(field.name);
     }
   }
@@ -489,6 +513,8 @@ export interface OverlayField {
   readOnly: boolean;
   /** Content-type required flag. Single-line text, whole numbers, calendar dates, and datetimes are enforced on save. */
   required: boolean;
+  /** True when the content-type data type is float. Whole numbers stay false. */
+  numericFloat?: boolean;
 }
 
 export interface OverlayFieldHit {
@@ -546,9 +572,11 @@ export function isOverlayFieldKind(kind: string): kind is OverlayFieldKind {
 }
 
 /**
- * Text, long-text, HTML, link, whole-number, calendar-date, and datetime rows
- * from itemmanagement. File, image, keyword, community, table, and float stay
- * on the Content Editor. Read-only rows are omitted so the overlay cannot write them.
+ * Text, long-text, HTML, link, whole-number, decimal-number, calendar-date,
+ * and datetime rows from itemmanagement. File, image, keyword, community, and
+ * table stay on the Content Editor. Read-only rows are omitted so the overlay
+ * cannot write them. A float row is a decimal number. An integer or number
+ * row stays a whole number.
  */
 export function scalarOverlayFields(
   payload: ItemEditorFields,
@@ -562,9 +590,8 @@ export function scalarOverlayFields(
     if (!isOverlayFieldKind(kind) || schema?.readOnly === true) {
       continue;
     }
-    if (kind === "number" && (schema?.dataType ?? "").trim().toLowerCase() === "float") {
-      continue;
-    }
+    const numericFloat =
+      kind === "number" && (schema?.dataType ?? "").trim().toLowerCase() === "float";
     const rawValue = field.value ?? "";
     const value =
       kind === "date"
@@ -579,6 +606,7 @@ export function scalarOverlayFields(
       kind,
       readOnly: false,
       required: schema?.required === true,
+      numericFloat,
     });
   }
   return out;
@@ -952,6 +980,7 @@ export function clearFieldOverlay(root: ParentNode): void {
     html.removeAttribute("data-assembly-content-id");
     html.removeAttribute("data-assembly-value");
     html.removeAttribute("data-assembly-required");
+    html.removeAttribute("data-assembly-number");
     html.removeAttribute("spellcheck");
     const testId = html.getAttribute("data-testid") ?? "";
     if (testId.startsWith("assembly-inline-field-")) {
@@ -1003,6 +1032,9 @@ export function applyFieldOverlay(
       html.style.whiteSpace = "pre-wrap";
     } else if (field?.kind === "number") {
       html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_NUMBER);
+      if (field.numericFloat) {
+        html.setAttribute("data-assembly-number", ASSEMBLY_NUMBER_FLOAT);
+      }
       if (field.required) {
         // A heading or other assembled node is contenteditable. aria-required
         // is not allowed on that role; the overlay input carries it instead.
@@ -1128,7 +1160,14 @@ export function readOverlayEdits(
       name,
       value: readNodeValue(el),
       ...(valueKind === ASSEMBLY_VALUE_LINK ? { dataType: "link" } : {}),
-      ...(valueKind === ASSEMBLY_VALUE_NUMBER ? { dataType: "integer" } : {}),
+      ...(valueKind === ASSEMBLY_VALUE_NUMBER
+        ? {
+            dataType:
+              el.getAttribute("data-assembly-number") === ASSEMBLY_NUMBER_FLOAT
+                ? "float"
+                : "integer",
+          }
+        : {}),
       ...(valueKind === ASSEMBLY_VALUE_DATE ? { dataType: "date" } : {}),
       ...(valueKind === ASSEMBLY_VALUE_DATETIME ? { dataType: "datetime" } : {}),
     });

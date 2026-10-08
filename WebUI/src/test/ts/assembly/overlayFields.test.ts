@@ -34,6 +34,7 @@ import {
   blankRequiredTextFieldNames,
   calendarDateText,
   datetimeText,
+  decimalNumberText,
   invalidChangedDateFieldNames,
   invalidChangedDatetimeFieldNames,
   invalidChangedNumberFieldNames,
@@ -766,7 +767,7 @@ describe("whole number overlay fields", () => {
     ],
   };
 
-  it("keeps a whole-number field and omits float and read-only numbers", () => {
+  it("keeps a whole-number field and a float and omits a read-only number", () => {
     const rows = scalarOverlayFields(numberPayload, [
       { name: "qty", label: "Quantity", control: "sys_Number", dataType: "integer" },
       { name: "rate", label: "Rate", control: "sys_Number", dataType: "float" },
@@ -783,8 +784,14 @@ describe("whole number overlay fields", () => {
       kind: "number",
       value: "12",
       label: "Quantity",
+      numericFloat: false,
     });
-    expect(rows.some((row) => row.name === "rate")).toBe(false);
+    expect(rows.find((row) => row.name === "rate")).toMatchObject({
+      kind: "number",
+      value: "1.5",
+      label: "Rate",
+      numericFloat: true,
+    });
     expect(rows.some((row) => row.name === "lockedqty")).toBe(false);
     expect(rows.find((row) => row.name === "displaytitle")?.kind).toBe("text");
   });
@@ -957,6 +964,99 @@ describe("whole number overlay fields", () => {
       value: "Welcome",
     });
     expect(saved.fields.find((field) => field.name === "description")?.dataType).toBeUndefined();
+  });
+
+  it("reads one assembled decimal and restores the previous float", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<span data-perc-field="rate">1</span><span data-perc-field="qty">12</span>`;
+    const fields = scalarOverlayFields(
+      {
+        ...numberPayload,
+        fields: [
+          { name: "rate", value: "1" },
+          { name: "qty", value: "12" },
+        ],
+      },
+      [
+        { name: "rate", label: "Rate", control: "sys_Number", dataType: "float" },
+        { name: "qty", label: "Quantity", control: "sys_Number", dataType: "integer" },
+      ],
+    );
+    applyFieldOverlay(root, fields, "42");
+    const rate = root.querySelector(
+      '[data-testid="assembly-inline-field-rate"]',
+    ) as HTMLElement;
+    const qty = root.querySelector(
+      '[data-testid="assembly-inline-field-qty"]',
+    ) as HTMLElement;
+    expect(rate.getAttribute("data-assembly-number")).toBe("float");
+    expect(qty.hasAttribute("data-assembly-number")).toBe(false);
+    rate.textContent = " 1.5 ";
+    qty.textContent = "1.5";
+    expect(readOverlayEdits(root, "42")).toEqual(
+      expect.arrayContaining([
+        { contentId: "42", name: "rate", value: "1.5", dataType: "float" },
+        { contentId: "42", name: "qty", value: "1.5", dataType: "integer" },
+      ]),
+    );
+    expect(decimalNumberText("1.5")).toBe("1.5");
+    expect(decimalNumberText("abc")).toBeNull();
+    expect(decimalNumberText("")).toBeNull();
+    expect(wholeNumberText("1.5")).toBeNull();
+    const baseline = new Map<string, string>([
+      ["42\nrate", "1"],
+      ["42\nqty", "12"],
+    ]);
+    expect(
+      invalidChangedNumberFieldNames(
+        fields,
+        [
+          { contentId: "42", name: "rate", value: "1.5" },
+          { contentId: "42", name: "qty", value: "1.5" },
+        ],
+        baseline,
+      ),
+    ).toEqual(["qty"]);
+    expect(
+      invalidChangedNumberFieldNames(
+        fields,
+        [{ contentId: "42", name: "rate", value: "abc" }],
+        baseline,
+      ),
+    ).toEqual(["rate"]);
+    restoreOverlayValues(root, fields);
+    expect(rate.textContent).toBe("1");
+    expect(qty.textContent).toBe("12");
+  });
+
+  it("persists one decimal with dataType float and leaves the whole number", async () => {
+    const mixed: ItemEditorFields = {
+      ...payload,
+      fields: [
+        { name: "rate", value: "1" },
+        { name: "qty", value: "12" },
+        { name: "displaytitle", value: "Welcome" },
+      ],
+    };
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => body);
+    await persistOverlayEdits({
+      ownerId: "42",
+      ownerPayload: mixed,
+      edits: [{ contentId: "42", name: "rate", value: "1.5", dataType: "float" }],
+      loadFields: vi.fn(),
+      saveFields,
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "rate")).toEqual({
+      name: "rate",
+      value: "1.5",
+      dataType: "float",
+    });
+    expect(saved.fields.find((field) => field.name === "qty")).toEqual({
+      name: "qty",
+      value: "12",
+    });
+    expect(saved.fields.find((field) => field.name === "displaytitle")?.dataType).toBeUndefined();
   });
 });
 
