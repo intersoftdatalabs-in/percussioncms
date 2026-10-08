@@ -195,7 +195,13 @@ export function SlotsPanel(): React.ReactElement {
                 <span key="n" style={monoCell}>
                   {s.name || "—"}
                 </span>,
-                <span key="d" style={mutedCell}>
+                <span
+                  key="d"
+                  data-testid="developer-slot-catalog-description"
+                  data-slot-name={s.name || openKey || ""}
+                  data-slot-description={s.description || ""}
+                  style={mutedCell}
+                >
                   {s.description || ""}
                 </span>,
               ],

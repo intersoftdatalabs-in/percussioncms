@@ -19,6 +19,7 @@ package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -281,6 +283,65 @@ class SlotsAdaptorDesignWsTest {
             () -> new SlotsAdaptor(designWs, () -> false).updateSlot(null, "rffList", body));
     assertEquals(403, ex.getResponse().getStatus());
     verify(designWs, never()).saveSlots(anyList(), eq(true), any(), any());
+  }
+
+  @Test
+  void updateSlot_descriptionOnly_keepsNameLabelTypeAndFinder_blankClears() throws Exception {
+    IPSAssemblyDesignWs designWs = mock(IPSAssemblyDesignWs.class);
+    IPSTemplateSlot slot = userSlot(designWs, "rffList", false);
+    AtomicReference<String> description = new AtomicReference<>("old desc");
+    when(slot.getLabel()).thenReturn("List");
+    when(slot.getDescription()).thenAnswer(inv -> description.get());
+    doAnswer(
+            inv -> {
+              description.set(inv.getArgument(0));
+              return null;
+            })
+        .when(slot)
+        .setDescription(any());
+    when(slot.getFinderName()).thenReturn("sys_RelationshipContentFinder");
+    when(slot.getRelationshipName()).thenReturn("ActiveAssembly");
+    Map<String, String> args = new LinkedHashMap<>();
+    args.put("type", "qa5408");
+    when(slot.getFinderArguments()).thenReturn(args);
+    when(slot.getSlottypeEnum()).thenReturn(IPSTemplateSlot.SlotType.INLINE);
+
+    SlotDetail body = new SlotDetail();
+    body.setDescription("folder list");
+    assertNull(body.getName());
+    assertNull(body.getLabel());
+    assertNull(body.getFinderName());
+    assertNull(body.getSlotType());
+
+    SlotDetail updated = new SlotsAdaptor(designWs).updateSlot(null, "rffList", body);
+
+    verify(slot).setDescription("folder list");
+    verify(slot, never()).setName(any());
+    verify(slot, never()).setLabel(any());
+    verify(slot, never()).setFinderName(any());
+    verify(slot, never()).setRelationshipName(any());
+    verify(slot, never()).setFinderArguments(any());
+    verify(slot, never()).setSlottype(any());
+    verify(slot, never()).setSlotAssociations(any());
+    assertEquals("folder list", updated.getDescription());
+    assertEquals("rffList", updated.getName());
+    assertEquals("List", updated.getLabel());
+    assertEquals("INLINE", updated.getSlotType());
+    assertEquals("sys_RelationshipContentFinder", updated.getFinderName());
+    assertEquals("ActiveAssembly", updated.getRelationshipName());
+    assertEquals("qa5408", updated.getFinderArguments().get("type"));
+
+    SlotDetail clear = new SlotDetail();
+    clear.setDescription("");
+    SlotDetail cleared = new SlotsAdaptor(designWs).updateSlot(null, "rffList", clear);
+    assertEquals("", cleared.getDescription());
+    assertEquals("rffList", cleared.getName());
+    assertEquals("List", cleared.getLabel());
+    assertEquals("INLINE", cleared.getSlotType());
+    assertEquals("sys_RelationshipContentFinder", cleared.getFinderName());
+    verify(slot).setDescription("");
+    verify(slot, never()).setName(any());
+    verify(designWs, times(2)).saveSlots(anyList(), eq(true), eq("test-session"), eq("test-user"));
   }
 
   private static IPSTemplateSlot userSlot(
