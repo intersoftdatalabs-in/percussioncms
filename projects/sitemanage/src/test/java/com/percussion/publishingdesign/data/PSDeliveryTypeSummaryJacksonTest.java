@@ -50,6 +50,17 @@ class PSDeliveryTypeSummaryJacksonTest {
   }
 
   @Test
+  void flagOnlyFalseOmitsNameBeanAndDescription() {
+    String json = "{\"deliveryType\":{\"unpublishingRequiresAssembly\":false}}";
+    PSDeliveryTypeSummary body = mapper.readValue(json, PSDeliveryTypeSummary.class);
+    assertNull(body.getName());
+    assertNull(body.getBeanName());
+    assertNull(body.getDescription());
+    assertFalse(body.isUnpublishingRequiresAssembly());
+    assertTrue(body.isUnpublishingRequiresAssemblySpecified());
+  }
+
+  @Test
   void explicitFalseAssemblyFlagIsSpecified() {
     String json =
         "{\"deliveryType\":{\"name\":\"Renamed\",\"unpublishingRequiresAssembly\":false}}";

@@ -31,6 +31,11 @@ import {
   validateDeliveryTypeCopyName,
 } from "../deliveryTypeCopy";
 import {
+  buildDeliveryTypeAssemblyBody,
+  deliveryTypeAssemblyLabel,
+  deliveryTypesAfterSuccessfulAssembly,
+} from "../deliveryTypeAssembly";
+import {
   buildDeliveryTypeBeanBody,
   deliveryTypesAfterSuccessfulBean,
   validateDeliveryTypeBeanName,
@@ -74,6 +79,8 @@ export function DeliveryTypesPanel(): React.ReactElement {
   const [describeText, setDescribeText] = useState("");
   const [beanEditing, setBeanEditing] = useState<DeliveryTypeSummary | null>(null);
   const [beanText, setBeanText] = useState("");
+  const [assemblyEditing, setAssemblyEditing] = useState<DeliveryTypeSummary | null>(null);
+  const [assemblyFlag, setAssemblyFlag] = useState(false);
   const [name, setName] = useState("");
   const [beanName, setBeanName] = useState("");
   const [description, setDescription] = useState("");
@@ -101,6 +108,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setRenaming(null);
     setDescribing(null);
     setBeanEditing(null);
+    setAssemblyEditing(null);
     setName("");
     setBeanName("");
     setDescription("");
@@ -117,6 +125,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setRenaming(null);
     setDescribing(null);
     setBeanEditing(null);
+    setAssemblyEditing(null);
     setCopying(item);
     setCopyName(suggestedDeliveryTypeCopyName(item.name));
     setError(null);
@@ -144,6 +153,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setCopying(null);
     setDescribing(null);
     setBeanEditing(null);
+    setAssemblyEditing(null);
     setRenaming(item);
     setRenameName(item.name ?? "");
     setError(null);
@@ -171,6 +181,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setCopying(null);
     setRenaming(null);
     setBeanEditing(null);
+    setAssemblyEditing(null);
     setDescribing(item);
     setDescribeText(item.description ?? "");
     setError(null);
@@ -198,6 +209,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setCopying(null);
     setRenaming(null);
     setDescribing(null);
+    setAssemblyEditing(null);
     setBeanEditing(item);
     setBeanText(item.beanName ?? "");
     setError(null);
@@ -216,12 +228,41 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setBeanEditing(null);
   }
 
+  function openSetAssembly(item: DeliveryTypeSummary): void {
+    if (!item.deliveryTypeId) {
+      return;
+    }
+    setCreating(false);
+    setEditing(null);
+    setCopying(null);
+    setRenaming(null);
+    setDescribing(null);
+    setBeanEditing(null);
+    setAssemblyEditing(item);
+    setAssemblyFlag(item.unpublishingRequiresAssembly === true);
+    setError(null);
+    setDirty(false);
+  }
+
+  function closeSetAssembly(): void {
+    if (saving) {
+      return;
+    }
+    if (!confirmIfDirty()) {
+      return;
+    }
+    setDirty(false);
+    setError(null);
+    setAssemblyEditing(null);
+  }
+
   function openEdit(item: DeliveryTypeSummary): void {
     setCreating(false);
     setCopying(null);
     setRenaming(null);
     setDescribing(null);
     setBeanEditing(null);
+    setAssemblyEditing(null);
     setEditing(item);
     setName(item.name ?? "");
     setBeanName(item.beanName ?? "");
@@ -240,6 +281,7 @@ export function DeliveryTypesPanel(): React.ReactElement {
     setRenaming(null);
     setDescribing(null);
     setBeanEditing(null);
+    setAssemblyEditing(null);
   }
 
   async function save(): Promise<void> {
@@ -407,6 +449,33 @@ export function DeliveryTypesPanel(): React.ReactElement {
     }
   }
 
+  async function saveAssembly(): Promise<void> {
+    if (!assemblyEditing?.deliveryTypeId || saving) {
+      return;
+    }
+    const id = assemblyEditing.deliveryTypeId;
+    const nextFlag = assemblyFlag;
+    setSaving(true);
+    setError(null);
+    const previous = items;
+    try {
+      await updateDeliveryType(id, buildDeliveryTypeAssemblyBody(nextFlag));
+      setDirty(false);
+      setAssemblyEditing(null);
+      let refreshed: DeliveryTypeSummary[] | null = null;
+      try {
+        refreshed = await listDeliveryTypes();
+      } catch {
+        refreshed = null;
+      }
+      setItems(deliveryTypesAfterSuccessfulAssembly(refreshed, id, nextFlag, previous));
+    } catch (e) {
+      setError(mapDeliveryTypeSaveError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function remove(id: string | number): Promise<void> {
     if (saving || id === "" || id == null) {
       return;
@@ -431,6 +500,72 @@ export function DeliveryTypesPanel(): React.ReactElement {
     } finally {
       setSaving(false);
     }
+  }
+
+  if (assemblyEditing) {
+    return (
+      <div data-testid="delivery-type-assembly-form">
+        <h3>Delivery type unpublish assembly</h3>
+        <p>
+          Name:{" "}
+          <span data-testid="delivery-type-assembly-form-name">
+            {assemblyEditing.name ?? ""}
+          </span>
+        </p>
+        <p>
+          Bean name:{" "}
+          <span data-testid="delivery-type-assembly-form-bean">
+            {assemblyEditing.beanName ?? ""}
+          </span>
+        </p>
+        <p>
+          Description:{" "}
+          <span data-testid="delivery-type-assembly-form-description">
+            {assemblyEditing.description ?? ""}
+          </span>
+        </p>
+        <div style={formRowStyle}>
+          <label htmlFor="delivery-type-assembly-flag">
+            <input
+              id="delivery-type-assembly-flag"
+              type="checkbox"
+              data-testid="delivery-type-assembly-flag"
+              checked={assemblyFlag}
+              onChange={(e) => {
+                setAssemblyFlag(e.target.checked);
+                setDirty(true);
+              }}
+            />{" "}
+            Unpublishing requires assembly
+          </label>
+        </div>
+        {error && (
+          <p style={errorStyle} role="alert">
+            {error}
+          </p>
+        )}
+        <div style={toolbarStyle}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="delivery-type-assembly-submit"
+            disabled={saving}
+            onClick={() => void saveAssembly()}
+          >
+            Save unpublish assembly
+          </button>
+          <button
+            type="button"
+            style={buttonStyle}
+            data-testid="delivery-type-assembly-cancel"
+            disabled={saving}
+            onClick={closeSetAssembly}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (beanEditing) {
@@ -757,6 +892,13 @@ export function DeliveryTypesPanel(): React.ReactElement {
             >
               {t.description ?? ""}
             </span>
+            <span
+              data-testid={
+                t.deliveryTypeId ? `delivery-type-assembly-${t.deliveryTypeId}` : undefined
+              }
+            >
+              {deliveryTypeAssemblyLabel(t)}
+            </span>
             {t.deliveryTypeId && (
               <>
                 <button
@@ -782,6 +924,14 @@ export function DeliveryTypesPanel(): React.ReactElement {
                   onClick={() => openSetBean(t)}
                 >
                   Bean name
+                </button>
+                <button
+                  type="button"
+                  style={buttonStyle}
+                  data-testid="delivery-type-set-assembly"
+                  onClick={() => openSetAssembly(t)}
+                >
+                  Unpublish assembly
                 </button>
                 <button
                   type="button"
