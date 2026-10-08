@@ -183,9 +183,29 @@ not the keyword `description`. The new description is shown only when that
 update succeeds and the response lists the same choices with that description.
 Cancel is not a request. The same description is not a request. A blank
 description is not sent, so it does not clear a stored choice description.
+Clearing a stored description is the separate confirm action below, not a
+blank value in this form. HTTP **400**, **403**, and **409** are errors: the
+editor keeps the previous description and does not apply a choice list from
+the error body. Add, remove, label change, value change, and delete stay on
+this resource and are unchanged.
+
+### Clear one choice description
+
+**Developer → Keywords** clears the description of one choice with the existing
+`PUT /services/keywords/{id}` after confirm (the same update used to set a
+choice description). The body is wrapped as `Keyword`. It keeps the stored
+keyword `label`, `description`, and `sequence`, and sends `choices` as the
+previous choices with that one choice's `description` set to an empty string.
+The choice `label`, `value`, and `sequence` stay, and the other choices stay.
+The choice description is the `description` field on that choice, not the
+keyword `description`. The description is empty only when that update succeeds
+and the response lists the same choices with an empty description. Cancel is
+not a request. Confirm when the description is already empty is not a request.
+The **Change description** action still does not send a blank description.
 HTTP **400**, **403**, and **409** are errors: the editor keeps the previous
 description and does not apply a choice list from the error body. Add, remove,
-label change, value change, and delete stay on this resource and are unchanged.
+label change, value change, description change, sequence change, and delete
+stay on this resource and are unchanged.
 
 ### Change one choice sequence
 
@@ -204,7 +224,8 @@ fraction, a negative number, or a larger number) is not sent. The same
 sequence may be used on another choice. HTTP **400**, **403**, and **409**
 are errors: the editor keeps the previous sequence and does not apply a
 choice list from the error body. Add, remove, label change, value change,
-description change, and delete stay on this resource and are unchanged.
+description change, description clear, and delete stay on this resource and
+are unchanged.
 
 ## Locales (design catalog)
 

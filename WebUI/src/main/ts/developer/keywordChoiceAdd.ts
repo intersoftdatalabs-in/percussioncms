@@ -171,6 +171,8 @@ export type RevalueChoiceRejection = "blank" | "duplicate" | "missing" | "unchan
 
 export type DescribeChoiceRejection = "blank" | "missing" | "unchanged";
 
+export type ClearChoiceDescriptionRejection = "missing" | "unchanged";
+
 export type ResequenceChoiceRejection = "blank" | "invalid" | "missing" | "unchanged";
 
 /** Java {@code Integer.MAX_VALUE}. The server stores choice sequence as an Integer >= 0. */
@@ -334,6 +336,43 @@ export function keywordUpdateForDescribedChoice(
       const copy = choiceForUpdate(choice);
       if (i === index) {
         return { ...copy, description };
+      }
+      return copy;
+    }),
+  };
+}
+
+/**
+ * Body for the existing keyword update that clears one choice description.
+ * Keyword label, description, and sequence are copied from the loaded keyword.
+ * That choice keeps its label, value, and sequence, and its description is an
+ * empty string so the update clears it. The other choices stay. A choice that
+ * already has no description is not a write. This is not the set-description
+ * action: that action still refuses a blank description.
+ */
+export function keywordUpdateForClearedChoiceDescription(
+  baseline: Pick<KeywordSummary, "label" | "description" | "sequence">,
+  existing: KeywordChoiceSummary[],
+  index: number,
+): KeywordSummary | ClearChoiceDescriptionRejection {
+  if (!Number.isInteger(index) || index < 0 || index >= existing.length) {
+    return "missing";
+  }
+  const currentChoice = existing[index];
+  if (!currentChoice) {
+    return "missing";
+  }
+  if (!storedChoiceDescription(currentChoice)) {
+    return "unchanged";
+  }
+  return {
+    label: baseline.label,
+    description: baseline.description,
+    sequence: baseline.sequence,
+    choices: existing.map((choice, i) => {
+      const copy = choiceForUpdate(choice);
+      if (i === index) {
+        return { ...copy, description: "" };
       }
       return copy;
     }),

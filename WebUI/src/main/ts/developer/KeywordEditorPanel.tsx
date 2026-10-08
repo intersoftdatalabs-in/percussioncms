@@ -31,6 +31,7 @@ import { panelErrMsg } from "./errors";
 import {
   asKeywordChoices,
   keywordUpdateForAddedChoice,
+  keywordUpdateForClearedChoiceDescription,
   keywordUpdateForDescribedChoice,
   keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
@@ -165,6 +166,21 @@ function describeChoiceFailureMessage(err: unknown): string {
   return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_ERROR);
 }
 
+function clearChoiceDescriptionFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_FORBIDDEN);
+    }
+    if (err.status === 409) {
+      return panelErrMsg(err, DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_CONFLICT);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_ERROR);
+}
+
 function resequenceChoiceFailureMessage(err: unknown): string {
   if (isApiError(err)) {
     if (err.status === 403) {
@@ -251,6 +267,11 @@ export function KeywordEditorPanel({
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
   const descriptionInflight = useRef(false);
+  const [pendingClearDescriptionIndex, setPendingClearDescriptionIndex] = useState<number | null>(
+    null,
+  );
+  const [clearDescriptionError, setClearDescriptionError] = useState<string | null>(null);
+  const [clearDescriptionNotice, setClearDescriptionNotice] = useState<string | null>(null);
   const [sequenceEditIndex, setSequenceEditIndex] = useState<number | null>(null);
   const [sequenceDraft, setSequenceDraft] = useState("");
   const [sequenceBusy, setSequenceBusy] = useState(false);
@@ -258,7 +279,9 @@ export function KeywordEditorPanel({
   const [sequenceNotice, setSequenceNotice] = useState<string | null>(null);
   const sequenceInflight = useRef(false);
   const [busy, setBusy] = useState(false);
-  const [confirmKind, setConfirmKind] = useState<null | "keyword" | "choice">(null);
+  const [confirmKind, setConfirmKind] = useState<
+    null | "keyword" | "choice" | "clear-description"
+  >(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const choiceWriteBusy =
@@ -426,6 +449,7 @@ export function KeywordEditorPanel({
       choiceWriteBusy ||
       busy ||
       confirmKind === "keyword" ||
+      confirmKind === "clear-description" ||
       choiceEditOpen ||
       !Number.isInteger(index) ||
       index < 0 ||
@@ -440,9 +464,103 @@ export function KeywordEditorPanel({
   }
 
   function cancelConfirm(): void {
-    if (busy || removeBusy) return;
+    if (busy || removeBusy || descriptionBusy) return;
     setConfirmKind(null);
     setPendingRemoveIndex(null);
+    setPendingClearDescriptionIndex(null);
+  }
+
+  function requestClearChoiceDescription(index: number, ev: React.MouseEvent<HTMLElement>): void {
+    if (
+      !id ||
+      isNew ||
+      !detailReady ||
+      choiceWriteBusy ||
+      busy ||
+      confirmKind != null ||
+      choiceEditOpen ||
+      descriptionInflight.current ||
+      !Number.isInteger(index) ||
+      index < 0 ||
+      index >= listedChoices.length
+    ) {
+      return;
+    }
+    captureDialogOpener(ev.currentTarget);
+    setPendingClearDescriptionIndex(index);
+    setConfirmKind("clear-description");
+    setClearDescriptionError(null);
+    setClearDescriptionNotice(null);
+  }
+
+  async function handleClearChoiceDescription(): Promise<void> {
+    const index = pendingClearDescriptionIndex;
+    setConfirmKind(null);
+    setPendingClearDescriptionIndex(null);
+    if (
+      !id ||
+      isNew ||
+      !serverKeyword ||
+      !detailReady ||
+      index == null ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      valueInflight.current ||
+      sequenceInflight.current ||
+      addInflight.current ||
+      removeInflight.current ||
+      addBusy ||
+      removeBusy ||
+      labelBusy ||
+      valueBusy ||
+      sequenceBusy ||
+      busy
+    ) {
+      return;
+    }
+    const sent = keywordUpdateForClearedChoiceDescription(serverKeyword, listedChoices, index);
+    if (sent === "missing") {
+      setClearDescriptionError(DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_ERROR);
+      setClearDescriptionNotice(null);
+      return;
+    }
+    if (sent === "unchanged") {
+      setClearDescriptionError(null);
+      setClearDescriptionNotice(null);
+      return;
+    }
+    descriptionInflight.current = true;
+    setDescriptionBusy(true);
+    setClearDescriptionError(null);
+    setClearDescriptionNotice(null);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    const previous = listedChoices;
+    try {
+      const payload = await updateKeyword(id, sent);
+      const accepted = savedChoicesAfterAdd(sent, payload);
+      if (!accepted) {
+        setListedChoices(previous);
+        setClearDescriptionError(DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_ERROR);
+        setClearDescriptionNotice(null);
+        return;
+      }
+      const saved = unwrapKeywordPayload(payload);
+      if (saved) {
+        applyLoadedKeyword({ ...saved, choices: accepted });
+      } else {
+        setListedChoices(accepted);
+        setChoicesText(choicesToText(accepted));
+      }
+      setClearDescriptionNotice(DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_SAVED);
+    } catch (err: unknown) {
+      setListedChoices(previous);
+      setClearDescriptionError(clearChoiceDescriptionFailureMessage(err));
+      setClearDescriptionNotice(null);
+    } finally {
+      descriptionInflight.current = false;
+      setDescriptionBusy(false);
+    }
   }
 
   async function handleRemoveChoice(): Promise<void> {
@@ -983,9 +1101,19 @@ export function KeywordEditorPanel({
   }
 
   function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
-    if (!id || isNew || choiceWriteBusy || confirmKind === "choice" || choiceEditOpen) return;
+    if (
+      !id ||
+      isNew ||
+      choiceWriteBusy ||
+      confirmKind === "choice" ||
+      confirmKind === "clear-description" ||
+      choiceEditOpen
+    ) {
+      return;
+    }
     captureDialogOpener(ev.currentTarget);
     setPendingRemoveIndex(null);
+    setPendingClearDescriptionIndex(null);
     setConfirmKind("keyword");
   }
 
@@ -1094,6 +1222,9 @@ export function KeywordEditorPanel({
             {DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_HINT}
           </p>
           <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>
+            {DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_HINT}
+          </p>
+          <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>
             {DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_HINT}
           </p>
           {addError ? (
@@ -1148,6 +1279,23 @@ export function KeywordEditorPanel({
           {descriptionNotice ? (
             <div data-testid="developer-kw-choice-description-notice" style={{ color: "#276749" }}>
               {descriptionNotice}
+            </div>
+          ) : null}
+          {clearDescriptionError ? (
+            <div
+              role="alert"
+              data-testid="developer-kw-choice-description-clear-error"
+              style={errorAlert}
+            >
+              {clearDescriptionError}
+            </div>
+          ) : null}
+          {clearDescriptionNotice ? (
+            <div
+              data-testid="developer-kw-choice-description-clear-notice"
+              style={{ color: "#276749" }}
+            >
+              {clearDescriptionNotice}
             </div>
           ) : null}
           {sequenceError ? (
@@ -1259,6 +1407,28 @@ export function KeywordEditorPanel({
                       }}
                     >
                       {DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-kw-choice-description-clear"
+                      data-choice-label={choiceLabel}
+                      aria-label={DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_ACTION.replace(
+                        "{0}",
+                        choiceLabel || String(index + 1),
+                      )}
+                      disabled={
+                        choiceWriteBusy || busy || !detailReady || confirmKind != null || choiceEditOpen
+                      }
+                      onClick={(ev) => requestClearChoiceDescription(index, ev)}
+                      style={{
+                        padding: "4px 10px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: choiceWriteBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION}
                     </button>
                     <button
                       type="button"
@@ -1618,7 +1788,13 @@ export function KeywordEditorPanel({
             type="button"
             data-testid="developer-kw-delete"
             aria-label="Delete keyword"
-            disabled={busy || choiceWriteBusy || confirmKind === "choice" || choiceEditOpen}
+            disabled={
+              busy ||
+              choiceWriteBusy ||
+              confirmKind === "choice" ||
+              confirmKind === "clear-description" ||
+              choiceEditOpen
+            }
             onClick={requestDelete}
             style={{
               padding: "8px 16px",
@@ -1636,7 +1812,7 @@ export function KeywordEditorPanel({
       </div>
       <CatalogConfirmDialog
         open={confirmKind != null}
-        busy={busy || removeBusy}
+        busy={busy || removeBusy || descriptionBusy}
         message={
           confirmKind === "choice"
             ? DEV_MSG.KW_REMOVE_CHOICE_CONFIRM.replace(
@@ -1645,12 +1821,21 @@ export function KeywordEditorPanel({
                   ? listedChoices[pendingRemoveIndex]?.label || ""
                   : "",
               )
-            : DEV_MSG.KW_DELETE_CONFIRM
+            : confirmKind === "clear-description"
+              ? DEV_MSG.KW_CLEAR_CHOICE_DESCRIPTION_CONFIRM.replace(
+                  "{0}",
+                  pendingClearDescriptionIndex != null
+                    ? listedChoices[pendingClearDescriptionIndex]?.label || ""
+                    : "",
+                )
+              : DEV_MSG.KW_DELETE_CONFIRM
         }
         onCancel={cancelConfirm}
         onConfirm={() => {
           if (confirmKind === "choice") {
             void handleRemoveChoice();
+          } else if (confirmKind === "clear-description") {
+            void handleClearChoiceDescription();
           } else {
             void handleDelete();
           }
