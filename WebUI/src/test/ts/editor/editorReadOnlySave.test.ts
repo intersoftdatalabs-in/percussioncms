@@ -78,4 +78,34 @@ describe("fieldsForEditorSave", () => {
       },
     ]);
   });
+
+  it("writes a cleared optional float and keeps the sibling integer", () => {
+    const sent = fieldsForEditorSave([
+      { name: "rate", kind: "number", value: "", numericInteger: false },
+      {
+        name: "qty",
+        kind: "number",
+        value: "4",
+        numericInteger: true,
+        numericMinimum: "0",
+        numericMaximum: "10",
+      },
+    ]);
+    expect(sent).toEqual([
+      {
+        name: "rate",
+        value: "",
+        dataType: "float",
+        minimum: undefined,
+        maximum: undefined,
+      },
+      {
+        name: "qty",
+        value: "4",
+        dataType: "integer",
+        minimum: "0",
+        maximum: "10",
+      },
+    ]);
+  });
 });

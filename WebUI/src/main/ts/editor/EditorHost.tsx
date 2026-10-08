@@ -640,6 +640,7 @@ function EditorFieldControl({
           className={`${styles.input} ${locked ? styles.readonly : ""}`}
           data-testid={`editor-field-${row.name}`}
           data-editor-kind="number"
+          data-editor-numeric={row.numericInteger === false ? "float" : "integer"}
           name={row.name}
           inputMode={row.numericInteger === false ? "decimal" : "numeric"}
           value={row.value}
@@ -653,6 +654,7 @@ function EditorFieldControl({
             type="button"
             className={styles.button}
             data-testid={`editor-number-clear-${row.name}`}
+            data-editor-numeric={row.numericInteger === false ? "float" : "integer"}
             aria-label={message(EDITOR_MSG.NUMBER_CLEAR)}
             onClick={() => onChange(row.name, "")}
           >
