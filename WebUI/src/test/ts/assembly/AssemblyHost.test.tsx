@@ -2122,6 +2122,315 @@ describe("AssemblyHost", () => {
     expect(input.value).toBe("   ");
   });
 
+  const OLD_RATE = "1";
+  const NEW_RATE = "1.5";
+
+  const decimalFields: ItemEditorFields = {
+    contentId: "42",
+    contentType: "percPage",
+    name: "Home",
+    checkoutUser: "admin",
+    fields: [
+      { name: "rate", value: OLD_RATE },
+      { name: "qty", value: OLD_QTY },
+      { name: "displaytitle", value: OLD_TEXT },
+      { name: "notes", value: LONG_NOTE },
+    ],
+  };
+
+  const decimalSchema = {
+    fields: [
+      { name: "rate", label: "Rate", control: "sys_Number", dataType: "float" },
+      { name: "qty", label: "Quantity", control: "sys_Number", dataType: "integer" },
+      { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+      { name: "notes", label: "Notes", control: "sys_TextArea" },
+    ],
+  };
+
+  function decimalPreviewDoc(rate = OLD_RATE): Document {
+    const previewDoc = document.implementation.createHTMLDocument("preview");
+    previewDoc.body.innerHTML = `
+      <span data-perc-field="rate">${rate}</span>
+      <span data-perc-field="qty">${OLD_QTY}</span>
+      <h1 data-perc-field="displaytitle">${OLD_TEXT}</h1>
+      <p data-perc-field="notes">${LONG_NOTE}</p>
+    `;
+    return previewDoc;
+  }
+
+  function renderDecimalHost(
+    previewDoc: Document,
+    saveFields: ReturnType<typeof vi.fn>,
+    loadFields: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(decimalFields),
+    schema: { fields: Array<Record<string, unknown>> } = decimalSchema,
+  ): void {
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview: vi.fn().mockResolvedValue({
+        previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+        contentId: 42,
+        templateId: 7,
+        revision: 1,
+      }),
+      loadTemplates: vi.fn().mockResolvedValue([
+        {
+          name: "rffPgGeneric",
+          label: "Generic Page",
+          url: "../assembler/render?sys_template=7",
+          sortRank: 0,
+          menuType: "MENUITEM",
+        } satisfies MenuAction,
+      ]),
+      checkout: vi.fn().mockResolvedValue(undefined),
+      loadFields,
+      saveFields,
+      loadType: vi.fn().mockResolvedValue(schema),
+      getPreviewDocument: () => previewDoc,
+    });
+  }
+
+  it("saves 1.5 on a float field and leaves the whole number", async () => {
+    const previewDoc = decimalPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderDecimalHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-rate"]'),
+      ).toBeTruthy();
+    });
+    const rate = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-rate"]',
+    ) as HTMLElement;
+    expect(rate.getAttribute("data-assembly-number")).toBe("float");
+    expect(rate.textContent).toBe(OLD_RATE);
+    rate.textContent = ` ${NEW_RATE} `;
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "rate")).toEqual({
+      name: "rate",
+      value: NEW_RATE,
+      dataType: "float",
+    });
+    expect(saved.fields.find((field) => field.name === "qty")).toEqual({
+      name: "qty",
+      value: OLD_QTY,
+    });
+    expect(saved.fields.find((field) => field.name === "displaytitle")?.value).toBe(OLD_TEXT);
+    expect(saved.fields.find((field) => field.name === "notes")?.value).toBe(LONG_NOTE);
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    expect(rate.textContent).toBe(NEW_RATE);
+  });
+
+  it("reloads the assembly host with the decimal that was saved", async () => {
+    const savedPayload: ItemEditorFields = {
+      ...decimalFields,
+      fields: decimalFields.fields.map((field) =>
+        field.name === "rate" ? { ...field, value: NEW_RATE } : field,
+      ),
+    };
+    const previewDoc = decimalPreviewDoc(NEW_RATE);
+    renderDecimalHost(
+      previewDoc,
+      vi.fn().mockResolvedValue(savedPayload),
+      vi.fn().mockResolvedValue(savedPayload),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-rate"]'),
+      ).toBeTruthy();
+    });
+    expect(
+      (
+        previewDoc.querySelector(
+          '[data-testid="assembly-inline-field-rate"]',
+        ) as HTMLElement
+      ).textContent,
+    ).toBe(NEW_RATE);
+    expect(
+      (
+        previewDoc.querySelector(
+          '[data-testid="assembly-inline-field-qty"]',
+        ) as HTMLElement
+      ).textContent,
+    ).toBe(OLD_QTY);
+  });
+
+  it("does not save a decimal on an integer field and keeps the previous whole number", async () => {
+    const previewDoc = decimalPreviewDoc();
+    const saveFields = vi.fn();
+    renderDecimalHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-qty"]'),
+      ).toBeTruthy();
+    });
+    const qty = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-qty"]',
+    ) as HTMLElement;
+    const rate = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-rate"]',
+    ) as HTMLElement;
+    qty.textContent = NEW_RATE;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-qty").textContent).toMatch(
+        /whole number/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/whole number/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(qty.textContent).toBe(OLD_QTY);
+    expect(rate.textContent).toBe(OLD_RATE);
+  });
+
+  it("does not write when Cancel leaves an unsaved decimal", async () => {
+    const previewDoc = decimalPreviewDoc();
+    const saveFields = vi.fn();
+    renderDecimalHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-rate"]'),
+      ).toBeTruthy();
+    });
+    const rate = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-rate"]',
+    ) as HTMLElement;
+    rate.textContent = NEW_RATE;
+    fireEvent.click(screen.getByTestId("assembly-field-cancel"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(rate.textContent).toBe(OLD_RATE);
+  });
+
+  it("does not save a non-numeric float and leaves the previous number", async () => {
+    const previewDoc = decimalPreviewDoc();
+    const saveFields = vi.fn();
+    renderDecimalHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-rate"]'),
+      ).toBeTruthy();
+    });
+    const rate = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-rate"]',
+    ) as HTMLElement;
+    rate.textContent = "abc";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-rate").textContent).toMatch(
+        /enter a number/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/enter a number/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/whole number/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(rate.textContent).toBe(OLD_RATE);
+  });
+
+  it("does not write a read-only float field", async () => {
+    const previewDoc = decimalPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderDecimalHost(previewDoc, saveFields, vi.fn().mockResolvedValue(decimalFields), {
+      fields: decimalSchema.fields.map((field) =>
+        field.name === "rate" ? { ...field, readOnly: true } : field,
+      ),
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-inline-qty")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("assembly-field-chip-rate")).toBeNull();
+    expect(previewDoc.querySelector('[data-testid="assembly-inline-field-rate"]')).toBeNull();
+    const qty = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-qty"]',
+    ) as HTMLElement;
+    qty.textContent = NEW_QTY;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "rate")).toEqual({
+      name: "rate",
+      value: OLD_RATE,
+    });
+    expect(saved.fields.find((field) => field.name === "qty")).toEqual({
+      name: "qty",
+      value: NEW_QTY,
+      dataType: "integer",
+    });
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s on a decimal save does not claim success",
+    async (status) => {
+      const previewDoc = decimalPreviewDoc();
+      const saveFields = vi.fn().mockRejectedValue({ status });
+      renderDecimalHost(previewDoc, saveFields);
+      await waitFor(() => {
+        expect(
+          previewDoc.querySelector('[data-testid="assembly-inline-field-rate"]'),
+        ).toBeTruthy();
+      });
+      const rate = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-rate"]',
+      ) as HTMLElement;
+      rate.textContent = NEW_RATE;
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+          /could not save/i,
+        );
+        const live = previewDoc.querySelector(
+          '[data-testid="assembly-inline-field-rate"]',
+        ) as HTMLElement | null;
+        expect(live?.textContent).toBe(OLD_RATE);
+      });
+      expect(saveFields).toHaveBeenCalled();
+      const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+      expect(sent.fields.find((field) => field.name === "rate")?.value).toBe(NEW_RATE);
+      expect(sent.fields.find((field) => field.name === "rate")?.dataType).toBe("float");
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+      expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    },
+  );
+
+  it("saves a decimal from the overlay strip when the page has no node", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderDecimalHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-rate")).toBeTruthy();
+    });
+    const input = screen.getByTestId("assembly-overlay-field-rate") as HTMLInputElement;
+    expect(input.getAttribute("inputmode")).toBe("decimal");
+    expect(input.getAttribute("data-assembly-number")).toBe("float");
+    expect(input.value).toBe(OLD_RATE);
+    input.value = NEW_RATE;
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "rate")).toEqual({
+      name: "rate",
+      value: NEW_RATE,
+      dataType: "float",
+    });
+    expect(saved.fields.find((field) => field.name === "qty")?.value).toBe(OLD_QTY);
+    expect(input.value).toBe(NEW_RATE);
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+  });
+
   const OLD_DATE = "2026-10-07";
   const NEW_DATE = "2026-11-02";
 
@@ -2471,6 +2780,7 @@ describe("AssemblyHost", () => {
       expect(screen.getByTestId("assembly-field-error-event_on").textContent).toMatch(
         /required/i,
       );
+      expect(dateInput(previewDoc).getAttribute("aria-invalid")).toBe("true");
     });
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/required/i);
@@ -2481,8 +2791,7 @@ describe("AssemblyHost", () => {
       /fields saved/i,
     );
     expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
-    expect(eventOn.getAttribute("aria-invalid")).toBe("true");
-    expect(eventOn.value).toBe("");
+    expect(dateInput(previewDoc).value).toBe("");
     cleanup();
     const reloaded = datePreviewDoc();
     renderDateHost(
@@ -3000,14 +3309,14 @@ describe("AssemblyHost datetime field", () => {
     fireEvent.click(screen.getByTestId("assembly-field-save"));
     await waitFor(() => {
       expect(screen.getByTestId("assembly-field-error-event_at").textContent).toMatch(/required/i);
+      expect(datetimeInput(previewDoc).getAttribute("aria-invalid")).toBe("true");
     });
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/required/i);
     expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/date and time/i);
     expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
     expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
-    expect(eventAt.getAttribute("aria-invalid")).toBe("true");
-    expect(eventAt.value).toBe("");
+    expect(datetimeInput(previewDoc).value).toBe("");
     cleanup();
     const reloaded = datetimePreviewDoc();
     renderDatetimeHost(
