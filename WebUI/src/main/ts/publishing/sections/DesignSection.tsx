@@ -27,12 +27,14 @@ import { message, MSG } from "../../i18n/message";
 import { contentListsAfterSuccessfulCopy } from "../contentListCopy";
 import { contentListsAfterSuccessfulDescription } from "../contentListDescription";
 import { contentListsAfterSuccessfulGenerator } from "../contentListGenerator";
+import { contentListsAfterSuccessfulUrl } from "../contentListUrl";
 import { storedItemFilterLabel } from "../contentListItemFilter";
 import { editionsAfterSuccessfulComment } from "../editionComment";
 import { editionsAfterSuccessfulPriority } from "../editionPriority";
 import { ContentListCopyPanel } from "../design/ContentListCopyPanel";
 import { ContentListDescriptionPanel } from "../design/ContentListDescriptionPanel";
 import { ContentListGeneratorPanel } from "../design/ContentListGeneratorPanel";
+import { ContentListUrlPanel } from "../design/ContentListUrlPanel";
 import { ContentListEditor } from "../design/ContentListEditor";
 import {
   isLegacyContentList,
@@ -84,6 +86,7 @@ export function DesignSection(): React.ReactElement {
   const [clCopy, setClCopy] = useState<ContentListSummary | null>(null);
   const [clDescribe, setClDescribe] = useState<ContentListSummary | null>(null);
   const [clGenerator, setClGenerator] = useState<ContentListSummary | null>(null);
+  const [clUrl, setClUrl] = useState<ContentListSummary | null>(null);
 
   useEffect(() => {
     fetchSites()
@@ -259,6 +262,31 @@ export function DesignSection(): React.ReactElement {
                 description,
                 prev,
               ),
+            );
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (clUrl !== null) {
+    const edited = clUrl;
+    return (
+      <div data-testid="publish-section-design">
+        <ContentListUrlPanel
+          contentList={edited}
+          onCancel={() => setClUrl(null)}
+          onSaved={async (url) => {
+            const id = edited.contentListId ?? "";
+            setClUrl(null);
+            let refreshed: ContentListSummary[] | null = null;
+            try {
+              refreshed = await listContentLists();
+            } catch {
+              refreshed = null;
+            }
+            setContentLists((prev) =>
+              contentListsAfterSuccessfulUrl(refreshed, id, url, prev),
             );
           }}
         />
@@ -504,6 +532,16 @@ export function DesignSection(): React.ReactElement {
                       Generator
                     </button>
                   )}
+                {c.contentListId && isLegacyContentList(c.listType) && (
+                  <button
+                    type="button"
+                    style={buttonStyle}
+                    data-testid={`design-content-list-url-${c.contentListId}`}
+                    onClick={() => setClUrl(c)}
+                  >
+                    Legacy URL
+                  </button>
+                )}
                 <span
                   style={{ color: "#666" }}
                   data-testid={

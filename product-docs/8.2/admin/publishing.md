@@ -493,7 +493,9 @@ HTTP **403** (not Admin or Designer) and **409** (content list name already exis
 content-list editor error region — not as a successful save. Setting only the description is
 described below and does not change the name, type, generator or legacy URL, or item filter.
 Setting only the generator on a modern list is also described below and does not change the name,
-description, type, item filter, or a legacy list URL.
+description, type, item filter, or a legacy list URL. Setting only the legacy URL on a legacy list
+is described below and does not change the name, description, type, or item filter. A modern list
+has no legacy URL action.
 Edition save and delivery-type save are separate Design actions.
 
 ### Rename a content list (Design)
@@ -591,8 +593,34 @@ HTTP **400** (generator blank, longer than 256 characters, or sent for a legacy 
 (not Admin or Designer), and **409** (for example a content list name conflict on the same update)
 stay in the generator form error region. Those responses do not change the generator on the list.
 Saving a content list (which can also change the name, description, legacy URL, and item filter),
-renaming a content list, setting the item filter, and setting only the description are separate
-actions. The content list type stays disabled after create; this action does not switch a saved
+renaming a content list, setting the item filter, setting only the description, and setting only
+the legacy URL are separate actions. The content list type stays disabled after create; this
+action does not switch a saved list between modern and legacy.
+
+### Set a legacy content list URL (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Content lists**.
+On a **legacy** content list row, **Legacy URL** opens **Legacy content list URL** (it does not
+call the server). A modern row has no **Legacy URL** action, so this does not change a modern
+generator or item filter. The form shows the current **name**, **description**, **type**, and
+**item filter**, and does not let you change them. Change **Legacy URL**. **Save legacy URL**
+sends `PUT …/sitemanage/publishingdesign/contentlists/{contentListId}` with a `contentList` object
+that contains only the URL. Name, description, type, generator, and item filter are omitted. The
+server leaves a missing name and description stored, so those values are not resent.
+
+**Content lists** keeps the previous URL until that update succeeds, then shows the new URL with
+the same name, description, type, and item filter. **Cancel** closes the form and does not call
+the server. A blank URL is rejected in the form and does not call the server (a blank URL does
+not clear the stored URL). A URL longer than 2100 characters (`RXCONTENTLIST.URL`) is also
+rejected in the form and does not call the server.
+
+HTTP **400** (URL blank, longer than 2100 characters, or sent for a modern list), **403** (not
+Admin or Designer), and **409** (for example a content list name conflict on the same update)
+stay in the legacy URL form error region. Those responses do not change the URL on the list.
+Saving a content list (which can also change the name, description, and item filter), renaming a
+content list, setting the item filter, setting only the description, and setting only the
+generator are separate actions. Generator edits on a modern list still leave a legacy URL
+untouched. The content list type stays disabled after create; this action does not switch a saved
 list between modern and legacy.
 
 ### Delete a content list (Design)
