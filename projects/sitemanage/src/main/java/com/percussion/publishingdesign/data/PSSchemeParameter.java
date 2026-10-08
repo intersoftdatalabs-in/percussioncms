@@ -21,6 +21,11 @@ import jakarta.xml.bind.annotation.XmlType;
 @XmlType(name = "schemeParameter")
 public class PSSchemeParameter {
   private String name;
+  /**
+   * Replacement name when {@link PSLocationSchemeSummary#getUpdateParameterName()} is true.
+   * {@link #name} stays the stored name used to find the row. Ignored by every other update.
+   */
+  private String newName;
   private String type;
   private String value;
   private Integer sequence;
@@ -31,6 +36,14 @@ public class PSSchemeParameter {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getNewName() {
+    return newName;
+  }
+
+  public void setNewName(String newName) {
+    this.newName = newName;
   }
 
   public String getType() {

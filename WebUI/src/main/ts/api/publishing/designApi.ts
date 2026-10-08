@@ -59,6 +59,8 @@ export interface ContextSummary {
 
 export interface SchemeParameter {
   name?: string;
+  /** Replacement name for {@code updateParameterName}. The stored name stays {@code name}. */
+  newName?: string;
   type?: string;
   value?: string;
   sequence?: number;
@@ -105,6 +107,13 @@ export interface LocationSchemeSummary {
    * stay, including their sequences. The server does not replace the stored set.
    */
   updateParameterSequence?: boolean;
+  /**
+   * Update-only. When true, {@code parameters} is exactly one stored parameter
+   * whose name is replaced. {@code name} is the stored name and {@code newName}
+   * is the new name. Type, value, and sequence stay. The server does not
+   * replace the stored set.
+   */
+  updateParameterName?: boolean;
 }
 
 export interface SiteDesignSummary {
@@ -689,6 +698,9 @@ export function wrapLocationScheme(body: LocationSchemeSummary): {
   }
   if (body.updateParameterSequence) {
     wire.updateParameterSequence = true;
+  }
+  if (body.updateParameterName) {
+    wire.updateParameterName = true;
   }
   if (body.parameters && body.parameters.length > 0) {
     // JAXB wrapper the publishing-design resource binds. A bare schemeParameter

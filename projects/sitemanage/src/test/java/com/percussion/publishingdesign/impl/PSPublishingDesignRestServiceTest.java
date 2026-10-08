@@ -3784,6 +3784,354 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void updateScheme_updateParameterName_keepsTypeValueSequenceOtherParameterAndIdentity()
+      throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.LOCATION_SCHEME))).thenReturn(schemeGuid);
+    PSLocationScheme scheme = schemeWithPathAndSuffix();
+    when(siteManager.loadSchemeModifiable(schemeGuid)).thenReturn(scheme);
+
+    PSSchemeParameter changed = new PSSchemeParameter();
+    changed.setName(" suffix ");
+    changed.setNewName(" fileSuffix ");
+    changed.setType("String");
+    changed.setValue("ignored.html");
+    changed.setSequence(9);
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setUpdateParameterName(Boolean.TRUE);
+    body.setParameters(List.of(changed));
+
+    PSLocationSchemeSummary saved = design.updateScheme("11", body);
+    assertEquals("Article", saved.getName());
+    assertEquals("Pages", saved.getDescription());
+    assertEquals("sys_Jexl", saved.getGenerator());
+    assertEquals(4L, saved.getContentTypeId());
+    assertEquals(8L, saved.getTemplateId());
+    assertEquals(2, saved.getParameters().size());
+    PSSchemeParameter path = saved.getParameters().get(0);
+    PSSchemeParameter suffix = saved.getParameters().get(1);
+    assertEquals("path", path.getName());
+    assertEquals("String", path.getType());
+    assertEquals("$sys.site.path", path.getValue());
+    assertEquals(0, path.getSequence());
+    assertEquals("fileSuffix", suffix.getName());
+    assertEquals("BackendColumn", suffix.getType());
+    assertEquals("article", suffix.getValue());
+    assertEquals(1, suffix.getSequence());
+    assertEquals("article", scheme.getParameterValue("fileSuffix"));
+    assertEquals("BackendColumn", scheme.getParameterType("fileSuffix"));
+    assertEquals(1, scheme.getParameterSequence("fileSuffix"));
+    assertNull(scheme.getParameterValue("suffix"));
+    assertEquals("$sys.site.path", scheme.getParameterValue("path"));
+    assertEquals(77, parameterId(scheme, "path", null));
+    assertEquals(88, parameterId(scheme, "fileSuffix", null));
+    assertEquals(2, scheme.getParameterNames().size());
+    verify(siteManager).saveScheme(scheme);
+    verify(siteManager, never()).deleteScheme(any());
+  }
+
+  @Test
+  void updateScheme_updateParameterName_sameName_keepsRow() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.LOCATION_SCHEME))).thenReturn(schemeGuid);
+    PSLocationScheme scheme = schemeWithPathAndSuffix();
+    when(siteManager.loadSchemeModifiable(schemeGuid)).thenReturn(scheme);
+
+    PSSchemeParameter changed = new PSSchemeParameter();
+    changed.setName("suffix");
+    changed.setNewName(" suffix ");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setUpdateParameterName(Boolean.TRUE);
+    body.setParameters(List.of(changed));
+
+    design.updateScheme("11", body);
+    assertEquals("suffix", scheme.getParameterNames().get(1));
+    assertEquals(88, parameterId(scheme, "suffix", null));
+    assertEquals("article", scheme.getParameterValue("suffix"));
+    assertEquals(1, scheme.getParameterSequence("suffix"));
+    verify(siteManager).saveScheme(scheme);
+  }
+
+  @Test
+  void updateScheme_updateParameterName_blankNewName_400_doesNotClear() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.LOCATION_SCHEME))).thenReturn(schemeGuid);
+    PSLocationScheme scheme = schemeWithPathAndSuffix();
+    when(siteManager.loadSchemeModifiable(schemeGuid)).thenReturn(scheme);
+
+    PSSchemeParameter changed = new PSSchemeParameter();
+    changed.setName("suffix");
+    changed.setNewName("   ");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setUpdateParameterName(Boolean.TRUE);
+    body.setParameters(List.of(changed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_NAME_REQUIRED, ex.getMessage());
+    assertEquals("suffix", scheme.getParameterNames().get(1));
+    assertEquals(88, parameterId(scheme, "suffix", null));
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_updateParameterName_nullNewName_400_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+
+    PSSchemeParameter changed = new PSSchemeParameter();
+    changed.setName("suffix");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setUpdateParameterName(Boolean.TRUE);
+    body.setParameters(List.of(changed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_NAME_REQUIRED, ex.getMessage());
+    verify(scheme, never()).removeParameter(any());
+    verify(scheme, never()).addParameter(any(), any(int.class), any(), any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_updateParameterName_blankStoredName_400_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+
+    PSSchemeParameter changed = new PSSchemeParameter();
+    changed.setName("  ");
+    changed.setNewName("fileSuffix");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setUpdateParameterName(Boolean.TRUE);
+    body.setParameters(List.of(changed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_NAME_REQUIRED, ex.getMessage());
+    verify(scheme, never()).removeParameter(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_updateParameterName_newNameTooLong_400_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.LOCATION_SCHEME))).thenReturn(schemeGuid);
+    PSLocationScheme scheme = schemeWithPathAndSuffix();
+    when(siteManager.loadSchemeModifiable(schemeGuid)).thenReturn(scheme);
+
+    PSSchemeParameter changed = new PSSchemeParameter();
+    changed.setName("suffix");
+    changed.setNewName("n".repeat(51));
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setUpdateParameterName(Boolean.TRUE);
+    body.setParameters(List.of(changed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_NAME_TOO_LONG, ex.getMessage());
+    assertEquals("article", scheme.getParameterValue("suffix"));
+    assertEquals(88, parameterId(scheme, "suffix", null));
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_updateParameterName_duplicate_409_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.LOCATION_SCHEME))).thenReturn(schemeGuid);
+    PSLocationScheme scheme = schemeWithPathAndSuffix();
+    when(siteManager.loadSchemeModifiable(schemeGuid)).thenReturn(scheme);
+
+    PSSchemeParameter changed = new PSSchemeParameter();
+    changed.setName("suffix");
+    changed.setNewName(" path ");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setUpdateParameterName(Boolean.TRUE);
+    body.setParameters(List.of(changed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_EXISTS, ex.getMessage());
+    assertEquals("article", scheme.getParameterValue("suffix"));
+    assertEquals("$sys.site.path", scheme.getParameterValue("path"));
+    assertEquals(2, scheme.getParameterNames().size());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_updateParameterName_notExactlyOne_400_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setUpdateParameterName(Boolean.TRUE);
+    body.setParameters(List.of());
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_NAME_ONE_REQUIRED,
+        ex.getMessage());
+    verify(scheme, never()).removeParameter(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_updateParameterName_twoParameters_400_doesNotReplaceSet() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.LOCATION_SCHEME))).thenReturn(schemeGuid);
+    PSLocationScheme scheme = schemeWithPathAndSuffix();
+    when(siteManager.loadSchemeModifiable(schemeGuid)).thenReturn(scheme);
+
+    PSSchemeParameter first = new PSSchemeParameter();
+    first.setName("suffix");
+    first.setNewName("fileSuffix");
+    PSSchemeParameter second = new PSSchemeParameter();
+    second.setName("path");
+    second.setNewName("folder");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setUpdateParameterName(Boolean.TRUE);
+    body.setParameters(List.of(first, second));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_NAME_ONE_REQUIRED,
+        ex.getMessage());
+    assertEquals("article", scheme.getParameterValue("suffix"));
+    assertEquals("$sys.site.path", scheme.getParameterValue("path"));
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_updateParameterName_missingName_409_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.LOCATION_SCHEME))).thenReturn(schemeGuid);
+    PSLocationScheme scheme = schemeWithPathAndSuffix();
+    when(siteManager.loadSchemeModifiable(schemeGuid)).thenReturn(scheme);
+
+    PSSchemeParameter changed = new PSSchemeParameter();
+    changed.setName("missing");
+    changed.setNewName("fileSuffix");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setUpdateParameterName(Boolean.TRUE);
+    body.setParameters(List.of(changed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_NOT_ON_SCHEME, ex.getMessage());
+    assertEquals("article", scheme.getParameterValue("suffix"));
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_updateParameterName_forbidden_403() {
+    PSPublishingDesignRestService design = contextDesign();
+    design.setDesignWriteAllowed(() -> false);
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setUpdateParameterName(Boolean.TRUE);
+    PSSchemeParameter changed = new PSSchemeParameter();
+    changed.setName("suffix");
+    changed.setNewName("fileSuffix");
+    body.setParameters(List.of(changed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(siteManager, never()).loadSchemeModifiable(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_updateParameterName_duplicateSchemeName_409_doesNotRename() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSLocationScheme scheme = stubSchemeLoadOnly();
+    when(scheme.getContextId()).thenReturn(contextGuid);
+    when(scheme.getParameterNames()).thenReturn(List.of("path", "suffix"));
+    when(contextGuid.getUUID()).thenReturn(3);
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
+
+    IPSGuid otherGuid = mock(IPSGuid.class);
+    IPSLocationScheme other = mock(IPSLocationScheme.class);
+    when(other.getName()).thenReturn("Taken");
+    when(other.getGUID()).thenReturn(otherGuid);
+    when(otherGuid.getUUID()).thenReturn(99);
+    when(siteManager.findSchemesByContextId(contextGuid)).thenReturn(List.of(other));
+
+    PSSchemeParameter changed = new PSSchemeParameter();
+    changed.setName("suffix");
+    changed.setNewName("fileSuffix");
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setName("Taken");
+    body.setUpdateParameterName(Boolean.TRUE);
+    body.setParameters(List.of(changed));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.LOCATION_SCHEME_NAME_CONFLICT, ex.getMessage());
+    verify(scheme, never()).removeParameter(any());
+    verify(scheme, never()).addParameter(any(), any(int.class), any(), any());
+    verify(scheme, never()).setName(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_updateParameterName_withSequence_400_doesNotLoad() {
+    PSPublishingDesignRestService design = contextDesign();
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setUpdateParameterSequence(Boolean.TRUE);
+    body.setUpdateParameterName(Boolean.TRUE);
+    PSSchemeParameter parameter = new PSSchemeParameter();
+    parameter.setName("suffix");
+    parameter.setNewName("fileSuffix");
+    parameter.setSequence(4);
+    body.setParameters(List.of(parameter));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_NAME_NOT_WITH_OTHER,
+        ex.getMessage());
+    verify(siteManager, never()).loadSchemeModifiable(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
+  void updateScheme_updateParameterName_withAdd_400_doesNotLoad() {
+    PSPublishingDesignRestService design = contextDesign();
+    PSLocationSchemeSummary body = new PSLocationSchemeSummary();
+    body.setAddParameter(Boolean.TRUE);
+    body.setUpdateParameterName(Boolean.TRUE);
+    PSSchemeParameter parameter = new PSSchemeParameter();
+    parameter.setName("suffix");
+    parameter.setNewName("fileSuffix");
+    body.setParameters(List.of(parameter));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.updateScheme("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.LOCATION_SCHEME_PARAMETER_NAME_NOT_WITH_OTHER,
+        ex.getMessage());
+    verify(siteManager, never()).loadSchemeModifiable(any());
+    verify(siteManager, never()).saveScheme(any());
+  }
+
+  @Test
   void listSchemesForContext_includesParameters() throws Exception {
     PSPublishingDesignRestService design = contextDesign();
     when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(contextGuid);
