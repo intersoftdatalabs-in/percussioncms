@@ -322,8 +322,32 @@ variable's value. A blank value does not remove a stored variable.
 HTTP **400** (name or value missing or longer than its column), **403** (not Admin or
 Designer), and **409** (that name already exists on the context) stay in the form error
 region. Those responses do not add a row and do not change the other variables. Changing
-the value of a variable that is already listed, and deleting a variable, are separate
-actions. Delivery-server properties are not these context variables.
+the value of a variable that is already listed is described under **Change one context
+variable value**. Deleting a variable is a separate action. Delivery-server properties are
+not these context variables.
+
+### Change one context variable value (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Sites**.
+Choose a **site** and a **context**. On a variable that is already listed, choose **Change
+value**. The name is shown and is not edited. Enter a new **value**, then **Save value**.
+
+The shell calls `PUT …/sitemanage/publishingdesign/sites/{siteId}/properties`. The JSON
+document root is `siteProperty` with the same `name`, `contextId`, `value`, and
+`updateValue` true. The list shows the new value and the same name only after the save
+succeeds. Another variable on that context stays, including its value. If the list refresh
+fails after a successful save, the previous variables stay and this variable still shows
+the new value.
+
+**Cancel** does not call the server and leaves the previous value. A blank value, or a
+value longer than 255 characters (`RXASSEMBLERPROPERTIES.PROPERTYVALUE`), is rejected in
+the form and does not call the server. A blank value does not remove the stored variable.
+A name that is not listed does not call the server and does not create one.
+
+HTTP **400** (value missing or longer than its column), **403** (not Admin or Designer),
+and **409** (that name is not listed on the context) stay in the value form error region.
+Those responses do not change the displayed value and do not change the other variables.
+Adding a new name and deleting a variable are separate actions.
 
 ### Create a publish edition (Design)
 

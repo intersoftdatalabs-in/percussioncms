@@ -91,6 +91,34 @@ describe("site property wire shape", () => {
     ).toEqual([{ name: "only", contextId: "1", value: "one" }]);
   });
 
+  it("puts updateValue on a value change and still uses the siteProperty root", async () => {
+    putMock.mockResolvedValue({
+      siteProperty: { name: "kept", contextId: "3", value: "next" },
+    });
+    await putSiteProperty("42", {
+      name: "kept",
+      contextId: "3",
+      value: "next",
+      updateValue: true,
+    });
+    expect(putMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/sites\/42\/properties$/),
+      {
+        siteProperty: {
+          name: "kept",
+          contextId: "3",
+          value: "next",
+          updateValue: true,
+        },
+      },
+    );
+    expect(wrapSiteProperty({ name: "kept", value: "old" }).siteProperty).toEqual({
+      name: "kept",
+      contextId: undefined,
+      value: "old",
+    });
+  });
+
   it("reads a flat property unchanged", () => {
     expect(unwrapSiteProperty({ name: "kept", contextId: "3", value: "old" })).toEqual({
       name: "kept",

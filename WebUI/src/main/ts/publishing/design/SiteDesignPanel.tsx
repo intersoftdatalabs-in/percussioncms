@@ -35,6 +35,12 @@ import {
 } from "../contextVariable";
 import { mapContextVariableSaveError } from "../contextVariableSaveErrors";
 import {
+  buildContextVariableValueBody,
+  contextVariablesAfterSuccessfulValueChange,
+  mapContextVariableValueSaveError,
+  validateContextVariableValue,
+} from "../contextVariableValue";
+import {
   buttonStyle,
   emptyStyle,
   errorStyle,
@@ -57,6 +63,10 @@ export function SiteDesignPanel(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [valueTarget, setValueTarget] = useState<string | null>(null);
+  const [valueDraft, setValueDraft] = useState("");
+  const [valueError, setValueError] = useState<string | null>(null);
+  const [valueSaving, setValueSaving] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -76,6 +86,9 @@ export function SiteDesignPanel(): React.ReactElement {
   }, []);
 
   useEffect(() => {
+    setValueTarget(null);
+    setValueDraft("");
+    setValueError(null);
     if (!selectedId || !contextId) {
       setProps([]);
       return;
@@ -86,6 +99,10 @@ export function SiteDesignPanel(): React.ReactElement {
   }, [selectedId, contextId]);
 
   const selected = sites.find((s) => s.siteId === selectedId);
+  const valueName = (valueTarget ?? "").trim();
+  const valueCurrent =
+    props.find((row) => (row.name ?? "").trim() === valueName)?.value ?? "";
+  const valueOthers = props.filter((row) => (row.name ?? "").trim() !== valueName);
 
   async function saveProp(): Promise<void> {
     if (saving) {
@@ -135,6 +152,68 @@ export function SiteDesignPanel(): React.ReactElement {
       setError(mapContextVariableSaveError(e));
     } finally {
       setSaving(false);
+    }
+  }
+
+  function openValueChange(row: SitePropertyDto): void {
+    setValueTarget(row.name ?? "");
+    setValueDraft("");
+    setValueError(null);
+  }
+
+  function closeValueChange(): void {
+    if (valueSaving) {
+      return;
+    }
+    setValueTarget(null);
+    setValueDraft("");
+    setValueError(null);
+  }
+
+  async function saveValue(): Promise<void> {
+    if (valueSaving || saving || !valueTarget) {
+      return;
+    }
+    if (!selectedId || !contextId) {
+      setValueError("Site, context, and property name are required");
+      return;
+    }
+    const validated = validateContextVariableValue(valueTarget, valueDraft, props);
+    if (!validated.ok) {
+      setValueError(validated.error);
+      return;
+    }
+    const previous = props;
+    setValueSaving(true);
+    setValueError(null);
+    try {
+      const saved = await putSiteProperty(
+        selectedId,
+        buildContextVariableValueBody(validated.name, contextId, validated.value),
+      );
+      let refreshed: SitePropertyDto[] | null = null;
+      try {
+        refreshed = await listSiteProperties(selectedId, contextId);
+      } catch {
+        refreshed = null;
+      }
+      setProps(
+        contextVariablesAfterSuccessfulValueChange(
+          refreshed,
+          {
+            name: (saved.name ?? validated.name).trim(),
+            contextId: saved.contextId ?? contextId,
+            value: saved.value ?? validated.value,
+          },
+          previous,
+        ),
+      );
+      setValueTarget(null);
+      setValueDraft("");
+    } catch (e) {
+      setValueError(mapContextVariableValueSaveError(e));
+    } finally {
+      setValueSaving(false);
     }
   }
 
@@ -211,6 +290,14 @@ export function SiteDesignPanel(): React.ReactElement {
             <button
               type="button"
               style={buttonStyle}
+              data-testid="context-variable-change-value"
+              onClick={() => openValueChange(p)}
+            >
+              Change value
+            </button>
+            <button
+              type="button"
+              style={buttonStyle}
               onClick={() => void removeProp(p.name!)}
             >
               Delete
@@ -218,6 +305,62 @@ export function SiteDesignPanel(): React.ReactElement {
           </li>
         ))}
       </ul>
+      {valueTarget && (
+        <div data-testid="context-variable-value-form">
+          <h4>Change context variable value</h4>
+          <p data-testid="context-variable-value-fields-note">
+            The name stays. Other variables stay.
+          </p>
+          <p>
+            Name: <span data-testid="context-variable-value-name">{valueName}</span>
+          </p>
+          <p>
+            Current:{" "}
+            <span data-testid="context-variable-value-current">{valueCurrent}</span>
+          </p>
+          <ul data-testid="context-variable-value-others" style={listStyle}>
+            {valueOthers.map((row) => (
+              <li key={row.name} data-testid="context-variable-value-other">
+                {row.name}: {row.value}
+              </li>
+            ))}
+          </ul>
+          <div style={formRowStyle}>
+            <label htmlFor="context-variable-value-input">Value</label>
+            <input
+              id="context-variable-value-input"
+              data-testid="context-variable-value-input"
+              value={valueDraft}
+              onChange={(e) => setValueDraft(e.target.value)}
+            />
+          </div>
+          {valueError && (
+            <p style={errorStyle} role="alert" data-testid="context-variable-value-error">
+              {valueError}
+            </p>
+          )}
+          <div style={toolbarStyle}>
+            <button
+              type="button"
+              style={primaryButtonStyle}
+              data-testid="context-variable-value-save"
+              disabled={valueSaving}
+              onClick={() => void saveValue()}
+            >
+              Save value
+            </button>
+            <button
+              type="button"
+              style={buttonStyle}
+              data-testid="context-variable-value-cancel"
+              disabled={valueSaving}
+              onClick={closeValueChange}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
       <div data-testid="context-variable-form">
         <div style={formRowStyle}>
           <label htmlFor="prop-name">Name</label>

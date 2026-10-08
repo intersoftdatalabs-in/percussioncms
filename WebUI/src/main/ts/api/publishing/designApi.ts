@@ -128,6 +128,11 @@ export interface SitePropertyDto {
   name?: string;
   contextId?: string;
   value?: string;
+  /**
+   * Update-only. When true, replace the value of this name on the context.
+   * The name stays. Other variables stay. Omit to create a new name.
+   */
+  updateValue?: boolean;
 }
 
 export interface EditionContentListAssoc {
@@ -842,6 +847,7 @@ export function wrapSiteProperty(body: SitePropertyDto): {
       name: body.name,
       contextId: body.contextId,
       value: body.value,
+      ...(body.updateValue ? { updateValue: true } : {}),
     },
   };
 }
