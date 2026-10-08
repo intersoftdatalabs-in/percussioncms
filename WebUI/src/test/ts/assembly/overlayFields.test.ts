@@ -28,6 +28,8 @@ import {
   readOverlayEdits,
   restoreOverlayValues,
   blankRequiredTextFieldNames,
+  calendarDateText,
+  invalidChangedDateFieldNames,
   invalidChangedNumberFieldNames,
   markAssemblyFieldErrors,
   scalarOverlayFields,
@@ -877,5 +879,163 @@ describe("whole number overlay fields", () => {
       value: "Welcome",
     });
     expect(saved.fields.find((field) => field.name === "description")?.dataType).toBeUndefined();
+  });
+});
+
+describe("calendar date overlay fields", () => {
+  const OLD_DATE = "2026-10-07";
+  const NEW_DATE = "2026-11-02";
+  const datePayload: ItemEditorFields = {
+    ...payload,
+    fields: [
+      { name: "event_on", value: OLD_DATE },
+      { name: "event_at", value: "2026-10-07 15:30:00" },
+      { name: "locked_on", value: "2026-01-01" },
+      { name: "displaytitle", value: "Welcome" },
+    ],
+  };
+
+  it("keeps a calendar date and omits datetime and read-only dates", () => {
+    const rows = scalarOverlayFields(datePayload, [
+      {
+        name: "event_on",
+        label: "Event on",
+        control: "sys_CalendarSimple",
+        dataType: "date",
+      },
+      {
+        name: "event_at",
+        label: "Event at",
+        control: "sys_CalendarSimple",
+        dataType: "datetime",
+      },
+      {
+        name: "locked_on",
+        label: "Locked on",
+        control: "sys_CalendarSimple",
+        dataType: "date",
+        readOnly: true,
+      },
+      { name: "displaytitle", control: "sys_EditBox" },
+    ]);
+    expect(rows.find((row) => row.name === "event_on")).toMatchObject({
+      kind: "date",
+      value: OLD_DATE,
+      label: "Event on",
+    });
+    expect(rows.some((row) => row.name === "event_at")).toBe(false);
+    expect(rows.some((row) => row.name === "locked_on")).toBe(false);
+    expect(rows.find((row) => row.name === "displaytitle")?.kind).toBe("text");
+  });
+
+  it("normalizes a midnight datetime stored on a date field to the calendar day", () => {
+    const rows = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [{ name: "event_on", value: "2026-10-07 00:00:00" }],
+      },
+      [{ name: "event_on", control: "sys_CalendarSimple", dataType: "date" }],
+    );
+    expect(rows[0]?.value).toBe(OLD_DATE);
+  });
+
+  it("reads one assembled calendar date and restores the previous value", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<span data-perc-field="event_on">${OLD_DATE}</span><h1 data-perc-field="displaytitle">Welcome</h1>`;
+    const fields = scalarOverlayFields(datePayload, [
+      { name: "event_on", label: "Event on", control: "sys_CalendarSimple", dataType: "date" },
+      { name: "displaytitle", control: "sys_EditBox" },
+    ]);
+    const hits = applyFieldOverlay(root, fields, "42");
+    expect(hits.find((hit) => hit.name === "event_on")?.source).toBe("marker");
+    const eventOn = root.querySelector(
+      '[data-testid="assembly-inline-field-event_on"]',
+    ) as HTMLInputElement;
+    expect(eventOn.tagName).toBe("INPUT");
+    expect(eventOn.type).toBe("date");
+    expect(eventOn.getAttribute("data-assembly-value")).toBe("date");
+    expect(eventOn.value).toBe(OLD_DATE);
+    eventOn.value = NEW_DATE;
+    expect(readOverlayEdits(root, "42")).toEqual(
+      expect.arrayContaining([
+        { contentId: "42", name: "event_on", value: NEW_DATE, dataType: "date" },
+        { contentId: "42", name: "displaytitle", value: "Welcome" },
+      ]),
+    );
+    expect(calendarDateText(NEW_DATE)).toBe(NEW_DATE);
+    expect(calendarDateText("")).toBeNull();
+    expect(calendarDateText("2026-02-31")).toBeNull();
+    expect(calendarDateText("2026-10-07 15:30:00")).toBeNull();
+    restoreOverlayValues(root, fields);
+    expect(eventOn.value).toBe(OLD_DATE);
+  });
+
+  it("names a blank or non-date change and ignores an unchanged blank", () => {
+    const fields = [
+      { name: "event_on", kind: "date" as const, value: OLD_DATE },
+      { name: "optional_on", kind: "date" as const, value: "" },
+      { name: "displaytitle", kind: "text" as const, value: "Welcome" },
+    ];
+    const baseline = new Map<string, string>([
+      ["42\nevent_on", OLD_DATE],
+      ["42\noptional_on", ""],
+      ["42\ndisplaytitle", "Welcome"],
+    ]);
+    expect(
+      invalidChangedDateFieldNames(
+        fields,
+        [
+          { contentId: "42", name: "event_on", value: "" },
+          { contentId: "42", name: "optional_on", value: "" },
+          { contentId: "42", name: "displaytitle", value: "nope" },
+        ],
+        baseline,
+      ),
+    ).toEqual(["event_on"]);
+    expect(
+      invalidChangedDateFieldNames(
+        fields,
+        [{ contentId: "42", name: "event_on", value: "2026-10-07 15:30:00" }],
+        baseline,
+      ),
+    ).toEqual(["event_on"]);
+    expect(
+      invalidChangedDateFieldNames(
+        fields,
+        [{ contentId: "42", name: "event_on", value: NEW_DATE }],
+        baseline,
+      ),
+    ).toEqual([]);
+  });
+
+  it("persists one calendar date with dataType date and leaves other fields", async () => {
+    const mixed: ItemEditorFields = {
+      ...payload,
+      fields: [
+        { name: "event_on", value: OLD_DATE },
+        { name: "displaytitle", value: "Welcome" },
+        { name: "notes", value: "A long note" },
+      ],
+    };
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => body);
+    await persistOverlayEdits({
+      ownerId: "42",
+      ownerPayload: mixed,
+      edits: [{ contentId: "42", name: "event_on", value: NEW_DATE, dataType: "date" }],
+      loadFields: vi.fn(),
+      saveFields,
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "event_on")).toEqual({
+      name: "event_on",
+      value: NEW_DATE,
+      dataType: "date",
+    });
+    expect(saved.fields.find((field) => field.name === "displaytitle")).toEqual({
+      name: "displaytitle",
+      value: "Welcome",
+    });
+    expect(saved.fields.find((field) => field.name === "notes")?.value).toBe("A long note");
+    expect(saved.fields.find((field) => field.name === "notes")?.dataType).toBeUndefined();
   });
 });
