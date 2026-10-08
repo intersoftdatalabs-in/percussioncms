@@ -62,6 +62,9 @@ describe("TemplatesPanel", () => {
     expect(screen.getByTestId("developer-tpl-row-0").getAttribute("data-tpl-name")).toBe(
       "perc.page",
     );
+    expect(
+      screen.getByTestId("developer-tpl-catalog-description").getAttribute("data-tpl-description"),
+    ).toBe("Page template");
     expect(screen.getByTestId("developer-tpl-import")).toBeTruthy();
   });
 

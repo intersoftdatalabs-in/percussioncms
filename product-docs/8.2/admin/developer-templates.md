@@ -78,6 +78,17 @@ stolen. Non-Admin sessions are **403**. Unknown names are **404**.
 Integrators can call `POST /services/templates/{idOrName}/lock`, `PUT
 /services/templates/{idOrName}`, and `POST /services/templates/{idOrName}/unlock`.
 
+## Set a template description
+
+**Save description** writes the description only. Lock the template first.
+
+1. Open an existing template and choose **Lock**.
+2. Choose **Set template description**. The description on the page stays the stored value until save succeeds.
+3. Enter a new description, or leave it blank to clear the stored description. **Cancel** does not call the server. Saving the same description does not call the server.
+4. Choose **Save description**. The request is `PUT /services/templates/{idOrName}` with the description only. Name, label, bindings, slots, content-type associations, and source are omitted, so they stay. After a successful save, the detail and the catalog description show the new value. HTTP 400, 403, and 409 leave the previous description.
+
+**Save template** still saves the other fields on the form, including a description typed in the description box. **Save description** does not change those fields.
+
 ## Edit from detail
 
 Open a template row to **Lock**, then change label, description, template source, JEXL

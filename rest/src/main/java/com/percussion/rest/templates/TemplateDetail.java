@@ -63,8 +63,18 @@ public class TemplateDetail {
   private String globalTemplateUsage;
   private Boolean variant;
   private String templateSource;
-  private List<TemplateBindingSummary> bindings = new ArrayList<>();
-  private List<TemplateSlotSummary> slots = new ArrayList<>();
+
+  /**
+   * PUT: {@code null} leaves bindings unchanged; a present list replaces them (empty clears). The
+   * JSON reader stores {@code null} when the property is omitted (#5409).
+   */
+  private List<TemplateBindingSummary> bindings;
+
+  /**
+   * PUT: {@code null} leaves slots unchanged; a present list replaces them (empty clears). The JSON
+   * reader stores {@code null} when the property is omitted (#5409).
+   */
+  private List<TemplateSlotSummary> slots;
 
   /**
    * Associated content types (name + guid). GET always returns a list (empty when none). PUT:
@@ -252,7 +262,7 @@ public class TemplateDetail {
   }
 
   public void setBindings(List<TemplateBindingSummary> bindings) {
-    this.bindings = bindings != null ? bindings : new ArrayList<>();
+    this.bindings = bindings;
   }
 
   public List<TemplateSlotSummary> getSlots() {
@@ -260,7 +270,7 @@ public class TemplateDetail {
   }
 
   public void setSlots(List<TemplateSlotSummary> slots) {
-    this.slots = slots != null ? slots : new ArrayList<>();
+    this.slots = slots;
   }
 
   public List<NamedObjectRef> getAssociatedContentTypes() {

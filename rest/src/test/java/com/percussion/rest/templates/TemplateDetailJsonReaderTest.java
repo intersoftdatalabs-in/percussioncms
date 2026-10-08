@@ -73,4 +73,35 @@ class TemplateDetailJsonReaderTest {
     assertEquals(1, d.getAssociatedContentTypes().size());
     assertEquals("percImageAsset", d.getAssociatedContentTypes().get(0).getName());
   }
+
+  @Test
+  void parse_descriptionOnlyLeavesBindingsAndSlotsNull() {
+    TemplateDetail d =
+        TemplateDetailJsonReader.parse("{\"TemplateDetail\":{\"description\":\"note\"}}");
+    assertEquals("note", d.getDescription());
+    assertNull(d.getBindings());
+    assertNull(d.getSlots());
+    assertNull(d.getAssociatedContentTypes());
+  }
+
+  @Test
+  void parse_emptyBindingsArrayClears() {
+    TemplateDetail d =
+        TemplateDetailJsonReader.parse("{\"TemplateDetail\":{\"bindings\":[],\"slots\":[]}}");
+    assertNotNull(d.getBindings());
+    assertTrue(d.getBindings().isEmpty());
+    assertNotNull(d.getSlots());
+    assertTrue(d.getSlots().isEmpty());
+  }
+
+  @Test
+  void parse_singleBindingObject() {
+    TemplateDetail d =
+        TemplateDetailJsonReader.parse(
+            "{\"TemplateDetail\":{\"bindings\":{\"executionOrder\":1,\"variable\":\"$qa\",\"expression\":\"1\"}}}");
+    assertEquals(1, d.getBindings().size());
+    assertEquals("$qa", d.getBindings().get(0).getVariable());
+    assertEquals("1", d.getBindings().get(0).getExpression());
+    assertEquals(1, d.getBindings().get(0).getExecutionOrder());
+  }
 }

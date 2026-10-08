@@ -97,6 +97,7 @@ export function TemplatesPanel(): React.ReactElement {
           idOrName={selected.idOrName}
           catalogGuid={selected.catalogGuid}
           onBack={() => setSelected(null)}
+          onSaved={() => reloadCatalog()}
         />
       </DeveloperSectionErrorBoundary>
     );
@@ -149,7 +150,13 @@ export function TemplatesPanel(): React.ReactElement {
                 <span key="i" style={monoCell}>
                   {t.templateId != null ? String(t.templateId) : "—"}
                 </span>,
-                <span key="d" style={mutedCell}>
+                <span
+                  key="d"
+                  style={mutedCell}
+                  data-testid="developer-tpl-catalog-description"
+                  data-tpl-name={t.templateName || ""}
+                  data-tpl-description={t.templateDescription || ""}
+                >
                   {t.templateDescription || ""}
                 </span>,
               ],
