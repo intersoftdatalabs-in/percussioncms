@@ -989,6 +989,32 @@ public class PSPublishingDesignRestService {
     String contextId = body.getContextId() == null ? "" : body.getContextId().trim();
     String value = body.getValue() == null ? "" : body.getValue().trim();
     boolean updateValue = Boolean.TRUE.equals(body.getUpdateValue());
+    requireContextVariableFields(name, contextId, value);
+    try {
+      IPSSite site = siteManager.loadSiteModifiable(toSiteGuid(siteId));
+      IPSGuid ctx = guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT);
+      String writtenName = contextVariableNameToWrite(site, ctx, name, updateValue);
+      site.setProperty(writtenName, ctx, value);
+      siteManager.saveSite(site);
+      PSSitePropertyDto out = new PSSitePropertyDto();
+      out.setName(writtenName);
+      out.setContextId(contextId);
+      out.setValue(site.getProperty(writtenName, ctx));
+      return out;
+    } catch (PSNotFoundException e) {
+      throw notFound("Site not found");
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw internalError(e);
+    }
+  }
+
+  /**
+   * Blank or overlong name or value is HTTP 400. A blank value does not clear a stored variable.
+   * Does not load or save the site.
+   */
+  private static void requireContextVariableFields(String name, String contextId, String value) {
     if (name.isEmpty()) {
       throw badRequest(CONTEXT_VARIABLE_NAME_REQUIRED);
     }
@@ -1004,36 +1030,26 @@ public class PSPublishingDesignRestService {
     if (value.length() > MAX_CONTEXT_VARIABLE_VALUE_LENGTH) {
       throw badRequest(CONTEXT_VARIABLE_VALUE_TOO_LONG);
     }
-    try {
-      IPSSite site = siteManager.loadSiteModifiable(toSiteGuid(siteId));
-      IPSGuid ctx = guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT);
-      String storedName = storedContextVariableName(site, ctx, name);
-      String writtenName;
-      if (updateValue) {
-        if (storedName == null) {
-          throw conflict(CONTEXT_VARIABLE_NOT_LISTED);
-        }
-        writtenName = storedName;
-      } else {
-        if (storedName != null) {
-          throw conflict(CONTEXT_VARIABLE_EXISTS);
-        }
-        writtenName = name;
+  }
+
+  /**
+   * Name to pass to {@code setProperty}. A value change uses the stored spelling and is HTTP 409
+   * when the name is not listed, so it does not create a variable. A create is HTTP 409 when the
+   * name is already stored. Does not change the site.
+   */
+  private static String contextVariableNameToWrite(
+      IPSSite site, IPSGuid contextId, String name, boolean updateValue) {
+    String storedName = storedContextVariableName(site, contextId, name);
+    if (updateValue) {
+      if (storedName == null) {
+        throw conflict(CONTEXT_VARIABLE_NOT_LISTED);
       }
-      site.setProperty(writtenName, ctx, value);
-      siteManager.saveSite(site);
-      PSSitePropertyDto out = new PSSitePropertyDto();
-      out.setName(writtenName);
-      out.setContextId(contextId);
-      out.setValue(site.getProperty(writtenName, ctx));
-      return out;
-    } catch (PSNotFoundException e) {
-      throw notFound("Site not found");
-    } catch (WebApplicationException e) {
-      throw e;
-    } catch (Exception e) {
-      throw internalError(e);
+      return storedName;
     }
+    if (storedName != null) {
+      throw conflict(CONTEXT_VARIABLE_EXISTS);
+    }
+    return name;
   }
 
   /**
