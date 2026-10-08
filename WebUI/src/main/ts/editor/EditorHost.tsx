@@ -63,7 +63,10 @@ import {
   focusInvalidEditorField,
   mapSaveApiErrorToFieldErrors,
 } from "./editorFieldErrors";
-import { collectUnsafeHtmlFieldErrors } from "./htmlField";
+import {
+  collectInvalidHtmlFieldErrors,
+  collectUnsafeHtmlFieldErrors,
+} from "./htmlField";
 import { collectInvalidLongTextFieldErrors } from "./longTextField";
 import { collectInvalidSingleLineTextFieldErrors } from "./singleLineTextField";
 import { collectInvalidLinkFieldErrors } from "./linkField";
@@ -1440,6 +1443,21 @@ export function EditorHost({
     if (Object.keys(invalidText).length > 0) {
       setFieldErrors(invalidText);
       setSaveErrorKey(EDITOR_MSG.TEXT_INVALID_SAVE);
+      setSaving(false);
+      return;
+    }
+    const invalidHtml = collectInvalidHtmlFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: row.value,
+      })),
+      message(EDITOR_MSG.HTML_NUL),
+    );
+    if (Object.keys(invalidHtml).length > 0) {
+      queueFocusFirstInvalid(invalidHtml);
+      setFieldErrors(invalidHtml);
+      setSaveErrorKey(EDITOR_MSG.HTML_INVALID_SAVE);
       setSaving(false);
       return;
     }

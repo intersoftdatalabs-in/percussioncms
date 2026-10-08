@@ -16,7 +16,11 @@
  */
 
 /**
- * Client-side HTML field XSS heuristics for EditorHost save (#4680).
+ * Client-side HTML field checks for EditorHost save.
+ * Unsafe markup stays the XSS heuristic (#4680).
+ * A NUL cannot be stored in item field XML / JDBC text (#5389).
+ * Long-text NUL stays in {@code longTextField.ts}.
+ * Single-line NUL stays in {@code singleLineTextField.ts}.
  */
 
 import type { EditorWidgetKind } from "./controlKinds";
@@ -48,6 +52,26 @@ export function collectUnsafeHtmlFieldErrors(
     }
     if (htmlLooksUnsafe(row.value)) {
       out[row.name] = unsafeMessage;
+    }
+  }
+  return out;
+}
+
+export function htmlContainsNul(value: string): boolean {
+  return (value ?? "").includes("\u0000");
+}
+
+export function collectInvalidHtmlFieldErrors(
+  rows: readonly EditorHtmlRow[],
+  invalidMessage: string,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const row of rows) {
+    if (row.kind !== "html") {
+      continue;
+    }
+    if (htmlContainsNul(row.value)) {
+      out[row.name] = invalidMessage;
     }
   }
   return out;
