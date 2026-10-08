@@ -1109,6 +1109,47 @@ parameter, removing one parameter, changing a parameter type, changing a paramet
 renaming one, setting only the generator, setting only the description, setting only the
 content type, setting only the template, copying one, and deleting one are separate actions.
 
+### Change one location scheme parameter type (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
+**Contexts / schemes**. Choose a **context**. On a location scheme that already lists
+parameters, **Type** next to one parameter loads that scheme
+(`GET …/sitemanage/publishingdesign/schemes/{schemeId}`) and opens
+**Change location scheme parameter type**. The form shows the current **name**, **generator**,
+**description**, **content type**, **template**, the parameter name, current type, sequence,
+and value, and the other parameters. It does not let you change the scheme identity or
+that parameter's name, value, or sequence. Choose the new **type** (`String` or
+`BackendColumn`; a type already stored that is neither of those stays in the list).
+**Save type** sends
+`PUT …/sitemanage/publishingdesign/schemes/{schemeId}` (the same update already used by
+Design; there is no second parameter resource) with a `locationScheme` object that contains
+`updateParameterType` set to true and that one parameter under `parameters.schemeParameter`
+(the stored name, the new type, and the stored value). Name, generator, description,
+content type, template, and context are omitted, so the server leaves those stored. The
+scheme id does not change. The server replaces only that parameter's type. Its name, value,
+and sequence stay. Other parameters stay. The stored parameter set is not replaced. A value
+or sequence sent with the type is not applied.
+
+The new type is listed on that scheme only after the update succeeds. Until then the
+previous type stays, including while the request is still in progress. If the list refresh
+fails after a successful update, that scheme still shows the new type and keeps the value,
+sequence, and the other parameters. Other schemes on the context stay.
+**Cancel** closes the form and does not update the scheme. A blank type is rejected in the
+form and does not call the update, so it does not clear the stored type.
+
+HTTP **400** (the update does not name exactly one parameter, the name is blank or longer
+than 50 characters, the type is blank or longer than 50 characters
+(`RXLOCATIONSCHEMEPARAMS.TYPE`), or the stored value is blank), **403** (not Admin or
+Designer), and **409** (that parameter name is not on the scheme, or a scheme name sent
+with the update already exists in the context) stay in the type form error region. Those
+responses do not change the previous type and do not change the name, value, sequence, the
+other parameters, the scheme name, generator, description, content type, or template.
+Saving a location scheme (which can replace the whole parameter list together with other
+fields), adding one parameter, removing one parameter, changing a parameter value, changing
+a parameter sequence, renaming one, setting only the generator, setting only the
+description, setting only the content type, setting only the template, copying one, and
+deleting one are separate actions.
+
 ### Copy a location scheme (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then
