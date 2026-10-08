@@ -16,6 +16,7 @@ import {
 import * as importExportApi from "../../../main/ts/api/developer/templateImportExport";
 import { TemplateDetailPanel } from "../../../main/ts/developer/TemplateDetailPanel";
 import { TPL_DESC_MSG } from "../../../main/ts/developer/templateDescriptionMessages";
+import { TPL_LABEL_MSG } from "../../../main/ts/developer/templateLabelMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import * as sourceViewer from "../../../main/ts/developer/templateSourceViewer";
 
@@ -959,6 +960,206 @@ describe("TemplateDetailPanel", () => {
       "Folder list",
     );
     expect((screen.getByTestId("developer-tpl-label") as HTMLInputElement).value).toBe("QA template");
+    expect((screen.getByTestId("developer-tpl-binding-var-0") as HTMLInputElement).value).toBe("$qa");
+  });
+
+  it("sets the label only after success and leaves description, source, bindings, slots, and content types", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5407tpl",
+      label: "QA template",
+      description: "Folder list",
+      assembler: "Java/global/percussion/assembly/htmlAssembler",
+      templateSource: "<p>stay</p>",
+      bindings: [{ executionOrder: 1, variable: "$qa", expression: "1" }],
+      slots: [{ name: "target", label: "Target" }],
+      associatedContentTypes: [
+        { name: "percPage", label: "Page", guid: { stringValue: "0-6-311", uuid: 311 } },
+      ],
+    };
+    getTemplateDetailMock.mockResolvedValue(userDetail);
+    updateTemplateDetailMock.mockResolvedValue({ ...userDetail, label: "note" });
+    const onSaved = vi.fn();
+    render(
+      <TemplateDetailPanel idOrName="qa5407tpl" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-label-text").getAttribute("data-tpl-label")).toBe(
+        "QA template",
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-edit"));
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-save"));
+    expect(updateTemplateDetailMock).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-tpl-set-label-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-tpl-set-label-input"), {
+      target: { value: " note " },
+    });
+    expect(screen.getByTestId("developer-tpl-set-label-text").getAttribute("data-tpl-label")).toBe(
+      "QA template",
+    );
+    expect((screen.getByTestId("developer-tpl-label") as HTMLInputElement).value).toBe("QA template");
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-cancel"));
+    expect(updateTemplateDetailMock).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-tpl-set-label-text").getAttribute("data-tpl-label")).toBe(
+      "QA template",
+    );
+
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-tpl-set-label-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateTemplateDetailMock).toHaveBeenCalledWith("qa5407tpl", { label: "note" });
+    const sent = updateTemplateDetailMock.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty("name");
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("templateSource");
+    expect(sent).not.toHaveProperty("bindings");
+    expect(sent).not.toHaveProperty("slots");
+    expect(sent).not.toHaveProperty("associatedContentTypes");
+    expect(screen.getByTestId("developer-tpl-set-label-text").getAttribute("data-tpl-label")).toBe(
+      "note",
+    );
+    expect((screen.getByTestId("developer-tpl-label") as HTMLInputElement).value).toBe("note");
+    expect(screen.getByTestId("developer-tpl-set-label-notice").textContent).toBe(TPL_LABEL_MSG.SAVED);
+    expect(screen.getByTestId("developer-tpl-detail-name").textContent).toBe("qa5407tpl");
+    expect((screen.getByTestId("developer-tpl-description") as HTMLInputElement).value).toBe(
+      "Folder list",
+    );
+    expect(screen.getByTestId("developer-tpl-set-description-text").getAttribute("data-tpl-description")).toBe(
+      "Folder list",
+    );
+    expect((screen.getByTestId("developer-tpl-source-edit") as HTMLTextAreaElement).value).toBe(
+      "<p>stay</p>",
+    );
+    expect((screen.getByTestId("developer-tpl-binding-var-0") as HTMLInputElement).value).toBe("$qa");
+    expect(
+      (screen.getByTestId("developer-tpl-slot-check-name:target") as HTMLInputElement).checked,
+    ).toBe(true);
+    expect(screen.getByTestId("developer-tpl-ct-name-0").textContent).toBe("percPage");
+  });
+
+  it("keeps the name when a blank label is saved and on 400, 403, and 409", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5407tpl",
+      label: "QA template",
+      description: "Folder list",
+      templateSource: "<p>stay</p>",
+      bindings: [{ executionOrder: 1, variable: "$qa", expression: "1" }],
+      slots: [{ name: "target", label: "Target" }],
+      associatedContentTypes: [{ name: "percPage", guid: { stringValue: "0-6-311" } }],
+    };
+    getTemplateDetailMock.mockResolvedValue(userDetail);
+    updateTemplateDetailMock.mockResolvedValue({ ...userDetail, label: "qa5407tpl" });
+    render(<TemplateDetailPanel idOrName="qa5407tpl" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-label-edit")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-tpl-set-label-save")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-tpl-set-label-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-label-notice").textContent).toBe(
+        TPL_LABEL_MSG.CLEARED,
+      );
+    });
+    expect(updateTemplateDetailMock).toHaveBeenCalledWith("qa5407tpl", { label: "" });
+    const blankSent = updateTemplateDetailMock.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(blankSent).not.toHaveProperty("name");
+    expect(screen.getByTestId("developer-tpl-detail-name").textContent).toBe("qa5407tpl");
+    expect((screen.getByTestId("developer-tpl-label") as HTMLInputElement).value).toBe("qa5407tpl");
+    expect((screen.getByTestId("developer-tpl-description") as HTMLInputElement).value).toBe(
+      "Folder list",
+    );
+
+    for (const status of [400, 403, 409]) {
+      updateTemplateDetailMock.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-tpl-set-label-edit"));
+      fireEvent.change(screen.getByTestId("developer-tpl-set-label-input"), {
+        target: { value: "later" },
+      });
+      fireEvent.click(screen.getByTestId("developer-tpl-set-label-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-tpl-set-label-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(screen.getByTestId("developer-tpl-set-label-text").getAttribute("data-tpl-label")).toBe(
+        "qa5407tpl",
+      );
+      expect(screen.getByTestId("developer-tpl-detail-name").textContent).toBe("qa5407tpl");
+      expect((screen.getByTestId("developer-tpl-description") as HTMLInputElement).value).toBe(
+        "Folder list",
+      );
+      fireEvent.click(screen.getByTestId("developer-tpl-set-label-cancel"));
+    }
+  });
+
+  it("does not show a label when the update clears the name or changes the description", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5407tpl",
+      label: "QA template",
+      description: "Folder list",
+      templateSource: "<p>stay</p>",
+      bindings: [{ executionOrder: 1, variable: "$qa", expression: "1" }],
+      slots: [{ name: "target", label: "Target" }],
+    };
+    getTemplateDetailMock.mockResolvedValue(userDetail);
+    updateTemplateDetailMock.mockResolvedValue({
+      ...userDetail,
+      label: "note",
+      name: "",
+      description: "changed",
+      bindings: [],
+    });
+    render(<TemplateDetailPanel idOrName="qa5407tpl" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-tpl-set-label-input"), {
+      target: { value: "note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-set-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-set-label-error").textContent).toContain(
+        TPL_LABEL_MSG.ERROR,
+      );
+    });
+    expect(screen.getByTestId("developer-tpl-set-label-text").getAttribute("data-tpl-label")).toBe(
+      "QA template",
+    );
+    expect(screen.getByTestId("developer-tpl-detail-name").textContent).toBe("qa5407tpl");
+    expect((screen.getByTestId("developer-tpl-description") as HTMLInputElement).value).toBe(
+      "Folder list",
+    );
     expect((screen.getByTestId("developer-tpl-binding-var-0") as HTMLInputElement).value).toBe("$qa");
   });
 });

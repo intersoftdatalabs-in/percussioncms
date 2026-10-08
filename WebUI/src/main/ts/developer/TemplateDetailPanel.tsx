@@ -61,6 +61,12 @@ import {
 } from "./templateDescription";
 import { TPL_DESC_MSG } from "./templateDescriptionMessages";
 import {
+  savedTemplateLabel,
+  storedTemplateLabel,
+  templateLabelWrite,
+} from "./templateLabel";
+import { TPL_LABEL_MSG } from "./templateLabelMessages";
+import {
   SOURCE_TOKEN_COLORS,
   copyTextToClipboard,
   highlightTemplateSource,
@@ -286,6 +292,12 @@ export function TemplateDetailPanel({
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState("");
+  const [labelShown, setLabelShown] = useState("");
+  const [labelEditing, setLabelEditing] = useState(false);
+  const [labelDraft, setLabelDraft] = useState("");
+  const [labelError, setLabelError] = useState<string | null>(null);
+  const [labelNotice, setLabelNotice] = useState<string | null>(null);
+  const [labelBusy, setLabelBusy] = useState(false);
   const [description, setDescription] = useState("");
   const [descriptionShown, setDescriptionShown] = useState("");
   const [descriptionEditing, setDescriptionEditing] = useState(false);
@@ -308,6 +320,7 @@ export function TemplateDetailPanel({
   const heldLockRef = useRef(false);
   const inflight = useRef(false);
   const descriptionInflight = useRef(false);
+  const labelInflight = useRef(false);
   /** Pending caret after snippet insert (applied when textarea remounts/edits). */
   const pendingCaretRef = useRef<number | null>(null);
   /** Row indices with expanded long binding expressions (UI-SRC-02). */
@@ -339,6 +352,11 @@ export function TemplateDetailPanel({
           const slotRows = asSlotList(d?.slots);
           setDetail(d);
           setLabel(d?.label || "");
+          setLabelShown(storedTemplateLabel(d?.label));
+          setLabelEditing(false);
+          setLabelDraft("");
+          setLabelError(null);
+          setLabelNotice(null);
           setDescription(d?.description || "");
           setDescriptionShown(storedTemplateDescription(d?.description));
           setDescriptionEditing(false);
@@ -561,6 +579,100 @@ export function TemplateDetailPanel({
     onBack();
   }
 
+  function labelSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return TPL_LABEL_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return TPL_LABEL_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return TPL_LABEL_MSG.CONFLICT;
+    return TPL_LABEL_MSG.ERROR;
+  }
+
+  function startLabelEdit(): void {
+    if (
+      !detail ||
+      busy ||
+      labelBusy ||
+      descriptionBusy ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      inflight.current ||
+      descriptionEditing
+    ) {
+      return;
+    }
+    setLabelDraft(labelShown);
+    setLabelError(null);
+    setLabelNotice(null);
+    setLabelEditing(true);
+  }
+
+  function cancelLabelEdit(): void {
+    if (labelBusy || labelInflight.current) return;
+    setLabelEditing(false);
+    setLabelDraft("");
+    setLabelError(null);
+  }
+
+  async function handleLabelSave(): Promise<void> {
+    if (
+      !detail ||
+      !labelEditing ||
+      !heldLock ||
+      labelBusy ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      descriptionEditing ||
+      inflight.current ||
+      busy
+    ) {
+      if (!heldLock && labelEditing && !labelBusy && !descriptionEditing) {
+        setLabelError(DEV_MSG.TPL_LOCK_REQUIRED);
+      }
+      return;
+    }
+    const sent = templateLabelWrite(detail, labelDraft);
+    if (sent === "unchanged") {
+      setLabelEditing(false);
+      setLabelDraft("");
+      setLabelError(null);
+      return;
+    }
+    labelInflight.current = true;
+    setLabelBusy(true);
+    setBusy(true);
+    setLabelError(null);
+    setLabelNotice(null);
+    const previousShown = labelShown;
+    const previousLabel = label;
+    try {
+      const saved = await updateTemplateDetail(idOrName, sent);
+      const accepted = savedTemplateLabel(sent, detail, saved);
+      if (accepted == null) {
+        setLabel(previousLabel);
+        setLabelShown(previousShown);
+        setLabelError(TPL_LABEL_MSG.ERROR);
+        setLabelNotice(null);
+        return;
+      }
+      const nextDetail: TemplateDetail = { ...detail, label: accepted };
+      setDetail(nextDetail);
+      setLabel(accepted);
+      setLabelShown(accepted);
+      setLabelEditing(false);
+      setLabelDraft("");
+      setLabelNotice(sent.label ? TPL_LABEL_MSG.SAVED : TPL_LABEL_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setLabel(previousLabel);
+      setLabelShown(previousShown);
+      setLabelError(panelErrMsg(err, labelSaveFallback(err)));
+      setLabelNotice(null);
+    } finally {
+      labelInflight.current = false;
+      setLabelBusy(false);
+      setBusy(false);
+    }
+  }
+
   function descriptionSaveFallback(err: unknown): string {
     if (isApiError(err) && err.status === 400) return TPL_DESC_MSG.INVALID;
     if (isApiError(err) && err.status === 403) return TPL_DESC_MSG.FORBIDDEN;
@@ -569,7 +681,16 @@ export function TemplateDetailPanel({
   }
 
   function startDescriptionEdit(): void {
-    if (!detail || busy || descriptionBusy || descriptionInflight.current || inflight.current) {
+    if (
+      !detail ||
+      busy ||
+      descriptionBusy ||
+      labelBusy ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      inflight.current ||
+      labelEditing
+    ) {
       return;
     }
     setDescriptionDraft(descriptionShown);
@@ -592,10 +713,12 @@ export function TemplateDetailPanel({
       !heldLock ||
       descriptionBusy ||
       descriptionInflight.current ||
+      labelInflight.current ||
+      labelEditing ||
       inflight.current ||
       busy
     ) {
-      if (!heldLock && descriptionEditing && !descriptionBusy) {
+      if (!heldLock && descriptionEditing && !descriptionBusy && !labelEditing) {
         setDescriptionError(DEV_MSG.TPL_LOCK_REQUIRED);
       }
       return;
@@ -648,7 +771,15 @@ export function TemplateDetailPanel({
       setError(DEV_MSG.TPL_LOCK_REQUIRED);
       return;
     }
-    if (inflight.current || descriptionInflight.current || descriptionEditing) return;
+    if (
+      inflight.current ||
+      descriptionInflight.current ||
+      descriptionEditing ||
+      labelInflight.current ||
+      labelEditing
+    ) {
+      return;
+    }
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -697,6 +828,11 @@ export function TemplateDetailPanel({
       });
       setDetail(saved);
       setLabel(saved.label || "");
+      setLabelShown(storedTemplateLabel(saved.label));
+      setLabelEditing(false);
+      setLabelDraft("");
+      setLabelError(null);
+      setLabelNotice(null);
       setDescription(saved.description || "");
       setDescriptionShown(storedTemplateDescription(saved.description));
       setDescriptionEditing(false);
@@ -880,18 +1016,21 @@ export function TemplateDetailPanel({
           type="button"
           data-testid="developer-tpl-save"
           aria-label={DEV_MSG.TPL_SAVE}
-          disabled={busy || !heldLock || !dirty || descriptionEditing}
+          disabled={busy || !heldLock || !dirty || descriptionEditing || labelEditing}
           onClick={() => void handleSave()}
           style={{
             padding: "8px 16px",
             background:
-              heldLock && dirty && !descriptionEditing
+              heldLock && dirty && !descriptionEditing && !labelEditing
                 ? catalogColors.accent
                 : catalogColors.disabled,
             color: "#fff",
             border: "none",
             borderRadius: "4px",
-            cursor: busy || !heldLock || !dirty || descriptionEditing ? "not-allowed" : "pointer",
+            cursor:
+              busy || !heldLock || !dirty || descriptionEditing || labelEditing
+                ? "not-allowed"
+                : "pointer",
           }}
         >
           {DEV_MSG.TPL_SAVE}
@@ -944,9 +1083,106 @@ export function TemplateDetailPanel({
                 data-testid="developer-tpl-label"
                 style={inputStyle}
                 value={label}
+                disabled={labelBusy}
                 onChange={(e) => setLabel(e.target.value)}
               />
             </div>
+            <section
+              data-testid="developer-tpl-set-label"
+              aria-label={TPL_LABEL_MSG.ACTION}
+              style={{ marginTop: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{TPL_LABEL_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.9rem" }}>
+                {TPL_LABEL_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-tpl-set-label-text"
+                data-tpl-label={labelShown}
+                style={{ marginTop: 0 }}
+              >
+                {labelShown}
+              </p>
+              {labelError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-tpl-set-label-error"
+                  style={{ color: catalogColors.error }}
+                >
+                  {labelError}
+                </div>
+              ) : null}
+              {labelNotice ? (
+                <div data-testid="developer-tpl-set-label-notice" style={{ color: "#276749" }}>
+                  {labelNotice}
+                </div>
+              ) : null}
+              {labelEditing ? (
+                <div data-testid="developer-tpl-set-label-editor">
+                  <label htmlFor="tpl-set-label-input">{TPL_LABEL_MSG.FIELD}</label>
+                  <input
+                    id="tpl-set-label-input"
+                    data-testid="developer-tpl-set-label-input"
+                    style={inputStyle}
+                    value={labelDraft}
+                    disabled={labelBusy}
+                    onChange={(e) => setLabelDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-tpl-set-label-save"
+                      aria-label={TPL_LABEL_MSG.SAVE}
+                      disabled={labelBusy || !heldLock}
+                      onClick={() => void handleLabelSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background:
+                          labelBusy || !heldLock ? catalogColors.disabled : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: labelBusy ? "wait" : heldLock ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      {TPL_LABEL_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-tpl-set-label-cancel"
+                      disabled={labelBusy}
+                      onClick={cancelLabelEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: labelBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {TPL_LABEL_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-tpl-set-label-edit"
+                  aria-label={TPL_LABEL_MSG.ACTION}
+                  disabled={busy || labelBusy || descriptionBusy}
+                  onClick={startLabelEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {TPL_LABEL_MSG.ACTION}
+                </button>
+              )}
+            </section>
             <div style={{ marginTop: "12px" }}>
               <label htmlFor="tpl-desc" style={{ display: "block", marginBottom: 4 }}>
                 {DEV_MSG.TPL_FORM_DESCRIPTION}
