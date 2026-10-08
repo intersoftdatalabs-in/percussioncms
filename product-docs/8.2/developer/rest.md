@@ -187,6 +187,25 @@ HTTP **400**, **403**, and **409** are errors: the editor keeps the previous
 description and does not apply a choice list from the error body. Add, remove,
 label change, value change, and delete stay on this resource and are unchanged.
 
+### Change one choice sequence
+
+**Developer → Keywords** changes the sequence of one choice with the existing
+`PUT /services/keywords/{id}` (the same update used to add or remove a choice,
+or to change a choice label, value, or description). The body is wrapped as
+`Keyword`. It keeps the stored keyword `label`, `description`, and `sequence`,
+and sends `choices` as the previous choices with that one choice's `sequence`
+replaced. The choice `label`, `value`, and `description` stay, and the other
+choices stay. The choice sequence is the `sequence` field on that choice, not
+the keyword `sequence`. The new sequence is shown only when that update
+succeeds and the response lists the same choices with that sequence. Cancel
+is not a request. The same sequence is not a request. A blank sequence is not
+sent. A value that is not a whole number from 0 through 2147483647 (a
+fraction, a negative number, or a larger number) is not sent. The same
+sequence may be used on another choice. HTTP **400**, **403**, and **409**
+are errors: the editor keeps the previous sequence and does not apply a
+choice list from the error body. Add, remove, label change, value change,
+description change, and delete stay on this resource and are unchanged.
+
 ## Locales (design catalog)
 
 CMS locale definitions (Workbench **Locales** / content design) are exposed under `/services/locales`.

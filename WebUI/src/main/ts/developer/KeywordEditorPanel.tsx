@@ -34,6 +34,7 @@ import {
   keywordUpdateForDescribedChoice,
   keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
+  keywordUpdateForResequencedChoice,
   keywordUpdateForRevaluedChoice,
   savedChoicesAfterAdd,
   unwrapKeywordPayload,
@@ -164,6 +165,21 @@ function describeChoiceFailureMessage(err: unknown): string {
   return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_ERROR);
 }
 
+function resequenceChoiceFailureMessage(err: unknown): string {
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_FORBIDDEN);
+    }
+    if (err.status === 409) {
+      return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_CONFLICT);
+    }
+    if (err.status === 400) {
+      return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_INVALID);
+    }
+  }
+  return panelErrMsg(err, DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_ERROR);
+}
+
 const fieldStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -235,15 +251,24 @@ export function KeywordEditorPanel({
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
   const descriptionInflight = useRef(false);
+  const [sequenceEditIndex, setSequenceEditIndex] = useState<number | null>(null);
+  const [sequenceDraft, setSequenceDraft] = useState("");
+  const [sequenceBusy, setSequenceBusy] = useState(false);
+  const [sequenceError, setSequenceError] = useState<string | null>(null);
+  const [sequenceNotice, setSequenceNotice] = useState<string | null>(null);
+  const sequenceInflight = useRef(false);
   const [busy, setBusy] = useState(false);
   const [confirmKind, setConfirmKind] = useState<null | "keyword" | "choice">(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const choiceWriteBusy = addBusy || removeBusy || labelBusy || valueBusy || descriptionBusy;
+  const choiceWriteBusy =
+    addBusy || removeBusy || labelBusy || valueBusy || descriptionBusy || sequenceBusy;
   const labelEditOpen = labelEditIndex != null;
   const valueEditOpen = valueEditIndex != null;
   const descriptionEditOpen = descriptionEditIndex != null;
-  const choiceEditOpen = labelEditOpen || valueEditOpen || descriptionEditOpen;
+  const sequenceEditOpen = sequenceEditIndex != null;
+  const choiceEditOpen =
+    labelEditOpen || valueEditOpen || descriptionEditOpen || sequenceEditOpen;
 
   useEffect(() => {
     if (!id || isNew) return;
@@ -283,6 +308,7 @@ export function KeywordEditorPanel({
       labelInflight.current ||
       valueInflight.current ||
       descriptionInflight.current ||
+      sequenceInflight.current ||
       confirmKind ||
       choiceEditOpen
     ) {
@@ -334,10 +360,12 @@ export function KeywordEditorPanel({
       labelInflight.current ||
       valueInflight.current ||
       descriptionInflight.current ||
+      sequenceInflight.current ||
       removeBusy ||
       labelBusy ||
       valueBusy ||
       descriptionBusy ||
+      sequenceBusy ||
       choiceEditOpen ||
       busy ||
       confirmKind
@@ -431,10 +459,12 @@ export function KeywordEditorPanel({
       labelInflight.current ||
       valueInflight.current ||
       descriptionInflight.current ||
+      sequenceInflight.current ||
       addBusy ||
       labelBusy ||
       valueBusy ||
       descriptionBusy ||
+      sequenceBusy ||
       busy
     ) {
       return;
@@ -495,8 +525,10 @@ export function KeywordEditorPanel({
       labelInflight.current ||
       valueInflight.current ||
       descriptionInflight.current ||
+      sequenceInflight.current ||
       valueEditOpen ||
       descriptionEditOpen ||
+      sequenceEditOpen ||
       !Number.isInteger(index) ||
       index < 0 ||
       index >= listedChoices.length
@@ -520,12 +552,14 @@ export function KeywordEditorPanel({
       labelInflight.current ||
       valueInflight.current ||
       descriptionInflight.current ||
+      sequenceInflight.current ||
       addInflight.current ||
       removeInflight.current ||
       addBusy ||
       removeBusy ||
       valueBusy ||
       descriptionBusy ||
+      sequenceBusy ||
       busy ||
       confirmKind
     ) {
@@ -610,9 +644,11 @@ export function KeywordEditorPanel({
       labelInflight.current ||
       valueInflight.current ||
       descriptionInflight.current ||
+      sequenceInflight.current ||
       labelEditOpen ||
       valueEditOpen ||
       descriptionEditOpen ||
+      sequenceEditOpen ||
       !Number.isInteger(index) ||
       index < 0 ||
       index >= listedChoices.length
@@ -636,12 +672,14 @@ export function KeywordEditorPanel({
       valueInflight.current ||
       labelInflight.current ||
       descriptionInflight.current ||
+      sequenceInflight.current ||
       addInflight.current ||
       removeInflight.current ||
       addBusy ||
       removeBusy ||
       labelBusy ||
       descriptionBusy ||
+      sequenceBusy ||
       busy ||
       confirmKind
     ) {
@@ -726,9 +764,11 @@ export function KeywordEditorPanel({
       labelInflight.current ||
       valueInflight.current ||
       descriptionInflight.current ||
+      sequenceInflight.current ||
       labelEditOpen ||
       valueEditOpen ||
       descriptionEditOpen ||
+      sequenceEditOpen ||
       !Number.isInteger(index) ||
       index < 0 ||
       index >= listedChoices.length
@@ -752,12 +792,14 @@ export function KeywordEditorPanel({
       descriptionInflight.current ||
       labelInflight.current ||
       valueInflight.current ||
+      sequenceInflight.current ||
       addInflight.current ||
       removeInflight.current ||
       addBusy ||
       removeBusy ||
       labelBusy ||
       valueBusy ||
+      sequenceBusy ||
       busy ||
       confirmKind
     ) {
@@ -816,6 +858,127 @@ export function KeywordEditorPanel({
     } finally {
       descriptionInflight.current = false;
       setDescriptionBusy(false);
+    }
+  }
+
+  function cancelChoiceSequenceEdit(): void {
+    if (sequenceBusy || sequenceInflight.current) return;
+    setSequenceEditIndex(null);
+    setSequenceDraft("");
+    setSequenceError(null);
+  }
+
+  function startChoiceSequenceEdit(index: number): void {
+    if (
+      !id ||
+      isNew ||
+      !detailReady ||
+      choiceWriteBusy ||
+      busy ||
+      confirmKind != null ||
+      labelInflight.current ||
+      valueInflight.current ||
+      descriptionInflight.current ||
+      sequenceInflight.current ||
+      labelEditOpen ||
+      valueEditOpen ||
+      descriptionEditOpen ||
+      sequenceEditOpen ||
+      !Number.isInteger(index) ||
+      index < 0 ||
+      index >= listedChoices.length
+    ) {
+      return;
+    }
+    const current = listedChoices[index]?.sequence;
+    setSequenceEditIndex(index);
+    setSequenceDraft(current != null ? String(current) : "");
+    setSequenceError(null);
+    setSequenceNotice(null);
+  }
+
+  async function handleChoiceSequenceSave(): Promise<void> {
+    const index = sequenceEditIndex;
+    if (
+      !id ||
+      isNew ||
+      !serverKeyword ||
+      !detailReady ||
+      index == null ||
+      sequenceInflight.current ||
+      labelInflight.current ||
+      valueInflight.current ||
+      descriptionInflight.current ||
+      addInflight.current ||
+      removeInflight.current ||
+      addBusy ||
+      removeBusy ||
+      labelBusy ||
+      valueBusy ||
+      descriptionBusy ||
+      busy ||
+      confirmKind
+    ) {
+      return;
+    }
+    const sent = keywordUpdateForResequencedChoice(
+      serverKeyword,
+      listedChoices,
+      index,
+      sequenceDraft,
+    );
+    if (sent === "missing") {
+      setSequenceError(DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_ERROR);
+      setSequenceNotice(null);
+      return;
+    }
+    if (sent === "blank") {
+      setSequenceError(DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_BLANK);
+      setSequenceNotice(null);
+      return;
+    }
+    if (sent === "invalid") {
+      setSequenceError(DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_NOT_INTEGER);
+      setSequenceNotice(null);
+      return;
+    }
+    if (sent === "unchanged") {
+      setSequenceEditIndex(null);
+      setSequenceDraft("");
+      setSequenceError(null);
+      return;
+    }
+    sequenceInflight.current = true;
+    setSequenceBusy(true);
+    setSequenceError(null);
+    setSequenceNotice(null);
+    const previous = listedChoices;
+    try {
+      const payload = await updateKeyword(id, sent);
+      const accepted = savedChoicesAfterAdd(sent, payload);
+      if (!accepted) {
+        setListedChoices(previous);
+        setSequenceError(DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_ERROR);
+        setSequenceNotice(null);
+        return;
+      }
+      const saved = unwrapKeywordPayload(payload);
+      if (saved) {
+        applyLoadedKeyword({ ...saved, choices: accepted });
+      } else {
+        setListedChoices(accepted);
+        setChoicesText(choicesToText(accepted));
+      }
+      setSequenceEditIndex(null);
+      setSequenceDraft("");
+      setSequenceNotice(DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_SAVED);
+    } catch (err: unknown) {
+      setListedChoices(previous);
+      setSequenceError(resequenceChoiceFailureMessage(err));
+      setSequenceNotice(null);
+    } finally {
+      sequenceInflight.current = false;
+      setSequenceBusy(false);
     }
   }
 
@@ -930,6 +1093,9 @@ export function KeywordEditorPanel({
           <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>
             {DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_HINT}
           </p>
+          <p style={{ color: "#4a5568", marginTop: 0, fontSize: "0.9rem" }}>
+            {DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_HINT}
+          </p>
           {addError ? (
             <div role="alert" data-testid="developer-kw-add-choice-error" style={errorAlert}>
               {addError}
@@ -984,6 +1150,16 @@ export function KeywordEditorPanel({
               {descriptionNotice}
             </div>
           ) : null}
+          {sequenceError ? (
+            <div role="alert" data-testid="developer-kw-choice-sequence-error" style={errorAlert}>
+              {sequenceError}
+            </div>
+          ) : null}
+          {sequenceNotice ? (
+            <div data-testid="developer-kw-choice-sequence-notice" style={{ color: "#276749" }}>
+              {sequenceNotice}
+            </div>
+          ) : null}
           {listedChoices.length === 0 ? (
             <p data-testid="developer-kw-choices-empty">{DEV_MSG.KW_CHOICES_EMPTY}</p>
           ) : (
@@ -992,6 +1168,7 @@ export function KeywordEditorPanel({
                 const choiceLabel = choice.label || "";
                 const choiceValue = choice.value || "";
                 const choiceDescription = choiceDescriptionText(choice);
+                const choiceSequence = choice.sequence != null ? String(choice.sequence) : "";
                 return (
                   <li
                     key={`${choiceLabel}-${choiceValue}-${choice.sequence ?? index}`}
@@ -999,6 +1176,7 @@ export function KeywordEditorPanel({
                     data-choice-label={choiceLabel}
                     data-choice-value={choiceValue}
                     data-choice-description={choiceDescription}
+                    data-choice-sequence={choiceSequence}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -1012,6 +1190,9 @@ export function KeywordEditorPanel({
                     </span>
                     <span data-testid="developer-kw-choice-description-text">
                       {choiceDescription ? ` — ${choiceDescription}` : ""}
+                    </span>
+                    <span data-testid="developer-kw-choice-sequence-text">
+                      {choiceSequence ? ` [${choiceSequence}]` : ""}
                     </span>
                     <button
                       type="button"
@@ -1078,6 +1259,28 @@ export function KeywordEditorPanel({
                       }}
                     >
                       {DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-kw-choice-sequence-edit"
+                      data-choice-label={choiceLabel}
+                      aria-label={DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_ACTION.replace(
+                        "{0}",
+                        choiceLabel || String(index + 1),
+                      )}
+                      disabled={
+                        choiceWriteBusy || busy || !detailReady || confirmKind != null || choiceEditOpen
+                      }
+                      onClick={() => startChoiceSequenceEdit(index)}
+                      style={{
+                        padding: "4px 10px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: choiceWriteBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE}
                     </button>
                     <button
                       type="button"
@@ -1249,6 +1452,57 @@ export function KeywordEditorPanel({
                   data-testid="developer-kw-choice-description-cancel"
                   disabled={descriptionBusy}
                   onClick={cancelChoiceDescriptionEdit}
+                  style={{
+                    padding: "8px 16px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {DEV_MSG.KW_CANCEL}
+                </button>
+              </div>
+            </div>
+          ) : null}
+          {sequenceEditOpen ? (
+            <div data-testid="developer-kw-choice-sequence-editor" style={{ marginBottom: "16px" }}>
+              <div style={fieldStyle}>
+                <label htmlFor="kw-choice-sequence-input">
+                  {DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_FIELD}
+                </label>
+                <input
+                  id="kw-choice-sequence-input"
+                  data-testid="developer-kw-choice-sequence-input"
+                  style={inputStyle}
+                  inputMode="numeric"
+                  value={sequenceDraft}
+                  onChange={(e) => setSequenceDraft(e.target.value)}
+                />
+              </div>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  data-testid="developer-kw-choice-sequence-save"
+                  aria-label={DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_SAVE}
+                  disabled={choiceWriteBusy || busy || !detailReady || confirmKind != null}
+                  onClick={() => void handleChoiceSequenceSave()}
+                  style={{
+                    padding: "8px 16px",
+                    background: catalogColors.accent,
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: sequenceBusy ? "wait" : "pointer",
+                  }}
+                >
+                  {DEV_MSG.KW_CHANGE_CHOICE_SEQUENCE_SAVE}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-kw-choice-sequence-cancel"
+                  disabled={sequenceBusy}
+                  onClick={cancelChoiceSequenceEdit}
                   style={{
                     padding: "8px 16px",
                     background: "transparent",
