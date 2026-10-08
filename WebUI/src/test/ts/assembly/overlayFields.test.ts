@@ -33,7 +33,9 @@ import {
   blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
   calendarDateText,
+  htmlContainsNul,
   longTextContainsNul,
+  nulHtmlFieldNames,
   nulLongTextFieldNames,
   nulSingleLineTextFieldNames,
   singleLineTextContainsNul,
@@ -438,6 +440,30 @@ describe("applyFieldOverlay", () => {
     expect(edited.innerHTML.trim()).toBe("<p>About the site</p>");
   });
 
+  it("keeps a NUL from an HTML text node so the save gate can see it", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<div class="PsAaField" id='${aaId("42", "description")}'><p>About the site</p></div>`;
+    const htmlPayload: ItemEditorFields = {
+      ...payload,
+      fields: payload.fields.map((field) =>
+        field.name === "description"
+          ? { name: field.name, value: "<p>About the site</p>" }
+          : field,
+      ),
+    };
+    const fields = scalarOverlayFields(htmlPayload, [
+      { name: "description", label: "Body", control: "sys_tinymce" },
+    ]);
+    applyFieldOverlay(root, fields, "42");
+    const edited = root.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    edited.appendChild(document.createTextNode("bad\u0000"));
+    const value = readOverlayEdits(root, "42")[0]?.value ?? "";
+    expect(htmlContainsNul(value)).toBe(true);
+    expect(value).toContain("<p>About the site</p>");
+  });
+
   it("maps a unique HTML block by markup when markers are absent", () => {
     const root = document.createElement("div");
     root.innerHTML = `<section><p>About the site</p></section><p>footer</p>`;
@@ -840,6 +866,54 @@ describe("nulLongTextFieldNames", () => {
         [],
       ),
     ).toEqual(["notes"]);
+  });
+});
+
+describe("nulHtmlFieldNames", () => {
+  const fields = [
+    { name: "displaytitle", kind: "text" as const, value: "Welcome" },
+    { name: "summary", kind: "text" as const, value: "Optional" },
+    { name: "notes", kind: "longtext" as const, value: "Line one\nLine two" },
+    { name: "description", kind: "html" as const, value: "<p>About</p>" },
+    { name: "pagelink", kind: "link" as const, value: "//Sites/Example/index" },
+  ];
+
+  it("names an HTML NUL and ignores ordinary markup and other kinds", () => {
+    expect(htmlContainsNul("<p>About</p>")).toBe(false);
+    expect(htmlContainsNul("")).toBe(false);
+    expect(htmlContainsNul("<p>bad\u0000value</p>")).toBe(true);
+    expect(
+      nulHtmlFieldNames(fields, [
+        { name: "displaytitle", value: "bad\u0000value" },
+        { name: "notes", value: "Line one\nbad\u0000value" },
+        { name: "description", value: "<p>bad\u0000value</p>" },
+        { name: "pagelink", value: "//Sites/\u0000" },
+      ]),
+    ).toEqual(["description"]);
+    expect(
+      nulHtmlFieldNames(fields, [
+        { name: "description", value: "<p>Updated body</p>" },
+      ]),
+    ).toEqual([]);
+    expect(
+      nulLongTextFieldNames(fields, [
+        { name: "description", value: "<p>bad\u0000value</p>" },
+      ]),
+    ).toEqual([]);
+    expect(
+      nulSingleLineTextFieldNames(fields, [
+        { name: "description", value: "<p>bad\u0000value</p>" },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("uses the loaded HTML when the field was not edited", () => {
+    expect(
+      nulHtmlFieldNames(
+        [{ name: "description", kind: "html", value: "<p>bad\u0000stored</p>" }],
+        [],
+      ),
+    ).toEqual(["description"]);
   });
 });
 
