@@ -19,9 +19,10 @@
  * Preview-first Active Assembly host. Renders the assembled page or snippet
  * template in an iframe with a light overlay. Slot add / create / arrange
  * use relationship REST (no Data Flow HTML). Single-line text, long-text,
- * HTML, and link field edits use the assembled nodes (HTML keeps its markup;
- * single-line text stays one line; long text keeps line breaks) and persist
- * through itemmanagement — not leftover Content Editor HTML.
+ * HTML, link, and whole-number field edits use the assembled nodes (HTML keeps
+ * its markup; single-line text stays one line; long text keeps line breaks;
+ * a number is one whole number) and persist through itemmanagement — not
+ * leftover Content Editor HTML.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -68,6 +69,7 @@ import {
   ASSEMBLY_VALUE_LONGTEXT,
   blankRequiredTextFieldNames,
   changedOverlayEdits,
+  invalidChangedNumberFieldNames,
   markAssemblyFieldErrors,
   overlayEditKey,
   persistOverlayEdits,
@@ -625,14 +627,34 @@ export function AssemblyHost({
       allowed.has(edit.name),
     );
     const blankRequired = blankRequiredTextFieldNames(overlayFields, visibleEdits);
-    if (blankRequired.length > 0) {
+    const badNumbers = invalidChangedNumberFieldNames(
+      overlayFields,
+      visibleEdits,
+      fieldBaselineRef.current,
+    );
+    if (blankRequired.length > 0 || badNumbers.length > 0) {
       const requiredText = message(ASSEMBLY_MSG.FIELD_REQUIRED);
+      const numberText = message(ASSEMBLY_MSG.FIELD_NUMBER);
       const errors: Record<string, string> = {};
       for (const name of blankRequired) {
         errors[name] = requiredText;
       }
+      for (const name of badNumbers) {
+        errors[name] = numberText;
+      }
+      if (badNumbers.length > 0) {
+        const numberFields = overlayFields.filter((field) =>
+          badNumbers.includes(field.name),
+        );
+        if (doc != null) {
+          restoreOverlayValues(doc, numberFields);
+        }
+        if (bar != null) {
+          restoreOverlayValues(bar, numberFields);
+        }
+      }
       setFieldErrors(errors);
-      setFieldNotice(requiredText);
+      setFieldNotice(blankRequired.length > 0 ? requiredText : numberText);
       setFieldNoticeRole("alert");
       return;
     }
@@ -906,6 +928,21 @@ export function AssemblyHost({
                       data-assembly-value="link"
                       data-testid={`assembly-overlay-field-${field.name}`}
                       aria-label={field.label}
+                      spellCheck={false}
+                      autoComplete="off"
+                    />
+                  ) : field.kind === "number" ? (
+                    <input
+                      className={styles.fieldEdit}
+                      type="text"
+                      inputMode="numeric"
+                      defaultValue={field.value}
+                      data-assembly-field={field.name}
+                      data-assembly-content-id={String(contentId ?? "")}
+                      data-assembly-value="number"
+                      data-testid={`assembly-overlay-field-${field.name}`}
+                      aria-label={field.label}
+                      aria-invalid={fieldErrors[field.name] ? true : undefined}
                       spellCheck={false}
                       autoComplete="off"
                     />

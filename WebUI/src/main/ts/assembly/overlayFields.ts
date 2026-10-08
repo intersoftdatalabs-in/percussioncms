@@ -16,16 +16,16 @@
  */
 
 /**
- * Map known text, long-text, HTML, and link itemmanagement fields onto assembled
- * preview nodes and persist edits through the same fields API as the React
- * editor. Does not open leftover Active Assembly or Content Editor HTML.
+ * Map known text, long-text, HTML, link, and whole-number itemmanagement fields
+ * onto assembled preview nodes and persist edits through the same fields API as
+ * the React editor. Does not open leftover Active Assembly or Content Editor HTML.
  */
 
 import type { ContentTypeFieldSummary } from "../api/developer/types";
 import { classifyEditorControl } from "../editor/controlKinds";
 import type { ItemEditorField, ItemEditorFields } from "../editor/itemFieldsApi";
 
-export type OverlayFieldKind = "text" | "longtext" | "html" | "link";
+export type OverlayFieldKind = "text" | "longtext" | "html" | "link" | "number";
 
 /** Assembled HTML nodes store markup in innerHTML, not stripped text. */
 export const ASSEMBLY_VALUE_HTML = "html";
@@ -38,6 +38,23 @@ export const ASSEMBLY_VALUE_TEXT = "text";
 
 /** Long text keeps line breaks. Single-line text is not marked with this value. */
 export const ASSEMBLY_VALUE_LONGTEXT = "longtext";
+
+/** Whole-number edits send {@code dataType: integer} on the item field save. */
+export const ASSEMBLY_VALUE_NUMBER = "number";
+
+const WHOLE_NUMBER_RE = /^-?\d+$/;
+
+/**
+ * Trimmed whole number, or null when the text is blank, a decimal, or not numeric.
+ * Range checks and optional clear stay out of this helper.
+ */
+export function wholeNumberText(value: string): string | null {
+  const text = value.trim();
+  if (!WHOLE_NUMBER_RE.test(text)) {
+    return null;
+  }
+  return text;
+}
 
 /**
  * Collapse line breaks so a single-line text field cannot store a new line.
@@ -145,6 +162,42 @@ export function blankRequiredTextFieldNames(
   return names;
 }
 
+/**
+ * Number fields the author changed to a decimal, a non-numeric value, or blank.
+ * Unchanged values, including a blank that was already stored, are not listed.
+ * Long text, HTML, link, and single-line text are not checked here.
+ */
+export function invalidChangedNumberFieldNames(
+  fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
+  edits: readonly Pick<OverlayFieldEdit, "contentId" | "name" | "value">[],
+  baseline: ReadonlyMap<string, string>,
+): string[] {
+  const latest = new Map<string, (typeof edits)[number]>();
+  for (const edit of edits) {
+    latest.set(edit.name, edit);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "number") {
+      continue;
+    }
+    const edit = latest.get(field.name);
+    if (!edit) {
+      continue;
+    }
+    const previous = baseline.has(overlayEditKey(edit))
+      ? (baseline.get(overlayEditKey(edit)) ?? "")
+      : field.value;
+    if (edit.value.trim() === previous.trim()) {
+      continue;
+    }
+    if (wholeNumberText(edit.value) == null) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
 /** Mark overlay controls invalid when a required-text save was refused. */
 export function markAssemblyFieldErrors(
   root: ParentNode | null,
@@ -224,12 +277,17 @@ export function isScalarOverlayKind(
 }
 
 export function isOverlayFieldKind(kind: string): kind is OverlayFieldKind {
-  return isScalarOverlayKind(kind) || kind === "html" || kind === "link";
+  return (
+    isScalarOverlayKind(kind) ||
+    kind === "html" ||
+    kind === "link" ||
+    kind === "number"
+  );
 }
 
 /**
- * Text, long-text, HTML, and link rows from itemmanagement + content-type controls.
- * File, image, keyword, community, and table stay on the Content Editor.
+ * Text, long-text, HTML, link, and whole-number rows from itemmanagement.
+ * File, image, keyword, community, table, date, and float stay on the Content Editor.
  * Read-only rows are omitted so the overlay cannot write them.
  */
 export function scalarOverlayFields(
@@ -242,6 +300,9 @@ export function scalarOverlayFields(
     const schema = byName.get(field.name);
     const kind = classifyEditorControl(schema, field.name);
     if (!isOverlayFieldKind(kind) || schema?.readOnly === true) {
+      continue;
+    }
+    if (kind === "number" && (schema?.dataType ?? "").trim().toLowerCase() === "float") {
       continue;
     }
     out.push({
@@ -559,6 +620,9 @@ export function applyFieldOverlay(
     } else if (field?.kind === "longtext") {
       html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_LONGTEXT);
       html.style.whiteSpace = "pre-wrap";
+    } else if (field?.kind === "number") {
+      html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_NUMBER);
+      bindSingleLineGuard(html);
     }
   }
   return hits;
@@ -610,6 +674,9 @@ function readNodeValue(el: Element): string {
     if (valueKind === ASSEMBLY_VALUE_LONGTEXT) {
       return longTextValue(raw);
     }
+    if (valueKind === ASSEMBLY_VALUE_NUMBER) {
+      return raw.trim();
+    }
     return raw;
   }
   if (valueKind === ASSEMBLY_VALUE_HTML) {
@@ -617,6 +684,9 @@ function readNodeValue(el: Element): string {
   }
   if (valueKind === ASSEMBLY_VALUE_LONGTEXT) {
     return longTextFromElement(el);
+  }
+  if (valueKind === ASSEMBLY_VALUE_NUMBER) {
+    return (el.textContent ?? "").trim();
   }
   const text = (el.textContent ?? "").trim();
   return valueKind === ASSEMBLY_VALUE_TEXT ? singleLineText(text) : text;
@@ -656,6 +726,7 @@ export function readOverlayEdits(
       name,
       value: readNodeValue(el),
       ...(valueKind === ASSEMBLY_VALUE_LINK ? { dataType: "link" } : {}),
+      ...(valueKind === ASSEMBLY_VALUE_NUMBER ? { dataType: "integer" } : {}),
     });
   });
   return edits;
