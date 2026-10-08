@@ -33,6 +33,8 @@ import {
   blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
   calendarDateText,
+  nulSingleLineTextFieldNames,
+  singleLineTextContainsNul,
   datetimeText,
   decimalNumberText,
   invalidChangedDateFieldNames,
@@ -306,6 +308,7 @@ describe("applyFieldOverlay", () => {
     title.dispatchEvent(enter);
     expect(enter.defaultPrevented).toBe(true);
     expect(singleLineText("  a\r\n\nb  ")).toBe("a b");
+    expect(singleLineText("bad\u0000value")).toBe("bad\u0000value");
     expect(longTextValue("  a\r\nb  ")).toBe("a\nb");
   });
 
@@ -753,6 +756,45 @@ describe("blankRequiredTextFieldNames", () => {
     expect(
       root.querySelector('[data-assembly-field="displaytitle"]')?.hasAttribute("aria-invalid"),
     ).toBe(false);
+  });
+});
+
+describe("nulSingleLineTextFieldNames", () => {
+  const fields = [
+    { name: "displaytitle", kind: "text" as const, value: "Welcome" },
+    { name: "summary", kind: "text" as const, value: "Optional" },
+    { name: "notes", kind: "longtext" as const, value: "A long note" },
+    { name: "description", kind: "html" as const, value: "<p>About</p>" },
+    { name: "pagelink", kind: "link" as const, value: "//Sites/Example/index" },
+  ];
+
+  it("names a single-line value that contains a NUL and ignores other kinds", () => {
+    expect(singleLineTextContainsNul("Updated welcome")).toBe(false);
+    expect(singleLineTextContainsNul("")).toBe(false);
+    expect(singleLineTextContainsNul("bad\u0000value")).toBe(true);
+    expect(
+      nulSingleLineTextFieldNames(fields, [
+        { name: "displaytitle", value: "bad\u0000value" },
+        { name: "summary", value: "ok" },
+        { name: "notes", value: "x\u0000y" },
+        { name: "description", value: "z\u0000" },
+        { name: "pagelink", value: "//Sites/\u0000" },
+      ]),
+    ).toEqual(["displaytitle"]);
+    expect(
+      nulSingleLineTextFieldNames(fields, [
+        { name: "displaytitle", value: "Updated welcome" },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("uses the loaded value when the field was not edited", () => {
+    expect(
+      nulSingleLineTextFieldNames(
+        [{ name: "displaytitle", kind: "text", value: "bad\u0000stored" }],
+        [],
+      ),
+    ).toEqual(["displaytitle"]);
   });
 });
 
