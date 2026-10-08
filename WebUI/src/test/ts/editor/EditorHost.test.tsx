@@ -4786,6 +4786,304 @@ describe("EditorHost save single-line text (#5206)", () => {
   });
 });
 
+describe("EditorHost refuse a single-line text NUL (#5388)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function textHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    summary?: string;
+    description?: string;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const summary = opts.summary ?? "Hello";
+    const description = opts.description ?? "line one";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [
+            { name: "summary", value: summary },
+            { name: "description", value: description },
+          ],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "summary",
+              label: "Summary",
+              control: "sys_EditBox",
+              dataType: "text",
+            },
+            {
+              name: "description",
+              label: "Description",
+              control: "sys_TextArea",
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  it("refuses a single-line NUL before PUT and keeps the previous text after reload", async () => {
+    const saveFields = vi.fn();
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={textHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe(
+        "Hello",
+      );
+    });
+    const input = screen.getByTestId("editor-field-summary") as HTMLInputElement;
+    expect(input.getAttribute("data-editor-kind")).toBe("text");
+    fireEvent.change(input, { target: { value: "bad\u0000value" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /correct the text fields before saving/i,
+    );
+    expect(screen.getByTestId("editor-field-summary").getAttribute("aria-invalid")).toBe(
+      "true",
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={textHost({ saveFields: vi.fn() })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe(
+        "Hello",
+      );
+    });
+  });
+
+  it("does not write when Close cancels an unsaved single-line NUL", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={textHost({ saveFields, confirmLeaveUnsaved: () => false })}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-summary")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-summary"), {
+      target: { value: "bad\u0000value" },
+    });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("still saves an ordinary single-line value", async () => {
+    let summary = "Hello";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      summary = body.fields.find((f) => f.name === "summary")?.value ?? summary;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={textHost({ saveFields, summary })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe(
+        "Hello",
+      );
+    });
+    fireEvent.change(screen.getByTestId("editor-field-summary"), {
+      target: { value: "Updated headline" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "summary")?.value).toBe("Updated headline");
+    expect(String(sent.fields.find((f) => f.name === "summary")?.value)).not.toContain(
+      "\u0000",
+    );
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={textHost({ saveFields: vi.fn(), summary })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe(
+        "Updated headline",
+      );
+    });
+  });
+
+  it("does not treat HTTP 400 on a single-line text save as success", async () => {
+    const saveFields = vi.fn().mockRejectedValue({
+      status: 400,
+      body: { message: "rejected" },
+    });
+    const view = render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percPage",
+                  name: "Home",
+                  checkoutUser: "admin",
+                  revision: 3,
+                  fields: [{ name: "summary", value: "Hello" }],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    {
+                      name: "summary",
+                      label: "Summary",
+                      control: "sys_EditBox",
+                      dataType: "text",
+                    },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe(
+        "Hello",
+      );
+    });
+    fireEvent.change(screen.getByTestId("editor-field-summary"), {
+      target: { value: "Rejected headline" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(/could not be saved/i);
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(1);
+    view.unmount();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percPage",
+                  name: "Home",
+                  checkoutUser: "admin",
+                  revision: 3,
+                  fields: [{ name: "summary", value: "Hello" }],
+                })}
+                saveFields={vi.fn()}
+                loadType={async () => ({
+                  fields: [
+                    {
+                      name: "summary",
+                      label: "Summary",
+                      control: "sys_EditBox",
+                      dataType: "text",
+                    },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe(
+        "Hello",
+      );
+    });
+  });
+
+  it("still refuses a long-text NUL with the long-text message", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={textHost({ saveFields })} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-description")).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("editor-field-description").getAttribute("data-editor-kind"),
+    ).toBe("longtext");
+    fireEvent.change(screen.getByTestId("editor-field-description"), {
+      target: { value: "x\u0000y" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-description").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /long text fields before saving/i,
+    );
+    expect(screen.queryByTestId("editor-field-error-summary")).toBeNull();
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+});
+
 describe("EditorHost refuse blank required single-line text (#5207)", () => {
   afterEach(() => {
     cleanup();

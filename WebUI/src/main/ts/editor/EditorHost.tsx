@@ -65,6 +65,7 @@ import {
 } from "./editorFieldErrors";
 import { collectUnsafeHtmlFieldErrors } from "./htmlField";
 import { collectInvalidLongTextFieldErrors } from "./longTextField";
+import { collectInvalidSingleLineTextFieldErrors } from "./singleLineTextField";
 import { collectInvalidLinkFieldErrors } from "./linkField";
 import { collectInvalidNumericFieldErrors } from "./numericField";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
@@ -1425,6 +1426,20 @@ export function EditorHost({
     if (Object.keys(invalidLongText).length > 0) {
       setFieldErrors(invalidLongText);
       setSaveErrorKey(EDITOR_MSG.LONGTEXT_INVALID_SAVE);
+      setSaving(false);
+      return;
+    }
+    const invalidText = collectInvalidSingleLineTextFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: row.value,
+      })),
+      message(EDITOR_MSG.TEXT_INVALID),
+    );
+    if (Object.keys(invalidText).length > 0) {
+      setFieldErrors(invalidText);
+      setSaveErrorKey(EDITOR_MSG.TEXT_INVALID_SAVE);
       setSaving(false);
       return;
     }

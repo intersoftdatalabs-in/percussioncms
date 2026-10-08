@@ -94,6 +94,10 @@ export const EDITOR_MSG = {
   NUMBER_BAD_REQUEST: "perc.ui.editor@That number could not be saved.",
   NUMBER_FORBIDDEN: "perc.ui.editor@You are not allowed to save that number.",
   NUMBER_CLEAR: "perc.ui.editor@Clear number",
+  TEXT_INVALID:
+    "perc.ui.editor@That text contains a character that cannot be saved.",
+  TEXT_INVALID_SAVE:
+    "perc.ui.editor@Correct the text fields before saving.",
   TEXT_BAD_REQUEST: "perc.ui.editor@That text could not be saved.",
   TEXT_FORBIDDEN: "perc.ui.editor@You are not allowed to save that text.",
   TEXT_CLEAR: "perc.ui.editor@Clear text",
