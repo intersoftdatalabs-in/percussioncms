@@ -28,6 +28,13 @@ import {
 } from "../../api/publishing/designApi";
 import { message, MSG } from "../../i18n/message";
 import {
+  CONTEXT_VARIABLE_EXISTS,
+  contextVariableNameListed,
+  contextVariablesAfterSuccessfulCreate,
+  validateContextVariable,
+} from "../contextVariable";
+import { mapContextVariableSaveError } from "../contextVariableSaveErrors";
+import {
   buttonStyle,
   emptyStyle,
   errorStyle,
@@ -49,6 +56,7 @@ export function SiteDesignPanel(): React.ReactElement {
   const [propValue, setPropValue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -80,22 +88,53 @@ export function SiteDesignPanel(): React.ReactElement {
   const selected = sites.find((s) => s.siteId === selectedId);
 
   async function saveProp(): Promise<void> {
-    if (!selectedId || !contextId || !propName.trim()) {
+    if (saving) {
+      return;
+    }
+    if (!selectedId || !contextId) {
       setError("Site, context, and property name are required");
       return;
     }
+    const validated = validateContextVariable(propName, propValue);
+    if (!validated.ok) {
+      setError(validated.error);
+      return;
+    }
+    if (contextVariableNameListed(props, validated.name)) {
+      setError(CONTEXT_VARIABLE_EXISTS);
+      return;
+    }
+    setSaving(true);
     setError(null);
     try {
-      await putSiteProperty(selectedId, {
-        name: propName.trim(),
+      const saved = await putSiteProperty(selectedId, {
+        name: validated.name,
         contextId,
-        value: propValue,
+        value: validated.value,
       });
+      let refreshed: SitePropertyDto[] | null = null;
+      try {
+        refreshed = await listSiteProperties(selectedId, contextId);
+      } catch {
+        refreshed = null;
+      }
+      setProps(
+        contextVariablesAfterSuccessfulCreate(
+          refreshed,
+          {
+            name: saved.name ?? validated.name,
+            contextId: saved.contextId ?? contextId,
+            value: saved.value ?? validated.value,
+          },
+          props,
+        ),
+      );
       setPropName("");
       setPropValue("");
-      setProps(await listSiteProperties(selectedId, contextId));
     } catch (e) {
-      setError(e instanceof Error ? e.message : message(MSG.PUBLISH_ERROR));
+      setError(mapContextVariableSaveError(e));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -115,7 +154,7 @@ export function SiteDesignPanel(): React.ReactElement {
     <div data-testid="site-design-panel">
       {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
       {error && (
-        <p style={errorStyle} role="alert">
+        <p style={errorStyle} role="alert" data-testid="context-variable-error">
           {error}
         </p>
       )}
@@ -123,6 +162,7 @@ export function SiteDesignPanel(): React.ReactElement {
         <label>
           Site{" "}
           <select
+            data-testid="context-variable-site"
             value={selectedId}
             onChange={(e) => setSelectedId(e.target.value)}
             aria-label="Design site"
@@ -137,6 +177,7 @@ export function SiteDesignPanel(): React.ReactElement {
         <label>
           Context{" "}
           <select
+            data-testid="context-variable-context"
             value={contextId}
             onChange={(e) => setContextId(e.target.value)}
             aria-label="Property context"
@@ -160,11 +201,13 @@ export function SiteDesignPanel(): React.ReactElement {
       {!loading && props.length === 0 && (
         <p style={emptyStyle}>No properties for this site/context.</p>
       )}
-      <ul style={listStyle}>
+      <ul style={listStyle} data-testid="context-variable-list">
         {props.map((p) => (
-          <li key={p.name} style={listItemStyle}>
-            <strong>{p.name}</strong>
-            <span style={{ color: "#666" }}>{p.value}</span>
+          <li key={p.name} style={listItemStyle} data-testid="context-variable-row">
+            <strong data-testid="context-variable-row-name">{p.name}</strong>
+            <span style={{ color: "#666" }} data-testid="context-variable-row-value">
+              {p.value}
+            </span>
             <button
               type="button"
               style={buttonStyle}
@@ -175,25 +218,35 @@ export function SiteDesignPanel(): React.ReactElement {
           </li>
         ))}
       </ul>
-      <div style={formRowStyle}>
-        <label htmlFor="prop-name">Name</label>
-        <input
-          id="prop-name"
-          value={propName}
-          onChange={(e) => setPropName(e.target.value)}
-        />
+      <div data-testid="context-variable-form">
+        <div style={formRowStyle}>
+          <label htmlFor="prop-name">Name</label>
+          <input
+            id="prop-name"
+            data-testid="context-variable-name"
+            value={propName}
+            onChange={(e) => setPropName(e.target.value)}
+          />
+        </div>
+        <div style={formRowStyle}>
+          <label htmlFor="prop-value">Value</label>
+          <input
+            id="prop-value"
+            data-testid="context-variable-value"
+            value={propValue}
+            onChange={(e) => setPropValue(e.target.value)}
+          />
+        </div>
+        <button
+          type="button"
+          style={primaryButtonStyle}
+          data-testid="context-variable-save"
+          disabled={saving}
+          onClick={() => void saveProp()}
+        >
+          Save property
+        </button>
       </div>
-      <div style={formRowStyle}>
-        <label htmlFor="prop-value">Value</label>
-        <input
-          id="prop-value"
-          value={propValue}
-          onChange={(e) => setPropValue(e.target.value)}
-        />
-      </div>
-      <button type="button" style={primaryButtonStyle} onClick={() => void saveProp()}>
-        Save property
-      </button>
     </div>
   );
 }

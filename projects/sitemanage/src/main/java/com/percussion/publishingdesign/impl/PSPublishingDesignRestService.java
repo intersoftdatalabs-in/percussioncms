@@ -287,6 +287,22 @@ public class PSPublishingDesignRestService {
    * Location schemes still belong to this context. Removing those schemes is a separate action.
    */
   static final String CONTEXT_HAS_LOCATION_SCHEMES = "Publishing context has location schemes";
+  /** Matches {@code RXASSEMBLERPROPERTIES.PROPERTYNAME} VARCHAR(50). */
+  static final int MAX_CONTEXT_VARIABLE_NAME_LENGTH = 50;
+
+  static final String CONTEXT_VARIABLE_NAME_REQUIRED = "Context variable name is required";
+
+  static final String CONTEXT_VARIABLE_NAME_TOO_LONG =
+      "Context variable name must be 50 characters or fewer";
+  /** Matches {@code RXASSEMBLERPROPERTIES.PROPERTYVALUE} VARCHAR(255). */
+  static final int MAX_CONTEXT_VARIABLE_VALUE_LENGTH = 255;
+
+  static final String CONTEXT_VARIABLE_VALUE_REQUIRED = "Context variable value is required";
+
+  static final String CONTEXT_VARIABLE_VALUE_TOO_LONG =
+      "Context variable value must be 255 characters or fewer";
+
+  static final String CONTEXT_VARIABLE_EXISTS = "Context variable already exists";
 
   private final IPSPublisherService publisherService;
   private final IPSGuidManager guidManager;
@@ -949,20 +965,42 @@ public class PSPublishingDesignRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSSitePropertyDto putSiteProperty(
       @PathParam("siteId") String siteId, PSSitePropertyDto body) {
+    requireDesignWrite();
     requireSiteManager();
     requireNonBlank(siteId, "siteId");
-    if (body == null || isBlank(body.getName()) || isBlank(body.getContextId())) {
+    if (body == null) {
       throw badRequest("name and contextId are required");
+    }
+    String name = body.getName() == null ? "" : body.getName().trim();
+    String contextId = body.getContextId() == null ? "" : body.getContextId().trim();
+    String value = body.getValue() == null ? "" : body.getValue().trim();
+    if (name.isEmpty()) {
+      throw badRequest(CONTEXT_VARIABLE_NAME_REQUIRED);
+    }
+    if (contextId.isEmpty()) {
+      throw badRequest("contextId is required");
+    }
+    if (value.isEmpty()) {
+      throw badRequest(CONTEXT_VARIABLE_VALUE_REQUIRED);
+    }
+    if (name.length() > MAX_CONTEXT_VARIABLE_NAME_LENGTH) {
+      throw badRequest(CONTEXT_VARIABLE_NAME_TOO_LONG);
+    }
+    if (value.length() > MAX_CONTEXT_VARIABLE_VALUE_LENGTH) {
+      throw badRequest(CONTEXT_VARIABLE_VALUE_TOO_LONG);
     }
     try {
       IPSSite site = siteManager.loadSiteModifiable(toSiteGuid(siteId));
-      IPSGuid ctx = guidManager.makeGuid(body.getContextId(), PSTypeEnum.CONTEXT);
-      site.setProperty(body.getName().trim(), ctx, body.getValue() != null ? body.getValue() : "");
+      IPSGuid ctx = guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT);
+      if (contextVariableNameExists(site, ctx, name)) {
+        throw conflict(CONTEXT_VARIABLE_EXISTS);
+      }
+      site.setProperty(name, ctx, value);
       siteManager.saveSite(site);
       PSSitePropertyDto out = new PSSitePropertyDto();
-      out.setName(body.getName().trim());
-      out.setContextId(body.getContextId());
-      out.setValue(site.getProperty(body.getName().trim(), ctx));
+      out.setName(name);
+      out.setContextId(contextId);
+      out.setValue(site.getProperty(name, ctx));
       return out;
     } catch (PSNotFoundException e) {
       throw notFound("Site not found");
@@ -971,6 +1009,24 @@ public class PSPublishingDesignRestService {
     } catch (Exception e) {
       throw internalError(e);
     }
+  }
+
+  /**
+   * True when this context already stores {@code name}. Does not change the site. A blank stored
+   * name does not match. Comparison is the trimmed spelling, so a second variable on the context
+   * is left alone.
+   */
+  private static boolean contextVariableNameExists(IPSSite site, IPSGuid contextId, String name) {
+    var existingNames = site.getPropertyNames(contextId);
+    if (existingNames == null) {
+      return false;
+    }
+    for (String existingName : existingNames) {
+      if (existingName != null && name.equals(existingName.trim())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @DELETE
