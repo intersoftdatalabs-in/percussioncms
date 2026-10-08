@@ -946,3 +946,221 @@ describe("KeywordEditorPanel change one choice value", () => {
     );
   });
 });
+
+function changeDescriptionButton(label: string): HTMLButtonElement {
+  const button = document.querySelector(
+    `[data-testid="developer-kw-choice-description-edit"][data-choice-label="${label}"]`,
+  );
+  if (!(button instanceof HTMLButtonElement)) {
+    throw new Error(`missing change-description button for ${label}`);
+  }
+  return button;
+}
+
+describe("KeywordEditorPanel set one choice description", () => {
+  beforeEach(() => {
+    (window as unknown as { I18N?: { message: (key: string) => string } }).I18N = {
+      message: (key: string) => key,
+    };
+    getKeyword.mockReset();
+    updateKeyword.mockReset();
+    createKeyword.mockReset();
+    deleteKeyword.mockReset();
+    getKeyword.mockResolvedValue(withTwoChoices);
+    updateKeyword.mockResolvedValue(withTwoChoices);
+  });
+
+  async function openDescriptionEditor(label: string): Promise<void> {
+    await waitFor(() => {
+      expect(changeDescriptionButton(label).disabled).toBe(false);
+    });
+    fireEvent.click(changeDescriptionButton(label));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-choice-description-input")).toBeTruthy();
+    });
+  }
+
+  it("does not show the draft description before save", async () => {
+    renderEditor(withTwoChoices);
+    await openDescriptionEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-description-input"), {
+      target: { value: "note" },
+    });
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-description")).toBe("top");
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+  });
+
+  it("does not write when the description edit is cancelled", async () => {
+    renderEditor(withTwoChoices);
+    await openDescriptionEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-description-input"), {
+      target: { value: "note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-description-cancel"));
+    expect(screen.queryByTestId("developer-kw-choice-description-input")).toBeNull();
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+    expect(changeValueButton("Low").disabled).toBe(false);
+    expect(changeLabelButton("Low").disabled).toBe(false);
+    expect(removeButton("Low").disabled).toBe(false);
+  });
+
+  it("does not write when the description is unchanged", async () => {
+    renderEditor(withTwoChoices);
+    await openDescriptionEditor("Low");
+    fireEvent.click(screen.getByTestId("developer-kw-choice-description-save"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-kw-choice-description-input")).toBeNull();
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+  });
+
+  it("does not clear a stored description when the draft is blank", async () => {
+    renderEditor(withTwoChoices);
+    await openDescriptionEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-description-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-description-save"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-kw-choice-description-error").textContent).toBe(
+      DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_BLANK,
+    );
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-description")).toBe("top");
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+  });
+
+  it("shows the new description only after the keyword update succeeds", async () => {
+    updateKeyword.mockImplementation(async (_id: string, body: KeywordSummary) => body);
+    renderEditor(withTwoChoices);
+    await openDescriptionEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-description-input"), {
+      target: { value: " note " },
+    });
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+    fireEvent.click(screen.getByTestId("developer-kw-choice-description-save"));
+    await waitFor(() => {
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("note");
+    });
+    expect(updateKeyword).toHaveBeenCalledWith(
+      "42",
+      expect.objectContaining({
+        label: "Priority",
+        description: "Item priority",
+        sequence: 4,
+        choices: [
+          { label: "High", value: "high", description: "top", sequence: 1 },
+          { label: "Low", value: "low", description: "note", sequence: 2 },
+        ],
+      }),
+    );
+    expect(deleteKeyword).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-kw-choice-description-notice").textContent).toBe(
+      DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_SAVED,
+    );
+    expect(screen.getByTestId("developer-kw-saved-choices").textContent).toContain("note");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-description")).toBe("top");
+    expect((screen.getByTestId("developer-kw-label") as HTMLInputElement).value).toBe(
+      "Priority",
+    );
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+    expect((screen.getByTestId("developer-kw-sequence") as HTMLInputElement).value).toBe("4");
+    expect(screen.queryByTestId("developer-kw-choice-description-input")).toBeNull();
+    expect((screen.getByTestId("developer-kw-choices") as HTMLTextAreaElement).value).toContain(
+      "Low|low|2|note",
+    );
+  });
+
+  it("allows the same description on another choice", async () => {
+    updateKeyword.mockImplementation(async (_id: string, body: KeywordSummary) => body);
+    renderEditor(withTwoChoices);
+    await openDescriptionEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-description-input"), {
+      target: { value: "top" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-description-save"));
+    await waitFor(() => {
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("top");
+    });
+    expect(choiceByLabel("High")?.getAttribute("data-choice-description")).toBe("top");
+    expect(choiceByLabel("High")?.getAttribute("data-choice-label")).toBe("High");
+  });
+
+  it.each([400, 403, 409])(
+    "keeps the previous description when the update returns HTTP %s",
+    async (status) => {
+      updateKeyword.mockRejectedValue({
+        status,
+        statusText: "no",
+        body: {
+          message: `forced ${status}`,
+          label: "Renamed",
+          description: "changed",
+          choices: [{ label: "Low", value: "low", description: "later", sequence: 9 }],
+        },
+      });
+      renderEditor(withTwoChoices);
+      await openDescriptionEditor("Low");
+      fireEvent.change(screen.getByTestId("developer-kw-choice-description-input"), {
+        target: { value: "later" },
+      });
+      fireEvent.click(screen.getByTestId("developer-kw-choice-description-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-kw-choice-description-error")).toBeTruthy();
+      });
+      expect(screen.getByTestId("developer-kw-choice-description-error").textContent).toContain(
+        `forced ${status}`,
+      );
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-label")).toBe("Low");
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+      expect(screen.getByTestId("developer-kw-saved-choices").textContent).not.toContain(
+        "later",
+      );
+      expect(screen.queryByTestId("developer-kw-choice-description-notice")).toBeNull();
+      expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+        "Item priority",
+      );
+      expect(deleteKeyword).not.toHaveBeenCalled();
+    },
+  );
+
+  it("does not replace the list when a 200 changes the keyword description", async () => {
+    updateKeyword.mockResolvedValue({
+      ...withTwoChoices,
+      description: "changed keyword",
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "low", description: "note", sequence: 2 },
+      ],
+    });
+    renderEditor(withTwoChoices);
+    await openDescriptionEditor("Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-description-input"), {
+      target: { value: "note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-description-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-kw-choice-description-error").textContent).toBe(
+        DEV_MSG.KW_CHANGE_CHOICE_DESCRIPTION_ERROR,
+      );
+    });
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+    expect((screen.getByTestId("developer-kw-description") as HTMLInputElement).value).toBe(
+      "Item priority",
+    );
+  });
+});

@@ -169,6 +169,12 @@ export type RelabelChoiceRejection = "blank" | "duplicate" | "missing" | "unchan
 
 export type RevalueChoiceRejection = "blank" | "duplicate" | "missing" | "unchanged";
 
+export type DescribeChoiceRejection = "blank" | "missing" | "unchanged";
+
+function storedChoiceDescription(choice: KeywordChoiceSummary): string {
+  return (choice.description ?? "").trim();
+}
+
 /**
  * Body for the existing keyword update that changes one choice label.
  * Keyword label, description, and sequence are copied from the loaded keyword.
@@ -281,6 +287,48 @@ export function keywordUpdateForRevaluedChoice(
       const copy = choiceForUpdate(choice);
       if (i === index) {
         return { ...copy, value };
+      }
+      return copy;
+    }),
+  };
+}
+
+/**
+ * Body for the existing keyword update that sets one choice description.
+ * Keyword label, description, and sequence are copied from the loaded keyword.
+ * That choice keeps its label, value, and sequence. The other choices stay.
+ * A blank description is not a body, so it does not clear a stored description.
+ * The same description is not a write. Descriptions are not unique across choices.
+ */
+export function keywordUpdateForDescribedChoice(
+  baseline: Pick<KeywordSummary, "label" | "description" | "sequence">,
+  existing: KeywordChoiceSummary[],
+  index: number,
+  nextDescription: string,
+): KeywordSummary | DescribeChoiceRejection {
+  if (!Number.isInteger(index) || index < 0 || index >= existing.length) {
+    return "missing";
+  }
+  const currentChoice = existing[index];
+  if (!currentChoice) {
+    return "missing";
+  }
+  const description = nextDescription.trim();
+  const current = storedChoiceDescription(currentChoice);
+  if (!description) {
+    return current ? "blank" : "unchanged";
+  }
+  if (description === current) {
+    return "unchanged";
+  }
+  return {
+    label: baseline.label,
+    description: baseline.description,
+    sequence: baseline.sequence,
+    choices: existing.map((choice, i) => {
+      const copy = choiceForUpdate(choice);
+      if (i === index) {
+        return { ...copy, description };
       }
       return copy;
     }),

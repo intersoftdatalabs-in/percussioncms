@@ -21,6 +21,7 @@ import {
   isBlankChoiceDraft,
   isDuplicateChoice,
   keywordUpdateForAddedChoice,
+  keywordUpdateForDescribedChoice,
   keywordUpdateForRelabeledChoice,
   keywordUpdateForRemovedChoice,
   keywordUpdateForRevaluedChoice,
@@ -226,6 +227,74 @@ describe("keywordUpdateForRevaluedChoice", () => {
         { label: "Low", value: "Low", description: "bottom", sequence: 2 },
       ],
     });
+  });
+});
+
+describe("keywordUpdateForDescribedChoice", () => {
+  const two: KeywordChoiceSummary[] = [
+    { label: "High", value: "high", description: "top", sequence: 1 },
+    { label: "Low", value: "low", description: "bottom", sequence: 2 },
+  ];
+
+  it("does not build a write for a missing choice or the same description", () => {
+    expect(keywordUpdateForDescribedChoice(baseline, two, -1, "mid")).toBe("missing");
+    expect(keywordUpdateForDescribedChoice(baseline, two, 2, "mid")).toBe("missing");
+    expect(keywordUpdateForDescribedChoice(baseline, two, 1.5, "mid")).toBe("missing");
+    expect(keywordUpdateForDescribedChoice(baseline, two, 1, "bottom")).toBe("unchanged");
+    expect(keywordUpdateForDescribedChoice(baseline, two, 1, " bottom ")).toBe("unchanged");
+  });
+
+  it("does not clear a stored description when the draft is blank", () => {
+    expect(keywordUpdateForDescribedChoice(baseline, two, 1, "")).toBe("blank");
+    expect(keywordUpdateForDescribedChoice(baseline, two, 1, "   ")).toBe("blank");
+    expect(keywordUpdateForDescribedChoice(baseline, two, 0, "\n")).toBe("blank");
+  });
+
+  it("does not write when there is no stored description and the draft is blank", () => {
+    const empty: KeywordChoiceSummary[] = [
+      { label: "High", value: "high", sequence: 1 },
+      { label: "Low", value: "low", description: "  ", sequence: 2 },
+    ];
+    expect(keywordUpdateForDescribedChoice(baseline, empty, 1, "")).toBe("unchanged");
+    expect(keywordUpdateForDescribedChoice(baseline, empty, 1, "   ")).toBe("unchanged");
+  });
+
+  it("sets one description and keeps label, value, sequence, and the other choice", () => {
+    expect(keywordUpdateForDescribedChoice(baseline, two, 1, " middle ")).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "low", description: "middle", sequence: 2 },
+      ],
+    });
+  });
+
+  it("allows the same description on another choice", () => {
+    expect(keywordUpdateForDescribedChoice(baseline, two, 1, "top")).toEqual({
+      label: "Priority",
+      description: "Item priority",
+      sequence: 4,
+      choices: [
+        { label: "High", value: "high", description: "top", sequence: 1 },
+        { label: "Low", value: "low", description: "top", sequence: 2 },
+      ],
+    });
+  });
+
+  it("does not copy the keyword description onto the choice", () => {
+    const sent = keywordUpdateForDescribedChoice(baseline, two, 1, "Item priority");
+    expect(sent).not.toBe("unchanged");
+    if (typeof sent === "string") {
+      throw new Error(sent);
+    }
+    expect(sent.description).toBe("Item priority");
+    expect(sent.choices?.[1]?.description).toBe("Item priority");
+    expect(sent.choices?.[0]?.description).toBe("top");
+    expect(sent.choices?.[1]?.label).toBe("Low");
+    expect(sent.choices?.[1]?.value).toBe("low");
+    expect(sent.choices?.[1]?.sequence).toBe(2);
   });
 });
 
