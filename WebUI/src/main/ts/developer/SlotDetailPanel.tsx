@@ -47,6 +47,8 @@ import { catalogColors, backButton, errorAlert, metaGrid, monoCell, tableHeaderR
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { savedSlotDescription, slotDescriptionWrite, storedSlotDescription } from "./slotDescription";
+import { SLOT_DESC_MSG } from "./slotDescriptionMessages";
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
@@ -202,6 +204,12 @@ export function SlotDetailPanel({
   const [name, setName] = useState("");
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionShown, setDescriptionShown] = useState("");
+  const [descriptionDraft, setDescriptionDraft] = useState("");
+  const [descriptionEditing, setDescriptionEditing] = useState(false);
+  const [descriptionError, setDescriptionError] = useState<string | null>(null);
+  const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
+  const [descriptionBusy, setDescriptionBusy] = useState(false);
   const [slotType, setSlotType] = useState("REGULAR");
   const [associations, setAssociations] = useState<SlotAssociationSummary[]>([]);
   const [newCtGuid, setNewCtGuid] = useState("");
@@ -213,6 +221,7 @@ export function SlotDetailPanel({
   const [newArgValue, setNewArgValue] = useState("");
   const [heldLock, setHeldLock] = useState(false);
   const inflight = useRef(false);
+  const descriptionInflight = useRef(false);
   const heldLockRef = useRef(false);
 
   useEffect(() => {
@@ -240,6 +249,11 @@ export function SlotDetailPanel({
         setName(d.name || idOrName);
         setLabel(d.label || "");
         setDescription(d.description || "");
+        setDescriptionShown(storedSlotDescription(d.description));
+        setDescriptionDraft("");
+        setDescriptionEditing(false);
+        setDescriptionError(null);
+        setDescriptionNotice(null);
         setSlotType((d.slotType || "REGULAR").toUpperCase());
         setAssociations(associations);
         setFinderName(d.finderName || "");
@@ -289,7 +303,11 @@ export function SlotDetailPanel({
       finderDirty);
   const canSave = isNew
     ? !busy && isSlotCreateReady({ name, slotType })
-    : !busy && dirty && !nameInvalid && !(nameDirty && detail?.systemSlot);
+    : !busy &&
+      !descriptionEditing &&
+      dirty &&
+      !nameInvalid &&
+      !(nameDirty && detail?.systemSlot);
 
   function removeAssociation(index: number) {
     if (!heldLock) return;
@@ -409,8 +427,97 @@ export function SlotDetailPanel({
     onBack();
   }
 
+  function descriptionSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return SLOT_DESC_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return SLOT_DESC_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return SLOT_DESC_MSG.CONFLICT;
+    return SLOT_DESC_MSG.ERROR;
+  }
+
+  function startDescriptionEdit(): void {
+    if (
+      isNew ||
+      !detail ||
+      busy ||
+      descriptionBusy ||
+      descriptionInflight.current ||
+      inflight.current
+    ) {
+      return;
+    }
+    setDescriptionDraft(descriptionShown);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    setDescriptionEditing(true);
+  }
+
+  function cancelDescriptionEdit(): void {
+    if (descriptionBusy || descriptionInflight.current) return;
+    setDescriptionEditing(false);
+    setDescriptionDraft("");
+    setDescriptionError(null);
+  }
+
+  async function handleDescriptionSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !descriptionEditing ||
+      descriptionBusy ||
+      descriptionInflight.current ||
+      inflight.current ||
+      busy
+    ) {
+      return;
+    }
+    const sent = slotDescriptionWrite(detail, descriptionDraft);
+    if (sent === "unchanged") {
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
+      setDescriptionError(null);
+      return;
+    }
+    descriptionInflight.current = true;
+    setDescriptionBusy(true);
+    setBusy(true);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = descriptionShown;
+    try {
+      const saved = await updateSlotDetail(writeKey, sent);
+      const accepted = savedSlotDescription(sent, detail, saved);
+      if (accepted == null) {
+        setDescription(previousShown);
+        setDescriptionShown(previousShown);
+        setDescriptionError(SLOT_DESC_MSG.ERROR);
+        setDescriptionNotice(null);
+        return;
+      }
+      const nextDetail: SlotDetail = { ...detail, description: accepted };
+      setDetail(nextDetail);
+      setDescription(accepted);
+      setDescriptionShown(accepted);
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
+      setDescriptionNotice(accepted ? SLOT_DESC_MSG.SAVED : SLOT_DESC_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setDescription(previousShown);
+      setDescriptionShown(previousShown);
+      setDescriptionError(panelErrMsg(err, descriptionSaveFallback(err)));
+      setDescriptionNotice(null);
+    } finally {
+      descriptionInflight.current = false;
+      setDescriptionBusy(false);
+      setBusy(false);
+    }
+  }
+
   async function handleSave() {
-    if (!canSave || inflight.current) return;
+    if (!canSave || inflight.current || descriptionInflight.current || descriptionEditing) return;
     if (!isNew && (finderDirty || assocDirty) && !heldLock) {
       setError(DEV_MSG.SLOT_LOCK_REQUIRED);
       return;
@@ -455,7 +562,13 @@ export function SlotDetailPanel({
       }
       setName(saved.name || name);
       setLabel(saved.label || label);
-      setDescription(saved.description || "");
+      const savedDescription = saved.description || "";
+      setDescription(savedDescription);
+      setDescriptionShown(storedSlotDescription(savedDescription));
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
+      setDescriptionError(null);
+      setDescriptionNotice(null);
       setSlotType((saved.slotType || slotType || "REGULAR").toUpperCase());
       setAssociations(savedAssocs);
       applyFinderFromDetail(nextDetail);
@@ -651,6 +764,106 @@ export function SlotDetailPanel({
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
+            {!isNew && detail ? (
+              <section
+                data-testid="developer-slot-set-description"
+                aria-label={SLOT_DESC_MSG.ACTION}
+                style={{ marginTop: "16px" }}
+              >
+                <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{SLOT_DESC_MSG.ACTION}</h3>
+                <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.9rem" }}>
+                  {SLOT_DESC_MSG.HINT}
+                </p>
+                <p
+                  data-testid="developer-slot-set-description-text"
+                  data-slot-description={descriptionShown}
+                  style={{ marginTop: 0 }}
+                >
+                  {descriptionShown}
+                </p>
+                {descriptionError ? (
+                  <div
+                    role="alert"
+                    data-testid="developer-slot-set-description-error"
+                    style={{ color: catalogColors.error }}
+                  >
+                    {descriptionError}
+                  </div>
+                ) : null}
+                {descriptionNotice ? (
+                  <div
+                    data-testid="developer-slot-set-description-notice"
+                    style={{ color: "#276749" }}
+                  >
+                    {descriptionNotice}
+                  </div>
+                ) : null}
+                {descriptionEditing ? (
+                  <div data-testid="developer-slot-set-description-editor">
+                    <label htmlFor="slot-set-description-input">{SLOT_DESC_MSG.FIELD}</label>
+                    <input
+                      id="slot-set-description-input"
+                      data-testid="developer-slot-set-description-input"
+                      style={inputStyle}
+                      value={descriptionDraft}
+                      disabled={descriptionBusy}
+                      onChange={(e) => setDescriptionDraft(e.target.value)}
+                    />
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                      <button
+                        type="button"
+                        data-testid="developer-slot-set-description-save"
+                        aria-label={SLOT_DESC_MSG.SAVE}
+                        disabled={descriptionBusy}
+                        onClick={() => void handleDescriptionSave()}
+                        style={{
+                          padding: "8px 16px",
+                          background: descriptionBusy ? catalogColors.disabled : catalogColors.accent,
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: descriptionBusy ? "wait" : "pointer",
+                        }}
+                      >
+                        {SLOT_DESC_MSG.SAVE}
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="developer-slot-set-description-cancel"
+                        disabled={descriptionBusy}
+                        onClick={cancelDescriptionEdit}
+                        style={{
+                          padding: "8px 16px",
+                          background: "transparent",
+                          border: `1px solid ${catalogColors.softBorder}`,
+                          borderRadius: "4px",
+                          cursor: descriptionBusy ? "wait" : "pointer",
+                        }}
+                      >
+                        {SLOT_DESC_MSG.CANCEL}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    data-testid="developer-slot-set-description-edit"
+                    aria-label={SLOT_DESC_MSG.ACTION}
+                    disabled={busy || descriptionBusy}
+                    onClick={startDescriptionEdit}
+                    style={{
+                      padding: "4px 10px",
+                      background: "transparent",
+                      border: `1px solid ${catalogColors.softBorder}`,
+                      borderRadius: "4px",
+                      cursor: busy ? "wait" : "pointer",
+                    }}
+                  >
+                    {SLOT_DESC_MSG.ACTION}
+                  </button>
+                )}
+              </section>
+            ) : null}
             {isNew ? (
               <div style={{ marginTop: "12px" }}>
                 <label htmlFor="slot-type" style={{ display: "block", marginBottom: 4 }}>
@@ -671,7 +884,9 @@ export function SlotDetailPanel({
             ) : (
               <dl style={metaGrid}>
                 <dt>{DEV_MSG.SLOT_META_TYPE}</dt>
-                <dd style={{ margin: 0 }}>{detail?.slotType || "—"}</dd>
+                <dd style={{ margin: 0 }} data-testid="developer-slot-type-value">
+                  {detail?.slotType || "—"}
+                </dd>
                 <dt>{DEV_MSG.SLOT_META_SYSTEM}</dt>
                 <dd style={{ margin: 0 }}>
                   {detail?.systemSlot ? DEV_MSG.YES : DEV_MSG.NO}

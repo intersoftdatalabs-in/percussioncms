@@ -1,7 +1,7 @@
 ---
 id: admin-developer-slots
 title: Developer Slots
-description: Create, rename, delete, and edit assembly slot finder, relationship, arguments, and named content-type/template associations from Developer Slots chrome
+description: Create, rename, delete, set a description, and edit assembly slot finder, relationship, arguments, and named content-type/template associations from Developer Slots chrome
 version: "8.2"
 order: 44
 tags: [admin, developer, slots]
@@ -20,6 +20,27 @@ After **Lock**, Admins can edit **finder**, **relationship**, **finder
 arguments**, and **content-type / template associations** (by **name** or GUID)
 on an existing slot and **Save**. Create does not write finder fields or
 associations. Unlock releases the design session without saving.
+
+**Set slot description** on an existing slot saves the description only. The
+update does not send the name, label, slot type, or finder, so those stay.
+The new description shows only after that save succeeds. A blank description
+clears the description. **Cancel** does not write. HTTP 400, 403, and 409
+are not success and leave the previous description.
+
+## Product path — set a description
+
+1. Open an existing slot. The committed description is shown under **Set slot
+   description**.
+2. Click **Set slot description**, edit the text, and click **Save
+   description**. The request is `PUT /services/slots/{idOrName}` with
+   `description` only. Reload shows that description. The name, label, slot
+   type, and finder are unchanged.
+3. A blank description clears the stored description. The same description is
+   not written.
+4. Click **Cancel** before save to keep the previous description. Cancel does
+   not call the server.
+5. HTTP 400, 403, and 409 do not show **Slot description saved** and do not
+   replace the previous description.
 
 ## Product path — create and delete
 
@@ -108,6 +129,7 @@ The chrome calls:
 | Lock | `POST /services/slots/{idOrName}/lock` |
 | Unlock | `POST /services/slots/{idOrName}/unlock` |
 | Save | `PUT /services/slots/{idOrName}` (label, description; optional `associations` / `finderName` / `relationshipName` / `finderArguments` when those fields changed) |
+| Set description | `PUT /services/slots/{idOrName}` (`description` only; a blank value clears; name, label, type, and finder are omitted and stay) |
 | Delete | `DELETE /services/slots/{idOrName}` (`204` on success) |
 
 Integrator notes: [REST API — Slots](id:developer-rest).
