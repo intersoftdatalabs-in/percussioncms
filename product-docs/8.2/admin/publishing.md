@@ -623,7 +623,8 @@ delivery-type editor error region — not as a successful save. Content-list sav
 are separate Design actions. Renaming a delivery type is described below and does not change the
 bean name or description. Setting a delivery type description is also described below and does
 not change the name or bean name. Setting a delivery type bean name is also described below and
-does not change the name or description.
+does not change the name or description. Setting whether unpublishing requires assembly is also
+described below and does not change the name, description, or bean name.
 
 ### Rename a delivery type (Design)
 
@@ -689,6 +690,26 @@ and **409** (for example a delivery type name conflict on the same update) stay 
 form error region. Those responses do not change the bean name on the list. Saving a delivery
 type (which can also change the name and description), renaming a delivery type, setting only
 the description, and copying a delivery type are separate actions.
+
+### Set whether unpublishing requires assembly (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Delivery types**.
+On a delivery type row, **Unpublish assembly** opens **Delivery type unpublish assembly** (it
+does not call the server). The form shows the current **name**, **bean name**, and
+**description** and does not let you change them. Check or clear **Unpublishing requires
+assembly**. **Save unpublish assembly** sends
+`PUT …/sitemanage/publishingdesign/deliverytypes/{deliveryTypeId}` with a `deliveryType` object
+that contains only `unpublishingRequiresAssembly`. Name, description, and bean name are omitted,
+so the server leaves those stored. A missing flag is off. Explicit `false` is sent when the box
+is clear, so the server turns the stored flag off instead of leaving it.
+
+**Delivery types** keeps the previous **Yes** or **No** until that update succeeds, then shows
+the new value with the same name, description, and bean name. **Cancel** closes the form and
+does not call the server.
+
+HTTP **400**, **403** (not Admin or Designer), and **409** stay in the form error region. Those
+responses do not change the flag on the list. Saving a delivery type, renaming it, setting only
+the description or bean name, and copying a delivery type are separate actions.
 
 ### Copy a delivery type (Design)
 

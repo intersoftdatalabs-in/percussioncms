@@ -1455,6 +1455,46 @@ class PSPublishingDesignRestServiceTest {
   }
 
   @Test
+  void updateDeliveryType_assemblyFlagOnly_keepsNameBeanAndDescription() throws Exception {
+    when(guidManager.makeGuid(eq("5"), eq(PSTypeEnum.DELIVERY_TYPE))).thenReturn(deliveryTypeGuid);
+    IPSDeliveryType loaded = mock(IPSDeliveryType.class);
+    when(publisherService.loadDeliveryTypeModifiable(deliveryTypeGuid)).thenReturn(loaded);
+    when(loaded.getGUID()).thenReturn(deliveryTypeGuid);
+    when(deliveryTypeGuid.getUUID()).thenReturn(5);
+    when(loaded.getName()).thenReturn("filesystem");
+    when(loaded.getBeanName()).thenReturn("sys_fileDeliveryHandler");
+    when(loaded.getDescription()).thenReturn("kept description");
+    when(loaded.isUnpublishingRequiresAssembly()).thenReturn(false);
+
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setUnpublishingRequiresAssembly(false);
+    assertTrue(body.isUnpublishingRequiresAssemblySpecified());
+
+    PSDeliveryTypeSummary saved = service.updateDeliveryType("5", body);
+    assertEquals("filesystem", saved.getName());
+    assertEquals("sys_fileDeliveryHandler", saved.getBeanName());
+    assertEquals("kept description", saved.getDescription());
+    assertFalse(saved.isUnpublishingRequiresAssembly());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setBeanName(any());
+    verify(loaded, never()).setDescription(any());
+    verify(loaded).setUnpublishingRequiresAssembly(false);
+    verify(publisherService).saveDeliveryType(loaded);
+  }
+
+  @Test
+  void updateDeliveryType_assemblyFlag_forbidden_403() {
+    service.setDesignWriteAllowed(() -> false);
+    PSDeliveryTypeSummary body = new PSDeliveryTypeSummary();
+    body.setUnpublishingRequiresAssembly(true);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateDeliveryType("5", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(publisherService, never()).loadDeliveryTypeModifiable(any());
+    verify(publisherService, never()).saveDeliveryType(any());
+  }
+
+  @Test
   void deleteDeliveryType_unused_deletes() throws Exception {
     IPSDeliveryType type = stubLoadedDeliveryType("nightonly");
     IPSContentList other = mock(IPSContentList.class);
