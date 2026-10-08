@@ -136,7 +136,9 @@ test.describe("PublishingShell Design delete one context variable", () => {
     await rowByName(page, nextName).getByTestId("context-variable-delete").click();
     await expect(page.getByTestId("context-variable-delete-form")).toBeVisible();
     await expect(page.getByTestId("context-variable-delete-name")).toHaveText(nextName);
-    await expect(page.getByTestId("context-variable-delete-other")).toContainText(keptName);
+    await expect(
+      page.getByTestId("context-variable-delete-other").filter({ hasText: keptName }),
+    ).toContainText(keptName);
     expect(deletes).toEqual([]);
 
     await page.getByTestId("context-variable-delete-cancel").click();
