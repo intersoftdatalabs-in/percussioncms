@@ -730,6 +730,54 @@ class DisplayFormatAdaptorWriteTest {
   }
 
   @Test
+  void update_descriptionOnly_keepsNameColumnsAndCommunities_blankClears() throws Exception {
+    IPSGuid communityGuid = new PSGuid(PSTypeEnum.COMMUNITY_DEF, 1001L);
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    nativeDf.setDisplayName("My Format");
+    nativeDf.setDescription("old desc");
+    addNativeColumn(nativeDf, "sys_contentcreatedby", 1, true);
+    nativeDf.addCommunity(String.valueOf(communityGuid.longValue()));
+    int columnCount = nativeDf.getColumnContainer().size();
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    DisplayFormat body = new DisplayFormat();
+    body.setDescription("folder list");
+    assertNull(body.getColumns());
+    assertNull(body.getAllowedCommunities());
+
+    DisplayFormat out = adaptor.updateDisplayFormat("MyFmt", body);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PSDisplayFormat>> saved = ArgumentCaptor.forClass(List.class);
+    verify(designWs).saveDisplayFormats(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
+    PSDisplayFormat persisted = saved.getValue().get(0);
+    assertEquals("MyFmt", persisted.getName());
+    assertEquals("My Format", persisted.getDisplayName());
+    assertEquals("folder list", persisted.getDescription());
+    assertEquals(columnCount, persisted.getColumnContainer().size());
+    assertEquals(
+        "sys_contentcreatedby",
+        ((PSDisplayColumn) persisted.getColumnContainer().get(columnCount - 1)).getSource());
+    assertTrue(
+        persisted.doesPropertyHaveValue(
+            PSDisplayFormat.PROP_COMMUNITY, String.valueOf(communityGuid.longValue())));
+    assertEquals("folder list", out.getDescription());
+    assertEquals("MyFmt", out.getName());
+
+    DisplayFormat clear = new DisplayFormat();
+    clear.setDescription("");
+    DisplayFormat cleared = adaptor.updateDisplayFormat("MyFmt", clear);
+    assertEquals("", cleared.getDescription());
+    assertEquals("MyFmt", persisted.getName());
+    assertEquals(columnCount, persisted.getColumnContainer().size());
+    assertTrue(
+        persisted.doesPropertyHaveValue(
+            PSDisplayFormat.PROP_COMMUNITY, String.valueOf(communityGuid.longValue())));
+  }
+
+  @Test
   void isAllCommunitiesSentinel_isGuidOrKeyOnly() {
     assertTrue(DisplayFormatAdaptor.isAllCommunitiesSentinel("-1", "Default"));
     assertTrue(DisplayFormatAdaptor.isAllCommunitiesSentinel("-1", "-1"));

@@ -9,6 +9,7 @@ import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as assemblyApi from "../../../main/ts/api/developer/assemblyApi";
 import * as displayFormatsApi from "../../../main/ts/api/developer/displayFormatsApi";
 import { DisplayFormatDetailPanel } from "../../../main/ts/developer/DisplayFormatDetailPanel";
+import { DF_DESC_MSG } from "../../../main/ts/developer/displayFormatDescriptionMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
 vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOriginal) => {
@@ -769,6 +770,163 @@ describe("DisplayFormatDetailPanel", () => {
     });
     expect(screen.getByTestId("developer-df-detail-error").textContent).toContain(
       DEV_MSG.DF_COMMUNITIES_FORBIDDEN,
+    );
+  });
+
+  it("does not offer set-description chrome before a display format exists", () => {
+    render(<DisplayFormatDetailPanel idOrName={null} onBack={() => undefined} />);
+    expect(screen.queryByTestId("developer-df-set-description")).toBeNull();
+  });
+
+  it("sets the description only after success and leaves name, columns, and communities", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5381fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [
+        { source: "sys_title", displayName: "Title", position: 0 },
+        { source: "sys_contentcreatedby", displayName: "Created by", position: 1 },
+      ],
+      allowedCommunities: [{ guid: "0-13-10", name: "Default" }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue({ ...userDetail, description: "note" });
+    const onSaved = vi.fn();
+    render(
+      <DisplayFormatDetailPanel idOrName="qa5381fmt" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-description-text").getAttribute("data-df-description")).toBe(
+        "Folder list",
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-edit"));
+    fireEvent.click(screen.getByTestId("developer-df-set-description-save"));
+    expect(updateDisplayFormat).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-df-set-description-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-df-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-description-input"), {
+      target: { value: " note " },
+    });
+    expect(screen.getByTestId("developer-df-set-description-text").getAttribute("data-df-description")).toBe(
+      "Folder list",
+    );
+    fireEvent.click(screen.getByTestId("developer-df-set-description-cancel"));
+    expect(updateDisplayFormat).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-df-set-description-text").getAttribute("data-df-description")).toBe(
+      "Folder list",
+    );
+
+    fireEvent.click(screen.getByTestId("developer-df-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-description-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateDisplayFormat).toHaveBeenCalledWith("qa5381fmt", { description: "note" });
+    expect(screen.getByTestId("developer-df-set-description-text").getAttribute("data-df-description")).toBe(
+      "note",
+    );
+    expect(screen.getByTestId("developer-df-set-description-notice").textContent).toBe(
+      DF_DESC_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-df-name") as HTMLInputElement).value).toBe("qa5381fmt");
+    expect(screen.getByTestId("developer-df-column-row-1").getAttribute("data-df-column-source")).toBe(
+      "sys_contentcreatedby",
+    );
+  });
+
+  it("clears a blank description and keeps the previous description on 400, 403, and 409", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5381fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [{ source: "sys_title", displayName: "Title", position: 0 }],
+      allowedCommunities: [{ guid: "0-13-10", name: "Default" }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue({ ...userDetail, description: "" });
+    render(<DisplayFormatDetailPanel idOrName="qa5381fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-description-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-description-notice").textContent).toBe(
+        DF_DESC_MSG.CLEARED,
+      );
+    });
+    expect(updateDisplayFormat).toHaveBeenCalledWith("qa5381fmt", { description: "" });
+    expect(screen.getByTestId("developer-df-set-description-text").getAttribute("data-df-description")).toBe(
+      "",
+    );
+
+    for (const status of [400, 403, 409]) {
+      updateDisplayFormat.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-df-set-description-edit"));
+      fireEvent.change(screen.getByTestId("developer-df-set-description-input"), {
+        target: { value: "later" },
+      });
+      fireEvent.click(screen.getByTestId("developer-df-set-description-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-df-set-description-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(screen.getByTestId("developer-df-set-description-text").getAttribute("data-df-description")).toBe(
+        "",
+      );
+      expect((screen.getByTestId("developer-df-description") as HTMLInputElement).value).toBe("");
+      fireEvent.click(screen.getByTestId("developer-df-set-description-cancel"));
+    }
+  });
+
+  it("does not show a description when the update drops columns", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5381fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [
+        { source: "sys_title", displayName: "Title", position: 0 },
+        { source: "sys_contentcreatedby", displayName: "Created by", position: 1 },
+      ],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue({
+      ...userDetail,
+      description: "note",
+      columns: [],
+    });
+    render(<DisplayFormatDetailPanel idOrName="qa5381fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-description-input"), {
+      target: { value: "note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-description-error").textContent).toContain(
+        DF_DESC_MSG.ERROR,
+      );
+    });
+    expect(screen.getByTestId("developer-df-set-description-text").getAttribute("data-df-description")).toBe(
+      "Folder list",
     );
   });
 });
