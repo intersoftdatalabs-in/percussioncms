@@ -55,6 +55,8 @@ import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.services.sitemgr.data.PSLocationScheme;
 import com.percussion.services.sitemgr.data.PSLocationSchemeParameter;
+import com.percussion.services.sitemgr.data.PSSite;
+import com.percussion.services.sitemgr.data.PSSiteProperty;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -79,6 +81,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.ToLongFunction;
 import org.apache.logging.log4j.LogManager;
@@ -309,6 +312,12 @@ public class PSPublishingDesignRestService {
    * not create it and does not remove another variable.
    */
   static final String CONTEXT_VARIABLE_NOT_LISTED = "Context variable is not listed";
+
+  /**
+   * A rename and a value change are different writes. Sending both does not apply either.
+   */
+  static final String CONTEXT_VARIABLE_RENAME_NOT_WITH_VALUE =
+      "Cannot rename a context variable while changing its value";
 
   private final IPSPublisherService publisherService;
   private final IPSGuidManager guidManager;
@@ -967,11 +976,16 @@ public class PSPublishingDesignRestService {
 
   /**
    * Create one context variable, or when {@code updateValue} is true replace the value of one that
-   * is already listed. A create whose name is already stored is HTTP 409 and writes nothing. A
-   * value change whose name is not stored is HTTP 409 and does not create it. A blank name or
-   * value, or a name or value longer than its column, is HTTP 400 and writes nothing. A blank
-   * value does not clear a stored variable. The name stays on a value change. Other variables on
-   * the context stay.
+   * is already listed, or when {@code renameName} is true rename one that is already listed. A
+   * create whose name is already stored is HTTP 409 and writes nothing. A value change whose name
+   * is not stored is HTTP 409 and does not create it. A blank name or value, or a name or value
+   * longer than its column, is HTTP 400 and writes nothing. A blank value does not clear a stored
+   * variable. The name stays on a value change. A rename keeps the stored value. A blank or
+   * overlong new name is HTTP 400 and writes nothing. A new name that matches a different variable
+   * on the context is HTTP 409 and writes nothing. A stored name that is not listed is HTTP 409
+   * and writes nothing. The same name, after trim, is not a duplicate of itself and does not save.
+   * A value sent with a rename is ignored. Rename and a value change cannot be combined. Other
+   * variables on the context stay.
    */
   @PUT
   @Path("/sites/{siteId}/properties")
@@ -985,10 +999,17 @@ public class PSPublishingDesignRestService {
     if (body == null) {
       throw badRequest("name and contextId are required");
     }
+    boolean updateValue = Boolean.TRUE.equals(body.getUpdateValue());
+    boolean renameName = Boolean.TRUE.equals(body.getRenameName());
+    if (updateValue && renameName) {
+      throw badRequest(CONTEXT_VARIABLE_RENAME_NOT_WITH_VALUE);
+    }
+    if (renameName) {
+      return renameContextVariable(siteId, body);
+    }
     String name = body.getName() == null ? "" : body.getName().trim();
     String contextId = body.getContextId() == null ? "" : body.getContextId().trim();
     String value = body.getValue() == null ? "" : body.getValue().trim();
-    boolean updateValue = Boolean.TRUE.equals(body.getUpdateValue());
     requireContextVariableFields(name, contextId, value);
     try {
       IPSSite site = siteManager.loadSiteModifiable(toSiteGuid(siteId));
@@ -1112,6 +1133,129 @@ public class PSPublishingDesignRestService {
     } catch (Exception e) {
       throw internalError(e);
     }
+  }
+
+  /**
+   * Rename one context variable. A blank name, blank new name, or blank context, or a name longer
+   * than its column, is HTTP 400 and saves nothing. HTTP 403 when the caller is not Admin or
+   * Designer. HTTP 409 when the stored name is not listed, or when the new name matches a
+   * different variable on this context, and nothing is saved. The stored value stays. A value on
+   * the request is ignored. The same name, after trim, does not save. Other variables on the
+   * context stay, including a variable with the same name on a different context.
+   */
+  private PSSitePropertyDto renameContextVariable(String siteId, PSSitePropertyDto body) {
+    String name = body.getName() == null ? "" : body.getName().trim();
+    String newName = body.getNewName() == null ? "" : body.getNewName().trim();
+    String contextId = body.getContextId() == null ? "" : body.getContextId().trim();
+    if (name.isEmpty() || newName.isEmpty()) {
+      throw badRequest(CONTEXT_VARIABLE_NAME_REQUIRED);
+    }
+    if (contextId.isEmpty()) {
+      throw badRequest("contextId is required");
+    }
+    if (name.length() > MAX_CONTEXT_VARIABLE_NAME_LENGTH
+        || newName.length() > MAX_CONTEXT_VARIABLE_NAME_LENGTH) {
+      throw badRequest(CONTEXT_VARIABLE_NAME_TOO_LONG);
+    }
+    try {
+      IPSSite site = siteManager.loadSiteModifiable(toSiteGuid(siteId));
+      IPSGuid ctx = guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT);
+      String storedName = storedContextVariableName(site, ctx, name);
+      if (storedName == null) {
+        throw conflict(CONTEXT_VARIABLE_NOT_LISTED);
+      }
+      if (contextVariableNameTakenByOther(site, ctx, storedName, newName)) {
+        throw conflict(CONTEXT_VARIABLE_EXISTS);
+      }
+      String storedValue = site.getProperty(storedName, ctx);
+      if (storedName.equals(newName)) {
+        return contextVariableDto(storedName, contextId, storedValue);
+      }
+      applyContextVariableRename(site, ctx, storedName, newName);
+      siteManager.saveSite(site);
+      String written = site.getProperty(newName, ctx);
+      return contextVariableDto(newName, contextId, written != null ? written : storedValue);
+    } catch (PSNotFoundException e) {
+      throw notFound("Site not found");
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw internalError(e);
+    }
+  }
+
+  /**
+   * True when {@code newName} is already stored on this context under a different spelling than
+   * {@code storedName}. Does not change the site. The same stored row is not a duplicate of
+   * itself.
+   */
+  private static boolean contextVariableNameTakenByOther(
+      IPSSite site, IPSGuid contextId, String storedName, String newName) {
+    var existingNames = site.getPropertyNames(contextId);
+    if (existingNames == null) {
+      return false;
+    }
+    for (String existingName : existingNames) {
+      if (existingName == null) {
+        continue;
+      }
+      if (newName.equals(existingName.trim()) && !storedName.equals(existingName)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Rename one property in place so its id and value stay. {@link PSSiteProperty#hashCode()} is
+   * the name, so the row is removed before the name changes and then put back on the same
+   * instance. Other properties, including the same name on another context, stay. A non-{@link
+   * PSSite} removes and sets the stored value. A blank stored value is not passed to {@code
+   * setProperty}, which would delete the row.
+   */
+  private static void applyContextVariableRename(
+      IPSSite site, IPSGuid contextId, String storedName, String newName) {
+    if (site instanceof PSSite concrete) {
+      Set<PSSiteProperty> rows = concrete.getProperties();
+      PSSiteProperty target = null;
+      for (PSSiteProperty prop : rows) {
+        if (prop == null || prop.getName() == null || prop.getContextId() == null) {
+          continue;
+        }
+        if (storedName.equals(prop.getName()) && sameContext(contextId, prop.getContextId())) {
+          target = prop;
+          break;
+        }
+      }
+      if (target == null) {
+        throw conflict(CONTEXT_VARIABLE_NOT_LISTED);
+      }
+      rows.remove(target);
+      target.setName(newName);
+      rows.add(target);
+      return;
+    }
+    String storedValue = site.getProperty(storedName, contextId);
+    if (isBlank(storedValue)) {
+      throw badRequest(CONTEXT_VARIABLE_VALUE_REQUIRED);
+    }
+    site.removeProperty(storedName, contextId);
+    site.setProperty(newName, contextId, storedValue);
+  }
+
+  private static boolean sameContext(IPSGuid wanted, IPSGuid stored) {
+    if (wanted.equals(stored)) {
+      return true;
+    }
+    return wanted.longValue() == stored.longValue();
+  }
+
+  private static PSSitePropertyDto contextVariableDto(String name, String contextId, String value) {
+    PSSitePropertyDto out = new PSSitePropertyDto();
+    out.setName(name);
+    out.setContextId(contextId);
+    out.setValue(value);
+    return out;
   }
 
   // ---- Edition content-list association ----

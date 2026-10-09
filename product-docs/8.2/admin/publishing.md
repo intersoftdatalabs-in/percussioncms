@@ -323,7 +323,8 @@ HTTP **400** (name or value missing or longer than its column), **403** (not Adm
 Designer), and **409** (that name already exists on the context) stay in the form error
 region. Those responses do not add a row and do not change the other variables. Changing
 the value of a variable that is already listed is described under **Change one context
-variable value**. Deleting a variable is described under **Delete one context variable**.
+variable value**. Renaming a variable is described under **Rename one context variable**.
+Deleting a variable is described under **Delete one context variable**.
 Delivery-server properties are not these context variables.
 
 ### Change one context variable value (Design)
@@ -347,7 +348,8 @@ A name that is not listed does not call the server and does not create one.
 HTTP **400** (value missing or longer than its column), **403** (not Admin or Designer),
 and **409** (that name is not listed on the context) stay in the value form error region.
 Those responses do not change the displayed value and do not change the other variables.
-Adding a new name is described under **Set one context variable**. Deleting a variable is
+Adding a new name is described under **Set one context variable**. Renaming a variable is
+described under **Rename one context variable**. Deleting a variable is
 described under **Delete one context variable**.
 
 ### Delete one context variable (Design)
@@ -368,7 +370,38 @@ variables stay except the deleted name.
 HTTP **400** (the name or context is missing, or the name is longer than 50 characters),
 **403** (not Admin or Designer), and **409** (that name is not listed on the context) stay in
 the delete form error region. Those responses keep the row and do not change the other
-variables. Adding a name and changing a value are separate actions.
+variables. Adding a name and changing a value are separate actions. Renaming a variable is
+described under **Rename one context variable**.
+
+### Rename one context variable (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Sites**.
+Choose a **site** and a **context**. On a variable that is already listed, choose **Rename**.
+The current name and value are shown. The value is not edited. Other variables on that
+context are listed and are not the ones this action renames.
+
+Enter a new **name**, then **Save name**. The shell calls
+`PUT …/sitemanage/publishingdesign/sites/{siteId}/properties`. The JSON document root is
+`siteProperty` with the stored `name`, `contextId`, `newName`, and `renameName` true. The
+value is omitted. The list shows the new name and the same value only after the save
+succeeds. The old name is gone. Another variable on that context stays, including its
+value. If the list refresh fails after a successful save, the previous variables stay and
+this variable still shows the new name and the same value.
+
+**Cancel** does not call the server and leaves the previous name.
+
+A blank new name, a new name longer than 50 characters
+(`RXASSEMBLERPROPERTIES.PROPERTYNAME`), or a new name that is already listed on this
+context is rejected in the form and does not call the server. The same name, after
+spaces are removed, is not treated as a duplicate of itself. A blank new name does not
+clear the stored name. Renaming does not change the stored value and does not rename the
+publishing context.
+
+HTTP **400** (the name or new name is missing or longer than its column), **403** (not
+Admin or Designer), and **409** (the new name already exists, or the old name is not
+listed) stay in the rename form error region. Those responses keep the old name and the
+value and do not change the other variables. Adding a name, changing a value, and deleting
+a variable are separate actions.
 
 ### Create a publish edition (Design)
 

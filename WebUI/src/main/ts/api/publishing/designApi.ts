@@ -131,8 +131,17 @@ export interface SitePropertyDto {
   /**
    * Update-only. When true, replace the value of this name on the context.
    * The name stays. Other variables stay. Omit to create a new name.
+   * Do not combine with {@code renameName}.
    */
   updateValue?: boolean;
+  /**
+   * Update-only. When true, {@code name} is the stored name and {@code newName}
+   * is the new name. The stored value stays. Other variables stay. Omit to
+   * create a new name or to change a value.
+   */
+  renameName?: boolean;
+  /** New name when {@code renameName} is true. */
+  newName?: string;
 }
 
 export interface EditionContentListAssoc {
@@ -846,8 +855,9 @@ export function wrapSiteProperty(body: SitePropertyDto): {
     siteProperty: {
       name: body.name,
       contextId: body.contextId,
-      value: body.value,
+      ...(body.value !== undefined ? { value: body.value } : {}),
       ...(body.updateValue ? { updateValue: true } : {}),
+      ...(body.renameName ? { renameName: true, newName: body.newName } : {}),
     },
   };
 }

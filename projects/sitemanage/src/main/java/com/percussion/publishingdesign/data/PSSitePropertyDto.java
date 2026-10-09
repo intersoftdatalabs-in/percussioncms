@@ -27,9 +27,19 @@ public class PSSitePropertyDto {
 
   /**
    * When true, replace the value of a variable that is already listed. The name stays. This is not
-   * a create. Omit or false to add a new name.
+   * a create. Omit or false to add a new name. Do not combine with {@link #renameName}.
    */
   private Boolean updateValue;
+
+  /**
+   * When true, rename one variable that is already listed. {@link #name} is the stored name and
+   * {@link #newName} is the new name. The stored value stays. This is not a create and not a value
+   * change. Omit or false to leave the name stored.
+   */
+  private Boolean renameName;
+
+  /** New name when {@link #renameName} is true. Ignored otherwise. */
+  private String newName;
 
   public String getName() {
     return name;
@@ -61,5 +71,21 @@ public class PSSitePropertyDto {
 
   public void setUpdateValue(Boolean updateValue) {
     this.updateValue = updateValue;
+  }
+
+  public Boolean getRenameName() {
+    return renameName;
+  }
+
+  public void setRenameName(Boolean renameName) {
+    this.renameName = renameName;
+  }
+
+  public String getNewName() {
+    return newName;
+  }
+
+  public void setNewName(String newName) {
+    this.newName = newName;
   }
 }
