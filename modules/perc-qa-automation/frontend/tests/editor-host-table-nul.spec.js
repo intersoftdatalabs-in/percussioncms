@@ -256,7 +256,7 @@ test.describe("React Content Editor table-cell NUL", () => {
       await expect(page.locator('[data-testid="editor-save-error"]')).toContainText(
         /table fields before saving/i,
       );
-      await expect(grid()).toHaveAttribute("aria-invalid", "true");
+      await expect(cell()).toHaveAttribute("aria-invalid", "true");
       expect(fieldPuts).toEqual([]);
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
 

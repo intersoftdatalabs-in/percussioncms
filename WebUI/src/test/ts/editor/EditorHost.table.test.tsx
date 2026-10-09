@@ -523,9 +523,9 @@ describe("EditorHost refuse a table-cell NUL (#5417)", () => {
     expect(screen.getByTestId("editor-save-error").textContent).toMatch(
       /table fields before saving/i,
     );
-    expect(screen.getByTestId("editor-field-hours").getAttribute("aria-invalid")).toBe(
-      "true",
-    );
+    expect(
+      screen.getByTestId("editor-table-cell-hours-0-0").getAttribute("aria-invalid"),
+    ).toBe("true");
     expect(document.activeElement).toBe(screen.getByTestId("editor-table-cell-hours-0-0"));
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-saved")).toBeNull();
