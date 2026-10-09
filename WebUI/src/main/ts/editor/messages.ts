@@ -114,6 +114,10 @@ export const EDITOR_MSG = {
   LINK_CLEAR: "perc.ui.editor@Clear link",
   TABLE_ADD_ROW: "perc.ui.editor@Add row",
   TABLE_REMOVE_ROW: "perc.ui.editor@Remove row",
+  TABLE_NUL:
+    "perc.ui.editor@That table cell contains a character that cannot be saved.",
+  TABLE_NUL_SAVE:
+    "perc.ui.editor@Correct the table fields before saving.",
   FILE_CHOOSE: "perc.ui.editor@Choose file",
   FILE_NONE: "perc.ui.editor@No file attached",
   FILE_FORBIDDEN:

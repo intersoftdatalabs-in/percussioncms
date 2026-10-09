@@ -20,7 +20,12 @@
  * Empty default grid is {@code ""}. Otherwise JSON
  * {@code {"columns":["…"],"rows":[["…"]]}}. A non-JSON string is one cell so
  * a value previously saved as text is not dropped.
+ * A NUL in a cell cannot be stored (#5417). JSON.stringify escapes U+0000, so
+ * the check parses cells instead of scanning the wire string for a raw NUL.
+ * The required-empty gate in {@link tableFieldIsEmpty} stays unchanged.
  */
+
+import type { EditorWidgetKind } from "./controlKinds";
 
 export interface EditorTableModel {
   columns: string[];
@@ -91,4 +96,37 @@ export function serializeTableField(model: EditorTableModel): string {
     return "";
   }
   return JSON.stringify({ columns, rows });
+}
+
+export interface EditorTableRow {
+  name: string;
+  kind: EditorWidgetKind;
+  value: string;
+}
+
+/** True when any cell contains U+0000, including after JSON unescape. */
+export function tableFieldContainsNul(raw: string | null | undefined): boolean {
+  const text = raw ?? "";
+  if (text.includes("\u0000")) {
+    return true;
+  }
+  const model = parseTableField(text);
+  return model.rows.some((row) => row.some((cell) => cell.includes("\u0000")));
+}
+
+/** NUL only. An empty required table stays in the required-field gate. */
+export function collectTableNulFieldErrors(
+  rows: readonly EditorTableRow[],
+  invalidMessage: string,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const row of rows) {
+    if (row.kind !== "table") {
+      continue;
+    }
+    if (tableFieldContainsNul(row.value)) {
+      out[row.name] = invalidMessage;
+    }
+  }
+  return out;
 }
