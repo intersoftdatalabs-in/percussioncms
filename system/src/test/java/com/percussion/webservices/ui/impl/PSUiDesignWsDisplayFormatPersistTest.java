@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.cms.objectstore.IPSDbComponent;
@@ -276,6 +277,36 @@ class PSUiDesignWsDisplayFormatPersistTest {
           PSUiDesignWs.loadDisplayFormatFromDb(conn, spec.displayId, spec.internalName);
       assertEquals("", loadedCleared.getDescription());
       assertEquals("QA H2 DF", loadedCleared.getDisplayName());
+
+      source.setDisplayName("Folder label");
+      PSUiDesignWs.DisplayFormatRowSpec labeled = PSUiDesignWs.displayFormatRowSpec(source);
+      PSUiDesignWs.updateDisplayFormatLabel(conn, labeled);
+      PSDisplayFormat loadedLabel =
+          PSUiDesignWs.loadDisplayFormatFromDb(conn, spec.displayId, spec.internalName);
+      assertEquals("Folder label", loadedLabel.getDisplayName());
+      assertEquals("QaH2Df", loadedLabel.getName());
+      assertEquals("", loadedLabel.getDescription());
+      assertTrue(PSUiDesignWs.displayFormatColumnExists(conn, spec.displayId, "sys_title"));
+
+      source.setDisplayName("QaH2Df");
+      PSUiDesignWs.updateDisplayFormatLabel(conn, PSUiDesignWs.displayFormatRowSpec(source));
+      PSDisplayFormat echoed =
+          PSUiDesignWs.loadDisplayFormatFromDb(conn, spec.displayId, spec.internalName);
+      assertEquals("QaH2Df", echoed.getDisplayName());
+      assertEquals("QaH2Df", echoed.getName());
+      assertEquals("", echoed.getDescription());
+
+      assertThrows(
+          IllegalArgumentException.class,
+          () ->
+              PSUiDesignWs.updateDisplayFormatLabel(
+                  conn,
+                  new PSUiDesignWs.DisplayFormatRowSpec(
+                      spec.displayId, spec.internalName, " ", null, 0, List.of(), List.of())));
+      PSDisplayFormat afterBlankRefusal =
+          PSUiDesignWs.loadDisplayFormatFromDb(conn, spec.displayId, spec.internalName);
+      assertEquals("QaH2Df", afterBlankRefusal.getName());
+      assertEquals("QaH2Df", afterBlankRefusal.getDisplayName());
 
       PSUiDesignWs.deleteDisplayFormatRow(conn, spec.displayId);
       assertFalse(PSUiDesignWs.displayFormatRowExists(conn, spec.displayId, spec.internalName));

@@ -3515,8 +3515,10 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * the name and community visibility. Catalog query inner-joins columns, so
     * sys_title is required. Properties are replaced (not insert-only) so
     * {@code sys_community=-1} does not linger after a restricted PUT.
-    * An existing row keeps its name and label; {@code DESCRIPTION} is updated so a
-    * later description-only save is what the catalog lists. A blank description is
+    * An existing row keeps its {@code INTERNALNAME}. {@code DISPLAYNAME} is updated
+    * so a later label-only save is what the catalog lists. A blank label is the
+    * internal name, not an empty name. {@code DESCRIPTION} is updated so a later
+    * description-only save is what the catalog lists. A blank description is
     * stored as null and loads as empty.
     */
    static void ensureDisplayFormatRowPersisted(PSDisplayFormat df)
@@ -3539,6 +3541,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
             }
          }
          updateDisplayFormatDescription(conn, spec);
+         updateDisplayFormatLabel(conn, spec);
          ensureDisplayFormatColumns(conn, spec);
          ensureDisplayFormatProperties(conn, spec);
       }
@@ -3714,6 +3717,25 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          ps.setString(3, spec.displayName);
          ps.setString(4, spec.description);
          ps.setInt(5, spec.version);
+         ps.executeUpdate();
+      }
+   }
+
+   /**
+    * Write {@code DISPLAYNAME} on an existing {@code PSX_DISPLAYFORMATS} row.
+    * {@code INTERNALNAME} stays. A blank display name is refused so a label
+    * clear cannot wipe the catalog name. The caller stores the internal name
+    * when the requested label is blank.
+    */
+   static void updateDisplayFormatLabel(Connection conn, DisplayFormatRowSpec spec) throws SQLException
+   {
+      if (spec == null || StringUtils.isBlank(spec.displayName))
+         throw new IllegalArgumentException("display name is required");
+      String sql = "UPDATE PSX_DISPLAYFORMATS SET DISPLAYNAME = ? WHERE DISPLAYID = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setString(1, spec.displayName);
+         ps.setInt(2, spec.displayId);
          ps.executeUpdate();
       }
    }

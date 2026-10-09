@@ -214,7 +214,14 @@ export function DisplayFormatsPanel(): React.ReactElement {
                     {f.name || "—"}
                   </span>
                 ),
-                f.label || f.displayName || "",
+                <span
+                  key="l"
+                  data-testid="developer-df-catalog-label"
+                  data-df-name={openKey}
+                  data-df-label={f.label || f.displayName || ""}
+                >
+                  {f.label || f.displayName || ""}
+                </span>,
                 colCount,
                 <span key="u" style={{ fontSize: "0.85rem" }}>
                   {usage.length ? usage.join(", ") : "—"}
