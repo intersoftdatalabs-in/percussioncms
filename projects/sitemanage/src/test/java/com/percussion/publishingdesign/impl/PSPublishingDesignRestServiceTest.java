@@ -64,8 +64,11 @@ import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.data.PSEditionType;
 import com.percussion.services.sitemgr.IPSLocationScheme;
 import com.percussion.services.sitemgr.IPSPublishingContext;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
+import com.percussion.services.sitemgr.data.PSSite;
+import com.percussion.services.sitemgr.data.PSSiteProperty;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
 import java.lang.reflect.Field;
@@ -5639,5 +5642,190 @@ class PSPublishingDesignRestServiceTest {
     PSSitePropertyDto body = contextVariableBody(name, value);
     body.setUpdateValue(Boolean.TRUE);
     return body;
+  }
+
+  @Test
+  void putSiteProperty_rename_keepsValueAndTheOtherVariable() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSSite site = siteWithKeptVariable();
+    when(site.getPropertyNames(contextGuid)).thenReturn(java.util.Set.of("kept", "nightVar"));
+    when(site.getProperty("nightVar", contextGuid)).thenReturn("stays");
+    when(site.getProperty("nextName", contextGuid)).thenReturn("stays");
+
+    PSSitePropertyDto body = contextVariableRenameBody("  nightVar  ", "  nextName  ", "replaced");
+    PSSitePropertyDto saved = design.putSiteProperty("42", body);
+
+    assertEquals("nextName", saved.getName());
+    assertEquals("3", saved.getContextId());
+    assertEquals("stays", saved.getValue());
+    verify(site).removeProperty("nightVar", contextGuid);
+    verify(site).setProperty("nextName", contextGuid, "stays");
+    verify(site, never()).setProperty(eq("nightVar"), any(IPSGuid.class), anyString());
+    verify(site, never()).setProperty(eq("kept"), any(IPSGuid.class), anyString());
+    verify(site, never()).setProperty(eq("nextName"), any(IPSGuid.class), eq("replaced"));
+    verify(site, never()).removeProperty(eq("kept"), any(IPSGuid.class));
+    verify(siteManager).saveSite(site);
+  }
+
+  @Test
+  void putSiteProperty_rename_onSiteKeepsPropertyIdValueAndOtherContext() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.SITE))).thenReturn(siteGuid);
+    PSGuid ctx = new PSGuid(PSTypeEnum.CONTEXT, 3);
+    PSGuid otherCtx = new PSGuid(PSTypeEnum.CONTEXT, 9);
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(ctx);
+    PSSite site = new PSSite();
+    site.addProperty(siteProperty(11L, "kept", "old", ctx));
+    site.addProperty(siteProperty(22L, "nightVar", "stays", ctx));
+    site.addProperty(siteProperty(33L, "nightVar", "other-context", otherCtx));
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(site);
+
+    PSSitePropertyDto saved =
+        design.putSiteProperty("42", contextVariableRenameBody("nightVar", "nextName", "replaced"));
+
+    assertEquals("nextName", saved.getName());
+    assertEquals("stays", saved.getValue());
+    assertEquals("stays", site.getProperty("nextName", ctx));
+    assertNull(site.getProperty("nightVar", ctx));
+    assertEquals("old", site.getProperty("kept", ctx));
+    assertEquals("other-context", site.getProperty("nightVar", otherCtx));
+    PSSiteProperty renamed = null;
+    for (PSSiteProperty prop : site.getProperties()) {
+      if ("nextName".equals(prop.getName())) {
+        renamed = prop;
+        break;
+      }
+    }
+    assertNotNull(renamed);
+    assertEquals(22L, renamed.getPropertyId());
+    assertEquals("stays", renamed.getValue());
+    verify(siteManager).saveSite(site);
+  }
+
+  @Test
+  void putSiteProperty_rename_blankNewName_400_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+    PSSitePropertyDto body = contextVariableRenameBody("nightVar", "   ", "ignored");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_NAME_REQUIRED, ex.getMessage());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_rename_newNameTooLong_400_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+    PSSitePropertyDto body =
+        contextVariableRenameBody(
+            "nightVar",
+            "n".repeat(PSPublishingDesignRestService.MAX_CONTEXT_VARIABLE_NAME_LENGTH + 1),
+            "ignored");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_NAME_TOO_LONG, ex.getMessage());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_rename_duplicate_409_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSSite site = siteWithKeptVariable();
+    when(site.getPropertyNames(contextGuid)).thenReturn(java.util.Set.of("kept", "nightVar"));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> design.putSiteProperty("42", contextVariableRenameBody("nightVar", "kept", "x")));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_EXISTS, ex.getMessage());
+    verify(site, never()).removeProperty(anyString(), any(IPSGuid.class));
+    verify(site, never()).setProperty(anyString(), any(IPSGuid.class), anyString());
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_rename_missingName_409_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSSite site = siteWithKeptVariable();
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () ->
+                design.putSiteProperty(
+                    "42", contextVariableRenameBody("nightVar", "nextName", "x")));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_NOT_LISTED, ex.getMessage());
+    verify(site, never()).removeProperty(anyString(), any(IPSGuid.class));
+    verify(site, never()).setProperty(anyString(), any(IPSGuid.class), anyString());
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_rename_sameName_doesNotSave() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSSite site = siteWithKeptVariable();
+    when(site.getPropertyNames(contextGuid)).thenReturn(java.util.Set.of("kept", "nightVar"));
+    when(site.getProperty("nightVar", contextGuid)).thenReturn("stays");
+
+    PSSitePropertyDto saved =
+        design.putSiteProperty("42", contextVariableRenameBody("nightVar", "nightVar", "replaced"));
+
+    assertEquals("nightVar", saved.getName());
+    assertEquals("stays", saved.getValue());
+    verify(site, never()).removeProperty(anyString(), any(IPSGuid.class));
+    verify(site, never()).setProperty(anyString(), any(IPSGuid.class), anyString());
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_rename_withValueChange_400_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+    PSSitePropertyDto body = contextVariableRenameBody("nightVar", "nextName", "next");
+    body.setUpdateValue(Boolean.TRUE);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.CONTEXT_VARIABLE_RENAME_NOT_WITH_VALUE, ex.getMessage());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_rename_forbidden_403_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+    design.setDesignWriteAllowed(() -> false);
+    PSSitePropertyDto body = contextVariableRenameBody("nightVar", "nextName", "stays");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  private static PSSitePropertyDto contextVariableRenameBody(
+      String name, String newName, String ignoredValue) {
+    PSSitePropertyDto body = contextVariableBody(name, ignoredValue);
+    body.setRenameName(Boolean.TRUE);
+    body.setNewName(newName);
+    return body;
+  }
+
+  private static PSSiteProperty siteProperty(long id, String name, String value, IPSGuid context) {
+    PSSiteProperty prop = new PSSiteProperty();
+    prop.setPropertyId(id);
+    prop.setName(name);
+    prop.setValue(value);
+    prop.setContextId(context);
+    return prop;
   }
 }

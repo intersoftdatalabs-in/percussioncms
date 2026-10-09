@@ -38,6 +38,12 @@ import {
   mapContextVariableDeleteError,
   validateContextVariableDelete,
 } from "../contextVariableDelete";
+import {
+  buildContextVariableRenameBody,
+  contextVariablesAfterSuccessfulRename,
+  mapContextVariableRenameError,
+  validateContextVariableRename,
+} from "../contextVariableRename";
 import { mapContextVariableSaveError } from "../contextVariableSaveErrors";
 import {
   buildContextVariableValueBody,
@@ -75,6 +81,10 @@ export function SiteDesignPanel(): React.ReactElement {
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteSaving, setDeleteSaving] = useState(false);
+  const [renameTarget, setRenameTarget] = useState<string | null>(null);
+  const [renameDraft, setRenameDraft] = useState("");
+  const [renameError, setRenameError] = useState<string | null>(null);
+  const [renameSaving, setRenameSaving] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -99,6 +109,9 @@ export function SiteDesignPanel(): React.ReactElement {
     setValueError(null);
     setDeleteTarget(null);
     setDeleteError(null);
+    setRenameTarget(null);
+    setRenameDraft("");
+    setRenameError(null);
     if (!selectedId || !contextId) {
       setProps([]);
       return;
@@ -115,9 +128,13 @@ export function SiteDesignPanel(): React.ReactElement {
   const valueOthers = props.filter((row) => (row.name ?? "").trim() !== valueName);
   const deleteName = (deleteTarget ?? "").trim();
   const deleteOthers = props.filter((row) => (row.name ?? "").trim() !== deleteName);
+  const renameName = (renameTarget ?? "").trim();
+  const renameCurrent =
+    props.find((row) => (row.name ?? "").trim() === renameName)?.value ?? "";
+  const renameOthers = props.filter((row) => (row.name ?? "").trim() !== renameName);
 
   async function saveProp(): Promise<void> {
-    if (saving || valueSaving || deleteSaving) {
+    if (saving || valueSaving || deleteSaving || renameSaving) {
       return;
     }
     if (!selectedId || !contextId) {
@@ -168,11 +185,14 @@ export function SiteDesignPanel(): React.ReactElement {
   }
 
   function openValueChange(row: SitePropertyDto): void {
-    if (valueSaving || deleteSaving) {
+    if (valueSaving || deleteSaving || renameSaving) {
       return;
     }
     setDeleteTarget(null);
     setDeleteError(null);
+    setRenameTarget(null);
+    setRenameDraft("");
+    setRenameError(null);
     setValueTarget(row.name ?? "");
     setValueDraft("");
     setValueError(null);
@@ -188,7 +208,7 @@ export function SiteDesignPanel(): React.ReactElement {
   }
 
   async function saveValue(): Promise<void> {
-    if (valueSaving || saving || deleteSaving || !valueTarget) {
+    if (valueSaving || saving || deleteSaving || renameSaving || !valueTarget) {
       return;
     }
     if (!selectedId || !contextId) {
@@ -235,7 +255,7 @@ export function SiteDesignPanel(): React.ReactElement {
   }
 
   function openDelete(row: SitePropertyDto): void {
-    if (deleteSaving || valueSaving) {
+    if (deleteSaving || valueSaving || renameSaving) {
       return;
     }
     const name = (row.name ?? "").trim();
@@ -245,6 +265,9 @@ export function SiteDesignPanel(): React.ReactElement {
     setValueTarget(null);
     setValueDraft("");
     setValueError(null);
+    setRenameTarget(null);
+    setRenameDraft("");
+    setRenameError(null);
     setDeleteTarget(name);
     setDeleteError(null);
   }
@@ -258,7 +281,7 @@ export function SiteDesignPanel(): React.ReactElement {
   }
 
   async function confirmDelete(): Promise<void> {
-    if (deleteSaving || saving || valueSaving || !deleteTarget) {
+    if (deleteSaving || saving || valueSaving || renameSaving || !deleteTarget) {
       return;
     }
     if (!selectedId || !contextId) {
@@ -287,6 +310,82 @@ export function SiteDesignPanel(): React.ReactElement {
       setDeleteError(mapContextVariableDeleteError(e));
     } finally {
       setDeleteSaving(false);
+    }
+  }
+
+  function openRename(row: SitePropertyDto): void {
+    if (renameSaving || valueSaving || deleteSaving) {
+      return;
+    }
+    const name = (row.name ?? "").trim();
+    if (!name) {
+      return;
+    }
+    setValueTarget(null);
+    setValueDraft("");
+    setValueError(null);
+    setDeleteTarget(null);
+    setDeleteError(null);
+    setRenameTarget(name);
+    setRenameDraft("");
+    setRenameError(null);
+  }
+
+  function closeRename(): void {
+    if (renameSaving) {
+      return;
+    }
+    setRenameTarget(null);
+    setRenameDraft("");
+    setRenameError(null);
+  }
+
+  async function saveRename(): Promise<void> {
+    if (renameSaving || saving || valueSaving || deleteSaving || !renameTarget) {
+      return;
+    }
+    if (!selectedId || !contextId) {
+      setRenameError("Site, context, and property name are required");
+      return;
+    }
+    const validated = validateContextVariableRename(renameTarget, renameDraft, props);
+    if (!validated.ok) {
+      setRenameError(validated.error);
+      return;
+    }
+    const previous = props;
+    setRenameSaving(true);
+    setRenameError(null);
+    try {
+      const saved = await putSiteProperty(
+        selectedId,
+        buildContextVariableRenameBody(validated.name, contextId, validated.newName),
+      );
+      let refreshed: SitePropertyDto[] | null = null;
+      try {
+        refreshed = await listSiteProperties(selectedId, contextId);
+      } catch {
+        refreshed = null;
+      }
+      const newName = (saved.name ?? validated.newName).trim();
+      setProps(
+        contextVariablesAfterSuccessfulRename(
+          refreshed,
+          {
+            name: validated.name,
+            newName,
+            contextId: saved.contextId ?? contextId,
+            value: saved.value || validated.value,
+          },
+          previous,
+        ),
+      );
+      setRenameTarget(null);
+      setRenameDraft("");
+    } catch (e) {
+      setRenameError(mapContextVariableRenameError(e));
+    } finally {
+      setRenameSaving(false);
     }
   }
 
@@ -351,6 +450,14 @@ export function SiteDesignPanel(): React.ReactElement {
             <button
               type="button"
               style={buttonStyle}
+              data-testid="context-variable-rename"
+              onClick={() => openRename(p)}
+            >
+              Rename
+            </button>
+            <button
+              type="button"
+              style={buttonStyle}
               data-testid="context-variable-change-value"
               onClick={() => openValueChange(p)}
             >
@@ -404,6 +511,61 @@ export function SiteDesignPanel(): React.ReactElement {
               data-testid="context-variable-delete-cancel"
               disabled={deleteSaving}
               onClick={closeDelete}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      {renameTarget && (
+        <div data-testid="context-variable-rename-form">
+          <h4>Rename context variable</h4>
+          <p data-testid="context-variable-rename-fields-note">
+            The value stays. Other variables stay.
+          </p>
+          <p>
+            Name: <span data-testid="context-variable-rename-name">{renameName}</span>
+          </p>
+          <p>
+            Value: <span data-testid="context-variable-rename-value">{renameCurrent}</span>
+          </p>
+          <ul data-testid="context-variable-rename-others" style={listStyle}>
+            {renameOthers.map((row) => (
+              <li key={row.name} data-testid="context-variable-rename-other">
+                {row.name}: {row.value}
+              </li>
+            ))}
+          </ul>
+          <div style={formRowStyle}>
+            <label htmlFor="context-variable-rename-input">New name</label>
+            <input
+              id="context-variable-rename-input"
+              data-testid="context-variable-rename-input"
+              value={renameDraft}
+              onChange={(e) => setRenameDraft(e.target.value)}
+            />
+          </div>
+          {renameError && (
+            <p style={errorStyle} role="alert" data-testid="context-variable-rename-error">
+              {renameError}
+            </p>
+          )}
+          <div style={toolbarStyle}>
+            <button
+              type="button"
+              style={primaryButtonStyle}
+              data-testid="context-variable-rename-save"
+              disabled={renameSaving}
+              onClick={() => void saveRename()}
+            >
+              Save name
+            </button>
+            <button
+              type="button"
+              style={buttonStyle}
+              data-testid="context-variable-rename-cancel"
+              disabled={renameSaving}
+              onClick={closeRename}
             >
               Cancel
             </button>
