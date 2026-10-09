@@ -34,8 +34,10 @@ import {
   blankRequiredTextFieldNames,
   calendarDateText,
   htmlContainsNul,
+  linkContainsNul,
   longTextContainsNul,
   nulHtmlFieldNames,
+  nulLinkFieldNames,
   nulLongTextFieldNames,
   nulSingleLineTextFieldNames,
   singleLineTextContainsNul,
@@ -914,6 +916,72 @@ describe("nulHtmlFieldNames", () => {
         [],
       ),
     ).toEqual(["description"]);
+  });
+});
+
+describe("nulLinkFieldNames", () => {
+  const fields = [
+    { name: "displaytitle", kind: "text" as const, value: "Welcome" },
+    { name: "summary", kind: "text" as const, value: "Optional" },
+    { name: "notes", kind: "longtext" as const, value: "Line one\nLine two" },
+    { name: "description", kind: "html" as const, value: "<p>About</p>" },
+    { name: "pagelink", kind: "link" as const, value: "//Sites/Example/index" },
+  ];
+
+  it("names a link NUL and accepts a content id, GUID, and folder path", () => {
+    expect(linkContainsNul("594")).toBe(false);
+    expect(linkContainsNul("0-101-594")).toBe(false);
+    expect(linkContainsNul("/Sites/Example/index")).toBe(false);
+    expect(linkContainsNul("//Sites/Example/about")).toBe(false);
+    expect(linkContainsNul("")).toBe(false);
+    expect(linkContainsNul("594\u0000")).toBe(true);
+    expect(
+      nulLinkFieldNames(fields, [
+        { name: "displaytitle", value: "bad\u0000value" },
+        { name: "notes", value: "Line one\nbad\u0000value" },
+        { name: "description", value: "<p>bad\u0000value</p>" },
+        { name: "pagelink", value: "594\u0000" },
+      ]),
+    ).toEqual(["pagelink"]);
+    expect(
+      nulLinkFieldNames(fields, [
+        { name: "pagelink", value: "594" },
+      ]),
+    ).toEqual([]);
+    expect(
+      nulLinkFieldNames(fields, [
+        { name: "pagelink", value: "0-101-594" },
+      ]),
+    ).toEqual([]);
+    expect(
+      nulLinkFieldNames(fields, [
+        { name: "pagelink", value: "/Sites/Example/index" },
+      ]),
+    ).toEqual([]);
+    expect(
+      nulHtmlFieldNames(fields, [
+        { name: "pagelink", value: "//Sites/\u0000" },
+      ]),
+    ).toEqual([]);
+    expect(
+      nulSingleLineTextFieldNames(fields, [
+        { name: "pagelink", value: "594\u0000" },
+      ]),
+    ).toEqual([]);
+    expect(
+      nulLongTextFieldNames(fields, [
+        { name: "pagelink", value: "594\u0000" },
+      ]),
+    ).toEqual([]);
+  });
+
+  it("uses the loaded link when the field was not edited", () => {
+    expect(
+      nulLinkFieldNames(
+        [{ name: "pagelink", kind: "link", value: "594\u0000" }],
+        [],
+      ),
+    ).toEqual(["pagelink"]);
   });
 });
 

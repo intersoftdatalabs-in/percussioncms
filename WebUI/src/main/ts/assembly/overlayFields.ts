@@ -264,7 +264,8 @@ export function singleLineTextContainsNul(value: string): boolean {
  * Single-line text fields whose current value contains a NUL.
  * Long text, HTML, link, numbers, dates, and datetimes are not checked here.
  * A long-text NUL is {@link nulLongTextFieldNames}. An HTML NUL is
- * {@link nulHtmlFieldNames}. Later edits for the same name win so the overlay
+ * {@link nulHtmlFieldNames}. A link NUL is {@link nulLinkFieldNames}.
+ * Later edits for the same name win so the overlay
  * strip and the assembled node agree. A blank required field stays on
  * {@link blankRequiredTextFieldNames}.
  */
@@ -301,7 +302,8 @@ export function longTextContainsNul(value: string): boolean {
 /**
  * Long-text fields whose current value contains a NUL.
  * Single-line text, HTML, link, numbers, dates, and datetimes are not checked
- * here. An HTML NUL is {@link nulHtmlFieldNames}. Later edits for the same
+ * here. An HTML NUL is {@link nulHtmlFieldNames}. A link NUL is
+ * {@link nulLinkFieldNames}. Later edits for the same
  * name win so the overlay strip and the assembled node agree. Line breaks
  * without a NUL are not named.
  */
@@ -339,8 +341,9 @@ export function htmlContainsNul(value: string): boolean {
 /**
  * HTML fields whose current value contains a NUL.
  * Single-line text, long text, link, numbers, dates, and datetimes are not
- * checked here. Later edits for the same name win so the overlay strip and
- * the assembled node agree. Ordinary markup without a NUL is not named.
+ * checked here. A link NUL is {@link nulLinkFieldNames}. Later edits for the
+ * same name win so the overlay strip and the assembled node agree. Ordinary
+ * markup without a NUL is not named.
  */
 export function nulHtmlFieldNames(
   fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
@@ -357,6 +360,44 @@ export function nulHtmlFieldNames(
     }
     const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
     if (htmlContainsNul(value)) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/**
+ * True when a link value contains a NUL.
+ * A NUL cannot be stored in item field XML / JDBC text.
+ * A content id, a hyphenated content GUID, and a folder path are not a NUL.
+ * HTML uses {@link htmlContainsNul}.
+ */
+export function linkContainsNul(value: string): boolean {
+  return (value ?? "").includes("\u0000");
+}
+
+/**
+ * Link fields whose current value contains a NUL.
+ * Single-line text, long text, HTML, numbers, dates, and datetimes are not
+ * checked here. An HTML NUL is {@link nulHtmlFieldNames}. Later edits for the
+ * same name win so the overlay strip and the assembled node agree. A content
+ * id, GUID, or folder path without a NUL is not named.
+ */
+export function nulLinkFieldNames(
+  fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
+  edits: readonly Pick<OverlayFieldEdit, "name" | "value">[],
+): string[] {
+  const values = new Map<string, string>();
+  for (const edit of edits) {
+    values.set(edit.name, edit.value);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "link") {
+      continue;
+    }
+    const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
+    if (linkContainsNul(value)) {
       names.push(field.name);
     }
   }

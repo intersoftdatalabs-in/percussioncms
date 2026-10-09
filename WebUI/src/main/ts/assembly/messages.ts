@@ -68,6 +68,8 @@ export const ASSEMBLY_MSG = {
     "perc.ui.assembly@That long text contains a character that cannot be saved.",
   FIELD_HTML_NUL:
     "perc.ui.assembly@That HTML contains a character that cannot be saved.",
+  FIELD_LINK_NUL:
+    "perc.ui.assembly@That link contains a character that cannot be saved.",
   FIELD_NUMBER: "perc.ui.assembly@Enter a whole number.",
   FIELD_DECIMAL: "perc.ui.assembly@Enter a number.",
   FIELD_DATE:
