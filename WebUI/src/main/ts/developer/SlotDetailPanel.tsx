@@ -633,30 +633,74 @@ export function SlotDetailPanel({
     }
   }
 
-  async function handleSave() {
-    if (
-      !canSave ||
+  function slotPropertyWriteOpen(): boolean {
+    return (
       inflight.current ||
       descriptionInflight.current ||
       labelInflight.current ||
       descriptionEditing ||
       labelEditing
-    ) {
-      return;
+    );
+  }
+
+  function applySavedSlot(saved: SlotDetail): void {
+    const savedAssocs = cloneAssociations(saved.associations);
+    const savedGaps = slotDesignGaps(saved.designGaps);
+    const savedArgs = normalizeSlotStringMap(saved.finderArguments);
+    const nextDetail = {
+      ...saved,
+      associations: savedAssocs,
+      designGaps: savedGaps,
+      finderArguments: savedArgs,
+    };
+    setDetail(nextDetail);
+    if (isNew) {
+      setCreatedKey(saved.name || name.trim());
+    } else if (saved.name && saved.name !== idOrName) {
+      setCreatedKey(saved.name);
     }
+    setName(saved.name || name);
+    setLabel(saved.label || label);
+    setLabelShown(storedSlotLabel(saved.label || label));
+    clearLabelEditor();
+    const savedDescription = saved.description || "";
+    setDescription(savedDescription);
+    setDescriptionShown(storedSlotDescription(savedDescription));
+    clearDescriptionEditor();
+    setSlotType((saved.slotType || slotType || "REGULAR").toUpperCase());
+    setAssociations(savedAssocs);
+    applyFinderFromDetail(nextDetail);
+    setNotice(DEV_MSG.SLOT_SAVED);
+    onSaved?.(saved);
+  }
+
+  function clearLabelEditor(): void {
+    setLabelEditing(false);
+    setLabelDraft("");
+    setLabelError(null);
+    setLabelNotice(null);
+  }
+
+  function clearDescriptionEditor(): void {
+    setDescriptionEditing(false);
+    setDescriptionDraft("");
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+  }
+
+  async function handleSave() {
+    if (!canSave || slotPropertyWriteOpen()) return;
     if (!isNew && (finderDirty || assocDirty) && !heldLock) {
       setError(DEV_MSG.SLOT_LOCK_REQUIRED);
       return;
     }
-    if (!isNew && nameDirty) {
-      if (detail?.systemSlot) {
-        setError(DEV_MSG.SLOT_RENAME_SYSTEM);
-        return;
-      }
-      if (nameInvalid) {
-        setError(DEV_MSG.SLOT_NAME_INVALID);
-        return;
-      }
+    if (!isNew && nameDirty && detail?.systemSlot) {
+      setError(DEV_MSG.SLOT_RENAME_SYSTEM);
+      return;
+    }
+    if (!isNew && nameInvalid) {
+      setError(DEV_MSG.SLOT_NAME_INVALID);
+      return;
     }
     inflight.current = true;
     setBusy(true);
@@ -671,40 +715,7 @@ export function SlotDetailPanel({
             slotType: slotType.trim() || undefined,
           })
         : await updateSlotDetail(writeKey, putPreview as NonNullable<typeof putPreview>);
-      const savedAssocs = cloneAssociations(saved.associations);
-      const savedGaps = slotDesignGaps(saved.designGaps);
-      const savedArgs = normalizeSlotStringMap(saved.finderArguments);
-      const nextDetail = {
-        ...saved,
-        associations: savedAssocs,
-        designGaps: savedGaps,
-        finderArguments: savedArgs,
-      };
-      setDetail(nextDetail);
-      if (isNew) {
-        setCreatedKey(saved.name || name.trim());
-      } else if (saved.name && saved.name !== idOrName) {
-        setCreatedKey(saved.name);
-      }
-      setName(saved.name || name);
-      setLabel(saved.label || label);
-      setLabelShown(storedSlotLabel(saved.label || label));
-      setLabelEditing(false);
-      setLabelDraft("");
-      setLabelError(null);
-      setLabelNotice(null);
-      const savedDescription = saved.description || "";
-      setDescription(savedDescription);
-      setDescriptionShown(storedSlotDescription(savedDescription));
-      setDescriptionEditing(false);
-      setDescriptionDraft("");
-      setDescriptionError(null);
-      setDescriptionNotice(null);
-      setSlotType((saved.slotType || slotType || "REGULAR").toUpperCase());
-      setAssociations(savedAssocs);
-      applyFinderFromDetail(nextDetail);
-      setNotice(DEV_MSG.SLOT_SAVED);
-      onSaved?.(saved);
+      applySavedSlot(saved);
     } catch (err: unknown) {
       const fallback = isNew ? createSaveFallback(err) : updateSaveFallback(err);
       setError(panelErrMsg(err, fallback));
