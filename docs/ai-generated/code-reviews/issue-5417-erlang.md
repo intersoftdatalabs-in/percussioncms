@@ -1,6 +1,6 @@
 # Pre-push local code review — issue 5417
 
-Machine review of `fix/issue-5417-table-cell-nul` against `origin/main`.
+Machine review of `fix/issue-5417-table-cell-nul` against `origin/main` (second pass, including the cell ARIA move).
 The LLM stage failed open (Ollama CUDA out of memory). Machine findings stand.
 The cognitive-complexity row is preexisting on `handleSave` and is not an in-diff bug.
 Gate: advisory. Blocking bugs: 0. May commit/push: yes.
@@ -13,7 +13,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 7 analyzed
+- Files: 9 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
