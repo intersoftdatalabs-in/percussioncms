@@ -778,6 +778,79 @@ class DisplayFormatAdaptorWriteTest {
   }
 
   @Test
+  void update_labelOnly_keepsNameDescriptionColumns_blankEchoesName() throws Exception {
+    IPSGuid communityGuid = new PSGuid(PSTypeEnum.COMMUNITY_DEF, 1001L);
+    PSDisplayFormat nativeDf = nativeDisplayFormat(42, "MyFmt");
+    nativeDf.setDisplayName("My Format");
+    nativeDf.setDescription("old desc");
+    addNativeColumn(nativeDf, "sys_contentcreatedby", 1, true);
+    nativeDf.addCommunity(String.valueOf(communityGuid.longValue()));
+    int columnCount = nativeDf.getColumnContainer().size();
+    when(designWs.findDisplayFormat(eq("MyFmt"))).thenReturn(nativeDf);
+    when(designWs.loadDisplayFormats(anyList(), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(nativeDf));
+
+    DisplayFormat body = new DisplayFormat();
+    body.setLabel(" note ");
+    assertNull(body.getColumns());
+    assertNull(body.getDescription());
+    assertNull(body.getAllowedCommunities());
+
+    DisplayFormat out = adaptor.updateDisplayFormat("MyFmt", body);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PSDisplayFormat>> saved = ArgumentCaptor.forClass(List.class);
+    verify(designWs).saveDisplayFormats(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
+    PSDisplayFormat persisted = saved.getValue().get(0);
+    assertEquals("MyFmt", persisted.getName());
+    assertEquals("note", persisted.getDisplayName());
+    assertEquals("old desc", persisted.getDescription());
+    assertEquals(columnCount, persisted.getColumnContainer().size());
+    assertEquals(
+        "sys_contentcreatedby",
+        ((PSDisplayColumn) persisted.getColumnContainer().get(columnCount - 1)).getSource());
+    assertTrue(
+        persisted.doesPropertyHaveValue(
+            PSDisplayFormat.PROP_COMMUNITY, String.valueOf(communityGuid.longValue())));
+    assertEquals("note", out.getLabel());
+    assertEquals("MyFmt", out.getName());
+    assertEquals("old desc", out.getDescription());
+
+    DisplayFormat clear = new DisplayFormat();
+    clear.setLabel("   ");
+    DisplayFormat cleared = adaptor.updateDisplayFormat("MyFmt", clear);
+    assertEquals("MyFmt", persisted.getName());
+    assertEquals("MyFmt", persisted.getDisplayName());
+    assertEquals("old desc", persisted.getDescription());
+    assertEquals(columnCount, persisted.getColumnContainer().size());
+    assertEquals("MyFmt", cleared.getName());
+    assertEquals("MyFmt", cleared.getLabel());
+    assertEquals("old desc", cleared.getDescription());
+
+    String tooLong = "n".repeat(PSDisplayFormat.DISPLAYNAME_LENGTH + 1);
+    DisplayFormat oversized = new DisplayFormat();
+    oversized.setLabel(tooLong);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.updateDisplayFormat("MyFmt", oversized));
+    assertTrue(ex.getMessage().contains("must not exceed"), ex.getMessage());
+    assertEquals("MyFmt", persisted.getName());
+    assertEquals("MyFmt", persisted.getDisplayName());
+  }
+
+  @Test
+  void update_labelOnly_nonAdmin_is403() {
+    adaptor = new DisplayFormatAdaptor(designWs, () -> false);
+    DisplayFormat body = new DisplayFormat();
+    body.setLabel("note");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.updateDisplayFormat("MyFmt", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(designWs, never()).saveDisplayFormats(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
   void isAllCommunitiesSentinel_isGuidOrKeyOnly() {
     assertTrue(DisplayFormatAdaptor.isAllCommunitiesSentinel("-1", "Default"));
     assertTrue(DisplayFormatAdaptor.isAllCommunitiesSentinel("-1", "-1"));

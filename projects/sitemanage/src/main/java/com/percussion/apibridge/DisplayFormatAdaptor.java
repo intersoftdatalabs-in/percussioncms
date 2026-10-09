@@ -1129,14 +1129,36 @@ public class DisplayFormatAdaptor implements IDisplayFormatAdaptor {
     }
   }
 
+  /**
+   * Apply a display-format label. An omitted label leaves the display name.
+   * A non-blank label replaces it. An explicit blank label does not clear the
+   * catalog name: {@link PSDisplayFormat#setDisplayName} rejects empty, so the
+   * internal name is stored and the catalog shows the name. Description,
+   * columns, and communities are unchanged.
+   */
+  static void applyDisplayFormatLabel(PSDisplayFormat nativeDf, DisplayFormat body) {
+    if (nativeDf == null || body == null) {
+      return;
+    }
+    if (body.getLabel() == null && body.getDisplayName() == null) {
+      return;
+    }
+    String label = firstNonBlank(body.getLabel(), body.getDisplayName());
+    if (label == null) {
+      String name = firstNonBlank(nativeDf.getInternalName(), nativeDf.getName());
+      if (name != null) {
+        nativeDf.setDisplayName(name);
+      }
+      return;
+    }
+    nativeDf.setDisplayName(label);
+  }
+
   private void applyWritableFields(PSDisplayFormat nativeDf, DisplayFormat body) {
     if (nativeDf == null || body == null) {
       return;
     }
-    String label = firstNonBlank(body.getLabel(), body.getDisplayName());
-    if (label != null) {
-      nativeDf.setDisplayName(label);
-    }
+    applyDisplayFormatLabel(nativeDf, body);
     if (body.getDescription() != null) {
       nativeDf.setDescription(body.getDescription());
     }

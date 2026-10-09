@@ -10,6 +10,7 @@ import * as assemblyApi from "../../../main/ts/api/developer/assemblyApi";
 import * as displayFormatsApi from "../../../main/ts/api/developer/displayFormatsApi";
 import { DisplayFormatDetailPanel } from "../../../main/ts/developer/DisplayFormatDetailPanel";
 import { DF_DESC_MSG } from "../../../main/ts/developer/displayFormatDescriptionMessages";
+import { DF_LABEL_MSG } from "../../../main/ts/developer/displayFormatLabelMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
 vi.mock("../../../main/ts/api/developer/displayFormatsApi", async (importOriginal) => {
@@ -776,6 +777,7 @@ describe("DisplayFormatDetailPanel", () => {
   it("does not offer set-description chrome before a display format exists", () => {
     render(<DisplayFormatDetailPanel idOrName={null} onBack={() => undefined} />);
     expect(screen.queryByTestId("developer-df-set-description")).toBeNull();
+    expect(screen.queryByTestId("developer-df-set-label")).toBeNull();
   });
 
   it("sets the description only after success and leaves name, columns, and communities", async () => {
@@ -926,6 +928,169 @@ describe("DisplayFormatDetailPanel", () => {
       );
     });
     expect(screen.getByTestId("developer-df-set-description-text").getAttribute("data-df-description")).toBe(
+      "Folder list",
+    );
+  });
+
+  it("sets the label only after success and leaves name, description, and columns", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5432fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [
+        { source: "sys_title", displayName: "Title", position: 0 },
+        { source: "sys_contentcreatedby", displayName: "Created by", position: 1 },
+      ],
+      allowedCommunities: [{ guid: "0-13-10", name: "Default" }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue({ ...userDetail, label: "note", displayName: "note" });
+    const onSaved = vi.fn();
+    render(
+      <DisplayFormatDetailPanel idOrName="qa5432fmt" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-label-text").getAttribute("data-df-label")).toBe(
+        "QA format",
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-edit"));
+    fireEvent.click(screen.getByTestId("developer-df-set-label-save"));
+    expect(updateDisplayFormat).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-df-set-label-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-df-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-label-input"), {
+      target: { value: " note " },
+    });
+    expect(screen.getByTestId("developer-df-set-label-text").getAttribute("data-df-label")).toBe(
+      "QA format",
+    );
+    fireEvent.click(screen.getByTestId("developer-df-set-label-cancel"));
+    expect(updateDisplayFormat).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-df-set-label-text").getAttribute("data-df-label")).toBe(
+      "QA format",
+    );
+
+    fireEvent.click(screen.getByTestId("developer-df-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-label-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateDisplayFormat).toHaveBeenCalledWith("qa5432fmt", { label: "note" });
+    expect(screen.getByTestId("developer-df-set-label-text").getAttribute("data-df-label")).toBe(
+      "note",
+    );
+    expect(screen.getByTestId("developer-df-set-label-notice").textContent).toBe(DF_LABEL_MSG.SAVED);
+    expect((screen.getByTestId("developer-df-name") as HTMLInputElement).value).toBe("qa5432fmt");
+    expect((screen.getByTestId("developer-df-description") as HTMLInputElement).value).toBe(
+      "Folder list",
+    );
+    expect(screen.getByTestId("developer-df-column-row-1").getAttribute("data-df-column-source")).toBe(
+      "sys_contentcreatedby",
+    );
+  });
+
+  it("keeps the name when a blank label echoes it, and 400, 403, and 409 are not success", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5432fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [{ source: "sys_title", displayName: "Title", position: 0 }],
+      allowedCommunities: [{ guid: "0-13-10", name: "Default" }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue({ ...userDetail, label: "qa5432fmt", displayName: "qa5432fmt" });
+    render(<DisplayFormatDetailPanel idOrName="qa5432fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-label-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-label-notice").textContent).toBe(
+        DF_LABEL_MSG.CLEARED,
+      );
+    });
+    expect(updateDisplayFormat).toHaveBeenCalledWith("qa5432fmt", { label: "" });
+    expect(screen.getByTestId("developer-df-set-label-text").getAttribute("data-df-label")).toBe(
+      "qa5432fmt",
+    );
+    expect((screen.getByTestId("developer-df-name") as HTMLInputElement).value).toBe("qa5432fmt");
+    expect((screen.getByTestId("developer-df-label") as HTMLInputElement).value).toBe("qa5432fmt");
+    expect((screen.getByTestId("developer-df-description") as HTMLInputElement).value).toBe(
+      "Folder list",
+    );
+
+    for (const status of [400, 403, 409]) {
+      updateDisplayFormat.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-df-set-label-edit"));
+      fireEvent.change(screen.getByTestId("developer-df-set-label-input"), {
+        target: { value: "later" },
+      });
+      fireEvent.click(screen.getByTestId("developer-df-set-label-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-df-set-label-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(screen.queryByTestId("developer-df-set-label-notice")).toBeNull();
+      expect(screen.getByTestId("developer-df-set-label-text").getAttribute("data-df-label")).toBe(
+        "qa5432fmt",
+      );
+      expect((screen.getByTestId("developer-df-name") as HTMLInputElement).value).toBe("qa5432fmt");
+      fireEvent.click(screen.getByTestId("developer-df-set-label-cancel"));
+    }
+  });
+
+  it("does not show a label when the update changes the description or drops columns", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5432fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [
+        { source: "sys_title", displayName: "Title", position: 0 },
+        { source: "sys_contentcreatedby", displayName: "Created by", position: 1 },
+      ],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue({
+      ...userDetail,
+      label: "note",
+      description: "changed",
+      columns: [],
+    });
+    render(<DisplayFormatDetailPanel idOrName="qa5432fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-label-input"), {
+      target: { value: "note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-label-error").textContent).toContain(
+        DF_LABEL_MSG.ERROR,
+      );
+    });
+    expect(screen.getByTestId("developer-df-set-label-text").getAttribute("data-df-label")).toBe(
+      "QA format",
+    );
+    expect((screen.getByTestId("developer-df-description") as HTMLInputElement).value).toBe(
       "Folder list",
     );
   });

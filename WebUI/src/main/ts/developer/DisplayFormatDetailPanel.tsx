@@ -74,6 +74,12 @@ import {
   storedDisplayFormatDescription,
 } from "./displayFormatDescription";
 import { DF_DESC_MSG } from "./displayFormatDescriptionMessages";
+import {
+  displayFormatLabelWrite,
+  savedDisplayFormatLabel,
+  storedDisplayFormatLabel,
+} from "./displayFormatLabel";
+import { DF_LABEL_MSG } from "./displayFormatLabelMessages";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -131,6 +137,12 @@ export function DisplayFormatDetailPanel({
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
   const [descriptionBusy, setDescriptionBusy] = useState(false);
+  const [labelShown, setLabelShown] = useState("");
+  const [labelEditing, setLabelEditing] = useState(false);
+  const [labelDraft, setLabelDraft] = useState("");
+  const [labelError, setLabelError] = useState<string | null>(null);
+  const [labelNotice, setLabelNotice] = useState<string | null>(null);
+  const [labelBusy, setLabelBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -147,6 +159,7 @@ export function DisplayFormatDetailPanel({
   );
   const inflight = useRef(false);
   const descriptionInflight = useRef(false);
+  const labelInflight = useRef(false);
 
   useEffect(() => {
     if (idOrName == null) {
@@ -169,6 +182,11 @@ export function DisplayFormatDetailPanel({
         setDetail(d);
         setName(d.name || d.internalName || idOrName);
         setLabel(d.label || d.displayName || "");
+        setLabelShown(storedDisplayFormatLabel(d.label || d.displayName));
+        setLabelEditing(false);
+        setLabelDraft("");
+        setLabelError(null);
+        setLabelNotice(null);
         const loadedDesc = storedDisplayFormatDescription(d.description);
         setDescription(loadedDesc);
         setDescriptionShown(loadedDesc);
@@ -319,7 +337,14 @@ export function DisplayFormatDetailPanel({
   }
 
   async function handleSave(): Promise<void> {
-    if (!canSave || inflight.current || descriptionInflight.current) return;
+    if (
+      !canSave ||
+      inflight.current ||
+      descriptionInflight.current ||
+      labelInflight.current
+    ) {
+      return;
+    }
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -335,6 +360,9 @@ export function DisplayFormatDetailPanel({
       }
       setName(saved.name || saved.internalName || name);
       setLabel(saved.label || saved.displayName || "");
+      setLabelShown(storedDisplayFormatLabel(saved.label || saved.displayName));
+      setLabelEditing(false);
+      setLabelDraft("");
       const savedDescription = storedDisplayFormatDescription(saved.description);
       setDescription(savedDescription);
       setDescriptionShown(savedDescription);
@@ -366,7 +394,17 @@ export function DisplayFormatDetailPanel({
   }
 
   function startDescriptionEdit(): void {
-    if (isNew || !detail || busy || descriptionBusy || descriptionInflight.current || inflight.current) {
+    if (
+      isNew ||
+      !detail ||
+      busy ||
+      descriptionBusy ||
+      labelBusy ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      labelEditing ||
+      inflight.current
+    ) {
       return;
     }
     setDescriptionDraft(descriptionShown);
@@ -388,8 +426,11 @@ export function DisplayFormatDetailPanel({
       !detail ||
       !writeKey ||
       !descriptionEditing ||
+      labelEditing ||
       descriptionBusy ||
+      labelBusy ||
       descriptionInflight.current ||
+      labelInflight.current ||
       inflight.current ||
       busy
     ) {
@@ -424,6 +465,7 @@ export function DisplayFormatDetailPanel({
       setDescription(accepted);
       setName(nextDetail.name || nextDetail.internalName || name);
       setLabel(nextDetail.label || nextDetail.displayName || label);
+      setLabelShown(storedDisplayFormatLabel(nextDetail.label || nextDetail.displayName || label));
       setDescriptionEditing(false);
       setDescriptionDraft("");
       setDescriptionNotice(accepted ? DF_DESC_MSG.SAVED : DF_DESC_MSG.CLEARED);
@@ -436,6 +478,111 @@ export function DisplayFormatDetailPanel({
     } finally {
       descriptionInflight.current = false;
       setDescriptionBusy(false);
+      setBusy(false);
+    }
+  }
+
+  function labelSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return DF_LABEL_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return DF_LABEL_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return DF_LABEL_MSG.CONFLICT;
+    return DF_LABEL_MSG.ERROR;
+  }
+
+  function startLabelEdit(): void {
+    if (
+      isNew ||
+      !detail ||
+      busy ||
+      labelBusy ||
+      descriptionBusy ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      descriptionEditing ||
+      inflight.current
+    ) {
+      return;
+    }
+    setLabelDraft(labelShown);
+    setLabelError(null);
+    setLabelNotice(null);
+    setLabelEditing(true);
+  }
+
+  function cancelLabelEdit(): void {
+    if (labelBusy || labelInflight.current) return;
+    setLabelEditing(false);
+    setLabelDraft("");
+    setLabelError(null);
+  }
+
+  async function handleLabelSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !labelEditing ||
+      descriptionEditing ||
+      labelBusy ||
+      descriptionBusy ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      inflight.current ||
+      busy
+    ) {
+      return;
+    }
+    const sent = displayFormatLabelWrite(detail, labelDraft);
+    if (sent === "unchanged") {
+      setLabelEditing(false);
+      setLabelDraft("");
+      setLabelError(null);
+      return;
+    }
+    labelInflight.current = true;
+    setLabelBusy(true);
+    setBusy(true);
+    setLabelError(null);
+    setLabelNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = labelShown;
+    const previousLabel = label;
+    try {
+      const saved = await updateDisplayFormat(writeKey, sent);
+      const accepted = savedDisplayFormatLabel(sent, detail, saved);
+      if (accepted == null) {
+        setLabel(previousLabel);
+        setLabelShown(previousShown);
+        setLabelError(DF_LABEL_MSG.ERROR);
+        setLabelNotice(null);
+        return;
+      }
+      const nextDetail: DisplayFormat = {
+        ...detail,
+        ...saved,
+        label: accepted,
+        displayName: accepted,
+      };
+      setDetail(nextDetail);
+      setLabel(accepted);
+      setLabelShown(accepted);
+      setName(nextDetail.name || nextDetail.internalName || name);
+      const nextDescription = storedDisplayFormatDescription(nextDetail.description);
+      setDescription(nextDescription);
+      setDescriptionShown(nextDescription);
+      setLabelEditing(false);
+      setLabelDraft("");
+      setLabelNotice(sent.label ? DF_LABEL_MSG.SAVED : DF_LABEL_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setLabel(previousLabel);
+      setLabelShown(previousShown);
+      setLabelError(panelErrMsg(err, labelSaveFallback(err)));
+      setLabelNotice(null);
+    } finally {
+      labelInflight.current = false;
+      setLabelBusy(false);
       setBusy(false);
     }
   }
@@ -507,7 +654,14 @@ export function DisplayFormatDetailPanel({
   }
 
   async function handleSaveColumns(): Promise<void> {
-    if (!canSaveColumns || inflight.current || descriptionInflight.current || packaged || !writeKey) {
+    if (
+      !canSaveColumns ||
+      inflight.current ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      packaged ||
+      !writeKey
+    ) {
       return;
     }
     inflight.current = true;
@@ -582,7 +736,14 @@ export function DisplayFormatDetailPanel({
   }
 
   async function handleSaveCommunities(): Promise<void> {
-    if (!canSaveCommunities || inflight.current || descriptionInflight.current || packaged || !writeKey) {
+    if (
+      !canSaveCommunities ||
+      inflight.current ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      packaged ||
+      !writeKey
+    ) {
       return;
     }
     inflight.current = true;
@@ -723,6 +884,100 @@ export function DisplayFormatDetailPanel({
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
+
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-df-set-label"
+              aria-label={DF_LABEL_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{DF_LABEL_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.9rem" }}>
+                {DF_LABEL_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-df-set-label-text"
+                data-df-label={labelShown}
+                style={{ marginTop: 0 }}
+              >
+                {labelShown}
+              </p>
+              {labelError ? (
+                <div role="alert" data-testid="developer-df-set-label-error" style={errorAlert}>
+                  {labelError}
+                </div>
+              ) : null}
+              {labelNotice ? (
+                <div data-testid="developer-df-set-label-notice" style={{ color: "#276749" }}>
+                  {labelNotice}
+                </div>
+              ) : null}
+              {labelEditing ? (
+                <div data-testid="developer-df-set-label-editor">
+                  <label htmlFor="df-set-label-input">{DF_LABEL_MSG.FIELD}</label>
+                  <input
+                    id="df-set-label-input"
+                    data-testid="developer-df-set-label-input"
+                    style={inputStyle}
+                    value={labelDraft}
+                    disabled={labelBusy}
+                    onChange={(e) => setLabelDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-df-set-label-save"
+                      aria-label={DF_LABEL_MSG.SAVE}
+                      disabled={labelBusy}
+                      onClick={() => void handleLabelSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: labelBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {DF_LABEL_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-df-set-label-cancel"
+                      disabled={labelBusy}
+                      onClick={cancelLabelEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {DEV_MSG.DF_CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-df-set-label-edit"
+                  aria-label={DF_LABEL_MSG.ACTION}
+                  disabled={busy || labelBusy}
+                  onClick={startLabelEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {DF_LABEL_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
 
           {!isNew && detail ? (
             <section
