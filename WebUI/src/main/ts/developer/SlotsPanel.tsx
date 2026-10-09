@@ -180,6 +180,7 @@ export function SlotsPanel(): React.ReactElement {
                     type="button"
                     data-testid="developer-slot-open"
                     data-slot-name={s.name || openKey}
+                    data-slot-label={s.label || ""}
                     style={openButtonStyle}
                     aria-label={`Open ${s.label || s.name || openKey}`}
                     onClick={(e) => {
