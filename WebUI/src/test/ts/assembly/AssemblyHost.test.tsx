@@ -1047,6 +1047,221 @@ describe("AssemblyHost", () => {
     },
   );
 
+  function linkPayload(link: string): ItemEditorFields {
+    return {
+      ...linkFields,
+      fields: linkFields.fields.map((field) =>
+        field.name === "pagelink" ? { ...field, value: link } : field,
+      ),
+    };
+  }
+
+  it("refuses a link NUL before save and reloads the previous link", async () => {
+    const previewDoc = linkPreviewDoc();
+    const saveFields = vi.fn();
+    renderLinkHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(OLD_LINK)),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+      ).toBeTruthy();
+    });
+    const input = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    expect(input.value).toBe(OLD_LINK);
+    expect(input.getAttribute("data-assembly-value")).toBe("link");
+    input.value = "594\u0000";
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-pagelink").textContent).toMatch(
+        /link contains a character that cannot be saved/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+      /link contains a character that cannot be saved/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /HTML contains a character/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(screen.queryByTestId("assembly-field-error-description")).toBeNull();
+    expect(screen.queryByTestId("assembly-field-error-displaytitle")).toBeNull();
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(input.value).toContain("\u0000");
+    cleanup();
+    const reloaded = linkPreviewDoc();
+    renderLinkHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(OLD_LINK)),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-pagelink"]',
+      ) as HTMLInputElement | null;
+      expect(live?.value).toBe(OLD_LINK);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+  });
+
+  it("does not write when Cancel leaves a link NUL edit", async () => {
+    const previewDoc = linkPreviewDoc();
+    const saveFields = vi.fn();
+    renderLinkHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(OLD_LINK)),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+      ).toBeTruthy();
+    });
+    const input = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    input.value = `${OLD_LINK}\u0000`;
+    fireEvent.click(screen.getByTestId("assembly-field-cancel"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(input.value).toBe(OLD_LINK);
+    expect(input.value).not.toContain("\u0000");
+    expect(screen.queryByTestId("assembly-field-error-pagelink")).toBeNull();
+  });
+
+  it.each([
+    ["content id", "594"],
+    ["GUID", "0-101-594"],
+    ["folder path", "/Sites/Example/index"],
+  ])("still saves a %s without a NUL", async (_label, next) => {
+    let linkValue = OLD_LINK;
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      linkValue = body.fields.find((field) => field.name === "pagelink")?.value ?? linkValue;
+      return linkPayload(linkValue);
+    });
+    const previewDoc = linkPreviewDoc();
+    renderLinkHost(
+      previewDoc,
+      saveFields,
+      vi.fn(async () => linkPayload(linkValue)),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+      ).toBeTruthy();
+    });
+    const input = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    input.value = next;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    });
+    const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "pagelink")).toEqual({
+      name: "pagelink",
+      value: next,
+      dataType: "link",
+    });
+    expect(String(sent.fields.find((field) => field.name === "pagelink")?.value)).not.toContain(
+      "\u0000",
+    );
+    expect(sent.fields.find((field) => field.name === "description")?.value).toBe(
+      "<p>About the site</p>",
+    );
+    expect(screen.queryByTestId("assembly-field-error-pagelink")).toBeNull();
+    expect(screen.queryByTestId("assembly-field-error-description")).toBeNull();
+    cleanup();
+    const reloaded = linkPreviewDoc(next);
+    renderLinkHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(next)),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-pagelink"]',
+      ) as HTMLInputElement | null;
+      expect(live?.value).toBe(next);
+    });
+  });
+
+  it("keeps the HTML NUL gate when the link has no NUL", async () => {
+    const previewDoc = linkPreviewDoc();
+    const saveFields = vi.fn();
+    renderLinkHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(OLD_LINK)),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+      ).toBeTruthy();
+    });
+    const body = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    body.appendChild(previewDoc.createTextNode("bad\u0000"));
+    const input = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    expect(input.value).toBe(OLD_LINK);
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-description").textContent).toMatch(
+        /HTML contains a character that cannot be saved/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-error-pagelink")).toBeNull();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+      /HTML contains a character that cannot be saved/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /link contains a character/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+  });
+
+  it("refuses a link NUL on the overlay strip", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn();
+    renderLinkHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(OLD_LINK)),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-pagelink")).toBeTruthy();
+    });
+    const input = screen.getByTestId(
+      "assembly-overlay-field-pagelink",
+    ) as HTMLInputElement;
+    expect(input.value).toBe(OLD_LINK);
+    input.value = "0-101-594\u0000";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-pagelink").textContent).toMatch(
+        /link contains a character that cannot be saved/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.queryByTestId("assembly-field-error-description")).toBeNull();
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(input.value).toContain("\u0000");
+  });
+
   it("edits a link from the overlay strip when the page has no marker", async () => {
     const previewDoc = document.implementation.createHTMLDocument("empty");
     const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);

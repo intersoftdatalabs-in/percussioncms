@@ -28,7 +28,9 @@
  * cannot be saved blank, and an optional datetime may be cleared; a single-line
  * text value that contains a NUL is not saved; a long-text value that contains
  * a NUL is not saved, and the previous long text keeps its line breaks; an HTML
- * value that contains a NUL is not saved, and the previous markup stays) and
+ * value that contains a NUL is not saved, and the previous markup stays; a link
+ * value that contains a NUL is not saved, and the previous link stays. A content
+ * id, GUID, or folder path still saves. The HTML NUL gate is unchanged) and
  * persist through itemmanagement — not leftover Content Editor HTML.
  */
 
@@ -80,6 +82,7 @@ import {
   blankRequiredTextFieldNames,
   changedOverlayEdits,
   nulHtmlFieldNames,
+  nulLinkFieldNames,
   nulLongTextFieldNames,
   nulSingleLineTextFieldNames,
   invalidChangedDateFieldNames,
@@ -645,6 +648,7 @@ export function AssemblyHost({
     const nulText = nulSingleLineTextFieldNames(overlayFields, visibleEdits);
     const nulLongText = nulLongTextFieldNames(overlayFields, visibleEdits);
     const nulHtml = nulHtmlFieldNames(overlayFields, visibleEdits);
+    const nulLink = nulLinkFieldNames(overlayFields, visibleEdits);
     const blankRequiredNumbers = blankRequiredNumberFieldNames(
       overlayFields,
       visibleEdits,
@@ -682,7 +686,8 @@ export function AssemblyHost({
       badDatetimes.length > 0 ||
       nulText.length > 0 ||
       nulLongText.length > 0 ||
-      nulHtml.length > 0
+      nulHtml.length > 0 ||
+      nulLink.length > 0
     ) {
       const requiredText = message(ASSEMBLY_MSG.FIELD_REQUIRED);
       const numberText = message(ASSEMBLY_MSG.FIELD_NUMBER);
@@ -691,6 +696,7 @@ export function AssemblyHost({
       const textNul = message(ASSEMBLY_MSG.FIELD_TEXT_NUL);
       const longTextNul = message(ASSEMBLY_MSG.FIELD_LONGTEXT_NUL);
       const htmlNul = message(ASSEMBLY_MSG.FIELD_HTML_NUL);
+      const linkNul = message(ASSEMBLY_MSG.FIELD_LINK_NUL);
       const errors: Record<string, string> = {};
       for (const name of blankRequired) {
         errors[name] = requiredText;
@@ -723,6 +729,9 @@ export function AssemblyHost({
       }
       for (const name of nulHtml) {
         errors[name] = htmlNul;
+      }
+      for (const name of nulLink) {
+        errors[name] = linkNul;
       }
       const refused = overlayFields.filter(
         (field) =>
@@ -760,7 +769,9 @@ export function AssemblyHost({
                   ? textNul
                   : nulLongText.length > 0
                     ? longTextNul
-                    : htmlNul,
+                    : nulHtml.length > 0
+                      ? htmlNul
+                      : linkNul,
       );
       setFieldNoticeRole("alert");
       return;
@@ -1062,6 +1073,7 @@ export function AssemblyHost({
                       data-assembly-value="link"
                       data-testid={`assembly-overlay-field-${field.name}`}
                       aria-label={field.label}
+                      aria-invalid={fieldErrors[field.name] ? true : undefined}
                       spellCheck={false}
                       autoComplete="off"
                     />
