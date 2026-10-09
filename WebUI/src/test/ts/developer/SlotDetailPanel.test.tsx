@@ -9,6 +9,7 @@ import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as assemblyApi from "../../../main/ts/api/developer/assemblyApi";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { SLOT_DESC_MSG } from "../../../main/ts/developer/slotDescriptionMessages";
+import { SLOT_LABEL_MSG } from "../../../main/ts/developer/slotLabelMessages";
 import { SlotDetailPanel } from "../../../main/ts/developer/SlotDetailPanel";
 
 vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => {
@@ -899,6 +900,7 @@ describe("SlotDetailPanel", () => {
   it("does not offer set-description chrome before a slot exists", () => {
     render(<SlotDetailPanel idOrName={null} onBack={() => undefined} />);
     expect(screen.queryByTestId("developer-slot-set-description")).toBeNull();
+    expect(screen.queryByTestId("developer-slot-set-label")).toBeNull();
   });
 
   it("sets the description only after success and leaves name, label, type, and finder", async () => {
@@ -1063,5 +1065,183 @@ describe("SlotDetailPanel", () => {
       "sys_RelationshipContentFinder",
     );
     expect(screen.queryByTestId("developer-slot-set-description-notice")).toBeNull();
+  });
+
+  it("sets the label only after success and leaves name, description, type, and finder", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5431slot",
+      label: "QA slot",
+      description: "Folder list",
+      slotType: "INLINE",
+      finderName: "sys_RelationshipContentFinder",
+      relationshipName: "ActiveAssembly",
+      finderArguments: { type: "qa5431" },
+    };
+    getSlotDetail.mockResolvedValue(userDetail);
+    updateSlotDetail.mockResolvedValue({ ...userDetail, label: "note" });
+    const onSaved = vi.fn();
+    render(
+      <SlotDetailPanel idOrName="qa5431slot" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("developer-slot-set-label-text").getAttribute("data-slot-label"),
+      ).toBe("QA slot");
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-edit"));
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-save"));
+    expect(updateSlotDetail).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-slot-set-label-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-slot-set-label-input"), {
+      target: { value: " note " },
+    });
+    expect(screen.getByTestId("developer-slot-set-label-text").getAttribute("data-slot-label")).toBe(
+      "QA slot",
+    );
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-cancel"));
+    expect(updateSlotDetail).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-slot-set-label-text").getAttribute("data-slot-label")).toBe(
+      "QA slot",
+    );
+
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-slot-set-label-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateSlotDetail).toHaveBeenCalledWith("qa5431slot", { label: "note" });
+    expect(screen.getByTestId("developer-slot-set-label-text").getAttribute("data-slot-label")).toBe(
+      "note",
+    );
+    expect(screen.getByTestId("developer-slot-set-label-notice").textContent).toBe(
+      SLOT_LABEL_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-slot-name") as HTMLInputElement).value).toBe("qa5431slot");
+    expect((screen.getByTestId("developer-slot-label") as HTMLInputElement).value).toBe("note");
+    expect((screen.getByTestId("developer-slot-description") as HTMLInputElement).value).toBe(
+      "Folder list",
+    );
+    expect(screen.getByTestId("developer-slot-type-value").textContent).toBe("INLINE");
+    expect((screen.getByTestId("developer-slot-finder") as HTMLInputElement).value).toBe(
+      "sys_RelationshipContentFinder",
+    );
+    expect((screen.getByTestId("developer-slot-relationship") as HTMLInputElement).value).toBe(
+      "ActiveAssembly",
+    );
+  });
+
+  it("keeps the name when a blank label echoes it, and 400, 403, and 409 are not success", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5431slot",
+      label: "QA slot",
+      description: "Folder list",
+      slotType: "INLINE",
+      finderName: "sys_RelationshipContentFinder",
+      relationshipName: "ActiveAssembly",
+      finderArguments: { type: "qa5431" },
+    };
+    getSlotDetail.mockResolvedValue(userDetail);
+    updateSlotDetail.mockResolvedValue({ ...userDetail, label: "qa5431slot" });
+    render(<SlotDetailPanel idOrName="qa5431slot" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-slot-set-label-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-label-notice").textContent).toBe(
+        SLOT_LABEL_MSG.CLEARED,
+      );
+    });
+    expect(updateSlotDetail).toHaveBeenCalledWith("qa5431slot", { label: "" });
+    expect(screen.getByTestId("developer-slot-set-label-text").getAttribute("data-slot-label")).toBe(
+      "qa5431slot",
+    );
+    expect((screen.getByTestId("developer-slot-name") as HTMLInputElement).value).toBe("qa5431slot");
+    expect((screen.getByTestId("developer-slot-label") as HTMLInputElement).value).toBe("qa5431slot");
+    expect((screen.getByTestId("developer-slot-description") as HTMLInputElement).value).toBe(
+      "Folder list",
+    );
+    expect((screen.getByTestId("developer-slot-finder") as HTMLInputElement).value).toBe(
+      "sys_RelationshipContentFinder",
+    );
+
+    for (const status of [400, 403, 409]) {
+      updateSlotDetail.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-slot-set-label-edit"));
+      fireEvent.change(screen.getByTestId("developer-slot-set-label-input"), {
+        target: { value: "later" },
+      });
+      fireEvent.click(screen.getByTestId("developer-slot-set-label-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-slot-set-label-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(screen.getByTestId("developer-slot-set-label-text").getAttribute("data-slot-label")).toBe(
+        "qa5431slot",
+      );
+      expect((screen.getByTestId("developer-slot-name") as HTMLInputElement).value).toBe(
+        "qa5431slot",
+      );
+      expect(screen.queryByTestId("developer-slot-set-label-notice")).toBeNull();
+      fireEvent.click(screen.getByTestId("developer-slot-set-label-cancel"));
+    }
+  });
+
+  it("does not show a label when the update changes the name or description", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5431slot",
+      label: "QA slot",
+      description: "Folder list",
+      slotType: "INLINE",
+      finderName: "sys_RelationshipContentFinder",
+      relationshipName: "ActiveAssembly",
+      finderArguments: { type: "qa5431" },
+    };
+    getSlotDetail.mockResolvedValue(userDetail);
+    updateSlotDetail.mockResolvedValue({
+      ...userDetail,
+      label: "",
+      name: "other",
+      description: "changed",
+    });
+    render(<SlotDetailPanel idOrName="qa5431slot" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-slot-set-label-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-label-error").textContent).toContain(
+        SLOT_LABEL_MSG.ERROR,
+      );
+    });
+    expect(screen.getByTestId("developer-slot-set-label-text").getAttribute("data-slot-label")).toBe(
+      "QA slot",
+    );
+    expect((screen.getByTestId("developer-slot-name") as HTMLInputElement).value).toBe("qa5431slot");
+    expect((screen.getByTestId("developer-slot-description") as HTMLInputElement).value).toBe(
+      "Folder list",
+    );
+    expect(screen.queryByTestId("developer-slot-set-label-notice")).toBeNull();
   });
 });

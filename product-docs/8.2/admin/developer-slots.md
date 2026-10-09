@@ -1,7 +1,7 @@
 ---
 id: admin-developer-slots
 title: Developer Slots
-description: Create, rename, delete, set a description, and edit assembly slot finder, relationship, arguments, and named content-type/template associations from Developer Slots chrome
+description: Create, rename, delete, set a label, set a description, and edit assembly slot finder, relationship, arguments, and named content-type/template associations from Developer Slots chrome
 version: "8.2"
 order: 44
 tags: [admin, developer, slots]
@@ -21,11 +21,32 @@ arguments**, and **content-type / template associations** (by **name** or GUID)
 on an existing slot and **Save**. Create does not write finder fields or
 associations. Unlock releases the design session without saving.
 
+**Set slot label** on an existing slot saves the label only. The update does
+not send the name, description, slot type, or finder, so those stay. The new
+label shows only after that save succeeds. A blank label does not clear the
+slot name. The catalog shows the name when the stored label is blank. **Cancel**
+does not write. HTTP 400, 403, and 409 are not success and leave the previous
+label.
+
 **Set slot description** on an existing slot saves the description only. The
 update does not send the name, label, slot type, or finder, so those stay.
 The new description shows only after that save succeeds. A blank description
 clears the description. **Cancel** does not write. HTTP 400, 403, and 409
 are not success and leave the previous description.
+
+## Product path — set a label
+
+1. Open an existing slot. The committed label is shown under **Set slot
+   label**.
+2. Click **Set slot label**, edit the text, and click **Save label**. The
+   request is `PUT /services/slots/{idOrName}` with `label` only. Reload shows
+   that label. The name, description, slot type, and finder are unchanged.
+3. A blank label clears the stored label and does not clear the name. The
+   catalog then shows the name as the label. The same label is not written.
+4. Click **Cancel** before save to keep the previous label. Cancel does not
+   call the server.
+5. HTTP 400, 403, and 409 do not show **Slot label saved** and do not replace
+   the previous label.
 
 ## Product path — set a description
 
@@ -113,6 +134,8 @@ are not success and leave the previous description.
 
 - System slot names cannot be renamed. User slot names can, with the same
   uniqueness rules as create.
+- A blank slot label does not clear the slot name. The name is what the
+  catalog shows when the stored label is blank.
 - Create does not write finder, relationship, finder arguments, or associations.
 - Finder and association writes require a lock you already hold. The save
   request does not acquire or steal the lock.
@@ -129,6 +152,7 @@ The chrome calls:
 | Lock | `POST /services/slots/{idOrName}/lock` |
 | Unlock | `POST /services/slots/{idOrName}/unlock` |
 | Save | `PUT /services/slots/{idOrName}` (label, description; optional `associations` / `finderName` / `relationshipName` / `finderArguments` when those fields changed) |
+| Set label | `PUT /services/slots/{idOrName}` (`label` only; a blank value does not clear the name; name, description, type, and finder are omitted and stay) |
 | Set description | `PUT /services/slots/{idOrName}` (`description` only; a blank value clears; name, label, type, and finder are omitted and stay) |
 | Delete | `DELETE /services/slots/{idOrName}` (`204` on success) |
 
