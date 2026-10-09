@@ -17,8 +17,10 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  collectTableNulFieldErrors,
   parseTableField,
   serializeTableField,
+  tableFieldContainsNul,
   tableFieldIsEmpty,
 } from "../../../main/ts/editor/tableField";
 
@@ -65,5 +67,42 @@ describe("tableField", () => {
     expect(serializeTableField(parseTableField(raw))).toBe(
       '{"columns":["day","hours"],"rows":[]}',
     );
+  });
+});
+
+describe("tableFieldContainsNul", () => {
+  it("rejects a cell NUL after JSON unescape and leaves empty and normal cells alone", () => {
+    const escaped = JSON.stringify({ columns: ["day"], rows: [["Mon\u0000"]] });
+    expect(escaped.includes("\u0000")).toBe(false);
+    expect(tableFieldContainsNul(escaped)).toBe(true);
+    expect(tableFieldIsEmpty(escaped)).toBe(false);
+    expect(tableFieldContainsNul(JSON.stringify({ columns: ["day"], rows: [["Mon"]] }))).toBe(
+      false,
+    );
+    expect(tableFieldContainsNul("")).toBe(false);
+    expect(tableFieldContainsNul('{"columns":["day"],"rows":[["   "]]}')).toBe(false);
+    expect(tableFieldIsEmpty('{"columns":["day"],"rows":[["   "]]}')).toBe(true);
+    expect(tableFieldContainsNul("legacy\u0000")).toBe(true);
+  });
+});
+
+describe("collectTableNulFieldErrors", () => {
+  it("flags only table rows and does not treat an empty table as a NUL", () => {
+    const nul = JSON.stringify({ columns: ["day"], rows: [["Mon\u0000"]] });
+    const rows = [
+      { name: "hours", kind: "table" as const, value: nul },
+      { name: "notes", kind: "table" as const, value: "" },
+      { name: "title", kind: "text" as const, value: "z\u0000" },
+      {
+        name: "days",
+        kind: "table" as const,
+        value: JSON.stringify({ columns: ["day"], rows: [["Tue"]] }),
+      },
+    ];
+    expect(collectTableNulFieldErrors(rows, "cannot save")).toEqual({
+      hours: "cannot save",
+    });
+    expect(tableFieldIsEmpty("")).toBe(true);
+    expect(tableFieldContainsNul("")).toBe(false);
   });
 });

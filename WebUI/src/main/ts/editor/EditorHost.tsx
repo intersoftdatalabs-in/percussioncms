@@ -74,6 +74,7 @@ import {
   collectLinkNulFieldErrors,
 } from "./linkField";
 import { collectInvalidNumericFieldErrors } from "./numericField";
+import { collectTableNulFieldErrors } from "./tableField";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
 import { TableFieldWidget } from "./widgets/TableFieldWidget";
 import {
@@ -1511,6 +1512,21 @@ export function EditorHost({
     if (Object.keys(invalidLinks).length > 0) {
       setFieldErrors(invalidLinks);
       setSaveErrorKey(EDITOR_MSG.LINK_INVALID_SAVE);
+      setSaving(false);
+      return;
+    }
+    const tableNuls = collectTableNulFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: row.value,
+      })),
+      message(EDITOR_MSG.TABLE_NUL),
+    );
+    if (Object.keys(tableNuls).length > 0) {
+      queueFocusFirstInvalid(tableNuls);
+      setFieldErrors(tableNuls);
+      setSaveErrorKey(EDITOR_MSG.TABLE_NUL_SAVE);
       setSaving(false);
       return;
     }

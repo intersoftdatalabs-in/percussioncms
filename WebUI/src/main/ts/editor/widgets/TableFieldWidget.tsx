@@ -77,8 +77,6 @@ export function TableFieldWidget({
       className={styles.tableField}
       data-testid={`editor-field-${name}`}
       data-editor-kind="table"
-      aria-invalid={invalid ? true : undefined}
-      aria-required={required ? true : undefined}
     >
       <table className={styles.tableGrid}>
         <thead>
@@ -103,6 +101,8 @@ export function TableFieldWidget({
                     value={row[colIndex] ?? ""}
                     readOnly={readOnly}
                     aria-label={`${column} ${rowIndex + 1}`}
+                    aria-invalid={invalid ? true : undefined}
+                    aria-required={required ? true : undefined}
                     onChange={(e) => setCell(rowIndex, colIndex, e.target.value)}
                   />
                 </td>
