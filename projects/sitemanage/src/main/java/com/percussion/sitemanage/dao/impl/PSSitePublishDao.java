@@ -970,7 +970,9 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
         updateContentListForEditionFull(tgtEdition, site, oldSiteName);
         try {
           PSPubServer pubServer = getPubServerService().findPubServer(edition.getPubServerId());
-          boolean defaultPubServer = pubServer.getServerId() == site.getDefaultPubServer();
+          boolean defaultPubServer =
+              PSSitePublishDaoHelper.isSiteDefaultServer(
+                  site.getDefaultPubServer(), pubServer.getServerId());
 
           addTaskDefsToPubServerEdition(edition, pubServer, defaultPubServer, site);
         } catch (IPSPubServerService.PSPubServerServiceException e) {

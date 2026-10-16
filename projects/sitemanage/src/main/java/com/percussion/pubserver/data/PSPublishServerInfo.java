@@ -19,13 +19,12 @@ package com.percussion.pubserver.data;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 /**
- * Represents publishing server information for Percussion CMS. Immutable except for properties
- * list, which is defensively copied.
+ * Represents publishing server information for Percussion CMS. {@link #getProperties()} returns
+ * the live list so request readers and server assembly can replace its entries.
  *
  * @author ignacioerro
  */
@@ -106,9 +105,12 @@ public class PSPublishServerInfo {
     this.serverType = serverType;
   }
 
-  /** Returns an unmodifiable list of server properties. */
+  /**
+   * Returns the server properties. The list is the live collection: CXF {@code JSONProvider}
+   * clears it while reading a request body, and server assembly appends entries on it.
+   */
   public List<PSPublishServerProperty> getProperties() {
-    return Collections.unmodifiableList(properties);
+    return properties;
   }
 
   /** Sets the server properties. Defensive copy is made. */
