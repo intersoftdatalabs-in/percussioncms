@@ -195,6 +195,9 @@ export function ContentTypesPanel(): React.ReactElement {
           onRenamed={() => {
             void reload();
           }}
+          onSaved={() => {
+            void reload();
+          }}
         />
       </DeveloperSectionErrorBoundary>
     );
@@ -334,7 +337,13 @@ export function ContentTypesPanel(): React.ReactElement {
               <span key="i" style={monoCell}>
                 {displayId(ct)}
               </span>,
-              <span key="d" style={mutedCell}>
+              <span
+                key="d"
+                style={mutedCell}
+                data-testid="developer-ct-catalog-description"
+                data-ct-name={openKey || ""}
+                data-ct-description={asCatalogText(ct.description)}
+              >
                 {asCatalogText(ct.description)}
               </span>,
               interactive ? (

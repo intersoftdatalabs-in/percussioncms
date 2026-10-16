@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Create, rename, or delete a content type from Developer chrome, lock, enable or disable, toggle type-level search indexing, set icon strategy, add or delete local fields from Developer Content Type detail, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, field choice catalogs, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Create, rename, or delete a content type from Developer chrome, lock, set or clear the description, enable or disable, toggle type-level search indexing, set icon strategy, add or delete local fields from Developer Content Type detail, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, field choice catalogs, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -213,6 +213,27 @@ name (bulk `PUT /services/contenttypes/{idOrName}` still does not rename).
    below. Save does **not** unlock.
 8. Click **Unlock** when you are done. Status returns to **Not locked** and the
    form is read-only again. **Back to list** also releases a lock you hold.
+
+### Set a description (after lock)
+
+**Set content type description** writes the description only. The label and the
+**Enabled** flag stay. The control is on the detail header and stays disabled
+until you hold the lock.
+
+1. Open the type. The stored description is shown under **Set content type
+   description**. Typing in the main **Description** field does not change that
+   text.
+2. Click **Lock**, then **Set content type description**. Enter the new
+   description, or leave it blank to clear the stored description. **Cancel**
+   closes the editor and does not call the server. Saving the same description
+   does not call the server.
+3. Click **Save description**. The request is
+   `PUT /services/contenttypes/{idOrName}` with `description` only. Label,
+   enabled, fields, workflows, and templates are omitted, so they stay. An
+   empty description clears the stored description. After a successful save,
+   the detail and the catalog description show the new value. HTTP 400, 403,
+   and 409 leave the previous description on the page and do not show success.
+   The lock stays held.
 
 ### Icon strategy (after lock)
 
@@ -530,6 +551,7 @@ The chrome calls:
 | Create | `POST /services/contenttypes` (Admin; unique name, no spaces; 409 duplicate; 400 invalid; 403 non-Admin) |
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
 | Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; local field `fields[].label` plus searchable/occurrence; does not send `enabled`, type-level `searchIndexing`, `allowedWorkflows`, or `allowedTemplates`) |
+| Save description | `PUT /services/contenttypes/{idOrName}` (`description` only; omit label, enabled, fields, workflows, and templates; blank description clears; label and enabled stay) |
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
 | Type-level search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10; Developer detail **Search indexing** checkbox after lock; PUT requires a held lock; default on; not the per-field searchable flag) |
 | Load icon strategy | `GET /services/contenttypes/{idOrName}/icon` (CD-11; no lock; `none` / `specified` / `fromFileField`) |

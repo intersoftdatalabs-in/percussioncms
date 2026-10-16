@@ -112,8 +112,27 @@ class ContentTypeAdaptorUpdateTest {
     assertEquals(1, saved.getValue().size());
     assertSame(def, saved.getValue().get(0));
     verify(def).setDescription("updated description");
+    verify(def, never()).setLabel(any());
+    verify(def, never()).setEnabled(anyBoolean());
     verify(systemDesign).isLocked(anyList(), eq("Admin"));
     verify(designWs, never()).saveAssociatedTemplates(any(), anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_blankDescriptionClearsAndLeavesLabelAndEnabled() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubLockedDefinition("percPage", "Page", "old description");
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setDescription("");
+
+    ContentTypeDetail out = adaptor.updateContentType(null, "311", body);
+
+    assertEquals("", out.getDescription());
+    assertEquals("Page", out.getLabel());
+    assertEquals(Boolean.TRUE, out.getEnabled());
+    verify(def).setDescription("");
+    verify(def, never()).setLabel(any());
+    verify(def, never()).setEnabled(anyBoolean());
   }
 
   @Test

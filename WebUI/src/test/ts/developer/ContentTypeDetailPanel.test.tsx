@@ -10,6 +10,7 @@ import * as contentTypesApi from "../../../main/ts/api/developer/contentTypesApi
 import * as fieldRulesApi from "../../../main/ts/api/developer/contentTypeFieldRules";
 import * as importExportApi from "../../../main/ts/api/developer/contentTypeImportExport";
 import { catalogColors } from "../../../main/ts/developer/catalogStyles";
+import { CT_DESC_MSG } from "../../../main/ts/developer/contentTypeDescriptionMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { ContentTypeDetailPanel } from "../../../main/ts/developer/ContentTypeDetailPanel";
 
@@ -3227,5 +3228,166 @@ describe("ContentTypeDetailPanel", () => {
       screen.getAllByTestId("developer-ct-field-row").map((row) => row.getAttribute("data-field-name")),
     ).toEqual(["rx_note", "sys_title"]);
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("sets the description only after success and leaves label and enabled (#5433)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "sys_title" }, { name: "title" }],
+    });
+    const onSaved = vi.fn();
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} onSaved={onSaved} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-set-description-text").getAttribute("data-ct-description")).toBe(
+        "Page type",
+      );
+    });
+    expect((screen.getByTestId("developer-ct-set-description-edit") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-edit"));
+    expect(screen.queryByTestId("developer-ct-set-description-editor")).toBeNull();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-set-description-edit") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-edit"));
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-save"));
+    expect(screen.queryByTestId("developer-ct-set-description-editor")).toBeNull();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-description-input"), {
+      target: { value: "later" },
+    });
+    expect(screen.getByTestId("developer-ct-set-description-text").getAttribute("data-ct-description")).toBe(
+      "Page type",
+    );
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-cancel"));
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-set-description-text").getAttribute("data-ct-description")).toBe(
+      "Page type",
+    );
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+    expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).checked).toBe(true);
+
+    updateContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      description: "note",
+      fields: [{ name: "sys_title" }, { name: "title" }],
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-description-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-set-description-notice").textContent).toBe(CT_DESC_MSG.SAVED);
+    });
+    expect(updateContentTypeDetail).toHaveBeenCalledWith("percPage", { description: "note" });
+    expect(setContentTypeEnabled).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-set-description-text").getAttribute("data-ct-description")).toBe(
+      "note",
+    );
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe("note");
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+    expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).checked).toBe(true);
+    expect(onSaved).toHaveBeenCalledTimes(1);
+  });
+
+  it("clears a blank description and keeps the previous description on 400, 403, and 409 (#5433)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    updateContentTypeDetail.mockResolvedValue({ ...sampleDetail, description: "" });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-set-description-edit") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-description-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-set-description-notice").textContent).toBe(CT_DESC_MSG.CLEARED);
+    });
+    expect(updateContentTypeDetail).toHaveBeenCalledWith("percPage", { description: "" });
+    expect(screen.getByTestId("developer-ct-set-description-text").getAttribute("data-ct-description")).toBe("");
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+    expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).checked).toBe(true);
+
+    for (const status of [400, 403, 409]) {
+      updateContentTypeDetail.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-ct-set-description-edit"));
+      fireEvent.change(screen.getByTestId("developer-ct-set-description-input"), {
+        target: { value: "later" },
+      });
+      fireEvent.click(screen.getByTestId("developer-ct-set-description-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-ct-set-description-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(screen.queryByTestId("developer-ct-set-description-notice")).toBeNull();
+      expect(screen.getByTestId("developer-ct-set-description-text").getAttribute("data-ct-description")).toBe(
+        "",
+      );
+      expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe("");
+      expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+      expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+      fireEvent.click(screen.getByTestId("developer-ct-set-description-cancel"));
+    }
+  });
+
+  it("does not show a description when the update changes the label or drops fields (#5433)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "sys_title" }, { name: "title" }],
+    });
+    updateContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      description: "note",
+      label: "Pages",
+      fields: [{ name: "sys_title" }],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-set-description-edit") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-description-input"), {
+      target: { value: "note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-set-description-error").textContent).toContain(
+        CT_DESC_MSG.ERROR,
+      );
+    });
+    expect(screen.queryByTestId("developer-ct-set-description-notice")).toBeNull();
+    expect(screen.getByTestId("developer-ct-set-description-text").getAttribute("data-ct-description")).toBe(
+      "Page type",
+    );
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+    expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).checked).toBe(true);
   });
 });
