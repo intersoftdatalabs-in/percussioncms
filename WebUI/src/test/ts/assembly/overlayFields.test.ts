@@ -468,6 +468,38 @@ describe("applyFieldOverlay", () => {
     expect(value).toContain("<p>About the site</p>");
   });
 
+  it("keeps an HTML NUL on the assembled node when the overlay is painted again", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<div class="PsAaField" id='${aaId("42", "description")}'><p>About the site</p></div>`;
+    const htmlPayload: ItemEditorFields = {
+      ...payload,
+      fields: payload.fields.map((field) =>
+        field.name === "description"
+          ? { name: field.name, value: "<p>About the site</p>" }
+          : field,
+      ),
+    };
+    const fields = scalarOverlayFields(htmlPayload, [
+      { name: "description", label: "Body", control: "sys_tinymce" },
+    ]);
+    const first = repaintFieldOverlay(root, fields, "42");
+    expect(first.preserved).toBe(false);
+    const edited = root.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    edited.appendChild(document.createTextNode("bad\u0000"));
+    const again = repaintFieldOverlay(root, fields, "42");
+    expect(again.preserved).toBe(true);
+    const repainted = root.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    expect(repainted.textContent).toContain("bad");
+    expect(repainted.textContent).toContain("\u0000");
+    const reread = readOverlayEdits(root, "42")[0]?.value ?? "";
+    expect(htmlContainsNul(reread)).toBe(true);
+    expect(reread).toContain("<p>About the site</p>");
+  });
+
   it("maps a unique HTML block by markup when markers are absent", () => {
     const root = document.createElement("div");
     root.innerHTML = `<section><p>About the site</p></section><p>footer</p>`;

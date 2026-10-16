@@ -1344,6 +1344,24 @@ function readNodeValue(el: Element): string {
   return valueKind === ASSEMBLY_VALUE_TEXT ? singleLineText(text) : text;
 }
 
+/**
+ * HTML parsers drop U+0000, so assigning {@code innerHTML} hides a NUL the
+ * save gate just refused. Put the markup back, then keep the NUL in a text
+ * node so a repaint does not erase it (#5463).
+ */
+function writeHtmlMarkup(el: HTMLElement, value: string): void {
+  if (!value.includes("\u0000")) {
+    el.innerHTML = value;
+    return;
+  }
+  const kept = value.replace(/\u0000/g, "");
+  el.innerHTML = kept;
+  const nuls = value.match(/\u0000/g);
+  if (nuls != null && nuls.length > 0) {
+    el.appendChild(el.ownerDocument.createTextNode(nuls.join("")));
+  }
+}
+
 function writeNodeValue(el: Element, value: string): void {
   const valueKind = el.getAttribute("data-assembly-value");
   if (isFormValueElement(el)) {
@@ -1355,7 +1373,7 @@ function writeNodeValue(el: Element, value: string): void {
     return;
   }
   if (valueKind === ASSEMBLY_VALUE_HTML) {
-    (el as HTMLElement).innerHTML = value;
+    writeHtmlMarkup(el as HTMLElement, value);
     return;
   }
   if (valueKind === ASSEMBLY_VALUE_LONGTEXT) {
