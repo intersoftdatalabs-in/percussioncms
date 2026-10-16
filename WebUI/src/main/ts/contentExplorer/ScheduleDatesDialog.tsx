@@ -20,6 +20,7 @@ import { useDialogEscape } from "../architecture/useDialogEscape";
 import { message } from "../i18n/message";
 import {
   datetimeLocalToServerDate,
+  scheduleCommentContainsNul,
   serverDateToDatetimeLocal,
   validateScheduleDateRange,
   type ItemScheduleDates,
@@ -99,6 +100,10 @@ export function ScheduleDatesDialog({
     const rangeError = validateScheduleDateRange(startDate, endDate);
     if (rangeError) {
       setError(message(rangeError));
+      return;
+    }
+    if (scheduleCommentContainsNul(comments)) {
+      setError(message(EXPLORER_MSG.SCHEDULE_COMMENT_NUL));
       return;
     }
     onSave({
@@ -185,7 +190,10 @@ export function ScheduleDatesDialog({
             data-testid="explorer-schedule-comments"
             value={comments}
             maxLength={COMMENT_MAX}
-            onChange={(e) => setComments(e.target.value)}
+            onChange={(e) => {
+              setComments(e.target.value);
+              setError(null);
+            }}
             rows={3}
             style={{ display: "block", width: "100%", marginTop: 6, padding: 6 }}
           />

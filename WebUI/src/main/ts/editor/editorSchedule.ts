@@ -20,10 +20,11 @@
  * (#4917 / parent #4532). Clearing both dates is a separate confirm
  * (#5123) that posts empty start and removal dates, then reloads them.
  *
- * <p>Reuses itemmanagement get/set item dates. HTTP 400/403/409 and HTTP 200
- * {@code FORBIDDEN}/{@code INVALID}/{@code BADCONFIG} are failures — the
- * host must not show success. A refresh that still has a date is not a
- * cleared schedule.</p>
+ * <p>Reuses itemmanagement get/set item dates. A schedule comment that
+ * contains a NUL is refused by the shared dialog before POST (#5444).
+ * HTTP 400/403/409 and HTTP 200 {@code FORBIDDEN}/{@code INVALID}/
+ * {@code BADCONFIG} are failures — the host must not show success.
+ * A refresh that still has a date is not a cleared schedule.</p>
  */
 
 import {
