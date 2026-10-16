@@ -493,6 +493,8 @@ export const EDITOR_MSG = {
   CREATE_TYPE: "perc.ui.editor@Content type",
   CREATE_FOLDER: "perc.ui.editor@Folder path",
   CREATE_NAME: "perc.ui.editor@Name (optional)",
+  CREATE_NAME_NUL:
+    "perc.ui.editor@That name contains a character that cannot be saved.",
   CREATE_HINT:
     "perc.ui.editor@Choose a content type and destination folder, then create the item. The editor opens the new item.",
   CREATE_INCOMPLETE:

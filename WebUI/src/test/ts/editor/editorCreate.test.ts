@@ -19,6 +19,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildEditorCreateRequest,
   canCreateFromEditor,
+  createNameContainsNul,
   editorCreateErrorReason,
   editorCreateRequestReady,
   parseCreateLandingContentId,
@@ -44,6 +45,20 @@ describe("editorCreate", () => {
       name: "n",
     });
     expect(buildEditorCreateRequest("", "/Assets")).toBeNull();
+    expect(buildEditorCreateRequest("percImageAsset", "/Assets", "   ")).toEqual({
+      contentType: "percImageAsset",
+      folderPath: "/Assets",
+    });
+  });
+
+  it("detects a NUL in the new item name and ignores a blank name", () => {
+    expect(createNameContainsNul("bad\u0000value")).toBe(true);
+    expect(createNameContainsNul("\u0000")).toBe(true);
+    expect(createNameContainsNul("  n\u0000")).toBe(true);
+    expect(createNameContainsNul("")).toBe(false);
+    expect(createNameContainsNul("   ")).toBe(false);
+    expect(createNameContainsNul("Shot")).toBe(false);
+    expect(createNameContainsNul(undefined)).toBe(false);
   });
 
   it("parses numeric and GUID create result ids", () => {

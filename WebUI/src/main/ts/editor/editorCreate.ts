@@ -19,7 +19,8 @@
  * Create a new content item from the React Content Editor host (#4646).
  *
  * <p>POST {@code /services/itemmanagement/item/create} via {@code createEditorItem}.
- * HTTP 403 / 400 / 404 are failures, not success.</p>
+ * HTTP 403 / 400 / 404 are failures, not success. A name that contains a NUL
+ * is refused before that POST (#5472). A blank name stays optional.</p>
  */
 
 import { isApiError } from "../api/client";
@@ -44,6 +45,17 @@ export function editorCreateRequestReady(
   folderPath: string,
 ): boolean {
   return contentType.trim().length > 0 && folderPath.trim().length > 0;
+}
+
+/**
+ * True when a new item name contains a NUL.
+ * A blank or whitespace-only name is not a NUL. A normal name is not a NUL.
+ * The editor refuses a NUL before {@code POST /services/itemmanagement/item/create}.
+ */
+export function createNameContainsNul(
+  name: string | null | undefined,
+): boolean {
+  return (name ?? "").includes("\u0000");
 }
 
 export function buildEditorCreateRequest(
