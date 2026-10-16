@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Create, rename, or delete a content type from Developer chrome, lock, set a label, set or clear the description, enable or disable, toggle type-level search indexing, set icon strategy, add or delete local fields from Developer Content Type detail, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, field choice catalogs, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Create, rename, or delete a content type from Developer chrome, lock, set a label, set or clear the description, mark or clear required on one local field, enable or disable, toggle type-level search indexing, set icon strategy, add or delete local fields from Developer Content Type detail, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, field choice catalogs, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -354,6 +354,27 @@ text box.
 4. Without a lock, the label box stays **disabled**. An unlocked save does not
    persist.
 
+### Local field required (after lock)
+
+**Mark field required** sets or clears the required flag on **one local field**.
+Shared and system fields have no required editor. The content-type label, the
+description, and every other field stay.
+
+1. Click **Lock**.
+2. Click **Mark field required**, choose one local field, check or clear
+   **Required**, then click **Save required**. The product writes only that
+   field on `PUT /services/contenttypes/{idOrName}`
+   (`fields: [{ name, required }]`) while the lock is still held and does
+   **not** unlock. Checking stores occurrence `required`. Clearing stores
+   occurrence `optional`. A following `GET /services/contenttypes/{idOrName}`
+   returns the new flag.
+3. **Cancel** closes the editor and does not write. Saving the same flag does
+   not write.
+4. A required change on a system or shared field is **400**. Unknown field is
+   **404**. Unlocked or another user's lock is **409**. Non-Admin is **403**.
+   Those errors leave the previous required flag on the page.
+5. Without a lock, **Mark field required** stays **disabled**.
+
 ### Parent field order (after lock)
 
 The Fields table lists parent fields in display order (`sequence` on GET).
@@ -572,6 +593,7 @@ The chrome calls:
 | Lock | `POST /services/contenttypes/{idOrName}/lock` |
 | Save (label, description, fields) | `PUT /services/contenttypes/{idOrName}` (requires a held lock; local field `fields[].label` plus searchable/occurrence; does not send `enabled`, type-level `searchIndexing`, `allowedWorkflows`, or `allowedTemplates`) |
 | Save description | `PUT /services/contenttypes/{idOrName}` (`description` only; omit label, enabled, fields, workflows, and templates; blank description clears; label and enabled stay) |
+| Mark one local field required | `PUT /services/contenttypes/{idOrName}` (`fields: [{ name, required }]` only; other fields, label, and description stay; shared and system fields are **400**; held lock) |
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
 | Type-level search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10; Developer detail **Search indexing** checkbox after lock; PUT requires a held lock; default on; not the per-field searchable flag) |
 | Load icon strategy | `GET /services/contenttypes/{idOrName}/icon` (CD-11; no lock; `none` / `specified` / `fromFileField`) |

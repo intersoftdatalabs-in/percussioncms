@@ -2182,8 +2182,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
   /**
    * Apply writable field patches ({@code searchable}, occurrence / required, local display {@code
-   * label}, parent {@code sequence}). Rule expressions use {@link #replaceFieldRuleExpressions};
-   * control property names/values use {@link #replaceFieldControlProperties}.
+   * label}, parent {@code sequence}). A required flag that does not change the current occurrence
+   * is a no-op, including on system and shared fields. Changing required is local-only. Rule
+   * expressions use {@link #replaceFieldRuleExpressions}; control property names/values use {@link
+   * #replaceFieldControlProperties}.
    */
   private void applyFieldUpdates(PSItemDefinition def, List<ContentTypeField> fields) {
     if (fields == null || fields.isEmpty()) {
@@ -2221,16 +2223,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
               "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence(), e);
         }
       } else if (patch.getRequired() != null) {
-        int dim =
-            Boolean.TRUE.equals(patch.getRequired())
-                ? PSField.OCCURRENCE_DIMENSION_REQUIRED
-                : PSField.OCCURRENCE_DIMENSION_OPTIONAL;
-        try {
-          field.setOccurrenceDimension(dim, null);
-        } catch (PSSystemValidationException e) {
-          throw new IllegalArgumentException(
-              "Invalid required flag for field " + patch.getName(), e);
-        }
+        applyLocalFieldRequired(field, patch.getRequired());
       }
     }
     applyParentFieldOrder(def, fields);
@@ -2411,6 +2404,35 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     PSDisplayText text = new PSDisplayText(label);
     ui.setLabel(text);
     ui.setErrorLabel(text);
+  }
+
+  /**
+   * Set or clear the required flag on one field. An unchanged flag does not rewrite occurrence, so
+   * a one-or-more field stays one-or-more and a system or shared field can be saved with its
+   * current flag. Changing the flag is local-only: required stores {@code required}, and clearing
+   * it stores {@code optional}. System and shared fields are 400.
+   */
+  static void applyLocalFieldRequired(PSField field, Boolean required) {
+    if (field == null || required == null) {
+      return;
+    }
+    boolean next = Boolean.TRUE.equals(required);
+    boolean current = occurrenceImpliesRequired(field.getOccurrenceDimension(null));
+    if (next == current) {
+      return;
+    }
+    if (field.getType() != PSField.TYPE_LOCAL) {
+      throw new IllegalArgumentException(
+          "Field required is writable only for local fields: " + field.getSubmitName());
+    }
+    int dim =
+        next ? PSField.OCCURRENCE_DIMENSION_REQUIRED : PSField.OCCURRENCE_DIMENSION_OPTIONAL;
+    try {
+      field.setOccurrenceDimension(dim, null);
+    } catch (PSSystemValidationException e) {
+      throw new IllegalArgumentException(
+          "Invalid required flag for field " + field.getSubmitName(), e);
+    }
   }
 
   /** Map API occurrence string back to PSField dimension, or null if unknown. */
