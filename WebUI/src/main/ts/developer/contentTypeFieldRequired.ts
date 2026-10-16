@@ -116,21 +116,11 @@ function storedText(value: string | null | undefined): string {
   return storedContentTypeLabel(value);
 }
 
-/**
- * Required flag to show after a required-only update, or null when the response must not
- * replace the previous flag. The sent body must be one local field's required flag. Label,
- * description, enabled, name, and every other field stay. A response that changes those,
- * or that does not echo the sent flag, is not success.
- */
-export function savedContentTypeFieldRequired(
-  sent: ContentTypeUpdateBody,
-  previous: ContentTypeDetail,
-  payload: unknown,
-): AcceptedFieldRequired | null {
-  for (const key of OMITTED_ON_REQUIRED_WRITE) {
-    if (key in sent) {
-      return null;
-    }
+type RequiredPatch = { name: string; required: boolean };
+
+function singleRequiredPatch(sent: ContentTypeUpdateBody): RequiredPatch | null {
+  if (OMITTED_ON_REQUIRED_WRITE.some((key) => key in sent)) {
+    return null;
   }
   const patches = sent.fields;
   if (!patches || patches.length !== 1) {
@@ -148,25 +138,88 @@ export function savedContentTypeFieldRequired(
   ) {
     return null;
   }
-  const saved = unwrapContentTypeDetail(payload);
-  if (!saved || typeof saved !== "object") {
-    return null;
-  }
+  return { name: patch.name.trim(), required: patch.required };
+}
+
+function contentTypeShellUnchanged(
+  previous: ContentTypeDetail,
+  saved: ContentTypeDetail,
+): boolean {
   const previousName = storedText(previous.name);
   const savedName = storedText(saved.name);
   if (!savedName || (previousName && savedName !== previousName)) {
-    return null;
+    return false;
   }
   if (storedContentTypeLabel(saved.label) !== storedContentTypeLabel(previous.label)) {
-    return null;
+    return false;
   }
   if (
     storedContentTypeDescription(saved.description) !==
     storedContentTypeDescription(previous.description)
   ) {
+    return false;
+  }
+  return (previous.enabled !== false) === (saved.enabled !== false);
+}
+
+function fieldKind(field: ContentTypeFieldSummary): string {
+  return (field.fieldType || "").toLowerCase();
+}
+
+function labelsAndKindsMatch(
+  before: ContentTypeFieldSummary,
+  after: ContentTypeFieldSummary,
+): boolean {
+  return (before.label || "").trim() === (after.label || "").trim() && fieldKind(before) === fieldKind(after);
+}
+
+function acceptTargetRequired(
+  before: ContentTypeFieldSummary,
+  after: ContentTypeFieldSummary,
+  patch: RequiredPatch,
+): AcceptedFieldRequired | null {
+  if (fieldKind(before) !== "local" || !labelsAndKindsMatch(before, after)) {
     return null;
   }
-  if ((previous.enabled !== false) !== (saved.enabled !== false)) {
+  if (after.required !== patch.required) {
+    return null;
+  }
+  if (after.occurrence && REQUIRED_OCCURRENCES.has(after.occurrence) !== patch.required) {
+    return null;
+  }
+  return {
+    name: patch.name,
+    required: patch.required,
+    occurrence: after.occurrence || (patch.required ? "required" : "optional"),
+  };
+}
+
+function otherFieldRequiredStays(
+  before: ContentTypeFieldSummary,
+  after: ContentTypeFieldSummary,
+): boolean {
+  return (
+    (before.required === true) === (after.required === true) && labelsAndKindsMatch(before, after)
+  );
+}
+
+/**
+ * Required flag to show after a required-only update, or null when the response must not
+ * replace the previous flag. The sent body must be one local field's required flag. Label,
+ * description, enabled, name, and every other field stay. A response that changes those,
+ * or that does not echo the sent flag, is not success.
+ */
+export function savedContentTypeFieldRequired(
+  sent: ContentTypeUpdateBody,
+  previous: ContentTypeDetail,
+  payload: unknown,
+): AcceptedFieldRequired | null {
+  const patch = singleRequiredPatch(sent);
+  if (!patch) {
+    return null;
+  }
+  const saved = unwrapContentTypeDetail(payload);
+  if (!saved || typeof saved !== "object" || !contentTypeShellUnchanged(previous, saved)) {
     return null;
   }
   const previousFields = normalizeContentTypeFields(previous.fields);
@@ -174,42 +227,19 @@ export function savedContentTypeFieldRequired(
   if (!sameFieldList(previousFields, savedFields)) {
     return null;
   }
-  const targetName = patch.name.trim();
   let accepted: AcceptedFieldRequired | null = null;
   for (let i = 0; i < previousFields.length; i++) {
     const before = previousFields[i];
     const after = savedFields[i];
-    const name = (before.name || "").trim();
-    if (name === targetName) {
-      if ((before.fieldType || "").toLowerCase() !== "local") {
+    if ((before.name || "").trim() === patch.name) {
+      const next = acceptTargetRequired(before, after, patch);
+      if (!next) {
         return null;
       }
-      if ((before.label || "").trim() !== (after.label || "").trim()) {
-        return null;
-      }
-      if ((before.fieldType || "").toLowerCase() !== (after.fieldType || "").toLowerCase()) {
-        return null;
-      }
-      if (after.required !== patch.required) {
-        return null;
-      }
-      if (after.occurrence && REQUIRED_OCCURRENCES.has(after.occurrence) !== patch.required) {
-        return null;
-      }
-      accepted = {
-        name,
-        required: patch.required,
-        occurrence: after.occurrence || (patch.required ? "required" : "optional"),
-      };
+      accepted = next;
       continue;
     }
-    if ((before.required === true) !== (after.required === true)) {
-      return null;
-    }
-    if ((before.label || "").trim() !== (after.label || "").trim()) {
-      return null;
-    }
-    if ((before.fieldType || "").toLowerCase() !== (after.fieldType || "").toLowerCase()) {
+    if (!otherFieldRequiredStays(before, after)) {
       return null;
     }
   }
