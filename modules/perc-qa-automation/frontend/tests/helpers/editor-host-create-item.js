@@ -28,7 +28,9 @@ const TEST_IDS = Object.freeze({
   panel: "editor-create-panel",
   type: "editor-create-type",
   folder: "editor-create-folder",
+  name: "editor-create-name",
   submit: "editor-create-submit",
+  newItem: "editor-new-item",
   error: "editor-create-error",
   contentId: "editor-content-id",
 });

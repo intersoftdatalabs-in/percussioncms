@@ -196,6 +196,7 @@ import {
 import {
   buildEditorCreateRequest,
   canCreateFromEditor,
+  createNameContainsNul,
   editorCreateErrorReason,
   parseCreateLandingContentId,
 } from "./editorCreate";
@@ -3256,6 +3257,11 @@ export function EditorHost({
       setCreateErrorKey(EDITOR_MSG.CREATE_INCOMPLETE);
       return;
     }
+    if (createNameContainsNul(createName) || createNameContainsNul(req.name)) {
+      setCreateErrorDetail("");
+      setCreateErrorKey(EDITOR_MSG.CREATE_NAME_NUL);
+      return;
+    }
     if (!allowLeave()) {
       return;
     }
@@ -4247,6 +4253,9 @@ export function EditorHost({
                 type="text"
                 data-testid="editor-create-name"
                 value={createName}
+                aria-invalid={
+                  createErrorKey === EDITOR_MSG.CREATE_NAME_NUL ? true : undefined
+                }
                 onChange={(e) => setCreateName(e.target.value)}
               />
             </label>

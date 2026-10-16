@@ -28,6 +28,7 @@ const {
 describe("editor-host-create-item helpers (#4646)", () => {
   it("exposes create panel test ids", () => {
     assert.equal(TEST_IDS.panel, "editor-create-panel");
+    assert.equal(TEST_IDS.name, "editor-create-name");
     assert.equal(TEST_IDS.submit, "editor-create-submit");
   });
 
