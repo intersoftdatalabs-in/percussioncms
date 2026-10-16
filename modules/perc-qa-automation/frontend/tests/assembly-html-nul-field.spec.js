@@ -249,6 +249,8 @@ test.describe("assembly host HTML NUL", () => {
       await expect(page.locator('[data-testid="assembly-field-error-displaytitle"]')).toHaveCount(0);
       await expect(page.locator('[data-testid="assembly-field-error-notes"]')).toHaveCount(0);
       expect(puts, "an HTML NUL must not be written").toEqual([]);
+      expect(await body.evaluate((el) => el.textContent || "")).toContain("\u0000");
+      expect(await body.evaluate((el) => el.textContent || "")).toContain("bad");
 
       await page.goto(assemblySpaUrl(BASE_URL, "contentId=42&templateId=7"));
       const reloaded = page.frameLocator('[data-testid="assembly-preview-frame"]');
