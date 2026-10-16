@@ -34,6 +34,12 @@ import {
   validateContextVariable,
 } from "../contextVariable";
 import {
+  buildContextVariableClearBody,
+  contextVariablesAfterSuccessfulClear,
+  mapContextVariableClearError,
+  validateContextVariableClear,
+} from "../contextVariableClear";
+import {
   contextVariablesAfterSuccessfulDelete,
   mapContextVariableDeleteError,
   validateContextVariableDelete,
@@ -85,6 +91,9 @@ export function SiteDesignPanel(): React.ReactElement {
   const [renameDraft, setRenameDraft] = useState("");
   const [renameError, setRenameError] = useState<string | null>(null);
   const [renameSaving, setRenameSaving] = useState(false);
+  const [clearTarget, setClearTarget] = useState<string | null>(null);
+  const [clearError, setClearError] = useState<string | null>(null);
+  const [clearSaving, setClearSaving] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -112,6 +121,8 @@ export function SiteDesignPanel(): React.ReactElement {
     setRenameTarget(null);
     setRenameDraft("");
     setRenameError(null);
+    setClearTarget(null);
+    setClearError(null);
     if (!selectedId || !contextId) {
       setProps([]);
       return;
@@ -132,9 +143,13 @@ export function SiteDesignPanel(): React.ReactElement {
   const renameCurrent =
     props.find((row) => (row.name ?? "").trim() === renameName)?.value ?? "";
   const renameOthers = props.filter((row) => (row.name ?? "").trim() !== renameName);
+  const clearName = (clearTarget ?? "").trim();
+  const clearCurrent =
+    props.find((row) => (row.name ?? "").trim() === clearName)?.value ?? "";
+  const clearOthers = props.filter((row) => (row.name ?? "").trim() !== clearName);
 
   async function saveProp(): Promise<void> {
-    if (saving || valueSaving || deleteSaving || renameSaving) {
+    if (saving || valueSaving || deleteSaving || renameSaving || clearSaving) {
       return;
     }
     if (!selectedId || !contextId) {
@@ -185,7 +200,7 @@ export function SiteDesignPanel(): React.ReactElement {
   }
 
   function openValueChange(row: SitePropertyDto): void {
-    if (valueSaving || deleteSaving || renameSaving) {
+    if (valueSaving || deleteSaving || renameSaving || clearSaving) {
       return;
     }
     setDeleteTarget(null);
@@ -193,6 +208,8 @@ export function SiteDesignPanel(): React.ReactElement {
     setRenameTarget(null);
     setRenameDraft("");
     setRenameError(null);
+    setClearTarget(null);
+    setClearError(null);
     setValueTarget(row.name ?? "");
     setValueDraft("");
     setValueError(null);
@@ -208,7 +225,7 @@ export function SiteDesignPanel(): React.ReactElement {
   }
 
   async function saveValue(): Promise<void> {
-    if (valueSaving || saving || deleteSaving || renameSaving || !valueTarget) {
+    if (valueSaving || saving || deleteSaving || renameSaving || clearSaving || !valueTarget) {
       return;
     }
     if (!selectedId || !contextId) {
@@ -255,7 +272,7 @@ export function SiteDesignPanel(): React.ReactElement {
   }
 
   function openDelete(row: SitePropertyDto): void {
-    if (deleteSaving || valueSaving || renameSaving) {
+    if (deleteSaving || valueSaving || renameSaving || clearSaving) {
       return;
     }
     const name = (row.name ?? "").trim();
@@ -268,6 +285,8 @@ export function SiteDesignPanel(): React.ReactElement {
     setRenameTarget(null);
     setRenameDraft("");
     setRenameError(null);
+    setClearTarget(null);
+    setClearError(null);
     setDeleteTarget(name);
     setDeleteError(null);
   }
@@ -281,7 +300,7 @@ export function SiteDesignPanel(): React.ReactElement {
   }
 
   async function confirmDelete(): Promise<void> {
-    if (deleteSaving || saving || valueSaving || renameSaving || !deleteTarget) {
+    if (deleteSaving || saving || valueSaving || renameSaving || clearSaving || !deleteTarget) {
       return;
     }
     if (!selectedId || !contextId) {
@@ -314,7 +333,7 @@ export function SiteDesignPanel(): React.ReactElement {
   }
 
   function openRename(row: SitePropertyDto): void {
-    if (renameSaving || valueSaving || deleteSaving) {
+    if (renameSaving || valueSaving || deleteSaving || clearSaving) {
       return;
     }
     const name = (row.name ?? "").trim();
@@ -326,6 +345,8 @@ export function SiteDesignPanel(): React.ReactElement {
     setValueError(null);
     setDeleteTarget(null);
     setDeleteError(null);
+    setClearTarget(null);
+    setClearError(null);
     setRenameTarget(name);
     setRenameDraft("");
     setRenameError(null);
@@ -341,7 +362,7 @@ export function SiteDesignPanel(): React.ReactElement {
   }
 
   async function saveRename(): Promise<void> {
-    if (renameSaving || saving || valueSaving || deleteSaving || !renameTarget) {
+    if (renameSaving || saving || valueSaving || deleteSaving || clearSaving || !renameTarget) {
       return;
     }
     if (!selectedId || !contextId) {
@@ -386,6 +407,80 @@ export function SiteDesignPanel(): React.ReactElement {
       setRenameError(mapContextVariableRenameError(e));
     } finally {
       setRenameSaving(false);
+    }
+  }
+
+  function openClear(row: SitePropertyDto): void {
+    if (clearSaving || valueSaving || deleteSaving || renameSaving) {
+      return;
+    }
+    const name = (row.name ?? "").trim();
+    if (!name) {
+      return;
+    }
+    setValueTarget(null);
+    setValueDraft("");
+    setValueError(null);
+    setDeleteTarget(null);
+    setDeleteError(null);
+    setRenameTarget(null);
+    setRenameDraft("");
+    setRenameError(null);
+    setClearTarget(name);
+    setClearError(null);
+  }
+
+  function closeClear(): void {
+    if (clearSaving) {
+      return;
+    }
+    setClearTarget(null);
+    setClearError(null);
+  }
+
+  async function confirmClear(): Promise<void> {
+    if (clearSaving || saving || valueSaving || deleteSaving || renameSaving || !clearTarget) {
+      return;
+    }
+    if (!selectedId || !contextId) {
+      setClearError("Site, context, and property name are required");
+      return;
+    }
+    const validated = validateContextVariableClear(clearTarget, props);
+    if (!validated.ok) {
+      setClearError(validated.error);
+      return;
+    }
+    const previous = props;
+    setClearSaving(true);
+    setClearError(null);
+    try {
+      const saved = await putSiteProperty(
+        selectedId,
+        buildContextVariableClearBody(validated.name, contextId),
+      );
+      let refreshed: SitePropertyDto[] | null = null;
+      try {
+        refreshed = await listSiteProperties(selectedId, contextId);
+      } catch {
+        refreshed = null;
+      }
+      setProps(
+        contextVariablesAfterSuccessfulClear(
+          refreshed,
+          {
+            name: (saved.name ?? validated.name).trim(),
+            contextId: saved.contextId ?? contextId,
+            value: "",
+          },
+          previous,
+        ),
+      );
+      setClearTarget(null);
+    } catch (e) {
+      setClearError(mapContextVariableClearError(e));
+    } finally {
+      setClearSaving(false);
     }
   }
 
@@ -462,6 +557,14 @@ export function SiteDesignPanel(): React.ReactElement {
               onClick={() => openValueChange(p)}
             >
               Change value
+            </button>
+            <button
+              type="button"
+              style={buttonStyle}
+              data-testid="context-variable-clear"
+              onClick={() => openClear(p)}
+            >
+              Clear value
             </button>
             <button
               type="button"
@@ -566,6 +669,53 @@ export function SiteDesignPanel(): React.ReactElement {
               data-testid="context-variable-rename-cancel"
               disabled={renameSaving}
               onClick={closeRename}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+      {clearTarget && (
+        <div data-testid="context-variable-clear-form">
+          <h4>Clear context variable value</h4>
+          <p data-testid="context-variable-clear-fields-note">
+            Confirm clears only this value. The name stays. Other variables stay. The change-value
+            form still requires a value.
+          </p>
+          <p>
+            Name: <span data-testid="context-variable-clear-name">{clearName}</span>
+          </p>
+          <p>
+            Current: <span data-testid="context-variable-clear-current">{clearCurrent}</span>
+          </p>
+          <ul data-testid="context-variable-clear-others" style={listStyle}>
+            {clearOthers.map((row) => (
+              <li key={row.name} data-testid="context-variable-clear-other">
+                {row.name}: {row.value}
+              </li>
+            ))}
+          </ul>
+          {clearError && (
+            <p style={errorStyle} role="alert" data-testid="context-variable-clear-error">
+              {clearError}
+            </p>
+          )}
+          <div style={toolbarStyle}>
+            <button
+              type="button"
+              style={primaryButtonStyle}
+              data-testid="context-variable-clear-confirm"
+              disabled={clearSaving}
+              onClick={() => void confirmClear()}
+            >
+              Clear value
+            </button>
+            <button
+              type="button"
+              style={buttonStyle}
+              data-testid="context-variable-clear-cancel"
+              disabled={clearSaving}
+              onClick={closeClear}
             >
               Cancel
             </button>

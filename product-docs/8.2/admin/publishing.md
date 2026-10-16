@@ -348,9 +348,34 @@ A name that is not listed does not call the server and does not create one.
 HTTP **400** (value missing or longer than its column), **403** (not Admin or Designer),
 and **409** (that name is not listed on the context) stay in the value form error region.
 Those responses do not change the displayed value and do not change the other variables.
-Adding a new name is described under **Set one context variable**. Renaming a variable is
+A blank value in this form does not clear the stored value. Clearing a stored value while
+keeping the name is described under **Clear one context variable value**. Adding a new name
+is described under **Set one context variable**. Renaming a variable is
 described under **Rename one context variable**. Deleting a variable is
 described under **Delete one context variable**.
+
+### Clear one context variable value (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Sites**.
+Choose a **site** and a **context**. On a variable that is already listed, choose **Clear
+value**. The name and the current value are shown. The name is not edited. Other variables
+on that context are listed and are not the ones this action clears.
+
+**Cancel** does not call the server and leaves the previous value.
+
+**Clear value** calls `PUT …/sitemanage/publishingdesign/sites/{siteId}/properties`. The JSON
+document root is `siteProperty` with the same `name`, `contextId`, and `clearValue` true.
+The value is omitted. The list shows the same name and an empty value only after the server
+accepts. Another variable on that context stays, including its value. If the list refresh
+fails after a successful clear, the previous variables stay and this variable still shows
+an empty value. The row is not deleted. **Change value** still refuses a blank value and
+does not call the server for one.
+
+HTTP **400** (the name or context is missing, the name is longer than 50 characters, or
+clear is combined with a value change or a rename), **403** (not Admin or Designer), and
+**409** (that name is not listed on the context) stay in the clear form error region.
+Those responses keep the previous value and do not change the other variables. Adding a
+name, changing a value, renaming, and deleting are separate actions.
 
 ### Delete one context variable (Design)
 

@@ -137,11 +137,18 @@ export interface SitePropertyDto {
   /**
    * Update-only. When true, {@code name} is the stored name and {@code newName}
    * is the new name. The stored value stays. Other variables stay. Omit to
-   * create a new name or to change a value.
+   * create a new name or to change a value. Do not combine with {@code clearValue}.
    */
   renameName?: boolean;
   /** New name when {@code renameName} is true. */
   newName?: string;
+  /**
+   * Update-only. When true, clear the stored value of this name on the context.
+   * The name stays. Other variables stay. Omit to create a name, change a
+   * value, or rename. Do not combine with {@code updateValue} or {@code renameName}.
+   * A blank value on the change-value form is not this flag.
+   */
+  clearValue?: boolean;
 }
 
 export interface EditionContentListAssoc {
@@ -858,6 +865,7 @@ export function wrapSiteProperty(body: SitePropertyDto): {
       ...(body.value !== undefined ? { value: body.value } : {}),
       ...(body.updateValue ? { updateValue: true } : {}),
       ...(body.renameName ? { renameName: true, newName: body.newName } : {}),
+      ...(body.clearValue ? { clearValue: true } : {}),
     },
   };
 }
