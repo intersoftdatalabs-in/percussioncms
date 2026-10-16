@@ -142,13 +142,55 @@ class ContentTypeAdaptorUpdateTest {
     ContentTypeDetail body = new ContentTypeDetail();
     body.setLabel("Pages");
 
-    adaptor.updateContentType(null, "311", body);
+    ContentTypeDetail out = adaptor.updateContentType(null, "311", body);
 
+    assertEquals("Pages", out.getLabel());
+    assertEquals("percPage", out.getName());
+    assertEquals("desc", out.getDescription());
+    assertEquals(Boolean.TRUE, out.getEnabled());
     @SuppressWarnings("unchecked")
     ArgumentCaptor<List<PSItemDefinition>> saved = ArgumentCaptor.forClass(List.class);
     verify(designWs).saveContentTypes(saved.capture(), eq(false), eq("test-session"), eq("Admin"));
     assertSame(def, saved.getValue().get(0));
     verify(def).setLabel("Pages");
+    verify(def, never()).setName(any());
+    verify(def, never()).setDescription(any());
+    verify(def, never()).setEnabled(anyBoolean());
+  }
+
+  @Test
+  void update_blankLabelShowsNameAndLeavesDescriptionAndEnabled() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubLockedDefinition("percPage", "Page", "desc");
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setLabel("  \n ");
+
+    ContentTypeDetail out = adaptor.updateContentType(null, "311", body);
+
+    assertEquals("percPage", out.getLabel());
+    assertEquals("percPage", out.getName());
+    assertEquals("desc", out.getDescription());
+    assertEquals(Boolean.TRUE, out.getEnabled());
+    verify(def).setLabel("percPage");
+    verify(def, never()).setLabel("");
+    verify(def, never()).setName(any());
+    verify(def, never()).setDescription(any());
+    verify(def, never()).setEnabled(anyBoolean());
+  }
+
+  @Test
+  void update_trimsLabelAndDoesNotRename() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubLockedDefinition("percPage", "Page", "desc");
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setLabel("  Pages\n");
+
+    ContentTypeDetail out = adaptor.updateContentType(null, "311", body);
+
+    assertEquals("Pages", out.getLabel());
+    assertEquals("percPage", out.getName());
+    verify(def).setLabel("Pages");
+    verify(def, never()).setName(any());
   }
 
   @Test

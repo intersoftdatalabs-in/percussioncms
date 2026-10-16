@@ -2149,13 +2149,34 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   private void applyMetaUpdates(PSItemDefinition def, ContentTypeDetail body) {
     // Name is not applied here; CD-01 rename uses renameContentType / PUT .../name.
     if (body.getLabel() != null) {
-      def.setLabel(body.getLabel());
+      applyContentTypeLabel(def, body.getLabel());
     }
     if (body.getDescription() != null) {
       def.setDescription(body.getDescription());
     }
     if (body.getEnabled() != null) {
       def.setEnabled(body.getEnabled());
+    }
+  }
+
+  /**
+   * Apply a content-type label. A non-blank label replaces the stored label after surrounding
+   * space and line breaks are removed. An explicit blank label does not clear the internal name:
+   * the name is stored as the label so the catalog shows the name. Description and enabled are not
+   * changed.
+   */
+  static void applyContentTypeLabel(PSItemDefinition def, String rawLabel) {
+    if (def == null || rawLabel == null) {
+      return;
+    }
+    String label = rawLabel.replaceAll("[\\r\\n]+", " ").trim();
+    if (!label.isEmpty()) {
+      def.setLabel(label);
+      return;
+    }
+    String name = StringUtils.trimToEmpty(def.getName());
+    if (!name.isEmpty()) {
+      def.setLabel(name);
     }
   }
 

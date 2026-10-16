@@ -117,6 +117,12 @@ import {
   storedContentTypeDescription,
 } from "./contentTypeDescription";
 import { CT_DESC_MSG } from "./contentTypeDescriptionMessages";
+import {
+  contentTypeLabelWrite,
+  savedContentTypeLabel,
+  shownContentTypeLabel,
+} from "./contentTypeLabel";
+import { CT_LABEL_MSG } from "./contentTypeLabelMessages";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
@@ -284,7 +290,7 @@ export function ContentTypeDetailPanel({
   onDeleted?: () => void;
   /** Catalog refresh after a successful PUT .../name (selection key may change). */
   onRenamed?: (newName: string, detail: ContentTypeDetail) => void;
-  /** Catalog refresh after a description-only save. */
+  /** Catalog refresh after a description-only or label-only save. */
   onSaved?: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<ContentTypeDetail | null>(null);
@@ -295,6 +301,13 @@ export function ContentTypeDetailPanel({
     { kind: "type" } | { kind: "field"; name: string } | null
   >(null);
   const [label, setLabel] = useState("");
+  const [labelShown, setLabelShown] = useState("");
+  const [labelDraft, setLabelDraft] = useState("");
+  const [labelEditing, setLabelEditing] = useState(false);
+  const [labelBusy, setLabelBusy] = useState(false);
+  const [labelError, setLabelError] = useState<string | null>(null);
+  const [labelNotice, setLabelNotice] = useState<string | null>(null);
+  const labelInflight = useRef(false);
   const [description, setDescription] = useState("");
   const [descriptionShown, setDescriptionShown] = useState("");
   const [descriptionDraft, setDescriptionDraft] = useState("");
@@ -384,6 +397,12 @@ export function ContentTypeDetailPanel({
     setDescriptionError(null);
     setDescriptionNotice(null);
     descriptionInflight.current = false;
+    setLabelShown("");
+    setLabelDraft("");
+    setLabelEditing(false);
+    setLabelError(null);
+    setLabelNotice(null);
+    labelInflight.current = false;
     setHeldLock(false);
     heldLockRef.current = false;
     setSearchIndexing(true);
@@ -476,6 +495,7 @@ export function ContentTypeDetailPanel({
         setDetail(normalized);
         setNameDraft(asContentTypeText(normalized.name) || idOrName);
         setLabel(asContentTypeText(normalized.label));
+        setLabelShown(shownContentTypeLabel(normalized.label, normalized.name));
         setDescription(asContentTypeText(normalized.description));
         setDescriptionShown(storedContentTypeDescription(asContentTypeText(normalized.description)));
         setEnabled(normalized.enabled !== false);
@@ -775,6 +795,7 @@ export function ContentTypeDetailPanel({
     const normalized = normalizeDetailLists(saved);
     setDetail(normalized);
     setLabel(asContentTypeText(normalized.label));
+    setLabelShown(shownContentTypeLabel(normalized.label, normalized.name));
     setDescription(asContentTypeText(normalized.description));
     setDescriptionShown(storedContentTypeDescription(asContentTypeText(normalized.description)));
     setEnabled(normalized.enabled !== false);
@@ -1034,6 +1055,7 @@ export function ContentTypeDetailPanel({
       setDetail(saved);
       setNameDraft(renamed);
       setLabel(asContentTypeText(saved.label));
+      setLabelShown(shownContentTypeLabel(saved.label, saved.name));
       setDescription(asContentTypeText(saved.description));
       setDescriptionShown(storedContentTypeDescription(asContentTypeText(saved.description)));
       setEnabled(saved.enabled !== false);
@@ -1436,6 +1458,7 @@ export function ContentTypeDetailPanel({
       const normalized = normalizeDetailLists(saved);
       setDetail(normalized);
       setLabel(asContentTypeText(normalized.label));
+      setLabelShown(shownContentTypeLabel(normalized.label, normalized.name));
       setDescription(asContentTypeText(normalized.description));
       setDescriptionShown(storedContentTypeDescription(asContentTypeText(normalized.description)));
       setEnabled(normalized.enabled !== false);
@@ -1463,8 +1486,107 @@ export function ContentTypeDetailPanel({
     return CT_DESC_MSG.ERROR;
   }
 
+  function labelSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return CT_LABEL_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return CT_LABEL_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return CT_LABEL_MSG.CONFLICT;
+    return CT_LABEL_MSG.ERROR;
+  }
+
+  function startLabelEdit(): void {
+    if (
+      !heldLockRef.current ||
+      !detail ||
+      busy ||
+      labelBusy ||
+      descriptionBusy ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      descriptionEditing
+    ) {
+      return;
+    }
+    setLabelDraft(labelShown);
+    setLabelError(null);
+    setLabelNotice(null);
+    setLabelEditing(true);
+  }
+
+  function cancelLabelEdit(): void {
+    if (labelBusy || labelInflight.current) return;
+    setLabelEditing(false);
+    setLabelDraft("");
+    setLabelError(null);
+  }
+
+  async function handleLabelSave(): Promise<void> {
+    if (
+      !detail ||
+      !labelEditing ||
+      !heldLockRef.current ||
+      busy ||
+      labelBusy ||
+      descriptionBusy ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      descriptionEditing
+    ) {
+      return;
+    }
+    const sent = contentTypeLabelWrite(detail, labelDraft);
+    if (sent === "unchanged") {
+      setLabelEditing(false);
+      setLabelDraft("");
+      setLabelError(null);
+      return;
+    }
+    labelInflight.current = true;
+    setLabelBusy(true);
+    setBusy(true);
+    setLabelError(null);
+    setLabelNotice(null);
+    const previousShown = labelShown;
+    const previousLabel = label;
+    try {
+      const saved = await updateContentTypeDetail(activeKeyRef.current, sent);
+      const accepted = savedContentTypeLabel(sent, detail, saved);
+      if (accepted == null) {
+        setLabel(previousLabel);
+        setLabelShown(previousShown);
+        setLabelError(CT_LABEL_MSG.ERROR);
+        setLabelNotice(null);
+        return;
+      }
+      setDetail({ ...detail, label: accepted });
+      setLabel(accepted);
+      setLabelShown(accepted);
+      setLabelEditing(false);
+      setLabelDraft("");
+      setLabelNotice(sent.label ? CT_LABEL_MSG.SAVED : CT_LABEL_MSG.CLEARED);
+      onSaved?.();
+    } catch (err: unknown) {
+      setLabel(previousLabel);
+      setLabelShown(previousShown);
+      setLabelError(panelErrMsg(err, labelSaveFallback(err)));
+      setLabelNotice(null);
+    } finally {
+      labelInflight.current = false;
+      setLabelBusy(false);
+      setBusy(false);
+    }
+  }
+
   function startDescriptionEdit(): void {
-    if (!heldLockRef.current || !detail || busy || descriptionBusy || descriptionInflight.current) {
+    if (
+      !heldLockRef.current ||
+      !detail ||
+      busy ||
+      descriptionBusy ||
+      labelBusy ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      labelEditing
+    ) {
       return;
     }
     setDescriptionDraft(descriptionShown);
@@ -1487,7 +1609,10 @@ export function ContentTypeDetailPanel({
       !heldLockRef.current ||
       busy ||
       descriptionBusy ||
-      descriptionInflight.current
+      labelBusy ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      labelEditing
     ) {
       return;
     }
@@ -2231,6 +2356,94 @@ export function ContentTypeDetailPanel({
                 disabled={!canEdit}
               />
             </div>
+            <section
+              data-testid="developer-ct-set-label"
+              aria-label={CT_LABEL_MSG.ACTION}
+              style={{ marginTop: "12px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{CT_LABEL_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.9rem" }}>
+                {CT_LABEL_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-ct-set-label-text"
+                data-ct-label={labelShown}
+                style={{ marginTop: 0 }}
+              >
+                {labelShown}
+              </p>
+              {labelError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-ct-set-label-error"
+                  style={{ color: catalogColors.error }}
+                >
+                  {labelError}
+                </div>
+              ) : null}
+              {labelNotice ? (
+                <div data-testid="developer-ct-set-label-notice" style={{ color: "#276749" }}>
+                  {labelNotice}
+                </div>
+              ) : null}
+              {labelEditing ? (
+                <div data-testid="developer-ct-set-label-editor">
+                  <label htmlFor="ct-set-label-input" style={{ display: "block", marginBottom: 4 }}>
+                    {CT_LABEL_MSG.FIELD}
+                  </label>
+                  <input
+                    id="ct-set-label-input"
+                    data-testid="developer-ct-set-label-input"
+                    style={inputStyle}
+                    value={labelDraft}
+                    disabled={labelBusy}
+                    onChange={(e) => setLabelDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-ct-set-label-save"
+                      aria-label={CT_LABEL_MSG.SAVE}
+                      disabled={labelBusy}
+                      onClick={() => void handleLabelSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: labelBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {CT_LABEL_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-ct-set-label-cancel"
+                      disabled={labelBusy}
+                      onClick={cancelLabelEdit}
+                      style={smallBtnStyle}
+                    >
+                      {CT_LABEL_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-ct-set-label-edit"
+                  aria-label={CT_LABEL_MSG.ACTION}
+                  disabled={!heldLock || busy || labelBusy || descriptionEditing || descriptionBusy}
+                  onClick={startLabelEdit}
+                  style={{
+                    ...smallBtnStyle,
+                    cursor: !heldLock || busy || descriptionEditing ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {CT_LABEL_MSG.ACTION}
+                </button>
+              )}
+            </section>
             <div style={{ marginTop: "12px" }}>
               <label htmlFor="ct-desc" style={{ display: "block", marginBottom: 4 }}>
                 {DEV_MSG.CT_FORM_DESCRIPTION}
@@ -2321,7 +2534,9 @@ export function ContentTypeDetailPanel({
                   type="button"
                   data-testid="developer-ct-set-description-edit"
                   aria-label={CT_DESC_MSG.ACTION}
-                  disabled={!heldLock || busy || descriptionBusy}
+                  disabled={
+                    !heldLock || busy || descriptionBusy || labelEditing || labelBusy
+                  }
                   onClick={startDescriptionEdit}
                   style={{
                     ...smallBtnStyle,
