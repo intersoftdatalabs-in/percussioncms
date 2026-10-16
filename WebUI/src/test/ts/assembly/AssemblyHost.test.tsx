@@ -1288,6 +1288,267 @@ describe("AssemblyHost", () => {
     });
   });
 
+  function requiredLinkSchema(required = true) {
+    return {
+      fields: linkSchema.fields.map((field) =>
+        field.name === "pagelink" ? { ...field, required } : field,
+      ),
+    };
+  }
+
+  it("does not save a blank required link and reloads the previous link", async () => {
+    const previewDoc = linkPreviewDoc();
+    const saveFields = vi.fn();
+    renderLinkHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(OLD_LINK)),
+      requiredLinkSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+      ).toBeTruthy();
+    });
+    const input = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    expect(input.getAttribute("aria-required")).toBe("true");
+    expect(input.getAttribute("data-assembly-required")).toBe("true");
+    expect(screen.getByTestId("assembly-field-chip-pagelink").getAttribute("data-required")).toBe(
+      "true",
+    );
+    input.value = "";
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-pagelink").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/required/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /cannot be saved/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(input.value).toBe("");
+    expect(screen.queryByTestId("assembly-field-error-description")).toBeNull();
+    cleanup();
+    const reloaded = linkPreviewDoc();
+    renderLinkHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(OLD_LINK)),
+      requiredLinkSchema(),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-pagelink"]',
+      ) as HTMLInputElement | null;
+      expect(live?.value).toBe(OLD_LINK);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+  });
+
+  it("does not save whitespace-only required link and keeps the previous value", async () => {
+    const previewDoc = linkPreviewDoc();
+    const saveFields = vi.fn();
+    renderLinkHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(OLD_LINK)),
+      requiredLinkSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+      ).toBeTruthy();
+    });
+    const input = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    input.value = "  \n  ";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-pagelink").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /cannot be saved/i,
+    );
+    cleanup();
+    const reloaded = linkPreviewDoc();
+    renderLinkHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(OLD_LINK)),
+      requiredLinkSchema(),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-pagelink"]',
+      ) as HTMLInputElement | null;
+      expect(live?.value).toBe(OLD_LINK);
+    });
+  });
+
+  it("does not write when Cancel leaves a blank required link edit", async () => {
+    const previewDoc = linkPreviewDoc();
+    const saveFields = vi.fn();
+    renderLinkHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(OLD_LINK)),
+      requiredLinkSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+      ).toBeTruthy();
+    });
+    const input = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    input.value = "";
+    fireEvent.click(screen.getByTestId("assembly-field-cancel"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(input.value).toBe(OLD_LINK);
+    expect(screen.queryByTestId("assembly-field-error-pagelink")).toBeNull();
+  });
+
+  it("still saves a non-blank required link", async () => {
+    let linkValue = OLD_LINK;
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      linkValue = body.fields.find((field) => field.name === "pagelink")?.value ?? linkValue;
+      return linkPayload(linkValue);
+    });
+    const previewDoc = linkPreviewDoc();
+    renderLinkHost(
+      previewDoc,
+      saveFields,
+      vi.fn(async () => linkPayload(linkValue)),
+      requiredLinkSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+      ).toBeTruthy();
+    });
+    const input = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    input.value = NEW_LINK;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    });
+    const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "pagelink")).toEqual({
+      name: "pagelink",
+      value: NEW_LINK,
+      dataType: "link",
+    });
+    expect(sent.fields.find((field) => field.name === "description")?.value).toBe(
+      "<p>About the site</p>",
+    );
+    expect(screen.queryByTestId("assembly-field-error-pagelink")).toBeNull();
+    cleanup();
+    const reloaded = linkPreviewDoc(NEW_LINK);
+    renderLinkHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(NEW_LINK)),
+      requiredLinkSchema(),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-pagelink"]',
+      ) as HTMLInputElement | null;
+      expect(live?.value).toBe(NEW_LINK);
+    });
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s on a required link does not claim success",
+    async (status) => {
+      const previewDoc = linkPreviewDoc();
+      const saveFields = vi.fn().mockRejectedValue({ status });
+      renderLinkHost(
+        previewDoc,
+        saveFields,
+        vi.fn().mockResolvedValue(linkPayload(OLD_LINK)),
+        requiredLinkSchema(),
+      );
+      await waitFor(() => {
+        expect(
+          previewDoc.querySelector('[data-testid="assembly-inline-field-pagelink"]'),
+        ).toBeTruthy();
+      });
+      const input = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-pagelink"]',
+      ) as HTMLInputElement;
+      input.value = NEW_LINK;
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+          /could not save/i,
+        );
+        const live = previewDoc.querySelector(
+          '[data-testid="assembly-inline-field-pagelink"]',
+        ) as HTMLInputElement | null;
+        expect(live?.isConnected).toBe(true);
+        expect(live?.value).toBe(OLD_LINK);
+      });
+      expect(saveFields).toHaveBeenCalled();
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+      expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+      expect(screen.queryByTestId("assembly-field-error-pagelink")).toBeNull();
+    },
+  );
+
+  it("refuses a blank required link on the overlay strip", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn();
+    renderLinkHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(linkPayload(OLD_LINK)),
+      requiredLinkSchema(),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-pagelink")).toBeTruthy();
+    });
+    const input = screen.getByTestId(
+      "assembly-overlay-field-pagelink",
+    ) as HTMLInputElement;
+    expect(input.getAttribute("aria-required")).toBe("true");
+    expect(input.getAttribute("data-assembly-required")).toBe("true");
+    input.value = "   ";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-pagelink").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /cannot be saved/i,
+    );
+    expect(input.getAttribute("aria-invalid")).toBe("true");
+    expect(input.value).toBe("   ");
+  });
+
   const OLD_TEXT = "Welcome";
   const NEW_TEXT = "Updated welcome";
   const LONG_NOTE = "A long note";
