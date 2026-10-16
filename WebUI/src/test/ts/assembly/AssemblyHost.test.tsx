@@ -1647,8 +1647,13 @@ describe("AssemblyHost", () => {
     );
     expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
     expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
-    expect(input.getAttribute("aria-invalid")).toBe("true");
-    expect(input.value).toBe("");
+    await waitFor(() => {
+      const live = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-pagelink"]',
+      ) as HTMLInputElement | null;
+      expect(live?.getAttribute("aria-invalid")).toBe("true");
+      expect(live?.value).toBe("");
+    });
     expect(screen.queryByTestId("assembly-field-error-description")).toBeNull();
     cleanup();
     const reloaded = linkPreviewDoc();

@@ -775,6 +775,8 @@ export function AssemblyHost({
         }
       }
       setFieldErrors(errors);
+      markAssemblyFieldErrors(doc, errors);
+      markAssemblyFieldErrors(bar, errors);
       setFieldNotice(
         requiredBlank
           ? requiredText
