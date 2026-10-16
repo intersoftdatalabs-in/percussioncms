@@ -8318,6 +8318,209 @@ describe("EditorHost workflow transitions (#4539)", () => {
   });
 });
 
+describe("EditorHost refuse a workflow comment NUL (#5443)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function titleType() {
+    return { fields: [{ name: "sys_title", label: "Title", readOnly: false }] };
+  }
+
+  function renderEdit(extra: Partial<React.ComponentProps<typeof EditorHost>> = {}) {
+    const checkout = extra.checkout ?? vi.fn().mockResolvedValue(undefined);
+    const loadFields = extra.loadFields ?? vi.fn().mockResolvedValue(fields);
+    return render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                loadFields={loadFields}
+                loadType={extra.loadType ?? (async () => titleType())}
+                loadTransitions={
+                  extra.loadTransitions ??
+                  (async () => ({
+                    stateName: "Draft",
+                    transitionTriggers: ["Submit", "Reject"],
+                  }))
+                }
+                runTransition={extra.runTransition}
+                commentRequiredTriggers={extra.commentRequiredTriggers}
+                loadWorkflowChoices={
+                  extra.loadWorkflowChoices ?? (async () => ({ choices: [] }))
+                }
+                changeWorkflow={extra.changeWorkflow}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it("refuses a NUL comment before transition and keeps the Draft state", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    const loadTransitions = vi.fn().mockResolvedValue({
+      stateName: "Draft",
+      transitionTriggers: ["Submit", "Reject"],
+    });
+    renderEdit({ runTransition, loadTransitions });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "bad\u0000value" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    expect(runTransition).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-workflow-error").textContent).toMatch(
+      /transition comment contains a character that cannot be saved/i,
+    );
+    expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
+    expect(screen.queryByTestId("editor-workflow-done")).toBeNull();
+    expect(loadTransitions).toHaveBeenCalledTimes(1);
+  });
+
+  it("still runs a blank optional comment and an ordinary comment", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    const loadTransitions = vi
+      .fn()
+      .mockResolvedValueOnce({
+        stateName: "Draft",
+        transitionTriggers: ["Submit", "Reject"],
+      })
+      .mockResolvedValue({
+        stateName: "Review",
+        transitionTriggers: ["Approve"],
+      });
+    renderEdit({ runTransition, loadTransitions });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Submit")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(runTransition).toHaveBeenCalledWith("42", "Submit", undefined);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Review/);
+    });
+
+    cleanup();
+    const runAgain = vi.fn().mockResolvedValue({});
+    const loadAgain = vi
+      .fn()
+      .mockResolvedValueOnce({
+        stateName: "Draft",
+        transitionTriggers: ["Submit"],
+      })
+      .mockResolvedValue({
+        stateName: "Review",
+        transitionTriggers: ["Approve"],
+      });
+    renderEdit({ runTransition: runAgain, loadTransitions: loadAgain });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Submit")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "ready" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(runAgain).toHaveBeenCalledWith("42", "Submit", "ready");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-done")).toBeTruthy();
+    });
+  });
+
+  it("keeps the required-comment gate and does not call the server on cancel", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    const loadTransitions = vi.fn().mockResolvedValue({
+      stateName: "Draft",
+      transitionTriggers: ["Submit", "Reject"],
+      assigneeRequiredTriggers: ["Submit"],
+    });
+    renderEdit({ runTransition, loadTransitions });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Reject")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Reject"));
+    expect(screen.getByTestId("editor-workflow-error").textContent).toMatch(/Enter a comment/i);
+    expect(screen.getByTestId("editor-workflow-error").textContent).not.toMatch(
+      /character that cannot be saved/i,
+    );
+    expect(runTransition).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "needs\u0000work" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Reject"));
+    expect(screen.getByTestId("editor-workflow-error").textContent).toMatch(
+      /transition comment contains a character that cannot be saved/i,
+    );
+    expect(runTransition).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-workflow-assignee-dialog")).toBeNull();
+
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "ready" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-assignee-dialog")).toBeTruthy();
+    });
+    expect(runTransition).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-workflow-assignee-dialog")).toBeNull();
+    });
+    expect(runTransition).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
+  });
+
+  it("does not treat HTTP 400, 403, or 409 as a completed transition", async () => {
+    const statuses = [400, 403, 409];
+    const patterns = [
+      /was rejected/i,
+      /not allowed for this item/i,
+      /item state rejected it/i,
+    ];
+    for (let i = 0; i < statuses.length; i += 1) {
+      cleanup();
+      const runTransition = vi.fn().mockRejectedValue({
+        status: statuses[i],
+        statusText: "no",
+        body: null,
+      });
+      const loadTransitions = vi.fn().mockResolvedValue({
+        stateName: "Draft",
+        transitionTriggers: ["Submit"],
+      });
+      renderEdit({ runTransition, loadTransitions });
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-workflow-trigger-Submit")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+        target: { value: "ready" },
+      });
+      fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-workflow-error").textContent).toMatch(patterns[i]);
+      });
+      expect(runTransition).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
+      expect(screen.queryByTestId("editor-workflow-done")).toBeNull();
+      expect(loadTransitions).toHaveBeenCalledTimes(1);
+    }
+  });
+});
+
 describe("EditorHost stage the open item (#4915)", () => {
   afterEach(() => {
     cleanup();

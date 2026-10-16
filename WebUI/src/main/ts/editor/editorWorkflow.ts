@@ -20,7 +20,8 @@
  *
  * <p>Allowed triggers come from itemmanagement {@code getTransitions}. Comment
  * required is a client gate for reject-style triggers (the getTransitions DTO
- * does not carry {@code requiresComment}). Unauthorized names never run.</p>
+ * does not carry {@code requiresComment}). Unauthorized names never run. A
+ * transition comment that contains a NUL never runs (#5443).</p>
  */
 
 import type { EditorHostMode } from "./editorHostUrl";
@@ -39,6 +40,7 @@ export type EditorTransitionBlockReason =
   | "readonly"
   | "unauthorized"
   | "comment"
+  | "nul"
   | "assignees";
 
 /** HTTP failures that must not be shown as a completed transition (#5163). */
@@ -103,10 +105,23 @@ export function triggerRequiresComment(
 }
 
 /**
+ * True when a workflow transition comment contains a NUL.
+ * A blank comment is not a NUL. A normal comment is not a NUL.
+ * A NUL is refused before {@code transitionWithComments} (#5443).
+ */
+export function workflowCommentContainsNul(
+  comment: string | null | undefined,
+): boolean {
+  return (comment ?? "").includes("\u0000");
+}
+
+/**
  * Whether the editor host may invoke {@code transitionWithComments}.
  *
  * <p>View / promote stay read-only. Triggers not in the loaded allowlist
- * never run. Comment-required triggers block until the comment is non-blank.</p>
+ * never run. Comment-required triggers block until the comment is non-blank.
+ * A comment that contains a NUL never runs, including on a comment-optional
+ * trigger and on a required trigger whose comment is otherwise non-blank.</p>
  */
 export function canRunEditorTransition(input: {
   mode: EditorHostMode;
@@ -127,6 +142,9 @@ export function canRunEditorTransition(input: {
   );
   if (required && String(input.comment ?? "").trim().length === 0) {
     return { ok: false, reason: "comment" };
+  }
+  if (workflowCommentContainsNul(input.comment)) {
+    return { ok: false, reason: "nul" };
   }
   return { ok: true };
 }

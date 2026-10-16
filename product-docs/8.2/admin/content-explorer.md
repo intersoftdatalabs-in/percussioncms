@@ -338,7 +338,11 @@ still empty. In **Edit** mode the host also shows a
 from `GET /services/itemmanagement/workflow/getTransitions/{id}`. Enter an optional
 **Transition comment**, then choose a trigger. The host calls
 `GET /services/itemmanagement/workflow/transitionWithComments/{id}/{trigger}`
-(with `?comment=` when the comment is non-empty). Triggers that are not in the
+(with `?comment=` when the comment is non-empty). A comment that contains a NUL
+character is refused before that call. The state name stays the same, and the
+host shows **That transition comment contains a character that cannot be saved.**
+A blank comment on a trigger that does not require one still runs. The
+required-comment gate is unchanged. Triggers that are not in the
 loaded allowlist are not shown and cannot run. **Reject**, **Return**, **Disapprove**,
 **Decline**, and **Send Back** require a comment — the host blocks the request until
 the comment field is filled. The same region has **Ad-hoc assignees**: type a user

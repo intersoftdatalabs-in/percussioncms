@@ -20,6 +20,7 @@ import {
   canChangeEditorWorkflow,
   canRunEditorTransition,
   confirmEditorAssignees,
+  workflowCommentContainsNul,
   editorAssigneeStep,
   editorTransitionHttpFailure,
   normalizeAdhocAssignees,
@@ -100,6 +101,60 @@ describe("editorWorkflow (#4539)", () => {
         trigger: "Reject",
         allowed: ["Reject"],
         comment: "needs work",
+      }),
+    ).toEqual({ ok: true });
+  });
+
+  it("workflowCommentContainsNul is only a NUL character (#5443)", () => {
+    expect(workflowCommentContainsNul("bad\u0000value")).toBe(true);
+    expect(workflowCommentContainsNul("\u0000")).toBe(true);
+    expect(workflowCommentContainsNul("  note\u0000")).toBe(true);
+    expect(workflowCommentContainsNul("")).toBe(false);
+    expect(workflowCommentContainsNul("   ")).toBe(false);
+    expect(workflowCommentContainsNul("ready")).toBe(false);
+    expect(workflowCommentContainsNul(null)).toBe(false);
+    expect(workflowCommentContainsNul(undefined)).toBe(false);
+  });
+
+  it("canRunEditorTransition refuses a NUL and keeps the required-comment gate (#5443)", () => {
+    expect(
+      canRunEditorTransition({
+        mode: "edit",
+        trigger: "Submit",
+        allowed: ["Submit"],
+        comment: "bad\u0000value",
+      }),
+    ).toEqual({ ok: false, reason: "nul" });
+    expect(
+      canRunEditorTransition({
+        mode: "edit",
+        trigger: "Reject",
+        allowed: ["Reject"],
+        comment: "needs\u0000work",
+      }),
+    ).toEqual({ ok: false, reason: "nul" });
+    expect(
+      canRunEditorTransition({
+        mode: "edit",
+        trigger: "Reject",
+        allowed: ["Reject"],
+        comment: "   ",
+      }),
+    ).toEqual({ ok: false, reason: "comment" });
+    expect(
+      canRunEditorTransition({
+        mode: "edit",
+        trigger: "Submit",
+        allowed: ["Submit"],
+        comment: "",
+      }),
+    ).toEqual({ ok: true });
+    expect(
+      canRunEditorTransition({
+        mode: "edit",
+        trigger: "Submit",
+        allowed: ["Submit"],
+        comment: "ready",
       }),
     ).toEqual({ ok: true });
   });
