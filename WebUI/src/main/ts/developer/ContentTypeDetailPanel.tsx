@@ -111,6 +111,12 @@ import {
 } from "./ContentTypeFieldRulesSection";
 import { extractRestErrorMessage, isApiError } from "../api/client";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
+import {
+  contentTypeDescriptionWrite,
+  savedContentTypeDescription,
+  storedContentTypeDescription,
+} from "./contentTypeDescription";
+import { CT_DESC_MSG } from "./contentTypeDescriptionMessages";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
@@ -269,6 +275,7 @@ export function ContentTypeDetailPanel({
   onBack,
   onDeleted,
   onRenamed,
+  onSaved,
 }: {
   idOrName: string;
   /** GUID from catalog list row when detail wire omits stringValue (#3319). */
@@ -277,6 +284,8 @@ export function ContentTypeDetailPanel({
   onDeleted?: () => void;
   /** Catalog refresh after a successful PUT .../name (selection key may change). */
   onRenamed?: (newName: string, detail: ContentTypeDetail) => void;
+  /** Catalog refresh after a description-only save. */
+  onSaved?: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<ContentTypeDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -287,6 +296,13 @@ export function ContentTypeDetailPanel({
   >(null);
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionShown, setDescriptionShown] = useState("");
+  const [descriptionDraft, setDescriptionDraft] = useState("");
+  const [descriptionEditing, setDescriptionEditing] = useState(false);
+  const [descriptionBusy, setDescriptionBusy] = useState(false);
+  const [descriptionError, setDescriptionError] = useState<string | null>(null);
+  const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
+  const descriptionInflight = useRef(false);
   const [nameDraft, setNameDraft] = useState("");
   const [enabled, setEnabled] = useState(true);
   /** Type-level search indexing (CD-10); default on. Distinct from per-field searchable. */
@@ -362,6 +378,12 @@ export function ContentTypeDetailPanel({
     setDetail(null);
     setError(null);
     setNotice(null);
+    setDescriptionShown("");
+    setDescriptionDraft("");
+    setDescriptionEditing(false);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    descriptionInflight.current = false;
     setHeldLock(false);
     heldLockRef.current = false;
     setSearchIndexing(true);
@@ -455,6 +477,7 @@ export function ContentTypeDetailPanel({
         setNameDraft(asContentTypeText(normalized.name) || idOrName);
         setLabel(asContentTypeText(normalized.label));
         setDescription(asContentTypeText(normalized.description));
+        setDescriptionShown(storedContentTypeDescription(asContentTypeText(normalized.description)));
         setEnabled(normalized.enabled !== false);
         setFieldDrafts(toDrafts(normalized.fields));
         setWorkflows(
@@ -753,6 +776,7 @@ export function ContentTypeDetailPanel({
     setDetail(normalized);
     setLabel(asContentTypeText(normalized.label));
     setDescription(asContentTypeText(normalized.description));
+    setDescriptionShown(storedContentTypeDescription(asContentTypeText(normalized.description)));
     setEnabled(normalized.enabled !== false);
     setFieldDrafts(toDrafts(normalized.fields));
     setWorkflows(
@@ -1011,6 +1035,7 @@ export function ContentTypeDetailPanel({
       setNameDraft(renamed);
       setLabel(asContentTypeText(saved.label));
       setDescription(asContentTypeText(saved.description));
+      setDescriptionShown(storedContentTypeDescription(asContentTypeText(saved.description)));
       setEnabled(saved.enabled !== false);
       setFieldDrafts(toDrafts(saved.fields));
       setWorkflows(
@@ -1412,6 +1437,7 @@ export function ContentTypeDetailPanel({
       setDetail(normalized);
       setLabel(asContentTypeText(normalized.label));
       setDescription(asContentTypeText(normalized.description));
+      setDescriptionShown(storedContentTypeDescription(asContentTypeText(normalized.description)));
       setEnabled(normalized.enabled !== false);
       setFieldDrafts(toDrafts(normalized.fields));
       setWorkflows(
@@ -1426,6 +1452,83 @@ export function ContentTypeDetailPanel({
       }
       setError(panelErrMsg(err, saveFallback));
     } finally {
+      setBusy(false);
+    }
+  }
+
+  function descriptionSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return CT_DESC_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return CT_DESC_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return CT_DESC_MSG.CONFLICT;
+    return CT_DESC_MSG.ERROR;
+  }
+
+  function startDescriptionEdit(): void {
+    if (!heldLockRef.current || !detail || busy || descriptionBusy || descriptionInflight.current) {
+      return;
+    }
+    setDescriptionDraft(descriptionShown);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    setDescriptionEditing(true);
+  }
+
+  function cancelDescriptionEdit(): void {
+    if (descriptionBusy || descriptionInflight.current) return;
+    setDescriptionEditing(false);
+    setDescriptionDraft("");
+    setDescriptionError(null);
+  }
+
+  async function handleDescriptionSave(): Promise<void> {
+    if (
+      !detail ||
+      !descriptionEditing ||
+      !heldLockRef.current ||
+      busy ||
+      descriptionBusy ||
+      descriptionInflight.current
+    ) {
+      return;
+    }
+    const sent = contentTypeDescriptionWrite(detail, descriptionDraft);
+    if (sent === "unchanged") {
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
+      setDescriptionError(null);
+      return;
+    }
+    descriptionInflight.current = true;
+    setDescriptionBusy(true);
+    setBusy(true);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    const previousShown = descriptionShown;
+    try {
+      const saved = await updateContentTypeDetail(activeKeyRef.current, sent);
+      const accepted = savedContentTypeDescription(sent, detail, saved);
+      if (accepted == null) {
+        setDescriptionShown(previousShown);
+        setDescription(previousShown);
+        setDescriptionError(CT_DESC_MSG.ERROR);
+        setDescriptionNotice(null);
+        return;
+      }
+      setDetail({ ...detail, description: accepted });
+      setDescriptionShown(accepted);
+      setDescription(accepted);
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
+      setDescriptionNotice(accepted ? CT_DESC_MSG.SAVED : CT_DESC_MSG.CLEARED);
+      onSaved?.();
+    } catch (err: unknown) {
+      setDescriptionShown(previousShown);
+      setDescription(previousShown);
+      setDescriptionError(panelErrMsg(err, descriptionSaveFallback(err)));
+      setDescriptionNotice(null);
+    } finally {
+      descriptionInflight.current = false;
+      setDescriptionBusy(false);
       setBusy(false);
     }
   }
@@ -2141,6 +2244,94 @@ export function ContentTypeDetailPanel({
                 disabled={!canEdit}
               />
             </div>
+            <section
+              data-testid="developer-ct-set-description"
+              aria-label={CT_DESC_MSG.ACTION}
+              style={{ marginTop: "12px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{CT_DESC_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.9rem" }}>
+                {CT_DESC_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-ct-set-description-text"
+                data-ct-description={descriptionShown}
+                style={{ marginTop: 0 }}
+              >
+                {descriptionShown}
+              </p>
+              {descriptionError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-ct-set-description-error"
+                  style={{ color: catalogColors.error }}
+                >
+                  {descriptionError}
+                </div>
+              ) : null}
+              {descriptionNotice ? (
+                <div data-testid="developer-ct-set-description-notice" style={{ color: "#276749" }}>
+                  {descriptionNotice}
+                </div>
+              ) : null}
+              {descriptionEditing ? (
+                <div data-testid="developer-ct-set-description-editor">
+                  <label htmlFor="ct-set-description-input" style={{ display: "block", marginBottom: 4 }}>
+                    {CT_DESC_MSG.FIELD}
+                  </label>
+                  <input
+                    id="ct-set-description-input"
+                    data-testid="developer-ct-set-description-input"
+                    style={inputStyle}
+                    value={descriptionDraft}
+                    disabled={descriptionBusy}
+                    onChange={(e) => setDescriptionDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-ct-set-description-save"
+                      aria-label={CT_DESC_MSG.SAVE}
+                      disabled={descriptionBusy}
+                      onClick={() => void handleDescriptionSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: descriptionBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {CT_DESC_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-ct-set-description-cancel"
+                      disabled={descriptionBusy}
+                      onClick={cancelDescriptionEdit}
+                      style={smallBtnStyle}
+                    >
+                      {CT_DESC_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-ct-set-description-edit"
+                  aria-label={CT_DESC_MSG.ACTION}
+                  disabled={!heldLock || busy || descriptionBusy}
+                  onClick={startDescriptionEdit}
+                  style={{
+                    ...smallBtnStyle,
+                    cursor: !heldLock || busy ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {CT_DESC_MSG.ACTION}
+                </button>
+              )}
+            </section>
             <dl
               style={{
                 display: "grid",
