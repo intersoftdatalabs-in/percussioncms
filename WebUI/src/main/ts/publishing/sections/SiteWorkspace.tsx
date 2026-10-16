@@ -60,6 +60,7 @@ import { SiteDefaultWorkflowPanel } from "../components/SiteDefaultWorkflowPanel
 import { SiteFolderRootPanel } from "../components/SiteFolderRootPanel";
 import { SiteDescriptionPanel } from "../components/SiteDescriptionPanel";
 import { SiteProtocolPanel } from "../components/SiteProtocolPanel";
+import { FtpDeliveryHostPanel } from "../components/FtpDeliveryHostPanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
 import { useDirtyForm } from "../dirtyFormContext";
@@ -865,6 +866,9 @@ export function SiteWorkspace({
             {message(MSG.PUBLISH_COPY_SERVER)}
           </button>
         </div>
+        {selectedServer ? (
+          <FtpDeliveryHostPanel siteId={siteId} serverId={selectedServer} />
+        ) : null}
       </div>
 
       <div style={toolbarStyle}>

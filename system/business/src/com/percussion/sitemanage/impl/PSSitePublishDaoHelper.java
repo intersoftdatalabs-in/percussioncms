@@ -205,9 +205,23 @@ public class PSSitePublishDaoHelper
    }
    
    /**
+    * Whether {@code serverId} is the site's default publish server.
+    * A null default id is not a match and is not unboxed.
+    *
+    * @param siteDefaultServerId site default server id, may be null
+    * @param serverId publish server id
+    * @return true only when the site default id equals {@code serverId}
+    */
+   public static boolean isSiteDefaultServer(Long siteDefaultServerId, long serverId)
+   {
+       return siteDefaultServerId != null && siteDefaultServerId.longValue() == serverId;
+   }
+
+   /**
     * Finds the default pub server for the supplied site id.
     * @param siteId must not be <code>null</code>, must correspond to a valid site.
-    * @return default pubserver corresponding to the supplied site.
+    * @return default pubserver corresponding to the supplied site, or null when the site
+    * has no default server id.
     * @throws PSNotFoundException if the site is not found.
     */
    public static PSPubServer getDefaultPubServer(IPSGuid siteId) throws PSNotFoundException {
@@ -223,7 +237,7 @@ public class PSSitePublishDaoHelper
        
        for (PSPubServer server : servers)
        {
-           if(site.getDefaultPubServer() == server.getServerId())
+           if (isSiteDefaultServer(site.getDefaultPubServer(), server.getServerId()))
                return pubServerDao.loadPubServerModifiable(server.getGUID());
        }
        

@@ -367,9 +367,15 @@ public class PSPubServerService implements IPSPubServerService {
 
     boolean locked = tryToLockSite(siteId);
 
-    convertPasswordFromBase64(pubServerInfo);
-
     try {
+      // Host-only FTP PUT must not run the full property replace (that clears port, user,
+      // folder, and password) and must not decode a password that is not in the body.
+      if (PSFtpDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
+        return updateFtpHostOnly(siteId, serverId, pubServerInfo);
+      }
+
+      convertPasswordFromBase64(pubServerInfo);
+
       IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
 
       PSPubServer server = null;
@@ -466,6 +472,30 @@ public class PSPubServerService implements IPSPubServerService {
     }
   }
 
+  /**
+   * Save only the FTP {@code serverip} property. Does not rename the server or replace the
+   * property set. Blank, overlong, and non-FTP drivers throw before {@code savePubServer}.
+   */
+  private PSPublishServerInfo updateFtpHostOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    PSFtpDeliveryHostUpdate.apply(server, pubServerInfo);
+    pubServerDao.savePubServer(server);
+    return toPSPublishServerInfo(server, site, true);
+  }
+
   private void clearLiveIncrementalQueue(IPSSite site) {
     clearIncrementalQueue(site, PSContentChangeType.PENDING_LIVE);
   }
@@ -525,7 +555,8 @@ public class PSPubServerService implements IPSPubServerService {
                 + " again.");
       }
 
-      if (site.getDefaultPubServer() == pubServer.getServerId()) {
+      if (PSSitePublishDaoHelper.isSiteDefaultServer(
+          site.getDefaultPubServer(), pubServer.getServerId())) {
         throw new PSPubServerServiceException(
             "The server cannot be deleted because it is the default server.");
       }
@@ -921,6 +952,23 @@ public class PSPubServerService implements IPSPubServerService {
   }
 
   /**
+   * A folder typed on the form with both server flags false is that server's folder. A default
+   * or own-server flag still wins when the client set one.
+   */
+  static boolean treatExplicitFolderAsOwnServer(
+      boolean ownServerFlag, boolean defaultServerFlag, String folder) {
+    return !ownServerFlag && !defaultServerFlag && StringUtils.isNotBlank(folder);
+  }
+
+  /**
+   * Publishing-base derivation needs a stored folder. A blank folder is left blank instead of
+   * calling {@code getPublishingBase}, which rejects an empty path.
+   */
+  static boolean derivePublishingBase(boolean ownServer, String folderValue) {
+    return !ownServer && StringUtils.isNotBlank(folderValue);
+  }
+
+  /**
    * Helper method to set the properties related to folder and own server settings
    *
    * @param server the server to be updated
@@ -936,6 +984,11 @@ public class PSPubServerService implements IPSPubServerService {
 
     Boolean isOwnServerSet = Boolean.parseBoolean(ownServerFlagVal);
     Boolean isDefaultServerSet = Boolean.parseBoolean(defaultServerVal);
+    // The Publishing shell sends the folder the operator typed and leaves both
+    // flags false. That folder is the server folder, not a blank default path.
+    if (treatExplicitFolderAsOwnServer(isOwnServerSet, isDefaultServerSet, publishFolderVal)) {
+      isOwnServerSet = true;
+    }
 
     setFolderProperty(
         server, site, publishFolderVal, isOwnServerSet, ownServerVal, isDefaultServerSet);
@@ -1150,7 +1203,9 @@ public class PSPubServerService implements IPSPubServerService {
     serverInfo.setServerId(pubServer.getServerId());
     serverInfo.setServerName(pubServer.getName());
     if (site.isPageBased()) {
-      serverInfo.setIsDefault(site.getDefaultPubServer() == pubServer.getServerId());
+      serverInfo.setIsDefault(
+          PSSitePublishDaoHelper.isSiteDefaultServer(
+              site.getDefaultPubServer(), pubServer.getServerId()));
     }
     serverInfo.setServerType(pubServer.getServerType().orElse(""));
 
@@ -1353,13 +1408,16 @@ public class PSPubServerService implements IPSPubServerService {
         defaultServerFlagProperty.setValue("false");
         ownServeFlagProperty.setValue("true");
         ownServerValue = folderValue;
-      } else {
-        // This is a default CM1 server
+      } else if (derivePublishingBase(isOwnServer, folderValue)) {
+        // This is a default CM1 server with a stored folder path.
         defaultServerFlagProperty.setValue("true");
         ownServeFlagProperty.setValue("false");
         defaultServerValue =
             normalizePath(siteDataService.getBasePublishingRoot(folderValue, site.getName()));
         folderValue = defaultServerValue;
+      } else {
+        defaultServerFlagProperty.setValue("false");
+        ownServeFlagProperty.setValue("false");
       }
       // Add the default flag property
       serverInfo.getProperties().add(defaultServerFlagProperty);
@@ -1398,12 +1456,15 @@ public class PSPubServerService implements IPSPubServerService {
         defaultServerFlagProperty.setValue("false");
         ownServeFlagProperty.setValue("true");
         folderPropertyValue = folderValue;
-      } else {
-        // This is a default CM1 server
+      } else if (derivePublishingBase(isOwnServer, folderValue)) {
+        // This is a default CM1 server with a stored folder path.
         defaultServerFlagProperty.setValue("true");
         ownServeFlagProperty.setValue("false");
         folderPropertyValue =
             normalizePath(siteDataService.getBasePublishingRoot(folderValue, site.getName()));
+      } else {
+        defaultServerFlagProperty.setValue("false");
+        ownServeFlagProperty.setValue("false");
       }
       // Add the default flag property
       serverInfo.getProperties().add(defaultServerFlagProperty);

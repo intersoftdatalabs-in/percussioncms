@@ -252,13 +252,30 @@ is a separate **Logs** filter (not this Sites box).
 
 From **Publish** (`spa.jsp?entry=publish`), open a **site** card, then **Add** (or **Edit Server**).
 Enter a **server name** (required), production vs staging, File vs Database, driver fields, then
-**Save**. Unsaved field edits mark the form dirty; leaving the editor prompts to discard. The shell
+**Save**. A folder typed for a File driver (including FTP) is stored with that server. Unsaved
+field edits mark the form dirty; leaving the editor prompts to discard. The shell
 posts `POST …/publishmanagement/servers/{siteId}/{serverName}` (create) or
 `PUT …/publishmanagement/servers/{siteId}/{serverId}` (update).
 
 HTTP **403** (not Admin or Designer) and **409** (publish server name already exists on the site)
 are shown in the server editor error region — not as a successful save. Incremental / Full publish
 and Design delivery-type save are separate actions.
+
+### Set the FTP delivery-server host (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **FTP**. **Set host** edits only the server host. **Save host** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `serverip` property. Port,
+user, folder, and password stay as they were. The password is not shown and is not sent again.
+
+A blank host is refused on the form (**FTP host is required**) and is not written. A host longer
+than 255 characters is refused the same way. **Cancel** does not call the server and keeps the
+previous host. HTTP **400**, **403**, and **409** stay on the form and keep the previous host.
+
+**FTPS**, **SFTP**, Amazon S3, and a **Local** driver do not use this save. Choosing **Set host**
+on a Local server does not change that server's folder. Full server edit remains **Edit Server**.
+A site with no default delivery server can still save an FTP host; that save does not assign the
+default.
 
 ### Copy a site delivery server (Sites)
 
