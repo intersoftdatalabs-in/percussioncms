@@ -293,6 +293,22 @@ the form and keep the previous port.
 on a Local server does not change that server's folder. Host-only save and full server edit
 (**Edit Server**) stay separate.
 
+### Set the FTP delivery-server user id (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **FTP**. **Set user id** edits only the server user id. **Save user id** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `userid` property. Host, port,
+folder, and password stay as they were. The password is not shown and is not sent again.
+
+A blank user id is refused on the form (**FTP user id is required**) and is not written. A user
+id longer than 255 characters is refused the same way. **Cancel** does not call the server and
+keeps the previous user id. HTTP **400**, **403**, and **409** stay on the form and keep the
+previous user id.
+
+**FTPS**, **SFTP**, Amazon S3, and a **Local** driver do not use this save. Choosing **Set user
+id** on a Local server does not change that server's folder. Host-only save, port-only save, and
+full server edit (**Edit Server**) stay separate. The password field is not changed by this save.
+
 ### Copy a site delivery server (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then

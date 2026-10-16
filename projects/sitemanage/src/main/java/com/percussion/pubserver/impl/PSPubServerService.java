@@ -378,6 +378,11 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSFtpDeliveryPortUpdate.isPortOnly(pubServerInfo)) {
         return updateFtpPortOnly(siteId, serverId, pubServerInfo);
       }
+      // User-id-only FTP PUT must not run the full property replace (that clears host,
+      // port, folder, and password) and must not decode a password that is not in the body.
+      if (PSFtpDeliveryUserUpdate.isUserOnly(pubServerInfo)) {
+        return updateFtpUserOnly(siteId, serverId, pubServerInfo);
+      }
 
       convertPasswordFromBase64(pubServerInfo);
 
@@ -521,6 +526,30 @@ public class PSPubServerService implements IPSPubServerService {
           "The server you are trying to act on no longer exists in the system.");
     }
     PSFtpDeliveryPortUpdate.apply(server, pubServerInfo);
+    pubServerDao.savePubServer(server);
+    return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Save only the FTP {@code userid} property. Does not rename the server or replace the
+   * property set. Blank, overlong, and non-FTP drivers throw before {@code savePubServer}.
+   */
+  private PSPublishServerInfo updateFtpUserOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    PSFtpDeliveryUserUpdate.apply(server, pubServerInfo);
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
