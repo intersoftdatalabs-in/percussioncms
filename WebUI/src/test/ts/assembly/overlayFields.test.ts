@@ -30,6 +30,7 @@ import {
   assemblyDatetimeValue,
   blankRequiredDateFieldNames,
   blankRequiredDatetimeFieldNames,
+  blankRequiredLinkFieldNames,
   blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
   calendarDateText,
@@ -786,6 +787,63 @@ describe("blankRequiredTextFieldNames", () => {
     expect(
       root.querySelector('[data-assembly-field="displaytitle"]')?.hasAttribute("aria-invalid"),
     ).toBe(false);
+  });
+});
+
+describe("blankRequiredLinkFieldNames", () => {
+  const fields = [
+    { name: "pagelink", kind: "link" as const, required: true, value: "//Sites/Example/index" },
+    { name: "optional", kind: "link" as const, required: false, value: "//Sites/Example/other" },
+    { name: "displaytitle", kind: "text" as const, required: true, value: "Welcome" },
+    { name: "description", kind: "html" as const, required: true, value: "<p>About</p>" },
+  ];
+
+  it("names a blank or whitespace required link and ignores optional and other kinds", () => {
+    expect(
+      blankRequiredLinkFieldNames(fields, [
+        { name: "pagelink", value: "" },
+        { name: "optional", value: "" },
+        { name: "displaytitle", value: "   " },
+        { name: "description", value: "" },
+      ]),
+    ).toEqual(["pagelink"]);
+    expect(
+      blankRequiredLinkFieldNames(fields, [{ name: "pagelink", value: "  \n  " }]),
+    ).toEqual(["pagelink"]);
+    expect(
+      blankRequiredLinkFieldNames(fields, [
+        { name: "pagelink", value: "//Sites/Example/about" },
+      ]),
+    ).toEqual([]);
+    expect(
+      blankRequiredLinkFieldNames(fields, [{ name: "pagelink", value: "594\u0000" }]),
+    ).toEqual([]);
+  });
+
+  it("marks a required link on the assembled input", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<a data-perc-field="pagelink" href="//Sites/Example/index">Example</a>`;
+    const overlay = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [{ name: "pagelink", value: "//Sites/Example/index" }],
+      },
+      [
+        {
+          name: "pagelink",
+          label: "Page link",
+          control: "sys_PageLink",
+          required: true,
+        },
+      ],
+    );
+    expect(overlay[0]?.required).toBe(true);
+    applyFieldOverlay(root, overlay, "42");
+    const input = root.querySelector(
+      '[data-testid="assembly-inline-field-pagelink"]',
+    ) as HTMLInputElement;
+    expect(input.getAttribute("aria-required")).toBe("true");
+    expect(input.getAttribute("data-assembly-required")).toBe("true");
   });
 });
 

@@ -405,6 +405,36 @@ export function nulLinkFieldNames(
 }
 
 /**
+ * Required link fields whose current value is blank or whitespace.
+ * Optional links are not named, so a clear stays out of this gate.
+ * Single-line text, long text, HTML, numbers, dates, and datetimes are not
+ * checked here. A link NUL is {@link nulLinkFieldNames}. Later edits for the
+ * same name win so the overlay strip and the assembled node agree.
+ */
+export function blankRequiredLinkFieldNames(
+  fields: readonly (Pick<OverlayField, "name" | "kind" | "value"> & {
+    required?: boolean;
+  })[],
+  edits: readonly Pick<OverlayFieldEdit, "name" | "value">[],
+): string[] {
+  const values = new Map<string, string>();
+  for (const edit of edits) {
+    values.set(edit.name, edit.value);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "link" || field.required !== true) {
+      continue;
+    }
+    const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
+    if (value.trim().length === 0) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/**
  * Required whole-number fields whose current value is blank or whitespace.
  * Optional numbers stay on {@link invalidChangedNumberFieldNames} so a clear
  * is not written. Decimals and non-numeric text are not named here. Long text,
@@ -663,7 +693,7 @@ export interface OverlayField {
   label: string;
   kind: OverlayFieldKind;
   readOnly: boolean;
-  /** Content-type required flag. Single-line text, whole numbers, calendar dates, and datetimes are enforced on save. */
+  /** Content-type required flag. Single-line text, links, whole numbers, calendar dates, and datetimes are enforced on save. */
   required: boolean;
   /** True when the content-type data type is float. Whole numbers stay false. */
   numericFloat?: boolean;
@@ -1033,6 +1063,10 @@ function mountLinkInput(
   input.setAttribute(LINK_INPUT_ATTR, hit.name);
   input.setAttribute("spellcheck", "false");
   input.setAttribute("aria-label", field.label || hit.name);
+  if (field.required) {
+    input.setAttribute("aria-required", "true");
+    input.setAttribute("data-assembly-required", "true");
+  }
   input.autocomplete = "off";
   input.setAttribute(
     "style",
