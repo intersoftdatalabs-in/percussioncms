@@ -277,6 +277,22 @@ on a Local server does not change that server's folder. Full server edit remains
 A site with no default delivery server can still save an FTP host; that save does not assign the
 default.
 
+### Set the FTP delivery-server port (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **FTP**. **Set port** edits only the server port. **Save port** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `port` property. Host, user,
+folder, and password stay as they were. The password is not shown and is not sent again.
+
+A blank port is refused on the form (**FTP port is required**) and is not written. A port that is
+not only digits is refused (**FTP port must contain only digits**) and is not written. **Cancel**
+does not call the server and keeps the previous port. HTTP **400**, **403**, and **409** stay on
+the form and keep the previous port.
+
+**FTPS**, **SFTP**, Amazon S3, and a **Local** driver do not use this save. Choosing **Set port**
+on a Local server does not change that server's folder. Host-only save and full server edit
+(**Edit Server**) stay separate.
+
 ### Copy a site delivery server (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then

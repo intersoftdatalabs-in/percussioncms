@@ -61,6 +61,7 @@ import { SiteFolderRootPanel } from "../components/SiteFolderRootPanel";
 import { SiteDescriptionPanel } from "../components/SiteDescriptionPanel";
 import { SiteProtocolPanel } from "../components/SiteProtocolPanel";
 import { FtpDeliveryHostPanel } from "../components/FtpDeliveryHostPanel";
+import { FtpDeliveryPortPanel } from "../components/FtpDeliveryPortPanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
 import { useDirtyForm } from "../dirtyFormContext";
@@ -867,7 +868,10 @@ export function SiteWorkspace({
           </button>
         </div>
         {selectedServer ? (
-          <FtpDeliveryHostPanel siteId={siteId} serverId={selectedServer} />
+          <>
+            <FtpDeliveryHostPanel siteId={siteId} serverId={selectedServer} />
+            <FtpDeliveryPortPanel siteId={siteId} serverId={selectedServer} />
+          </>
         ) : null}
       </div>
 
