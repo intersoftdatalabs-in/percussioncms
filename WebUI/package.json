@@ -24,7 +24,7 @@
     "country-flag-icons": "^1.6.20",
     "datatables.net": "^3.1.3",
     "date-fns": "^4.4.0",
-    "handlebars": "^4.7.9",
+    "handlebars": "^4.7.10",
     "jquery": "^4.0.0",
     "jquery-form": "^4.3.0",
     "jquery-migrate": "^4.0.2",
