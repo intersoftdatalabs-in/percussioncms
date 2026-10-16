@@ -11,6 +11,7 @@ import * as fieldRulesApi from "../../../main/ts/api/developer/contentTypeFieldR
 import * as importExportApi from "../../../main/ts/api/developer/contentTypeImportExport";
 import { catalogColors } from "../../../main/ts/developer/catalogStyles";
 import { CT_DESC_MSG } from "../../../main/ts/developer/contentTypeDescriptionMessages";
+import { CT_FIELD_REQUIRED_MSG } from "../../../main/ts/developer/contentTypeFieldRequiredMessages";
 import { CT_LABEL_MSG } from "../../../main/ts/developer/contentTypeLabelMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { ContentTypeDetailPanel } from "../../../main/ts/developer/ContentTypeDetailPanel";
@@ -3560,5 +3561,224 @@ describe("ContentTypeDetailPanel", () => {
       "Page type",
     );
     expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).checked).toBe(true);
+  });
+
+  it("does not give shared or system fields a required editor (#5465)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [
+        { name: "sys_title", fieldType: "system", label: "Title:", required: true },
+        { name: "rx_shared", fieldType: "shared", label: "Shared:", required: false },
+      ],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-required-none")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-ct-field-required-edit")).toBeNull();
+    expect(screen.queryByTestId("developer-ct-field-required-sys_title")).toBeNull();
+    expect(screen.queryByTestId("developer-ct-field-required-rx_shared")).toBeNull();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+  });
+
+  it("marks one local field required only after success and leaves the other field, label, and description (#5465)", async () => {
+    const fields = [
+      { name: "sys_title", fieldType: "system", label: "Title:", required: true, occurrence: "required" },
+      { name: "rx_shared", fieldType: "shared", label: "Shared:", required: false, occurrence: "optional" },
+      { name: "rx_note", fieldType: "local", label: "Note:", required: false, occurrence: "optional" },
+      { name: "rx_other", fieldType: "local", label: "Other:", required: false, occurrence: "optional" },
+    ];
+    getContentTypeDetail.mockResolvedValue({ ...sampleDetail, fields });
+    const onSaved = vi.fn();
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} onSaved={onSaved} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-required-text").getAttribute("data-field-name")).toBe(
+        "rx_note",
+      );
+    });
+    expect(
+      screen.getByTestId("developer-ct-field-required-text").getAttribute("data-field-required"),
+    ).toBe("false");
+    expect((screen.getByTestId("developer-ct-field-required-edit") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-edit"));
+    expect(screen.queryByTestId("developer-ct-field-required-editor")).toBeNull();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-required-edit") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-edit"));
+    const options = Array.from(
+      (screen.getByTestId("developer-ct-field-required-field") as HTMLSelectElement).options,
+    ).map((option) => option.value);
+    expect(options).toEqual(["rx_note", "rx_other"]);
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-save"));
+    expect(screen.queryByTestId("developer-ct-field-required-editor")).toBeNull();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-edit"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-input"));
+    expect(
+      screen.getByTestId("developer-ct-field-required-text").getAttribute("data-field-required"),
+    ).toBe("false");
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-cancel"));
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-ct-field-required-text").getAttribute("data-field-required"),
+    ).toBe("false");
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+      "Page type",
+    );
+
+    updateContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [
+        fields[0],
+        fields[1],
+        { ...fields[2], required: true, occurrence: "required" },
+        fields[3],
+      ],
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-edit"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-input"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-required-notice").textContent).toBe(
+        CT_FIELD_REQUIRED_MSG.SAVED,
+      );
+    });
+    expect(updateContentTypeDetail).toHaveBeenCalledWith("percPage", {
+      fields: [{ name: "rx_note", required: true }],
+    });
+    expect(setContentTypeEnabled).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-ct-field-required-text").getAttribute("data-field-required"),
+    ).toBe("true");
+    expect((screen.getByTestId("developer-ct-field-required-rx_note") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-field-required-rx_other") as HTMLInputElement).checked).toBe(
+      false,
+    );
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+      "Page type",
+    );
+    expect(onSaved).toHaveBeenCalledTimes(1);
+  });
+
+  it("clears one local field required and keeps the previous flag on 400, 403, and 409 (#5465)", async () => {
+    const fields = [
+      { name: "rx_note", fieldType: "local", label: "Note:", required: true, occurrence: "required" },
+      { name: "rx_other", fieldType: "local", label: "Other:", required: false, occurrence: "optional" },
+    ];
+    getContentTypeDetail.mockResolvedValue({ ...sampleDetail, fields });
+    updateContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [
+        { ...fields[0], required: false, occurrence: "optional" },
+        fields[1],
+      ],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-required-edit") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-edit"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-input"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-required-notice").textContent).toBe(
+        CT_FIELD_REQUIRED_MSG.CLEARED,
+      );
+    });
+    expect(updateContentTypeDetail).toHaveBeenCalledWith("percPage", {
+      fields: [{ name: "rx_note", required: false }],
+    });
+    expect(
+      screen.getByTestId("developer-ct-field-required-text").getAttribute("data-field-required"),
+    ).toBe("false");
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+      "Page type",
+    );
+
+    for (const status of [400, 403, 409]) {
+      updateContentTypeDetail.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-ct-field-required-edit"));
+      fireEvent.click(screen.getByTestId("developer-ct-field-required-input"));
+      fireEvent.click(screen.getByTestId("developer-ct-field-required-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-ct-field-required-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(screen.queryByTestId("developer-ct-field-required-notice")).toBeNull();
+      expect(
+        screen.getByTestId("developer-ct-field-required-text").getAttribute("data-field-required"),
+      ).toBe("false");
+      expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+      expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+        "Page type",
+      );
+      expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+      fireEvent.click(screen.getByTestId("developer-ct-field-required-cancel"));
+    }
+  });
+
+  it("does not show a required flag when the update changes the label or another field (#5465)", async () => {
+    const fields = [
+      { name: "rx_note", fieldType: "local", label: "Note:", required: false, occurrence: "optional" },
+      { name: "rx_other", fieldType: "local", label: "Other:", required: false, occurrence: "optional" },
+    ];
+    getContentTypeDetail.mockResolvedValue({ ...sampleDetail, fields });
+    updateContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      label: "Pages",
+      description: "changed",
+      fields: [{ ...fields[0], required: true, occurrence: "required" }],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-required-edit") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-edit"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-input"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-required-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-required-error").textContent).toContain(
+        CT_FIELD_REQUIRED_MSG.ERROR,
+      );
+    });
+    expect(screen.queryByTestId("developer-ct-field-required-notice")).toBeNull();
+    expect(
+      screen.getByTestId("developer-ct-field-required-text").getAttribute("data-field-required"),
+    ).toBe("false");
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+      "Page type",
+    );
   });
 });

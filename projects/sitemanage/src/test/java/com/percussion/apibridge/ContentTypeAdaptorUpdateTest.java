@@ -409,6 +409,161 @@ class ContentTypeAdaptorUpdateTest {
   }
 
   @Test
+  void update_marksOneLocalFieldRequiredAndLeavesTheOtherField() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubLockedDefinitionWithLocalField("rx_note", "Note:");
+    ContentTypeField otherBody = new ContentTypeField();
+    otherBody.setName("rx_other");
+    otherBody.setLabel("Other");
+    ContentTypeAdaptor.addPersistableLocalField(def, otherBody);
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("rx_note");
+    patch.setRequired(Boolean.TRUE);
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    ContentTypeDetail out = adaptor.updateContentType(null, "311", body);
+
+    assertEquals("Page", out.getLabel());
+    assertEquals("desc", out.getDescription());
+    assertEquals(Boolean.TRUE, out.getEnabled());
+    assertEquals("percPage", out.getName());
+    PSField note = ContentTypeAdaptor.findField(def, "rx_note");
+    PSField other = ContentTypeAdaptor.findField(def, "rx_other");
+    assertEquals(PSField.OCCURRENCE_DIMENSION_REQUIRED, note.getOccurrenceDimension(null));
+    assertEquals(PSField.OCCURRENCE_DIMENSION_OPTIONAL, other.getOccurrenceDimension(null));
+    ContentTypeField savedNote = fieldNamed(out, "rx_note");
+    ContentTypeField savedOther = fieldNamed(out, "rx_other");
+    assertEquals(Boolean.TRUE, savedNote.getRequired());
+    assertEquals("required", savedNote.getOccurrence());
+    assertEquals(Boolean.FALSE, savedOther.getRequired());
+    assertEquals("optional", savedOther.getOccurrence());
+    verify(def, never()).setLabel(any());
+    verify(def, never()).setDescription(any());
+    verify(def, never()).setEnabled(anyBoolean());
+    verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+
+    ContentTypeField clear = new ContentTypeField();
+    clear.setName("rx_note");
+    clear.setRequired(Boolean.FALSE);
+    ContentTypeDetail clearBody = new ContentTypeDetail();
+    clearBody.setFields(List.of(clear));
+    ContentTypeDetail cleared = adaptor.updateContentType(null, "311", clearBody);
+    assertEquals(PSField.OCCURRENCE_DIMENSION_OPTIONAL, note.getOccurrenceDimension(null));
+    assertEquals(PSField.OCCURRENCE_DIMENSION_OPTIONAL, other.getOccurrenceDimension(null));
+    assertEquals(Boolean.FALSE, fieldNamed(cleared, "rx_note").getRequired());
+    assertEquals("optional", fieldNamed(cleared, "rx_note").getOccurrence());
+    assertEquals("Page", cleared.getLabel());
+    assertEquals("desc", cleared.getDescription());
+  }
+
+  @Test
+  void update_unchangedLocalRequiredDoesNotRewriteOccurrence() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubLockedDefinitionWithLocalField("rx_note", "Note:");
+    PSField note = ContentTypeAdaptor.findField(def, "rx_note");
+    note.setOccurrenceDimension(PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE, null);
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("rx_note");
+    patch.setRequired(Boolean.TRUE);
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    adaptor.updateContentType(null, "311", body);
+
+    assertEquals(PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE, note.getOccurrenceDimension(null));
+  }
+
+  @Test
+  void update_systemAndSharedRequiredChangeIs400() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubLockedDefinitionWithSystemField("sys_title");
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("sys_title");
+    patch.setRequired(Boolean.TRUE);
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    IllegalArgumentException systemEx =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.updateContentType(null, "311", body));
+    assertTrue(systemEx.getMessage().toLowerCase().contains("local"), systemEx.getMessage());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+
+    PSField shared = mock(PSField.class);
+    when(shared.getSubmitName()).thenReturn("rx_shared");
+    when(shared.getType()).thenReturn(PSField.TYPE_SHARED);
+    when(shared.getOccurrenceDimension(null)).thenReturn(PSField.OCCURRENCE_DIMENSION_OPTIONAL);
+    PSFieldSet fieldSet = def.getFieldSet();
+    when(fieldSet.findFieldByName("rx_shared", false)).thenReturn(shared);
+    ContentTypeField sharedPatch = new ContentTypeField();
+    sharedPatch.setName("rx_shared");
+    sharedPatch.setRequired(Boolean.TRUE);
+    ContentTypeDetail sharedBody = new ContentTypeDetail();
+    sharedBody.setFields(List.of(sharedPatch));
+
+    IllegalArgumentException sharedEx =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> adaptor.updateContentType(null, "311", sharedBody));
+    assertTrue(sharedEx.getMessage().toLowerCase().contains("local"), sharedEx.getMessage());
+    verify(shared, never()).setOccurrenceDimension(anyInt(), any());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_unchangedSystemRequiredDoesNotRewriteOccurrence() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubLockedDefinitionWithSystemField("sys_title");
+    PSField system = ContentTypeAdaptor.findField(def, "sys_title");
+    when(system.getOccurrenceDimension(null)).thenReturn(PSField.OCCURRENCE_DIMENSION_OPTIONAL);
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("sys_title");
+    patch.setRequired(Boolean.FALSE);
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    adaptor.updateContentType(null, "311", body);
+
+    verify(system, never()).setOccurrenceDimension(anyInt(), any());
+    verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void update_requiredConflictWhenLockNotHeldLeavesField() throws Exception {
+    when(systemDesign.isLocked(anyList(), eq("Admin")))
+        .thenReturn(Collections.singletonList(null));
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("rx_note");
+    patch.setRequired(Boolean.TRUE);
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    ContentTypeDesignLockException ex =
+        assertThrows(
+            ContentTypeDesignLockException.class,
+            () -> adaptor.updateContentType(null, "311", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("lock"), ex.getMessage());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_requiredForbiddenWhenNotAdmin() {
+    ContentTypeAdaptor denied = new ContentTypeAdaptor(designWs, null, systemDesign, () -> false);
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("rx_note");
+    patch.setRequired(Boolean.TRUE);
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> denied.updateContentType(null, "311", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
   void update_oversizedNumericId_isBadRequest() {
     assertThrows(
         IllegalArgumentException.class,
@@ -421,6 +576,13 @@ class ContentTypeAdaptorUpdateTest {
         IllegalArgumentException.class,
         () -> adaptor.updateContentType(null, "perc*", new ContentTypeDetail()));
     verify(designWs, never()).findContentTypes(any());
+  }
+
+  private static ContentTypeField fieldNamed(ContentTypeDetail detail, String name) {
+    return detail.getFields().stream()
+        .filter((field) -> field != null && name.equals(field.getName()))
+        .findFirst()
+        .orElseThrow();
   }
 
   private void stubHeldLock() throws Exception {

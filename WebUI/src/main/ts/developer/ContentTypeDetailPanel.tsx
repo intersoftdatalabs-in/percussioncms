@@ -123,6 +123,13 @@ import {
   shownContentTypeLabel,
 } from "./contentTypeLabel";
 import { CT_LABEL_MSG } from "./contentTypeLabelMessages";
+import {
+  contentTypeFieldRequiredWrite,
+  contentTypeWithFieldRequired,
+  localContentTypeFields,
+  savedContentTypeFieldRequired,
+} from "./contentTypeFieldRequired";
+import { CT_FIELD_REQUIRED_MSG } from "./contentTypeFieldRequiredMessages";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
@@ -290,7 +297,7 @@ export function ContentTypeDetailPanel({
   onDeleted?: () => void;
   /** Catalog refresh after a successful PUT .../name (selection key may change). */
   onRenamed?: (newName: string, detail: ContentTypeDetail) => void;
-  /** Catalog refresh after a description-only or label-only save. */
+  /** Catalog refresh after a description-only, label-only, or field-required save. */
   onSaved?: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<ContentTypeDetail | null>(null);
@@ -316,6 +323,13 @@ export function ContentTypeDetailPanel({
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
   const descriptionInflight = useRef(false);
+  const [requiredFieldName, setRequiredFieldName] = useState("");
+  const [requiredDraft, setRequiredDraft] = useState(false);
+  const [requiredEditing, setRequiredEditing] = useState(false);
+  const [requiredBusy, setRequiredBusy] = useState(false);
+  const [requiredError, setRequiredError] = useState<string | null>(null);
+  const [requiredNotice, setRequiredNotice] = useState<string | null>(null);
+  const requiredInflight = useRef(false);
   const [nameDraft, setNameDraft] = useState("");
   const [enabled, setEnabled] = useState(true);
   /** Type-level search indexing (CD-10); default on. Distinct from per-field searchable. */
@@ -403,6 +417,12 @@ export function ContentTypeDetailPanel({
     setLabelError(null);
     setLabelNotice(null);
     labelInflight.current = false;
+    setRequiredFieldName("");
+    setRequiredDraft(false);
+    setRequiredEditing(false);
+    setRequiredError(null);
+    setRequiredNotice(null);
+    requiredInflight.current = false;
     setHeldLock(false);
     heldLockRef.current = false;
     setSearchIndexing(true);
@@ -638,6 +658,11 @@ export function ContentTypeDetailPanel({
 
   const objectGuid = resolveContentTypeObjectGuid(detail, catalogGuid);
   const fieldRows = orderedFieldRows(contentTypeFields(detail), fieldOrder);
+  const localRequiredFields = localContentTypeFields(detail);
+  const selectedRequiredField =
+    localRequiredFields.find((field) => field.name === requiredFieldName) ??
+    localRequiredFields[0] ??
+    null;
 
   useEffect(() => {
     setFieldOrder(parentFieldOrder(contentTypeFields(detail)));
@@ -1502,7 +1527,10 @@ export function ContentTypeDetailPanel({
       descriptionBusy ||
       labelInflight.current ||
       descriptionInflight.current ||
-      descriptionEditing
+      requiredInflight.current ||
+      descriptionEditing ||
+      requiredEditing ||
+      requiredBusy
     ) {
       return;
     }
@@ -1529,7 +1557,10 @@ export function ContentTypeDetailPanel({
       descriptionBusy ||
       labelInflight.current ||
       descriptionInflight.current ||
-      descriptionEditing
+      requiredInflight.current ||
+      descriptionEditing ||
+      requiredEditing ||
+      requiredBusy
     ) {
       return;
     }
@@ -1585,7 +1616,10 @@ export function ContentTypeDetailPanel({
       labelBusy ||
       descriptionInflight.current ||
       labelInflight.current ||
-      labelEditing
+      requiredInflight.current ||
+      labelEditing ||
+      requiredEditing ||
+      requiredBusy
     ) {
       return;
     }
@@ -1612,7 +1646,10 @@ export function ContentTypeDetailPanel({
       labelBusy ||
       descriptionInflight.current ||
       labelInflight.current ||
-      labelEditing
+      requiredInflight.current ||
+      labelEditing ||
+      requiredEditing ||
+      requiredBusy
     ) {
       return;
     }
@@ -1654,6 +1691,123 @@ export function ContentTypeDetailPanel({
     } finally {
       descriptionInflight.current = false;
       setDescriptionBusy(false);
+      setBusy(false);
+    }
+  }
+
+  function requiredSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return CT_FIELD_REQUIRED_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return CT_FIELD_REQUIRED_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return CT_FIELD_REQUIRED_MSG.CONFLICT;
+    return CT_FIELD_REQUIRED_MSG.ERROR;
+  }
+
+  function startRequiredEdit(): void {
+    if (
+      !heldLockRef.current ||
+      !detail ||
+      !selectedRequiredField ||
+      busy ||
+      requiredBusy ||
+      labelBusy ||
+      descriptionBusy ||
+      requiredInflight.current ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      labelEditing ||
+      descriptionEditing
+    ) {
+      return;
+    }
+    setRequiredFieldName(selectedRequiredField.name);
+    setRequiredDraft(selectedRequiredField.required);
+    setRequiredError(null);
+    setRequiredNotice(null);
+    setRequiredEditing(true);
+  }
+
+  function cancelRequiredEdit(): void {
+    if (requiredBusy || requiredInflight.current) return;
+    setRequiredEditing(false);
+    setRequiredError(null);
+  }
+
+  function onRequiredFieldChange(name: string): void {
+    const next = localRequiredFields.find((field) => field.name === name);
+    setRequiredFieldName(name);
+    setRequiredDraft(next?.required === true);
+    setRequiredError(null);
+    setRequiredNotice(null);
+  }
+
+  async function handleRequiredSave(): Promise<void> {
+    if (
+      !detail ||
+      !requiredEditing ||
+      !selectedRequiredField ||
+      !heldLockRef.current ||
+      busy ||
+      requiredBusy ||
+      labelBusy ||
+      descriptionBusy ||
+      requiredInflight.current ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      labelEditing ||
+      descriptionEditing
+    ) {
+      return;
+    }
+    const fieldName = selectedRequiredField.name;
+    const sent = contentTypeFieldRequiredWrite(detail, fieldName, requiredDraft);
+    if (sent === "unchanged") {
+      setRequiredEditing(false);
+      setRequiredError(null);
+      return;
+    }
+    if (sent === "not-local") {
+      setRequiredError(CT_FIELD_REQUIRED_MSG.NOT_LOCAL);
+      return;
+    }
+    if (sent === "missing") {
+      setRequiredError(CT_FIELD_REQUIRED_MSG.MISSING);
+      return;
+    }
+    requiredInflight.current = true;
+    setRequiredBusy(true);
+    setBusy(true);
+    setRequiredError(null);
+    setRequiredNotice(null);
+    try {
+      const saved = await updateContentTypeDetail(activeKeyRef.current, sent);
+      const accepted = savedContentTypeFieldRequired(sent, detail, saved);
+      if (accepted == null) {
+        setRequiredError(CT_FIELD_REQUIRED_MSG.ERROR);
+        setRequiredNotice(null);
+        return;
+      }
+      const nextDetail = contentTypeWithFieldRequired(detail, accepted);
+      setDetail(nextDetail);
+      setFieldDrafts((prev) => {
+        const next = { ...prev };
+        for (const key of Object.keys(next)) {
+          if (next[key]?.name === accepted.name) {
+            next[key] = { ...next[key], required: accepted.required };
+          }
+        }
+        return next;
+      });
+      setRequiredFieldName(accepted.name);
+      setRequiredDraft(accepted.required);
+      setRequiredEditing(false);
+      setRequiredNotice(accepted.required ? CT_FIELD_REQUIRED_MSG.SAVED : CT_FIELD_REQUIRED_MSG.CLEARED);
+      onSaved?.();
+    } catch (err: unknown) {
+      setRequiredError(panelErrMsg(err, requiredSaveFallback(err)));
+      setRequiredNotice(null);
+    } finally {
+      requiredInflight.current = false;
+      setRequiredBusy(false);
       setBusy(false);
     }
   }
@@ -2433,7 +2587,15 @@ export function ContentTypeDetailPanel({
                   type="button"
                   data-testid="developer-ct-set-label-edit"
                   aria-label={CT_LABEL_MSG.ACTION}
-                  disabled={!heldLock || busy || labelBusy || descriptionEditing || descriptionBusy}
+                  disabled={
+                    !heldLock ||
+                    busy ||
+                    labelBusy ||
+                    descriptionEditing ||
+                    descriptionBusy ||
+                    requiredEditing ||
+                    requiredBusy
+                  }
                   onClick={startLabelEdit}
                   style={{
                     ...smallBtnStyle,
@@ -2535,7 +2697,13 @@ export function ContentTypeDetailPanel({
                   data-testid="developer-ct-set-description-edit"
                   aria-label={CT_DESC_MSG.ACTION}
                   disabled={
-                    !heldLock || busy || descriptionBusy || labelEditing || labelBusy
+                    !heldLock ||
+                    busy ||
+                    descriptionBusy ||
+                    labelEditing ||
+                    labelBusy ||
+                    requiredEditing ||
+                    requiredBusy
                   }
                   onClick={startDescriptionEdit}
                   style={{
@@ -3089,6 +3257,131 @@ export function ContentTypeDetailPanel({
                 </tbody>
               </table>
             </div>
+          </section>
+
+          <section
+            data-testid="developer-ct-field-required"
+            aria-label={CT_FIELD_REQUIRED_MSG.ACTION}
+            style={{ marginBottom: "16px" }}
+          >
+            <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{CT_FIELD_REQUIRED_MSG.ACTION}</h3>
+            <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.9rem" }}>
+              {CT_FIELD_REQUIRED_MSG.HINT}
+            </p>
+            {selectedRequiredField ? (
+              <p
+                data-testid="developer-ct-field-required-text"
+                data-field-name={selectedRequiredField.name}
+                data-field-required={selectedRequiredField.required ? "true" : "false"}
+                style={{ marginTop: 0 }}
+              >
+                {selectedRequiredField.name}
+                {": "}
+                {selectedRequiredField.required
+                  ? CT_FIELD_REQUIRED_MSG.REQUIRED
+                  : CT_FIELD_REQUIRED_MSG.NOT_REQUIRED}
+              </p>
+            ) : (
+              <p data-testid="developer-ct-field-required-none" style={{ marginTop: 0 }}>
+                {CT_FIELD_REQUIRED_MSG.NONE}
+              </p>
+            )}
+            {requiredError ? (
+              <div
+                role="alert"
+                data-testid="developer-ct-field-required-error"
+                style={{ color: catalogColors.error }}
+              >
+                {requiredError}
+              </div>
+            ) : null}
+            {requiredNotice ? (
+              <div data-testid="developer-ct-field-required-notice" style={{ color: "#276749" }}>
+                {requiredNotice}
+              </div>
+            ) : null}
+            {requiredEditing && selectedRequiredField ? (
+              <div data-testid="developer-ct-field-required-editor">
+                <label htmlFor="ct-field-required-field" style={{ display: "block", marginBottom: 4 }}>
+                  {CT_FIELD_REQUIRED_MSG.FIELD}
+                </label>
+                <select
+                  id="ct-field-required-field"
+                  data-testid="developer-ct-field-required-field"
+                  value={selectedRequiredField.name}
+                  disabled={requiredBusy}
+                  onChange={(e) => onRequiredFieldChange(e.target.value)}
+                  style={inputStyle}
+                >
+                  {localRequiredFields.map((field) => (
+                    <option key={field.name} value={field.name}>
+                      {field.name}
+                    </option>
+                  ))}
+                </select>
+                <label style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "8px" }}>
+                  <input
+                    type="checkbox"
+                    data-testid="developer-ct-field-required-input"
+                    checked={requiredDraft}
+                    disabled={requiredBusy}
+                    aria-label={CT_FIELD_REQUIRED_MSG.REQUIRED}
+                    onChange={(e) => setRequiredDraft(e.target.checked)}
+                  />
+                  {CT_FIELD_REQUIRED_MSG.REQUIRED}
+                </label>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                  <button
+                    type="button"
+                    data-testid="developer-ct-field-required-save"
+                    aria-label={CT_FIELD_REQUIRED_MSG.SAVE}
+                    disabled={requiredBusy}
+                    onClick={() => void handleRequiredSave()}
+                    style={{
+                      padding: "8px 16px",
+                      background: catalogColors.accent,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: requiredBusy ? "wait" : "pointer",
+                    }}
+                  >
+                    {CT_FIELD_REQUIRED_MSG.SAVE}
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="developer-ct-field-required-cancel"
+                    disabled={requiredBusy}
+                    onClick={cancelRequiredEdit}
+                    style={smallBtnStyle}
+                  >
+                    {CT_FIELD_REQUIRED_MSG.CANCEL}
+                  </button>
+                </div>
+              </div>
+            ) : selectedRequiredField ? (
+              <button
+                type="button"
+                data-testid="developer-ct-field-required-edit"
+                aria-label={CT_FIELD_REQUIRED_MSG.ACTION}
+                disabled={
+                  !heldLock ||
+                  busy ||
+                  requiredBusy ||
+                  labelEditing ||
+                  labelBusy ||
+                  descriptionEditing ||
+                  descriptionBusy
+                }
+                onClick={startRequiredEdit}
+                style={{
+                  ...smallBtnStyle,
+                  cursor: !heldLock || busy || labelEditing || descriptionEditing ? "not-allowed" : "pointer",
+                }}
+              >
+                {CT_FIELD_REQUIRED_MSG.ACTION}
+              </button>
+            ) : null}
           </section>
 
           <ContentTypeFieldRulesSection
