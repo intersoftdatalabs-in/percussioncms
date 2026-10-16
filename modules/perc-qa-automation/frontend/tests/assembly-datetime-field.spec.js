@@ -325,6 +325,7 @@ test.describe("assembly host datetime field", () => {
         /fields saved/i,
       );
       expect(puts).toEqual([]);
+      await expect(field).toHaveValue("");
       await page.goto(assemblySpaUrl(BASE_URL, "contentId=42&templateId=7"));
       const reloaded = page.frameLocator('[data-testid="assembly-preview-frame"]');
       await expect(reloaded.locator('[data-testid="assembly-inline-field-event_at"]')).toHaveValue(

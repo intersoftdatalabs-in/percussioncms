@@ -19,6 +19,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { ItemEditorFields } from "../../../main/ts/editor/itemFieldsApi";
 import {
   applyFieldOverlay,
+  repaintFieldOverlay,
   changedOverlayEdits,
   mergeOverlayEdits,
   overlayEditKey,
@@ -1764,6 +1765,42 @@ describe("datetime overlay fields", () => {
     ) as HTMLInputElement;
     expect(eventAt.getAttribute("aria-required")).toBe("true");
     expect(eventAt.getAttribute("data-assembly-required")).toBe("true");
+  });
+
+  it("keeps a blank required datetime when the overlay is painted again", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<span data-perc-field="event_at">${OLD_AT}</span>`;
+    const fields = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [{ name: "event_at", value: OLD_AT }],
+      },
+      [
+        {
+          name: "event_at",
+          label: "Event at",
+          control: "sys_CalendarSimple",
+          dataType: "datetime",
+          required: true,
+        },
+      ],
+    );
+    const first = repaintFieldOverlay(root, fields, "42");
+    expect(first.preserved).toBe(false);
+    const eventAt = root.querySelector(
+      '[data-testid="assembly-inline-field-event_at"]',
+    ) as HTMLInputElement;
+    expect(eventAt.value).toBe(OLD_WIDGET);
+    eventAt.value = "";
+    const again = repaintFieldOverlay(root, fields, "42");
+    expect(again.preserved).toBe(true);
+    const repainted = root.querySelector(
+      '[data-testid="assembly-inline-field-event_at"]',
+    ) as HTMLInputElement;
+    expect(repainted).not.toBe(eventAt);
+    expect(repainted.value).toBe("");
+    expect(repainted.getAttribute("aria-required")).toBe("true");
+    expect(repainted.getAttribute("data-assembly-required")).toBe("true");
   });
 
   it("persists one datetime with dataType datetime and leaves other fields", async () => {

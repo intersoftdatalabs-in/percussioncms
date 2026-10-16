@@ -4296,6 +4296,7 @@ describe("AssemblyHost datetime field", () => {
     );
     await waitFor(() => {
       expect(datetimeInput(previewDoc)).toBeTruthy();
+      expect(screen.getByTestId("assembly-preview-frame")).toBeTruthy();
     });
     const eventAt = datetimeInput(previewDoc);
     expect(eventAt.getAttribute("aria-required")).toBe("true");
@@ -4310,12 +4311,15 @@ describe("AssemblyHost datetime field", () => {
       expect(screen.getByTestId("assembly-field-error-event_at").textContent).toMatch(/required/i);
       expect(datetimeInput(previewDoc).getAttribute("aria-invalid")).toBe("true");
     });
+    // A late preview-frame load remounts the picker. The blank must stay.
+    fireEvent.load(screen.getByTestId("assembly-preview-frame"));
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/required/i);
     expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/date and time/i);
     expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
     expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
     expect(datetimeInput(previewDoc).value).toBe("");
+    expect(datetimeInput(previewDoc).getAttribute("aria-invalid")).toBe("true");
     cleanup();
     const reloaded = datetimePreviewDoc();
     renderDatetimeHost(
@@ -4329,6 +4333,31 @@ describe("AssemblyHost datetime field", () => {
     });
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+  });
+
+  it("still saves a datetime edit after the preview frame loads again", async () => {
+    const previewDoc = datetimePreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderDatetimeHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(datetimeInput(previewDoc)).toBeTruthy();
+      expect(screen.getByTestId("assembly-preview-frame")).toBeTruthy();
+    });
+    datetimeInput(previewDoc).value = NEW_WIDGET;
+    fireEvent.load(screen.getByTestId("assembly-preview-frame"));
+    expect(datetimeInput(previewDoc).value).toBe(NEW_WIDGET);
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "event_at")).toEqual({
+      name: "event_at",
+      value: NEW_AT,
+      dataType: "datetime",
+    });
+    expect(saved.fields.find((field) => field.name === "displaytitle")?.value).toBe(TITLE);
   });
 
   it("does not write when Cancel leaves a blank required datetime edit", async () => {
