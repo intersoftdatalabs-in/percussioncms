@@ -134,7 +134,12 @@ async function openPercPage(page) {
   if (await detailError.isVisible()) {
     throw new Error(`Content type detail error: ${(await detailError.innerText()).trim()}`);
   }
-  await expect(descriptionText(page)).toBeVisible({ timeout: 30_000 });
+  // A blank stored description is an empty paragraph. Playwright treats that
+  // as hidden, so wait for the section and the attached text node.
+  await expect(page.locator('[data-testid="developer-ct-set-description"]')).toBeVisible({
+    timeout: 30_000,
+  });
+  await expect(descriptionText(page)).toBeAttached();
   await expect(page.locator('[data-testid="developer-ct-lock"]')).toBeEnabled({
     timeout: 30_000,
   });
