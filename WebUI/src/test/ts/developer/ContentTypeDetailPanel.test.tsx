@@ -11,6 +11,7 @@ import * as fieldRulesApi from "../../../main/ts/api/developer/contentTypeFieldR
 import * as importExportApi from "../../../main/ts/api/developer/contentTypeImportExport";
 import { catalogColors } from "../../../main/ts/developer/catalogStyles";
 import { CT_DESC_MSG } from "../../../main/ts/developer/contentTypeDescriptionMessages";
+import { CT_LABEL_MSG } from "../../../main/ts/developer/contentTypeLabelMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { ContentTypeDetailPanel } from "../../../main/ts/developer/ContentTypeDetailPanel";
 
@@ -3388,6 +3389,176 @@ describe("ContentTypeDetailPanel", () => {
       "Page type",
     );
     expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+    expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).checked).toBe(true);
+  });
+
+  it("sets the label only after success and leaves description and enabled (#5464)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "sys_title" }, { name: "title" }],
+    });
+    const onSaved = vi.fn();
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} onSaved={onSaved} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-set-label-text").getAttribute("data-ct-label")).toBe(
+        "Page",
+      );
+    });
+    expect((screen.getByTestId("developer-ct-set-label-edit") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-edit"));
+    expect(screen.queryByTestId("developer-ct-set-label-editor")).toBeNull();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-set-label-edit") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-edit"));
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-save"));
+    expect(screen.queryByTestId("developer-ct-set-label-editor")).toBeNull();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-label-input"), {
+      target: { value: "later" },
+    });
+    expect(screen.getByTestId("developer-ct-set-label-text").getAttribute("data-ct-label")).toBe("Page");
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-cancel"));
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-set-label-text").getAttribute("data-ct-label")).toBe("Page");
+    expect((screen.getByTestId("developer-ct-name") as HTMLInputElement).value).toBe("percPage");
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+      "Page type",
+    );
+    expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).checked).toBe(true);
+
+    updateContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      label: "Pages",
+      fields: [{ name: "sys_title" }, { name: "title" }],
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-label-input"), {
+      target: { value: " Pages " },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-set-label-notice").textContent).toBe(CT_LABEL_MSG.SAVED);
+    });
+    expect(updateContentTypeDetail).toHaveBeenCalledWith("percPage", { label: "Pages" });
+    expect(setContentTypeEnabled).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-set-label-text").getAttribute("data-ct-label")).toBe("Pages");
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Pages");
+    expect((screen.getByTestId("developer-ct-name") as HTMLInputElement).value).toBe("percPage");
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+      "Page type",
+    );
+    expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).checked).toBe(true);
+    expect(onSaved).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows the name for a blank label and keeps it on 400, 403, and 409 (#5464)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    updateContentTypeDetail.mockResolvedValue({ ...sampleDetail, label: "" });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-set-label-edit") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-label-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-set-label-notice").textContent).toBe(CT_LABEL_MSG.CLEARED);
+    });
+    expect(updateContentTypeDetail).toHaveBeenCalledWith("percPage", { label: "" });
+    expect(screen.getByTestId("developer-ct-set-label-text").getAttribute("data-ct-label")).toBe(
+      "percPage",
+    );
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("percPage");
+    expect((screen.getByTestId("developer-ct-name") as HTMLInputElement).value).toBe("percPage");
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+      "Page type",
+    );
+    expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).checked).toBe(true);
+
+    for (const status of [400, 403, 409]) {
+      updateContentTypeDetail.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-ct-set-label-edit"));
+      fireEvent.change(screen.getByTestId("developer-ct-set-label-input"), {
+        target: { value: "later" },
+      });
+      fireEvent.click(screen.getByTestId("developer-ct-set-label-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-ct-set-label-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(screen.queryByTestId("developer-ct-set-label-notice")).toBeNull();
+      expect(screen.getByTestId("developer-ct-set-label-text").getAttribute("data-ct-label")).toBe(
+        "percPage",
+      );
+      expect((screen.getByTestId("developer-ct-name") as HTMLInputElement).value).toBe("percPage");
+      expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+        "Page type",
+      );
+      expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+      fireEvent.click(screen.getByTestId("developer-ct-set-label-cancel"));
+    }
+  });
+
+  it("does not show a label when the update changes the description or enabled flag (#5464)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ name: "sys_title" }, { name: "title" }],
+    });
+    updateContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      label: "Pages",
+      description: "changed",
+      enabled: false,
+      fields: [{ name: "sys_title" }],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-set-label-edit") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-label-input"), {
+      target: { value: "Pages" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-set-label-error").textContent).toContain(CT_LABEL_MSG.ERROR);
+    });
+    expect(screen.queryByTestId("developer-ct-set-label-notice")).toBeNull();
+    expect(screen.getByTestId("developer-ct-set-label-text").getAttribute("data-ct-label")).toBe("Page");
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+    expect((screen.getByTestId("developer-ct-name") as HTMLInputElement).value).toBe("percPage");
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+      "Page type",
+    );
     expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).checked).toBe(true);
   });
 });

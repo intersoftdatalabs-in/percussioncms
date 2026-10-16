@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Create, rename, or delete a content type from Developer chrome, lock, set or clear the description, enable or disable, toggle type-level search indexing, set icon strategy, add or delete local fields from Developer Content Type detail, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, field choice catalogs, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Create, rename, or delete a content type from Developer chrome, lock, set a label, set or clear the description, enable or disable, toggle type-level search indexing, set icon strategy, add or delete local fields from Developer Content Type detail, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, field choice catalogs, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -234,6 +234,26 @@ until you hold the lock.
    the detail and the catalog description show the new value. HTTP 400, 403,
    and 409 leave the previous description on the page and do not show success.
    The lock stays held.
+
+### Set a label (after lock)
+
+**Set content type label** writes the label only. The description and the
+**Enabled** flag stay. The internal name stays. The control is on the detail
+header and stays disabled until you hold the lock.
+
+1. Open the type. The stored label is shown under **Set content type label**.
+   Typing in the main **Label** field does not change that text. A blank stored
+   label shows the internal name.
+2. Click **Lock**, then **Set content type label**. Enter the new label, or
+   leave it blank. **Cancel** closes the editor and does not call the server.
+   Saving the same label does not call the server.
+3. Click **Save label**. The request is `PUT /services/contenttypes/{idOrName}`
+   with `label` only. Description, enabled, fields, workflows, and templates
+   are omitted, so they stay. An empty label does not clear the internal name.
+   The catalog shows that name, and the page shows the name. After a successful
+   save, the detail and the catalog label show the new value. HTTP 400, 403,
+   and 409 leave the previous label on the page and do not show success. The
+   lock stays held.
 
 ### Icon strategy (after lock)
 
