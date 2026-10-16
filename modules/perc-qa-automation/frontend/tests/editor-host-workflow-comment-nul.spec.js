@@ -241,7 +241,10 @@ test.describe("EditorHost workflow comment NUL", () => {
       );
       await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toHaveCount(0);
 
-      await page.reload();
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
       await expect(page.locator(`[data-testid="${TEST_IDS.workflowState}"]`)).toContainText(
         "Draft",
       );
