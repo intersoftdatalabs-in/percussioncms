@@ -34,6 +34,7 @@ import {
   publishableScheduleTargets,
   scheduleSelectedItem,
   scheduleSelectedItems,
+  scheduleCommentContainsNul,
   serverDateToDatetimeLocal,
   setItemScheduleDates,
   validateScheduleDateRange,
@@ -52,6 +53,19 @@ function item(overrides: Partial<PSPathItem> = {}): PSPathItem {
     ...overrides,
   };
 }
+
+describe("scheduleCommentContainsNul", () => {
+  it("is only a NUL character (#5444)", () => {
+    expect(scheduleCommentContainsNul(null)).toBe(false);
+    expect(scheduleCommentContainsNul(undefined)).toBe(false);
+    expect(scheduleCommentContainsNul("")).toBe(false);
+    expect(scheduleCommentContainsNul("   ")).toBe(false);
+    expect(scheduleCommentContainsNul("ship window")).toBe(false);
+    expect(scheduleCommentContainsNul("line\nbreak")).toBe(false);
+    expect(scheduleCommentContainsNul("keep\u0000me")).toBe(true);
+    expect(scheduleCommentContainsNul("\u0000")).toBe(true);
+  });
+});
 
 describe("parseItemScheduleDates", () => {
   it("unwraps JAXB ItemDates", () => {

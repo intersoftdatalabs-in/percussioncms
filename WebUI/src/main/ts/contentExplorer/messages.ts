@@ -915,6 +915,8 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Publish and removal dates cannot be the same",
   SCHEDULE_DATE_RANGE:
     "perc.ui.explorer@Enter a valid date range. Removal must be after publish.",
+  SCHEDULE_COMMENT_NUL:
+    "perc.ui.explorer@That schedule comment contains a character that cannot be saved.",
   CLEAR_SCHEDULE_TITLE: "perc.ui.explorer@Clear scheduled dates",
   CLEAR_SCHEDULE_BODY:
     "perc.ui.explorer@Clear publish and removal dates for this item?",

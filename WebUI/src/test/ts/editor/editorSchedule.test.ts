@@ -42,13 +42,38 @@ describe("editorScheduleFailureMessage", () => {
     ).toMatch(/not allowed/i);
   });
 
-  it("maps application-level FORBIDDEN and INVALID", () => {
+  it("maps application-level FORBIDDEN, BADCONFIG, and INVALID", () => {
     expect(editorScheduleFailureMessage(new Error("FORBIDDEN"))).toMatch(
       /not allowed/i,
+    );
+    expect(editorScheduleFailureMessage(new Error("BADCONFIG"))).toMatch(
+      /not valid/i,
     );
     expect(editorScheduleFailureMessage(new Error("INVALID range"))).toMatch(
       /not valid/i,
     );
+    for (const text of ["FORBIDDEN", "BADCONFIG", "INVALID range"]) {
+      expect(editorScheduleFailureMessage(new Error(text))).not.toMatch(
+        /schedule saved/i,
+      );
+    }
+  });
+
+  it("does not claim success for HTTP 409", () => {
+    expect(
+      editorScheduleFailureMessage({
+        status: 409,
+        statusText: "Conflict",
+        body: {},
+      }),
+    ).toMatch(/HTTP 409/i);
+    expect(
+      editorScheduleFailureMessage({
+        status: 409,
+        statusText: "Conflict",
+        body: {},
+      }),
+    ).not.toMatch(/schedule saved/i);
   });
 
   it("stays silent when the session is already redirecting", () => {

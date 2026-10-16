@@ -193,6 +193,112 @@ describe("EditorHost schedule publish dates (#4917)", () => {
     expect(screen.queryByTestId("editor-schedule-done")).toBeNull();
   });
 
+  it("refuses a NUL comment, reopens the previous schedule, and still saves a normal comment", async () => {
+    let stored = { ...STORED };
+    const loadScheduleDates = vi.fn(async () => ({ ...stored }));
+    const saveScheduleDates = vi.fn(async (dates) => {
+      stored = { ...dates };
+    });
+    renderEdit({ loadScheduleDates, saveScheduleDates });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-schedule")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-schedule"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-schedule-comments")).toHaveValue("first");
+    });
+    fireEvent.change(screen.getByTestId("explorer-schedule-start"), {
+      target: { value: "2026-09-20T09:00" },
+    });
+    fireEvent.change(screen.getByTestId("explorer-schedule-end"), {
+      target: { value: "2026-09-21T10:00" },
+    });
+    fireEvent.change(screen.getByTestId("explorer-schedule-comments"), {
+      target: { value: "keep\u0000me" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-schedule-save"));
+    expect(saveScheduleDates).not.toHaveBeenCalled();
+    expect(screen.getByTestId("explorer-schedule-dialog-error").textContent).toMatch(
+      /schedule comment contains a character that cannot be saved/i,
+    );
+    expect(screen.queryByTestId("editor-schedule-done")).toBeNull();
+    expect(screen.getByTestId("explorer-schedule-dialog")).toBeTruthy();
+
+    fireEvent.click(screen.getByTestId("explorer-schedule-cancel"));
+    expect(saveScheduleDates).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("explorer-schedule-dialog")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("editor-schedule"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-schedule-start")).toHaveValue(
+        "2026-09-18T09:00",
+      );
+    });
+    expect(screen.getByTestId("explorer-schedule-end")).toHaveValue(
+      "2026-09-19T10:00",
+    );
+    expect(screen.getByTestId("explorer-schedule-comments")).toHaveValue("first");
+
+    fireEvent.change(screen.getByTestId("explorer-schedule-comments"), {
+      target: { value: "ship window" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-schedule-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-schedule-done")).toBeTruthy();
+    });
+    expect(saveScheduleDates).toHaveBeenCalledWith(
+      expect.objectContaining({
+        itemId: "42",
+        startDate: "09/18/2026 09:00 am",
+        endDate: "09/19/2026 10:00 am",
+        comments: "ship window",
+      }),
+    );
+    fireEvent.click(screen.getByTestId("editor-schedule"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-schedule-comments")).toHaveValue(
+        "ship window",
+      );
+    });
+  });
+
+  it("does not treat HTTP 409 or application-level failures as a saved schedule", async () => {
+    const failures: unknown[] = [
+      { status: 409, statusText: "Conflict", body: {} },
+      new Error("FORBIDDEN"),
+      new Error("BADCONFIG"),
+      new Error("INVALID"),
+    ];
+    const saveScheduleDates = vi.fn(async () => {
+      const next = failures.shift();
+      throw next;
+    });
+    renderEdit({
+      loadScheduleDates: vi.fn().mockResolvedValue({ ...STORED }),
+      saveScheduleDates,
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-schedule")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-schedule"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-schedule-save")).toBeTruthy();
+    });
+    const patterns = [/HTTP 409/i, /not allowed/i, /not valid/i, /not valid/i];
+    for (const pattern of patterns) {
+      fireEvent.click(screen.getByTestId("explorer-schedule-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("explorer-schedule-dialog-error").textContent).toMatch(
+          pattern,
+        );
+      });
+      expect(screen.queryByTestId("editor-schedule-done")).toBeNull();
+      expect(screen.getByTestId("explorer-schedule-dialog")).toBeTruthy();
+      expect(screen.getByTestId("explorer-schedule-comments")).toHaveValue("first");
+    }
+    expect(saveScheduleDates).toHaveBeenCalledTimes(4);
+  });
+
   it("hides Schedule in view mode", async () => {
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>

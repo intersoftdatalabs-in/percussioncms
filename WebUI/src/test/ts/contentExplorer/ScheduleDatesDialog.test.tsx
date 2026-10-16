@@ -71,6 +71,81 @@ describe("ScheduleDatesDialog", () => {
     });
   });
 
+  it("refuses a NUL comment and still saves a normal comment within the cap", async () => {
+    const onSave = vi.fn();
+    const { container } = render(
+      <ScheduleDatesDialog
+        current={{ ...CURRENT, comments: "first" }}
+        onSave={onSave}
+        onCancel={vi.fn()}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("explorer-schedule-start"), {
+      target: { value: "2026-09-20T09:00" },
+    });
+    fireEvent.change(screen.getByTestId("explorer-schedule-end"), {
+      target: { value: "2026-09-21T10:00" },
+    });
+    fireEvent.change(screen.getByTestId("explorer-schedule-comments"), {
+      target: { value: "keep\u0000me" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-schedule-save"));
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.getByTestId("explorer-schedule-dialog-error")).toHaveTextContent(
+      /schedule comment contains a character that cannot be saved/i,
+    );
+    expect(screen.getByTestId("explorer-schedule-start")).toHaveValue(
+      "2026-09-20T09:00",
+    );
+    expect(screen.getByTestId("explorer-schedule-end")).toHaveValue(
+      "2026-09-21T10:00",
+    );
+    expect(screen.getByTestId("explorer-schedule-comments")).toHaveValue(
+      "keep\u0000me",
+    );
+    await renderA11yGate(container);
+
+    fireEvent.change(screen.getByTestId("explorer-schedule-comments"), {
+      target: { value: "n".repeat(510) },
+    });
+    fireEvent.click(screen.getByTestId("explorer-schedule-save"));
+    expect(onSave).toHaveBeenCalledTimes(1);
+    expect(onSave).toHaveBeenCalledWith({
+      itemId: "42",
+      startDate: "09/20/2026 09:00 am",
+      endDate: "09/21/2026 10:00 am",
+      comments: "n".repeat(500),
+    });
+  });
+
+  it("keeps the start-before-removal error ahead of a NUL comment", () => {
+    const onSave = vi.fn();
+    render(
+      <ScheduleDatesDialog
+        current={CURRENT}
+        onSave={onSave}
+        onCancel={vi.fn()}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("explorer-schedule-start"), {
+      target: { value: "2026-09-22T09:00" },
+    });
+    fireEvent.change(screen.getByTestId("explorer-schedule-end"), {
+      target: { value: "2026-09-18T09:00" },
+    });
+    fireEvent.change(screen.getByTestId("explorer-schedule-comments"), {
+      target: { value: "bad\u0000comment" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-schedule-save"));
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.getByTestId("explorer-schedule-dialog-error")).toHaveTextContent(
+      /removal must be after publish/i,
+    );
+    expect(screen.getByTestId("explorer-schedule-dialog-error")).not.toHaveTextContent(
+      /cannot be saved/i,
+    );
+  });
+
   it("blocks same publish and removal times", () => {
     const onSave = vi.fn();
     render(

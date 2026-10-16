@@ -239,6 +239,17 @@ export function datetimeLocalToServerDate(value: string): string {
   return formatServerScheduleDate(d);
 }
 
+/**
+ * True when a schedule comment contains a NUL.
+ * A blank comment is not a NUL. A normal comment is not a NUL.
+ * The schedule dialog refuses a NUL before {@code setitemdates} (#5444).
+ */
+export function scheduleCommentContainsNul(
+  comment: string | null | undefined,
+): boolean {
+  return (comment ?? "").includes("\u0000");
+}
+
 export function validateScheduleDateRange(
   startDate: string,
   endDate: string,
