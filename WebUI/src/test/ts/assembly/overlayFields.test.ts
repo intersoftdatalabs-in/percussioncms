@@ -31,6 +31,7 @@ import {
   assemblyDatetimeValue,
   blankRequiredDateFieldNames,
   blankRequiredDatetimeFieldNames,
+  blankRequiredHtmlFieldNames,
   blankRequiredLinkFieldNames,
   blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
@@ -877,6 +878,70 @@ describe("blankRequiredLinkFieldNames", () => {
     ) as HTMLInputElement;
     expect(input.getAttribute("aria-required")).toBe("true");
     expect(input.getAttribute("data-assembly-required")).toBe("true");
+  });
+});
+
+describe("blankRequiredHtmlFieldNames", () => {
+  const fields = [
+    { name: "description", kind: "html" as const, required: true, value: "<p>About</p>" },
+    { name: "optional", kind: "html" as const, required: false, value: "<p>Optional</p>" },
+    { name: "displaytitle", kind: "text" as const, required: true, value: "Welcome" },
+    { name: "pagelink", kind: "link" as const, required: true, value: "//Sites/Example/index" },
+  ];
+
+  it("names a blank or whitespace required HTML field and ignores optional and other kinds", () => {
+    expect(
+      blankRequiredHtmlFieldNames(fields, [
+        { name: "description", value: "" },
+        { name: "optional", value: "" },
+        { name: "displaytitle", value: "   " },
+        { name: "pagelink", value: "" },
+      ]),
+    ).toEqual(["description"]);
+    expect(
+      blankRequiredHtmlFieldNames(fields, [{ name: "description", value: "  \n  " }]),
+    ).toEqual(["description"]);
+    expect(
+      blankRequiredHtmlFieldNames(fields, [
+        { name: "description", value: "<p>Updated body</p>" },
+      ]),
+    ).toEqual([]);
+    expect(
+      blankRequiredHtmlFieldNames(fields, [
+        { name: "description", value: "<p>bad\u0000value</p>" },
+      ]),
+    ).toEqual([]);
+    expect(
+      nulHtmlFieldNames(fields, [{ name: "description", value: "" }]),
+    ).toEqual([]);
+  });
+
+  it("marks a required HTML field on the assembled node without aria-required", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<div class="PsAaField" id='[3,42,7,0,0,0,0,1,0,0,0,"description",42,"Body",0]'><p>About</p></div>`;
+    const overlay = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [{ name: "description", value: "<p>About</p>" }],
+      },
+      [
+        {
+          name: "description",
+          label: "Body",
+          control: "sys_tinymce",
+          required: true,
+        },
+      ],
+    );
+    expect(overlay[0]?.required).toBe(true);
+    expect(overlay[0]?.kind).toBe("html");
+    applyFieldOverlay(root, overlay, "42");
+    const node = root.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    expect(node.getAttribute("data-assembly-value")).toBe("html");
+    expect(node.getAttribute("data-assembly-required")).toBe("true");
+    expect(node.hasAttribute("aria-required")).toBe(false);
   });
 });
 
