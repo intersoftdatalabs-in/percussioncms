@@ -1175,6 +1175,26 @@ export function clearFieldOverlay(root: ParentNode): void {
   });
 }
 
+/**
+ * Paint assembled fields again.
+ * A late iframe load used to remount inputs from the stored values and wipe
+ * an in-progress edit. A blank required datetime then showed the previous
+ * date and time while the required error was still up. Edits already on the
+ * nodes are written back. The first paint has nothing to keep.
+ */
+export function repaintFieldOverlay(
+  root: ParentNode,
+  fields: OverlayField[],
+  ownerId: string,
+): { hits: OverlayFieldHit[]; preserved: boolean } {
+  const prior = readOverlayEdits(root, ownerId);
+  const hits = applyFieldOverlay(root, fields, ownerId);
+  if (prior.length > 0) {
+    restoreOverlayValues(root, prior);
+  }
+  return { hits, preserved: prior.length > 0 };
+}
+
 export function applyFieldOverlay(
   root: ParentNode,
   fields: OverlayField[],
@@ -1377,10 +1397,10 @@ export function readOverlayEdits(
   return edits;
 }
 
-/** Put the last saved field values back into overlay nodes after a failed save. */
+/** Put field values back into overlay nodes after a failed save or a repaint. */
 export function restoreOverlayValues(
   root: ParentNode,
-  fields: OverlayField[],
+  fields: readonly { name: string; value: string }[],
 ): void {
   const byName = new Map(fields.map((field) => [field.name, field]));
   root.querySelectorAll("[data-assembly-field]").forEach((el) => {

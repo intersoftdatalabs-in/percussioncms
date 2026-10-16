@@ -93,6 +93,7 @@ import {
   overlayEditKey,
   persistOverlayEdits,
   readOverlayEdits,
+  repaintFieldOverlay,
   restoreOverlayValues,
   scalarOverlayFields,
   type OverlayField,
@@ -470,9 +471,13 @@ export function AssemblyHost({
       return;
     }
     const ownerId = String(contentId);
-    const hits = applyFieldOverlay(doc, overlayFields, ownerId);
-    setInlineFieldNames([...new Set(hits.map((h) => h.name))]);
-    fieldBaselineRef.current = snapshotFieldBaseline(ownerId, [doc, fieldBarNode()]);
+    const painted = repaintFieldOverlay(doc, overlayFields, ownerId);
+    setInlineFieldNames([...new Set(painted.hits.map((h) => h.name))]);
+    // A second paint (iframe load after the author cleared a datetime) must
+    // not adopt the in-progress values as the saved baseline.
+    if (!painted.preserved) {
+      fieldBaselineRef.current = snapshotFieldBaseline(ownerId, [doc, fieldBarNode()]);
+    }
   }, [contentId, overlayFields, getPreviewDocument, schemaReady]);
 
   useEffect(() => {

@@ -265,7 +265,9 @@ reopening the item still shows the previous date, **Close** then **Cancel** does
 and a non-blank date still saves. Optional date clear is unchanged.
 For a required datetime, that refusal leaves the stored date and time in place:
 reopening the item still shows the previous date and time, **Close** then **Cancel** does not write,
-and a non-blank date and time still saves. Optional datetime clear is unchanged.
+and a non-blank date and time still saves. While that required error is showing, the picker
+stays blank. A preview-frame load does not put the previous date and time back into the
+picker until the author cancels or reopens the item. Optional datetime clear is unchanged.
 A value the host cannot parse is blocked before PUT and
 shown on that row (`Enter a valid date.`). HTTP **400** and **403** from the
 fields PUT are mapped onto that date or datetime when the error names it, or
