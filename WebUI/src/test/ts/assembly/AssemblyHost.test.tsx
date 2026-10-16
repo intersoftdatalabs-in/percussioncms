@@ -840,6 +840,320 @@ describe("AssemblyHost", () => {
     expect(area.value).toContain("<p>");
   });
 
+  function requiredHtmlSchema(required = true) {
+    return {
+      fields: htmlSchema.fields.map((field) =>
+        field.name === "description" ? { ...field, required } : field,
+      ),
+    };
+  }
+
+  it("does not save a blank required HTML field and reloads the previous markup", async () => {
+    const previewDoc = htmlPreviewDoc();
+    const saveFields = vi.fn();
+    renderHtmlHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)),
+      requiredHtmlSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+      ).toBeTruthy();
+    });
+    const body = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    expect(body.getAttribute("data-assembly-value")).toBe("html");
+    expect(body.getAttribute("data-assembly-required")).toBe("true");
+    expect(body.hasAttribute("aria-required")).toBe(false);
+    expect(
+      screen.getByTestId("assembly-field-chip-description").getAttribute("data-required"),
+    ).toBe("true");
+    body.innerHTML = "";
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-description").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/required/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /cannot be saved/i,
+    );
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(body.hasAttribute("aria-invalid")).toBe(false);
+    expect(screen.queryByTestId("assembly-field-error-displaytitle")).toBeNull();
+    cleanup();
+    const reloaded = htmlPreviewDoc();
+    renderHtmlHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)),
+      requiredHtmlSchema(),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-description"]',
+      ) as HTMLElement | null;
+      expect(live?.innerHTML.trim()).toBe(PREV_HTML);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+  });
+
+  it("does not save whitespace-only required HTML and keeps the previous markup", async () => {
+    const previewDoc = htmlPreviewDoc();
+    const saveFields = vi.fn();
+    renderHtmlHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)),
+      requiredHtmlSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+      ).toBeTruthy();
+    });
+    const body = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    body.innerHTML = "  \n  ";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-description").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /cannot be saved/i,
+    );
+    cleanup();
+    const reloaded = htmlPreviewDoc();
+    renderHtmlHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)),
+      requiredHtmlSchema(),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-description"]',
+      ) as HTMLElement | null;
+      expect(live?.innerHTML.trim()).toBe(PREV_HTML);
+    });
+  });
+
+  it("does not write when Cancel leaves a blank required HTML edit", async () => {
+    const previewDoc = htmlPreviewDoc();
+    const saveFields = vi.fn();
+    renderHtmlHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)),
+      requiredHtmlSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+      ).toBeTruthy();
+    });
+    const body = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    body.innerHTML = "";
+    fireEvent.click(screen.getByTestId("assembly-field-cancel"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(body.innerHTML.trim()).toBe(PREV_HTML);
+    expect(screen.queryByTestId("assembly-field-error-description")).toBeNull();
+  });
+
+  it("still saves ordinary HTML on a required HTML field", async () => {
+    let htmlValue = PREV_HTML;
+    const next = "<p>Updated body</p>";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      htmlValue = body.fields.find((field) => field.name === "description")?.value ?? htmlValue;
+      return descriptionPayload(htmlValue);
+    });
+    const previewDoc = htmlPreviewDoc();
+    renderHtmlHost(
+      previewDoc,
+      saveFields,
+      vi.fn(async () => descriptionPayload(htmlValue)),
+      requiredHtmlSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+      ).toBeTruthy();
+    });
+    const body = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    body.innerHTML = next;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    });
+    const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "description")?.value).toBe(next);
+    expect(sent.fields.find((field) => field.name === "displaytitle")?.value).toBe("Welcome");
+    expect(screen.queryByTestId("assembly-field-error-description")).toBeNull();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/required/i);
+    cleanup();
+    const reloaded = document.implementation.createHTMLDocument("preview");
+    reloaded.body.innerHTML = `
+      <div class="PsAaField" id='[3,42,7,0,0,0,0,1,0,0,0,"description",42,"Body",0]'>${next}</div>
+      <h1 data-perc-field="displaytitle">Welcome</h1>
+    `;
+    renderHtmlHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(next)),
+      requiredHtmlSchema(),
+    );
+    await waitFor(() => {
+      const live = reloaded.querySelector(
+        '[data-testid="assembly-inline-field-description"]',
+      ) as HTMLElement | null;
+      expect(live?.innerHTML.trim()).toBe(next);
+    });
+  });
+
+  it("still saves a blank optional HTML field", async () => {
+    const previewDoc = htmlPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderHtmlHost(previewDoc, saveFields, vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)), {
+      fields: htmlSchema.fields.map((field) =>
+        field.name === "description" ? { ...field, required: false } : field,
+      ),
+    });
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+      ).toBeTruthy();
+    });
+    const body = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    expect(body.hasAttribute("data-assembly-required")).toBe(false);
+    body.innerHTML = "";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "description")?.value).toBe("");
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    expect(screen.queryByTestId("assembly-field-error-description")).toBeNull();
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s on a required HTML field does not claim success",
+    async (status) => {
+      const previewDoc = htmlPreviewDoc();
+      const saveFields = vi.fn().mockRejectedValue({ status });
+      renderHtmlHost(
+        previewDoc,
+        saveFields,
+        vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)),
+        requiredHtmlSchema(),
+      );
+      await waitFor(() => {
+        expect(
+          previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+        ).toBeTruthy();
+      });
+      const body = previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-description"]',
+      ) as HTMLElement;
+      body.innerHTML = "<p>Should not stick</p>";
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+          /could not save/i,
+        );
+      });
+      expect(body.innerHTML.trim()).toBe(PREV_HTML);
+      expect(saveFields).toHaveBeenCalled();
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+      expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+      expect(screen.queryByTestId("assembly-field-error-description")).toBeNull();
+    },
+  );
+
+  it("refuses a blank required HTML field on the overlay strip", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn();
+    renderHtmlHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)),
+      requiredHtmlSchema(),
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-description")).toBeTruthy();
+    });
+    const area = screen.getByTestId(
+      "assembly-overlay-field-description",
+    ) as HTMLTextAreaElement;
+    expect(area.getAttribute("aria-required")).toBe("true");
+    expect(area.getAttribute("data-assembly-required")).toBe("true");
+    area.value = "   ";
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-description").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+      /cannot be saved/i,
+    );
+    expect(area.getAttribute("aria-invalid")).toBe("true");
+    expect(area.value).toBe("   ");
+  });
+
+  it("keeps the HTML NUL gate on a required HTML field", async () => {
+    const previewDoc = htmlPreviewDoc();
+    const saveFields = vi.fn();
+    renderHtmlHost(
+      previewDoc,
+      saveFields,
+      vi.fn().mockResolvedValue(descriptionPayload(PREV_HTML)),
+      requiredHtmlSchema(),
+    );
+    await waitFor(() => {
+      expect(
+        previewDoc.querySelector('[data-testid="assembly-inline-field-description"]'),
+      ).toBeTruthy();
+    });
+    const body = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-description"]',
+    ) as HTMLElement;
+    body.appendChild(previewDoc.createTextNode("bad\u0000"));
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-description").textContent).toMatch(
+        /HTML contains a character that cannot be saved/i,
+      );
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/^This field is required/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+  });
+
   const OLD_LINK = "//Sites/Example/index";
   const NEW_LINK = "//Sites/Example/about";
 

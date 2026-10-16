@@ -341,9 +341,10 @@ export function htmlContainsNul(value: string): boolean {
 /**
  * HTML fields whose current value contains a NUL.
  * Single-line text, long text, link, numbers, dates, and datetimes are not
- * checked here. A link NUL is {@link nulLinkFieldNames}. Later edits for the
- * same name win so the overlay strip and the assembled node agree. Ordinary
- * markup without a NUL is not named.
+ * checked here. A link NUL is {@link nulLinkFieldNames}. A blank required HTML
+ * field is {@link blankRequiredHtmlFieldNames}. Later edits for the same name
+ * win so the overlay strip and the assembled node agree. Ordinary markup
+ * without a NUL is not named.
  */
 export function nulHtmlFieldNames(
   fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
@@ -408,8 +409,9 @@ export function nulLinkFieldNames(
  * Required link fields whose current value is blank or whitespace.
  * Optional links are not named, so a clear stays out of this gate.
  * Single-line text, long text, HTML, numbers, dates, and datetimes are not
- * checked here. A link NUL is {@link nulLinkFieldNames}. Later edits for the
- * same name win so the overlay strip and the assembled node agree.
+ * checked here. A blank required HTML field is {@link blankRequiredHtmlFieldNames}.
+ * A link NUL is {@link nulLinkFieldNames}. Later edits for the same
+ * name win so the overlay strip and the assembled node agree.
  */
 export function blankRequiredLinkFieldNames(
   fields: readonly (Pick<OverlayField, "name" | "kind" | "value"> & {
@@ -424,6 +426,36 @@ export function blankRequiredLinkFieldNames(
   const names: string[] = [];
   for (const field of fields) {
     if (field.kind !== "link" || field.required !== true) {
+      continue;
+    }
+    const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
+    if (value.trim().length === 0) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/**
+ * Required HTML fields whose current value is blank or whitespace.
+ * Optional HTML is not named, so a clear stays out of this gate.
+ * Single-line text, long text, link, numbers, dates, and datetimes are not
+ * checked here. An HTML NUL is {@link nulHtmlFieldNames}. Later edits for the
+ * same name win so the overlay strip and the assembled node agree.
+ */
+export function blankRequiredHtmlFieldNames(
+  fields: readonly (Pick<OverlayField, "name" | "kind" | "value"> & {
+    required?: boolean;
+  })[],
+  edits: readonly Pick<OverlayFieldEdit, "name" | "value">[],
+): string[] {
+  const values = new Map<string, string>();
+  for (const edit of edits) {
+    values.set(edit.name, edit.value);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "html" || field.required !== true) {
       continue;
     }
     const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
@@ -693,7 +725,7 @@ export interface OverlayField {
   label: string;
   kind: OverlayFieldKind;
   readOnly: boolean;
-  /** Content-type required flag. Single-line text, links, whole numbers, calendar dates, and datetimes are enforced on save. */
+  /** Content-type required flag. Single-line text, HTML, links, whole numbers, calendar dates, and datetimes are enforced on save. */
   required: boolean;
   /** True when the content-type data type is float. Whole numbers stay false. */
   numericFloat?: boolean;
@@ -1225,6 +1257,11 @@ export function applyFieldOverlay(
     html.setAttribute("spellcheck", "false");
     if (field?.kind === "html") {
       html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_HTML);
+      if (field.required) {
+        // A heading or other assembled node is contenteditable. aria-required
+        // is not allowed on that role; the field chip and overlay textarea carry it.
+        html.setAttribute("data-assembly-required", "true");
+      }
     } else if (field?.kind === "text") {
       html.setAttribute("data-assembly-value", ASSEMBLY_VALUE_TEXT);
       if (field.required) {

@@ -28,7 +28,9 @@
  * cannot be saved blank, and an optional datetime may be cleared; a single-line
  * text value that contains a NUL is not saved; a long-text value that contains
  * a NUL is not saved, and the previous long text keeps its line breaks; an HTML
- * value that contains a NUL is not saved, and the previous markup stays; a link
+ * value that contains a NUL is not saved, and the previous markup stays; a
+ * required HTML field cannot be saved blank or whitespace, and the previous
+ * markup stays (the HTML NUL gate is unchanged); a link
  * value that contains a NUL is not saved, and the previous link stays. A content
  * id, GUID, or folder path still saves. The HTML NUL gate is unchanged) and
  * persist through itemmanagement — not leftover Content Editor HTML.
@@ -78,6 +80,7 @@ import {
   ASSEMBLY_VALUE_LONGTEXT,
   blankRequiredDateFieldNames,
   blankRequiredDatetimeFieldNames,
+  blankRequiredHtmlFieldNames,
   blankRequiredLinkFieldNames,
   blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
@@ -659,6 +662,10 @@ export function AssemblyHost({
       overlayFields,
       visibleEdits,
     );
+    const blankRequiredHtml = blankRequiredHtmlFieldNames(
+      overlayFields,
+      visibleEdits,
+    );
     const blankRequiredNumbers = blankRequiredNumberFieldNames(
       overlayFields,
       visibleEdits,
@@ -686,12 +693,15 @@ export function AssemblyHost({
       visibleEdits,
       fieldBaselineRef.current,
     );
-    if (
+    const requiredBlank =
       blankRequired.length > 0 ||
       blankRequiredLinks.length > 0 ||
+      blankRequiredHtml.length > 0 ||
       blankRequiredNumbers.length > 0 ||
       blankRequiredDates.length > 0 ||
-      blankRequiredDatetimes.length > 0 ||
+      blankRequiredDatetimes.length > 0;
+    if (
+      requiredBlank ||
       badNumbers.length > 0 ||
       badDates.length > 0 ||
       badDatetimes.length > 0 ||
@@ -713,6 +723,9 @@ export function AssemblyHost({
         errors[name] = requiredText;
       }
       for (const name of blankRequiredLinks) {
+        errors[name] = requiredText;
+      }
+      for (const name of blankRequiredHtml) {
         errors[name] = requiredText;
       }
       for (const name of blankRequiredNumbers) {
@@ -763,11 +776,7 @@ export function AssemblyHost({
       }
       setFieldErrors(errors);
       setFieldNotice(
-        blankRequired.length > 0 ||
-        blankRequiredLinks.length > 0 ||
-        blankRequiredNumbers.length > 0 ||
-        blankRequiredDates.length > 0 ||
-        blankRequiredDatetimes.length > 0
+        requiredBlank
           ? requiredText
           : badNumbers.length > 0
             ? badNumbers.every(
@@ -1038,6 +1047,7 @@ export function AssemblyHost({
                   data-testid={`assembly-field-chip-${field.name}`}
                   data-required={
                     (field.kind === "text" ||
+                      field.kind === "html" ||
                       field.kind === "link" ||
                       field.kind === "number" ||
                       field.kind === "date" ||
@@ -1060,8 +1070,11 @@ export function AssemblyHost({
                       data-assembly-field={field.name}
                       data-assembly-content-id={String(contentId ?? "")}
                       data-assembly-value="html"
+                      data-assembly-required={field.required ? "true" : undefined}
                       data-testid={`assembly-overlay-field-${field.name}`}
                       aria-label={field.label}
+                      aria-required={field.required ? true : undefined}
+                      aria-invalid={fieldErrors[field.name] ? true : undefined}
                     />
                   ) : field.kind === "text" ? (
                     <input
