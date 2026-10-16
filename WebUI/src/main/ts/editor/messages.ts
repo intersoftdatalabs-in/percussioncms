@@ -176,6 +176,8 @@ export const EDITOR_MSG = {
     "perc.ui.editor@That workflow transition is not allowed for this item.",
   WORKFLOW_COMMENT_REQUIRED:
     "perc.ui.editor@Enter a comment before running this transition.",
+  WORKFLOW_COMMENT_NUL:
+    "perc.ui.editor@That transition comment contains a character that cannot be saved.",
   WORKFLOW_ASSIGNEES: "perc.ui.editor@Ad-hoc assignees",
   WORKFLOW_ASSIGNEE_ADD: "perc.ui.editor@Add assignee",
   WORKFLOW_ASSIGNEE_REMOVE: "perc.ui.editor@Remove assignee",

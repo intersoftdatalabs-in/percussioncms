@@ -227,6 +227,7 @@ import {
   normalizeAdhocAssignees,
   triggerRequiresAssignees,
   uniqueTransitionTriggers,
+  workflowCommentContainsNul,
 } from "./editorWorkflow";
 import {
   createEditorItem,
@@ -1957,6 +1958,9 @@ export function EditorHost({
     if (reason === "comment") {
       return EDITOR_MSG.WORKFLOW_COMMENT_REQUIRED;
     }
+    if (reason === "nul") {
+      return EDITOR_MSG.WORKFLOW_COMMENT_NUL;
+    }
     if (reason === "assignees") {
       return EDITOR_MSG.WORKFLOW_ASSIGNEES_REQUIRED;
     }
@@ -1991,6 +1995,12 @@ export function EditorHost({
     assignees: readonly string[],
   ): Promise<boolean> {
     if (contentId == null) {
+      return false;
+    }
+    if (workflowCommentContainsNul(workflowComment)) {
+      setWorkflowDone(false);
+      setWorkflowErrorDetail("");
+      setWorkflowErrorKey(EDITOR_MSG.WORKFLOW_COMMENT_NUL);
       return false;
     }
     setWorkflowBusy(true);
@@ -2074,6 +2084,19 @@ export function EditorHost({
   async function handleAssigneeConfirm(): Promise<void> {
     const trigger = workflowAssigneeDialog;
     if (!trigger || workflowBusy) {
+      return;
+    }
+    const gate = canRunEditorTransition({
+      mode,
+      trigger,
+      allowed: workflowTriggers,
+      comment: workflowComment,
+      commentRequiredTriggers,
+    });
+    if (!gate.ok) {
+      setWorkflowDone(false);
+      setWorkflowErrorDetail("");
+      setWorkflowErrorKey(workflowErrorFor(gate.reason));
       return;
     }
     const confirmed = confirmEditorAssignees(workflowAssignees);
