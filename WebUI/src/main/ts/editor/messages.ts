@@ -46,6 +46,8 @@ export const EDITOR_MSG = {
   CHECKIN_COMMENT: "perc.ui.editor@Revision comment",
   CHECKIN_COMMENT_HINT:
     "perc.ui.editor@Optional comment stored with this check-in. Leave blank to check in without a comment.",
+  CHECKIN_COMMENT_NUL:
+    "perc.ui.editor@That check-in comment contains a character that cannot be saved.",
   CHECKIN_CONFIRM: "perc.ui.editor@Check in",
   CHECKIN_CANCEL: "perc.ui.editor@Cancel",
   CHECKOUT_ACTION: "perc.ui.editor@Check Out",

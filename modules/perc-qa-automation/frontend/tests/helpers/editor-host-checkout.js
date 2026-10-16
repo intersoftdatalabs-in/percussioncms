@@ -35,6 +35,7 @@ const TEST_IDS = Object.freeze({
   checkinConfirm: "editor-checkin-confirm",
   checkinCancel: "editor-checkin-cancel",
   lockError: "editor-lock-error",
+  checkoutUser: "editor-checkout-user",
   locked: "editor-locked",
   save: "editor-save",
 });

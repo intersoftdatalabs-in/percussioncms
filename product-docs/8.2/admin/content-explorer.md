@@ -295,8 +295,13 @@ are not stale-checked.
 **Check Out** and **Check In** on the editor host call public REST
 `POST /rest/editor/items/{id}/checkout` and `POST /rest/editor/items/{id}/checkin`.
 **Check In** asks for an optional revision comment first. **Cancel** leaves the
-item checked out. Leave the comment blank to check in with no comment, or enter
-one to send `?comment=` on that POST.
+item checked out and does not call the server. Leave the comment blank to check
+in with no `comment` parameter, or enter one to send `?comment=` on that POST.
+A comment that contains a NUL character is refused before
+`POST /rest/editor/items/{id}/checkin`. The item stays checked out, and the host
+shows **That check-in comment contains a character that cannot be saved.**
+HTTP **400**, **403**, and **409** from that check-in are not success: the item
+stays checked out to you.
 When the item is **not** checked out to you, the host is **view-only** (fields
 read-only; Save and Check In hidden). Use **Check Out** to take the lock. HTTP
 **403** (not allowed) and **409** (checked out to someone else) are shown as

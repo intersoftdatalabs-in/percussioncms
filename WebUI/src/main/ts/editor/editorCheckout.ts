@@ -16,7 +16,8 @@
  */
 
 /**
- * EditorHost check-out / check-in (#4603). HTTP 403 and 409 are failures.
+ * EditorHost check-out / check-in (#4603). HTTP 400, 403, and 409 are failures.
+ * A check-in comment that contains a NUL is refused before the check-in POST (#5442).
  */
 
 import { isApiError } from "../api/client";
@@ -29,7 +30,23 @@ export interface EditorCheckoutUserInfo {
   assignmentType?: string;
 }
 
-export type EditorLockErrorReason = "forbidden" | "conflict" | "not_found" | "failed";
+export type EditorLockErrorReason =
+  | "bad_request"
+  | "forbidden"
+  | "conflict"
+  | "not_found"
+  | "failed";
+
+/**
+ * True when a check-in comment contains a NUL.
+ * A blank comment is not a NUL. A normal comment is not a NUL.
+ * A NUL cannot be stored with the revision.
+ */
+export function checkinCommentContainsNul(
+  comment: string | null | undefined,
+): boolean {
+  return (comment ?? "").includes("\u0000");
+}
 
 function namesEqual(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
@@ -87,6 +104,9 @@ export function canForceCheckInFromEditor(
 
 export function editorLockErrorReason(err: unknown): EditorLockErrorReason {
   if (isApiError(err)) {
+    if (err.status === 400) {
+      return "bad_request";
+    }
     if (err.status === 403) {
       return "forbidden";
     }

@@ -19,6 +19,7 @@ import { describe, expect, it } from "vitest";
 import {
   canForceCheckInFromEditor,
   canUseEditorCheckoutActions,
+  checkinCommentContainsNul,
   editorLockErrorReason,
   isCheckedOutToSelf,
 } from "../../../main/ts/editor/editorCheckout";
@@ -61,7 +62,10 @@ describe("editorCheckout", () => {
     expect(canForceCheckInFromEditor("promote", "editor", "admin")).toBe(false);
   });
 
-  it("maps 403, 404, and 409 without treating them as success", () => {
+  it("maps 400, 403, 404, and 409 without treating them as success", () => {
+    expect(editorLockErrorReason({ status: 400, statusText: "Bad Request", body: {} })).toBe(
+      "bad_request",
+    );
     expect(editorLockErrorReason({ status: 403, statusText: "Forbidden", body: {} })).toBe(
       "forbidden",
     );
@@ -74,5 +78,16 @@ describe("editorCheckout", () => {
     expect(editorLockErrorReason({ status: 500, statusText: "Error", body: {} })).toBe(
       "failed",
     );
+  });
+
+  it("refuses a check-in comment NUL and keeps a blank or normal comment", () => {
+    expect(checkinCommentContainsNul("bad\u0000value")).toBe(true);
+    expect(checkinCommentContainsNul("\u0000")).toBe(true);
+    expect(checkinCommentContainsNul("  note\u0000")).toBe(true);
+    expect(checkinCommentContainsNul("")).toBe(false);
+    expect(checkinCommentContainsNul("   ")).toBe(false);
+    expect(checkinCommentContainsNul("shipped copy")).toBe(false);
+    expect(checkinCommentContainsNul(null)).toBe(false);
+    expect(checkinCommentContainsNul(undefined)).toBe(false);
   });
 });
