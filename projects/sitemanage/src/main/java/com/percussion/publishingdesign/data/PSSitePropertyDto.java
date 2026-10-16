@@ -34,12 +34,21 @@ public class PSSitePropertyDto {
   /**
    * When true, rename one variable that is already listed. {@link #name} is the stored name and
    * {@link #newName} is the new name. The stored value stays. This is not a create and not a value
-   * change. Omit or false to leave the name stored.
+   * change. Omit or false to leave the name stored. Do not combine with {@link #clearValue}.
    */
   private Boolean renameName;
 
   /** New name when {@link #renameName} is true. Ignored otherwise. */
   private String newName;
+
+  /**
+   * When true, clear the stored value of a variable that is already listed. The name stays. This
+   * is not a create, not a value replacement, and not a rename. A blank {@link #value} on a create
+   * or on {@link #updateValue} still does not clear the row. Omit or false to leave the value
+   * stored. Do not combine with {@link #updateValue} or {@link #renameName}. A value on this
+   * request is ignored.
+   */
+  private Boolean clearValue;
 
   public String getName() {
     return name;
@@ -87,5 +96,13 @@ public class PSSitePropertyDto {
 
   public void setNewName(String newName) {
     this.newName = newName;
+  }
+
+  public Boolean getClearValue() {
+    return clearValue;
+  }
+
+  public void setClearValue(Boolean clearValue) {
+    this.clearValue = clearValue;
   }
 }

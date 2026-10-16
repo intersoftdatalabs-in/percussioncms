@@ -5812,11 +5812,164 @@ class PSPublishingDesignRestServiceTest {
     verify(siteManager, never()).saveSite(any());
   }
 
+  @Test
+  void putSiteProperty_clearValue_keepsNameAndTheOtherVariable() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.SITE))).thenReturn(siteGuid);
+    PSGuid ctx = new PSGuid(PSTypeEnum.CONTEXT, 3);
+    PSGuid otherCtx = new PSGuid(PSTypeEnum.CONTEXT, 9);
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(ctx);
+    PSSite site = new PSSite();
+    site.addProperty(siteProperty(11L, "kept", "old", ctx));
+    site.addProperty(siteProperty(22L, "nightVar", "before", ctx));
+    site.addProperty(siteProperty(33L, "nightVar", "other-context", otherCtx));
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(site);
+
+    PSSitePropertyDto saved =
+        design.putSiteProperty("42", contextVariableClearBody("  nightVar  ", "replaced"));
+
+    assertEquals("nightVar", saved.getName());
+    assertEquals("3", saved.getContextId());
+    assertEquals("", saved.getValue());
+    assertEquals("", site.getProperty("nightVar", ctx));
+    assertEquals("old", site.getProperty("kept", ctx));
+    assertEquals("other-context", site.getProperty("nightVar", otherCtx));
+    assertEquals(3, site.getProperties().size());
+    PSSiteProperty cleared = null;
+    for (PSSiteProperty prop : site.getProperties()) {
+      if ("nightVar".equals(prop.getName())
+          && prop.getContextId() != null
+          && prop.getContextId().longValue() == ctx.longValue()) {
+        cleared = prop;
+        break;
+      }
+    }
+    assertNotNull(cleared);
+    assertEquals(22L, cleared.getPropertyId());
+    assertEquals("", cleared.getValue());
+    verify(siteManager).saveSite(site);
+  }
+
+  @Test
+  void putSiteProperty_clearValue_alreadyEmpty_doesNotSave() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    when(guidManager.makeGuid(eq("42"), eq(PSTypeEnum.SITE))).thenReturn(siteGuid);
+    PSGuid ctx = new PSGuid(PSTypeEnum.CONTEXT, 3);
+    when(guidManager.makeGuid(eq("3"), eq(PSTypeEnum.CONTEXT))).thenReturn(ctx);
+    PSSite site = new PSSite();
+    site.addProperty(siteProperty(11L, "kept", "old", ctx));
+    site.addProperty(siteProperty(22L, "nightVar", "", ctx));
+    when(siteManager.loadSiteModifiable(siteGuid)).thenReturn(site);
+
+    PSSitePropertyDto saved = design.putSiteProperty("42", contextVariableClearBody("nightVar", "x"));
+
+    assertEquals("nightVar", saved.getName());
+    assertEquals("", saved.getValue());
+    assertEquals("old", site.getProperty("kept", ctx));
+    assertEquals("", site.getProperty("nightVar", ctx));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_clearValue_blankName_400_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+    PSSitePropertyDto body = contextVariableClearBody("   ", "ignored");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_NAME_REQUIRED, ex.getMessage());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_clearValue_nameTooLong_400_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+    PSSitePropertyDto body =
+        contextVariableClearBody(
+            "n".repeat(PSPublishingDesignRestService.MAX_CONTEXT_VARIABLE_NAME_LENGTH + 1),
+            "ignored");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_NAME_TOO_LONG, ex.getMessage());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_clearValue_missingName_409_doesNotWrite() throws Exception {
+    PSPublishingDesignRestService design = contextDesign();
+    IPSSite site = siteWithKeptVariable();
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> design.putSiteProperty("42", contextVariableClearBody("nightVar", "x")));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals(PSPublishingDesignRestService.CONTEXT_VARIABLE_NOT_LISTED, ex.getMessage());
+    verify(site, never()).setProperty(anyString(), any(IPSGuid.class), anyString());
+    verify(site, never()).removeProperty(anyString(), any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_clearValue_withUpdateValue_400_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+    PSSitePropertyDto body = contextVariableClearBody("nightVar", "next");
+    body.setUpdateValue(Boolean.TRUE);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.CONTEXT_VARIABLE_CLEAR_NOT_COMBINED, ex.getMessage());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_clearValue_withRename_400_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+    PSSitePropertyDto body = contextVariableClearBody("nightVar", "stays");
+    body.setRenameName(Boolean.TRUE);
+    body.setNewName("nextName");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals(
+        PSPublishingDesignRestService.CONTEXT_VARIABLE_CLEAR_NOT_COMBINED, ex.getMessage());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
+  @Test
+  void putSiteProperty_clearValue_forbidden_403_doesNotWrite() {
+    PSPublishingDesignRestService design = contextDesign();
+    design.setDesignWriteAllowed(() -> false);
+    PSSitePropertyDto body = contextVariableClearBody("nightVar", "before");
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> design.putSiteProperty("42", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(siteManager, never()).loadSiteModifiable(any(IPSGuid.class));
+    verify(siteManager, never()).saveSite(any());
+  }
+
   private static PSSitePropertyDto contextVariableRenameBody(
       String name, String newName, String ignoredValue) {
     PSSitePropertyDto body = contextVariableBody(name, ignoredValue);
     body.setRenameName(Boolean.TRUE);
     body.setNewName(newName);
+    return body;
+  }
+
+  private static PSSitePropertyDto contextVariableClearBody(String name, String ignoredValue) {
+    PSSitePropertyDto body = contextVariableBody(name, ignoredValue);
+    body.setClearValue(Boolean.TRUE);
     return body;
   }
 

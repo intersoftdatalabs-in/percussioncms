@@ -319,6 +319,13 @@ public class PSPublishingDesignRestService {
   static final String CONTEXT_VARIABLE_RENAME_NOT_WITH_VALUE =
       "Cannot rename a context variable while changing its value";
 
+  /**
+   * Clearing a value is not a rename and not a replacement value. Sending clear with either does
+   * not apply any of them.
+   */
+  static final String CONTEXT_VARIABLE_CLEAR_NOT_COMBINED =
+      "Cannot clear a context variable value while renaming it or changing its value";
+
   private final IPSPublisherService publisherService;
   private final IPSGuidManager guidManager;
   private final IPSSiteManager siteManager;
@@ -976,16 +983,20 @@ public class PSPublishingDesignRestService {
 
   /**
    * Create one context variable, or when {@code updateValue} is true replace the value of one that
-   * is already listed, or when {@code renameName} is true rename one that is already listed. A
-   * create whose name is already stored is HTTP 409 and writes nothing. A value change whose name
-   * is not stored is HTTP 409 and does not create it. A blank name or value, or a name or value
-   * longer than its column, is HTTP 400 and writes nothing. A blank value does not clear a stored
-   * variable. The name stays on a value change. A rename keeps the stored value. A blank or
-   * overlong new name is HTTP 400 and writes nothing. A new name that matches a different variable
-   * on the context is HTTP 409 and writes nothing. A stored name that is not listed is HTTP 409
-   * and writes nothing. The same name, after trim, is not a duplicate of itself and does not save.
-   * A value sent with a rename is ignored. Rename and a value change cannot be combined. Other
-   * variables on the context stay.
+   * is already listed, or when {@code renameName} is true rename one that is already listed, or
+   * when {@code clearValue} is true clear the stored value of one that is already listed. A create
+   * whose name is already stored is HTTP 409 and writes nothing. A value change whose name is not
+   * stored is HTTP 409 and does not create it. A blank name or value, or a name or value longer
+   * than its column, is HTTP 400 and writes nothing. A blank value on create or {@code updateValue}
+   * does not clear a stored variable. The name stays on a value change and on a clear. A clear
+   * whose name is not stored is HTTP 409 and does not create it. A clear does not remove the row:
+   * {@code setProperty} deletes a row when the value is blank, so the stored property value is set
+   * empty in place. A value sent with a clear is ignored. A rename keeps the stored value. A blank
+   * or overlong new name is HTTP 400 and writes nothing. A new name that matches a different
+   * variable on the context is HTTP 409 and writes nothing. A stored name that is not listed is
+   * HTTP 409 and writes nothing. The same name, after trim, is not a duplicate of itself and does
+   * not save. A value sent with a rename is ignored. Rename, a value change, and a clear cannot be
+   * combined. Other variables on the context stay.
    */
   @PUT
   @Path("/sites/{siteId}/properties")
@@ -1001,11 +1012,18 @@ public class PSPublishingDesignRestService {
     }
     boolean updateValue = Boolean.TRUE.equals(body.getUpdateValue());
     boolean renameName = Boolean.TRUE.equals(body.getRenameName());
+    boolean clearValue = Boolean.TRUE.equals(body.getClearValue());
     if (updateValue && renameName) {
       throw badRequest(CONTEXT_VARIABLE_RENAME_NOT_WITH_VALUE);
     }
+    if (clearValue && (updateValue || renameName)) {
+      throw badRequest(CONTEXT_VARIABLE_CLEAR_NOT_COMBINED);
+    }
     if (renameName) {
       return renameContextVariable(siteId, body);
+    }
+    if (clearValue) {
+      return clearContextVariable(siteId, body);
     }
     String name = body.getName() == null ? "" : body.getName().trim();
     String contextId = body.getContextId() == null ? "" : body.getContextId().trim();
@@ -1133,6 +1151,77 @@ public class PSPublishingDesignRestService {
     } catch (Exception e) {
       throw internalError(e);
     }
+  }
+
+  /**
+   * Clear one context variable value. A blank name or context, or a name longer than its column,
+   * is HTTP 400 and saves nothing. HTTP 403 when the caller is not Admin or Designer. HTTP 409
+   * when the name is not listed on this context, and nothing is saved. The name stays. A value on
+   * the request is ignored and is not written. {@link IPSSite#setProperty} is not used: a blank
+   * value there removes the row. An already empty value does not save. Other variables on the
+   * context stay, including a variable with the same name on a different context.
+   */
+  private PSSitePropertyDto clearContextVariable(String siteId, PSSitePropertyDto body) {
+    String name = body.getName() == null ? "" : body.getName().trim();
+    String contextId = body.getContextId() == null ? "" : body.getContextId().trim();
+    if (name.isEmpty()) {
+      throw badRequest(CONTEXT_VARIABLE_NAME_REQUIRED);
+    }
+    if (contextId.isEmpty()) {
+      throw badRequest("contextId is required");
+    }
+    if (name.length() > MAX_CONTEXT_VARIABLE_NAME_LENGTH) {
+      throw badRequest(CONTEXT_VARIABLE_NAME_TOO_LONG);
+    }
+    try {
+      IPSSite site = siteManager.loadSiteModifiable(toSiteGuid(siteId));
+      IPSGuid ctx = guidManager.makeGuid(contextId, PSTypeEnum.CONTEXT);
+      String storedName = storedContextVariableName(site, ctx, name);
+      if (storedName == null) {
+        throw conflict(CONTEXT_VARIABLE_NOT_LISTED);
+      }
+      if (!(site instanceof PSSite concrete)) {
+        throw badRequest(CONTEXT_VARIABLE_VALUE_REQUIRED);
+      }
+      PSSiteProperty target = storedSiteProperty(concrete, ctx, storedName);
+      if (target == null) {
+        throw conflict(CONTEXT_VARIABLE_NOT_LISTED);
+      }
+      if (target.getValue() != null && target.getValue().isEmpty()) {
+        return contextVariableDto(storedName, contextId, "");
+      }
+      target.setValue("");
+      siteManager.saveSite(site);
+      String written = site.getProperty(storedName, ctx);
+      return contextVariableDto(storedName, contextId, written == null ? "" : written);
+    } catch (PSNotFoundException e) {
+      throw notFound("Site not found");
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw internalError(e);
+    }
+  }
+
+  /**
+   * The stored property row for {@code storedName} on this context, or {@code null} when it is not
+   * in the site's property set. Does not change the site and does not call {@code setProperty}.
+   */
+  private static PSSiteProperty storedSiteProperty(
+      PSSite site, IPSGuid contextId, String storedName) {
+    Set<PSSiteProperty> rows = site.getProperties();
+    if (rows == null) {
+      return null;
+    }
+    for (PSSiteProperty prop : rows) {
+      if (prop == null || prop.getName() == null || prop.getContextId() == null) {
+        continue;
+      }
+      if (storedName.equals(prop.getName()) && sameContext(contextId, prop.getContextId())) {
+        return prop;
+      }
+    }
+    return null;
   }
 
   /**

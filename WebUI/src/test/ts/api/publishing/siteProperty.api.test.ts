@@ -119,6 +119,32 @@ describe("site property wire shape", () => {
     });
   });
 
+  it("puts clearValue without a value and still uses the siteProperty root", async () => {
+    putMock.mockResolvedValue({
+      siteProperty: { name: "nightVar", contextId: "3", value: "" },
+    });
+    const saved = await putSiteProperty("42", {
+      name: "nightVar",
+      contextId: "3",
+      clearValue: true,
+    });
+    expect(putMock).toHaveBeenCalledWith(
+      expect.stringMatching(/\/sites\/42\/properties$/),
+      {
+        siteProperty: {
+          name: "nightVar",
+          contextId: "3",
+          clearValue: true,
+        },
+      },
+    );
+    expect(saved).toEqual({
+      name: "nightVar",
+      contextId: "3",
+      value: "",
+    });
+  });
+
   it("puts renameName and newName without a value on a rename", async () => {
     putMock.mockResolvedValue({
       siteProperty: { name: "nextName", contextId: "3", value: "before" },
