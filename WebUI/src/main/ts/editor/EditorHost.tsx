@@ -113,6 +113,7 @@ import {
 import {
   canForceCheckInFromEditor,
   canUseEditorCheckoutActions,
+  checkinCommentContainsNul,
   editorLockErrorReason,
   isCheckedOutToSelf,
   type EditorCheckoutUserInfo,
@@ -3353,6 +3354,11 @@ export function EditorHost({
       return;
     }
     const comment = checkinComment.trim();
+    if (checkinCommentContainsNul(checkinComment)) {
+      setLockErrorKey(EDITOR_MSG.CHECKIN_COMMENT_NUL);
+      setLockErrorDetail("");
+      return;
+    }
     setLockBusy(true);
     setLockErrorKey(null);
     setLockErrorDetail("");

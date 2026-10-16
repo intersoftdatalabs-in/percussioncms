@@ -475,6 +475,110 @@ describe("EditorHost", () => {
     close.mockRestore();
   });
 
+  it("refuses a check-in comment NUL and still checks in a blank or normal comment", async () => {
+    const checkin = vi.fn().mockResolvedValue(undefined);
+    const close = vi.spyOn(window, "close").mockImplementation(() => undefined);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue({
+                  checkOutUser: "admin",
+                  currentUser: "admin",
+                })}
+                checkin={checkin}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-checkin")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-checkout-user").textContent).toMatch(/admin/i);
+    fireEvent.click(screen.getByTestId("editor-checkin"));
+    fireEvent.change(screen.getByTestId("editor-checkin-comment-input"), {
+      target: { value: "bad\u0000value" },
+    });
+    fireEvent.click(screen.getByTestId("editor-checkin-confirm"));
+    expect(checkin).not.toHaveBeenCalled();
+    expect(close).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-checkin-comment")).toBeTruthy();
+    expect(screen.getByTestId("editor-checkout-user").textContent).toMatch(/admin/i);
+    expect(screen.getByTestId("editor-lock-error").textContent).toMatch(
+      /character that cannot be saved/i,
+    );
+
+    fireEvent.change(screen.getByTestId("editor-checkin-comment-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("editor-checkin-confirm"));
+    await waitFor(() => {
+      expect(checkin).toHaveBeenCalledTimes(1);
+      expect(checkin).toHaveBeenCalledWith("42", undefined);
+    });
+    close.mockRestore();
+  });
+
+  it("does not check in on HTTP 400, 403, or 409", async () => {
+    const close = vi.spyOn(window, "close").mockImplementation(() => undefined);
+    const checkin = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, statusText: "Bad Request", body: {} })
+      .mockRejectedValueOnce({ status: 403, statusText: "Forbidden", body: {} })
+      .mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: {} });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue({
+                  checkOutUser: "admin",
+                  currentUser: "admin",
+                })}
+                checkin={checkin}
+                loadFields={vi.fn().mockResolvedValue(fields)}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-checkin")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-checkin"));
+    fireEvent.change(screen.getByTestId("editor-checkin-comment-input"), {
+      target: { value: "shipped copy" },
+    });
+    const patterns = [
+      /could not check in/i,
+      /not allowed to check in/i,
+      /not checked out to you/i,
+    ];
+    for (const pattern of patterns) {
+      fireEvent.click(screen.getByTestId("editor-checkin-confirm"));
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-lock-error").textContent).toMatch(pattern);
+      });
+      expect(screen.getByTestId("editor-checkout-user").textContent).toMatch(/admin/i);
+      expect(screen.getByTestId("editor-checkin-comment")).toBeTruthy();
+      expect(close).not.toHaveBeenCalled();
+    }
+    expect(checkin).toHaveBeenCalledTimes(3);
+    expect(checkin).toHaveBeenCalledWith("42", "shipped copy");
+    close.mockRestore();
+  });
+
   it("force check-in of another user clears the lock only after confirm", async () => {
     const checkout = vi.fn().mockResolvedValue({
       checkOutUser: "editor",
