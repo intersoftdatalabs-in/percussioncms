@@ -18,6 +18,7 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,6 +28,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -576,6 +578,156 @@ class ContentTypeAdaptorUpdateTest {
         IllegalArgumentException.class,
         () -> adaptor.updateContentType(null, "perc*", new ContentTypeDetail()));
     verify(designWs, never()).findContentTypes(any());
+  }
+
+  @Test
+  void update_marksOneFieldSearchableAndLeavesTheOtherFieldAndTypeSearch() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubLockedDefinitionWithLocalField("rx_note", "Note:");
+    ContentTypeField otherBody = new ContentTypeField();
+    otherBody.setName("rx_other");
+    otherBody.setLabel("Other");
+    ContentTypeAdaptor.addPersistableLocalField(def, otherBody);
+    PSFieldSet parent = def.getFieldSet();
+    parent.setUserSearchable(false);
+    PSField note = ContentTypeAdaptor.findField(def, "rx_note");
+    PSField other = ContentTypeAdaptor.findField(def, "rx_other");
+    assertTrue(note.isUserSearchable());
+    assertTrue(other.isUserSearchable());
+    int noteOccurrence = note.getOccurrenceDimension(null);
+    int otherOccurrence = other.getOccurrenceDimension(null);
+
+    ContentTypeField clear = new ContentTypeField();
+    clear.setName("rx_note");
+    clear.setSearchable(Boolean.FALSE);
+    ContentTypeDetail clearBody = new ContentTypeDetail();
+    clearBody.setFields(List.of(clear));
+    ContentTypeDetail cleared = adaptor.updateContentType(null, "311", clearBody);
+
+    assertEquals(Boolean.FALSE, fieldNamed(cleared, "rx_note").getSearchable());
+    assertEquals(Boolean.TRUE, fieldNamed(cleared, "rx_other").getSearchable());
+    assertEquals(Boolean.FALSE, fieldNamed(cleared, "rx_note").getRequired());
+    assertEquals("optional", fieldNamed(cleared, "rx_note").getOccurrence());
+    assertEquals(Boolean.FALSE, fieldNamed(cleared, "rx_other").getRequired());
+    assertFalse(note.isUserSearchable());
+    assertTrue(other.isUserSearchable());
+    assertEquals(noteOccurrence, note.getOccurrenceDimension(null));
+    assertEquals(otherOccurrence, other.getOccurrenceDimension(null));
+    assertFalse(parent.isUserSearchable());
+    assertEquals("Page", cleared.getLabel());
+    assertEquals("desc", cleared.getDescription());
+    assertEquals(Boolean.TRUE, cleared.getEnabled());
+    verify(def, never()).setLabel(any());
+    verify(def, never()).setDescription(any());
+    verify(def, never()).setEnabled(anyBoolean());
+
+    ContentTypeField mark = new ContentTypeField();
+    mark.setName("rx_note");
+    mark.setSearchable(Boolean.TRUE);
+    ContentTypeDetail markBody = new ContentTypeDetail();
+    markBody.setFields(List.of(mark));
+    ContentTypeDetail marked = adaptor.updateContentType(null, "311", markBody);
+
+    assertEquals(Boolean.TRUE, fieldNamed(marked, "rx_note").getSearchable());
+    assertEquals(Boolean.TRUE, fieldNamed(marked, "rx_other").getSearchable());
+    assertTrue(note.isUserSearchable());
+    assertTrue(other.isUserSearchable());
+    assertEquals(noteOccurrence, note.getOccurrenceDimension(null));
+    assertFalse(parent.isUserSearchable());
+    assertEquals("Page", marked.getLabel());
+    assertEquals("desc", marked.getDescription());
+    verify(designWs, atLeastOnce())
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void update_systemAndSharedSearchableDoesNotChangeTypeSearch() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubLockedDefinitionWithSystemField("sys_title");
+    PSField system = ContentTypeAdaptor.findField(def, "sys_title");
+    when(system.isUserSearchable()).thenReturn(false);
+    PSFieldSet fieldSet = def.getFieldSet();
+    when(fieldSet.isUserSearchable()).thenReturn(false);
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("sys_title");
+    patch.setSearchable(Boolean.TRUE);
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    adaptor.updateContentType(null, "311", body);
+
+    verify(system).setUserSearchable(true);
+    verify(fieldSet, never()).setUserSearchable(anyBoolean());
+    verify(def, never()).setLabel(any());
+    verify(def, never()).setDescription(any());
+    verify(def, never()).setEnabled(anyBoolean());
+
+    PSField shared = mock(PSField.class);
+    when(shared.getSubmitName()).thenReturn("rx_shared");
+    when(shared.getType()).thenReturn(PSField.TYPE_SHARED);
+    when(shared.isUserSearchable()).thenReturn(true);
+    when(fieldSet.findFieldByName("rx_shared", false)).thenReturn(shared);
+    ContentTypeField sharedPatch = new ContentTypeField();
+    sharedPatch.setName("rx_shared");
+    sharedPatch.setSearchable(Boolean.FALSE);
+    ContentTypeDetail sharedBody = new ContentTypeDetail();
+    sharedBody.setFields(List.of(sharedPatch));
+
+    adaptor.updateContentType(null, "311", sharedBody);
+
+    verify(shared).setUserSearchable(false);
+    verify(fieldSet, never()).setUserSearchable(anyBoolean());
+  }
+
+  @Test
+  void update_unknownSearchableFieldIs404() throws Exception {
+    stubHeldLock();
+    stubLockedDefinitionWithLocalField("rx_note", "Note:");
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("missing_field");
+    patch.setSearchable(Boolean.TRUE);
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.updateContentType(null, "311", body));
+    assertEquals(404, ex.getResponse().getStatus());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_searchableConflictWhenLockNotHeldLeavesField() throws Exception {
+    when(systemDesign.isLocked(anyList(), eq("Admin")))
+        .thenReturn(Collections.singletonList(null));
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("rx_note");
+    patch.setSearchable(Boolean.FALSE);
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    ContentTypeDesignLockException ex =
+        assertThrows(
+            ContentTypeDesignLockException.class,
+            () -> adaptor.updateContentType(null, "311", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("lock"), ex.getMessage());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_searchableForbiddenWhenNotAdmin() {
+    ContentTypeAdaptor denied = new ContentTypeAdaptor(designWs, null, systemDesign, () -> false);
+    ContentTypeField patch = new ContentTypeField();
+    patch.setName("rx_note");
+    patch.setSearchable(Boolean.TRUE);
+    ContentTypeDetail body = new ContentTypeDetail();
+    body.setFields(List.of(patch));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> denied.updateContentType(null, "311", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
   }
 
   private static ContentTypeField fieldNamed(ContentTypeDetail detail, String name) {

@@ -130,6 +130,13 @@ import {
   savedContentTypeFieldRequired,
 } from "./contentTypeFieldRequired";
 import { CT_FIELD_REQUIRED_MSG } from "./contentTypeFieldRequiredMessages";
+import {
+  contentTypeFieldSearchableWrite,
+  contentTypeSearchableFields,
+  contentTypeWithFieldSearchable,
+  savedContentTypeFieldSearchable,
+} from "./contentTypeFieldSearchable";
+import { CT_FIELD_SEARCHABLE_MSG } from "./contentTypeFieldSearchableMessages";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { catalogColors, tableHeaderRow, tableRow } from "./catalogStyles";
@@ -297,7 +304,7 @@ export function ContentTypeDetailPanel({
   onDeleted?: () => void;
   /** Catalog refresh after a successful PUT .../name (selection key may change). */
   onRenamed?: (newName: string, detail: ContentTypeDetail) => void;
-  /** Catalog refresh after a description-only, label-only, or field-required save. */
+  /** Catalog refresh after a description-only, label-only, field-required, or field-searchable save. */
   onSaved?: () => void;
 }): React.ReactElement {
   const [detail, setDetail] = useState<ContentTypeDetail | null>(null);
@@ -330,6 +337,13 @@ export function ContentTypeDetailPanel({
   const [requiredError, setRequiredError] = useState<string | null>(null);
   const [requiredNotice, setRequiredNotice] = useState<string | null>(null);
   const requiredInflight = useRef(false);
+  const [searchableFieldName, setSearchableFieldName] = useState("");
+  const [searchableDraft, setSearchableDraft] = useState(false);
+  const [searchableEditing, setSearchableEditing] = useState(false);
+  const [searchableBusy, setSearchableBusy] = useState(false);
+  const [searchableError, setSearchableError] = useState<string | null>(null);
+  const [searchableNotice, setSearchableNotice] = useState<string | null>(null);
+  const searchableInflight = useRef(false);
   const [nameDraft, setNameDraft] = useState("");
   const [enabled, setEnabled] = useState(true);
   /** Type-level search indexing (CD-10); default on. Distinct from per-field searchable. */
@@ -423,6 +437,12 @@ export function ContentTypeDetailPanel({
     setRequiredError(null);
     setRequiredNotice(null);
     requiredInflight.current = false;
+    setSearchableFieldName("");
+    setSearchableDraft(false);
+    setSearchableEditing(false);
+    setSearchableError(null);
+    setSearchableNotice(null);
+    searchableInflight.current = false;
     setHeldLock(false);
     heldLockRef.current = false;
     setSearchIndexing(true);
@@ -662,6 +682,11 @@ export function ContentTypeDetailPanel({
   const selectedRequiredField =
     localRequiredFields.find((field) => field.name === requiredFieldName) ??
     localRequiredFields[0] ??
+    null;
+  const searchableFields = contentTypeSearchableFields(detail);
+  const selectedSearchableField =
+    searchableFields.find((field) => field.name === searchableFieldName) ??
+    searchableFields[0] ??
     null;
 
   useEffect(() => {
@@ -1528,9 +1553,12 @@ export function ContentTypeDetailPanel({
       labelInflight.current ||
       descriptionInflight.current ||
       requiredInflight.current ||
+      searchableInflight.current ||
       descriptionEditing ||
       requiredEditing ||
-      requiredBusy
+      requiredBusy ||
+      searchableEditing ||
+      searchableBusy
     ) {
       return;
     }
@@ -1558,9 +1586,12 @@ export function ContentTypeDetailPanel({
       labelInflight.current ||
       descriptionInflight.current ||
       requiredInflight.current ||
+      searchableInflight.current ||
       descriptionEditing ||
       requiredEditing ||
-      requiredBusy
+      requiredBusy ||
+      searchableEditing ||
+      searchableBusy
     ) {
       return;
     }
@@ -1617,9 +1648,12 @@ export function ContentTypeDetailPanel({
       descriptionInflight.current ||
       labelInflight.current ||
       requiredInflight.current ||
+      searchableInflight.current ||
       labelEditing ||
       requiredEditing ||
-      requiredBusy
+      requiredBusy ||
+      searchableEditing ||
+      searchableBusy
     ) {
       return;
     }
@@ -1647,9 +1681,12 @@ export function ContentTypeDetailPanel({
       descriptionInflight.current ||
       labelInflight.current ||
       requiredInflight.current ||
+      searchableInflight.current ||
       labelEditing ||
       requiredEditing ||
-      requiredBusy
+      requiredBusy ||
+      searchableEditing ||
+      searchableBusy
     ) {
       return;
     }
@@ -1712,10 +1749,13 @@ export function ContentTypeDetailPanel({
       labelBusy ||
       descriptionBusy ||
       requiredInflight.current ||
+      searchableInflight.current ||
       labelInflight.current ||
       descriptionInflight.current ||
       labelEditing ||
-      descriptionEditing
+      descriptionEditing ||
+      searchableEditing ||
+      searchableBusy
     ) {
       return;
     }
@@ -1751,10 +1791,13 @@ export function ContentTypeDetailPanel({
       labelBusy ||
       descriptionBusy ||
       requiredInflight.current ||
+      searchableInflight.current ||
       labelInflight.current ||
       descriptionInflight.current ||
       labelEditing ||
-      descriptionEditing
+      descriptionEditing ||
+      searchableEditing ||
+      searchableBusy
     ) {
       return;
     }
@@ -1808,6 +1851,127 @@ export function ContentTypeDetailPanel({
     } finally {
       requiredInflight.current = false;
       setRequiredBusy(false);
+      setBusy(false);
+    }
+  }
+
+  function searchableSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return CT_FIELD_SEARCHABLE_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return CT_FIELD_SEARCHABLE_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return CT_FIELD_SEARCHABLE_MSG.CONFLICT;
+    return CT_FIELD_SEARCHABLE_MSG.ERROR;
+  }
+
+  function startSearchableEdit(): void {
+    if (
+      !heldLockRef.current ||
+      !detail ||
+      !selectedSearchableField ||
+      busy ||
+      searchableBusy ||
+      requiredBusy ||
+      labelBusy ||
+      descriptionBusy ||
+      searchableInflight.current ||
+      requiredInflight.current ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      labelEditing ||
+      descriptionEditing ||
+      requiredEditing
+    ) {
+      return;
+    }
+    setSearchableFieldName(selectedSearchableField.name);
+    setSearchableDraft(selectedSearchableField.searchable);
+    setSearchableError(null);
+    setSearchableNotice(null);
+    setSearchableEditing(true);
+  }
+
+  function cancelSearchableEdit(): void {
+    if (searchableBusy || searchableInflight.current) return;
+    setSearchableEditing(false);
+    setSearchableError(null);
+  }
+
+  function onSearchableFieldChange(name: string): void {
+    const next = searchableFields.find((field) => field.name === name);
+    setSearchableFieldName(name);
+    setSearchableDraft(next?.searchable === true);
+    setSearchableError(null);
+    setSearchableNotice(null);
+  }
+
+  async function handleSearchableSave(): Promise<void> {
+    if (
+      !detail ||
+      !searchableEditing ||
+      !selectedSearchableField ||
+      !heldLockRef.current ||
+      busy ||
+      searchableBusy ||
+      requiredBusy ||
+      labelBusy ||
+      descriptionBusy ||
+      searchableInflight.current ||
+      requiredInflight.current ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      labelEditing ||
+      descriptionEditing ||
+      requiredEditing
+    ) {
+      return;
+    }
+    const fieldName = selectedSearchableField.name;
+    const sent = contentTypeFieldSearchableWrite(detail, fieldName, searchableDraft);
+    if (sent === "unchanged") {
+      setSearchableEditing(false);
+      setSearchableError(null);
+      return;
+    }
+    if (sent === "missing") {
+      setSearchableError(CT_FIELD_SEARCHABLE_MSG.MISSING);
+      return;
+    }
+    searchableInflight.current = true;
+    setSearchableBusy(true);
+    setBusy(true);
+    setSearchableError(null);
+    setSearchableNotice(null);
+    try {
+      const saved = await updateContentTypeDetail(activeKeyRef.current, sent);
+      const accepted = savedContentTypeFieldSearchable(sent, detail, saved);
+      if (accepted == null) {
+        setSearchableError(CT_FIELD_SEARCHABLE_MSG.ERROR);
+        setSearchableNotice(null);
+        return;
+      }
+      const nextDetail = contentTypeWithFieldSearchable(detail, accepted);
+      setDetail(nextDetail);
+      setFieldDrafts((prev) => {
+        const next = { ...prev };
+        for (const key of Object.keys(next)) {
+          if (next[key]?.name === accepted.name) {
+            next[key] = { ...next[key], searchable: accepted.searchable };
+          }
+        }
+        return next;
+      });
+      setSearchableFieldName(accepted.name);
+      setSearchableDraft(accepted.searchable);
+      setSearchableEditing(false);
+      setSearchableNotice(
+        accepted.searchable ? CT_FIELD_SEARCHABLE_MSG.SAVED : CT_FIELD_SEARCHABLE_MSG.CLEARED,
+      );
+      onSaved?.();
+    } catch (err: unknown) {
+      setSearchableError(panelErrMsg(err, searchableSaveFallback(err)));
+      setSearchableNotice(null);
+    } finally {
+      searchableInflight.current = false;
+      setSearchableBusy(false);
       setBusy(false);
     }
   }
@@ -2594,7 +2758,9 @@ export function ContentTypeDetailPanel({
                     descriptionEditing ||
                     descriptionBusy ||
                     requiredEditing ||
-                    requiredBusy
+                    requiredBusy ||
+                    searchableEditing ||
+                    searchableBusy
                   }
                   onClick={startLabelEdit}
                   style={{
@@ -2703,7 +2869,9 @@ export function ContentTypeDetailPanel({
                     labelEditing ||
                     labelBusy ||
                     requiredEditing ||
-                    requiredBusy
+                    requiredBusy ||
+                    searchableEditing ||
+                    searchableBusy
                   }
                   onClick={startDescriptionEdit}
                   style={{
@@ -3371,7 +3539,9 @@ export function ContentTypeDetailPanel({
                   labelEditing ||
                   labelBusy ||
                   descriptionEditing ||
-                  descriptionBusy
+                  descriptionBusy ||
+                  searchableEditing ||
+                  searchableBusy
                 }
                 onClick={startRequiredEdit}
                 style={{
@@ -3380,6 +3550,136 @@ export function ContentTypeDetailPanel({
                 }}
               >
                 {CT_FIELD_REQUIRED_MSG.ACTION}
+              </button>
+            ) : null}
+          </section>
+
+          <section
+            data-testid="developer-ct-field-searchable"
+            aria-label={CT_FIELD_SEARCHABLE_MSG.ACTION}
+            style={{ marginBottom: "16px" }}
+          >
+            <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{CT_FIELD_SEARCHABLE_MSG.ACTION}</h3>
+            <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.9rem" }}>
+              {CT_FIELD_SEARCHABLE_MSG.HINT}
+            </p>
+            {selectedSearchableField ? (
+              <p
+                data-testid="developer-ct-field-searchable-text"
+                data-field-name={selectedSearchableField.name}
+                data-field-searchable={selectedSearchableField.searchable ? "true" : "false"}
+                style={{ marginTop: 0 }}
+              >
+                {selectedSearchableField.name}
+                {": "}
+                {selectedSearchableField.searchable
+                  ? CT_FIELD_SEARCHABLE_MSG.SEARCHABLE
+                  : CT_FIELD_SEARCHABLE_MSG.NOT_SEARCHABLE}
+              </p>
+            ) : (
+              <p data-testid="developer-ct-field-searchable-none" style={{ marginTop: 0 }}>
+                {CT_FIELD_SEARCHABLE_MSG.NONE}
+              </p>
+            )}
+            {searchableError ? (
+              <div
+                role="alert"
+                data-testid="developer-ct-field-searchable-error"
+                style={{ color: catalogColors.error }}
+              >
+                {searchableError}
+              </div>
+            ) : null}
+            {searchableNotice ? (
+              <div data-testid="developer-ct-field-searchable-notice" style={{ color: "#276749" }}>
+                {searchableNotice}
+              </div>
+            ) : null}
+            {searchableEditing && selectedSearchableField ? (
+              <div data-testid="developer-ct-field-searchable-editor">
+                <label htmlFor="ct-field-searchable-field" style={{ display: "block", marginBottom: 4 }}>
+                  {CT_FIELD_SEARCHABLE_MSG.FIELD}
+                </label>
+                <select
+                  id="ct-field-searchable-field"
+                  data-testid="developer-ct-field-searchable-field"
+                  value={selectedSearchableField.name}
+                  disabled={searchableBusy}
+                  onChange={(e) => onSearchableFieldChange(e.target.value)}
+                  style={inputStyle}
+                >
+                  {searchableFields.map((field) => (
+                    <option key={field.name} value={field.name}>
+                      {field.name}
+                    </option>
+                  ))}
+                </select>
+                <label style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "8px" }}>
+                  <input
+                    type="checkbox"
+                    data-testid="developer-ct-field-searchable-input"
+                    checked={searchableDraft}
+                    disabled={searchableBusy}
+                    aria-label={CT_FIELD_SEARCHABLE_MSG.SEARCHABLE}
+                    onChange={(e) => setSearchableDraft(e.target.checked)}
+                  />
+                  {CT_FIELD_SEARCHABLE_MSG.SEARCHABLE}
+                </label>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                  <button
+                    type="button"
+                    data-testid="developer-ct-field-searchable-save"
+                    aria-label={CT_FIELD_SEARCHABLE_MSG.SAVE}
+                    disabled={searchableBusy}
+                    onClick={() => void handleSearchableSave()}
+                    style={{
+                      padding: "8px 16px",
+                      background: catalogColors.accent,
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: searchableBusy ? "wait" : "pointer",
+                    }}
+                  >
+                    {CT_FIELD_SEARCHABLE_MSG.SAVE}
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="developer-ct-field-searchable-cancel"
+                    disabled={searchableBusy}
+                    onClick={cancelSearchableEdit}
+                    style={smallBtnStyle}
+                  >
+                    {CT_FIELD_SEARCHABLE_MSG.CANCEL}
+                  </button>
+                </div>
+              </div>
+            ) : selectedSearchableField ? (
+              <button
+                type="button"
+                data-testid="developer-ct-field-searchable-edit"
+                aria-label={CT_FIELD_SEARCHABLE_MSG.ACTION}
+                disabled={
+                  !heldLock ||
+                  busy ||
+                  searchableBusy ||
+                  requiredEditing ||
+                  requiredBusy ||
+                  labelEditing ||
+                  labelBusy ||
+                  descriptionEditing ||
+                  descriptionBusy
+                }
+                onClick={startSearchableEdit}
+                style={{
+                  ...smallBtnStyle,
+                  cursor:
+                    !heldLock || busy || requiredEditing || labelEditing || descriptionEditing
+                      ? "not-allowed"
+                      : "pointer",
+                }}
+              >
+                {CT_FIELD_SEARCHABLE_MSG.ACTION}
               </button>
             ) : null}
           </section>
