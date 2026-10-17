@@ -527,9 +527,12 @@ the already-open item. The name starts as the item's `sys_title`. Submit posts
 public REST `POST /rest/folders/rename/item` (`RenameFolderItemRequest`: the
 item's current path and `newName`). The item stays in the same folder. After a
 successful rename the host reloads the item and shows the new listing name.
-A blank name, a name that contains `/`, HTTP **400** (invalid request), **403**
-(not allowed), and **404** (item not found) are errors on the host — they are
-not treated as success and the previous name stays. **View** and **Promote** do
+A name that contains a NUL character does not rename: that request is not sent,
+**Renamed** is not shown, and reloading the item still shows the previous listing
+name. A normal name still renames and reloads that name. A blank name, or a name
+that contains `/` or `\`, still does not rename. HTTP **400** (invalid request),
+**403** (not allowed), and **404** (item not found) are errors on the host — they
+are not treated as success and the previous name stays. **View** and **Promote** do
 not show Rename. This does not move the item or change folder membership.
 
 In **Edit** mode the host also shows **Move to folder** for the already-open

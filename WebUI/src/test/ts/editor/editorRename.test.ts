@@ -23,6 +23,7 @@ import {
   editorListingName,
   editorRenameErrorReason,
   renameLanded,
+  renameNameContainsNul,
 } from "../../../main/ts/editor/editorRename";
 
 describe("editorRename (#4791)", () => {
@@ -59,6 +60,18 @@ describe("editorRename (#4791)", () => {
     expect(editorItemPathFromLookup({ path: "//Assets/Home", name: "Other" })).toBe(
       "//Assets/Home",
     );
+  });
+
+  it("treats only U+0000 as a rename NUL (#5473)", () => {
+    expect(renameNameContainsNul("bad\u0000value")).toBe(true);
+    expect(renameNameContainsNul("\u0000")).toBe(true);
+    expect(renameNameContainsNul("  n\u0000")).toBe(true);
+    expect(renameNameContainsNul("")).toBe(false);
+    expect(renameNameContainsNul("   ")).toBe(false);
+    expect(renameNameContainsNul("Home2")).toBe(false);
+    expect(renameNameContainsNul("a/b")).toBe(false);
+    expect(renameNameContainsNul("a\\b")).toBe(false);
+    expect(renameNameContainsNul(undefined)).toBe(false);
   });
 
   it("treats a matching reload as landed and HTTP 400/403/404 as failures", () => {

@@ -90,6 +90,7 @@ import {
   editorListingName,
   editorRenameErrorReason,
   renameLanded,
+  renameNameContainsNul,
 } from "./editorRename";
 import {
   canMoveFromEditor,
@@ -3002,6 +3003,12 @@ export function EditorHost({
       return;
     }
     const wanted = renameName.trim();
+    if (renameNameContainsNul(renameName) || renameNameContainsNul(wanted)) {
+      setRenameDone(false);
+      setRenameErrorDetail("");
+      setRenameErrorKey(EDITOR_MSG.RENAME_NAME_NUL);
+      return;
+    }
     if (!wanted || wanted.includes("/") || wanted.includes("\\")) {
       setRenameDone(false);
       setRenameErrorDetail("");
@@ -3999,6 +4006,9 @@ export function EditorHost({
                 className={styles.input}
                 data-testid="editor-rename-name"
                 value={renameName}
+                aria-invalid={
+                  renameErrorKey === EDITOR_MSG.RENAME_NAME_NUL ? true : undefined
+                }
                 disabled={renameBusy || loading || payload == null || saving}
                 onChange={(e) => setRenameName(e.target.value)}
               />
