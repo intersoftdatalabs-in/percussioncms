@@ -140,4 +140,73 @@ describe("ContentExplorerShell rename folder (#3645)", {
     expect(Number(nav.getAttribute("data-list-epoch"))).toBeGreaterThan(0);
     await renderA11yGate(container);
   });
+
+  it("does not rename or refresh the tree when the folder name contains a NUL (#5478)", async () => {
+    let renamed = false;
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/pathmanagement/path/renameFolder")) {
+        renamed = true;
+        return new Response(JSON.stringify({ PathItem: RENAMED_FOLDER }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      const kids = [OLD_FOLDER];
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: kids,
+              childrenCount: kids.length,
+              startIndex: 0,
+            },
+            PathItem: kids,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadWorkflowMenuActions={async () => null}
+        listViews={async () => []}
+      />,
+    );
+
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("detail-row-f-3645")).toBeInTheDocument();
+      },
+      { timeout: 8_000 },
+    );
+    fireEvent.click(screen.getByTestId("detail-row-f-3645"));
+    fireEvent.click(
+      await screen.findByTestId("action-rename", {}, { timeout: 8_000 }),
+    );
+    fireEvent.change(screen.getByTestId("folder-rename-name"), {
+      target: { value: "qa3645\u0000" },
+    });
+    fireEvent.click(screen.getByTestId("folder-rename-submit"));
+
+    expect(screen.getByTestId("explorer-folder-rename")).toBeInTheDocument();
+    expect(screen.getByTestId("folder-rename-error")).toHaveTextContent(
+      /cannot be stored/i,
+    );
+    expect(screen.getByTestId("detail-cell-name-f-3645")).toHaveTextContent(
+      "OldFolder",
+    );
+    expect(
+      screen.queryByTestId("tree-node-/Sites/Demo/qa3645"),
+    ).not.toBeInTheDocument();
+    expect(renamed).toBe(false);
+  });
 });

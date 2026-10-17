@@ -401,6 +401,72 @@ describe("ReducedActions", () => {
     expect(calls.onRename).toHaveLength(1);
   });
 
+  it("does not rename a folder when the new name contains a NUL (#5478)", async () => {
+    const { handlers, calls } = makeHandlers();
+    const { container } = render(
+      <ReducedActions
+        item={{ ...FOLDER, path: "/Assets/Foo" }}
+        folder={{ ...FOLDER, path: "/Assets" }}
+        handlers={handlers}
+        siblingFolderNames={["Foo", "Taken"]}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-rename"));
+    fireEvent.change(screen.getByTestId("folder-rename-name"), {
+      target: { value: "New\u0000Name" },
+    });
+    fireEvent.click(screen.getByTestId("folder-rename-submit"));
+    expect(calls.onRename).toHaveLength(0);
+    expect(screen.getByTestId("explorer-folder-rename")).toBeInTheDocument();
+    expect(screen.getByTestId("folder-rename-error")).toHaveTextContent(
+      /cannot be stored/i,
+    );
+    await renderA11yGate(container);
+  });
+
+  it("keeps the folder rename dialog open on HTTP 400 and 403 (#5478)", async () => {
+    const { handlers, calls } = makeHandlers();
+    let status = 400;
+    const folder = { ...FOLDER, path: "/Assets/Foo" };
+    handlers.onRename = async () => {
+      calls.onRename.push({ item: folder, newName: "Next" });
+      throw { status, statusText: "no", body: null };
+    };
+    render(
+      <ReducedActions
+        item={folder}
+        folder={folder}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-rename"));
+    fireEvent.change(screen.getByTestId("folder-rename-name"), {
+      target: { value: "Next" },
+    });
+    fireEvent.click(screen.getByTestId("folder-rename-submit"));
+    await waitFor(() =>
+      expect(screen.getByTestId("folder-rename-error")).toHaveTextContent(
+        /not valid/i,
+      ),
+    );
+    expect(screen.getByTestId("explorer-folder-rename")).toBeInTheDocument();
+
+    status = 403;
+    fireEvent.change(screen.getByTestId("folder-rename-name"), {
+      target: { value: "Next2" },
+    });
+    fireEvent.click(screen.getByTestId("folder-rename-submit"));
+    await waitFor(() =>
+      expect(screen.getByTestId("folder-rename-error")).toHaveTextContent(
+        /permission/i,
+      ),
+    );
+    expect(screen.getByTestId("explorer-folder-rename")).toBeInTheDocument();
+    expect(calls.onRename).toHaveLength(2);
+  });
+
   it("fires onCreateFolder when the user enters a name via the prompt helper", async () => {
     const { handlers, calls } = makeHandlers();
     handlers.prompt = () => "My Folder";

@@ -36,6 +36,7 @@ export interface FolderRenameDialogProps {
 
 function fieldMessage(reason: FolderRenameFieldReason): string | null {
   if (reason === "blank") return message(EXPLORER_MSG.FOLDER_RENAME_BLANK);
+  if (reason === "nul") return message(EXPLORER_MSG.FOLDER_RENAME_NUL);
   if (reason === "invalid") return message(EXPLORER_MSG.FOLDER_RENAME_INVALID);
   if (reason === "collision") return message(EXPLORER_MSG.FOLDER_RENAME_COLLISION);
   return null;
