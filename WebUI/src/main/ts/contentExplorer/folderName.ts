@@ -33,20 +33,25 @@ export function isValidExplorerFolderName(name: string): boolean {
 /** Why a folder rename must not be sent. {@code unchanged} is not an error. */
 export type FolderRenameFieldReason =
   | "blank"
+  | "nul"
   | "invalid"
   | "collision"
   | "unchanged";
 
 /**
- * Client checks before folder rename. Collision is case-insensitive against
- * sibling names (the current name is excluded). Server HTTP 409 still applies
- * when the list of siblings is incomplete.
+ * Client checks before folder rename. A NUL is refused here only — new-folder
+ * names still use {@link isValidExplorerFolderName}. Collision is
+ * case-insensitive against sibling names (the current name is excluded).
+ * Server HTTP 409 still applies when the list of siblings is incomplete.
  */
 export function folderRenameFieldReason(
   currentName: string,
   nextName: string,
   takenNames: readonly string[] = [],
 ): FolderRenameFieldReason | null {
+  if (String(nextName ?? "").includes("\u0000")) {
+    return "nul";
+  }
   const next = String(nextName ?? "").trim();
   const current = String(currentName ?? "").trim();
   if (!next) {

@@ -100,6 +100,8 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Enter a folder name without path separators",
   FOLDER_RENAME_COLLISION:
     "perc.ui.explorer@A folder with that name is already in this folder",
+  FOLDER_RENAME_NUL:
+    "perc.ui.explorer@That folder name contains a character that cannot be stored",
   FOLDER_RENAME_USE_SITE:
     "perc.ui.explorer@Use Rename Site to rename a site. Folder Rename does not rename sites.",
   ACTION_MOVE: "perc.ui.explorer@Move",

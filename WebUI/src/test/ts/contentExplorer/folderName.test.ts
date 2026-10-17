@@ -16,7 +16,10 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { isValidExplorerFolderName } from "../../../main/ts/contentExplorer/folderName";
+import {
+  folderRenameFieldReason,
+  isValidExplorerFolderName,
+} from "../../../main/ts/contentExplorer/folderName";
 
 describe("isValidExplorerFolderName (#4637)", () => {
   it("accepts a single segment", () => {
@@ -29,5 +32,26 @@ describe("isValidExplorerFolderName (#4637)", () => {
     expect(isValidExplorerFolderName("..")).toBe(false);
     expect(isValidExplorerFolderName(".")).toBe(false);
     expect(isValidExplorerFolderName("  ")).toBe(false);
+  });
+});
+
+describe("folderRenameFieldReason (#5478)", () => {
+  it("refuses a NUL before blank, separators, unchanged, or collision", () => {
+    expect(folderRenameFieldReason("Foo", "New\u0000Name")).toBe("nul");
+    expect(folderRenameFieldReason("Foo", " \u0000 ")).toBe("nul");
+    expect(folderRenameFieldReason("Foo", "a/b\u0000")).toBe("nul");
+    expect(folderRenameFieldReason("Foo", "Foo\u0000")).toBe("nul");
+    expect(folderRenameFieldReason("Foo", "taken\u0000", ["taken"])).toBe("nul");
+  });
+
+  it("still refuses blank, separators, collision, and an unchanged name", () => {
+    expect(folderRenameFieldReason("Foo", "   ")).toBe("blank");
+    expect(folderRenameFieldReason("Foo", "a/b")).toBe("invalid");
+    expect(folderRenameFieldReason("Foo", "a\\b")).toBe("invalid");
+    expect(folderRenameFieldReason("Foo", "taken", ["Foo", "Taken"])).toBe(
+      "collision",
+    );
+    expect(folderRenameFieldReason("Foo", "foo")).toBe("unchanged");
+    expect(folderRenameFieldReason("Foo", "Renamed", ["Taken"])).toBeNull();
   });
 });
