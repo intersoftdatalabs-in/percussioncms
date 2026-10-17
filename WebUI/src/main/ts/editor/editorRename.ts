@@ -19,7 +19,8 @@
  * Rename the open item from the React Content Editor host (#4791).
  *
  * <p>Uses folders {@code POST /folders/rename/item}. Does not move the item.
- * HTTP 400, 403, and 404 are failures, not success.</p>
+ * HTTP 400, 403, and 404 are failures, not success. A listing name that
+ * contains a NUL is refused before that POST (#5473).</p>
  */
 
 import { isApiError } from "../api/client";
@@ -98,6 +99,18 @@ export function buildRenameItemPath(
     return "";
   }
   return `${folder}/${name}`;
+}
+
+/**
+ * True when a listing name contains a NUL.
+ * A blank or whitespace-only name is not a NUL. A normal name is not a NUL.
+ * A slash is not a NUL. The editor refuses a NUL before
+ * {@code POST /folders/rename/item}.
+ */
+export function renameNameContainsNul(
+  name: string | null | undefined,
+): boolean {
+  return (name ?? "").includes("\u0000");
 }
 
 /** True when the reloaded listing name matches the name that was posted. */

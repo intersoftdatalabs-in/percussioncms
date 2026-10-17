@@ -10644,6 +10644,89 @@ describe("EditorHost rename open item (#4791)", () => {
     }
   });
 
+  it("refuses a NUL listing name before folders/rename/item (#5473)", async () => {
+    const renameItem = vi.fn().mockResolvedValue(undefined);
+    const loadFields = vi
+      .fn()
+      .mockResolvedValueOnce(fields)
+      .mockResolvedValueOnce({
+        ...fields,
+        name: "Home2",
+        fields: [
+          { name: "sys_title", value: "Home2" },
+          { name: "displaytitle", value: "Welcome" },
+        ],
+      });
+    const loadItemLocation = vi.fn().mockResolvedValue({ path: "//Assets/Home" });
+    renderHost("edit", { renameItem, loadFields, loadItemLocation });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-rename-name")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-rename-name"), {
+      target: { value: "Home\u0000Next" },
+    });
+    fireEvent.click(screen.getByTestId("editor-rename"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-rename-error").textContent).toMatch(
+        /listing name contains a character/i,
+      );
+    });
+    expect(renameItem).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-renamed")).toBeNull();
+    expect(screen.getByTestId("editor-field-sys_title")).toHaveProperty(
+      "value",
+      "Home",
+    );
+    expect(
+      (screen.getByTestId("editor-rename-name") as HTMLInputElement).value.includes(
+        "\u0000",
+      ),
+    ).toBe(true);
+    expect(screen.getByTestId("editor-rename-name").getAttribute("aria-invalid")).toBe(
+      "true",
+    );
+
+    fireEvent.change(screen.getByTestId("editor-rename-name"), {
+      target: { value: "Home2" },
+    });
+    fireEvent.click(screen.getByTestId("editor-rename"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-renamed")).toBeTruthy();
+    });
+    expect(renameItem).toHaveBeenCalledTimes(1);
+    expect(renameItem).toHaveBeenCalledWith("//Assets/Home", "Home2");
+    expect(screen.getByTestId("editor-field-sys_title")).toHaveProperty(
+      "value",
+      "Home2",
+    );
+    expect(screen.queryByTestId("editor-rename-error")).toBeNull();
+  });
+
+  it("refuses a slash or backslash before folders/rename/item", async () => {
+    const renameItem = vi.fn();
+    renderHost("edit", { renameItem });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-rename")).toBeTruthy();
+    });
+    for (const value of ["a/b", "a\\b"]) {
+      fireEvent.change(screen.getByTestId("editor-rename-name"), {
+        target: { value },
+      });
+      fireEvent.click(screen.getByTestId("editor-rename"));
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-rename-error").textContent).toMatch(
+          /slash/i,
+        );
+      });
+      expect(screen.queryByTestId("editor-renamed")).toBeNull();
+      expect(screen.getByTestId("editor-field-sys_title")).toHaveProperty(
+        "value",
+        "Home",
+      );
+    }
+    expect(renameItem).not.toHaveBeenCalled();
+  });
+
   it("compares two revisions and shows field diffs without calling restore", async () => {
     const checkout = vi.fn().mockResolvedValue(undefined);
     const loadFields = vi.fn().mockResolvedValue(fields);

@@ -509,6 +509,8 @@ export const EDITOR_MSG = {
   RENAME: "perc.ui.editor@Rename",
   RENAMING: "perc.ui.editor@Renaming…",
   RENAME_NAME: "perc.ui.editor@Listing name",
+  RENAME_NAME_NUL:
+    "perc.ui.editor@That listing name contains a character that cannot be saved.",
   RENAMED: "perc.ui.editor@Renamed",
   RENAME_FAILED: "perc.ui.editor@Could not rename this item.",
   RENAME_BAD_REQUEST: "perc.ui.editor@Enter a listing name that does not contain a slash.",
