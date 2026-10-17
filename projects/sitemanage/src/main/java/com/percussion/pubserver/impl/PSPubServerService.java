@@ -383,6 +383,12 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSFtpDeliveryUserUpdate.isUserOnly(pubServerInfo)) {
         return updateFtpUserOnly(siteId, serverId, pubServerInfo);
       }
+      // Folder-only FTP PUT must not run the full property replace (that clears host,
+      // port, user, and password) and must not decode a password that is not in the body.
+      // A blank folder clears only the stored folder.
+      if (PSFtpDeliveryFolderUpdate.isFolderOnly(pubServerInfo)) {
+        return updateFtpFolderOnly(siteId, serverId, pubServerInfo);
+      }
 
       convertPasswordFromBase64(pubServerInfo);
 
@@ -550,6 +556,31 @@ public class PSPubServerService implements IPSPubServerService {
           "The server you are trying to act on no longer exists in the system.");
     }
     PSFtpDeliveryUserUpdate.apply(server, pubServerInfo);
+    pubServerDao.savePubServer(server);
+    return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Save only the FTP {@code folder} property. Does not rename the server or replace the
+   * property set. A blank folder stores an empty folder. Overlong and non-FTP drivers throw
+   * before {@code savePubServer}.
+   */
+  private PSPublishServerInfo updateFtpFolderOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    PSFtpDeliveryFolderUpdate.apply(server, pubServerInfo);
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
