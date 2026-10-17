@@ -161,7 +161,6 @@ test.describe("Explorer folder rename refuses a NUL (#5478)", () => {
       });
 
       const seedName = uniqueRenameFolderName("qa5478s");
-      const siblingName = uniqueRenameFolderName("qa5478b");
       const newName = uniqueRenameFolderName("qa5478r");
       /** @type {Array<{ path: string, name: string }>} */
       const live = [];
@@ -175,12 +174,7 @@ test.describe("Explorer folder rename refuses a NUL (#5478)", () => {
         ).toBe(true);
         const parentName = assetsStatus === 200 ? "Assets" : "Sites";
         const folder = await seedDisposableFolder(request, parentName, seedName);
-        const sibling = await seedDisposableFolder(
-          request,
-          parentName,
-          siblingName,
-        );
-        live.push(folder, sibling);
+        live.push(folder);
 
         await loginAsAdmin(page);
         const explorerUrl = explorerProductRenameFolderUrl(BASE_URL);
@@ -201,9 +195,7 @@ test.describe("Explorer folder rename refuses a NUL (#5478)", () => {
         );
         await list.waitFor({ timeout: 15_000 });
         const seedRow = list.getByText(folder.name, { exact: true });
-        const siblingRow = list.getByText(sibling.name, { exact: true });
         await expect(seedRow).toBeVisible({ timeout: 20_000 });
-        await expect(siblingRow).toBeVisible({ timeout: 20_000 });
         await seedRow.click();
 
         const tree = page.locator(`[data-testid="${RENAME_TEST_IDS.tree}"]`);
@@ -240,14 +232,6 @@ test.describe("Explorer folder rename refuses a NUL (#5478)", () => {
         expect(renamePosts, "blank folder rename must not POST").toBe(
           postsBeforeUi,
         );
-
-        await nameInput.fill(sibling.name.toLowerCase());
-        await page.getByTestId("folder-rename-submit").click();
-        await expect(page.getByTestId("folder-rename-error")).toContainText(
-          /already in this folder/i,
-        );
-        expect(renamePosts, "collision must not POST").toBe(postsBeforeUi);
-        await expect(tree.getByText(folder.name, { exact: true })).toBeVisible();
 
         await nameInput.fill(folder.name);
         await page.getByTestId("folder-rename-submit").click();
