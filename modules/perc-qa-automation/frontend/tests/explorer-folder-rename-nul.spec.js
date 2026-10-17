@@ -114,7 +114,7 @@ async function seedDisposableFolder(request, parentName, seedName) {
     addRes.ok(),
     `addNewFolder under /${parent} must succeed (HTTP ${addRes.status()})`,
   ).toBeTruthy();
-  const created = unwrapPathItem(await addRes.json().catch(() => ({})));
+  const created = unwrapPathItem(await addRes.json());
   let name = String(created.name || seedName);
   let path = String(created.path || `/${parent}/${name}`);
   if (name !== seedName) {
@@ -129,7 +129,7 @@ async function seedDisposableFolder(request, parentName, seedName) {
       isRenameFolderSuccessStatus(renameRes.status()),
       `seed renameFolder expected 200, got ${renameRes.status()}`,
     ).toBeTruthy();
-    const renamed = unwrapPathItem(await renameRes.json().catch(() => ({})));
+    const renamed = unwrapPathItem(await renameRes.json());
     name = String(renamed.name || seedName);
     path = String(renamed.path || `/${parent}/${name}`);
   }
@@ -195,7 +195,7 @@ test.describe("Explorer folder rename refuses a NUL (#5478)", () => {
             : sitesTreeRootLocator(page).first();
         await expect(parentNode).toBeVisible({ timeout: 20_000 });
         await parentNode.click({ force: true });
-        await expandExplorerTreeNode(parentNode).catch(() => undefined);
+        await expandExplorerTreeNode(parentNode);
         const list = page.locator(
           `[data-testid="${RENAME_TEST_IDS.detailList}"]`,
         );
@@ -312,9 +312,7 @@ test.describe("Explorer folder rename refuses a NUL (#5478)", () => {
           isRenameFolderSuccessStatus(renameResp.status()),
           `renameFolder expected 200, got ${renameResp.status()}`,
         ).toBeTruthy();
-        const renamedItem = unwrapPathItem(
-          await renameResp.json().catch(() => ({})),
-        );
+        const renamedItem = unwrapPathItem(await renameResp.json());
         if (renamedItem.path) {
           folder.path = String(renamedItem.path);
           folder.name = String(renamedItem.name || newName);
@@ -336,12 +334,21 @@ test.describe("Explorer folder rename refuses a NUL (#5478)", () => {
         );
         expect(relatedConsole, relatedConsole.join("\n")).toEqual([]);
       } finally {
+        const cleanupErrors = [];
         for (const item of live) {
-          if (item.path) {
+          if (!item.path) {
+            continue;
+          }
+          try {
             await recycleFolder(request, BASE_URL, adminBasicAuthHeaders(), {
               path: item.path,
-            }).catch(() => undefined);
+            });
+          } catch (err) {
+            cleanupErrors.push(err instanceof Error ? err.message : String(err));
           }
+        }
+        if (cleanupErrors.length > 0) {
+          throw new Error(cleanupErrors.join("\n"));
         }
       }
     },
