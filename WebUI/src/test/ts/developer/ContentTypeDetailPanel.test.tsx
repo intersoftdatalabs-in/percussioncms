@@ -12,6 +12,7 @@ import * as importExportApi from "../../../main/ts/api/developer/contentTypeImpo
 import { catalogColors } from "../../../main/ts/developer/catalogStyles";
 import { CT_DESC_MSG } from "../../../main/ts/developer/contentTypeDescriptionMessages";
 import { CT_FIELD_REQUIRED_MSG } from "../../../main/ts/developer/contentTypeFieldRequiredMessages";
+import { CT_FIELD_SEARCHABLE_MSG } from "../../../main/ts/developer/contentTypeFieldSearchableMessages";
 import { CT_LABEL_MSG } from "../../../main/ts/developer/contentTypeLabelMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { ContentTypeDetailPanel } from "../../../main/ts/developer/ContentTypeDetailPanel";
@@ -3780,5 +3781,302 @@ describe("ContentTypeDetailPanel", () => {
     expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
       "Page type",
     );
+  });
+
+  it("does not offer a searchable editor when the content type has no fields (#5466)", async () => {
+    getContentTypeDetail.mockResolvedValue({ ...sampleDetail, fields: [] });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-searchable-none")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-ct-field-searchable-edit")).toBeNull();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(setContentTypeSearchIndexing).not.toHaveBeenCalled();
+  });
+
+  it("marks one field searchable only after success and leaves the other field and search indexing (#5466)", async () => {
+    const fields = [
+      {
+        name: "sys_title",
+        fieldType: "system",
+        label: "Title:",
+        searchable: true,
+        required: true,
+        occurrence: "required",
+      },
+      {
+        name: "rx_shared",
+        fieldType: "shared",
+        label: "Shared:",
+        searchable: false,
+        required: false,
+        occurrence: "optional",
+      },
+      {
+        name: "rx_note",
+        fieldType: "local",
+        label: "Note:",
+        searchable: false,
+        required: false,
+        occurrence: "optional",
+      },
+      {
+        name: "rx_other",
+        fieldType: "local",
+        label: "Other:",
+        searchable: true,
+        required: false,
+        occurrence: "optional",
+      },
+    ];
+    getContentTypeDetail.mockResolvedValue({ ...sampleDetail, fields });
+    const onSaved = vi.fn();
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} onSaved={onSaved} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-searchable-text").getAttribute("data-field-name")).toBe(
+        "sys_title",
+      );
+    });
+    expect(
+      screen.getByTestId("developer-ct-field-searchable-text").getAttribute("data-field-searchable"),
+    ).toBe("true");
+    expect((screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-field-searchable-edit") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-edit"));
+    expect(screen.queryByTestId("developer-ct-field-searchable-editor")).toBeNull();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-searchable-edit") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-edit"));
+    const options = Array.from(
+      (screen.getByTestId("developer-ct-field-searchable-field") as HTMLSelectElement).options,
+    ).map((option) => option.value);
+    expect(options).toEqual(["sys_title", "rx_shared", "rx_note", "rx_other"]);
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-save"));
+    expect(screen.queryByTestId("developer-ct-field-searchable-editor")).toBeNull();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(setContentTypeSearchIndexing).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-field-searchable-field"), {
+      target: { value: "rx_note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-input"));
+    expect(
+      screen.getByTestId("developer-ct-field-searchable-text").getAttribute("data-field-searchable"),
+    ).toBe("false");
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-cancel"));
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-ct-field-searchable-text").getAttribute("data-field-name"),
+    ).toBe("rx_note");
+    expect(
+      screen.getByTestId("developer-ct-field-searchable-text").getAttribute("data-field-searchable"),
+    ).toBe("false");
+
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-field-searchable-field"), {
+      target: { value: "rx_note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-input"));
+    expect(
+      screen.getByTestId("developer-ct-field-searchable-text").getAttribute("data-field-searchable"),
+    ).toBe("false");
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-cancel"));
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+
+    updateContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [fields[0], fields[1], { ...fields[2], searchable: true }, fields[3]],
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-field-searchable-field"), {
+      target: { value: "rx_note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-input"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-searchable-notice").textContent).toBe(
+        CT_FIELD_SEARCHABLE_MSG.SAVED,
+      );
+    });
+    expect(updateContentTypeDetail).toHaveBeenCalledWith("percPage", {
+      fields: [{ name: "rx_note", searchable: true }],
+    });
+    expect(setContentTypeSearchIndexing).not.toHaveBeenCalled();
+    expect(setContentTypeEnabled).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-ct-field-searchable-text").getAttribute("data-field-searchable"),
+    ).toBe("true");
+    expect((screen.getByTestId("developer-ct-field-search-rx_note") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-field-search-rx_other") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-field-search-rx_shared") as HTMLInputElement).checked).toBe(
+      false,
+    );
+    expect((screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+      "Page type",
+    );
+    expect(onSaved).toHaveBeenCalledTimes(1);
+  });
+
+  it("clears one field searchable and keeps the previous flag on 400, 403, and 409 (#5466)", async () => {
+    const fields = [
+      {
+        name: "rx_note",
+        fieldType: "local",
+        label: "Note:",
+        searchable: true,
+        required: false,
+        occurrence: "optional",
+      },
+      {
+        name: "rx_other",
+        fieldType: "local",
+        label: "Other:",
+        searchable: false,
+        required: false,
+        occurrence: "optional",
+      },
+    ];
+    getContentTypeDetail.mockResolvedValue({ ...sampleDetail, fields });
+    updateContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields: [{ ...fields[0], searchable: false }, fields[1]],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-searchable-edit") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-edit"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-input"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-searchable-notice").textContent).toBe(
+        CT_FIELD_SEARCHABLE_MSG.CLEARED,
+      );
+    });
+    expect(updateContentTypeDetail).toHaveBeenCalledWith("percPage", {
+      fields: [{ name: "rx_note", searchable: false }],
+    });
+    expect(
+      screen.getByTestId("developer-ct-field-searchable-text").getAttribute("data-field-searchable"),
+    ).toBe("false");
+    expect((screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect(setContentTypeSearchIndexing).not.toHaveBeenCalled();
+
+    for (const status of [400, 403, 409]) {
+      updateContentTypeDetail.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-ct-field-searchable-edit"));
+      fireEvent.click(screen.getByTestId("developer-ct-field-searchable-input"));
+      fireEvent.click(screen.getByTestId("developer-ct-field-searchable-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-ct-field-searchable-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(screen.queryByTestId("developer-ct-field-searchable-notice")).toBeNull();
+      expect(
+        screen.getByTestId("developer-ct-field-searchable-text").getAttribute("data-field-searchable"),
+      ).toBe("false");
+      expect((screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked).toBe(
+        true,
+      );
+      expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+      expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+        "Page type",
+      );
+      expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+      fireEvent.click(screen.getByTestId("developer-ct-field-searchable-cancel"));
+    }
+  });
+
+  it("does not show a searchable flag when the update changes search indexing companions (#5466)", async () => {
+    const fields = [
+      {
+        name: "rx_note",
+        fieldType: "local",
+        label: "Note:",
+        searchable: false,
+        required: false,
+        occurrence: "optional",
+      },
+      {
+        name: "rx_other",
+        fieldType: "local",
+        label: "Other:",
+        searchable: true,
+        required: false,
+        occurrence: "optional",
+      },
+    ];
+    getContentTypeDetail.mockResolvedValue({ ...sampleDetail, fields });
+    updateContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      label: "Pages",
+      description: "changed",
+      fields: [{ ...fields[0], searchable: true }, { ...fields[1], searchable: false }],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-field-searchable-edit") as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-edit"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-input"));
+    fireEvent.click(screen.getByTestId("developer-ct-field-searchable-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-field-searchable-error").textContent).toContain(
+        CT_FIELD_SEARCHABLE_MSG.ERROR,
+      );
+    });
+    expect(screen.queryByTestId("developer-ct-field-searchable-notice")).toBeNull();
+    expect(
+      screen.getByTestId("developer-ct-field-searchable-text").getAttribute("data-field-searchable"),
+    ).toBe("false");
+    expect((screen.getByTestId("developer-ct-field-search-rx_other") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-label") as HTMLInputElement).value).toBe("Page");
+    expect((screen.getByTestId("developer-ct-description") as HTMLInputElement).value).toBe(
+      "Page type",
+    );
+    expect(setContentTypeSearchIndexing).not.toHaveBeenCalled();
   });
 });
