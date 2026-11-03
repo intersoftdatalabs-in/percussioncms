@@ -127,6 +127,17 @@ class LocalesAdaptorTest {
   }
 
   @Test
+  void validateFormat_rejectsLongDecimalSep() {
+    com.percussion.rest.locales.LocaleFormatSummary src =
+        new com.percussion.rest.locales.LocaleFormatSummary();
+    src.setDecimalSep(".....");
+    IllegalArgumentException ex =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            IllegalArgumentException.class, () -> LocalesAdaptor.validateFormat(src));
+    assertTrue(ex.getMessage().contains("decimalSep"));
+  }
+
+  @Test
   void validateFormat_acceptsCommonPatterns() {
     com.percussion.rest.locales.LocaleFormatSummary src =
         new com.percussion.rest.locales.LocaleFormatSummary();

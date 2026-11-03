@@ -55,6 +55,12 @@ import {
   storedLocaleDateTimePattern,
 } from "./localeDateTimePattern";
 import { LOC_DATETIME_MSG } from "./localeDateTimePatternMessages";
+import {
+  localeDecimalSepWrite,
+  savedLocaleDecimalSep,
+  storedLocaleDecimalSep,
+} from "./localeDecimalSep";
+import { LOC_DECIMAL_MSG } from "./localeDecimalSepMessages";
 import { localeLabelWrite, savedLocaleLabel, storedLocaleLabel } from "./localeLabel";
 import { LOC_LABEL_MSG } from "./localeLabelMessages";
 import { DEV_MSG } from "./messages";
@@ -196,6 +202,12 @@ export function LocaleDetailPanel({
   const [dateTimePatternError, setDateTimePatternError] = useState<string | null>(null);
   const [dateTimePatternNotice, setDateTimePatternNotice] = useState<string | null>(null);
   const [dateTimePatternBusy, setDateTimePatternBusy] = useState(false);
+  const [decimalSepShown, setDecimalSepShown] = useState("");
+  const [decimalSepDraft, setDecimalSepDraft] = useState("");
+  const [decimalSepEditing, setDecimalSepEditing] = useState(false);
+  const [decimalSepError, setDecimalSepError] = useState<string | null>(null);
+  const [decimalSepNotice, setDecimalSepNotice] = useState<string | null>(null);
+  const [decimalSepBusy, setDecimalSepBusy] = useState(false);
   const [status, setStatus] = useState("active");
   const [baseLocale, setBaseLocale] = useState(false);
   const [storeFormat, setStoreFormat] = useState(false);
@@ -211,6 +223,7 @@ export function LocaleDetailPanel({
   const datePatternInflight = useRef(false);
   const timePatternInflight = useRef(false);
   const dateTimePatternInflight = useRef(false);
+  const decimalSepInflight = useRef(false);
 
   useEffect(() => {
     if (idOrLang == null) {
@@ -253,6 +266,11 @@ export function LocaleDetailPanel({
         setDateTimePatternEditing(false);
         setDateTimePatternError(null);
         setDateTimePatternNotice(null);
+        setDecimalSepShown(storedLocaleDecimalSep(d.format?.decimalSep));
+        setDecimalSepDraft("");
+        setDecimalSepEditing(false);
+        setDecimalSepError(null);
+        setDecimalSepNotice(null);
         setStatus(d.status || "active");
         setBaseLocale(Boolean(d.baseLocale));
         setStoreFormat(Boolean(d.hasFormatProfile) || Boolean(d.format));
@@ -281,6 +299,8 @@ export function LocaleDetailPanel({
     !timePatternEditing &&
     !dateTimePatternBusy &&
     !dateTimePatternEditing &&
+    !decimalSepBusy &&
+    !decimalSepEditing &&
     isLocaleWriteReady({ isNew, language, label });
   const writeKey =
     idOrLang || createdKey || normalizeLanguageString(language);
@@ -342,6 +362,13 @@ export function LocaleDetailPanel({
     return LOC_DATETIME_MSG.ERROR;
   }
 
+  function decimalSepSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return LOC_DECIMAL_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return LOC_DECIMAL_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return LOC_DECIMAL_MSG.CONFLICT;
+    return LOC_DECIMAL_MSG.ERROR;
+  }
+
   function dedicatedWriteBlocked(): boolean {
     return (
       busy ||
@@ -350,11 +377,13 @@ export function LocaleDetailPanel({
       datePatternBusy ||
       timePatternBusy ||
       dateTimePatternBusy ||
+      decimalSepBusy ||
       labelInflight.current ||
       descriptionInflight.current ||
       datePatternInflight.current ||
       timePatternInflight.current ||
       dateTimePatternInflight.current ||
+      decimalSepInflight.current ||
       inflight.current
     );
   }
@@ -367,7 +396,8 @@ export function LocaleDetailPanel({
       descriptionEditing ||
       datePatternEditing ||
       timePatternEditing ||
-      dateTimePatternEditing
+      dateTimePatternEditing ||
+      decimalSepEditing
     ) {
       return;
     }
@@ -452,7 +482,8 @@ export function LocaleDetailPanel({
       labelEditing ||
       datePatternEditing ||
       timePatternEditing ||
-      dateTimePatternEditing
+      dateTimePatternEditing ||
+      decimalSepEditing
     ) {
       return;
     }
@@ -479,7 +510,8 @@ export function LocaleDetailPanel({
       labelEditing ||
       datePatternEditing ||
       timePatternEditing ||
-      dateTimePatternEditing
+      dateTimePatternEditing ||
+      decimalSepEditing
     ) {
       return;
     }
@@ -536,7 +568,8 @@ export function LocaleDetailPanel({
       labelEditing ||
       descriptionEditing ||
       timePatternEditing ||
-      dateTimePatternEditing
+      dateTimePatternEditing ||
+      decimalSepEditing
     ) {
       return;
     }
@@ -563,7 +596,8 @@ export function LocaleDetailPanel({
       labelEditing ||
       descriptionEditing ||
       timePatternEditing ||
-      dateTimePatternEditing
+      dateTimePatternEditing ||
+      decimalSepEditing
     ) {
       return;
     }
@@ -629,7 +663,8 @@ export function LocaleDetailPanel({
       labelEditing ||
       descriptionEditing ||
       datePatternEditing ||
-      dateTimePatternEditing
+      dateTimePatternEditing ||
+      decimalSepEditing
     ) {
       return;
     }
@@ -656,7 +691,8 @@ export function LocaleDetailPanel({
       labelEditing ||
       descriptionEditing ||
       datePatternEditing ||
-      dateTimePatternEditing
+      dateTimePatternEditing ||
+      decimalSepEditing
     ) {
       return;
     }
@@ -722,7 +758,8 @@ export function LocaleDetailPanel({
       labelEditing ||
       descriptionEditing ||
       datePatternEditing ||
-      timePatternEditing
+      timePatternEditing ||
+      decimalSepEditing
     ) {
       return;
     }
@@ -749,7 +786,8 @@ export function LocaleDetailPanel({
       labelEditing ||
       descriptionEditing ||
       datePatternEditing ||
-      timePatternEditing
+      timePatternEditing ||
+      decimalSepEditing
     ) {
       return;
     }
@@ -807,6 +845,101 @@ export function LocaleDetailPanel({
     }
   }
 
+  function startDecimalSepEdit(): void {
+    if (
+      isNew ||
+      !detail ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing
+    ) {
+      return;
+    }
+    setDecimalSepDraft(decimalSepShown);
+    setDecimalSepError(null);
+    setDecimalSepNotice(null);
+    setDecimalSepEditing(true);
+  }
+
+  function cancelDecimalSepEdit(): void {
+    if (decimalSepBusy || decimalSepInflight.current) return;
+    setDecimalSepEditing(false);
+    setDecimalSepDraft("");
+    setDecimalSepError(null);
+  }
+
+  async function handleDecimalSepSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !decimalSepEditing ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing
+    ) {
+      return;
+    }
+    const sent = localeDecimalSepWrite(detail, decimalSepDraft);
+    if (sent === "unchanged") {
+      setDecimalSepEditing(false);
+      setDecimalSepDraft("");
+      setDecimalSepError(null);
+      return;
+    }
+    decimalSepInflight.current = true;
+    setDecimalSepBusy(true);
+    setBusy(true);
+    setDecimalSepError(null);
+    setDecimalSepNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = decimalSepShown;
+    try {
+      const saved = await updateLocale(writeKey, sent);
+      const accepted = savedLocaleDecimalSep(sent, detail, saved);
+      if (accepted == null) {
+        setDecimalSepShown(previousShown);
+        setFmt((prev) => ({ ...prev, decimalSep: previousShown }));
+        setDecimalSepError(LOC_DECIMAL_MSG.ERROR);
+        setDecimalSepNotice(null);
+        return;
+      }
+      const nextFormat: LocaleFormatSummary = {
+        ...(detail.format || {}),
+        decimalSep: accepted,
+      };
+      const nextDetail: LocaleDetail = {
+        ...detail,
+        hasFormatProfile: true,
+        format: nextFormat,
+      };
+      setDetail(nextDetail);
+      setDecimalSepShown(accepted);
+      setFmt((prev) => ({ ...prev, decimalSep: accepted }));
+      setStoreFormat(true);
+      setDecimalSepEditing(false);
+      setDecimalSepDraft("");
+      setDecimalSepNotice(accepted ? LOC_DECIMAL_MSG.SAVED : LOC_DECIMAL_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setDecimalSepShown(previousShown);
+      setFmt((prev) => ({ ...prev, decimalSep: previousShown }));
+      setDecimalSepError(panelErrMsg(err, decimalSepSaveFallback(err)));
+      setDecimalSepNotice(null);
+    } finally {
+      decimalSepInflight.current = false;
+      setDecimalSepBusy(false);
+      setBusy(false);
+    }
+  }
+
   async function handleSave(): Promise<void> {
     if (
       !canSave ||
@@ -815,7 +948,8 @@ export function LocaleDetailPanel({
       labelInflight.current ||
       datePatternInflight.current ||
       timePatternInflight.current ||
-      dateTimePatternInflight.current
+      dateTimePatternInflight.current ||
+      decimalSepInflight.current
     ) {
       return;
     }
@@ -863,6 +997,11 @@ export function LocaleDetailPanel({
       setDateTimePatternEditing(false);
       setDateTimePatternError(null);
       setDateTimePatternNotice(null);
+      setDecimalSepShown(storedLocaleDecimalSep(saved.format?.decimalSep));
+      setDecimalSepDraft("");
+      setDecimalSepEditing(false);
+      setDecimalSepError(null);
+      setDecimalSepNotice(null);
       setStatus(saved.status || status);
       setBaseLocale(Boolean(saved.baseLocale));
       setStoreFormat(Boolean(saved.hasFormatProfile) || Boolean(saved.format));
@@ -1072,10 +1211,12 @@ export function LocaleDetailPanel({
                     datePatternBusy ||
                     timePatternBusy ||
                     dateTimePatternBusy ||
+                    decimalSepBusy ||
                     descriptionEditing ||
                     datePatternEditing ||
                     timePatternEditing ||
-                    dateTimePatternEditing
+                    dateTimePatternEditing ||
+                    decimalSepEditing
                   }
                   onClick={startLabelEdit}
                   style={{
@@ -1194,10 +1335,12 @@ export function LocaleDetailPanel({
                     datePatternBusy ||
                     timePatternBusy ||
                     dateTimePatternBusy ||
+                    decimalSepBusy ||
                     labelEditing ||
                     datePatternEditing ||
                     timePatternEditing ||
-                    dateTimePatternEditing
+                    dateTimePatternEditing ||
+                    decimalSepEditing
                   }
                   onClick={startDescriptionEdit}
                   style={{
@@ -1589,12 +1732,14 @@ export function LocaleDetailPanel({
                     datePatternBusy ||
                     timePatternBusy ||
                     dateTimePatternBusy ||
+                    decimalSepBusy ||
                     labelBusy ||
                     descriptionBusy ||
                     labelEditing ||
                     descriptionEditing ||
                     timePatternEditing ||
-                    dateTimePatternEditing
+                    dateTimePatternEditing ||
+                    decimalSepEditing
                   }
                   onClick={startDatePatternEdit}
                   style={{
@@ -1700,12 +1845,14 @@ export function LocaleDetailPanel({
                     timePatternBusy ||
                     datePatternBusy ||
                     dateTimePatternBusy ||
+                    decimalSepBusy ||
                     labelBusy ||
                     descriptionBusy ||
                     labelEditing ||
                     descriptionEditing ||
                     datePatternEditing ||
-                    dateTimePatternEditing
+                    dateTimePatternEditing ||
+                    decimalSepEditing
                   }
                   onClick={startTimePatternEdit}
                   style={{
@@ -1811,6 +1958,7 @@ export function LocaleDetailPanel({
                   disabled={
                     busy ||
                     dateTimePatternBusy ||
+                    decimalSepBusy ||
                     datePatternBusy ||
                     timePatternBusy ||
                     labelBusy ||
@@ -1818,7 +1966,8 @@ export function LocaleDetailPanel({
                     labelEditing ||
                     descriptionEditing ||
                     datePatternEditing ||
-                    timePatternEditing
+                    timePatternEditing ||
+                    decimalSepEditing
                   }
                   onClick={startDateTimePatternEdit}
                   style={{
@@ -1830,6 +1979,119 @@ export function LocaleDetailPanel({
                   }}
                 >
                   {LOC_DATETIME_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-loc-set-decimal-sep"
+              aria-label={LOC_DECIMAL_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{LOC_DECIMAL_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.85rem" }}>
+                {LOC_DECIMAL_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-loc-set-decimal-sep-text"
+                data-loc-decimal-sep={decimalSepShown}
+                style={{ marginTop: 0, fontFamily: "monospace" }}
+              >
+                {decimalSepShown}
+              </p>
+              {decimalSepError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-loc-set-decimal-sep-error"
+                  style={{ color: catalogColors.error, marginBottom: "8px" }}
+                >
+                  {decimalSepError}
+                </div>
+              ) : null}
+              {decimalSepNotice ? (
+                <div
+                  data-testid="developer-loc-set-decimal-sep-notice"
+                  style={{ color: "#276749", marginBottom: "8px" }}
+                >
+                  {decimalSepNotice}
+                </div>
+              ) : null}
+              {decimalSepEditing ? (
+                <div data-testid="developer-loc-set-decimal-sep-editor">
+                  <label htmlFor="loc-set-decimal-sep-input">{LOC_DECIMAL_MSG.FIELD}</label>
+                  <input
+                    id="loc-set-decimal-sep-input"
+                    data-testid="developer-loc-set-decimal-sep-input"
+                    style={{ ...inputStyle, fontFamily: "monospace" }}
+                    value={decimalSepDraft}
+                    disabled={decimalSepBusy}
+                    onChange={(e) => setDecimalSepDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-decimal-sep-save"
+                      aria-label={LOC_DECIMAL_MSG.SAVE}
+                      disabled={decimalSepBusy}
+                      onClick={() => void handleDecimalSepSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: decimalSepBusy ? catalogColors.disabled : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: decimalSepBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_DECIMAL_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-decimal-sep-cancel"
+                      disabled={decimalSepBusy}
+                      onClick={cancelDecimalSepEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: decimalSepBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_DECIMAL_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-loc-set-decimal-sep-edit"
+                  aria-label={LOC_DECIMAL_MSG.ACTION}
+                  disabled={
+                    busy ||
+                    decimalSepBusy ||
+                    dateTimePatternBusy ||
+                    datePatternBusy ||
+                    timePatternBusy ||
+                    labelBusy ||
+                    descriptionBusy ||
+                    labelEditing ||
+                    descriptionEditing ||
+                    datePatternEditing ||
+                    timePatternEditing ||
+                    dateTimePatternEditing
+                  }
+                  onClick={startDecimalSepEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {LOC_DECIMAL_MSG.ACTION}
                 </button>
               )}
             </section>

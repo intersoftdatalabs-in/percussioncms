@@ -1,7 +1,7 @@
 ---
 id: admin-developer-locales
 title: Developer Locales
-description: Create, save, and delete CMS locales, set a label, description, date pattern, time pattern, or date-time pattern, edit format profiles, and edit the auto-translation set from Developer Locales chrome
+description: Create, save, and delete CMS locales, set a label, description, date pattern, time pattern, date-time pattern, or decimal separator, edit format profiles, and edit the auto-translation set from Developer Locales chrome
 version: "8.2"
 order: 43
 tags: [admin, developer, locales]
@@ -51,6 +51,15 @@ format fields, so those stay. The language string is immutable. The new
 pattern shows only after that save succeeds. A blank date-time pattern
 clears the date-time pattern. **Cancel** does not write. HTTP 400, 403, and
 409 are not success and leave the previous pattern.
+
+**Set locale decimal separator** on an existing locale saves the decimal
+separator only. The update sends `format.decimalSep` and does not send the
+language string, label, description, enabled status, date/time patterns,
+grouping separator, or other format fields, so those stay. The language
+string is immutable. The new separator shows only after that save succeeds.
+A blank decimal separator clears the decimal separator. **Cancel** does not
+write. HTTP 400, 403, and 409 are not success and leave the previous
+separator.
 
 Admins can **create, update, and clear** a locale **format profile**
 (`RXLOCALEFORMAT`: date/number/currency/text direction and related fields)
@@ -140,6 +149,22 @@ Admins can also **view and replace** the singleton **auto-translation** set
 5. HTTP 400, 403, and 409 do not show **Locale date-time pattern saved**
    and do not replace the previous pattern.
 
+## Product path — set a decimal separator
+
+1. Open an existing locale. The committed decimal separator is shown under
+   **Set locale decimal separator**.
+2. Click **Set locale decimal separator**, edit the text, and click **Save
+   decimal separator**. The request is `PUT /services/locales/{idOrLang}`
+   with `format.decimalSep` only. Reload shows that separator. The language
+   string, label, description, enabled status, date/time patterns, grouping
+   separator, and other format fields are unchanged.
+3. A blank decimal separator clears the stored decimal separator. The same
+   separator is not written.
+4. Click **Cancel** before save to keep the previous separator. Cancel does
+   not call the server.
+5. HTTP 400, 403, and 409 do not show **Locale decimal separator saved**
+   and do not replace the previous separator.
+
 ## Product path — create, save, delete
 
 1. Sign in as **Admin** (write calls require the Admin role).
@@ -211,6 +236,7 @@ The chrome calls:
 | Set date pattern | `PUT /services/locales/{idOrLang}` (`format.datePattern` only; a blank value clears; language, label, description, enabled status, and other format fields are omitted and stay) |
 | Set time pattern | `PUT /services/locales/{idOrLang}` (`format.timePattern` only; a blank value clears; language, label, description, enabled status, and other format fields are omitted and stay) |
 | Set date-time pattern | `PUT /services/locales/{idOrLang}` (`format.dateTimePattern` only; a blank value clears; language, label, description, enabled status, and other format fields are omitted and stay) |
+| Set decimal separator | `PUT /services/locales/{idOrLang}` (`format.decimalSep` only; a blank value clears; language, label, description, enabled status, date/time patterns, grouping separator, and other format fields are omitted and stay) |
 | Delete | `DELETE /services/locales/{idOrLang}` (`204` on success) |
 | Auto-translation list | `GET /services/locales/auto-translations` |
 | Auto-translation replace | `PUT /services/locales/auto-translations` (empty `[]` clears) |
