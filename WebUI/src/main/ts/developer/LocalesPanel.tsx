@@ -206,7 +206,15 @@ export function LocalesPanel(): React.ReactElement {
                     {loc.languageString || "—"}
                   </span>
                 ),
-                loc.label || "—",
+                <span
+                  key="l"
+                  data-testid="developer-loc-catalog-label"
+                  data-loc-lang={loc.languageString || openKey || ""}
+                  data-loc-label={loc.label || ""}
+                  style={mutedCell}
+                >
+                  {loc.label || "—"}
+                </span>,
                 loc.status || "—",
                 loc.baseLocale == null
                   ? "—"

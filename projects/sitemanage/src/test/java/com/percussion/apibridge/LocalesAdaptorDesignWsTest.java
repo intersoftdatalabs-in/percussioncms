@@ -462,6 +462,60 @@ class LocalesAdaptorDesignWsTest {
   }
 
   @Test
+  void updateLocale_labelOnlyLeavesDescriptionStatusAndFormat() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    loc.setDescription("US English");
+    loc.setStatus(PSLocale.STATUS_ACTIVE);
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor = allowAdmin(designWs, saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    body.setLabel("US English");
+    LocaleDetail out = adaptor.updateLocale(null, "en-us", body);
+
+    assertNotNull(out);
+    assertEquals("US English", loc.getDisplayName());
+    assertEquals("US English", loc.getDescription());
+    assertEquals(PSLocale.STATUS_ACTIVE, loc.getStatus());
+    assertTrue(saved.isEmpty());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void applyWritableFields_omittedAndBlankLabelLeaveExisting() {
+    PSLocale loc = newLocale(9, "en-us", "English");
+    loc.setDescription("US English");
+    loc.setStatus(PSLocale.STATUS_ACTIVE);
+    LocaleDetail omitted = new LocaleDetail();
+    LocalesAdaptor.applyWritableFields(loc, omitted, true);
+    assertEquals("English", loc.getDisplayName());
+    assertEquals("US English", loc.getDescription());
+    assertEquals(PSLocale.STATUS_ACTIVE, loc.getStatus());
+
+    LocaleDetail blank = new LocaleDetail();
+    blank.setLabel("   ");
+    LocalesAdaptor.applyWritableFields(loc, blank, true);
+    assertEquals("English", loc.getDisplayName());
+
+    LocaleDetail next = new LocaleDetail();
+    next.setLabel("US English");
+    LocalesAdaptor.applyWritableFields(loc, next, true);
+    assertEquals("US English", loc.getDisplayName());
+    assertEquals("US English", loc.getDescription());
+  }
+
+  @Test
   void updateLocale_invalidFormatPattern_throwsBeforeSave() throws Exception {
     IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
     IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);

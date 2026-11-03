@@ -1,7 +1,7 @@
 ---
 id: admin-developer-locales
 title: Developer Locales
-description: Create, save, and delete CMS locales, set a description, edit format profiles, and edit the auto-translation set from Developer Locales chrome
+description: Create, save, and delete CMS locales, set a label or description, edit format profiles, and edit the auto-translation set from Developer Locales chrome
 version: "8.2"
 order: 43
 tags: [admin, developer, locales]
@@ -13,6 +13,13 @@ tags: [admin, developer, locales]
 status, base-locale flag, and whether an exact format profile exists). Admins
 can **create**, **save**, and **delete** a locale from this chrome. The
 language string is required on create and **cannot be renamed** later.
+
+**Set locale label** on an existing locale saves the label only. The
+update does not send the language string, description, enabled status, or
+format profile, so those stay. The language string is immutable. The new
+label shows only after that save succeeds. A blank or whitespace label
+does not write. **Cancel** does not write. HTTP 400, 403, and 409 are not
+success and leave the previous label.
 
 **Set locale description** on an existing locale saves the description only.
 The update does not send the language string, label, enabled status, or
@@ -29,6 +36,21 @@ profile** and **Save**.
 
 Admins can also **view and replace** the singleton **auto-translation** set
 (locale × content-type rows, plus workflow and community) from this chrome.
+
+## Product path — set a label
+
+1. Open an existing locale. The committed label is shown under **Set
+   locale label**.
+2. Click **Set locale label**, edit the text, and click **Save label**.
+   The request is `PUT /services/locales/{idOrLang}` with `label` only.
+   Reload shows that label. The language string, description, enabled
+   status, and format profile are unchanged.
+3. A blank or whitespace label is not written. The same label is not
+   written.
+4. Click **Cancel** before save to keep the previous label. Cancel does
+   not call the server.
+5. HTTP 400, 403, and 409 do not show **Locale label saved** and do not
+   replace the previous label.
 
 ## Product path — set a description
 
@@ -111,6 +133,7 @@ The chrome calls:
 | Load | `GET /services/locales/{idOrLang}` |
 | Create | `POST /services/locales` (`languageString` and `label` required) |
 | Save | `PUT /services/locales/{idOrLang}` (language immutable; optional `format` / `hasFormatProfile`) |
+| Set label | `PUT /services/locales/{idOrLang}` (`label` only; a blank or whitespace value is not a write; language, description, enabled status, and format are omitted and stay) |
 | Set description | `PUT /services/locales/{idOrLang}` (`description` only; a blank value clears; language, label, enabled status, and format are omitted and stay) |
 | Delete | `DELETE /services/locales/{idOrLang}` (`204` on success) |
 | Auto-translation list | `GET /services/locales/auto-translations` |

@@ -39,7 +39,9 @@ public interface ILocalesAdaptor {
   LocaleDetail createLocale(URI baseUri, LocaleDetail body);
 
   /**
-   * Update an existing locale by language string or numeric id. Language string is immutable.
+   * Update an existing locale by language string or numeric id. Language string is immutable. A
+   * label-only body updates the label; omitted description, status, baseLocale, and format stay. A
+   * blank or whitespace label is not a write.
    *
    * @return detail, or {@code null} when not found / unsafe key
    */
