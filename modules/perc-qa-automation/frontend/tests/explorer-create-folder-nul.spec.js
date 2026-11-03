@@ -16,10 +16,12 @@
  */
 
 /**
- * Playwright surface: #5479 / parent #4530 — Explorer Create Folder refuses
- * a NUL (U+0000) on {@code spa.jsp?entry=explorer} without
- * {@code rxFolderMutations=1}. The create request is not sent. A normal
- * name still creates only after HTTP 200.
+ * Playwright surface: #5479 / parent #4530 / residual #5507 — Explorer
+ * Create Folder refuses a NUL (U+0000) on {@code spa.jsp?entry=explorer}
+ * without {@code rxFolderMutations=1}. The create request is not sent. A
+ * normal name still creates only after HTTP 200 (the success wait must
+ * match that name so a prior mocked 409 cannot be observed as the
+ * create).
  *
  * <p>Peer: {@code tests/explorer-create-folder.spec.js}.</p>
  *
@@ -46,6 +48,8 @@ const {
   isFoldersCreateUrl,
   isRxContentExplorerFoldersUrl,
   isCreateFolderSuccessStatus,
+  uniqueQaFolderName,
+  isCreateFolderMutationForName,
   unwrapCreatedPathItem,
   treeRootLocator,
   sitesTreeRootLocator,
@@ -128,7 +132,6 @@ test.describe("Explorer create folder refuses a NUL (#5479)", () => {
         }
       });
 
-      const folderName = `qa5479_${Date.now()}`;
       /** @type {object | null} */
       let createdItem = null;
 
@@ -183,26 +186,30 @@ test.describe("Explorer create folder refuses a NUL (#5479)", () => {
         await createBtn.click();
         expect(createPosts, "empty or cancel must not POST").toBe(postsBeforeUi);
 
+        const createFolderRoute =
+          /\/(?:rest\/folders\/create|pathmanagement\/path\/addNewFolder)/i;
         let forcedStatus = 0;
-        await page.route(
-          /\/(?:rest\/folders\/create|pathmanagement\/path\/addNewFolder)/i,
-          async (route) => {
-            if (forcedStatus) {
-              await route.fulfill({
-                status: forcedStatus,
-                contentType: "text/plain",
-                body: "no",
-              });
-              return;
-            }
+        await page.route(createFolderRoute, async (route) => {
+          const method = route.request().method();
+          if (method === "OPTIONS") {
             await route.continue();
-          },
-        );
+            return;
+          }
+          if (forcedStatus) {
+            await route.fulfill({
+              status: forcedStatus,
+              contentType: "text/plain",
+              body: "no",
+            });
+            return;
+          }
+          await route.continue();
+        });
 
         for (const status of [400, 403, 409]) {
           forcedStatus = status;
           const before = createPosts;
-          const failName = `${folderName}x${status}`;
+          const failName = uniqueQaFolderName(`qa5479x${status}`);
           await installPromptQueue(page, [failName]);
           await createBtn.click();
           await expect(
@@ -216,24 +223,35 @@ test.describe("Explorer create folder refuses a NUL (#5479)", () => {
           await expect(list.getByText(failName, { exact: true })).toHaveCount(0);
         }
 
+        // Leave the route in place with forcedStatus=0 (peer:
+        // explorer-folder-rename-nul) so a regex-identity unroute miss
+        // cannot keep fulfilling HTTP 409 into the success wait (#5507).
         forcedStatus = 0;
-        await page.unroute(
-          /\/(?:rest\/folders\/create|pathmanagement\/path\/addNewFolder)/i,
-        );
+        await page.unroute(createFolderRoute);
+        await parentNode.click({ force: true });
+        await expect(createBtn).toBeEnabled({ timeout: 10_000 });
+        const folderName = uniqueQaFolderName("qa5479");
         await installPromptQueue(page, [folderName]);
         const createRespPromise = page.waitForResponse(
-          (res) =>
-            isFoldersCreateUrl(res.url()) &&
-            res.request().method() !== "OPTIONS",
+          (res) => isCreateFolderMutationForName(res, folderName),
           { timeout: 30_000 },
         );
         await createBtn.click();
         const createResp = await createRespPromise;
+        const createBody = await createResp.text();
         expect(
           isCreateFolderSuccessStatus(createResp.status()),
-          `POST /folders/create expected 200, got ${createResp.status()}`,
+          `POST /folders/create expected 200, got ${createResp.status()} ${createResp.url()} body=${createBody.slice(0, 240)}`,
         ).toBeTruthy();
-        createdItem = unwrapCreatedPathItem(await createResp.json());
+        createdItem = unwrapCreatedPathItem(
+          (() => {
+            try {
+              return JSON.parse(createBody);
+            } catch {
+              return {};
+            }
+          })(),
+        );
         await expect(list.getByText(folderName, { exact: true })).toBeVisible({
           timeout: 20_000,
         });
