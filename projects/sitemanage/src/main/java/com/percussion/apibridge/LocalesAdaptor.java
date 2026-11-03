@@ -480,7 +480,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * {@code format} (omitted {@code hasFormatProfile}, other format fields null) updates
    * {@code datePattern} and leaves the rest of the row. A time-pattern-only {@code format}
    * updates {@code timePattern} the same way. A date-time-pattern-only {@code format}
-   * updates {@code dateTimePattern} the same way.
+   * updates {@code dateTimePattern} the same way. A decimal-separator-only {@code format}
+   * updates {@code decimalSep} the same way.
    */
   void persistFormatIfRequested(String language, LocaleDetail body) {
     if (body == null || language == null) {
@@ -507,6 +508,10 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     if (isDateTimePatternOnlyWrite(body)) {
       persistDateTimePatternOnly(language, src);
+      return;
+    }
+    if (isDecimalSepOnlyWrite(body)) {
+      persistDecimalSepOnly(language, src);
       return;
     }
     PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
@@ -547,6 +552,18 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
     row.setDateTimePattern(next);
+    row.setLanguageString(language);
+    formatSaver.accept(row);
+  }
+
+  private void persistDecimalSepOnly(String language, LocaleFormatSummary src) {
+    Optional<PSLocaleFormat> existing = formatByLang.apply(language);
+    String next = src == null ? null : src.getDecimalSep();
+    if (existing.isEmpty() && StringUtils.isBlank(next)) {
+      return;
+    }
+    PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
+    row.setDecimalSep(next);
     row.setLanguageString(language);
     formatSaver.accept(row);
   }
@@ -622,6 +639,33 @@ public class LocalesAdaptor implements ILocalesAdaptor {
         && src.getDatePattern() == null
         && src.getTimePattern() == null
         && src.getDecimalSep() == null
+        && src.getGroupingSep() == null
+        && src.getCurrencyCode() == null
+        && src.getCurrencyPattern() == null
+        && src.getFirstDayOfWeek() == null
+        && src.getMeasurementSystem() == null
+        && src.getDefaultTz() == null
+        && src.getNumberingSystem() == null
+        && src.getCalendar() == null;
+  }
+
+  /**
+   * True when PUT {@code format} carries {@code decimalSep} (including blank to clear) and omits
+   * {@code hasFormatProfile} plus every other format field. Language on the format object is
+   * ignored.
+   */
+  static boolean isDecimalSepOnlyWrite(LocaleDetail body) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+      return false;
+    }
+    LocaleFormatSummary src = body.getFormat();
+    if (src.getDecimalSep() == null) {
+      return false;
+    }
+    return src.getTextDir() == null
+        && src.getDatePattern() == null
+        && src.getTimePattern() == null
+        && src.getDateTimePattern() == null
         && src.getGroupingSep() == null
         && src.getCurrencyCode() == null
         && src.getCurrencyPattern() == null
