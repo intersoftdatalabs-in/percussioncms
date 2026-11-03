@@ -57,6 +57,39 @@ describe("DateFieldWidget", () => {
     expect(onChange).toHaveBeenCalledWith("2026-09-18 14:30:00");
   });
 
+  it("passes a datetime NUL through so Save can refuse it before PUT", () => {
+    const onChange = vi.fn();
+    render(
+      <DateFieldWidget
+        name="event_at"
+        value="2026-01-01 09:00:00"
+        kind="datetime"
+        readOnly={false}
+        onChange={onChange}
+      />,
+    );
+    const input = screen.getByTestId("editor-field-event_at") as HTMLInputElement;
+    input.type = "text";
+    fireEvent.change(input, { target: { value: "2026-09-18T14:30\u0000" } });
+    expect(onChange).toHaveBeenCalledWith("2026-09-18T14:30\u0000");
+    expect(String(onChange.mock.calls[0][0])).toContain("\u0000");
+  });
+
+  it("marks a datetime CMS draft that contains a NUL", () => {
+    render(
+      <DateFieldWidget
+        name="event_at"
+        value={"2026-01-01 09:00:00\u0000"}
+        kind="datetime"
+        readOnly={false}
+        onChange={vi.fn()}
+      />,
+    );
+    expect(screen.getByTestId("editor-field-event_at").getAttribute("data-editor-has-nul")).toBe(
+      "true",
+    );
+  });
+
   it("clears a date and a datetime and hides Clear date when empty or read-only", () => {
     const onChange = vi.fn();
     const view = render(

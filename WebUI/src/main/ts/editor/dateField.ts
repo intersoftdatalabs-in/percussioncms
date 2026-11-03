@@ -67,6 +67,33 @@ export function isInvalidEditorDate(
 }
 
 /**
+ * A NUL cannot be stored in item field XML / JDBC text (#5526).
+ * Date-only NUL stays in slice 99. Required-blank datetime stays in the
+ * required-field gate. Unparseable calendars stay in
+ * {@link isInvalidEditorDate}.
+ */
+export function datetimeContainsNul(value: string): boolean {
+  return (value ?? "").includes("\u0000");
+}
+
+/** NUL only. Date kind and empty required datetime are not this check. */
+export function collectDatetimeNulFieldErrors(
+  rows: readonly { name: string; kind: string; value: string }[],
+  invalidMessage: string,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const row of rows) {
+    if (row.kind !== "datetime") {
+      continue;
+    }
+    if (datetimeContainsNul(row.value)) {
+      out[row.name] = invalidMessage;
+    }
+  }
+  return out;
+}
+
+/**
  * Widget value: {@code yyyy-MM-dd} or {@code yyyy-MM-ddTHH:mm}.
  * Unparseable input yields empty (native date inputs cannot display it).
  */

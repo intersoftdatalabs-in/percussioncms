@@ -1,0 +1,348 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * React Content Editor refuses a datetime field NUL on save (#5526 / #4532).
+ *
+ * <p>The client gate in {@code dateField.ts} runs before the invalid-calendar
+ * check. Native {@code datetime-local} cannot hold U+0000, so the spec
+ * calls the React {@code onChange} handler with a CMS draft that contains
+ * NUL. The widget then sets {@code data-editor-has-nul}.</p>
+ *
+ * <p>Peer: {@code tests/editor-host-datetime-required-blank.spec.js}.
+ * Required-blank datetime stays in that spec. Date-only NUL is slice 99.</p>
+ *
+ * <p>Tags: {@code @explorer-content-editor} {@code @editor} {@code @datetime}</p>
+ *
+ * <p>Run (QA mode after {@code perc-devctl qa-up}):
+ * {@code npm run test:surface -- --path tests/editor-host-datetime-nul.spec.js}</p>
+ */
+
+const { test, expect } = require("@playwright/test");
+const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
+const { editorSpaUrl } = require("./helpers/editor-host-link-fields");
+
+const PREVIOUS = "2026-01-01 09:00:00";
+const PREVIOUS_WIDGET = "2026-01-01T09:00";
+const NEXT_WIDGET = "2026-09-18T14:30";
+const NEXT_CMS = "2026-09-18 14:30:00";
+const NUL_WIDGET = `2026-09-18T14:30${String.fromCharCode(0)}`;
+
+const TYPE = {
+  ContentTypeDetail: {
+    name: "percEvent",
+    fields: [
+      {
+        name: "event_at",
+        label: "Event at",
+        control: "sys_CalendarSimple",
+        dataType: "datetime",
+      },
+    ],
+  },
+};
+
+const REQUIRED_TYPE = {
+  ContentTypeDetail: {
+    name: "percEvent",
+    fields: [
+      {
+        name: "event_at",
+        label: "Event at",
+        control: "sys_CalendarSimple",
+        dataType: "datetime",
+        required: true,
+      },
+    ],
+  },
+};
+
+function fieldsPayload(eventAt) {
+  return {
+    ItemEditorFields: {
+      contentId: "42",
+      contentType: "percEvent",
+      name: "Event",
+      checkoutUser: "admin",
+      revision: 2,
+      fields: [{ name: "event_at", value: eventAt }],
+    },
+  };
+}
+
+/**
+ * Controlled datetime update, including U+0000. Code points cross the
+ * Playwright bridge as numbers so a NUL is not dropped by JSON transport.
+ *
+ * @param {import("@playwright/test").Locator} locator
+ * @param {string} value
+ */
+async function setDatetimeValue(locator, value) {
+  const codes = Array.from(value, (ch) => ch.codePointAt(0));
+  await locator.evaluate((el, payload) => {
+    const next = String.fromCodePoint(...payload);
+    const propsKey = Object.keys(el).find((k) => k.startsWith("__reactProps$"));
+    if (!propsKey) {
+      throw new Error("react props missing");
+    }
+    const props = el[propsKey];
+    if (typeof props.onChange !== "function") {
+      throw new Error("react onChange missing");
+    }
+    // Native datetime-local drops U+0000. Call the React handler with the
+    // CMS draft so the client gate can refuse it.
+    props.onChange({ target: { value: next }, currentTarget: { value: next } });
+  }, codes);
+}
+
+/**
+ * Native datetime-local drops U+0000 from {@code value} after React
+ * re-renders. The widget sets {@code data-editor-has-nul} from the CMS draft.
+ *
+ * @param {import("@playwright/test").Locator} locator
+ * @returns {Promise<boolean>}
+ */
+async function draftHasNul(locator) {
+  return locator.evaluate((el) => el.getAttribute("data-editor-has-nul") === "true");
+}
+
+test.describe("React Content Editor datetime NUL", () => {
+  test.beforeEach(async ({ page }) => {
+    test.setTimeout(90_000);
+    await loginAsAdmin(page);
+  });
+
+  test(
+    "refuses a datetime NUL, keeps the previous date and time, still saves a valid datetime, and leaves required-blank unchanged",
+    { tag: ["@explorer-content-editor", "@editor", "@datetime"] },
+    async ({ page }) => {
+      const fieldPuts = [];
+      const pageErrors = [];
+      let eventAt = PREVIOUS;
+      let rejectNext = 0;
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() !== "error") {
+          return;
+        }
+        const text = msg.text();
+        if (/Failed to load resource/.test(text)) {
+          return;
+        }
+        pageErrors.push(text);
+      });
+      await page.route("**/sys_resources/**", (route) =>
+        route.fulfill({ status: 404, body: "" }),
+      );
+      await page.route("**/services/**", (route) =>
+        route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/**", (route) =>
+        route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/editor/items/**/checkout", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/editor/items/**/checkin", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemStateTransition: {
+              itemId: "42",
+              stateName: "Draft",
+              transitionTriggers: [],
+            },
+          }),
+        }),
+      );
+      await page.route("**/rest/content-explorer/translations/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            itemId: 42,
+            locale: "en-us",
+            variants: [{ contentId: 42, locale: "en-us", role: "source" }],
+          }),
+        }),
+      );
+      await page.route("**/services/contenttypes/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(TYPE),
+        }),
+      );
+      await page.route("**/services/itemmanagement/item/fields/**", async (route) => {
+        if (route.request().method() === "PUT") {
+          const raw = route.request().postData() || "";
+          fieldPuts.push(raw);
+          if (rejectNext > 0) {
+            const status = rejectNext;
+            rejectNext = 0;
+            await route.fulfill({
+              status,
+              contentType: "application/json",
+              body: JSON.stringify({ Error: { message: "rejected" } }),
+            });
+            return;
+          }
+          const body = JSON.parse(raw);
+          const payload = body.ItemEditorFields || body;
+          const nextAt = (payload.fields || []).find((f) => f.name === "event_at");
+          if (nextAt) {
+            eventAt = nextAt.value;
+          }
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ItemEditorFields: {
+                contentId: "42",
+                contentType: "percEvent",
+                name: "Event",
+                checkoutUser: "admin",
+                revision: 3,
+                fields: payload.fields,
+              },
+            }),
+          });
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(fieldsPayload(eventAt)),
+        });
+      });
+
+      const field = () => page.locator('[data-testid="editor-field-event_at"]');
+      const fieldError = () => page.locator('[data-testid="editor-field-error-event_at"]');
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(field()).toHaveAttribute("data-editor-kind", "datetime", {
+        timeout: 20_000,
+      });
+      await expect(field()).toHaveValue(PREVIOUS_WIDGET);
+
+      await setDatetimeValue(field(), NUL_WIDGET);
+      await expect.poll(() => draftHasNul(field())).toBe(true);
+      let dismissed = false;
+      page.once("dialog", async (dialog) => {
+        dismissed = true;
+        await dialog.dismiss();
+      });
+      await page.locator('[data-testid="editor-close"]').click();
+      await expect.poll(() => dismissed).toBe(true);
+      expect(fieldPuts).toEqual([]);
+      await expect.poll(() => draftHasNul(field())).toBe(true);
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(field()).toHaveValue(PREVIOUS_WIDGET, { timeout: 20_000 });
+      await setDatetimeValue(field(), NUL_WIDGET);
+      await expect.poll(() => draftHasNul(field())).toBe(true);
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect(fieldError()).toContainText(/character that cannot be saved/i);
+      await expect(fieldError()).not.toContainText(/required/i);
+      await expect(fieldError()).not.toContainText(/valid date/i);
+      await expect(page.locator('[data-testid="editor-save-error"]')).toContainText(
+        /date and time fields before saving/i,
+      );
+      await expect(field()).toHaveAttribute("aria-invalid", "true");
+      expect(fieldPuts).toEqual([]);
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(field()).toHaveValue(PREVIOUS_WIDGET, { timeout: 20_000 });
+      await field().fill(NEXT_WIDGET);
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect.poll(() => fieldPuts.length).toBe(1);
+      expect(fieldPuts[0]).toMatch(
+        /"name"\s*:\s*"event_at"\s*,\s*"value"\s*:\s*"2026-09-18 14:30:00"/,
+      );
+      expect(fieldPuts[0].includes("\u0000")).toBe(false);
+      expect(eventAt).toBe(NEXT_CMS);
+      await expect(page.locator('[data-testid="editor-saved"]')).toBeVisible();
+      await expect(field()).toHaveValue(NEXT_WIDGET);
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(field()).toHaveValue(NEXT_WIDGET, { timeout: 20_000 });
+      rejectNext = 400;
+      await field().fill(PREVIOUS_WIDGET);
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect.poll(() => fieldPuts.length).toBe(2);
+      await expect(fieldError()).toContainText(/could not be saved/i);
+      await expect(page.locator('[data-testid="editor-save-error"]')).toBeVisible();
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(field()).toHaveValue(NEXT_WIDGET, { timeout: 20_000 });
+      rejectNext = 403;
+      await field().fill(PREVIOUS_WIDGET);
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect.poll(() => fieldPuts.length).toBe(3);
+      await expect(fieldError()).toContainText(/not allowed/i);
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(field()).toHaveValue(NEXT_WIDGET, { timeout: 20_000 });
+      rejectNext = 409;
+      await field().fill(PREVIOUS_WIDGET);
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect.poll(() => fieldPuts.length).toBe(4);
+      await expect(page.locator('[data-testid="editor-save-error"]')).toBeVisible();
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+
+      await page.unroute("**/services/contenttypes/**");
+      await page.route("**/services/contenttypes/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(REQUIRED_TYPE),
+        }),
+      );
+      eventAt = PREVIOUS;
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(field()).toHaveValue(PREVIOUS_WIDGET, { timeout: 20_000 });
+      await expect(page.locator('[data-testid="editor-field-row-event_at"]')).toHaveAttribute(
+        "data-required",
+        "true",
+      );
+      const putsBeforeRequired = fieldPuts.length;
+      await field().fill("");
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect(fieldError()).toContainText(/required/i);
+      await expect(fieldError()).not.toContainText(/character that cannot be saved/i);
+      expect(fieldPuts.length).toBe(putsBeforeRequired);
+      await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="editor-host"]',
+        exclude: ['[data-testid="translations-panel"]'],
+      });
+    },
+  );
+});
