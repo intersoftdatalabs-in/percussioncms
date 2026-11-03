@@ -27,7 +27,6 @@
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("../helpers/auth");
 
-const FOLDER = "/night-local";
 const UPDATED_SUFFIX = "Rn";
 
 function serverPut(url, method) {
@@ -101,10 +100,6 @@ async function addLocalServer(page, name) {
   await page.getByTestId("publish-add-server").click();
   await expect(page.getByTestId("publish-server-editor")).toBeVisible();
   await page.locator("#serverName").fill(name);
-  const folder = page.locator("#drv-folder");
-  if (await folder.count()) {
-    await folder.fill(FOLDER);
-  }
   await saveServer(page);
 }
 
@@ -195,7 +190,7 @@ test.describe("PublishingShell Sites delivery-server rename", () => {
     expect(postedBody).not.toContain("password");
     expect(postedBody).not.toContain("driver");
     expect(postedBody).not.toContain("isDefault");
-    expect(postedBody).not.toContain(FOLDER);
+    expect(postedBody).not.toContain("folder");
     await expect(page.getByTestId("delivery-server-rename-current")).toHaveText(
       originalName,
     );
