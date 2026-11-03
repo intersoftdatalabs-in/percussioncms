@@ -294,6 +294,24 @@ previous host. The new host is shown only after a successful save.
 **Set host** on a Local or FTP server does not change that server's folder or FTP host. Database
 port and user-id saves and full server edit (**Edit Server**) stay separate.
 
+### Set a database delivery-server port (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **MYSQL**, **MSSQL**, or **Oracle**. **Set port** edits only the database port. **Save
+port** sends `PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `port`
+property. Host, user id, database name (or Oracle SID), server name, driver, and default flag
+stay as they were. The password is not shown and is not sent again.
+
+A blank port is refused on the form (**Database port is required**) and is not written. A port
+that is not only digits is refused (**Database port must contain only digits**) and is not
+written. **Cancel** does not call the server and keeps the previous port. HTTP **400**,
+**403**, and **409** stay on the form and keep the previous port. The new port is shown only
+after a successful save.
+
+**FTP**, **FTPS**, **SFTP**, Amazon S3, and a **Local** driver do not use this save. Choosing
+**Set port** on a Local or FTP server does not change that server's folder or FTP port. Database
+host and user-id saves and full server edit (**Edit Server**) stay separate.
+
 ### Set the FTP delivery-server port (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose

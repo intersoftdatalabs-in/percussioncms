@@ -389,10 +389,11 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSDatabaseDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
         return updateDatabaseHostOnly(siteId, serverId, pubServerInfo);
       }
-      // Port-only FTP PUT must not run the full property replace (that clears host, user,
-      // folder, and password) and must not decode a password that is not in the body.
-      if (PSFtpDeliveryPortUpdate.isPortOnly(pubServerInfo)) {
-        return updateFtpPortOnly(siteId, serverId, pubServerInfo);
+      // Port-only PUT must not run the full property replace. FTP and database share this
+      // body shape; the stored driver selects FTP vs database apply.
+      if (PSFtpDeliveryPortUpdate.isPortOnly(pubServerInfo)
+          || PSDatabaseDeliveryPortUpdate.isPortOnly(pubServerInfo)) {
+        return updateDeliveryPortOnly(siteId, serverId, pubServerInfo);
       }
       // User-id-only FTP PUT must not run the full property replace (that clears host,
       // port, folder, and password) and must not decode a password that is not in the body.
@@ -653,10 +654,11 @@ public class PSPubServerService implements IPSPubServerService {
   }
 
   /**
-   * Save only the FTP {@code port} property. Does not rename the server or replace the property
-   * set. Blank, non-numeric, overlong, and non-FTP drivers throw before {@code savePubServer}.
+   * Save only the {@code port} property. Does not rename the server or replace the property set.
+   * Database drivers use {@link PSDatabaseDeliveryPortUpdate}; other drivers use {@link
+   * PSFtpDeliveryPortUpdate} (FTP-only; Local/FTPS/SFTP throw before {@code savePubServer}).
    */
-  private PSPublishServerInfo updateFtpPortOnly(
+  private PSPublishServerInfo updateDeliveryPortOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
       throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
     IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
@@ -671,7 +673,12 @@ public class PSPubServerService implements IPSPubServerService {
       throw new PSPubServerServiceException(
           "The server you are trying to act on no longer exists in the system.");
     }
-    PSFtpDeliveryPortUpdate.apply(server, pubServerInfo);
+    String driver = server.getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("");
+    if (PSDatabaseDeliveryHostUpdate.isDatabaseDeliveryDriver(driver)) {
+      PSDatabaseDeliveryPortUpdate.apply(server, pubServerInfo);
+    } else {
+      PSFtpDeliveryPortUpdate.apply(server, pubServerInfo);
+    }
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
