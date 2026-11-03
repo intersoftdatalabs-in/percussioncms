@@ -23,6 +23,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import com.percussion.pubserver.data.PSPublishServerInfo;
 import com.percussion.pubserver.data.PSPublishServerProperty;
 import com.percussion.services.pubserver.data.PSPubServer;
+import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.share.service.exception.PSValidationException;
 import java.util.List;
 
@@ -77,6 +78,17 @@ public final class PSDeliveryServerDefaultUpdate {
     return server != null
         && currentDefault != null
         && currentDefault.getServerId() == server.getServerId();
+  }
+
+  /**
+   * Store only the site default id. Does not change either server's publish type, properties, or
+   * editions.
+   */
+  public static void apply(IPSSite site, PSPubServer server) {
+    if (site == null || server == null) {
+      throw new IllegalArgumentException("site and server are required");
+    }
+    site.setDefaultPubServer(server.getServerId());
   }
 
   private static void reject(String message) throws PSValidationException {

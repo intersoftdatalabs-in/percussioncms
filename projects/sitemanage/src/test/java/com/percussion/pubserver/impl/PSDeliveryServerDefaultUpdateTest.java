@@ -21,11 +21,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import com.percussion.pubserver.data.PSPublishServerInfo;
 import com.percussion.pubserver.data.PSPublishServerProperty;
 import com.percussion.services.pubserver.IPSPubServerDao;
 import com.percussion.services.pubserver.data.PSPubServer;
+import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.share.service.exception.PSValidationException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -91,6 +94,23 @@ class PSDeliveryServerDefaultUpdateTest {
     assertEquals("stage", server.getName());
     assertEquals("Local", value(server, IPSPubServerDao.PUBLISH_DRIVER_PROPERTY));
     assertEquals("/kept/local", value(server, IPSPubServerDao.PUBLISH_FOLDER_PROPERTY));
+  }
+
+  @Test
+  void applyStoresSiteDefaultIdAndLeavesPublishTypes() {
+    IPSSite site = mock(IPSSite.class);
+    PSPubServer previous = namedServer(3L, "prod");
+    previous.setPublishType("filesystem");
+    PSPubServer selected = namedServer(9L, "stage");
+    selected.setPublishType("filesystem_only");
+    PSDeliveryServerDefaultUpdate.apply(site, selected);
+    verify(site).setDefaultPubServer(9L);
+    assertEquals("filesystem", previous.getPublishType());
+    assertEquals("filesystem_only", selected.getPublishType());
+    assertThrows(
+        IllegalArgumentException.class, () -> PSDeliveryServerDefaultUpdate.apply(null, selected));
+    assertThrows(
+        IllegalArgumentException.class, () -> PSDeliveryServerDefaultUpdate.apply(site, null));
   }
 
   private static PSPubServer namedServer(long id, String name) {

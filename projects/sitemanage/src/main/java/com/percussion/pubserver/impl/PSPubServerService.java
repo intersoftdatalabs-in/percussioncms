@@ -551,7 +551,8 @@ public class PSPubServerService implements IPSPubServerService {
   /**
    * Mark only the delivery-server default flag. Does not replace properties, change the name,
    * driver, or type, or decode a password. {@code isDefault} must be true. A server that is already
-   * the site default is not a write. The previous default is cleared after a successful save.
+   * the site default is not a write. The previous default loses the GET/list badge after a
+   * successful save. Publish types, editions, and the incremental queue are not rewritten.
    */
   private PSPublishServerInfo updateDefaultOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
@@ -575,18 +576,11 @@ public class PSPubServerService implements IPSPubServerService {
     }
     // Flag-only: store the site default id. Do not run setPublishServerAsDefault
     // (that walks every full edition and NPEs when an edition has no pub server,
-    // and it also rewrites the site root from this server's folder).
+    // and it also rewrites the site root from this server's folder). Do not demote
+    // the previous default's publish type / editions without promoting this server.
     IPSSite siteMod = siteMgr.loadSiteModifiable(site.getGUID());
-    siteMod.setDefaultPubServer(server.getServerId());
+    PSDeliveryServerDefaultUpdate.apply(siteMod, server);
     siteMgr.saveSite(siteMod);
-    boolean clearIncrementalQueue = false;
-    if (currentDefaultServer != null) {
-      clearIncrementalQueue =
-          updatePreviousDefaultPubServer(currentDefaultServer, server, siteMod, true);
-    }
-    if (clearIncrementalQueue) {
-      clearLiveIncrementalQueue(siteMod);
-    }
     IPSSite refreshedSite = siteMgr.findSite(getSiteGuid(siteId));
     return toPSPublishServerInfo(server, refreshedSite == null ? siteMod : refreshedSite, true);
   }

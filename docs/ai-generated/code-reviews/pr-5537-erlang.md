@@ -1,4 +1,4 @@
-# Erlang review — PR #5537 (issue #5503 delivery-server default)
+# Erlang review — PR #5537 (issue #5503 delivery-server default) re-review
 
 Command:
 
@@ -8,20 +8,20 @@ mkd-code-review analyze --pack percussion --format markdown --gate advisory \
     --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
 ```
 
-Cwd: PR head `707195d184d35db19855e292c6a0a114d2e59b21` (`fix/issue-5503-delivery-server-default`).
-CLI: mkd-code-review 0.1.18. Reviewer did not author this PR.
+Cwd: PR branch `fix/issue-5503-delivery-server-default` after the demote-without-promote fix.
+CLI: mkd-code-review 0.1.18. Reviewer did not author the original feature commit.
 
 ## Summary
 
 Machine analysis found **3** finding(s), **0** bug(s).
 
-Independent review found **1 in-diff bug**. Gate: **BLOCK**.
+Independent review found **0 in-diff bugs**. Gate: **PASS**.
 
 ## Scope
 
 - Base: origin/main
 - Head: HEAD
-- Files: 12 analyzed
+- Files: 13 analyzed
 - In-diff: 1 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
@@ -30,19 +30,19 @@ Independent review found **1 in-diff bug**. Gate: **BLOCK**.
 
 ## Recommendation
 
-request-changes
+approve
 
 ## Gate
 
-- Blocking bugs: 1
-- May commit/push: no
-- May merge: no
+- Blocking bugs: 0
+- May commit/push: yes
+- May merge: yes (human merge; this agent does not merge)
 
 ## Issues
 
 ### Issue 1 -- Severity: bug
 
-- File: projects/sitemanage/src/main/java/com/percussion/pubserver/impl/PSPubServerService.java:1348 (preexisting)
+- File: projects/sitemanage/src/main/java/com/percussion/pubserver/impl/PSPubServerService.java:1342 (preexisting)
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
 - Description: Function `toPSPublishServerInfo` cognitive=38 (max 15), cyclomatic=32 (max 15)
@@ -73,18 +73,19 @@ Disposition: not a bug. Fixture password on a mocked delivery-server object so t
 
 Disposition: preexisting intercept wiring. Not a merge blocker.
 
-### Issue 4 -- Severity: bug (Erlang, in-diff)
+### Issue 4 -- Severity: bug (Erlang, prior in-diff) — FIXED
 
-- File: projects/sitemanage/src/main/java/com/percussion/pubserver/impl/PSPubServerService.java:583
+- File: projects/sitemanage/src/main/java/com/percussion/pubserver/impl/PSPubServerService.java:557 (`updateDefaultOnly`)
 - Rule: change-class / behavioral correctness
-- Description: `updateDefaultOnly` stores `site.defaultPubServer` then calls `updatePreviousDefaultPubServer(currentDefaultServer, server, siteMod, true)`. That helper demotes the **previous** default (`filesystem` → `filesystem_only`, edition rewrite, `savePubServer` on the old server) and does **not** promote the new default (`setPublishType(..., true)`, `setPublishServerAsDefault`, `updateServerEditions` for the selected server). After a successful flag-only PUT both servers can be `*_only` while full editions still follow the demoted previous server. The comment at 576–578 correctly refuses `setPublishServerAsDefault` (NPE + site-root rewrite). The remaining demote-without-promote is worse than a true flag-only write (`setDefaultPubServer` only), which is what the slice AC and product-docs describe (badge / `isDefault` only; name, driver, type, properties stay).
-- Suggestion: For this slice, drop the `updatePreviousDefaultPubServer` call and the incremental-queue side effect. Persist only `siteMod.setDefaultPubServer(server.getServerId())` so GET/list ★ follows the new id and no publish-type/edition rewrite runs. If full default-switch semantics are required, promote the new server as well (without the site-root rewrite / NPE walk) and add a service-level test that both servers' `publishType` and editions match the intended end state.
-- Status: open
-- Tests: `PSDeliveryServerDefaultUpdateTest` covers the helper only (`isDefaultOnly` / `validate` / `alreadyDefault`). Nothing asserts `updateDefaultOnly` does not demote the previous server's publish type. Playwright only checks the ★ badge.
+- Description: Previous `updateDefaultOnly` stored `site.defaultPubServer` then called `updatePreviousDefaultPubServer`, which demoted the previous default (`filesystem` → `filesystem_only`, edition rewrite, `savePubServer`) without promoting the new default.
+- Status: resolved
+- Mitigation: Dropped `updatePreviousDefaultPubServer` and the incremental-queue side effect. Persist is `PSDeliveryServerDefaultUpdate.apply` + `siteMgr.saveSite` only. Service-level `PSPubServerServiceDefaultOnlyTest` asserts previous `publishType` stays `filesystem`, selected stays `filesystem_only`, `savePubServer` / `updateServerEditions` / `setPublishServerAsDefault` / content-change queue are not called.
 
 ## Gate notes
 
-- CLI in-diff bugs: 0 (machine). Erlang in-diff bugs: 1 (blocking).
-- Companions present: helper unit test, Vitest, Playwright, product-docs. Missing: service-level test of the write path that actually mutates site default / previous publish type.
-- Non-portable paths: none
-- May merge: no
+- CLI in-diff bugs: 0 (machine). Erlang in-diff bugs: 0 (blocking).
+- Companions: helper unit test, service-level write-path test, Vitest, Playwright, product-docs.
+- Non-portable paths: none (test uses `Path.of("tmp", …)` only as a mocked `PathUtils.getRxDir` File).
+- May merge: yes (human)
+
+> Co-Authored by Grok Build 1.0.70 using grok-4.6 with agent night-issue-prs-erlang-fix.
