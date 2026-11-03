@@ -1,7 +1,7 @@
 ---
 id: admin-developer-locales
 title: Developer Locales
-description: Create, save, and delete CMS locales, edit format profiles, and edit the auto-translation set from Developer Locales chrome
+description: Create, save, and delete CMS locales, set a description, edit format profiles, and edit the auto-translation set from Developer Locales chrome
 version: "8.2"
 order: 43
 tags: [admin, developer, locales]
@@ -14,6 +14,13 @@ status, base-locale flag, and whether an exact format profile exists). Admins
 can **create**, **save**, and **delete** a locale from this chrome. The
 language string is required on create and **cannot be renamed** later.
 
+**Set locale description** on an existing locale saves the description only.
+The update does not send the language string, label, enabled status, or
+format profile, so those stay. The language string is immutable. The new
+description shows only after that save succeeds. A blank description
+clears the description. **Cancel** does not write. HTTP 400, 403, and 409
+are not success and leave the previous description.
+
 Admins can **create, update, and clear** a locale **format profile**
 (`RXLOCALEFORMAT`: date/number/currency/text direction and related fields)
 on the locale detail panel. Format save uses the same locale **Save** action
@@ -22,6 +29,21 @@ profile** and **Save**.
 
 Admins can also **view and replace** the singleton **auto-translation** set
 (locale × content-type rows, plus workflow and community) from this chrome.
+
+## Product path — set a description
+
+1. Open an existing locale. The committed description is shown under **Set
+   locale description**.
+2. Click **Set locale description**, edit the text, and click **Save
+   description**. The request is `PUT /services/locales/{idOrLang}` with
+   `description` only. Reload shows that description. The language string,
+   label, enabled status, and format profile are unchanged.
+3. A blank description clears the stored description. The same description is
+   not written.
+4. Click **Cancel** before save to keep the previous description. Cancel does
+   not call the server.
+5. HTTP 400, 403, and 409 do not show **Locale description saved** and do not
+   replace the previous description.
 
 ## Product path — create, save, delete
 
@@ -89,6 +111,7 @@ The chrome calls:
 | Load | `GET /services/locales/{idOrLang}` |
 | Create | `POST /services/locales` (`languageString` and `label` required) |
 | Save | `PUT /services/locales/{idOrLang}` (language immutable; optional `format` / `hasFormatProfile`) |
+| Set description | `PUT /services/locales/{idOrLang}` (`description` only; a blank value clears; language, label, enabled status, and format are omitted and stay) |
 | Delete | `DELETE /services/locales/{idOrLang}` (`204` on success) |
 | Auto-translation list | `GET /services/locales/auto-translations` |
 | Auto-translation replace | `PUT /services/locales/auto-translations` (empty `[]` clears) |

@@ -31,6 +31,12 @@ import type { LocaleDetail, LocaleFormatSummary } from "../api/developer/types";
 import { catalogColors, backButton, errorAlert } from "./catalogStyles";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { panelErrMsg } from "./errors";
+import {
+  localeDescriptionWrite,
+  savedLocaleDescription,
+  storedLocaleDescription,
+} from "./localeDescription";
+import { LOC_DESC_MSG } from "./localeDescriptionMessages";
 import { DEV_MSG } from "./messages";
 
 const fieldStyle: React.CSSProperties = {
@@ -140,6 +146,12 @@ export function LocaleDetailPanel({
   const [language, setLanguage] = useState("");
   const [label, setLabel] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionShown, setDescriptionShown] = useState("");
+  const [descriptionDraft, setDescriptionDraft] = useState("");
+  const [descriptionEditing, setDescriptionEditing] = useState(false);
+  const [descriptionError, setDescriptionError] = useState<string | null>(null);
+  const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
+  const [descriptionBusy, setDescriptionBusy] = useState(false);
   const [status, setStatus] = useState("active");
   const [baseLocale, setBaseLocale] = useState(false);
   const [storeFormat, setStoreFormat] = useState(false);
@@ -150,6 +162,7 @@ export function LocaleDetailPanel({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(idOrLang != null);
   const inflight = useRef(false);
+  const descriptionInflight = useRef(false);
 
   useEffect(() => {
     if (idOrLang == null) {
@@ -167,6 +180,11 @@ export function LocaleDetailPanel({
         setLanguage(d.languageString || "");
         setLabel(d.label || "");
         setDescription(d.description || "");
+        setDescriptionShown(storedLocaleDescription(d.description));
+        setDescriptionDraft("");
+        setDescriptionEditing(false);
+        setDescriptionError(null);
+        setDescriptionNotice(null);
         setStatus(d.status || "active");
         setBaseLocale(Boolean(d.baseLocale));
         setStoreFormat(Boolean(d.hasFormatProfile) || Boolean(d.format));
@@ -183,7 +201,8 @@ export function LocaleDetailPanel({
     };
   }, [idOrLang]);
 
-  const canSave = !busy && isLocaleWriteReady({ isNew, language, label });
+  const canSave =
+    !busy && !descriptionBusy && !descriptionEditing && isLocaleWriteReady({ isNew, language, label });
   const writeKey =
     idOrLang || createdKey || normalizeLanguageString(language);
 
@@ -209,8 +228,97 @@ export function LocaleDetailPanel({
     return body;
   }
 
+  function descriptionSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return LOC_DESC_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return LOC_DESC_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return LOC_DESC_MSG.CONFLICT;
+    return LOC_DESC_MSG.ERROR;
+  }
+
+  function startDescriptionEdit(): void {
+    if (
+      isNew ||
+      !detail ||
+      busy ||
+      descriptionBusy ||
+      descriptionInflight.current ||
+      inflight.current
+    ) {
+      return;
+    }
+    setDescriptionDraft(descriptionShown);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    setDescriptionEditing(true);
+  }
+
+  function cancelDescriptionEdit(): void {
+    if (descriptionBusy || descriptionInflight.current) return;
+    setDescriptionEditing(false);
+    setDescriptionDraft("");
+    setDescriptionError(null);
+  }
+
+  async function handleDescriptionSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !descriptionEditing ||
+      descriptionBusy ||
+      descriptionInflight.current ||
+      inflight.current ||
+      busy
+    ) {
+      return;
+    }
+    const sent = localeDescriptionWrite(detail, descriptionDraft);
+    if (sent === "unchanged") {
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
+      setDescriptionError(null);
+      return;
+    }
+    descriptionInflight.current = true;
+    setDescriptionBusy(true);
+    setBusy(true);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = descriptionShown;
+    try {
+      const saved = await updateLocale(writeKey, sent);
+      const accepted = savedLocaleDescription(sent, detail, saved);
+      if (accepted == null) {
+        setDescription(previousShown);
+        setDescriptionShown(previousShown);
+        setDescriptionError(LOC_DESC_MSG.ERROR);
+        setDescriptionNotice(null);
+        return;
+      }
+      const nextDetail: LocaleDetail = { ...detail, description: accepted };
+      setDetail(nextDetail);
+      setDescription(accepted);
+      setDescriptionShown(accepted);
+      setDescriptionEditing(false);
+      setDescriptionDraft("");
+      setDescriptionNotice(accepted ? LOC_DESC_MSG.SAVED : LOC_DESC_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setDescription(previousShown);
+      setDescriptionShown(previousShown);
+      setDescriptionError(panelErrMsg(err, descriptionSaveFallback(err)));
+      setDescriptionNotice(null);
+    } finally {
+      descriptionInflight.current = false;
+      setDescriptionBusy(false);
+      setBusy(false);
+    }
+  }
+
   async function handleSave(): Promise<void> {
-    if (!canSave || inflight.current) return;
+    if (!canSave || inflight.current || descriptionInflight.current) return;
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -230,6 +338,11 @@ export function LocaleDetailPanel({
       setLanguage(saved.languageString || language);
       setLabel(saved.label || label);
       setDescription(saved.description || "");
+      setDescriptionShown(storedLocaleDescription(saved.description));
+      setDescriptionDraft("");
+      setDescriptionEditing(false);
+      setDescriptionError(null);
+      setDescriptionNotice(null);
       setStatus(saved.status || status);
       setBaseLocale(Boolean(saved.baseLocale));
       setStoreFormat(Boolean(saved.hasFormatProfile) || Boolean(saved.format));
@@ -354,10 +467,110 @@ export function LocaleDetailPanel({
               data-testid="developer-loc-description"
               style={inputStyle}
               value={description}
-              disabled={busy}
+              disabled={busy || descriptionBusy}
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-loc-set-description"
+              aria-label={LOC_DESC_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{LOC_DESC_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.85rem" }}>
+                {LOC_DESC_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-loc-set-description-text"
+                data-loc-description={descriptionShown}
+                style={{ marginTop: 0 }}
+              >
+                {descriptionShown}
+              </p>
+              {descriptionError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-loc-set-description-error"
+                  style={{ color: catalogColors.error, marginBottom: "8px" }}
+                >
+                  {descriptionError}
+                </div>
+              ) : null}
+              {descriptionNotice ? (
+                <div
+                  data-testid="developer-loc-set-description-notice"
+                  style={{ color: "#276749", marginBottom: "8px" }}
+                >
+                  {descriptionNotice}
+                </div>
+              ) : null}
+              {descriptionEditing ? (
+                <div data-testid="developer-loc-set-description-editor">
+                  <label htmlFor="loc-set-description-input">{LOC_DESC_MSG.FIELD}</label>
+                  <input
+                    id="loc-set-description-input"
+                    data-testid="developer-loc-set-description-input"
+                    style={inputStyle}
+                    value={descriptionDraft}
+                    disabled={descriptionBusy}
+                    onChange={(e) => setDescriptionDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-description-save"
+                      aria-label={LOC_DESC_MSG.SAVE}
+                      disabled={descriptionBusy}
+                      onClick={() => void handleDescriptionSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: descriptionBusy ? catalogColors.disabled : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: descriptionBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_DESC_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-description-cancel"
+                      disabled={descriptionBusy}
+                      onClick={cancelDescriptionEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: descriptionBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_DESC_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-loc-set-description-edit"
+                  aria-label={LOC_DESC_MSG.ACTION}
+                  disabled={busy || descriptionBusy}
+                  onClick={startDescriptionEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {LOC_DESC_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
           <div style={fieldStyle}>
             <label htmlFor="loc-status">{DEV_MSG.LOC_FORM_STATUS}</label>
             <select
