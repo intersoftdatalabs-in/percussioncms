@@ -41,7 +41,9 @@ public interface ILocalesAdaptor {
   /**
    * Update an existing locale by language string or numeric id. Language string is immutable. A
    * label-only body updates the label; omitted description, status, baseLocale, and format stay. A
-   * blank or whitespace label is not a write.
+   * blank or whitespace label is not a write. A date-pattern-only {@code format} updates
+   * {@code datePattern}; omitted format fields stay. A blank {@code datePattern} clears that
+   * pattern.
    *
    * @return detail, or {@code null} when not found / unsafe key
    */
