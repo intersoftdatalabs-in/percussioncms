@@ -116,4 +116,58 @@ describe("ContentExplorerShell create folder (#3640)", {
     );
     await renderA11yGate(container);
   });
+
+  it("does not create or refresh when the new folder name contains a NUL (#5479)", async () => {
+    let created = false;
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/folders/create")) {
+        created = true;
+        return new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      return new Response(
+        JSON.stringify({
+          PagedItemList: {
+            childrenInPage: [],
+            childrenCount: 0,
+            startIndex: 0,
+          },
+          PathItem: [],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      );
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadWorkflowMenuActions={async () => null}
+        listViews={async () => []}
+        actionHandlers={{
+          prompt: () => "qa5479\u0000",
+        }}
+      />,
+    );
+
+    const createBtn = await screen.findByTestId(
+      "action-create-folder",
+      {},
+      { timeout: 8_000 },
+    );
+    fireEvent.click(createBtn);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-server-actions-error")).toHaveTextContent(
+        /cannot be stored/i,
+      );
+    });
+    expect(created).toBe(false);
+    expect(screen.queryByTestId("tree-node-/Sites/qa5479")).not.toBeInTheDocument();
+    await renderA11yGate(container);
+  });
 });

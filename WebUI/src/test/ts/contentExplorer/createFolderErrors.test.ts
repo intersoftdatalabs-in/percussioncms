@@ -19,7 +19,10 @@ import { describe, expect, it } from "vitest";
 import { formatCreateFolderError } from "../../../main/ts/contentExplorer/createFolderErrors";
 
 describe("formatCreateFolderError (#4637)", () => {
-  it("maps 403/404/409", () => {
+  it("maps 400/403/404/409", () => {
+    expect(formatCreateFolderError({ status: 400, statusText: "x", body: {} })).toMatch(
+      /path separators/i,
+    );
     expect(formatCreateFolderError({ status: 403, statusText: "x", body: {} })).toMatch(
       /permission/i,
     );

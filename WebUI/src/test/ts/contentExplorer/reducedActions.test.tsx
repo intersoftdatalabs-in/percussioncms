@@ -503,6 +503,69 @@ describe("ReducedActions", () => {
     expect(calls.onCreateFolder).toHaveLength(0);
   });
 
+  it("does not create when the folder name contains a NUL (#5479)", async () => {
+    const { handlers, calls } = makeHandlers();
+    handlers.prompt = () => "New\u0000Folder";
+    const errors: string[] = [];
+    const { container } = render(
+      <ReducedActions
+        item={null}
+        folder={FOLDER}
+        handlers={handlers}
+        onError={(m) => errors.push(m)}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-create-folder"));
+    expect(calls.onCreateFolder).toHaveLength(0);
+    expect(errors.join(" ")).toMatch(/cannot be stored/i);
+    await renderA11yGate(container);
+  });
+
+  it("does not create when the new-folder prompt is empty or cancelled (#5479)", () => {
+    const { handlers, calls } = makeHandlers();
+    const errors: string[] = [];
+    render(
+      <ReducedActions
+        item={null}
+        folder={FOLDER}
+        handlers={handlers}
+        onError={(m) => errors.push(m)}
+      />,
+    );
+    handlers.prompt = () => "";
+    fireEvent.click(screen.getByTestId("action-create-folder"));
+    handlers.prompt = () => null;
+    fireEvent.click(screen.getByTestId("action-create-folder"));
+    expect(calls.onCreateFolder).toHaveLength(0);
+    expect(errors).toEqual([]);
+  });
+
+  it("does not claim success when create-folder HTTP 400, 403, or 409 (#5479)", async () => {
+    const { handlers, calls } = makeHandlers();
+    const errors: string[] = [];
+    let status = 400;
+    handlers.prompt = () => "qa5479";
+    handlers.onCreateFolder = async (parent, name) => {
+      calls.onCreateFolder.push({ parent, name });
+      throw { status, statusText: "no", body: null };
+    };
+    render(
+      <ReducedActions
+        item={null}
+        folder={FOLDER}
+        handlers={handlers}
+        onError={(m) => errors.push(m)}
+      />,
+    );
+    for (const code of [400, 403, 409]) {
+      status = code;
+      fireEvent.click(screen.getByTestId("action-create-folder"));
+      await waitFor(() => expect(errors.length).toBeGreaterThan(0));
+      errors.length = 0;
+    }
+    expect(calls.onCreateFolder).toHaveLength(3);
+  });
+
   it("does not invoke any server call when the user cancels the confirm dialog", async () => {
     const { handlers, calls } = makeHandlers();
     handlers.confirm = () => false;

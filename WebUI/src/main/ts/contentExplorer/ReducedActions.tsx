@@ -47,7 +47,10 @@ import { formatCreateFolderError } from "./createFolderErrors";
 import { formatCreatePageError } from "./createPageErrors";
 import { createEditorItem } from "../editor/itemCreateApi";
 import { isExplorerPageType, loadPageTemplates } from "../editor/pageTemplates";
-import { isValidExplorerFolderName } from "./folderName";
+import {
+  folderNameContainsNul,
+  isValidExplorerFolderName,
+} from "./folderName";
 import { formatRenameItemError } from "./renameItemErrors";
 // Dual-run router (#3074): pathmanagement when flag off; RX folders REST under
 // /Folders and /Sites when perc.explorer.rxFolderMutations is on.
@@ -256,6 +259,10 @@ export function ReducedActions({
       "New Folder",
     );
     if (!name) return;
+    if (folderNameContainsNul(name)) {
+      onError?.(message(EXPLORER_MSG.ACTION_CREATE_FOLDER_NUL));
+      return;
+    }
     if (!isValidExplorerFolderName(name)) {
       onError?.(message(EXPLORER_MSG.ACTION_CREATE_FOLDER_INVALID));
       return;

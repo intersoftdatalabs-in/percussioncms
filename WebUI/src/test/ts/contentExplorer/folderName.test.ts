@@ -17,9 +17,21 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  folderNameContainsNul,
   folderRenameFieldReason,
   isValidExplorerFolderName,
 } from "../../../main/ts/contentExplorer/folderName";
+
+describe("folderNameContainsNul (#5479)", () => {
+  it("is true only for U+0000", () => {
+    expect(folderNameContainsNul("qa5479")).toBe(false);
+    expect(folderNameContainsNul("")).toBe(false);
+    expect(folderNameContainsNul("  ")).toBe(false);
+    expect(folderNameContainsNul("New\u0000Name")).toBe(true);
+    expect(folderNameContainsNul("\u0000")).toBe(true);
+    expect(folderNameContainsNul(" \u0000 ")).toBe(true);
+  });
+});
 
 describe("isValidExplorerFolderName (#4637)", () => {
   it("accepts a single segment", () => {
