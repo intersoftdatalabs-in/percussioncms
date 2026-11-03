@@ -43,6 +43,12 @@ import {
   storedLocaleDatePattern,
 } from "./localeDatePattern";
 import { LOC_DATE_MSG } from "./localeDatePatternMessages";
+import {
+  localeTimePatternWrite,
+  savedLocaleTimePattern,
+  storedLocaleTimePattern,
+} from "./localeTimePattern";
+import { LOC_TIME_MSG } from "./localeTimePatternMessages";
 import { localeLabelWrite, savedLocaleLabel, storedLocaleLabel } from "./localeLabel";
 import { LOC_LABEL_MSG } from "./localeLabelMessages";
 import { DEV_MSG } from "./messages";
@@ -172,6 +178,12 @@ export function LocaleDetailPanel({
   const [datePatternError, setDatePatternError] = useState<string | null>(null);
   const [datePatternNotice, setDatePatternNotice] = useState<string | null>(null);
   const [datePatternBusy, setDatePatternBusy] = useState(false);
+  const [timePatternShown, setTimePatternShown] = useState("");
+  const [timePatternDraft, setTimePatternDraft] = useState("");
+  const [timePatternEditing, setTimePatternEditing] = useState(false);
+  const [timePatternError, setTimePatternError] = useState<string | null>(null);
+  const [timePatternNotice, setTimePatternNotice] = useState<string | null>(null);
+  const [timePatternBusy, setTimePatternBusy] = useState(false);
   const [status, setStatus] = useState("active");
   const [baseLocale, setBaseLocale] = useState(false);
   const [storeFormat, setStoreFormat] = useState(false);
@@ -185,6 +197,7 @@ export function LocaleDetailPanel({
   const descriptionInflight = useRef(false);
   const labelInflight = useRef(false);
   const datePatternInflight = useRef(false);
+  const timePatternInflight = useRef(false);
 
   useEffect(() => {
     if (idOrLang == null) {
@@ -217,6 +230,11 @@ export function LocaleDetailPanel({
         setDatePatternEditing(false);
         setDatePatternError(null);
         setDatePatternNotice(null);
+        setTimePatternShown(storedLocaleTimePattern(d.format?.timePattern));
+        setTimePatternDraft("");
+        setTimePatternEditing(false);
+        setTimePatternError(null);
+        setTimePatternNotice(null);
         setStatus(d.status || "active");
         setBaseLocale(Boolean(d.baseLocale));
         setStoreFormat(Boolean(d.hasFormatProfile) || Boolean(d.format));
@@ -241,6 +259,8 @@ export function LocaleDetailPanel({
     !labelEditing &&
     !datePatternBusy &&
     !datePatternEditing &&
+    !timePatternBusy &&
+    !timePatternEditing &&
     isLocaleWriteReady({ isNew, language, label });
   const writeKey =
     idOrLang || createdKey || normalizeLanguageString(language);
@@ -288,15 +308,24 @@ export function LocaleDetailPanel({
     return LOC_DATE_MSG.ERROR;
   }
 
+  function timePatternSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return LOC_TIME_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return LOC_TIME_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return LOC_TIME_MSG.CONFLICT;
+    return LOC_TIME_MSG.ERROR;
+  }
+
   function dedicatedWriteBlocked(): boolean {
     return (
       busy ||
       labelBusy ||
       descriptionBusy ||
       datePatternBusy ||
+      timePatternBusy ||
       labelInflight.current ||
       descriptionInflight.current ||
       datePatternInflight.current ||
+      timePatternInflight.current ||
       inflight.current
     );
   }
@@ -307,7 +336,8 @@ export function LocaleDetailPanel({
       !detail ||
       dedicatedWriteBlocked() ||
       descriptionEditing ||
-      datePatternEditing
+      datePatternEditing ||
+      timePatternEditing
     ) {
       return;
     }
@@ -385,7 +415,14 @@ export function LocaleDetailPanel({
   }
 
   function startDescriptionEdit(): void {
-    if (isNew || !detail || dedicatedWriteBlocked() || labelEditing || datePatternEditing) {
+    if (
+      isNew ||
+      !detail ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      datePatternEditing ||
+      timePatternEditing
+    ) {
       return;
     }
     setDescriptionDraft(descriptionShown);
@@ -409,7 +446,8 @@ export function LocaleDetailPanel({
       !descriptionEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
-      datePatternEditing
+      datePatternEditing ||
+      timePatternEditing
     ) {
       return;
     }
@@ -459,7 +497,14 @@ export function LocaleDetailPanel({
   }
 
   function startDatePatternEdit(): void {
-    if (isNew || !detail || dedicatedWriteBlocked() || labelEditing || descriptionEditing) {
+    if (
+      isNew ||
+      !detail ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      timePatternEditing
+    ) {
       return;
     }
     setDatePatternDraft(datePatternShown);
@@ -483,7 +528,8 @@ export function LocaleDetailPanel({
       !datePatternEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
-      descriptionEditing
+      descriptionEditing ||
+      timePatternEditing
     ) {
       return;
     }
@@ -541,13 +587,105 @@ export function LocaleDetailPanel({
     }
   }
 
+  function startTimePatternEdit(): void {
+    if (
+      isNew ||
+      !detail ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing
+    ) {
+      return;
+    }
+    setTimePatternDraft(timePatternShown);
+    setTimePatternError(null);
+    setTimePatternNotice(null);
+    setTimePatternEditing(true);
+  }
+
+  function cancelTimePatternEdit(): void {
+    if (timePatternBusy || timePatternInflight.current) return;
+    setTimePatternEditing(false);
+    setTimePatternDraft("");
+    setTimePatternError(null);
+  }
+
+  async function handleTimePatternSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !timePatternEditing ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing
+    ) {
+      return;
+    }
+    const sent = localeTimePatternWrite(detail, timePatternDraft);
+    if (sent === "unchanged") {
+      setTimePatternEditing(false);
+      setTimePatternDraft("");
+      setTimePatternError(null);
+      return;
+    }
+    timePatternInflight.current = true;
+    setTimePatternBusy(true);
+    setBusy(true);
+    setTimePatternError(null);
+    setTimePatternNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = timePatternShown;
+    try {
+      const saved = await updateLocale(writeKey, sent);
+      const accepted = savedLocaleTimePattern(sent, detail, saved);
+      if (accepted == null) {
+        setTimePatternShown(previousShown);
+        setFmt((prev) => ({ ...prev, timePattern: previousShown }));
+        setTimePatternError(LOC_TIME_MSG.ERROR);
+        setTimePatternNotice(null);
+        return;
+      }
+      const nextFormat: LocaleFormatSummary = {
+        ...(detail.format || {}),
+        timePattern: accepted,
+      };
+      const nextDetail: LocaleDetail = {
+        ...detail,
+        hasFormatProfile: true,
+        format: nextFormat,
+      };
+      setDetail(nextDetail);
+      setTimePatternShown(accepted);
+      setFmt((prev) => ({ ...prev, timePattern: accepted }));
+      setStoreFormat(true);
+      setTimePatternEditing(false);
+      setTimePatternDraft("");
+      setTimePatternNotice(accepted ? LOC_TIME_MSG.SAVED : LOC_TIME_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setTimePatternShown(previousShown);
+      setFmt((prev) => ({ ...prev, timePattern: previousShown }));
+      setTimePatternError(panelErrMsg(err, timePatternSaveFallback(err)));
+      setTimePatternNotice(null);
+    } finally {
+      timePatternInflight.current = false;
+      setTimePatternBusy(false);
+      setBusy(false);
+    }
+  }
+
   async function handleSave(): Promise<void> {
     if (
       !canSave ||
       inflight.current ||
       descriptionInflight.current ||
       labelInflight.current ||
-      datePatternInflight.current
+      datePatternInflight.current ||
+      timePatternInflight.current
     ) {
       return;
     }
@@ -585,6 +723,11 @@ export function LocaleDetailPanel({
       setDatePatternEditing(false);
       setDatePatternError(null);
       setDatePatternNotice(null);
+      setTimePatternShown(storedLocaleTimePattern(saved.format?.timePattern));
+      setTimePatternDraft("");
+      setTimePatternEditing(false);
+      setTimePatternError(null);
+      setTimePatternNotice(null);
       setStatus(saved.status || status);
       setBaseLocale(Boolean(saved.baseLocale));
       setStoreFormat(Boolean(saved.hasFormatProfile) || Boolean(saved.format));
@@ -792,8 +935,10 @@ export function LocaleDetailPanel({
                     labelBusy ||
                     descriptionBusy ||
                     datePatternBusy ||
+                    timePatternBusy ||
                     descriptionEditing ||
-                    datePatternEditing
+                    datePatternEditing ||
+                    timePatternEditing
                   }
                   onClick={startLabelEdit}
                   style={{
@@ -910,8 +1055,10 @@ export function LocaleDetailPanel({
                     descriptionBusy ||
                     labelBusy ||
                     datePatternBusy ||
+                    timePatternBusy ||
                     labelEditing ||
-                    datePatternEditing
+                    datePatternEditing ||
+                    timePatternEditing
                   }
                   onClick={startDescriptionEdit}
                   style={{
@@ -1301,10 +1448,12 @@ export function LocaleDetailPanel({
                   disabled={
                     busy ||
                     datePatternBusy ||
+                    timePatternBusy ||
                     labelBusy ||
                     descriptionBusy ||
                     labelEditing ||
-                    descriptionEditing
+                    descriptionEditing ||
+                    timePatternEditing
                   }
                   onClick={startDatePatternEdit}
                   style={{
@@ -1316,6 +1465,115 @@ export function LocaleDetailPanel({
                   }}
                 >
                   {LOC_DATE_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-loc-set-time-pattern"
+              aria-label={LOC_TIME_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{LOC_TIME_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.85rem" }}>
+                {LOC_TIME_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-loc-set-time-pattern-text"
+                data-loc-time-pattern={timePatternShown}
+                style={{ marginTop: 0, fontFamily: "monospace" }}
+              >
+                {timePatternShown}
+              </p>
+              {timePatternError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-loc-set-time-pattern-error"
+                  style={{ color: catalogColors.error, marginBottom: "8px" }}
+                >
+                  {timePatternError}
+                </div>
+              ) : null}
+              {timePatternNotice ? (
+                <div
+                  data-testid="developer-loc-set-time-pattern-notice"
+                  style={{ color: "#276749", marginBottom: "8px" }}
+                >
+                  {timePatternNotice}
+                </div>
+              ) : null}
+              {timePatternEditing ? (
+                <div data-testid="developer-loc-set-time-pattern-editor">
+                  <label htmlFor="loc-set-time-pattern-input">{LOC_TIME_MSG.FIELD}</label>
+                  <input
+                    id="loc-set-time-pattern-input"
+                    data-testid="developer-loc-set-time-pattern-input"
+                    style={{ ...inputStyle, fontFamily: "monospace" }}
+                    value={timePatternDraft}
+                    disabled={timePatternBusy}
+                    onChange={(e) => setTimePatternDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-time-pattern-save"
+                      aria-label={LOC_TIME_MSG.SAVE}
+                      disabled={timePatternBusy}
+                      onClick={() => void handleTimePatternSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: timePatternBusy ? catalogColors.disabled : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: timePatternBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_TIME_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-time-pattern-cancel"
+                      disabled={timePatternBusy}
+                      onClick={cancelTimePatternEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: timePatternBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_TIME_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-loc-set-time-pattern-edit"
+                  aria-label={LOC_TIME_MSG.ACTION}
+                  disabled={
+                    busy ||
+                    timePatternBusy ||
+                    datePatternBusy ||
+                    labelBusy ||
+                    descriptionBusy ||
+                    labelEditing ||
+                    descriptionEditing ||
+                    datePatternEditing
+                  }
+                  onClick={startTimePatternEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {LOC_TIME_MSG.ACTION}
                 </button>
               )}
             </section>

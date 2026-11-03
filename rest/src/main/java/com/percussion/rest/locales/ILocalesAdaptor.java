@@ -43,7 +43,8 @@ public interface ILocalesAdaptor {
    * label-only body updates the label; omitted description, status, baseLocale, and format stay. A
    * blank or whitespace label is not a write. A date-pattern-only {@code format} updates
    * {@code datePattern}; omitted format fields stay. A blank {@code datePattern} clears that
-   * pattern.
+   * pattern. A time-pattern-only {@code format} updates {@code timePattern}; omitted format
+   * fields stay. A blank {@code timePattern} clears that pattern.
    *
    * @return detail, or {@code null} when not found / unsafe key
    */

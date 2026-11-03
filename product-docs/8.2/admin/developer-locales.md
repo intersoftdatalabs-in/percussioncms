@@ -1,7 +1,7 @@
 ---
 id: admin-developer-locales
 title: Developer Locales
-description: Create, save, and delete CMS locales, set a label, description, or date pattern, edit format profiles, and edit the auto-translation set from Developer Locales chrome
+description: Create, save, and delete CMS locales, set a label, description, date pattern, or time pattern, edit format profiles, and edit the auto-translation set from Developer Locales chrome
 version: "8.2"
 order: 43
 tags: [admin, developer, locales]
@@ -33,6 +33,14 @@ only. The update sends `format.datePattern` and does not send the language
 string, label, description, enabled status, or other format fields, so
 those stay. The language string is immutable. The new pattern shows only
 after that save succeeds. A blank date pattern clears the date pattern.
+**Cancel** does not write. HTTP 400, 403, and 409 are not success and
+leave the previous pattern.
+
+**Set locale time pattern** on an existing locale saves the time pattern
+only. The update sends `format.timePattern` and does not send the language
+string, label, description, enabled status, or other format fields, so
+those stay. The language string is immutable. The new pattern shows only
+after that save succeeds. A blank time pattern clears the time pattern.
 **Cancel** does not write. HTTP 400, 403, and 409 are not success and
 leave the previous pattern.
 
@@ -89,6 +97,22 @@ Admins can also **view and replace** the singleton **auto-translation** set
 4. Click **Cancel** before save to keep the previous pattern. Cancel does
    not call the server.
 5. HTTP 400, 403, and 409 do not show **Locale date pattern saved** and do
+   not replace the previous pattern.
+
+## Product path — set a time pattern
+
+1. Open an existing locale. The committed time pattern is shown under
+   **Set locale time pattern**.
+2. Click **Set locale time pattern**, edit the text, and click **Save time
+   pattern**. The request is `PUT /services/locales/{idOrLang}` with
+   `format.timePattern` only. Reload shows that pattern. The language
+   string, label, description, enabled status, and other format fields
+   (date pattern, separators, currency, text direction) are unchanged.
+3. A blank time pattern clears the stored time pattern. The same pattern
+   is not written.
+4. Click **Cancel** before save to keep the previous pattern. Cancel does
+   not call the server.
+5. HTTP 400, 403, and 409 do not show **Locale time pattern saved** and do
    not replace the previous pattern.
 
 ## Product path — create, save, delete
@@ -160,6 +184,7 @@ The chrome calls:
 | Set label | `PUT /services/locales/{idOrLang}` (`label` only; a blank or whitespace value is not a write; language, description, enabled status, and format are omitted and stay) |
 | Set description | `PUT /services/locales/{idOrLang}` (`description` only; a blank value clears; language, label, enabled status, and format are omitted and stay) |
 | Set date pattern | `PUT /services/locales/{idOrLang}` (`format.datePattern` only; a blank value clears; language, label, description, enabled status, and other format fields are omitted and stay) |
+| Set time pattern | `PUT /services/locales/{idOrLang}` (`format.timePattern` only; a blank value clears; language, label, description, enabled status, and other format fields are omitted and stay) |
 | Delete | `DELETE /services/locales/{idOrLang}` (`204` on success) |
 | Auto-translation list | `GET /services/locales/auto-translations` |
 | Auto-translation replace | `PUT /services/locales/auto-translations` (empty `[]` clears) |
