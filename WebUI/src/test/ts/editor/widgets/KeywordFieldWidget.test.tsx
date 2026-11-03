@@ -21,8 +21,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { KeywordSummary } from "../../../../main/ts/api/developer/types";
 import {
   catalogText,
+  collectKeywordNulFieldErrors,
   collectKeywordOutsideCatalogErrors,
   keywordChoicesForField,
+  keywordContainsNul,
   keywordOutsideCatalogMessage,
   keywordValueOutsideCatalog,
   KeywordFieldWidget,
@@ -81,6 +83,41 @@ describe("keywordValueOutsideCatalog", () => {
         keywordOutsideCatalogMessage,
       ),
     ).toEqual({});
+  });
+});
+
+describe("keywordContainsNul", () => {
+  it("accepts a catalog choice and an empty clear, and rejects an embedded NUL", () => {
+    expect(keywordContainsNul("news")).toBe(false);
+    expect(keywordContainsNul("events")).toBe(false);
+    expect(keywordContainsNul("")).toBe(false);
+    expect(keywordContainsNul("news\u0000")).toBe(true);
+    expect(keywordContainsNul("\u0000")).toBe(true);
+  });
+});
+
+describe("collectKeywordNulFieldErrors", () => {
+  it("flags only keyword rows and leaves catalog membership for values without a NUL", () => {
+    const rows = [
+      { name: "keywords", kind: "keyword" as const, value: "news\u0000" },
+      { name: "topic", kind: "keyword" as const, value: "events" },
+      { name: "title", kind: "text" as const, value: "z\u0000" },
+      { name: "legacy", kind: "keyword" as const, value: "legacy" },
+    ];
+    expect(collectKeywordNulFieldErrors(rows, "cannot save")).toEqual({
+      keywords: "cannot save",
+    });
+    expect(
+      collectKeywordOutsideCatalogErrors(
+        rows.map((row) => ({ ...row, label: row.name })),
+        {
+          keywords: [{ value: "news", label: "News" }],
+          topic: [{ value: "events", label: "Events" }],
+          legacy: [{ value: "news", label: "News" }],
+        },
+        keywordOutsideCatalogMessage,
+      ).legacy,
+    ).toMatch(/legacy/i);
   });
 });
 

@@ -93,6 +93,32 @@ export function keywordValueOutsideCatalog(
   return !choices.some((choice) => choice.value === text);
 }
 
+/**
+ * A NUL cannot be stored in item field XML / JDBC text (#5525).
+ * Required-empty keyword stays in the required-field gate.
+ * Catalog membership stays in {@link collectKeywordOutsideCatalogErrors}.
+ */
+export function keywordContainsNul(value: string): boolean {
+  return (value ?? "").includes("\u0000");
+}
+
+/** NUL only. Empty required keyword stays in the required-field gate. */
+export function collectKeywordNulFieldErrors(
+  rows: readonly { name: string; kind: string; value: string }[],
+  invalidMessage: string,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const row of rows) {
+    if (row.kind !== "keyword") {
+      continue;
+    }
+    if (keywordContainsNul(row.value)) {
+      out[row.name] = invalidMessage;
+    }
+  }
+  return out;
+}
+
 export function collectKeywordOutsideCatalogErrors(
   rows: readonly { name: string; kind: string; label: string; value: string }[],
   choicesByField: Readonly<Record<string, readonly KeywordOption[] | undefined>>,
@@ -122,6 +148,8 @@ export interface KeywordFieldWidgetProps {
   name: string;
   value: string;
   readOnly: boolean;
+  invalid?: boolean;
+  required?: boolean;
   onChange: (value: string) => void;
   loadKeywords?: () => Promise<KeywordSummary[]>;
   /**
@@ -135,6 +163,8 @@ export function KeywordFieldWidget({
   name,
   value,
   readOnly,
+  invalid,
+  required,
   onChange,
   loadKeywords = () => listKeywords(true),
   onChoices,
@@ -191,6 +221,8 @@ export function KeywordFieldWidget({
         name={name}
         value={selected}
         disabled={readOnly}
+        aria-invalid={invalid ? true : undefined}
+        aria-required={required ? true : undefined}
         onChange={(e) => onChange(e.target.value)}
       >
         <option value="">{message(EDITOR_MSG.KEYWORD_EMPTY)}</option>

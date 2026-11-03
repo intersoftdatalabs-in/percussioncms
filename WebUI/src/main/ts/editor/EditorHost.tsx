@@ -270,6 +270,7 @@ import { FileFieldWidget } from "./widgets/FileFieldWidget";
 import { HtmlFieldWidget } from "./widgets/HtmlFieldWidget";
 import { ImageFieldWidget } from "./widgets/ImageFieldWidget";
 import {
+  collectKeywordNulFieldErrors,
   collectKeywordOutsideCatalogErrors,
   KeywordFieldWidget,
   keywordOutsideCatalogMessage,
@@ -561,6 +562,8 @@ function EditorFieldControl({
         name={row.name}
         value={fieldValueAsString(row.value)}
         readOnly={locked}
+        invalid={invalid}
+        required={row.required}
         loadKeywords={loadKeywords}
         onChoices={
           onKeywordChoices
@@ -1532,6 +1535,21 @@ export function EditorHost({
       queueFocusFirstInvalid(tableNuls);
       setFieldErrors(tableNuls);
       setSaveErrorKey(EDITOR_MSG.TABLE_NUL_SAVE);
+      setSaving(false);
+      return;
+    }
+    const keywordNuls = collectKeywordNulFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: row.value,
+      })),
+      message(EDITOR_MSG.KEYWORD_NUL),
+    );
+    if (Object.keys(keywordNuls).length > 0) {
+      queueFocusFirstInvalid(keywordNuls);
+      setFieldErrors(keywordNuls);
+      setSaveErrorKey(EDITOR_MSG.KEYWORD_INVALID_SAVE);
       setSaving(false);
       return;
     }
