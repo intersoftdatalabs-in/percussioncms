@@ -492,6 +492,8 @@ export const EDITOR_MSG = {
   CREATE: "perc.ui.editor@Create",
   CREATE_TYPE: "perc.ui.editor@Content type",
   CREATE_FOLDER: "perc.ui.editor@Folder path",
+  CREATE_FOLDER_NUL:
+    "perc.ui.editor@That folder path contains a character that cannot be saved.",
   CREATE_NAME: "perc.ui.editor@Name (optional)",
   CREATE_NAME_NUL:
     "perc.ui.editor@That name contains a character that cannot be saved.",
