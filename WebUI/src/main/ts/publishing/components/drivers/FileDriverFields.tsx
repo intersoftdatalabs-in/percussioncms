@@ -33,12 +33,14 @@ function Field({
   properties,
   onChange,
   required,
+  testId,
 }: {
   label: string;
   propKey: string;
   properties: Record<string, string>;
   onChange: (key: string, value: string) => void;
   required?: boolean;
+  testId?: string;
 }): React.ReactElement {
   const secret = isSecretPropertyKey(propKey) || propKey === "securitykey" || propKey === "accesskey";
   return (
@@ -49,6 +51,7 @@ function Field({
       </label>
       <input
         id={`drv-${propKey}`}
+        data-testid={testId ?? `drv-${propKey}`}
         type={secret ? "password" : "text"}
         autoComplete="off"
         value={properties[propKey] ?? ""}
@@ -79,6 +82,7 @@ export function FileDriverFields({
           propKey="folder"
           properties={properties}
           onChange={onChange}
+          testId="local-folder-editor-input"
         />
       </div>
     );

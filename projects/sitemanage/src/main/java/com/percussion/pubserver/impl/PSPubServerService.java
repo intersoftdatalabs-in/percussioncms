@@ -383,11 +383,12 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSFtpDeliveryUserUpdate.isUserOnly(pubServerInfo)) {
         return updateFtpUserOnly(siteId, serverId, pubServerInfo);
       }
-      // Folder-only FTP PUT must not run the full property replace (that clears host,
-      // port, user, and password) and must not decode a password that is not in the body.
-      // A blank folder clears only the stored folder.
-      if (PSFtpDeliveryFolderUpdate.isFolderOnly(pubServerInfo)) {
-        return updateFtpFolderOnly(siteId, serverId, pubServerInfo);
+      // Folder-only PUT must not run the full property replace. A blank folder
+      // clears only the stored folder. Local and FTP share this body shape; the
+      // stored driver selects Local vs FTP apply.
+      if (PSFtpDeliveryFolderUpdate.isFolderOnly(pubServerInfo)
+          || PSLocalDeliveryFolderUpdate.isFolderOnly(pubServerInfo)) {
+        return updateDeliveryFolderOnly(siteId, serverId, pubServerInfo);
       }
 
       convertPasswordFromBase64(pubServerInfo);
@@ -561,11 +562,12 @@ public class PSPubServerService implements IPSPubServerService {
   }
 
   /**
-   * Save only the FTP {@code folder} property. Does not rename the server or replace the
-   * property set. A blank folder stores an empty folder. Overlong and non-FTP drivers throw
-   * before {@code savePubServer}.
+   * Save only the {@code folder} property. Does not rename the server or replace the property
+   * set. A Local driver uses {@link PSLocalDeliveryFolderUpdate}; FTP (and other drivers) use
+   * {@link PSFtpDeliveryFolderUpdate}. A blank folder stores an empty folder. Overlong and
+   * wrong-driver bodies throw before {@code savePubServer}.
    */
-  private PSPublishServerInfo updateFtpFolderOnly(
+  private PSPublishServerInfo updateDeliveryFolderOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
       throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
     IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
@@ -580,7 +582,12 @@ public class PSPubServerService implements IPSPubServerService {
       throw new PSPubServerServiceException(
           "The server you are trying to act on no longer exists in the system.");
     }
-    PSFtpDeliveryFolderUpdate.apply(server, pubServerInfo);
+    String driver = server.getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("");
+    if ("Local".equalsIgnoreCase(driver)) {
+      PSLocalDeliveryFolderUpdate.apply(server, pubServerInfo);
+    } else {
+      PSFtpDeliveryFolderUpdate.apply(server, pubServerInfo);
+    }
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }

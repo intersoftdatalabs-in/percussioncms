@@ -64,6 +64,7 @@ import { FtpDeliveryHostPanel } from "../components/FtpDeliveryHostPanel";
 import { FtpDeliveryPortPanel } from "../components/FtpDeliveryPortPanel";
 import { FtpDeliveryUserPanel } from "../components/FtpDeliveryUserPanel";
 import { FtpDeliveryFolderPanel } from "../components/FtpDeliveryFolderPanel";
+import { LocalDeliveryFolderPanel } from "../components/LocalDeliveryFolderPanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
 import { useDirtyForm } from "../dirtyFormContext";
@@ -875,6 +876,7 @@ export function SiteWorkspace({
             <FtpDeliveryPortPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryUserPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryFolderPanel siteId={siteId} serverId={selectedServer} />
+            <LocalDeliveryFolderPanel siteId={siteId} serverId={selectedServer} />
           </>
         ) : null}
       </div>
