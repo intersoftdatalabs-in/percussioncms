@@ -32,6 +32,7 @@ import {
   blankRequiredDateFieldNames,
   blankRequiredDatetimeFieldNames,
   blankRequiredHtmlFieldNames,
+  blankRequiredKeywordFieldNames,
   blankRequiredLinkFieldNames,
   blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
@@ -1954,5 +1955,90 @@ describe("datetime overlay fields", () => {
       dataType: "datetime",
     });
     expect(saved.fields.find((field) => field.name === "displaytitle")?.value).toBe("Welcome");
+  });
+});
+
+describe("blankRequiredKeywordFieldNames", () => {
+  const fields = [
+    { name: "keywords", kind: "keyword" as const, required: true, value: "news" },
+    { name: "tags", kind: "keyword" as const, required: false, value: "events" },
+    { name: "displaytitle", kind: "text" as const, required: true, value: "Welcome" },
+  ];
+
+  it("names a blank or whitespace required keyword and ignores optional and other kinds", () => {
+    expect(
+      blankRequiredKeywordFieldNames(fields, [
+        { name: "keywords", value: "" },
+        { name: "tags", value: "" },
+        { name: "displaytitle", value: "   " },
+      ]),
+    ).toEqual(["keywords"]);
+    expect(
+      blankRequiredKeywordFieldNames(fields, [{ name: "keywords", value: "  \n  " }]),
+    ).toEqual(["keywords"]);
+    expect(
+      blankRequiredKeywordFieldNames(fields, [{ name: "keywords", value: "events" }]),
+    ).toEqual([]);
+  });
+
+  it("copies the content-type required flag onto a keyword overlay", () => {
+    const rows = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [
+          { name: "keywords", value: "news" },
+          { name: "displaytitle", value: "Welcome" },
+        ],
+      },
+      [
+        {
+          name: "keywords",
+          label: "Keywords",
+          control: "sys_DropDownSingle",
+          required: true,
+        },
+        { name: "displaytitle", control: "sys_EditBox", required: true },
+      ],
+    );
+    expect(rows.find((r) => r.name === "keywords")?.kind).toBe("keyword");
+    expect(rows.find((r) => r.name === "keywords")?.required).toBe(true);
+  });
+
+  it("mounts a keyword select on the assembled node and marks it invalid", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<span data-perc-field="keywords">news</span>`;
+    const overlay = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [{ name: "keywords", value: "news" }],
+      },
+      [
+        {
+          name: "keywords",
+          label: "Keywords",
+          control: "sys_DropDownSingle",
+          required: true,
+        },
+      ],
+    );
+    overlay[0] = {
+      ...overlay[0],
+      choices: [
+        { value: "news", label: "News" },
+        { value: "events", label: "Events" },
+      ],
+      emptyChoiceLabel: "Select a keyword",
+    };
+    applyFieldOverlay(root, overlay, "42");
+    const select = root.querySelector(
+      '[data-testid="assembly-inline-field-keywords"]',
+    ) as HTMLSelectElement | null;
+    expect(select?.tagName).toBe("SELECT");
+    expect(select?.value).toBe("news");
+    expect(select?.getAttribute("data-assembly-value")).toBe("keyword");
+    expect(select?.getAttribute("data-assembly-required")).toBe("true");
+    expect(select?.getAttribute("aria-required")).toBe("true");
+    markAssemblyFieldErrors(root, { keywords: "This field is required." });
+    expect(select?.getAttribute("aria-invalid")).toBe("true");
   });
 });

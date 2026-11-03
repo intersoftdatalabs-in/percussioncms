@@ -16,17 +16,19 @@
  */
 
 /**
- * Map known text, long-text, HTML, link, whole-number, decimal-number, and
- * calendar-date itemmanagement fields onto assembled preview nodes and persist
- * edits through the same fields API as the React editor. Does not open leftover
- * Active Assembly or Content Editor HTML. A float is one decimal number. An
- * integer still rejects a decimal.
+ * Map known text, long-text, HTML, link, whole-number, decimal-number,
+ * calendar-date, datetime, and keyword itemmanagement fields onto assembled
+ * preview nodes and persist edits through the same fields API as the React
+ * editor. Does not open leftover Active Assembly or Content Editor HTML. A
+ * float is one decimal number. An integer still rejects a decimal. A required
+ * keyword with no choice is refused before PUT.
  */
 
 import type { ContentTypeFieldSummary } from "../api/developer/types";
 import { classifyEditorControl } from "../editor/controlKinds";
 import { fromWidgetValue, toWidgetValue } from "../editor/dateField";
 import type { ItemEditorField, ItemEditorFields } from "../editor/itemFieldsApi";
+import type { KeywordOption } from "../editor/widgets/KeywordFieldWidget";
 
 export type OverlayFieldKind =
   | "text"
@@ -35,7 +37,8 @@ export type OverlayFieldKind =
   | "link"
   | "number"
   | "date"
-  | "datetime";
+  | "datetime"
+  | "keyword";
 
 /** Assembled HTML nodes store markup in innerHTML, not stripped text. */
 export const ASSEMBLY_VALUE_HTML = "html";
@@ -63,6 +66,9 @@ export const ASSEMBLY_VALUE_DATE = "date";
  * The picker value is {@code yyyy-MM-ddTHH:mm}.
  */
 export const ASSEMBLY_VALUE_DATETIME = "datetime";
+
+/** Keyword catalog choice. The stored value is the selected choice. */
+export const ASSEMBLY_VALUE_KEYWORD = "keyword";
 
 const WHOLE_NUMBER_RE = /^-?\d+$/;
 const DECIMAL_NUMBER_RE = /^-?(?:\d+(?:\.\d+)?|\.\d+)$/;
@@ -651,6 +657,35 @@ export function blankRequiredDatetimeFieldNames(
 }
 
 /**
+ * Required keyword fields whose current value is blank or whitespace.
+ * Optional keyword clear stays out of this gate. Single-line text, HTML,
+ * link, numbers, dates, and datetimes are not checked here. Later edits for
+ * the same name win so the overlay strip and the assembled node agree.
+ */
+export function blankRequiredKeywordFieldNames(
+  fields: readonly (Pick<OverlayField, "name" | "kind" | "value"> & {
+    required?: boolean;
+  })[],
+  edits: readonly Pick<OverlayFieldEdit, "name" | "value">[],
+): string[] {
+  const values = new Map<string, string>();
+  for (const edit of edits) {
+    values.set(edit.name, edit.value);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "keyword" || field.required !== true) {
+      continue;
+    }
+    const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
+    if (value.trim().length === 0) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/**
  * Datetime fields the author changed to something other than one date and time.
  * A blank is not listed: a required blank is {@link blankRequiredDatetimeFieldNames},
  * and an optional blank may clear. Unchanged values, including a blank that was
@@ -702,7 +737,7 @@ export function markAssemblyFieldErrors(
   }
   root.querySelectorAll("[data-assembly-field]").forEach((el) => {
     const tag = el.tagName;
-    if (tag !== "INPUT" && tag !== "TEXTAREA") {
+    if (tag !== "INPUT" && tag !== "TEXTAREA" && tag !== "SELECT") {
       el.removeAttribute("aria-invalid");
       return;
     }
@@ -718,6 +753,7 @@ export function markAssemblyFieldErrors(
 const LINK_INPUT_ATTR = "data-assembly-link-input";
 const DATE_INPUT_ATTR = "data-assembly-date-input";
 const DATETIME_INPUT_ATTR = "data-assembly-datetime-input";
+const KEYWORD_INPUT_ATTR = "data-assembly-keyword-input";
 
 export interface OverlayField {
   name: string;
@@ -725,10 +761,14 @@ export interface OverlayField {
   label: string;
   kind: OverlayFieldKind;
   readOnly: boolean;
-  /** Content-type required flag. Single-line text, HTML, links, whole numbers, calendar dates, and datetimes are enforced on save. */
+  /** Content-type required flag. Single-line text, HTML, links, whole numbers, calendar dates, datetimes, and keywords are enforced on save. */
   required: boolean;
   /** True when the content-type data type is float. Whole numbers stay false. */
   numericFloat?: boolean;
+  /** Catalog choices for a keyword picker. Missing until the catalog loads. */
+  choices?: readonly KeywordOption[];
+  /** Empty option on a keyword picker. */
+  emptyChoiceLabel?: string;
 }
 
 export interface OverlayFieldHit {
@@ -781,16 +821,18 @@ export function isOverlayFieldKind(kind: string): kind is OverlayFieldKind {
     kind === "link" ||
     kind === "number" ||
     kind === "date" ||
-    kind === "datetime"
+    kind === "datetime" ||
+    kind === "keyword"
   );
 }
 
 /**
  * Text, long-text, HTML, link, whole-number, decimal-number, calendar-date,
- * and datetime rows from itemmanagement. File, image, keyword, community, and
+ * datetime, and keyword rows from itemmanagement. File, image, community, and
  * table stay on the Content Editor. Read-only rows are omitted so the overlay
  * cannot write them. A float row is a decimal number. An integer or number
- * row stays a whole number.
+ * row stays a whole number. A required keyword with no choice is refused
+ * before PUT.
  */
 export function scalarOverlayFields(
   payload: ItemEditorFields,
@@ -1176,6 +1218,59 @@ function mountDatetimeInput(
   }
 }
 
+function mountKeywordSelect(
+  host: HTMLElement,
+  hit: OverlayFieldHit,
+  field: OverlayField,
+): void {
+  host.contentEditable = "false";
+  host.removeAttribute("contenteditable");
+  const select = host.ownerDocument.createElement("select");
+  const selected = field.value.trim();
+  const empty = host.ownerDocument.createElement("option");
+  empty.value = "";
+  empty.textContent = field.emptyChoiceLabel || "Select a keyword";
+  select.appendChild(empty);
+  const seen = new Set<string>();
+  for (const choice of field.choices ?? []) {
+    if (!choice.value || seen.has(choice.value)) {
+      continue;
+    }
+    seen.add(choice.value);
+    const option = host.ownerDocument.createElement("option");
+    option.value = choice.value;
+    option.textContent = choice.label || choice.value;
+    select.appendChild(option);
+  }
+  if (selected && !seen.has(selected)) {
+    const current = host.ownerDocument.createElement("option");
+    current.value = selected;
+    current.textContent = selected;
+    select.appendChild(current);
+  }
+  select.value = selected;
+  select.setAttribute("data-assembly-field", hit.name);
+  select.setAttribute("data-assembly-content-id", hit.contentId);
+  select.setAttribute("data-assembly-value", ASSEMBLY_VALUE_KEYWORD);
+  select.setAttribute("data-testid", `assembly-inline-field-${hit.name}`);
+  select.setAttribute(KEYWORD_INPUT_ATTR, hit.name);
+  select.setAttribute("aria-label", field.label || hit.name);
+  if (field.required) {
+    select.setAttribute("aria-required", "true");
+    select.setAttribute("data-assembly-required", "true");
+  }
+  select.setAttribute(
+    "style",
+    "display:inline-block;min-width:12rem;margin-left:4px;color:#0f172a;background:#fff;border:1px solid #64748b;font:inherit;",
+  );
+  if (host.tagName === "A") {
+    host.insertAdjacentElement("afterend", select);
+  } else {
+    host.textContent = "";
+    host.appendChild(select);
+  }
+}
+
 /** Drop markers from a previous paint so a field that is no longer editable cannot be saved. */
 export function clearFieldOverlay(root: ParentNode): void {
   root.querySelectorAll(`input[${LINK_INPUT_ATTR}]`).forEach((el) => {
@@ -1185,6 +1280,9 @@ export function clearFieldOverlay(root: ParentNode): void {
     el.remove();
   });
   root.querySelectorAll(`input[${DATETIME_INPUT_ATTR}]`).forEach((el) => {
+    el.remove();
+  });
+  root.querySelectorAll(`select[${KEYWORD_INPUT_ATTR}]`).forEach((el) => {
     el.remove();
   });
   root.querySelectorAll("[data-assembly-field]").forEach((el) => {
@@ -1250,6 +1348,10 @@ export function applyFieldOverlay(
       mountDatetimeInput(html, hit, field);
       continue;
     }
+    if (field?.kind === "keyword") {
+      mountKeywordSelect(html, hit, field);
+      continue;
+    }
     html.contentEditable = "true";
     html.setAttribute("data-assembly-field", hit.name);
     html.setAttribute("data-assembly-content-id", hit.contentId);
@@ -1312,7 +1414,7 @@ function bindSingleLineGuard(el: HTMLElement): void {
  * against the assembly host window is false. Tag name is realm-safe.
  */
 function isFormValueElement(el: Element): boolean {
-  return el.tagName === "INPUT" || el.tagName === "TEXTAREA";
+  return el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT";
 }
 
 function formValue(el: Element): string {
@@ -1359,6 +1461,9 @@ function readNodeValue(el: Element): string {
     }
     if (valueKind === ASSEMBLY_VALUE_DATETIME) {
       return assemblyDatetimeValue(raw);
+    }
+    if (valueKind === ASSEMBLY_VALUE_KEYWORD) {
+      return raw.trim();
     }
     return raw;
   }

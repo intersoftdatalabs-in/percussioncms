@@ -4814,3 +4814,233 @@ describe("AssemblyHost datetime field", () => {
     });
   });
 });
+
+describe("AssemblyHost refuse blank required keyword", () => {
+  const OLD_CHOICE = "news";
+  const NEW_CHOICE = "events";
+  const TITLE = "Welcome";
+
+  const keywordFields: ItemEditorFields = {
+    contentId: "42",
+    contentType: "percPage",
+    name: "Home",
+    checkoutUser: "Admin",
+    fields: [
+      { name: "keywords", value: OLD_CHOICE },
+      { name: "displaytitle", value: TITLE },
+    ],
+  };
+
+  const keywordSchema = {
+    fields: [
+      {
+        name: "keywords",
+        label: "Keywords",
+        control: "sys_DropDownSingle",
+        required: true,
+      },
+      { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+    ],
+  };
+
+  const keywordCatalog = async () => [
+    {
+      value: "keywords",
+      label: "Keywords",
+      choices: [
+        { value: "news", label: "News" },
+        { value: "events", label: "Events" },
+      ],
+    },
+  ];
+
+  function keywordPreviewDoc(choice = OLD_CHOICE): Document {
+    const previewDoc = document.implementation.createHTMLDocument("preview");
+    previewDoc.body.innerHTML = `
+      <span data-perc-field="keywords">${choice}</span>
+      <h1 data-perc-field="displaytitle">${TITLE}</h1>
+    `;
+    return previewDoc;
+  }
+
+  function renderKeywordHost(
+    previewDoc: Document,
+    saveFields: ReturnType<typeof vi.fn>,
+    loadFields: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(keywordFields),
+    schema: { fields: Array<Record<string, unknown>> } = keywordSchema,
+  ): void {
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview: vi.fn().mockResolvedValue({
+        previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+        contentId: 42,
+        templateId: 7,
+        revision: 1,
+      }),
+      loadTemplates: vi.fn().mockResolvedValue([
+        {
+          name: "rffPgGeneric",
+          label: "Generic Page",
+          url: "../assembler/render?sys_template=7",
+          sortRank: 0,
+          menuType: "MENUITEM",
+        } satisfies MenuAction,
+      ]),
+      checkout: vi.fn().mockResolvedValue(undefined),
+      loadFields,
+      saveFields,
+      loadType: vi.fn().mockResolvedValue(schema),
+      loadKeywords: keywordCatalog,
+      getPreviewDocument: () => previewDoc,
+    });
+  }
+
+  async function keywordSelect(root: ParentNode): Promise<HTMLSelectElement> {
+    await waitFor(() => {
+      expect(
+        root.querySelector('[data-testid="assembly-inline-field-keywords"]'),
+      ).toBeTruthy();
+    });
+    await waitFor(() => {
+      const el = root.querySelector(
+        '[data-testid="assembly-inline-field-keywords"]',
+      ) as HTMLSelectElement;
+      expect([...el.options].some((opt) => opt.value === NEW_CHOICE)).toBe(true);
+    });
+    return root.querySelector(
+      '[data-testid="assembly-inline-field-keywords"]',
+    ) as HTMLSelectElement;
+  }
+
+  it("does not save a required keyword with no choice and reloads the previous choice", async () => {
+    const previewDoc = keywordPreviewDoc();
+    const saveFields = vi.fn();
+    renderKeywordHost(previewDoc, saveFields);
+    const select = await keywordSelect(previewDoc);
+    expect(select.value).toBe(OLD_CHOICE);
+    expect(select.getAttribute("aria-required")).toBe("true");
+    expect(screen.getByTestId("assembly-field-chip-keywords").getAttribute("data-required")).toBe(
+      "true",
+    );
+    select.value = "";
+    expect(select.value).toBe("");
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-keywords").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/required/i);
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(select.getAttribute("aria-invalid")).toBe("true");
+    cleanup();
+    const reloaded = keywordPreviewDoc();
+    renderKeywordHost(reloaded, saveFields);
+    const live = await keywordSelect(reloaded);
+    expect(live.value).toBe(OLD_CHOICE);
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+  });
+
+  it("does not write when Cancel leaves a blank required keyword edit", async () => {
+    const previewDoc = keywordPreviewDoc();
+    const saveFields = vi.fn();
+    renderKeywordHost(previewDoc, saveFields);
+    const select = await keywordSelect(previewDoc);
+    select.value = "";
+    fireEvent.click(screen.getByTestId("assembly-field-cancel"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(select.value).toBe(OLD_CHOICE);
+    expect(
+      screen.getByTestId("assembly-field-chip-keywords").getAttribute("data-required"),
+    ).toBe("true");
+  });
+
+  it("still saves a listed catalog choice", async () => {
+    let choice = OLD_CHOICE;
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      choice = body.fields.find((field) => field.name === "keywords")?.value ?? choice;
+      return {
+        ...keywordFields,
+        fields: keywordFields.fields.map((field) =>
+          field.name === "keywords" ? { ...field, value: choice } : field,
+        ),
+      };
+    });
+    const previewDoc = keywordPreviewDoc();
+    renderKeywordHost(
+      previewDoc,
+      saveFields,
+      vi.fn(async () => ({
+        ...keywordFields,
+        fields: keywordFields.fields.map((field) =>
+          field.name === "keywords" ? { ...field, value: choice } : field,
+        ),
+      })),
+    );
+    const select = await keywordSelect(previewDoc);
+    select.value = NEW_CHOICE;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    });
+    const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(sent.fields.find((field) => field.name === "keywords")?.value).toBe(NEW_CHOICE);
+    expect(sent.fields.find((field) => field.name === "displaytitle")?.value).toBe(TITLE);
+    expect(screen.queryByTestId("assembly-field-error-keywords")).toBeNull();
+    cleanup();
+    const reloaded = keywordPreviewDoc(NEW_CHOICE);
+    renderKeywordHost(
+      reloaded,
+      saveFields,
+      vi.fn().mockResolvedValue({
+        ...keywordFields,
+        fields: keywordFields.fields.map((field) =>
+          field.name === "keywords" ? { ...field, value: NEW_CHOICE } : field,
+        ),
+      }),
+    );
+    const live = await keywordSelect(reloaded);
+    expect(live.value).toBe(NEW_CHOICE);
+  });
+
+  it("HTTP 400 on a required keyword does not claim success", async () => {
+    const previewDoc = keywordPreviewDoc();
+    const saveFields = vi.fn().mockRejectedValue({ status: 400 });
+    renderKeywordHost(previewDoc, saveFields);
+    const select = await keywordSelect(previewDoc);
+    select.value = NEW_CHOICE;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/could not save/i);
+    });
+    expect(select.value).toBe(OLD_CHOICE);
+    expect(saveFields).toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    expect(screen.queryByTestId("assembly-field-error-keywords")).toBeNull();
+  });
+
+  it("refuses a blank required keyword on the overlay strip", async () => {
+    const previewDoc = document.implementation.createHTMLDocument("empty");
+    const saveFields = vi.fn();
+    renderKeywordHost(previewDoc, saveFields);
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-overlay-field-keywords")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "Events" })).toBeTruthy();
+    });
+    const select = screen.getByTestId("assembly-overlay-field-keywords") as HTMLSelectElement;
+    expect(select.getAttribute("aria-required")).toBe("true");
+    fireEvent.change(select, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-error-keywords").textContent).toMatch(/required/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(/fields saved/i);
+    expect(select.getAttribute("aria-invalid")).toBe("true");
+  });
+});

@@ -33,7 +33,8 @@
  * markup stays (the HTML NUL gate is unchanged); a link
  * value that contains a NUL is not saved, and the previous link stays. A content
  * id, GUID, or folder path still saves. The HTML NUL gate is unchanged) and
- * persist through itemmanagement — not leftover Content Editor HTML.
+ * persist through itemmanagement — not leftover Content Editor HTML. A required
+ * keyword with no choice is refused before PUT; a catalog choice still saves.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -58,7 +59,8 @@ import {
 } from "../api/contentExplorer/slotRelationshipApi";
 import type { MenuAction, SelectionResult } from "../api/contentExplorer/types";
 import { getContentTypeDetail } from "../api/developer/contentTypesApi";
-import type { ContentTypeFieldSummary } from "../api/developer/types";
+import { listKeywords } from "../api/developer/keywordsApi";
+import type { ContentTypeFieldSummary, KeywordSummary } from "../api/developer/types";
 import { ContentBrowser } from "../contentBrowser/ContentBrowser";
 import {
   dispatchAction,
@@ -71,6 +73,8 @@ import {
   saveItemEditorFields,
   type ItemEditorFields,
 } from "../editor/itemFieldsApi";
+import { classifyEditorControl } from "../editor/controlKinds";
+import { keywordChoicesForField } from "../editor/widgets/KeywordFieldWidget";
 import { message } from "../i18n/message";
 import { parsePositiveInt, withCmsContextPrefix } from "./assemblyHostUrl";
 import styles from "./AssemblyHost.module.css";
@@ -81,6 +85,7 @@ import {
   blankRequiredDateFieldNames,
   blankRequiredDatetimeFieldNames,
   blankRequiredHtmlFieldNames,
+  blankRequiredKeywordFieldNames,
   blankRequiredLinkFieldNames,
   blankRequiredNumberFieldNames,
   blankRequiredTextFieldNames,
@@ -130,6 +135,10 @@ export interface AssemblyTemplateOption {
   label: string;
 }
 
+function defaultLoadKeywords(): Promise<KeywordSummary[]> {
+  return listKeywords(true);
+}
+
 export interface AssemblyHostProps {
   fetchPreview?: (
     contentId: number,
@@ -151,6 +160,7 @@ export interface AssemblyHostProps {
   ) => Promise<ItemEditorFields>;
   checkout?: (itemId: string) => Promise<unknown>;
   loadType?: (typeName: string) => Promise<{ fields?: ContentTypeFieldSummary[] }>;
+  loadKeywords?: () => Promise<KeywordSummary[]>;
   getPreviewDocument?: (frame: HTMLIFrameElement | null) => Document | null;
   /** Test seam: open the React editor host after create. */
   openWindow?: (
@@ -268,6 +278,7 @@ export function AssemblyHost({
   saveFields = saveItemEditorFields,
   checkout = checkoutEditorItem,
   loadType = getContentTypeDetail,
+  loadKeywords = defaultLoadKeywords,
   getPreviewDocument = previewDocumentFromFrame,
   openWindow,
 }: AssemblyHostProps = {}): React.ReactElement {
@@ -291,6 +302,7 @@ export function AssemblyHost({
   >(null);
   const [fieldPayload, setFieldPayload] = useState<ItemEditorFields | null>(null);
   const [schemaFields, setSchemaFields] = useState<ContentTypeFieldSummary[]>([]);
+  const [keywordCatalog, setKeywordCatalog] = useState<KeywordSummary[]>([]);
   const [schemaReady, setSchemaReady] = useState(false);
   const [inlineFieldNames, setInlineFieldNames] = useState<string[]>([]);
   const [fieldNotice, setFieldNotice] = useState<string | null>(null);
@@ -413,13 +425,24 @@ export function AssemblyHost({
     if (fieldPayload == null || !schemaReady) {
       return [];
     }
-    return scalarOverlayFields(fieldPayload, schemaFields);
-  }, [fieldPayload, schemaFields, schemaReady]);
+    const emptyChoiceLabel = message(ASSEMBLY_MSG.KEYWORD_EMPTY);
+    return scalarOverlayFields(fieldPayload, schemaFields).map((row) => {
+      if (row.kind !== "keyword") {
+        return row;
+      }
+      return {
+        ...row,
+        choices: keywordChoicesForField(keywordCatalog, row.name),
+        emptyChoiceLabel,
+      };
+    });
+  }, [fieldPayload, schemaFields, schemaReady, keywordCatalog]);
 
   useEffect(() => {
     if (contentId == null) {
       setFieldPayload(null);
       setSchemaFields([]);
+      setKeywordCatalog([]);
       setSchemaReady(false);
       return;
     }
@@ -466,6 +489,31 @@ export function AssemblyHost({
       cancelled = true;
     };
   }, [contentId, checkout, loadFields, loadType]);
+
+  useEffect(() => {
+    const hasKeyword = schemaFields.some(
+      (field) => classifyEditorControl(field, field.name ?? "") === "keyword",
+    );
+    if (!hasKeyword) {
+      setKeywordCatalog((prev) => (prev.length === 0 ? prev : []));
+      return;
+    }
+    let cancelled = false;
+    void loadKeywords()
+      .then((rows) => {
+        if (!cancelled) {
+          setKeywordCatalog(rows);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setKeywordCatalog([]);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [schemaFields, loadKeywords]);
 
   const paintFieldOverlay = useCallback(() => {
     const doc = getPreviewDocument(frameRef.current);
@@ -678,6 +726,10 @@ export function AssemblyHost({
       overlayFields,
       visibleEdits,
     );
+    const blankRequiredKeywords = blankRequiredKeywordFieldNames(
+      overlayFields,
+      visibleEdits,
+    );
     const badNumbers = invalidChangedNumberFieldNames(
       overlayFields,
       visibleEdits,
@@ -699,7 +751,8 @@ export function AssemblyHost({
       blankRequiredHtml.length > 0 ||
       blankRequiredNumbers.length > 0 ||
       blankRequiredDates.length > 0 ||
-      blankRequiredDatetimes.length > 0;
+      blankRequiredDatetimes.length > 0 ||
+      blankRequiredKeywords.length > 0;
     if (
       requiredBlank ||
       badNumbers.length > 0 ||
@@ -735,6 +788,9 @@ export function AssemblyHost({
         errors[name] = requiredText;
       }
       for (const name of blankRequiredDatetimes) {
+        errors[name] = requiredText;
+      }
+      for (const name of blankRequiredKeywords) {
         errors[name] = requiredText;
       }
       const decimalText = message(ASSEMBLY_MSG.FIELD_DECIMAL);
@@ -1053,7 +1109,8 @@ export function AssemblyHost({
                       field.kind === "link" ||
                       field.kind === "number" ||
                       field.kind === "date" ||
-                      field.kind === "datetime") &&
+                      field.kind === "datetime" ||
+                      field.kind === "keyword") &&
                     field.required
                       ? "true"
                       : "false"
@@ -1156,6 +1213,32 @@ export function AssemblyHost({
                       aria-required={field.required ? true : undefined}
                       aria-invalid={fieldErrors[field.name] ? true : undefined}
                     />
+                  ) : field.kind === "keyword" ? (
+                    <select
+                      className={styles.fieldEdit}
+                      defaultValue={field.value}
+                      data-assembly-field={field.name}
+                      data-assembly-content-id={String(contentId ?? "")}
+                      data-assembly-value="keyword"
+                      data-assembly-required={field.required ? "true" : undefined}
+                      data-testid={`assembly-overlay-field-${field.name}`}
+                      aria-label={field.label}
+                      aria-required={field.required ? true : undefined}
+                      aria-invalid={fieldErrors[field.name] ? true : undefined}
+                    >
+                      <option value="">
+                        {field.emptyChoiceLabel || message(ASSEMBLY_MSG.KEYWORD_EMPTY)}
+                      </option>
+                      {field.value &&
+                      !(field.choices ?? []).some((choice) => choice.value === field.value) ? (
+                        <option value={field.value}>{field.value}</option>
+                      ) : null}
+                      {(field.choices ?? []).map((choice) => (
+                        <option key={choice.value} value={choice.value}>
+                          {choice.label || choice.value}
+                        </option>
+                      ))}
+                    </select>
                   ) : (
                     <textarea
                       className={styles.fieldEdit}
