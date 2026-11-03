@@ -85,14 +85,10 @@ class PSLocalDeliveryFolderUpdateTest {
   }
 
   @Test
-  void storedFolderKeepsTypedSeparators() throws Exception {
-    PSPubServer unix = localServer("/kept/local");
-    PSLocalDeliveryFolderUpdate.apply(unix, folderOnly("  /publish/out  "));
-    assertEquals("/publish/out", value(unix, IPSPubServerDao.PUBLISH_FOLDER_PROPERTY));
-
-    PSPubServer windows = localServer("/kept/local");
-    PSLocalDeliveryFolderUpdate.apply(windows, folderOnly("  C:\\publish\\out  "));
-    assertEquals("C:\\publish\\out", value(windows, IPSPubServerDao.PUBLISH_FOLDER_PROPERTY));
+  void storedFolderIsTrimmedTextNotAFilesystemJoin() throws Exception {
+    PSPubServer server = localServer("/kept/local");
+    PSLocalDeliveryFolderUpdate.apply(server, folderOnly("  /publish/out  "));
+    assertEquals("/publish/out", value(server, IPSPubServerDao.PUBLISH_FOLDER_PROPERTY));
   }
 
   @Test

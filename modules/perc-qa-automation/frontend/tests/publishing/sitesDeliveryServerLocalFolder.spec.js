@@ -148,10 +148,25 @@ test.describe("PublishingShell Sites local delivery-server folder", () => {
     await expect(page.getByTestId("publish-server-editor")).toBeVisible();
     await page.locator("#serverName").fill(localName);
     await expect(page.getByTestId("local-folder-editor-input")).toBeVisible();
-    await page.getByTestId("local-folder-editor-input").fill(FOLDER);
     await saveServer(page);
 
     await page.getByRole("button", { name: localName, exact: true }).click();
+    await page.getByTestId("local-folder-open").click();
+    await expect(page.getByTestId("local-folder-form")).toBeVisible();
+    await page.getByTestId("local-folder-input").fill(FOLDER);
+    const seedResponse = page.waitForResponse(
+      (res) => serverPut(res.url(), res.request().method()) && res.ok(),
+      { timeout: 30000 },
+    );
+    await page.getByTestId("local-folder-save").click();
+    const seeded = await seedResponse;
+    if (seeded.status() !== 200 && seeded.status() !== 201) {
+      throw new Error(
+        `seed local folder HTTP ${seeded.status()} ${(await seeded.text()).slice(0, 500)}`,
+      );
+    }
+    await expect(page.getByTestId("local-folder-form")).toHaveCount(0, { timeout: 20000 });
+    await expect(page.getByTestId("local-folder-current")).toHaveText(FOLDER, { timeout: 20000 });
     await page.getByTestId("local-folder-open").click();
     await expect(page.getByTestId("local-folder-form")).toBeVisible();
     await expect(page.getByTestId("local-folder-current")).toHaveText(FOLDER);
@@ -249,9 +264,24 @@ test.describe("PublishingShell Sites local delivery-server folder", () => {
     await page.getByTestId("publish-add-server").click();
     await page.locator("#serverName").fill(localName);
     await expect(page.getByTestId("local-folder-editor-input")).toBeVisible();
-    await page.getByTestId("local-folder-editor-input").fill(FOLDER);
     await saveServer(page);
     await page.getByRole("button", { name: localName, exact: true }).click();
+    await page.getByTestId("local-folder-open").click();
+    await expect(page.getByTestId("local-folder-form")).toBeVisible();
+    await page.getByTestId("local-folder-input").fill(FOLDER);
+    const seedResponse = page.waitForResponse(
+      (res) => serverPut(res.url(), res.request().method()) && res.ok(),
+      { timeout: 30000 },
+    );
+    await page.getByTestId("local-folder-save").click();
+    const seeded = await seedResponse;
+    if (seeded.status() !== 200 && seeded.status() !== 201) {
+      throw new Error(
+        `seed local folder HTTP ${seeded.status()} ${(await seeded.text()).slice(0, 500)}`,
+      );
+    }
+    await expect(page.getByTestId("local-folder-form")).toHaveCount(0, { timeout: 20000 });
+    await expect(page.getByTestId("local-folder-current")).toHaveText(FOLDER, { timeout: 20000 });
     await page.getByTestId("local-folder-open").click();
     await expect(page.getByTestId("local-folder-current")).toHaveText(FOLDER);
 

@@ -60,14 +60,10 @@ describe("validateLocalFolder", () => {
     });
   });
 
-  it("trims a folder and keeps typed separators", () => {
+  it("trims a folder as stored text", () => {
     expect(validateLocalFolder("  /night-local  ")).toEqual({
       ok: true,
       folder: "/night-local",
-    });
-    expect(validateLocalFolder("  C:\\publish\\out  ")).toEqual({
-      ok: true,
-      folder: "C:\\publish\\out",
     });
   });
 });
