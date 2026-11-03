@@ -693,6 +693,110 @@ class LocalesAdaptorDesignWsTest {
   }
 
   @Test
+  void updateLocale_dateTimePatternOnlyLeavesOtherFormatFields() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    loc.setDescription("US English");
+    loc.setStatus(PSLocale.STATUS_ACTIVE);
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setDatePattern("MM/dd/yyyy");
+    existing.setTextDir("ltr");
+    existing.setTimePattern("HH:mm:ss");
+    existing.setDateTimePattern("MM/dd/yyyy HH:mm:ss");
+    existing.setCurrencyCode("USD");
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setDateTimePattern("yyyy-MM-dd HH:mm:ss");
+    body.setFormat(fmt);
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals("English", loc.getDisplayName());
+    assertEquals("US English", loc.getDescription());
+    assertEquals(PSLocale.STATUS_ACTIVE, loc.getStatus());
+    assertEquals(1, saved.size());
+    assertEquals("yyyy-MM-dd HH:mm:ss", saved.get(0).getDateTimePattern());
+    assertEquals("ltr", saved.get(0).getTextDir());
+    assertEquals("MM/dd/yyyy", saved.get(0).getDatePattern());
+    assertEquals("HH:mm:ss", saved.get(0).getTimePattern());
+    assertEquals("USD", saved.get(0).getCurrencyCode());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void updateLocale_blankDateTimePatternClearsDateTimePatternOnly() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setDatePattern("MM/dd/yyyy");
+    existing.setTimePattern("HH:mm:ss");
+    existing.setDateTimePattern("MM/dd/yyyy HH:mm:ss");
+    existing.setTextDir("ltr");
+    existing.setCurrencyCode("USD");
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setDateTimePattern("");
+    body.setFormat(fmt);
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals(1, saved.size());
+    assertNull(saved.get(0).getDateTimePattern());
+    assertEquals("MM/dd/yyyy", saved.get(0).getDatePattern());
+    assertEquals("HH:mm:ss", saved.get(0).getTimePattern());
+    assertEquals("ltr", saved.get(0).getTextDir());
+    assertEquals("USD", saved.get(0).getCurrencyCode());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void isDateTimePatternOnlyWrite_requiresOmittedHasFormatProfileAndOtherFields() {
+    LocaleDetail omitted = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setDateTimePattern("yyyy-MM-dd HH:mm:ss");
+    omitted.setFormat(fmt);
+    assertTrue(LocalesAdaptor.isDateTimePatternOnlyWrite(omitted));
+
+    LocaleDetail withFlag = new LocaleDetail();
+    withFlag.setHasFormatProfile(true);
+    withFlag.setFormat(fmt);
+    assertFalse(LocalesAdaptor.isDateTimePatternOnlyWrite(withFlag));
+
+    LocaleDetail extra = new LocaleDetail();
+    LocaleFormatSummary both = new LocaleFormatSummary();
+    both.setDateTimePattern("yyyy-MM-dd HH:mm:ss");
+    both.setDatePattern("yyyy-MM-dd");
+    extra.setFormat(both);
+    assertFalse(LocalesAdaptor.isDateTimePatternOnlyWrite(extra));
+  }
+
+  @Test
   void applyWritableFields_omittedAndBlankLabelLeaveExisting() {
     PSLocale loc = newLocale(9, "en-us", "English");
     loc.setDescription("US English");

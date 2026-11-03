@@ -44,7 +44,9 @@ public interface ILocalesAdaptor {
    * blank or whitespace label is not a write. A date-pattern-only {@code format} updates
    * {@code datePattern}; omitted format fields stay. A blank {@code datePattern} clears that
    * pattern. A time-pattern-only {@code format} updates {@code timePattern}; omitted format
-   * fields stay. A blank {@code timePattern} clears that pattern.
+   * fields stay. A blank {@code timePattern} clears that pattern. A date-time-pattern-only
+   * {@code format} updates {@code dateTimePattern}; omitted format fields stay. A blank
+   * {@code dateTimePattern} clears that pattern.
    *
    * @return detail, or {@code null} when not found / unsafe key
    */

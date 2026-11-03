@@ -11,6 +11,7 @@ import { LocaleDetailPanel } from "../../../main/ts/developer/LocaleDetailPanel"
 import { LOC_DATE_MSG } from "../../../main/ts/developer/localeDatePatternMessages";
 import { LOC_DESC_MSG } from "../../../main/ts/developer/localeDescriptionMessages";
 import { LOC_LABEL_MSG } from "../../../main/ts/developer/localeLabelMessages";
+import { LOC_DATETIME_MSG } from "../../../main/ts/developer/localeDateTimePatternMessages";
 import { LOC_TIME_MSG } from "../../../main/ts/developer/localeTimePatternMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
@@ -46,6 +47,7 @@ const sampleDetail = {
     textDir: "ltr",
     datePattern: "MM/dd/yyyy",
     timePattern: "HH:mm:ss",
+    dateTimePattern: "MM/dd/yyyy HH:mm:ss",
     currencyCode: "USD",
   },
   designGaps: ["write not supported"],
@@ -1038,6 +1040,193 @@ describe("LocaleDetailPanel", () => {
     expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
     expect((screen.getByTestId("developer-loc-fmt-time") as HTMLInputElement).value).toBe(
       "HH:mm:ss",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+  });
+
+  it("sets the date-time pattern only after success and leaves language, label, description, status, and other format fields", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      format: { ...sampleDetail.format, dateTimePattern: "yyyy-MM-dd HH:mm:ss" },
+    });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(
+        screen
+          .getByTestId("developer-loc-set-date-time-pattern-text")
+          .getAttribute("data-loc-date-time-pattern"),
+      ).toBe("MM/dd/yyyy HH:mm:ss");
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-edit"));
+    fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-date-time-pattern-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-date-time-pattern-input"), {
+      target: { value: " yyyy-MM-dd HH:mm:ss " },
+    });
+    expect(
+      screen
+        .getByTestId("developer-loc-set-date-time-pattern-text")
+        .getAttribute("data-loc-date-time-pattern"),
+    ).toBe("MM/dd/yyyy HH:mm:ss");
+    fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(
+      screen
+        .getByTestId("developer-loc-set-date-time-pattern-text")
+        .getAttribute("data-loc-date-time-pattern"),
+    ).toBe("MM/dd/yyyy HH:mm:ss");
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-date-time-pattern-input"), {
+      target: { value: " yyyy-MM-dd HH:mm:ss " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", {
+      format: { dateTimePattern: "yyyy-MM-dd HH:mm:ss" },
+    });
+    const sent = updateLocale.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty("languageString");
+    expect(sent).not.toHaveProperty("label");
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("status");
+    expect(sent).not.toHaveProperty("hasFormatProfile");
+    expect(
+      screen
+        .getByTestId("developer-loc-set-date-time-pattern-text")
+        .getAttribute("data-loc-date-time-pattern"),
+    ).toBe("yyyy-MM-dd HH:mm:ss");
+    expect((screen.getByTestId("developer-loc-fmt-datetime") as HTMLInputElement).value).toBe(
+      "yyyy-MM-dd HH:mm:ss",
+    );
+    expect(screen.getByTestId("developer-loc-set-date-time-pattern-notice").textContent).toBe(
+      LOC_DATETIME_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe(
+      "US English",
+    );
+    expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-time") as HTMLInputElement).value).toBe(
+      "HH:mm:ss",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-dir") as HTMLSelectElement).value).toBe("ltr");
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
+  });
+
+  it("clears a blank date-time pattern and keeps the previous pattern on 400, 403, and 409", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      format: { ...sampleDetail.format, dateTimePattern: "" },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-date-time-pattern-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-date-time-pattern-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-date-time-pattern-notice").textContent).toBe(
+        LOC_DATETIME_MSG.CLEARED,
+      );
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", { format: { dateTimePattern: "" } });
+    expect(
+      screen
+        .getByTestId("developer-loc-set-date-time-pattern-text")
+        .getAttribute("data-loc-date-time-pattern"),
+    ).toBe("");
+    expect((screen.getByTestId("developer-loc-fmt-datetime") as HTMLInputElement).value).toBe("");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+
+    for (const status of [400, 403, 409]) {
+      updateLocale.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-edit"));
+      fireEvent.change(screen.getByTestId("developer-loc-set-date-time-pattern-input"), {
+        target: { value: "yyyy-MM-dd HH:mm:ss" },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-save"));
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("developer-loc-set-date-time-pattern-error").textContent,
+        ).toContain(`forced ${status}`);
+      });
+      expect(
+        screen
+          .getByTestId("developer-loc-set-date-time-pattern-text")
+          .getAttribute("data-loc-date-time-pattern"),
+      ).toBe("");
+      expect((screen.getByTestId("developer-loc-fmt-datetime") as HTMLInputElement).value).toBe(
+        "",
+      );
+      expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe(
+        "en-us",
+      );
+      fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-cancel"));
+    }
+  });
+
+  it("does not show a date-time pattern when the update changes the label or other format fields", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      label: "Renamed",
+      format: {
+        ...sampleDetail.format,
+        dateTimePattern: "yyyy-MM-dd HH:mm:ss",
+        datePattern: "yyyy-MM-dd",
+      },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-date-time-pattern-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-date-time-pattern-input"), {
+      target: { value: "yyyy-MM-dd HH:mm:ss" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-date-time-pattern-save"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("developer-loc-set-date-time-pattern-error").textContent,
+      ).toContain(LOC_DATETIME_MSG.ERROR);
+    });
+    expect(
+      screen
+        .getByTestId("developer-loc-set-date-time-pattern-text")
+        .getAttribute("data-loc-date-time-pattern"),
+    ).toBe("MM/dd/yyyy HH:mm:ss");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-datetime") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy HH:mm:ss",
     );
     expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
       "MM/dd/yyyy",
