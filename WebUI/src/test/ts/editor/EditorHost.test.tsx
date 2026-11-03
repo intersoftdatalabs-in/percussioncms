@@ -7643,6 +7643,202 @@ describe("EditorHost refuse blank required keyword (#5252)", () => {
   });
 });
 
+describe("EditorHost refuse keyword NUL (#5525)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  const keywordCatalog = async () => [
+    {
+      value: "keywords",
+      label: "Keywords",
+      choices: [
+        { value: "news", label: "News" },
+        { value: "events", label: "Events" },
+        { value: "news\u0000", label: "News NUL" },
+      ],
+    },
+  ];
+
+  function keywordNulHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    choice?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (message: string) => boolean;
+  }) {
+    const choice = opts.choice ?? "news";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percEvent",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "keywords", value: choice }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "keywords",
+              label: "Keywords",
+              control: "sys_DropDownSingle",
+              required: opts.required === true,
+            },
+          ],
+        })}
+        loadKeywords={keywordCatalog}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openKeyword(
+    element: React.ReactElement,
+    expected = "news",
+  ): Promise<HTMLSelectElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-keywords") as HTMLSelectElement).value).toBe(
+        expected,
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "Events" })).toBeTruthy();
+    });
+    return screen.getByTestId("editor-field-keywords") as HTMLSelectElement;
+  }
+
+  it("refuses a keyword NUL before PUT and keeps the previous choice after reload", async () => {
+    const saveFields = vi.fn();
+    const select = await openKeyword(keywordNulHost({ saveFields }));
+    expect(select.getAttribute("data-editor-kind")).toBe("keyword");
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "News NUL" })).toBeTruthy();
+    });
+    fireEvent.change(select, { target: { value: "news\u0000" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-keywords").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-error-keywords").textContent).not.toMatch(
+      /catalog choices/i,
+    );
+    expect(screen.getByTestId("editor-field-error-keywords").textContent).not.toMatch(
+      /required/i,
+    );
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /keyword fields before saving/i,
+    );
+    expect(screen.getByTestId("editor-field-keywords").getAttribute("aria-invalid")).toBe(
+      "true",
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    cleanup();
+    const reloaded = await openKeyword(keywordNulHost({ saveFields }));
+    expect(reloaded.value).toBe("news");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not write when Close cancels an unsaved keyword NUL", async () => {
+    const saveFields = vi.fn();
+    const select = await openKeyword(
+      keywordNulHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.change(select, { target: { value: "news\u0000" } });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("still saves a listed catalog choice", async () => {
+    let choice = "news";
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
+      choice = payload.fields.find((f) => f.name === "keywords")?.value ?? choice;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: payload.fields,
+      };
+    });
+    const select = await openKeyword(keywordNulHost({ saveFields, choice }));
+    fireEvent.change(select, { target: { value: "events" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "keywords")?.value).toBe("events");
+    expect(String(sent.fields.find((f) => f.name === "keywords")?.value)).not.toContain(
+      "\u0000",
+    );
+    cleanup();
+    const reloaded = await openKeyword(keywordNulHost({ saveFields, choice }), "events");
+    expect(reloaded.value).toBe("events");
+  });
+
+  it("leaves the required-empty keyword gate unchanged", async () => {
+    const saveFields = vi.fn();
+    const select = await openKeyword(keywordNulHost({ saveFields, required: true }));
+    fireEvent.change(select, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-keywords").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-error-keywords").textContent).not.toMatch(
+      /character that cannot be saved/i,
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not treat HTTP 400, 403, or 409 on a keyword save as success", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    const select = await openKeyword(keywordNulHost({ saveFields }));
+    fireEvent.change(select, { target: { value: "events" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-keywords").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-keywords").textContent).toMatch(
+        /not allowed/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+});
+
 describe("EditorHost page link fields", () => {
   afterEach(() => {
     cleanup();
