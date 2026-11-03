@@ -277,6 +277,23 @@ on a Local server does not change that server's folder. Full server edit remains
 A site with no default delivery server can still save an FTP host; that save does not assign the
 default.
 
+### Set a database delivery-server host (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **MYSQL**, **MSSQL**, or **Oracle**. **Set host** edits only the database host. **Save
+host** sends `PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `server`
+property. Port, user id, database name (or Oracle SID), server name, driver, and default flag
+stay as they were. The password is not shown and is not sent again.
+
+A blank host is refused on the form (**Database host is required**) and is not written. A host
+longer than 255 characters is refused the same way. **Cancel** does not call the server and
+keeps the previous host. HTTP **400**, **403**, and **409** stay on the form and keep the
+previous host. The new host is shown only after a successful save.
+
+**FTP**, **FTPS**, **SFTP**, Amazon S3, and a **Local** driver do not use this save. Choosing
+**Set host** on a Local or FTP server does not change that server's folder or FTP host. Database
+port and user-id saves and full server edit (**Edit Server**) stay separate.
+
 ### Set the FTP delivery-server port (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
@@ -359,8 +376,8 @@ not call the server and keeps the previous name. HTTP **400**, **403**, and **40
 form and keep the previous name. The new name is shown on the site list only after a successful
 save.
 
-FTP host/port/user/folder, Local folder, marking a server as default, and full server edit
-remain separate actions.
+FTP host/port/user/folder, Local folder, database host, marking a server as default, and full
+server edit remain separate actions.
 
 ### Mark a site delivery server as default (Sites)
 
@@ -373,7 +390,8 @@ A server that is already the site default is not a write. **Cancel** does not ca
 and keeps the previous default. HTTP **400**, **403**, and **409** stay on the form and keep the
 previous default. Other servers on the site lose the default badge only after a successful save.
 
-Rename, FTP host/port/user/folder, Local folder, and full server edit remain separate actions.
+Rename, FTP host/port/user/folder, Local folder, database host, and full server edit remain
+separate actions.
 
 ### Copy a site delivery server (Sites)
 
