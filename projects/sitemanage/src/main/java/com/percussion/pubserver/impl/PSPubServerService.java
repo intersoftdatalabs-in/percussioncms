@@ -383,6 +383,12 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSFtpDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
         return updateFtpHostOnly(siteId, serverId, pubServerInfo);
       }
+      // Host-only database PUT must not run the full property replace (that clears port,
+      // user, database/sid, driver, and password) and must not decode a password that
+      // is not in the body.
+      if (PSDatabaseDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
+        return updateDatabaseHostOnly(siteId, serverId, pubServerInfo);
+      }
       // Port-only FTP PUT must not run the full property replace (that clears host, user,
       // folder, and password) and must not decode a password that is not in the body.
       if (PSFtpDeliveryPortUpdate.isPortOnly(pubServerInfo)) {
@@ -618,6 +624,30 @@ public class PSPubServerService implements IPSPubServerService {
           "The server you are trying to act on no longer exists in the system.");
     }
     PSFtpDeliveryHostUpdate.apply(server, pubServerInfo);
+    pubServerDao.savePubServer(server);
+    return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Save only the database {@code server} property. Does not rename the server or replace the
+   * property set. Blank, overlong, and non-database drivers throw before {@code savePubServer}.
+   */
+  private PSPublishServerInfo updateDatabaseHostOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    PSDatabaseDeliveryHostUpdate.apply(server, pubServerInfo);
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
