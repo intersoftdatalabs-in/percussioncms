@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as localesApi from "../../../main/ts/api/developer/localesApi";
 import { LocaleDetailPanel } from "../../../main/ts/developer/LocaleDetailPanel";
+import { LOC_DESC_MSG } from "../../../main/ts/developer/localeDescriptionMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
 vi.mock("../../../main/ts/api/developer/localesApi", async (importOriginal) => {
@@ -410,5 +411,147 @@ describe("LocaleDetailPanel", () => {
   it("does not show delete on create", () => {
     render(<LocaleDetailPanel idOrLang={null} onBack={() => undefined} />);
     expect(screen.queryByTestId("developer-loc-delete")).toBeNull();
+    expect(screen.queryByTestId("developer-loc-set-description")).toBeNull();
+  });
+
+  it("sets the description only after success and leaves language, label, status, and format", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({ ...sampleDetail, description: "note" });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("developer-loc-set-description-text").getAttribute("data-loc-description"),
+      ).toBe("US English");
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-description-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-description-input"), {
+      target: { value: " note " },
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-description-text").getAttribute("data-loc-description"),
+    ).toBe("US English");
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-loc-set-description-text").getAttribute("data-loc-description"),
+    ).toBe("US English");
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-description-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", { description: "note" });
+    const sent = updateLocale.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty("languageString");
+    expect(sent).not.toHaveProperty("label");
+    expect(sent).not.toHaveProperty("status");
+    expect(sent).not.toHaveProperty("format");
+    expect(
+      screen.getByTestId("developer-loc-set-description-text").getAttribute("data-loc-description"),
+    ).toBe("note");
+    expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe("note");
+    expect(screen.getByTestId("developer-loc-set-description-notice").textContent).toBe(
+      LOC_DESC_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+  });
+
+  it("clears a blank description and keeps the previous description on 400, 403, and 409", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({ ...sampleDetail, description: "" });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-description-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-description-notice").textContent).toBe(
+        LOC_DESC_MSG.CLEARED,
+      );
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", { description: "" });
+    expect(
+      screen.getByTestId("developer-loc-set-description-text").getAttribute("data-loc-description"),
+    ).toBe("");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+
+    for (const status of [400, 403, 409]) {
+      updateLocale.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+      fireEvent.change(screen.getByTestId("developer-loc-set-description-input"), {
+        target: { value: "later" },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-description-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-loc-set-description-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(
+        screen.getByTestId("developer-loc-set-description-text").getAttribute("data-loc-description"),
+      ).toBe("");
+      expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe("");
+      expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+      fireEvent.click(screen.getByTestId("developer-loc-set-description-cancel"));
+    }
+  });
+
+  it("does not show a description when the update changes the label or format", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      description: "note",
+      label: "Renamed",
+      format: { ...sampleDetail.format, datePattern: "yyyy-MM-dd" },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-description-input"), {
+      target: { value: "note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-description-error").textContent).toContain(
+        LOC_DESC_MSG.ERROR,
+      );
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-description-text").getAttribute("data-loc-description"),
+    ).toBe("US English");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
   });
 });

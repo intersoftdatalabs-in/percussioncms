@@ -214,7 +214,13 @@ export function LocalesPanel(): React.ReactElement {
                     ? DEV_MSG.YES
                     : DEV_MSG.NO,
                 loc.hasFormatProfile ? DEV_MSG.LOC_FORMAT_YES : DEV_MSG.LOC_FORMAT_NO,
-                <span key="d" style={mutedCell}>
+                <span
+                  key="d"
+                  data-testid="developer-loc-catalog-description"
+                  data-loc-lang={loc.languageString || openKey || ""}
+                  data-loc-description={loc.description || ""}
+                  style={mutedCell}
+                >
                   {loc.description || ""}
                 </span>,
               ],
