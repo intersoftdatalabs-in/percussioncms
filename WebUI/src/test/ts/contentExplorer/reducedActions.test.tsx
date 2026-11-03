@@ -503,6 +503,130 @@ describe("ReducedActions", () => {
     expect(calls.onCreateFolder).toHaveLength(0);
   });
 
+  it("renames a selected item when the prompt returns a new name (#5480)", async () => {
+    const { handlers, calls } = makeHandlers();
+    handlers.prompt = () => "Home2";
+    const asset: PSPathItem = {
+      id: "a-5480",
+      path: "/Assets/Home",
+      name: "Home",
+      type: "percSimpleTextAsset",
+      category: "ASSET",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    render(
+      <ReducedActions
+        item={asset}
+        folder={{ ...FOLDER, path: "/Assets", name: "Assets" }}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-rename"));
+    await waitFor(() => expect(calls.onRename).toHaveLength(1));
+    expect(calls.onRename[0]).toMatchObject({
+      item: { path: "/Assets/Home", name: "Home" },
+      newName: "Home2",
+    });
+    expect(screen.queryByTestId("explorer-folder-rename")).not.toBeInTheDocument();
+  });
+
+  it("does not rename an item when the new name contains a NUL (#5480)", async () => {
+    const { handlers, calls } = makeHandlers();
+    handlers.prompt = () => "Home\u00002";
+    const errors: string[] = [];
+    const asset: PSPathItem = {
+      id: "a-5480",
+      path: "/Assets/Home",
+      name: "Home",
+      type: "percSimpleTextAsset",
+      category: "ASSET",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    const { container } = render(
+      <ReducedActions
+        item={asset}
+        folder={{ ...FOLDER, path: "/Assets", name: "Assets" }}
+        handlers={handlers}
+        onError={(m) => errors.push(m)}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-rename"));
+    expect(calls.onRename).toHaveLength(0);
+    expect(screen.queryByTestId("explorer-folder-rename")).not.toBeInTheDocument();
+    expect(errors.join(" ")).toMatch(/cannot be stored/i);
+    await renderA11yGate(container);
+  });
+
+  it("does not rename when the item prompt is empty, cancelled, or unchanged (#5480)", () => {
+    const { handlers, calls } = makeHandlers();
+    const errors: string[] = [];
+    const asset: PSPathItem = {
+      id: "a-5480",
+      path: "/Assets/Home",
+      name: "Home",
+      type: "percSimpleTextAsset",
+      category: "ASSET",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    render(
+      <ReducedActions
+        item={asset}
+        folder={{ ...FOLDER, path: "/Assets", name: "Assets" }}
+        handlers={handlers}
+        onError={(m) => errors.push(m)}
+      />,
+    );
+    handlers.prompt = () => "";
+    fireEvent.click(screen.getByTestId("action-rename"));
+    handlers.prompt = () => null;
+    fireEvent.click(screen.getByTestId("action-rename"));
+    handlers.prompt = () => "Home";
+    fireEvent.click(screen.getByTestId("action-rename"));
+    expect(calls.onRename).toHaveLength(0);
+    expect(errors).toEqual([]);
+    expect(screen.queryByTestId("explorer-folder-rename")).not.toBeInTheDocument();
+  });
+
+  it("does not claim success when item-rename HTTP 400, 403, or 409 (#5480)", async () => {
+    const { handlers, calls } = makeHandlers();
+    const errors: string[] = [];
+    let status = 400;
+    const asset: PSPathItem = {
+      id: "a-5480",
+      path: "/Assets/Home",
+      name: "Home",
+      type: "percSimpleTextAsset",
+      category: "ASSET",
+      accessLevel: "WRITE",
+      leaf: true,
+    };
+    handlers.prompt = () => "Home2";
+    handlers.onRename = async (item, newName) => {
+      calls.onRename.push({ item, newName });
+      throw { status, statusText: "no", body: null };
+    };
+    render(
+      <ReducedActions
+        item={asset}
+        folder={{ ...FOLDER, path: "/Assets", name: "Assets" }}
+        handlers={handlers}
+        onError={(m) => errors.push(m)}
+      />,
+    );
+    for (const code of [400, 403, 409]) {
+      status = code;
+      fireEvent.click(screen.getByTestId("action-rename"));
+      await waitFor(() => expect(errors.length).toBeGreaterThan(0));
+      errors.length = 0;
+    }
+    expect(calls.onRename).toHaveLength(3);
+    expect(screen.queryByTestId("explorer-folder-rename")).not.toBeInTheDocument();
+  });
+
   it("does not create when the folder name contains a NUL (#5479)", async () => {
     const { handlers, calls } = makeHandlers();
     handlers.prompt = () => "New\u0000Folder";
