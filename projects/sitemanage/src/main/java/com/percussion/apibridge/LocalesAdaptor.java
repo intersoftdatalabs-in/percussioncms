@@ -476,7 +476,9 @@ public class LocalesAdaptor implements ILocalesAdaptor {
 
   /**
    * Opt-in format write. Omitted {@code hasFormatProfile} and {@code format} leave the
-   * RXLOCALEFORMAT row unchanged so existing locale PUT clients are safe.
+   * RXLOCALEFORMAT row unchanged so existing locale PUT clients are safe. A date-pattern-only
+   * {@code format} (omitted {@code hasFormatProfile}, other format fields null) updates
+   * {@code datePattern} and leaves the rest of the row.
    */
   void persistFormatIfRequested(String language, LocaleDetail body) {
     if (body == null || language == null) {
@@ -493,10 +495,53 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     LocaleFormatSummary src =
         body.getFormat() != null ? body.getFormat() : new LocaleFormatSummary();
+    if (isDatePatternOnlyWrite(body)) {
+      persistDatePatternOnly(language, src);
+      return;
+    }
     PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
     applyFormatFields(row, src);
     row.setLanguageString(language);
     formatSaver.accept(row);
+  }
+
+  private void persistDatePatternOnly(String language, LocaleFormatSummary src) {
+    Optional<PSLocaleFormat> existing = formatByLang.apply(language);
+    String next = src == null ? null : src.getDatePattern();
+    if (existing.isEmpty() && StringUtils.isBlank(next)) {
+      return;
+    }
+    PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
+    row.setDatePattern(next);
+    row.setLanguageString(language);
+    formatSaver.accept(row);
+  }
+
+  /**
+   * True when PUT {@code format} carries {@code datePattern} (including blank to clear) and omits
+   * {@code hasFormatProfile} plus every other format field. Language on the format object is
+   * ignored.
+   */
+  static boolean isDatePatternOnlyWrite(LocaleDetail body) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+      return false;
+    }
+    LocaleFormatSummary src = body.getFormat();
+    if (src.getDatePattern() == null) {
+      return false;
+    }
+    return src.getTextDir() == null
+        && src.getTimePattern() == null
+        && src.getDateTimePattern() == null
+        && src.getDecimalSep() == null
+        && src.getGroupingSep() == null
+        && src.getCurrencyCode() == null
+        && src.getCurrencyPattern() == null
+        && src.getFirstDayOfWeek() == null
+        && src.getMeasurementSystem() == null
+        && src.getDefaultTz() == null
+        && src.getNumberingSystem() == null
+        && src.getCalendar() == null;
   }
 
   static void validateFormatWrite(LocaleDetail body) {

@@ -37,6 +37,12 @@ import {
   storedLocaleDescription,
 } from "./localeDescription";
 import { LOC_DESC_MSG } from "./localeDescriptionMessages";
+import {
+  localeDatePatternWrite,
+  savedLocaleDatePattern,
+  storedLocaleDatePattern,
+} from "./localeDatePattern";
+import { LOC_DATE_MSG } from "./localeDatePatternMessages";
 import { localeLabelWrite, savedLocaleLabel, storedLocaleLabel } from "./localeLabel";
 import { LOC_LABEL_MSG } from "./localeLabelMessages";
 import { DEV_MSG } from "./messages";
@@ -160,6 +166,12 @@ export function LocaleDetailPanel({
   const [descriptionError, setDescriptionError] = useState<string | null>(null);
   const [descriptionNotice, setDescriptionNotice] = useState<string | null>(null);
   const [descriptionBusy, setDescriptionBusy] = useState(false);
+  const [datePatternShown, setDatePatternShown] = useState("");
+  const [datePatternDraft, setDatePatternDraft] = useState("");
+  const [datePatternEditing, setDatePatternEditing] = useState(false);
+  const [datePatternError, setDatePatternError] = useState<string | null>(null);
+  const [datePatternNotice, setDatePatternNotice] = useState<string | null>(null);
+  const [datePatternBusy, setDatePatternBusy] = useState(false);
   const [status, setStatus] = useState("active");
   const [baseLocale, setBaseLocale] = useState(false);
   const [storeFormat, setStoreFormat] = useState(false);
@@ -172,6 +184,7 @@ export function LocaleDetailPanel({
   const inflight = useRef(false);
   const descriptionInflight = useRef(false);
   const labelInflight = useRef(false);
+  const datePatternInflight = useRef(false);
 
   useEffect(() => {
     if (idOrLang == null) {
@@ -199,6 +212,11 @@ export function LocaleDetailPanel({
         setDescriptionEditing(false);
         setDescriptionError(null);
         setDescriptionNotice(null);
+        setDatePatternShown(storedLocaleDatePattern(d.format?.datePattern));
+        setDatePatternDraft("");
+        setDatePatternEditing(false);
+        setDatePatternError(null);
+        setDatePatternNotice(null);
         setStatus(d.status || "active");
         setBaseLocale(Boolean(d.baseLocale));
         setStoreFormat(Boolean(d.hasFormatProfile) || Boolean(d.format));
@@ -221,6 +239,8 @@ export function LocaleDetailPanel({
     !descriptionEditing &&
     !labelBusy &&
     !labelEditing &&
+    !datePatternBusy &&
+    !datePatternEditing &&
     isLocaleWriteReady({ isNew, language, label });
   const writeKey =
     idOrLang || createdKey || normalizeLanguageString(language);
@@ -261,17 +281,33 @@ export function LocaleDetailPanel({
     return LOC_LABEL_MSG.ERROR;
   }
 
+  function datePatternSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return LOC_DATE_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return LOC_DATE_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return LOC_DATE_MSG.CONFLICT;
+    return LOC_DATE_MSG.ERROR;
+  }
+
+  function dedicatedWriteBlocked(): boolean {
+    return (
+      busy ||
+      labelBusy ||
+      descriptionBusy ||
+      datePatternBusy ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      datePatternInflight.current ||
+      inflight.current
+    );
+  }
+
   function startLabelEdit(): void {
     if (
       isNew ||
       !detail ||
-      busy ||
-      labelBusy ||
-      descriptionBusy ||
+      dedicatedWriteBlocked() ||
       descriptionEditing ||
-      labelInflight.current ||
-      descriptionInflight.current ||
-      inflight.current
+      datePatternEditing
     ) {
       return;
     }
@@ -294,12 +330,7 @@ export function LocaleDetailPanel({
       !detail ||
       !writeKey ||
       !labelEditing ||
-      labelBusy ||
-      descriptionBusy ||
-      labelInflight.current ||
-      descriptionInflight.current ||
-      inflight.current ||
-      busy
+      dedicatedWriteBlocked()
     ) {
       return;
     }
@@ -354,17 +385,7 @@ export function LocaleDetailPanel({
   }
 
   function startDescriptionEdit(): void {
-    if (
-      isNew ||
-      !detail ||
-      busy ||
-      descriptionBusy ||
-      labelBusy ||
-      labelEditing ||
-      descriptionInflight.current ||
-      labelInflight.current ||
-      inflight.current
-    ) {
+    if (isNew || !detail || dedicatedWriteBlocked() || labelEditing || datePatternEditing) {
       return;
     }
     setDescriptionDraft(descriptionShown);
@@ -386,13 +407,9 @@ export function LocaleDetailPanel({
       !detail ||
       !writeKey ||
       !descriptionEditing ||
-      descriptionBusy ||
-      descriptionInflight.current ||
-      labelInflight.current ||
-      inflight.current ||
-      busy ||
-      labelBusy ||
-      labelEditing
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      datePatternEditing
     ) {
       return;
     }
@@ -441,8 +458,97 @@ export function LocaleDetailPanel({
     }
   }
 
+  function startDatePatternEdit(): void {
+    if (isNew || !detail || dedicatedWriteBlocked() || labelEditing || descriptionEditing) {
+      return;
+    }
+    setDatePatternDraft(datePatternShown);
+    setDatePatternError(null);
+    setDatePatternNotice(null);
+    setDatePatternEditing(true);
+  }
+
+  function cancelDatePatternEdit(): void {
+    if (datePatternBusy || datePatternInflight.current) return;
+    setDatePatternEditing(false);
+    setDatePatternDraft("");
+    setDatePatternError(null);
+  }
+
+  async function handleDatePatternSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !datePatternEditing ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing
+    ) {
+      return;
+    }
+    const sent = localeDatePatternWrite(detail, datePatternDraft);
+    if (sent === "unchanged") {
+      setDatePatternEditing(false);
+      setDatePatternDraft("");
+      setDatePatternError(null);
+      return;
+    }
+    datePatternInflight.current = true;
+    setDatePatternBusy(true);
+    setBusy(true);
+    setDatePatternError(null);
+    setDatePatternNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = datePatternShown;
+    try {
+      const saved = await updateLocale(writeKey, sent);
+      const accepted = savedLocaleDatePattern(sent, detail, saved);
+      if (accepted == null) {
+        setDatePatternShown(previousShown);
+        setFmt((prev) => ({ ...prev, datePattern: previousShown }));
+        setDatePatternError(LOC_DATE_MSG.ERROR);
+        setDatePatternNotice(null);
+        return;
+      }
+      const nextFormat: LocaleFormatSummary = {
+        ...(detail.format || {}),
+        datePattern: accepted,
+      };
+      const nextDetail: LocaleDetail = {
+        ...detail,
+        hasFormatProfile: true,
+        format: nextFormat,
+      };
+      setDetail(nextDetail);
+      setDatePatternShown(accepted);
+      setFmt((prev) => ({ ...prev, datePattern: accepted }));
+      setStoreFormat(true);
+      setDatePatternEditing(false);
+      setDatePatternDraft("");
+      setDatePatternNotice(accepted ? LOC_DATE_MSG.SAVED : LOC_DATE_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setDatePatternShown(previousShown);
+      setFmt((prev) => ({ ...prev, datePattern: previousShown }));
+      setDatePatternError(panelErrMsg(err, datePatternSaveFallback(err)));
+      setDatePatternNotice(null);
+    } finally {
+      datePatternInflight.current = false;
+      setDatePatternBusy(false);
+      setBusy(false);
+    }
+  }
+
   async function handleSave(): Promise<void> {
-    if (!canSave || inflight.current || descriptionInflight.current || labelInflight.current) {
+    if (
+      !canSave ||
+      inflight.current ||
+      descriptionInflight.current ||
+      labelInflight.current ||
+      datePatternInflight.current
+    ) {
       return;
     }
     inflight.current = true;
@@ -474,6 +580,11 @@ export function LocaleDetailPanel({
       setDescriptionEditing(false);
       setDescriptionError(null);
       setDescriptionNotice(null);
+      setDatePatternShown(storedLocaleDatePattern(saved.format?.datePattern));
+      setDatePatternDraft("");
+      setDatePatternEditing(false);
+      setDatePatternError(null);
+      setDatePatternNotice(null);
       setStatus(saved.status || status);
       setBaseLocale(Boolean(saved.baseLocale));
       setStoreFormat(Boolean(saved.hasFormatProfile) || Boolean(saved.format));
@@ -676,7 +787,14 @@ export function LocaleDetailPanel({
                   type="button"
                   data-testid="developer-loc-set-label-edit"
                   aria-label={LOC_LABEL_MSG.ACTION}
-                  disabled={busy || labelBusy || descriptionBusy || descriptionEditing}
+                  disabled={
+                    busy ||
+                    labelBusy ||
+                    descriptionBusy ||
+                    datePatternBusy ||
+                    descriptionEditing ||
+                    datePatternEditing
+                  }
                   onClick={startLabelEdit}
                   style={{
                     padding: "4px 10px",
@@ -787,7 +905,14 @@ export function LocaleDetailPanel({
                   type="button"
                   data-testid="developer-loc-set-description-edit"
                   aria-label={LOC_DESC_MSG.ACTION}
-                  disabled={busy || descriptionBusy || labelBusy || labelEditing}
+                  disabled={
+                    busy ||
+                    descriptionBusy ||
+                    labelBusy ||
+                    datePatternBusy ||
+                    labelEditing ||
+                    datePatternEditing
+                  }
                   onClick={startDescriptionEdit}
                   style={{
                     padding: "4px 10px",
@@ -1088,6 +1213,113 @@ export function LocaleDetailPanel({
               </p>
             )}
           </section>
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-loc-set-date-pattern"
+              aria-label={LOC_DATE_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{LOC_DATE_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.85rem" }}>
+                {LOC_DATE_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-loc-set-date-pattern-text"
+                data-loc-date-pattern={datePatternShown}
+                style={{ marginTop: 0, fontFamily: "monospace" }}
+              >
+                {datePatternShown}
+              </p>
+              {datePatternError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-loc-set-date-pattern-error"
+                  style={{ color: catalogColors.error, marginBottom: "8px" }}
+                >
+                  {datePatternError}
+                </div>
+              ) : null}
+              {datePatternNotice ? (
+                <div
+                  data-testid="developer-loc-set-date-pattern-notice"
+                  style={{ color: "#276749", marginBottom: "8px" }}
+                >
+                  {datePatternNotice}
+                </div>
+              ) : null}
+              {datePatternEditing ? (
+                <div data-testid="developer-loc-set-date-pattern-editor">
+                  <label htmlFor="loc-set-date-pattern-input">{LOC_DATE_MSG.FIELD}</label>
+                  <input
+                    id="loc-set-date-pattern-input"
+                    data-testid="developer-loc-set-date-pattern-input"
+                    style={{ ...inputStyle, fontFamily: "monospace" }}
+                    value={datePatternDraft}
+                    disabled={datePatternBusy}
+                    onChange={(e) => setDatePatternDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-date-pattern-save"
+                      aria-label={LOC_DATE_MSG.SAVE}
+                      disabled={datePatternBusy}
+                      onClick={() => void handleDatePatternSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: datePatternBusy ? catalogColors.disabled : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: datePatternBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_DATE_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-date-pattern-cancel"
+                      disabled={datePatternBusy}
+                      onClick={cancelDatePatternEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: datePatternBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_DATE_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-loc-set-date-pattern-edit"
+                  aria-label={LOC_DATE_MSG.ACTION}
+                  disabled={
+                    busy ||
+                    datePatternBusy ||
+                    labelBusy ||
+                    descriptionBusy ||
+                    labelEditing ||
+                    descriptionEditing
+                  }
+                  onClick={startDatePatternEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {LOC_DATE_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
 
           {formatGapList(detail).length > 0 ? (
             <section data-testid="developer-loc-gaps">

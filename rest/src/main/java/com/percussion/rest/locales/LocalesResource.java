@@ -230,11 +230,14 @@ public class LocalesResource {
           "Admin. Updates label, description, status, and/or baseLocale by language string or"
               + " numeric id. languageString is immutable. A label-only body updates the label"
               + " and leaves omitted description, status, baseLocale, and format unchanged. A"
-              + " blank or whitespace label is not a write. Optional format profile write: send"
-              + " hasFormatProfile=true and format to create/update RXLOCALEFORMAT (keyed by"
-              + " language string); hasFormatProfile=false clears the row. Omitted format fields"
-              + " leave the row unchanged. Invalid pattern is 400. Loads with a design lock and"
-              + " releases on save. Unknown id is 404. Lock/dependency conflict is 409.",
+              + " blank or whitespace label is not a write. A date-pattern-only format body"
+              + " (datePattern only, hasFormatProfile omitted) updates the date pattern and"
+              + " leaves other format fields unchanged. A blank datePattern clears that pattern."
+              + " Optional format profile write: send hasFormatProfile=true and format to"
+              + " create/update RXLOCALEFORMAT (keyed by language string); hasFormatProfile=false"
+              + " clears the row. Omitted format fields leave the row unchanged. Invalid pattern"
+              + " is 400. Loads with a design lock and releases on save. Unknown id is 404."
+              + " Lock/dependency conflict is 409.",
       responses = {
         @ApiResponse(
             responseCode = "200",
