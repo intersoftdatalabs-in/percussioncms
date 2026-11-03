@@ -21,14 +21,20 @@
  * preview nodes and persist edits through the same fields API as the React
  * editor. Does not open leftover Active Assembly or Content Editor HTML. A
  * float is one decimal number. An integer still rejects a decimal. A required
- * keyword with no choice is refused before PUT.
+ * keyword with no choice is refused before PUT. A keyword that contains a NUL
+ * is refused before PUT.
  */
 
 import type { ContentTypeFieldSummary } from "../api/developer/types";
 import { classifyEditorControl } from "../editor/controlKinds";
 import { fromWidgetValue, toWidgetValue } from "../editor/dateField";
 import type { ItemEditorField, ItemEditorFields } from "../editor/itemFieldsApi";
-import type { KeywordOption } from "../editor/widgets/KeywordFieldWidget";
+import {
+  keywordContainsNul,
+  type KeywordOption,
+} from "../editor/widgets/KeywordFieldWidget";
+
+export { keywordContainsNul };
 
 export type OverlayFieldKind =
   | "text"
@@ -268,9 +274,10 @@ export function singleLineTextContainsNul(value: string): boolean {
 
 /**
  * Single-line text fields whose current value contains a NUL.
- * Long text, HTML, link, numbers, dates, and datetimes are not checked here.
- * A long-text NUL is {@link nulLongTextFieldNames}. An HTML NUL is
- * {@link nulHtmlFieldNames}. A link NUL is {@link nulLinkFieldNames}.
+ * Long text, HTML, link, keyword, numbers, dates, and datetimes are not
+ * checked here. A long-text NUL is {@link nulLongTextFieldNames}. An HTML NUL
+ * is {@link nulHtmlFieldNames}. A link NUL is {@link nulLinkFieldNames}. A
+ * keyword NUL is {@link nulKeywordFieldNames}.
  * Later edits for the same name win so the overlay
  * strip and the assembled node agree. A blank required field stays on
  * {@link blankRequiredTextFieldNames}.
@@ -307,9 +314,10 @@ export function longTextContainsNul(value: string): boolean {
 
 /**
  * Long-text fields whose current value contains a NUL.
- * Single-line text, HTML, link, numbers, dates, and datetimes are not checked
- * here. An HTML NUL is {@link nulHtmlFieldNames}. A link NUL is
- * {@link nulLinkFieldNames}. Later edits for the same
+ * Single-line text, HTML, link, keyword, numbers, dates, and datetimes are
+ * not checked here. An HTML NUL is {@link nulHtmlFieldNames}. A link NUL is
+ * {@link nulLinkFieldNames}. A keyword NUL is {@link nulKeywordFieldNames}.
+ * Later edits for the same
  * name win so the overlay strip and the assembled node agree. Line breaks
  * without a NUL are not named.
  */
@@ -346,8 +354,9 @@ export function htmlContainsNul(value: string): boolean {
 
 /**
  * HTML fields whose current value contains a NUL.
- * Single-line text, long text, link, numbers, dates, and datetimes are not
- * checked here. A link NUL is {@link nulLinkFieldNames}. A blank required HTML
+ * Single-line text, long text, link, keyword, numbers, dates, and datetimes
+ * are not checked here. A link NUL is {@link nulLinkFieldNames}. A keyword
+ * NUL is {@link nulKeywordFieldNames}. A blank required HTML
  * field is {@link blankRequiredHtmlFieldNames}. Later edits for the same name
  * win so the overlay strip and the assembled node agree. Ordinary markup
  * without a NUL is not named.
@@ -385,10 +394,11 @@ export function linkContainsNul(value: string): boolean {
 
 /**
  * Link fields whose current value contains a NUL.
- * Single-line text, long text, HTML, numbers, dates, and datetimes are not
- * checked here. An HTML NUL is {@link nulHtmlFieldNames}. Later edits for the
- * same name win so the overlay strip and the assembled node agree. A content
- * id, GUID, or folder path without a NUL is not named.
+ * Single-line text, long text, HTML, keyword, numbers, dates, and datetimes
+ * are not checked here. An HTML NUL is {@link nulHtmlFieldNames}. A keyword
+ * NUL is {@link nulKeywordFieldNames}. Later edits for the same name win so
+ * the overlay strip and the assembled node agree. A content id, GUID, or
+ * folder path without a NUL is not named.
  */
 export function nulLinkFieldNames(
   fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
@@ -658,9 +668,10 @@ export function blankRequiredDatetimeFieldNames(
 
 /**
  * Required keyword fields whose current value is blank or whitespace.
- * Optional keyword clear stays out of this gate. Single-line text, HTML,
- * link, numbers, dates, and datetimes are not checked here. Later edits for
- * the same name win so the overlay strip and the assembled node agree.
+ * Optional keyword clear stays out of this gate. A keyword NUL is
+ * {@link nulKeywordFieldNames}. Single-line text, HTML, link, numbers, dates,
+ * and datetimes are not checked here. Later edits for the same name win so
+ * the overlay strip and the assembled node agree.
  */
 export function blankRequiredKeywordFieldNames(
   fields: readonly (Pick<OverlayField, "name" | "kind" | "value"> & {
@@ -679,6 +690,35 @@ export function blankRequiredKeywordFieldNames(
     }
     const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
     if (value.trim().length === 0) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/**
+ * Keyword fields whose current value contains a NUL.
+ * A NUL cannot be stored in item field XML / JDBC text. Single-line text,
+ * long text, HTML, link, numbers, dates, and datetimes are not checked here.
+ * A blank required keyword is {@link blankRequiredKeywordFieldNames}. Later
+ * edits for the same name win so the overlay strip and the assembled node
+ * agree. An ordinary catalog choice without a NUL is not named.
+ */
+export function nulKeywordFieldNames(
+  fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
+  edits: readonly Pick<OverlayFieldEdit, "name" | "value">[],
+): string[] {
+  const values = new Map<string, string>();
+  for (const edit of edits) {
+    values.set(edit.name, edit.value);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "keyword") {
+      continue;
+    }
+    const value = values.has(field.name) ? (values.get(field.name) ?? "") : field.value;
+    if (keywordContainsNul(value)) {
       names.push(field.name);
     }
   }
@@ -832,7 +872,7 @@ export function isOverlayFieldKind(kind: string): kind is OverlayFieldKind {
  * table stay on the Content Editor. Read-only rows are omitted so the overlay
  * cannot write them. A float row is a decimal number. An integer or number
  * row stays a whole number. A required keyword with no choice is refused
- * before PUT.
+ * before PUT. A keyword that contains a NUL is refused before PUT.
  */
 export function scalarOverlayFields(
   payload: ItemEditorFields,

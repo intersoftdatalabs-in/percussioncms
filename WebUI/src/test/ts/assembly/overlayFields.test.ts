@@ -38,9 +38,11 @@ import {
   blankRequiredTextFieldNames,
   calendarDateText,
   htmlContainsNul,
+  keywordContainsNul,
   linkContainsNul,
   longTextContainsNul,
   nulHtmlFieldNames,
+  nulKeywordFieldNames,
   nulLinkFieldNames,
   nulLongTextFieldNames,
   nulSingleLineTextFieldNames,
@@ -2040,5 +2042,105 @@ describe("blankRequiredKeywordFieldNames", () => {
     expect(select?.getAttribute("aria-required")).toBe("true");
     markAssemblyFieldErrors(root, { keywords: "This field is required." });
     expect(select?.getAttribute("aria-invalid")).toBe("true");
+  });
+});
+
+describe("nulKeywordFieldNames", () => {
+  const fields = [
+    { name: "keywords", kind: "keyword" as const, value: "news" },
+    { name: "tags", kind: "keyword" as const, value: "events" },
+    { name: "displaytitle", kind: "text" as const, value: "Welcome" },
+    { name: "notes", kind: "longtext" as const, value: "Line one\nLine two" },
+    { name: "description", kind: "html" as const, value: "<p>About</p>" },
+    { name: "pagelink", kind: "link" as const, value: "//Sites/Example/index" },
+  ];
+
+  it("names a keyword NUL and ignores ordinary catalog choices and other kinds", () => {
+    expect(keywordContainsNul("news")).toBe(false);
+    expect(keywordContainsNul("events")).toBe(false);
+    expect(keywordContainsNul("")).toBe(false);
+    expect(keywordContainsNul("news\u0000")).toBe(true);
+    expect(keywordContainsNul("\u0000")).toBe(true);
+    expect(
+      nulKeywordFieldNames(fields, [
+        { name: "keywords", value: "news\u0000" },
+        { name: "displaytitle", value: "bad\u0000value" },
+        { name: "notes", value: "Line one\nbad\u0000value" },
+        { name: "description", value: "<p>bad\u0000value</p>" },
+        { name: "pagelink", value: "594\u0000" },
+      ]),
+    ).toEqual(["keywords"]);
+    expect(
+      nulKeywordFieldNames(fields, [{ name: "keywords", value: "events" }]),
+    ).toEqual([]);
+    expect(
+      blankRequiredKeywordFieldNames(
+        fields.map((field) =>
+          field.name === "keywords" ? { ...field, required: true } : field,
+        ),
+        [{ name: "keywords", value: "news\u0000" }],
+      ),
+    ).toEqual([]);
+    expect(
+      nulSingleLineTextFieldNames(fields, [{ name: "keywords", value: "news\u0000" }]),
+    ).toEqual([]);
+    expect(
+      nulLongTextFieldNames(fields, [{ name: "keywords", value: "news\u0000" }]),
+    ).toEqual([]);
+    expect(
+      nulHtmlFieldNames(fields, [{ name: "keywords", value: "news\u0000" }]),
+    ).toEqual([]);
+    expect(
+      nulLinkFieldNames(fields, [{ name: "keywords", value: "news\u0000" }]),
+    ).toEqual([]);
+  });
+
+  it("uses the loaded keyword when the field was not edited", () => {
+    expect(
+      nulKeywordFieldNames(
+        [{ name: "keywords", kind: "keyword", value: "news\u0000" }],
+        [],
+      ),
+    ).toEqual(["keywords"]);
+  });
+
+  it("reads a keyword NUL from the assembled select", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<span data-perc-field="keywords">news</span>`;
+    const overlay = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [{ name: "keywords", value: "news" }],
+      },
+      [
+        {
+          name: "keywords",
+          label: "Keywords",
+          control: "sys_DropDownSingle",
+        },
+      ],
+    );
+    overlay[0] = {
+      ...overlay[0],
+      choices: [
+        { value: "news", label: "News" },
+        { value: "events", label: "Events" },
+      ],
+    };
+    applyFieldOverlay(root, overlay, "42");
+    const select = root.querySelector(
+      '[data-testid="assembly-inline-field-keywords"]',
+    ) as HTMLSelectElement;
+    const option = select.ownerDocument.createElement("option");
+    option.value = "news\u0000";
+    option.textContent = "NUL";
+    select.appendChild(option);
+    select.value = "news\u0000";
+    expect(readOverlayEdits(root, "42")).toEqual([
+      { contentId: "42", name: "keywords", value: "news\u0000" },
+    ]);
+    expect(nulKeywordFieldNames(overlay, readOverlayEdits(root, "42"))).toEqual([
+      "keywords",
+    ]);
   });
 });
