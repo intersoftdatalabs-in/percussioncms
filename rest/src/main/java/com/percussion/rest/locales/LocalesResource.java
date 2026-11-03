@@ -228,7 +228,9 @@ public class LocalesResource {
       summary = "Update CMS locale",
       description =
           "Admin. Updates label, description, status, and/or baseLocale by language string or"
-              + " numeric id. languageString is immutable. Optional format profile write: send"
+              + " numeric id. languageString is immutable. A label-only body updates the label"
+              + " and leaves omitted description, status, baseLocale, and format unchanged. A"
+              + " blank or whitespace label is not a write. Optional format profile write: send"
               + " hasFormatProfile=true and format to create/update RXLOCALEFORMAT (keyed by"
               + " language string); hasFormatProfile=false clears the row. Omitted format fields"
               + " leave the row unchanged. Invalid pattern is 400. Loads with a design lock and"

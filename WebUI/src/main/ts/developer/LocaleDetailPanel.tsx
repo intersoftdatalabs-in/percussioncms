@@ -37,6 +37,8 @@ import {
   storedLocaleDescription,
 } from "./localeDescription";
 import { LOC_DESC_MSG } from "./localeDescriptionMessages";
+import { localeLabelWrite, savedLocaleLabel, storedLocaleLabel } from "./localeLabel";
+import { LOC_LABEL_MSG } from "./localeLabelMessages";
 import { DEV_MSG } from "./messages";
 
 const fieldStyle: React.CSSProperties = {
@@ -145,6 +147,12 @@ export function LocaleDetailPanel({
   const [detail, setDetail] = useState<LocaleDetail | null>(null);
   const [language, setLanguage] = useState("");
   const [label, setLabel] = useState("");
+  const [labelShown, setLabelShown] = useState("");
+  const [labelDraft, setLabelDraft] = useState("");
+  const [labelEditing, setLabelEditing] = useState(false);
+  const [labelError, setLabelError] = useState<string | null>(null);
+  const [labelNotice, setLabelNotice] = useState<string | null>(null);
+  const [labelBusy, setLabelBusy] = useState(false);
   const [description, setDescription] = useState("");
   const [descriptionShown, setDescriptionShown] = useState("");
   const [descriptionDraft, setDescriptionDraft] = useState("");
@@ -163,6 +171,7 @@ export function LocaleDetailPanel({
   const [loading, setLoading] = useState(idOrLang != null);
   const inflight = useRef(false);
   const descriptionInflight = useRef(false);
+  const labelInflight = useRef(false);
 
   useEffect(() => {
     if (idOrLang == null) {
@@ -179,6 +188,11 @@ export function LocaleDetailPanel({
         setDetail(d);
         setLanguage(d.languageString || "");
         setLabel(d.label || "");
+        setLabelShown(storedLocaleLabel(d.label));
+        setLabelDraft("");
+        setLabelEditing(false);
+        setLabelError(null);
+        setLabelNotice(null);
         setDescription(d.description || "");
         setDescriptionShown(storedLocaleDescription(d.description));
         setDescriptionDraft("");
@@ -202,7 +216,12 @@ export function LocaleDetailPanel({
   }, [idOrLang]);
 
   const canSave =
-    !busy && !descriptionBusy && !descriptionEditing && isLocaleWriteReady({ isNew, language, label });
+    !busy &&
+    !descriptionBusy &&
+    !descriptionEditing &&
+    !labelBusy &&
+    !labelEditing &&
+    isLocaleWriteReady({ isNew, language, label });
   const writeKey =
     idOrLang || createdKey || normalizeLanguageString(language);
 
@@ -235,13 +254,115 @@ export function LocaleDetailPanel({
     return LOC_DESC_MSG.ERROR;
   }
 
+  function labelSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return LOC_LABEL_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return LOC_LABEL_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return LOC_LABEL_MSG.CONFLICT;
+    return LOC_LABEL_MSG.ERROR;
+  }
+
+  function startLabelEdit(): void {
+    if (
+      isNew ||
+      !detail ||
+      busy ||
+      labelBusy ||
+      descriptionBusy ||
+      descriptionEditing ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      inflight.current
+    ) {
+      return;
+    }
+    setLabelDraft(labelShown);
+    setLabelError(null);
+    setLabelNotice(null);
+    setLabelEditing(true);
+  }
+
+  function cancelLabelEdit(): void {
+    if (labelBusy || labelInflight.current) return;
+    setLabelEditing(false);
+    setLabelDraft("");
+    setLabelError(null);
+  }
+
+  async function handleLabelSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !labelEditing ||
+      labelBusy ||
+      descriptionBusy ||
+      labelInflight.current ||
+      descriptionInflight.current ||
+      inflight.current ||
+      busy
+    ) {
+      return;
+    }
+    const sent = localeLabelWrite(detail, labelDraft);
+    if (sent === "blank") {
+      setLabelError(LOC_LABEL_MSG.BLANK);
+      setLabelNotice(null);
+      return;
+    }
+    if (sent === "unchanged") {
+      setLabelEditing(false);
+      setLabelDraft("");
+      setLabelError(null);
+      return;
+    }
+    labelInflight.current = true;
+    setLabelBusy(true);
+    setBusy(true);
+    setLabelError(null);
+    setLabelNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = labelShown;
+    try {
+      const saved = await updateLocale(writeKey, sent);
+      const accepted = savedLocaleLabel(sent, detail, saved);
+      if (accepted == null) {
+        setLabel(previousShown);
+        setLabelShown(previousShown);
+        setLabelError(LOC_LABEL_MSG.ERROR);
+        setLabelNotice(null);
+        return;
+      }
+      const nextDetail: LocaleDetail = { ...detail, label: accepted };
+      setDetail(nextDetail);
+      setLabel(accepted);
+      setLabelShown(accepted);
+      setLabelEditing(false);
+      setLabelDraft("");
+      setLabelNotice(LOC_LABEL_MSG.SAVED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setLabel(previousShown);
+      setLabelShown(previousShown);
+      setLabelError(panelErrMsg(err, labelSaveFallback(err)));
+      setLabelNotice(null);
+    } finally {
+      labelInflight.current = false;
+      setLabelBusy(false);
+      setBusy(false);
+    }
+  }
+
   function startDescriptionEdit(): void {
     if (
       isNew ||
       !detail ||
       busy ||
       descriptionBusy ||
+      labelBusy ||
+      labelEditing ||
       descriptionInflight.current ||
+      labelInflight.current ||
       inflight.current
     ) {
       return;
@@ -267,8 +388,11 @@ export function LocaleDetailPanel({
       !descriptionEditing ||
       descriptionBusy ||
       descriptionInflight.current ||
+      labelInflight.current ||
       inflight.current ||
-      busy
+      busy ||
+      labelBusy ||
+      labelEditing
     ) {
       return;
     }
@@ -318,7 +442,9 @@ export function LocaleDetailPanel({
   }
 
   async function handleSave(): Promise<void> {
-    if (!canSave || inflight.current || descriptionInflight.current) return;
+    if (!canSave || inflight.current || descriptionInflight.current || labelInflight.current) {
+      return;
+    }
     inflight.current = true;
     setBusy(true);
     setError(null);
@@ -337,6 +463,11 @@ export function LocaleDetailPanel({
       }
       setLanguage(saved.languageString || language);
       setLabel(saved.label || label);
+      setLabelShown(storedLocaleLabel(saved.label || label));
+      setLabelDraft("");
+      setLabelEditing(false);
+      setLabelError(null);
+      setLabelNotice(null);
       setDescription(saved.description || "");
       setDescriptionShown(storedLocaleDescription(saved.description));
       setDescriptionDraft("");
@@ -456,10 +587,110 @@ export function LocaleDetailPanel({
               data-testid="developer-loc-label"
               style={inputStyle}
               value={label}
-              disabled={busy}
+              disabled={busy || labelBusy}
               onChange={(e) => setLabel(e.target.value)}
             />
           </div>
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-loc-set-label"
+              aria-label={LOC_LABEL_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{LOC_LABEL_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.85rem" }}>
+                {LOC_LABEL_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-loc-set-label-text"
+                data-loc-label={labelShown}
+                style={{ marginTop: 0 }}
+              >
+                {labelShown}
+              </p>
+              {labelError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-loc-set-label-error"
+                  style={{ color: catalogColors.error, marginBottom: "8px" }}
+                >
+                  {labelError}
+                </div>
+              ) : null}
+              {labelNotice ? (
+                <div
+                  data-testid="developer-loc-set-label-notice"
+                  style={{ color: "#276749", marginBottom: "8px" }}
+                >
+                  {labelNotice}
+                </div>
+              ) : null}
+              {labelEditing ? (
+                <div data-testid="developer-loc-set-label-editor">
+                  <label htmlFor="loc-set-label-input">{LOC_LABEL_MSG.FIELD}</label>
+                  <input
+                    id="loc-set-label-input"
+                    data-testid="developer-loc-set-label-input"
+                    style={inputStyle}
+                    value={labelDraft}
+                    disabled={labelBusy}
+                    onChange={(e) => setLabelDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-label-save"
+                      aria-label={LOC_LABEL_MSG.SAVE}
+                      disabled={labelBusy}
+                      onClick={() => void handleLabelSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: labelBusy ? catalogColors.disabled : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: labelBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_LABEL_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-label-cancel"
+                      disabled={labelBusy}
+                      onClick={cancelLabelEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: labelBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_LABEL_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-loc-set-label-edit"
+                  aria-label={LOC_LABEL_MSG.ACTION}
+                  disabled={busy || labelBusy || descriptionBusy || descriptionEditing}
+                  onClick={startLabelEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {LOC_LABEL_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
           <div style={fieldStyle}>
             <label htmlFor="loc-desc">{DEV_MSG.LOC_FORM_DESCRIPTION}</label>
             <input
@@ -556,7 +787,7 @@ export function LocaleDetailPanel({
                   type="button"
                   data-testid="developer-loc-set-description-edit"
                   aria-label={LOC_DESC_MSG.ACTION}
-                  disabled={busy || descriptionBusy}
+                  disabled={busy || descriptionBusy || labelBusy || labelEditing}
                   onClick={startDescriptionEdit}
                   style={{
                     padding: "4px 10px",

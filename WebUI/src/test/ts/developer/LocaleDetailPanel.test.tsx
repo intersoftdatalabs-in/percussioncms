@@ -9,6 +9,7 @@ import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as localesApi from "../../../main/ts/api/developer/localesApi";
 import { LocaleDetailPanel } from "../../../main/ts/developer/LocaleDetailPanel";
 import { LOC_DESC_MSG } from "../../../main/ts/developer/localeDescriptionMessages";
+import { LOC_LABEL_MSG } from "../../../main/ts/developer/localeLabelMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
 vi.mock("../../../main/ts/api/developer/localesApi", async (importOriginal) => {
@@ -412,6 +413,7 @@ describe("LocaleDetailPanel", () => {
     render(<LocaleDetailPanel idOrLang={null} onBack={() => undefined} />);
     expect(screen.queryByTestId("developer-loc-delete")).toBeNull();
     expect(screen.queryByTestId("developer-loc-set-description")).toBeNull();
+    expect(screen.queryByTestId("developer-loc-set-label")).toBeNull();
   });
 
   it("sets the description only after success and leaves language, label, status, and format", async () => {
@@ -550,6 +552,144 @@ describe("LocaleDetailPanel", () => {
       screen.getByTestId("developer-loc-set-description-text").getAttribute("data-loc-description"),
     ).toBe("US English");
     expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+  });
+
+  it("sets the label only after success and leaves language, description, status, and format", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({ ...sampleDetail, label: "US English" });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-label-text").getAttribute("data-loc-label")).toBe(
+        "English",
+      );
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-edit"));
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-label-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-label-input"), {
+      target: { value: " US English " },
+    });
+    expect(screen.getByTestId("developer-loc-set-label-text").getAttribute("data-loc-label")).toBe(
+      "English",
+    );
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-loc-set-label-text").getAttribute("data-loc-label")).toBe(
+      "English",
+    );
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-label-input"), {
+      target: { value: " US English " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", { label: "US English" });
+    const sent = updateLocale.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty("languageString");
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("status");
+    expect(sent).not.toHaveProperty("format");
+    expect(screen.getByTestId("developer-loc-set-label-text").getAttribute("data-loc-label")).toBe(
+      "US English",
+    );
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("US English");
+    expect(screen.getByTestId("developer-loc-set-label-notice").textContent).toBe(
+      LOC_LABEL_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+    expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe(
+      "US English",
+    );
+    expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+  });
+
+  it("does not write a blank label and keeps the previous label on 400, 403, and 409", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-label-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-label-error").textContent).toBe(
+        LOC_LABEL_MSG.BLANK,
+      );
+    });
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-loc-set-label-text").getAttribute("data-loc-label")).toBe(
+      "English",
+    );
+
+    for (const status of [400, 403, 409]) {
+      updateLocale.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.change(screen.getByTestId("developer-loc-set-label-input"), {
+        target: { value: "later" },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-label-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-loc-set-label-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(screen.getByTestId("developer-loc-set-label-text").getAttribute("data-loc-label")).toBe(
+        "English",
+      );
+      expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+      expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+    }
+  });
+
+  it("does not show a label when the update changes the description or format", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      label: "US English",
+      description: "changed",
+      format: { ...sampleDetail.format, datePattern: "yyyy-MM-dd" },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-label-input"), {
+      target: { value: "US English" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-label-error").textContent).toContain(
+        LOC_LABEL_MSG.ERROR,
+      );
+    });
+    expect(screen.getByTestId("developer-loc-set-label-text").getAttribute("data-loc-label")).toBe(
+      "English",
+    );
+    expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe(
+      "US English",
+    );
     expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
       "MM/dd/yyyy",
     );
