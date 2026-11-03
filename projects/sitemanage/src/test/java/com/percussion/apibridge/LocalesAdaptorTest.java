@@ -116,6 +116,17 @@ class LocalesAdaptorTest {
   }
 
   @Test
+  void validateFormat_rejectsInvalidDateTimePattern() {
+    com.percussion.rest.locales.LocaleFormatSummary src =
+        new com.percussion.rest.locales.LocaleFormatSummary();
+    src.setDateTimePattern("'unclosed");
+    IllegalArgumentException ex =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            IllegalArgumentException.class, () -> LocalesAdaptor.validateFormat(src));
+    assertTrue(ex.getMessage().contains("dateTimePattern"));
+  }
+
+  @Test
   void validateFormat_acceptsCommonPatterns() {
     com.percussion.rest.locales.LocaleFormatSummary src =
         new com.percussion.rest.locales.LocaleFormatSummary();
