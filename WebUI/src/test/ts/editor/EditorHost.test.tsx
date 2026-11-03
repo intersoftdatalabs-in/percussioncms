@@ -6959,6 +6959,217 @@ describe("EditorHost refuse blank required datetime (#5253)", () => {
   });
 });
 
+describe("EditorHost refuse date NUL (#5527)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function dateNulHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    startDate?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (message: string) => boolean;
+  }) {
+    const startDate = opts.startDate ?? "2026-01-01";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percEvent",
+          name: "Event",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "sys_contentstartdate", value: startDate }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "sys_contentstartdate",
+              label: "Start",
+              control: "sys_CalendarSimple",
+              required: opts.required === true,
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openDate(
+    element: React.ReactElement,
+    expected = "2026-01-01",
+  ): Promise<HTMLInputElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement).value,
+      ).toBe(expected);
+    });
+    return screen.getByTestId("editor-field-sys_contentstartdate") as HTMLInputElement;
+  }
+
+  function injectDateNul(input: HTMLInputElement, value: string): void {
+    input.type = "text";
+    fireEvent.change(input, { target: { value } });
+  }
+
+  it("refuses a date NUL before PUT and keeps the previous date after reload", async () => {
+    const saveFields = vi.fn();
+    const input = await openDate(dateNulHost({ saveFields }));
+    expect(input.getAttribute("data-editor-kind")).toBe("date");
+    expect(input.type).toBe("date");
+    injectDateNul(input, "2026-09-18\u0000");
+    expect(input.getAttribute("data-editor-has-nul")).toBe("true");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_contentstartdate").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-error-sys_contentstartdate").textContent).not.toMatch(
+      /required/i,
+    );
+    expect(screen.getByTestId("editor-field-error-sys_contentstartdate").textContent).not.toMatch(
+      /valid date/i,
+    );
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /date fields before saving/i,
+    );
+    expect(
+      screen.getByTestId("editor-field-sys_contentstartdate").getAttribute("aria-invalid"),
+    ).toBe("true");
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    cleanup();
+    const reloaded = await openDate(dateNulHost({ saveFields }));
+    expect(reloaded.value).toBe("2026-01-01");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not write when Close cancels an unsaved date NUL", async () => {
+    const saveFields = vi.fn();
+    const input = await openDate(
+      dateNulHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    injectDateNul(input, "2026-09-18\u0000");
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("still saves a non-blank valid date", async () => {
+    let startDate = "2026-01-01";
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
+      startDate =
+        payload.fields.find((f) => f.name === "sys_contentstartdate")?.value ?? startDate;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Event",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: payload.fields,
+      };
+    });
+    const input = await openDate(dateNulHost({ saveFields, startDate }));
+    fireEvent.change(input, { target: { value: "2026-09-18" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "sys_contentstartdate")?.value).toBe("2026-09-18");
+    expect(
+      String(sent.fields.find((f) => f.name === "sys_contentstartdate")?.value),
+    ).not.toContain("\u0000");
+    cleanup();
+    const reloaded = await openDate(dateNulHost({ saveFields, startDate }), "2026-09-18");
+    expect(reloaded.value).toBe("2026-09-18");
+  });
+
+  it("leaves the required-blank date gate unchanged", async () => {
+    const saveFields = vi.fn();
+    const input = await openDate(dateNulHost({ saveFields, required: true }));
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_contentstartdate").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-error-sys_contentstartdate").textContent).not.toMatch(
+      /character that cannot be saved/i,
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("still saves a cleared optional date", async () => {
+    let startDate = "2026-01-01";
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
+      startDate =
+        payload.fields.find((f) => f.name === "sys_contentstartdate")?.value ?? startDate;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Event",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: payload.fields,
+      };
+    });
+    const input = await openDate(dateNulHost({ saveFields, startDate }));
+    fireEvent.click(screen.getByTestId("editor-date-clear-sys_contentstartdate"));
+    expect(input.value).toBe("");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "sys_contentstartdate")?.value).toBe("");
+    expect(screen.queryByTestId("editor-field-error-sys_contentstartdate")).toBeNull();
+  });
+
+  it("does not treat HTTP 400, 403, or 409 on a date save as success", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    const input = await openDate(dateNulHost({ saveFields }));
+    fireEvent.change(input, { target: { value: "2026-09-18" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_contentstartdate").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_contentstartdate").textContent).toMatch(
+        /not allowed/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+});
+
 describe("EditorHost refuse datetime NUL (#5526)", () => {
   afterEach(() => {
     cleanup();

@@ -19,6 +19,7 @@ import React from "react";
 import { message } from "../../i18n/message";
 import styles from "../EditorHost.module.css";
 import {
+  dateContainsNul,
   datetimeContainsNul,
   fromWidgetValue,
   toWidgetValue,
@@ -57,7 +58,10 @@ export function DateFieldWidget({
         data-testid={`editor-field-${name}`}
         data-editor-kind={kind}
         data-editor-has-nul={
-          kind === "datetime" && datetimeContainsNul(value) ? "true" : undefined
+          (kind === "date" && dateContainsNul(value)) ||
+          (kind === "datetime" && datetimeContainsNul(value))
+            ? "true"
+            : undefined
         }
         type={kind === "datetime" ? "datetime-local" : "date"}
         name={name}

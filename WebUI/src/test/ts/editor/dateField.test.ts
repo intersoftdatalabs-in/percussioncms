@@ -17,7 +17,9 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  collectDateNulFieldErrors,
   collectDatetimeNulFieldErrors,
+  dateContainsNul,
   datetimeContainsNul,
   fromWidgetValue,
   isInvalidEditorDate,
@@ -43,6 +45,16 @@ describe("toWidgetValue / fromWidgetValue", () => {
   });
 });
 
+describe("dateContainsNul", () => {
+  it("rejects an embedded NUL and accepts a valid date or empty clear", () => {
+    expect(dateContainsNul("2026-09-18")).toBe(false);
+    expect(dateContainsNul("")).toBe(false);
+    expect(dateContainsNul("   ")).toBe(false);
+    expect(dateContainsNul("2026-09-18\u0000")).toBe(true);
+    expect(dateContainsNul("\u0000")).toBe(true);
+  });
+});
+
 describe("datetimeContainsNul", () => {
   it("rejects an embedded NUL and accepts a valid datetime or empty clear", () => {
     expect(datetimeContainsNul("2026-09-18 14:30:00")).toBe(false);
@@ -52,6 +64,23 @@ describe("datetimeContainsNul", () => {
     expect(datetimeContainsNul("2026-09-18 14:30:00\u0000")).toBe(true);
     expect(datetimeContainsNul("\u0000")).toBe(true);
     expect(datetimeContainsNul("2026-09-18T14:30\u0000")).toBe(true);
+  });
+});
+
+describe("collectDateNulFieldErrors", () => {
+  it("flags only date rows and leaves datetime NUL and empty required for other gates", () => {
+    expect(
+      collectDateNulFieldErrors(
+        [
+          { name: "event_on", kind: "date", value: "2026-01-01\u0000" },
+          { name: "ok_on", kind: "date", value: "2026-09-18" },
+          { name: "empty_on", kind: "date", value: "" },
+          { name: "event_at", kind: "datetime", value: "2026-01-01 09:00:00\u0000" },
+          { name: "title", kind: "text", value: "z\u0000" },
+        ],
+        "cannot save",
+      ),
+    ).toEqual({ event_on: "cannot save" });
   });
 });
 

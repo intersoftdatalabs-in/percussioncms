@@ -75,7 +75,10 @@ import {
 } from "./linkField";
 import { collectInvalidNumericFieldErrors } from "./numericField";
 import { collectTableNulFieldErrors } from "./tableField";
-import { collectDatetimeNulFieldErrors } from "./dateField";
+import {
+  collectDateNulFieldErrors,
+  collectDatetimeNulFieldErrors,
+} from "./dateField";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
 import { TableFieldWidget } from "./widgets/TableFieldWidget";
 import {
@@ -1409,6 +1412,21 @@ export function EditorHost({
       queueFocusFirstInvalid(errors);
       setFieldErrors(errors);
       setSaveErrorKey(EDITOR_MSG.REQUIRED_SAVE);
+      setSaving(false);
+      return;
+    }
+    const dateNuls = collectDateNulFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: row.value,
+      })),
+      message(EDITOR_MSG.DATE_NUL),
+    );
+    if (Object.keys(dateNuls).length > 0) {
+      queueFocusFirstInvalid(dateNuls);
+      setFieldErrors(dateNuls);
+      setSaveErrorKey(EDITOR_MSG.DATE_NUL_SAVE);
       setSaving(false);
       return;
     }

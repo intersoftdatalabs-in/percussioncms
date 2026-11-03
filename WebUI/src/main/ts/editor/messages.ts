@@ -149,6 +149,9 @@ export const EDITOR_MSG = {
   KEYWORD_NUL:
     "perc.ui.editor@That keyword contains a character that cannot be saved.",
   DATE_CLEAR: "perc.ui.editor@Clear date",
+  DATE_NUL:
+    "perc.ui.editor@That date contains a character that cannot be saved.",
+  DATE_NUL_SAVE: "perc.ui.editor@Correct the date fields before saving.",
   DATETIME_NUL:
     "perc.ui.editor@That date and time contains a character that cannot be saved.",
   DATETIME_NUL_SAVE:
