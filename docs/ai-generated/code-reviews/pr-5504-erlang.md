@@ -1,3 +1,20 @@
+<!--
+Copyright (c) 2026 Intersoft Data Labs, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
 ## Summary
 
 Machine analysis found **0** finding(s), **0** bug(s).
@@ -6,7 +23,7 @@ Machine analysis found **0** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 7 analyzed
+- Files: 10 analyzed
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 
@@ -25,10 +42,8 @@ _No issues._
 
 ## Independent reading
 
-Calling agent: night-issue-prs (Grok Build 1.0.70, grok-4.6). Persona erlang 0.1.1. CLI mkd-code-review 0.1.18, pack percussion, gate advisory, `--git-base origin/main`. No `llm.error`.
+Calling agent: night-issue-prs-erlang (Grok Build 1.0.70, grok-4.6). Persona erlang 0.1.1. CLI mkd-code-review 0.1.18, pack percussion, gate advisory, `--git-base origin/main`, models `models.ollama-dev-coder.toml`. No `llm.error`.
 
-`createFolderContainsNul` is true only for U+0000. An empty or whitespace-only folder stays incomplete (`CREATE_INCOMPLETE`) and does not POST. `handleCreate` returns before `createItem` and before `allowLeave` when the folder contains a NUL, shows **That folder path contains a character that cannot be saved.**, and leaves the create panel open with the content type and name unchanged. A folder path without a NUL still creates and opens the item. HTTP 400, 403, and 404 stay on the existing failure path and do not show a content id. The new-item name NUL gate is unchanged. Vitest, Playwright (`editor-host-create-folder-nul.spec.js`), and `product-docs/8.2/admin/content-explorer.md` are in the diff. No filesystem path joins. No rule files.
+`createFolderContainsNul` is true only for U+0000. `handleCreate` builds the request first: an empty or whitespace-only folder stays `CREATE_INCOMPLETE` and does not POST. A folder that contains a NUL is refused before `allowLeave` and before `createItem`, with **That folder path contains a character that cannot be saved.** The create panel stays open; content type and name stay filled. The name NUL gate (#5472) still runs first and is unchanged. HTTP 400 / 403 / 404 stay on the existing failure path and do not show a content id. Vitest (`editorCreate.test.ts`, `EditorHost.create.test.tsx`), Playwright (`editor-host-create-folder-nul.spec.js`), and the EditorHost **New item** sentence in `product-docs/8.2/admin/content-explorer.md` are in the diff. No filesystem path joins. No rule files.
 
 Gate: PASS. Recommendation: approve. May merge: yes.
-
-Copy: `docs/ai-generated/code-reviews/issue-5474-erlang.md`
