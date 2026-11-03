@@ -197,6 +197,7 @@ import {
 import {
   buildEditorCreateRequest,
   canCreateFromEditor,
+  createFolderContainsNul,
   createNameContainsNul,
   editorCreateErrorReason,
   parseCreateLandingContentId,
@@ -3269,6 +3270,14 @@ export function EditorHost({
       setCreateErrorKey(EDITOR_MSG.CREATE_NAME_NUL);
       return;
     }
+    if (
+      createFolderContainsNul(createFolder) ||
+      createFolderContainsNul(req.folderPath)
+    ) {
+      setCreateErrorDetail("");
+      setCreateErrorKey(EDITOR_MSG.CREATE_FOLDER_NUL);
+      return;
+    }
     if (!allowLeave()) {
       return;
     }
@@ -4254,6 +4263,9 @@ export function EditorHost({
                 type="text"
                 data-testid="editor-create-folder"
                 value={createFolder}
+                aria-invalid={
+                  createErrorKey === EDITOR_MSG.CREATE_FOLDER_NUL ? true : undefined
+                }
                 onChange={(e) => setCreateFolder(e.target.value)}
               />
             </label>

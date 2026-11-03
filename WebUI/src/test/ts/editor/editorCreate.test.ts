@@ -19,6 +19,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildEditorCreateRequest,
   canCreateFromEditor,
+  createFolderContainsNul,
   createNameContainsNul,
   editorCreateErrorReason,
   editorCreateRequestReady,
@@ -59,6 +60,16 @@ describe("editorCreate", () => {
     expect(createNameContainsNul("   ")).toBe(false);
     expect(createNameContainsNul("Shot")).toBe(false);
     expect(createNameContainsNul(undefined)).toBe(false);
+  });
+
+  it("detects a NUL in the new item folder and ignores an empty folder", () => {
+    expect(createFolderContainsNul("/Assets\u0000")).toBe(true);
+    expect(createFolderContainsNul("\u0000")).toBe(true);
+    expect(createFolderContainsNul("  /A\u0000")).toBe(true);
+    expect(createFolderContainsNul("")).toBe(false);
+    expect(createFolderContainsNul("   ")).toBe(false);
+    expect(createFolderContainsNul("/Assets")).toBe(false);
+    expect(createFolderContainsNul(undefined)).toBe(false);
   });
 
   it("parses numeric and GUID create result ids", () => {

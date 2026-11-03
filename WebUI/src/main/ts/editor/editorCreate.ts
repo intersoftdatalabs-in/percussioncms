@@ -20,7 +20,9 @@
  *
  * <p>POST {@code /services/itemmanagement/item/create} via {@code createEditorItem}.
  * HTTP 403 / 400 / 404 are failures, not success. A name that contains a NUL
- * is refused before that POST (#5472). A blank name stays optional.</p>
+ * is refused before that POST (#5472). A folder path that contains a NUL is
+ * refused before that POST (#5474). A blank name stays optional. An empty
+ * folder is incomplete, not a NUL.</p>
  */
 
 import { isApiError } from "../api/client";
@@ -56,6 +58,18 @@ export function createNameContainsNul(
   name: string | null | undefined,
 ): boolean {
   return (name ?? "").includes("\u0000");
+}
+
+/**
+ * True when a new item folder path contains a NUL.
+ * An empty or whitespace-only folder is not a NUL; it stays incomplete.
+ * A normal folder path is not a NUL. The editor refuses a NUL before
+ * {@code POST /services/itemmanagement/item/create}.
+ */
+export function createFolderContainsNul(
+  folderPath: string | null | undefined,
+): boolean {
+  return (folderPath ?? "").includes("\u0000");
 }
 
 export function buildEditorCreateRequest(

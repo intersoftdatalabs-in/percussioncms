@@ -255,6 +255,96 @@ describe("EditorHost create item", () => {
     expect(String(createItem.mock.calls[0]?.[0]?.name)).not.toContain("\u0000");
   });
 
+  it("does not create when the folder contains a NUL, then creates a normal folder", async () => {
+    const createItem = vi.fn().mockResolvedValue({
+      itemId: "77",
+      folderPath: "/Assets",
+      name: "Shot",
+      contentType: "percImageAsset",
+    });
+    const loadFields = vi.fn().mockResolvedValue({
+      contentId: "77",
+      contentType: "percImageAsset",
+      name: "Shot",
+      checkoutUser: "admin",
+      revision: 1,
+      fields: [{ name: "sys_title", value: "Shot" }],
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                loadContentTypes={async () => [
+                  { name: "percImageAsset", label: "Image" },
+                ]}
+                createItem={createItem}
+                loadFields={loadFields}
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadType={async () => ({
+                  fields: [{ name: "sys_title", label: "Title", control: "sys_EditBox" }],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("editor-create-type").querySelector(
+          'option[value="percImageAsset"]',
+        ),
+      ).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-create-type"), {
+      target: { value: "percImageAsset" },
+    });
+    fireEvent.change(screen.getByTestId("editor-create-name"), {
+      target: { value: "Shot" },
+    });
+    fireEvent.change(screen.getByTestId("editor-create-folder"), {
+      target: { value: "/Assets\u0000" },
+    });
+    fireEvent.click(screen.getByTestId("editor-create-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-create-error").textContent).toMatch(
+        /folder path contains a character that cannot be saved/i,
+      );
+    });
+    expect(createItem).not.toHaveBeenCalled();
+    expect(screen.getByTestId("editor-create-panel")).toBeTruthy();
+    expect((screen.getByTestId("editor-create-type") as HTMLSelectElement).value).toBe(
+      "percImageAsset",
+    );
+    expect((screen.getByTestId("editor-create-name") as HTMLInputElement).value).toBe(
+      "Shot",
+    );
+    expect(screen.getByTestId("editor-create-folder")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    expect(screen.queryByTestId("editor-content-id")).toBeNull();
+
+    fireEvent.change(screen.getByTestId("editor-create-folder"), {
+      target: { value: "/Assets" },
+    });
+    fireEvent.click(screen.getByTestId("editor-create-submit"));
+    await waitFor(() => {
+      expect(createItem).toHaveBeenCalledWith({
+        contentType: "percImageAsset",
+        folderPath: "/Assets",
+        name: "Shot",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-content-id").textContent).toMatch(/77/);
+    });
+    expect(String(createItem.mock.calls[0]?.[0]?.folderPath)).not.toContain("\u0000");
+  });
+
   it("still creates when the name is blank", async () => {
     const createItem = vi.fn().mockResolvedValue({
       itemId: "78",
