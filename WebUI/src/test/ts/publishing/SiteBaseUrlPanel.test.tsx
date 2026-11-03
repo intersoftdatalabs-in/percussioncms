@@ -45,9 +45,12 @@ describe("SiteBaseUrlPanel", () => {
       baseUrl: "https://after.example/root",
     });
     const { unmount } = render(<SiteBaseUrlPanel siteName="NightlySite" />);
-    expect(await screen.findByTestId("publish-site-base-url")).toHaveTextContent(
-      "https://before.example",
-    );
+    // The testid is present on first paint with placeholder "—"; wait for GET.
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-site-base-url")).toHaveTextContent(
+        "https://before.example",
+      );
+    });
     fireEvent.click(screen.getByTestId("publish-site-base-url-edit"));
     fireEvent.change(screen.getByTestId("publish-site-base-url-input"), {
       target: { value: "  https://after.example/root  " },
@@ -66,14 +69,19 @@ describe("SiteBaseUrlPanel", () => {
     expect(screen.queryByTestId("publish-site-base-url-form")).toBeNull();
 
     unmount();
+    getSiteMock.mockReset();
     getSiteMock.mockResolvedValue({
       name: "NightlySite",
       baseUrl: "https://after.example/root",
     });
     render(<SiteBaseUrlPanel siteName="NightlySite" />);
-    expect(await screen.findByTestId("publish-site-base-url")).toHaveTextContent(
-      "https://after.example/root",
-    );
+    // Remount paints "—" until GET resolves; findByTestId would match too early.
+    await waitFor(() => {
+      expect(getSiteMock).toHaveBeenCalledWith("NightlySite");
+      expect(screen.getByTestId("publish-site-base-url")).toHaveTextContent(
+        "https://after.example/root",
+      );
+    });
   });
 
   it("does not PUT on cancel, an unchanged URL, or an empty or invalid URL", async () => {
