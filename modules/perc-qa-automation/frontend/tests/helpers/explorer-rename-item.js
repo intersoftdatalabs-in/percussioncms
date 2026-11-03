@@ -79,6 +79,28 @@ function isRenameFolderItemRequestEnvelope(body) {
   return Boolean(nested.itemPath) && Boolean(nested.newName);
 }
 
+function renameFolderItemRequestNewName(body) {
+  if (!body || typeof body !== "object") {
+    return "";
+  }
+  const nested = body.RenameFolderItemRequest;
+  if (!nested || typeof nested !== "object") {
+    return "";
+  }
+  return String(nested.newName || "");
+}
+
+function isRenameFolderItemRequestForName(body, name) {
+  return (
+    isRenameFolderItemRequestEnvelope(body) &&
+    renameFolderItemRequestNewName(body) === String(name || "")
+  );
+}
+
+function uniqueRenameItemName(prefix, stamp) {
+  return uniqueCopyItemName(prefix || "qa5480", stamp);
+}
+
 module.exports = {
   RENAME_ITEM_TEST_IDS,
   SURFACE_TAGS,
@@ -91,6 +113,9 @@ module.exports = {
   isRxContentExplorerFoldersUrl,
   isRenameItemSuccessStatus,
   isRenameFolderItemRequestEnvelope,
+  renameFolderItemRequestNewName,
+  isRenameFolderItemRequestForName,
+  uniqueRenameItemName,
   uniqueCopyItemName,
   seedDisposableEmptyFolder,
   seedDisposableAsset,

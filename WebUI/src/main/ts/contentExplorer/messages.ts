@@ -93,6 +93,8 @@ export const EXPLORER_MSG = {
   ACTION_RENAME_CONFLICT:
     "perc.ui.explorer@Could not rename the item (name in use, locked, or not an item)",
   ACTION_RENAME_INVALID: "perc.ui.explorer@That name is not valid",
+  ACTION_RENAME_ITEM_NUL:
+    "perc.ui.explorer@That item name contains a character that cannot be stored",
   FOLDER_RENAME_TITLE: "perc.ui.explorer@Rename folder",
   FOLDER_RENAME_NAME: "perc.ui.explorer@New folder name",
   FOLDER_RENAME_SUBMIT: "perc.ui.explorer@Rename",

@@ -300,6 +300,10 @@ export function ReducedActions({
       item.name ?? item.path,
     );
     if (!newName || newName === item.name) return;
+    if (folderNameContainsNul(newName)) {
+      onError?.(message(EXPLORER_MSG.ACTION_RENAME_ITEM_NUL));
+      return;
+    }
     void runItemAction("rename", () => handlers.onRename(item, newName));
   }, [handlers, item, onError, runItemAction]);
 
