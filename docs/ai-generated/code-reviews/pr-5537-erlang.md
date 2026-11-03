@@ -1,4 +1,4 @@
-# Erlang review — PR #5537 (issue #5503 delivery-server default) re-review
+# Erlang review — PR #5537 (issue #5503 delivery-server default) R2 after erlang-fix
 
 Command:
 
@@ -8,8 +8,10 @@ mkd-code-review analyze --pack percussion --format markdown --gate advisory \
     --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
 ```
 
-Cwd: PR branch `fix/issue-5503-delivery-server-default` after the demote-without-promote fix.
-CLI: mkd-code-review 0.1.18. Reviewer did not author the original feature commit.
+Cwd: PR branch `fix/issue-5503-delivery-server-default` at `2ed18d87f90b4a0a95d2b1f3e115261900072116`.
+CLI: mkd-code-review 0.1.18. Reviewer did not author the feature or erlang-fix commits.
+
+Status: independent re-review after erlang-fix.
 
 ## Summary
 
@@ -21,7 +23,7 @@ Independent review found **0 in-diff bugs**. Gate: **PASS**.
 
 - Base: origin/main
 - Head: HEAD
-- Files: 13 analyzed
+- Files: 14 analyzed
 - In-diff: 1 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
@@ -36,7 +38,7 @@ approve
 
 - Blocking bugs: 0
 - May commit/push: yes
-- May merge: yes (human merge; this agent does not merge)
+- May merge: yes
 
 ## Issues
 
@@ -79,13 +81,14 @@ Disposition: preexisting intercept wiring. Not a merge blocker.
 - Rule: change-class / behavioral correctness
 - Description: Previous `updateDefaultOnly` stored `site.defaultPubServer` then called `updatePreviousDefaultPubServer`, which demoted the previous default (`filesystem` → `filesystem_only`, edition rewrite, `savePubServer`) without promoting the new default.
 - Status: resolved
-- Mitigation: Dropped `updatePreviousDefaultPubServer` and the incremental-queue side effect. Persist is `PSDeliveryServerDefaultUpdate.apply` + `siteMgr.saveSite` only. Service-level `PSPubServerServiceDefaultOnlyTest` asserts previous `publishType` stays `filesystem`, selected stays `filesystem_only`, `savePubServer` / `updateServerEditions` / `setPublishServerAsDefault` / content-change queue are not called.
+- Mitigation: Commit `2ed18d87f9`. Dropped `updatePreviousDefaultPubServer` and the incremental-queue side effect. Persist is `PSDeliveryServerDefaultUpdate.apply` + `siteMgr.saveSite` only. Site lock still released via the outer `updatePubServer` `finally`. Service-level `PSPubServerServiceDefaultOnlyTest` asserts previous `publishType` stays `filesystem`, selected stays `filesystem_only`, and `savePubServer` / `updateServerEditions` / `setPublishServerAsDefault` / content-change queue are not called.
 
 ## Gate notes
 
 - CLI in-diff bugs: 0 (machine). Erlang in-diff bugs: 0 (blocking).
 - Companions: helper unit test, service-level write-path test, Vitest, Playwright, product-docs.
 - Non-portable paths: none (test uses `Path.of("tmp", …)` only as a mocked `PathUtils.getRxDir` File).
-- May merge: yes (human)
+- Required GitHub status checks: none on `main` (protection `required_status_checks` is null). One snapshot: pending CodeQL/product-docs/H2 QA wiring; not required.
+- May merge: yes
 
-> Co-Authored by Grok Build 1.0.70 using grok-4.6 with agent night-issue-prs-erlang-fix.
+> Co-Authored by Grok Build 1.0.70 using grok-4.6 with agent night-issue-prs-erlang.
