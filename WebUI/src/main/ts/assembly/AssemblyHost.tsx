@@ -35,6 +35,7 @@
  * id, GUID, or folder path still saves. The HTML NUL gate is unchanged) and
  * persist through itemmanagement — not leftover Content Editor HTML. A required
  * keyword with no choice is refused before PUT; a catalog choice still saves.
+ * A keyword that contains a NUL is not saved, and the previous choice stays.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -91,6 +92,7 @@ import {
   blankRequiredTextFieldNames,
   changedOverlayEdits,
   nulHtmlFieldNames,
+  nulKeywordFieldNames,
   nulLinkFieldNames,
   nulLongTextFieldNames,
   nulSingleLineTextFieldNames,
@@ -706,6 +708,7 @@ export function AssemblyHost({
     const nulLongText = nulLongTextFieldNames(overlayFields, visibleEdits);
     const nulHtml = nulHtmlFieldNames(overlayFields, visibleEdits);
     const nulLink = nulLinkFieldNames(overlayFields, visibleEdits);
+    const nulKeyword = nulKeywordFieldNames(overlayFields, visibleEdits);
     const blankRequiredLinks = blankRequiredLinkFieldNames(
       overlayFields,
       visibleEdits,
@@ -761,7 +764,8 @@ export function AssemblyHost({
       nulText.length > 0 ||
       nulLongText.length > 0 ||
       nulHtml.length > 0 ||
-      nulLink.length > 0
+      nulLink.length > 0 ||
+      nulKeyword.length > 0
     ) {
       const requiredText = message(ASSEMBLY_MSG.FIELD_REQUIRED);
       const numberText = message(ASSEMBLY_MSG.FIELD_NUMBER);
@@ -771,6 +775,7 @@ export function AssemblyHost({
       const longTextNul = message(ASSEMBLY_MSG.FIELD_LONGTEXT_NUL);
       const htmlNul = message(ASSEMBLY_MSG.FIELD_HTML_NUL);
       const linkNul = message(ASSEMBLY_MSG.FIELD_LINK_NUL);
+      const keywordNul = message(ASSEMBLY_MSG.FIELD_KEYWORD_NUL);
       const errors: Record<string, string> = {};
       for (const name of blankRequired) {
         errors[name] = requiredText;
@@ -816,6 +821,9 @@ export function AssemblyHost({
       for (const name of nulLink) {
         errors[name] = linkNul;
       }
+      for (const name of nulKeyword) {
+        errors[name] = keywordNul;
+      }
       const refused = overlayFields.filter(
         (field) =>
           badNumbers.includes(field.name) ||
@@ -853,7 +861,9 @@ export function AssemblyHost({
                     ? longTextNul
                     : nulHtml.length > 0
                       ? htmlNul
-                      : linkNul,
+                      : nulLink.length > 0
+                        ? linkNul
+                        : keywordNul,
       );
       setFieldNoticeRole("alert");
       return;
