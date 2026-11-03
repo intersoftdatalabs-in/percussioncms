@@ -67,7 +67,7 @@ function shown(value: string): string {
 /**
  * Set the remote folder on an FTP delivery server. The PUT body is only folder.
  * Host, port, and user stay visible and are not sent. Password is never rendered.
- * A blank folder clears the stored folder. Local folder editing stays on Edit Server.
+ * A blank folder clears the stored folder. Local folder editing is the Local folder panel.
  */
 export function FtpDeliveryFolderPanel({
   siteId,

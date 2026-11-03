@@ -62,6 +62,22 @@ describe("FileDriverFields canonical property keys", () => {
     expect(keys).not.toContain("bucketName");
   });
 
+  it("exposes a stable test id on the Local folder field", () => {
+    const onChange = vi.fn();
+    render(
+      <FileDriverFields
+        driver="Local"
+        properties={{ folder: "/kept/local" }}
+        onChange={onChange}
+      />,
+    );
+    const input = screen.getByTestId("local-folder-editor-input") as HTMLInputElement;
+    expect(input).toHaveValue("/kept/local");
+    expect(input.id).toBe("drv-folder");
+    fireEvent.change(input, { target: { value: "/night-local" } });
+    expect(onChange).toHaveBeenCalledWith("folder", "/night-local");
+  });
+
   it("writes SFTP user under the canonical 'userid' key", () => {
     const onChange = vi.fn();
     render(

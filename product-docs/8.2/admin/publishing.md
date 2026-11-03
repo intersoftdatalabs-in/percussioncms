@@ -322,9 +322,27 @@ written. **Cancel** does not call the server and keeps the previous folder. HTTP
 and **409** stay on the form and keep the previous folder.
 
 **FTPS**, **SFTP**, Amazon S3, and a **Local** driver do not use this save. Choosing **Set
-folder** on a Local server does not change that server's folder. The Local folder field on
-**Edit Server** is a separate editor. Host-only save, port-only save, user-id-only save, and full
-server edit stay separate.
+folder** on a Local server does not change that server's folder. Use **Local folder** on the
+same Sites workspace for a Local driver. Host-only save, port-only save, user-id-only save, and
+full server edit stay separate.
+
+### Set the local delivery-server folder (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **Local**. **Set folder** edits only the local file folder. **Save folder** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `folder` property. The
+server name and driver stay as they were. Host-style FTP properties (host, port, user, password)
+are not shown on this control and are not sent.
+
+The folder is optional. A blank folder clears the stored folder. A folder longer than 255
+characters is refused on the form (**Local folder must be 255 characters or fewer**) and is not
+written. **Cancel** does not call the server and keeps the previous folder. HTTP **400**,
+**403**, and **409** stay on the form and keep the previous folder. The saved folder is shown
+only after a successful save (or after the server is loaded).
+
+**FTP**, **FTPS**, **SFTP**, and Amazon S3 do not use this save. Choosing **Set folder** on an
+FTP server does not change that server's remote folder — use **FTP folder** instead. The Local
+folder field on **Edit Server** remains a full-server editor.
 
 ### Copy a site delivery server (Sites)
 
