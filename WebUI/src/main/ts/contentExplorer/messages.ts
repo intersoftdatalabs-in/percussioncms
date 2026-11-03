@@ -57,6 +57,8 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Could not create the folder (name in use or destination is not a folder)",
   ACTION_CREATE_FOLDER_INVALID:
     "perc.ui.explorer@Enter a folder name without path separators",
+  ACTION_CREATE_FOLDER_NUL:
+    "perc.ui.explorer@That folder name contains a character that cannot be stored",
   ACTION_CREATE_PAGE: "perc.ui.explorer@Create Page",
   ACTION_CREATE_PAGE_NAME: "perc.ui.explorer@Page name",
   ACTION_CREATE_PAGE_TYPE: "perc.ui.explorer@Content type",

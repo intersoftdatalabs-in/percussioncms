@@ -15,6 +15,11 @@
  * limitations under the License.
  */
 
+/** True when the raw prompt or field value contains U+0000. */
+export function folderNameContainsNul(name: string): boolean {
+  return String(name ?? "").includes("\u0000");
+}
+
 /** Single Explorer folder segment — no path separators or parent hops (#4637). */
 export function isValidExplorerFolderName(name: string): boolean {
   const n = String(name ?? "").trim();
@@ -39,17 +44,18 @@ export type FolderRenameFieldReason =
   | "unchanged";
 
 /**
- * Client checks before folder rename. A NUL is refused here only — new-folder
- * names still use {@link isValidExplorerFolderName}. Collision is
- * case-insensitive against sibling names (the current name is excluded).
- * Server HTTP 409 still applies when the list of siblings is incomplete.
+ * Client checks before folder rename. A NUL is this rename gate only —
+ * new-folder names use {@link folderNameContainsNul} in Create Folder.
+ * Collision is case-insensitive against sibling names (the current name
+ * is excluded). Server HTTP 409 still applies when the sibling list is
+ * incomplete.
  */
 export function folderRenameFieldReason(
   currentName: string,
   nextName: string,
   takenNames: readonly string[] = [],
 ): FolderRenameFieldReason | null {
-  if (String(nextName ?? "").includes("\u0000")) {
+  if (folderNameContainsNul(nextName)) {
     return "nul";
   }
   const next = String(nextName ?? "").trim();
