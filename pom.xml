@@ -189,7 +189,7 @@
              advisory range (,1.4.1] (Dependabot #204 / issue #1674) -->
         <java.websocket.version>1.6.0</java.websocket.version>
         <!-- Desktop Content Explorer OpenJFX line (bare "17" was unpatched javafx-media) -->
-        <javafx.version>26.0.2</javafx.version>
+        <javafx.version>27.0.1</javafx.version>
         <javassist.version>3.33.0-GA</javassist.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <!-- RequireUpperBoundDeps: hibernate-core 7.4.8.Final pulls jaxb-runtime 4.0.7
