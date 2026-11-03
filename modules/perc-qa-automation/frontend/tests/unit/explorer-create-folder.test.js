@@ -33,6 +33,9 @@ const {
   isRxContentExplorerFoldersUrl,
   isCreateFolderSuccessStatus,
   uniqueCreateFolderName,
+  uniqueQaFolderName,
+  createFolderRequestCarriesName,
+  isCreateFolderMutationForName,
   unwrapCreatedPathItem,
 } = require("../helpers/explorer-create-folder");
 
@@ -119,6 +122,64 @@ describe("explorer-create-folder helpers (#4637)", () => {
 
   it("uniqueCreateFolderName is stable for a given timestamp", () => {
     assert.equal(uniqueCreateFolderName(1700000000000), "qa4637_1700000000000");
+  });
+
+  it("uniqueQaFolderName keeps a slice prefix and optional entropy", () => {
+    assert.equal(
+      uniqueQaFolderName("qa5479", 1700000000000, "ab12cd"),
+      "qa5479_1700000000000_ab12cd",
+    );
+    assert.equal(
+      uniqueQaFolderName("qa5479", 1700000000000, ""),
+      "qa5479_1700000000000",
+    );
+    assert.match(uniqueQaFolderName("qa5479", 1700000000000), /^qa5479_1700000000000_[a-z0-9]{6}$/);
+    assert.ok(uniqueQaFolderName("qa5479").length <= 50);
+  });
+
+  it("createFolderRequestCarriesName requires the exact name, not an x409 suffix", () => {
+    const wanted = "qa5479_1700000000000";
+    const restReq = {
+      url: () => "http://x/Rhythmyx/rest/folders/create",
+      postData: () =>
+        JSON.stringify({ CreateFolderRequest: { parentPath: "/Assets", name: wanted } }),
+    };
+    const failReq = {
+      url: () => "http://x/Rhythmyx/rest/folders/create",
+      postData: () =>
+        JSON.stringify({
+          CreateFolderRequest: { parentPath: "/Assets", name: `${wanted}x409` },
+        }),
+    };
+    const pathReq = {
+      url: () =>
+        `http://x/Rhythmyx/services/pathmanagement/path/addNewFolder/Assets?name=${wanted}`,
+      postData: () => "",
+    };
+    assert.equal(createFolderRequestCarriesName(restReq, wanted), true);
+    assert.equal(createFolderRequestCarriesName(failReq, wanted), false);
+    assert.equal(createFolderRequestCarriesName(pathReq, wanted), true);
+    assert.equal(
+      isCreateFolderMutationForName(
+        { url: () => restReq.url(), request: () => ({ ...restReq, method: () => "POST" }) },
+        wanted,
+      ),
+      true,
+    );
+    assert.equal(
+      isCreateFolderMutationForName(
+        { url: () => restReq.url(), request: () => ({ ...failReq, method: () => "POST" }) },
+        wanted,
+      ),
+      false,
+    );
+    assert.equal(
+      isCreateFolderMutationForName(
+        { url: () => restReq.url(), request: () => ({ ...restReq, method: () => "OPTIONS" }) },
+        wanted,
+      ),
+      false,
+    );
   });
 
   it("unwrapCreatedPathItem reads Jackson PathItem wrap", () => {

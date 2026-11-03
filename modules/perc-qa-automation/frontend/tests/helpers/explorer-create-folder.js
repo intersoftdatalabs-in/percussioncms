@@ -141,11 +141,115 @@ function isCreateFolderSuccessStatus(status) {
  * @returns {string}
  */
 function uniqueCreateFolderName(nowMs) {
+  return uniqueQaFolderName("qa4637", nowMs, "");
+}
+
+/**
+ * Unique Explorer folder name. Entropy avoids leftover-name HTTP 409 on
+ * skip-image-build H2 cells when Date.now() is not enough (#5507).
+ *
+ * @param {string} prefix
+ * @param {number} [nowMs]
+ * @param {string} [entropy]
+ * @returns {string}
+ */
+function uniqueQaFolderName(prefix, nowMs, entropy) {
   const ts =
     nowMs != null && Number.isFinite(Number(nowMs))
       ? Number(nowMs)
       : Date.now();
-  return `qa4637_${ts}`;
+  const head = String(prefix || "qa").replace(/[^A-Za-z0-9_]/g, "") || "qa";
+  const extra =
+    entropy === undefined
+      ? Math.random().toString(36).slice(2, 8)
+      : String(entropy ?? "")
+          .replace(/[^A-Za-z0-9]/g, "")
+          .slice(0, 8);
+  const name = extra ? `${head}_${ts}_${extra}` : `${head}_${ts}`;
+  return name.length > 50 ? name.slice(0, 50) : name;
+}
+
+/**
+ * {@code ?name=} on pathmanagement addNewFolder, or null if unparseable.
+ *
+ * @param {string} url
+ * @returns {string | null}
+ */
+function pathmanagementAddNewFolderName(url) {
+  try {
+    return new URL(url, "http://localhost").searchParams.get("name");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Exact folder name from a {@code CreateFolderRequest} JSON body.
+ *
+ * @param {string} raw
+ * @returns {string}
+ */
+function createFolderJsonName(raw) {
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return "";
+    }
+    const inner = parsed.CreateFolderRequest || parsed;
+    return String(inner.name || "");
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * True when a create-folder request carries this exact folder name
+ * (JSON {@code CreateFolderRequest.name} or pathmanagement {@code ?name=}).
+ * Prefix matches are not enough: fail names {@code ${name}x409} must not
+ * satisfy the success wait (#5507).
+ *
+ * @param {{ url?: () => string, postData?: () => string | null } | null | undefined} request
+ * @param {string} name
+ * @returns {boolean}
+ */
+function createFolderRequestCarriesName(request, name) {
+  const wanted = String(name || "");
+  if (!wanted || !request) {
+    return false;
+  }
+  const url = typeof request.url === "function" ? String(request.url() || "") : "";
+  if (isPathmanagementAddNewFolderUrl(url)) {
+    return pathmanagementAddNewFolderName(url) === wanted;
+  }
+  const raw =
+    typeof request.postData === "function" ? String(request.postData() || "") : "";
+  return Boolean(raw) && createFolderJsonName(raw) === wanted;
+}
+
+/**
+ * True when this response is a non-OPTIONS create-folder mutation for
+ * {@code name} (public REST or pathmanagement).
+ *
+ * @param {{ url?: () => string, request?: () => { method?: () => string, url?: () => string, postData?: () => string | null } } | null | undefined} res
+ * @param {string} name
+ * @returns {boolean}
+ */
+function isCreateFolderMutationForName(res, name) {
+  if (!res || typeof res.url !== "function" || typeof res.request !== "function") {
+    return false;
+  }
+  const req = res.request();
+  if (!req || typeof req.method !== "function") {
+    return false;
+  }
+  if (req.method() === "OPTIONS") {
+    return false;
+  }
+  const url = String(res.url() || "");
+  if (!isFoldersCreateUrl(url) && !isPathmanagementAddNewFolderUrl(url)) {
+    return false;
+  }
+  return createFolderRequestCarriesName(req, name);
 }
 
 /**
@@ -184,6 +288,9 @@ module.exports = {
   isRxContentExplorerFoldersUrl,
   isCreateFolderSuccessStatus,
   uniqueCreateFolderName,
+  uniqueQaFolderName,
+  createFolderRequestCarriesName,
+  isCreateFolderMutationForName,
   unwrapCreatedPathItem,
   treeRootLocator,
   sitesTreeRootLocator,
