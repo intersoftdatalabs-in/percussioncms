@@ -373,6 +373,11 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSDeliveryServerRename.isNameOnly(pubServerInfo)) {
         return updateNameOnly(siteId, serverId, pubServerInfo);
       }
+      // Default-flag-only PUT must not run the full property replace (that clears driver,
+      // folder, type, name, and secrets) and must not decode a password that is not in the body.
+      if (PSDeliveryServerDefaultUpdate.isDefaultOnly(pubServerInfo)) {
+        return updateDefaultOnly(siteId, serverId, pubServerInfo);
+      }
       // Host-only FTP PUT must not run the full property replace (that clears port, user,
       // folder, and password) and must not decode a password that is not in the body.
       if (PSFtpDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
@@ -541,6 +546,49 @@ public class PSPubServerService implements IPSPubServerService {
           PSExceptionUtils.getMessageForLog(e));
     }
     return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Mark only the delivery-server default flag. Does not replace properties, change the name,
+   * driver, or type, or decode a password. {@code isDefault} must be true. A server that is already
+   * the site default is not a write. The previous default is cleared after a successful save.
+   */
+  private PSPublishServerInfo updateDefaultOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    PSDeliveryServerDefaultUpdate.validate(pubServerInfo);
+    PSPubServer currentDefaultServer = getDefaultPubServer(site.getGUID());
+    if (PSDeliveryServerDefaultUpdate.alreadyDefault(server, currentDefaultServer)) {
+      return toPSPublishServerInfo(server, site, true);
+    }
+    // Flag-only: store the site default id. Do not run setPublishServerAsDefault
+    // (that walks every full edition and NPEs when an edition has no pub server,
+    // and it also rewrites the site root from this server's folder).
+    IPSSite siteMod = siteMgr.loadSiteModifiable(site.getGUID());
+    siteMod.setDefaultPubServer(server.getServerId());
+    siteMgr.saveSite(siteMod);
+    boolean clearIncrementalQueue = false;
+    if (currentDefaultServer != null) {
+      clearIncrementalQueue =
+          updatePreviousDefaultPubServer(currentDefaultServer, server, siteMod, true);
+    }
+    if (clearIncrementalQueue) {
+      clearLiveIncrementalQueue(siteMod);
+    }
+    IPSSite refreshedSite = siteMgr.findSite(getSiteGuid(siteId));
+    return toPSPublishServerInfo(server, refreshedSite == null ? siteMod : refreshedSite, true);
   }
 
   /**
@@ -1365,11 +1413,12 @@ public class PSPubServerService implements IPSPubServerService {
 
     serverInfo.setServerId(pubServer.getServerId());
     serverInfo.setServerName(pubServer.getName());
-    if (site.isPageBased()) {
-      serverInfo.setIsDefault(
-          PSSitePublishDaoHelper.isSiteDefaultServer(
-              site.getDefaultPubServer(), pubServer.getServerId()));
-    }
+    // Default flag is the site's defaultPubServer id, including classic (non-page-based)
+    // sample sites listed in PublishingShell. Gating on isPageBased omitted isDefault
+    // from GET/list JSON so the Sites workspace could not show or move the ★ badge.
+    serverInfo.setIsDefault(
+        PSSitePublishDaoHelper.isSiteDefaultServer(
+            site.getDefaultPubServer(), pubServer.getServerId()));
     serverInfo.setServerType(pubServer.getServerType().orElse(""));
 
     String pubType = pubServer.getPublishType();

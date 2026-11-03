@@ -362,6 +362,19 @@ save.
 FTP host/port/user/folder, Local folder, marking a server as default, and full server edit
 remain separate actions.
 
+### Mark a site delivery server as default (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server.
+**Mark as default** sets only the site default flag. **Save default** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only `isDefault: true`. Name, driver,
+type, folder, and other properties stay as they were. The password is not shown and is not sent.
+
+A server that is already the site default is not a write. **Cancel** does not call the server
+and keeps the previous default. HTTP **400**, **403**, and **409** stay on the form and keep the
+previous default. Other servers on the site lose the default badge only after a successful save.
+
+Rename, FTP host/port/user/folder, Local folder, and full server edit remain separate actions.
+
 ### Copy a site delivery server (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then
