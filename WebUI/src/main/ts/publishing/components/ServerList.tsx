@@ -95,7 +95,9 @@ export function ServerList({
                   onClick={() => onSelect(id)}
                 >
                   {nameOf(s)}
-                  {isDefault ? " ★" : ""}
+                  {isDefault ? (
+                    <span data-testid="publish-server-default-badge"> ★</span>
+                  ) : null}
                 </button>
               </li>
             );
