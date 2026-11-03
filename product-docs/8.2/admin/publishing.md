@@ -344,6 +344,24 @@ only after a successful save (or after the server is loaded).
 FTP server does not change that server's remote folder — use **FTP folder** instead. The Local
 folder field on **Edit Server** remains a full-server editor.
 
+### Rename a site delivery server (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server.
+**Rename** edits only the server name. **Save name** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only `serverName`. Driver, folder,
+type, default flag, and other properties stay as they were. The password is not shown and is
+not sent.
+
+A blank or whitespace name is refused on the form (**Name is a required field.**) and is not
+written. A name longer than 50 characters, a name with characters other than letters, digits,
+`.`, `_`, and `-`, or a name already used on this site is refused the same way. **Cancel** does
+not call the server and keeps the previous name. HTTP **400**, **403**, and **409** stay on the
+form and keep the previous name. The new name is shown on the site list only after a successful
+save.
+
+FTP host/port/user/folder, Local folder, marking a server as default, and full server edit
+remain separate actions.
+
 ### Copy a site delivery server (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish server, then

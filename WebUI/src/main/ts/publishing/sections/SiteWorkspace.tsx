@@ -65,6 +65,7 @@ import { FtpDeliveryPortPanel } from "../components/FtpDeliveryPortPanel";
 import { FtpDeliveryUserPanel } from "../components/FtpDeliveryUserPanel";
 import { FtpDeliveryFolderPanel } from "../components/FtpDeliveryFolderPanel";
 import { LocalDeliveryFolderPanel } from "../components/LocalDeliveryFolderPanel";
+import { DeliveryServerRenamePanel } from "../components/DeliveryServerRenamePanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
 import { useDirtyForm } from "../dirtyFormContext";
@@ -872,6 +873,14 @@ export function SiteWorkspace({
         </div>
         {selectedServer ? (
           <>
+            <DeliveryServerRenamePanel
+              siteId={siteId}
+              serverId={selectedServer}
+              siblingNames={servers.map(
+                (row) => row.serverName ?? row.name ?? "",
+              )}
+              onRenamed={() => loadServers()}
+            />
             <FtpDeliveryHostPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryPortPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryUserPanel siteId={siteId} serverId={selectedServer} />

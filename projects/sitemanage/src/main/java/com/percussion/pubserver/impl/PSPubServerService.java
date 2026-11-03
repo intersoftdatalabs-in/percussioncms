@@ -368,6 +368,11 @@ public class PSPubServerService implements IPSPubServerService {
     boolean locked = tryToLockSite(siteId);
 
     try {
+      // Name-only PUT must not run the full property replace (that clears driver, folder,
+      // type, default flag, and secrets) and must not decode a password that is not in the body.
+      if (PSDeliveryServerRename.isNameOnly(pubServerInfo)) {
+        return updateNameOnly(siteId, serverId, pubServerInfo);
+      }
       // Host-only FTP PUT must not run the full property replace (that clears port, user,
       // folder, and password) and must not decode a password that is not in the body.
       if (PSFtpDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
@@ -487,6 +492,68 @@ public class PSPubServerService implements IPSPubServerService {
     } finally {
       if (locked) tryToUnlockSite(siteId);
     }
+  }
+
+  /**
+   * Save only the delivery-server name. Does not replace properties, change the driver, type, or
+   * default flag, or decode a password. Blank, overlong, invalid, and duplicate names throw before
+   * {@code savePubServer}. Edition names and database config files follow the stored name when it
+   * changes.
+   */
+  private PSPublishServerInfo updateNameOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    String currentName = server.getName() != null ? server.getName().trim() : "";
+    String newName = PSDeliveryServerRename.normalizedName(pubServerInfo);
+    validateServerName(newName, currentName, siteId);
+    if (currentName.equals(newName)) {
+      return toPSPublishServerInfo(server, site, true);
+    }
+    PSPubServer oldServer = pubServerDao.findPubServer(server.getServerId()).orElse(null);
+    PSDeliveryServerRename.apply(server, newName);
+    PSPubServer currentDefaultServer = getDefaultPubServer(site.getGUID());
+    boolean isDefaultServer =
+        currentDefaultServer != null && currentDefaultServer.getServerId() == server.getServerId();
+    if (oldServer != null) {
+      siteDataService.updateServerEditions(site, oldServer, server, isDefaultServer);
+    }
+    if (server.isDatabaseType()) {
+      renameDatabasePubServerFiles(currentName, newName, server);
+    }
+    pubServerDao.savePubServer(server);
+    try {
+      removeServerEntry(site.getName(), server.getServerId());
+    } catch (IOException e) {
+      log.error(
+          "Failed to update site configure cache . Error: {}",
+          PSExceptionUtils.getMessageForLog(e));
+    }
+    return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Rename on-disk database publish config to the new server name. Connection properties stay on
+   * the stored server; this path does not re-test the database.
+   */
+  private void renameDatabasePubServerFiles(
+      String currentName, String newName, PSPubServer server) throws PSDataServiceException {
+    PSDatabasePubServer dbServer = new PSDatabasePubServer(server);
+    dbServer.setName(currentName);
+    serverFileService.deleteDatabasePubServer(dbServer);
+    dbServer.setName(newName);
+    serverFileService.saveDatabasePubServer(dbServer);
   }
 
   /**
