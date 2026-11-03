@@ -478,7 +478,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * Opt-in format write. Omitted {@code hasFormatProfile} and {@code format} leave the
    * RXLOCALEFORMAT row unchanged so existing locale PUT clients are safe. A date-pattern-only
    * {@code format} (omitted {@code hasFormatProfile}, other format fields null) updates
-   * {@code datePattern} and leaves the rest of the row.
+   * {@code datePattern} and leaves the rest of the row. A time-pattern-only {@code format}
+   * updates {@code timePattern} the same way.
    */
   void persistFormatIfRequested(String language, LocaleDetail body) {
     if (body == null || language == null) {
@@ -499,6 +500,10 @@ public class LocalesAdaptor implements ILocalesAdaptor {
       persistDatePatternOnly(language, src);
       return;
     }
+    if (isTimePatternOnlyWrite(body)) {
+      persistTimePatternOnly(language, src);
+      return;
+    }
     PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
     applyFormatFields(row, src);
     row.setLanguageString(language);
@@ -513,6 +518,18 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
     row.setDatePattern(next);
+    row.setLanguageString(language);
+    formatSaver.accept(row);
+  }
+
+  private void persistTimePatternOnly(String language, LocaleFormatSummary src) {
+    Optional<PSLocaleFormat> existing = formatByLang.apply(language);
+    String next = src == null ? null : src.getTimePattern();
+    if (existing.isEmpty() && StringUtils.isBlank(next)) {
+      return;
+    }
+    PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
+    row.setTimePattern(next);
     row.setLanguageString(language);
     formatSaver.accept(row);
   }
@@ -532,6 +549,33 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     return src.getTextDir() == null
         && src.getTimePattern() == null
+        && src.getDateTimePattern() == null
+        && src.getDecimalSep() == null
+        && src.getGroupingSep() == null
+        && src.getCurrencyCode() == null
+        && src.getCurrencyPattern() == null
+        && src.getFirstDayOfWeek() == null
+        && src.getMeasurementSystem() == null
+        && src.getDefaultTz() == null
+        && src.getNumberingSystem() == null
+        && src.getCalendar() == null;
+  }
+
+  /**
+   * True when PUT {@code format} carries {@code timePattern} (including blank to clear) and omits
+   * {@code hasFormatProfile} plus every other format field. Language on the format object is
+   * ignored.
+   */
+  static boolean isTimePatternOnlyWrite(LocaleDetail body) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+      return false;
+    }
+    LocaleFormatSummary src = body.getFormat();
+    if (src.getTimePattern() == null) {
+      return false;
+    }
+    return src.getTextDir() == null
+        && src.getDatePattern() == null
         && src.getDateTimePattern() == null
         && src.getDecimalSep() == null
         && src.getGroupingSep() == null
