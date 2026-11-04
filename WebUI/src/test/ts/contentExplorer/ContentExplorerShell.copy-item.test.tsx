@@ -135,4 +135,62 @@ describe("ContentExplorerShell copy item (#3656)", () => {
     });
     await renderA11yGate(container);
   });
+
+  it("does not POST copy/item when the destination contains a NUL (#5551)", async () => {
+    const copyUrls: string[] = [];
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/folders/copy/")) {
+        copyUrls.push(url);
+        return new Response(JSON.stringify({ message: "Copied OK" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      const kids = [SOURCE_ITEM, DEST_FOLDER];
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: kids,
+              childrenCount: kids.length,
+              startIndex: 0,
+            },
+            PathItem: kids,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Assets"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadWorkflowMenuActions={async () => null}
+        actionHandlers={{}}
+      />,
+    );
+
+    const sourceRow = await screen.findByTestId("detail-row-a-3656-src");
+    fireEvent.click(sourceRow);
+    fireEvent.click(await screen.findByTestId("action-copy"));
+    fireEvent.change(await screen.findByTestId("explorer-copy-dest-input"), {
+      target: { value: "/Assets/qa3656_dst\u0000" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
+
+    expect(copyUrls).toEqual([]);
+    expect(screen.getByTestId("explorer-copy-dest-picker")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-copy-dest-error")).toHaveTextContent(
+      /cannot be stored/i,
+    );
+    expect(screen.queryByTestId("detail-row-a-3656-copy")).toBeNull();
+    await renderA11yGate(container);
+  });
 });

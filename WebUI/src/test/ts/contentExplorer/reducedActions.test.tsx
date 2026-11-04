@@ -938,6 +938,58 @@ describe("ReducedActions", () => {
     expect(calls.onCopy).toHaveLength(0);
   });
 
+  it("does not copy when the destination contains a NUL (#5551)", async () => {
+    const { handlers, calls } = makeHandlers();
+    const { container } = render(
+      <ReducedActions
+        item={FOLDER}
+        folder={null}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-copy"));
+    fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
+      target: { value: "/Assets/Dst\u0000" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
+    expect(calls.onCopy).toHaveLength(0);
+    expect(screen.getByTestId("explorer-copy-dest-picker")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-copy-dest-error")).toHaveTextContent(
+      /cannot be stored/i,
+    );
+    await renderA11yGate(container);
+  });
+
+  it("does not claim success when copy HTTP 400, 403, or 409 (#5551)", async () => {
+    const { handlers, calls } = makeHandlers();
+    const errors: string[] = [];
+    let status = 400;
+    handlers.onCopy = async (item, targetPath) => {
+      calls.onCopy.push({ item, targetPath });
+      throw { status, statusText: "no", body: null };
+    };
+    render(
+      <ReducedActions
+        item={FOLDER}
+        folder={null}
+        handlers={handlers}
+        onError={(m) => errors.push(m)}
+      />,
+    );
+    for (const code of [400, 403, 409]) {
+      status = code;
+      fireEvent.click(screen.getByTestId("action-copy"));
+      fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
+        target: { value: "/Assets/Dst" },
+      });
+      fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
+      await waitFor(() => expect(errors.length).toBeGreaterThan(0));
+      errors.length = 0;
+    }
+    expect(calls.onCopy).toHaveLength(3);
+  });
+
   it("default onCopy POSTs copy/folder for folders and copy/item for assets (#3656)", async () => {
     const handlers = defaultReducedActionHandlers();
     const urls: string[] = [];
