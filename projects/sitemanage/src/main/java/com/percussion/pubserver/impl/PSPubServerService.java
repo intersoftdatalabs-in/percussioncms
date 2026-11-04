@@ -395,10 +395,11 @@ public class PSPubServerService implements IPSPubServerService {
           || PSDatabaseDeliveryPortUpdate.isPortOnly(pubServerInfo)) {
         return updateDeliveryPortOnly(siteId, serverId, pubServerInfo);
       }
-      // User-id-only FTP PUT must not run the full property replace (that clears host,
-      // port, folder, and password) and must not decode a password that is not in the body.
-      if (PSFtpDeliveryUserUpdate.isUserOnly(pubServerInfo)) {
-        return updateFtpUserOnly(siteId, serverId, pubServerInfo);
+      // User-id-only PUT must not run the full property replace. FTP and database share this
+      // body shape; the stored driver selects FTP vs database apply.
+      if (PSFtpDeliveryUserUpdate.isUserOnly(pubServerInfo)
+          || PSDatabaseDeliveryUserUpdate.isUserOnly(pubServerInfo)) {
+        return updateDeliveryUserOnly(siteId, serverId, pubServerInfo);
       }
       // Folder-only PUT must not run the full property replace. A blank folder
       // clears only the stored folder. Local and FTP share this body shape; the
@@ -684,10 +685,11 @@ public class PSPubServerService implements IPSPubServerService {
   }
 
   /**
-   * Save only the FTP {@code userid} property. Does not rename the server or replace the
-   * property set. Blank, overlong, and non-FTP drivers throw before {@code savePubServer}.
+   * Save only the {@code userid} property. Does not rename the server or replace the property
+   * set. Database drivers use {@link PSDatabaseDeliveryUserUpdate}; other drivers use {@link
+   * PSFtpDeliveryUserUpdate} (FTP-only; Local/FTPS/SFTP throw before {@code savePubServer}).
    */
-  private PSPublishServerInfo updateFtpUserOnly(
+  private PSPublishServerInfo updateDeliveryUserOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
       throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
     IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
@@ -702,7 +704,12 @@ public class PSPubServerService implements IPSPubServerService {
       throw new PSPubServerServiceException(
           "The server you are trying to act on no longer exists in the system.");
     }
-    PSFtpDeliveryUserUpdate.apply(server, pubServerInfo);
+    String driver = server.getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("");
+    if (PSDatabaseDeliveryHostUpdate.isDatabaseDeliveryDriver(driver)) {
+      PSDatabaseDeliveryUserUpdate.apply(server, pubServerInfo);
+    } else {
+      PSFtpDeliveryUserUpdate.apply(server, pubServerInfo);
+    }
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
