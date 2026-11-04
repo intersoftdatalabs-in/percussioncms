@@ -36,6 +36,7 @@ const {
   terminalSuccessSelector,
   classifySubmitOutcome,
   isSuccessfulSubmitOutcome,
+  searchQueryContainsNul,
 } = require("../helpers/explorer-search-submit");
 
 describe("explorer-search-submit helpers (#3617)", () => {
@@ -48,6 +49,7 @@ describe("explorer-search-submit helpers (#3617)", () => {
     assert.equal(TEST_IDS.results, "search-panel-results");
     assert.equal(TEST_IDS.empty, "search-panel-empty");
     assert.equal(TEST_IDS.error, "search-panel-error");
+    assert.equal(TEST_IDS.queryError, "search-panel-query-error");
     assert.equal(
       EXTENDED_RESULTS_PATH,
       "/searchmanagement/search/get/extendedresults",
@@ -116,6 +118,17 @@ describe("explorer-search-submit helpers (#3617)", () => {
     assert.equal(isSuccessfulSubmitOutcome("empty-success"), true);
     assert.equal(isSuccessfulSubmitOutcome("http-error"), false);
     assert.equal(isSuccessfulSubmitOutcome("ui-error"), false);
+    assert.equal(
+      classifySubmitOutcome({ hasQueryError: true, hasResults: true }),
+      "ui-error",
+    );
+  });
+
+  it("searchQueryContainsNul is true only for U+0000 (#5575)", () => {
+    assert.equal(searchQueryContainsNul("welcome"), false);
+    assert.equal(searchQueryContainsNul(""), false);
+    assert.equal(searchQueryContainsNul("bad\u0000query"), true);
+    assert.equal(searchQueryContainsNul("\u0000"), true);
   });
 
   it("terminalSuccessSelector is results or empty, not error", () => {

@@ -34,6 +34,7 @@ const TEST_IDS = Object.freeze({
   results: "search-panel-results",
   empty: "search-panel-empty",
   error: "search-panel-error",
+  queryError: "search-panel-query-error",
   resultRow: "search-panel-result-row",
 });
 
@@ -114,6 +115,16 @@ function terminalSuccessSelector() {
 }
 
 /**
+ * True when the free-text query contains U+0000 (#5575).
+ *
+ * @param {string} query
+ * @returns {boolean}
+ */
+function searchQueryContainsNul(query) {
+  return String(query ?? "").includes("\u0000");
+}
+
+/**
  * Classify post-submit UI + HTTP.
  *
  * @param {{
@@ -121,6 +132,7 @@ function terminalSuccessSelector() {
  *   hasResults?: boolean,
  *   hasEmpty?: boolean,
  *   hasError?: boolean,
+ *   hasQueryError?: boolean,
  * }} state
  * @returns {"results"|"empty-success"|"http-error"|"ui-error"|"unknown"}
  */
@@ -131,6 +143,9 @@ function classifySubmitOutcome(state) {
   }
   if (status != null && !isSearchSubmitSuccessStatus(status)) {
     return "http-error";
+  }
+  if (state && state.hasQueryError) {
+    return "ui-error";
   }
   if (state && state.hasResults) {
     return "results";
@@ -164,4 +179,5 @@ module.exports = {
   terminalSuccessSelector,
   classifySubmitOutcome,
   isSuccessfulSubmitOutcome,
+  searchQueryContainsNul,
 };

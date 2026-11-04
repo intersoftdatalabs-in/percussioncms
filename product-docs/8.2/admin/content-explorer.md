@@ -813,7 +813,11 @@ When the panel is open you can:
 2. Submit the search from this Explorer page (`spa.jsp?entry=explorer` — the
    `searchModern.jsp` pilot is not required). The server answers **200** with
    matching items **or** an empty results page. Open a hit or reveal it in its
-   parent folder.
+   parent folder. A query that contains a NUL (U+0000) is refused **before**
+   the search POST: the panel stays open with an error, and a reload does not
+   show a NUL result set. Closing Search (view-tools, **View → Search**, or
+   **Content → Search**) does not run the query. HTTP **400**, **403**, and
+   **409** after Submit are not treated as a successful results page.
 3. Pick a **saved / design search** from the catalog (when the server exposes one) and run it.
    The picker includes CX **searches and views**. The default **All** view (`View_All`) is
    listed when that design object exists on the server. **Run saved search** on **All**

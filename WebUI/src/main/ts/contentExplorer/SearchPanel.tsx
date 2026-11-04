@@ -35,6 +35,7 @@
  *   <li>{@code idle} — initial; submit the form or run a saved search.</li>
  *   <li>{@code loading} — fetch in flight.</li>
  *   <li>{@code ready} — has results (possibly empty).</li>
+ *   <li>{@code invalid} — client gate (U+0000 in the query); no POST (#5575).</li>
  *   <li>{@code error} — fetch rejected / server error; Retry re-issues
  *       the last free-text query or last saved-search execute.</li>
  * </ul>
@@ -60,6 +61,7 @@ import { formatApiError } from "../api/client";
 import { message } from "../i18n/message";
 import { EXPLORER_MSG } from "./messages";
 import { toRepositorySearchFolderPath } from "./folderPath";
+import { searchQueryContainsNul } from "./searchQuery";
 
 export interface SearchPanelProps {
   /** Optional initial query (e.g. URL hash / deep-link). */
@@ -97,7 +99,8 @@ type Status =
   | { kind: "idle"; query: string }
   | { kind: "loading"; query: string }
   | { kind: "ready"; query: string; results: PSSearchResults }
-  | { kind: "error"; query: string; message: string };
+  | { kind: "error"; query: string; message: string }
+  | { kind: "invalid"; query: string; message: string };
 
 type CatalogStatus =
   | { kind: "loading" }
@@ -227,6 +230,15 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
       : undefined;
 
   async function runSearch(query: string): Promise<void> {
+    // U+0000 stays in the panel and is not POSTed (#5575).
+    if (searchQueryContainsNul(query)) {
+      setStatus({
+        kind: "invalid",
+        query,
+        message: message(EXPLORER_MSG.SEARCH_QUERY_NUL),
+      });
+      return;
+    }
     const trimmed = query.trim();
     if (trimmed.length === 0) {
       setStatus({ kind: "idle", query: "" });
@@ -513,6 +525,13 @@ function SearchStatusView(props: {
       >
         {message(EXPLORER_MSG.SEARCH_LOADING)}
       </p>
+    );
+  }
+  if (status.kind === "invalid") {
+    return (
+      <div role="alert" style={{ color: "#a00", marginTop: 8 }}>
+        <p data-testid="search-panel-query-error">{status.message}</p>
+      </div>
     );
   }
   if (status.kind === "error") {

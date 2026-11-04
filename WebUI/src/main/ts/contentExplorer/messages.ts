@@ -546,6 +546,8 @@ export const EXPLORER_MSG = {
   SEARCH_LOADING: "perc.ui.explorer@Searching…",
   SEARCH_EMPTY: "perc.ui.explorer@No results",
   SEARCH_ERROR: "perc.ui.explorer@Search failed",
+  SEARCH_QUERY_NUL:
+    "perc.ui.explorer@That search query contains a character that cannot be stored",
   SEARCH_OPEN: "perc.ui.explorer@Open",
   SEARCH_REVEAL: "perc.ui.explorer@Reveal in folder",
   SEARCH_PERMISSION_DENIED:
