@@ -1393,6 +1393,197 @@ class LocalesAdaptorDesignWsTest {
   }
 
   @Test
+  void updateLocale_firstDayOfWeekOnlyLeavesOtherFormatFields() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    loc.setDescription("US English");
+    loc.setStatus(PSLocale.STATUS_ACTIVE);
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setDatePattern("MM/dd/yyyy");
+    existing.setTextDir("ltr");
+    existing.setTimePattern("HH:mm:ss");
+    existing.setDateTimePattern("MM/dd/yyyy HH:mm:ss");
+    existing.setDecimalSep(".");
+    existing.setGroupingSep(",");
+    existing.setCurrencyCode("USD");
+    existing.setCurrencyPattern("¤#,##0.00");
+    existing.setFirstDayOfWeek(1);
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setFirstDayOfWeek(2);
+    body.setFormat(fmt);
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals("English", loc.getDisplayName());
+    assertEquals("US English", loc.getDescription());
+    assertEquals(PSLocale.STATUS_ACTIVE, loc.getStatus());
+    assertEquals(1, saved.size());
+    assertEquals(Integer.valueOf(2), saved.get(0).getFirstDayOfWeek());
+    assertEquals("ltr", saved.get(0).getTextDir());
+    assertEquals("MM/dd/yyyy", saved.get(0).getDatePattern());
+    assertEquals("HH:mm:ss", saved.get(0).getTimePattern());
+    assertEquals("MM/dd/yyyy HH:mm:ss", saved.get(0).getDateTimePattern());
+    assertEquals(".", saved.get(0).getDecimalSep());
+    assertEquals(",", saved.get(0).getGroupingSep());
+    assertEquals("USD", saved.get(0).getCurrencyCode());
+    assertEquals("¤#,##0.00", saved.get(0).getCurrencyPattern());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void updateLocale_blankFirstDayOfWeekClearsFirstDayOnly() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setDatePattern("MM/dd/yyyy");
+    existing.setTimePattern("HH:mm:ss");
+    existing.setDateTimePattern("MM/dd/yyyy HH:mm:ss");
+    existing.setDecimalSep(".");
+    existing.setGroupingSep(",");
+    existing.setTextDir("ltr");
+    existing.setCurrencyCode("USD");
+    existing.setCurrencyPattern("¤#,##0.00");
+    existing.setFirstDayOfWeek(1);
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setFirstDayOfWeek(null);
+    body.setFormat(fmt);
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals(1, saved.size());
+    assertNull(saved.get(0).getFirstDayOfWeek());
+    assertEquals(".", saved.get(0).getDecimalSep());
+    assertEquals(",", saved.get(0).getGroupingSep());
+    assertEquals("USD", saved.get(0).getCurrencyCode());
+    assertEquals("¤#,##0.00", saved.get(0).getCurrencyPattern());
+    assertEquals("MM/dd/yyyy", saved.get(0).getDatePattern());
+    assertEquals("HH:mm:ss", saved.get(0).getTimePattern());
+    assertEquals("ltr", saved.get(0).getTextDir());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void updateLocale_zeroFirstDayOfWeekClearsFirstDayOnly() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setDatePattern("MM/dd/yyyy");
+    existing.setFirstDayOfWeek(1);
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, lang -> {});
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setFirstDayOfWeek(0);
+    body.setFormat(fmt);
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals(1, saved.size());
+    assertNull(saved.get(0).getFirstDayOfWeek());
+    assertEquals("MM/dd/yyyy", saved.get(0).getDatePattern());
+  }
+
+  @Test
+  void updateLocale_outOfRangeFirstDayOfWeekDoesNotWrite() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setFirstDayOfWeek(1);
+    existing.setDatePattern("MM/dd/yyyy");
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, lang -> {});
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setFirstDayOfWeek(8);
+    body.setFormat(fmt);
+
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.updateLocale(null, "en-us", body));
+    assertTrue(ex.getMessage().contains("firstDayOfWeek"));
+    assertTrue(saved.isEmpty());
+    assertEquals(Integer.valueOf(1), existing.getFirstDayOfWeek());
+    assertEquals("MM/dd/yyyy", existing.getDatePattern());
+  }
+
+  @Test
+  void isFirstDayOfWeekOnlyWrite_requiresPresentAndOmittedOtherFields() {
+    LocaleDetail omitted = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setFirstDayOfWeek(2);
+    omitted.setFormat(fmt);
+    assertTrue(LocalesAdaptor.isFirstDayOfWeekOnlyWrite(omitted));
+
+    LocaleDetail cleared = new LocaleDetail();
+    LocaleFormatSummary blank = new LocaleFormatSummary();
+    blank.setFirstDayOfWeek(null);
+    cleared.setFormat(blank);
+    assertTrue(LocalesAdaptor.isFirstDayOfWeekOnlyWrite(cleared));
+
+    LocaleDetail absent = new LocaleDetail();
+    absent.setFormat(new LocaleFormatSummary());
+    assertFalse(LocalesAdaptor.isFirstDayOfWeekOnlyWrite(absent));
+
+    LocaleDetail withFlag = new LocaleDetail();
+    withFlag.setHasFormatProfile(true);
+    withFlag.setFormat(fmt);
+    assertFalse(LocalesAdaptor.isFirstDayOfWeekOnlyWrite(withFlag));
+
+    LocaleDetail extra = new LocaleDetail();
+    LocaleFormatSummary both = new LocaleFormatSummary();
+    both.setFirstDayOfWeek(2);
+    both.setCurrencyCode("EUR");
+    extra.setFormat(both);
+    assertFalse(LocalesAdaptor.isFirstDayOfWeekOnlyWrite(extra));
+  }
+
+  @Test
   void applyWritableFields_omittedAndBlankLabelLeaveExisting() {
     PSLocale loc = newLocale(9, "en-us", "English");
     loc.setDescription("US English");

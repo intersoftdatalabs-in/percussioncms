@@ -17,7 +17,10 @@
 
 package com.percussion.rest.locales;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
 
@@ -42,6 +45,9 @@ public class LocaleFormatSummary {
   private String currencyCode;
   private String currencyPattern;
   private Integer firstDayOfWeek;
+  /** True when JSON included {@code firstDayOfWeek} (including JSON null / blank to clear). */
+  @JsonIgnore
+  private boolean firstDayOfWeekPresent;
   private String measurementSystem;
   private String defaultTz;
   private String numberingSystem;
@@ -121,12 +127,50 @@ public class LocaleFormatSummary {
     this.currencyPattern = currencyPattern;
   }
 
+  @JsonProperty("firstDayOfWeek")
   public Integer getFirstDayOfWeek() {
     return firstDayOfWeek;
   }
 
   public void setFirstDayOfWeek(Integer firstDayOfWeek) {
     this.firstDayOfWeek = firstDayOfWeek;
+    this.firstDayOfWeekPresent = true;
+  }
+
+  /**
+   * JSON {@code firstDayOfWeek}: a number 1–7, JSON {@code null}, or a blank string to clear.
+   * Omitted properties leave {@link #isFirstDayOfWeekPresent()} false.
+   */
+  @JsonSetter("firstDayOfWeek")
+  public void assignFirstDayOfWeek(Object raw) {
+    if (raw == null) {
+      setFirstDayOfWeek(null);
+      return;
+    }
+    if (raw instanceof Number number) {
+      int n = number.intValue();
+      // JAXB JSON maps JSON null onto 0 for numeric properties.
+      setFirstDayOfWeek(n == 0 ? null : Integer.valueOf(n));
+      return;
+    }
+    if (raw instanceof String text) {
+      if (text.isBlank()) {
+        setFirstDayOfWeek(null);
+        return;
+      }
+      try {
+        setFirstDayOfWeek(Integer.valueOf(text.trim()));
+      } catch (NumberFormatException e) {
+        throw new IllegalArgumentException("invalid firstDayOfWeek: " + text, e);
+      }
+      return;
+    }
+    throw new IllegalArgumentException("invalid firstDayOfWeek: " + raw);
+  }
+
+  @JsonIgnore
+  public boolean isFirstDayOfWeekPresent() {
+    return firstDayOfWeekPresent;
   }
 
   public String getMeasurementSystem() {

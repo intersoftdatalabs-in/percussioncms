@@ -52,7 +52,10 @@ public interface ILocalesAdaptor {
    * A blank {@code decimalSep} clears that separator. A grouping-separator-only {@code format}
    * updates {@code groupingSep}; omitted format fields stay. A blank {@code groupingSep}
    * clears that separator. A currency-code-only {@code format} updates {@code currencyCode};
-   * omitted format fields stay. A blank {@code currencyCode} clears that code.
+   * omitted format fields stay. A blank {@code currencyCode} clears that code. A
+   * first-day-of-week-only {@code format} updates {@code firstDayOfWeek}; omitted format fields
+   * stay. A blank {@code firstDayOfWeek} clears that value. Values outside 1–7 (Monday–Sunday) are
+   * not a write.
    *
    * @return detail, or {@code null} when not found / unsafe key
    */

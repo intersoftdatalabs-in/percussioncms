@@ -86,6 +86,12 @@ import {
 } from "./localeTextDir";
 import { LOC_TEXT_DIR_MSG } from "./localeTextDirMessages";
 import {
+  localeFirstDayOfWeekWrite,
+  savedLocaleFirstDayOfWeek,
+  storedLocaleFirstDayOfWeek,
+} from "./localeFirstDayOfWeek";
+import { LOC_FIRST_DAY_MSG } from "./localeFirstDayOfWeekMessages";
+import {
   localeEnabledStatusWrite,
   savedLocaleEnabledStatus,
   storedLocaleEnabledStatus,
@@ -262,6 +268,12 @@ export function LocaleDetailPanel({
   const [textDirError, setTextDirError] = useState<string | null>(null);
   const [textDirNotice, setTextDirNotice] = useState<string | null>(null);
   const [textDirBusy, setTextDirBusy] = useState(false);
+  const [firstDayShown, setFirstDayShown] = useState("");
+  const [firstDayDraft, setFirstDayDraft] = useState("");
+  const [firstDayEditing, setFirstDayEditing] = useState(false);
+  const [firstDayError, setFirstDayError] = useState<string | null>(null);
+  const [firstDayNotice, setFirstDayNotice] = useState<string | null>(null);
+  const [firstDayBusy, setFirstDayBusy] = useState(false);
   const [statusShown, setStatusShown] = useState("active");
   const [statusDraft, setStatusDraft] = useState("active");
   const [statusEditing, setStatusEditing] = useState(false);
@@ -288,6 +300,7 @@ export function LocaleDetailPanel({
   const currencyCodeInflight = useRef(false);
   const currencyPatternInflight = useRef(false);
   const textDirInflight = useRef(false);
+  const firstDayInflight = useRef(false);
   const statusInflight = useRef(false);
 
   useEffect(() => {
@@ -356,6 +369,11 @@ export function LocaleDetailPanel({
         setTextDirEditing(false);
         setTextDirError(null);
         setTextDirNotice(null);
+        setFirstDayShown(storedLocaleFirstDayOfWeek(d.format?.firstDayOfWeek));
+        setFirstDayDraft("");
+        setFirstDayEditing(false);
+        setFirstDayError(null);
+        setFirstDayNotice(null);
         setStatus(d.status || "active");
         setStatusShown(storedLocaleEnabledStatus(d.status) || "active");
         setStatusDraft("active");
@@ -399,6 +417,8 @@ export function LocaleDetailPanel({
     !currencyPatternEditing &&
     !textDirBusy &&
     !textDirEditing &&
+    !firstDayBusy &&
+    !firstDayEditing &&
     !statusBusy &&
     !statusEditing &&
     isLocaleWriteReady({ isNew, language, label });
@@ -497,6 +517,13 @@ export function LocaleDetailPanel({
     return LOC_TEXT_DIR_MSG.ERROR;
   }
 
+  function firstDaySaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return LOC_FIRST_DAY_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return LOC_FIRST_DAY_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return LOC_FIRST_DAY_MSG.CONFLICT;
+    return LOC_FIRST_DAY_MSG.ERROR;
+  }
+
   function enabledStatusSaveFallback(err: unknown): string {
     if (isApiError(err) && err.status === 400) return LOC_STATUS_MSG.INVALID;
     if (isApiError(err) && err.status === 403) return LOC_STATUS_MSG.FORBIDDEN;
@@ -517,6 +544,7 @@ export function LocaleDetailPanel({
       currencyCodeBusy ||
       currencyPatternBusy ||
       textDirBusy ||
+      firstDayBusy ||
       statusBusy ||
       labelInflight.current ||
       descriptionInflight.current ||
@@ -528,6 +556,7 @@ export function LocaleDetailPanel({
       currencyCodeInflight.current ||
       currencyPatternInflight.current ||
       textDirInflight.current ||
+      firstDayInflight.current ||
       statusInflight.current ||
       inflight.current
     );
@@ -547,6 +576,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -638,6 +668,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -671,6 +702,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -734,6 +766,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -767,6 +800,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -839,6 +873,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -872,6 +907,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -944,6 +980,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -977,6 +1014,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -1049,6 +1087,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -1082,6 +1121,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -1154,6 +1194,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -1187,6 +1228,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -1259,6 +1301,7 @@ export function LocaleDetailPanel({
       groupingSepEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -1293,6 +1336,7 @@ export function LocaleDetailPanel({
       groupingSepEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -1366,6 +1410,7 @@ export function LocaleDetailPanel({
       groupingSepEditing ||
       currencyCodeEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -1399,6 +1444,7 @@ export function LocaleDetailPanel({
       groupingSepEditing ||
       currencyCodeEditing ||
       textDirEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -1471,6 +1517,7 @@ export function LocaleDetailPanel({
       groupingSepEditing ||
       currencyCodeEditing ||
       currencyPatternEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -1494,6 +1541,7 @@ export function LocaleDetailPanel({
       !detail ||
       !writeKey ||
       !textDirEditing ||
+      firstDayEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -1504,6 +1552,7 @@ export function LocaleDetailPanel({
       groupingSepEditing ||
       currencyCodeEditing ||
       currencyPatternEditing ||
+      firstDayEditing ||
       statusEditing
     ) {
       return;
@@ -1668,10 +1717,128 @@ export function LocaleDetailPanel({
     }
   }
 
-  async function handleSave(): Promise<void> {
+
+  function startFirstDayEdit(): void {
     if (
-      !canSave ||
-      inflight.current ||
+      isNew ||
+      !detail ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing ||
+      currencyPatternEditing ||
+      textDirEditing ||
+      statusEditing
+    ) {
+      return;
+    }
+    setFirstDayDraft(firstDayShown);
+    setFirstDayError(null);
+    setFirstDayNotice(null);
+    setFirstDayEditing(true);
+  }
+
+  function cancelFirstDayEdit(): void {
+    if (firstDayBusy || firstDayInflight.current) return;
+    setFirstDayEditing(false);
+    setFirstDayDraft("");
+    setFirstDayError(null);
+  }
+
+  async function handleFirstDaySave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !firstDayEditing ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing ||
+      currencyPatternEditing ||
+      textDirEditing ||
+      statusEditing
+    ) {
+      return;
+    }
+    const sent = localeFirstDayOfWeekWrite(detail, firstDayDraft);
+    if (sent === "invalid") {
+      setFirstDayError(LOC_FIRST_DAY_MSG.INVALID);
+      setFirstDayNotice(null);
+      return;
+    }
+    if (sent === "unchanged") {
+      setFirstDayEditing(false);
+      setFirstDayDraft("");
+      setFirstDayError(null);
+      return;
+    }
+    firstDayInflight.current = true;
+    setFirstDayBusy(true);
+    setBusy(true);
+    setFirstDayError(null);
+    setFirstDayNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = firstDayShown;
+    try {
+      const saved = await updateLocale(writeKey, sent);
+      const accepted = savedLocaleFirstDayOfWeek(sent, detail, saved);
+      if (accepted == null) {
+        setFirstDayShown(previousShown);
+        setFmt((prev) => ({
+          ...prev,
+          firstDayOfWeek: previousShown === "" ? undefined : Number(previousShown),
+        }));
+        setFirstDayError(LOC_FIRST_DAY_MSG.ERROR);
+        setFirstDayNotice(null);
+        return;
+      }
+      const nextDay = accepted === "" ? undefined : Number(accepted);
+      const nextFormat: LocaleFormatSummary = {
+        ...(detail.format || {}),
+        firstDayOfWeek: accepted === "" ? null : nextDay,
+      };
+      const nextDetail: LocaleDetail = {
+        ...detail,
+        hasFormatProfile: true,
+        format: nextFormat,
+      };
+      setDetail(nextDetail);
+      setFirstDayShown(accepted);
+      setFmt((prev) => ({ ...prev, firstDayOfWeek: nextDay }));
+      setStoreFormat(true);
+      setFirstDayEditing(false);
+      setFirstDayDraft("");
+      setFirstDayNotice(accepted ? LOC_FIRST_DAY_MSG.SAVED : LOC_FIRST_DAY_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setFirstDayShown(previousShown);
+      setFmt((prev) => ({
+        ...prev,
+        firstDayOfWeek: previousShown === "" ? undefined : Number(previousShown),
+      }));
+      setFirstDayError(panelErrMsg(err, firstDaySaveFallback(err)));
+      setFirstDayNotice(null);
+    } finally {
+      firstDayInflight.current = false;
+      setFirstDayBusy(false);
+      setBusy(false);
+    }
+  }
+
+  function dedicatedInflight(): boolean {
+    return (
       descriptionInflight.current ||
       labelInflight.current ||
       datePatternInflight.current ||
@@ -1682,8 +1849,83 @@ export function LocaleDetailPanel({
       currencyCodeInflight.current ||
       currencyPatternInflight.current ||
       textDirInflight.current ||
+      firstDayInflight.current ||
       statusInflight.current
-    ) {
+    );
+  }
+
+  function applySavedLocaleEditor(saved: LocaleDetail): void {
+    setLanguage(saved.languageString || language);
+    setLabel(saved.label || label);
+    setLabelShown(storedLocaleLabel(saved.label || label));
+    setLabelDraft("");
+    setLabelEditing(false);
+    setLabelError(null);
+    setLabelNotice(null);
+    setDescription(saved.description || "");
+    setDescriptionShown(storedLocaleDescription(saved.description));
+    setDescriptionDraft("");
+    setDescriptionEditing(false);
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    setDatePatternShown(storedLocaleDatePattern(saved.format?.datePattern));
+    setDatePatternDraft("");
+    setDatePatternEditing(false);
+    setDatePatternError(null);
+    setDatePatternNotice(null);
+    setTimePatternShown(storedLocaleTimePattern(saved.format?.timePattern));
+    setTimePatternDraft("");
+    setTimePatternEditing(false);
+    setTimePatternError(null);
+    setTimePatternNotice(null);
+    setDateTimePatternShown(storedLocaleDateTimePattern(saved.format?.dateTimePattern));
+    setDateTimePatternDraft("");
+    setDateTimePatternEditing(false);
+    setDateTimePatternError(null);
+    setDateTimePatternNotice(null);
+    setDecimalSepShown(storedLocaleDecimalSep(saved.format?.decimalSep));
+    setDecimalSepDraft("");
+    setDecimalSepEditing(false);
+    setDecimalSepError(null);
+    setDecimalSepNotice(null);
+    setGroupingSepShown(storedLocaleGroupingSep(saved.format?.groupingSep));
+    setGroupingSepDraft("");
+    setGroupingSepEditing(false);
+    setGroupingSepError(null);
+    setGroupingSepNotice(null);
+    setCurrencyCodeShown(storedLocaleCurrencyCode(saved.format?.currencyCode));
+    setCurrencyCodeDraft("");
+    setCurrencyCodeEditing(false);
+    setCurrencyCodeError(null);
+    setCurrencyCodeNotice(null);
+    setCurrencyPatternShown(storedLocaleCurrencyPattern(saved.format?.currencyPattern));
+    setCurrencyPatternDraft("");
+    setCurrencyPatternEditing(false);
+    setCurrencyPatternError(null);
+    setCurrencyPatternNotice(null);
+    setTextDirShown(storedLocaleTextDir(saved.format?.textDir));
+    setTextDirDraft("");
+    setTextDirEditing(false);
+    setTextDirError(null);
+    setTextDirNotice(null);
+    setFirstDayShown(storedLocaleFirstDayOfWeek(saved.format?.firstDayOfWeek));
+    setFirstDayDraft("");
+    setFirstDayEditing(false);
+    setFirstDayError(null);
+    setFirstDayNotice(null);
+    setStatus(saved.status || status);
+    setStatusShown(storedLocaleEnabledStatus(saved.status) || status);
+    setStatusDraft("active");
+    setStatusEditing(false);
+    setStatusError(null);
+    setStatusNotice(null);
+    setBaseLocale(Boolean(saved.baseLocale));
+    setStoreFormat(Boolean(saved.hasFormatProfile) || Boolean(saved.format));
+    setFmt(formatFromDetail(saved));
+  }
+
+  async function handleSave(): Promise<void> {
+    if (!canSave || inflight.current || dedicatedInflight()) {
       return;
     }
     inflight.current = true;
@@ -1702,68 +1944,7 @@ export function LocaleDetailPanel({
             (saved.id != null ? String(saved.id) : normalizeLanguageString(language)),
         );
       }
-      setLanguage(saved.languageString || language);
-      setLabel(saved.label || label);
-      setLabelShown(storedLocaleLabel(saved.label || label));
-      setLabelDraft("");
-      setLabelEditing(false);
-      setLabelError(null);
-      setLabelNotice(null);
-      setDescription(saved.description || "");
-      setDescriptionShown(storedLocaleDescription(saved.description));
-      setDescriptionDraft("");
-      setDescriptionEditing(false);
-      setDescriptionError(null);
-      setDescriptionNotice(null);
-      setDatePatternShown(storedLocaleDatePattern(saved.format?.datePattern));
-      setDatePatternDraft("");
-      setDatePatternEditing(false);
-      setDatePatternError(null);
-      setDatePatternNotice(null);
-      setTimePatternShown(storedLocaleTimePattern(saved.format?.timePattern));
-      setTimePatternDraft("");
-      setTimePatternEditing(false);
-      setTimePatternError(null);
-      setTimePatternNotice(null);
-      setDateTimePatternShown(storedLocaleDateTimePattern(saved.format?.dateTimePattern));
-      setDateTimePatternDraft("");
-      setDateTimePatternEditing(false);
-      setDateTimePatternError(null);
-      setDateTimePatternNotice(null);
-      setDecimalSepShown(storedLocaleDecimalSep(saved.format?.decimalSep));
-      setDecimalSepDraft("");
-      setDecimalSepEditing(false);
-      setDecimalSepError(null);
-      setDecimalSepNotice(null);
-      setGroupingSepShown(storedLocaleGroupingSep(saved.format?.groupingSep));
-      setGroupingSepDraft("");
-      setGroupingSepEditing(false);
-      setGroupingSepError(null);
-      setGroupingSepNotice(null);
-      setCurrencyCodeShown(storedLocaleCurrencyCode(saved.format?.currencyCode));
-      setCurrencyCodeDraft("");
-      setCurrencyCodeEditing(false);
-      setCurrencyCodeError(null);
-      setCurrencyCodeNotice(null);
-      setCurrencyPatternShown(storedLocaleCurrencyPattern(saved.format?.currencyPattern));
-      setCurrencyPatternDraft("");
-      setCurrencyPatternEditing(false);
-      setCurrencyPatternError(null);
-      setCurrencyPatternNotice(null);
-      setTextDirShown(storedLocaleTextDir(saved.format?.textDir));
-      setTextDirDraft("");
-      setTextDirEditing(false);
-      setTextDirError(null);
-      setTextDirNotice(null);
-      setStatus(saved.status || status);
-      setStatusShown(storedLocaleEnabledStatus(saved.status) || status);
-      setStatusDraft("active");
-      setStatusEditing(false);
-      setStatusError(null);
-      setStatusNotice(null);
-      setBaseLocale(Boolean(saved.baseLocale));
-      setStoreFormat(Boolean(saved.hasFormatProfile) || Boolean(saved.format));
-      setFmt(formatFromDetail(saved));
+      applySavedLocaleEditor(saved);
       setNotice(DEV_MSG.LOC_SAVED);
       onSaved?.(saved);
     } catch (err: unknown) {
@@ -1974,6 +2155,7 @@ export function LocaleDetailPanel({
                     currencyCodeBusy ||
                     currencyPatternBusy ||
                     textDirBusy ||
+                    firstDayBusy ||
                     statusBusy ||
                     descriptionEditing ||
                     datePatternEditing ||
@@ -1984,6 +2166,7 @@ export function LocaleDetailPanel({
                     currencyCodeEditing ||
                     currencyPatternEditing ||
                     textDirEditing ||
+      firstDayEditing ||
                     statusEditing
                   }
                   onClick={startLabelEdit}
@@ -2108,6 +2291,7 @@ export function LocaleDetailPanel({
                     currencyCodeBusy ||
                     currencyPatternBusy ||
                     textDirBusy ||
+                    firstDayBusy ||
                     statusBusy ||
                     labelEditing ||
                     datePatternEditing ||
@@ -2118,6 +2302,7 @@ export function LocaleDetailPanel({
                     currencyCodeEditing ||
                     currencyPatternEditing ||
                     textDirEditing ||
+      firstDayEditing ||
                     statusEditing
                   }
                   onClick={startDescriptionEdit}
@@ -2242,6 +2427,7 @@ export function LocaleDetailPanel({
                     currencyCodeBusy ||
                     currencyPatternBusy ||
                     textDirBusy ||
+                    firstDayBusy ||
                     groupingSepBusy ||
                     decimalSepBusy ||
                     dateTimePatternBusy ||
@@ -2641,6 +2827,7 @@ export function LocaleDetailPanel({
                     currencyCodeBusy ||
                     currencyPatternBusy ||
                     textDirBusy ||
+                    firstDayBusy ||
                     statusBusy ||
                     labelBusy ||
                     descriptionBusy ||
@@ -2653,6 +2840,7 @@ export function LocaleDetailPanel({
                     currencyCodeEditing ||
                     currencyPatternEditing ||
                     textDirEditing ||
+      firstDayEditing ||
                     statusEditing
                   }
                   onClick={startDatePatternEdit}
@@ -2764,6 +2952,7 @@ export function LocaleDetailPanel({
                     currencyCodeBusy ||
                     currencyPatternBusy ||
                     textDirBusy ||
+                    firstDayBusy ||
                     statusBusy ||
                     labelBusy ||
                     descriptionBusy ||
@@ -2776,6 +2965,7 @@ export function LocaleDetailPanel({
                     currencyCodeEditing ||
                     currencyPatternEditing ||
                     textDirEditing ||
+      firstDayEditing ||
                     statusEditing
                   }
                   onClick={startTimePatternEdit}
@@ -2887,6 +3077,7 @@ export function LocaleDetailPanel({
                     currencyCodeBusy ||
                     currencyPatternBusy ||
                     textDirBusy ||
+                    firstDayBusy ||
                     statusBusy ||
                     datePatternBusy ||
                     timePatternBusy ||
@@ -2901,6 +3092,7 @@ export function LocaleDetailPanel({
                     currencyCodeEditing ||
                     currencyPatternEditing ||
                     textDirEditing ||
+      firstDayEditing ||
                     statusEditing
                   }
                   onClick={startDateTimePatternEdit}
@@ -3013,6 +3205,7 @@ export function LocaleDetailPanel({
                   disabled={
                     busy ||
                     textDirBusy ||
+                    firstDayBusy ||
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
@@ -3140,6 +3333,7 @@ export function LocaleDetailPanel({
                     currencyCodeBusy ||
                     currencyPatternBusy ||
                     textDirBusy ||
+                    firstDayBusy ||
                     statusBusy ||
                     dateTimePatternBusy ||
                     datePatternBusy ||
@@ -3155,6 +3349,7 @@ export function LocaleDetailPanel({
                     currencyCodeEditing ||
                     currencyPatternEditing ||
                     textDirEditing ||
+      firstDayEditing ||
                     statusEditing
                   }
                   onClick={startDecimalSepEdit}
@@ -3262,6 +3457,7 @@ export function LocaleDetailPanel({
                     currencyCodeBusy ||
                     currencyPatternBusy ||
                     textDirBusy ||
+                    firstDayBusy ||
                     statusBusy ||
                     decimalSepBusy ||
                     dateTimePatternBusy ||
@@ -3278,6 +3474,7 @@ export function LocaleDetailPanel({
                     currencyCodeEditing ||
                     currencyPatternEditing ||
                     textDirEditing ||
+      firstDayEditing ||
                     statusEditing
                   }
                   onClick={startGroupingSepEdit}
@@ -3384,6 +3581,7 @@ export function LocaleDetailPanel({
                     currencyCodeBusy ||
                     currencyPatternBusy ||
                     textDirBusy ||
+                    firstDayBusy ||
                     statusBusy ||
                     groupingSepBusy ||
                     decimalSepBusy ||
@@ -3401,6 +3599,7 @@ export function LocaleDetailPanel({
                     groupingSepEditing ||
                     currencyPatternEditing ||
                     textDirEditing ||
+      firstDayEditing ||
                     statusEditing
                   }
                   onClick={startCurrencyCodeEdit}
@@ -3509,6 +3708,7 @@ export function LocaleDetailPanel({
                     currencyPatternBusy ||
                     currencyCodeBusy ||
                     textDirBusy ||
+                    firstDayBusy ||
                     statusBusy ||
                     groupingSepBusy ||
                     decimalSepBusy ||
@@ -3526,6 +3726,7 @@ export function LocaleDetailPanel({
                     groupingSepEditing ||
                     currencyCodeEditing ||
                     textDirEditing ||
+      firstDayEditing ||
                     statusEditing
                   }
                   onClick={startCurrencyPatternEdit}
@@ -3538,6 +3739,136 @@ export function LocaleDetailPanel({
                   }}
                 >
                   {LOC_CUR_PAT_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
+
+
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-loc-set-first-day"
+              aria-label={LOC_FIRST_DAY_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{LOC_FIRST_DAY_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.85rem" }}>
+                {LOC_FIRST_DAY_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-loc-set-first-day-text"
+                data-loc-first-day={firstDayShown}
+                style={{ marginTop: 0, fontFamily: "monospace" }}
+              >
+                {firstDayShown}
+              </p>
+              {firstDayError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-loc-set-first-day-error"
+                  style={{ color: catalogColors.error, marginBottom: "8px" }}
+                >
+                  {firstDayError}
+                </div>
+              ) : null}
+              {firstDayNotice ? (
+                <div
+                  data-testid="developer-loc-set-first-day-notice"
+                  style={{ color: "#276749", marginBottom: "8px" }}
+                >
+                  {firstDayNotice}
+                </div>
+              ) : null}
+              {firstDayEditing ? (
+                <div data-testid="developer-loc-set-first-day-editor">
+                  <label htmlFor="loc-set-first-day-input">{LOC_FIRST_DAY_MSG.FIELD}</label>
+                  <input
+                    id="loc-set-first-day-input"
+                    data-testid="developer-loc-set-first-day-input"
+                    inputMode="numeric"
+                    style={inputStyle}
+                    value={firstDayDraft}
+                    disabled={firstDayBusy}
+                    onChange={(e) => setFirstDayDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-first-day-save"
+                      aria-label={LOC_FIRST_DAY_MSG.SAVE}
+                      disabled={firstDayBusy}
+                      onClick={() => void handleFirstDaySave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: firstDayBusy ? catalogColors.disabled : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: firstDayBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_FIRST_DAY_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-first-day-cancel"
+                      disabled={firstDayBusy}
+                      onClick={cancelFirstDayEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: firstDayBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_FIRST_DAY_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-loc-set-first-day-edit"
+                  aria-label={LOC_FIRST_DAY_MSG.ACTION}
+                  disabled={
+                    busy ||
+                    firstDayBusy ||
+                    currencyPatternBusy ||
+                    currencyCodeBusy ||
+                    textDirBusy ||
+                    firstDayBusy ||
+                    statusBusy ||
+                    groupingSepBusy ||
+                    decimalSepBusy ||
+                    dateTimePatternBusy ||
+                    datePatternBusy ||
+                    timePatternBusy ||
+                    labelBusy ||
+                    descriptionBusy ||
+                    labelEditing ||
+                    descriptionEditing ||
+                    datePatternEditing ||
+                    timePatternEditing ||
+                    dateTimePatternEditing ||
+                    decimalSepEditing ||
+                    groupingSepEditing ||
+                    currencyCodeEditing ||
+                    currencyPatternEditing ||
+                    textDirEditing ||
+                    firstDayEditing ||
+                    statusEditing
+                  }
+                  onClick={startFirstDayEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {LOC_FIRST_DAY_MSG.ACTION}
                 </button>
               )}
             </section>
