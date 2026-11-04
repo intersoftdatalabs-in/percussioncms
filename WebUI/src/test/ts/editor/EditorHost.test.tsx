@@ -6212,6 +6212,176 @@ describe("EditorHost refuse a number outside its range (#5312)", () => {
   });
 });
 
+describe("EditorHost refuse a number field NUL (#5557)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function numberNulHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    qty?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (message: string) => boolean;
+  }) {
+    const qty = opts.qty ?? "4";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "qty", value: qty }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "qty",
+              label: "Quantity",
+              control: "sys_Number",
+              dataType: "integer",
+              required: opts.required === true,
+              controlProperties: [
+                { name: "minimum", value: "0" },
+                { name: "maximum", value: "10" },
+              ],
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openNumber(
+    element: React.ReactElement,
+    expected = "4",
+  ): Promise<HTMLInputElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-qty") as HTMLInputElement).value).toBe(expected);
+    });
+    return screen.getByTestId("editor-field-qty") as HTMLInputElement;
+  }
+
+  it("refuses a number NUL before PUT and keeps the previous integer after reload", async () => {
+    const saveFields = vi.fn();
+    const input = await openNumber(numberNulHost({ saveFields }));
+    expect(input.getAttribute("data-editor-kind")).toBe("number");
+    expect(input.getAttribute("data-editor-numeric")).toBe("integer");
+    fireEvent.change(input, { target: { value: "7\u0000" } });
+    expect(input.getAttribute("data-editor-has-nul")).toBe("true");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-error-qty").textContent).not.toMatch(/required/i);
+    expect(screen.getByTestId("editor-field-error-qty").textContent).not.toMatch(/valid number/i);
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /number fields before saving/i,
+    );
+    expect(screen.getByTestId("editor-field-qty").getAttribute("aria-invalid")).toBe("true");
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    cleanup();
+    const reloaded = await openNumber(numberNulHost({ saveFields }));
+    expect(reloaded.value).toBe("4");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not write when Close cancels an unsaved number NUL", async () => {
+    const saveFields = vi.fn();
+    const input = await openNumber(
+      numberNulHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.change(input, { target: { value: "7\u0000" } });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("still saves an ordinary whole number", async () => {
+    let qty = "4";
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
+      qty = payload.fields.find((f) => f.name === "qty")?.value ?? qty;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: payload.fields,
+      };
+    });
+    const input = await openNumber(numberNulHost({ saveFields, qty }));
+    fireEvent.change(input, { target: { value: "7" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "qty")?.value).toBe("7");
+    expect(String(sent.fields.find((f) => f.name === "qty")?.value)).not.toContain("\u0000");
+    cleanup();
+    const reloaded = await openNumber(numberNulHost({ saveFields, qty }), "7");
+    expect(reloaded.value).toBe("7");
+  });
+
+  it("leaves the required-blank number gate unchanged", async () => {
+    const saveFields = vi.fn();
+    const input = await openNumber(numberNulHost({ saveFields, required: true }));
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/required/i);
+    });
+    expect(screen.getByTestId("editor-field-error-qty").textContent).not.toMatch(
+      /character that cannot be saved/i,
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not treat HTTP 400, 403, or 409 on a number save as success", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    const input = await openNumber(numberNulHost({ saveFields }));
+    fireEvent.change(input, { target: { value: "7" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(/not allowed/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+});
+
 describe("EditorHost save a decimal number (#5346)", () => {
   afterEach(() => {
     cleanup();

@@ -73,7 +73,11 @@ import {
   collectInvalidLinkFieldErrors,
   collectLinkNulFieldErrors,
 } from "./linkField";
-import { collectInvalidNumericFieldErrors } from "./numericField";
+import {
+  collectInvalidNumericFieldErrors,
+  collectNumberNulFieldErrors,
+  numberContainsNul,
+} from "./numericField";
 import { collectTableNulFieldErrors } from "./tableField";
 import {
   collectDateNulFieldErrors,
@@ -654,6 +658,11 @@ function EditorFieldControl({
           data-testid={`editor-field-${row.name}`}
           data-editor-kind="number"
           data-editor-numeric={row.numericInteger === false ? "float" : "integer"}
+          data-editor-has-nul={
+            row.numericInteger !== false && numberContainsNul(row.value)
+              ? "true"
+              : undefined
+          }
           name={row.name}
           inputMode={row.numericInteger === false ? "decimal" : "numeric"}
           value={row.value}
@@ -1506,6 +1515,24 @@ export function EditorHost({
       queueFocusFirstInvalid(invalidHtml);
       setFieldErrors(invalidHtml);
       setSaveErrorKey(EDITOR_MSG.HTML_INVALID_SAVE);
+      setSaving(false);
+      return;
+    }
+    const numberNuls = collectNumberNulFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: row.value,
+        numericInteger: row.numericInteger,
+        numericMinimum: row.numericMinimum,
+        numericMaximum: row.numericMaximum,
+      })),
+      message(EDITOR_MSG.NUMBER_NUL),
+    );
+    if (Object.keys(numberNuls).length > 0) {
+      queueFocusFirstInvalid(numberNuls);
+      setFieldErrors(numberNuls);
+      setSaveErrorKey(EDITOR_MSG.NUMBER_NUL_SAVE);
       setSaving(false);
       return;
     }

@@ -93,6 +93,9 @@ export const EDITOR_MSG = {
     "perc.ui.editor@Correct the long text fields before saving.",
   NUMBER_INVALID: "perc.ui.editor@Enter a valid number.",
   NUMBER_RANGE: "perc.ui.editor@That number is outside the allowed range.",
+  NUMBER_NUL:
+    "perc.ui.editor@That number contains a character that cannot be saved.",
+  NUMBER_NUL_SAVE: "perc.ui.editor@Correct the number fields before saving.",
   NUMBER_INVALID_SAVE:
     "perc.ui.editor@Correct the number fields before saving.",
   NUMBER_BAD_REQUEST: "perc.ui.editor@That number could not be saved.",
