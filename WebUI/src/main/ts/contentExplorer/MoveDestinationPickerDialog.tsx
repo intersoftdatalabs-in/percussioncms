@@ -18,6 +18,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDialogEscape } from "../architecture/useDialogEscape";
 import { message } from "../i18n/message";
+import { moveDestContainsNul } from "./moveDest";
 import { EXPLORER_MSG } from "./messages";
 
 const FOCUSABLE =
@@ -35,6 +36,7 @@ export function MoveDestinationPickerDialog({
   onCancel,
 }: MoveDestinationPickerDialogProps): React.ReactElement {
   const [value, setValue] = useState(defaultPath);
+  const [error, setError] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -102,7 +104,13 @@ export function MoveDestinationPickerDialog({
         }}
         onSubmit={(e) => {
           e.preventDefault();
+          // U+0000 stays in the dialog and is not POSTed (#5552).
+          if (moveDestContainsNul(value)) {
+            setError(message(EXPLORER_MSG.MOVE_DEST_NUL));
+            return;
+          }
           if (trimmed) {
+            setError(null);
             onPick(trimmed);
           }
         }}
@@ -110,16 +118,32 @@ export function MoveDestinationPickerDialog({
         <h2 id="explorer-move-dest-title" style={{ fontSize: 16, margin: "0 0 12px" }}>
           {message(EXPLORER_MSG.MOVE_DEST_TITLE)}
         </h2>
-        <label style={{ display: "block", fontSize: 13 }}>
+        <label htmlFor="explorer-move-dest-input" style={{ display: "block", fontSize: 13 }}>
           {message(EXPLORER_MSG.MOVE_DEST_LABEL)}
           <input
             ref={inputRef}
+            id="explorer-move-dest-input"
             data-testid="explorer-move-dest-input"
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? "explorer-move-dest-error" : undefined}
+            onChange={(e) => {
+              setValue(e.target.value);
+              setError(null);
+            }}
             style={{ display: "block", width: "100%", marginTop: 6, padding: 6 }}
           />
         </label>
+        {error ? (
+          <p
+            id="explorer-move-dest-error"
+            role="alert"
+            data-testid="explorer-move-dest-error"
+            style={{ color: "#b91c1c", fontSize: 13, margin: "8px 0 0" }}
+          >
+            {error}
+          </p>
+        ) : null}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
           <button type="button" data-testid="explorer-move-dest-cancel" onClick={onCancel}>
             {message(EXPLORER_MSG.CONFIRM_CANCEL)}

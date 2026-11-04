@@ -901,6 +901,58 @@ describe("ReducedActions", () => {
     expect(calls.onMove).toHaveLength(0);
   });
 
+  it("does not move when the destination contains a NUL (#5552)", async () => {
+    const { handlers, calls } = makeHandlers();
+    const { container } = render(
+      <ReducedActions
+        item={FOLDER}
+        folder={null}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-move"));
+    fireEvent.change(screen.getByTestId("explorer-move-dest-input"), {
+      target: { value: "/Assets/Dst\u0000" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
+    expect(calls.onMove).toHaveLength(0);
+    expect(screen.getByTestId("explorer-move-dest-picker")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-move-dest-error")).toHaveTextContent(
+      /cannot be stored/i,
+    );
+    await renderA11yGate(container);
+  });
+
+  it("does not claim success when move HTTP 400, 403, or 409 (#5552)", async () => {
+    const { handlers, calls } = makeHandlers();
+    const errors: string[] = [];
+    let status = 400;
+    handlers.onMove = async (item, targetPath) => {
+      calls.onMove.push({ item, targetPath });
+      throw { status, statusText: "no", body: null };
+    };
+    render(
+      <ReducedActions
+        item={FOLDER}
+        folder={null}
+        handlers={handlers}
+        onError={(m) => errors.push(m)}
+      />,
+    );
+    for (const code of [400, 403, 409]) {
+      status = code;
+      fireEvent.click(screen.getByTestId("action-move"));
+      fireEvent.change(screen.getByTestId("explorer-move-dest-input"), {
+        target: { value: "/Assets/Dst" },
+      });
+      fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
+      await waitFor(() => expect(errors.length).toBeGreaterThan(0));
+      errors.length = 0;
+    }
+    expect(calls.onMove).toHaveLength(3);
+  });
+
   it("Copy opens destination picker then POSTs on confirm (#4600)", async () => {
     const { handlers, calls } = makeHandlers();
     render(
