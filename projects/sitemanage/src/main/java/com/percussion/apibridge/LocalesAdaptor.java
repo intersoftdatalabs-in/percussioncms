@@ -487,7 +487,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * {@code currencyPattern} the same way. A text-direction-only {@code format} updates
    * {@code textDir} the same way. A first-day-of-week-only {@code format} updates
    * {@code firstDayOfWeek} the same way. A measurement-system-only {@code format} updates
-   * {@code measurementSystem} the same way.
+   * {@code measurementSystem} the same way. A default-timezone-only {@code format} updates
+   * {@code defaultTz} the same way.
    */
   void persistFormatIfRequested(String language, LocaleDetail body) {
     if (body == null || language == null) {
@@ -542,6 +543,10 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     if (isMeasurementSystemOnlyWrite(body)) {
       persistMeasurementSystemOnly(language, src);
+      return;
+    }
+    if (isDefaultTzOnlyWrite(body)) {
+      persistDefaultTzOnly(language, src);
       return;
     }
     PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
@@ -666,6 +671,22 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
     row.setMeasurementSystem(next);
+    row.setLanguageString(language);
+    formatSaver.accept(row);
+  }
+
+  /**
+   * Persists only the default timezone. A blank value clears the stored default timezone; other
+   * format fields are not sent and therefore stay.
+   */
+  private void persistDefaultTzOnly(String language, LocaleFormatSummary src) {
+    Optional<PSLocaleFormat> existing = formatByLang.apply(language);
+    String next = src == null ? null : src.getDefaultTz();
+    if (existing.isEmpty() && StringUtils.isBlank(next)) {
+      return;
+    }
+    PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
+    row.setDefaultTz(next);
     row.setLanguageString(language);
     formatSaver.accept(row);
   }
@@ -937,6 +958,34 @@ public class LocalesAdaptor implements ILocalesAdaptor {
         && src.getCurrencyPattern() == null
         && src.getFirstDayOfWeek() == null
         && src.getDefaultTz() == null
+        && src.getNumberingSystem() == null
+        && src.getCalendar() == null;
+  }
+
+  /**
+   * True when PUT {@code format} carries {@code defaultTz} (including blank to clear) and omits
+   * {@code hasFormatProfile} plus every other format field. Language on the format object is
+   * ignored. A value longer than {@link #validateMaxLen(String, String, int)} allows fails
+   * validation before persist.
+   */
+  static boolean isDefaultTzOnlyWrite(LocaleDetail body) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+      return false;
+    }
+    LocaleFormatSummary src = body.getFormat();
+    if (src.getDefaultTz() == null) {
+      return false;
+    }
+    return src.getTextDir() == null
+        && src.getDatePattern() == null
+        && src.getTimePattern() == null
+        && src.getDateTimePattern() == null
+        && src.getDecimalSep() == null
+        && src.getGroupingSep() == null
+        && src.getCurrencyCode() == null
+        && src.getCurrencyPattern() == null
+        && src.getFirstDayOfWeek() == null
+        && src.getMeasurementSystem() == null
         && src.getNumberingSystem() == null
         && src.getCalendar() == null;
   }
