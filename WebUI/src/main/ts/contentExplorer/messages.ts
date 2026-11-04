@@ -118,6 +118,8 @@ export const EXPLORER_MSG = {
   ACTION_COPY: "perc.ui.explorer@Copy",
   COPY_DEST_TITLE: "perc.ui.explorer@Copy to folder",
   COPY_DEST_LABEL: "perc.ui.explorer@Destination folder path",
+  COPY_DEST_NUL:
+    "perc.ui.explorer@That destination path contains a character that cannot be stored",
   ACTION_COPY_NOT_FOUND:
     "perc.ui.explorer@The selected item or destination folder was not found",
   MULTI_COPY: "perc.ui.explorer@Copy selected to folder",
