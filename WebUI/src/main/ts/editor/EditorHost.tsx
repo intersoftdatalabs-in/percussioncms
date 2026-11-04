@@ -88,6 +88,7 @@ import {
   collectDateNulFieldErrors,
   collectDatetimeNulFieldErrors,
 } from "./dateField";
+import { collectFileNulFieldErrors } from "./fileField";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
 import { TableFieldWidget } from "./widgets/TableFieldWidget";
 import {
@@ -1683,6 +1684,22 @@ export function EditorHost({
       queueFocusFirstInvalid(keywordNuls);
       setFieldErrors(keywordNuls);
       setSaveErrorKey(EDITOR_MSG.KEYWORD_INVALID_SAVE);
+      setSaving(false);
+      return;
+    }
+    const fileNuls = collectFileNulFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: row.value,
+      })),
+      pendingFiles,
+      message(EDITOR_MSG.FILE_NUL),
+    );
+    if (Object.keys(fileNuls).length > 0) {
+      queueFocusFirstInvalid(fileNuls);
+      setFieldErrors(fileNuls);
+      setSaveErrorKey(EDITOR_MSG.FILE_NUL_SAVE);
       setSaving(false);
       return;
     }
