@@ -59,7 +59,10 @@ public interface ILocalesAdaptor {
    * omitted format fields stay. A blank {@code measurementSystem} clears that value. Values other
    * than {@code us}, {@code uk}, and {@code metric} are not a write. A default-timezone-only
    * {@code format} updates {@code defaultTz}; omitted format fields stay. A blank
-   * {@code defaultTz} clears that value. A value longer than 64 characters is not a write.
+   * {@code defaultTz} clears that value. A value longer than 64 characters is not a write. A
+   * numbering-system-only {@code format} updates {@code numberingSystem}; omitted format fields
+   * stay. A blank {@code numberingSystem} clears that value. A value longer than 16 characters
+   * is not a write.
    *
    * @return detail, or {@code null} when not found / unsafe key
    */

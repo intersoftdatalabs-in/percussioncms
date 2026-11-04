@@ -488,7 +488,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * {@code textDir} the same way. A first-day-of-week-only {@code format} updates
    * {@code firstDayOfWeek} the same way. A measurement-system-only {@code format} updates
    * {@code measurementSystem} the same way. A default-timezone-only {@code format} updates
-   * {@code defaultTz} the same way.
+   * {@code defaultTz} the same way. A numbering-system-only {@code format} updates
+   * {@code numberingSystem} the same way.
    */
   void persistFormatIfRequested(String language, LocaleDetail body) {
     if (body == null || language == null) {
@@ -547,6 +548,10 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     if (isDefaultTzOnlyWrite(body)) {
       persistDefaultTzOnly(language, src);
+      return;
+    }
+    if (isNumberingSystemOnlyWrite(body)) {
+      persistNumberingSystemOnly(language, src);
       return;
     }
     PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
@@ -687,6 +692,22 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
     row.setDefaultTz(next);
+    row.setLanguageString(language);
+    formatSaver.accept(row);
+  }
+
+  /**
+   * Persists only the numbering system. A blank value clears the stored numbering system; other
+   * format fields are not sent and therefore stay.
+   */
+  private void persistNumberingSystemOnly(String language, LocaleFormatSummary src) {
+    Optional<PSLocaleFormat> existing = formatByLang.apply(language);
+    String next = src == null ? null : src.getNumberingSystem();
+    if (existing.isEmpty() && StringUtils.isBlank(next)) {
+      return;
+    }
+    PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
+    row.setNumberingSystem(next);
     row.setLanguageString(language);
     formatSaver.accept(row);
   }
@@ -987,6 +1008,34 @@ public class LocalesAdaptor implements ILocalesAdaptor {
         && src.getFirstDayOfWeek() == null
         && src.getMeasurementSystem() == null
         && src.getNumberingSystem() == null
+        && src.getCalendar() == null;
+  }
+
+  /**
+   * True when PUT {@code format} carries {@code numberingSystem} (including blank to clear) and
+   * omits {@code hasFormatProfile} plus every other format field. Language on the format object
+   * is ignored. A value longer than {@link #validateMaxLen(String, String, int)} allows fails
+   * validation before persist.
+   */
+  static boolean isNumberingSystemOnlyWrite(LocaleDetail body) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+      return false;
+    }
+    LocaleFormatSummary src = body.getFormat();
+    if (src.getNumberingSystem() == null) {
+      return false;
+    }
+    return src.getTextDir() == null
+        && src.getDatePattern() == null
+        && src.getTimePattern() == null
+        && src.getDateTimePattern() == null
+        && src.getDecimalSep() == null
+        && src.getGroupingSep() == null
+        && src.getCurrencyCode() == null
+        && src.getCurrencyPattern() == null
+        && src.getFirstDayOfWeek() == null
+        && src.getMeasurementSystem() == null
+        && src.getDefaultTz() == null
         && src.getCalendar() == null;
   }
 

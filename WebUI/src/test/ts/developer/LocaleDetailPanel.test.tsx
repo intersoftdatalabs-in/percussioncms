@@ -20,6 +20,7 @@ import { LOC_TEXT_DIR_MSG } from "../../../main/ts/developer/localeTextDirMessag
 import { LOC_FIRST_DAY_MSG } from "../../../main/ts/developer/localeFirstDayOfWeekMessages";
 import { LOC_MEASURE_MSG } from "../../../main/ts/developer/localeMeasurementSystemMessages";
 import { LOC_DEFAULT_TZ_MSG } from "../../../main/ts/developer/localeDefaultTzMessages";
+import { LOC_NUMBERING_SYSTEM_MSG } from "../../../main/ts/developer/localeNumberingSystemMessages";
 import { LOC_GROUPING_MSG } from "../../../main/ts/developer/localeGroupingSepMessages";
 import { LOC_TIME_MSG } from "../../../main/ts/developer/localeTimePatternMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
@@ -2764,6 +2765,163 @@ describe("LocaleDetailPanel", () => {
         screen.getByTestId("developer-loc-set-default-tz-text").getAttribute("data-loc-default-tz"),
       ).toBe("");
       fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-cancel"));
+    }
+  });
+
+  it("sets the numbering system only after success and leaves language, label, description, status, and other format fields", async () => {
+    const detail = {
+      ...sampleDetail,
+      format: { ...sampleDetail.format, numberingSystem: "latn" },
+    };
+    getLocaleDetail.mockResolvedValue(detail);
+    updateLocale.mockResolvedValue({
+      ...detail,
+      format: { ...detail.format, numberingSystem: "arab" },
+    });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(
+        screen
+          .getByTestId("developer-loc-set-numbering-system-text")
+          .getAttribute("data-loc-numbering-system"),
+      ).toBe("latn");
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-edit"));
+    fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-numbering-system-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-numbering-system-input"), {
+      target: { value: "arab" },
+    });
+    expect(
+      screen
+        .getByTestId("developer-loc-set-numbering-system-text")
+        .getAttribute("data-loc-numbering-system"),
+    ).toBe("latn");
+    fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(
+      screen
+        .getByTestId("developer-loc-set-numbering-system-text")
+        .getAttribute("data-loc-numbering-system"),
+    ).toBe("latn");
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-numbering-system-input"), {
+      target: { value: "arab" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", {
+      format: { numberingSystem: "arab" },
+    });
+    const sent = updateLocale.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty("languageString");
+    expect(sent).not.toHaveProperty("label");
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("status");
+    expect(sent).not.toHaveProperty("hasFormatProfile");
+    expect(
+      screen
+        .getByTestId("developer-loc-set-numbering-system-text")
+        .getAttribute("data-loc-numbering-system"),
+    ).toBe("arab");
+    expect(screen.getByTestId("developer-loc-set-numbering-system-notice").textContent).toBe(
+      LOC_NUMBERING_SYSTEM_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe(
+      "US English",
+    );
+    expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-first-day") as HTMLInputElement).value).toBe("1");
+    expect((screen.getByTestId("developer-loc-fmt-dir") as HTMLSelectElement).value).toBe("ltr");
+  });
+
+  it("clears a blank numbering system, refuses an overlong one, and keeps the previous value on 400, 403, and 409", async () => {
+    const detail = {
+      ...sampleDetail,
+      format: { ...sampleDetail.format, numberingSystem: "latn" },
+    };
+    getLocaleDetail.mockResolvedValue(detail);
+    updateLocale.mockResolvedValue({
+      ...detail,
+      format: { ...detail.format, numberingSystem: "" },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-numbering-system-edit")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-numbering-system-input"), {
+      target: { value: "z".repeat(17) },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-loc-set-numbering-system-error").textContent).toBe(
+      LOC_NUMBERING_SYSTEM_MSG.INVALID,
+    );
+    expect(
+      screen
+        .getByTestId("developer-loc-set-numbering-system-text")
+        .getAttribute("data-loc-numbering-system"),
+    ).toBe("latn");
+
+    fireEvent.change(screen.getByTestId("developer-loc-set-numbering-system-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-numbering-system-notice").textContent).toBe(
+        LOC_NUMBERING_SYSTEM_MSG.CLEARED,
+      );
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", {
+      format: { numberingSystem: "" },
+    });
+    expect(
+      screen
+        .getByTestId("developer-loc-set-numbering-system-text")
+        .getAttribute("data-loc-numbering-system"),
+    ).toBe("");
+
+    for (const status of [400, 403, 409]) {
+      updateLocale.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-edit"));
+      fireEvent.change(screen.getByTestId("developer-loc-set-numbering-system-input"), {
+        target: { value: "arab" },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-save"));
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("developer-loc-set-numbering-system-error").textContent,
+        ).toContain(`forced ${status}`);
+      });
+      expect(
+        screen
+          .getByTestId("developer-loc-set-numbering-system-text")
+          .getAttribute("data-loc-numbering-system"),
+      ).toBe("");
+      fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-cancel"));
     }
   });
 });
