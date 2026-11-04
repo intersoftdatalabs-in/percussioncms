@@ -1,7 +1,7 @@
 ---
 id: admin-developer-locales
 title: Developer Locales
-description: Create, save, and delete CMS locales, set a label, description, date pattern, time pattern, date-time pattern, or decimal separator, edit format profiles, and edit the auto-translation set from Developer Locales chrome
+description: Create, save, and delete CMS locales, set a label, description, date pattern, time pattern, date-time pattern, decimal separator, or grouping separator, edit format profiles, and edit the auto-translation set from Developer Locales chrome
 version: "8.2"
 order: 43
 tags: [admin, developer, locales]
@@ -58,6 +58,15 @@ language string, label, description, enabled status, date/time patterns,
 grouping separator, or other format fields, so those stay. The language
 string is immutable. The new separator shows only after that save succeeds.
 A blank decimal separator clears the decimal separator. **Cancel** does not
+write. HTTP 400, 403, and 409 are not success and leave the previous
+separator.
+
+**Set locale grouping separator** on an existing locale saves the grouping
+separator only. The update sends `format.groupingSep` and does not send the
+language string, label, description, enabled status, date/time patterns,
+decimal separator, or other format fields, so those stay. The language
+string is immutable. The new separator shows only after that save succeeds.
+A blank grouping separator clears the grouping separator. **Cancel** does not
 write. HTTP 400, 403, and 409 are not success and leave the previous
 separator.
 
@@ -165,6 +174,22 @@ Admins can also **view and replace** the singleton **auto-translation** set
 5. HTTP 400, 403, and 409 do not show **Locale decimal separator saved**
    and do not replace the previous separator.
 
+## Product path — set a grouping separator
+
+1. Open an existing locale. The committed grouping separator is shown under
+   **Set locale grouping separator**.
+2. Click **Set locale grouping separator**, edit the text, and click **Save
+   grouping separator**. The request is `PUT /services/locales/{idOrLang}`
+   with `format.groupingSep` only. Reload shows that separator. The language
+   string, label, description, enabled status, date/time patterns, decimal
+   separator, and other format fields are unchanged.
+3. A blank grouping separator clears the stored grouping separator. The same
+   separator is not written.
+4. Click **Cancel** before save to keep the previous separator. Cancel does
+   not call the server.
+5. HTTP 400, 403, and 409 do not show **Locale grouping separator saved**
+   and do not replace the previous separator.
+
 ## Product path — create, save, delete
 
 1. Sign in as **Admin** (write calls require the Admin role).
@@ -237,6 +262,7 @@ The chrome calls:
 | Set time pattern | `PUT /services/locales/{idOrLang}` (`format.timePattern` only; a blank value clears; language, label, description, enabled status, and other format fields are omitted and stay) |
 | Set date-time pattern | `PUT /services/locales/{idOrLang}` (`format.dateTimePattern` only; a blank value clears; language, label, description, enabled status, and other format fields are omitted and stay) |
 | Set decimal separator | `PUT /services/locales/{idOrLang}` (`format.decimalSep` only; a blank value clears; language, label, description, enabled status, date/time patterns, grouping separator, and other format fields are omitted and stay) |
+| Set grouping separator | `PUT /services/locales/{idOrLang}` (`format.groupingSep` only; a blank value clears; language, label, description, enabled status, date/time patterns, decimal separator, and other format fields are omitted and stay) |
 | Delete | `DELETE /services/locales/{idOrLang}` (`204` on success) |
 | Auto-translation list | `GET /services/locales/auto-translations` |
 | Auto-translation replace | `PUT /services/locales/auto-translations` (empty `[]` clears) |

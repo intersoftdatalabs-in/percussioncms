@@ -48,6 +48,8 @@ public interface ILocalesAdaptor {
    * {@code format} updates {@code dateTimePattern}; omitted format fields stay. A blank
    * {@code dateTimePattern} clears that pattern. A decimal-separator-only {@code format}
    * updates {@code decimalSep}; omitted format fields stay. A blank {@code decimalSep}
+   * clears that separator. A grouping-separator-only {@code format} updates
+   * {@code groupingSep}; omitted format fields stay. A blank {@code groupingSep}
    * clears that separator.
    *
    * @return detail, or {@code null} when not found / unsafe key
