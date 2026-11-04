@@ -209,6 +209,27 @@ public final class PSItemEditorFieldsMapper {
     }
   }
 
+  /**
+   * Yes-no catalog types must be empty, {@code yes}, or {@code no}. Callers map this to HTTP 400
+   * before writing. Required-blank stays on the client gate.
+   */
+  public static void rejectInvalidYesNo(List<PSItemEditorField> updates) {
+    if (updates == null || updates.isEmpty()) {
+      return;
+    }
+    for (PSItemEditorField update : updates) {
+      if (update == null) {
+        continue;
+      }
+      String message =
+          PSItemEditorYesNo.rejectionMessage(
+              update.getName(), update.getValue(), update.getDataType());
+      if (message != null) {
+        throw new IllegalArgumentException(message);
+      }
+    }
+  }
+
   public static void applyUpdates(PSContentItem item, List<PSItemEditorField> updates) {
     if (item == null || updates == null || updates.isEmpty()) {
       return;
@@ -218,7 +239,12 @@ public final class PSItemEditorFieldsMapper {
       if (update == null || !isEditableFieldName(update.getName())) {
         continue;
       }
-      fields.put(update.getName(), update.getValue() == null ? "" : update.getValue());
+      String stored = update.getValue() == null ? "" : update.getValue();
+      if (PSItemEditorYesNo.isYesNoDataType(update.getDataType())) {
+        String canonical = PSItemEditorYesNo.canonicalValue(stored);
+        stored = canonical == null ? stored : canonical;
+      }
+      fields.put(update.getName(), stored);
     }
     item.setFields(fields);
   }

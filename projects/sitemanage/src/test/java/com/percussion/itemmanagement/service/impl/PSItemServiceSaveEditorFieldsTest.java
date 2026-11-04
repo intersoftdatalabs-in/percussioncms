@@ -58,6 +58,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -227,6 +228,55 @@ class PSItemServiceSaveEditorFieldsTest {
 
     service.saveEditorFields("42", req);
     assertEquals("7", item.getFields().get("qty"));
+  }
+
+  @Test
+  void invalidYesNoMapsToBadRequestAndDoesNotSave() throws Exception {
+    PSItemEditorField flag = new PSItemEditorField("no_propagate", "maybe");
+    flag.setDataType("boolean");
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(0);
+    req.setFields(List.of(flag));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.saveEditorFields("42", req));
+    assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), ex.getResponse().getStatus());
+    verify(contentItemDao, never()).save(any());
+    verify(contentWs, never()).prepareForEdit(any(IPSGuid.class));
+  }
+
+  @Test
+  void yesNoSavesCanonicalValueAndLeavesSiblingText() throws Exception {
+    when(workflowHelper.getComponentSummary(anyString())).thenReturn(summary);
+    when(summary.getCurrentLocator()).thenReturn(new PSLocator(42, 2));
+    when(summary.getCheckoutUserName()).thenReturn("admin");
+    when(workflowHelper.isCheckedOutToCurrentUser(anyString())).thenReturn(true);
+    when(idMapper.getGuid(anyString())).thenReturn(guid);
+    when(contentWs.prepareForEdit(guid)).thenReturn(null);
+    PSContentItem item = new PSContentItem();
+    item.setId("42");
+    item.setType("percPage");
+    item.setName("Home");
+    Map<String, Object> fields = new HashMap<>();
+    fields.put("no_propagate", "yes");
+    fields.put("summary", "Hello");
+    item.setFields(fields);
+    when(contentItemDao.find(anyString(), anyBoolean())).thenReturn(item);
+
+    PSItemEditorField flag = new PSItemEditorField("no_propagate", "No");
+    flag.setDataType("boolean");
+    PSItemEditorFields req = new PSItemEditorFields();
+    req.setRevision(2);
+    req.setFields(List.of(flag));
+
+    PSItemEditorFields saved = service.saveEditorFields("42", req);
+    assertEquals("no", item.getFields().get("no_propagate"));
+    assertEquals("Hello", item.getFields().get("summary"));
+    assertEquals("no", saved.getFields().stream()
+        .filter(f -> "no_propagate".equals(f.getName()))
+        .findFirst()
+        .orElseThrow()
+        .getValue());
     verify(contentItemDao).save(item);
   }
 
