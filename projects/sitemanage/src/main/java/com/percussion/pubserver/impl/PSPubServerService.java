@@ -413,6 +413,12 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSDatabaseDeliverySidUpdate.isSidOnly(pubServerInfo)) {
         return updateOracleSidOnly(siteId, serverId, pubServerInfo);
       }
+      // Oracle schema-only PUT must not run the full property replace (that clears host, port,
+      // user, driver, SID, and password) and must not decode a password that is not
+      // in the body.
+      if (PSDatabaseDeliverySchemaUpdate.isSchemaOnly(pubServerInfo)) {
+        return updateOracleSchemaOnly(siteId, serverId, pubServerInfo);
+      }
       // MSSQL owner-only PUT must not run the full property replace (that clears host, port,
       // user, driver, database, and password) and must not decode a password that is not
       // in the body.
@@ -777,6 +783,30 @@ public class PSPubServerService implements IPSPubServerService {
           "The server you are trying to act on no longer exists in the system.");
     }
     PSDatabaseDeliverySidUpdate.apply(server, pubServerInfo);
+    pubServerDao.savePubServer(server);
+    return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Save only the Oracle {@code schema} property. Does not rename the server or replace the
+   * property set. Blank, overlong, and non-Oracle drivers throw before {@code savePubServer}.
+   */
+  private PSPublishServerInfo updateOracleSchemaOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    PSDatabaseDeliverySchemaUpdate.apply(server, pubServerInfo);
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
