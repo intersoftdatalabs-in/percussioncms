@@ -351,6 +351,18 @@ public class LocalesResourceTest {
   }
 
   @Test
+  public void updateLocaleInvalidStatusIs400() {
+    when(adaptor.updateLocale(any(), eq("en-us"), any()))
+        .thenThrow(new IllegalArgumentException("invalid status: nope"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateLocale("en-us", new LocaleDetail()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("status"));
+  }
+
+  @Test
   public void updateLocaleInvalidCurrencyCodeIs400() {
     when(adaptor.updateLocale(any(), eq("en-us"), any()))
         .thenThrow(new IllegalArgumentException("invalid currencyCode: USDD"));

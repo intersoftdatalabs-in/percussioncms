@@ -1,7 +1,7 @@
 ---
 id: admin-developer-locales
 title: Developer Locales
-description: Create, save, and delete CMS locales, set a label, description, date pattern, time pattern, date-time pattern, decimal separator, grouping separator, or currency code, edit format profiles, and edit the auto-translation set from Developer Locales chrome
+description: Create, save, and delete CMS locales, set a label, description, enabled status, date pattern, time pattern, date-time pattern, decimal separator, grouping separator, or currency code, edit format profiles, and edit the auto-translation set from Developer Locales chrome
 version: "8.2"
 order: 43
 tags: [admin, developer, locales]
@@ -77,6 +77,13 @@ separator, grouping separator, or other format fields, so those stay. The
 language string is immutable. The new code shows only after that save
 succeeds. A blank currency code clears the currency code. **Cancel** does not
 write. HTTP 400, 403, and 409 are not success and leave the previous code.
+
+**Set locale enabled status** on an existing locale saves enabled status
+only (`active` or `inactive`). The update does not send the language string,
+label, description, or format profile, so those stay. The language string is
+immutable. The new status shows only after that save succeeds. **Cancel**
+does not write. HTTP 400, 403, and 409 are not success and leave the previous
+status.
 
 Admins can **create, update, and clear** a locale **format profile**
 (`RXLOCALEFORMAT`: date/number/currency/text direction and related fields)
@@ -214,6 +221,21 @@ Admins can also **view and replace** the singleton **auto-translation** set
 5. HTTP 400, 403, and 409 do not show **Locale currency code saved** and do
    not replace the previous code.
 
+## Product path — set enabled status
+
+1. Open an existing locale. The committed status is shown under **Set
+   locale enabled status**.
+2. Click **Set locale enabled status**, choose **active** or **inactive**,
+   and click **Save enabled status**. The request is
+   `PUT /services/locales/{idOrLang}` with `status` only. Reload shows that
+   status. The language string, label, description, and format profile are
+   unchanged.
+3. The same status is not written.
+4. Click **Cancel** before save to keep the previous status. Cancel does
+   not call the server.
+5. HTTP 400, 403, and 409 do not show **Locale enabled status saved** and
+   do not replace the previous status.
+
 ## Product path — create, save, delete
 
 1. Sign in as **Admin** (write calls require the Admin role).
@@ -288,6 +310,7 @@ The chrome calls:
 | Set decimal separator | `PUT /services/locales/{idOrLang}` (`format.decimalSep` only; a blank value clears; language, label, description, enabled status, date/time patterns, grouping separator, and other format fields are omitted and stay) |
 | Set grouping separator | `PUT /services/locales/{idOrLang}` (`format.groupingSep` only; a blank value clears; language, label, description, enabled status, date/time patterns, decimal separator, and other format fields are omitted and stay) |
 | Set currency code | `PUT /services/locales/{idOrLang}` (`format.currencyCode` only; a blank value clears; language, label, description, enabled status, date/time patterns, separators, and other format fields are omitted and stay) |
+| Set enabled status | `PUT /services/locales/{idOrLang}` (`status` only; `active` or `inactive`; language, label, description, and format are omitted and stay) |
 | Delete | `DELETE /services/locales/{idOrLang}` (`204` on success) |
 | Auto-translation list | `GET /services/locales/auto-translations` |
 | Auto-translation replace | `PUT /services/locales/auto-translations` (empty `[]` clears) |

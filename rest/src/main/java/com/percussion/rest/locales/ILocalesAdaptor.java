@@ -41,18 +41,18 @@ public interface ILocalesAdaptor {
   /**
    * Update an existing locale by language string or numeric id. Language string is immutable. A
    * label-only body updates the label; omitted description, status, baseLocale, and format stay. A
-   * blank or whitespace label is not a write. A date-pattern-only {@code format} updates
-   * {@code datePattern}; omitted format fields stay. A blank {@code datePattern} clears that
-   * pattern. A time-pattern-only {@code format} updates {@code timePattern}; omitted format
-   * fields stay. A blank {@code timePattern} clears that pattern. A date-time-pattern-only
-   * {@code format} updates {@code dateTimePattern}; omitted format fields stay. A blank
-   * {@code dateTimePattern} clears that pattern. A decimal-separator-only {@code format}
-   * updates {@code decimalSep}; omitted format fields stay. A blank {@code decimalSep}
-   * clears that separator. A grouping-separator-only {@code format} updates
-   * {@code groupingSep}; omitted format fields stay. A blank {@code groupingSep}
-   * clears that separator. A currency-code-only {@code format} updates
-   * {@code currencyCode}; omitted format fields stay. A blank {@code currencyCode}
-   * clears that code.
+   * blank or whitespace label is not a write. A status-only body updates enabled status ({@code
+   * active} / {@code inactive}); omitted label, description, baseLocale, and format stay. A
+   * date-pattern-only {@code format} updates {@code datePattern}; omitted format fields stay. A
+   * blank {@code datePattern} clears that pattern. A time-pattern-only {@code format} updates
+   * {@code timePattern}; omitted format fields stay. A blank {@code timePattern} clears that
+   * pattern. A date-time-pattern-only {@code format} updates {@code dateTimePattern}; omitted
+   * format fields stay. A blank {@code dateTimePattern} clears that pattern. A
+   * decimal-separator-only {@code format} updates {@code decimalSep}; omitted format fields stay.
+   * A blank {@code decimalSep} clears that separator. A grouping-separator-only {@code format}
+   * updates {@code groupingSep}; omitted format fields stay. A blank {@code groupingSep}
+   * clears that separator. A currency-code-only {@code format} updates {@code currencyCode};
+   * omitted format fields stay. A blank {@code currencyCode} clears that code.
    *
    * @return detail, or {@code null} when not found / unsafe key
    */
