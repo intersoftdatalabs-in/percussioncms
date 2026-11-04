@@ -20,7 +20,8 @@
  *
  * <p>Peer: {@code tests/editor-host-text-save.spec.js} /
  * {@code tests/editor-host-yesno-nul.spec.js}. Yes-no NUL stays in the NUL
- * spec. Required-blank yes-no stays in slice 104.</p>
+ * spec. Required-blank yes-no stays in
+ * {@code tests/editor-host-yesno-required-blank.spec.js}.</p>
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor} {@code @yesno}</p>
  *

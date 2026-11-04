@@ -27,7 +27,8 @@
  * {@code tests/editor-host-keyword-nul.spec.js}. Integer number NUL stays in
  * {@code tests/editor-host-number-nul.spec.js}. Decimal NUL stays in
  * {@code tests/editor-host-decimal-nul.spec.js}. Keyword NUL stays in
- * {@code tests/editor-host-keyword-nul.spec.js}.</p>
+ * {@code tests/editor-host-keyword-nul.spec.js}. Required-blank yes-no stays
+ * in {@code tests/editor-host-yesno-required-blank.spec.js}.</p>
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor} {@code @yesno}</p>
  *

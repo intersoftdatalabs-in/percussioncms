@@ -17,7 +17,8 @@
 
 /**
  * Client-side yes-no ({@code sys_SingleCheckBox}) checks for EditorHost save
- * (#5559 / #4532). Required-blank yes-no stays in the required-field gate.
+ * (#5559 / #5587 / #4532). Required-blank yes-no stays in the required-field
+ * gate ({@code collectRequiredFieldErrors}).
  */
 
 import type { EditorWidgetKind } from "./controlKinds";
