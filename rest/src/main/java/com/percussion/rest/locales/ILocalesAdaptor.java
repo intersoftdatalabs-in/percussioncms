@@ -50,7 +50,9 @@ public interface ILocalesAdaptor {
    * updates {@code decimalSep}; omitted format fields stay. A blank {@code decimalSep}
    * clears that separator. A grouping-separator-only {@code format} updates
    * {@code groupingSep}; omitted format fields stay. A blank {@code groupingSep}
-   * clears that separator.
+   * clears that separator. A currency-code-only {@code format} updates
+   * {@code currencyCode}; omitted format fields stay. A blank {@code currencyCode}
+   * clears that code.
    *
    * @return detail, or {@code null} when not found / unsafe key
    */
