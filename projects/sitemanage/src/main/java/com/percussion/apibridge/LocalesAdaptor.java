@@ -486,7 +486,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * {@code currencyCode} the same way. A currency-pattern-only {@code format} updates
    * {@code currencyPattern} the same way. A text-direction-only {@code format} updates
    * {@code textDir} the same way. A first-day-of-week-only {@code format} updates
-   * {@code firstDayOfWeek} the same way.
+   * {@code firstDayOfWeek} the same way. A measurement-system-only {@code format} updates
+   * {@code measurementSystem} the same way.
    */
   void persistFormatIfRequested(String language, LocaleDetail body) {
     if (body == null || language == null) {
@@ -537,6 +538,10 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     if (isFirstDayOfWeekOnlyWrite(body)) {
       persistFirstDayOfWeekOnly(language, src);
+      return;
+    }
+    if (isMeasurementSystemOnlyWrite(body)) {
+      persistMeasurementSystemOnly(language, src);
       return;
     }
     PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
@@ -649,6 +654,18 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
     row.setFirstDayOfWeek(next);
+    row.setLanguageString(language);
+    formatSaver.accept(row);
+  }
+
+  private void persistMeasurementSystemOnly(String language, LocaleFormatSummary src) {
+    Optional<PSLocaleFormat> existing = formatByLang.apply(language);
+    String next = normalizedMeasurement(src == null ? null : src.getMeasurementSystem());
+    if (existing.isEmpty() && next == null) {
+      return;
+    }
+    PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
+    row.setMeasurementSystem(next);
     row.setLanguageString(language);
     formatSaver.accept(row);
   }
@@ -896,6 +913,34 @@ public class LocalesAdaptor implements ILocalesAdaptor {
         && src.getCalendar() == null;
   }
 
+  /**
+   * True when PUT {@code format} carries {@code measurementSystem} (including blank to clear) and
+   * omits {@code hasFormatProfile} plus every other format field. Language on the format object
+   * is ignored. Values other than {@code us}, {@code uk}, and {@code metric} fail {@link
+   * #validateMeasurement} before persist.
+   */
+  static boolean isMeasurementSystemOnlyWrite(LocaleDetail body) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+      return false;
+    }
+    LocaleFormatSummary src = body.getFormat();
+    if (src.getMeasurementSystem() == null) {
+      return false;
+    }
+    return src.getTextDir() == null
+        && src.getDatePattern() == null
+        && src.getTimePattern() == null
+        && src.getDateTimePattern() == null
+        && src.getDecimalSep() == null
+        && src.getGroupingSep() == null
+        && src.getCurrencyCode() == null
+        && src.getCurrencyPattern() == null
+        && src.getFirstDayOfWeek() == null
+        && src.getDefaultTz() == null
+        && src.getNumberingSystem() == null
+        && src.getCalendar() == null;
+  }
+
   static void validateFormatWrite(LocaleDetail body) {
     if (body == null) {
       return;
@@ -991,12 +1036,20 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     if (StringUtils.isBlank(measurement)) {
       return;
     }
-    String v = measurement.trim().toLowerCase(Locale.ROOT);
+    String v = normalizedMeasurement(measurement);
     if (!PSLocaleFormat.MEASUREMENT_US.equals(v)
         && !PSLocaleFormat.MEASUREMENT_UK.equals(v)
         && !PSLocaleFormat.MEASUREMENT_METRIC.equals(v)) {
       throw new IllegalArgumentException("invalid measurementSystem: " + measurement);
     }
+  }
+
+  /** Blank or whitespace clears. Stored values are {@code us}, {@code uk}, or {@code metric}. */
+  static String normalizedMeasurement(String measurement) {
+    if (StringUtils.isBlank(measurement)) {
+      return null;
+    }
+    return measurement.trim().toLowerCase(Locale.ROOT);
   }
 
   static void validateFirstDay(Integer firstDay) {

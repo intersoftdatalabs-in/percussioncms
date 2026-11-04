@@ -18,6 +18,7 @@ import { LOC_CUR_PAT_MSG } from "../../../main/ts/developer/localeCurrencyPatter
 import { LOC_STATUS_MSG } from "../../../main/ts/developer/localeEnabledStatusMessages";
 import { LOC_TEXT_DIR_MSG } from "../../../main/ts/developer/localeTextDirMessages";
 import { LOC_FIRST_DAY_MSG } from "../../../main/ts/developer/localeFirstDayOfWeekMessages";
+import { LOC_MEASURE_MSG } from "../../../main/ts/developer/localeMeasurementSystemMessages";
 import { LOC_GROUPING_MSG } from "../../../main/ts/developer/localeGroupingSepMessages";
 import { LOC_TIME_MSG } from "../../../main/ts/developer/localeTimePatternMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
@@ -59,6 +60,7 @@ const sampleDetail = {
     groupingSep: ",",
     currencyCode: "USD",
     firstDayOfWeek: 1,
+    measurementSystem: "us",
   },
   designGaps: ["write not supported"],
 };
@@ -2301,6 +2303,186 @@ describe("LocaleDetailPanel", () => {
     ).toBe("1");
     expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
     expect((screen.getByTestId("developer-loc-fmt-first-day") as HTMLInputElement).value).toBe("1");
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
+  });
+
+  it("sets the measurement system only after success and leaves language, label, description, status, and other format fields", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      format: { ...sampleDetail.format, measurementSystem: "metric" },
+    });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(
+        screen
+          .getByTestId("developer-loc-set-measurement-text")
+          .getAttribute("data-loc-measurement"),
+      ).toBe("us");
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-measurement-edit"));
+    fireEvent.click(screen.getByTestId("developer-loc-set-measurement-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-measurement-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-measurement-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-measurement-input"), {
+      target: { value: "metric" },
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-measurement-text").getAttribute("data-loc-measurement"),
+    ).toBe("us");
+    fireEvent.click(screen.getByTestId("developer-loc-set-measurement-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-loc-set-measurement-text").getAttribute("data-loc-measurement"),
+    ).toBe("us");
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-measurement-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-measurement-input"), {
+      target: { value: "metric" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-measurement-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", {
+      format: { measurementSystem: "metric" },
+    });
+    const sent = updateLocale.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty("languageString");
+    expect(sent).not.toHaveProperty("label");
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("status");
+    expect(sent).not.toHaveProperty("hasFormatProfile");
+    expect(
+      screen.getByTestId("developer-loc-set-measurement-text").getAttribute("data-loc-measurement"),
+    ).toBe("metric");
+    expect((screen.getByTestId("developer-loc-fmt-measure") as HTMLSelectElement).value).toBe(
+      "metric",
+    );
+    expect(screen.getByTestId("developer-loc-set-measurement-notice").textContent).toBe(
+      LOC_MEASURE_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe(
+      "US English",
+    );
+    expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-first-day") as HTMLInputElement).value).toBe("1");
+    expect((screen.getByTestId("developer-loc-fmt-dir") as HTMLSelectElement).value).toBe("ltr");
+  });
+
+  it("clears a blank measurement system, rejects unknown values, and keeps the previous value on 400, 403, and 409", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      format: { ...sampleDetail.format, measurementSystem: "" },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-measurement-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-measurement-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-measurement-input"), {
+      target: { value: "imperial" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-measurement-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-loc-set-measurement-error").textContent).toBe(
+      LOC_MEASURE_MSG.INVALID,
+    );
+    expect(
+      screen.getByTestId("developer-loc-set-measurement-text").getAttribute("data-loc-measurement"),
+    ).toBe("us");
+
+    fireEvent.change(screen.getByTestId("developer-loc-set-measurement-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-measurement-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-measurement-notice").textContent).toBe(
+        LOC_MEASURE_MSG.CLEARED,
+      );
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", { format: { measurementSystem: "" } });
+    expect(
+      screen.getByTestId("developer-loc-set-measurement-text").getAttribute("data-loc-measurement"),
+    ).toBe("");
+    expect((screen.getByTestId("developer-loc-fmt-measure") as HTMLSelectElement).value).toBe("");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-first-day") as HTMLInputElement).value).toBe("1");
+
+    for (const status of [400, 403, 409]) {
+      updateLocale.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-measurement-edit"));
+      fireEvent.change(screen.getByTestId("developer-loc-set-measurement-input"), {
+        target: { value: "metric" },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-measurement-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-loc-set-measurement-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(
+        screen.getByTestId("developer-loc-set-measurement-text").getAttribute("data-loc-measurement"),
+      ).toBe("");
+      expect((screen.getByTestId("developer-loc-fmt-measure") as HTMLSelectElement).value).toBe("");
+      expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+      fireEvent.click(screen.getByTestId("developer-loc-set-measurement-cancel"));
+    }
+  });
+
+  it("does not show a measurement system when the update changes the label or other format fields", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      label: "Renamed",
+      format: {
+        ...sampleDetail.format,
+        measurementSystem: "metric",
+        currencyCode: "EUR",
+      },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-measurement-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-measurement-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-measurement-input"), {
+      target: { value: "metric" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-measurement-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-measurement-error").textContent).toContain(
+        LOC_MEASURE_MSG.ERROR,
+      );
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-measurement-text").getAttribute("data-loc-measurement"),
+    ).toBe("us");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-measure") as HTMLSelectElement).value).toBe("us");
     expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
       "USD",
     );

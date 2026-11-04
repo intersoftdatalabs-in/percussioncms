@@ -375,6 +375,18 @@ public class LocalesResourceTest {
   }
 
   @Test
+  public void updateLocaleInvalidMeasurementSystemIs400() {
+    when(adaptor.updateLocale(any(), eq("en-us"), any()))
+        .thenThrow(new IllegalArgumentException("invalid measurementSystem: imperial"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.updateLocale("en-us", new LocaleDetail()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("measurementSystem"));
+  }
+
+  @Test
   public void updateLocaleInvalidCurrencyCodeIs400() {
     when(adaptor.updateLocale(any(), eq("en-us"), any()))
         .thenThrow(new IllegalArgumentException("invalid currencyCode: USDD"));
