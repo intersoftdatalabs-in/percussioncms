@@ -92,6 +92,12 @@ import {
 } from "./localeFirstDayOfWeek";
 import { LOC_FIRST_DAY_MSG } from "./localeFirstDayOfWeekMessages";
 import {
+  localeMeasurementSystemWrite,
+  savedLocaleMeasurementSystem,
+  storedLocaleMeasurementSystem,
+} from "./localeMeasurementSystem";
+import { LOC_MEASURE_MSG } from "./localeMeasurementSystemMessages";
+import {
   localeEnabledStatusWrite,
   savedLocaleEnabledStatus,
   storedLocaleEnabledStatus,
@@ -274,6 +280,12 @@ export function LocaleDetailPanel({
   const [firstDayError, setFirstDayError] = useState<string | null>(null);
   const [firstDayNotice, setFirstDayNotice] = useState<string | null>(null);
   const [firstDayBusy, setFirstDayBusy] = useState(false);
+  const [measurementShown, setMeasurementShown] = useState("");
+  const [measurementDraft, setMeasurementDraft] = useState("");
+  const [measurementEditing, setMeasurementEditing] = useState(false);
+  const [measurementError, setMeasurementError] = useState<string | null>(null);
+  const [measurementNotice, setMeasurementNotice] = useState<string | null>(null);
+  const [measurementBusy, setMeasurementBusy] = useState(false);
   const [statusShown, setStatusShown] = useState("active");
   const [statusDraft, setStatusDraft] = useState("active");
   const [statusEditing, setStatusEditing] = useState(false);
@@ -301,6 +313,7 @@ export function LocaleDetailPanel({
   const currencyPatternInflight = useRef(false);
   const textDirInflight = useRef(false);
   const firstDayInflight = useRef(false);
+  const measurementInflight = useRef(false);
   const statusInflight = useRef(false);
 
   useEffect(() => {
@@ -374,6 +387,11 @@ export function LocaleDetailPanel({
         setFirstDayEditing(false);
         setFirstDayError(null);
         setFirstDayNotice(null);
+        setMeasurementShown(storedLocaleMeasurementSystem(d.format?.measurementSystem));
+        setMeasurementDraft("");
+        setMeasurementEditing(false);
+        setMeasurementError(null);
+        setMeasurementNotice(null);
         setStatus(d.status || "active");
         setStatusShown(storedLocaleEnabledStatus(d.status) || "active");
         setStatusDraft("active");
@@ -419,6 +437,8 @@ export function LocaleDetailPanel({
     !textDirEditing &&
     !firstDayBusy &&
     !firstDayEditing &&
+    !measurementBusy &&
+    !measurementEditing &&
     !statusBusy &&
     !statusEditing &&
     isLocaleWriteReady({ isNew, language, label });
@@ -524,6 +544,13 @@ export function LocaleDetailPanel({
     return LOC_FIRST_DAY_MSG.ERROR;
   }
 
+  function measurementSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return LOC_MEASURE_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return LOC_MEASURE_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return LOC_MEASURE_MSG.CONFLICT;
+    return LOC_MEASURE_MSG.ERROR;
+  }
+
   function enabledStatusSaveFallback(err: unknown): string {
     if (isApiError(err) && err.status === 400) return LOC_STATUS_MSG.INVALID;
     if (isApiError(err) && err.status === 403) return LOC_STATUS_MSG.FORBIDDEN;
@@ -545,6 +572,7 @@ export function LocaleDetailPanel({
       currencyPatternBusy ||
       textDirBusy ||
       firstDayBusy ||
+      measurementBusy ||
       statusBusy ||
       labelInflight.current ||
       descriptionInflight.current ||
@@ -557,6 +585,7 @@ export function LocaleDetailPanel({
       currencyPatternInflight.current ||
       textDirInflight.current ||
       firstDayInflight.current ||
+      measurementInflight.current ||
       statusInflight.current ||
       inflight.current
     );
@@ -577,6 +606,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -669,6 +699,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -703,6 +734,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -767,6 +799,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -801,6 +834,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -874,6 +908,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -908,6 +943,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -981,6 +1017,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1015,6 +1052,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1088,6 +1126,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1122,6 +1161,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1195,6 +1235,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1229,6 +1270,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1302,6 +1344,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1337,6 +1380,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1411,6 +1455,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1445,6 +1490,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1518,6 +1564,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1542,6 +1589,7 @@ export function LocaleDetailPanel({
       !writeKey ||
       !textDirEditing ||
       firstDayEditing ||
+      measurementEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -1553,6 +1601,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       firstDayEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1733,6 +1782,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1756,6 +1806,7 @@ export function LocaleDetailPanel({
       !detail ||
       !writeKey ||
       !firstDayEditing ||
+      measurementEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -1767,6 +1818,7 @@ export function LocaleDetailPanel({
       currencyCodeEditing ||
       currencyPatternEditing ||
       textDirEditing ||
+      measurementEditing ||
       statusEditing
     ) {
       return;
@@ -1837,6 +1889,122 @@ export function LocaleDetailPanel({
     }
   }
 
+
+  function startMeasurementEdit(): void {
+    if (
+      isNew ||
+      !detail ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing ||
+      currencyPatternEditing ||
+      textDirEditing ||
+      firstDayEditing ||
+      measurementEditing ||
+      statusEditing
+    ) {
+      return;
+    }
+    setMeasurementDraft(measurementShown);
+    setMeasurementError(null);
+    setMeasurementNotice(null);
+    setMeasurementEditing(true);
+  }
+
+  function cancelMeasurementEdit(): void {
+    if (measurementBusy || measurementInflight.current) return;
+    setMeasurementEditing(false);
+    setMeasurementDraft("");
+    setMeasurementError(null);
+  }
+
+  async function handleMeasurementSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !measurementEditing ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing ||
+      currencyPatternEditing ||
+      textDirEditing ||
+      firstDayEditing ||
+      statusEditing
+    ) {
+      return;
+    }
+    const sent = localeMeasurementSystemWrite(detail, measurementDraft);
+    if (sent === "invalid") {
+      setMeasurementError(LOC_MEASURE_MSG.INVALID);
+      setMeasurementNotice(null);
+      return;
+    }
+    if (sent === "unchanged") {
+      setMeasurementEditing(false);
+      setMeasurementDraft("");
+      setMeasurementError(null);
+      return;
+    }
+    measurementInflight.current = true;
+    setMeasurementBusy(true);
+    setBusy(true);
+    setMeasurementError(null);
+    setMeasurementNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = measurementShown;
+    try {
+      const saved = await updateLocale(writeKey, sent);
+      const accepted = savedLocaleMeasurementSystem(sent, detail, saved);
+      if (accepted == null) {
+        setMeasurementShown(previousShown);
+        setFmt((prev) => ({ ...prev, measurementSystem: previousShown }));
+        setMeasurementError(LOC_MEASURE_MSG.ERROR);
+        setMeasurementNotice(null);
+        return;
+      }
+      const nextFormat: LocaleFormatSummary = {
+        ...(detail.format || {}),
+        measurementSystem: accepted,
+      };
+      const nextDetail: LocaleDetail = {
+        ...detail,
+        hasFormatProfile: true,
+        format: nextFormat,
+      };
+      setDetail(nextDetail);
+      setMeasurementShown(accepted);
+      setFmt((prev) => ({ ...prev, measurementSystem: accepted }));
+      setStoreFormat(true);
+      setMeasurementEditing(false);
+      setMeasurementDraft("");
+      setMeasurementNotice(accepted ? LOC_MEASURE_MSG.SAVED : LOC_MEASURE_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setMeasurementShown(previousShown);
+      setFmt((prev) => ({ ...prev, measurementSystem: previousShown }));
+      setMeasurementError(panelErrMsg(err, measurementSaveFallback(err)));
+      setMeasurementNotice(null);
+    } finally {
+      measurementInflight.current = false;
+      setMeasurementBusy(false);
+      setBusy(false);
+    }
+  }
+
   function dedicatedInflight(): boolean {
     return (
       descriptionInflight.current ||
@@ -1850,6 +2018,7 @@ export function LocaleDetailPanel({
       currencyPatternInflight.current ||
       textDirInflight.current ||
       firstDayInflight.current ||
+      measurementInflight.current ||
       statusInflight.current
     );
   }
@@ -1913,6 +2082,11 @@ export function LocaleDetailPanel({
     setFirstDayEditing(false);
     setFirstDayError(null);
     setFirstDayNotice(null);
+    setMeasurementShown(storedLocaleMeasurementSystem(saved.format?.measurementSystem));
+    setMeasurementDraft("");
+    setMeasurementEditing(false);
+    setMeasurementError(null);
+    setMeasurementNotice(null);
     setStatus(saved.status || status);
     setStatusShown(storedLocaleEnabledStatus(saved.status) || status);
     setStatusDraft("active");
@@ -2156,6 +2330,7 @@ export function LocaleDetailPanel({
                     currencyPatternBusy ||
                     textDirBusy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     statusBusy ||
                     descriptionEditing ||
                     datePatternEditing ||
@@ -2167,6 +2342,7 @@ export function LocaleDetailPanel({
                     currencyPatternEditing ||
                     textDirEditing ||
       firstDayEditing ||
+                    measurementEditing ||
                     statusEditing
                   }
                   onClick={startLabelEdit}
@@ -2292,6 +2468,7 @@ export function LocaleDetailPanel({
                     currencyPatternBusy ||
                     textDirBusy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     statusBusy ||
                     labelEditing ||
                     datePatternEditing ||
@@ -2303,6 +2480,7 @@ export function LocaleDetailPanel({
                     currencyPatternEditing ||
                     textDirEditing ||
       firstDayEditing ||
+                    measurementEditing ||
                     statusEditing
                   }
                   onClick={startDescriptionEdit}
@@ -2428,6 +2606,7 @@ export function LocaleDetailPanel({
                     currencyPatternBusy ||
                     textDirBusy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     groupingSepBusy ||
                     decimalSepBusy ||
                     dateTimePatternBusy ||
@@ -2828,6 +3007,7 @@ export function LocaleDetailPanel({
                     currencyPatternBusy ||
                     textDirBusy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     statusBusy ||
                     labelBusy ||
                     descriptionBusy ||
@@ -2841,6 +3021,7 @@ export function LocaleDetailPanel({
                     currencyPatternEditing ||
                     textDirEditing ||
       firstDayEditing ||
+                    measurementEditing ||
                     statusEditing
                   }
                   onClick={startDatePatternEdit}
@@ -2953,6 +3134,7 @@ export function LocaleDetailPanel({
                     currencyPatternBusy ||
                     textDirBusy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     statusBusy ||
                     labelBusy ||
                     descriptionBusy ||
@@ -2966,6 +3148,7 @@ export function LocaleDetailPanel({
                     currencyPatternEditing ||
                     textDirEditing ||
       firstDayEditing ||
+                    measurementEditing ||
                     statusEditing
                   }
                   onClick={startTimePatternEdit}
@@ -3078,6 +3261,7 @@ export function LocaleDetailPanel({
                     currencyPatternBusy ||
                     textDirBusy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     statusBusy ||
                     datePatternBusy ||
                     timePatternBusy ||
@@ -3093,6 +3277,7 @@ export function LocaleDetailPanel({
                     currencyPatternEditing ||
                     textDirEditing ||
       firstDayEditing ||
+                    measurementEditing ||
                     statusEditing
                   }
                   onClick={startDateTimePatternEdit}
@@ -3206,6 +3391,7 @@ export function LocaleDetailPanel({
                     busy ||
                     textDirBusy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
@@ -3334,6 +3520,7 @@ export function LocaleDetailPanel({
                     currencyPatternBusy ||
                     textDirBusy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     statusBusy ||
                     dateTimePatternBusy ||
                     datePatternBusy ||
@@ -3350,6 +3537,7 @@ export function LocaleDetailPanel({
                     currencyPatternEditing ||
                     textDirEditing ||
       firstDayEditing ||
+                    measurementEditing ||
                     statusEditing
                   }
                   onClick={startDecimalSepEdit}
@@ -3458,6 +3646,7 @@ export function LocaleDetailPanel({
                     currencyPatternBusy ||
                     textDirBusy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     statusBusy ||
                     decimalSepBusy ||
                     dateTimePatternBusy ||
@@ -3475,6 +3664,7 @@ export function LocaleDetailPanel({
                     currencyPatternEditing ||
                     textDirEditing ||
       firstDayEditing ||
+                    measurementEditing ||
                     statusEditing
                   }
                   onClick={startGroupingSepEdit}
@@ -3582,6 +3772,7 @@ export function LocaleDetailPanel({
                     currencyPatternBusy ||
                     textDirBusy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     statusBusy ||
                     groupingSepBusy ||
                     decimalSepBusy ||
@@ -3600,6 +3791,7 @@ export function LocaleDetailPanel({
                     currencyPatternEditing ||
                     textDirEditing ||
       firstDayEditing ||
+                    measurementEditing ||
                     statusEditing
                   }
                   onClick={startCurrencyCodeEdit}
@@ -3709,6 +3901,7 @@ export function LocaleDetailPanel({
                     currencyCodeBusy ||
                     textDirBusy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     statusBusy ||
                     groupingSepBusy ||
                     decimalSepBusy ||
@@ -3727,6 +3920,7 @@ export function LocaleDetailPanel({
                     currencyCodeEditing ||
                     textDirEditing ||
       firstDayEditing ||
+                    measurementEditing ||
                     statusEditing
                   }
                   onClick={startCurrencyPatternEdit}
@@ -3834,10 +4028,12 @@ export function LocaleDetailPanel({
                   disabled={
                     busy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     currencyPatternBusy ||
                     currencyCodeBusy ||
                     textDirBusy ||
                     firstDayBusy ||
+                    measurementBusy ||
                     statusBusy ||
                     groupingSepBusy ||
                     decimalSepBusy ||
@@ -3857,6 +4053,7 @@ export function LocaleDetailPanel({
                     currencyPatternEditing ||
                     textDirEditing ||
                     firstDayEditing ||
+                    measurementEditing ||
                     statusEditing
                   }
                   onClick={startFirstDayEdit}
@@ -3869,6 +4066,136 @@ export function LocaleDetailPanel({
                   }}
                 >
                   {LOC_FIRST_DAY_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
+
+
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-loc-set-measurement"
+              aria-label={LOC_MEASURE_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{LOC_MEASURE_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.85rem" }}>
+                {LOC_MEASURE_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-loc-set-measurement-text"
+                data-loc-measurement={measurementShown}
+                style={{ marginTop: 0, fontFamily: "monospace" }}
+              >
+                {measurementShown}
+              </p>
+              {measurementError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-loc-set-measurement-error"
+                  style={{ color: catalogColors.error, marginBottom: "8px" }}
+                >
+                  {measurementError}
+                </div>
+              ) : null}
+              {measurementNotice ? (
+                <div
+                  data-testid="developer-loc-set-measurement-notice"
+                  style={{ color: "#276749", marginBottom: "8px" }}
+                >
+                  {measurementNotice}
+                </div>
+              ) : null}
+              {measurementEditing ? (
+                <div data-testid="developer-loc-set-measurement-editor">
+                  <label htmlFor="loc-set-measurement-input">{LOC_MEASURE_MSG.FIELD}</label>
+                  <input
+                    id="loc-set-measurement-input"
+                    data-testid="developer-loc-set-measurement-input"
+                    style={inputStyle}
+                    value={measurementDraft}
+                    disabled={measurementBusy}
+                    onChange={(e) => setMeasurementDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-measurement-save"
+                      aria-label={LOC_MEASURE_MSG.SAVE}
+                      disabled={measurementBusy}
+                      onClick={() => void handleMeasurementSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: measurementBusy ? catalogColors.disabled : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: measurementBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_MEASURE_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-measurement-cancel"
+                      disabled={measurementBusy}
+                      onClick={cancelMeasurementEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: measurementBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_MEASURE_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-loc-set-measurement-edit"
+                  aria-label={LOC_MEASURE_MSG.ACTION}
+                  disabled={
+                    busy ||
+                    measurementBusy ||
+                    firstDayBusy ||
+                    currencyPatternBusy ||
+                    currencyCodeBusy ||
+                    textDirBusy ||
+                    statusBusy ||
+                    groupingSepBusy ||
+                    decimalSepBusy ||
+                    dateTimePatternBusy ||
+                    datePatternBusy ||
+                    timePatternBusy ||
+                    labelBusy ||
+                    descriptionBusy ||
+                    labelEditing ||
+                    descriptionEditing ||
+                    datePatternEditing ||
+                    timePatternEditing ||
+                    dateTimePatternEditing ||
+                    decimalSepEditing ||
+                    groupingSepEditing ||
+                    currencyCodeEditing ||
+                    currencyPatternEditing ||
+                    textDirEditing ||
+                    firstDayEditing ||
+                    measurementEditing ||
+                    statusEditing
+                  }
+                  onClick={startMeasurementEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {LOC_MEASURE_MSG.ACTION}
                 </button>
               )}
             </section>

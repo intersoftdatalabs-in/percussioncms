@@ -173,6 +173,17 @@ class LocalesAdaptorTest {
   }
 
   @Test
+  void validateFormat_rejectsInvalidMeasurementSystem() {
+    com.percussion.rest.locales.LocaleFormatSummary src =
+        new com.percussion.rest.locales.LocaleFormatSummary();
+    src.setMeasurementSystem("imperial");
+    IllegalArgumentException ex =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            IllegalArgumentException.class, () -> LocalesAdaptor.validateFormat(src));
+    assertTrue(ex.getMessage().contains("measurementSystem"));
+  }
+
+  @Test
   void validateFormat_acceptsCommonPatterns() {
     com.percussion.rest.locales.LocaleFormatSummary src =
         new com.percussion.rest.locales.LocaleFormatSummary();

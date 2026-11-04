@@ -1,7 +1,7 @@
 ---
 id: admin-developer-locales
 title: Developer Locales
-description: Create, save, and delete CMS locales, set a label, description, enabled status, date pattern, time pattern, date-time pattern, decimal separator, grouping separator, currency code, currency pattern, text direction, or first day of week, edit format profiles, and edit the auto-translation set from Developer Locales chrome
+description: Create, save, and delete CMS locales, set a label, description, enabled status, date pattern, time pattern, date-time pattern, decimal separator, grouping separator, currency code, currency pattern, text direction, first day of week, or measurement system, edit format profiles, and edit the auto-translation set from Developer Locales chrome
 version: "8.2"
 order: 43
 tags: [admin, developer, locales]
@@ -105,6 +105,16 @@ immutable. The new value shows only after that save succeeds. A blank first
 day of week clears the first day of week. Values outside 1–7 do not write.
 **Cancel** does not write. HTTP 400, 403, and 409 are not success and leave
 the previous first day of week.
+
+**Set locale measurement system** on an existing locale saves the measurement
+system only (`us`, `uk`, or `metric`). The update sends
+`format.measurementSystem` and does not send the language string, label,
+description, enabled status, date/time patterns, separators, currency fields,
+text direction, first day of week, or other format fields, so those stay. The
+language string is immutable. The new value shows only after that save
+succeeds. A blank measurement system clears the measurement system. Other
+values do not write. **Cancel** does not write. HTTP 400, 403, and 409 are
+not success and leave the previous measurement system.
 
 **Set locale enabled status** on an existing locale saves enabled status
 only (`active` or `inactive`). The update does not send the language string,

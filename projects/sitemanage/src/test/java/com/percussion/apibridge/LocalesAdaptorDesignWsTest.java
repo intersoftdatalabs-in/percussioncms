@@ -1584,6 +1584,170 @@ class LocalesAdaptorDesignWsTest {
   }
 
   @Test
+  void updateLocale_measurementSystemOnlyLeavesOtherFormatFields() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    loc.setDescription("US English");
+    loc.setStatus(PSLocale.STATUS_ACTIVE);
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setDatePattern("MM/dd/yyyy");
+    existing.setTextDir("ltr");
+    existing.setTimePattern("HH:mm:ss");
+    existing.setDateTimePattern("MM/dd/yyyy HH:mm:ss");
+    existing.setDecimalSep(".");
+    existing.setGroupingSep(",");
+    existing.setCurrencyCode("USD");
+    existing.setCurrencyPattern("¤#,##0.00");
+    existing.setFirstDayOfWeek(1);
+    existing.setMeasurementSystem("us");
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setMeasurementSystem("METRIC");
+    body.setFormat(fmt);
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals("English", loc.getDisplayName());
+    assertEquals("US English", loc.getDescription());
+    assertEquals(PSLocale.STATUS_ACTIVE, loc.getStatus());
+    assertEquals(1, saved.size());
+    assertEquals("metric", saved.get(0).getMeasurementSystem());
+    assertEquals(Integer.valueOf(1), saved.get(0).getFirstDayOfWeek());
+    assertEquals("ltr", saved.get(0).getTextDir());
+    assertEquals("MM/dd/yyyy", saved.get(0).getDatePattern());
+    assertEquals("HH:mm:ss", saved.get(0).getTimePattern());
+    assertEquals("MM/dd/yyyy HH:mm:ss", saved.get(0).getDateTimePattern());
+    assertEquals(".", saved.get(0).getDecimalSep());
+    assertEquals(",", saved.get(0).getGroupingSep());
+    assertEquals("USD", saved.get(0).getCurrencyCode());
+    assertEquals("¤#,##0.00", saved.get(0).getCurrencyPattern());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void updateLocale_blankMeasurementSystemClearsMeasurementOnly() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setDatePattern("MM/dd/yyyy");
+    existing.setTimePattern("HH:mm:ss");
+    existing.setDateTimePattern("MM/dd/yyyy HH:mm:ss");
+    existing.setDecimalSep(".");
+    existing.setGroupingSep(",");
+    existing.setTextDir("ltr");
+    existing.setCurrencyCode("USD");
+    existing.setCurrencyPattern("¤#,##0.00");
+    existing.setFirstDayOfWeek(1);
+    existing.setMeasurementSystem("us");
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setMeasurementSystem("");
+    body.setFormat(fmt);
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals(1, saved.size());
+    assertNull(saved.get(0).getMeasurementSystem());
+    assertEquals(Integer.valueOf(1), saved.get(0).getFirstDayOfWeek());
+    assertEquals(".", saved.get(0).getDecimalSep());
+    assertEquals(",", saved.get(0).getGroupingSep());
+    assertEquals("USD", saved.get(0).getCurrencyCode());
+    assertEquals("¤#,##0.00", saved.get(0).getCurrencyPattern());
+    assertEquals("MM/dd/yyyy", saved.get(0).getDatePattern());
+    assertEquals("HH:mm:ss", saved.get(0).getTimePattern());
+    assertEquals("ltr", saved.get(0).getTextDir());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void updateLocale_invalidMeasurementSystemDoesNotWrite() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setMeasurementSystem("us");
+    existing.setDatePattern("MM/dd/yyyy");
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, lang -> {});
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setMeasurementSystem("imperial");
+    body.setFormat(fmt);
+
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.updateLocale(null, "en-us", body));
+    assertTrue(ex.getMessage().contains("measurementSystem"));
+    assertTrue(saved.isEmpty());
+    assertEquals("us", existing.getMeasurementSystem());
+    assertEquals("MM/dd/yyyy", existing.getDatePattern());
+  }
+
+  @Test
+  void isMeasurementSystemOnlyWrite_requiresOmittedHasFormatProfileAndOtherFields() {
+    LocaleDetail omitted = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setMeasurementSystem("metric");
+    omitted.setFormat(fmt);
+    assertTrue(LocalesAdaptor.isMeasurementSystemOnlyWrite(omitted));
+
+    LocaleDetail cleared = new LocaleDetail();
+    LocaleFormatSummary blank = new LocaleFormatSummary();
+    blank.setMeasurementSystem("");
+    cleared.setFormat(blank);
+    assertTrue(LocalesAdaptor.isMeasurementSystemOnlyWrite(cleared));
+
+    LocaleDetail absent = new LocaleDetail();
+    absent.setFormat(new LocaleFormatSummary());
+    assertFalse(LocalesAdaptor.isMeasurementSystemOnlyWrite(absent));
+
+    LocaleDetail withFlag = new LocaleDetail();
+    withFlag.setHasFormatProfile(true);
+    withFlag.setFormat(fmt);
+    assertFalse(LocalesAdaptor.isMeasurementSystemOnlyWrite(withFlag));
+
+    LocaleDetail extra = new LocaleDetail();
+    LocaleFormatSummary both = new LocaleFormatSummary();
+    both.setMeasurementSystem("metric");
+    both.setCurrencyCode("EUR");
+    extra.setFormat(both);
+    assertFalse(LocalesAdaptor.isMeasurementSystemOnlyWrite(extra));
+  }
+
+  @Test
   void applyWritableFields_omittedAndBlankLabelLeaveExisting() {
     PSLocale loc = newLocale(9, "en-us", "English");
     loc.setDescription("US English");

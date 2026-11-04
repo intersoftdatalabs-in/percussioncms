@@ -55,7 +55,9 @@ public interface ILocalesAdaptor {
    * omitted format fields stay. A blank {@code currencyCode} clears that code. A
    * first-day-of-week-only {@code format} updates {@code firstDayOfWeek}; omitted format fields
    * stay. A blank {@code firstDayOfWeek} clears that value. Values outside 1–7 (Monday–Sunday) are
-   * not a write.
+   * not a write. A measurement-system-only {@code format} updates {@code measurementSystem};
+   * omitted format fields stay. A blank {@code measurementSystem} clears that value. Values other
+   * than {@code us}, {@code uk}, and {@code metric} are not a write.
    *
    * @return detail, or {@code null} when not found / unsafe key
    */
