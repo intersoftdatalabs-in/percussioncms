@@ -519,6 +519,10 @@ public class LocalesAdaptor implements ILocalesAdaptor {
       persistGroupingSepOnly(language, src);
       return;
     }
+    if (isCurrencyCodeOnlyWrite(body)) {
+      persistCurrencyCodeOnly(language, src);
+      return;
+    }
     PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
     applyFormatFields(row, src);
     row.setLanguageString(language);
@@ -581,6 +585,18 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
     row.setGroupingSep(next);
+    row.setLanguageString(language);
+    formatSaver.accept(row);
+  }
+
+  private void persistCurrencyCodeOnly(String language, LocaleFormatSummary src) {
+    Optional<PSLocaleFormat> existing = formatByLang.apply(language);
+    String next = src == null ? null : src.getCurrencyCode();
+    if (existing.isEmpty() && StringUtils.isBlank(next)) {
+      return;
+    }
+    PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
+    row.setCurrencyCode(next);
     row.setLanguageString(language);
     formatSaver.accept(row);
   }
@@ -712,6 +728,33 @@ public class LocalesAdaptor implements ILocalesAdaptor {
         && src.getDateTimePattern() == null
         && src.getDecimalSep() == null
         && src.getCurrencyCode() == null
+        && src.getCurrencyPattern() == null
+        && src.getFirstDayOfWeek() == null
+        && src.getMeasurementSystem() == null
+        && src.getDefaultTz() == null
+        && src.getNumberingSystem() == null
+        && src.getCalendar() == null;
+  }
+
+  /**
+   * True when PUT {@code format} carries {@code currencyCode} (including blank to clear) and omits
+   * {@code hasFormatProfile} plus every other format field. Language on the format object is
+   * ignored.
+   */
+  static boolean isCurrencyCodeOnlyWrite(LocaleDetail body) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+      return false;
+    }
+    LocaleFormatSummary src = body.getFormat();
+    if (src.getCurrencyCode() == null) {
+      return false;
+    }
+    return src.getTextDir() == null
+        && src.getDatePattern() == null
+        && src.getTimePattern() == null
+        && src.getDateTimePattern() == null
+        && src.getDecimalSep() == null
+        && src.getGroupingSep() == null
         && src.getCurrencyPattern() == null
         && src.getFirstDayOfWeek() == null
         && src.getMeasurementSystem() == null

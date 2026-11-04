@@ -1,7 +1,7 @@
 ---
 id: admin-developer-locales
 title: Developer Locales
-description: Create, save, and delete CMS locales, set a label, description, date pattern, time pattern, date-time pattern, decimal separator, or grouping separator, edit format profiles, and edit the auto-translation set from Developer Locales chrome
+description: Create, save, and delete CMS locales, set a label, description, date pattern, time pattern, date-time pattern, decimal separator, grouping separator, or currency code, edit format profiles, and edit the auto-translation set from Developer Locales chrome
 version: "8.2"
 order: 43
 tags: [admin, developer, locales]
@@ -69,6 +69,14 @@ string is immutable. The new separator shows only after that save succeeds.
 A blank grouping separator clears the grouping separator. **Cancel** does not
 write. HTTP 400, 403, and 409 are not success and leave the previous
 separator.
+
+**Set locale currency code** on an existing locale saves the currency code
+only. The update sends `format.currencyCode` and does not send the language
+string, label, description, enabled status, date/time patterns, decimal
+separator, grouping separator, or other format fields, so those stay. The
+language string is immutable. The new code shows only after that save
+succeeds. A blank currency code clears the currency code. **Cancel** does not
+write. HTTP 400, 403, and 409 are not success and leave the previous code.
 
 Admins can **create, update, and clear** a locale **format profile**
 (`RXLOCALEFORMAT`: date/number/currency/text direction and related fields)
@@ -190,6 +198,22 @@ Admins can also **view and replace** the singleton **auto-translation** set
 5. HTTP 400, 403, and 409 do not show **Locale grouping separator saved**
    and do not replace the previous separator.
 
+## Product path — set a currency code
+
+1. Open an existing locale. The committed currency code is shown under
+   **Set locale currency code**.
+2. Click **Set locale currency code**, edit the text, and click **Save
+   currency code**. The request is `PUT /services/locales/{idOrLang}` with
+   `format.currencyCode` only. Reload shows that code. The language string,
+   label, description, enabled status, date/time patterns, decimal
+   separator, grouping separator, and other format fields are unchanged.
+3. A blank currency code clears the stored currency code. The same code is
+   not written.
+4. Click **Cancel** before save to keep the previous code. Cancel does
+   not call the server.
+5. HTTP 400, 403, and 409 do not show **Locale currency code saved** and do
+   not replace the previous code.
+
 ## Product path — create, save, delete
 
 1. Sign in as **Admin** (write calls require the Admin role).
@@ -263,6 +287,7 @@ The chrome calls:
 | Set date-time pattern | `PUT /services/locales/{idOrLang}` (`format.dateTimePattern` only; a blank value clears; language, label, description, enabled status, and other format fields are omitted and stay) |
 | Set decimal separator | `PUT /services/locales/{idOrLang}` (`format.decimalSep` only; a blank value clears; language, label, description, enabled status, date/time patterns, grouping separator, and other format fields are omitted and stay) |
 | Set grouping separator | `PUT /services/locales/{idOrLang}` (`format.groupingSep` only; a blank value clears; language, label, description, enabled status, date/time patterns, decimal separator, and other format fields are omitted and stay) |
+| Set currency code | `PUT /services/locales/{idOrLang}` (`format.currencyCode` only; a blank value clears; language, label, description, enabled status, date/time patterns, separators, and other format fields are omitted and stay) |
 | Delete | `DELETE /services/locales/{idOrLang}` (`204` on success) |
 | Auto-translation list | `GET /services/locales/auto-translations` |
 | Auto-translation replace | `PUT /services/locales/auto-translations` (empty `[]` clears) |

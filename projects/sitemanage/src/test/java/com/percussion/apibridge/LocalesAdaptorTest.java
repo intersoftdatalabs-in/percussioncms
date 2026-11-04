@@ -149,6 +149,17 @@ class LocalesAdaptorTest {
   }
 
   @Test
+  void validateFormat_rejectsInvalidCurrencyCode() {
+    com.percussion.rest.locales.LocaleFormatSummary src =
+        new com.percussion.rest.locales.LocaleFormatSummary();
+    src.setCurrencyCode("USDD");
+    IllegalArgumentException ex =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            IllegalArgumentException.class, () -> LocalesAdaptor.validateFormat(src));
+    assertTrue(ex.getMessage().contains("currencyCode"));
+  }
+
+  @Test
   void validateFormat_acceptsCommonPatterns() {
     com.percussion.rest.locales.LocaleFormatSummary src =
         new com.percussion.rest.locales.LocaleFormatSummary();
