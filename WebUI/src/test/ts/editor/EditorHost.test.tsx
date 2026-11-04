@@ -6821,6 +6821,193 @@ describe("EditorHost refuse a decimal field NUL (#5558)", () => {
   });
 });
 
+describe("EditorHost refuse a yes-no field NUL (#5559)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function yesNoNulHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    flag?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (message: string) => boolean;
+  }) {
+    const flag = opts.flag ?? "yes";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "no_propagate", value: flag }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "no_propagate",
+              label: "Propagate",
+              control: "sys_SingleCheckBox",
+              required: opts.required === true,
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openYesNo(
+    element: React.ReactElement,
+    expected = "yes",
+  ): Promise<HTMLSelectElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-no_propagate") as HTMLSelectElement).value,
+      ).toBe(expected);
+    });
+    return screen.getByTestId("editor-field-no_propagate") as HTMLSelectElement;
+  }
+
+  function injectYesNoNul(select: HTMLSelectElement, value: string): void {
+    if (!Array.from(select.options).some((opt) => opt.value === value)) {
+      const opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = "nul";
+      select.appendChild(opt);
+    }
+    fireEvent.change(select, { target: { value } });
+  }
+
+  it("refuses a yes-no NUL before PUT and keeps the previous yes/no after reload", async () => {
+    const saveFields = vi.fn();
+    const select = await openYesNo(yesNoNulHost({ saveFields }));
+    expect(select.getAttribute("data-editor-kind")).toBe("yesno");
+    injectYesNoNul(select, "no\u0000");
+    expect(
+      screen.getByTestId("editor-field-no_propagate").getAttribute("data-editor-has-nul"),
+    ).toBe("true");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-no_propagate").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-error-no_propagate").textContent).not.toMatch(
+      /required/i,
+    );
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /yes-no fields before saving/i,
+    );
+    expect(
+      screen.getByTestId("editor-field-no_propagate").getAttribute("aria-invalid"),
+    ).toBe("true");
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    cleanup();
+    const reloaded = await openYesNo(yesNoNulHost({ saveFields }));
+    expect(reloaded.value).toBe("yes");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not write when Close cancels an unsaved yes-no NUL", async () => {
+    const saveFields = vi.fn();
+    const select = await openYesNo(
+      yesNoNulHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    injectYesNoNul(select, "no\u0000");
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("still saves an ordinary yes or no", async () => {
+    let flag = "yes";
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
+      flag = payload.fields.find((f) => f.name === "no_propagate")?.value ?? flag;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: payload.fields,
+      };
+    });
+    const select = await openYesNo(yesNoNulHost({ saveFields, flag }));
+    fireEvent.change(select, { target: { value: "no" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "no_propagate")?.value).toBe("no");
+    expect(String(sent.fields.find((f) => f.name === "no_propagate")?.value)).not.toContain(
+      "\u0000",
+    );
+    cleanup();
+    const reloaded = await openYesNo(yesNoNulHost({ saveFields, flag }), "no");
+    expect(reloaded.value).toBe("no");
+  });
+
+  it("leaves the required-blank yes-no gate unchanged", async () => {
+    const saveFields = vi.fn();
+    const select = await openYesNo(yesNoNulHost({ saveFields, required: true }));
+    fireEvent.change(select, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-no_propagate").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-error-no_propagate").textContent).not.toMatch(
+      /character that cannot be saved/i,
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not treat HTTP 400, 403, or 409 on a yes-no save as success", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    const select = await openYesNo(yesNoNulHost({ saveFields }));
+    fireEvent.change(select, { target: { value: "no" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-no_propagate").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-no_propagate").textContent).toMatch(
+        /not allowed/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+});
+
 describe("EditorHost clear optional decimal (#5415)", () => {
   afterEach(() => {
     cleanup();

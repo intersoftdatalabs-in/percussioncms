@@ -30,6 +30,7 @@ export type EditorWidgetKind =
   | "date"
   | "datetime"
   | "number"
+  | "yesno"
   | "link"
   | "table";
 
@@ -137,6 +138,9 @@ export function classifyEditorControl(
   ) {
     return "number";
   }
+  if (isYesNoControl(control, dataType)) {
+    return "yesno";
+  }
   if (isTableControl(control, dataType)) {
     return "table";
   }
@@ -150,6 +154,17 @@ export function classifyEditorControl(
     return "longtext";
   }
   return "text";
+}
+
+/** {@code sys_SingleCheckBox}. Group and tree checkboxes stay off this widget. */
+function isYesNoControl(control: string, dataType: string): boolean {
+  if (dataType === "boolean") {
+    return true;
+  }
+  if (control.includes("group") || control.includes("tree")) {
+    return false;
+  }
+  return control === "sys_singlecheckbox" || control.includes("singlecheckbox");
 }
 
 /** {@code sys_Table} grid. Related-content tables stay off this widget. */

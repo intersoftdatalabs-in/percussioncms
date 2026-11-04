@@ -79,6 +79,10 @@ import {
   collectNumberNulFieldErrors,
   numberContainsNul,
 } from "./numericField";
+import {
+  collectYesNoNulFieldErrors,
+  yesNoContainsNul,
+} from "./yesnoField";
 import { collectTableNulFieldErrors } from "./tableField";
 import {
   collectDateNulFieldErrors,
@@ -645,6 +649,44 @@ function EditorFieldControl({
             onClick={() => onChange(row.name, "")}
           >
             {message(EDITOR_MSG.LINK_CLEAR)}
+          </button>
+        ) : null}
+      </div>
+    );
+  }
+  if (row.kind === "yesno") {
+    const value = fieldValueAsString(row.value);
+    const showClear = !locked && value.length > 0;
+    const draft =
+      value.length > 0 && value !== "yes" && value !== "no" ? value : null;
+    return (
+      <div className={styles.linkRow}>
+        <select
+          className={`${styles.input} ${locked ? styles.readonly : ""}`}
+          data-testid={`editor-field-${row.name}`}
+          data-editor-kind="yesno"
+          data-editor-has-nul={yesNoContainsNul(value) ? "true" : undefined}
+          name={row.name}
+          value={value}
+          disabled={locked}
+          aria-invalid={invalid ? true : undefined}
+          aria-required={row.required ? true : undefined}
+          onChange={(e) => onChange(row.name, e.target.value)}
+        >
+          <option value="">{message(EDITOR_MSG.YESNO_EMPTY)}</option>
+          <option value="yes">{message(EDITOR_MSG.YESNO_YES)}</option>
+          <option value="no">{message(EDITOR_MSG.YESNO_NO)}</option>
+          {draft != null ? <option value={draft}>{draft}</option> : null}
+        </select>
+        {showClear ? (
+          <button
+            type="button"
+            className={styles.button}
+            data-testid={`editor-yesno-clear-${row.name}`}
+            aria-label={message(EDITOR_MSG.YESNO_CLEAR)}
+            onClick={() => onChange(row.name, "")}
+          >
+            {message(EDITOR_MSG.YESNO_CLEAR)}
           </button>
         ) : null}
       </div>
@@ -1551,6 +1593,21 @@ export function EditorHost({
       setSaving(false);
       return;
     }
+    const yesNoNuls = collectYesNoNulFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: row.value,
+      })),
+      message(EDITOR_MSG.YESNO_NUL),
+    );
+    if (Object.keys(yesNoNuls).length > 0) {
+      queueFocusFirstInvalid(yesNoNuls);
+      setFieldErrors(yesNoNuls);
+      setSaveErrorKey(EDITOR_MSG.YESNO_NUL_SAVE);
+      setSaving(false);
+      return;
+    }
     const invalidNumbers = collectInvalidNumericFieldErrors(
       rows.map((row) => ({
         name: row.name,
@@ -1941,6 +1998,34 @@ export function EditorHost({
             : EDITOR_MSG.DATE_BAD_REQUEST,
         );
       }
+      const yesNoNames = rows
+        .filter((row) => row.kind === "yesno")
+        .map((row) => row.name);
+      const namedYesNo = Object.keys(mapped.fieldErrors).some((name) =>
+        yesNoNames.includes(name),
+      );
+      const yesNoStatus = saveReason === "forbidden" || saveReason === "badRequest";
+      const yesNoMapped =
+        !html400 &&
+        !long400 &&
+        !number400 &&
+        !linkMapped &&
+        !keywordMapped &&
+        !dateMapped &&
+        yesNoStatus &&
+        (namedYesNo ||
+          (Object.keys(mapped.fieldErrors).length === 0 && yesNoNames.length === 1));
+      if (
+        yesNoMapped &&
+        Object.keys(mapped.fieldErrors).length === 0 &&
+        yesNoNames.length === 1
+      ) {
+        mapped.fieldErrors[yesNoNames[0]] = message(
+          saveReason === "forbidden"
+            ? EDITOR_MSG.YESNO_FORBIDDEN
+            : EDITOR_MSG.YESNO_BAD_REQUEST,
+        );
+      }
       const communityNames = rows
         .filter((row) => row.kind === "community")
         .map((row) => row.name);
@@ -1955,6 +2040,7 @@ export function EditorHost({
         !linkMapped &&
         !keywordMapped &&
         !dateMapped &&
+        !yesNoMapped &&
         communityStatus &&
         (namedCommunity ||
           (Object.keys(mapped.fieldErrors).length === 0 && communityNames.length === 1));
@@ -1983,6 +2069,7 @@ export function EditorHost({
         !linkMapped &&
         !keywordMapped &&
         !dateMapped &&
+        !yesNoMapped &&
         !communityMapped &&
         textStatus &&
         (namedText ||
@@ -2032,6 +2119,10 @@ export function EditorHost({
                           ? EDITOR_MSG.DATE_FORBIDDEN
                           : dateMapped
                             ? EDITOR_MSG.DATE_BAD_REQUEST
+                            : yesNoMapped && saveReason === "forbidden"
+                              ? EDITOR_MSG.YESNO_FORBIDDEN
+                              : yesNoMapped
+                                ? EDITOR_MSG.YESNO_BAD_REQUEST
                             : communityMapped && saveReason === "forbidden"
                               ? EDITOR_MSG.COMMUNITY_FORBIDDEN
                               : communityMapped

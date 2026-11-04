@@ -101,6 +101,16 @@ export const EDITOR_MSG = {
   NUMBER_BAD_REQUEST: "perc.ui.editor@That number could not be saved.",
   NUMBER_FORBIDDEN: "perc.ui.editor@You are not allowed to save that number.",
   NUMBER_CLEAR: "perc.ui.editor@Clear number",
+  YESNO_EMPTY: "perc.ui.editor@Select yes or no",
+  YESNO_YES: "perc.ui.editor@Yes",
+  YESNO_NO: "perc.ui.editor@No",
+  YESNO_CLEAR: "perc.ui.editor@Clear yes-no",
+  YESNO_NUL:
+    "perc.ui.editor@That yes-no value contains a character that cannot be saved.",
+  YESNO_NUL_SAVE: "perc.ui.editor@Correct the yes-no fields before saving.",
+  YESNO_BAD_REQUEST: "perc.ui.editor@That yes-no value could not be saved.",
+  YESNO_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to save that yes-no value.",
   TEXT_INVALID:
     "perc.ui.editor@That text contains a character that cannot be saved.",
   TEXT_INVALID_SAVE:
