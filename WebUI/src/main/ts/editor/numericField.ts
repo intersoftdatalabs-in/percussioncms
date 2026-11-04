@@ -115,18 +115,18 @@ function compareDecimal(left: string, right: string): number {
 }
 
 /**
- * A NUL cannot be stored in item field XML / JDBC text (#5557 / #4532).
+ * A NUL cannot be stored in item field XML / JDBC text (#5557 / #5558 / #4532).
  * Required-blank numbers stay in the required-field gate.
  * Non-numeric text and range stay in {@link numericFieldProblem}.
- * Float/decimal NUL stays on the decimal slice.
  */
 export function numberContainsNul(value: string): boolean {
   return (value ?? "").includes("\u0000");
 }
 
 /**
- * NUL only, and only whole-number rows. Float NUL and empty required
- * numbers are not this check.
+ * NUL only, and only whole-number rows. Float NUL is
+ * {@link collectDecimalNulFieldErrors}. Empty required numbers are not this
+ * check.
  */
 export function collectNumberNulFieldErrors(
   rows: readonly EditorNumericRow[],
@@ -138,6 +138,30 @@ export function collectNumberNulFieldErrors(
       continue;
     }
     if (row.numericInteger === false) {
+      continue;
+    }
+    if (numberContainsNul(row.value)) {
+      out[row.name] = invalidMessage;
+    }
+  }
+  return out;
+}
+
+/**
+ * NUL only, and only float/decimal rows. Whole-number NUL stays on
+ * {@link collectNumberNulFieldErrors}. Empty required numbers are not this
+ * check.
+ */
+export function collectDecimalNulFieldErrors(
+  rows: readonly EditorNumericRow[],
+  invalidMessage: string,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const row of rows) {
+    if (row.kind !== "number") {
+      continue;
+    }
+    if (row.numericInteger !== false) {
       continue;
     }
     if (numberContainsNul(row.value)) {

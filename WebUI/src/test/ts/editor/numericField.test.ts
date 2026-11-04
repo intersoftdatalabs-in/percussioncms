@@ -17,6 +17,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  collectDecimalNulFieldErrors,
   collectInvalidNumericFieldErrors,
   collectNumberNulFieldErrors,
   numberContainsNul,
@@ -83,11 +84,13 @@ describe("numericMetaForSchema", () => {
 });
 
 describe("numberContainsNul", () => {
-  it("rejects an embedded NUL and accepts a valid integer or empty clear", () => {
+  it("rejects an embedded NUL and accepts a valid integer, decimal, or empty clear", () => {
     expect(numberContainsNul("4")).toBe(false);
+    expect(numberContainsNul("1.5")).toBe(false);
     expect(numberContainsNul("")).toBe(false);
     expect(numberContainsNul("   ")).toBe(false);
     expect(numberContainsNul("4\u0000")).toBe(true);
+    expect(numberContainsNul("1.5\u0000")).toBe(true);
     expect(numberContainsNul("\u0000")).toBe(true);
   });
 });
@@ -106,6 +109,23 @@ describe("collectNumberNulFieldErrors", () => {
         "cannot save",
       ),
     ).toEqual({ qty: "cannot save" });
+  });
+});
+
+describe("collectDecimalNulFieldErrors", () => {
+  it("flags only float rows and leaves whole-number NUL and empty required for other gates", () => {
+    expect(
+      collectDecimalNulFieldErrors(
+        [
+          { name: "rate", kind: "number", value: "1.5\u0000", numericInteger: false },
+          { name: "ok", kind: "number", value: "1.5", numericInteger: false },
+          { name: "empty", kind: "number", value: "", numericInteger: false },
+          { name: "qty", kind: "number", value: "4\u0000", numericInteger: true },
+          { name: "title", kind: "text", value: "z\u0000" },
+        ],
+        "cannot save",
+      ),
+    ).toEqual({ rate: "cannot save" });
   });
 });
 

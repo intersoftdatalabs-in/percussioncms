@@ -6607,6 +6607,220 @@ describe("EditorHost save a decimal number (#5346)", () => {
   });
 });
 
+describe("EditorHost refuse a decimal field NUL (#5558)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function decimalNulHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    rate?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (message: string) => boolean;
+  }) {
+    const rate = opts.rate ?? "1.5";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "rate", value: rate }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "rate",
+              label: "Rate",
+              control: "sys_Number",
+              dataType: "float",
+              required: opts.required === true,
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openDecimalNul(
+    element: React.ReactElement,
+    expected = "1.5",
+  ): Promise<HTMLInputElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-rate") as HTMLInputElement).value).toBe(expected);
+    });
+    return screen.getByTestId("editor-field-rate") as HTMLInputElement;
+  }
+
+  it("refuses a decimal NUL before PUT and keeps the previous decimal after reload", async () => {
+    const saveFields = vi.fn();
+    const input = await openDecimalNul(decimalNulHost({ saveFields }));
+    expect(input.getAttribute("data-editor-kind")).toBe("number");
+    expect(input.getAttribute("data-editor-numeric")).toBe("float");
+    fireEvent.change(input, { target: { value: "2.5\u0000" } });
+    expect(input.getAttribute("data-editor-has-nul")).toBe("true");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-rate").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-error-rate").textContent).not.toMatch(/required/i);
+    expect(screen.getByTestId("editor-field-error-rate").textContent).not.toMatch(/valid number/i);
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /number fields before saving/i,
+    );
+    expect(screen.getByTestId("editor-field-rate").getAttribute("aria-invalid")).toBe("true");
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    cleanup();
+    const reloaded = await openDecimalNul(decimalNulHost({ saveFields }));
+    expect(reloaded.value).toBe("1.5");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not write when Close cancels an unsaved decimal NUL", async () => {
+    const saveFields = vi.fn();
+    const input = await openDecimalNul(
+      decimalNulHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.change(input, { target: { value: "2.5\u0000" } });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("still saves an ordinary decimal", async () => {
+    let rate = "1.5";
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
+      rate = payload.fields.find((f) => f.name === "rate")?.value ?? rate;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: payload.fields,
+      };
+    });
+    const input = await openDecimalNul(decimalNulHost({ saveFields, rate }));
+    fireEvent.change(input, { target: { value: "2.5" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "rate")?.value).toBe("2.5");
+    expect(String(sent.fields.find((f) => f.name === "rate")?.value)).not.toContain("\u0000");
+    cleanup();
+    const reloaded = await openDecimalNul(decimalNulHost({ saveFields, rate }), "2.5");
+    expect(reloaded.value).toBe("2.5");
+  });
+
+  it("leaves the required-blank number gate unchanged", async () => {
+    const saveFields = vi.fn();
+    const input = await openDecimalNul(decimalNulHost({ saveFields, required: true }));
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-rate").textContent).toMatch(/required/i);
+    });
+    expect(screen.getByTestId("editor-field-error-rate").textContent).not.toMatch(
+      /character that cannot be saved/i,
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not treat HTTP 400, 403, or 409 on a decimal save as success", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    const input = await openDecimalNul(decimalNulHost({ saveFields }));
+    fireEvent.change(input, { target: { value: "2.5" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-rate").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-rate").textContent).toMatch(/not allowed/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("leaves the whole-number NUL gate on the integer sibling", async () => {
+    const saveFields = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue(undefined)}
+                loadFields={async () => ({
+                  contentId: "42",
+                  contentType: "percPage",
+                  name: "Home",
+                  checkoutUser: "admin",
+                  revision: 3,
+                  fields: [
+                    { name: "rate", value: "1.5" },
+                    { name: "qty", value: "4" },
+                  ],
+                })}
+                saveFields={saveFields}
+                loadType={async () => ({
+                  fields: [
+                    { name: "rate", label: "Rate", control: "sys_Number", dataType: "float" },
+                    { name: "qty", label: "Quantity", control: "sys_Number", dataType: "integer" },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect((screen.getByTestId("editor-field-qty") as HTMLInputElement).value).toBe("4");
+    });
+    fireEvent.change(screen.getByTestId("editor-field-qty"), { target: { value: "7\u0000" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-qty").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-field-error-rate")).toBeNull();
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+});
+
 describe("EditorHost clear optional decimal (#5415)", () => {
   afterEach(() => {
     cleanup();
