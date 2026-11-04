@@ -203,6 +203,17 @@ class LocalesAdaptorTest {
   }
 
   @Test
+  void applyWritableFields_statusOnlyLeavesLabelAndDescription() {
+    PSLocale loc = new PSLocale("en-us", "English", "US English", PSLocale.STATUS_ACTIVE);
+    LocaleDetail body = new LocaleDetail();
+    body.setStatus("inactive");
+    LocalesAdaptor.applyWritableFields(loc, body, true);
+    assertEquals("English", loc.getDisplayName());
+    assertEquals("US English", loc.getDescription());
+    assertEquals(PSLocale.STATUS_INACTIVE, loc.getStatus());
+  }
+
+  @Test
   void mapStatus_knownAndUnknown() {
     assertEquals("active", LocalesAdaptor.mapStatus(PSLocale.STATUS_ACTIVE));
     assertEquals("inactive", LocalesAdaptor.mapStatus(PSLocale.STATUS_INACTIVE));

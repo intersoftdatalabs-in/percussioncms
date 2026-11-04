@@ -73,6 +73,12 @@ import {
   storedLocaleCurrencyCode,
 } from "./localeCurrencyCode";
 import { LOC_CURRENCY_MSG } from "./localeCurrencyCodeMessages";
+import {
+  localeEnabledStatusWrite,
+  savedLocaleEnabledStatus,
+  storedLocaleEnabledStatus,
+} from "./localeEnabledStatus";
+import { LOC_STATUS_MSG } from "./localeEnabledStatusMessages";
 import { localeLabelWrite, savedLocaleLabel, storedLocaleLabel } from "./localeLabel";
 import { LOC_LABEL_MSG } from "./localeLabelMessages";
 import { DEV_MSG } from "./messages";
@@ -232,6 +238,12 @@ export function LocaleDetailPanel({
   const [currencyCodeError, setCurrencyCodeError] = useState<string | null>(null);
   const [currencyCodeNotice, setCurrencyCodeNotice] = useState<string | null>(null);
   const [currencyCodeBusy, setCurrencyCodeBusy] = useState(false);
+  const [statusShown, setStatusShown] = useState("active");
+  const [statusDraft, setStatusDraft] = useState("active");
+  const [statusEditing, setStatusEditing] = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
+  const [statusNotice, setStatusNotice] = useState<string | null>(null);
+  const [statusBusy, setStatusBusy] = useState(false);
   const [status, setStatus] = useState("active");
   const [baseLocale, setBaseLocale] = useState(false);
   const [storeFormat, setStoreFormat] = useState(false);
@@ -250,6 +262,7 @@ export function LocaleDetailPanel({
   const decimalSepInflight = useRef(false);
   const groupingSepInflight = useRef(false);
   const currencyCodeInflight = useRef(false);
+  const statusInflight = useRef(false);
 
   useEffect(() => {
     if (idOrLang == null) {
@@ -308,6 +321,11 @@ export function LocaleDetailPanel({
         setCurrencyCodeError(null);
         setCurrencyCodeNotice(null);
         setStatus(d.status || "active");
+        setStatusShown(storedLocaleEnabledStatus(d.status) || "active");
+        setStatusDraft("active");
+        setStatusEditing(false);
+        setStatusError(null);
+        setStatusNotice(null);
         setBaseLocale(Boolean(d.baseLocale));
         setStoreFormat(Boolean(d.hasFormatProfile) || Boolean(d.format));
         setFmt(formatFromDetail(d));
@@ -341,6 +359,8 @@ export function LocaleDetailPanel({
     !groupingSepEditing &&
     !currencyCodeBusy &&
     !currencyCodeEditing &&
+    !statusBusy &&
+    !statusEditing &&
     isLocaleWriteReady({ isNew, language, label });
   const writeKey =
     idOrLang || createdKey || normalizeLanguageString(language);
@@ -423,6 +443,13 @@ export function LocaleDetailPanel({
     return LOC_CURRENCY_MSG.ERROR;
   }
 
+  function enabledStatusSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return LOC_STATUS_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return LOC_STATUS_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return LOC_STATUS_MSG.CONFLICT;
+    return LOC_STATUS_MSG.ERROR;
+  }
+
   function dedicatedWriteBlocked(): boolean {
     return (
       busy ||
@@ -434,6 +461,7 @@ export function LocaleDetailPanel({
       decimalSepBusy ||
       groupingSepBusy ||
       currencyCodeBusy ||
+      statusBusy ||
       labelInflight.current ||
       descriptionInflight.current ||
       datePatternInflight.current ||
@@ -442,6 +470,7 @@ export function LocaleDetailPanel({
       decimalSepInflight.current ||
       groupingSepInflight.current ||
       currencyCodeInflight.current ||
+      statusInflight.current ||
       inflight.current
     );
   }
@@ -457,7 +486,8 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       decimalSepEditing ||
       groupingSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -545,7 +575,8 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       decimalSepEditing ||
       groupingSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -575,7 +606,8 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       decimalSepEditing ||
       groupingSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -635,7 +667,8 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       decimalSepEditing ||
       groupingSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -665,7 +698,8 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       decimalSepEditing ||
       groupingSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -734,7 +768,8 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       decimalSepEditing ||
       groupingSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -764,7 +799,8 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       decimalSepEditing ||
       groupingSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -833,7 +869,8 @@ export function LocaleDetailPanel({
       timePatternEditing ||
       decimalSepEditing ||
       groupingSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -863,7 +900,8 @@ export function LocaleDetailPanel({
       timePatternEditing ||
       decimalSepEditing ||
       groupingSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -932,7 +970,8 @@ export function LocaleDetailPanel({
       timePatternEditing ||
       dateTimePatternEditing ||
       groupingSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -962,7 +1001,8 @@ export function LocaleDetailPanel({
       timePatternEditing ||
       dateTimePatternEditing ||
       groupingSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -1031,7 +1071,8 @@ export function LocaleDetailPanel({
       timePatternEditing ||
       dateTimePatternEditing ||
       decimalSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -1061,7 +1102,8 @@ export function LocaleDetailPanel({
       timePatternEditing ||
       dateTimePatternEditing ||
       decimalSepEditing ||
-      currencyCodeEditing
+      currencyCodeEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -1130,7 +1172,8 @@ export function LocaleDetailPanel({
       timePatternEditing ||
       dateTimePatternEditing ||
       decimalSepEditing ||
-      groupingSepEditing
+      groupingSepEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -1160,7 +1203,8 @@ export function LocaleDetailPanel({
       timePatternEditing ||
       dateTimePatternEditing ||
       decimalSepEditing ||
-      groupingSepEditing
+      groupingSepEditing ||
+      statusEditing
     ) {
       return;
     }
@@ -1218,6 +1262,103 @@ export function LocaleDetailPanel({
     }
   }
 
+  function startEnabledStatusEdit(): void {
+    if (
+      isNew ||
+      !detail ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing
+    ) {
+      return;
+    }
+    setStatusDraft(statusShown || "active");
+    setStatusError(null);
+    setStatusNotice(null);
+    setStatusEditing(true);
+  }
+
+  function cancelEnabledStatusEdit(): void {
+    if (statusBusy || statusInflight.current) return;
+    setStatusEditing(false);
+    setStatusDraft(statusShown || "active");
+    setStatusError(null);
+  }
+
+  async function handleEnabledStatusSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !statusEditing ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing
+    ) {
+      return;
+    }
+    const sent = localeEnabledStatusWrite(detail, statusDraft);
+    if (sent === "invalid") {
+      setStatusError(LOC_STATUS_MSG.INVALID);
+      setStatusNotice(null);
+      return;
+    }
+    if (sent === "unchanged") {
+      setStatusEditing(false);
+      setStatusDraft(statusShown || "active");
+      setStatusError(null);
+      return;
+    }
+    statusInflight.current = true;
+    setStatusBusy(true);
+    setBusy(true);
+    setStatusError(null);
+    setStatusNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = statusShown || "active";
+    try {
+      const saved = await updateLocale(writeKey, sent);
+      const accepted = savedLocaleEnabledStatus(sent, detail, saved);
+      if (accepted == null) {
+        setStatus(previousShown);
+        setStatusShown(previousShown);
+        setStatusError(LOC_STATUS_MSG.ERROR);
+        setStatusNotice(null);
+        return;
+      }
+      const nextDetail: LocaleDetail = { ...detail, status: accepted };
+      setDetail(nextDetail);
+      setStatus(accepted);
+      setStatusShown(accepted);
+      setStatusEditing(false);
+      setStatusDraft(accepted);
+      setStatusNotice(LOC_STATUS_MSG.SAVED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setStatus(previousShown);
+      setStatusShown(previousShown);
+      setStatusError(panelErrMsg(err, enabledStatusSaveFallback(err)));
+      setStatusNotice(null);
+    } finally {
+      statusInflight.current = false;
+      setStatusBusy(false);
+      setBusy(false);
+    }
+  }
+
   async function handleSave(): Promise<void> {
     if (
       !canSave ||
@@ -1229,7 +1370,8 @@ export function LocaleDetailPanel({
       dateTimePatternInflight.current ||
       decimalSepInflight.current ||
       groupingSepInflight.current ||
-      currencyCodeInflight.current
+      currencyCodeInflight.current ||
+      statusInflight.current
     ) {
       return;
     }
@@ -1293,6 +1435,11 @@ export function LocaleDetailPanel({
       setCurrencyCodeError(null);
       setCurrencyCodeNotice(null);
       setStatus(saved.status || status);
+      setStatusShown(storedLocaleEnabledStatus(saved.status) || status);
+      setStatusDraft("active");
+      setStatusEditing(false);
+      setStatusError(null);
+      setStatusNotice(null);
       setBaseLocale(Boolean(saved.baseLocale));
       setStoreFormat(Boolean(saved.hasFormatProfile) || Boolean(saved.format));
       setFmt(formatFromDetail(saved));
@@ -1504,13 +1651,15 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    statusBusy ||
                     descriptionEditing ||
                     datePatternEditing ||
                     timePatternEditing ||
                     dateTimePatternEditing ||
                     decimalSepEditing ||
                     groupingSepEditing ||
-                    currencyCodeEditing
+                    currencyCodeEditing ||
+                    statusEditing
                   }
                   onClick={startLabelEdit}
                   style={{
@@ -1632,13 +1781,15 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    statusBusy ||
                     labelEditing ||
                     datePatternEditing ||
                     timePatternEditing ||
                     dateTimePatternEditing ||
                     decimalSepEditing ||
                     groupingSepEditing ||
-                    currencyCodeEditing
+                    currencyCodeEditing ||
+                    statusEditing
                   }
                   onClick={startDescriptionEdit}
                   style={{
@@ -1668,6 +1819,128 @@ export function LocaleDetailPanel({
               <option value="inactive">{DEV_MSG.LOC_STATUS_INACTIVE}</option>
             </select>
           </div>
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-loc-set-enabled-status"
+              aria-label={LOC_STATUS_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{LOC_STATUS_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.85rem" }}>
+                {LOC_STATUS_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-loc-set-enabled-status-text"
+                data-loc-enabled-status={statusShown}
+                style={{ marginTop: 0 }}
+              >
+                {statusShown === "inactive" ? LOC_STATUS_MSG.INACTIVE : LOC_STATUS_MSG.ACTIVE}
+              </p>
+              {statusError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-loc-set-enabled-status-error"
+                  style={{ color: catalogColors.error, marginBottom: "8px" }}
+                >
+                  {statusError}
+                </div>
+              ) : null}
+              {statusNotice ? (
+                <div
+                  data-testid="developer-loc-set-enabled-status-notice"
+                  style={{ color: "#276749", marginBottom: "8px" }}
+                >
+                  {statusNotice}
+                </div>
+              ) : null}
+              {statusEditing ? (
+                <div data-testid="developer-loc-set-enabled-status-editor">
+                  <label htmlFor="loc-set-enabled-status-input">{LOC_STATUS_MSG.FIELD}</label>
+                  <select
+                    id="loc-set-enabled-status-input"
+                    data-testid="developer-loc-set-enabled-status-input"
+                    style={inputStyle}
+                    value={statusDraft}
+                    disabled={statusBusy}
+                    onChange={(e) => setStatusDraft(e.target.value)}
+                  >
+                    <option value="active">{LOC_STATUS_MSG.ACTIVE}</option>
+                    <option value="inactive">{LOC_STATUS_MSG.INACTIVE}</option>
+                  </select>
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-enabled-status-save"
+                      aria-label={LOC_STATUS_MSG.SAVE}
+                      disabled={statusBusy}
+                      onClick={() => void handleEnabledStatusSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: statusBusy ? catalogColors.disabled : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: statusBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_STATUS_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-enabled-status-cancel"
+                      disabled={statusBusy}
+                      onClick={cancelEnabledStatusEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: statusBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_STATUS_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-loc-set-enabled-status-edit"
+                  aria-label={LOC_STATUS_MSG.ACTION}
+                  disabled={
+                    busy ||
+                    statusBusy ||
+                    currencyCodeBusy ||
+                    groupingSepBusy ||
+                    decimalSepBusy ||
+                    dateTimePatternBusy ||
+                    datePatternBusy ||
+                    timePatternBusy ||
+                    labelBusy ||
+                    descriptionBusy ||
+                    labelEditing ||
+                    descriptionEditing ||
+                    datePatternEditing ||
+                    timePatternEditing ||
+                    dateTimePatternEditing ||
+                    decimalSepEditing ||
+                    groupingSepEditing ||
+                    currencyCodeEditing
+                  }
+                  onClick={startEnabledStatusEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {LOC_STATUS_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
           <div
             style={{
               display: "flex",
@@ -2033,6 +2306,7 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    statusBusy ||
                     labelBusy ||
                     descriptionBusy ||
                     labelEditing ||
@@ -2041,7 +2315,8 @@ export function LocaleDetailPanel({
                     dateTimePatternEditing ||
                     decimalSepEditing ||
                     groupingSepEditing ||
-                    currencyCodeEditing
+                    currencyCodeEditing ||
+                    statusEditing
                   }
                   onClick={startDatePatternEdit}
                   style={{
@@ -2150,6 +2425,7 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    statusBusy ||
                     labelBusy ||
                     descriptionBusy ||
                     labelEditing ||
@@ -2158,7 +2434,8 @@ export function LocaleDetailPanel({
                     dateTimePatternEditing ||
                     decimalSepEditing ||
                     groupingSepEditing ||
-                    currencyCodeEditing
+                    currencyCodeEditing ||
+                    statusEditing
                   }
                   onClick={startTimePatternEdit}
                   style={{
@@ -2267,6 +2544,7 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    statusBusy ||
                     datePatternBusy ||
                     timePatternBusy ||
                     labelBusy ||
@@ -2277,7 +2555,8 @@ export function LocaleDetailPanel({
                     timePatternEditing ||
                     decimalSepEditing ||
                     groupingSepEditing ||
-                    currencyCodeEditing
+                    currencyCodeEditing ||
+                    statusEditing
                   }
                   onClick={startDateTimePatternEdit}
                   style={{
@@ -2383,6 +2662,7 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    statusBusy ||
                     dateTimePatternBusy ||
                     datePatternBusy ||
                     timePatternBusy ||
@@ -2394,7 +2674,8 @@ export function LocaleDetailPanel({
                     timePatternEditing ||
                     dateTimePatternEditing ||
                     groupingSepEditing ||
-                    currencyCodeEditing
+                    currencyCodeEditing ||
+                    statusEditing
                   }
                   onClick={startDecimalSepEdit}
                   style={{
@@ -2499,6 +2780,7 @@ export function LocaleDetailPanel({
                     busy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    statusBusy ||
                     decimalSepBusy ||
                     dateTimePatternBusy ||
                     datePatternBusy ||
@@ -2511,7 +2793,8 @@ export function LocaleDetailPanel({
                     timePatternEditing ||
                     dateTimePatternEditing ||
                     decimalSepEditing ||
-                    currencyCodeEditing
+                    currencyCodeEditing ||
+                    statusEditing
                   }
                   onClick={startGroupingSepEdit}
                   style={{
@@ -2615,6 +2898,7 @@ export function LocaleDetailPanel({
                   disabled={
                     busy ||
                     currencyCodeBusy ||
+                    statusBusy ||
                     groupingSepBusy ||
                     decimalSepBusy ||
                     dateTimePatternBusy ||
@@ -2628,7 +2912,8 @@ export function LocaleDetailPanel({
                     timePatternEditing ||
                     dateTimePatternEditing ||
                     decimalSepEditing ||
-                    groupingSepEditing
+                    groupingSepEditing ||
+                    statusEditing
                   }
                   onClick={startCurrencyCodeEdit}
                   style={{

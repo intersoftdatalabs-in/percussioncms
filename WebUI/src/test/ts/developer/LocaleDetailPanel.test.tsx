@@ -14,6 +14,7 @@ import { LOC_LABEL_MSG } from "../../../main/ts/developer/localeLabelMessages";
 import { LOC_DATETIME_MSG } from "../../../main/ts/developer/localeDateTimePatternMessages";
 import { LOC_DECIMAL_MSG } from "../../../main/ts/developer/localeDecimalSepMessages";
 import { LOC_CURRENCY_MSG } from "../../../main/ts/developer/localeCurrencyCodeMessages";
+import { LOC_STATUS_MSG } from "../../../main/ts/developer/localeEnabledStatusMessages";
 import { LOC_GROUPING_MSG } from "../../../main/ts/developer/localeGroupingSepMessages";
 import { LOC_TIME_MSG } from "../../../main/ts/developer/localeTimePatternMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
@@ -1743,6 +1744,140 @@ describe("LocaleDetailPanel", () => {
     expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
       "USD",
     );
+    expect((screen.getByTestId("developer-loc-fmt-grouping") as HTMLInputElement).value).toBe(",");
+  });
+
+  it("sets enabled status only after success and leaves language, label, description, and format", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      status: "inactive",
+    });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("developer-loc-set-enabled-status-text").getAttribute("data-loc-enabled-status"),
+      ).toBe("active");
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-enabled-status-edit"));
+    fireEvent.click(screen.getByTestId("developer-loc-set-enabled-status-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-enabled-status-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-enabled-status-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-enabled-status-input"), {
+      target: { value: "inactive" },
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-enabled-status-text").getAttribute("data-loc-enabled-status"),
+    ).toBe("active");
+    fireEvent.click(screen.getByTestId("developer-loc-set-enabled-status-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-loc-set-enabled-status-text").getAttribute("data-loc-enabled-status"),
+    ).toBe("active");
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-enabled-status-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-enabled-status-input"), {
+      target: { value: "inactive" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-enabled-status-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", { status: "inactive" });
+    const sent = updateLocale.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty("languageString");
+    expect(sent).not.toHaveProperty("label");
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("format");
+    expect(sent).not.toHaveProperty("hasFormatProfile");
+    expect(
+      screen.getByTestId("developer-loc-set-enabled-status-text").getAttribute("data-loc-enabled-status"),
+    ).toBe("inactive");
+    expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("inactive");
+    expect(screen.getByTestId("developer-loc-set-enabled-status-notice").textContent).toBe(
+      LOC_STATUS_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe(
+      "US English",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-grouping") as HTMLInputElement).value).toBe(",");
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
+  });
+
+  it("keeps the previous enabled status on 400, 403, and 409", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-enabled-status-edit")).toBeTruthy();
+    });
+
+    for (const status of [400, 403, 409]) {
+      updateLocale.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-enabled-status-edit"));
+      fireEvent.change(screen.getByTestId("developer-loc-set-enabled-status-input"), {
+        target: { value: "inactive" },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-enabled-status-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-loc-set-enabled-status-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(
+        screen.getByTestId("developer-loc-set-enabled-status-text").getAttribute("data-loc-enabled-status"),
+      ).toBe("active");
+      expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
+      expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+      fireEvent.click(screen.getByTestId("developer-loc-set-enabled-status-cancel"));
+    }
+  });
+
+  it("does not show a new enabled status when the update changes the label or format", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      status: "inactive",
+      label: "Renamed",
+      format: {
+        ...sampleDetail.format,
+        groupingSep: " ",
+      },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-enabled-status-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-enabled-status-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-enabled-status-input"), {
+      target: { value: "inactive" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-enabled-status-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-enabled-status-error").textContent).toContain(
+        LOC_STATUS_MSG.ERROR,
+      );
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-enabled-status-text").getAttribute("data-loc-enabled-status"),
+    ).toBe("active");
+    expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
     expect((screen.getByTestId("developer-loc-fmt-grouping") as HTMLInputElement).value).toBe(",");
   });
 });

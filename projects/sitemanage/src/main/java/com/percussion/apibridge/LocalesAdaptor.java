@@ -905,8 +905,9 @@ public class LocalesAdaptor implements ILocalesAdaptor {
 
   /**
    * Applies omitted-field-safe updates. A blank or whitespace label is not a write. Null
-   * description, status, and baseLocale leave the stored values. {@code allowLabel} is false on
-   * create because {@code createLocales} already set the display name.
+   * description, status, and baseLocale leave the stored values. A status-only body (status
+   * present, label/description/format omitted) updates enabled status only. {@code allowLabel} is
+   * false on create because {@code createLocales} already set the display name.
    */
   static void applyWritableFields(PSLocale loc, LocaleDetail body, boolean allowLabel) {
     if (loc == null || body == null) {
