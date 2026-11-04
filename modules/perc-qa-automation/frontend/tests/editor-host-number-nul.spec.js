@@ -25,8 +25,8 @@
  *
  * <p>Peer: {@code tests/editor-host-date-nul.spec.js} /
  * {@code tests/editor-host-number-clear.spec.js}. Decimal/float NUL stays
- * on a later slice. Required-blank number stays in
- * {@code tests/editor-host-number-required-blank.spec.js}.</p>
+ * in {@code tests/editor-host-decimal-nul.spec.js}. Required-blank number
+ * stays in {@code tests/editor-host-number-required-blank.spec.js}.</p>
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor} {@code @number}</p>
  *
