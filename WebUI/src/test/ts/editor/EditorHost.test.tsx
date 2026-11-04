@@ -13501,3 +13501,154 @@ describe("EditorHost refuse clearing a required image (#5280)", () => {
     });
   });
 });
+const NUL = "\u0000";
+
+describe("EditorHost refuse a file field NUL (#5588)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function fileHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    storedName?: string;
+    uploadBinary?: (id: string, field: string, file: File) => Promise<unknown>;
+  }) {
+    const storedName = opts.storedName ?? "brief.pdf";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percFile",
+          name: "Brief",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "item_file_attachment", value: storedName }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        uploadBinary={opts.uploadBinary ?? vi.fn().mockResolvedValue({})}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "item_file_attachment",
+              label: "File",
+              control: "sys_File",
+            },
+          ],
+        })}
+        loadBinaryMeta={async () => ({
+          contentId: "42",
+          field: "item_file_attachment",
+          filename: storedName,
+          contentType: "",
+          present: storedName.length > 0,
+        })}
+      />
+    );
+  }
+
+  async function openFileHost(element: React.ReactElement): Promise<void> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+  }
+
+  it("does not save a stored file name with a NUL and keeps the previous file", async () => {
+    const saveFields = vi.fn();
+    await openFileHost(
+      fileHost({ saveFields, storedName: "bad" + NUL + ".pdf" }),
+    );
+    expect(
+      screen.getByTestId("editor-field-item_file_attachment").getAttribute("data-editor-kind"),
+    ).toBe("file");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("editor-field-error-item_file_attachment").textContent,
+      ).toMatch(/character that cannot be saved/i);
+    });
+    expect(
+      screen.getByTestId("editor-field-error-item_file_attachment").textContent,
+    ).not.toMatch(/required/i);
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /file fields before saving/i,
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    cleanup();
+    await openFileHost(fileHost({ saveFields, storedName: "bad" + NUL + ".pdf" }));
+    expect(screen.getByTestId("editor-field-item_file_attachment")).toBeTruthy();
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not save a picked file whose name carries a NUL", async () => {
+    const saveFields = vi.fn();
+    await openFileHost(fileHost({ saveFields }));
+    const file = new File(["x"], "brief" + NUL + ".pdf", { type: "application/pdf" });
+    fireEvent.change(screen.getByTestId("editor-file-item_file_attachment"), {
+      target: { files: [file] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("editor-field-error-item_file_attachment").textContent,
+      ).toMatch(/character that cannot be saved/i);
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("still saves an ordinary file name and an ordinary picked file", async () => {
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => ({
+      contentId: "42",
+      contentType: "percFile",
+      name: "Brief",
+      checkoutUser: "admin",
+      revision: 4,
+      fields: payload.fields,
+    }));
+    await openFileHost(fileHost({ saveFields }));
+    const file = new File(["x"], "hero.pdf", { type: "application/pdf" });
+    fireEvent.change(screen.getByTestId("editor-file-item_file_attachment"), {
+      target: { files: [file] },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    expect(saveFields).toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-field-error-item_file_attachment")).toBeNull();
+  });
+
+  it("does not claim success for HTTP 400, 403, or 409 on a file item save", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    await openFileHost(fileHost({ saveFields }));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalledTimes(1);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalledTimes(2);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalledTimes(3);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+});
