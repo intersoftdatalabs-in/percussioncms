@@ -22,7 +22,7 @@ import type { EditorCheckoutUserInfo } from "./editorCheckout";
 export interface ItemEditorField {
   name: string;
   value: string;
-  /** Sent on save for numeric fields so the server can reject non-numeric input. */
+  /** Sent on save for numeric, link, and yes-no fields so the server can reject bad input. */
   dataType?: string;
   minimum?: string;
   maximum?: string;

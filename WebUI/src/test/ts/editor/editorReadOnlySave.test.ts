@@ -43,13 +43,20 @@ describe("fieldsForEditorSave", () => {
     { name: "qty", kind: "number", value: "4", numericMinimum: "0", numericMaximum: "10" },
     { name: "lockedQty", kind: "number", readOnly: true, value: "99" },
     { name: "page", kind: "link", value: "42" },
+    { name: "no_propagate", kind: "yesno", value: "yes" },
+    { name: "lockedFlag", kind: "yesno", readOnly: true, value: "no" },
     { name: "photo", kind: "image", value: "" },
     { name: "attach", kind: "file", readOnly: true, value: "" },
   ];
 
   it("omits schema read-only fields and binary widgets", () => {
     const sent = fieldsForEditorSave(rows);
-    expect(sent.map((field) => field.name)).toEqual(["sys_title", "qty", "page"]);
+    expect(sent.map((field) => field.name)).toEqual([
+      "sys_title",
+      "qty",
+      "page",
+      "no_propagate",
+    ]);
     expect(sent.find((field) => field.name === "displaytitle")).toBeUndefined();
     expect(sent.find((field) => field.name === "lockedQty")).toBeUndefined();
     expect(sent.find((field) => field.name === "sys_title")?.value).toBe("Home page");
@@ -61,6 +68,18 @@ describe("fieldsForEditorSave", () => {
       maximum: "10",
     });
     expect(sent.find((field) => field.name === "page")?.dataType).toBe("link");
+    expect(sent.find((field) => field.name === "no_propagate")).toEqual({
+      name: "no_propagate",
+      value: "yes",
+      dataType: "boolean",
+    });
+    expect(sent.find((field) => field.name === "lockedFlag")).toBeUndefined();
+  });
+
+  it("writes a yes-no value with boolean dataType", () => {
+    expect(
+      fieldsForEditorSave([{ name: "no_propagate", kind: "yesno", value: "no" }]),
+    ).toEqual([{ name: "no_propagate", value: "no", dataType: "boolean" }]);
   });
 
   it("marks a non-integer number as float", () => {

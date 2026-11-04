@@ -70,6 +70,10 @@ export function fieldsForEditorSave(
       fields.push({ name: row.name, value: row.value, dataType: "link" });
       continue;
     }
+    if (row.kind === "yesno") {
+      fields.push({ name: row.name, value: row.value, dataType: "boolean" });
+      continue;
+    }
     fields.push({ name: row.name, value: row.value });
   }
   return fields;

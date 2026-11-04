@@ -7008,6 +7008,195 @@ describe("EditorHost refuse a yes-no field NUL (#5559)", () => {
   });
 });
 
+describe("EditorHost save a yes-no field (#5586)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function yesNoSaveHost(opts: {
+    saveFields: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    flag?: string;
+    summary?: string;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+    readOnly?: boolean;
+  }) {
+    const flag = opts.flag ?? "yes";
+    const summary = opts.summary ?? "Hello";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [
+            { name: "no_propagate", value: flag },
+            { name: "summary", value: summary },
+          ],
+        })}
+        saveFields={opts.saveFields}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "no_propagate",
+              label: "Propagate",
+              control: "sys_SingleCheckBox",
+              dataType: "boolean",
+              readOnly: opts.readOnly === true,
+            },
+            {
+              name: "summary",
+              label: "Summary",
+              control: "sys_EditBox",
+              dataType: "text",
+            },
+          ],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openYesNo(
+    element: React.ReactElement,
+    expected = "yes",
+    path = "/editor?contentId=42&mode=edit",
+  ): Promise<HTMLSelectElement> {
+    render(
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-no_propagate") as HTMLSelectElement).value,
+      ).toBe(expected);
+    });
+    return screen.getByTestId("editor-field-no_propagate") as HTMLSelectElement;
+  }
+
+  it("saves yes or no with boolean dataType and keeps the sibling text", async () => {
+    let flag = "yes";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      flag = body.fields.find((f) => f.name === "no_propagate")?.value ?? flag;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    const select = await openYesNo(yesNoSaveHost({ saveFields, flag }));
+    expect(select.getAttribute("data-editor-kind")).toBe("yesno");
+    expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe("Hello");
+    fireEvent.change(select, { target: { value: "no" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "no_propagate")).toEqual({
+      name: "no_propagate",
+      value: "no",
+      dataType: "boolean",
+    });
+    expect(sent.fields.find((f) => f.name === "summary")?.value).toBe("Hello");
+    expect((screen.getByTestId("editor-field-no_propagate") as HTMLSelectElement).value).toBe(
+      "no",
+    );
+    cleanup();
+    const reloaded = await openYesNo(yesNoSaveHost({ saveFields, flag }), "no");
+    expect(reloaded.value).toBe("no");
+    expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe("Hello");
+  });
+
+  it("does not write when Close cancels an unsaved yes-no change", async () => {
+    const saveFields = vi.fn();
+    const select = await openYesNo(
+      yesNoSaveHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.change(select, { target: { value: "no" } });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect((screen.getByTestId("editor-field-no_propagate") as HTMLSelectElement).value).toBe(
+      "no",
+    );
+  });
+
+  it("does not save in view mode or when the yes-no field is schema read-only", async () => {
+    const saveFields = vi.fn();
+    const view = await openYesNo(
+      yesNoSaveHost({ saveFields }),
+      "yes",
+      "/editor?contentId=42&mode=view",
+    );
+    expect(view.disabled).toBe(true);
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+    expect(screen.queryByTestId("editor-yesno-clear-no_propagate")).toBeNull();
+    expect(saveFields).not.toHaveBeenCalled();
+    cleanup();
+    const locked = await openYesNo(yesNoSaveHost({ saveFields, readOnly: true }));
+    expect(locked.disabled).toBe(true);
+    fireEvent.change(screen.getByTestId("editor-field-summary"), {
+      target: { value: "Updated headline" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "no_propagate")).toBeUndefined();
+    expect(sent.fields.find((f) => f.name === "summary")?.value).toBe("Updated headline");
+  });
+
+  it("does not claim success for HTTP 400, 403, or 409 on a yes-no save", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    const select = await openYesNo(yesNoSaveHost({ saveFields }));
+    fireEvent.change(select, { target: { value: "no" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-no_propagate").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-no_propagate").textContent).toMatch(
+        /not allowed/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(/newer revision/i);
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(3);
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "no_propagate")).toMatchObject({
+      value: "no",
+      dataType: "boolean",
+    });
+    cleanup();
+    const reloaded = await openYesNo(yesNoSaveHost({ saveFields: vi.fn() }));
+    expect(reloaded.value).toBe("yes");
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+});
+
 describe("EditorHost clear optional decimal (#5415)", () => {
   afterEach(() => {
     cleanup();

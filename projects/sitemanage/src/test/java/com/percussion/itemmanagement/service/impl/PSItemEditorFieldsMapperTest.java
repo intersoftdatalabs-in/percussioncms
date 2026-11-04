@@ -19,6 +19,7 @@ package com.percussion.itemmanagement.service.impl;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.itemmanagement.data.PSItemEditorField;
@@ -150,5 +151,38 @@ class PSItemEditorFieldsMapperTest {
     kept.setFields(List.of(new PSItemEditorField("sys_communityid", "")));
     PSItemEditorFieldsMapper.presentEmptyCommunity(kept);
     assertEquals("", kept.getFields().get(0).getValue());
+  }
+
+  @Test
+  void rejectInvalidYesNoLeavesNumericAndBlankAlone() {
+    PSItemEditorField ok = new PSItemEditorField("no_propagate", "yes");
+    ok.setDataType("boolean");
+    PSItemEditorField blank = new PSItemEditorField("optional", "");
+    blank.setDataType("boolean");
+    PSItemEditorField qty = new PSItemEditorField("qty", "abc");
+    qty.setDataType("integer");
+    PSItemEditorFieldsMapper.rejectInvalidYesNo(List.of(ok, blank, qty));
+
+    PSItemEditorField bad = new PSItemEditorField("no_propagate", "maybe");
+    bad.setDataType("boolean");
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> PSItemEditorFieldsMapper.rejectInvalidYesNo(List.of(bad)));
+    assertTrue(ex.getMessage().contains("no_propagate"));
+  }
+
+  @Test
+  void applyUpdatesStoresCanonicalYesNoAndLeavesSiblingText() {
+    PSContentItem item = new PSContentItem();
+    Map<String, Object> fields = new HashMap<>();
+    fields.put("no_propagate", "yes");
+    fields.put("summary", "Hello");
+    item.setFields(fields);
+    PSItemEditorField flag = new PSItemEditorField("no_propagate", " NO ");
+    flag.setDataType("boolean");
+    PSItemEditorFieldsMapper.applyUpdates(item, List.of(flag));
+    assertEquals("no", item.getFields().get("no_propagate"));
+    assertEquals("Hello", item.getFields().get("summary"));
   }
 }
