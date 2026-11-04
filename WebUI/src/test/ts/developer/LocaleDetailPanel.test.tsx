@@ -13,6 +13,7 @@ import { LOC_DESC_MSG } from "../../../main/ts/developer/localeDescriptionMessag
 import { LOC_LABEL_MSG } from "../../../main/ts/developer/localeLabelMessages";
 import { LOC_DATETIME_MSG } from "../../../main/ts/developer/localeDateTimePatternMessages";
 import { LOC_DECIMAL_MSG } from "../../../main/ts/developer/localeDecimalSepMessages";
+import { LOC_GROUPING_MSG } from "../../../main/ts/developer/localeGroupingSepMessages";
 import { LOC_TIME_MSG } from "../../../main/ts/developer/localeTimePatternMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 
@@ -1402,5 +1403,173 @@ describe("LocaleDetailPanel", () => {
     expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
     expect((screen.getByTestId("developer-loc-fmt-decimal") as HTMLInputElement).value).toBe(".");
     expect((screen.getByTestId("developer-loc-fmt-grouping") as HTMLInputElement).value).toBe(",");
+  });
+
+  it("sets the grouping separator only after success and leaves language, label, description, status, and other format fields", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      format: { ...sampleDetail.format, groupingSep: "." },
+    });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("developer-loc-set-grouping-sep-text").getAttribute("data-loc-grouping-sep"),
+      ).toBe(",");
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-edit"));
+    fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-grouping-sep-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-grouping-sep-input"), {
+      target: { value: " . " },
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-grouping-sep-text").getAttribute("data-loc-grouping-sep"),
+    ).toBe(",");
+    fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-loc-set-grouping-sep-text").getAttribute("data-loc-grouping-sep"),
+    ).toBe(",");
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-grouping-sep-input"), {
+      target: { value: " . " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", {
+      format: { groupingSep: "." },
+    });
+    const sent = updateLocale.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty("languageString");
+    expect(sent).not.toHaveProperty("label");
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("status");
+    expect(sent).not.toHaveProperty("hasFormatProfile");
+    expect(
+      screen.getByTestId("developer-loc-set-grouping-sep-text").getAttribute("data-loc-grouping-sep"),
+    ).toBe(".");
+    expect((screen.getByTestId("developer-loc-fmt-grouping") as HTMLInputElement).value).toBe(".");
+    expect(screen.getByTestId("developer-loc-set-grouping-sep-notice").textContent).toBe(
+      LOC_GROUPING_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe(
+      "US English",
+    );
+    expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-time") as HTMLInputElement).value).toBe(
+      "HH:mm:ss",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-datetime") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy HH:mm:ss",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-decimal") as HTMLInputElement).value).toBe(".");
+    expect((screen.getByTestId("developer-loc-fmt-dir") as HTMLSelectElement).value).toBe("ltr");
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
+  });
+
+  it("clears a blank grouping separator and keeps the previous separator on 400, 403, and 409", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      format: { ...sampleDetail.format, groupingSep: "" },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-grouping-sep-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-grouping-sep-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-grouping-sep-notice").textContent).toBe(
+        LOC_GROUPING_MSG.CLEARED,
+      );
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", { format: { groupingSep: "" } });
+    expect(
+      screen.getByTestId("developer-loc-set-grouping-sep-text").getAttribute("data-loc-grouping-sep"),
+    ).toBe("");
+    expect((screen.getByTestId("developer-loc-fmt-grouping") as HTMLInputElement).value).toBe("");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-decimal") as HTMLInputElement).value).toBe(".");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+
+    for (const status of [400, 403, 409]) {
+      updateLocale.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-edit"));
+      fireEvent.change(screen.getByTestId("developer-loc-set-grouping-sep-input"), {
+        target: { value: "." },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-loc-set-grouping-sep-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(
+        screen.getByTestId("developer-loc-set-grouping-sep-text").getAttribute("data-loc-grouping-sep"),
+      ).toBe("");
+      expect((screen.getByTestId("developer-loc-fmt-grouping") as HTMLInputElement).value).toBe("");
+      expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+      fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-cancel"));
+    }
+  });
+
+  it("does not show a grouping separator when the update changes the label or other format fields", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      label: "Renamed",
+      format: {
+        ...sampleDetail.format,
+        groupingSep: ".",
+        decimalSep: ",",
+      },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-grouping-sep-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-grouping-sep-input"), {
+      target: { value: "." },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-grouping-sep-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-grouping-sep-error").textContent).toContain(
+        LOC_GROUPING_MSG.ERROR,
+      );
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-grouping-sep-text").getAttribute("data-loc-grouping-sep"),
+    ).toBe(",");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-grouping") as HTMLInputElement).value).toBe(",");
+    expect((screen.getByTestId("developer-loc-fmt-decimal") as HTMLInputElement).value).toBe(".");
   });
 });
