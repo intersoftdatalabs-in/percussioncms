@@ -4987,7 +4987,9 @@ describe("AssemblyHost refuse blank required keyword", () => {
     });
     const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
     expect(sent.fields.find((field) => field.name === "keywords")?.value).toBe(NEW_CHOICE);
+    expect(sent.fields.find((field) => field.name === "keywords")?.dataType).toBe("keyword");
     expect(sent.fields.find((field) => field.name === "displaytitle")?.value).toBe(TITLE);
+    expect(sent.fields.find((field) => field.name === "displaytitle")?.dataType).toBeUndefined();
     expect(screen.queryByTestId("assembly-field-error-keywords")).toBeNull();
     cleanup();
     const reloaded = keywordPreviewDoc(NEW_CHOICE);

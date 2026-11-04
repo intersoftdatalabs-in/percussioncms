@@ -25,7 +25,11 @@ public class PSItemEditorField {
   private String name;
   private String value;
 
-  /** Catalog data type when the editor knows it ({@code integer}, {@code number}, {@code float}). */
+  /**
+   * Catalog data type when the editor knows it ({@code integer}, {@code number},
+   * {@code float}, {@code link}, {@code date}, {@code datetime}, {@code keyword},
+   * {@code boolean}).
+   */
   private String dataType;
 
   /** Inclusive lower bound for a numeric field; blank when unset. */
