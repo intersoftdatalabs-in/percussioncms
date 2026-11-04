@@ -145,6 +145,27 @@ describe("collectRequiredFieldErrors", () => {
     expect(isEmptyEditorFieldValue("html", "<p>Hi</p>")).toBe(false);
   });
 
+  it("refuses a blank required yes-no and still allows an optional blank yes-no", () => {
+    const errors = collectRequiredFieldErrors(
+      [
+        { name: "no_propagate", kind: "yesno", required: true, value: "" },
+        { name: "spaces", kind: "yesno", required: true, value: "   " },
+        { name: "optionalFlag", kind: "yesno", required: false, value: "" },
+        { name: "kept", kind: "yesno", required: true, value: "yes" },
+      ],
+      {},
+      "This field is required.",
+    );
+    expect(errors).toEqual({
+      no_propagate: "This field is required.",
+      spaces: "This field is required.",
+    });
+    expect(isEmptyEditorFieldValue("yesno", "")).toBe(true);
+    expect(isEmptyEditorFieldValue("yesno", " \n\t ")).toBe(true);
+    expect(isEmptyEditorFieldValue("yesno", "yes")).toBe(false);
+    expect(isEmptyEditorFieldValue("yesno", "no")).toBe(false);
+  });
+
   it("refuses a blank required keyword and still allows an optional blank keyword", () => {
     const errors = collectRequiredFieldErrors(
       [
