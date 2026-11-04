@@ -62,6 +62,37 @@ public class FoldersTest {
   }
 
   @Test
+  void moveFolderItem_nulDestIsBadRequest() throws Exception {
+    MoveFolderItem req = new MoveFolderItem("/Assets/src/item", "/Assets/dst\0");
+    WebApplicationException thrown =
+        assertThrows(WebApplicationException.class, () -> resource.moveFolderItem(req));
+    assertEquals(
+        jakarta.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode(),
+        thrown.getResponse().getStatus());
+    verify(adaptor, never()).moveFolderItem(any(), anyString(), anyString());
+  }
+
+  @Test
+  void moveFolder_nulDestIsBadRequest() throws Exception {
+    MoveFolderItem req = new MoveFolderItem("/Assets/src/folder", "/Assets/\0dst");
+    WebApplicationException thrown =
+        assertThrows(WebApplicationException.class, () -> resource.moveFolder(req));
+    assertEquals(
+        jakarta.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode(),
+        thrown.getResponse().getStatus());
+    verify(adaptor, never()).moveFolderItem(any(), anyString(), anyString());
+  }
+
+  @Test
+  void pathContainsNul_isTrueOnlyForU0000() {
+    assertFalse(FoldersResource.pathContainsNul("/Assets/Dst"));
+    assertFalse(FoldersResource.pathContainsNul(""));
+    assertFalse(FoldersResource.pathContainsNul(null));
+    assertTrue(FoldersResource.pathContainsNul("/Assets/Dst\0"));
+    assertTrue(FoldersResource.pathContainsNul("\0"));
+  }
+
+  @Test
   void moveFolderItem_propagatesBackendException() throws Exception {
     MoveFolderItem req = new MoveFolderItem("/x", "/y");
     doThrow(new BackendException("boom", new Exception("cause")))

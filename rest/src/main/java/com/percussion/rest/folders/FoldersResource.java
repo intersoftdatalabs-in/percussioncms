@@ -79,6 +79,22 @@ public class FoldersResource {
     this.uriInfo = ui;
   }
 
+  /** True when a CMS finder path contains U+0000 (#5552). */
+  static boolean pathContainsNul(String path) {
+    return path != null && path.indexOf('\0') >= 0;
+  }
+
+  /**
+   * Move destination with a NUL is HTTP 400 and is not forwarded to the adaptor
+   * (#5552). Blank dest stays a later slice.
+   */
+  static void rejectMoveDestNul(MoveFolderItem moveRequest) {
+    if (moveRequest != null && pathContainsNul(moveRequest.getTargetFolderPath())) {
+      throw new WebApplicationException(
+          "targetFolderPath must not contain a NUL character", Response.Status.BAD_REQUEST);
+    }
+  }
+
   @Autowired
   public FoldersResource(IFolderAdaptor adaptor) {
     this.folderAdaptor = adaptor;
@@ -501,6 +517,7 @@ public class FoldersResource {
         @ApiResponse(
             responseCode = "404",
             description = "Item or destination folder not found"),
+        @ApiResponse(responseCode = "400", description = "Destination path contains a NUL character"),
         @ApiResponse(responseCode = "403", description = "Not authorized to move"),
         @ApiResponse(
             responseCode = "409",
@@ -512,6 +529,7 @@ public class FoldersResource {
       })
   public Status moveFolderItem(MoveFolderItem moveRequest) {
     try {
+      rejectMoveDestNul(moveRequest);
       folderAdaptor.moveFolderItem(
           uriInfo.getBaseUri(), moveRequest.getItemPath(), moveRequest.getTargetFolderPath());
       return new Status("Moved OK");
@@ -545,6 +563,7 @@ public class FoldersResource {
         @ApiResponse(
             responseCode = "404",
             description = "Source folder or destination folder not found"),
+        @ApiResponse(responseCode = "400", description = "Destination path contains a NUL character"),
         @ApiResponse(responseCode = "403", description = "Not authorized to move"),
         @ApiResponse(
             responseCode = "409",
@@ -556,6 +575,7 @@ public class FoldersResource {
       })
   public Status moveFolder(MoveFolderItem moveRequest) {
     try {
+      rejectMoveDestNul(moveRequest);
       folderAdaptor.moveFolderItem(
           uriInfo.getBaseUri(), moveRequest.getItemPath(), moveRequest.getTargetFolderPath());
       return new Status("Moved OK");

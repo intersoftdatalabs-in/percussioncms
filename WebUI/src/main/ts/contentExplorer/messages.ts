@@ -111,6 +111,8 @@ export const EXPLORER_MSG = {
   ACTION_MOVE: "perc.ui.explorer@Move",
   MOVE_DEST_TITLE: "perc.ui.explorer@Move to folder",
   MOVE_DEST_LABEL: "perc.ui.explorer@Destination folder path",
+  MOVE_DEST_NUL:
+    "perc.ui.explorer@That destination path contains a character that cannot be stored",
   ACTION_MOVE_NOT_FOUND:
     "perc.ui.explorer@The selected item or destination folder was not found",
   ACTION_MOVE_CONFLICT:
