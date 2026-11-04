@@ -19,6 +19,7 @@ import { LOC_STATUS_MSG } from "../../../main/ts/developer/localeEnabledStatusMe
 import { LOC_TEXT_DIR_MSG } from "../../../main/ts/developer/localeTextDirMessages";
 import { LOC_FIRST_DAY_MSG } from "../../../main/ts/developer/localeFirstDayOfWeekMessages";
 import { LOC_MEASURE_MSG } from "../../../main/ts/developer/localeMeasurementSystemMessages";
+import { LOC_DEFAULT_TZ_MSG } from "../../../main/ts/developer/localeDefaultTzMessages";
 import { LOC_GROUPING_MSG } from "../../../main/ts/developer/localeGroupingSepMessages";
 import { LOC_TIME_MSG } from "../../../main/ts/developer/localeTimePatternMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
@@ -2620,5 +2621,149 @@ describe("LocaleDetailPanel", () => {
     expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
     expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
     expect((screen.getByTestId("developer-loc-fmt-grouping") as HTMLInputElement).value).toBe(",");
+  });
+  it("sets the default timezone only after success and leaves language, label, description, status, and other format fields", async () => {
+    const detail = {
+      ...sampleDetail,
+      format: { ...sampleDetail.format, defaultTz: "America/New_York" },
+    };
+    getLocaleDetail.mockResolvedValue(detail);
+    updateLocale.mockResolvedValue({
+      ...detail,
+      format: { ...detail.format, defaultTz: "Europe/London" },
+    });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(
+        screen
+          .getByTestId("developer-loc-set-default-tz-text")
+          .getAttribute("data-loc-default-tz"),
+      ).toBe("America/New_York");
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-edit"));
+    fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-default-tz-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-default-tz-input"), {
+      target: { value: "Europe/London" },
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-default-tz-text").getAttribute("data-loc-default-tz"),
+    ).toBe("America/New_York");
+    fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-loc-set-default-tz-text").getAttribute("data-loc-default-tz"),
+    ).toBe("America/New_York");
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-default-tz-input"), {
+      target: { value: "Europe/London" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", {
+      format: { defaultTz: "Europe/London" },
+    });
+    const sent = updateLocale.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty("languageString");
+    expect(sent).not.toHaveProperty("label");
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("status");
+    expect(sent).not.toHaveProperty("hasFormatProfile");
+    expect(
+      screen.getByTestId("developer-loc-set-default-tz-text").getAttribute("data-loc-default-tz"),
+    ).toBe("Europe/London");
+    expect(screen.getByTestId("developer-loc-set-default-tz-notice").textContent).toBe(
+      LOC_DEFAULT_TZ_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe(
+      "US English",
+    );
+    expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-first-day") as HTMLInputElement).value).toBe("1");
+    expect((screen.getByTestId("developer-loc-fmt-dir") as HTMLSelectElement).value).toBe("ltr");
+  });
+
+  it("clears a blank default timezone, refuses an overlong one, and keeps the previous value on 400, 403, and 409", async () => {
+    const detail = {
+      ...sampleDetail,
+      format: { ...sampleDetail.format, defaultTz: "America/New_York" },
+    };
+    getLocaleDetail.mockResolvedValue(detail);
+    updateLocale.mockResolvedValue({
+      ...detail,
+      format: { ...detail.format, defaultTz: "" },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-default-tz-edit")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-default-tz-input"), {
+      target: { value: "z".repeat(65) },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-loc-set-default-tz-error").textContent).toBe(
+      LOC_DEFAULT_TZ_MSG.INVALID,
+    );
+    expect(
+      screen.getByTestId("developer-loc-set-default-tz-text").getAttribute("data-loc-default-tz"),
+    ).toBe("America/New_York");
+
+    fireEvent.change(screen.getByTestId("developer-loc-set-default-tz-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-default-tz-notice").textContent).toBe(
+        LOC_DEFAULT_TZ_MSG.CLEARED,
+      );
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", {
+      format: { defaultTz: "" },
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-default-tz-text").getAttribute("data-loc-default-tz"),
+    ).toBe("");
+
+    for (const status of [400, 403, 409]) {
+      updateLocale.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-edit"));
+      fireEvent.change(screen.getByTestId("developer-loc-set-default-tz-input"), {
+        target: { value: "Europe/London" },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-loc-set-default-tz-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(
+        screen.getByTestId("developer-loc-set-default-tz-text").getAttribute("data-loc-default-tz"),
+      ).toBe("");
+      fireEvent.click(screen.getByTestId("developer-loc-set-default-tz-cancel"));
+    }
   });
 });

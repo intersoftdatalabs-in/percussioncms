@@ -98,6 +98,12 @@ import {
 } from "./localeMeasurementSystem";
 import { LOC_MEASURE_MSG } from "./localeMeasurementSystemMessages";
 import {
+  localeDefaultTzWrite,
+  savedLocaleDefaultTz,
+  storedLocaleDefaultTz,
+} from "./localeDefaultTz";
+import { LOC_DEFAULT_TZ_MSG } from "./localeDefaultTzMessages";
+import {
   localeEnabledStatusWrite,
   savedLocaleEnabledStatus,
   storedLocaleEnabledStatus,
@@ -286,6 +292,12 @@ export function LocaleDetailPanel({
   const [measurementError, setMeasurementError] = useState<string | null>(null);
   const [measurementNotice, setMeasurementNotice] = useState<string | null>(null);
   const [measurementBusy, setMeasurementBusy] = useState(false);
+  const [defaultTzShown, setDefaultTzShown] = useState("");
+  const [defaultTzDraft, setDefaultTzDraft] = useState("");
+  const [defaultTzEditing, setDefaultTzEditing] = useState(false);
+  const [defaultTzError, setDefaultTzError] = useState<string | null>(null);
+  const [defaultTzNotice, setDefaultTzNotice] = useState<string | null>(null);
+  const [defaultTzBusy, setDefaultTzBusy] = useState(false);
   const [statusShown, setStatusShown] = useState("active");
   const [statusDraft, setStatusDraft] = useState("active");
   const [statusEditing, setStatusEditing] = useState(false);
@@ -314,6 +326,7 @@ export function LocaleDetailPanel({
   const textDirInflight = useRef(false);
   const firstDayInflight = useRef(false);
   const measurementInflight = useRef(false);
+  const defaultTzInflight = useRef(false);
   const statusInflight = useRef(false);
 
   useEffect(() => {
@@ -392,6 +405,11 @@ export function LocaleDetailPanel({
         setMeasurementEditing(false);
         setMeasurementError(null);
         setMeasurementNotice(null);
+        setDefaultTzShown(storedLocaleDefaultTz(d.format?.defaultTz));
+        setDefaultTzDraft("");
+        setDefaultTzEditing(false);
+        setDefaultTzError(null);
+        setDefaultTzNotice(null);
         setStatus(d.status || "active");
         setStatusShown(storedLocaleEnabledStatus(d.status) || "active");
         setStatusDraft("active");
@@ -439,6 +457,8 @@ export function LocaleDetailPanel({
     !firstDayEditing &&
     !measurementBusy &&
     !measurementEditing &&
+    !defaultTzBusy &&
+    !defaultTzEditing &&
     !statusBusy &&
     !statusEditing &&
     isLocaleWriteReady({ isNew, language, label });
@@ -551,6 +571,13 @@ export function LocaleDetailPanel({
     return LOC_MEASURE_MSG.ERROR;
   }
 
+  function defaultTzSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return LOC_DEFAULT_TZ_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return LOC_DEFAULT_TZ_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return LOC_DEFAULT_TZ_MSG.CONFLICT;
+    return LOC_DEFAULT_TZ_MSG.ERROR;
+  }
+
   function enabledStatusSaveFallback(err: unknown): string {
     if (isApiError(err) && err.status === 400) return LOC_STATUS_MSG.INVALID;
     if (isApiError(err) && err.status === 403) return LOC_STATUS_MSG.FORBIDDEN;
@@ -573,6 +600,7 @@ export function LocaleDetailPanel({
       textDirBusy ||
       firstDayBusy ||
       measurementBusy ||
+      defaultTzBusy ||
       statusBusy ||
       labelInflight.current ||
       descriptionInflight.current ||
@@ -586,6 +614,7 @@ export function LocaleDetailPanel({
       textDirInflight.current ||
       firstDayInflight.current ||
       measurementInflight.current ||
+      defaultTzInflight.current ||
       statusInflight.current ||
       inflight.current
     );
@@ -607,6 +636,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -700,6 +730,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -735,6 +766,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -800,6 +832,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -835,6 +868,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -909,6 +943,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -944,6 +979,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1018,6 +1054,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1053,6 +1090,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1127,6 +1165,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1162,6 +1201,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1236,6 +1276,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1271,6 +1312,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1345,6 +1387,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1381,6 +1424,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1456,6 +1500,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1491,6 +1536,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1565,6 +1611,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1590,6 +1637,7 @@ export function LocaleDetailPanel({
       !textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -1602,6 +1650,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1783,6 +1832,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1807,6 +1857,7 @@ export function LocaleDetailPanel({
       !writeKey ||
       !firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -1819,6 +1870,7 @@ export function LocaleDetailPanel({
       currencyPatternEditing ||
       textDirEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1907,6 +1959,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       firstDayEditing ||
       measurementEditing ||
+      defaultTzEditing ||
       statusEditing
     ) {
       return;
@@ -1930,6 +1983,7 @@ export function LocaleDetailPanel({
       !detail ||
       !writeKey ||
       !measurementEditing ||
+defaultTzEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -2001,6 +2055,123 @@ export function LocaleDetailPanel({
     } finally {
       measurementInflight.current = false;
       setMeasurementBusy(false);
+      setBusy(false);
+    }
+  }
+
+  function startDefaultTzEdit(): void {
+    if (
+      isNew ||
+      !detail ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing ||
+      currencyPatternEditing ||
+      textDirEditing ||
+      firstDayEditing ||
+      measurementEditing ||
+      defaultTzEditing ||
+      statusEditing
+    ) {
+      return;
+    }
+    setDefaultTzDraft(defaultTzShown);
+    setDefaultTzError(null);
+    setDefaultTzNotice(null);
+    setDefaultTzEditing(true);
+  }
+
+  function cancelDefaultTzEdit(): void {
+    if (defaultTzBusy || defaultTzInflight.current) return;
+    setDefaultTzEditing(false);
+    setDefaultTzDraft("");
+    setDefaultTzError(null);
+  }
+
+  async function handleDefaultTzSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !defaultTzEditing ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing ||
+      currencyPatternEditing ||
+      textDirEditing ||
+      firstDayEditing ||
+      measurementEditing ||
+      statusEditing
+    ) {
+      return;
+    }
+    const sent = localeDefaultTzWrite(detail, defaultTzDraft);
+    if (sent === "invalid") {
+      setDefaultTzError(LOC_DEFAULT_TZ_MSG.INVALID);
+      setDefaultTzNotice(null);
+      return;
+    }
+    if (sent === "unchanged") {
+      setDefaultTzEditing(false);
+      setDefaultTzDraft("");
+      setDefaultTzError(null);
+      return;
+    }
+    defaultTzInflight.current = true;
+    setDefaultTzBusy(true);
+    setBusy(true);
+    setDefaultTzError(null);
+    setDefaultTzNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = defaultTzShown;
+    try {
+      const saved = await updateLocale(writeKey, sent);
+      const accepted = savedLocaleDefaultTz(sent, detail, saved);
+      if (accepted == null) {
+        setDefaultTzShown(previousShown);
+        setFmt((prev) => ({ ...prev, defaultTz: previousShown }));
+        setDefaultTzError(LOC_DEFAULT_TZ_MSG.ERROR);
+        setDefaultTzNotice(null);
+        return;
+      }
+      const nextFormat: LocaleFormatSummary = {
+        ...(detail.format || {}),
+        defaultTz: accepted,
+      };
+      const nextDetail: LocaleDetail = {
+        ...detail,
+        hasFormatProfile: true,
+        format: nextFormat,
+      };
+      setDetail(nextDetail);
+      setDefaultTzShown(accepted);
+      setFmt((prev) => ({ ...prev, defaultTz: accepted }));
+      setStoreFormat(true);
+      setDefaultTzEditing(false);
+      setDefaultTzDraft("");
+      setDefaultTzNotice(accepted ? LOC_DEFAULT_TZ_MSG.SAVED : LOC_DEFAULT_TZ_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setDefaultTzShown(previousShown);
+      setFmt((prev) => ({ ...prev, defaultTz: previousShown }));
+      setDefaultTzError(panelErrMsg(err, defaultTzSaveFallback(err)));
+      setDefaultTzNotice(null);
+    } finally {
+      defaultTzInflight.current = false;
+      setDefaultTzBusy(false);
       setBusy(false);
     }
   }
@@ -2087,6 +2258,11 @@ export function LocaleDetailPanel({
     setMeasurementEditing(false);
     setMeasurementError(null);
     setMeasurementNotice(null);
+    setDefaultTzShown(storedLocaleDefaultTz(saved.format?.defaultTz));
+    setDefaultTzDraft("");
+    setDefaultTzEditing(false);
+    setDefaultTzError(null);
+    setDefaultTzNotice(null);
     setStatus(saved.status || status);
     setStatusShown(storedLocaleEnabledStatus(saved.status) || status);
     setStatusDraft("active");
@@ -2343,6 +2519,7 @@ export function LocaleDetailPanel({
                     textDirEditing ||
       firstDayEditing ||
                     measurementEditing ||
+                    defaultTzEditing ||
                     statusEditing
                   }
                   onClick={startLabelEdit}
@@ -2481,6 +2658,7 @@ export function LocaleDetailPanel({
                     textDirEditing ||
       firstDayEditing ||
                     measurementEditing ||
+                    defaultTzEditing ||
                     statusEditing
                   }
                   onClick={startDescriptionEdit}
@@ -3022,6 +3200,7 @@ export function LocaleDetailPanel({
                     textDirEditing ||
       firstDayEditing ||
                     measurementEditing ||
+                    defaultTzEditing ||
                     statusEditing
                   }
                   onClick={startDatePatternEdit}
@@ -3149,6 +3328,7 @@ export function LocaleDetailPanel({
                     textDirEditing ||
       firstDayEditing ||
                     measurementEditing ||
+                    defaultTzEditing ||
                     statusEditing
                   }
                   onClick={startTimePatternEdit}
@@ -3278,6 +3458,7 @@ export function LocaleDetailPanel({
                     textDirEditing ||
       firstDayEditing ||
                     measurementEditing ||
+                    defaultTzEditing ||
                     statusEditing
                   }
                   onClick={startDateTimePatternEdit}
@@ -3538,6 +3719,7 @@ export function LocaleDetailPanel({
                     textDirEditing ||
       firstDayEditing ||
                     measurementEditing ||
+                    defaultTzEditing ||
                     statusEditing
                   }
                   onClick={startDecimalSepEdit}
@@ -3665,6 +3847,7 @@ export function LocaleDetailPanel({
                     textDirEditing ||
       firstDayEditing ||
                     measurementEditing ||
+                    defaultTzEditing ||
                     statusEditing
                   }
                   onClick={startGroupingSepEdit}
@@ -3792,6 +3975,7 @@ export function LocaleDetailPanel({
                     textDirEditing ||
       firstDayEditing ||
                     measurementEditing ||
+                    defaultTzEditing ||
                     statusEditing
                   }
                   onClick={startCurrencyCodeEdit}
@@ -3921,6 +4105,7 @@ export function LocaleDetailPanel({
                     textDirEditing ||
       firstDayEditing ||
                     measurementEditing ||
+                    defaultTzEditing ||
                     statusEditing
                   }
                   onClick={startCurrencyPatternEdit}
@@ -4054,6 +4239,7 @@ export function LocaleDetailPanel({
                     textDirEditing ||
                     firstDayEditing ||
                     measurementEditing ||
+                    defaultTzEditing ||
                     statusEditing
                   }
                   onClick={startFirstDayEdit}
@@ -4184,6 +4370,7 @@ export function LocaleDetailPanel({
                     textDirEditing ||
                     firstDayEditing ||
                     measurementEditing ||
+                    defaultTzEditing ||
                     statusEditing
                   }
                   onClick={startMeasurementEdit}
@@ -4196,6 +4383,138 @@ export function LocaleDetailPanel({
                   }}
                 >
                   {LOC_MEASURE_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
+
+
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-loc-set-default-tz"
+              aria-label={LOC_DEFAULT_TZ_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{LOC_DEFAULT_TZ_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.85rem" }}>
+                {LOC_DEFAULT_TZ_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-loc-set-default-tz-text"
+                data-loc-default-tz={defaultTzShown}
+                style={{ marginTop: 0, fontFamily: "monospace" }}
+              >
+                {defaultTzShown}
+              </p>
+              {defaultTzError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-loc-set-default-tz-error"
+                  style={{ color: catalogColors.error, marginBottom: "8px" }}
+                >
+                  {defaultTzError}
+                </div>
+              ) : null}
+              {defaultTzNotice ? (
+                <div
+                  data-testid="developer-loc-set-default-tz-notice"
+                  style={{ color: "#276749", marginBottom: "8px" }}
+                >
+                  {defaultTzNotice}
+                </div>
+              ) : null}
+              {defaultTzEditing ? (
+                <div data-testid="developer-loc-set-default-tz-editor">
+                  <label htmlFor="loc-set-default-tz-input">{LOC_DEFAULT_TZ_MSG.FIELD}</label>
+                  <input
+                    id="loc-set-default-tz-input"
+                    data-testid="developer-loc-set-default-tz-input"
+                    style={inputStyle}
+                    value={defaultTzDraft}
+                    disabled={defaultTzBusy}
+                    onChange={(e) => setDefaultTzDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-default-tz-save"
+                      aria-label={LOC_DEFAULT_TZ_MSG.SAVE}
+                      disabled={defaultTzBusy}
+                      onClick={() => void handleDefaultTzSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: defaultTzBusy ? catalogColors.disabled : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: defaultTzBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_DEFAULT_TZ_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-default-tz-cancel"
+                      disabled={defaultTzBusy}
+                      onClick={cancelDefaultTzEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: defaultTzBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_DEFAULT_TZ_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-loc-set-default-tz-edit"
+                  aria-label={LOC_DEFAULT_TZ_MSG.ACTION}
+                  disabled={
+                    busy ||
+                    defaultTzBusy ||
+                    measurementBusy ||
+                    firstDayBusy ||
+                    currencyPatternBusy ||
+                    currencyCodeBusy ||
+                    textDirBusy ||
+                    statusBusy ||
+                    groupingSepBusy ||
+                    decimalSepBusy ||
+                    dateTimePatternBusy ||
+                    datePatternBusy ||
+                    timePatternBusy ||
+                    labelBusy ||
+                    descriptionBusy ||
+                    labelEditing ||
+                    descriptionEditing ||
+                    datePatternEditing ||
+                    timePatternEditing ||
+                    dateTimePatternEditing ||
+                    decimalSepEditing ||
+                    groupingSepEditing ||
+                    currencyCodeEditing ||
+                    currencyPatternEditing ||
+                    textDirEditing ||
+                    firstDayEditing ||
+                    measurementEditing ||
+                    defaultTzEditing ||
+                    statusEditing
+                  }
+                  onClick={startDefaultTzEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {LOC_DEFAULT_TZ_MSG.ACTION}
                 </button>
               )}
             </section>
