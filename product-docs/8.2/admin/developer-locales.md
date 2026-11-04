@@ -126,6 +126,16 @@ timezone clears the default timezone. A default timezone longer than 64
 characters does not write. **Cancel** does not write. HTTP 400, 403, and 409 are
 not success and leave the previous default timezone.
 
+**Set locale numbering system** on an existing locale saves the numbering
+system only. The update sends `format.numberingSystem` and does not send the
+language string, label, description, enabled status, date/time patterns,
+separators, currency fields, text direction, first day of week, measurement
+system, default timezone, or calendar, so those stay. The language string is
+immutable. The new value shows only after that save succeeds. A blank
+numbering system clears the numbering system. A numbering system longer than
+16 characters does not write. **Cancel** does not write. HTTP 400, 403, and 409
+are not success and leave the previous numbering system.
+
 **Set locale enabled status** on an existing locale saves enabled status
 only (`active` or `inactive`). The update does not send the language string,
 label, description, or format profile, so those stay. The language string is

@@ -104,6 +104,12 @@ import {
 } from "./localeDefaultTz";
 import { LOC_DEFAULT_TZ_MSG } from "./localeDefaultTzMessages";
 import {
+  localeNumberingSystemWrite,
+  savedLocaleNumberingSystem,
+  storedLocaleNumberingSystem,
+} from "./localeNumberingSystem";
+import { LOC_NUMBERING_SYSTEM_MSG } from "./localeNumberingSystemMessages";
+import {
   localeEnabledStatusWrite,
   savedLocaleEnabledStatus,
   storedLocaleEnabledStatus,
@@ -298,6 +304,12 @@ export function LocaleDetailPanel({
   const [defaultTzError, setDefaultTzError] = useState<string | null>(null);
   const [defaultTzNotice, setDefaultTzNotice] = useState<string | null>(null);
   const [defaultTzBusy, setDefaultTzBusy] = useState(false);
+  const [numberingSystemShown, setNumberingSystemShown] = useState("");
+  const [numberingSystemDraft, setNumberingSystemDraft] = useState("");
+  const [numberingSystemEditing, setNumberingSystemEditing] = useState(false);
+  const [numberingSystemError, setNumberingSystemError] = useState<string | null>(null);
+  const [numberingSystemNotice, setNumberingSystemNotice] = useState<string | null>(null);
+  const [numberingSystemBusy, setNumberingSystemBusy] = useState(false);
   const [statusShown, setStatusShown] = useState("active");
   const [statusDraft, setStatusDraft] = useState("active");
   const [statusEditing, setStatusEditing] = useState(false);
@@ -327,6 +339,7 @@ export function LocaleDetailPanel({
   const firstDayInflight = useRef(false);
   const measurementInflight = useRef(false);
   const defaultTzInflight = useRef(false);
+  const numberingSystemInflight = useRef(false);
   const statusInflight = useRef(false);
 
   useEffect(() => {
@@ -410,6 +423,11 @@ export function LocaleDetailPanel({
         setDefaultTzEditing(false);
         setDefaultTzError(null);
         setDefaultTzNotice(null);
+        setNumberingSystemShown(storedLocaleNumberingSystem(d.format?.numberingSystem));
+        setNumberingSystemDraft("");
+        setNumberingSystemEditing(false);
+        setNumberingSystemError(null);
+        setNumberingSystemNotice(null);
         setStatus(d.status || "active");
         setStatusShown(storedLocaleEnabledStatus(d.status) || "active");
         setStatusDraft("active");
@@ -458,7 +476,9 @@ export function LocaleDetailPanel({
     !measurementBusy &&
     !measurementEditing &&
     !defaultTzBusy &&
+    !numberingSystemBusy &&
     !defaultTzEditing &&
+    !numberingSystemEditing &&
     !statusBusy &&
     !statusEditing &&
     isLocaleWriteReady({ isNew, language, label });
@@ -578,6 +598,13 @@ export function LocaleDetailPanel({
     return LOC_DEFAULT_TZ_MSG.ERROR;
   }
 
+  function numberingSystemSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return LOC_NUMBERING_SYSTEM_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return LOC_NUMBERING_SYSTEM_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return LOC_NUMBERING_SYSTEM_MSG.CONFLICT;
+    return LOC_NUMBERING_SYSTEM_MSG.ERROR;
+  }
+
   function enabledStatusSaveFallback(err: unknown): string {
     if (isApiError(err) && err.status === 400) return LOC_STATUS_MSG.INVALID;
     if (isApiError(err) && err.status === 403) return LOC_STATUS_MSG.FORBIDDEN;
@@ -601,6 +628,7 @@ export function LocaleDetailPanel({
       firstDayBusy ||
       measurementBusy ||
       defaultTzBusy ||
+      numberingSystemBusy ||
       statusBusy ||
       labelInflight.current ||
       descriptionInflight.current ||
@@ -615,6 +643,7 @@ export function LocaleDetailPanel({
       firstDayInflight.current ||
       measurementInflight.current ||
       defaultTzInflight.current ||
+      numberingSystemInflight.current ||
       statusInflight.current ||
       inflight.current
     );
@@ -637,6 +666,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -731,6 +761,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -767,6 +798,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -833,6 +865,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -869,6 +902,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -944,6 +978,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -980,6 +1015,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1055,6 +1091,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1091,6 +1128,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1166,6 +1204,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1202,6 +1241,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1277,6 +1317,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1313,6 +1354,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1388,6 +1430,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1425,6 +1468,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1501,6 +1545,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1537,6 +1582,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1612,6 +1658,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1638,6 +1685,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -1651,6 +1699,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1833,6 +1882,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1858,6 +1908,7 @@ export function LocaleDetailPanel({
       !firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -1871,6 +1922,7 @@ export function LocaleDetailPanel({
       textDirEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1960,6 +2012,7 @@ export function LocaleDetailPanel({
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -1984,6 +2037,7 @@ export function LocaleDetailPanel({
       !writeKey ||
       !measurementEditing ||
 defaultTzEditing ||
+numberingSystemEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -2077,6 +2131,7 @@ defaultTzEditing ||
       firstDayEditing ||
       measurementEditing ||
       defaultTzEditing ||
+      numberingSystemEditing ||
       statusEditing
     ) {
       return;
@@ -2100,6 +2155,7 @@ defaultTzEditing ||
       !detail ||
       !writeKey ||
       !defaultTzEditing ||
+      numberingSystemEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -2172,6 +2228,127 @@ defaultTzEditing ||
     } finally {
       defaultTzInflight.current = false;
       setDefaultTzBusy(false);
+      setBusy(false);
+    }
+  }
+
+  function startNumberingSystemEdit(): void {
+    if (
+      isNew ||
+      !detail ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing ||
+      currencyPatternEditing ||
+      textDirEditing ||
+      firstDayEditing ||
+      measurementEditing ||
+      defaultTzEditing ||
+      numberingSystemEditing ||
+      statusEditing
+    ) {
+      return;
+    }
+    setNumberingSystemDraft(numberingSystemShown);
+    setNumberingSystemError(null);
+    setNumberingSystemNotice(null);
+    setNumberingSystemEditing(true);
+  }
+
+  function cancelNumberingSystemEdit(): void {
+    if (numberingSystemBusy || numberingSystemInflight.current) return;
+    setNumberingSystemEditing(false);
+    setNumberingSystemDraft("");
+    setNumberingSystemError(null);
+  }
+
+  async function handleNumberingSystemSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !numberingSystemEditing ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing ||
+      currencyPatternEditing ||
+      textDirEditing ||
+      firstDayEditing ||
+      measurementEditing ||
+      defaultTzEditing ||
+      statusEditing
+    ) {
+      return;
+    }
+    const sent = localeNumberingSystemWrite(detail, numberingSystemDraft);
+    if (sent === "invalid") {
+      setNumberingSystemError(LOC_NUMBERING_SYSTEM_MSG.INVALID);
+      setNumberingSystemNotice(null);
+      return;
+    }
+    if (sent === "unchanged") {
+      setNumberingSystemEditing(false);
+      setNumberingSystemDraft("");
+      setNumberingSystemError(null);
+      return;
+    }
+    numberingSystemInflight.current = true;
+    setNumberingSystemBusy(true);
+    setBusy(true);
+    setNumberingSystemError(null);
+    setNumberingSystemNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = numberingSystemShown;
+    try {
+      const saved = await updateLocale(writeKey, sent);
+      const accepted = savedLocaleNumberingSystem(sent, detail, saved);
+      if (accepted == null) {
+        setNumberingSystemShown(previousShown);
+        setFmt((prev) => ({ ...prev, numberingSystem: previousShown }));
+        setNumberingSystemError(LOC_NUMBERING_SYSTEM_MSG.ERROR);
+        setNumberingSystemNotice(null);
+        return;
+      }
+      const nextFormat: LocaleFormatSummary = {
+        ...(detail.format || {}),
+        numberingSystem: accepted,
+      };
+      const nextDetail: LocaleDetail = {
+        ...detail,
+        hasFormatProfile: true,
+        format: nextFormat,
+      };
+      setDetail(nextDetail);
+      setNumberingSystemShown(accepted);
+      setFmt((prev) => ({ ...prev, numberingSystem: accepted }));
+      setStoreFormat(true);
+      setNumberingSystemEditing(false);
+      setNumberingSystemDraft("");
+      setNumberingSystemNotice(
+        accepted ? LOC_NUMBERING_SYSTEM_MSG.SAVED : LOC_NUMBERING_SYSTEM_MSG.CLEARED,
+      );
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setNumberingSystemShown(previousShown);
+      setFmt((prev) => ({ ...prev, numberingSystem: previousShown }));
+      setNumberingSystemError(panelErrMsg(err, numberingSystemSaveFallback(err)));
+      setNumberingSystemNotice(null);
+    } finally {
+      numberingSystemInflight.current = false;
+      setNumberingSystemBusy(false);
       setBusy(false);
     }
   }
@@ -2263,6 +2440,11 @@ defaultTzEditing ||
     setDefaultTzEditing(false);
     setDefaultTzError(null);
     setDefaultTzNotice(null);
+    setNumberingSystemShown(storedLocaleNumberingSystem(saved.format?.numberingSystem));
+    setNumberingSystemDraft("");
+    setNumberingSystemEditing(false);
+    setNumberingSystemError(null);
+    setNumberingSystemNotice(null);
     setStatus(saved.status || status);
     setStatusShown(storedLocaleEnabledStatus(saved.status) || status);
     setStatusDraft("active");
@@ -2520,6 +2702,7 @@ defaultTzEditing ||
       firstDayEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
+                    numberingSystemEditing ||
                     statusEditing
                   }
                   onClick={startLabelEdit}
@@ -2659,6 +2842,7 @@ defaultTzEditing ||
       firstDayEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
+                    numberingSystemEditing ||
                     statusEditing
                   }
                   onClick={startDescriptionEdit}
@@ -3201,6 +3385,7 @@ defaultTzEditing ||
       firstDayEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
+                    numberingSystemEditing ||
                     statusEditing
                   }
                   onClick={startDatePatternEdit}
@@ -3329,6 +3514,7 @@ defaultTzEditing ||
       firstDayEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
+                    numberingSystemEditing ||
                     statusEditing
                   }
                   onClick={startTimePatternEdit}
@@ -3459,6 +3645,7 @@ defaultTzEditing ||
       firstDayEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
+                    numberingSystemEditing ||
                     statusEditing
                   }
                   onClick={startDateTimePatternEdit}
@@ -3720,6 +3907,7 @@ defaultTzEditing ||
       firstDayEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
+                    numberingSystemEditing ||
                     statusEditing
                   }
                   onClick={startDecimalSepEdit}
@@ -3848,6 +4036,7 @@ defaultTzEditing ||
       firstDayEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
+                    numberingSystemEditing ||
                     statusEditing
                   }
                   onClick={startGroupingSepEdit}
@@ -3976,6 +4165,7 @@ defaultTzEditing ||
       firstDayEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
+                    numberingSystemEditing ||
                     statusEditing
                   }
                   onClick={startCurrencyCodeEdit}
@@ -4106,6 +4296,7 @@ defaultTzEditing ||
       firstDayEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
+                    numberingSystemEditing ||
                     statusEditing
                   }
                   onClick={startCurrencyPatternEdit}
@@ -4240,6 +4431,7 @@ defaultTzEditing ||
                     firstDayEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
+                    numberingSystemEditing ||
                     statusEditing
                   }
                   onClick={startFirstDayEdit}
@@ -4371,6 +4563,7 @@ defaultTzEditing ||
                     firstDayEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
+                    numberingSystemEditing ||
                     statusEditing
                   }
                   onClick={startMeasurementEdit}
@@ -4477,6 +4670,7 @@ defaultTzEditing ||
                   disabled={
                     busy ||
                     defaultTzBusy ||
+                    numberingSystemBusy ||
                     measurementBusy ||
                     firstDayBusy ||
                     currencyPatternBusy ||
@@ -4503,6 +4697,7 @@ defaultTzEditing ||
                     firstDayEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
+                    numberingSystemEditing ||
                     statusEditing
                   }
                   onClick={startDefaultTzEdit}
@@ -4515,6 +4710,147 @@ defaultTzEditing ||
                   }}
                 >
                   {LOC_DEFAULT_TZ_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
+
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-loc-set-numbering-system"
+              aria-label={LOC_NUMBERING_SYSTEM_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>
+                {LOC_NUMBERING_SYSTEM_MSG.ACTION}
+              </h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.85rem" }}>
+                {LOC_NUMBERING_SYSTEM_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-loc-set-numbering-system-text"
+                data-loc-numbering-system={numberingSystemShown}
+                style={{ marginTop: 0, fontFamily: "monospace" }}
+              >
+                {numberingSystemShown}
+              </p>
+              {numberingSystemError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-loc-set-numbering-system-error"
+                  style={{ color: catalogColors.error, marginBottom: "8px" }}
+                >
+                  {numberingSystemError}
+                </div>
+              ) : null}
+              {numberingSystemNotice ? (
+                <div
+                  data-testid="developer-loc-set-numbering-system-notice"
+                  style={{ color: "#276749", marginBottom: "8px" }}
+                >
+                  {numberingSystemNotice}
+                </div>
+              ) : null}
+              {numberingSystemEditing ? (
+                <div data-testid="developer-loc-set-numbering-system-editor">
+                  <label htmlFor="loc-set-numbering-system-input">
+                    {LOC_NUMBERING_SYSTEM_MSG.FIELD}
+                  </label>
+                  <input
+                    id="loc-set-numbering-system-input"
+                    data-testid="developer-loc-set-numbering-system-input"
+                    style={inputStyle}
+                    value={numberingSystemDraft}
+                    disabled={numberingSystemBusy}
+                    onChange={(e) => setNumberingSystemDraft(e.target.value)}
+                  />
+                  <div
+                    style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}
+                  >
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-numbering-system-save"
+                      aria-label={LOC_NUMBERING_SYSTEM_MSG.SAVE}
+                      disabled={numberingSystemBusy}
+                      onClick={() => void handleNumberingSystemSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: numberingSystemBusy
+                          ? catalogColors.disabled
+                          : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: numberingSystemBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_NUMBERING_SYSTEM_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-numbering-system-cancel"
+                      disabled={numberingSystemBusy}
+                      onClick={cancelNumberingSystemEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: numberingSystemBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_NUMBERING_SYSTEM_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-loc-set-numbering-system-edit"
+                  aria-label={LOC_NUMBERING_SYSTEM_MSG.ACTION}
+                  disabled={
+                    busy ||
+                    numberingSystemBusy ||
+                    defaultTzBusy ||
+                    measurementBusy ||
+                    firstDayBusy ||
+                    currencyPatternBusy ||
+                    currencyCodeBusy ||
+                    textDirBusy ||
+                    statusBusy ||
+                    groupingSepBusy ||
+                    decimalSepBusy ||
+                    dateTimePatternBusy ||
+                    datePatternBusy ||
+                    timePatternBusy ||
+                    labelBusy ||
+                    descriptionBusy ||
+                    labelEditing ||
+                    descriptionEditing ||
+                    datePatternEditing ||
+                    timePatternEditing ||
+                    dateTimePatternEditing ||
+                    decimalSepEditing ||
+                    groupingSepEditing ||
+                    currencyCodeEditing ||
+                    currencyPatternEditing ||
+                    textDirEditing ||
+                    firstDayEditing ||
+                    measurementEditing ||
+                    defaultTzEditing ||
+                    numberingSystemEditing ||
+                    statusEditing
+                  }
+                  onClick={startNumberingSystemEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {LOC_NUMBERING_SYSTEM_MSG.ACTION}
                 </button>
               )}
             </section>
