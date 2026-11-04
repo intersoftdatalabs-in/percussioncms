@@ -67,6 +67,7 @@ import { DatabaseDeliveryNamePanel } from "../components/DatabaseDeliveryNamePan
 import { DatabaseDeliverySidPanel } from "../components/DatabaseDeliverySidPanel";
 import { DatabaseDeliverySchemaPanel } from "../components/DatabaseDeliverySchemaPanel";
 import { DatabaseDeliveryOwnerPanel } from "../components/DatabaseDeliveryOwnerPanel";
+import { S3DeliveryBucketPanel } from "../components/S3DeliveryBucketPanel";
 import { FtpDeliveryHostPanel } from "../components/FtpDeliveryHostPanel";
 import { FtpDeliveryPortPanel } from "../components/FtpDeliveryPortPanel";
 import { FtpDeliveryUserPanel } from "../components/FtpDeliveryUserPanel";
@@ -901,6 +902,7 @@ export function SiteWorkspace({
             <DatabaseDeliverySidPanel siteId={siteId} serverId={selectedServer} />
             <DatabaseDeliverySchemaPanel siteId={siteId} serverId={selectedServer} />
             <DatabaseDeliveryOwnerPanel siteId={siteId} serverId={selectedServer} />
+            <S3DeliveryBucketPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryHostPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryPortPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryUserPanel siteId={siteId} serverId={selectedServer} />
