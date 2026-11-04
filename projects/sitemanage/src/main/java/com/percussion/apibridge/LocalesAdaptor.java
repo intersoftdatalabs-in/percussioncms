@@ -482,7 +482,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * updates {@code timePattern} the same way. A date-time-pattern-only {@code format}
    * updates {@code dateTimePattern} the same way. A decimal-separator-only {@code format}
    * updates {@code decimalSep} the same way. A grouping-separator-only {@code format}
-   * updates {@code groupingSep} the same way.
+   * updates {@code groupingSep} the same way. A text-direction-only {@code format} updates
+   * {@code textDir} the same way.
    */
   void persistFormatIfRequested(String language, LocaleDetail body) {
     if (body == null || language == null) {
@@ -521,6 +522,10 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     if (isCurrencyCodeOnlyWrite(body)) {
       persistCurrencyCodeOnly(language, src);
+      return;
+    }
+    if (isTextDirOnlyWrite(body)) {
+      persistTextDirOnly(language, src);
       return;
     }
     PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
@@ -597,6 +602,18 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
     row.setCurrencyCode(next);
+    row.setLanguageString(language);
+    formatSaver.accept(row);
+  }
+
+  private void persistTextDirOnly(String language, LocaleFormatSummary src) {
+    Optional<PSLocaleFormat> existing = formatByLang.apply(language);
+    String next = src == null ? null : src.getTextDir();
+    if (existing.isEmpty() && StringUtils.isBlank(next)) {
+      return;
+    }
+    PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
+    row.setTextDir(next);
     row.setLanguageString(language);
     formatSaver.accept(row);
   }
@@ -755,6 +772,33 @@ public class LocalesAdaptor implements ILocalesAdaptor {
         && src.getDateTimePattern() == null
         && src.getDecimalSep() == null
         && src.getGroupingSep() == null
+        && src.getCurrencyPattern() == null
+        && src.getFirstDayOfWeek() == null
+        && src.getMeasurementSystem() == null
+        && src.getDefaultTz() == null
+        && src.getNumberingSystem() == null
+        && src.getCalendar() == null;
+  }
+
+  /**
+   * True when PUT {@code format} carries {@code textDir} (including blank to clear) and omits
+   * {@code hasFormatProfile} plus every other format field. Language on the format object is
+   * ignored.
+   */
+  static boolean isTextDirOnlyWrite(LocaleDetail body) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+      return false;
+    }
+    LocaleFormatSummary src = body.getFormat();
+    if (src.getTextDir() == null) {
+      return false;
+    }
+    return src.getDatePattern() == null
+        && src.getTimePattern() == null
+        && src.getDateTimePattern() == null
+        && src.getDecimalSep() == null
+        && src.getGroupingSep() == null
+        && src.getCurrencyCode() == null
         && src.getCurrencyPattern() == null
         && src.getFirstDayOfWeek() == null
         && src.getMeasurementSystem() == null
