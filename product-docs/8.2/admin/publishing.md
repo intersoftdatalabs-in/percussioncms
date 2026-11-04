@@ -347,6 +347,24 @@ save. Choosing **Set database name** on an Oracle, Local, or FTP server does not
 server's SID, folder, or FTP host. Oracle SID and MSSQL owner saves and full server edit
 (**Edit Server**) stay separate.
 
+### Set an Oracle delivery-server SID (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **Oracle**. **Set Oracle SID** edits only the SID. **Save Oracle SID** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `sid` property. Host, port,
+user id, server name, driver, and default flag stay as they were. The password is not shown and
+is not sent again.
+
+A blank SID is refused on the form (**Oracle SID is required**) and is not written. A SID longer
+than 255 characters is refused the same way. **Cancel** does not call the server and keeps the
+previous SID. HTTP **400**, **403**, and **409** stay on the form and keep the previous SID. The
+new SID is shown only after a successful save.
+
+**MYSQL**, **MSSQL**, **FTP**, **FTPS**, **SFTP**, Amazon S3, and a **Local** driver do not use
+this save. Choosing **Set Oracle SID** on a MySQL, Local, or FTP server does not change that
+server's database name, folder, or FTP host. Database name and MSSQL owner saves and full server
+edit (**Edit Server**) stay separate.
+
 ### Set the FTP delivery-server port (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
