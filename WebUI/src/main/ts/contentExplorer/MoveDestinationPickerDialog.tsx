@@ -18,7 +18,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDialogEscape } from "../architecture/useDialogEscape";
 import { message } from "../i18n/message";
-import { moveDestContainsNul } from "./moveDest";
+import { moveDestContainsNul, moveDestIsBlank } from "./moveDest";
 import { EXPLORER_MSG } from "./messages";
 
 const FOCUSABLE =
@@ -109,10 +109,13 @@ export function MoveDestinationPickerDialog({
             setError(message(EXPLORER_MSG.MOVE_DEST_NUL));
             return;
           }
-          if (trimmed) {
-            setError(null);
-            onPick(trimmed);
+          // Blank or whitespace-only dest stays in the dialog (#5574).
+          if (moveDestIsBlank(value)) {
+            setError(message(EXPLORER_MSG.MOVE_DEST_BLANK));
+            return;
           }
+          setError(null);
+          onPick(trimmed);
         }}
       >
         <h2 id="explorer-move-dest-title" style={{ fontSize: 16, margin: "0 0 12px" }}>
@@ -148,7 +151,7 @@ export function MoveDestinationPickerDialog({
           <button type="button" data-testid="explorer-move-dest-cancel" onClick={onCancel}>
             {message(EXPLORER_MSG.CONFIRM_CANCEL)}
           </button>
-          <button type="submit" data-testid="explorer-move-dest-ok" disabled={!trimmed}>
+          <button type="submit" data-testid="explorer-move-dest-ok">
             {message(EXPLORER_MSG.CONFIRM_OK)}
           </button>
         </div>

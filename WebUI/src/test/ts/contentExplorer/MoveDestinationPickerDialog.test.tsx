@@ -44,6 +44,38 @@ describe("MoveDestinationPickerDialog (#5552)", () => {
     await renderA11yGate(container);
   });
 
+  it("refuses a blank destination before onPick and stays open (#5574)", async () => {
+    const onPick = vi.fn();
+    const onCancel = vi.fn();
+    const { container } = render(
+      <MoveDestinationPickerDialog
+        defaultPath="/Assets"
+        onPick={onPick}
+        onCancel={onCancel}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("explorer-move-dest-input"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
+    expect(onPick).not.toHaveBeenCalled();
+    expect(onCancel).not.toHaveBeenCalled();
+    expect(screen.getByTestId("explorer-move-dest-picker")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-move-dest-error")).toHaveTextContent(
+      /enter a destination folder path/i,
+    );
+    fireEvent.change(screen.getByTestId("explorer-move-dest-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
+    expect(onPick).not.toHaveBeenCalled();
+    expect(screen.getByTestId("explorer-move-dest-picker")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-move-dest-error")).toHaveTextContent(
+      /enter a destination folder path/i,
+    );
+    await renderA11yGate(container);
+  });
+
   it("picks an ordinary destination path", () => {
     const onPick = vi.fn();
     render(

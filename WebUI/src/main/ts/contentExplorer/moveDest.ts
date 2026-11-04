@@ -21,3 +21,8 @@ import { folderNameContainsNul } from "./folderName";
 export function moveDestContainsNul(path: string): boolean {
   return folderNameContainsNul(path);
 }
+
+/** True when the move destination is empty or whitespace-only (#5574). */
+export function moveDestIsBlank(path: string): boolean {
+  return String(path ?? "").trim().length === 0;
+}

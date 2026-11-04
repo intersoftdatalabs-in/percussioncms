@@ -924,6 +924,35 @@ describe("ReducedActions", () => {
     await renderA11yGate(container);
   });
 
+  it("does not move when the destination is blank or whitespace (#5574)", async () => {
+    const { handlers, calls } = makeHandlers();
+    const { container } = render(
+      <ReducedActions
+        item={FOLDER}
+        folder={null}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-move"));
+    fireEvent.change(screen.getByTestId("explorer-move-dest-input"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
+    expect(calls.onMove).toHaveLength(0);
+    expect(screen.getByTestId("explorer-move-dest-picker")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-move-dest-error")).toHaveTextContent(
+      /enter a destination folder path/i,
+    );
+    fireEvent.change(screen.getByTestId("explorer-move-dest-input"), {
+      target: { value: "  " },
+    });
+    fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
+    expect(calls.onMove).toHaveLength(0);
+    expect(screen.getByTestId("explorer-move-dest-picker")).toBeInTheDocument();
+    await renderA11yGate(container);
+  });
+
   it("does not claim success when move HTTP 400, 403, or 409 (#5552)", async () => {
     const { handlers, calls } = makeHandlers();
     const errors: string[] = [];
