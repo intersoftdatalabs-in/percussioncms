@@ -1,7 +1,7 @@
 ---
 id: admin-developer-locales
 title: Developer Locales
-description: Create, save, and delete CMS locales, set a label, description, enabled status, date pattern, time pattern, date-time pattern, decimal separator, grouping separator, currency code, or text direction, edit format profiles, and edit the auto-translation set from Developer Locales chrome
+description: Create, save, and delete CMS locales, set a label, description, enabled status, date pattern, time pattern, date-time pattern, decimal separator, grouping separator, currency code, currency pattern, or text direction, edit format profiles, and edit the auto-translation set from Developer Locales chrome
 version: "8.2"
 order: 43
 tags: [admin, developer, locales]
@@ -77,6 +77,15 @@ separator, grouping separator, or other format fields, so those stay. The
 language string is immutable. The new code shows only after that save
 succeeds. A blank currency code clears the currency code. **Cancel** does not
 write. HTTP 400, 403, and 409 are not success and leave the previous code.
+
+**Set locale currency pattern** on an existing locale saves the currency
+pattern only. The update sends `format.currencyPattern` and does not send the
+language string, label, description, enabled status, date/time patterns,
+separators, currency code, text direction, or other format fields, so those
+stay. The language string is immutable. The new pattern shows only after that
+save succeeds. A blank currency pattern clears the currency pattern. **Cancel**
+does not write. HTTP 400, 403, and 409 are not success and leave the previous
+pattern.
 
 **Set locale text direction** on an existing locale saves the text direction
 only (`ltr` or `rtl`). The update sends `format.textDir` and does not send the
@@ -230,6 +239,23 @@ Admins can also **view and replace** the singleton **auto-translation** set
 5. HTTP 400, 403, and 409 do not show **Locale currency code saved** and do
    not replace the previous code.
 
+## Product path — set a currency pattern
+
+1. Open an existing locale. The committed currency pattern is shown under
+   **Set locale currency pattern**.
+2. Click **Set locale currency pattern**, edit the text, and click **Save
+   currency pattern**. The request is `PUT /services/locales/{idOrLang}` with
+   `format.currencyPattern` only. Reload shows that pattern. The language
+   string, label, description, enabled status, date/time patterns, decimal
+   separator, grouping separator, currency code, text direction, and other
+   format fields are unchanged.
+3. A blank currency pattern clears the stored currency pattern. The same
+   pattern is not written.
+4. Click **Cancel** before save to keep the previous pattern. Cancel does
+   not call the server.
+5. HTTP 400, 403, and 409 do not show **Locale currency pattern saved** and
+   do not replace the previous pattern.
+
 ## Product path — set a text direction
 
 1. Open an existing locale. The committed text direction is shown under
@@ -336,6 +362,7 @@ The chrome calls:
 | Set decimal separator | `PUT /services/locales/{idOrLang}` (`format.decimalSep` only; a blank value clears; language, label, description, enabled status, date/time patterns, grouping separator, and other format fields are omitted and stay) |
 | Set grouping separator | `PUT /services/locales/{idOrLang}` (`format.groupingSep` only; a blank value clears; language, label, description, enabled status, date/time patterns, decimal separator, and other format fields are omitted and stay) |
 | Set currency code | `PUT /services/locales/{idOrLang}` (`format.currencyCode` only; a blank value clears; language, label, description, enabled status, date/time patterns, separators, and other format fields are omitted and stay) |
+| Set currency pattern | `PUT /services/locales/{idOrLang}` (`format.currencyPattern` only; a blank value clears; language, label, description, enabled status, date/time patterns, separators, currency code, text direction, and other format fields are omitted and stay) |
 | Set text direction | `PUT /services/locales/{idOrLang}` (`format.textDir` only; `ltr`, `rtl`, or a blank value that clears; language, label, description, enabled status, date/time patterns, separators, currency fields, and other format fields are omitted and stay) |
 | Set enabled status | `PUT /services/locales/{idOrLang}` (`status` only; `active` or `inactive`; language, label, description, and format are omitted and stay) |
 | Delete | `DELETE /services/locales/{idOrLang}` (`204` on success) |

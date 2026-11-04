@@ -74,6 +74,12 @@ import {
 } from "./localeCurrencyCode";
 import { LOC_CURRENCY_MSG } from "./localeCurrencyCodeMessages";
 import {
+  localeCurrencyPatternWrite,
+  savedLocaleCurrencyPattern,
+  storedLocaleCurrencyPattern,
+} from "./localeCurrencyPattern";
+import { LOC_CUR_PAT_MSG } from "./localeCurrencyPatternMessages";
+import {
   localeTextDirWrite,
   savedLocaleTextDir,
   storedLocaleTextDir,
@@ -244,6 +250,12 @@ export function LocaleDetailPanel({
   const [currencyCodeError, setCurrencyCodeError] = useState<string | null>(null);
   const [currencyCodeNotice, setCurrencyCodeNotice] = useState<string | null>(null);
   const [currencyCodeBusy, setCurrencyCodeBusy] = useState(false);
+  const [currencyPatternShown, setCurrencyPatternShown] = useState("");
+  const [currencyPatternDraft, setCurrencyPatternDraft] = useState("");
+  const [currencyPatternEditing, setCurrencyPatternEditing] = useState(false);
+  const [currencyPatternError, setCurrencyPatternError] = useState<string | null>(null);
+  const [currencyPatternNotice, setCurrencyPatternNotice] = useState<string | null>(null);
+  const [currencyPatternBusy, setCurrencyPatternBusy] = useState(false);
   const [textDirShown, setTextDirShown] = useState("");
   const [textDirDraft, setTextDirDraft] = useState("");
   const [textDirEditing, setTextDirEditing] = useState(false);
@@ -274,6 +286,7 @@ export function LocaleDetailPanel({
   const decimalSepInflight = useRef(false);
   const groupingSepInflight = useRef(false);
   const currencyCodeInflight = useRef(false);
+  const currencyPatternInflight = useRef(false);
   const textDirInflight = useRef(false);
   const statusInflight = useRef(false);
 
@@ -333,6 +346,11 @@ export function LocaleDetailPanel({
         setCurrencyCodeEditing(false);
         setCurrencyCodeError(null);
         setCurrencyCodeNotice(null);
+        setCurrencyPatternShown(storedLocaleCurrencyPattern(d.format?.currencyPattern));
+        setCurrencyPatternDraft("");
+        setCurrencyPatternEditing(false);
+        setCurrencyPatternError(null);
+        setCurrencyPatternNotice(null);
         setTextDirShown(storedLocaleTextDir(d.format?.textDir));
         setTextDirDraft("");
         setTextDirEditing(false);
@@ -377,6 +395,8 @@ export function LocaleDetailPanel({
     !groupingSepEditing &&
     !currencyCodeBusy &&
     !currencyCodeEditing &&
+    !currencyPatternBusy &&
+    !currencyPatternEditing &&
     !textDirBusy &&
     !textDirEditing &&
     !statusBusy &&
@@ -463,6 +483,13 @@ export function LocaleDetailPanel({
     return LOC_CURRENCY_MSG.ERROR;
   }
 
+  function currencyPatternSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return LOC_CUR_PAT_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return LOC_CUR_PAT_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return LOC_CUR_PAT_MSG.CONFLICT;
+    return LOC_CUR_PAT_MSG.ERROR;
+  }
+
   function textDirSaveFallback(err: unknown): string {
     if (isApiError(err) && err.status === 400) return LOC_TEXT_DIR_MSG.INVALID;
     if (isApiError(err) && err.status === 403) return LOC_TEXT_DIR_MSG.FORBIDDEN;
@@ -488,6 +515,7 @@ export function LocaleDetailPanel({
       decimalSepBusy ||
       groupingSepBusy ||
       currencyCodeBusy ||
+      currencyPatternBusy ||
       textDirBusy ||
       statusBusy ||
       labelInflight.current ||
@@ -498,6 +526,7 @@ export function LocaleDetailPanel({
       decimalSepInflight.current ||
       groupingSepInflight.current ||
       currencyCodeInflight.current ||
+      currencyPatternInflight.current ||
       textDirInflight.current ||
       statusInflight.current ||
       inflight.current
@@ -516,6 +545,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -606,6 +636,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -638,6 +669,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -700,6 +732,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -732,6 +765,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -803,6 +837,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -835,6 +870,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -906,6 +942,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -938,6 +975,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -1009,6 +1047,7 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -1041,6 +1080,7 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -1112,6 +1152,7 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       decimalSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -1144,6 +1185,7 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       decimalSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -1215,6 +1257,7 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       decimalSepEditing ||
       groupingSepEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -1239,6 +1282,7 @@ export function LocaleDetailPanel({
       !detail ||
       !writeKey ||
       !currencyCodeEditing ||
+      currencyPatternEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -1247,6 +1291,7 @@ export function LocaleDetailPanel({
       dateTimePatternEditing ||
       decimalSepEditing ||
       groupingSepEditing ||
+      currencyPatternEditing ||
       textDirEditing ||
       statusEditing
     ) {
@@ -1306,6 +1351,112 @@ export function LocaleDetailPanel({
     }
   }
 
+
+  function startCurrencyPatternEdit(): void {
+    if (
+      isNew ||
+      !detail ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing ||
+      textDirEditing ||
+      statusEditing
+    ) {
+      return;
+    }
+    setCurrencyPatternDraft(currencyPatternShown);
+    setCurrencyPatternError(null);
+    setCurrencyPatternNotice(null);
+    setCurrencyPatternEditing(true);
+  }
+
+  function cancelCurrencyPatternEdit(): void {
+    if (currencyPatternBusy || currencyPatternInflight.current) return;
+    setCurrencyPatternEditing(false);
+    setCurrencyPatternDraft("");
+    setCurrencyPatternError(null);
+  }
+
+  async function handleCurrencyPatternSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !currencyPatternEditing ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing ||
+      textDirEditing ||
+      statusEditing
+    ) {
+      return;
+    }
+    const sent = localeCurrencyPatternWrite(detail, currencyPatternDraft);
+    if (sent === "unchanged") {
+      setCurrencyPatternEditing(false);
+      setCurrencyPatternDraft("");
+      setCurrencyPatternError(null);
+      return;
+    }
+    currencyPatternInflight.current = true;
+    setCurrencyPatternBusy(true);
+    setBusy(true);
+    setCurrencyPatternError(null);
+    setCurrencyPatternNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = currencyPatternShown;
+    try {
+      const saved = await updateLocale(writeKey, sent);
+      const accepted = savedLocaleCurrencyPattern(sent, detail, saved);
+      if (accepted == null) {
+        setCurrencyPatternShown(previousShown);
+        setFmt((prev) => ({ ...prev, currencyPattern: previousShown }));
+        setCurrencyPatternError(LOC_CUR_PAT_MSG.ERROR);
+        setCurrencyPatternNotice(null);
+        return;
+      }
+      const nextFormat: LocaleFormatSummary = {
+        ...(detail.format || {}),
+        currencyPattern: accepted,
+      };
+      const nextDetail: LocaleDetail = {
+        ...detail,
+        hasFormatProfile: true,
+        format: nextFormat,
+      };
+      setDetail(nextDetail);
+      setCurrencyPatternShown(accepted);
+      setFmt((prev) => ({ ...prev, currencyPattern: accepted }));
+      setStoreFormat(true);
+      setCurrencyPatternEditing(false);
+      setCurrencyPatternDraft("");
+      setCurrencyPatternNotice(accepted ? LOC_CUR_PAT_MSG.SAVED : LOC_CUR_PAT_MSG.CLEARED);
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setCurrencyPatternShown(previousShown);
+      setFmt((prev) => ({ ...prev, currencyPattern: previousShown }));
+      setCurrencyPatternError(panelErrMsg(err, currencyPatternSaveFallback(err)));
+      setCurrencyPatternNotice(null);
+    } finally {
+      currencyPatternInflight.current = false;
+      setCurrencyPatternBusy(false);
+      setBusy(false);
+    }
+  }
+
   function startTextDirEdit(): void {
     if (
       isNew ||
@@ -1319,6 +1470,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       statusEditing
     ) {
       return;
@@ -1351,6 +1503,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       statusEditing
     ) {
       return;
@@ -1427,6 +1580,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing
     ) {
       return;
@@ -1459,6 +1613,7 @@ export function LocaleDetailPanel({
       decimalSepEditing ||
       groupingSepEditing ||
       currencyCodeEditing ||
+      currencyPatternEditing ||
       textDirEditing
     ) {
       return;
@@ -1525,6 +1680,7 @@ export function LocaleDetailPanel({
       decimalSepInflight.current ||
       groupingSepInflight.current ||
       currencyCodeInflight.current ||
+      currencyPatternInflight.current ||
       textDirInflight.current ||
       statusInflight.current
     ) {
@@ -1589,6 +1745,11 @@ export function LocaleDetailPanel({
       setCurrencyCodeEditing(false);
       setCurrencyCodeError(null);
       setCurrencyCodeNotice(null);
+      setCurrencyPatternShown(storedLocaleCurrencyPattern(saved.format?.currencyPattern));
+      setCurrencyPatternDraft("");
+      setCurrencyPatternEditing(false);
+      setCurrencyPatternError(null);
+      setCurrencyPatternNotice(null);
       setTextDirShown(storedLocaleTextDir(saved.format?.textDir));
       setTextDirDraft("");
       setTextDirEditing(false);
@@ -1811,6 +1972,7 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    currencyPatternBusy ||
                     textDirBusy ||
                     statusBusy ||
                     descriptionEditing ||
@@ -1820,6 +1982,7 @@ export function LocaleDetailPanel({
                     decimalSepEditing ||
                     groupingSepEditing ||
                     currencyCodeEditing ||
+                    currencyPatternEditing ||
                     textDirEditing ||
                     statusEditing
                   }
@@ -1943,6 +2106,7 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    currencyPatternBusy ||
                     textDirBusy ||
                     statusBusy ||
                     labelEditing ||
@@ -1952,6 +2116,7 @@ export function LocaleDetailPanel({
                     decimalSepEditing ||
                     groupingSepEditing ||
                     currencyCodeEditing ||
+                    currencyPatternEditing ||
                     textDirEditing ||
                     statusEditing
                   }
@@ -2075,6 +2240,7 @@ export function LocaleDetailPanel({
                     busy ||
                     statusBusy ||
                     currencyCodeBusy ||
+                    currencyPatternBusy ||
                     textDirBusy ||
                     groupingSepBusy ||
                     decimalSepBusy ||
@@ -2091,6 +2257,7 @@ export function LocaleDetailPanel({
                     decimalSepEditing ||
                     groupingSepEditing ||
                     currencyCodeEditing ||
+                    currencyPatternEditing ||
                     textDirEditing
                   }
                   onClick={startEnabledStatusEdit}
@@ -2472,6 +2639,7 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    currencyPatternBusy ||
                     textDirBusy ||
                     statusBusy ||
                     labelBusy ||
@@ -2483,6 +2651,7 @@ export function LocaleDetailPanel({
                     decimalSepEditing ||
                     groupingSepEditing ||
                     currencyCodeEditing ||
+                    currencyPatternEditing ||
                     textDirEditing ||
                     statusEditing
                   }
@@ -2593,6 +2762,7 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    currencyPatternBusy ||
                     textDirBusy ||
                     statusBusy ||
                     labelBusy ||
@@ -2604,6 +2774,7 @@ export function LocaleDetailPanel({
                     decimalSepEditing ||
                     groupingSepEditing ||
                     currencyCodeEditing ||
+                    currencyPatternEditing ||
                     textDirEditing ||
                     statusEditing
                   }
@@ -2714,6 +2885,7 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    currencyPatternBusy ||
                     textDirBusy ||
                     statusBusy ||
                     datePatternBusy ||
@@ -2727,6 +2899,7 @@ export function LocaleDetailPanel({
                     decimalSepEditing ||
                     groupingSepEditing ||
                     currencyCodeEditing ||
+                    currencyPatternEditing ||
                     textDirEditing ||
                     statusEditing
                   }
@@ -2843,6 +3016,7 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    currencyPatternBusy ||
                     statusBusy ||
                     dateTimePatternBusy ||
                     datePatternBusy ||
@@ -2857,6 +3031,7 @@ export function LocaleDetailPanel({
                     decimalSepEditing ||
                     groupingSepEditing ||
                     currencyCodeEditing ||
+                    currencyPatternEditing ||
                     statusEditing
                   }
                   onClick={startTextDirEdit}
@@ -2963,6 +3138,7 @@ export function LocaleDetailPanel({
                     decimalSepBusy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    currencyPatternBusy ||
                     textDirBusy ||
                     statusBusy ||
                     dateTimePatternBusy ||
@@ -2977,6 +3153,7 @@ export function LocaleDetailPanel({
                     dateTimePatternEditing ||
                     groupingSepEditing ||
                     currencyCodeEditing ||
+                    currencyPatternEditing ||
                     textDirEditing ||
                     statusEditing
                   }
@@ -3083,6 +3260,7 @@ export function LocaleDetailPanel({
                     busy ||
                     groupingSepBusy ||
                     currencyCodeBusy ||
+                    currencyPatternBusy ||
                     textDirBusy ||
                     statusBusy ||
                     decimalSepBusy ||
@@ -3098,6 +3276,7 @@ export function LocaleDetailPanel({
                     dateTimePatternEditing ||
                     decimalSepEditing ||
                     currencyCodeEditing ||
+                    currencyPatternEditing ||
                     textDirEditing ||
                     statusEditing
                   }
@@ -3203,6 +3382,7 @@ export function LocaleDetailPanel({
                   disabled={
                     busy ||
                     currencyCodeBusy ||
+                    currencyPatternBusy ||
                     textDirBusy ||
                     statusBusy ||
                     groupingSepBusy ||
@@ -3219,6 +3399,7 @@ export function LocaleDetailPanel({
                     dateTimePatternEditing ||
                     decimalSepEditing ||
                     groupingSepEditing ||
+                    currencyPatternEditing ||
                     textDirEditing ||
                     statusEditing
                   }
@@ -3232,6 +3413,131 @@ export function LocaleDetailPanel({
                   }}
                 >
                   {LOC_CURRENCY_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
+
+
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-loc-set-currency-pattern"
+              aria-label={LOC_CUR_PAT_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>{LOC_CUR_PAT_MSG.ACTION}</h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.85rem" }}>
+                {LOC_CUR_PAT_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-loc-set-currency-pattern-text"
+                data-loc-currency-pattern={currencyPatternShown}
+                style={{ marginTop: 0, fontFamily: "monospace" }}
+              >
+                {currencyPatternShown}
+              </p>
+              {currencyPatternError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-loc-set-currency-pattern-error"
+                  style={{ color: catalogColors.error, marginBottom: "8px" }}
+                >
+                  {currencyPatternError}
+                </div>
+              ) : null}
+              {currencyPatternNotice ? (
+                <div
+                  data-testid="developer-loc-set-currency-pattern-notice"
+                  style={{ color: "#276749", marginBottom: "8px" }}
+                >
+                  {currencyPatternNotice}
+                </div>
+              ) : null}
+              {currencyPatternEditing ? (
+                <div data-testid="developer-loc-set-currency-pattern-editor">
+                  <label htmlFor="loc-set-currency-pattern-input">{LOC_CUR_PAT_MSG.FIELD}</label>
+                  <input
+                    id="loc-set-currency-pattern-input"
+                    data-testid="developer-loc-set-currency-pattern-input"
+                    style={{ ...inputStyle, fontFamily: "monospace" }}
+                    value={currencyPatternDraft}
+                    disabled={currencyPatternBusy}
+                    onChange={(e) => setCurrencyPatternDraft(e.target.value)}
+                  />
+                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-currency-pattern-save"
+                      aria-label={LOC_CUR_PAT_MSG.SAVE}
+                      disabled={currencyPatternBusy}
+                      onClick={() => void handleCurrencyPatternSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: currencyPatternBusy ? catalogColors.disabled : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: currencyPatternBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_CUR_PAT_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-currency-pattern-cancel"
+                      disabled={currencyPatternBusy}
+                      onClick={cancelCurrencyPatternEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: currencyPatternBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_CUR_PAT_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-loc-set-currency-pattern-edit"
+                  aria-label={LOC_CUR_PAT_MSG.ACTION}
+                  disabled={
+                    busy ||
+                    currencyPatternBusy ||
+                    currencyCodeBusy ||
+                    textDirBusy ||
+                    statusBusy ||
+                    groupingSepBusy ||
+                    decimalSepBusy ||
+                    dateTimePatternBusy ||
+                    datePatternBusy ||
+                    timePatternBusy ||
+                    labelBusy ||
+                    descriptionBusy ||
+                    labelEditing ||
+                    descriptionEditing ||
+                    datePatternEditing ||
+                    timePatternEditing ||
+                    dateTimePatternEditing ||
+                    decimalSepEditing ||
+                    groupingSepEditing ||
+                    currencyCodeEditing ||
+                    textDirEditing ||
+                    statusEditing
+                  }
+                  onClick={startCurrencyPatternEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {LOC_CUR_PAT_MSG.ACTION}
                 </button>
               )}
             </section>
