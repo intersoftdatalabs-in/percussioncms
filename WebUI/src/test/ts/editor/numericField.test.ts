@@ -18,6 +18,8 @@
 import { describe, expect, it } from "vitest";
 import {
   collectInvalidNumericFieldErrors,
+  collectNumberNulFieldErrors,
+  numberContainsNul,
   numericFieldProblem,
   numericMetaForSchema,
 } from "../../../main/ts/editor/numericField";
@@ -77,6 +79,33 @@ describe("numericMetaForSchema", () => {
       }),
     ).toEqual({ integer: false, minimum: "0", maximum: "2" });
     expect(numericMetaForSchema({ control: "sys_EditBox", dataType: "text" })).toBeNull();
+  });
+});
+
+describe("numberContainsNul", () => {
+  it("rejects an embedded NUL and accepts a valid integer or empty clear", () => {
+    expect(numberContainsNul("4")).toBe(false);
+    expect(numberContainsNul("")).toBe(false);
+    expect(numberContainsNul("   ")).toBe(false);
+    expect(numberContainsNul("4\u0000")).toBe(true);
+    expect(numberContainsNul("\u0000")).toBe(true);
+  });
+});
+
+describe("collectNumberNulFieldErrors", () => {
+  it("flags only whole-number rows and leaves float NUL and empty required for other gates", () => {
+    expect(
+      collectNumberNulFieldErrors(
+        [
+          { name: "qty", kind: "number", value: "4\u0000", numericInteger: true },
+          { name: "ok", kind: "number", value: "4", numericInteger: true },
+          { name: "empty", kind: "number", value: "", numericInteger: true },
+          { name: "rate", kind: "number", value: "1.5\u0000", numericInteger: false },
+          { name: "title", kind: "text", value: "z\u0000" },
+        ],
+        "cannot save",
+      ),
+    ).toEqual({ qty: "cannot save" });
   });
 });
 
