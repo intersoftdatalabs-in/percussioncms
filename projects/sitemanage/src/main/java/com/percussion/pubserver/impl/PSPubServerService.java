@@ -425,6 +425,12 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSDatabaseDeliveryOwnerUpdate.isOwnerOnly(pubServerInfo)) {
         return updateMssqlOwnerOnly(siteId, serverId, pubServerInfo);
       }
+      // S3 bucket-only PUT must not run the full property replace (that clears region,
+      // access key, secret key, driver, and name) and must not decode secrets that
+      // are not in the body.
+      if (PSAmazonS3DeliveryBucketUpdate.isBucketOnly(pubServerInfo)) {
+        return updateS3BucketOnly(siteId, serverId, pubServerInfo);
+      }
       // Folder-only PUT must not run the full property replace. A blank folder
       // clears only the stored folder. Local and FTP share this body shape; the
       // stored driver selects Local vs FTP apply.
@@ -831,6 +837,31 @@ public class PSPubServerService implements IPSPubServerService {
           "The server you are trying to act on no longer exists in the system.");
     }
     PSDatabaseDeliveryOwnerUpdate.apply(server, pubServerInfo);
+    pubServerDao.savePubServer(server);
+    return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Save only the Amazon S3 {@code bucketlocation} property. Does not rename the server or
+   * replace the property set. Blank, overlong, and non-S3 drivers throw before {@code
+   * savePubServer}. Access key and secret key are not decoded from this body.
+   */
+  private PSPublishServerInfo updateS3BucketOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    PSAmazonS3DeliveryBucketUpdate.apply(server, pubServerInfo);
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
