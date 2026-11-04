@@ -40,6 +40,7 @@ class PSDatabaseDeliveryOwnerUpdateTest {
     assertTrue(PSDatabaseDeliveryOwnerUpdate.isOwnerOnly(ownerOnly("dbo2")));
     assertFalse(PSDatabaseDeliveryDatabaseNameUpdate.isDatabaseNameOnly(ownerOnly("dbo2")));
     assertFalse(PSDatabaseDeliverySidUpdate.isSidOnly(ownerOnly("dbo2")));
+    assertFalse(PSDatabaseDeliverySchemaUpdate.isSchemaOnly(ownerOnly("dbo2")));
     assertFalse(PSDatabaseDeliveryHostUpdate.isHostOnly(ownerOnly("dbo2")));
     assertFalse(PSDatabaseDeliveryPortUpdate.isPortOnly(ownerOnly("dbo2")));
     assertFalse(PSDatabaseDeliveryUserUpdate.isUserOnly(ownerOnly("dbo2")));
