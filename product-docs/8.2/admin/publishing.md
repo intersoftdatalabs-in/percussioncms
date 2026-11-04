@@ -312,6 +312,23 @@ after a successful save.
 **Set port** on a Local or FTP server does not change that server's folder or FTP port. Database
 host and user-id saves and full server edit (**Edit Server**) stay separate.
 
+### Set a database delivery-server user id (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **MYSQL**, **MSSQL**, or **Oracle**. **Set user id** edits only the database user id.
+**Save user id** sends `PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the
+`userid` property. Host, port, database name (or Oracle SID), server name, driver, and default
+flag stay as they were. The password is not shown and is not sent again.
+
+A blank user id is refused on the form (**Database user id is required**) and is not written. A
+user id longer than 255 characters is refused the same way. **Cancel** does not call the server
+and keeps the previous user id. HTTP **400**, **403**, and **409** stay on the form and keep the
+previous user id. The new user id is shown only after a successful save.
+
+**FTP**, **FTPS**, **SFTP**, Amazon S3, and a **Local** driver do not use this save. Choosing
+**Set user id** on a Local or FTP server does not change that server's folder or FTP user id.
+Database host and port saves and full server edit (**Edit Server**) stay separate.
+
 ### Set the FTP delivery-server port (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose

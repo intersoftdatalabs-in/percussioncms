@@ -62,6 +62,7 @@ import { SiteDescriptionPanel } from "../components/SiteDescriptionPanel";
 import { SiteProtocolPanel } from "../components/SiteProtocolPanel";
 import { DatabaseDeliveryHostPanel } from "../components/DatabaseDeliveryHostPanel";
 import { DatabaseDeliveryPortPanel } from "../components/DatabaseDeliveryPortPanel";
+import { DatabaseDeliveryUserPanel } from "../components/DatabaseDeliveryUserPanel";
 import { FtpDeliveryHostPanel } from "../components/FtpDeliveryHostPanel";
 import { FtpDeliveryPortPanel } from "../components/FtpDeliveryPortPanel";
 import { FtpDeliveryUserPanel } from "../components/FtpDeliveryUserPanel";
@@ -891,6 +892,7 @@ export function SiteWorkspace({
             />
             <DatabaseDeliveryHostPanel siteId={siteId} serverId={selectedServer} />
             <DatabaseDeliveryPortPanel siteId={siteId} serverId={selectedServer} />
+            <DatabaseDeliveryUserPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryHostPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryPortPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryUserPanel siteId={siteId} serverId={selectedServer} />
