@@ -122,6 +122,7 @@ export const EXPLORER_MSG = {
   COPY_DEST_LABEL: "perc.ui.explorer@Destination folder path",
   COPY_DEST_NUL:
     "perc.ui.explorer@That destination path contains a character that cannot be stored",
+  COPY_DEST_BLANK: "perc.ui.explorer@Enter a destination folder path",
   ACTION_COPY_NOT_FOUND:
     "perc.ui.explorer@The selected item or destination folder was not found",
   MULTI_COPY: "perc.ui.explorer@Copy selected to folder",

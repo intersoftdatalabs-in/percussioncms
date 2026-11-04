@@ -44,6 +44,38 @@ describe("CopyDestinationPickerDialog (#5551)", () => {
     await renderA11yGate(container);
   });
 
+  it("refuses a blank destination before onPick and stays open (#5553)", async () => {
+    const onPick = vi.fn();
+    const onCancel = vi.fn();
+    const { container } = render(
+      <CopyDestinationPickerDialog
+        defaultPath="/Assets"
+        onPick={onPick}
+        onCancel={onCancel}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
+    expect(onPick).not.toHaveBeenCalled();
+    expect(onCancel).not.toHaveBeenCalled();
+    expect(screen.getByTestId("explorer-copy-dest-picker")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-copy-dest-error")).toHaveTextContent(
+      /enter a destination folder path/i,
+    );
+    fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
+    expect(onPick).not.toHaveBeenCalled();
+    expect(screen.getByTestId("explorer-copy-dest-picker")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-copy-dest-error")).toHaveTextContent(
+      /enter a destination folder path/i,
+    );
+    await renderA11yGate(container);
+  });
+
   it("picks an ordinary destination path", () => {
     const onPick = vi.fn();
     render(
