@@ -15,6 +15,7 @@ import { LOC_DATETIME_MSG } from "../../../main/ts/developer/localeDateTimePatte
 import { LOC_DECIMAL_MSG } from "../../../main/ts/developer/localeDecimalSepMessages";
 import { LOC_CURRENCY_MSG } from "../../../main/ts/developer/localeCurrencyCodeMessages";
 import { LOC_STATUS_MSG } from "../../../main/ts/developer/localeEnabledStatusMessages";
+import { LOC_TEXT_DIR_MSG } from "../../../main/ts/developer/localeTextDirMessages";
 import { LOC_GROUPING_MSG } from "../../../main/ts/developer/localeGroupingSepMessages";
 import { LOC_TIME_MSG } from "../../../main/ts/developer/localeTimePatternMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
@@ -376,6 +377,9 @@ describe("LocaleDetailPanel", () => {
         format: expect.objectContaining({ datePattern: "yyyy-MM-dd", textDir: "ltr" }),
       }),
     );
+    expect(
+      screen.getByTestId("developer-loc-set-text-dir-text").getAttribute("data-loc-text-dir"),
+    ).toBe("ltr");
   });
 
   it("clears format profile when store-format is unchecked", async () => {
@@ -1745,6 +1749,174 @@ describe("LocaleDetailPanel", () => {
       "USD",
     );
     expect((screen.getByTestId("developer-loc-fmt-grouping") as HTMLInputElement).value).toBe(",");
+  });
+
+  it("sets the text direction only after success and leaves language, label, description, status, and other format fields", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      format: { ...sampleDetail.format, textDir: "rtl" },
+    });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("developer-loc-set-text-dir-text").getAttribute("data-loc-text-dir"),
+      ).toBe("ltr");
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-edit"));
+    fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-text-dir-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-text-dir-input"), {
+      target: { value: "rtl" },
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-text-dir-text").getAttribute("data-loc-text-dir"),
+    ).toBe("ltr");
+    fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-loc-set-text-dir-text").getAttribute("data-loc-text-dir"),
+    ).toBe("ltr");
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-text-dir-input"), {
+      target: { value: "rtl" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", {
+      format: { textDir: "rtl" },
+    });
+    const sent = updateLocale.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty("languageString");
+    expect(sent).not.toHaveProperty("label");
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("status");
+    expect(sent).not.toHaveProperty("hasFormatProfile");
+    expect(
+      screen.getByTestId("developer-loc-set-text-dir-text").getAttribute("data-loc-text-dir"),
+    ).toBe("rtl");
+    expect((screen.getByTestId("developer-loc-fmt-dir") as HTMLSelectElement).value).toBe("rtl");
+    expect(screen.getByTestId("developer-loc-set-text-dir-notice").textContent).toBe(
+      LOC_TEXT_DIR_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe(
+      "US English",
+    );
+    expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-time") as HTMLInputElement).value).toBe(
+      "HH:mm:ss",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-datetime") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy HH:mm:ss",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-decimal") as HTMLInputElement).value).toBe(".");
+    expect((screen.getByTestId("developer-loc-fmt-grouping") as HTMLInputElement).value).toBe(",");
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
+  });
+
+  it("clears a blank text direction and keeps the previous direction on 400, 403, and 409", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      format: { ...sampleDetail.format, textDir: "" },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-text-dir-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-text-dir-input"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-text-dir-notice").textContent).toBe(
+        LOC_TEXT_DIR_MSG.CLEARED,
+      );
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", { format: { textDir: "" } });
+    expect(
+      screen.getByTestId("developer-loc-set-text-dir-text").getAttribute("data-loc-text-dir"),
+    ).toBe("");
+    expect((screen.getByTestId("developer-loc-fmt-dir") as HTMLSelectElement).value).toBe("");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-decimal") as HTMLInputElement).value).toBe(".");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+
+    for (const status of [400, 403, 409]) {
+      updateLocale.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-edit"));
+      fireEvent.change(screen.getByTestId("developer-loc-set-text-dir-input"), {
+        target: { value: "rtl" },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-loc-set-text-dir-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(
+        screen.getByTestId("developer-loc-set-text-dir-text").getAttribute("data-loc-text-dir"),
+      ).toBe("");
+      expect((screen.getByTestId("developer-loc-fmt-dir") as HTMLSelectElement).value).toBe("");
+      expect(screen.queryByTestId("developer-loc-set-text-dir-notice")).toBeNull();
+      fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-cancel"));
+    }
+  });
+
+  it("does not show a text direction when the update changes the label or other format fields", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      label: "Renamed",
+      format: {
+        ...sampleDetail.format,
+        textDir: "rtl",
+        decimalSep: ",",
+      },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-text-dir-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-text-dir-input"), {
+      target: { value: "rtl" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-text-dir-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-text-dir-error").textContent).toContain(
+        LOC_TEXT_DIR_MSG.ERROR,
+      );
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-text-dir-text").getAttribute("data-loc-text-dir"),
+    ).toBe("ltr");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-dir") as HTMLSelectElement).value).toBe("ltr");
+    expect((screen.getByTestId("developer-loc-fmt-decimal") as HTMLInputElement).value).toBe(".");
   });
 
   it("sets enabled status only after success and leaves language, label, description, and format", async () => {
