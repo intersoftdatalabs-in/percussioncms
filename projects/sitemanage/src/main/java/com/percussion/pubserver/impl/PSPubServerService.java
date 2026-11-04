@@ -413,6 +413,12 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSDatabaseDeliverySidUpdate.isSidOnly(pubServerInfo)) {
         return updateOracleSidOnly(siteId, serverId, pubServerInfo);
       }
+      // MSSQL owner-only PUT must not run the full property replace (that clears host, port,
+      // user, driver, database, and password) and must not decode a password that is not
+      // in the body.
+      if (PSDatabaseDeliveryOwnerUpdate.isOwnerOnly(pubServerInfo)) {
+        return updateMssqlOwnerOnly(siteId, serverId, pubServerInfo);
+      }
       // Folder-only PUT must not run the full property replace. A blank folder
       // clears only the stored folder. Local and FTP share this body shape; the
       // stored driver selects Local vs FTP apply.
@@ -771,6 +777,30 @@ public class PSPubServerService implements IPSPubServerService {
           "The server you are trying to act on no longer exists in the system.");
     }
     PSDatabaseDeliverySidUpdate.apply(server, pubServerInfo);
+    pubServerDao.savePubServer(server);
+    return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Save only the MSSQL {@code owner} property. Does not rename the server or replace the
+   * property set. Blank, overlong, and non-MSSQL drivers throw before {@code savePubServer}.
+   */
+  private PSPublishServerInfo updateMssqlOwnerOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    PSDatabaseDeliveryOwnerUpdate.apply(server, pubServerInfo);
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }

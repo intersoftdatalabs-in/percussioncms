@@ -365,6 +365,24 @@ this save. Choosing **Set Oracle SID** on a MySQL, Local, or FTP server does not
 server's database name, folder, or FTP host. Database name and MSSQL owner saves and full server
 edit (**Edit Server**) stay separate.
 
+### Set an MSSQL delivery-server owner (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **MSSQL**. **Set MSSQL owner** edits only the owner. **Save MSSQL owner** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `owner` property. Host, port,
+user id, database name, server name, driver, and default flag stay as they were. The password is
+not shown and is not sent again.
+
+A blank owner is refused on the form (**MSSQL owner is required**) and is not written. An owner
+longer than 255 characters is refused the same way. **Cancel** does not call the server and
+keeps the previous owner. HTTP **400**, **403**, and **409** stay on the form and keep the
+previous owner. The new owner is shown only after a successful save.
+
+**MYSQL**, **Oracle**, **FTP**, **FTPS**, **SFTP**, Amazon S3, and a **Local** driver do not use
+this save. Choosing **Set MSSQL owner** on a MySQL, Oracle, Local, or FTP server does not change
+that server's database name, SID, folder, or FTP host. Database name, Oracle SID, and full
+server edit (**Edit Server**) stay separate.
+
 ### Set the FTP delivery-server port (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose

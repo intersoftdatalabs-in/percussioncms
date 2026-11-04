@@ -39,6 +39,7 @@ class PSDatabaseDeliverySidUpdateTest {
   void sidOnlyBodyIsOnlySid() {
     assertTrue(PSDatabaseDeliverySidUpdate.isSidOnly(sidOnly("ORCL2")));
     assertFalse(PSDatabaseDeliveryDatabaseNameUpdate.isDatabaseNameOnly(sidOnly("ORCL2")));
+    assertFalse(PSDatabaseDeliveryOwnerUpdate.isOwnerOnly(sidOnly("ORCL2")));
     assertFalse(PSDatabaseDeliveryHostUpdate.isHostOnly(sidOnly("ORCL2")));
     assertFalse(PSDatabaseDeliveryPortUpdate.isPortOnly(sidOnly("ORCL2")));
     assertFalse(PSDatabaseDeliveryUserUpdate.isUserOnly(sidOnly("ORCL2")));
