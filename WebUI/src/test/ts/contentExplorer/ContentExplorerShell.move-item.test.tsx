@@ -198,4 +198,63 @@ describe("ContentExplorerShell move item (#4601)", () => {
     expect(screen.getByTestId("detail-row-a-4601-src")).toBeInTheDocument();
     await renderA11yGate(container);
   });
+
+  it("does not POST move/item when the destination is blank (#5574)", async () => {
+    const moveUrls: string[] = [];
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/folders/move/")) {
+        moveUrls.push(url);
+        return new Response(JSON.stringify({ message: "Moved OK" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      const kids = [SOURCE_ITEM, DEST_FOLDER, SRC_FOLDER];
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: kids,
+              childrenCount: kids.length,
+              startIndex: 0,
+            },
+            PathItem: kids,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Assets/qa4601_src"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadWorkflowMenuActions={async () => null}
+        listViews={async () => []}
+        actionHandlers={{}}
+      />,
+    );
+
+    const sourceRow = await screen.findByTestId("detail-row-a-4601-src");
+    fireEvent.click(sourceRow);
+    fireEvent.click(await screen.findByTestId("action-move"));
+    fireEvent.change(await screen.findByTestId("explorer-move-dest-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
+
+    expect(moveUrls).toEqual([]);
+    expect(screen.getByTestId("explorer-move-dest-picker")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-move-dest-error")).toHaveTextContent(
+      /enter a destination folder path/i,
+    );
+    expect(screen.getByTestId("detail-row-a-4601-src")).toBeInTheDocument();
+    await renderA11yGate(container);
+  });
 });

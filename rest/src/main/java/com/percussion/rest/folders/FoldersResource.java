@@ -84,14 +84,30 @@ public class FoldersResource {
     return path != null && path.indexOf('\0') >= 0;
   }
 
+  /** True when a CMS finder path is null, empty, or whitespace-only (#5574). */
+  static boolean pathIsBlank(String path) {
+    return StringUtils.isBlank(path);
+  }
+
   /**
    * Move destination with a NUL is HTTP 400 and is not forwarded to the adaptor
-   * (#5552). Blank dest stays a later slice.
+   * (#5552).
    */
   static void rejectMoveDestNul(MoveFolderItem moveRequest) {
     if (moveRequest != null && pathContainsNul(moveRequest.getTargetFolderPath())) {
       throw new WebApplicationException(
           "targetFolderPath must not contain a NUL character", Response.Status.BAD_REQUEST);
+    }
+  }
+
+  /**
+   * Blank or whitespace-only move destination is HTTP 400 and is not forwarded
+   * to the adaptor (#5574). NUL is checked first.
+   */
+  static void rejectMoveDestBlank(MoveFolderItem moveRequest) {
+    if (moveRequest == null || pathIsBlank(moveRequest.getTargetFolderPath())) {
+      throw new WebApplicationException(
+          "itemPath and targetFolderPath are required", Response.Status.BAD_REQUEST);
     }
   }
 
@@ -517,7 +533,9 @@ public class FoldersResource {
         @ApiResponse(
             responseCode = "404",
             description = "Item or destination folder not found"),
-        @ApiResponse(responseCode = "400", description = "Destination path contains a NUL character"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Destination path is blank or contains a NUL character"),
         @ApiResponse(responseCode = "403", description = "Not authorized to move"),
         @ApiResponse(
             responseCode = "409",
@@ -530,6 +548,7 @@ public class FoldersResource {
   public Status moveFolderItem(MoveFolderItem moveRequest) {
     try {
       rejectMoveDestNul(moveRequest);
+      rejectMoveDestBlank(moveRequest);
       folderAdaptor.moveFolderItem(
           uriInfo.getBaseUri(), moveRequest.getItemPath(), moveRequest.getTargetFolderPath());
       return new Status("Moved OK");
@@ -563,7 +582,9 @@ public class FoldersResource {
         @ApiResponse(
             responseCode = "404",
             description = "Source folder or destination folder not found"),
-        @ApiResponse(responseCode = "400", description = "Destination path contains a NUL character"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Destination path is blank or contains a NUL character"),
         @ApiResponse(responseCode = "403", description = "Not authorized to move"),
         @ApiResponse(
             responseCode = "409",
@@ -576,6 +597,7 @@ public class FoldersResource {
   public Status moveFolder(MoveFolderItem moveRequest) {
     try {
       rejectMoveDestNul(moveRequest);
+      rejectMoveDestBlank(moveRequest);
       folderAdaptor.moveFolderItem(
           uriInfo.getBaseUri(), moveRequest.getItemPath(), moveRequest.getTargetFolderPath());
       return new Status("Moved OK");

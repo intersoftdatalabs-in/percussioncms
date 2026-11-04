@@ -93,6 +93,38 @@ public class FoldersTest {
   }
 
   @Test
+  void pathIsBlank_isTrueForEmptyAndWhitespace() {
+    assertTrue(FoldersResource.pathIsBlank(null));
+    assertTrue(FoldersResource.pathIsBlank(""));
+    assertTrue(FoldersResource.pathIsBlank("  "));
+    assertTrue(FoldersResource.pathIsBlank("\t\n"));
+    assertFalse(FoldersResource.pathIsBlank("/Assets/Dst"));
+    assertFalse(FoldersResource.pathIsBlank("\0"));
+  }
+
+  @Test
+  void moveFolderItem_blankDestIsBadRequest() throws Exception {
+    MoveFolderItem req = new MoveFolderItem("/Assets/src/item", "  ");
+    WebApplicationException thrown =
+        assertThrows(WebApplicationException.class, () -> resource.moveFolderItem(req));
+    assertEquals(
+        jakarta.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode(),
+        thrown.getResponse().getStatus());
+    verify(adaptor, never()).moveFolderItem(any(), anyString(), anyString());
+  }
+
+  @Test
+  void moveFolder_blankDestIsBadRequest() throws Exception {
+    MoveFolderItem req = new MoveFolderItem("/Assets/src/folder", "");
+    WebApplicationException thrown =
+        assertThrows(WebApplicationException.class, () -> resource.moveFolder(req));
+    assertEquals(
+        jakarta.ws.rs.core.Response.Status.BAD_REQUEST.getStatusCode(),
+        thrown.getResponse().getStatus());
+    verify(adaptor, never()).moveFolderItem(any(), anyString(), anyString());
+  }
+
+  @Test
   void moveFolderItem_propagatesBackendException() throws Exception {
     MoveFolderItem req = new MoveFolderItem("/x", "/y");
     doThrow(new BackendException("boom", new Exception("cause")))

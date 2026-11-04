@@ -16,7 +16,10 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { moveDestContainsNul } from "../../../main/ts/contentExplorer/moveDest";
+import {
+  moveDestContainsNul,
+  moveDestIsBlank,
+} from "../../../main/ts/contentExplorer/moveDest";
 
 describe("moveDestContainsNul (#5552)", () => {
   it("is true only for U+0000", () => {
@@ -27,5 +30,15 @@ describe("moveDestContainsNul (#5552)", () => {
     expect(moveDestContainsNul("/Assets/\u0000Dst")).toBe(true);
     expect(moveDestContainsNul("\u0000")).toBe(true);
     expect(moveDestContainsNul(" \u0000 ")).toBe(true);
+  });
+});
+
+describe("moveDestIsBlank (#5574)", () => {
+  it("is true for empty and whitespace-only paths", () => {
+    expect(moveDestIsBlank("")).toBe(true);
+    expect(moveDestIsBlank("  ")).toBe(true);
+    expect(moveDestIsBlank("\t\n")).toBe(true);
+    expect(moveDestIsBlank("/Assets/Dst")).toBe(false);
+    expect(moveDestIsBlank("\u0000")).toBe(false);
   });
 });
