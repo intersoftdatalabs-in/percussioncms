@@ -160,6 +160,19 @@ class LocalesAdaptorTest {
   }
 
   @Test
+  void validateFormat_rejectsInvalidFirstDayOfWeek() {
+    com.percussion.rest.locales.LocaleFormatSummary src =
+        new com.percussion.rest.locales.LocaleFormatSummary();
+    src.setFirstDayOfWeek(0);
+    LocalesAdaptor.validateFormat(src);
+    src.setFirstDayOfWeek(8);
+    IllegalArgumentException ex =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            IllegalArgumentException.class, () -> LocalesAdaptor.validateFormat(src));
+    assertTrue(ex.getMessage().contains("firstDayOfWeek"));
+  }
+
+  @Test
   void validateFormat_acceptsCommonPatterns() {
     com.percussion.rest.locales.LocaleFormatSummary src =
         new com.percussion.rest.locales.LocaleFormatSummary();

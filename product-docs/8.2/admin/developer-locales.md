@@ -1,7 +1,7 @@
 ---
 id: admin-developer-locales
 title: Developer Locales
-description: Create, save, and delete CMS locales, set a label, description, enabled status, date pattern, time pattern, date-time pattern, decimal separator, grouping separator, currency code, currency pattern, or text direction, edit format profiles, and edit the auto-translation set from Developer Locales chrome
+description: Create, save, and delete CMS locales, set a label, description, enabled status, date pattern, time pattern, date-time pattern, decimal separator, grouping separator, currency code, currency pattern, text direction, or first day of week, edit format profiles, and edit the auto-translation set from Developer Locales chrome
 version: "8.2"
 order: 43
 tags: [admin, developer, locales]
@@ -95,6 +95,16 @@ language string is immutable. The new direction shows only after that save
 succeeds. A blank direction clears the text direction. **Cancel** does not
 write. HTTP 400, 403, and 409 are not success and leave the previous
 direction.
+
+**Set locale first day of week** on an existing locale saves the first day of
+week only (ISO 1=Monday through 7=Sunday). The update sends
+`format.firstDayOfWeek` and does not send the language string, label,
+description, enabled status, date/time patterns, separators, currency fields,
+text direction, or other format fields, so those stay. The language string is
+immutable. The new value shows only after that save succeeds. A blank first
+day of week clears the first day of week. Values outside 1–7 do not write.
+**Cancel** does not write. HTTP 400, 403, and 409 are not success and leave
+the previous first day of week.
 
 **Set locale enabled status** on an existing locale saves enabled status
 only (`active` or `inactive`). The update does not send the language string,
@@ -273,6 +283,23 @@ Admins can also **view and replace** the singleton **auto-translation** set
 5. HTTP 400, 403, and 409 do not show **Locale text direction saved** and do
    not replace the previous direction.
 
+## Product path — set a first day of week
+
+1. Open an existing locale. The committed first day of week is shown under
+   **Set locale first day of week**.
+2. Click **Set locale first day of week**, enter **1** (Monday) through **7**
+   (Sunday), and click **Save first day of week**. The request is
+   `PUT /services/locales/{idOrLang}` with `format.firstDayOfWeek` only.
+   Reload shows that value. The language string, label, description, enabled
+   status, date/time patterns, separators, currency fields, text direction,
+   and other format fields are unchanged.
+3. A blank first day of week clears the stored first day of week. The same
+   value is not written. Values outside 1–7 do not write.
+4. Click **Cancel** before save to keep the previous first day of week. Cancel
+   does not call the server.
+5. HTTP 400, 403, and 409 do not show **Locale first day of week saved** and
+   do not replace the previous first day of week.
+
 ## Product path — set enabled status
 
 1. Open an existing locale. The committed status is shown under **Set
@@ -364,6 +391,7 @@ The chrome calls:
 | Set currency code | `PUT /services/locales/{idOrLang}` (`format.currencyCode` only; a blank value clears; language, label, description, enabled status, date/time patterns, separators, and other format fields are omitted and stay) |
 | Set currency pattern | `PUT /services/locales/{idOrLang}` (`format.currencyPattern` only; a blank value clears; language, label, description, enabled status, date/time patterns, separators, currency code, text direction, and other format fields are omitted and stay) |
 | Set text direction | `PUT /services/locales/{idOrLang}` (`format.textDir` only; `ltr`, `rtl`, or a blank value that clears; language, label, description, enabled status, date/time patterns, separators, currency fields, and other format fields are omitted and stay) |
+| Set first day of week | `PUT /services/locales/{idOrLang}` (`format.firstDayOfWeek` only; 1=Monday through 7=Sunday, or a blank / JSON-null value that clears; values outside 1–7 do not write; language, label, description, enabled status, date/time patterns, separators, currency fields, text direction, and other format fields are omitted and stay) |
 | Set enabled status | `PUT /services/locales/{idOrLang}` (`status` only; `active` or `inactive`; language, label, description, and format are omitted and stay) |
 | Delete | `DELETE /services/locales/{idOrLang}` (`204` on success) |
 | Auto-translation list | `GET /services/locales/auto-translations` |

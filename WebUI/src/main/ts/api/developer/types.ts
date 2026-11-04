@@ -724,7 +724,8 @@ export interface LocaleFormatSummary {
   groupingSep?: string;
   currencyCode?: string;
   currencyPattern?: string;
-  firstDayOfWeek?: number;
+  /** ISO 1=Monday … 7=Sunday. JSON null / omitted vs send-null: UI sends null to clear. */
+  firstDayOfWeek?: number | null;
   measurementSystem?: string;
   defaultTz?: string;
   numberingSystem?: string;

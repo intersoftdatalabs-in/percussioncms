@@ -485,7 +485,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * updates {@code groupingSep} the same way. A currency-code-only {@code format} updates
    * {@code currencyCode} the same way. A currency-pattern-only {@code format} updates
    * {@code currencyPattern} the same way. A text-direction-only {@code format} updates
-   * {@code textDir} the same way.
+   * {@code textDir} the same way. A first-day-of-week-only {@code format} updates
+   * {@code firstDayOfWeek} the same way.
    */
   void persistFormatIfRequested(String language, LocaleDetail body) {
     if (body == null || language == null) {
@@ -532,6 +533,10 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     if (isTextDirOnlyWrite(body)) {
       persistTextDirOnly(language, src);
+      return;
+    }
+    if (isFirstDayOfWeekOnlyWrite(body)) {
+      persistFirstDayOfWeekOnly(language, src);
       return;
     }
     PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
@@ -632,6 +637,18 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
     row.setTextDir(next);
+    row.setLanguageString(language);
+    formatSaver.accept(row);
+  }
+
+  private void persistFirstDayOfWeekOnly(String language, LocaleFormatSummary src) {
+    Optional<PSLocaleFormat> existing = formatByLang.apply(language);
+    Integer next = clearedFirstDay(src == null ? null : src.getFirstDayOfWeek());
+    if (existing.isEmpty() && next == null) {
+      return;
+    }
+    PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
+    row.setFirstDayOfWeek(next);
     row.setLanguageString(language);
     formatSaver.accept(row);
   }
@@ -852,6 +869,33 @@ public class LocalesAdaptor implements ILocalesAdaptor {
         && src.getCalendar() == null;
   }
 
+  /**
+   * True when PUT {@code format} carries {@code firstDayOfWeek} (including JSON null / blank to
+   * clear) and omits {@code hasFormatProfile} plus every other format field. Language on the
+   * format object is ignored. Out-of-range values fail {@link #validateFirstDay} before persist.
+   */
+  static boolean isFirstDayOfWeekOnlyWrite(LocaleDetail body) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+      return false;
+    }
+    LocaleFormatSummary src = body.getFormat();
+    if (!src.isFirstDayOfWeekPresent() && src.getFirstDayOfWeek() == null) {
+      return false;
+    }
+    return src.getTextDir() == null
+        && src.getDatePattern() == null
+        && src.getTimePattern() == null
+        && src.getDateTimePattern() == null
+        && src.getDecimalSep() == null
+        && src.getGroupingSep() == null
+        && src.getCurrencyCode() == null
+        && src.getCurrencyPattern() == null
+        && src.getMeasurementSystem() == null
+        && src.getDefaultTz() == null
+        && src.getNumberingSystem() == null
+        && src.getCalendar() == null;
+  }
+
   static void validateFormatWrite(LocaleDetail body) {
     if (body == null) {
       return;
@@ -904,7 +948,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     row.setGroupingSep(src.getGroupingSep());
     row.setCurrencyCode(src.getCurrencyCode());
     row.setCurrencyPattern(src.getCurrencyPattern());
-    row.setFirstDayOfWeek(src.getFirstDayOfWeek());
+    row.setFirstDayOfWeek(clearedFirstDay(src.getFirstDayOfWeek()));
     row.setMeasurementSystem(src.getMeasurementSystem());
     row.setDefaultTz(src.getDefaultTz());
     row.setNumberingSystem(src.getNumberingSystem());
@@ -956,12 +1000,21 @@ public class LocalesAdaptor implements ILocalesAdaptor {
   }
 
   static void validateFirstDay(Integer firstDay) {
-    if (firstDay == null) {
+    Integer day = clearedFirstDay(firstDay);
+    if (day == null) {
       return;
     }
-    if (firstDay < PSLocaleFormat.FIRST_DAY_MONDAY || firstDay > PSLocaleFormat.FIRST_DAY_SUNDAY) {
+    if (day < PSLocaleFormat.FIRST_DAY_MONDAY || day > PSLocaleFormat.FIRST_DAY_SUNDAY) {
       throw new IllegalArgumentException("invalid firstDayOfWeek: " + firstDay);
     }
+  }
+
+  /** JSON null and JAXB's numeric 0 both mean "clear the stored first day of week". */
+  static Integer clearedFirstDay(Integer firstDay) {
+    if (firstDay == null || firstDay.intValue() == 0) {
+      return null;
+    }
+    return firstDay;
   }
 
   static void validateCurrencyCode(String code) {

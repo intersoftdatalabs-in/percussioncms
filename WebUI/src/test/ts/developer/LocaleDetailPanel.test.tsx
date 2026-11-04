@@ -17,6 +17,7 @@ import { LOC_CURRENCY_MSG } from "../../../main/ts/developer/localeCurrencyCodeM
 import { LOC_CUR_PAT_MSG } from "../../../main/ts/developer/localeCurrencyPatternMessages";
 import { LOC_STATUS_MSG } from "../../../main/ts/developer/localeEnabledStatusMessages";
 import { LOC_TEXT_DIR_MSG } from "../../../main/ts/developer/localeTextDirMessages";
+import { LOC_FIRST_DAY_MSG } from "../../../main/ts/developer/localeFirstDayOfWeekMessages";
 import { LOC_GROUPING_MSG } from "../../../main/ts/developer/localeGroupingSepMessages";
 import { LOC_TIME_MSG } from "../../../main/ts/developer/localeTimePatternMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
@@ -57,6 +58,7 @@ const sampleDetail = {
     decimalSep: ".",
     groupingSep: ",",
     currencyCode: "USD",
+    firstDayOfWeek: 1,
   },
   designGaps: ["write not supported"],
 };
@@ -2125,6 +2127,183 @@ describe("LocaleDetailPanel", () => {
     expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
     expect((screen.getByTestId("developer-loc-fmt-dir") as HTMLSelectElement).value).toBe("ltr");
     expect((screen.getByTestId("developer-loc-fmt-decimal") as HTMLInputElement).value).toBe(".");
+  });
+
+  it("sets the first day of week only after success and leaves language, label, description, status, and other format fields", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      format: { ...sampleDetail.format, firstDayOfWeek: 2 },
+    });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("developer-loc-set-first-day-text").getAttribute("data-loc-first-day"),
+      ).toBe("1");
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-first-day-edit"));
+    fireEvent.click(screen.getByTestId("developer-loc-set-first-day-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-first-day-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-first-day-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-first-day-input"), {
+      target: { value: "2" },
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-first-day-text").getAttribute("data-loc-first-day"),
+    ).toBe("1");
+    fireEvent.click(screen.getByTestId("developer-loc-set-first-day-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-loc-set-first-day-text").getAttribute("data-loc-first-day"),
+    ).toBe("1");
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-first-day-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-first-day-input"), {
+      target: { value: "2" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-first-day-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", {
+      format: { firstDayOfWeek: 2 },
+    });
+    const sent = updateLocale.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty("languageString");
+    expect(sent).not.toHaveProperty("label");
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("status");
+    expect(sent).not.toHaveProperty("hasFormatProfile");
+    expect(
+      screen.getByTestId("developer-loc-set-first-day-text").getAttribute("data-loc-first-day"),
+    ).toBe("2");
+    expect((screen.getByTestId("developer-loc-fmt-first-day") as HTMLInputElement).value).toBe("2");
+    expect(screen.getByTestId("developer-loc-set-first-day-notice").textContent).toBe(
+      LOC_FIRST_DAY_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe(
+      "US English",
+    );
+    expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-dir") as HTMLSelectElement).value).toBe("ltr");
+  });
+
+  it("clears a blank first day of week, rejects out-of-range values, and keeps the previous value on 400, 403, and 409", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      format: { ...sampleDetail.format, firstDayOfWeek: null },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-first-day-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-first-day-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-first-day-input"), {
+      target: { value: "8" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-first-day-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-loc-set-first-day-error").textContent).toBe(
+      LOC_FIRST_DAY_MSG.INVALID,
+    );
+    expect(
+      screen.getByTestId("developer-loc-set-first-day-text").getAttribute("data-loc-first-day"),
+    ).toBe("1");
+
+    fireEvent.change(screen.getByTestId("developer-loc-set-first-day-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-first-day-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-first-day-notice").textContent).toBe(
+        LOC_FIRST_DAY_MSG.CLEARED,
+      );
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", { format: { firstDayOfWeek: null } });
+    expect(
+      screen.getByTestId("developer-loc-set-first-day-text").getAttribute("data-loc-first-day"),
+    ).toBe("");
+    expect((screen.getByTestId("developer-loc-fmt-first-day") as HTMLInputElement).value).toBe("");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+
+    for (const status of [400, 403, 409]) {
+      updateLocale.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-first-day-edit"));
+      fireEvent.change(screen.getByTestId("developer-loc-set-first-day-input"), {
+        target: { value: "2" },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-first-day-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-loc-set-first-day-error").textContent).toContain(
+          `forced ${status}`,
+        );
+      });
+      expect(
+        screen.getByTestId("developer-loc-set-first-day-text").getAttribute("data-loc-first-day"),
+      ).toBe("");
+      expect((screen.getByTestId("developer-loc-fmt-first-day") as HTMLInputElement).value).toBe("");
+      expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+      fireEvent.click(screen.getByTestId("developer-loc-set-first-day-cancel"));
+    }
+  });
+
+  it("does not show a first day of week when the update changes the label or other format fields", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockResolvedValue({
+      ...sampleDetail,
+      label: "Renamed",
+      format: {
+        ...sampleDetail.format,
+        firstDayOfWeek: 2,
+        currencyCode: "EUR",
+      },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-first-day-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-first-day-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-first-day-input"), {
+      target: { value: "2" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-first-day-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-first-day-error").textContent).toContain(
+        LOC_FIRST_DAY_MSG.ERROR,
+      );
+    });
+    expect(
+      screen.getByTestId("developer-loc-set-first-day-text").getAttribute("data-loc-first-day"),
+    ).toBe("1");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-fmt-first-day") as HTMLInputElement).value).toBe("1");
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
   });
 
   it("sets enabled status only after success and leaves language, label, description, and format", async () => {
