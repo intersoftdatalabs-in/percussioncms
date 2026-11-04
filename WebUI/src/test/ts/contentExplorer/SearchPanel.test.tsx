@@ -216,6 +216,87 @@ describe("SearchPanel", () => {
     expect(search.mock.calls[1]?.[0]?.query).toBe("retry-test");
   });
 
+  it("refuses a NUL query before search and stays open (#5575)", async () => {
+    const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
+    const { container } = render(
+      <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "bad\u0000query" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    expect(search).not.toHaveBeenCalled();
+    expect(screen.getByTestId("search-panel")).toBeTruthy();
+    expect(screen.getByTestId("search-panel-query-error")).toHaveTextContent(
+      /cannot be stored/i,
+    );
+    expect(screen.queryByTestId("search-panel-results")).toBeNull();
+    expect(screen.queryByTestId("search-panel-empty")).toBeNull();
+    expect(screen.queryByTestId("search-panel-error")).toBeNull();
+    await renderA11yGate(container);
+  });
+
+  it("still searches an ordinary query after a refused NUL (#5575)", async () => {
+    const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
+    render(
+      <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "bad\u0000query" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    expect(search).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "Welcome" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(search).toHaveBeenCalledTimes(1);
+    });
+    expect(search.mock.calls[0]?.[0]?.query).toBe("Welcome");
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-results")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("search-panel-query-error")).toBeNull();
+  });
+
+  it("HTTP 400 on an ordinary query is not a results success (#5575)", async () => {
+    const err = Object.assign(new Error("bad request"), { status: 400 });
+    const search = vi.fn().mockRejectedValue(err);
+    render(
+      <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+    );
+    fireEvent.change(screen.getByTestId("search-panel-input"), {
+      target: { value: "Welcome" },
+    });
+    fireEvent.click(screen.getByTestId("search-panel-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-error")).toBeTruthy();
+    });
+    expect(search).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("search-panel-results")).toBeNull();
+    expect(screen.queryByTestId("search-panel-empty")).toBeNull();
+  });
+
+  it("does not auto-search an initialQuery that contains a NUL (#5575)", async () => {
+    const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
+    render(
+      <SearchPanel
+        initialQuery={"deep\u0000link"}
+        search={search}
+        listSavedSearches={emptyCatalog()}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("search-panel-query-error")).toBeTruthy();
+    });
+    expect(search).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("search-panel-results")).toBeNull();
+  });
+
   it("skip-trim: an empty query returns to idle without calling search", async () => {
     const search = vi.fn().mockResolvedValue(makeResults([]));
     render(

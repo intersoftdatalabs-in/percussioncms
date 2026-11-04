@@ -17,10 +17,14 @@
 package com.percussion.searchmanagement.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.searchmanagement.data.PSSearchCriteria;
+import jakarta.ws.rs.WebApplicationException;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -138,6 +142,56 @@ class PSSearchRestServiceTest {
   void escapeLuceneQueryLeavesAlreadyEscapedSlashUntouched() {
     assertEquals("a\\/b", PSLuceneQueryEscaper.escape("a\\/b"));
     assertEquals("x\\/y\\/z", PSLuceneQueryEscaper.escape("x\\/y\\/z"));
+  }
+
+  @Test
+  void queryContainsNulIsTrueOnlyForU0000() {
+    assertFalse(PSSearchRestService.queryContainsNul(null));
+    assertFalse(PSSearchRestService.queryContainsNul(""));
+    assertFalse(PSSearchRestService.queryContainsNul("welcome"));
+    assertFalse(PSSearchRestService.queryContainsNul("a"));
+    assertTrue(PSSearchRestService.queryContainsNul("bad\u0000query"));
+    assertTrue(PSSearchRestService.queryContainsNul("\u0000"));
+    assertTrue(PSSearchRestService.queryContainsNul(" \u0000 "));
+  }
+
+  @Test
+  void refuseNulQueryThrowsHttp400AndLeavesOrdinaryQueryAlone() {
+    PSSearchCriteria ordinary = new PSSearchCriteria();
+    ordinary.setQuery("welcome");
+    PSSearchRestService.refuseNulQuery(ordinary);
+    assertEquals("welcome", ordinary.getQuery());
+
+    PSSearchRestService.refuseNulQuery(null);
+    PSSearchRestService.refuseNulQuery(new PSSearchCriteria());
+
+    PSSearchCriteria nul = new PSSearchCriteria();
+    nul.setQuery("bad\u0000query");
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> PSSearchRestService.refuseNulQuery(nul));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("bad\u0000query", nul.getQuery());
+  }
+
+  @Test
+  void extendedSearchRefusesNulQueryBeforeValidate() {
+    PSSearchRestService restService = new PSSearchRestService(null, null, null);
+    PSSearchCriteria criteria = new PSSearchCriteria();
+    criteria.setQuery("a\u0000b");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> restService.extendedSearch(criteria));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void searchRefusesNulQueryBeforeValidate() {
+    PSSearchRestService restService = new PSSearchRestService(null, null, null);
+    PSSearchCriteria criteria = new PSSearchCriteria();
+    criteria.setQuery("a\u0000b");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> restService.search(criteria));
+    assertEquals(400, ex.getResponse().getStatus());
   }
 
   @Test

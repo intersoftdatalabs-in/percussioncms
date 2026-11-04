@@ -39,6 +39,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.logging.log4j.LogManager;
@@ -62,6 +63,10 @@ public class PSSearchRestService {
    * HTTP 400 (GH-2950).
    */
   static final int DEFAULT_SEARCH_FORMAT_ID = 9;
+
+  /** HTTP 400 body when the free-text query contains U+0000 (#5575). */
+  static final String QUERY_NUL_MESSAGE =
+      "The search query contains a character that cannot be stored";
 
   private final IPSSearchService searchService;
   private final IPSItemService itemService;
@@ -117,11 +122,31 @@ public class PSSearchRestService {
     }
   }
 
+  /**
+   * True when the free-text query contains U+0000. A NUL cannot be stored in
+   * Lucene/JDBC search text; refuse rather than strip (#5575).
+   */
+  static boolean queryContainsNul(String query) {
+    return query != null && query.indexOf('\0') >= 0;
+  }
+
+  /**
+   * HTTP 400 before sanitize/search when the query contains U+0000. Ordinary
+   * queries are unchanged.
+   */
+  static void refuseNulQuery(PSSearchCriteria criteria) {
+    if (criteria != null && queryContainsNul(criteria.getQuery())) {
+      throw new WebApplicationException(
+          QUERY_NUL_MESSAGE, Response.Status.BAD_REQUEST);
+    }
+  }
+
   @POST
   @Path("/get")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSPagedItemList search(PSSearchCriteria criteria) throws PSSearchServiceException {
+    refuseNulQuery(criteria);
     try {
       criteria = searchService.validateSearchCriteria(criteria);
       sanitizeCriteria(criteria);
@@ -161,6 +186,7 @@ public class PSSearchRestService {
   @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSPagedItemPropertiesList extendedSearch(PSSearchCriteria criteria)
       throws PSSearchServiceException {
+    refuseNulQuery(criteria);
     criteria = searchService.validateSearchCriteria(criteria);
     sanitizeCriteria(criteria);
     try {
