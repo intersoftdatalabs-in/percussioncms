@@ -36,6 +36,10 @@
  * persist through itemmanagement — not leftover Content Editor HTML. A required
  * keyword with no choice is refused before PUT; a catalog choice still saves.
  * A keyword that contains a NUL is not saved, and the previous choice stays.
+ * A yes-no field ({@code sys_SingleCheckBox} / {@code dataType} boolean) saves
+ * {@code yes} or {@code no} through the same item field PUT. Cancel, a
+ * read-only yes-no, and HTTP 400/403/409 do not claim success. A later slice
+ * refuses a yes-no NUL.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -99,6 +103,7 @@ import {
   invalidChangedDateFieldNames,
   invalidChangedDatetimeFieldNames,
   invalidChangedNumberFieldNames,
+  invalidChangedYesNoFieldNames,
   markAssemblyFieldErrors,
   overlayEditKey,
   persistOverlayEdits,
@@ -428,15 +433,26 @@ export function AssemblyHost({
       return [];
     }
     const emptyChoiceLabel = message(ASSEMBLY_MSG.KEYWORD_EMPTY);
+    const yesNoEmpty = message(ASSEMBLY_MSG.YESNO_EMPTY);
+    const yesLabel = message(ASSEMBLY_MSG.YESNO_YES);
+    const noLabel = message(ASSEMBLY_MSG.YESNO_NO);
     return scalarOverlayFields(fieldPayload, schemaFields).map((row) => {
-      if (row.kind !== "keyword") {
-        return row;
+      if (row.kind === "keyword") {
+        return {
+          ...row,
+          choices: keywordChoicesForField(keywordCatalog, row.name),
+          emptyChoiceLabel,
+        };
       }
-      return {
-        ...row,
-        choices: keywordChoicesForField(keywordCatalog, row.name),
-        emptyChoiceLabel,
-      };
+      if (row.kind === "yesno") {
+        return {
+          ...row,
+          emptyChoiceLabel: yesNoEmpty,
+          yesLabel,
+          noLabel,
+        };
+      }
+      return row;
     });
   }, [fieldPayload, schemaFields, schemaReady, keywordCatalog]);
 
@@ -748,6 +764,11 @@ export function AssemblyHost({
       visibleEdits,
       fieldBaselineRef.current,
     );
+    const badYesNo = invalidChangedYesNoFieldNames(
+      overlayFields,
+      visibleEdits,
+      fieldBaselineRef.current,
+    );
     const requiredBlank =
       blankRequired.length > 0 ||
       blankRequiredLinks.length > 0 ||
@@ -761,6 +782,7 @@ export function AssemblyHost({
       badNumbers.length > 0 ||
       badDates.length > 0 ||
       badDatetimes.length > 0 ||
+      badYesNo.length > 0 ||
       nulText.length > 0 ||
       nulLongText.length > 0 ||
       nulHtml.length > 0 ||
@@ -771,6 +793,7 @@ export function AssemblyHost({
       const numberText = message(ASSEMBLY_MSG.FIELD_NUMBER);
       const dateText = message(ASSEMBLY_MSG.FIELD_DATE);
       const datetimeText = message(ASSEMBLY_MSG.FIELD_DATETIME);
+      const yesNoText = message(ASSEMBLY_MSG.FIELD_YESNO);
       const textNul = message(ASSEMBLY_MSG.FIELD_TEXT_NUL);
       const longTextNul = message(ASSEMBLY_MSG.FIELD_LONGTEXT_NUL);
       const htmlNul = message(ASSEMBLY_MSG.FIELD_HTML_NUL);
@@ -809,6 +832,9 @@ export function AssemblyHost({
       for (const name of badDatetimes) {
         errors[name] = datetimeText;
       }
+      for (const name of badYesNo) {
+        errors[name] = yesNoText;
+      }
       for (const name of nulText) {
         errors[name] = textNul;
       }
@@ -828,7 +854,8 @@ export function AssemblyHost({
         (field) =>
           badNumbers.includes(field.name) ||
           badDates.includes(field.name) ||
-          badDatetimes.includes(field.name),
+          badDatetimes.includes(field.name) ||
+          badYesNo.includes(field.name),
       );
       if (refused.length > 0) {
         if (doc != null) {
@@ -855,6 +882,8 @@ export function AssemblyHost({
               ? dateText
               : badDatetimes.length > 0
                 ? datetimeText
+                : badYesNo.length > 0
+                  ? yesNoText
                 : nulText.length > 0
                   ? textNul
                   : nulLongText.length > 0
@@ -1120,7 +1149,8 @@ export function AssemblyHost({
                       field.kind === "number" ||
                       field.kind === "date" ||
                       field.kind === "datetime" ||
-                      field.kind === "keyword") &&
+                      field.kind === "keyword" ||
+                      field.kind === "yesno") &&
                     field.required
                       ? "true"
                       : "false"
@@ -1248,6 +1278,32 @@ export function AssemblyHost({
                           {choice.label || choice.value}
                         </option>
                       ))}
+                    </select>
+                  ) : field.kind === "yesno" ? (
+                    <select
+                      className={styles.fieldEdit}
+                      defaultValue={field.value}
+                      data-assembly-field={field.name}
+                      data-assembly-content-id={String(contentId ?? "")}
+                      data-assembly-value="yesno"
+                      data-assembly-required={field.required ? "true" : undefined}
+                      data-testid={`assembly-overlay-field-${field.name}`}
+                      aria-label={field.label}
+                      aria-required={field.required ? true : undefined}
+                      aria-invalid={fieldErrors[field.name] ? true : undefined}
+                    >
+                      <option value="">
+                        {field.emptyChoiceLabel || message(ASSEMBLY_MSG.YESNO_EMPTY)}
+                      </option>
+                      <option value="yes">
+                        {field.yesLabel || message(ASSEMBLY_MSG.YESNO_YES)}
+                      </option>
+                      <option value="no">
+                        {field.noLabel || message(ASSEMBLY_MSG.YESNO_NO)}
+                      </option>
+                      {field.value && field.value !== "yes" && field.value !== "no" ? (
+                        <option value={field.value}>{field.value}</option>
+                      ) : null}
                     </select>
                   ) : (
                     <textarea

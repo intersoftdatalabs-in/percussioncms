@@ -52,11 +52,13 @@ import {
   invalidChangedDateFieldNames,
   invalidChangedDatetimeFieldNames,
   invalidChangedNumberFieldNames,
+  invalidChangedYesNoFieldNames,
   markAssemblyFieldErrors,
   scalarOverlayFields,
   singleLineText,
   stripLeftoverAaChrome,
   wholeNumberText,
+  yesNoText,
 } from "../../../main/ts/assembly/overlayFields";
 
 const payload: ItemEditorFields = {
@@ -2142,5 +2144,129 @@ describe("nulKeywordFieldNames", () => {
     expect(nulKeywordFieldNames(overlay, readOverlayEdits(root, "42"))).toEqual([
       "keywords",
     ]);
+  });
+});
+
+describe("yes-no overlay fields", () => {
+  const yesNoPayload: ItemEditorFields = {
+    ...payload,
+    fields: [
+      { name: "no_propagate", value: "yes" },
+      { name: "lockedflag", value: "no" },
+      { name: "displaytitle", value: "Welcome" },
+    ],
+  };
+
+  it("keeps a yes-no field and omits a read-only yes-no", () => {
+    const rows = scalarOverlayFields(yesNoPayload, [
+      {
+        name: "no_propagate",
+        label: "Propagate",
+        control: "sys_SingleCheckBox",
+        dataType: "boolean",
+      },
+      {
+        name: "lockedflag",
+        label: "Locked",
+        control: "sys_SingleCheckBox",
+        dataType: "boolean",
+        readOnly: true,
+      },
+      { name: "displaytitle", control: "sys_EditBox" },
+    ]);
+    expect(rows.find((row) => row.name === "no_propagate")).toMatchObject({
+      kind: "yesno",
+      value: "yes",
+      label: "Propagate",
+    });
+    expect(rows.some((row) => row.name === "lockedflag")).toBe(false);
+    expect(rows.find((row) => row.name === "displaytitle")?.kind).toBe("text");
+  });
+
+  it("reads one assembled yes-no and restores the previous value", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<span data-perc-field="no_propagate">yes</span><h1 data-perc-field="displaytitle">Welcome</h1>`;
+    const fields = scalarOverlayFields(yesNoPayload, [
+      {
+        name: "no_propagate",
+        label: "Propagate",
+        control: "sys_SingleCheckBox",
+        dataType: "boolean",
+      },
+      { name: "displaytitle", control: "sys_EditBox" },
+    ]);
+    applyFieldOverlay(root, fields, "42");
+    const select = root.querySelector(
+      '[data-testid="assembly-inline-field-no_propagate"]',
+    ) as HTMLSelectElement;
+    expect(select.tagName).toBe("SELECT");
+    expect(select.getAttribute("data-assembly-value")).toBe("yesno");
+    expect(select.value).toBe("yes");
+    select.value = "no";
+    expect(readOverlayEdits(root, "42")).toEqual(
+      expect.arrayContaining([
+        { contentId: "42", name: "no_propagate", value: "no", dataType: "boolean" },
+        { contentId: "42", name: "displaytitle", value: "Welcome" },
+      ]),
+    );
+    expect(yesNoText("no")).toBe("no");
+    expect(yesNoText(" YES ")).toBe("yes");
+    expect(yesNoText("")).toBe("");
+    expect(yesNoText("maybe")).toBeNull();
+    restoreOverlayValues(root, fields);
+    expect(select.value).toBe("yes");
+  });
+
+  it("names a changed invalid yes-no and ignores an unchanged blank", () => {
+    const fields = [
+      { name: "no_propagate", kind: "yesno" as const, value: "yes" },
+      { name: "optional", kind: "yesno" as const, value: "" },
+      { name: "displaytitle", kind: "text" as const, value: "Welcome" },
+    ];
+    const baseline = new Map([
+      ["42:no_propagate", "yes"],
+      ["42:optional", ""],
+    ]);
+    expect(
+      invalidChangedYesNoFieldNames(
+        fields,
+        [{ contentId: "42", name: "no_propagate", value: "maybe" }],
+        baseline,
+      ),
+    ).toEqual(["no_propagate"]);
+    expect(
+      invalidChangedYesNoFieldNames(
+        fields,
+        [{ contentId: "42", name: "no_propagate", value: "no" }],
+        baseline,
+      ),
+    ).toEqual([]);
+    expect(
+      invalidChangedYesNoFieldNames(
+        fields,
+        [{ contentId: "42", name: "optional", value: "" }],
+        baseline,
+      ),
+    ).toEqual([]);
+    expect(
+      invalidChangedYesNoFieldNames(
+        fields,
+        [{ contentId: "42", name: "displaytitle", value: "maybe" }],
+        baseline,
+      ),
+    ).toEqual([]);
+  });
+
+  it("merges a yes-no edit with boolean dataType and keeps sibling text", () => {
+    const merged = mergeOverlayEdits(yesNoPayload, [
+      { contentId: "42", name: "no_propagate", value: " NO ", dataType: "boolean" },
+    ]);
+    expect(merged.fields.find((field) => field.name === "no_propagate")).toEqual({
+      name: "no_propagate",
+      value: "no",
+      dataType: "boolean",
+    });
+    expect(merged.fields.find((field) => field.name === "displaytitle")?.value).toBe("Welcome");
+    expect(merged.fields.find((field) => field.name === "lockedflag")?.value).toBe("no");
   });
 });

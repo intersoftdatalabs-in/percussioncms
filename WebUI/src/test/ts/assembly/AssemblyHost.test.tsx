@@ -5312,3 +5312,225 @@ describe("AssemblyHost refuse a keyword NUL", () => {
     );
   });
 });
+
+describe("AssemblyHost yes-no field", () => {
+  const OLD_FLAG = "yes";
+  const NEW_FLAG = "no";
+  const TITLE = "Welcome";
+  const NEW_TITLE = "Updated welcome";
+  const LONG_NOTE = "A long note";
+
+  const yesNoFields: ItemEditorFields = {
+    contentId: "42",
+    contentType: "percPage",
+    name: "Home",
+    checkoutUser: "admin",
+    fields: [
+      { name: "no_propagate", value: OLD_FLAG },
+      { name: "displaytitle", value: TITLE },
+      { name: "notes", value: LONG_NOTE },
+    ],
+  };
+
+  const yesNoSchema = {
+    fields: [
+      {
+        name: "no_propagate",
+        label: "Propagate",
+        control: "sys_SingleCheckBox",
+        dataType: "boolean",
+      },
+      { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+      { name: "notes", label: "Notes", control: "sys_TextArea" },
+    ],
+  };
+
+  function yesNoPreviewDoc(flag = OLD_FLAG): Document {
+    const previewDoc = document.implementation.createHTMLDocument("preview");
+    previewDoc.body.innerHTML = `
+      <span data-perc-field="no_propagate">${flag}</span>
+      <h1 data-perc-field="displaytitle">${TITLE}</h1>
+      <p data-perc-field="notes">${LONG_NOTE}</p>
+    `;
+    return previewDoc;
+  }
+
+  function renderYesNoHost(
+    previewDoc: Document,
+    saveFields: ReturnType<typeof vi.fn>,
+    loadFields: ReturnType<typeof vi.fn> = vi.fn().mockResolvedValue(yesNoFields),
+    schema: { fields: Array<Record<string, unknown>> } = yesNoSchema,
+  ): void {
+    renderHost("?contentId=42&templateId=7", {
+      fetchPreview: vi.fn().mockResolvedValue({
+        previewUrl: "/assembler/render?sys_contentid=42&sys_template=7",
+        contentId: 42,
+        templateId: 7,
+        revision: 1,
+      }),
+      loadTemplates: vi.fn().mockResolvedValue([
+        {
+          name: "rffPgGeneric",
+          label: "Generic Page",
+          url: "../assembler/render?sys_template=7",
+          sortRank: 0,
+          menuType: "MENUITEM",
+        } satisfies MenuAction,
+      ]),
+      checkout: vi.fn().mockResolvedValue(undefined),
+      loadFields,
+      saveFields,
+      loadType: vi.fn().mockResolvedValue(schema),
+      getPreviewDocument: () => previewDoc,
+    });
+  }
+
+  async function yesNoSelect(root: ParentNode): Promise<HTMLSelectElement> {
+    await waitFor(() => {
+      expect(root.querySelector('[data-testid="assembly-inline-field-no_propagate"]')).toBeTruthy();
+    });
+    return root.querySelector(
+      '[data-testid="assembly-inline-field-no_propagate"]',
+    ) as HTMLSelectElement;
+  }
+
+  it("saves one yes-no value with boolean dataType and leaves the other fields unchanged", async () => {
+    const previewDoc = yesNoPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderYesNoHost(previewDoc, saveFields);
+    const select = await yesNoSelect(previewDoc);
+    expect(select.getAttribute("data-assembly-value")).toBe("yesno");
+    expect(select.value).toBe(OLD_FLAG);
+    select.value = NEW_FLAG;
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "no_propagate")).toEqual({
+      name: "no_propagate",
+      value: NEW_FLAG,
+      dataType: "boolean",
+    });
+    expect(saved.fields.find((field) => field.name === "displaytitle")).toEqual({
+      name: "displaytitle",
+      value: TITLE,
+    });
+    expect(saved.fields.find((field) => field.name === "notes")).toEqual({
+      name: "notes",
+      value: LONG_NOTE,
+    });
+    expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(/saved/i);
+    expect(select.value).toBe(NEW_FLAG);
+  });
+
+  it("reloads the assembly host with the yes-no value that was saved", async () => {
+    const savedPayload: ItemEditorFields = {
+      ...yesNoFields,
+      fields: yesNoFields.fields.map((field) =>
+        field.name === "no_propagate" ? { ...field, value: NEW_FLAG } : field,
+      ),
+    };
+    const previewDoc = yesNoPreviewDoc(NEW_FLAG);
+    renderYesNoHost(
+      previewDoc,
+      vi.fn().mockResolvedValue(savedPayload),
+      vi.fn().mockResolvedValue(savedPayload),
+    );
+    const select = await yesNoSelect(previewDoc);
+    expect(select.value).toBe(NEW_FLAG);
+    expect(
+      (previewDoc.querySelector(
+        '[data-testid="assembly-inline-field-displaytitle"]',
+      ) as HTMLElement).textContent,
+    ).toBe(TITLE);
+  });
+
+  it("does not write a yes-no edit that is left unsaved", async () => {
+    const previewDoc = yesNoPreviewDoc();
+    const saveFields = vi.fn();
+    renderYesNoHost(previewDoc, saveFields);
+    const select = await yesNoSelect(previewDoc);
+    select.value = NEW_FLAG;
+    fireEvent.click(screen.getByTestId("assembly-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(select.value).toBe(NEW_FLAG);
+  });
+
+  it("does not write when Cancel leaves a yes-no edit", async () => {
+    const previewDoc = yesNoPreviewDoc();
+    const saveFields = vi.fn();
+    renderYesNoHost(previewDoc, saveFields);
+    const select = await yesNoSelect(previewDoc);
+    select.value = NEW_FLAG;
+    fireEvent.click(screen.getByTestId("assembly-field-cancel"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("assembly-field-notice")).toBeNull();
+    expect(select.value).toBe(OLD_FLAG);
+  });
+
+  it("does not write a read-only yes-no field", async () => {
+    const previewDoc = yesNoPreviewDoc();
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: ItemEditorFields) => body);
+    renderYesNoHost(previewDoc, saveFields, vi.fn().mockResolvedValue(yesNoFields), {
+      fields: [
+        {
+          name: "no_propagate",
+          label: "Propagate",
+          control: "sys_SingleCheckBox",
+          dataType: "boolean",
+          readOnly: true,
+        },
+        { name: "displaytitle", label: "Display title", control: "sys_EditBox" },
+        { name: "notes", label: "Notes", control: "sys_TextArea" },
+      ],
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("assembly-field-inline-displaytitle")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("assembly-field-chip-no_propagate")).toBeNull();
+    expect(previewDoc.querySelector('[data-testid="assembly-inline-field-no_propagate"]')).toBeNull();
+    const title = previewDoc.querySelector(
+      '[data-testid="assembly-inline-field-displaytitle"]',
+    ) as HTMLElement;
+    title.textContent = NEW_TITLE;
+    fireEvent.click(screen.getByTestId("assembly-field-save"));
+    await waitFor(() => {
+      expect(saveFields).toHaveBeenCalled();
+    });
+    const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+    expect(saved.fields.find((field) => field.name === "no_propagate")?.value).toBe(OLD_FLAG);
+    expect(saved.fields.find((field) => field.name === "no_propagate")?.dataType).toBeUndefined();
+    expect(saved.fields.find((field) => field.name === "displaytitle")?.value).toBe(NEW_TITLE);
+    expect(saved.fields.find((field) => field.name === "notes")?.value).toBe(LONG_NOTE);
+  });
+
+  it.each([400, 403, 409])(
+    "HTTP %s leaves the previous yes-no value in place",
+    async (status) => {
+      const previewDoc = yesNoPreviewDoc();
+      const saveFields = vi.fn().mockRejectedValue({ status });
+      renderYesNoHost(previewDoc, saveFields);
+      const select = await yesNoSelect(previewDoc);
+      select.value = NEW_FLAG;
+      fireEvent.click(screen.getByTestId("assembly-field-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("assembly-field-notice").textContent).toMatch(
+          /could not save/i,
+        );
+      });
+      const live = await yesNoSelect(previewDoc);
+      expect(live.value).toBe(OLD_FLAG);
+      expect(saveFields).toHaveBeenCalled();
+      const sent = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
+      expect(sent.fields.find((field) => field.name === "no_propagate")?.value).toBe(NEW_FLAG);
+      expect(sent.fields.find((field) => field.name === "no_propagate")?.dataType).toBe("boolean");
+      expect(screen.getByTestId("assembly-field-notice").textContent).not.toMatch(
+        /fields saved/i,
+      );
+      expect(screen.getByTestId("assembly-field-notice").getAttribute("role")).toBe("alert");
+    },
+  );
+});

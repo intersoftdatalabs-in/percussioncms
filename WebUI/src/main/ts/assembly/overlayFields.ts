@@ -17,12 +17,14 @@
 
 /**
  * Map known text, long-text, HTML, link, whole-number, decimal-number,
- * calendar-date, datetime, and keyword itemmanagement fields onto assembled
- * preview nodes and persist edits through the same fields API as the React
- * editor. Does not open leftover Active Assembly or Content Editor HTML. A
- * float is one decimal number. An integer still rejects a decimal. A required
- * keyword with no choice is refused before PUT. A keyword that contains a NUL
- * is refused before PUT.
+ * calendar-date, datetime, keyword, and yes-no itemmanagement fields onto
+ * assembled preview nodes and persist edits through the same fields API as
+ * the React editor. Does not open leftover Active Assembly or Content Editor
+ * HTML. A float is one decimal number. An integer still rejects a decimal. A
+ * required keyword with no choice is refused before PUT. A keyword that
+ * contains a NUL is refused before PUT. A yes-no field saves {@code yes} or
+ * {@code no} with {@code dataType} boolean. A later slice refuses a yes-no
+ * NUL.
  */
 
 import type { ContentTypeFieldSummary } from "../api/developer/types";
@@ -44,7 +46,8 @@ export type OverlayFieldKind =
   | "number"
   | "date"
   | "datetime"
-  | "keyword";
+  | "keyword"
+  | "yesno";
 
 /** Assembled HTML nodes store markup in innerHTML, not stripped text. */
 export const ASSEMBLY_VALUE_HTML = "html";
@@ -76,6 +79,9 @@ export const ASSEMBLY_VALUE_DATETIME = "datetime";
 /** Keyword catalog choice. The stored value is the selected choice. */
 export const ASSEMBLY_VALUE_KEYWORD = "keyword";
 
+/** Yes-no edits send {@code dataType: boolean} and {@code yes} or {@code no}. */
+export const ASSEMBLY_VALUE_YESNO = "yesno";
+
 const WHOLE_NUMBER_RE = /^-?\d+$/;
 const DECIMAL_NUMBER_RE = /^-?(?:\d+(?:\.\d+)?|\.\d+)$/;
 
@@ -101,6 +107,25 @@ export function decimalNumberText(value: string): string | null {
     return null;
   }
   return text;
+}
+
+/**
+ * Canonical yes-no ({@code yes}, {@code no}, or empty). {@code null} when the
+ * text cannot be stored. A later slice refuses a yes-no NUL.
+ */
+export function yesNoText(value: string): string | null {
+  const text = value.trim();
+  if (!text) {
+    return "";
+  }
+  const lower = text.toLowerCase();
+  if (lower === "yes") {
+    return "yes";
+  }
+  if (lower === "no") {
+    return "no";
+  }
+  return null;
 }
 
 /**
@@ -726,6 +751,43 @@ export function nulKeywordFieldNames(
 }
 
 /**
+ * Yes-no fields the author changed to something other than {@code yes},
+ * {@code no}, or empty. Unchanged values, including a blank that was already
+ * stored, are not listed. Keyword, number, and text kinds are not checked.
+ * A later slice refuses a yes-no NUL.
+ */
+export function invalidChangedYesNoFieldNames(
+  fields: readonly Pick<OverlayField, "name" | "kind" | "value">[],
+  edits: readonly Pick<OverlayFieldEdit, "contentId" | "name" | "value">[],
+  baseline: ReadonlyMap<string, string>,
+): string[] {
+  const latest = new Map<string, (typeof edits)[number]>();
+  for (const edit of edits) {
+    latest.set(edit.name, edit);
+  }
+  const names: string[] = [];
+  for (const field of fields) {
+    if (field.kind !== "yesno") {
+      continue;
+    }
+    const edit = latest.get(field.name);
+    if (!edit) {
+      continue;
+    }
+    const previous = baseline.has(overlayEditKey(edit))
+      ? (baseline.get(overlayEditKey(edit)) ?? "")
+      : field.value;
+    if (edit.value.trim() === previous.trim()) {
+      continue;
+    }
+    if (yesNoText(edit.value) == null) {
+      names.push(field.name);
+    }
+  }
+  return names;
+}
+
+/**
  * Datetime fields the author changed to something other than one date and time.
  * A blank is not listed: a required blank is {@link blankRequiredDatetimeFieldNames},
  * and an optional blank may clear. Unchanged values, including a blank that was
@@ -794,6 +856,7 @@ const LINK_INPUT_ATTR = "data-assembly-link-input";
 const DATE_INPUT_ATTR = "data-assembly-date-input";
 const DATETIME_INPUT_ATTR = "data-assembly-datetime-input";
 const KEYWORD_INPUT_ATTR = "data-assembly-keyword-input";
+const YESNO_INPUT_ATTR = "data-assembly-yesno-input";
 
 export interface OverlayField {
   name: string;
@@ -809,6 +872,10 @@ export interface OverlayField {
   choices?: readonly KeywordOption[];
   /** Empty option on a keyword picker. */
   emptyChoiceLabel?: string;
+  /** Yes option on a yes-no picker. */
+  yesLabel?: string;
+  /** No option on a yes-no picker. */
+  noLabel?: string;
 }
 
 export interface OverlayFieldHit {
@@ -862,17 +929,19 @@ export function isOverlayFieldKind(kind: string): kind is OverlayFieldKind {
     kind === "number" ||
     kind === "date" ||
     kind === "datetime" ||
-    kind === "keyword"
+    kind === "keyword" ||
+    kind === "yesno"
   );
 }
 
 /**
  * Text, long-text, HTML, link, whole-number, decimal-number, calendar-date,
- * datetime, and keyword rows from itemmanagement. File, image, community, and
- * table stay on the Content Editor. Read-only rows are omitted so the overlay
- * cannot write them. A float row is a decimal number. An integer or number
- * row stays a whole number. A required keyword with no choice is refused
- * before PUT. A keyword that contains a NUL is refused before PUT.
+ * datetime, keyword, and yes-no rows from itemmanagement. File, image,
+ * community, and table stay on the Content Editor. Read-only rows are omitted
+ * so the overlay cannot write them. A float row is a decimal number. An
+ * integer or number row stays a whole number. A required keyword with no
+ * choice is refused before PUT. A keyword that contains a NUL is refused
+ * before PUT. A yes-no row sends {@code dataType} boolean.
  */
 export function scalarOverlayFields(
   payload: ItemEditorFields,
@@ -894,7 +963,9 @@ export function scalarOverlayFields(
         ? toWidgetValue("date", rawValue)
         : kind === "datetime"
           ? toWidgetValue("datetime", rawValue)
-          : rawValue;
+          : kind === "yesno"
+            ? (yesNoText(rawValue) ?? rawValue)
+            : rawValue;
     out.push({
       name: field.name,
       value,
@@ -1311,6 +1382,56 @@ function mountKeywordSelect(
   }
 }
 
+function mountYesNoSelect(
+  host: HTMLElement,
+  hit: OverlayFieldHit,
+  field: OverlayField,
+): void {
+  host.contentEditable = "false";
+  host.removeAttribute("contenteditable");
+  const select = host.ownerDocument.createElement("select");
+  const selected = yesNoText(field.value) ?? field.value.trim();
+  const empty = host.ownerDocument.createElement("option");
+  empty.value = "";
+  empty.textContent = field.emptyChoiceLabel || "Select yes or no";
+  select.appendChild(empty);
+  const yes = host.ownerDocument.createElement("option");
+  yes.value = "yes";
+  yes.textContent = field.yesLabel || "Yes";
+  select.appendChild(yes);
+  const no = host.ownerDocument.createElement("option");
+  no.value = "no";
+  no.textContent = field.noLabel || "No";
+  select.appendChild(no);
+  if (selected && selected !== "yes" && selected !== "no") {
+    const current = host.ownerDocument.createElement("option");
+    current.value = selected;
+    current.textContent = selected;
+    select.appendChild(current);
+  }
+  select.value = selected;
+  select.setAttribute("data-assembly-field", hit.name);
+  select.setAttribute("data-assembly-content-id", hit.contentId);
+  select.setAttribute("data-assembly-value", ASSEMBLY_VALUE_YESNO);
+  select.setAttribute("data-testid", `assembly-inline-field-${hit.name}`);
+  select.setAttribute(YESNO_INPUT_ATTR, hit.name);
+  select.setAttribute("aria-label", field.label || hit.name);
+  if (field.required) {
+    select.setAttribute("aria-required", "true");
+    select.setAttribute("data-assembly-required", "true");
+  }
+  select.setAttribute(
+    "style",
+    "display:inline-block;min-width:8rem;margin-left:4px;color:#0f172a;background:#fff;border:1px solid #64748b;font:inherit;",
+  );
+  if (host.tagName === "A") {
+    host.insertAdjacentElement("afterend", select);
+  } else {
+    host.textContent = "";
+    host.appendChild(select);
+  }
+}
+
 /** Drop markers from a previous paint so a field that is no longer editable cannot be saved. */
 export function clearFieldOverlay(root: ParentNode): void {
   root.querySelectorAll(`input[${LINK_INPUT_ATTR}]`).forEach((el) => {
@@ -1323,6 +1444,9 @@ export function clearFieldOverlay(root: ParentNode): void {
     el.remove();
   });
   root.querySelectorAll(`select[${KEYWORD_INPUT_ATTR}]`).forEach((el) => {
+    el.remove();
+  });
+  root.querySelectorAll(`select[${YESNO_INPUT_ATTR}]`).forEach((el) => {
     el.remove();
   });
   root.querySelectorAll("[data-assembly-field]").forEach((el) => {
@@ -1390,6 +1514,10 @@ export function applyFieldOverlay(
     }
     if (field?.kind === "keyword") {
       mountKeywordSelect(html, hit, field);
+      continue;
+    }
+    if (field?.kind === "yesno") {
+      mountYesNoSelect(html, hit, field);
       continue;
     }
     html.contentEditable = "true";
@@ -1505,6 +1633,9 @@ function readNodeValue(el: Element): string {
     if (valueKind === ASSEMBLY_VALUE_KEYWORD) {
       return raw.trim();
     }
+    if (valueKind === ASSEMBLY_VALUE_YESNO) {
+      return yesNoText(raw) ?? raw.trim();
+    }
     return raw;
   }
   if (valueKind === ASSEMBLY_VALUE_HTML) {
@@ -1592,6 +1723,7 @@ export function readOverlayEdits(
         : {}),
       ...(valueKind === ASSEMBLY_VALUE_DATE ? { dataType: "date" } : {}),
       ...(valueKind === ASSEMBLY_VALUE_DATETIME ? { dataType: "datetime" } : {}),
+      ...(valueKind === ASSEMBLY_VALUE_YESNO ? { dataType: "boolean" } : {}),
     });
   });
   return edits;
@@ -1634,6 +1766,12 @@ export function mergeOverlayEdits(
       const next: ItemEditorField = { ...field, value: edit.value };
       if (edit.dataType) {
         next.dataType = edit.dataType;
+      }
+      if (edit.dataType === "boolean") {
+        const canonical = yesNoText(edit.value);
+        if (canonical != null) {
+          next.value = canonical;
+        }
       }
       return next;
     }),
