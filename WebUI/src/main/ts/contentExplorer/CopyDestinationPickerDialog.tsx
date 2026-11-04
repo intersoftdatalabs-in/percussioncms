@@ -17,7 +17,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDialogEscape } from "../architecture/useDialogEscape";
 import { message } from "../i18n/message";
-import { copyDestContainsNul } from "./copyDest";
+import { copyDestContainsNul, copyDestIsBlank } from "./copyDest";
 import { EXPLORER_MSG } from "./messages";
 
 const FOCUSABLE =
@@ -108,10 +108,13 @@ export function CopyDestinationPickerDialog({
             setError(message(EXPLORER_MSG.COPY_DEST_NUL));
             return;
           }
-          if (trimmed) {
-            setError(null);
-            onPick(trimmed);
+          // Blank or whitespace-only dest stays in the dialog (#5553).
+          if (copyDestIsBlank(value)) {
+            setError(message(EXPLORER_MSG.COPY_DEST_BLANK));
+            return;
           }
+          setError(null);
+          onPick(trimmed);
         }}
       >
         <h2 id="explorer-copy-dest-title" style={{ fontSize: 16, margin: "0 0 12px" }}>
@@ -147,7 +150,7 @@ export function CopyDestinationPickerDialog({
           <button type="button" data-testid="explorer-copy-dest-cancel" onClick={onCancel}>
             {message(EXPLORER_MSG.CONFIRM_CANCEL)}
           </button>
-          <button type="submit" data-testid="explorer-copy-dest-ok" disabled={!trimmed}>
+          <button type="submit" data-testid="explorer-copy-dest-ok">
             {message(EXPLORER_MSG.CONFIRM_OK)}
           </button>
         </div>

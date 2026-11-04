@@ -1013,6 +1013,35 @@ describe("ReducedActions", () => {
     await renderA11yGate(container);
   });
 
+  it("does not copy when the destination is blank or whitespace (#5553)", async () => {
+    const { handlers, calls } = makeHandlers();
+    const { container } = render(
+      <ReducedActions
+        item={FOLDER}
+        folder={null}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-copy"));
+    fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
+    expect(calls.onCopy).toHaveLength(0);
+    expect(screen.getByTestId("explorer-copy-dest-picker")).toBeInTheDocument();
+    expect(screen.getByTestId("explorer-copy-dest-error")).toHaveTextContent(
+      /enter a destination folder path/i,
+    );
+    fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
+      target: { value: "  " },
+    });
+    fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
+    expect(calls.onCopy).toHaveLength(0);
+    expect(screen.getByTestId("explorer-copy-dest-picker")).toBeInTheDocument();
+    await renderA11yGate(container);
+  });
+
   it("does not claim success when copy HTTP 400, 403, or 409 (#5551)", async () => {
     const { handlers, calls } = makeHandlers();
     const errors: string[] = [];
