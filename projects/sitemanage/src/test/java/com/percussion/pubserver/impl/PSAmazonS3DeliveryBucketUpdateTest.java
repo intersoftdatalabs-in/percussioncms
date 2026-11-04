@@ -39,6 +39,7 @@ class PSAmazonS3DeliveryBucketUpdateTest {
   @Test
   void bucketOnlyBodyIsOnlyBucket() {
     assertTrue(PSAmazonS3DeliveryBucketUpdate.isBucketOnly(bucketOnly("new-bucket")));
+    assertFalse(PSAmazonS3DeliveryRegionUpdate.isRegionOnly(bucketOnly("new-bucket")));
     assertFalse(PSDatabaseDeliverySchemaUpdate.isSchemaOnly(bucketOnly("new-bucket")));
     assertFalse(PSDatabaseDeliveryHostUpdate.isHostOnly(bucketOnly("new-bucket")));
     assertFalse(PSDatabaseDeliveryOwnerUpdate.isOwnerOnly(bucketOnly("new-bucket")));

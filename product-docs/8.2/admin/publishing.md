@@ -419,6 +419,24 @@ this save. Choosing **Set S3 bucket** on a Local, Oracle, or FTP server does not
 server's folder, schema, or FTP host. Region, access key, and secret key saves and full server
 edit (**Edit Server**) stay separate.
 
+### Set an S3 delivery-server region (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **AMAZONS3** (or **S3**). **Set S3 region** edits only the region. **Save S3 region**
+sends `PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `region` property.
+Bucket, server name, driver, and default flag stay as they were. Access key and secret key are
+not shown and are not sent again.
+
+A blank region is refused on the form (**S3 region is required**) and is not written. A region
+longer than 255 characters is refused the same way. **Cancel** does not call the server and
+keeps the previous region. HTTP **400**, **403**, and **409** stay on the form and keep the
+previous region. The new region is shown only after a successful save.
+
+**MYSQL**, **MSSQL**, **Oracle**, **FTP**, **FTPS**, **SFTP**, and a **Local** driver do not use
+this save. Choosing **Set S3 region** on a Local, Oracle, or FTP server does not change that
+server's folder, schema, or FTP host. Bucket, access key, and secret key saves and full server
+edit (**Edit Server**) stay separate.
+
 ### Set the FTP delivery-server port (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
