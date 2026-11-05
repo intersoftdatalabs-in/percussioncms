@@ -5,7 +5,7 @@
 Proves:
 * PASS on the real monorepo (allow-listed residuals only)
 * FAIL when a deliberate new bare production call-site is introduced
-  (negative probes use ``tmp_path`` only ΓÇö never dirties the real tree)
+  (negative probes use ``tmp_path`` only — never dirties the real tree)
 * Interface / typed-bridge / test / comment-only mentions are ignored
 * Directory prefixes do not silently allow new files
 """
@@ -24,8 +24,8 @@ SCRIPT = SCRIPT_DIR / "verify-no-bare-ipserrors.py"
 ALLOWLIST = SCRIPT_DIR / "ipserrors-residual-allowlist.txt"
 
 # Representative converted leftovers (not a directory prefix). Deployer
-# production leftovers converted in #3739/#3740/#4196 ΓÇö a new file under
-# deployer/ must fail. Servletutils Tomcat leftover converted in #4195/#4201 ΓÇö
+# production leftovers converted in #3739/#3740/#4196 — a new file under
+# deployer/ must fail. Servletutils Tomcat leftover converted in #4195/#4201 —
 # a new file under modules/servletutils/ must fail.
 SERVLETUTILS_CONVERTED = (
     "modules/servletutils/src/main/java/com/percussion/servlet_utils/tomcat/PSTomcatUtils.java"
@@ -346,7 +346,7 @@ def test_is_test_path_segment_detection() -> None:
 
 
 def test_new_file_under_sitemanage_tree_not_silently_allowed(tmp_path: Path) -> None:
-    """Exact residual list ΓÇö a new sitemanage file must fail (#3584 leftover)."""
+    """Exact residual list — a new sitemanage file must fail (#3584 leftover)."""
     fake_root = tmp_path / "repo"
     _init_fake_git_repo(fake_root)
     _write_and_add(
@@ -366,7 +366,7 @@ def test_new_file_under_sitemanage_tree_not_silently_allowed(tmp_path: Path) -> 
 
 
 def test_new_file_under_webservices_tree_not_silently_allowed(tmp_path: Path) -> None:
-    """Exact residual list ΓÇö a new webservices file must fail (#3585 leftover)."""
+    """Exact residual list — a new webservices file must fail (#3585 leftover)."""
     fake_root = tmp_path / "repo"
     _init_fake_git_repo(fake_root)
     _write_and_add(
