@@ -66,7 +66,7 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   // see base class
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -153,7 +153,7 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return PSIteratorUtils.emptyIterator();
   }
 
@@ -164,7 +164,7 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -184,7 +184,7 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
     PSDependencyFile file;
     file = new PSDependencyFile(PSDependencyFile.TYPE_DBMS_SCHEMA, dataFile);
 
-    List files = new ArrayList();
+    List<PSDependencyFile> files = new ArrayList<>();
     files.add(file);
 
     return files.iterator();
@@ -206,8 +206,8 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     // get the schema document from archive
-    Iterator files = getDependecyDataFiles(archive, dep);
-    PSDependencyFile file = (PSDependencyFile) files.next();
+    Iterator<PSDependencyFile> files = getDependecyDataFiles(archive, dep);
+    PSDependencyFile file = files.next();
 
     PSJdbcTableSchema schema = getSchema(file, archive);
     PSDbmsHelper.getInstance().processTable(schema);
