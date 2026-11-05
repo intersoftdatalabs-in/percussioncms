@@ -48,6 +48,8 @@ public final class CheckConfigReport {
     private final Path path;
 
     /**
+     * Performs the operation.
+     *
      * @param id stable machine-oriented check id (e.g. {@code server.enableDebugTools})
      * @param status outcome severity
      * @param message human-readable detail
@@ -60,22 +62,34 @@ public final class CheckConfigReport {
       this.path = path;
     }
 
-    /** @return stable check id */
+    /**
+     * Returns the value.
+     * @return stable check id 
+     */
     public String getId() {
       return id;
     }
 
-    /** @return outcome severity */
+    /**
+     * Returns the value.
+     * @return outcome severity 
+     */
     public CheckStatus getStatus() {
       return status;
     }
 
-    /** @return human-readable detail */
+    /**
+     * Returns the value.
+     * @return human-readable detail 
+     */
     public String getMessage() {
       return message;
     }
 
-    /** @return related path, or null */
+    /**
+     * Returns the value.
+     * @return related path, or null 
+     */
     public Path getPath() {
       return path;
     }
@@ -87,6 +101,8 @@ public final class CheckConfigReport {
   private final List<Check> checks = new ArrayList<>();
 
   /**
+   * Constructs a new instance.
+   *
    * @param command command token ({@code check-config})
    * @param installRoot resolved install root
    * @param dryRun echoed global flag (check-config never mutates regardless)
@@ -97,17 +113,26 @@ public final class CheckConfigReport {
     this.dryRun = dryRun;
   }
 
-  /** Append a checklist entry. */
+  /**
+   * Append a checklist entry. 
+   * @param check the value
+   */
   public void add(Check check) {
     checks.add(Objects.requireNonNull(check, "check"));
   }
 
-  /** @return command token */
+  /**
+   * Returns the value.
+   * @return command token 
+   */
   public String getCommand() {
     return command;
   }
 
-  /** @return install root used for this run */
+  /**
+   * Returns the value.
+   * @return install root used for this run 
+   */
   public Path getInstallRoot() {
     return installRoot;
   }
@@ -122,37 +147,57 @@ public final class CheckConfigReport {
     return dryRun;
   }
 
-  /** @return unmodifiable checklist */
+  /**
+   * Returns the value.
+   * @return unmodifiable checklist 
+   */
   public List<Check> getChecks() {
     return Collections.unmodifiableList(checks);
   }
 
-  /** @return number of checks */
+  /**
+   * Returns the value.
+   * @return number of checks 
+   */
   public int getCheckCount() {
     return checks.size();
   }
 
-  /** @return count of {@link CheckStatus#PASS} */
+  /**
+   * Returns the value.
+   * @return count of {@link CheckStatus#PASS} 
+   */
   public int getPassCount() {
     return count(CheckStatus.PASS);
   }
 
-  /** @return count of {@link CheckStatus#WARN} */
+  /**
+   * Returns the value.
+   * @return count of {@link CheckStatus#WARN} 
+   */
   public int getWarnCount() {
     return count(CheckStatus.WARN);
   }
 
-  /** @return count of {@link CheckStatus#FAIL} */
+  /**
+   * Returns the value.
+   * @return count of {@link CheckStatus#FAIL} 
+   */
   public int getFailCount() {
     return count(CheckStatus.FAIL);
   }
 
-  /** @return count of {@link CheckStatus#INFO} */
+  /**
+   * Returns the value.
+   * @return count of {@link CheckStatus#INFO} 
+   */
   public int getInfoCount() {
     return count(CheckStatus.INFO);
   }
 
   /**
+   * Returns the value.
+   *
    * @return true when no {@link CheckStatus#FAIL} entries (WARN/INFO allowed)
    */
   public boolean isHealthy() {

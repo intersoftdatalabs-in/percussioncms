@@ -46,8 +46,20 @@ public final class CheckLogsCommand {
   /** Alias. */
   public static final String COMMAND_ALIAS = "check-startup-logs";
 
+  /**
+   * The value.
+   *
+   */
   public static final String PHASE_ALL = "all";
+  /**
+   * The value.
+   *
+   */
   public static final String PHASE_STARTUP = "startup";
+  /**
+   * The value.
+   *
+   */
   public static final String PHASE_INSTALL = "install";
 
   /** Default tail size when reading large log files. */
@@ -116,6 +128,8 @@ public final class CheckLogsCommand {
     private final boolean requireInstall;
 
     /**
+     * Performs the operation.
+     *
      * @param phase {@link #PHASE_ALL}, {@link #PHASE_STARTUP}, or {@link #PHASE_INSTALL}
      * @param tailLines max lines to read from the end of each log (minimum 1)
      * @param requireStartup FAIL when no startup server.log present
@@ -128,22 +142,47 @@ public final class CheckLogsCommand {
       this.requireInstall = requireInstall;
     }
 
+    /**
+     * Performs the operation.
+     *
+     * @return the result
+     */
     public static Options defaults() {
       return new Options(PHASE_ALL, DEFAULT_TAIL_LINES, false, false);
     }
 
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public String getPhase() {
       return phase;
     }
 
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public int getTailLines() {
       return tailLines;
     }
 
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public boolean isRequireStartup() {
       return requireStartup;
     }
 
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public boolean isRequireInstall() {
       return requireInstall;
     }
@@ -151,6 +190,12 @@ public final class CheckLogsCommand {
 
   private CheckLogsCommand() {}
 
+  /**
+   * Returns the value.
+   *
+   * @param command the value
+   * @return the result
+   */
   public static boolean isCheckLogsCommand(String command) {
     return COMMAND_NAME.equals(command) || COMMAND_ALIAS.equals(command);
   }
@@ -254,6 +299,15 @@ public final class CheckLogsCommand {
     return report;
   }
 
+  /**
+   * Performs the operation.
+   *
+   * @param installRoot the value
+   * @param dryRun the value
+   * @return the result
+   * @throws java.io.IOException if an error occurs
+   * @throws java.io.IOException if an error occurs
+   */
   public static CheckLogsReport execute(Path installRoot, boolean dryRun) throws IOException {
     return execute(installRoot, dryRun, Options.defaults());
   }

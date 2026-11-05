@@ -46,6 +46,10 @@ public final class FixPermissionsReport {
     private final String detail;
 
     /**
+     * Constructs a new instance.
+     *
+     * Constructs a new instance.
+     *
      * @param path absolute or normalized path of the candidate
      * @param status outcome
      * @param detail human-readable detail (may be null)
@@ -56,17 +60,26 @@ public final class FixPermissionsReport {
       this.detail = detail;
     }
 
-    /** @return candidate path */
+    /**
+     * Returns the value.
+     * @return candidate path 
+     */
     public Path getPath() {
       return path;
     }
 
-    /** @return outcome status */
+    /**
+     * Returns the value.
+     * @return outcome status 
+     */
     public EntryStatus getStatus() {
       return status;
     }
 
-    /** @return optional detail message, or null */
+    /**
+     * Returns the value.
+     * @return optional detail message, or null 
+     */
     public String getDetail() {
       return detail;
     }
@@ -78,6 +91,10 @@ public final class FixPermissionsReport {
   private final List<Entry> entries = new ArrayList<>();
 
   /**
+   * Constructs a new instance.
+   *
+   * Constructs a new instance.
+   *
    * @param command command name ({@code fix-permissions})
    * @param installRoot resolved install root
    * @param dryRun whether this report is from a dry-run
@@ -88,37 +105,59 @@ public final class FixPermissionsReport {
     this.dryRun = dryRun;
   }
 
-  /** Append an inventory/action entry. */
+  /**
+   * Adds an entry.
+   *
+   * @param entry the entry
+   */
   public void add(Entry entry) {
     entries.add(Objects.requireNonNull(entry, "entry"));
   }
 
-  /** @return command name */
+  /**
+   * Returns the value.
+   * @return command name 
+   */
   public String getCommand() {
     return command;
   }
 
-  /** @return install root used for this run */
+  /**
+   * Returns the value.
+   * @return install root used for this run 
+   */
   public Path getInstallRoot() {
     return installRoot;
   }
 
-  /** @return true if no mode fixes were applied */
+  /**
+   * Returns the value.
+   * @return true if no mode fixes were applied 
+   */
   public boolean isDryRun() {
     return dryRun;
   }
 
-  /** @return unmodifiable list of entries */
+  /**
+   * Returns the value.
+   * @return unmodifiable list of entries 
+   */
   public List<Entry> getEntries() {
     return Collections.unmodifiableList(entries);
   }
 
-  /** @return number of entries */
+  /**
+   * Returns the value.
+   * @return number of entries 
+   */
   public int getCandidateCount() {
     return entries.size();
   }
 
-  /** @return count of successfully fixed entries */
+  /**
+   * Returns the value.
+   * @return count of successfully fixed entries 
+   */
   public int getFixedCount() {
     int n = 0;
     for (Entry e : entries) {
@@ -129,7 +168,10 @@ public final class FixPermissionsReport {
     return n;
   }
 
-  /** @return count of dry-run would-fix entries */
+  /**
+   * Returns the value.
+   * @return count of dry-run would-fix entries 
+   */
   public int getWouldFixCount() {
     int n = 0;
     for (Entry e : entries) {
@@ -140,7 +182,10 @@ public final class FixPermissionsReport {
     return n;
   }
 
-  /** @return count of failed entries */
+  /**
+   * Returns the value.
+   * @return count of failed entries 
+   */
   public int getFailedCount() {
     int n = 0;
     for (Entry e : entries) {

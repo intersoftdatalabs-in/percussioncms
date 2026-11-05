@@ -50,6 +50,8 @@ public final class CheckLogsReport {
     private final String match;
 
     /**
+     * Performs the operation.
+     *
      * @param id stable id (e.g. {@code log.server})
      * @param status outcome
      * @param message human-readable detail
@@ -64,22 +66,47 @@ public final class CheckLogsReport {
       this.match = match;
     }
 
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public String getId() {
       return id;
     }
 
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public CheckStatus getStatus() {
       return status;
     }
 
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public String getMessage() {
       return message;
     }
 
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public Path getPath() {
       return path;
     }
 
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public String getMatch() {
       return match;
     }
@@ -92,6 +119,8 @@ public final class CheckLogsReport {
   private final List<Check> checks = new ArrayList<>();
 
   /**
+   * Constructs a new instance.
+   *
    * @param command command token
    * @param installRoot resolved install root
    * @param dryRun echoed global flag
@@ -104,60 +133,126 @@ public final class CheckLogsReport {
     this.phase = Objects.requireNonNull(phase, "phase");
   }
 
+  /**
+   * Adds the value.
+   *
+   * @param check the value
+   */
   public void add(Check check) {
     checks.add(Objects.requireNonNull(check, "check"));
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public String getCommand() {
     return command;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public Path getInstallRoot() {
     return installRoot;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public boolean isDryRun() {
     return dryRun;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public String getPhase() {
     return phase;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public List<Check> getChecks() {
     return Collections.unmodifiableList(checks);
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public int getCheckCount() {
     return checks.size();
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public int getPassCount() {
     return count(CheckStatus.PASS);
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public int getSkipCount() {
     return count(CheckStatus.SKIP);
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public int getWarnCount() {
     return count(CheckStatus.WARN);
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public int getFailCount() {
     return count(CheckStatus.FAIL);
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public int getInfoCount() {
     return count(CheckStatus.INFO);
   }
 
-  /** @return true when no FAIL entries */
+  /**
+   * Returns the value.
+   * @return true when no FAIL entries 
+   */
   public boolean isHealthy() {
     return getFailCount() == 0;
   }
 
-  /** First FAIL match string, if any (for RESULT MATCH). */
+  /**
+   * First FAIL match string, if any (for RESULT MATCH). 
+   * @return the result
+   */
   public String firstFailMatch() {
     for (Check c : checks) {
       if (c.getStatus() == CheckStatus.FAIL && c.getMatch() != null && !c.getMatch().isEmpty()) {

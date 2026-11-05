@@ -45,6 +45,8 @@ public final class CleanReport {
     private final String detail;
 
     /**
+     * Performs the operation.
+     *
      * @param path absolute or normalized path of the candidate
      * @param sizeBytes size in bytes (0 if unknown / failed early)
      * @param status outcome
@@ -57,22 +59,34 @@ public final class CleanReport {
       this.detail = detail;
     }
 
-    /** @return candidate path */
+    /**
+     * Returns the value.
+     * @return candidate path 
+     */
     public Path getPath() {
       return path;
     }
 
-    /** @return size in bytes when known */
+    /**
+     * Returns the value.
+     * @return size in bytes when known 
+     */
     public long getSizeBytes() {
       return sizeBytes;
     }
 
-    /** @return outcome status */
+    /**
+     * Returns the value.
+     * @return outcome status 
+     */
     public EntryStatus getStatus() {
       return status;
     }
 
-    /** @return optional detail message, or null */
+    /**
+     * Returns the value.
+     * @return optional detail message, or null 
+     */
     public String getDetail() {
       return detail;
     }
@@ -84,6 +98,8 @@ public final class CleanReport {
   private final List<Entry> entries = new ArrayList<>();
 
   /**
+   * Constructs a new instance.
+   *
    * @param command command name (e.g. {@code clean-heap-dumps})
    * @param installRoot resolved install root
    * @param dryRun whether this report is from a dry-run
@@ -94,37 +110,58 @@ public final class CleanReport {
     this.dryRun = dryRun;
   }
 
-  /** Append an inventory/action entry. */
+  /**
+   * Append an inventory/action entry. 
+   * @param entry the value
+   */
   public void add(Entry entry) {
     entries.add(Objects.requireNonNull(entry, "entry"));
   }
 
-  /** @return command name */
+  /**
+   * Returns the value.
+   * @return command name 
+   */
   public String getCommand() {
     return command;
   }
 
-  /** @return install root used for this run */
+  /**
+   * Returns the value.
+   * @return install root used for this run 
+   */
   public Path getInstallRoot() {
     return installRoot;
   }
 
-  /** @return true if no deletes were performed */
+  /**
+   * Returns the value.
+   * @return true if no deletes were performed 
+   */
   public boolean isDryRun() {
     return dryRun;
   }
 
-  /** @return unmodifiable list of entries */
+  /**
+   * Returns the value.
+   * @return unmodifiable list of entries 
+   */
   public List<Entry> getEntries() {
     return Collections.unmodifiableList(entries);
   }
 
-  /** @return number of entries (including failed/skipped) */
+  /**
+   * Returns the value.
+   * @return number of entries (including failed/skipped) 
+   */
   public int getCandidateCount() {
     return entries.size();
   }
 
-  /** @return sum of sizes for non-failed entries */
+  /**
+   * Returns the value.
+   * @return sum of sizes for non-failed entries 
+   */
   public long getTotalBytes() {
     long total = 0L;
     for (Entry e : entries) {
@@ -136,7 +173,10 @@ public final class CleanReport {
     return total;
   }
 
-  /** @return count of successfully deleted entries */
+  /**
+   * Returns the value.
+   * @return count of successfully deleted entries 
+   */
   public int getDeletedCount() {
     int n = 0;
     for (Entry e : entries) {
@@ -147,7 +187,10 @@ public final class CleanReport {
     return n;
   }
 
-  /** @return count of failed entries */
+  /**
+   * Returns the value.
+   * @return count of failed entries 
+   */
   public int getFailedCount() {
     int n = 0;
     for (Entry e : entries) {

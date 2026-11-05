@@ -26,6 +26,8 @@ package com.intsof.percussioncms.doctor.api;
 public interface DoctorAdminChecker {
 
   /**
+   * Returns the value.
+   *
    * @return {@code true} only when the current request principal is an Admin user
    */
   boolean isCurrentUserAdmin();
