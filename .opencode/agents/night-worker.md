@@ -211,6 +211,9 @@ hand off to Human QA.
 - Approving or merging own-model-only Work PRs (this session's `model:*` and no other operator).
 - Erlang review in the host or Peer agent's own voice (host/peer always `subagent` → `erlang-review`). Work runs the Erlang skill CLI before opening the PR but must not self-APPROVE or self-merge.
 - Skipping other-model merge because `gh` login equals the PR author.
+- Unverified issue closes (manual `gh issue close`, or `Fixes #N` on a PR
+  whose body does not evidence every acceptance criterion). Umbrellas stay
+  open; spikes file follow-ons first; human-gated issues wait for the human.
 
 ## Output
 
@@ -222,6 +225,10 @@ At the end of the Report phase, write `${NIGHT_REPORT_PATH}` with:
 - PRs opened, follow-up'd, cluster'd
 - Cycle verify status
 - Human QA handoffs
+- Close audit: for every issue this run closed (via `Fixes #N` or otherwise),
+  one line stating which acceptance criterion each PR evidences; reopen with a
+  reason comment anything closed without it, and file the missing residual /
+  follow-on (see Work step 10).
 
 Do not commit the report file. It is a per-run artifact.
 

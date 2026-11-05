@@ -41,6 +41,8 @@ Unattended overnight worker. Specialists spawn only when Preflight (or this-run 
 
 **Merge policy (2.0.8+):** Goal is **merged bug-free PRs** with **residual issues logged** for leftover scope. Work **opens PRs only** (never APPROVEs or merges its own). **Erlang** (independent sub-agent) **MAY APPROVE and squash-merge** when LGTM + checks green. Hard-gate findings are **fixed on the same PR** (`erlang-fix`) then re-reviewed (one retry). Out-of-scope leftovers become residual GitHub issues — they do not block merge of in-scope work. GitHub same-login APPROVE rejection → COMMENT LGTM + `--admin` merge. Oversized issues become child issues, not mega-PRs.
 
+**Close gate:** A `Fixes #N` keyword (or any close) is a claim that **every** acceptance criterion in the issue body is met with evidence in the PR body — quantitative criteria need the number (warning counts, test counts), not a bare `BUILD SUCCESS`. Umbrella/tracker issues stay open across slice PRs; research spikes file their required follow-on issue before the spike PR merges; human-gated issues (ops review, UAT, legal, soak) wait for the recorded human sign-off — an agent docs PR that *proposes* a decision is not the decision. Manual `gh issue close` on a tracker/umbrella/spike is a defect. The host Report phase audits every close and reopens with a reason comment anything closed without evidence (2026-11-05: #1976/#2028/#2045/#2200 reopened, #5622 epic filed for #4717).
+
 ### Product-first queue (HARD)
 
 Every run classifies candidates as **PRODUCT** or **DEBT** before ranking.
