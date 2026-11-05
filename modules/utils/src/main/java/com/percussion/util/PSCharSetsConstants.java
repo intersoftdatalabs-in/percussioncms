@@ -20,6 +20,10 @@ import com.percussion.utils.tools.IPSUtilsConstants;
 
 /** Holds the server-independent methods that were once in PSCharSets */
 public class PSCharSetsConstants {
+
+  /** Default constructor. */
+  public PSCharSetsConstants() {}
+
   /**
    * Get the standard name of the preferred encoding for Rhythmyx. This encoding is guaranteed to be
    * acceptable for XML parsers and HTTP servers, and should be some kind of Unicode so that we can

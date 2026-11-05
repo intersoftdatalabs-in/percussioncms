@@ -47,10 +47,9 @@ public interface IPSDatasourceResolver extends IPSBeanConfig {
   void setDatasourceConfigurations(List<IPSDatasourceConfig> configs);
 
   /**
-   * Get the configurations to use to resolve datasources. s
+   * Get the datasource configurations.
    *
-   * @return The configs, never <code>null</code>, only empty if {@link
-   *     #setDatasourceConfigurations(List)} has never been called.
+   * @return the configurations, never <code>null</code>.
    */
   List<IPSDatasourceConfig> getDatasourceConfigurations();
 
@@ -62,14 +61,39 @@ public interface IPSDatasourceResolver extends IPSBeanConfig {
    */
   void setRepositoryDatasource(String datasourceName);
 
+  /**
+   * Get the datasource configurations for a connection.
+   *
+   * @param jndiName the JNDI name, may not be <code>null</code>.
+   * @return the configurations, never <code>null</code>.
+   */
   List<IPSDatasourceConfig> getDatasourceConfigurationsForConnection(String jndiName);
 
+  /**
+   * Get the datasource configuration by name.
+   *
+   * @param configName the config name, may not be <code>null</code>.
+   * @return the configuration, may be <code>null</code>.
+   */
   IPSDatasourceConfig getDatasourceConfiguration(String configName);
 
+  /**
+   * Get the repository datasource config.
+   *
+   * @return the config, may be <code>null</code>.
+   */
   default IPSDatasourceConfig getRepositoryDatasourceConfig() {
     return getDatasourceConfiguration(getRepositoryDatasource());
   }
 
+  /**
+   * Add a datasource config.
+   *
+   * @param name the name.
+   * @param dsName the datasource name.
+   * @param origin the origin.
+   * @param database the database.
+   */
   default void addDatasourceConfig(String name, String dsName, String origin, String database) {
     getDatasourceConfigurations().stream()
         .filter(ds -> !ds.getName().equals(name))
@@ -77,5 +101,10 @@ public interface IPSDatasourceResolver extends IPSBeanConfig {
         .add(new PSDatasourceConfig(name, dsName, origin, database));
   }
 
+  /**
+   * Get the properties.
+   *
+   * @return the properties, never <code>null</code>.
+   */
   Properties getProperties();
 }

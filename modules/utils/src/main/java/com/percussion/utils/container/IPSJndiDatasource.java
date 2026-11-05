@@ -19,6 +19,9 @@ package com.percussion.utils.container;
 
 import com.percussion.utils.container.jboss.PSJbossProperties;
 
+/**
+ * JNDI datasource configuration.
+ */
 public interface IPSJndiDatasource {
 
   /**
@@ -175,13 +178,38 @@ public interface IPSJndiDatasource {
    */
   int getIdleTimeout();
 
+  /**
+   * Get the connection test query.
+   *
+   * @return the query, may be <code>null</code>.
+   */
   String getConnectionTestQuery();
 
+  /**
+   * Set the connection test query.
+   *
+   * @param connectionTestQuery the query to set, may be <code>null</code>.
+   */
   void setConnectionTestQuery(String connectionTestQuery);
 
+  /**
+   * Whether the datasource is encrypted.
+   *
+   * @return <code>true</code> if encrypted, <code>false</code> otherwise.
+   */
   boolean isEncrypted();
 
+  /**
+   * Get the id.
+   *
+   * @return the id.
+   */
   int getId();
 
+  /**
+   * Set the id.
+   *
+   * @param id the id to set.
+   */
   void setId(int id);
 }

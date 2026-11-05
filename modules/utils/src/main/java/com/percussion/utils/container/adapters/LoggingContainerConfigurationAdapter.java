@@ -22,8 +22,14 @@ import com.percussion.utils.container.IPSConfigurationAdapter;
 import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
 import java.nio.file.Path;
 
+/**
+ * Logging container configuration adapter.
+ */
 public class LoggingContainerConfigurationAdapter
     implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
+
+  /** Default constructor. */
+  public LoggingContainerConfigurationAdapter() {}
 
   private boolean enabled = true;
 

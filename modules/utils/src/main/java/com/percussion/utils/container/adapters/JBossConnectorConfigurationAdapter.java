@@ -24,8 +24,14 @@ import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * JBoss connector configuration adapter.
+ */
 public class JBossConnectorConfigurationAdapter
     implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
+
+  /** Default constructor. */
+  public JBossConnectorConfigurationAdapter() {}
 
   @Override
   public void load(DefaultConfigurationContextImpl configurationContext) {

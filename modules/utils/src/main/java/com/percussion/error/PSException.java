@@ -127,6 +127,10 @@ public class PSException extends java.lang.Exception implements IPSException {
   /**
    * Convenience ctor that calls {@link #PSException(String,int,Object[]) PSException(language,
    * msgCode, null == singleArg ? null : new Object[] { singleArg })}.
+   *
+   * @param language the language.
+   * @param msgCode the message code.
+   * @param singleArg the single argument.
    */
   public PSException(String language, int msgCode, Object singleArg) {
     this(language, msgCode, null == singleArg ? null : new Object[] {singleArg});
@@ -343,6 +347,11 @@ public class PSException extends java.lang.Exception implements IPSException {
     m_typedErrorCode = e.m_typedErrorCode;
   }
 
+  /**
+   * Set the error manager.
+   *
+   * @param errorManager the error manager, may be <code>null</code>.
+   */
   public static void setErrorManager(IPSErrorManager errorManager) {
     PSException.errorManager = errorManager;
   }
@@ -412,8 +421,9 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
-   * Set the parsing error code associated with this exception. Final so subclasses cannot override
-   * and constructors can safely document that this mutator is not a this-escape vector.
+   * Set the error code.
+   *
+   * @param code the code.
    */
   public final void setErrorCode(int code) {
     m_code = code;
@@ -430,21 +440,29 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
-   * Typed error code when this exception was constructed via {@link #PSException(IPSErrorCode)} (or
-   * overloads); otherwise {@code null} for legacy int construction.
+   * Get the typed error code.
+   *
+   * @return the code, may be <code>null</code>.
    */
   public IPSErrorCode getTypedErrorCode() {
     return m_typedErrorCode;
   }
 
   /**
-   * Whether dual-write should consider this exception auditable. Prefer the typed code when present;
-   * legacy int construction returns {@code false} (handlers resolve auditability via the registry).
+   * Whether this exception is auditable.
+   *
+   * @return <code>true</code> if auditable.
    */
   public boolean isAuditable() {
     return m_typedErrorCode != null && m_typedErrorCode.isAuditable();
   }
 
+  /**
+   * Require a code.
+   *
+   * @param code the code, may not be <code>null</code>.
+   * @return the code.
+   */
   protected static IPSErrorCode requireCode(IPSErrorCode code) {
     if (code == null) {
       throw new IllegalArgumentException("code may not be null");
@@ -535,9 +553,10 @@ public class PSException extends java.lang.Exception implements IPSException {
   }
 
   /**
-   * Get the stack trace for the specified exception as a string.
+   * Get the stack trace as a string.
    *
-   * @param t the throwable (usually an exception)
+   * @param t the throwable.
+   * @return the stack trace.
    */
   public static String getStackTraceAsString(java.lang.Throwable t) {
     // for unknown exceptions, it's useful to log the stack trace
@@ -582,8 +601,13 @@ public class PSException extends java.lang.Exception implements IPSException {
     m_overridingMessage = StringUtils.isBlank(overridingMessage) ? null : overridingMessage;
   }
 
+  /** The code. */
   protected int m_code;
+
+  /** The args. */
   protected transient Object[] m_args;
+
+  /** The language. */
   protected String m_lang;
 
   /**
@@ -593,6 +617,8 @@ public class PSException extends java.lang.Exception implements IPSException {
   protected transient IPSErrorCode m_typedErrorCode;
 
   /**
+   * Overriding message.
+   *
    * @see #setOverridingMessage(String)
    */
   protected String m_overridingMessage;

@@ -17,7 +17,12 @@
 
 package com.percussion.install;
 
+/**
+ * OS enumeration.
+ */
 public enum OSEnum {
+  /** Windows OS. */
   Windows,
+  /** Linux OS. */
   Linux
 }

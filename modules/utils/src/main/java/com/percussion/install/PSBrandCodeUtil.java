@@ -37,6 +37,10 @@ import org.xml.sax.SAXException;
 /** This class has general utility methods. */
 public class PSBrandCodeUtil {
 
+  /** Default constructor. */
+  public PSBrandCodeUtil() {}
+
+
   /**
    * Returns the value of the specified attribute of the given element. If required is <code>true
    * </code> and the attribute does not exist then <code>CodeException</code> is thrown. If required

@@ -28,11 +28,22 @@ import java.util.concurrent.ConcurrentHashMap;
  * @param <V> the type of mapped values
  */
 public class PSBijectionMap<K, V> {
+  /**
+   * Constructor.
+   *
+   * @param initialCapacity the initial capacity.
+   */
   public PSBijectionMap(int initialCapacity) {
     m_values = new ConcurrentHashMap<K, V>(initialCapacity);
     m_keys = new ConcurrentHashMap<V, K>(initialCapacity);
   }
 
+  /**
+   * Put a key-value pair.
+   *
+   * @param key the key.
+   * @param value the value.
+   */
   public void put(K key, V value) {
     m_values.put(key, value);
     m_keys.put(value, key);
@@ -44,6 +55,8 @@ public class PSBijectionMap<K, V> {
    *
    * @return The previous value associated with this key, or <CODE>null</CODE> if this key was not
    *     paired with a value.
+   *
+   * @param key the key.
    */
   public V removePairingWithKey(K key) {
     V value = m_values.get(key);
@@ -60,6 +73,8 @@ public class PSBijectionMap<K, V> {
    *
    * @return The previous key associated with this value, or <CODE>null</CODE> if this value was not
    *     paired with a key.
+   *
+   * @param value the value.
    */
   public K removePairingWithValue(V value) {
     K key = m_keys.get(value);
@@ -75,6 +90,8 @@ public class PSBijectionMap<K, V> {
    *
    * @return the key paired with this value, or <CODE>null</CODE> if the value is not paired with a
    *     key.
+   *
+   * @param value the value.
    */
   public K getKey(V value) {
     return m_keys.get(value);
@@ -85,6 +102,8 @@ public class PSBijectionMap<K, V> {
    *
    * @return the value paired with this key, or <CODE>null</CODE> if the key is not paired with a
    *     value.
+   *
+   * @param key the key.
    */
   public V getValue(K key) {
     return m_values.get(key);

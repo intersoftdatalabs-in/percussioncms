@@ -38,9 +38,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.xml.sax.SAXException;
 
+/**
+ * Abstract XML connectors.
+ */
 public abstract class PSAbstractXmlConnectors extends PSAbstractConnectors implements XMLEnabled {
   // private XML constants
+  /** Server node name. */
   private static final String SERVER_NODE_NAME = "Server";
+
+  /** Service node name. */
   private static final String SERVICE_NODE_NAME = "Service";
 
   /** Xml node name of the Connector element. */
@@ -55,12 +61,24 @@ public abstract class PSAbstractXmlConnectors extends PSAbstractConnectors imple
   private static final Pattern ADDRESS_PATTERN =
       Pattern.compile("-b (\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})");
 
+  /** Properties. */
   protected Map<String, String> properties = new HashMap<>();
 
+  /**
+   * Constructor.
+   *
+   * @param connectorFileContet the context.
+   */
   public PSAbstractXmlConnectors(Path connectorFileContet) {
     super(connectorFileContet);
   }
 
+  /**
+   * Load lax properties.
+   *
+   * @param rxRootDir the root dir.
+   * @return the properties.
+   */
   protected Map<String, String> loadLaxProperties(Path rxRootDir) {
     HashMap<String, String> returnProps = new HashMap<>();
 
@@ -210,17 +228,34 @@ public abstract class PSAbstractXmlConnectors extends PSAbstractConnectors imple
     setConnectors(connList);
   }
 
+  /**
+   * Get the properties.
+   *
+   * @return the properties.
+   */
   public Map<String, String> getProperties() {
     return properties;
   }
 
+  /**
+   * Set the properties.
+   *
+   * @param properties the properties.
+   */
   public void setProperties(Map<String, String> properties) {
     this.properties = properties;
   }
 
+  /** Load. */
   public abstract void load();
 
+  /** Save. */
   public abstract void save();
 
+  /**
+   * Get the server file.
+   *
+   * @return the path.
+   */
   protected abstract Path getServerFile();
 }

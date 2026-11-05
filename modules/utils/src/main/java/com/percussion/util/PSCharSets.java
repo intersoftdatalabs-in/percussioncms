@@ -30,7 +30,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+  /** Member. */
 public class PSCharSets {
+
+  /** Default constructor. */
+  public PSCharSets() {}
+
   // CS_MAP_FILE must be defined before use in a static initializer (below)
   /** Name of the file in which character set maps are stored. */
   public static final String CS_MAP_FILE = "csmaps.xml";
@@ -133,6 +138,7 @@ public class PSCharSets {
     ms_localStdName = getStdName(ms_localJavaName);
   }
 
+  /** Member. */
   private static void fromXml(Element el) {
     PSXmlTreeWalker walker = new PSXmlTreeWalker(el);
     int firstFlags =
@@ -148,6 +154,7 @@ public class PSCharSets {
     }
   }
 
+  /** Member. */
   private static void addEncoding(PSEncoding enc) {
     // aliased as itself
     ms_encodings.put(enc.getStdName().toUpperCase(), enc);
@@ -162,8 +169,11 @@ public class PSCharSets {
     }
   }
 
+  /** Member. */
   private static String ms_localJavaName;
+  /** Member. */
   private static String ms_localStdName;
+  /** Member. */
   private static Map<String, PSEncoding> ms_encodings = new HashMap<String, PSEncoding>();
 
   static {
@@ -196,6 +206,7 @@ public class PSCharSets {
       fromXml(el);
     }
 
+  /** Member. */
     public void fromXml(Element el) {
       m_stdName = el.getAttribute("stdName");
       m_javaName = el.getAttribute("javaName");
@@ -219,38 +230,51 @@ public class PSCharSets {
       }
     }
 
+  /** Member. */
     public void addAlias(String alias) {
       m_aliases.add(alias);
     }
 
+  /** Member. */
     public Iterator<String> aliases() {
       return m_aliases.iterator();
     }
 
+  /** Member. */
     public String getJavaName() {
       return m_javaName;
     }
 
+  /** Member. */
     public String getStdName() {
       return m_stdName;
     }
 
+  /** Member. */
     public String getDescription() {
       return m_description;
     }
 
+  /** Member. */
     public String toString() {
       return m_stdName;
     }
 
+  /** Member. */
     private List<String> m_aliases;
+  /** Member. */
     private String m_javaName;
+  /** Member. */
     private String m_stdName;
+  /** Member. */
     private String m_description;
   }
 
+  /** Member. */
   public static final int CS_ASCII = 0x01;
+  /** Member. */
   public static final int CS_UTF8 = 0x02;
+  /** Member. */
   public static final int CS_ISO8859_1 = 0x04;
 
   /**
@@ -288,6 +312,7 @@ public class PSCharSets {
     return guessEncoding(bytes, 0, bytes.length);
   }
 
+  /** Member. */
   public static int guessEncoding(byte[] bytes, int off, int len) {
     int cs = CS_ASCII | CS_UTF8 | CS_ISO8859_1;
     boolean sawHigh = false;
@@ -338,12 +363,14 @@ public class PSCharSets {
     return cs;
   }
 
+  /** Member. */
   private static boolean isCtrlChar_ISO8859(byte b) {
     return (b >= (byte) 0x80 && b <= (byte) 0x9f);
   }
 
   // get the number of consecutive high order 1 bits
   // before the first 0 bit
+  /** Member. */
   private static int numFollowingBytes_UTF8(byte b) {
     int mask = 0x80;
     int num = 0;

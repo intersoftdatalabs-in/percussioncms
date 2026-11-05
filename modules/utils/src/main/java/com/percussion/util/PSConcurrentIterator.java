@@ -23,11 +23,15 @@ import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+  /** Member. */
 public class PSConcurrentIterator<T> implements Iterator<T> {
 
+  /** Member. */
   private final Iterator<T> iterator;
+  /** Member. */
   private static final Logger log = LogManager.getLogger(PSConcurrentIterator.class);
 
+  /** Member. */
   public PSConcurrentIterator(Iterator<T> iterator) {
     this.iterator = iterator;
   }
@@ -39,6 +43,7 @@ public class PSConcurrentIterator<T> implements Iterator<T> {
    * @return {@code true} if the iteration has more elements
    */
   @Override
+  /** Member. */
   public boolean hasNext() {
     return iterator.hasNext();
   }
@@ -50,6 +55,7 @@ public class PSConcurrentIterator<T> implements Iterator<T> {
    * @throws java.util.NoSuchElementException if the iteration has no more elements
    */
   @Override
+  /** Member. */
   public T next() {
     return iterator.next();
   }
@@ -68,6 +74,7 @@ public class PSConcurrentIterator<T> implements Iterator<T> {
    *     UnsupportedOperationException} and performs no other action.
    */
   @Override
+  /** Member. */
   public void remove() {
     try {
       throw new UnsupportedOperationException("PSConcurrentIterator does not support remove");
@@ -99,6 +106,7 @@ public class PSConcurrentIterator<T> implements Iterator<T> {
    * @since 1.8
    */
   @Override
+  /** Member. */
   public void forEachRemaining(Consumer<? super T> action) {
     this.iterator.forEachRemaining(action);
   }

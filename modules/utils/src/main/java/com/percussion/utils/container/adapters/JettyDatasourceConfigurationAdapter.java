@@ -70,9 +70,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * Jetty datasource configuration adapter.
+ */
 public class JettyDatasourceConfigurationAdapter
     implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
 
+  /** Default constructor. */
+  public JettyDatasourceConfigurationAdapter() {}
+
+  /** Logger. */
   public static final Logger ms_log =
       LogManager.getLogger(JettyDatasourceConfigurationAdapter.class);
 
@@ -103,6 +110,11 @@ public class JettyDatasourceConfigurationAdapter
     }
   }
 
+  /**
+   * Get the config class.
+   *
+   * @return the config class.
+   */
   public Class<? extends ContainerConfig> getConfigClass() {
     return BaseContainerUtils.class;
   }
@@ -148,6 +160,14 @@ public class JettyDatasourceConfigurationAdapter
     }
   }
 
+  /**
+   * Load rx datasources.
+   *
+   * @param dsFile the datasource file, may not be <code>null</code>.
+   * @param secretKey the secret key, may be <code>null</code>.
+   * @param props the properties, may be <code>null</code>.
+   * @param dsList the datasource list, may not be <code>null</code>.
+   */
   public void loadRxDatasources(
       File dsFile, String secretKey, Properties props, List<IPSJndiDatasource> dsList) {
 

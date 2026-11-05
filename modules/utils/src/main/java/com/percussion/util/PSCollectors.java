@@ -20,8 +20,10 @@ package com.percussion.util;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+  /** Member. */
 public class PSCollectors {
 
+  /** Member. */
   public static Collector<CharSequence, ?, String> commaSeparatedString() {
     return Collectors.joining(",");
   }

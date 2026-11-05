@@ -20,11 +20,31 @@ package com.percussion.utils.container;
 import java.nio.file.Path;
 import java.util.List;
 
+/**
+ * Provides information about a set of connectors.
+ *
+ * @param <T> the connector type.
+ */
 public interface IPSConnectorInfo<T extends IPSConnector> {
 
+  /**
+   * Get the connector file context.
+   *
+   * @return the connector file context, may be <code>null</code>.
+   */
   Path getConnectorFileContext();
 
+  /**
+   * Get the connectors.
+   *
+   * @return the connectors, never <code>null</code>.
+   */
   List<T> getConnectors();
 
+  /**
+   * Set the connectors.
+   *
+   * @param connectors the connectors to set, may be <code>null</code>.
+   */
   void setConnectors(List<T> connectors);
 }

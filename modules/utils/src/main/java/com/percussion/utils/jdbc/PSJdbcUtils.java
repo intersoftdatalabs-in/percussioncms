@@ -194,7 +194,6 @@ public class PSJdbcUtils {
   public static final String MICROSOFT_SQL_DRIVER_CLASSNAME =
       "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
-  /** Additional connection url parameters required to use unicode (UTF-8) with mysql. */
   /**
    * Default MySQL/MariaDB JDBC query string. {@code connectionCollation} keeps connection string
    * literals aligned with utf8mb4 table columns so CREATE VIEW … UNION install steps do not fail

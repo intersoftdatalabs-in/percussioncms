@@ -26,8 +26,14 @@ import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
 import java.nio.file.Path;
 import java.util.List;
 
+/**
+ * Jetty installation properties configuration adapter.
+ */
 public class JettyInstallationPropertiesConfigurationAdapter
     implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
+
+  /** Default constructor. */
+  public JettyInstallationPropertiesConfigurationAdapter() {}
 
   @Override
   public void load(DefaultConfigurationContextImpl configurationContext) {

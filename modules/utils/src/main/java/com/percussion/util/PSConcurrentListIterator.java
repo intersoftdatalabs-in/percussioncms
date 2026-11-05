@@ -23,11 +23,15 @@ import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+  /** Member. */
 public class PSConcurrentListIterator<T> implements ListIterator<T> {
 
+  /** Member. */
   private final ListIterator<T> iterator;
+  /** Member. */
   private static final Logger log = LogManager.getLogger(PSConcurrentListIterator.class);
 
+  /** Member. */
   public PSConcurrentListIterator(ListIterator<T> iterator) {
     this.iterator = iterator;
   }
@@ -41,6 +45,7 @@ public class PSConcurrentListIterator<T> implements ListIterator<T> {
    *     forward direction
    */
   @Override
+  /** Member. */
   public boolean hasNext() {
     return iterator.hasNext();
   }
@@ -55,6 +60,7 @@ public class PSConcurrentListIterator<T> implements ListIterator<T> {
    * @throws java.util.NoSuchElementException if the iteration has no next element
    */
   @Override
+  /** Member. */
   public T next() {
     return this.iterator.next();
   }
@@ -68,6 +74,7 @@ public class PSConcurrentListIterator<T> implements ListIterator<T> {
    *     reverse direction
    */
   @Override
+  /** Member. */
   public boolean hasPrevious() {
     return iterator.hasPrevious();
   }
@@ -82,6 +89,7 @@ public class PSConcurrentListIterator<T> implements ListIterator<T> {
    * @throws java.util.NoSuchElementException if the iteration has no previous element
    */
   @Override
+  /** Member. */
   public T previous() {
     return iterator.previous();
   }
@@ -94,6 +102,7 @@ public class PSConcurrentListIterator<T> implements ListIterator<T> {
    *     or list size if the list iterator is at the end of the list
    */
   @Override
+  /** Member. */
   public int nextIndex() {
     return iterator.nextIndex();
   }
@@ -106,6 +115,7 @@ public class PSConcurrentListIterator<T> implements ListIterator<T> {
    *     previous}, or -1 if the list iterator is at the beginning of the list
    */
   @Override
+  /** Member. */
   public int previousIndex() {
     return iterator.previousIndex();
   }
@@ -123,6 +133,7 @@ public class PSConcurrentListIterator<T> implements ListIterator<T> {
    *     {@code previous}
    */
   @Override
+  /** Member. */
   public void remove() {
     try {
       throw new UnsupportedOperationException("PSConcurrentListIterator does not support remove");
@@ -154,6 +165,7 @@ public class PSConcurrentListIterator<T> implements ListIterator<T> {
    * @since 1.8
    */
   @Override
+  /** Member. */
   public void forEachRemaining(Consumer<? super T> action) {
     iterator.forEachRemaining(action);
   }
@@ -176,6 +188,7 @@ public class PSConcurrentListIterator<T> implements ListIterator<T> {
    *     {@code previous}
    */
   @Override
+  /** Member. */
   public void set(T t) {
     try {
       throw new UnsupportedOperationException("PSConcurrentListIterator does not support set");
@@ -208,6 +221,7 @@ public class PSConcurrentListIterator<T> implements ListIterator<T> {
    *     this list
    */
   @Override
+  /** Member. */
   public void add(T t) {
     try {
       throw new UnsupportedOperationException("PSConcurrentListIterator does not support add");

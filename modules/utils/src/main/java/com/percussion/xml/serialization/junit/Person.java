@@ -41,34 +41,75 @@ public final class Person {
   /** Default ctor. Required by serializer. */
   public Person() {}
 
+  /**
+   * Constructor.
+   *
+   * @param first the first name.
+   * @param last the last name.
+   */
   public Person(String first, String last) {
     this.name = new Name(first, last);
   }
 
+  /**
+   * Set the name.
+   *
+   * @param name the name.
+   */
   public void setName(Name name) {
     this.name = name;
   }
 
+  /**
+   * Get the name.
+   *
+   * @return the name.
+   */
   public Name getName() {
     return name;
   }
 
+  /**
+   * Get the address.
+   *
+   * @return the address.
+   */
   public Address getAddress() {
     return address;
   }
 
+  /**
+   * Set the address.
+   *
+   * @param address the address.
+   */
   public void setAddress(Address address) {
     this.address = address;
   }
 
+  /**
+   * Add a book.
+   *
+   * @param book the book.
+   */
   public void addBook(Book book) {
     books.add(book);
   }
 
+  /**
+   * Get the books.
+   *
+   * @return the books.
+   */
   public List<Book> getBooks() {
     return books;
   }
 
+  /**
+   * Set the books.
+   *
+   * @param books the books.
+   */
   public void setBooks(Collection<Book> books) {
     this.books = new ArrayList<Book>(books);
   }

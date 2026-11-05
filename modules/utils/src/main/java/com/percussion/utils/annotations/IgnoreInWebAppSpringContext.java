@@ -22,7 +22,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Annotation to ignore in Spring context for web apps.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-/** Annotation to ignore in Spring context for web apps. */
 public @interface IgnoreInWebAppSpringContext {}

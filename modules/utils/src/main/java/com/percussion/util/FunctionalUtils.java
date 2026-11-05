@@ -25,11 +25,22 @@ import org.apache.commons.lang3.StringUtils;
 /** Utility class for functional programming. */
 public class FunctionalUtils {
 
+  /** Private constructor. */
+  private FunctionalUtils() {}
+
+  /** Pattern for splitting comma-separated strings. */
   public static Pattern COMMA_SPLIT = Pattern.compile(",");
 
+  /** Predicate for positive numbers or non-null objects. */
   public static Predicate<? super Object> IS_POSITIVE_NUMBER_OR_NOT_NULL =
       p -> p != null && (p instanceof Number) && (((Number) p).doubleValue() > 0);
 
+  /**
+   * Convert a comma-separated string to a stream.
+   *
+   * @param string the input string, may be <code>null</code>.
+   * @return the stream of trimmed non-blank tokens.
+   */
   public static Stream<String> commaStringToStream(String string) {
     return COMMA_SPLIT.splitAsStream(string).filter(StringUtils::isNotBlank).map(StringUtils::trim);
   }

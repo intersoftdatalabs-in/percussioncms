@@ -115,6 +115,7 @@ public class PSCollection<E> extends PSConcurrentList<E> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
+  /** Member. */
   public void add(int index, E o) throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(o);
 
@@ -131,6 +132,7 @@ public class PSCollection<E> extends PSConcurrentList<E> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
+  /** Member. */
   public boolean add(E o) throws ClassCastException {
     checkType(o);
 
@@ -159,6 +161,7 @@ public class PSCollection<E> extends PSConcurrentList<E> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
+  /** Member. */
   public boolean addAll(Collection<? extends E> c)
       throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(c);
@@ -177,6 +180,7 @@ public class PSCollection<E> extends PSConcurrentList<E> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
+  /** Member. */
   public boolean addAll(int index, Collection<? extends E> c)
       throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(c);
@@ -196,6 +200,7 @@ public class PSCollection<E> extends PSConcurrentList<E> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
+  /** Member. */
   public E set(int index, E o) throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(o);
 
@@ -219,6 +224,7 @@ public class PSCollection<E> extends PSConcurrentList<E> {
     set(index, o);
   }
 
+  /** Member. */
   public void insertElementAt(E o, int i) {
     this.add(i, o);
   }
@@ -242,6 +248,7 @@ public class PSCollection<E> extends PSConcurrentList<E> {
   }
 
   @Override
+  /** Member. */
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof PSCollection<?> that)) return false;
@@ -249,6 +256,7 @@ public class PSCollection<E> extends PSConcurrentList<E> {
   }
 
   @Override
+  /** Member. */
   public int hashCode() {
     return Objects.hash(m_memberClass);
   }
@@ -309,6 +317,7 @@ public class PSCollection<E> extends PSConcurrentList<E> {
     return copy;
   }
 
+  /** Member. */
   public E lastElement() {
     if (this.size() > 0) {
       return this.get(this.size() - 1);
@@ -317,14 +326,17 @@ public class PSCollection<E> extends PSConcurrentList<E> {
     }
   }
 
+  /** Member. */
   public void removeAllElements() {
     this.clear();
   }
 
+  /** Member. */
   public E elementAt(int index) {
     return this.get(index);
   }
 
+  /** Member. */
   public E firstElement() {
     if (this.size() > 0) return this.get(0);
     else throw new NoSuchElementException();
@@ -333,6 +345,7 @@ public class PSCollection<E> extends PSConcurrentList<E> {
   /** The one and only valid class type for this collection. */
   private Class<?> m_memberClass;
 
+  /** Member. */
   private static <T> Snapshot<T> snapshot(Iterator<? extends T> i) {
     ArrayList<T> items = new ArrayList<>();
     Class<?> member = null;
@@ -346,10 +359,14 @@ public class PSCollection<E> extends PSConcurrentList<E> {
     return new Snapshot<>(member, items);
   }
 
+  /** Member. */
   private static final class Snapshot<T> {
+  /** Member. */
     private final Class<?> memberClass;
+  /** Member. */
     private final ArrayList<T> items;
 
+  /** Member. */
     private Snapshot(Class<?> memberClass, ArrayList<T> items) {
       this.memberClass = memberClass;
       this.items = items;

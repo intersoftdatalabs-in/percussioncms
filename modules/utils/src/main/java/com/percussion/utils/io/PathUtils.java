@@ -29,11 +29,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Path utilities.
+ */
 public class PathUtils {
 
+  /** Default constructor. */
+  public PathUtils() {}
+
+  /** Root folder check item. */
   public static final String ROOT_FOLDER_CHECK_ITEM = "rxconfig";
+
+  /** User folder check item. */
   public static final String USER_FOLDER_CHECK_ITEM = ".perc_config";
 
+  /** Thread-local rx root. */
   private static ThreadLocal<File> threadRxRoot = new ThreadLocal<>();
 
   /** Logger */
@@ -48,6 +58,11 @@ public class PathUtils {
    */
   public static final String DEPLOY_DIR_PROP = "rxdeploydir";
 
+  /**
+   * Get the rx directory.
+   *
+   * @return the directory, may be <code>null</code>.
+   */
   public static File getRxDir() {
     return getRxDir(null);
   }
@@ -62,6 +77,7 @@ public class PathUtils {
    * If the directory is not detected then the user.home system folder is returned.
    *
    * @param startDirectory Defaults to current working directory.  may be null
+   * @return the directory, may be <code>null</code>.
    */
   public static File getRxDir(String startDirectory) {
     String baseDir = startDirectory;
@@ -115,15 +131,28 @@ public class PathUtils {
     return threadFile != null ? threadFile : RX_DIR;
   }
 
+  /**
+   * Get the rx path.
+   *
+   * @return the path.
+   */
   public static Path getRxPath() {
     return getRxDir(null).toPath();
   }
 
+  /**
+   * Clear the rx directory cache.
+   */
   public static void clearRxDir() {
     RX_DIR = null;
     threadRxRoot.remove();
   }
 
+  /**
+   * Set the rx directory.
+   *
+   * @param rxDir the directory, may not be <code>null</code>.
+   */
   public static void setRxDir(File rxDir) {
     if (rxDir == null) throw new IllegalArgumentException("Cannot set RxDir to null value");
     synchronized (PathUtils.class) {
@@ -146,10 +175,20 @@ public class PathUtils {
     }
   }
 
+  /**
+   * Set the thread-only rx directory.
+   *
+   * @param rxDir the directory, may be <code>null</code>.
+   */
   public static void setThreadOnlyRxDir(File rxDir) {
     threadRxRoot.set(rxDir);
   }
 
+  /**
+   * Unset the thread-only rx directory.
+   *
+   * @param rxDir the directory, may be <code>null</code>.
+   */
   public static void unsetThreadOnlyRxDir(File rxDir) {
     threadRxRoot.remove();
   }
@@ -218,7 +257,7 @@ public class PathUtils {
    * @param execPath Folder containing the jar
    * @param fileNameWithPattern A File name with a glob pattern like perc-ant-*.jar
    * @return Path to the ant jar
-   * @throws IOException
+   * @throws IOException if an I/O error occurs.
    */
   public static Path getVersionLessJarFilePath(Path execPath, String fileNameWithPattern)
       throws IOException {

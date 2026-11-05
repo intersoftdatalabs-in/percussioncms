@@ -32,7 +32,13 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Base HTTP utilities.
+ */
 public class PSBaseHttpUtils {
+
+  /** Default constructor. */
+  public PSBaseHttpUtils() {}
 
   /**
    * Reads the HTTP status line, which consists a series of (possibly encoded) characters terminated
@@ -98,8 +104,6 @@ public class PSBaseHttpUtils {
    *
    * <p>It is important to note that the HTTP 1.1 spec allows unlimited whitespace between tokens.
    * From section 2.1:
-   *
-   * <p>
    *
    * <BLOCKQUOTE>
    * The grammar described by this specification is word-based. Except where noted otherwise, linear
@@ -288,7 +292,7 @@ public class PSBaseHttpUtils {
 
   /**
    * Convenience method that calls {@link #parseQueryParamsString(String, boolean, boolean)
-   * parseQueryParamString(query, <code>false</code>, <code>true</code>)}.
+   * parseQueryParamString(query, false, true)}.
    */
   public static Map<String, Object> parseQueryParamsString(String query) {
     return parseQueryParamsString(query, false, true);

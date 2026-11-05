@@ -44,6 +44,7 @@ import java.util.function.UnaryOperator;
  */
 public class PSConcurrentList<T> implements List<T>, Serializable {
 
+  /** Member. */
   private static final long serialVersionUID = 1L;
 
   /**
@@ -61,18 +62,22 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
   /** Backing list; transient so custom serialization owns the payload. */
   private transient volatile List<T> list;
 
+  /** Member. */
   public PSConcurrentList() {
     list = new ArrayList<>();
   }
 
+  /** Member. */
   public PSConcurrentList(Class<T> clazz) {
     list = new ArrayList<>();
   }
 
+  /** Member. */
   public PSConcurrentList(Class<?> clazz, int capacity) {
     list = new ArrayList<>(capacity);
   }
 
+  /** Member. */
   public PSConcurrentList(List<T> list) {
     this.list = list != null ? list : new ArrayList<>();
   }
@@ -125,6 +130,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * @throws InvalidObjectException if the payload is present but not a list
    */
   @SuppressWarnings("unchecked")
+  /** Member. */
   private static <E> List<E> restoreList(Object raw) throws InvalidObjectException {
     if (raw == null) {
       return new ArrayList<>();
@@ -136,6 +142,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
     return new ArrayList<>((List<E>) raw);
   }
 
+  /** Member. */
   public boolean remove(Object o) {
     readWriteLock.writeLock().lock();
     boolean ret;
@@ -162,6 +169,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * @see #contains(Object)
    */
   @Override
+  /** Member. */
   public boolean containsAll(Collection<?> c) {
     boolean ret = false;
     readWriteLock.readLock().lock();
@@ -194,6 +202,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * @see #add(Object)
    */
   @Override
+  /** Member. */
   public boolean addAll(Collection<? extends T> c) {
     boolean ret = false;
     readWriteLock.writeLock().lock();
@@ -231,6 +240,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    *     size()</code>)
    */
   @Override
+  /** Member. */
   public boolean addAll(int index, Collection<? extends T> c) {
     boolean ret = false;
     readWriteLock.writeLock().lock();
@@ -261,6 +271,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * @see #contains(Object)
    */
   @Override
+  /** Member. */
   public boolean removeAll(Collection<?> c) {
     boolean ret = false;
     readWriteLock.writeLock().lock();
@@ -292,6 +303,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * @see #contains(Object)
    */
   @Override
+  /** Member. */
   public boolean retainAll(Collection<?> c) {
     boolean ret = false;
     readWriteLock.writeLock().lock();
@@ -327,6 +339,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * @since 1.8
    */
   @Override
+  /** Member. */
   public void replaceAll(UnaryOperator<T> operator) {
 
     readWriteLock.writeLock().lock();
@@ -338,6 +351,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
     }
   }
 
+  /** Member. */
   public boolean add(T t) {
     readWriteLock.writeLock().lock();
     boolean ret = false;
@@ -349,6 +363,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
     return ret;
   }
 
+  /** Member. */
   public void clear() {
     readWriteLock.writeLock().lock();
     try {
@@ -358,6 +373,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
     }
   }
 
+  /** Member. */
   public int size() {
     readWriteLock.readLock().lock();
     try {
@@ -367,6 +383,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
     }
   }
 
+  /** Member. */
   public boolean isEmpty() {
     readWriteLock.readLock().lock();
     boolean ret = false;
@@ -378,6 +395,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
     return ret;
   }
 
+  /** Member. */
   public boolean contains(Object o) {
     readWriteLock.readLock().lock();
     boolean ret = false;
@@ -389,6 +407,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
     return ret;
   }
 
+  /** Member. */
   public T get(int index) {
     T ret = null;
     readWriteLock.readLock().lock();
@@ -420,6 +439,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    *     size()</code>)
    */
   @Override
+  /** Member. */
   public T set(int index, T element) {
     T ret = null;
     readWriteLock.writeLock().lock();
@@ -451,6 +471,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    *     size()</code>)
    */
   @Override
+  /** Member. */
   public void add(int index, T element) {
 
     readWriteLock.writeLock().lock();
@@ -475,6 +496,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    *     size()</code>)
    */
   @Override
+  /** Member. */
   public T remove(int index) {
 
     T ret = null;
@@ -487,6 +509,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
     return ret;
   }
 
+  /** Member. */
   public int indexOf(Object o) {
     readWriteLock.readLock().lock();
     int ret = -1;
@@ -514,6 +537,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    *     null elements (<a href="Collection.html#optional-restrictions">optional</a>)
    */
   @Override
+  /** Member. */
   public int lastIndexOf(Object o) {
     int ret = -1;
     readWriteLock.readLock().lock();
@@ -532,6 +556,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * @return a list iterator over the elements in this list (in proper sequence)
    */
   @Override
+  /** Member. */
   public ListIterator<T> listIterator() {
     readWriteLock.readLock().lock();
     try {
@@ -557,6 +582,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    *     size()})
    */
   @Override
+  /** Member. */
   public ListIterator<T> listIterator(int index) {
     readWriteLock.readLock().lock();
     try {
@@ -573,7 +599,6 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * non-structural changes in the returned list are reflected in this list, and vice-versa. The
    * returned list supports all of the optional list operations supported by this list.
    *
-   * <p>
    *
    * <p>This method eliminates the need for explicit range operations (of the sort that commonly
    * exist for arrays). Any operation that expects a list can be used as a range operation by
@@ -587,7 +612,6 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * Similar idioms may be constructed for <code>indexOf</code> and <code>lastIndexOf</code>, and
    * all of the algorithms in the <code>Collections</code> class can be applied to a subList.
    *
-   * <p>
    *
    * <p>The semantics of the list returned by this method become undefined if the backing list
    * (i.e., this list) is <i>structurally modified</i> in any way other than via the returned list.
@@ -602,6 +626,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    *     toIndex &gt; size || fromIndex &gt; toIndex</code>)
    */
   @Override
+  /** Member. */
   public List<T> subList(int fromIndex, int toIndex) {
     readWriteLock.readLock().lock();
     try {
@@ -611,6 +636,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
     }
   }
 
+  /** Member. */
   public Iterator<T> iterator() {
     readWriteLock.readLock().lock();
     try {
@@ -634,6 +660,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * @see java.util.Arrays#asList(Object[])
    */
   @Override
+  /** Member. */
   public Object[] toArray() {
     readWriteLock.readLock().lock();
     try {
@@ -676,6 +703,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * @throws NullPointerException if the specified array is null
    */
   @Override
+  /** Member. */
   public <T1> T1[] toArray(T1[] a) {
     readWriteLock.readLock().lock();
     try {
@@ -686,6 +714,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
   }
 
   @Override
+  /** Member. */
   public String toString() {
     return "PSConcurrentList{" + "list=" + list + '}';
   }
@@ -733,6 +762,7 @@ public class PSConcurrentList<T> implements List<T>, Serializable {
    * @since 1.8
    */
   @Override
+  /** Member. */
   public void sort(Comparator<? super T> c) {
     rentrantLock.lock();
     try {

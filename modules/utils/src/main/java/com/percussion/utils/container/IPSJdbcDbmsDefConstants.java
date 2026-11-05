@@ -17,6 +17,9 @@
 
 package com.percussion.utils.container;
 
+/**
+ * Constants for JDBC DBMS definition properties.
+ */
 public interface IPSJdbcDbmsDefConstants {
 
   /** Constant for the name of the DB_BACKEND property. */
@@ -46,7 +49,12 @@ public interface IPSJdbcDbmsDefConstants {
   /** Constant for the name of the DB_SCHEMA property. */
   public static final String DB_SCHEMA_PROPERTY = "DB_SCHEMA";
 
+  /** Constant for the resource name. */
   public static final String DB_RESOURCE_NAME = "RESOURCE_NAME";
+
+  /** Constant for the connection test query. */
   public static final String DB_CONNECTION_TEST_QUERY = "CONNECTION_TEST_QUERY";
+
+  /** Constant for the datasource config name. */
   public static final String DSCONFIG_NAME = "DSCONFIG_NAME";
 }

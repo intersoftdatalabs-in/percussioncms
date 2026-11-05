@@ -24,14 +24,51 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+/**
+ * XML-enabled interface.
+ */
 public interface XMLEnabled {
+  /**
+   * Convert to XML.
+   *
+   * @param properties the properties, may be <code>null</code>.
+   * @return the document, may be <code>null</code>.
+   * @throws IOException if an I/O error occurs.
+   * @throws SAXException if a SAX error occurs.
+   * @throws PSInvalidXmlException if the XML is invalid.
+   */
   Document toXml(Map<String, String> properties)
       throws IOException, SAXException, PSInvalidXmlException;
 
+  /**
+   * Convert to XML.
+   *
+   * @return the document, may be <code>null</code>.
+   * @throws IOException if an I/O error occurs.
+   * @throws SAXException if a SAX error occurs.
+   * @throws PSInvalidXmlException if the XML is invalid.
+   */
   Document toXml() throws IOException, SAXException, PSInvalidXmlException;
 
+  /**
+   * Load from XML.
+   *
+   * @param el the element, may not be <code>null</code>.
+   * @param properties the properties, may be <code>null</code>.
+   * @throws IOException if an I/O error occurs.
+   * @throws SAXException if a SAX error occurs.
+   * @throws PSInvalidXmlException if the XML is invalid.
+   */
   void fromXml(Element el, Map<String, String> properties)
       throws IOException, SAXException, PSInvalidXmlException;
 
+  /**
+   * Load from XML.
+   *
+   * @param el the element, may not be <code>null</code>.
+   * @throws SAXException if a SAX error occurs.
+   * @throws IOException if an I/O error occurs.
+   * @throws PSInvalidXmlException if the XML is invalid.
+   */
   void fromXml(Element el) throws SAXException, IOException, PSInvalidXmlException;
 }

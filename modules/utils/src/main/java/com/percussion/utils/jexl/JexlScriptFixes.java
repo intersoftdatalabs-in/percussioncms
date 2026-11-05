@@ -22,21 +22,38 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * JEXL script fixes.
+ */
 public class JexlScriptFixes {
+
+  /** Default constructor. */
+  public JexlScriptFixes() {}
 
   /** The logger. */
   private static final Logger LOG = LogManager.getLogger(PSScript.class);
 
+  /** Constant. */
   public static final String REF_VAR = "\\$[a-zA-Z_$][0-9a-zA-Z_$]*";
 
+
+  /** Constant. */
   public static final Pattern REF_EQUALS_REGEX =
       Pattern.compile("(" + REF_VAR + ")=(" + REF_VAR + ")");
+
+  /** Constant. */
   public static final String REF_EQUALS_REGEX_REPL = "$1 = $2";
 
+
+  /** Constant. */
   public static final Pattern REF_NEQUALS_REGEX = Pattern.compile("!\\s*(" + REF_VAR + ")");
+
+  /** Constant. */
   public static final String REF_NEQUALS_REGEX_REPL = "! $1";
 
   // Match: foreach($item in list) or foreach($item in $list)
+
+  /** Constant. */
   public static final Pattern FOR_REGEX =
       Pattern.compile(
           "foreach\\s*\\(\\s*("
@@ -45,8 +62,18 @@ public class JexlScriptFixes {
               + REF_VAR
               + "|[a-zA-Z_$][0-9a-zA-Z_$.]*)\\s*\\)");
 
+
+  /** Constant. */
   public static final String FOR_REGEX_REPL = "for($1 : $2)";
 
+  /**
+   * Fix a script.
+   *
+   * @param scriptText the script text.
+   * @param ownerType the owner type.
+   * @param ownerName the owner name.
+   * @return the fixed script.
+   */
   public static String fixScript(String scriptText, String ownerType, String ownerName) {
 
     scriptText =

@@ -89,9 +89,24 @@ public interface IPSDatasourceManager {
   public Properties getHibernateProperties(IPSConnectionInfo info)
       throws NamingException, SQLException;
 
+  /**
+   * Set the default Hibernate properties.
+   *
+   * @param properties the properties to set, may be <code>null</code>.
+   */
   public void setDefaultHibernateProperties(Properties properties);
 
+  /**
+   * Get the dialect configuration.
+   *
+   * @return the dialect configuration, may be <code>null</code>.
+   */
   public IPSHibernateDialectConfig getDialectCfg();
 
+  /**
+   * Set the dialect configuration.
+   *
+   * @param dialectCfg the dialect configuration to set, may be <code>null</code>.
+   */
   public void setDialectCfg(IPSHibernateDialectConfig dialectCfg);
 }

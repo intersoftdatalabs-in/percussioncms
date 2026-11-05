@@ -79,6 +79,9 @@ import org.w3c.dom.Text;
 /** The InstallUtil class contains some utility methods for the installer. */
 public class InstallUtil {
 
+  /** Default constructor. */
+  public InstallUtil() {}
+
   private static final Logger log = LogManager.getLogger(InstallUtil.class);
 
   private static final String JETTY_PERC_LIB = "jetty/defaults/lib/perc/";
@@ -593,8 +596,6 @@ public class InstallUtil {
   /**
    * Modifies the supplied name as below, according to naming conventions:
    *
-   * <p>
-   *
    * <ol>
    *   <li>Replace all "-" with " "
    *   <li>Calls {@link #convertSpaceToUnderscore(String)} to replace spaces with underscores.
@@ -612,8 +613,6 @@ public class InstallUtil {
 
   /**
    * Modifies the supplied string as below:
-   *
-   * <p>
    *
    * <ol>
    *   <li>Replace all " " with "_"
@@ -770,6 +769,12 @@ public class InstallUtil {
     }
   }
 
+  /**
+   * Check whether Derby is running.
+   *
+   * @param dirName the directory name, may not be <code>null</code>.
+   * @return <code>true</code> if running, <code>false</code> otherwise.
+   */
   public static boolean isDerbyRunning(String dirName) {
     boolean isRunning = false;
 
@@ -1179,6 +1184,8 @@ public class InstallUtil {
   /**
    * Obtains connection using the derby connection information. The caller of this function is
    * responsible for closing the connection.
+   *
+   * @return the connection, may be <code>null</code>.
    */
   public static Connection createDerbyConnection() {
     return InstallUtil.createConnection("derby", "//localhost:152,derby_jv509", "derby", "demo");
@@ -1695,6 +1702,8 @@ public class InstallUtil {
   /**
    * This one is used if table not exist and we are performing operation on it So that this will
    * bypass the operation.
+   *
+   * @return <code>true</code> if the table does not exist, <code>false</code> otherwise.
    */
   public static boolean tableNotExists() {
     return false;
@@ -1705,6 +1714,7 @@ public class InstallUtil {
    * bypass the operation.
    *
    * @param e the SQLException
+   * @return <code>true</code> if the table does not exist, <code>false</code> otherwise.
    */
   public static boolean tableNotExists(SQLException e) {
     boolean notExists;
@@ -1723,7 +1733,7 @@ public class InstallUtil {
   /**
    * Set internal path to driver to use
    *
-   * @param rootDir
+   * @param rootDir the root directory, may not be <code>null</code>.
    */
   public static void setRootDir(String rootDir) {
     m_rootDir = rootDir;

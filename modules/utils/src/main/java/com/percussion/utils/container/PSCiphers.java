@@ -24,16 +24,25 @@ import java.util.Vector;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
+  /** Member. */
 public class PSCiphers {
+
+  /** Default constructor. */
+  public PSCiphers() {}
+
 
   /**
    * The List of ciphers supported by server. Initialized statically and never modified after that.
    */
   private static Vector<String> system_ciphers = new Vector<String>(8);
 
+  /** Member. */
   private static ArrayList<String> modern_ciphers = new ArrayList<String>();
+  /** Member. */
   private static ArrayList<String> intermediate_ciphers = new ArrayList<String>();
+  /** Member. */
   private static ArrayList<String> modern_combined_ciphers;
+  /** Member. */
   private static ArrayList<String> intermediate_combined_ciphers;
 
   static {
@@ -68,14 +77,17 @@ public class PSCiphers {
     intermediate_combined_ciphers.retainAll(system_ciphers);
   }
 
+  /** Member. */
   public static List<String> getSystemCiphers() {
     return system_ciphers;
   }
 
+  /** Member. */
   public static List<String> getModernCiphers() {
     return modern_combined_ciphers;
   }
 
+  /** Member. */
   public static List<String> getIntermediateCiphers() {
     return intermediate_combined_ciphers;
   }
