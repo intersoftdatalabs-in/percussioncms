@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
  * 
  * @author dougrand
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public enum PSEditionType {
    /**
     * Manual editions are not much used at this point. They are primarily used

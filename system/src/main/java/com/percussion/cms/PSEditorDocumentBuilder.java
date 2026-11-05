@@ -98,7 +98,6 @@ import org.w3c.dom.NodeList;
  * Element, String) addHiddenField} method. Otherwise, it should be added using its {@link
  * IPSBuildContext#addVisibleField(Element,String) addVisibleField} method.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSEditorDocumentBuilder {
   /**
    * A 1 letter string used as a key to obtain the content id extractor. Use with {@link

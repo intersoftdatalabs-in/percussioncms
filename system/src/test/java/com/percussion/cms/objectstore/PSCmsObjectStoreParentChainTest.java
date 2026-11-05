@@ -40,7 +40,6 @@ import org.w3c.dom.Element;
  * Behavioral coverage for typed {@code parentComponents} on cms.objectstore implementors of {@link
  * IPSComponent} (#2937 / parent #2455).
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCmsObjectStoreParentChainTest {
 
   @Test

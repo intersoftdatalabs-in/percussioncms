@@ -34,7 +34,6 @@ import java.util.List;
  * <p>This class constructs an appropriate representation of the definitions that can be executed
  * repeatedly at run time using the {@link #isMatch(PSExecutionData) isMatch} method.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRuleListEvaluator {
   /**
    * Constructs a rule list evaluator, building an appropriate internal representation of the

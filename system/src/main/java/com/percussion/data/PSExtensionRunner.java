@@ -63,7 +63,6 @@ import org.w3c.dom.Document;
  *
  * <p>Typically the caller will construct this extension runner with an extension
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSExtensionRunner {
   private static final Logger ms_log = LogManager.getLogger(PSExtensionRunner.class);
 

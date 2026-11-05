@@ -31,7 +31,6 @@ import com.percussion.log.PSLogSubMessage;
  * @since 1.0
  */
 // REFACTORED: CP-JAVA11
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSErrorException extends PSException {
   /**
    * Constructs a new <code>PSErrorException</code> to allow the specified <code>PSLogError</code>

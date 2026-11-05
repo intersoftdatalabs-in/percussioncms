@@ -23,7 +23,6 @@ package com.percussion.data.jdbc.sqlparser;
  * <p>You can modify this class to customize your error reporting mechanisms so long as you retain
  * the public fields.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class ParseException extends Exception {
 
   /**

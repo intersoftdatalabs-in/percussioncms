@@ -24,7 +24,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Represents a global lookup choice, with {@link PSEntry} children. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSGlobalLookup extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

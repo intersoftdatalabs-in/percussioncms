@@ -177,7 +177,6 @@ import javax.security.cert.X509Certificate;
  * @author Ronald Tschalär
  */
 @Deprecated
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class HTTPConnection implements GlobalConstants, HTTPClientModuleConstants {
   /** The current version of this package. */
   public static final String version = "RPT-HTTPClient/0.3-3E";

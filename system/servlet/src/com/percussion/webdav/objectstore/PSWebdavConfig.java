@@ -25,7 +25,6 @@ import java.util.Map;
  * information that is specified in the RxWebdavConfig.xml and the servlet
  * parameters in the web.xml of the WebDAV servlet.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSWebdavConfig
 {
    /**

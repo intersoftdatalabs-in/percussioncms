@@ -48,7 +48,7 @@ import org.xml.sax.SAXException;
  * using new or old style templating based on whether the stylesheet imports any global template or
  * not.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
+@SuppressWarnings(value = {"unchecked"})
 public class PSRxGlobals extends PSLoggable {
   /**
    * Constructor. Loads the <em>rx_Globals.xsl</em> or <em>rx_GlobalTemplates.xsl</em> (post 5.5 of

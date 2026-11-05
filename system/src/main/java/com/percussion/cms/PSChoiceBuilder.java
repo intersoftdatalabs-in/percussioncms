@@ -75,7 +75,6 @@ import org.w3c.dom.Text;
  * A utility class to produce the XML output for choices passed to the XSL that generates the
  * output.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSChoiceBuilder {
 
   private static final Logger log = LogManager.getLogger(PSChoiceBuilder.class);

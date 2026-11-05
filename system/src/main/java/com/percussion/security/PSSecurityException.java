@@ -26,7 +26,6 @@ import com.percussion.error.PSRuntimeException;
  * This exception is thrown when a serious problem occurs that prevents the security sub-system from
  * obtaining the information it needs to perform the requested action.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSecurityException extends PSRuntimeException {
   /**
    * Constructs a new exception based on an existing exception. Used to pass through exceptions.

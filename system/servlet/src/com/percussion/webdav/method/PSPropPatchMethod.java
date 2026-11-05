@@ -37,7 +37,6 @@ import org.w3c.dom.Element;
  * This class implements the PROPPATCH WebDAV method. Current implementaion
  * does not allow set or remove any properties.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSPropPatchMethod extends PSWebdavMethod
 {
    /**

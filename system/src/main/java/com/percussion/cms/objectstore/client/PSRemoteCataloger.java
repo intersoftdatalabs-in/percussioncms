@@ -39,7 +39,6 @@ import org.w3c.dom.Element;
  * Cataloger used on the client side by the clients which cannot use designer connection e.g
  * cataloging client calls from the applet.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRemoteCataloger implements IPSCataloger {
   private static final Logger log = LogManager.getLogger(PSRemoteCataloger.class);
 

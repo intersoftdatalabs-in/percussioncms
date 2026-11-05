@@ -35,7 +35,6 @@ import org.w3c.dom.Document;
  * treated as XML or a single value.
  */
 // REFACTORED: CP-JAVA11
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSTraceFileInfo extends PSTraceMessage {
 
   /**

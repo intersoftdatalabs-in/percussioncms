@@ -38,7 +38,6 @@ import org.junit.jupiter.api.io.TempDir;
  * Multithreading tests for the lock manager implementation. Set up some fake applications to lock,
  * then spawn a bunch of threads that attempt to acquire locks with different parameters.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSXmlObjectStoreLockManagerTest {
 
   private static final Logger log = LogManager.getLogger(PSXmlObjectStoreLockManagerTest.class);

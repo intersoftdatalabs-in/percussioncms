@@ -29,7 +29,6 @@ import java.util.List;
 import org.apache.commons.beanutils.Converter;
 
 /** Test the {@link PSTransitionConverter} */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSTransitionConverterTest {
   /**
    * Test the converter

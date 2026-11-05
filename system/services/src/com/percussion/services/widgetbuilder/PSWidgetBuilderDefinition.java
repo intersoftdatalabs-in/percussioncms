@@ -40,7 +40,6 @@ import java.util.StringJoiner;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSWidgetBuilderDefinition")
 @Table(name = "PSX_WIDGETBUILDERDEFINITION")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSWidgetBuilderDefinition extends PSAbstractDataObject {
 
     @Id

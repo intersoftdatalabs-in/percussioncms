@@ -42,7 +42,6 @@ import java.util.Map;
 /**
  * This class supplies cloning functionality for the different object types supported by the system.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCloneFactory {
   /** Private constructor to force the user to use the static methods. */
   private PSCloneFactory() {}

@@ -43,7 +43,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implements the PSXRelationship element defined in PSXRelationshipSet.dtd. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRelationship extends PSComponent {
   /** Generated serial number. */
   private static final long serialVersionUID = 1L;

@@ -30,7 +30,6 @@ import org.w3c.dom.Element;
  * This class is used to specify the relationship a class has to its parent. This relationship
  * identifies a row in a relationship table in the database.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRelation extends PSDatabaseComponent implements Cloneable {
 
   private static final long serialVersionUID = 1L;

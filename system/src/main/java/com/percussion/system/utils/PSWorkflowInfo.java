@@ -32,7 +32,6 @@ import org.w3c.dom.NodeList;
  * sys_psxWorkflowCataloger/workflowinfo</code> resource. It is used query states and transitions of
  * a specified workflow.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSWorkflowInfo {
   /**
    * Constructs the object from its XML representation. Its DTD is in the following format:

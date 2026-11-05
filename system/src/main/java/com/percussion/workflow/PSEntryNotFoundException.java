@@ -19,7 +19,6 @@ package com.percussion.workflow;
 import com.percussion.error.IPSErrorCode;
 import com.percussion.error.PSException;
 
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSEntryNotFoundException extends PSException {
   /**
    * Construct the exception using error message text.

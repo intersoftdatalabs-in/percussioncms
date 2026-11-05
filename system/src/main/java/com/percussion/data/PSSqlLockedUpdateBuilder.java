@@ -37,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see PSQueryOptimizer
  * @see PSQueryJoiner
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSqlLockedUpdateBuilder extends PSSqlUpdateBuilder {
   /**
    * Construct a SQL builder to build an UPDATE statement.

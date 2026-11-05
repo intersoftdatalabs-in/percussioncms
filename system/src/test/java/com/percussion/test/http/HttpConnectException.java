@@ -17,7 +17,6 @@
 package com.percussion.test.http;
 
 /** Exception to signal that an attempt to establish an HTTP connction failed. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class HttpConnectException extends Exception {
   /**
    * A constructor taking an error message.

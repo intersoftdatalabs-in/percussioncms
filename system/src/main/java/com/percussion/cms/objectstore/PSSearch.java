@@ -50,7 +50,6 @@ import org.w3c.dom.Element;
  * @see PSVersionableDbComponent for base class description.
  */
 // Final leaf — default/named Element ctors assign without subclass this-escape risk.
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSSearch extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
 
   /** Serialization id for {@link java.io.Serializable}. */

@@ -29,7 +29,6 @@ import jakarta.servlet.Servlet;
  * hard-code the supported methods and <code>PSWebdavServlet</code> class
  * name. 
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSWebDavServletController extends ServletWrappingController
 {
    /**

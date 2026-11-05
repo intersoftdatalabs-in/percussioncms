@@ -54,7 +54,6 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
     setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
     creatorVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonPropertyOrder({"dependents", "id"})
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDependency implements Serializable {
   /** Compiler generated serial version ID used for serialization. */
   private static final long serialVersionUID = -5933263029349676677L;

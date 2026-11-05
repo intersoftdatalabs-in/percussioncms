@@ -41,7 +41,6 @@ import org.w3c.dom.Element;
  * fields clear {@code -Xlint:serial} serial-field. Contained components are also {@link
  * Serializable}. Wire/XML behavior is unchanged.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDatabaseComponentCollection extends PSDatabaseComponent implements Serializable {
 
   private static final long serialVersionUID = 1L;

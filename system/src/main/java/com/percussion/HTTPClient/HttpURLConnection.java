@@ -84,7 +84,6 @@ import java.util.Map;
  * @since V0.3
  */
 @Deprecated
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class HttpURLConnection extends java.net.HttpURLConnection {
   protected static ThreadLocal ms_connectionMap = new ThreadLocal();
 

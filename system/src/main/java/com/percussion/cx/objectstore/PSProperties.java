@@ -28,7 +28,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 /** The class that is used to represent properties as defined by 'sys_Props.dtd'. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSProperties implements IPSComponent {
   /** The default constructor to create properties with empty list. */
   public PSProperties() {}

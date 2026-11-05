@@ -29,7 +29,6 @@ import org.w3c.dom.Element;
  * This class holds one clone handler configuration in memory. It creates or reads documents
  * conforming to the sys_CloneHandlerConfig.dtd.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCloneHandlerConfig extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

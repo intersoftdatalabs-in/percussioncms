@@ -50,7 +50,6 @@ import java.lang.reflect.Constructor;
  * @version 1.0
  * @since 1.0
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSDataExtractorFactory {
   /**
    * Create a data extractor for the specified replacement value.
@@ -72,7 +71,7 @@ public abstract class PSDataExtractorFactory {
       if (constructor != null) {
         try {
           Object[] args = {replValue};
-          ret = (IPSDataExtractor) constructor.newInstance((Object[]) args);
+          ret = (IPSDataExtractor) constructor.newInstance(args);
         } catch (InstantiationException
             | IllegalArgumentException
             | IllegalAccessException

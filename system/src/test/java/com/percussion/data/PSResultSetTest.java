@@ -24,7 +24,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 
 /** Unit tests for the PSResultSet class */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSResultSetTest {
   /**
    * Set the result set's data to our data, then iterate through the result set and test values

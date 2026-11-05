@@ -37,7 +37,6 @@ import java.util.HashMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSMetadataExtractorServiceTests {
 
   @TempDir public Path temporaryFolder;

@@ -25,7 +25,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** This class represents a collection of <code>PSMacroDefinition</code> objects. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSMacroDefinitionSet extends PSCollectionComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

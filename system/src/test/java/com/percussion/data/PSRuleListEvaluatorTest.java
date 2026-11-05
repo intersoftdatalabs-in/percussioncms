@@ -30,7 +30,6 @@ import org.junit.jupiter.api.Test;
 
 /** Unit test for the <code>PSRuleListEvaluator</code>. */
 @Disabled("Temporarily disabled — failing in perc-system test run")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRuleListEvaluatorTest {
   /** Test AND rule evaluations. */
   @Test

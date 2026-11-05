@@ -49,7 +49,6 @@ import org.w3c.dom.Node;
  * @author Paul Howard
  * @version 1.0
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDbComponentList extends PSDbComponent {
   /**
    * Convenience method that calls {@link #PSDbComponentList(String, String)
@@ -361,7 +360,6 @@ public class PSDbComponentList extends PSDbComponent {
    * @param src never {@code null}
    * @param nodeName expected root element name, never {@code null} or empty
    */
-  @SuppressWarnings({"unchecked","varargs"})
   private void fromXmlLoad(Element src, String nodeName) throws PSUnknownNodeTypeException {
     // don't call super.fromXml because we don't use the key and state
     if (null == src) throw new IllegalArgumentException("Source element cannot be null.");
@@ -408,7 +406,7 @@ public class PSDbComponentList extends PSDbComponent {
       while (aEl != null && aEl.getNodeName().equalsIgnoreCase(strNodeName)) {
         // Create the class
         args[0] = aEl;
-        PSDbComponent aCmp = (PSDbComponent) ctor.newInstance((Object[]) args);
+        PSDbComponent aCmp = (PSDbComponent) ctor.newInstance(args);
 
         // must be set before we can add
         if (m_memberComponentType == null) m_memberComponentType = aCmp.getComponentType();

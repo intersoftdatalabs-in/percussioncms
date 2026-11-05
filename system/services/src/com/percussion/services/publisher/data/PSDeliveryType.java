@@ -56,7 +56,6 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
     setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
     creatorVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonPropertyOrder({"beanName", "description", "guid", "name", "unpublishingRequiresAssembly"})
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDeliveryType implements IPSDeliveryType {
   @Id long id;
 

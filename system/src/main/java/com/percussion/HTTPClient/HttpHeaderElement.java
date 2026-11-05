@@ -28,7 +28,6 @@ package com.percussion.HTTPClient;
  * @author Ronald Tschalär
  */
 @Deprecated
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class HttpHeaderElement {
   /** element name */
   private String name;

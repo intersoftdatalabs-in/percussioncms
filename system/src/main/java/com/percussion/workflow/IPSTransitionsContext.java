@@ -27,7 +27,6 @@ import java.util.List;
  * @version 1.0
  * @since 2.0
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public interface IPSTransitionsContext {
   public static final int NORMAL_TRANSITION = 0;
   public static final int AGING_TRANSITION = 1;

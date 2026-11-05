@@ -24,7 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @see com.percussion.server.IPSRequestHandler
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCatalogHandler extends PSCatalogRequestHandler {
   /** Construct the macro catalog handler. */
   public PSCatalogHandler() {

@@ -23,7 +23,6 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
 /** Class to convert v5.x {@link PSLegacyTableLocator} to use datasources. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSTableLocatorConverter extends PSBaseComponentConverter {
 
   /**

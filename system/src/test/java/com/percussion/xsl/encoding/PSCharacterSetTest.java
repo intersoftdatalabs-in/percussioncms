@@ -51,7 +51,6 @@ import org.w3c.dom.Document;
  * method for the Saxon XSLT processor.
  */
 @Tag("UnitTest")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCharacterSetTest {
 
   public PSCharacterSetTest() {}

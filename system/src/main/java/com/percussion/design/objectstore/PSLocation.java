@@ -29,7 +29,6 @@ import org.w3c.dom.Element;
  * Implementation for the PSXLocation DTD in BasicObjects.dtd. This object is used to indicate where
  * custom actions are to be displayed.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSLocation extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

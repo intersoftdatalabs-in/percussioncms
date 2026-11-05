@@ -76,7 +76,6 @@ import org.w3c.dom.Element;
 })
 @DynamicInsert
 @DynamicUpdate
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSComponentSummary extends PSDbComponent implements Serializable {
   /** Serial id identifies versions of serialized data */
   private static final long serialVersionUID = 1L;
@@ -211,7 +210,7 @@ public final class PSComponentSummary extends PSDbComponent implements Serializa
    * @return the last public revision. It is <code>-1</code> if there is no public revision yet.
    */
   public int getPublicRevision() {
-    if (m_publicRevision == null) return -1;
+    if (m_publicRevision == null) return (int) -1;
     else return m_publicRevision.intValue();
   }
 

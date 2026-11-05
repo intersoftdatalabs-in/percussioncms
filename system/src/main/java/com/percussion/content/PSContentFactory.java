@@ -70,7 +70,6 @@ import org.xml.sax.SAXException;
  * representable in UTF-8 (or soon will be). This guarantee cannot be made for any non-Unicode
  * encodings.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSContentFactory {
   /** Logger to use. */
   private static final Logger log = LogManager.getLogger(PSContentFactory.class);

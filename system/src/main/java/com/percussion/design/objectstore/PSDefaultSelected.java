@@ -25,7 +25,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXDefaultSelected DTD in BasicObjects.dtd. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDefaultSelected extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

@@ -32,7 +32,6 @@ import java.util.List;
  * @param <T> a type variable
  * @param <PK> the primary key for that type
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public interface IPSGenericDao<T, PK extends Serializable> {
     /**
      * Gets all objects of a particular type (all rows in a table).

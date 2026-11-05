@@ -53,7 +53,6 @@ import org.w3c.dom.Document;
  * creating a summary editor. A summary editor is basically a child table editor, which allows
  * actions on whole rows, but not modifying fields within the row.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder {
   /**
    * The display text for the 'add child' main form button. By default, this action causes the row

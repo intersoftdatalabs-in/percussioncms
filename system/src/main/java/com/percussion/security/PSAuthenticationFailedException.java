@@ -29,7 +29,6 @@ import com.percussion.error.PSException;
  * @version 1.0
  * @since 1.0
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSAuthenticationFailedException extends PSException {
   /** Constructs an authentication failed exception with the default message. */
   public PSAuthenticationFailedException(String type, String instanceName, String uid) {

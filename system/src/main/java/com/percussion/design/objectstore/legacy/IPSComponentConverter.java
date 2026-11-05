@@ -27,7 +27,6 @@ import org.w3c.dom.Element;
  * for which {@link #canConvertComponent(Class)} returns <code>true</code>, and then copy the state
  * of the returned component to itself rather than calling it's own <code>fromXml()</code> method.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public interface IPSComponentConverter {
   /**
    * Uses the supplied element containing the legacy XML to correctly instantiate the new component,

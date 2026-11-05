@@ -55,7 +55,6 @@ import org.xml.sax.SAXException;
  *     ? = 1 instance of any character
  * </pre>
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSStylesheetCleanupFilter {
   private static final Logger log = LogManager.getLogger(PSStylesheetCleanupFilter.class);
 

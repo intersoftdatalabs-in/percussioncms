@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /** Test case for the {@link PSLegacyServerConfig} class. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSLegacyServerConfigTest extends PSBaseXmlConfigTest {
   /** Constant for the test legacy server config file. */
   public static final String TEST_LEGACY_CONFIG_FILE =

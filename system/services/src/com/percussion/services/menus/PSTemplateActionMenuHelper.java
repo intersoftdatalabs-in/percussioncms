@@ -62,7 +62,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSTemplateActionMenuHelper {
     // see IPSResultDocumentProcessor#canModifyStyleSheet()
     public boolean canModifyStyleSheet()

@@ -63,7 +63,6 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
     setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
     creatorVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonPropertyOrder({"guid", "name", "parentId", "properties", "type"})
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSHierarchyNode implements Serializable, IPSCatalogSummary, IPSCatalogItem {
   /** Compiler generated serial version ID used for serialization. */
   private static final long serialVersionUID = -5425086083061018906L;

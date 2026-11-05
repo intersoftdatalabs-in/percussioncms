@@ -17,7 +17,6 @@
 
 package com.percussion.data.jdbc.sqlparser;
 
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class JJTSQLParserState {
   private java.util.Stack nodes;
   private java.util.Stack marks;

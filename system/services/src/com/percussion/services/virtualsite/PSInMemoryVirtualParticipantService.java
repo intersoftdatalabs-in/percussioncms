@@ -47,7 +47,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @see IPSVirtualParticipantService
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSInMemoryVirtualParticipantService implements IPSVirtualParticipantService {
 
   private static final String FILE_PREFIX = "participants-";

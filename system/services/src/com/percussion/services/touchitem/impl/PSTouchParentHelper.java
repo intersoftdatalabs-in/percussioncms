@@ -56,7 +56,6 @@ import org.apache.logging.log4j.Logger;
  * up by the next incremental publishing. For folder dependents, it touches
  * all item descendants of the folders, but not the folder themselves.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSTouchParentHelper
 {
    /**

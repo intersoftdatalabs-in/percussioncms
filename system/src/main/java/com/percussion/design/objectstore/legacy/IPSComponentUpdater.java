@@ -23,7 +23,6 @@ import com.percussion.design.objectstore.PSComponent;
  * where the old object needs to be updated to the new model. The new component class ctor that
  * takes an element should get the updater by passing the class name.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public interface IPSComponentUpdater {
   /**
    * This should be called fromXml methods of the component class by passing the just created

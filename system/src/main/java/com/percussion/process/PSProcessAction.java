@@ -32,7 +32,6 @@ import org.apache.logging.log4j.Logger;
  * thread is also created to read the standard and error output of the process and buffer it locally
  * for consumption by the caller as they desire.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSProcessAction implements Runnable {
   private static final Logger log = LogManager.getLogger(PSProcessAction.class);
 

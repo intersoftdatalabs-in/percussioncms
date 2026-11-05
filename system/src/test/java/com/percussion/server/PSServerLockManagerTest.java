@@ -19,7 +19,6 @@ package com.percussion.server;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSServerLockManagerTest {
   /**
    * Construct this unit test

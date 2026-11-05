@@ -65,7 +65,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since V0.3
  */
 @Deprecated
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class CookieModule implements HTTPClientModule {
   /** the list of known cookies */
   private static final ConcurrentHashMap<Object, ConcurrentHashMap<Cookie, Cookie>> cookie_cntxt_list =

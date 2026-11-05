@@ -26,7 +26,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 /** A multimap class for storing HTTP headers (which can be 1:many) */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class HttpHeaders {
   public void addHeader(String headerName, String headerValue) {
     // TODO: make the headerName in case insensitive

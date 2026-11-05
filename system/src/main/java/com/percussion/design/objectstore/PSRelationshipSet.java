@@ -24,7 +24,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** A collection of PSRelationship objects. See PSXRelationshipSet.dtd. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSRelationshipSet extends PSCollectionComponent {
   /** Constucts an empty relationship set. */
   public PSRelationshipSet() {

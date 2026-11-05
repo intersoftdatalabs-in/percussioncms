@@ -36,7 +36,6 @@ import javax.sql.DataSource;
  * 
  * @author dougrand
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSJndiObjectLocator extends JndiObjectLocator
 {
    private static String ms_prefix = "java:comp/env/";

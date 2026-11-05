@@ -33,7 +33,6 @@ import org.w3c.dom.NodeList;
  * Catalogs all server security providers by querying the ../sys_components/getSecurityProviders.xml
  * app.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSSecurityProviderCataloger {
   /**
    * Constructor meant to be used in the context of an applet. This may not work in other contexts

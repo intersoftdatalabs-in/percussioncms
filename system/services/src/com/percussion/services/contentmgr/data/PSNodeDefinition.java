@@ -108,7 +108,6 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
   "updateRequest",
   "workflowIds"
 })
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSNodeDefinition implements IPSNodeDefinition {
   static {
     // Register types with XML serializer for read creation of objects

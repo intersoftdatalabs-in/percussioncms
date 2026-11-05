@@ -75,7 +75,6 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /** Helper class to manage loading and saving content types from web services */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSContentTypeHelper {
   private static final Logger log = LogManager.getLogger(PSContentTypeHelper.class);
 

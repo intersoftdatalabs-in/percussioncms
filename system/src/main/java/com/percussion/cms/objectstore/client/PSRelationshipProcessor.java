@@ -39,7 +39,6 @@ import org.w3c.dom.Element;
  * This class contains the know how to implement the necessary relationship processing when
  * operating in a different JVM than the server.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   /**
    * Construct an instance from the given parameters. This constructor is expected to be called by

@@ -35,7 +35,6 @@ import java.util.Date;
  * @version 1.0
  * @since 1.0
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSMailMessage {
   /** Construct an empty mail message. At least one name to send to must be added. */
   public PSMailMessage() {

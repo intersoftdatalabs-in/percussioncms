@@ -27,7 +27,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXControlRef DTD in BasicObjects.dtd. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSControlRef extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

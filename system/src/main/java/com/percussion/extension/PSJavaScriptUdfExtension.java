@@ -37,7 +37,6 @@ import java.util.Iterator;
  * @version 1.1
  * @since 2.0
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSJavaScriptUdfExtension implements IPSUdfProcessor {
   /**
    * The standard ctor for this object.

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 /** Test the <code>PSWSSearchParams</code> class. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSWSSearchParamsTest {
 
   /**

@@ -30,7 +30,6 @@ import org.w3c.dom.Element;
  * Behavioral coverage for ctor/fromXml this-escape real-fix batch (#2404): private helpers /
  * final setters preserve Element restore and value construction.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDesignObjectStoreThisEscapeTest {
 
   @Test

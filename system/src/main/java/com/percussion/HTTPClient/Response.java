@@ -41,7 +41,6 @@ import java.util.Vector;
  * @author Ronald Tschalär
  */
 @Deprecated
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class Response implements RoResponse, GlobalConstants, Cloneable {
   /** This contains a list of headers which may only have a single value */
   private static final Hashtable<String, String> singleValueHeaders;

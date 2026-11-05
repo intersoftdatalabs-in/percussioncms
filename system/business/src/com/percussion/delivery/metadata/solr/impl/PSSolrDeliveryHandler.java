@@ -63,7 +63,6 @@ import org.apache.solr.common.util.NamedList;
  *       when Jetty client is absent. Prefer {@code withDefaultCollection} on the builder.
  * </ul>
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSolrDeliveryHandler {
   private static final String ENABLE_CLIENT_SASL_KEY = "zookeeper.sasl.client";
 

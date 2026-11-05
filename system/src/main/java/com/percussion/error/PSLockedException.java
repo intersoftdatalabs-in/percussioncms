@@ -22,7 +22,6 @@ import org.w3c.dom.Element;
 
 /** Exception indicating failure in acquiring the lock. */
 // REFACTORED: CP-JAVA11
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSLockedException extends PSDeployException {
   /**
    * Construct an exception for messages taking only a single argument.

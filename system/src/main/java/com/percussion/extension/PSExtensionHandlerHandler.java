@@ -33,7 +33,6 @@ import java.util.Iterator;
  * The extension handler handler is a type of Java extension handler that manages extension handlers
  * themselves. Remember that extension handlers are themselves a kind of extension.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSExtensionHandlerHandler extends PSJavaExtensionHandler {
   /**
    * @see PSJavaExtensionHandler#init

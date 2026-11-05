@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Plan builder for performing delete/purge operation. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDeletePlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSDeletePlanBuilder(PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app) {

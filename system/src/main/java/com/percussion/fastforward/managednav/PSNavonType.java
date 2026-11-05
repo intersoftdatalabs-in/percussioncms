@@ -25,7 +25,6 @@ import org.apache.logging.log4j.Logger;
  *
  * @author DavidBenua
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSNavonType {
   /**
    * Ctor that takes the navon type string.

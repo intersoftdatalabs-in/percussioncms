@@ -20,7 +20,6 @@ package com.percussion.data.jdbc.sqlparser;
  * An implementation of interface CharStream, where the stream is assumed to contain only ASCII
  * characters (without unicode processing).
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class ASCII_CharStream {
   public static final boolean staticFlag = true;
   static int bufsize;

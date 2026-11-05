@@ -101,7 +101,6 @@ import static com.percussion.cms.objectstore.PSFolder.FOLDER_CONTENT_TYPE_ID;
  */
 @Transactional
 @Component
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSqlPurgeHelper implements IPSSqlPurgeHelper
 {
    @PersistenceContext

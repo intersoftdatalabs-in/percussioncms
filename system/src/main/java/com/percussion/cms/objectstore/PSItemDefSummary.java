@@ -40,7 +40,6 @@ import org.w3c.dom.Element;
  * <p>This class doesn't override the clone method because the clone provided by the Object base
  * class is satisfactory.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummary {
 
   /** Serialization id for {@link java.io.Serializable}. */
@@ -98,7 +97,6 @@ public class PSItemDefSummary extends PSCmsComponent implements IPSCatalogSummar
    *     be <code>null</code> or empty.
    * @deprecated use instead
    */
-  @Deprecated
   public PSItemDefSummary(String name, int typeId, String editorUrl, String description) {
     this(name, name, typeId, editorUrl, description, false);
   }

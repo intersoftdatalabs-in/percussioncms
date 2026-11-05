@@ -43,7 +43,6 @@ import java.util.Properties;
  * <p>In the future, we could add a timeout mechanism to this class rather
  * than rely on the objects.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSResourcePool {
   /**
    * An identifier that means 'an unlimited number of resources'. Can be passed as the value for

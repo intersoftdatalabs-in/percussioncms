@@ -53,7 +53,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @Configuration
 @EnableTransactionManagement
 @PSBaseBean("sys_sessionFactory")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSessionFactoryBean extends LocalSessionFactoryBean {
 
     /**

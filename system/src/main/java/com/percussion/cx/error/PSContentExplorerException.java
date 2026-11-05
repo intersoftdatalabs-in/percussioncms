@@ -29,7 +29,6 @@ import java.util.Locale;
  * are localized because that's how the <code>PSI18NTranslationKeyValues</code> is created. The
  * necessary methods are overridden in this class to achieve this and is noted in the methods doc.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSContentExplorerException extends PSStandaloneException {
 
   /**

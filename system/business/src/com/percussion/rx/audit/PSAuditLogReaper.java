@@ -12,7 +12,6 @@ import java.util.Date;
  * Java 11 refactored: Automatically deletes old audit log entries on a daily basis as configured by
  * the {@link IPSDesignObjectAuditConfig}.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSAuditLogReaper extends Thread {
    /**
     * Default ctor

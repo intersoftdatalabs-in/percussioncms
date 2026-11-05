@@ -38,7 +38,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** The base class for handling compiled Java extensions. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSJavaExtensionHandler extends PSExtensionHandler implements IPSNotificationListener {
   /**
    * Add this instance for any file changes in the server environment. This should be called during

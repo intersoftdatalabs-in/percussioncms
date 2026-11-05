@@ -35,7 +35,6 @@ import org.w3c.dom.Element;
 
 /** Unit test for the <code>PSLocale</code> class */
 @Tag("UnitTest")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSLocaleTest {
   /**
    * Tests the constructors (XML ctor is tested by {@link #testXml()}).

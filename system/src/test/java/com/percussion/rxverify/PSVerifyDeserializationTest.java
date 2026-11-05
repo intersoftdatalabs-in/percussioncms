@@ -32,7 +32,6 @@ import org.junit.jupiter.api.io.TempDir;
  * properly applied when deserializing PSInstallation from BOM (Bill of Materials) files.
  */
 @DisplayName("PSVerify - Deserialization Security")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSVerifyDeserializationTest {
 
   @TempDir Path tempDir;

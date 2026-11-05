@@ -33,7 +33,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXTableLocator DTD in BasicObjects.dtd. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSLegacyTableLocator extends PSComponent {
 
   private static final long serialVersionUID = 1L;
