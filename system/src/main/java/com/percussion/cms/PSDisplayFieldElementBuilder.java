@@ -32,7 +32,6 @@ import org.w3c.dom.NodeList;
  * Utility class to assist in the building of the DisplayField element defined in the
  * sys_ContentEditor.dtd.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDisplayFieldElementBuilder {
   /**
    * Create a DisplayField element using the supplied parameters.

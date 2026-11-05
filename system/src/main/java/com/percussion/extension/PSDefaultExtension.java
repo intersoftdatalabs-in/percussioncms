@@ -31,7 +31,6 @@ import java.util.Map;
  * @version 2.0
  * @since 1.1
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSDefaultExtension implements IPSExtension {
   /**
    * This is a default implementation that does nothing except save the input values in protected

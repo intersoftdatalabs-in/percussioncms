@@ -48,7 +48,6 @@ import org.w3c.dom.NodeList;
  * This class encasulates all server side functionality for active assembly. This only deals with
  * relationships of category <code>PSRelationshipConfig.CATEGORY_ATIVE_ASSEMBLY</code>.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSActiveAssemblerProcessor extends PSRelationshipProcessor {
   /** Create the backend processor for the supplied request. */
   public PSActiveAssemblerProcessor() {

@@ -49,7 +49,6 @@ import org.w3c.dom.Node;
  * via {@link #fromXml(Document)}, but will not save them when {@link PSServerConfiguration#toXml()}
  * is called.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSLegacyServerConfig extends PSServerConfiguration {
   /**
    * Construct a Java object from its XML representation. See the {@link #toXml() toXml} method for

@@ -41,7 +41,6 @@ import java.util.Map;
  *
  * <p>Most of the values must be set by the creator to specify the appropriate context.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSEditorDocumentContext {
   /**
    * The EDITOR_TYPE... constants must have a delta of 1 and fill a range defined by ..._FIRST and

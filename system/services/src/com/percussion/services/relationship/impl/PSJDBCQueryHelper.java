@@ -43,7 +43,6 @@ import static com.percussion.util.PSSqlHelper.qualifyTableName;
 /**
  * A helper class used for building (JDBC) SQL from a given relationship filter.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSJDBCQueryHelper implements IPSQueryHelper {
     /**
      * Partial query, select clause from the relationship table, only set once

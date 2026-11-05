@@ -27,7 +27,6 @@ import java.util.Comparator;
  * 
  * @author dougrand
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRelationshipSortOrderComparator implements Comparator
 {
    public int compare(Object o1, Object o2)

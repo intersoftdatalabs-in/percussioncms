@@ -49,7 +49,6 @@ import java.util.Vector;
  * @since V0.2
  */
 @Deprecated
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class DefaultAuthHandler implements AuthorizationHandler, GlobalConstants {
   private static final byte[] NUL = new byte[0];
 

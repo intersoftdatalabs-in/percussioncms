@@ -35,7 +35,6 @@ import java.util.stream.Stream;
  *
  * @author LucasPiccoli
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSProxyConfigService implements IPSProxyConfigService {
     /**
      * The configuration file path, never <code>null</code>.

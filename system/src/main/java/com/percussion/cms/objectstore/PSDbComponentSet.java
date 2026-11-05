@@ -56,7 +56,6 @@ import org.w3c.dom.Node;
  * @param <T> the type of {@link IPSDbComponent} stored in this set, bounded to subtypes of {@code
  *     IPSDbComponent}.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
   /**
    * Convenience method that calls {@link #PSDbComponentSet(String, String)
@@ -395,7 +394,7 @@ public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent {
       while (aEl != null && aEl.getNodeName().equalsIgnoreCase(strNodeName)) {
         // Create the class
         args[0] = aEl;
-        T aCmp = ctor.newInstance((Object[]) args);
+        T aCmp = ctor.newInstance(args);
 
         // must be set before we can add
         if (m_memberComponentType == null) m_memberComponentType = aCmp.getComponentType();

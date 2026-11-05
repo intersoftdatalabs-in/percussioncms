@@ -22,7 +22,6 @@ import java.util.Iterator;
  * This class overrides collection to enforce that none of the members of the collection can have
  * the same internal name (case-insensitive).
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSearchCollection extends PSDbComponentCollection {
   /** ctor calls base class. */
   public PSSearchCollection() throws ClassNotFoundException {

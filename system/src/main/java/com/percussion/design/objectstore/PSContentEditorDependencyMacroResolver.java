@@ -29,7 +29,6 @@ import java.util.Iterator;
  * is associated with</td></tr>
  * </table>
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSContentEditorDependencyMacroResolver {
   /**
    * Walks the values of <code>parameters</code>, mutating any macro names to to the macro's value.

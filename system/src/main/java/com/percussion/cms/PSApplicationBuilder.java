@@ -92,7 +92,6 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 /** This class is used by server objects to build dynamic applications. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSApplicationBuilder {
   /**
    * Creates an application object with the specified name. Name is not checked for uniqueness until

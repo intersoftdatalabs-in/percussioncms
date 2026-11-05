@@ -40,7 +40,6 @@ import org.w3c.dom.Document;
  * of slots. The two lists are then unioned into a new list, and that list is
  * used to find relationship records that are orphaned.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFixOrphanedData extends PSFixDBBase implements IPSFix
 {
    /**

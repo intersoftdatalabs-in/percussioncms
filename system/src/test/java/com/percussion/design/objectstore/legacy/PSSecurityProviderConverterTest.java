@@ -39,7 +39,6 @@ import org.w3c.dom.Document;
 
 /** Test case for the {@link PSSecurityProviderConverter} class. */
 @Disabled("Temporarily disabled — failing in perc-system test run")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSecurityProviderConverterTest extends PSBaseConverterTest {
   /**
    * Test the converter with existing conversions.

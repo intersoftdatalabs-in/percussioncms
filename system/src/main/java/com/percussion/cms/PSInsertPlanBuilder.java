@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 /** Plan builder for performing inserts of parent content items. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSInsertPlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSInsertPlanBuilder(PSContentEditorHandler ceh, PSContentEditor ce, PSApplication app) {

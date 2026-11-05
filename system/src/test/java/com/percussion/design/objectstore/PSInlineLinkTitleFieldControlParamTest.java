@@ -38,7 +38,6 @@ import org.w3c.dom.Element;
  * ({@code displaytitle} for assets; page link title for pages — resolved in #2242).
  */
 @Tag("UnitTest")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSInlineLinkTitleFieldControlParamTest {
 
   /** Control-settings param name (PascalCase peers: InlineLinkSlot). */

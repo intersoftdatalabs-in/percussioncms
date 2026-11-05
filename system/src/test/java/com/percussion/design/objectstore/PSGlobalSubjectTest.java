@@ -29,7 +29,6 @@ import org.w3c.dom.Element;
  * Basic global subject testing, including simple to/from Xml checking w/ simple global subject
  * classes. Also includes testing of accessor methods
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSGlobalSubjectTest {
   /**
    * @see TestCase#TestCase(String)

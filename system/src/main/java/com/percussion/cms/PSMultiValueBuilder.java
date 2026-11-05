@@ -37,7 +37,6 @@ import org.w3c.dom.Element;
  * Creates the DisplayField element according to the ContentEditor.dtd when the data is an entire
  * result set which contains a single column with multiple rows.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSMultiValueBuilder extends PSDisplayFieldBuilder {
   /**
    * See {@link PSDisplayFieldBuilder#PSDisplayFieldBuilder(PSFieldSet, PSUISet,

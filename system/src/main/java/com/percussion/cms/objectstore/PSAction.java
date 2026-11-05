@@ -38,7 +38,6 @@ import org.w3c.dom.Text;
 
 /** The class that is used to represent menu actions as defined by 'sys_Action.dtd'. */
 // Final leaf — Element/ctor paths use private helpers; no subclass this-escape risk.
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSAction extends PSVersionableDbComponent implements IPSCatalogSummary, IPSCloneTuner {
 
   /** Serialization id for {@link java.io.Serializable}. */

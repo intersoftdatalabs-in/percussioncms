@@ -21,7 +21,6 @@ package com.percussion.delivery.metadata.solr.impl;
  * Exception class for handling errors related to Solr delivery in Percussion CMS.
  */
 // REFACTORED: CP-JAVA11
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSolrDeliveryException extends RuntimeException {
     /**
      * Constructs a new PSSolrDeliveryException with no detail message.

@@ -25,7 +25,6 @@ import org.w3c.dom.Document;
  * Tests the XML serialisation functionality for <code>PSMacroDefinitionSet</code> and <code>
  * PSMacroDefinition</code> objectstore classes.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSMacroDefinitionSetTest {
   /**
    * Construct a new test for the supplied name.

@@ -49,7 +49,6 @@ import java.util.stream.IntStream;
  * @author Sunny Sal the Senior Java Developer (Java 11 modernization)
  * @since Java 11
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSVerifyDatabaseTables extends PSVerifyDatabaseBase implements IPSVerify
 {
    private static final Logger log = LogManager.getLogger(PSVerifyDatabaseTables.class);

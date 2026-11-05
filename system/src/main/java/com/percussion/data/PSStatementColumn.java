@@ -59,7 +59,6 @@ import java.util.List;
  * @version 1.0
  * @since 1.0
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSStatementColumn {
   /**
    * Create a column binding for the specified statement. The object knows the statement and bind

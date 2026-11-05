@@ -69,7 +69,6 @@ import org.apache.logging.log4j.Logger;
  * com.percussion.cms.handlers.PSWorkflowCommandHandler}. This class is not thread safe and hence
  * each thread must instantiate a new object of this class.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRelationshipEffectProcessor {
   /**
    * Convenience ctor that calls {@link #PSRelationshipEffectProcessor(PSRelationshipSet,

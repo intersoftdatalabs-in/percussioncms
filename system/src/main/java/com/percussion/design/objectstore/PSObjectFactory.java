@@ -28,7 +28,6 @@ import com.percussion.util.PSCollection;
  * @version 1.0
  * @since 1.0
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSObjectFactory {
   /** Create an empty application object. */
   protected static PSApplication createApplication() {

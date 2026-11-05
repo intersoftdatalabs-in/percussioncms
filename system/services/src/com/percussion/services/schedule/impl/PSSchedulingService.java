@@ -74,7 +74,6 @@ import java.util.Optional;
  * @since Java 11 Modernization
  */
 @Transactional
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSchedulingService implements IPSSchedulingService {
 
    @PersistenceContext

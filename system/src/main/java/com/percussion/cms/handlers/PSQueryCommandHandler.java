@@ -102,7 +102,6 @@ import org.w3c.dom.ProcessingInstruction;
  *   <li>Clean up the internal handlers and result sets
  * </ol>
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSQueryCommandHandler extends PSCommandHandler
     implements IPSInternalCommandRequestHandlerEx {
   /**

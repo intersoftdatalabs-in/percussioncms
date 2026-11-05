@@ -33,7 +33,6 @@ import org.w3c.dom.Element;
  * Collection container for <code>PSReference</code> objects which all reference a <code>PSDirectory
  * </code> object.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSDirectorySet extends PSCollectionComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

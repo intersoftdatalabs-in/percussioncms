@@ -75,7 +75,6 @@ import org.w3c.dom.Element;
  * server side e.g a loadable handler could request system shared or local fields from this class
  * rather than requesting directly from the server.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSLocalCataloger implements IPSCataloger {
   /**
    * Construct an instance with a request object.

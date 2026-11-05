@@ -32,7 +32,6 @@ import org.w3c.dom.Element;
  * implements IPSDocument so that it can be sent to and retrieved from the administrator (and
  * administration applications i.e. PSRoleSynchronizer) by the server.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSRoleConfiguration implements IPSDocument {
   private static final Logger log = LogManager.getLogger(PSRoleConfiguration.class);
 

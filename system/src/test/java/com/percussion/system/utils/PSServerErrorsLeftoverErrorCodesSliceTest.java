@@ -51,7 +51,6 @@ import org.junit.jupiter.api.Test;
  * skipped because leftover codes in this slice are non-auditable.
  */
 @Tag("UnitTest")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSServerErrorsLeftoverErrorCodesSliceTest {
 
   @Test

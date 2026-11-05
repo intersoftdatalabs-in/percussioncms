@@ -33,7 +33,6 @@ import org.apache.commons.lang3.StringUtils;
  * This class provides a summary view of content items and folders
  * with their basic properties and allowed operations.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSItemSummary
 {
    /**

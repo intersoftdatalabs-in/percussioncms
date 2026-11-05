@@ -29,7 +29,6 @@ import java.util.Iterator;
  * @version 1.0
  * @since 1.0
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSUserAttributes extends HashMap<String, String> {
   /** Construct an empty set of attributes. */
   public PSUserAttributes() {}

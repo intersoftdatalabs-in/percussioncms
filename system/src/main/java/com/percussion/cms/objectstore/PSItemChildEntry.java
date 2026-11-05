@@ -29,7 +29,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** An object representation of the sys_StandardItem.xsd ChildEntry element. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSItemChildEntry extends PSItemComponent implements IPSItemAccessor {
   /**
    * Construct a new instance from definitions.

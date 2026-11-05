@@ -139,7 +139,6 @@ import com.intsof.percussioncms.auditlog.codes.CmsErrorCodes;
  */
 @PSBaseBean("sys_cmsObjectMgr")
 @Transactional
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCmsObjectMgr
       implements
          IPSCmsObjectMgrInternal, IPSHandlerInitListener

@@ -30,7 +30,6 @@ import java.util.Map;
  * listener classes (which implement IPSResourceWatcher). These listeners
  * are registered using methods of the parent PSAbstractResourceWatcher.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDirectoryWatcher extends PSAbstractResourceWatcher {
 
     /**

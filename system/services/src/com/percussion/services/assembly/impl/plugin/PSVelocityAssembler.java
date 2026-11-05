@@ -120,7 +120,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * @author dougrand
  */
 @Transactional(readOnly = true,noRollbackFor = RuntimeException.class)
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSVelocityAssembler extends PSAssemblerBase
         implements
         IPSNotificationListener

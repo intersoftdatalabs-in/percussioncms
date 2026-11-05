@@ -30,7 +30,6 @@ import org.w3c.dom.Element;
  * Xml. This class may be queried to determine if a particular feature and version of that feature
  * are supported.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFeatureSet {
 
   /**

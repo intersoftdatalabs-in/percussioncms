@@ -23,7 +23,6 @@ import com.percussion.error.PSException;
  * Generic exception class to be used for server configurations errors. More specific server
  * configuration errors should be derived from this class.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSServerConfigException extends PSException {
   /**
    * Pass-through constructor to super class.

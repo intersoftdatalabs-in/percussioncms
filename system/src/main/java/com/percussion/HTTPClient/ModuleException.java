@@ -25,7 +25,6 @@ package com.percussion.HTTPClient;
  * @since V0.3
  */
 @Deprecated
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class ModuleException extends Exception {
 
   /**

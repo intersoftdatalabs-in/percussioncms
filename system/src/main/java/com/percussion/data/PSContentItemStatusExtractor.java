@@ -34,7 +34,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
 /** Extracts the content item status associated with the current execution context. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSContentItemStatusExtractor extends PSDataExtractor {
   /**
    * Creates a new <code>IPSReplacementValue</code> extractor for the supplied content item status.

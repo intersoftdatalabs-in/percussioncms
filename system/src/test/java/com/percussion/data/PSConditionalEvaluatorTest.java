@@ -36,7 +36,6 @@ import org.junit.jupiter.api.Test;
  * @since 1.0
  */
 @Disabled("Temporarily disabled — failing in perc-system test run")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSConditionalEvaluatorTest {
 
   @Test

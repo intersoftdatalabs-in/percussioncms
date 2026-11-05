@@ -37,7 +37,6 @@ import org.w3c.dom.Element;
  */
 // REFACTORED: CP-JAVA11
 // Final leaf — Element ctor restores via private fromXmlLoad without subclass this-escape.
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSAaRelationshipList extends PSCollectionComponent {
   /** Constructs an empty active assembly relationship list. */
   public PSAaRelationshipList() {

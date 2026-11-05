@@ -36,7 +36,6 @@ import org.junit.jupiter.api.Test;
  * not flat-registered (Workflow collision).
  */
 @Tag("UnitTest")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSTransformationTypedErrorCodeSliceTest {
 
   @Test

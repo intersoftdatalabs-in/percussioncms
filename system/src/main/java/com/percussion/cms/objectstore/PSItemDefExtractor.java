@@ -39,7 +39,6 @@ import java.util.List;
  * initializing ({@code -Xlint:this-escape}). The visitor path remains for populating fully
  * constructed {@link PSItemChildEntry} templates.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSItemDefExtractor implements IPSVisitor {
   /**
    * Cannot be instantiated by outsiders. Builds field/child lists from the item definition without

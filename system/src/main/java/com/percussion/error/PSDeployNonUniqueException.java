@@ -27,7 +27,6 @@ import org.w3c.dom.Element;
  * Exception to indicate something that is being processed by the server would violate some kind of
  * non-unique constraint.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDeployNonUniqueException extends PSDeployException {
   /**
    * Constructs a PSDeployNonUniqueException with the specified error code and argument.

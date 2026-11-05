@@ -27,7 +27,6 @@ import org.w3c.dom.Document;
  * Basic role confiuration testing, including simple to/from Xml checking w/ basic
  * roleconfigurations.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRoleConfigurationTest {
   /**
    * @see TestCase#TestCase(String)

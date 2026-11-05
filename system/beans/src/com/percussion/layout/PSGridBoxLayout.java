@@ -35,7 +35,6 @@ import javax.swing.SizeRequirements;
  * GridLayout and uses the BoxLayout mechanism for laying out components for
  * each row and column.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSGridBoxLayout extends GridLayout implements LayoutManager2
 {
 

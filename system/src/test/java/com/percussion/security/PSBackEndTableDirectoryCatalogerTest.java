@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 
 /** Test case for the {@link PSBackEndTableDirectoryCataloger}. */
 @org.junit.jupiter.api.Disabled("Temporarily disabled — failing in perc-system test run")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSBackEndTableDirectoryCatalogerTest {
   private static final String DEFAULT_PASSWORD = "89e495e7941cf9e40e6980d14a16bf023ccd4c91";
   private static final String DEFAULT_PARTIAL_PASSWORD = "89e495";

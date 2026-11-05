@@ -36,7 +36,6 @@ import static com.percussion.cms.IPSConstants.SYS_PARAM_USER;
  *
  * @author dougrand
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSAssemblyJexlEvaluator extends PSServiceJexlEvaluatorBase
 {
    private static final Logger ms_log1 = LogManager.getLogger(PSAssemblyJexlEvaluator.class);

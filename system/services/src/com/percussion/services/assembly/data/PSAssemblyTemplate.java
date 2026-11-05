@@ -161,7 +161,6 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
   "type",
   "variant"
 })
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSAssemblyTemplate implements IPSAssemblyTemplate, IPSCatalogSummary, IPSCatalogItem, Serializable {
 
     private static final PSExecutionOrderComparator bindingComparator = new PSExecutionOrderComparator();

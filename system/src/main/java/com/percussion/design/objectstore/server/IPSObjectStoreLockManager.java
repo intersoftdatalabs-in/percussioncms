@@ -20,7 +20,6 @@ import com.percussion.design.objectstore.PSLockedException;
 import com.percussion.error.PSIllegalArgumentException;
 
 /** Provides an interface for an object-store's locking services. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public interface IPSObjectStoreLockManager {
   /** no other locks of any kind can be shared with an exclusive lock */
   public static final int LOCKTYPE_EXCLUSIVE = 0;

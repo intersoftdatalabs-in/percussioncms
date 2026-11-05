@@ -167,7 +167,6 @@ import static com.percussion.utils.request.PSRequestInfoBase.getRequestInfo;
  */
 @PSBaseBean("sys_legacyContentRepository")
 @Transactional(propagation = Propagation.REQUIRED)
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSContentRepository
         implements
         IPSContentRepository,

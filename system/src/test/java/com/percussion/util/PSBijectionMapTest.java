@@ -19,7 +19,6 @@ package com.percussion.util;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** Unit tests for the PSBijectionMap class */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSBijectionMapTest {
   private class Pairing {
     public Pairing(String A, String B) {

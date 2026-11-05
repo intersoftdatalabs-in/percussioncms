@@ -31,7 +31,6 @@ import java.util.Objects;
  * objects and return results. It collects valid results as well as errors
  * produced by single object operations.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSErrorResultsException extends Exception
 {
    /**

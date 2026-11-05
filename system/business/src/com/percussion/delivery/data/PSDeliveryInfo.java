@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
  * tier represents the target location of publishing and/or various
  * processing services (forms, etc.).
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDeliveryInfo extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;
 

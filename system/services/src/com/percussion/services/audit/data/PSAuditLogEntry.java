@@ -50,7 +50,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
  */
 @Entity
 @Table(name = "PSX_DESIGN_AUDIT_LOG")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSAuditLogEntry implements Serializable {
    /**
     * Unique identifier for this entry

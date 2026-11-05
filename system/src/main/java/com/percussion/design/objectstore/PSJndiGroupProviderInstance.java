@@ -34,7 +34,6 @@ import org.w3c.dom.Element;
  * provider to use.  Specifies information required to catalog groups and to
  * determine group membership.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSJndiGroupProviderInstance extends PSGroupProviderInstance {
 
   /** Serialization id for {@link java.io.Serializable}. */

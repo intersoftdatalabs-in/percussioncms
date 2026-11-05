@@ -46,7 +46,6 @@ import java.util.Objects;
 @NaturalIdCache
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSSlotContentFinderParam" )
 @Table(name = "PSX_SLOT_FINDER_PARAM" )
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSlotContentFinderParam
 {
    @Id

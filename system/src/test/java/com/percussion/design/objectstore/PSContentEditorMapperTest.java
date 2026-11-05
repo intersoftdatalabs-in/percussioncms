@@ -33,7 +33,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit tests for <code>PSContentEditorMapper</code>. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSContentEditorMapperTest {
   /**
    * Case tests object->xml->object serialization.The mapper is built as a Java object. Converted to

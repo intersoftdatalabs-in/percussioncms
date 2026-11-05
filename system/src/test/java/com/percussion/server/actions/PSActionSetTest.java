@@ -40,7 +40,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Tests the functionality of <code>PSActionSet</code>. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSActionSetTest {
   /** Tests that the getters return valid data */
   @Test

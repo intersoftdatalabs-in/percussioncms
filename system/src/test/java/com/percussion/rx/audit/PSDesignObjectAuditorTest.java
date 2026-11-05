@@ -55,7 +55,6 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link PSDesignObjectAuditor}: extract audit data and dual-write through {@link
  * DesignErrorCodes} / system audit log when design auditing is enabled.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSDesignObjectAuditorTest {
 
   private IPSDesignObjectAuditService auditService;

@@ -19,7 +19,6 @@ package com.percussion.content;
 import org.w3c.dom.DOMException;
 
 // REFACTORED: CP-JAVA11
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class HTMLException extends DOMException {
   private int m_lineNum = -1;
 

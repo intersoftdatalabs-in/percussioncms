@@ -40,7 +40,6 @@ import org.apache.logging.log4j.Logger;
  * <p>All communications between extension handlers and other server components (including other
  * extension handlers) shall be done through the extension manager instance and nowhere else.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSExtensionManager implements IPSExtensionManager {
   private static final Logger log = LogManager.getLogger(PSExtensionManager.class);
 

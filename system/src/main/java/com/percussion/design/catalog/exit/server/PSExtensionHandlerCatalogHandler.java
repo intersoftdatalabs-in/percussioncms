@@ -53,7 +53,6 @@ import org.w3c.dom.Element;
  *
  * Where 'Factory' is the classname of the IPSExtensionDefFactory used to serialize this def.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSExtensionHandlerCatalogHandler extends PSCatalogRequestHandler
     implements IPSCatalogRequestHandler {
   /**

@@ -36,7 +36,6 @@ import org.w3c.dom.Document;
  *
  * @author adamgent
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSValidateCharactersTest {
   private PSValidateCharacters vc;
   private MockRequest request;

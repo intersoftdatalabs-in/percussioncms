@@ -25,7 +25,6 @@ import org.junit.jupiter.api.Test;
  * Test the public interface documented for the active assembly processor proxy. The processor
  * functionality itself is not tested here but in autotests.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSActiveAssemblyProcessorProxyTest {
   // see base class for documentation
   /**

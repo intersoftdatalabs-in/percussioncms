@@ -22,7 +22,6 @@ import java.util.Enumeration;
 
 /** A static one-to-one mapping from error classes to human readable names and vice-versa. */
 // REFACTORED: CP-JAVA11
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSErrorHumanReadableNames {
   /** Get the human readable name for an error class, given the name */
   public static String getHumanReadableName(String errorClassName) throws ClassNotFoundException {

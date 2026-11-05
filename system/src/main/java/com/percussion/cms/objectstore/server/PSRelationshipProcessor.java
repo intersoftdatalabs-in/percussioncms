@@ -45,7 +45,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** This class encapsulates all relationship functionality provided on the server side. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRelationshipProcessor implements IPSRelationshipProcessor {
   private static final Logger log = LogManager.getLogger(PSRelationshipProcessor.class);
 

@@ -35,7 +35,6 @@ import org.hibernate.type.Type;
  *
  * @author Stephen Bolton
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSGuidHibernateGenerator implements IdentifierGenerator, Configurable {
   public static final String GUID_TYPE = "guidType";
 

@@ -36,7 +36,6 @@ import org.w3c.dom.Element;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSPersistentProperty")
 @Table(name = "PSX_PERSISTEDPROPERTYVALUES")
 @IdClass(PSPersistentPropertyPK.class)
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSPersistentProperty {
   // dbreslau 12/11/02: A class with public setters is potentially non-
   // thread safe, and there are multiple threads accessing the same

@@ -64,7 +64,6 @@ import org.w3c.dom.Element;
  */
 @TestMethodOrder(MethodName.class)
 @Disabled("Temporarily disabled — failing in perc-system test run")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCmsObjectMgrTest {
   /** As self documented */
   private static final int MAX_TEST_CONTENTID = 375;

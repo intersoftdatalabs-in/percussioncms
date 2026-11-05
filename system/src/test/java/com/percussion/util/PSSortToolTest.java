@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.Vector;
 
 /** Unit tests for the PSSortTool class */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSortToolTest {
 
   /** Test sorting a large-ish vector of Long objects using QuickSort */

@@ -41,7 +41,6 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** The base class for handling all extensions. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSExtensionHandler implements IPSExtensionHandler {
   /**
    * Initializes this extension handler. The extension manager will call this method after

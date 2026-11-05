@@ -30,7 +30,6 @@ import org.w3c.dom.Element;
  * rxapp.war/WEB-INF/config/user/security directory. This entry defines which paths allow anonymous
  * access or basic authorization, as well as if secure login is required.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSecurityConfiguration implements IPSDocument {
   /**
    * Construct a Java object from its XML representation. See the {@link #toXml() toXml} method for

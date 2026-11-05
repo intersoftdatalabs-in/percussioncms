@@ -36,7 +36,7 @@ import org.w3c.dom.Node;
  * PSConditionalStylesheet collections is the default stylesheet which has a condition always
  * evaluating to <code>true</code>.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
+@SuppressWarnings("serial")
 public final class PSCommandHandlerStylesheets extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

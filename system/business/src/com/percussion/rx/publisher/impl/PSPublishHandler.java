@@ -107,7 +107,6 @@ import static org.apache.commons.lang3.Validate.notNull;
  * @author dougrand
  */
 @PSBaseBean("sys_publishQueueListener")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSPublishHandler implements MessageListener, IPSNotificationListener
 {
    /**

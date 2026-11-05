@@ -24,7 +24,6 @@ import java.util.Iterator;
  * This class is a wrapper for a PSCollection of conditionals so we can define a specific <code>
  * toString()</code> method to print out the collection of conditionals.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSConditionalSet extends PSCollection {
   /**
    * Construct PSConditionalSet from a PSCollection of PSConditional objects

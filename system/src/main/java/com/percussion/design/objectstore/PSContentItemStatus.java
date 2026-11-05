@@ -24,7 +24,6 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 /** The replacement values used for content item status information. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSContentItemStatus extends PSNamedReplacementValue {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

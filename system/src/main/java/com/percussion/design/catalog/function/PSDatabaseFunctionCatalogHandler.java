@@ -55,7 +55,6 @@ import org.w3c.dom.Element;
  *
  * See "DatabaseFunctionDefs.dtd" for the DTD of the "PSXDatabaseFunctionDef" element.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDatabaseFunctionCatalogHandler implements IPSCatalogHandler {
   /**
    * Format the catalog request based upon the specified request information. The request

@@ -34,7 +34,6 @@ import java.util.Set;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "RXUICONTEXT")
 @Table(name="RXUICONTEXT")
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSUiContext implements Serializable {
 
     @Id

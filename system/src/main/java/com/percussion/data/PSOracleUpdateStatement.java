@@ -59,7 +59,6 @@ import oracle.jdbc.OracleTypes;
  *
  * @see PSOracleUpdateBuilder
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSOracleUpdateStatement extends PSUpdateStatement {
   /**
    * Construct a LOB based update or insert statement which can be executed as part of the update

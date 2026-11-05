@@ -28,7 +28,6 @@ import java.util.List;
  * <p>Implements {@link Serializable} so it may be held on serializable content-editor types (e.g.
  * {@link PSViewSet} / {@link PSContentEditor}) under {@code -Xlint:serial}.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSView implements Serializable {
 
   /** Serialization id for {@link Serializable}. */

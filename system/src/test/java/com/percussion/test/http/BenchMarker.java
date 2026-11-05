@@ -35,7 +35,6 @@ import org.w3c.dom.*;
  * The BenchMarker class will run a given test series and collect statistics on the performance of
  * the server.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class BenchMarker implements Runnable, LogSink {
 
   private static final Logger log = LogManager.getLogger(BenchMarker.class);

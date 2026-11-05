@@ -30,7 +30,6 @@ import java.util.Collection;
  *
  * @see IPSJavaPlugin
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public interface IPSJavaPluginConfig extends IPSComponent {
   /**
    * Returns plugin object for the given http user agent string which is a CGI variable posted by

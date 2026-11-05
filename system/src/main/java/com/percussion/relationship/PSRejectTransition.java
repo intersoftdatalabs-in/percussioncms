@@ -22,7 +22,6 @@ import com.percussion.error.PSException;
  * This excepton is used by ythe relationship processor to reject workflow transitions within
  * relationship effects.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRejectTransition extends PSException {
   /**
    * Construct an exception for messages taking no arguments.

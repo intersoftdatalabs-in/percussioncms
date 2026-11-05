@@ -51,7 +51,6 @@ import org.apache.logging.log4j.Logger;
  * but it does not keep any JDBC resources open after the method returns, and caches meta data
  * wherever possible.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSTableMetaData implements IPSConnectionInfo {
   /**
    * Construct a new table meta data object from the given database meta data.

@@ -99,7 +99,6 @@ import org.apache.logging.log4j.Logger;
  *
  * @author dougrand
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSVariantMigrationBean
 {
    /**
@@ -882,17 +881,19 @@ public class PSVariantMigrationBean
             b.append('\n');
          }
       }
+      catch (UnsupportedEncodingException e)
+      {
+         ms_log.error(e);
+         return "";
+      }
+      catch (FileNotFoundException e)
+      {
+         ms_log.error(e);
+         return "";
+      }
       catch (IOException e)
       {
-         if (e instanceof UnsupportedEncodingException
-               || e instanceof FileNotFoundException)
-         {
-            ms_log.error(e);
-         }
-         else
-         {
-            v.getErrors().add("Problems reading file " + file);
-         }
+         v.getErrors().add("Problems reading file " + file);
          return "";
       }
 

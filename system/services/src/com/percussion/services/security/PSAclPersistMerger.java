@@ -26,7 +26,6 @@ import org.hibernate.Session;
  * (#3384). Package-install save of an already-persistent ACL must not {@code
  * session.merge} that graph — flush the session identity instead.
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSAclPersistMerger {
 
   private PSAclPersistMerger() {}

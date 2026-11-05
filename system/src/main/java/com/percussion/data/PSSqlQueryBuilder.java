@@ -48,7 +48,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see PSQueryOptimizer
  * @see PSQueryJoiner
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSqlQueryBuilder extends PSSqlBuilder {
   /**
    * Construct a SQL builder to build a SELECT which may be for a single table or to do homogeneous

@@ -29,7 +29,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /** Implements the PSChoiceFilter DTD in BasicObjects.dtd. */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSChoiceFilter extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

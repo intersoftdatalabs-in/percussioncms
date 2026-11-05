@@ -25,7 +25,6 @@ import com.percussion.webservices.transformation.impl.PSTransformerFactory;
 import org.apache.commons.beanutils.Converter;
 
 /** Test the {@link PSNotificationDefConverter} */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSNotificationDefConverterTest {
   /**
    * Test the converter

@@ -44,7 +44,6 @@ import org.w3c.dom.Element;
  * PSFunctionParamValue#toXml(Document) toXml()} method for all possible types of supported
  * parameters).
  */
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFunctionCall extends PSNamedReplacementValue
     implements IPSMutatableReplacementValue {
 

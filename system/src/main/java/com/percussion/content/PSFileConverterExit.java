@@ -34,7 +34,6 @@ import org.apache.logging.log4j.Logger;
  * @deprecated Deprecated use PSTextExtractorExit instead.
  */
 // REFACTORED: CP-JAVA11
-@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFileConverterExit extends PSDefaultExtension implements IPSItemInputTransformer {
   // see interface
   @Override
