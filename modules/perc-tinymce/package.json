@@ -2,9 +2,13 @@
   "name": "perc-tinymce-build",
   "version": "1.0.0",
   "private": true,
-  "description": "Build tooling for perc-tinymce: minifies TinyMCE plugin files using esbuild.",
+  "description": "Build tooling for perc-tinymce: bundles npm-managed CodeMirror and minifies TinyMCE plugin files using esbuild.",
   "scripts": {
-    "minify": "node build-scripts/minify.mjs"
+    "minify": "node build-scripts/minify.mjs",
+    "bundle:codemirror": "node build-scripts/bundle-codemirror.mjs"
+  },
+  "dependencies": {
+    "codemirror": "5.65.21"
   },
   "devDependencies": {
     "esbuild": "0.28.2"

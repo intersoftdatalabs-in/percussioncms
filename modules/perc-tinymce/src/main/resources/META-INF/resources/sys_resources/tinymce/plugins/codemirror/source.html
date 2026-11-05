@@ -8,6 +8,15 @@
        *
        * Copyright 2013-2014 Web Power, www.webpower.nl
        * @author Arjan Haverkamp
+       *
+       * CodeMirror 5 is consumed as a standard npm dependency (issue #5626):
+       * `codemirror` in `modules/perc-tinymce/package.json`, bundled by
+       * esbuild into `codemirror/codemirror.bundle.js` +
+       * `codemirror.bundle.css` at build time. The bundle exposes the same
+       * global `CodeMirror` 5.x API the plugin has always used; the file
+       * names below are the only thing that changed versus the old
+       * WebJar `codemirror-unpack` layout. Custom `jsFiles`/`cssFiles`
+       * overrides via the TinyMCE `codemirror` option keep working.
        */
 
       // Global vars:
@@ -50,26 +59,24 @@
             styleActiveLine: true,
           },
           jsFiles: [
-            // Default JS files
-            "lib/codemirror.js",
-            "addon/edit/matchbrackets.js",
-            "mode/xml/xml.js",
-            "mode/javascript/javascript.js",
-            "mode/css/css.js",
-            "mode/htmlmixed/htmlmixed.js",
-            "addon/dialog/dialog.js",
-            "addon/search/searchcursor.js",
-            "addon/search/search.js",
-            "addon/selection/active-line.js",
+            // npm bundle (issue #5626) — replaces the old per-file
+            // lib/codemirror.js + addon/mode script list. The bundle
+            // exposes the same global CodeMirror 5.x API.
+            "codemirror.bundle.js",
           ],
           cssFiles: [
-            // Default CSS files
-            "lib/codemirror.css",
-            "addon/dialog/dialog.css",
+            // npm bundle stylesheet (lib + dialog + fullscreen CSS).
+            "codemirror.bundle.css",
           ],
         };
 
-        if (userSettings.fullscreen) {
+        // The default npm bundle already contains the fullscreen addon
+        // (issue #5626), so only append the standalone files for fully
+        // custom jsFiles/cssFiles lists that do not use the bundle.
+        if (
+          userSettings.fullscreen &&
+          CMsettings.jsFiles.indexOf("codemirror.bundle.js") === -1
+        ) {
           CMsettings.jsFiles.push("addon/display/fullscreen.js");
           CMsettings.cssFiles.push("addon/display/fullscreen.css");
         }
