@@ -12,7 +12,8 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <!-- version from parent javafx.version (17.0.20+) -->
+            <!-- version from parent javafx.version (21.x LTS; 22+ needs a newer
+                 class-file major than the Java 21 build reads, issue #5621) -->
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
