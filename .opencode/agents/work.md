@@ -210,6 +210,8 @@ Write `scratch/work-<N>.json`:
   "build_evidence": "BUILD SUCCESS, Tests run: 142, Failures: 0",
   "downstream_checked": "none",
   "downstream_notes": "",
+  "close_verdict": "left_open",
+  "residuals_filed": [],
   "status": "pr_opened"
 }
 ```
@@ -224,6 +226,29 @@ human-QA handoff for that row.
 gh issue edit <N> --repo intersoftdatalabs-in/percussioncms --remove-label "In Progress"
 ```
 
+### 10. Close gate (HARD — 2026-11-05)
+
+You close **nothing** by default. The PR `Fixes #N` keyword closes the issue
+only when every acceptance criterion in the issue body is met by this PR.
+Otherwise leave the issue open (or file an explicit residual) per the table:
+
+| Situation | Action |
+|-----------|--------|
+| All acceptance criteria met by this PR, evidence in PR body | `Fixes #N` allowed |
+| Umbrella / tracker (`[8.2]`, `epic`, module-wide warnings) with remaining scope | Leave open (repo convention: *umbrella stays open*); record progress in `## Agent progress` |
+| Slice PR with known leftovers | Leave open **and** file a residual issue for the leftover scope (link both ways) |
+| Research spike whose Success section requires a follow-on issue | File the follow-on issue **before** the spike PR merges; link it in the PR body |
+| Issue requires human sign-off (ops review, UAT, legal, soak) with none recorded | **Do not close.** Docs that *propose* a decision are not the decision. Leave open for the human gate |
+| Quantitative acceptance (zero warnings, counts, coverage) | The number must appear in `build_evidence` from a reproducible command. A bare `BUILD SUCCESS` without the count does not close |
+
+**Never `gh issue close` a tracker/umbrella/spike manually** to "finish" a
+slice — a manual close bypasses every check above and the host treats it as a
+defect. If you believe the issue is done but the criteria are ambiguous, leave
+it open and say so in `downstream_notes`; the host decides in the Report phase.
+
+Record the verdict in the structured output (`close_verdict`: `fixes` /
+`left_open` / `residual_filed`, plus `residuals_filed: [<urls>]`).
+
 ## Hard rules
 
 - **No `-DskipTests`.** No `-Dmaven.test.skip`. No `--force` (use
@@ -237,6 +262,9 @@ gh issue edit <N> --repo intersoftdatalabs-in/percussioncms --remove-label "In P
   separate PRs).
 - **Run the Erlang skill CLI before opening the PR.** Never spawn a nested
   reviewer from Work, and never APPROVE or merge your own PR.
+- **No unverified closes.** Never `gh issue close` a tracker/umbrella/spike
+  manually (see step 10). A `Fixes #N` keyword is a claim that every
+  acceptance criterion is met with evidence in the PR body.
 
 ## Output
 
