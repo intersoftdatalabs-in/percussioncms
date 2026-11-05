@@ -108,7 +108,7 @@ public class JSClipDataBridge {
    *     supported; any other type is ignored.
    * @param value the string value to associate with {@code type}.
    */
-  public void setData(String type, String value) {
+  public final void setData(String type, String value) {
 
     if (!type.equals("text/html") && !type.equals("text/plain")) {
       log.debug("Unsupported clipboard type " + type);

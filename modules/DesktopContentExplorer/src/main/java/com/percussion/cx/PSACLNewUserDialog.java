@@ -38,7 +38,9 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 /** New user ACL dialog is used to enter ACL's and user name for creation of a new user. */
+@SuppressWarnings("this-escape")
 public class PSACLNewUserDialog extends PSDialog implements ItemListener {
+  private static final long serialVersionUID = 1L;
 
   /**
    * Constructs a new <code>PSACLDialog</code> using the passed in list of providers

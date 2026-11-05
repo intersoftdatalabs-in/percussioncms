@@ -94,6 +94,7 @@ import org.apache.logging.log4j.Logger;
  * The main display panel that is used to display a table that represents children of a node
  * according to the node's display format. Supports pop-up menu based on selection.
  */
+@SuppressWarnings({"serial", "this-escape"})
 public class PSMainDisplayPanel extends JScrollPane
     implements DragGestureListener, DropTargetListener {
   static Logger log = LogManager.getLogger(PSMainDisplayPanel.class);
@@ -574,6 +575,7 @@ public class PSMainDisplayPanel extends JScrollPane
   }
 
   /** The class that handles pop-up mouse clicks to show pop-up menu for the current selection. */
+  @SuppressWarnings({"serial", "this-escape"})
   private class PopupListener extends PSMouseAdapter {
 
     /**
@@ -603,6 +605,7 @@ public class PSMainDisplayPanel extends JScrollPane
    * widths on the mouse release, if so calls the main applet to store the widths into the
    * persistant storage.
    */
+  @SuppressWarnings({"serial", "this-escape"})
   private class PSTableColumnResizeHandler extends MouseAdapter {
     /**
      * Handle the mouse pressed on the table column header, store all the current widths of the
@@ -902,6 +905,7 @@ public class PSMainDisplayPanel extends JScrollPane
    * according to their sort order. See {@link com.percussion.guitools.PSTableSorter} for more info.
    * about sorting.
    */
+  @SuppressWarnings({"serial", "this-escape"})
   private class PSNodeTableSorter extends PSTableSorter {
     /**
      * Constructs this table sorter model with the supplied model as data model. See super class for
@@ -937,6 +941,7 @@ public class PSMainDisplayPanel extends JScrollPane
    * additional to its label. All other cells rendering is delegated to super to provide default
    * rendering as a label.
    */
+  @SuppressWarnings({"serial", "this-escape"})
   private class MainDisplayTableCellRenderer extends DefaultTableCellRenderer {
     // overridden method to display an icon for the node if the value
     // represents a PSNode.
@@ -1078,6 +1083,7 @@ public class PSMainDisplayPanel extends JScrollPane
   }
 
   /** The renderer used with header of main display table. */
+  @SuppressWarnings({"serial", "this-escape"})
   private class MainDisplayTableHeaderRenderer extends DefaultTableCellRenderer {
 
     /**
@@ -1160,6 +1166,7 @@ public class PSMainDisplayPanel extends JScrollPane
    *
    * @author vamsinukala
    */
+  @SuppressWarnings({"serial", "this-escape"})
   private class TableKeyBoardHandler extends KeyAdapter {
     private Logger log = LogManager.getLogger(TableKeyBoardHandler.class);
     private boolean isPopup = false;
@@ -1277,6 +1284,7 @@ public class PSMainDisplayPanel extends JScrollPane
    *
    * This behavior is similar to windows explorer behavior in right panel.
    */
+  @SuppressWarnings({"serial", "this-escape"})
   private class TableMouseInputHandler extends PSMouseAdapter implements MouseInputListener {
     /**
      * Implements interface method to make the clicked cell as selected. If the control key is down,
@@ -1476,12 +1484,6 @@ public class PSMainDisplayPanel extends JScrollPane
   private int[] m_saveDragSelection = null;
 
   /**
-   * The table model used with <code>m_childViewTable</code> to allow sorting. Initialized in <code>
-   * init()</code> and never <code>null</code> after that. The internal table model gets changed
-   * through calls to <code>
-   * setData(PSNode, PSNode)</code>.
-   */
-  /**
    * Copies sort-column indexes from {@link PSTableSorter#getSortingColumns()} (raw {@link List} of
    * {@link Integer}) into a typed list. Non-{@link Integer} entries are skipped.
    *
@@ -1504,6 +1506,7 @@ public class PSMainDisplayPanel extends JScrollPane
     return copy;
   }
 
+  /** The table sorter used to sort the child view table. */
   PSTableSorter m_childViewTableModel;
 
   /**

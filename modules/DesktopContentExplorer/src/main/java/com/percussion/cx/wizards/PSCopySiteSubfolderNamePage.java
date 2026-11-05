@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 /** The wizard page to request the new site folder name from the user. */
+@SuppressWarnings({"rawtypes", "serial", "this-escape"})
 public class PSCopySiteSubfolderNamePage extends PSWizardPanel {
   /**
    * Instantiate with applet to make config options from applet available to panel.
@@ -132,6 +133,7 @@ public class PSCopySiteSubfolderNamePage extends PSWizardPanel {
   }
 
   /** The data object to initialize this wizard page with. */
+  @SuppressWarnings({"rawtypes", "serial", "this-escape"})
   public static class InputData {
     /**
      * Construct the input data for this wizard page.
@@ -163,6 +165,7 @@ public class PSCopySiteSubfolderNamePage extends PSWizardPanel {
   }
 
   /** The data object returned by this wizard page. */
+  @SuppressWarnings({"rawtypes", "serial", "this-escape"})
   public class OutputData {
     /**
      * Constructs a new data object for the supplied parameters.

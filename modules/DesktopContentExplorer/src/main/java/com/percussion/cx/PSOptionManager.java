@@ -251,11 +251,6 @@ public class PSOptionManager {
    * Returns the <code>PSDisplayOptions</code>.
    *
    * @return may be <code>null</code> if the category "display" is <code>null</code> or empty.
-   */
-  /**
-   * Returns the <code>PSDisplayOptions</code>.
-   *
-   * @return may be <code>null</code> if the category "display" is <code>null</code> or empty.
    * @throws PSContentExplorerException if an error occurs loading the display options.
    */
   public PSDisplayOptions getDefaultDisplayOptions() throws PSContentExplorerException {

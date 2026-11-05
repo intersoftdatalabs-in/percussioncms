@@ -47,6 +47,7 @@ public class PSFolderPropertiesPanel extends UTPropertiesTablePanel {
    * @param editable <code>true</code> if any data can be entered, <code>false</code> otherwise.
    * @param applet the content explorer applet, may not be <code>null</code>.
    */
+  @SuppressWarnings("this-escape")
   public PSFolderPropertiesPanel(
       PSFolder folder, boolean editable, PSContentExplorerApplet applet) {
     if (folder == null) throw new IllegalArgumentException("folder may not be null");

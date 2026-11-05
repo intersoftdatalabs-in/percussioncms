@@ -21,7 +21,7 @@ import java.util.ResourceBundle;
 import javax.swing.JLabel;
 
 /** The UTMnemonicLabel provides the E2 standard mnemonic label. */
-////////////////////////////////////////////////////////////////////////////////
+@SuppressWarnings({"serial", "this-escape"})
 public class UTMnemonicLabel extends JLabel {
   /**
    * Construct a label attached to the provided component using the passed character as its
@@ -31,7 +31,6 @@ public class UTMnemonicLabel extends JLabel {
    * @param component the component to attach the label to
    * @param mnemonic the mnemonic character
    */
-  //////////////////////////////////////////////////////////////////////////////
   public UTMnemonicLabel(String label, Component component, char mnemonic) {
     super(label);
 
@@ -48,7 +47,6 @@ public class UTMnemonicLabel extends JLabel {
    * @param resId the resource ID
    * @param component the component to attach the label to
    */
-  //////////////////////////////////////////////////////////////////////////////
   public UTMnemonicLabel(ResourceBundle res, String resId, Component component) {
     super();
     String labelStr = res.getString(resId);

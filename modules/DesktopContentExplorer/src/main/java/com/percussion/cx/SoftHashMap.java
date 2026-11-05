@@ -35,6 +35,7 @@ import java.util.Set;
  * @param <K> the key type
  * @param <V> the value type
  */
+@SuppressWarnings("unchecked")
 public class SoftHashMap<K, V> extends AbstractMap<K, V> {
 
   /** Backing hash map holding soft references to the values. */
@@ -104,6 +105,7 @@ public class SoftHashMap<K, V> extends AbstractMap<K, V> {
   }
 
   /** A soft reference that has a hard reference to the key. */
+  @SuppressWarnings("unchecked")
   private static class SoftValue<T> extends SoftReference<T> {
     final Object key;
 

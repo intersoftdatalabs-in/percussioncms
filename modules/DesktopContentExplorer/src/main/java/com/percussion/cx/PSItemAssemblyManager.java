@@ -36,6 +36,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Class that manges all item assembly actions. */
+@SuppressWarnings({"cast", "rawtypes", "unchecked"})
 public class PSItemAssemblyManager {
   /**
    * Reference to the content explorer action manager. Basically to acces the content explorer
@@ -300,6 +301,7 @@ public class PSItemAssemblyManager {
    *     </code> or empty.
    * @return the request, never <code>null</code>
    */
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private PSActiveAssemblerHandlerRequest buildRequest(
       String ownerContentId, String slotId, Iterator<PSNode> nodeList) {
     if (ownerContentId == null || ownerContentId.trim().length() == 0)
@@ -327,7 +329,7 @@ public class PSItemAssemblyManager {
       throw new RuntimeException("Couldn't load summaries");
     }
 
-    PSComponentSummary summary = (PSComponentSummary) summaries.iterator().next();
+    PSComponentSummary summary = summaries.iterator().next();
     PSLocator owner = summary.getTipLocator();
 
     PSDependentSet dependents = new PSDependentSet();

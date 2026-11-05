@@ -43,6 +43,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @since 8.0.0
  */
+@SuppressWarnings({"cast", "serial", "this-escape"})
 public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
   static Logger log = LogManager.getLogger(PSPopupAppletFrame.class);
 
@@ -197,7 +198,7 @@ public class PSPopupAppletFrame extends PSDesktopExplorerWindow {
     params.put("LABEL", this.action.getLabel());
 
     if (this.selection.getNodeList() != null && this.selection.getNodeList().hasNext()) {
-      PSNode node = (PSNode) this.selection.getNodeList().next();
+      PSNode node = this.selection.getNodeList().next();
       params.put(PSContentExplorerConstants.PARAM_ITEM_TITLE, node.getName());
     }
 

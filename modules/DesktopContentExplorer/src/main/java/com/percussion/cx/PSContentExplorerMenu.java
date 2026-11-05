@@ -51,6 +51,7 @@ import org.apache.logging.log4j.Logger;
  * {@link PSMenuAction}. This class implements the Callable interface so the menu can be built on a
  * separate thread when selection changes.
  */
+@SuppressWarnings({"this-escape", "rawtypes", "unchecked"})
 public class PSContentExplorerMenu implements PopupMenuListener, Callable<PSContentExplorerMenu> {
   static Logger log = LogManager.getLogger(PSContentExplorerMenu.class);
 
@@ -112,6 +113,7 @@ public class PSContentExplorerMenu implements PopupMenuListener, Callable<PSCont
   }
 
   /** Build child menu entries for this menu */
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private void buildChildMenus() {
     JMenu currentMenu = m_menu;
     int count = 0;

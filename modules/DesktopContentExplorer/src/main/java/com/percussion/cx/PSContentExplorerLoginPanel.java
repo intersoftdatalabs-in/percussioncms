@@ -90,7 +90,6 @@ import org.json.JSONObject;
  * partially constructed subclass (javac {@code this-escape}). Session-only collaborators that are
  * not {@link java.io.Serializable} are {@code transient} (the login frame is never serialized).
  */
-////////////////////////////////////////////////////////////////////////////////
 public final class PSContentExplorerLoginPanel extends JFrame {
   private static final long serialVersionUID = 1L;
 
@@ -491,7 +490,6 @@ public final class PSContentExplorerLoginPanel extends JFrame {
   }
 
   /** The browser is being destroyed. Cleanup the applet. */
-  //////////////////////////////////////////////////////////////////////////////
   public void onDestroy() {
     if (m_mainDialog != null) {
       m_mainDialog = null;
@@ -779,7 +777,6 @@ public final class PSContentExplorerLoginPanel extends JFrame {
     }
   }
 
-  //////////////////////////////////////////////////////////////////////////////
   /** the parent frame */
   private transient PSContentExplorerFrame m_parent = null;
 

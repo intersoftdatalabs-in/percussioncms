@@ -48,6 +48,7 @@ import javax.swing.UIManager;
  * General Panel on the Cx Folder Properties Dialog. Allows users to change folder name, community,
  * description and display format.
  */
+@SuppressWarnings("this-escape")
 public class PSFolderGeneralPanel extends PSPropertyPanel {
   /**
    * The only constructor.
@@ -493,25 +494,25 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
    * The folder to create or edit, initialized in the ctor and modified in <code>onOk()</code> as
    * per user selections. Never <code>null</code> after that.
    */
-  private PSFolder m_folder;
+  private transient PSFolder m_folder;
 
   /**
    * The manager that handles the creating or updating folders, initialized in the ctor and never
    * <code>null</code> or modified after that.
    */
-  private PSFolderActionManager m_folderMgr;
+  private transient PSFolderActionManager m_folderMgr;
 
   /**
    * The parent folder node of the new or existing folder being created or modified, initialized in
    * the ctor, never modified after that.
    */
-  private PSNode m_parentFolderNode;
+  private transient PSNode m_parentFolderNode;
 
   /**
    * The folder node of the folder being modified, initialized in the ctor and never modified after
    * that. <code>null</code> if the dialog is invoked to create the folder.
    */
-  private PSNode m_folderNode;
+  private transient PSNode m_folderNode;
 
   /**
    * The text field to enter the folder name, initialized in <code>initDialog()
@@ -569,5 +570,5 @@ public class PSFolderGeneralPanel extends PSPropertyPanel {
   private static final long serialVersionUID = 1L;
 
   /** A reference back to the applet that initiated the action manager. */
-  private PSContentExplorerApplet m_applet;
+  private transient PSContentExplorerApplet m_applet;
 }

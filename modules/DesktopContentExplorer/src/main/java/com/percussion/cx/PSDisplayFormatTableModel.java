@@ -36,6 +36,7 @@ import java.util.Vector;
  * allow editing of the data.
  */
 public class PSDisplayFormatTableModel extends PSTableModel {
+  private static final long serialVersionUID = 1L;
   /**
    * Default constructor with no columns and rows.
    *
@@ -326,8 +327,8 @@ public class PSDisplayFormatTableModel extends PSTableModel {
    * Root node used to supply the data for this model. Modified by {@link #setRoot(PSNode)}, may be
    * <code>null</code> if never set.
    */
-  private PSNode m_root;
+  private transient PSNode m_root;
 
   /** A reference back to the applet that initiated this action manager. */
-  private PSContentExplorerApplet m_applet;
+  private transient PSContentExplorerApplet m_applet;
 }

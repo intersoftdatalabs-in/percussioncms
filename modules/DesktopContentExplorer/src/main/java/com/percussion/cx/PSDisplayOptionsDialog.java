@@ -46,17 +46,9 @@ import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 
 /** The dialog to modify display options. */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSDisplayOptionsDialog extends PSDialog {
-  /**
-   * Constructs the dialog with supplied options. Not checking for <code>null</code> applet because
-   * of the super
-   *
-   * @param parent the parent frame of the dialog, may be <code>null</code>
-   * @param userOptions the user display options, may not be <code>null</code>
-   * @param defaultOptions the default display options, may not be <code>null
-   * </code>
-   * @throws IllegalArgumentException if any parameter is invalid.
-   */
+  private static final long serialVersionUID = 1L;
   /**
    * Constructs the dialog with supplied options. Not checking for <code>null</code> applet because
    * of the super.
@@ -67,6 +59,7 @@ public class PSDisplayOptionsDialog extends PSDialog {
    * @param applet the content explorer applet, may not be <code>null</code>.
    * @throws IllegalArgumentException if any parameter is invalid.
    */
+  @SuppressWarnings("this-escape")
   public PSDisplayOptionsDialog(
       Frame parent,
       PSDisplayOptions userOptions,
@@ -338,6 +331,7 @@ public class PSDisplayOptionsDialog extends PSDialog {
    * options.
    */
   private class ColorPanel extends JPanel {
+    private static final long serialVersionUID = 1L;
     /**
      * Constructs the panel with a text field and a browse button to choose color and set that color
      * as background for the text field.
@@ -402,6 +396,7 @@ public class PSDisplayOptionsDialog extends PSDialog {
 
   /** Constructs the panel to choose text color, font with style and size. */
   private class OptionsPanel extends PSPropertyPanel {
+    private static final long serialVersionUID = 1L;
     /** Initializes the panel with all controls. */
     public OptionsPanel(String category, String[] labels, char[] mnemonics, String panel) {
       if (category == null) category = "";
@@ -411,7 +406,7 @@ public class PSDisplayOptionsDialog extends PSDialog {
       }
       m_txtColorPanel = new ColorPanel();
       m_cmTxtColorPanel = new ColorPanel();
-      m_fontNameField = new JComboBox();
+      m_fontNameField = new JComboBox<>();
       m_fontNameField.setPreferredSize(new Dimension(150, 20));
       m_fontNameField.setMaximumSize(new Dimension(150, 20));
       m_fontNameField.setEditable(false);
@@ -421,7 +416,7 @@ public class PSDisplayOptionsDialog extends PSDialog {
 
       for (int i = 0; i < availFonts.length; i++) m_fontNameField.addItem(availFonts[i].getName());
 
-      m_fontSizeField = new JComboBox();
+      m_fontSizeField = new JComboBox<>();
       m_fontSizeField.setPreferredSize(new Dimension(40, 20));
       m_fontSizeField.setMinimumSize(new Dimension(40, 20));
       m_fontSizeField.setMaximumSize(new Dimension(70, 20));
@@ -560,14 +555,14 @@ public class PSDisplayOptionsDialog extends PSDialog {
      * </code> and never <code>null</code> or modified after that. The user options font name will
      * be selected initially.
      */
-    private JComboBox m_fontNameField;
+    private JComboBox<Object> m_fontNameField;
 
     /**
      * The combo-box to choose font size, initialized in <code>initDialog()
      * </code> and never <code>null</code> or modified after that. The user options font size will
      * be selected initially.
      */
-    private JComboBox m_fontSizeField;
+    private JComboBox<Object> m_fontSizeField;
 
     /**
      * The check-box to choose bold style, initialized in <code>initDialog()
@@ -652,13 +647,13 @@ public class PSDisplayOptionsDialog extends PSDialog {
    * The default display options, initialized in the ctor and never <code>null
    * </code> or modified after that.
    */
-  private PSDisplayOptions m_defaultOptions;
+  private transient PSDisplayOptions m_defaultOptions;
 
   /**
    * The user display options, initialized in the ctor and modified in <code>
    * onOk()</code>. Never <code>null</code>.
    */
-  private PSDisplayOptions m_userOptions;
+  private transient PSDisplayOptions m_userOptions;
 
   /**
    * The check-box to choose OS default settings, initialized in <code>initDialog()</code> and never
@@ -670,5 +665,5 @@ public class PSDisplayOptionsDialog extends PSDialog {
   private UTFixedButton m_defaultButton;
 
   /** A reference back to the applet that initiated the action manager. */
-  private PSContentExplorerApplet m_applet;
+  private transient PSContentExplorerApplet m_applet;
 }

@@ -48,6 +48,7 @@ import javax.swing.tree.TreePath;
  * The view panel that supports <code>PSUiMode.TYPE_VIEW_CX</code> and <code>
  * PSUiMode.TYPE_VIEW_IA</code> views.
  */
+@SuppressWarnings({"serial", "static", "this-escape"})
 public class PSMainView extends JSplitPane
     implements TreeSelectionListener,
         ListSelectionListener,
@@ -166,7 +167,7 @@ public class PSMainView extends JSplitPane
       sortView = false;
     }
 
-    Color bkgColor = m_applet.isMacPlatform() ? Color.white : SystemColor.window;
+    Color bkgColor = PSContentExplorerApplet.isMacPlatform() ? Color.white : SystemColor.window;
     m_navTree.addMouseListener(mouseListener);
     m_navTree.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
     m_navTree.setBackground(bkgColor);
@@ -416,6 +417,7 @@ public class PSMainView extends JSplitPane
    * pop-up menu if the mouse click is on the left panel that contains navigation tree and the
    * clicked location does not represent a node.
    */
+  @SuppressWarnings({"serial", "static", "this-escape"})
   private class MouseActionListener extends PSMouseAdapter {
     /**
      * Handles right-click mouse event to show the global-menu if the clicked location does not
@@ -484,6 +486,7 @@ public class PSMainView extends JSplitPane
    * selected node can be dropped on to the current slot. A node can be dropped on to a slot if it
    * represents a search result whose name is the slot name or if it is a child node of such node.
    */
+  @SuppressWarnings({"serial", "static", "this-escape"})
   private class PSIAViewNodeRenderer extends PSNavTreeNodeRenderer {
     public PSIAViewNodeRenderer(PSContentExplorerApplet m_applet) {
       super(m_applet);

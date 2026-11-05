@@ -37,6 +37,7 @@ public class PSDesktopExplorerWindowTest {
 
   /** Minimal concrete window for construction and bridge lazy-init tests. */
   private static final class TestExplorerWindow extends PSDesktopExplorerWindow {
+    private static final long serialVersionUID = 1L;
     @Override
     public boolean validateOpen(
         String mi_actionurl,

@@ -64,14 +64,17 @@ import javax.swing.table.TableModel;
  * the third one is optional. For example it allows to create a table with Name and Value columns;
  * or a table with Name, Value and Description columns.
  */
+@SuppressWarnings({"rawtypes", "serial", "this-escape", "unchecked"})
 public class UTPropertiesTablePanel extends JPanel implements KeyListener, FocusListener {
   /**
    * Inner, private class that provides a table cell renderer which shows a focus highlight when
    * configured to do so.
    */
+  @SuppressWarnings({"rawtypes", "serial", "this-escape", "unchecked"})
   class UTTablePanelCellRenderer extends DefaultTableCellRenderer {
+    private static final long serialVersionUID = 1L;
     /** Border to use when cell has focus */
-    private final Border mi_focusBorder = new PSFocusBorder(1, m_tableCellFocusColor, true);
+    private final transient Border mi_focusBorder = new PSFocusBorder(1, m_tableCellFocusColor, true);
 
     /* (non-Javadoc)
      * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
@@ -256,6 +259,7 @@ public class UTPropertiesTablePanel extends JPanel implements KeyListener, Focus
   }
 
   /** Implements the mouse adapter interface for bringing up the popup menu on right click. */
+  @SuppressWarnings({"rawtypes", "serial", "this-escape", "unchecked"})
   private class PopupListener extends MouseAdapter {
     /**
      * MouseAdapter interface implementation.

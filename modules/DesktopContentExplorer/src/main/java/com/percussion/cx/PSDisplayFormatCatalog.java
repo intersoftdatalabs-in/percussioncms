@@ -35,17 +35,6 @@ import org.w3c.dom.Element;
  */
 public class PSDisplayFormatCatalog {
   /**
-   * Initializes all available display formats and organizes them by the category of display fotmat
-   * by making a request to the server and caches them in this object.
-   *
-   * @param proxy the remote proxy to use to connect to server, may not be <code>null</code>
-   * @param userInfo the info about current user session, may not be <code>null
-   * </code>
-   * @throws PSContentExplorerException if an error happens in the process of loading display
-   *     formats.
-   * @throws IllegalStateException if not even a single display format is found for each category.
-   */
-  /**
    * Constructs the catalog and loads the available display formats.
    *
    * @param proxy the remote proxy to use to connect to server, may not be <code>null</code>.

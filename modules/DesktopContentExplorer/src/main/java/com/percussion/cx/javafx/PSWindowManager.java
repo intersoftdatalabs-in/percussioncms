@@ -122,8 +122,9 @@ public class PSWindowManager {
           log.error("Cannot instantiate window class " + windowClass.getName(), e);
         }
       }
-      if (window != null)
-        ;
+      if (window != null) {
+        // window resolved
+      }
       windows.put(target, window);
       last_opened = target;
       log.debug("Loading " + url + " to new window with target " + target);

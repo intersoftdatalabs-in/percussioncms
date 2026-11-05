@@ -57,6 +57,7 @@ import org.xml.sax.SAXException;
  * The header info panel displayed next to the banner in the desktop content explorer, showing the
  * current user, community, role and locale selectors and allowing them to be changed.
  */
+@SuppressWarnings({"serial", "this-escape"})
 public class PSHeaderInfoPanel extends JPanel {
 
   private static final long serialVersionUID = 5452851707296139396L;
