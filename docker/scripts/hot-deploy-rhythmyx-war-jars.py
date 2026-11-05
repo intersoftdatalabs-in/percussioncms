@@ -42,6 +42,12 @@ checkout/save of FastForward pages whose body contains ``<noscript>`` fails
 ``modules/utils`` when the jar contains the ``perc-noscript`` shield, falling
 back to the local Maven repository when ``target/`` is stale or missing.
 
+A module whose ``target/`` jar is missing (a fresh checkout, or a module
+that was never built in this worktree) falls back to the same artifact in
+the local Maven repository, so a documented ``mvnw clean install`` in one
+module is enough to make the QA deploy step work. The fallback only accepts
+the project version, so a stale release is never deployed (#4599).
+
 This script copies matching module ``target/*.jar`` files into:
 
 ``perc-matrix-cms-h2:/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib/``
@@ -99,6 +105,9 @@ SITEMAP_XML_CLASS = (
 NOSCRIPT_SHIELD_MARKER = b"perc-noscript"
 PS_HTML_UTILS_CLASS = "com/percussion/html/PSHtmlUtils.class"
 UTILS_M2_GROUP = ("com", "percussion", "utils")
+# Product modules share one Maven groupId, so a module jar is at
+# <m2>/com/percussion/<artifactId>/<version>/<artifactId>-<version>-SNAPSHOT.jar.
+MODULE_M2_GROUP = ("com", "percussion")
 SKIP_JAR_SUFFIXES = ("-sources.jar", "-javadoc.jar", "-tests.jar")
 
 # (module dir relative to repo root, Maven artifactId)
@@ -139,6 +148,22 @@ def parse_pom_property(repo_root: Path, property_name: str) -> Optional[str]:
         return None
     pattern = re.compile(
         r"<" + re.escape(property_name) + r">\s*([^<\s]+)\s*</" + re.escape(property_name) + r">"
+    )
+    match = pattern.search(text)
+    if match is None:
+        return None
+    return match.group(1).strip() or None
+
+
+def parse_project_version(repo_root: Path) -> Optional[str]:
+    """Read the project version from the root POM (``8.2.0-SNAPSHOT``)."""
+    pom = repo_root / "pom.xml"
+    try:
+        text = pom.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    pattern = re.compile(
+        r"<artifactId>core</artifactId>\s*<version>\s*([^<\s]+)\s*</version>"
     )
     match = pattern.search(text)
     if match is None:
@@ -332,11 +357,29 @@ def resolve_utils_from_m2(m2_root: Path) -> Optional[Path]:
     return max(candidates, key=lambda item: item.name)
 
 
+def resolve_module_from_m2(
+    m2_root: Path, artifact_id: str, version: str
+) -> Optional[Path]:
+    """Return the local-repo SNAPSHOT jar for ``artifact_id`` at ``version``."""
+    base = m2_root.joinpath(*MODULE_M2_GROUP, artifact_id, version)
+    if not base.is_dir():
+        return None
+    candidates: list[Path] = []
+    for jar in base.glob(f"{artifact_id}-*-SNAPSHOT.jar"):
+        if not is_snapshot_primary_jar(jar.name, artifact_id):
+            continue
+        candidates.append(jar)
+    if not candidates:
+        return None
+    return max(candidates, key=lambda item: item.name)
+
+
 def resolve_module_jars(
     repo_root: Path, *, m2_root: Optional[Path] = None
 ) -> tuple[list[tuple[str, Path]], int]:
     """Return ``[(artifactId, jar_path), ...]`` or an exit code on failure."""
     resolved_m2 = m2_root if m2_root is not None else default_m2_root()
+    project_version = parse_project_version(repo_root) or ""
     found: list[tuple[str, Path]] = []
     for rel, artifact_id in DEFAULT_MODULES:
         jar = newest_primary_jar(repo_root / rel / "target", artifact_id)
@@ -360,13 +403,26 @@ def resolve_module_jars(
                         PS_HTML_UTILS_CLASS,
                     )
                     return [], EXIT_MARKER_MISSING
+        if jar is None and artifact_id != "utils":
+            m2_jar = resolve_module_from_m2(resolved_m2, artifact_id, project_version)
+            if m2_jar is not None:
+                LOG.info(
+                    "Using m2 %s jar: %s (no %s/target jar).",
+                    artifact_id,
+                    m2_jar,
+                    rel,
+                )
+                jar = m2_jar
         if jar is None:
             LOG.error(
-                "SNAPSHOT jar not found for %s under %s/target "
-                "(build the module, then re-run). Needed so skip-image-build "
+                "SNAPSHOT jar not found for %s under %s/target and not in the "
+                "local Maven repository (%s). Build the module, then re-run: "
+                "cd %s && ../../mvnw clean install. Needed so skip-image-build "
                 "QA cells pick up sitemap-xml allow-list (#4174) and the "
-                "utils noscript shield (#5323).",
+                "utils noscript shield (#5323). (#4599)",
                 artifact_id,
+                rel,
+                resolved_m2,
                 rel,
             )
             return [], EXIT_JAR_NOT_FOUND

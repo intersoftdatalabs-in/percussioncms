@@ -104,12 +104,23 @@ MAIL2_VERSION = "2.0.0-M1"
 JAKARTA_MAIL_VERSION = "2.0.2"
 
 
+PROJECT_VERSION = "8.2.0-SNAPSHOT"
+
+
 def _write_parent_pom(
-    root: Path, version: str = MAIL2_VERSION, mail_impl: str = JAKARTA_MAIL_VERSION
+    root: Path,
+    version: str = MAIL2_VERSION,
+    mail_impl: str = JAKARTA_MAIL_VERSION,
+    project_version: str = PROJECT_VERSION,
 ) -> None:
     (root / "pom.xml").write_text(
         f"""<?xml version="1.0" encoding="UTF-8"?>
 <project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.percussion</groupId>
+  <artifactId>core</artifactId>
+  <version>{project_version}</version>
+  <packaging>pom</packaging>
   <properties>
     <commons-email.version>{version}</commons-email.version>
     <jakarta.mail.impl.version>{mail_impl}</jakarta.mail.impl.version>
@@ -310,6 +321,79 @@ class TestMail2Resolve(unittest.TestCase):
             jars, rc = hdj.resolve_mail2_jars(root, m2_root=Path(td) / "empty-m2")
             self.assertEqual(rc, hdj.EXIT_JAR_NOT_FOUND)
             self.assertEqual(jars, [])
+
+
+
+class TestModuleM2Fallback(unittest.TestCase):
+    """#4599: a module with no target/ jar falls back to the local repository."""
+
+    def _module_m2_jar(self, m2: Path, artifact: str, version: str = PROJECT_VERSION) -> Path:
+        path = m2.joinpath("com", "percussion", artifact, version)
+        path.mkdir(parents=True, exist_ok=True)
+        return path / f"{artifact}-{version}-SNAPSHOT.jar"
+
+    def _without_extensions_workflow_target(self, root: Path) -> None:
+        (root / "modules" / "extensions-workflow" / "target").rename(
+            root / "modules" / "extensions-workflow" / "built-elsewhere"
+        )
+
+    def test_parse_project_version_reads_the_root_pom(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            _write_parent_pom(root)
+            self.assertEqual(hdj.parse_project_version(root), PROJECT_VERSION)
+
+    def test_parse_project_version_is_none_without_a_core_artifact(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "pom.xml").write_text("<project></project>", encoding="utf-8")
+            self.assertIsNone(hdj.parse_project_version(root))
+
+    def test_missing_target_jar_falls_back_to_the_local_repository(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            _layout(root)
+            m2 = Path(td) / "m2"
+            self._without_extensions_workflow_target(root)
+            jar = self._module_m2_jar(m2, "extensions-workflow")
+            _write_jar(jar, "com/percussion/workflow/mail/PSSecureMailProgram.class")
+            jars, rc = hdj.resolve_module_jars(root, m2_root=m2)
+            self.assertEqual(rc, hdj.EXIT_OK)
+            found = [path for artifact, path in jars if artifact == "extensions-workflow"]
+            self.assertEqual(len(found), 1)
+            self.assertIn("m2", found[0].parts)
+
+    def test_target_jar_wins_over_the_local_repository(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            _layout(root)
+            m2 = Path(td) / "m2"
+            jar = self._module_m2_jar(m2, "extensions-workflow")
+            _write_jar(jar, "com/percussion/workflow/mail/PSSecureMailProgram.class")
+            jars, rc = hdj.resolve_module_jars(root, m2_root=m2)
+            self.assertEqual(rc, hdj.EXIT_OK)
+            found = [path for artifact, path in jars if artifact == "extensions-workflow"]
+            self.assertEqual(len(found), 1)
+            self.assertNotIn("m2", found[0].parts)
+
+    def test_a_stale_release_in_the_local_repository_is_not_deployed(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            _layout(root)
+            m2 = Path(td) / "m2"
+            self._without_extensions_workflow_target(root)
+            stale = self._module_m2_jar(m2, "extensions-workflow", version="8.1.8-SNAPSHOT")
+            _write_jar(stale, "com/percussion/workflow/mail/PSSecureMailProgram.class")
+            _, rc = hdj.resolve_module_jars(root, m2_root=m2)
+            self.assertEqual(rc, hdj.EXIT_JAR_NOT_FOUND)
+
+    def test_a_missing_jar_in_both_places_still_fails(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            _layout(root)
+            self._without_extensions_workflow_target(root)
+            _, rc = hdj.resolve_module_jars(root, m2_root=Path(td) / "empty-m2")
+            self.assertEqual(rc, hdj.EXIT_JAR_NOT_FOUND)
 
 
 class TestDeploy(unittest.TestCase):
