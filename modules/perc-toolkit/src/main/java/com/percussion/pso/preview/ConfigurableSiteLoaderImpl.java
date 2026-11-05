@@ -73,7 +73,7 @@ public class ConfigurableSiteLoaderImpl extends CachingSiteLoaderImpl implements
     return allowedSites;
   }
 
-  /**
+  /*
    * Sets the AllowedSites.
    */
   /**

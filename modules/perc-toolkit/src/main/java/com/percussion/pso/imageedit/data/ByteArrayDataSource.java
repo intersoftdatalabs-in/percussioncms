@@ -41,7 +41,7 @@ public class ByteArrayDataSource implements DataSource {
     store = new ByteArrayOutputStream();
   }
 
-  /**
+  /*
    * Creates a new ByteArrayDataSource.
    */
   /**
@@ -56,7 +56,7 @@ public class ByteArrayDataSource implements DataSource {
     this.contentType = contentType;
   }
 
-  /**
+  /*
    * Creates a new ByteArrayDataSource.
    */
   /**

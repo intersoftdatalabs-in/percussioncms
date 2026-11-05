@@ -61,7 +61,7 @@ public class PSOBase64Codec extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "Encode a binary property",
       params = {@IPSJexlParam(name = "source", description = "binary property to encode")})
-  /**
+  /*
    * encode operation.
    *
    * @param jcrProperty the jcr property
@@ -91,7 +91,7 @@ public class PSOBase64Codec extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "Encode a binary stream",
       params = {@IPSJexlParam(name = "source", description = "binary stream to encode")})
-  /**
+  /*
    * encode operation.
    *
    * @param stream the stream
@@ -113,7 +113,7 @@ public class PSOBase64Codec extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "copy a binary stream to a byte array",
       params = {@IPSJexlParam(name = "stream", description = "binary stream to copy")})
-  /**
+  /*
    * streamToBytes operation.
    *
    * @param stream the stream
@@ -148,7 +148,7 @@ public class PSOBase64Codec extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "Encode a binary byte array",
       params = {@IPSJexlParam(name = "source", description = "binary byte array to encode")})
-  /**
+  /*
    * encode operation.
    *
    * @param bytes the bytes

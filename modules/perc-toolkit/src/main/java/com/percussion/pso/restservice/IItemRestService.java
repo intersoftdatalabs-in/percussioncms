@@ -149,7 +149,7 @@ public interface IItemRestService {
   @GET
   // On upgrade use @Path("/Sites/{search:.*}") remove limited
   // @Path(value="/Sites/{search}", limited=false)
-  /**
+  /*
    * Returns the items.
    *
    * @param path the path
@@ -183,7 +183,7 @@ public interface IItemRestService {
   @Path("{id}/{rev}/field/{fieldname}")
   @Produces("*/*")
   public Response getFile(
-  /**
+  /*
    * Returns the file.
    *
    * @param id the id

@@ -25,7 +25,7 @@ public class ArchivedException extends Exception {
 
   private String message;
 
-  /**
+  /*
    * Creates a new ArchivedException.
    */
   /**

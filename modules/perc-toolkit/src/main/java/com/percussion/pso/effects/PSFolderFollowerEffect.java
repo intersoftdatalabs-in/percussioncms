@@ -39,7 +39,7 @@ import java.util.List;
       PSEffectContext.PRE_DESTRUCTION,
       PSEffectContext.PRE_UPDATE
     })
-/**
+/*
  * PSFolderFollowerEffect class.
  */
 public class PSFolderFollowerEffect extends PSAbstractFolderEffect implements IPSEffect {

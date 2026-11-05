@@ -84,7 +84,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
             type = "String",
             description = "the userName with which to make the request")
       })
-  /**
+  /*
    * Returns the relationships.
    *
    * @param itemId the item id
@@ -144,7 +144,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "slotName", description = "the slot name")
       },
       returns = "a list of all parent GUIDs")
-  /**
+  /*
    * findAllParentIds operation.
    *
    * @param guid the guid
@@ -165,7 +165,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "slotName", description = "the slot name")
       },
       returns = "a list of all parent GUIDs")
-  /**
+  /*
    * findAllParentIds operation.
    *
    * @param contentid the contentid
@@ -193,7 +193,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "usePublic", description = "use last public revision?")
       },
       returns = "a list of all parent GUIDs")
-  /**
+  /*
    * findParentIds operation.
    *
    * @param guid the guid
@@ -217,7 +217,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "usePublic", description = "use last public revision?")
       },
       returns = "a list of all parent GUIDs")
-  /**
+  /*
    * findParentIds operation.
    *
    * @param contentid the contentid
@@ -254,7 +254,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
       params = {
         @IPSJexlParam(name = "contentid", description = "the content id of the current page")
       })
-  /**
+  /*
    * Returns whether landing page.
    *
    * @param contentid the contentid
@@ -286,7 +286,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "contentid", description = "the content id of the current page"),
         @IPSJexlParam(name = "folderid", description = "the folder id of the current folder")
       })
-  /**
+  /*
    * Returns whether landing page in folder.
    *
    * @param contentid the contentid
@@ -334,7 +334,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
   @IPSJexlMethod(
       description = "is this page referenced in the landing page slot",
       params = {@IPSJexlParam(name = "guid", description = "the current item guid")})
-  /**
+  /*
    * Returns whether landing page guid.
    *
    * @param guid the guid
@@ -361,7 +361,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "contentGuid", description = "the current item guid"),
         @IPSJexlParam(name = "folderGuid", description = "the folder guid")
       })
-  /**
+  /*
    * Returns whether landing page in folder guid.
    *
    * @param contentGuid the content guid
@@ -383,7 +383,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "contentid", description = "the current item id"),
         @IPSJexlParam(name = "folderid", description = "the folder id")
       })
-  /**
+  /*
    * Returns whether landing page in folder int.
    *
    * @param contentid the contentid
@@ -412,7 +412,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
         @IPSJexlParam(name = "guid", description = "the content item GUID"),
         @IPSJexlParam(name = "slotName", description = "slotName")
       })
-  /**
+  /*
    * hasOnlyPublicAncestors operation.
    *
    * @param guid the guid
@@ -448,7 +448,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
             name = "validFlags",
             description = "validity flags considered public. Defaults to y,i")
       })
-  /**
+  /*
    * hasOnlyPublicAncestors operation.
    *
    * @param contentId the content id
@@ -471,7 +471,7 @@ public class PSORelationshipTools extends PSJexlUtilBase implements IPSJexlExpre
   @IPSJexlMethod(
       description = "Return a list of slots that are populated for this item",
       params = {@IPSJexlParam(name = "owner", description = "guid for this item")})
-  /**
+  /*
    * Returns the item slots.
    *
    * @param owner the owner

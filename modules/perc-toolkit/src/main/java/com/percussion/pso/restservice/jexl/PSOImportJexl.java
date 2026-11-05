@@ -96,7 +96,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
       description =
           "Gets html posted to the template and converts it to tidied xml compliant output ",
       params = {})
-  /**
+  /*
    * Returns the post body as dom.
    *
    * @return the result
@@ -131,7 +131,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Extracts html from a url and convert to dom",
       params = {@IPSJexlParam(name = "url", description = "the url to connect to")})
-  /**
+  /*
    * Returns the http as dom.
    *
    * @param url the url
@@ -194,7 +194,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
             name = "contextroot",
             description = "The root path within the system where this item may already be stored.")
       })
-  /**
+  /*
    * Returns the http as dom.
    *
    * @param url the url
@@ -277,7 +277,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Gets posted body as string",
       params = {})
-  /**
+  /*
    * Returns the post body.
    *
    * @return the result
@@ -337,7 +337,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Gets posted body as DOM",
       params = {})
-  /**
+  /*
    * Returns the post dom.
    *
    * @return the result
@@ -370,7 +370,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Gets Dom from String",
       params = {@IPSJexlParam(name = "string", description = "the xml string ")})
-  /**
+  /*
    * Returns the dom from string.
    *
    * @param string the string
@@ -408,7 +408,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "xpath", description = "the xpath string"),
         @IPSJexlParam(name = "namespaces", description = "a map of namespace prefixes")
       })
-  /**
+  /*
    * xpathSelectSingleNode operation.
    *
    * @param doc the doc
@@ -441,7 +441,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "xpath", description = "the xpath string"),
         @IPSJexlParam(name = "namespaces", description = "a map of namespace prefixes")
       })
-  /**
+  /*
    * xpathSelectNodes operation.
    *
    * @param doc the doc
@@ -465,7 +465,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Gets gets the xml for an existing content item by id",
       params = {@IPSJexlParam(name = "contentId", description = "the id for the Item")})
-  /**
+  /*
    * Returns the item xml.
    *
    * @param contentId the content id
@@ -516,7 +516,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
             name = "contextroot",
             description = "The root path within the system where this item may already be stored.")
       })
-  /**
+  /*
    * Returns the wild html as dom.
    *
    * @param url the url
@@ -634,7 +634,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "url", description = "The base url"),
         @IPSJexlParam(name = "html", description = "The body content")
       })
-  /**
+  /*
    * cleanRelativeLinks operation.
    *
    * @param url the url
@@ -667,7 +667,7 @@ public class PSOImportJexl extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "Returns a SHA-1 hash for the specified string.",
       params = {@IPSJexlParam(name = "data", description = "The data to hash")})
-  /**
+  /*
    * Returns the hash.
    *
    * @param data the data

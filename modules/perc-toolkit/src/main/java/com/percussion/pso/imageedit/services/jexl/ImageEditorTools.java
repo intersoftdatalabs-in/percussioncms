@@ -73,7 +73,7 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
   @IPSJexlMethod(
       description = "get image size definition by code",
       params = {@IPSJexlParam(name = "code", description = "size code")})
-  /**
+  /*
    * Returns the image size definition.
    *
    * @param code the code
@@ -100,7 +100,7 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
         @IPSJexlParam(name = "itemNode", type = "javax.jcr.Node", description = "item node"),
         @IPSJexlParam(name = "sizeCode", description = "desired size code")
       })
-  /**
+  /*
    * Returns the sized node.
    *
    * @param itemNode the item node
@@ -153,7 +153,7 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
             type = "java.lang.String",
             description = "desired size code")
       })
-  /**
+  /*
    * hasSizedNode operation.
    *
    * @param itemNode the item node
@@ -173,7 +173,7 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
       description =
           "gets the URL of the failure image defined in the image editor configuration file.",
       params = {})
-  /**
+  /*
    * Returns the failure image url.
    *
    * @return the result
@@ -187,7 +187,7 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
   @IPSJexlMethod(
       description = "gets the failure image as a stream.",
       params = {})
-  /**
+  /*
    * Returns the failure image stream.
    *
    * @return the result
@@ -210,7 +210,7 @@ public class ImageEditorTools extends PSJexlUtilBase implements IPSJexlExpressio
   @IPSJexlMethod(
       description = "gets the failure image as a byte array.",
       params = {})
-  /**
+  /*
    * Returns the failure image binary.
    *
    * @return the result

@@ -67,7 +67,7 @@ public class PSOTransform extends PSJexlUtilBase implements IPSJexlExpression {
             type = "String",
             description = "the URI of the stylesheet to apply")
       })
-  /**
+  /*
    * transform operation.
    *
    * @param source the source
@@ -104,7 +104,7 @@ public class PSOTransform extends PSJexlUtilBase implements IPSJexlExpression {
             description = "the file: URL of the stylesheet to apply"),
         @IPSJexlParam(name = "params", description = "XSLT parameters for stylesheet")
       })
-  /**
+  /*
    * transform operation.
    *
    * @param source the source

@@ -53,7 +53,7 @@ public class DefaultPageTemplateBean implements ItemTemplateService {
   private IPSTemplateService tempSvc = null;
   private IPSOObjectFinder objFinder = null;
 
-  /**
+  /*
    * init operation.
    */
   /**
@@ -123,7 +123,7 @@ public class DefaultPageTemplateBean implements ItemTemplateService {
     }
   }
 
-  /**
+  /*
    * Returns the SiteTemplates.
    *
    * @return the value
@@ -151,7 +151,7 @@ public class DefaultPageTemplateBean implements ItemTemplateService {
     this.tempSvc = tempSvc;
   }
 
-  /**
+  /*
    * Sets the ObjFinder.
    */
   /**

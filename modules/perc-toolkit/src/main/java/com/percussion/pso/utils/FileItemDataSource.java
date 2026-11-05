@@ -75,7 +75,7 @@ public class FileItemDataSource implements DataSource {
     return item.getContentType();
   }
 
-  /**
+  /*
    * Gets the file name.
    *
    * @return the file name.

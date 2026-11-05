@@ -80,7 +80,7 @@ public class CachingSiteLoaderImpl implements InitializingBean, SiteLoader {
     }
   }
 
-  /**
+  /*
    * loadAllSites operation.
    */
   /**
@@ -149,7 +149,7 @@ public class CachingSiteLoaderImpl implements InitializingBean, SiteLoader {
     return allSites;
   }
 
-  /**
+  /*
    * Sets the AllSites.
    */
   /**

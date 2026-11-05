@@ -77,7 +77,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
             description = "url to pull content from, include query params if desired")
       },
       returns = "Returns an integer status code")
-  /**
+  /*
    * Returns the httpstatus code.
    *
    * @param urlString the url string
@@ -109,7 +109,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns a integer status code")
-  /**
+  /*
    * Returns the httpstatus code.
    *
    * @param urlString the url string
@@ -142,7 +142,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "headers", description = "map of headers to set")
       },
       returns = "Returns a integer status code")
-  /**
+  /*
    * Returns the httpstatus code.
    *
    * @param urlString the url string
@@ -178,7 +178,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns a integer status code")
-  /**
+  /*
    * Returns the httpstatus code.
    *
    * @param urlString the url string
@@ -213,7 +213,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
             description = "url to pull content from, include query params if desired")
       },
       returns = "Returns parsed JSON as Object (Map for objects, List for arrays)")
-  /**
+  /*
    * Returns the remote jsoncontent.
    *
    * @param urlString the url string
@@ -255,7 +255,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns parsed JSON as Object (Map for objects, List for arrays)")
-  /**
+  /*
    * Returns the remote jsoncontent.
    *
    * @param urlString the url string
@@ -296,7 +296,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "headers", description = "map of headers to set")
       },
       returns = "Returns parsed JSON as Object (Map for objects, List for arrays)")
-  /**
+  /*
    * Returns the remote jsoncontent.
    *
    * @param urlString the url string
@@ -339,7 +339,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns parsed JSON as Object (Map for objects, List for arrays)")
-  /**
+  /*
    * Returns the remote jsoncontent.
    *
    * @param urlString the url string
@@ -409,7 +409,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
             description = "url to pull content from, include query params if desired")
       },
       returns = "Returns a JSOUP document")
-  /**
+  /*
    * Returns the remote xmlcontent.
    *
    * @param urlString the url string
@@ -443,7 +443,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns a JSOUP document")
-  /**
+  /*
    * Returns the remote xmlcontent.
    *
    * @param urlString the url string
@@ -480,7 +480,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "headers", description = "Map of headers")
       },
       returns = "Returns a JSOUP document")
-  /**
+  /*
    * Returns the remote xmlcontent.
    *
    * @param urlString the url string
@@ -519,7 +519,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns a JSOUP document")
-  /**
+  /*
    * Returns the remote xmlcontent.
    *
    * @param urlString the url string
@@ -562,7 +562,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
             description = "url to pull content from, include query params if desired")
       },
       returns = "Returns a JSOUP document")
-  /**
+  /*
    * Returns the remote htmlcontent.
    *
    * @param urlString the url string
@@ -595,7 +595,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns a JSOUP document")
-  /**
+  /*
    * Returns the remote htmlcontent.
    *
    * @param urlString the url string
@@ -628,7 +628,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "headers", description = "Map of headers")
       },
       returns = "Returns a JSOUP document")
-  /**
+  /*
    * Returns the remote htmlcontent.
    *
    * @param urlString the url string
@@ -664,7 +664,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
         @IPSJexlParam(name = "password", description = "password")
       },
       returns = "Returns a JSOUP document")
-  /**
+  /*
    * Returns the remote htmlcontent.
    *
    * @param urlString the url string

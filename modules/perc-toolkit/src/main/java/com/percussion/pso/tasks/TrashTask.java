@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-/**
+/*
  * Member documentation.
  * @author Stephen Bolton
  */

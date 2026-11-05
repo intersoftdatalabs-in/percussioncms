@@ -145,7 +145,7 @@ public class Field {
     @XmlElementRef(type = DateValue.class),
     @XmlElementRef(type = FileValue.class)
   })
-  /**
+  /*
    * Returns the value.
    *
    * @return the result
@@ -178,7 +178,7 @@ public class Field {
     @XmlElementRef(type = DateValue.class),
     @XmlElementRef(type = FileValue.class)
   })
-  /**
+  /*
    * Returns the values.
    *
    * @return the result

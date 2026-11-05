@@ -75,7 +75,7 @@ public class PSOQueryTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "params", description = "parameters for query"),
         @IPSJexlParam(name = "locale", description = "locale for collating results")
       })
-  /**
+  /*
    * executeQuery operation.
    *
    * @param query the query
@@ -127,7 +127,7 @@ public class PSOQueryTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "params", description = "parameters for query"),
         @IPSJexlParam(name = "locale", description = "locale for collating results")
       })
-  /**
+  /*
    * executeQueryNodes operation.
    *
    * @param query the query

@@ -60,7 +60,7 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "gets a StringBuilder for concatenating strings",
       params = {@IPSJexlParam(name = "value", description = "initial value")})
-  /**
+  /*
    * Returns the string builder.
    *
    * @param value the value
@@ -79,7 +79,7 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "gets a StringBuilder for concatenating strings",
       params = {})
-  /**
+  /*
    * Returns the string builder.
    *
    * @return the result
@@ -98,7 +98,7 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "gets a java.util.Locale based on the String representation",
       params = {@IPSJexlParam(name = "locString", description = "locale as a String")})
-  /**
+  /*
    * Returns the locale.
    *
    * @param locString the loc string
@@ -111,7 +111,7 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
   @IPSJexlMethod(
       description = "Removes XML markup from a string.",
       params = {@IPSJexlParam(name = "body", description = "A string with xml markup.")})
-  /**
+  /*
    * removeXml operation.
    *
    * @param body the body
@@ -136,7 +136,7 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
         @IPSJexlParam(name = "body", description = "the string to truncate"),
         @IPSJexlParam(name = "maxWords", description = "The maximum number of words")
       })
-  /**
+  /*
    * truncateByWords operation.
    *
    * @param body the body
@@ -180,7 +180,7 @@ public class PSOStringTools extends PSJexlUtilBase implements IPSJexlExpression 
             name = "forceExtension",
             description = "Add or replace extension with this value")
       })
-  /**
+  /*
    * cleanupPath operation.
    *
    * @param path the path
