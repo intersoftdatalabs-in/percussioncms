@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 /** This wizard panel allows a user to select the option for what content should be copied. */
+@SuppressWarnings({"serial", "this-escape"})
 public class PSCopySiteCopyOptionsPage extends PSWizardPanel {
   /**
    * Instantiate with applet to make config options from applet available to panel.
@@ -129,6 +130,7 @@ public class PSCopySiteCopyOptionsPage extends PSWizardPanel {
   }
 
   /** The data object returned by this wizard page. */
+  @SuppressWarnings({"serial", "this-escape"})
   public class OutputData {
     /**
      * Construct copy options data object.

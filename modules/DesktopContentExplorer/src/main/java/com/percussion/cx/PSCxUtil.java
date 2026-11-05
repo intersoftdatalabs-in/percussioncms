@@ -271,7 +271,7 @@ public final class PSCxUtil {
   public static boolean isMouseMenuGesture(MouseEvent event, PSContentExplorerApplet applet) {
     if (applet == null) throw new IllegalArgumentException("applet must not be null");
 
-    if (applet.isMacPlatform() && event.isControlDown()
+    if (PSContentExplorerApplet.isMacPlatform() && event.isControlDown()
         || SwingUtilities.isRightMouseButton(event)) {
       return true;
     }
@@ -288,7 +288,7 @@ public final class PSCxUtil {
   public static Color getWindowBkgColor(PSContentExplorerApplet applet) {
     if (applet == null) throw new IllegalArgumentException("applet must not be null");
 
-    return applet.isMacPlatform() ? Color.white : SystemColor.window;
+    return PSContentExplorerApplet.isMacPlatform() ? Color.white : SystemColor.window;
   }
 
   /**

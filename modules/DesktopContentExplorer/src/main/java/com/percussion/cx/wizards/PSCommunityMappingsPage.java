@@ -43,6 +43,7 @@ import javax.swing.table.TableModel;
  * This wizard panel allows a user to map source to target communities for the copy site / copy site
  * folder wizards.
  */
+@SuppressWarnings({"rawtypes", "serial", "this-escape", "unchecked"})
 public class PSCommunityMappingsPage extends PSWizardPanel {
 
   /**
@@ -163,6 +164,7 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
   }
 
   /** The data object to initialize this wizard page with. */
+  @SuppressWarnings({"rawtypes", "serial", "this-escape", "unchecked"})
   public static class InputData {
     /**
      * Construct the input data for this wizard page.
@@ -248,6 +250,7 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
    * Map}{@code <? extends Integer, ? extends Integer>} (e.g. {@code PSCloningOptions} constructors)
    * without unchecked conversion. Only entries where source and target ids differ are included.
    */
+  @SuppressWarnings({"rawtypes", "serial", "this-escape", "unchecked"})
   public static class OutputData extends HashMap<Integer, Integer> {
     private static final long serialVersionUID = 1L;
 
@@ -320,6 +323,7 @@ public class PSCommunityMappingsPage extends PSWizardPanel {
    * <p>It creates different cell editor for each target cell and overrides the {@link
    * #getCellEditor(int, int)} to set the cell editor based on the location of the cell.
    */
+  @SuppressWarnings({"rawtypes", "serial", "this-escape", "unchecked"})
   private class MappingTable extends JTable {
     /** The default ctor. */
     public MappingTable() {

@@ -71,6 +71,7 @@ import javax.swing.border.TitledBorder;
  * permissions it either allows to change and save entries or provides a read-only access.
  */
 public class PSFolderSecurityPanel extends JPanel implements ActionListener {
+  private static final long serialVersionUID = 1L;
   /**
    * The only constructor of the security panel.
    *
@@ -80,6 +81,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
    * @param folderMgr the manager to handle folder related actions, may not be <code>null</code>
    * @param enabled <code>true</code> if any data can be entered, <code>false</code> otherwise.
    */
+  @SuppressWarnings("this-escape")
   public PSFolderSecurityPanel(
       Dialog parentDialog,
       PSFolder folder,
@@ -278,6 +280,7 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
 
   /** Custom Cell Renderer for displaying ACL roles or members in List. */
   private class AclListCellRenderer extends DefaultListCellRenderer {
+    private static final long serialVersionUID = 1L;
     /**
      * Gets cell renderer component for cell in the list. Sets an icon, text to the cell and tooltip
      * if the source list is role member list
@@ -873,20 +876,20 @@ public class PSFolderSecurityPanel extends JPanel implements ActionListener {
    * The folder to create or edit, initialized in the ctor and modified in <code>onOk()</code> as
    * per user selections. Never <code>null</code> after that.
    */
-  private PSFolder m_folder;
+  private transient PSFolder m_folder;
 
   /**
    * The manager that handles the creating or updating folders, initialized in the ctor and never
    * <code>null</code> or modified after that.
    */
-  private PSFolderActionManager m_folderMgr;
+  private transient PSFolderActionManager m_folderMgr;
 
   /**
    * The info of the user editing or creating the folder, initialized in the ctor and never <code>
    * null</code> or modified after that.
    */
-  private PSUserInfo m_userInfo;
+  private transient PSUserInfo m_userInfo;
 
   /** A reference back to the applet that initiated the action manager. */
-  private PSContentExplorerApplet m_applet;
+  private transient PSContentExplorerApplet m_applet;
 }

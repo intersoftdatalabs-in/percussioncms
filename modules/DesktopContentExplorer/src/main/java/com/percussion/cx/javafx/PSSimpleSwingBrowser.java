@@ -81,6 +81,7 @@ import org.apache.logging.log4j.Logger;
  * content explorer when a more isolated browser surface is required (e.g. dependency tree, item
  * assembly) instead of the main content explorer view.
  */
+@SuppressWarnings({"cast", "serial"})
 public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
 
   private static final String CANNOT_READ_MESSAGE =
@@ -174,6 +175,7 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
    * JavaScript bridge that connects the Chrome DevTools debugger to the embedded web view, allowing
    * the developer tools to attach for debugging.
    */
+  @SuppressWarnings({"cast", "serial"})
   public class DevToolsJsBridge extends DevToolsDebuggerJsBridge {
     /**
      * Constructs the bridge for the given web view and state provider.
@@ -349,6 +351,7 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
    * Lightweight action handler exposed to the page's JavaScript via {@code webviewAction} that can
    * open the currently displayed URL in the system browser.
    */
+  @SuppressWarnings({"cast", "serial"})
   public static class WebViewAction {
 
     private String urlToShow;
@@ -469,7 +472,7 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
         new EventHandler<MouseEvent>() {
           public void handle(MouseEvent event) {
             if (event.getButton() == MouseButton.SECONDARY) {
-              Object tinyMCE = (Object) engine.executeScript(TINYMCE);
+              Object tinyMCE = engine.executeScript(TINYMCE);
               boolean hasTinyMCE = !(tinyMCE == null || tinyMCE.toString().equals("undefined"));
 
               if (hasTinyMCE) {
@@ -924,6 +927,7 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
   }
 
   /** Custom accessible frame implementation that surfaces the accessibility menu on focus. */
+  @SuppressWarnings({"cast", "serial"})
   protected class PSAccessibleJFrame extends AccessibleJFrame {
     /** Default constructor. */
     public PSAccessibleJFrame() {
@@ -941,7 +945,6 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
     }
   }
 
-  /** Callback invoked when the page finishes loading. */
   /** Callback invoked when the page finishes loading. */
   Runnable myOnPageLoadRunnable = null;
 

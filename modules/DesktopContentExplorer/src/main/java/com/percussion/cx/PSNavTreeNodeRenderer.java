@@ -31,6 +31,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
  * each node type and expansion state. Sets the background selection color, font and text foreground
  * color based on the display options set by user.
  */
+@SuppressWarnings("serial")
 public class PSNavTreeNodeRenderer extends DefaultTreeCellRenderer {
 
   /**

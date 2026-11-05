@@ -68,7 +68,9 @@ import javax.swing.border.TitledBorder;
  * Folder ACL Editor Dialog that allows to catalog Role, User and Virtual ACL entries and add those
  * to the result ACL list.
  */
+@SuppressWarnings({"rawtypes", "unchecked", "this-escape"})
 public class PSFolderAclEditorDialog extends PSDialog implements ActionListener {
+  private static final long serialVersionUID = 1L;
   /**
    * Constructor for this dialog. Creates all UI components, sets up layout and loads current and
    * cataloged acl entry lists.
@@ -345,7 +347,9 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
   }
 
   /** Custom Cell Renderer for displaying ACL roles or members in List. */
+  @SuppressWarnings("this-escape")
   private class AclListCellRenderer extends DefaultListCellRenderer {
+    private static final long serialVersionUID = 1L;
     /**
      * Gets cell renderer component for cell in the list. Sets an icon, text to the cell and tooltip
      * if the source list is role member list
@@ -407,6 +411,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    * Custom MouseMotionListener for handling mouse moves over ACLs in the ACL list and displaying
    * tooltips with provider type and instance name.
    */
+  @SuppressWarnings("this-escape")
   private class AclListMouseMotion extends MouseMotionAdapter {
     @Override
     public void mouseMoved(MouseEvent event) {
@@ -678,6 +683,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    * Launches New User ACL Entry dialog and if OKed creates and inserts a new acl entry into the
    * current acl entries list.
    */
+  @SuppressWarnings("unchecked")
   private void onNew() {
     try {
       PSSecurityProviderCataloger providerCataloger = m_folderMgr.getSecurityProviderCataloger();
@@ -822,19 +828,19 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    * Cached collection of cataloged Role ACLs, it is lazily initilized in the {@link
    * #getCatalogEntries()}, never <code>null</code> after that.
    */
-  private Collection<PSObjectAclEntry> m_catalogedRoleAcls;
+  private transient Collection<PSObjectAclEntry> m_catalogedRoleAcls;
 
   /**
    * Cached collection of cataloged User ACLs, it is lazily initilized in the {@link
    * #getCatalogEntries()}, never <code>null</code> after that.
    */
-  private Collection<PSObjectAclEntry> m_catalogedUserAcls;
+  private transient Collection<PSObjectAclEntry> m_catalogedUserAcls;
 
   /**
    * Cached collection of Virtual ACLs, it is lazily initilized. in the {@link
    * #getCatalogEntries()}, never <code>null</code> after that.
    */
-  private Collection<PSObjectAclEntry> m_catalogedVirtualAcls;
+  private transient Collection<PSObjectAclEntry> m_catalogedVirtualAcls;
 
   /**
    * <code>true</code> indicates that user can make and save modifications to any control in this
@@ -846,7 +852,7 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
    * The manager that handles the creating or updating folders, initialized in the ctor and never
    * <code>null</code> or modified after that.
    */
-  private PSFolderActionManager m_folderMgr;
+  private transient PSFolderActionManager m_folderMgr;
 
   /** Add button */
   private JButton m_btnAdd;
@@ -873,5 +879,5 @@ public class PSFolderAclEditorDialog extends PSDialog implements ActionListener 
   private JList<PSObjectAclEntry> m_curAclList;
 
   /** A reference back to the applet that initiated the action manager. */
-  private PSContentExplorerApplet m_applet;
+  private transient PSContentExplorerApplet m_applet;
 }

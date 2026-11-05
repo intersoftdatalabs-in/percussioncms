@@ -114,25 +114,25 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
       "toolbar=0,location=0,directories=0,status=0,menubar=0,scrollbars=0,resizable=1,width=780,height=400";
 
   /** The current content selection passed through to the opened view. */
-  protected PSSelection selection;
+  protected transient PSSelection selection;
 
   /** The menu action that triggered this window's open. */
-  protected PSMenuAction action;
+  protected transient PSMenuAction action;
 
   /** Parsed browser properties derived from {@link #mi_style}. */
-  protected BrowserProps browserProps;
+  protected transient BrowserProps browserProps;
 
   /** The JavaFX web view, set when the window is opened. */
-  protected volatile WebView webView;
+  protected transient volatile WebView webView;
 
   /** The JavaFX web engine backing the page. */
-  protected WebEngine engine;
+  protected transient WebEngine engine;
 
   /** {@code true} once the page has finished its initial load. */
   protected boolean windowLoaded = false;
 
   /** The JavaScript window object for the loaded page. */
-  protected JSObject window = null;
+  protected transient JSObject window = null;
 
   /** The window that opened this one, if any. */
   protected PSDesktopExplorerWindow opener = null;
@@ -436,7 +436,7 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
         log.debug("No parent for window " + this.target + "with url " + mi_actionurl);
       }
 
-      Object currJava = (Object) window.getMember("java");
+      Object currJava = window.getMember("java");
       if (currJava == null || currJava.toString().equals("undefined")) {
         window.setMember("java", getBridge());
         if (applet != null) window.setMember("contentexplorer", applet);
@@ -454,7 +454,7 @@ public abstract class PSDesktopExplorerWindow extends JFrame {
       if (firebug.get()) showFirebug();
     }
 
-    Object currUtils = (Object) window.getMember("percUtils");
+    Object currUtils = window.getMember("percUtils");
     if (currUtils == null || currUtils.toString().equals("undefined")) {
       window.setMember("percUtils", PSWebViewUtils.getInstance());
     }

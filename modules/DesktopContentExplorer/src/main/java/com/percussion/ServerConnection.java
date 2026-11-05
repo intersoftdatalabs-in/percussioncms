@@ -27,14 +27,12 @@ import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 
 /** ServerConnection wraps up all functionality to log in/out to/from the server. */
-////////////////////////////////////////////////////////////////////////////////
 public class ServerConnection implements IConnectionSource {
   /**
    * The Constuctor.
    *
    * @param port the port through wich we will connect the server.
    */
-  //////////////////////////////////////////////////////////////////////////////
   public ServerConnection(String port) {
     try {
       m_connProps = new Properties();
@@ -44,18 +42,6 @@ public class ServerConnection implements IConnectionSource {
     }
   }
 
-  /**
-   * Creates a PSDesignerConnection and logs in to the server. The connection will be kept open til
-   * the user logs out.
-   *
-   * @param server servers name, never <code>null</code>.
-   * @param userId user name, never <code>null</code>.
-   * @param password user password, never <code>null</code>.
-   * @param protocol <code>https</code> indicates SSL connection request, any other value including
-   *     <code>null</code> will default it to the regular <code>http</code> - non SSL based
-   *     connection.
-   * @throws PSAuthenticationFailedException if the user is not authorized to administer the server
-   */
   /**
    * Creates a PSDesignerConnection and logs in to the server. The connection will be kept open
    * until the user logs out.
@@ -86,7 +72,6 @@ public class ServerConnection implements IConnectionSource {
    * @return <code>true</code> if login was successful.
    * @throws PSAuthenticationFailedException if the user is not authorized to administer the server
    */
-  //////////////////////////////////////////////////////////////////////////////
   public boolean login(String server, String userId, String password)
       throws PSAuthenticationFailedException {
     if (server == null) throw new IllegalArgumentException("server==null");
@@ -140,7 +125,6 @@ public class ServerConnection implements IConnectionSource {
    * include this call in case of exceptions caught during login! It will cause PSDesignerConnection
    * to spawn a new session ID, in which it will cause problems for the config locking system.
    */
-  //////////////////////////////////////////////////////////////////////////////
   public void logout() {
     try {
       if (m_connection != null && m_connection.isConnected()) m_connection.close();
@@ -157,7 +141,6 @@ public class ServerConnection implements IConnectionSource {
    *
    * @return the designer connection, may be <code>null</code>.
    */
-  //////////////////////////////////////////////////////////////////////////////
   public PSDesignerConnection getConnection() {
     return m_connection;
   }
@@ -167,7 +150,6 @@ public class ServerConnection implements IConnectionSource {
    *
    * @return the server name, may be <code>null</code>.
    */
-  //////////////////////////////////////////////////////////////////////////////
   public String getServerName() {
     return m_connProps.getProperty(PSDesignerConnection.PROPERTY_HOST);
   }
@@ -191,7 +173,6 @@ public class ServerConnection implements IConnectionSource {
     return m_connection;
   }
 
-  //////////////////////////////////////////////////////////////////////////////
   /** the login properties */
   private Properties m_connProps;
 

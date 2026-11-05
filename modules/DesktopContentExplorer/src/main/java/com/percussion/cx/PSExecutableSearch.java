@@ -60,6 +60,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /** The utility class to hold search criteria, build search request and execute it. */
+@SuppressWarnings({"this-escape", "unchecked", "rawtypes"})
 public class PSExecutableSearch extends PSWSExecutableSearch {
   /** Label for uncategorized */
   private static final String _UNCATEGORIZED_ = "[Uncategorized]";
@@ -251,6 +252,7 @@ public class PSExecutableSearch extends PSWSExecutableSearch {
    * @param columnName the column name, never <code>null</code> or empty, if already present in the
    *     list, this call has no effect.
    */
+  @SuppressWarnings("unchecked")
   public void addColumnName(String columnName) {
     if (columnName == null || StringUtils.isBlank(columnName)) {
       throw new IllegalArgumentException("columnName may not be null or empty");

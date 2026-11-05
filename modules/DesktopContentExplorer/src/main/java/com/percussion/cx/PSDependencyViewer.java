@@ -38,8 +38,10 @@ import javax.swing.event.TreeSelectionListener;
  * The splitplane that displays ancestors and descends of a content item for a specific
  * relationship.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class PSDependencyViewer extends JSplitPane
     implements IPSViewChangeListener, IPSActionListener, TreeSelectionListener {
+  private static final long serialVersionUID = 1L;
   /**
    * Constructs the dependency viewer with a horizontal-split to show its dependencies.
    *
@@ -49,6 +51,7 @@ public class PSDependencyViewer extends JSplitPane
    *     properties defining the item and default relationship, may not be <code>null</code>
    * @throws IllegalArgumentException if actionManager is <code>null</code>.
    */
+  @SuppressWarnings("this-escape")
   public PSDependencyViewer(PSActionManager actionManager, PSNode itemNode) {
     if (actionManager == null) throw new IllegalArgumentException("actionManager may not be null.");
 
@@ -250,7 +253,7 @@ public class PSDependencyViewer extends JSplitPane
    * through calls to the method <code>viewDataChanged(Object)</code> as the 'relationship' property
    * changes.
    */
-  private PSNode m_descNode;
+  private transient PSNode m_descNode;
 
   /**
    * The user object of the root node of the 'Ancestors' tree, initialized in the <code>
@@ -261,27 +264,27 @@ public class PSDependencyViewer extends JSplitPane
    * through calls to the method <code>viewDataChanged(Object)</code> as the 'relationship' property
    * changes.
    */
-  private PSNode m_ancNode;
+  private transient PSNode m_ancNode;
 
   /**
    * The tree that represents the descendants of an item for a specific relationship. Initialized in
    * the ctor and will be modified in <code>
    * viewDataChanged(Object)</code> as user changes the relationship.
    */
-  private PSNavigationTree m_descTree;
+  private transient PSNavigationTree m_descTree;
 
   /**
    * The tree that represents the ancestors of an item for a specific relationship. Initialized in
    * the ctor and will be modified in <code>
    * viewDataChanged(Object)</code> as user changes the relationship.
    */
-  private PSNavigationTree m_ancTree;
+  private transient PSNavigationTree m_ancTree;
 
   /**
    * The action manager to use to refresh/load the children for a specific node, initialized in the
    * ctor and never <code>null</code> or modified after that.
    */
-  private PSActionManager m_actManager;
+  private transient PSActionManager m_actManager;
 
   /**
    * The list of selection listeners that are interested in selection changes in this ancestor or
@@ -290,7 +293,7 @@ public class PSDependencyViewer extends JSplitPane
    * addSelectionListener(IPSSelectionListener)</code>. Never <code>null</code> after
    * initialization.
    */
-  private List m_selListeners = new ArrayList();
+  private transient List m_selListeners = new ArrayList();
 
   /** The constant representing this view. */
   private static final String ms_view = PSUiMode.TYPE_VIEW_DT;

@@ -1102,7 +1102,7 @@ public class PSFolderActionManager {
       }
     }
 
-    if (match == null && getDefault) match = (PSDisplayFormat) getDisplayFormats().next();
+    if (match == null && getDefault) match = getDisplayFormats().next();
 
     return match;
   }

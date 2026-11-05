@@ -94,7 +94,7 @@ public class PSContentExplorerHelper {
    *     </code>.
    * @return the loaded image icon, or <code>null</code> if it cannot be loaded.
    */
-  public static ImageIcon getImageIcon(Class clazz) {
+  public static ImageIcon getImageIcon(Class<?> clazz) {
 
     ImageIcon icon;
     try {

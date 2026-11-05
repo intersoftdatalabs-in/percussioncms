@@ -37,12 +37,8 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 /** The dialog for entering search details to save a 'New Search'. */
+@SuppressWarnings({"serial", "this-escape", "varargs"})
 public class PSSaveSearchDialog extends PSDialog {
-  /**
-   * Constructs the dialog with supplied parent.
-   *
-   * @param parent the parent frame of this dialog, may be <code>null</code>
-   */
   /**
    * Constructs the dialog with supplied parent.
    *
@@ -137,7 +133,7 @@ public class PSSaveSearchDialog extends PSDialog {
           MessageFormat.format(
               m_applet.getResourceString(
                   getClass(), "The search name must not exceed {0} characters."),
-              new String[] {String.valueOf(PSSearch.INTERNALNAME_LENGTH)}),
+              new Object[] {String.valueOf(PSSearch.INTERNALNAME_LENGTH)}),
           m_applet.getResourceString(getClass(), "Error"));
       m_searchNameField.requestFocus();
       return;
@@ -244,6 +240,7 @@ public class PSSaveSearchDialog extends PSDialog {
   }
 
   /** The class to hold user selections in this dialog for search. */
+  @SuppressWarnings({"serial", "this-escape", "varargs"})
   private class SearchDetails {
     /**
      * Constructs this object with supplied parameters.

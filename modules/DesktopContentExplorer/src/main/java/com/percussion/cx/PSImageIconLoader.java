@@ -26,6 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** Helper class to load image icons from UIManager cache or archive. */
+@SuppressWarnings("serial")
 public class PSImageIconLoader extends UIManager {
   static Logger log = LogManager.getLogger(PSImageIconLoader.class);
   private static String rootPath = "../../../";

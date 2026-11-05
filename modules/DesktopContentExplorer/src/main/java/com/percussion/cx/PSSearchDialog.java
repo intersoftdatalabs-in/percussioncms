@@ -73,6 +73,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /** Dialog to build/edit Search Query. */
+@SuppressWarnings({"serial", "this-escape"})
 public class PSSearchDialog extends PSDialog {
   static Logger log = LogManager.getLogger(PSSearchDialog.class);
 
