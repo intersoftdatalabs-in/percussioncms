@@ -467,10 +467,16 @@ Preflight/Reconcile/Triage Grok agents are skipped when the script fills
     --issues scratch/issues-raw.json \
     --prs scratch/prs-open.json \
     --prescreen scratch/prescreen.json \
+    --alerts scratch/alerts.json \
     --out scratch/decision-front.json \
     --max-issues 3
   # Windows: scripts\night-decision-front.cmd ...
   ```
+
+  `--alerts` is `gh api code-scanning/alerts` output (open alerts; merge
+  paginated pages with `jq -s 'add'`). Omit it when the fetch fails:
+  `open_alert_count` becomes `-1` (unknown, Security audit runs fail-open).
+  Never pass a faked empty list — a missing inventory is unknown, not zero.
 
 - **Hard rules in code**: labels beat Jev; covering PR from `Fixes #N` / `issue-N`
   branch; at most one implement item per parent; p7/p8 only in `--low-slots`.

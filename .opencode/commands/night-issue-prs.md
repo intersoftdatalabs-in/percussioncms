@@ -119,7 +119,7 @@ absent (count `-1` is unknown, not zero).
 | # | Phase | Sub-agent | Skip signal |
 |---|-------|-----------|-------------|
 | 1 | Identity | (inline — read env) | stamp args already passed |
-| 2 | Decision front | run `scripts/night-decision-front.py` (thin) | `include_decision_front: false` |
+| 2 | Decision front | run `scripts/night-decision-front.py` (thin; fetch `scratch/alerts.json` first, pass `--alerts`; omit the flag on fetch failure → count `-1`, never fake `[]`) | `include_decision_front: false` |
 | 3 | Preflight (fallback) — stale In Progress cleanup + TypeSafe pre-screen | `preflight` | decision-front `signals_complete` |
 | 4 | Reconcile (fallback) | `reconcile` | decision-front filled the queue or `include_reconcile: false` |
 | 5 | PR follow-up PRE | `pr-follow-up` | no merge blockers from Preflight |
@@ -130,7 +130,7 @@ absent (count `-1` is unknown, not zero).
 | 10 | Erlang review | `erlang-review` then `erlang-fix` if BLOCK | no this-run PRs |
 | 11 | PR follow-up POST | `pr-follow-up` | no PRs opened + no PRE blockers |
 | 12 | PR cluster | `pr-cluster` | `cluster_recommended` false (known) |
-| 13 | Security audit | `security-audit` | `open_alert_count == 0` |
+| 13 | Security audit | `security-audit` | `open_alert_count == 0` (known zero only; `-1`/missing runs fail-open) |
 | 14 | Cycle verify | `cycle-verify` | no PR / cluster opened |
 | 15 | Human QA | `human-qa` | Q2 fails or `include_human_qa: false` |
 | 16 | Report | (inline) | never |
@@ -151,6 +151,22 @@ and move on.
    (`skip_source=model`) as `disposition=skip` / `rationale=prescreen`, and
    treat `recommend_close` as inputs for the `reconcile` agent. Never un-skip
    a deterministic rule. If the script is unavailable, proceed without it.
+
+## CodeQL alerts feed (Phase 2 → Phase 13)
+
+Decision-front cannot see code-scanning alerts on its own — fetch them first:
+
+```bash
+gh api repos/<repo>/code-scanning/alerts --paginate \
+  -q '[.[] | select(.state=="open")]' | jq -s 'add' > scratch/alerts.json
+```
+
+(`jq -s 'add'` merges paginated pages into one JSON array; without it the
+file is not valid JSON when alerts span pages.) Then pass
+`--alerts scratch/alerts.json` to `scripts/night-decision-front.py`.
+If the fetch fails (403/404, no network), **omit `--alerts`** — the script
+emits `open_alert_count: -1` (unknown) and Phase 13 runs fail-open. Never
+write or pass a faked empty list to force a zero.
 
 ## Output contract
 

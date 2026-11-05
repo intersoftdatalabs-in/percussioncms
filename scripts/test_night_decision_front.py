@@ -160,6 +160,71 @@ def test_peer_eligible_other_operator():
     assert "#10" in result["peer_eligible_prs"]
 
 
+def raw_alert(n, rule_id="java/xss", severity="error", state="open"):
+    return {
+        "number": n,
+        "state": state,
+        "rule": {"id": rule_id, "severity": severity},
+    }
+
+
+def test_alerts_count_open_mixed_shapes():
+    alerts = [
+        raw_alert(2084, "java/xss", "error", "open"),
+        raw_alert(2083, "java/xss", "error", "open"),
+        raw_alert(100, "java/xss", "error", "dismissed"),
+        {"number": 2089, "rule_id": "js/xss-through-dom", "severity": "warning", "state": "open"},
+    ]
+    result = df.run([], [], None, 3, 0, "model:grok-4.6", 3, alerts)
+    assert result["open_alert_count"] == 3
+
+
+def test_alerts_missing_is_unknown_not_zero():
+    result = df.run([], [], None, 3, 0, "model:grok-4.6", 3)
+    assert result["open_alert_count"] == -1
+
+
+def test_alerts_empty_list_is_known_zero():
+    result = df.run([], [], None, 3, 0, "model:grok-4.6", 3, [])
+    assert result["open_alert_count"] == 0
+
+
+def test_cli_alerts_roundtrip():
+    tmp = Path(tempfile.mkdtemp())
+    issues = tmp / "issues.json"
+    alerts = tmp / "alerts.json"
+    out = tmp / "out.json"
+    issues.write_text(json.dumps([]), encoding="utf-8")
+    alerts.write_text(
+        json.dumps([raw_alert(1), raw_alert(2, state="fixed")]),
+        encoding="utf-8",
+    )
+    rc = df.main(
+        [
+            "--issues",
+            str(issues),
+            "--alerts",
+            str(alerts),
+            "--out",
+            str(out),
+        ]
+    )
+    assert rc == 0
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["open_alert_count"] == 1
+
+
+def test_cli_no_alerts_flag_is_unknown():
+    tmp = Path(tempfile.mkdtemp())
+    issues = tmp / "issues.json"
+    out = tmp / "out.json"
+    issues.write_text(json.dumps([]), encoding="utf-8")
+    rc = df.main(["--issues", str(issues), "--out", str(out)])
+    assert rc == 0
+    data = json.loads(out.read_text(encoding="utf-8"))
+    assert data["open_alert_count"] == -1
+
+
 def test_cli_roundtrip():
     tmp = Path(tempfile.mkdtemp())
     issues = tmp / "issues.json"
@@ -191,5 +256,10 @@ if __name__ == "__main__":
     test_cluster_recommended_shared_files()
     test_cluster_not_recommended_disjoint()
     test_peer_eligible_other_operator()
+    test_alerts_count_open_mixed_shapes()
+    test_alerts_missing_is_unknown_not_zero()
+    test_alerts_empty_list_is_known_zero()
+    test_cli_alerts_roundtrip()
+    test_cli_no_alerts_flag_is_unknown()
     test_cli_roundtrip()
     print("ok")

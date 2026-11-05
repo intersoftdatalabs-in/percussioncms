@@ -132,6 +132,39 @@ def normalize_pr(raw: dict) -> dict:
     }
 
 
+def normalize_alert(raw: dict) -> dict:
+    """Normalize one code-scanning alert (raw `gh api code-scanning/alerts` shape).
+
+    Tolerates the pre-shaped `{number, rule_id, severity, state}` form that
+    preflight writes, so both shapes flow through the same counter.
+    """
+    rule = raw.get("rule") or {}
+    severity = (
+        raw.get("severity")
+        or rule.get("severity")
+        or rule.get("security_severity_level")
+        or ""
+    )
+    return {
+        "number": int(raw["number"]),
+        "rule_id": str(raw.get("rule_id") or rule.get("id") or ""),
+        "severity": str(severity).lower(),
+        "state": str(raw.get("state") or "open").lower(),
+    }
+
+
+def count_open_alerts(alerts_raw: list | None) -> int:
+    """Count open code-scanning alerts.
+
+    Returns -1 (unknown) when no alert inventory was supplied — the skip
+    matrix treats unknown as fail-open (run the audit), never as zero.
+    A supplied-but-empty list is a genuine known-zero.
+    """
+    if alerts_raw is None:
+        return -1
+    return sum(1 for a in alerts_raw if normalize_alert(a)["state"] == "open")
+
+
 def parent_of(issue: dict) -> int:
     m = PARENT_TITLE_RE.search(issue["title"])
     if m:
@@ -471,11 +504,13 @@ def run(
     low_slots: int,
     self_model_label: str,
     cluster_min_prs: int,
+    alerts_raw: list | None = None,
 ) -> dict:
     issues = [normalize_issue(x) for x in issues_raw]
     prs = [normalize_pr(x) for x in prs_raw]
     queue, stats = build_queue(issues, prs, prescreen, max_issues, low_slots)
     signals = build_signals(issues, prs, self_model_label, cluster_min_prs)
+    open_alert_count = count_open_alerts(alerts_raw)
     closes = close_candidates(issues, prescreen)
     implement = ",".join("#" + str(q["issue_number"]) for q in queue)
     notes = (
@@ -503,7 +538,7 @@ def run(
         ),
         "inventory": compact_inventory(issues),
         "signals_complete": True,
-        "open_alert_count": 0,
+        "open_alert_count": open_alert_count,
         "issues_scanned": 0,
         "issues_stale": 0,
         "issues_cleared": 0,
@@ -530,6 +565,15 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="night-decision-front.py")
     p.add_argument("--issues", required=True, help="JSON array of gh issues")
     p.add_argument("--prs", help="JSON array of open PRs (default empty)")
+    p.add_argument(
+        "--alerts",
+        help=(
+            "JSON array of code-scanning alerts (gh api code-scanning/alerts "
+            "shape). Omit when the fetch failed: open_alert_count becomes -1 "
+            "(unknown, audit runs fail-open). Never pass an empty list unless "
+            "the API genuinely returned zero open alerts."
+        ),
+    )
     p.add_argument("--prescreen", help="scratch/prescreen.json from typesafe-prescreen")
     p.add_argument("--out", required=True)
     p.add_argument("--max-issues", type=int, default=3)
@@ -562,6 +606,17 @@ def main(argv: list[str] | None = None) -> int:
         ps_path = Path(args.prescreen)
         if ps_path.is_file():
             prescreen = _load_json(ps_path)
+    alerts_raw = None
+    if args.alerts:
+        alerts_path = Path(args.alerts)
+        if not alerts_path.is_file():
+            print("unreadable --alerts", file=sys.stderr)
+            return 2
+        loaded_alerts = _load_json(alerts_path)
+        if not isinstance(loaded_alerts, list):
+            print("--alerts must be a JSON array", file=sys.stderr)
+            return 2
+        alerts_raw = loaded_alerts
 
     result = run(
         issues_raw,
@@ -571,6 +626,7 @@ def main(argv: list[str] | None = None) -> int:
         max(0, args.low_slots),
         str(args.self_model_label).lower(),
         max(2, args.cluster_min_prs),
+        alerts_raw,
     )
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
