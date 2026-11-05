@@ -45,6 +45,8 @@
 #        typed *ErrorCodes
 #   #4338 leftover system/Testing/cms HttpItemCopier IPSHttpErrors
 #        (typed HttpErrorCodes HTTP 302)
+#   #4881 leftover sitemanage apibridge SlotRelationshipAdaptor
+#        typed *ErrorCodes
 # Converted (no longer listed): extensions-main #3756/#3938 (allow-list)
 # shrink after #3793 re-listed already-typed production paths);
 # design.catalog leftover #3969; system/src/main com.percussion.mail leftover
