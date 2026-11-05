@@ -901,6 +901,8 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Not every selected item was staged. {detail}",
   STAGE_NOTHING_ELIGIBLE:
     "perc.ui.explorer@Nothing in the selection can be staged. Folders are not staged.",
+  STAGE_FAILED:
+    "perc.ui.explorer@Stage failed: {detail}",
   CONFIRM_REMOVE_FROM_STAGING:
     "perc.ui.explorer@Remove this item from staging?",
   CONFIRM_REMOVE_FROM_STAGING_MULTI:
@@ -913,6 +915,8 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Not every selected item was removed from staging. {detail}",
   UNSTAGE_NOTHING_ELIGIBLE:
     "perc.ui.explorer@Nothing in the selection can be removed from staging. Folders are not removed.",
+  UNSTAGE_FAILED:
+    "perc.ui.explorer@Remove from staging failed: {detail}",
   CONFIRM_SCHEDULE:
     "perc.ui.explorer@Save schedule publish dates for this item?",
   CONFIRM_SCHEDULE_MULTI:
