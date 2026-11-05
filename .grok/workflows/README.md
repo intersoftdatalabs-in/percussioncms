@@ -19,7 +19,7 @@ Project workflows live here and are invocable by name (e.g. `/night-issue-prs` o
 Unattended overnight worker. Specialists spawn only when Preflight (or this-run results) show work; empty phases do not pay a full agent.
 
 1. **Identity** — live **Grok Build** version (`grok --version`) and **session model** (e.g. `grok-4.6`). Skipped when `coding_tool`, `coding_tool_version`, and `model_id` are all passed as args.  
-2. **Decision front** (2.2.0) — one thin agent runs `scripts/night-decision-front.py` (plus optional TypeSafe prescreen). Emits skip signals, one-per-parent implement queue, covering-PR skips, Jev skip hints. **Skips** the Preflight/Reconcile/Triage Grok walks when `signals_complete` and the queue is full. Fallback to those agents if the script fails. Does not merge. Does not create new DESIGN_GAPS children (Triage still runs when slots remain).  
+2. **Decision front** (2.2.0) — one thin agent runs `scripts/night-decision-front.py` (plus optional TypeSafe prescreen). Emits skip signals, one-per-parent implement queue, covering-PR skips, Jev skip hints. **Skips** the Preflight/Reconcile/Triage Grok walks when `signals_complete` and the queue is full. Fallback to those agents if the script fails. Does not merge. Does not create new DESIGN_GAPS children (Triage still runs when slots remain). The host feeds `scratch/alerts.json` (`gh api code-scanning/alerts`, open only) via `--alerts` so `open_alert_count` is real; a failed fetch omits the flag → count `-1` (unknown, audit runs fail-open), never faked `0`.  
 3. **Preflight** (fallback) — stale **In Progress** cleanup + **compact** issue inventory + skip signals.  
 4. **Reconcile** (fallback) — close issues that are **100% implemented**. Emit `implement_candidates`.  
 5. **PR follow-up PRE** — only if Preflight found merge blockers (conflicts or open review threads).  
@@ -30,7 +30,7 @@ Unattended overnight worker. Specialists spawn only when Preflight (or this-run 
 10. **Erlang review** — host Erlang on this-run PRs: **APPROVE + squash-merge** if LGTM; **erlang-fix** findings then re-review. Residual issues for out-of-scope leftovers.  
 11. **PR follow-up POST** — only if this run opened PRs or PRE left blockers. When no leftover blockers, POST touches **this-run PRs only**.  
 12. **PR cluster** — only if Preflight `cluster_recommended` is true, or skip-signals are unknown (fail-open). Do **not** spawn a cluster agent just because `owned_pr_count >= cluster_min_prs`.  
-13. **Security audit** — only if Preflight `open_alert_count > 0`.  
+13. **Security audit** — only if `open_alert_count > 0` (known). Count `-1`/missing (alert fetch failed) runs fail-open — never treat unknown as zero.  
 14. **Cycle verify** — only if a PR or cluster opened. **Maven on the integration tip only** (does not re-install every PR head). **Playwright / qa-up only** when WebUI or `perc-qa-automation` is in `modules_built`.  
 15. **Human QA** — only if an independent APPROVE already exists (Q2 can pass). Erlang squash-merge counts. Work self-review does not.  
 16. **Report** — written in-script to `scratch/night-report.md` (**no report agent**).

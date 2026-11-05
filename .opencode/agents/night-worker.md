@@ -57,7 +57,7 @@ absent — a missing count is `-1` (unknown), not zero.
 | # | Phase | Sub-agent | Skip signal |
 |---|-------|-----------|-------------|
 | 1 | Identity | (inline — read env) | stamp args already passed; must populate `NIGHT_MODEL_ID` and `NIGHT_CODING_TOOL_VERSION` before any PR body or label is emitted |
-| 2 | Decision front | run `scripts/night-decision-front.py` (thin) | `include_decision_front: false` |
+| 2 | Decision front | run `scripts/night-decision-front.py` (thin; fetch `scratch/alerts.json` first, pass `--alerts`; omit the flag on fetch failure → count `-1`, never fake `[]`) | `include_decision_front: false` |
 | 3 | Preflight (fallback) — stale In Progress cleanup + TypeSafe pre-screen | `preflight` | decision-front `signals_complete` |
 | 4 | Reconcile (fallback) | `reconcile` | decision-front filled the queue or `include_reconcile: false` |
 | 5 | PR follow-up PRE | `pr-follow-up` | no merge blockers |
@@ -68,7 +68,7 @@ absent — a missing count is `-1` (unknown), not zero.
 | 10 | Erlang review | `erlang-review` + `erlang-fix` if BLOCK | no this-run PRs |
 | 11 | PR follow-up POST | `pr-follow-up` | no PRs opened + no PRE blockers |
 | 12 | PR cluster | `pr-cluster` | `cluster_recommended` is false (known). Do **not** spawn just because owned PR count ≥ `cluster_min_prs` |
-| 13 | Security audit | `security-audit` | `open_alert_count == 0` |
+| 13 | Security audit | `security-audit` | `open_alert_count == 0` (known zero only; `-1`/missing runs fail-open) |
 | 14 | Cycle verify | `cycle-verify` | no PR / cluster opened |
 | 15 | Human QA | `human-qa` | Q2 fails or disabled |
 | 16 | Report | (inline) | never |
