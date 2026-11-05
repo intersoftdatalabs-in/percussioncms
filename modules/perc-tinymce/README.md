@@ -5,10 +5,27 @@ This module contains the support for tinymce editor plugin.
 ## Javadoc status
 
 This module contains **no Java sources** — it is a packaging-only module that bundles the
-TinyMCE and CodeMirror WebJARs and produces a resource-only JAR under
+TinyMCE WebJAR and the npm-managed CodeMirror bundle and produces a resource-only JAR under
 `META-INF/resources/sys_resources/tinymce/`. As a result, the Maven Javadoc plugin skips
 the `javadoc:javadoc` goal for this module and the module's `JavadocSrcWarnings` count is
 **structurally zero** by design.
+
+## CodeMirror (npm-managed, issue #5626)
+
+CodeMirror 5 is consumed as a standard npm dependency — `codemirror` in
+`package.json`, visible to `npm audit` / Dependabot (`npm ls codemirror`) —
+and bundled by esbuild into
+`META-INF/resources/sys_resources/tinymce/plugins/codemirror/codemirror/codemirror.bundle.js`
+(+ `.css`) at build time (`npm run bundle:codemirror`, wired into the Maven
+`prepare-package` phase). There is intentionally **no**
+`org.webjars.npm:codemirror` WebJar and no `codemirror-unpack` Ant step.
+
+The bundle exposes the same global `CodeMirror` 5.x API as the old vendored
+copy, so the TinyMCE `codemirror` plugin (`source.html`) and the classic
+template/page-edit dialogs (`editTemplate_js.jsp` + `CodeMirror.fromTextArea`
+in `sys_Templates.xsl`) keep working unchanged. Do **not** re-add a WebJar.
+A move to the CodeMirror 6 `@codemirror/*` API is a behavior change owned by
+the TipTap epic (#5622 slice 3, source-view rewrite).
 
 * Configuration files (json files : default, customer overridden etc.) for configuring the tinymce editor.
 * Javascript files to initialize and default editor functionality.
@@ -36,8 +53,9 @@ mvnw.cmd clean install
 This module uses the `frontend-maven-plugin` to:
 
 1. **Automatically download and install Node.js v22** to `%USERPROFILE%\.m2\frontend`
-2. **Run `npm install`** to install esbuild and dependencies
-3. **Minify TinyMCE plugins** using esbuild during the `prepare-package` phase
+2. **Run `npm install`** to install esbuild, the `codemirror` npm package, and dependencies
+3. **Bundle CodeMirror** using esbuild during the `prepare-package` phase (`npm run bundle:codemirror`)
+4. **Minify TinyMCE plugins** using esbuild during the `prepare-package` phase
 
 The built resources are packaged into `META-INF/resources/sys_resources/tinymce/` in the JAR.
 

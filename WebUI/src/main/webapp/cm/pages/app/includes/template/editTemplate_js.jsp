@@ -57,17 +57,8 @@
 <script  src="../controllers/PercCSSController.js"></script>
 <script  src="../plugins/PercContentEditorHandlers.js"></script>
 
-<%--  Code Mirror --%>
-<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/lib/codemirror.js"></script>
-<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/addon/edit/matchbrackets.js"></script>
-<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/mode/xml/xml.js"></script>
-<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/mode/javascript/javascript.js"></script>
-<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/mode/css/css.js"></script>
-<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/mode/htmlmixed/htmlmixed.js"></script>
-<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/mode/velocity/velocity.js"></script>
-<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/addon/dialog/dialog.js"></script>
-<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/addon/search/searchcursor.js"></script>
-<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/addon/search/search.js"></script>
-<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/addon/selection/active-line.js"></script>
-<link rel="stylesheet" href="/sys_resources/tinymce/plugins/codemirror/codemirror/lib/codemirror.css" />
-<link rel="stylesheet" href="/sys_resources/tinymce/plugins/codemirror/codemirror/addon/dialog/dialog.css"/>
+<%--  CodeMirror 5, npm-managed + esbuild-bundled (issue #5626). Built from the
+      `codemirror` npm package by modules/perc-tinymce; exposes the same global
+      `CodeMirror` API the template editor uses (fromTextArea/getValue). --%>
+<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/codemirror.bundle.js"></script>
+<link rel="stylesheet" href="/sys_resources/tinymce/plugins/codemirror/codemirror/codemirror.bundle.css" />

@@ -93,10 +93,15 @@
         <buildNumber>${maven.build.timestamp}</buildNumber>
         <!-- Closure Compiler is used by minify-maven-plugin. Pin to a specific build date version. -->
         <closure.compiler.version>v20260112</closure.compiler.version>
-        <!-- CodeMirror 5.x (MIT-licensed). The vendor copy in perc-tinymce is managed via this WebJar. -->
-        <!-- Do NOT upgrade to CodeMirror 6.x without refactoring source.html and the codemirror plugin; -->
-        <!-- CodeMirror 6 has a completely different API. -->
-        <codemirror.version>6.65.7</codemirror.version>
+        <!-- CodeMirror 5.x (MIT-licensed) is consumed as a standard npm dependency
+             (`codemirror` in modules/perc-tinymce/package.json, bundled by esbuild
+             into the TinyMCE codemirror plugin at build time — issue #5626).
+             It is intentionally NOT a Maven WebJar anymore, so there is no
+             codemirror.version property here. A future move to the CodeMirror 6
+             `@codemirror/*` API is a behavior change owned by the TipTap epic
+             (#5622 slice 3, source-view rewrite): CM6 has a completely different
+             API and the classic template/page-edit dialogs use CM5 globals
+             (fromTextArea/getValue) directly. Do NOT re-add a WebJar. -->
         <commons-cli.version>1.11.0</commons-cli.version>
         <!-- WebUI → artemis-server → commons-configuration2; Dependabot floor ≥2.15.0 (issue #1676) -->
         <commons-configuration2.version>2.15.1</commons-configuration2.version>
@@ -462,11 +467,8 @@
                 <artifactId>tinymce</artifactId>
                 <version>${tinymce.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.webjars.npm</groupId>
-                <artifactId>codemirror</artifactId>
-                <version>${codemirror.version}</version>
-            </dependency>
+            <!-- No org.webjars.npm:codemirror entry: CodeMirror is npm-managed
+                 (modules/perc-tinymce/package.json, issue #5626). -->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>

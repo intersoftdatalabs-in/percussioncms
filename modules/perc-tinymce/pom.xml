@@ -32,10 +32,8 @@
             <groupId>org.webjars.npm</groupId>
             <artifactId>tinymce</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.webjars.npm</groupId>
-            <artifactId>codemirror</artifactId>
-        </dependency>
+        <!-- CodeMirror is consumed as a standard npm dependency (issue #5626):
+             `codemirror` in package.json, bundled by esbuild. No WebJar. -->
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>utils</artifactId>
@@ -59,7 +57,7 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <outputDirectory>${download-folder}</outputDirectory>
-                            <includeArtifactIds>tinymce,codemirror</includeArtifactIds>
+                            <includeArtifactIds>tinymce</includeArtifactIds>
                             <stripVersion>false</stripVersion>
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <overWriteReleases>true</overWriteReleases>
@@ -90,32 +88,10 @@
                                 <move todir="${destDir}/skins/ui/oxide">
                                     <fileset dir="${destDir}/../../css"/>
                                 </move>
-                                <!-- Unpack only the files needed by the codemirror TinyMCE plugin. -->
-                                <!-- The full CodeMirror WebJar (~900 KB) contains ~400 files; we need only 15. -->
-                                <!-- Version is managed via codemirror.version in the parent POM. -->
-                                <echo message="installing CodeMirror ${codemirror.version} (MIT) into codemirror plugin"/>
-                                <delete dir="${project.build.directory}/codemirror-unpack"/>
-                                <mkdir dir="${project.build.directory}/codemirror-unpack"/>
-                                <unzip dest="${project.build.directory}/codemirror-unpack" src="${download-folder}/codemirror-${codemirror.version}.jar"/>
-                                <copy todir="${project.build.outputDirectory}/META-INF/resources/sys_resources/tinymce/plugins/codemirror/codemirror">
-                                    <fileset dir="${project.build.directory}/codemirror-unpack/META-INF/resources/webjars/codemirror/${codemirror.version}">
-                                        <include name="lib/codemirror.js"/>
-                                        <include name="lib/codemirror.css"/>
-                                        <include name="addon/edit/matchbrackets.js"/>
-                                        <include name="addon/dialog/dialog.js"/>
-                                        <include name="addon/dialog/dialog.css"/>
-                                        <include name="addon/search/searchcursor.js"/>
-                                        <include name="addon/search/search.js"/>
-                                        <include name="addon/selection/active-line.js"/>
-                                        <include name="addon/display/fullscreen.js"/>
-                                        <include name="addon/display/fullscreen.css"/>
-                                        <include name="mode/xml/xml.js"/>
-                                        <include name="mode/javascript/javascript.js"/>
-                                        <include name="mode/css/css.js"/>
-                                        <include name="mode/htmlmixed/htmlmixed.js"/>
-                                        <include name="mode/velocity/velocity.js"/>
-                                    </fileset>
-                                </copy>
+                                <!-- CodeMirror is no longer unpacked from a WebJar here (issue #5626):
+                                     the npm bundle is produced by `npm run bundle:codemirror`
+                                     (frontend-maven-plugin, prepare-package) into
+                                     target/classes/.../plugins/codemirror/codemirror/. -->
                             </target>
                         </configuration>
                     </execution>
@@ -158,6 +134,18 @@
                         <phase>prepare-package</phase>
                         <configuration>
                             <arguments>run minify</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- CodeMirror npm bundle (issue #5626). Runs after minify;
+                             both write into target/classes for JAR packaging. -->
+                        <id>bundle-codemirror</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <arguments>run bundle:codemirror</arguments>
                         </configuration>
                     </execution>
                 </executions>
