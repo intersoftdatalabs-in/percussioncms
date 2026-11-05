@@ -120,20 +120,7 @@ class PublishingDeepPagePackagingTest {
    * 2026-08-04). Update only when #1818 deletes exclusive deep pages.
    */
   static final Set<String> FROZEN_RUNTIME_JSPS =
-      Set.of(
-          "ActiveJobStatus.jsp",
-          "AllPubLogs.jsp",
-          "DeleteSiteItemLogsWarning.jsp",
-          "DemandPublish.jsp",
-          "ErrorMessage.jsp",
-          "index.jsp",
-          "ItemPubLog.jsp",
-          "JobPubLog.jsp",
-          "NoSelectionWarning.jsp",
-          "PubRuntimeAuthentication.jsp",
-          "RuntimeEdition.jsp",
-          "RuntimeEditionList.jsp",
-          "SitePubLogs.jsp");
+      Set.of("index.jsp");
 
   /**
    * Basenames that must remain after Design deep-page retirement (#1819). Today only the modern
@@ -232,9 +219,6 @@ class PublishingDeepPagePackagingTest {
    * stub remains.
    */
   @Test
-  @Disabled(
-      "Enable after #1818 Runtime deep-page delete lands; until then inventory freeze above is the"
-          + " live contract. Parent #1372 / UAT #1371 gate product deletes.")
   @DisplayName("AFTER #1818: exclusive Runtime deep pages absent; redirect stub remains")
   void afterRuntimeRetirementOnlyKeepFilesRemain() throws IOException {
     assertOnlyKeepFilesRemain(RUNTIME_DIR, POST_RETIREMENT_RUNTIME_KEEP, "ui/pubruntime");
