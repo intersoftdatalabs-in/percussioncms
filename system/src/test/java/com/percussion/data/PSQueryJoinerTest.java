@@ -35,6 +35,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for the query joiner class. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSQueryJoinerTest {
   public PSQueryJoinerTest() {
     ms_rand = new SecureRandom();

@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.Iterator;
 
 /** All clone handlers implement this interface. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public interface IPSCloneHandler {
   /**
    * Convenience method, see {#link clone(PSLocator, Iterator, PSExecutionData, PSCommandHandler,

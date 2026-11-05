@@ -56,6 +56,7 @@ import org.xml.sax.SAXException;
  *
  * <p>This class is not thread safe. For thread safety, manually synchronize on the instance.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSExtensionHandlerConfiguration {
   /**
    * Convenience constructor that calls {@link #PSExtensionHandlerConfiguration(File,

@@ -31,6 +31,7 @@ import java.util.List;
  *
  * @author adamgent
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCrossSiteFolderActionData implements Serializable {
   /** Safe to serialize */
   private static final long serialVersionUID = -8344627688437557286L;

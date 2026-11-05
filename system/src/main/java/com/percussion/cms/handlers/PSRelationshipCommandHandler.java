@@ -91,6 +91,7 @@ import org.w3c.dom.Document;
  * requests that have the sys_command parameter set to "relate". Several sub-commands like "create",
  * "remove", etc. are supported.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRelationshipCommandHandler extends PSCommandHandler
     implements IPSRelationshipHandlerCallback {
   /**

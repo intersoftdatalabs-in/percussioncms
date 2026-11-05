@@ -88,6 +88,7 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
   "parameterSet",
   "templateId"
 })
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSLocationScheme implements IPSLocationScheme, IPSCatalogItem, IPSCatalogIdentifier {
 
   private static final long serialVersionUID = 1L;

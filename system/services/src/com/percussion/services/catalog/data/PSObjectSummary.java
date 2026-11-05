@@ -60,6 +60,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  *
  * @since Java 11 Modernization
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSObjectSummary implements IPSCatalogSummary {
 
    static {

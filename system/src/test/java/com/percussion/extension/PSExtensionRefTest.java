@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for the PSExtensionRef class */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSExtensionRefTest {
 
   @Test

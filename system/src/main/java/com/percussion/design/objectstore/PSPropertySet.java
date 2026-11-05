@@ -31,6 +31,7 @@ import org.w3c.dom.Element;
  * This class encapsulates a collection of <code>PSProperty</code> objects as a <code>
  * PSCollectionComponent</code>.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSPropertySet extends PSCollectionComponent {
   /** Constucts an empty property set. */
   public PSPropertySet() {

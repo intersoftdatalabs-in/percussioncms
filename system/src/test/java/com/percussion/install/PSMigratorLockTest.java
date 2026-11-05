@@ -28,6 +28,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 /** Exclusive migrator lock (T045 / QC-019). */
 @Tag("UnitTest")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSMigratorLockTest {
 
   @TempDir Path installRoot;

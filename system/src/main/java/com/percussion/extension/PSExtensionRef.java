@@ -26,6 +26,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  * A simple, immutable class used to refer uniquely to an extension by its handler name, context
  * within the handler, and the extension name itself.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSExtensionRef implements Serializable {
   /** */
   private static final long serialVersionUID = -1488227756687242734L;

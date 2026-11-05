@@ -41,6 +41,7 @@ import org.w3c.dom.Text;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSRelationshipPropertyData")
 @IdClass(PSRelationshipPropertyDataPk.class)
 @Table(name = IPSConstants.PSX_RELATIONSHIPPROPERTIES)
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRelationshipPropertyData implements Serializable {
   /** Computed serial number */
   private static final long serialVersionUID = 4793180603390459489L;

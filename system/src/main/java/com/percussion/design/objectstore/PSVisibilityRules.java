@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXVisibilityRules DTD in BasicObjects.dtd. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSVisibilityRules extends PSCollectionComponent {
   /** Creates a new collection of PSRule obejcts. */
   public PSVisibilityRules() {

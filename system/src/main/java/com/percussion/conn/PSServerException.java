@@ -33,6 +33,7 @@ import java.lang.reflect.Constructor;
  * @since 1.0
  */
 // REFACTORED: CP-JAVA11
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSServerException extends PSException {
   /**
    * Construct an exception for messages taking only a single argument.

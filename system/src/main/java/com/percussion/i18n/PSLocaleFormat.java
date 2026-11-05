@@ -35,6 +35,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSLocaleFormat")
 @Table(name = "RXLOCALEFORMAT")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSLocaleFormat {
 
   public static final String TEXT_DIR_LTR = "ltr";

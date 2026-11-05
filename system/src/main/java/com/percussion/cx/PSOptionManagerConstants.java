@@ -23,6 +23,7 @@ import java.util.Iterator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSOptionManagerConstants {
 
   /** This value is the key whose values are the persisted options in the the session object. */

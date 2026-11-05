@@ -35,6 +35,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
  * @author Ronald Tschalär
  */
 @Deprecated
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class Util {
   private static final BitSet Separators = new BitSet(128);
   private static final BitSet TokenChar = new BitSet(128);

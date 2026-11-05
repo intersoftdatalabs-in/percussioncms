@@ -59,6 +59,7 @@ import java.util.stream.Stream;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSRelationshipData")
 @Table(name = IPSConstants.PSX_RELATIONSHIPS)
 @FilterDef(name = "relationshipConfigFilter")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRelationshipData implements Serializable {
 
    private static final long serialVersionUID = 1L;

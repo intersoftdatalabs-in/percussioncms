@@ -40,6 +40,7 @@ import org.w3c.dom.Element;
  * sys_StandardItem.xsd format, or by calling the various protected and public methods to allow
  * setting of the data.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCoreItem extends PSItemComponent implements IPSItemAccessor {
 
   /**

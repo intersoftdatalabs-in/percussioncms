@@ -25,6 +25,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
 /** This class represents the <code>Option</code> element in the sys_Options.dtd. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSOption implements IPSClientObjects {
   /**
    * Creates an instance from the XML representation specified in the dtd mentioned in the class
@@ -125,7 +126,7 @@ public class PSOption implements IPSClientObjects {
       if (ctor == null) throw new ClassNotFoundException("not a valid class");
 
       Element[] e = {source};
-      Object obj = ctor.newInstance(e);
+      Object obj = ctor.newInstance((Object[]) e);
       if (!(obj instanceof IPSClientObjects)) throw new ClassNotFoundException("not a valid class");
 
       clientObj = (IPSClientObjects) obj;

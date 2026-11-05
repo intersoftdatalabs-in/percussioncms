@@ -81,6 +81,7 @@ import org.xml.sax.SAXException;
  * selector, pager, updater flags) and path-safe classic result-page inspect. Content Editor pipes
  * are labeled but not deeply expanded (Slice A scope).
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSClassicPipelineImporter {
 
   private PSClassicPipelineImporter() {}

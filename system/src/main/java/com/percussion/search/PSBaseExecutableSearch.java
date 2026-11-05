@@ -51,6 +51,7 @@ import org.xml.sax.SAXException;
  * Rhythmyx server. Derived classes must implement how the request against the Rhythmyx server's
  * search handler is made.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSBaseExecutableSearch implements IPSExecutableSearch {
 
   /**

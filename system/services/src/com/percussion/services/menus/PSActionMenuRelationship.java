@@ -33,6 +33,7 @@ import java.util.Objects;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "RXMENUACTIONRELATION")
 @Table(name="RXMENUACTIONRELATION")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSActionMenuRelationship implements Serializable {
 
     @Id

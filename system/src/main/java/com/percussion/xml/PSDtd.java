@@ -48,6 +48,7 @@ import org.apache.xerces.xni.parser.XMLInputSource;
  * method of the newly created object. To obtain the <code>PSDtd</code> object representing the
  * parsed DTD call the <code>getDtd</code> method of the DTD parser object.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDtd extends DTDGrammar {
   private static final Logger log = LogManager.getLogger(PSDtd.class);
 

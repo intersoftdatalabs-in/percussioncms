@@ -22,6 +22,7 @@ package com.percussion.error;
  * An exception used when a client makes a request, then shuts down the connection before the
  * response can be sent back.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSConnClosedException extends PSException {
   public PSConnClosedException(String detail) {
     super(1332, detail);

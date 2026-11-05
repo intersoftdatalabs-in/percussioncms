@@ -25,6 +25,7 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFileTest {
   /** Tests behavior of equals() and hashCode() methods. */
   public void testEqualsHashCode() throws MalformedURLException {

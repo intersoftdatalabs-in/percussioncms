@@ -116,6 +116,7 @@ import org.w3c.dom.Element;
  * <p>Because of the preceding requirements, this command handler can only be accessed via an
  * internal request, currently support for standard browser requests has not bee implemented.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSearchCommandHandler extends PSCommandHandler
     implements IPSInternalCommandRequestHandlerEx, IPSInternalResultHandler {
   /**

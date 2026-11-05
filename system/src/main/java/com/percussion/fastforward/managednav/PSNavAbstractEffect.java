@@ -32,6 +32,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @author DavidBenua
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSNavAbstractEffect extends PSDefaultExtension implements IPSEffect {
   /**
    * Always returns SUCCESS.

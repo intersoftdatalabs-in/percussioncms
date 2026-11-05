@@ -38,6 +38,7 @@ import java.io.InputStream;
  * @deprecated Use {@link PSCryptographyUtils} instead
  */
 @Deprecated(forRemoval = true)
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class MD5InputStream extends FilterInputStream {
   private HashVerifier verifier;
   private ByteArrayOutputStream buffer;

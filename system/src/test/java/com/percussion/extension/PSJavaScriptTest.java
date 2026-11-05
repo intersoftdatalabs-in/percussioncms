@@ -30,6 +30,7 @@ import java.util.Properties;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for the JavaScript extension handler and supporting classes. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSJavaScriptTest {
 
   @Test

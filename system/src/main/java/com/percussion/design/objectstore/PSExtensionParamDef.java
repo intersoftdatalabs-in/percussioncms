@@ -37,6 +37,7 @@ import org.w3c.dom.Element;
  * @version 1.0
  * @since 1.0
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSExtensionParamDef extends PSComponent implements IPSExtensionParamDef {
   /** */
   private static final long serialVersionUID = -4878254025413256106L;

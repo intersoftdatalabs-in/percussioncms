@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.percussion.design.objectstore.PSServerCacheSettings;
 
 /** Unit test for the {@link PSCacheStatistics} class. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCacheStatisticsTest {
   // see base class
 

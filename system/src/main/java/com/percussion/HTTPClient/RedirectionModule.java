@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Ronald Tschalär
  */
 @Deprecated
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class RedirectionModule implements HTTPClientModule {
   /** a list of permanent redirections (301) */
   private static final ConcurrentHashMap<Object, ConcurrentHashMap<URI, URI>> perm_redir_cntxt_list =

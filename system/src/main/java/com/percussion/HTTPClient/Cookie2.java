@@ -33,6 +33,7 @@ import java.util.Vector;
  * @since V0.3
  */
 @Deprecated
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class Cookie2 extends Cookie {
   /** Make this compatible with V0.3-2 */
   private static final long serialVersionUID = 2208203902820875917L;

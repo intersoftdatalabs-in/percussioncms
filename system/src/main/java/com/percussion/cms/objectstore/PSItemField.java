@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
 /** An object representation of the StandardItem.xsd Field element. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSItemField extends PSItemComponent {
   /**
    * Constructs a new instance of this object from definition objects.

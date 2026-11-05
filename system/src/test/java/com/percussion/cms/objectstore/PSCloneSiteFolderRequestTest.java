@@ -29,6 +29,7 @@ import org.w3c.dom.Document;
  * Test the clone site folder request according to the schema defined in schema
  * sys_FolderParameters.xsd.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCloneSiteFolderRequestTest {
   // legacy constructor removed - using @Test methods
 

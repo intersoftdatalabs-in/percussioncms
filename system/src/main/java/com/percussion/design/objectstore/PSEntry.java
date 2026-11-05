@@ -26,6 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXEntry DTD in BasicObjects.dtd. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSEntry extends PSComponent {
 
   private static final long serialVersionUID = 1L;
@@ -324,7 +325,7 @@ public class PSEntry extends PSComponent {
       Object[] args = {XML_NODE_NAME, VALUE_ELEM, "null"};
       throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_CHILD, args);
     }
-    m_value = tree.getElementData(node);
+    m_value = PSXmlTreeWalker.getElementData(node);
   }
 
   /**

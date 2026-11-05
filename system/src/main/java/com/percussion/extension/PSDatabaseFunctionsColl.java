@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
  * @see com.percussion.extension.PSDatabaseFunctionDef
  * @see com.percussion.extension.PSDatabaseFunction
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDatabaseFunctionsColl {
   /**
    * Constructs this object from its XML representation.

@@ -20,6 +20,7 @@ package com.percussion.xml;
 import org.apache.xerces.impl.dtd.XMLElementDecl;
 
 /** This class encapsulates a DTD element declaration. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSXmlElementDecl extends XMLElementDecl {
   /** Default constructor */
   public PSXmlElementDecl() {

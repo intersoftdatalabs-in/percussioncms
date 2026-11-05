@@ -28,6 +28,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 /** The class that is used to represent properties as defined by 'sys_Params.dtd'. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSParameters implements IPSComponent {
   /** The default constructor to create parameters with empty list. */
   public PSParameters() {}

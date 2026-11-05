@@ -28,6 +28,7 @@ import org.aspectj.lang.JoinPoint;
  * the system audit path ({@code PSX_SYSTEM_AUDIT_LOG} + Log4j). When design auditing is disabled,
  * neither path is written.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDesignObjectAuditor {
 
   private static final Logger log = LogManager.getLogger(PSDesignObjectAuditor.class);

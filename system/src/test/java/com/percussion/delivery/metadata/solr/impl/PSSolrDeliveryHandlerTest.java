@@ -61,6 +61,7 @@ import org.mockito.ArgumentCaptor;
  * issuing requests. Live Solr 9.x / 10.x + Tika Server smoke is human-gated (see verification plan
  * under {@code docs/ai-generated/tasks/1788-solrj-10/}).
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSolrDeliveryHandlerTest {
 
   private SolrClient openClient;

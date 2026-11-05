@@ -41,6 +41,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Redirects all requests to the <code>PSActiveAssemblyProcessor</code>. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSActiveAssemblyRequestHandler implements IPSLoadableRequestHandler {
   /*
    * Initializes the request methods, no configuration file is used.

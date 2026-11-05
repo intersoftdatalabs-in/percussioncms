@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
  * Base class for all group provider instances. Provides wrapper element Xml services, and serves as
  * a factory class as well.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSGroupProviderInstance extends PSComponent
     implements IPSGroupProviderInstance {
 

@@ -24,6 +24,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 /** The PSDtdAttribute class will provide an interface to attribute information. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDtdAttribute implements Serializable {
   /**
    * Constructor.

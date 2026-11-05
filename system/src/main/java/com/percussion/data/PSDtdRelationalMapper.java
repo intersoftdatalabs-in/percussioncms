@@ -41,6 +41,7 @@ import java.util.Map;
  * invisible, unique ID columns that are used with joining to represent
  * the link between parent and child in the data source.
  ***************************************************************************/
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDtdRelationalMapper implements PSDtdTreeVisitor {
   public static void main(String[] args) {
     // do some sort of test

@@ -28,6 +28,7 @@ import java.util.MissingResourceException;
  * Unit tests for the PSHashTableFromBundle class. This class is private and is not meant to be
  * shipped with the product.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSHashTableFromBundleTest {
 
   /**

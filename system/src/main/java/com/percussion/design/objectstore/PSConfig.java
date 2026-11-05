@@ -48,6 +48,7 @@ import org.xml.sax.SAXException;
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSConfig")
 @Table(name = "PSX_RXCONFIGURATIONS")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSConfig extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

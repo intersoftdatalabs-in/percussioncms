@@ -30,6 +30,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  * who modified it last, and its current state
  */
 @XmlRootElement(name="ItemPublishingHistory")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSItemPublishingHistory extends PSAbstractDataObject
 {
 

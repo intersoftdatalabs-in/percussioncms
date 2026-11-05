@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author adamgent
  * @param <T> the type of objects to stream
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSXStreamObjectStream<T> extends PSObjectStream<T> {
 
     private static final Logger ms_log = LogManager.getLogger(PSXStreamObjectStream.class);

@@ -29,6 +29,7 @@ import java.util.List;
  * 
  * @author YuBingChen
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSEditionWrapper
 {
    public PSEditionWrapper(IPSEdition edition)

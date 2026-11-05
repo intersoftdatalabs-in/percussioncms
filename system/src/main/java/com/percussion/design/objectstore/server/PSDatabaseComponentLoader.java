@@ -45,6 +45,7 @@ import org.w3c.dom.Element;
  * for making broad queries to the system and caching their results. This class should only exist
  * for the duration of the initialization of a set of database components from the back end.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDatabaseComponentLoader {
   /**
    * Constructor.

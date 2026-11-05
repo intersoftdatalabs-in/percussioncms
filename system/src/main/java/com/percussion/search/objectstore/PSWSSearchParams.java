@@ -38,6 +38,7 @@ import org.w3c.dom.Element;
  * Class to represent the <code>SearchParams</code> element of the document created from a {@link
  * PSWSSearchRequest} object. See {@link #toXml(Document)} for more information.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSWSSearchParams {
   /**
    * Construct an empty search params object. All members are optional, and may be modified using

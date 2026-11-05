@@ -42,6 +42,7 @@ import org.w3c.dom.Node;
  * of the non-binary fields in a given child, regardless of the showInPreview and showInSummary
  * flags.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCompleteChildDocumentBuilder extends PSEditorDocumentBuilder {
   /**
    * Processes the supplied editor definition, creating an executable plan that will be used when

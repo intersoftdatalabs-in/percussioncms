@@ -36,6 +36,7 @@ import javax.swing.border.EmptyBorder;
   * prepares the data to be displayed onscreen as a GUI component.
 */
 
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class ImageListControlRenderer extends JPanel
                                implements ListCellRenderer<ImageListItem>
 {

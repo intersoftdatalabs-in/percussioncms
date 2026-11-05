@@ -27,6 +27,7 @@ import java.util.Collection;
 
 @XmlRootElement(name = "ItemPublishingHistory")
 @ArraySchema(schema=@Schema(implementation = PSItemPublishingHistory.class, description = "A List of PSItemPublishingHistory"))
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSItemPublishingHistoryList extends ArrayList<PSItemPublishingHistory> {
     public PSItemPublishingHistoryList(Collection<? extends PSItemPublishingHistory> c) {
         super(c);

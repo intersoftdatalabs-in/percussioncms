@@ -39,6 +39,7 @@ import org.w3c.dom.Element;
 
 /** This class provides functionality to get different parts/formats of this JAR version. */
 ////////////////////////////////////////////////////////////////////////////////
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFormatVersion {
 
   private static final Logger log = LogManager.getLogger(PSFormatVersion.class);

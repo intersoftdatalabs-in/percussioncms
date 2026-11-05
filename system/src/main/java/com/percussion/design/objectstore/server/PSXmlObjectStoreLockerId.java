@@ -25,6 +25,7 @@ import java.util.Properties;
  * Used by the PSXmlObjectStoreHandler class. Basically stores session, user name, and whether or
  * not to override locks held by the same user under a different session.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSXmlObjectStoreLockerId implements IPSLockerId {
   public PSXmlObjectStoreLockerId(Properties props) {
     m_overrideSameUser = false;

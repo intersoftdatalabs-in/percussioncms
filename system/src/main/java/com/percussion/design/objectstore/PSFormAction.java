@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
  * designer to specify the 'action' attribute of the 'FORM' command in an html form. It includes a
  * url and a type.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFormAction extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

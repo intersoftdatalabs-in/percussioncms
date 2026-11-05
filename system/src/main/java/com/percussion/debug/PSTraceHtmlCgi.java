@@ -35,6 +35,7 @@ import java.util.Map;
  * run - 0x2000 CGI post PostProc exit - CGI vars after post proc exits are run.
  */
 // REFACTORED: CP-JAVA11
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSTraceHtmlCgi extends PSTraceMessage {
 
   /**

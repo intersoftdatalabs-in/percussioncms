@@ -81,6 +81,7 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
   "objectType",
   "version"
 })
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSAclImpl implements IPSAcl, IPSCatalogItem, IPSCatalogSummary {
 
    private static final Logger log = LogManager.getLogger(PSAclImpl.class);

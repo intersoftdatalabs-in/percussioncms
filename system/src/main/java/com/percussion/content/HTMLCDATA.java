@@ -25,6 +25,7 @@ import org.w3c.dom.DOMException;
  * HTML.
  */
 // REFACTORED: CP-JAVA11
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class HTMLCDATA extends HTMLText implements CDATASection {
   /** Initializes CDATASection node with an initial value within CDATA. */
   public HTMLCDATA(String initialValue) {

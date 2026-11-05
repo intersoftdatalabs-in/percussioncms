@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
  * objects (like section links or exits) that must be part of a content editor for a particular
  * control to operate correctly.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDependency extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
  * Object representation of a JDBC driver configuration. Provides default values to supply to a JNDI
  * Datasource configuration based on a selected driver name.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSJdbcDriverConfig extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

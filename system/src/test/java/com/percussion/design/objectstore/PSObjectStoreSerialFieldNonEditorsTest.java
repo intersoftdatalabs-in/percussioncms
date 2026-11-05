@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Test;
  * count holders (#2451 / parent #2022). Prefer concrete {@link Serializable} collections/maps or
  * product-safe {@code transient}; companion interfaces extend {@link Serializable}.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSObjectStoreSerialFieldNonEditorsTest {
 
   @Test

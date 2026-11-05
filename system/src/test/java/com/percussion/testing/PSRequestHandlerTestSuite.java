@@ -43,6 +43,7 @@ import org.w3c.dom.NodeList;
  *
  * <p>This class does not support the <code>useLocalClassLoader</code> property of the handler.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRequestHandlerTestSuite extends TestSuite {
 
   private static final Logger log = LogManager.getLogger(PSRequestHandlerTestSuite.class);

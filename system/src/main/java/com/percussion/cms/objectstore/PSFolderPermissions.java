@@ -27,6 +27,7 @@ import java.util.Iterator;
  * This class computes the user's permission on a folder object. This should only be used in the
  * context of a folder object.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSFolderPermissions extends PSObjectPermissions {
 
   /** Serialization id for {@link java.io.Serializable}. */

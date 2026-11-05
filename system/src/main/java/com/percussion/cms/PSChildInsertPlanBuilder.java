@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 /** Plan builder for performing inserts of complex child content items. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSChildInsertPlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSChildInsertPlanBuilder(

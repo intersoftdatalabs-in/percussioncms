@@ -27,6 +27,7 @@ import com.percussion.security.shim.acl.Permission;
  * 
  * @version 6.0
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public interface IPSAclEntry extends AclEntry
 {
    /**

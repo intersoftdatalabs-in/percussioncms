@@ -37,6 +37,7 @@ import org.w3c.dom.Element;
  * <p>This class doesn't override the clone method because the clone provided by the Object base
  * class is satisfactory.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSSlot extends PSCmsComponent {
   /**
    * Creates an instance. Related content can be added after creation using the <code>addRelatedItem

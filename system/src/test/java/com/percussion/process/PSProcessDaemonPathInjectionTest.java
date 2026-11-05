@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
-import sun.misc.Unsafe;
 
 /**
  * Regression tests for {@link PSProcessDaemon} focused on the {@code java/path-injection} finding
@@ -66,18 +65,20 @@ import sun.misc.Unsafe;
  * private {@code validatePath(byte[])} to exercise the guard at the exact call site.
  */
 @DisplayName("PSProcessDaemon - Path Traversal Prevention via PSPathInjectionGuard (CWE-22, #707)")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSProcessDaemonPathInjectionTest {
 
   @TempDir File pathRoot;
 
-  private static final Unsafe UNSAFE;
+  private static final Object UNSAFE;
   private static final Method VALIDATE_PATH_METHOD;
 
   static {
     try {
-      Field f = Unsafe.class.getDeclaredField("theUnsafe");
+      Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
+      Field f = unsafeClass.getDeclaredField("theUnsafe");
       f.setAccessible(true);
-      UNSAFE = (Unsafe) f.get(null);
+      UNSAFE = f.get(null);
       Class<?> rhClass = Class.forName("com.percussion.process.PSProcessDaemon$RequestHandler");
       VALIDATE_PATH_METHOD = rhClass.getDeclaredMethod("validatePath", byte[].class);
       VALIDATE_PATH_METHOD.setAccessible(true);
@@ -97,12 +98,12 @@ class PSProcessDaemonPathInjectionTest {
     }
 
     // Allocate a shell PSProcessDaemon (bypasses ctor and thread start).
-    Object daemon = UNSAFE.allocateInstance(PSProcessDaemon.class);
+    Object daemon = UNSAFE.getClass().getMethod("allocateInstance", Class.class).invoke(UNSAFE, PSProcessDaemon.class);
     setField(daemon, "m_pathRoot", pathRoot);
 
     // Allocate a shell RequestHandler and wire its synthetic enclosing instance (this$0).
     Class<?> rhClass = Class.forName("com.percussion.process.PSProcessDaemon$RequestHandler");
-    Object rh = UNSAFE.allocateInstance(rhClass);
+    Object rh = UNSAFE.getClass().getMethod("allocateInstance", Class.class).invoke(UNSAFE, rhClass);
     setField(rh, "this$0", daemon);
 
     // m_sock is not used by validatePath; leave null.

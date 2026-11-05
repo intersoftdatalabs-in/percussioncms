@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version 1.0
  * @since 18-Oct-2005 11:36:19 AM
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFileCatalogHandler extends PSCatalogRequestHandler {
   /** Construct the file related catalog handler. */
   public PSFileCatalogHandler() {

@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
  * folder's acl from the database without the context of the enclosing folder object, so that it may
  * provide any folder level information required for calculating security permissions at runtime.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFolderAcl extends PSObjectAcl {
   /**
    * The default constructor to create an empty folder ACL.

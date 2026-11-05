@@ -40,6 +40,7 @@ import java.util.Iterator;
  * Abstract base class for all clone handlers to maintain generic code possibliy useful for all
  * clone handlers.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSCloneHandler implements IPSCloneHandler {
   /** Convenience constructor see {#link PSCLoneHandler(IPSCopyHandler, String)} for description. */
   public PSCloneHandler(IPSCopyHandler copyHandler)

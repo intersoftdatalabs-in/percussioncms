@@ -27,6 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** The class that is used to represent menu actions as defined by 'sys_Action.dtd'. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSMenuAction implements IPSComponent, Cloneable {
   /** Convenience constructor for . See the link for more description. */
   public PSMenuAction(String name, String label) {

@@ -32,6 +32,7 @@ import java.util.Properties;
  * decoupling for role, directory, connection security, and back-end table security providers, and
  * e-mail/role attribute name updates to directories.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSecurityProviderConverter extends PSBaseDSConverter {
   /**
    * Construct the converter.

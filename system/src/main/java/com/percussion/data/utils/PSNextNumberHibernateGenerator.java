@@ -35,6 +35,7 @@ import org.hibernate.type.Type;
  *
  * @author Stephen Bolton
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSNextNumberHibernateGenerator implements IdentifierGenerator, Configurable {
   /** table Name extracted from configuration in hbm.xml file */
   private String tableName;

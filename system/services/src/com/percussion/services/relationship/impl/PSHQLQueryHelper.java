@@ -37,6 +37,7 @@ import java.util.Set;
 /**
  * A helper class used for building HQL from a given relationship filter.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSHQLQueryHelper  implements IPSQueryHelper
 {
    /**

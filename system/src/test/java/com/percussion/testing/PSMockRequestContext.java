@@ -40,6 +40,7 @@ import org.w3c.dom.Document;
  *
  * @author dougrand
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSMockRequestContext implements IPSRequestContext {
   private String originalProtocol = "http";
   private int originalPort = 8123;

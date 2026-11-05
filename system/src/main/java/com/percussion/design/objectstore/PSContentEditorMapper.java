@@ -35,6 +35,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /** Implements the PSXContentEditorMapper DTD defined in ContentEditorLocalDef.dtd. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSContentEditorMapper extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

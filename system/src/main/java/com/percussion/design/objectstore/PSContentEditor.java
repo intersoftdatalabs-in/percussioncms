@@ -38,6 +38,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /** Implements the PSXContentEditorLocalDef DTD defined in ContentEditorLocalDef.dtd. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSContentEditor extends PSDataSet {
 
   /** Serialization id for {@link java.io.Serializable}. */

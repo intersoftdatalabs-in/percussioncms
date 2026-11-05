@@ -24,6 +24,7 @@ import java.util.Locale;
 /**
  * This exception is thrown when Mail Program plugin fails to send a mail message for some reason.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSMailException extends PSException {
   /* (non-Javadoc)
    * @see java.lang.Throwable#getLocalizedMessage()

@@ -152,6 +152,7 @@ import com.intsof.percussioncms.auditlog.codes.CatalogErrorCodes;
  */
 @PSBaseBean("sys_assemblyService")
 @Transactional(noRollbackFor = PSAssemblyException.class)
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSAssemblyService implements IPSAssemblyService
 {
    @PersistenceContext

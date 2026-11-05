@@ -22,6 +22,7 @@ package com.percussion.data.jdbc.sqlparser;
  * SQLExceptions, but don't require us to edit all of the JavaCC generated files and add them to the
  * throws clauses.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class UncheckedSQLException extends RuntimeException {
   public UncheckedSQLException(String msg) {
     super(msg);

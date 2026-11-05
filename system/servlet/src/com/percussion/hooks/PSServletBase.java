@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
  * This is the base class for all Rhythmyx specific servlet. It contains 
  * convenient methods that can be used for all derived classes.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSServletBase extends HttpServlet
 {
    /**

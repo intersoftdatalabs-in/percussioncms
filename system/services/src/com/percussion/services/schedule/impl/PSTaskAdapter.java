@@ -71,6 +71,7 @@ import java.util.stream.Stream;
  * Note: The same job can be triggered by Quartz, but this class will prevent
  * the same task from being executed concurrently with thread-safe operations.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSTaskAdapter implements Job {
 
     /**

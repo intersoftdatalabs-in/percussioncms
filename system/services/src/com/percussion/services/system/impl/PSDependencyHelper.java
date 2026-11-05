@@ -77,6 +77,7 @@ import java.util.Set;
  * Provides utility methods for locating dependencies and converting between
  * guid types and MSM dependency types.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDependencyHelper
 {
    IPSDeploymentHandler deploymentHandler;

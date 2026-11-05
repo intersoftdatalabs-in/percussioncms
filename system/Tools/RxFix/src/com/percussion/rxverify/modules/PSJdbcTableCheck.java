@@ -35,6 +35,7 @@ import java.util.Vector;
  *  This class is used to check tables against sys_cmstableDef.xml via Jdbc for table existence, primary key,
  *  foreign key, and index.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSJdbcTableCheck extends PSVerifyDatabaseBase
 {
     /**

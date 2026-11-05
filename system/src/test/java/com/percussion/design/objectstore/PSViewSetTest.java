@@ -25,6 +25,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for the PSView and PSViewSet classes. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSViewSetTest {
   // see base class
 

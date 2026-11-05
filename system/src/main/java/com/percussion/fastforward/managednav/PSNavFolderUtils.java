@@ -69,6 +69,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @author DavidBenua
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSNavFolderUtils {
   /** Name of request private object used to pass workflow id when creating a navon. */
   public static final String SYS_WORKFLOWID = "sys_workflowid";

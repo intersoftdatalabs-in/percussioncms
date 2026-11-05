@@ -28,6 +28,7 @@ import org.w3c.dom.Element;
  * Class to represent an associated file within metadata for a content editor control, as defined by
  * the &lt;psxctl:AssociatedFileList&gt; node in <code>sys_LibraryControlDef.dtd</code>
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFileDescriptor extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

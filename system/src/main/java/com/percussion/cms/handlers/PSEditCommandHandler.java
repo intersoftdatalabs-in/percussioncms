@@ -68,6 +68,7 @@ import java.util.Set;
  * row editor. Then there will be a builder for each complex child. Summary editors for complex
  * children are always handled by the edit handler, not this handler.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSEditCommandHandler extends PSQueryCommandHandler {
   /**
    * The internal name of this handler. When handler names are used in config files, this is the

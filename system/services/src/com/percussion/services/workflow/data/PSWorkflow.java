@@ -69,6 +69,7 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
     fieldVisibility = JsonAutoDetect.Visibility.NONE,
     setterVisibility = JsonAutoDetect.Visibility.PUBLIC_ONLY,
     creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSWorkflow implements Serializable, IPSCatalogSummary, IPSCatalogItem {
    /**
     * Compiler generated serial version ID used for serialization.

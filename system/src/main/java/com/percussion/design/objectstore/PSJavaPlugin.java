@@ -26,6 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation of the interface {@link IPSJavaPlugin} */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSJavaPlugin implements IPSJavaPlugin {
   /**
    * Ctor taking all the attributes required for the object creation.

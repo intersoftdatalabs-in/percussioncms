@@ -68,6 +68,7 @@ import org.xml.sax.SAXParseException;
  * @version 1.0
  * @since 1.0
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
 
   private static final Logger log = LogManager.getLogger(PSDtdTree.class);
@@ -955,6 +956,7 @@ public class PSDtdTree implements Serializable, PSDtdTreeVisitor, Cloneable {
    * @deprecated (ph) This method may not work correctly if the parentName appears as a child of
    *     more than 1 element.
    */
+  @Deprecated
   public int getOccurrenceSetting(String elementName, String parentName) {
     PSDtdElement parent;
 

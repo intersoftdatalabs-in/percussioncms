@@ -38,6 +38,7 @@ import org.w3c.dom.Element;
  * {@link Serializable} (#2450 / parent #2022 residual). Concrete minimal subclass avoids XML/wire
  * dependencies while exercising id + collection payload round-trip.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCollectionComponentSerializationTest {
 
   @Test

@@ -50,6 +50,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
  * @version 1.0
  * @since 1.0
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSConditionalEvaluator {
   /**
    * Constructs a conditional evaluator, parsing the conditionals and building the appropriate

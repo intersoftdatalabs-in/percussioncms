@@ -43,6 +43,7 @@ import static org.apache.commons.lang3.Validate.notEmpty;
  * A wrapper for the {@link ChannelSftp} class. This code was integrated from 
  * PSO, <code>com.percussion.consulting.publisher.client.PSOSFtpClientJSch</code>
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSFtpClientJSch
 {
    /**

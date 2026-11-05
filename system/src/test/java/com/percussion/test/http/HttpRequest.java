@@ -41,6 +41,7 @@ import java.util.Iterator;
  *
  * @deprecated use com.percussion.test.http.PSHttpRequest instead.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class HttpRequest {
 
   public HttpRequest(URL url) {

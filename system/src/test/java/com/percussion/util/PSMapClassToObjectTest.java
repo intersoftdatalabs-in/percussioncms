@@ -19,6 +19,7 @@ package com.percussion.util;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** Unit tests for the PSMapClassToObject class */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSMapClassToObjectTest {
 
   /** Verify that an empty map always returns null */

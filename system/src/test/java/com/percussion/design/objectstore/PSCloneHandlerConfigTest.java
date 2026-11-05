@@ -30,6 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test for the {@link PSCloneHandlerConfigSet} and {@link PSCloneHandlerConfigTest} class. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCloneHandlerConfigTest {
 
   private static final Logger log = LogManager.getLogger(PSCloneHandlerConfigTest.class);

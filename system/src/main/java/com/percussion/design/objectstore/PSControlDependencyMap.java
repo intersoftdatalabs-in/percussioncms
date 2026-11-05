@@ -47,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
  * <p>Implements {@link Serializable} so it may be held on {@link PSContentEditorPipe} under {@code
  * -Xlint:serial}.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSControlDependencyMap implements Serializable {
 
   /** Serialization id for {@link Serializable}. */

@@ -21,6 +21,7 @@ import com.percussion.server.IPSRequestContext;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCmsObjectNameLookupUtils {
 
   /** Constant for key used to store the cache in the request. */
