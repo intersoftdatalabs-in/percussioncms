@@ -16,6 +16,7 @@
  */
 package com.percussion.apibridge;
 
+import com.intsof.percussioncms.auditlog.codes.WebserviceErrorCodes;
 import com.percussion.cms.objectstore.PSAaRelationship;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
@@ -39,7 +40,6 @@ import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
-import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
@@ -219,12 +219,17 @@ public class SlotRelationshipAdaptor implements ISlotRelationshipAdaptor {
   /**
    * Maps reorder failures for EditorHost. Checkout conflicts are 409. Not-found and
    * authorization use the same type rules as insert. Message text is ignored.
+   *
+   * <p>Checkout conflicts are matched on the typed {@link WebserviceErrorCodes} numeric values
+   * (issue #4881) rather than the legacy {@code IPSWebserviceErrors} ints. The numeric comparison
+   * keeps legacy int-constructed {@link PSErrorException}s mapping to 409 exactly as before,
+   * because the typed catalog preserves the legacy code numbers.
    */
   static int httpStatusForMoveFailure(Exception e) {
     if (e instanceof PSErrorException pe) {
       int code = pe.getCode();
-      if (code == IPSWebserviceErrors.ITEM_NOT_CHECKED_OUT
-          || code == IPSWebserviceErrors.ITEM_NOT_CHECKOUT_BY_USER) {
+      if (code == WebserviceErrorCodes.ITEM_NOT_CHECKED_OUT.numericCode()
+          || code == WebserviceErrorCodes.ITEM_NOT_CHECKOUT_BY_USER.numericCode()) {
         return 409;
       }
     }
