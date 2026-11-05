@@ -39,6 +39,7 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.design.objectstore.server.PSDatabaseComponentLoader;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import com.percussion.error.PSException;
 import com.percussion.security.error.PSExceptionUtils;
@@ -1531,6 +1532,24 @@ public class PSCmsObjectMgr
     *
     * @see IPSCmsObjectMgr#findRolesByName(String)
     */
+   /**
+    * Translates a SQL-LIKE style role-name filter ({@code %} matches any run)
+    * into an equivalent regex, quoting every literal segment so user-supplied
+    * metacharacters cannot change the meaning of the expression
+    * (CodeQL {@code java/regex-injection}). Callers apply
+    * {@code Matcher#matches()}, so the pattern is a full-match pattern.
+    *
+    * @param name the user-supplied filter, never blank here ({@code %} when blank).
+    * @return compiled case-insensitive full-match pattern.
+    */
+   static Pattern toRoleNamePattern(String name)
+   {
+      String regex = Arrays.stream(name.split("%", -1))
+            .map(Pattern::quote)
+            .collect(Collectors.joining(".*"));
+      return Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+   }
+
    public Stream<PSRole> findRolesByName(String name)
    {
       if (StringUtils.isBlank(name))
@@ -1550,7 +1569,7 @@ public class PSCmsObjectMgr
 
       List<PSRole> roles = new ArrayList<>();
 
-      Pattern pattern = Pattern.compile(name.replace("%", ".*"), Pattern.CASE_INSENSITIVE);
+      Pattern pattern = toRoleNamePattern(name);
       Iterator components = config.getRoles().iterator();
       while (components.hasNext())
       {
