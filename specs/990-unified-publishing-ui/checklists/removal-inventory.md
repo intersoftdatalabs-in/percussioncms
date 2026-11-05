@@ -2,7 +2,7 @@
 
 **Feature**: `990-unified-publishing-ui`  
 **Purpose**: Durable proof for US8 / FR-015 and RET-06 packaging retirement.  
-**Status**: Updated 2026-08-05 (#1820 packaging verification prep: redirect stubs + inventory freeze).
+**Status**: Updated 2026-11-05 (#1820 packaging verification + docs: absence enforced, inventory closed).
 
 |              Slice               | Issue |                              Role                               |   Status    |
 |----------------------------------|-------|-----------------------------------------------------------------|-------------|
@@ -10,10 +10,10 @@
 | A — Inventory / consumer audit   | #1817 | Faces-config + grep audit + deletion checklists (this update)   | **Done**    |
 | B — Design deep-page delete      | #1819 | Delete exclusive `ui/publishing/**` deep JSPs (keep redirects)  | **Done**    |
 | C — Runtime deep-page delete     | #1818 | Delete exclusive `ui/pubruntime/**` deep JSPs (keep redirects)  | **Done**    |
-| D — Packaging / WAR verification | #1820 | Installer/WAR assertions + inventory freeze (prep)              | **Prep**†   |
+| D — Packaging / WAR verification | #1820 | Installer/WAR assertions (absence enforced) + inventory closure + product-docs note | **Done**    |
 | UAT gate                         | #1371 | SC-001 / SC-003 / SC-008 sign-off before product deletes        | Open        |
 
-†Child D **prep** (#1820): packaging unit tests + docs land without product deep-page deletes. Full RET-06 Done still requires #1819+#1818, then enable absence assertions and re-check this table.
+Child D **verification** (#1820): packaging unit tests enforce the retirement (redirect stubs only), inventory tables below are closed, and the operator note lives in `product-docs/8.2/admin/publishing.md`. Deep-page deletes landed via #1819 (Design) and #1818 (Runtime); UAT sign-off remains tracked on #1371.
 
 \*Hard gate: no product deep-page deletes without #1371 UAT sign-off or explicit human ack on #1372. Also rewire non-nav residual consumers listed below before deleting the pages they call.
 
@@ -119,8 +119,8 @@ It now `sendRedirect`s to the modern Publishing shell peer
 `{contextPath}/cm/app/?view=publish&section=status` (URL path separators only).
 Demand `requestid` is **not** appended: modern shell deep-link contract has no
 request-id filter. **`web.xml` mapping `/publisher/demandpublishing` is kept.**
-**JSP file delete still deferred** under #1818 — this rewire only removes the
-live server-side consumer so DemandPublish.jsp can be deleted safely later.
+**JSP file delete landed** under #1818 — this rewire had removed the live
+server-side consumer first so DemandPublish.jsp could be deleted safely.
 
 **RET-06 residual — JobPubLog consumer rewire (issue #1844, 2026-08-04):**
 `system/.../PSRunEdition.getPublishingLogURL()` no longer builds
@@ -130,8 +130,8 @@ It now targets the modern Publishing shell peer
 `{protocol}://{host}:{port}{requestRoot}/cm/app/?view=publish&section=logs`.
 Job-id query is **not** appended: modern shell deep-link contract has no job-id
 filter yet (only `section` / optional `siteId` / `serverId`). **JSP file delete
-still deferred** under #1818 / packaging follow-up — this rewire only removes the
-live server-side consumer so JobPubLog.jsp can be deleted safely later.
+landed** under #1818 — this rewire had removed the live server-side
+consumer first so JobPubLog.jsp could be deleted safely.
 
 **Sign-off**: Runtime deep JSPs deleted in #1818 (RET-06 slice C); `index.jsp` redirect retained; non-nav consumers rewired (#1842, #1844).  
 **Tracking issue**: [#1372](https://github.com/intersoftdatalabs-in/percussioncms/issues/1372) · audit [#1817](https://github.com/intersoftdatalabs-in/percussioncms/issues/1817)
@@ -251,6 +251,8 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 
 ## Deletion checklist — Child B Design (#1819)
 
+**Status: Done** — 27 exclusive Design deep JSPs deleted in PR #5617 (2026-11-05); `index.jsp` redirect retained; Surface A row → Done.
+
 **Prereqs**: #1817 (Done) · #1371 UAT or human ack · **Publish_Now seed rewired (#1843)** — `publish.jsp` may be deleted in #1819 or kept only if another consumer appears.
 
 ### Delete (Design-exclusive deep faces / chrome)
@@ -304,6 +306,8 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 
 ## Deletion checklist — Child C Runtime (#1818)
 
+**Status: Done** — 12 exclusive Runtime deep JSPs deleted in PR #5613 (2026-11-05); `index.jsp` redirect retained; Surface B row → Done.
+
 **Prereqs**: #1817 (Done) · prefer after or with #1819 · #1371 UAT or human ack · **DemandPublish servlet rewire Done (#1842)** · `PSRunEdition` JobPubLog URL rewire (see #1844).
 
 ### Delete (Runtime-exclusive deep faces / chrome)
@@ -343,29 +347,31 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 
 ## Packaging verification notes — Child D (#1820)
 
-**Prep status (2026-08-05)** — packaging verification tests and docs only; **no product deep-page deletes**. Design/Runtime deep pages remain **Deferred** pending #1371 UAT (or human ack on #1372) and Child B/C (#1819 / #1818).  
-**PR**: [#2095](https://github.com/intersoftdatalabs-in/percussioncms/pull/2095) · issue [#1820](https://github.com/intersoftdatalabs-in/percussioncms/issues/1820)
+**Verification status (2026-11-05)** — deep-page deletes landed via #1819 (Design, PR #5617) and #1818 (Runtime, PR #5613). This slice enforces the retirement: absence assertions enabled, inventory closed, operator note in product-docs. UAT sign-off remains tracked on #1371.  
+**Prep PR**: [#2095](https://github.com/intersoftdatalabs-in/percussioncms/pull/2095) · issue [#1820](https://github.com/intersoftdatalabs-in/percussioncms/issues/1820)
 
 ### Test classes (`modules/perc-distribution-tree`)
 
 | Class | Role |
 |-------|------|
-| `com.percussion.distribution.install.PublishingDeepPagePackagingTest` | **#1820 / PR #2095 primary**: assert `ui/publishing/index.jsp` + `ui/pubruntime/index.jsp` 301 redirect stubs still target modern shell (`/cm/app/?view=publish&section=design\|runtime`); freeze residual Design (28) / Runtime (13) JSP basename inventory; confirm `install.xml` still deletes `publishing-faces-config.xml`; `@Disabled` absence tests ready to enable after #1819/#1818 |
+| `com.percussion.distribution.install.PublishingDeepPagePackagingTest` | **#1820 primary (prep PR #2095; enforced post-#1819/#1818)**: assert `ui/publishing/index.jsp` + `ui/pubruntime/index.jsp` 301 redirect stubs still target modern shell (`/cm/app/?view=publish&section=design\|runtime`); freeze packaged inventory to the redirect stubs only; absence assertions fail on any re-introduced deep page; confirm `install.xml` still deletes `publishing-faces-config.xml` on upgrade |
 | `com.percussion.distribution.install.ObsoleteWebInfArtifactsCleanupTest` | Peer: upgrade cleanup target still covers `publishing-faces-config.xml` (+ JSF lib/TLD families) |
 | `com.percussion.distribution.install.PublishNowActionSeedUrlTest` | Peer: Publish_Now / EI_Publish_Now seeds stay on `/publisher/demandpublishing` (not legacy `publish.jsp`) |
 
 ### Live contract on `main` today
 
 - Redirect stubs **must remain** and keep modern shell targets (enabled assertions).
-- Residual deep JSP sets are an **explicit freeze** — accidental add/remove fails CI until freeze or product change is intentional.
-- Exclusive deep-page **absence** assertions are present but **disabled** until B+C land; then re-enable and update Surface A/B rows → Done.
+- Packaged JSP inventory is **frozen to the redirect stubs only** — any re-introduced deep page fails CI until the freeze or the product change is intentional.
+- Exclusive deep-page **absence** assertions are **enabled** (B+C merged) and Surface A/B rows are Done.
 - Installer faces-config cleanup expectations **unchanged** (upgrade safety).
 
-### After #1819 + #1818
+### After #1819 + #1818 (landed 2026-11-05)
 
-- [ ] Enable `afterDesignRetirementOnlyKeepFilesRemain` / `afterRuntimeRetirementOnlyKeepFilesRemain` in `PublishingDeepPagePackagingTest` (or replace freeze with KEEP-only sets).
-- [ ] Assert WAR / WebUI package contains only `ui/publishing/index.jsp` (+ optional `publish.jsp` KEEP) and `ui/pubruntime/index.jsp`.
-- [ ] Keep `ObsoleteWebInfArtifactsCleanupTest` expectations for faces-config upgrade deletes.
-- [ ] Mark RET-06 / T124 Done in this file with PR/issue links; parent #1372 acceptance checkoff.
+- [x] Enable `afterDesignRetirementOnlyKeepFilesRemain` / `afterRuntimeRetirementOnlyKeepFilesRemain` in `PublishingDeepPagePackagingTest` (freeze replaced with KEEP-only redirect-stub sets).
+- [x] Assert WAR / WebUI package contains only `ui/publishing/index.jsp` and `ui/pubruntime/index.jsp` (optional `publish.jsp` KEEP removed — deleted in #1819).
+- [x] Keep `ObsoleteWebInfArtifactsCleanupTest` expectations for faces-config upgrade deletes.
+- [x] Mark RET-06 / T124 Done in this file with PR/issue links; parent #1372 acceptance checkoff (UAT #1371 still open — see note below).
 - Cross-platform: packaging path assertions use `Path.of` / `Path.resolve` only (no Unix-only separators).
+
+**RET-06 closure (Child D, #1820):** exclusive deep pages are deleted, redirect stubs ship, `publishing-faces-config.xml` ships nowhere (installer still cleans pre-retirement upgrade copies), and the operator note lives in `product-docs/8.2/admin/publishing.md`. The commented-out `jakarta.faces.CONFIG_FILES` block in `cm/WEB-INF/web.xml` is intentionally retained — it also covers `admin-faces-config.xml` and documents the disabled JSF bootstrap; shared cleanup is out of scope. Full product-delete sign-off (UAT #1371 or human ack on #1372) is recorded on the parent, not in this file.
 
