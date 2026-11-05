@@ -6,7 +6,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
+    # Version updates disabled: only security updates are allowed (issue #5599).
+    open-pull-requests-limit: 0
     target-branch: "main"
     ignore:
       - dependency-name: "jakarta.inject:jakarta.inject-api"
@@ -47,7 +48,8 @@ updates:
       - "/modules/perc-tinymce"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 5
+    # Version updates disabled: only security updates are allowed (issue #5599).
+    open-pull-requests-limit: 0
     target-branch: "main"
     groups:
       npm-production:
