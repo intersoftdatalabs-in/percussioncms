@@ -2065,6 +2065,22 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 
 **Empty and error states:** Blank or invalid item id is not a lookup. HTTP **403** (non-Admin / no publish rights) shows **Publish Forbidden** — it is **not** treated as success. HTTP **404** (unknown id) shows **Item not found**. An item with no applicable actions shows **No publishing actions for this item**.
 
+## Retired legacy publishing pages
+
+The legacy JSF publishing deep pages are retired. Only the entry redirects ship:
+
+- `ui/publishing/index.jsp` → 301 redirect to **Publish → Design**
+  (`/cm/app/?view=publish&section=design`)
+- `ui/pubruntime/index.jsp` → 301 redirect to **Publish → Runtime**
+  (`/cm/app/?view=publish&section=runtime`)
+
+Bookmarks to the old per-editor deep pages (for example `SiteEditor`,
+`EditionList`, `JobPubLog`, or other `ui/publishing/*.jsp` /
+`ui/pubruntime/*.jsp` URLs) no longer resolve — open the matching section of
+the **Publish** shell instead. Upgrades automatically remove the stale
+`publishing-faces-config.xml` left under `WEB-INF/` by older installs; no
+operator step is needed.
+
 ## Failure modes to watch
 
 - Missing template/variant or broken relationship links

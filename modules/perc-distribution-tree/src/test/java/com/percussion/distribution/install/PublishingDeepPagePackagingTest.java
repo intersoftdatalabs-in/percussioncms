@@ -32,30 +32,29 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
- * RET-06 / issue #1820 packaging verification prep for JSF Publishing Design and Runtime deep-page
+ * RET-06 / issue #1820 packaging verification for JSF Publishing Design and Runtime deep-page
  * retirement.
  *
- * <p><strong>Hard gate:</strong> this class does <em>not</em> delete product JSPs. Deep-page
- * removal is owned by #1819 (Design) and #1818 (Runtime) after #1371 UAT or explicit human ack on
- * parent #1372. Tests here must stay green on {@code main} while residual deep pages remain
- * packaged.
+ * <p><strong>Hard gate note:</strong> this class does <em>not</em> delete product JSPs. Deep-page
+ * removal was owned by #1819 (Design) and #1818 (Runtime), both merged after audit #1817 confirmed
+ * zero required product-nav callers. Tests here prove the retirement outcome on {@code main}:
+ * exclusive deep pages are gone and only the entry redirect stubs ship.
  *
  * <p>Coverage:
  *
  * <ul>
  *   <li>Entry redirect stubs {@code ui/publishing/index.jsp} and {@code ui/pubruntime/index.jsp}
  *       remain and target modern Publishing shell paths.
- *   <li>Current residual JSP inventory is frozen (exact basename set) so accidental adds/removes
- *       surface in packaging tests.
- *   <li>{@link Disabled} absence assertions ready to enable after #1819/#1818 land.
- *   <li>Installer peer still lists {@code publishing-faces-config.xml} for upgrade cleanup
- *       (lockstep with {@link ObsoleteWebInfArtifactsCleanupTest}).
+ *   <li>Packaged JSP inventory is frozen to the redirect stubs only, so any re-introduced deep
+ *       page surfaces in packaging tests.
+ *   <li>Absence assertions enforce the retirement: only intentional KEEP files may remain.
+ *   <li>Installer peer still lists {@code publishing-faces-config.xml} for upgrade cleanup of
+ *       pre-retirement installs (lockstep with {@link ObsoleteWebInfArtifactsCleanupTest}).
  * </ul>
  *
  * <p>Paths use {@link Path#of(String, String...)} / {@link Path#resolve(String)} only (portable
@@ -81,23 +80,22 @@ class PublishingDeepPagePackagingTest {
   static final String RUNTIME_REDIRECT_TARGET = "/cm/app/?view=publish&section=runtime";
 
   /**
-   * Frozen inventory of Design-tree JSPs still packaged on {@code main} (audit #1817 / inventory
-   * 2026-08-04). Update only when #1819 deletes exclusive deep pages (or intentional KEEP changes).
+   * Frozen inventory of Design-tree JSPs packaged on {@code main} after #1819 (audit #1817 /
+   * inventory 2026-08-04). Only the entry redirect stub ships. Update only on intentional KEEP
+   * changes.
    */
   static final Set<String> FROZEN_DESIGN_JSPS =
       Set.of("index.jsp");
 
   /**
-   * Frozen inventory of Runtime-tree JSPs still packaged on {@code main} (audit #1817 / inventory
-   * 2026-08-04). Update only when #1818 deletes exclusive deep pages.
+   * Frozen inventory of Runtime-tree JSPs packaged on {@code main} after #1818 (audit #1817 /
+   * inventory 2026-08-04). Only the entry redirect stub ships. Update only on intentional KEEP
+   * changes.
    */
   static final Set<String> FROZEN_RUNTIME_JSPS =
       Set.of("index.jsp");
 
-  /**
-   * Basenames that must remain after Design deep-page retirement (#1819). Today only the modern
-   * Design redirect stub is a hard KEEP; {@code publish.jsp} is optional KEEP per inventory.
-   */
+  /** Basenames that must remain after Design deep-page retirement (#1819, merged). */
   static final Set<String> POST_RETIREMENT_DESIGN_KEEP = Set.of("index.jsp");
 
   /** Basenames that must remain after Runtime deep-page retirement (#1818). */
@@ -169,11 +167,11 @@ class PublishingDeepPagePackagingTest {
     }
   }
 
-  // --- Future absence (enable after #1819 / #1818) ----------------------
+  // --- Retirement absence (enforced now that #1819 / #1818 merged) ------
 
   /**
-   * Enable after #1819 lands: exclusive Design deep pages must be gone; only intentional KEEP files
-   * (redirect stub, optional publish.jsp) remain.
+   * After #1819 (merged): exclusive Design deep pages must be gone; only the redirect stub
+   * remains.
    */
   @Test
   @DisplayName("AFTER #1819: exclusive Design deep pages absent; redirect stub remains")
@@ -184,7 +182,7 @@ class PublishingDeepPagePackagingTest {
   }
 
   /**
-   * Enable after #1818 lands: exclusive Runtime deep pages must be gone; only the Runtime redirect
+   * After #1818 (merged): exclusive Runtime deep pages must be gone; only the Runtime redirect
    * stub remains.
    */
   @Test
@@ -230,10 +228,6 @@ class PublishingDeepPagePackagingTest {
     }
     Set<String> extras = new TreeSet<>(actual);
     extras.removeAll(keep);
-    // publish.jsp is an optional Design KEEP per inventory — allow it without failing absence.
-    if ("ui/publishing".equals(label)) {
-      extras.remove("publish.jsp");
-    }
     assertTrue(
         extras.isEmpty(),
         label
