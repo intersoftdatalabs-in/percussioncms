@@ -2047,6 +2047,46 @@ describe("actionDispatch", () => {
     expect(result.refresh).toBeUndefined();
   });
 
+  it("Take Down maps HTTP 403/404/409 to a named failure without refresh (#5630)", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response("[]", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    for (const status of [403, 404, 409]) {
+      const onTakedown = vi.fn().mockRejectedValueOnce({ status, body: {} });
+      const result = await dispatchAction(action({ name: "Take_Down" }), {
+        item: item({ name: "Home" }),
+        onTakedown,
+        confirm: () => true,
+      });
+      expect(result.kind).toBe("rest");
+      expect(result.messageKey).toBe(EXPLORER_MSG.TAKEDOWN_FAILED);
+      expect(result.messageText).toContain("Home");
+      expect(result.messageText).toContain(`HTTP ${status}`);
+      expect(result.refresh).toBeUndefined();
+      expect(onTakedown).toHaveBeenCalled();
+    }
+  });
+
+  it("Take Down rethrows non-HTTP failures (#5630)", async () => {
+    const onTakedown = vi.fn().mockRejectedValueOnce(new Error("boom"));
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response("[]", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await expect(
+      dispatchAction(action({ name: "Take_Down" }), {
+        item: item(),
+        onTakedown,
+        confirm: () => true,
+      }),
+    ).rejects.toThrow("boom");
+  });
+
   it("Take Down on a Sites folder asks for a content item", async () => {
     const onTakedown = vi.fn();
     const result = await dispatchAction(action({ name: "Take_Down" }), {
