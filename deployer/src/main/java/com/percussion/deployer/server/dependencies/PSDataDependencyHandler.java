@@ -59,7 +59,7 @@ public class PSDataDependencyHandler extends PSSchemaDependencyHandler {
   }
 
   // see base class
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -75,7 +75,7 @@ public class PSDataDependencyHandler extends PSSchemaDependencyHandler {
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -92,7 +92,7 @@ public class PSDataDependencyHandler extends PSSchemaDependencyHandler {
     // all rows in data have assigned with PSJdbcRowData.ACTION_INSERT
     data = dbmsHelper.catalogTableData(schema, null, null);
 
-    List files = new ArrayList();
+    List<PSDependencyFile> files = new ArrayList<>();
     Document doc;
 
     doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -128,9 +128,9 @@ public class PSDataDependencyHandler extends PSSchemaDependencyHandler {
     // get the data from archive
     Document schemaDoc = null;
     Document dataDoc = null;
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
     while (files.hasNext()) {
-      PSDependencyFile file = (PSDependencyFile) files.next();
+      PSDependencyFile file = files.next();
       if (file.getType() == PSDependencyFile.TYPE_DBMS_SCHEMA)
         schemaDoc = createXmlDocument(archive.getFileData(file));
       else if (file.getType() == PSDependencyFile.TYPE_DBMS_DATA)
