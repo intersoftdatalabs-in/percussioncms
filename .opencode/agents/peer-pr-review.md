@@ -14,7 +14,7 @@ voice. You do **not** skip merge because GitHub login equals the author.
 1. Apply the **Rule Discovery Protocol** from root `AGENTS.md`.
 2. Read `.grok/workflows/README.md` → **Peer PR review (other model / other
    operator)** (v2.0.7).
-3. Spawn `.opencode/agent/erlang-review.md` per selected PR (task tool).
+3. Spawn `.opencode/agents/erlang-review.md` per selected PR (`subagent` tool).
    Do not load Erlang as this persona.
 4. Read `scratch/preflight.json` (`peer_pr_eligible` from Phase 2C).
 
@@ -67,7 +67,7 @@ From `scratch/preflight.json` `peer_pr_eligible`, take up to
 
 ### 2. Per-PR Erlang (MUST spawn sub-agent)
 
-For each PR, `task` dispatch `erlang-review` with `pr_number`. Wait for
+For each PR, `subagent` dispatch `erlang-review` with `pr_number`. Wait for
 `verdict` in `scratch/erlang-review.json`. If spawn fails: `blocked=erlang_not_spawned_peer` — **not fatal**. Host
 Erlang leftover will review and merge. Do not fail the whole peer pass.
 

@@ -1,5 +1,5 @@
 ---
-description: Implement ONE triaged issue end-to-end: branch → code → build evidence → PR. Mirrors the rhai workflow's Phase 8 Work. Reads triage.json for its candidate. Writes structured JSON to scratch/work.json.
+description: Implement ONE triaged issue end-to-end: branch → code → Erlang skill CLI → build evidence → PR. Mirrors the rhai workflow's Phase 8 Work (v2.2.5). Reads triage.json for its candidate. Writes structured JSON to scratch/work.json.
 mode: subagent
 ---
 
@@ -109,18 +109,42 @@ git push --set-upstream origin HEAD
 # never `--force` to base_branch.
 ```
 
-### 6. Erlang sub-agent (HARD — before PR)
+### 6. Erlang skill CLI (HARD — before PR)
 
-Spawn `erlang-review` via the `task` tool with `branch` = current HEAD,
-`base_branch` = `$NIGHT_BASE_BRANCH`, `allow_merge=false`. Load
-`.opencode/agent/erlang-review.md`. You (the implementer) must **not**
-write the Erlang review yourself.
+Run the Erlang review **yourself** with the skill CLI. Do **not** spawn a
+nested `erlang-review` subagent, and do **not** launch a headless agent for
+this step. Nested headless runs can die on the first shell permission
+(`erlang_not_spawned`) and block the PR.
 
-- If spawn fails: `status=failed` `blocked=erlang_not_spawned`. Do not open a PR.
-- If `verdict=block`: **fix the findings on this branch**, re-commit, spawn
-  Erlang again. Do not open a PR on a blocking review.
-- If `verdict=lgtm`: continue to open the PR. Host Erlang may APPROVE+merge later.
-- Never `gh pr review --approve` or merge your own PR.
+1. Read the pointer at
+   `modules/ai-shared-develop/src/main/resources/skills/erlang-review/SKILL.md`
+   and the canonical spec at `~/.agents/skills/erlang/ERLANG.md` (fall back to
+   `~/.claude/skills/erlang/`).
+2. From the worktree, review the branch diff:
+
+   ```bash
+   mkd-code-review analyze --pack percussion --format markdown --gate advisory \
+     --git-base "origin/${NIGHT_BASE_BRANCH}" \
+     --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+   ```
+
+   Scope is the branch diff. Never pass the repo root as `PATHS`.
+3. If the models file is missing, omit `--models` and continue machine-only. If
+   Ollama is down, keep machine findings; do not fail on an LLM warning.
+4. Gate on **in-diff** bugs, missing behavioral tests, and non-portable paths
+   only. Preexisting rows do not BLOCK.
+5. Write the **full** Markdown report to
+   `docs/ai-generated/code-reviews/issue-<N>-erlang.md` and commit it on the
+   branch. Paste the same Markdown into the PR body under
+   `## Pre-push local code review`.
+6. If the gate BLOCKs: fix the findings, re-run the CLI, and do not open the
+   PR until it is clean.
+7. If `mkd-code-review` is not on `PATH`, stop with `status=failed` and
+   `blocked=erlang_cli_unavailable`. Do not fall back to a nested agent, and do
+   not invent a manual `Gate: PASS`.
+
+You must **not** `gh pr review --approve` or merge your own PR. The host Erlang
+phase re-reviews this-run PRs and may APPROVE + squash-merge them.
 
 ### 7. Open the PR
 
@@ -146,6 +170,10 @@ The PR body **must** include:
 - build_evidence:
   - `cd <module> && ../mvnw clean install` → BUILD SUCCESS, Tests run: N, Failures: 0
 - downstream_checked: none   # or [<reverse-deps>]
+
+## Pre-push local code review
+
+<full mkd-code-review `analyze --format markdown` output>
 
 ## Notes
 
@@ -207,6 +235,8 @@ gh issue edit <N> --repo intersoftdatalabs-in/percussioncms --remove-label "In P
 - **One PR per parent per run.** If the parent already has an OPEN PR, absorb.
 - **3-slice vertical.** Never layer-split (REST / SPA / Playwright into
   separate PRs).
+- **Run the Erlang skill CLI before opening the PR.** Never spawn a nested
+  reviewer from Work, and never APPROVE or merge your own PR.
 
 ## Output
 
