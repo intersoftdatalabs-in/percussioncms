@@ -2139,10 +2139,53 @@ describe("nulKeywordFieldNames", () => {
     select.appendChild(option);
     select.value = "news\u0000";
     expect(readOverlayEdits(root, "42")).toEqual([
-      { contentId: "42", name: "keywords", value: "news\u0000" },
+      {
+        contentId: "42",
+        name: "keywords",
+        value: "news\u0000",
+        dataType: "keyword",
+      },
     ]);
     expect(nulKeywordFieldNames(overlay, readOverlayEdits(root, "42"))).toEqual([
       "keywords",
+    ]);
+  });
+
+  it("sends the keyword data type with a keyword edit", () => {
+    const root = document.createElement("div");
+    root.innerHTML = `<span data-perc-field="keywords">news</span>`;
+    const overlay = scalarOverlayFields(
+      {
+        ...payload,
+        fields: [{ name: "keywords", value: "news" }],
+      },
+      [
+        {
+          name: "keywords",
+          label: "Keywords",
+          control: "sys_DropDownSingle",
+        },
+      ],
+    );
+    overlay[0] = {
+      ...overlay[0],
+      choices: [
+        { value: "news", label: "News" },
+        { value: "events", label: "Events" },
+      ],
+    };
+    applyFieldOverlay(root, overlay, "42");
+    const select = root.querySelector(
+      '[data-testid="assembly-inline-field-keywords"]',
+    ) as HTMLSelectElement;
+    select.value = "events";
+    expect(readOverlayEdits(root, "42")).toEqual([
+      {
+        contentId: "42",
+        name: "keywords",
+        value: "events",
+        dataType: "keyword",
+      },
     ]);
   });
 });

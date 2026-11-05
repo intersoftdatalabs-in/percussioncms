@@ -22,7 +22,8 @@
  * the React editor. Does not open leftover Active Assembly or Content Editor
  * HTML. A float is one decimal number. An integer still rejects a decimal. A
  * required keyword with no choice is refused before PUT. A keyword that
- * contains a NUL is refused before PUT. A yes-no field saves {@code yes} or
+ * contains a NUL is refused before PUT. A keyword saves its catalog choice
+ * with {@code dataType} keyword. A yes-no field saves {@code yes} or
  * {@code no} with {@code dataType} boolean. A later slice refuses a yes-no
  * NUL.
  */
@@ -889,7 +890,12 @@ export interface OverlayFieldEdit {
   contentId: string;
   name: string;
   value: string;
-  /** Present for link fields so the item field save stores a link. */
+  /**
+   * Present for the field kinds the item field save types: {@code link},
+   * {@code integer}/{@code float}, {@code date}, {@code datetime},
+   * {@code keyword}, and {@code boolean}. The server stores the value; the
+   * type tells it which kind of field this is.
+   */
   dataType?: string;
 }
 
@@ -1723,6 +1729,7 @@ export function readOverlayEdits(
         : {}),
       ...(valueKind === ASSEMBLY_VALUE_DATE ? { dataType: "date" } : {}),
       ...(valueKind === ASSEMBLY_VALUE_DATETIME ? { dataType: "datetime" } : {}),
+      ...(valueKind === ASSEMBLY_VALUE_KEYWORD ? { dataType: "keyword" } : {}),
       ...(valueKind === ASSEMBLY_VALUE_YESNO ? { dataType: "boolean" } : {}),
     });
   });
