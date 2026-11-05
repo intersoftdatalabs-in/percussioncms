@@ -27,14 +27,13 @@ public class PSCopyStream {
   private PSCopyStream() {}
 
   /**
-   * Method to copy Java InputStream to PoutputStream.
+   * Helper method to copy an input stream to an output stream.
    *
-   * @param in Input stream tp copy from, never <code>null</code>.
+   * @param in Input stream to copy from, never <code>null</code>.
    * @param out Output stream to copy to, never <code>null</code>.
    * @return number bytes copied
    * @throws IOException in case of any error while copying.
    */
-  /** Helper method to copy an input stream to an output stream. */
   public static long copyStream(InputStream in, OutputStream out) throws IOException {
     int nCopied = 0;
     final byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];

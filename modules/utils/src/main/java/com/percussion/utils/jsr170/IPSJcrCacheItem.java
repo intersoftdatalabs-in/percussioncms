@@ -33,6 +33,7 @@ public interface IPSJcrCacheItem {
    * this method as well for simplicity.
    *
    * @return the size in bytes, might be <code>0</code>
+   * @throws RepositoryException if an error occurs.
    */
   long getSizeInBytes() throws RepositoryException;
 }

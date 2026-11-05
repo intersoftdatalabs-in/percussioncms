@@ -24,30 +24,58 @@ import java.util.Objects;
  * bean with a default ctor (required) and setXxx() and getXxx() methods.
  */
 public class Name {
+  /** First name. */
   String first;
 
+  /** Last name. */
   String last;
 
   /** Default ctor. Required by serializer. */
   public Name() {}
 
+  /**
+   * Constructor.
+   *
+   * @param first the first name.
+   * @param last the last name.
+   */
   public Name(String first, String last) {
     this.first = first;
     this.last = last;
   }
 
+  /**
+   * Get the first name.
+   *
+   * @return the first name.
+   */
   public String getFirst() {
     return first;
   }
 
+  /**
+   * Set the first name.
+   *
+   * @param first the first name.
+   */
   public void setFirst(String first) {
     this.first = first;
   }
 
+  /**
+   * Get the last name.
+   *
+   * @return the last name.
+   */
   public String getLast() {
     return last;
   }
 
+  /**
+   * Set the last name.
+   *
+   * @param last the last name.
+   */
   public void setLast(String last) {
     this.last = last;
   }

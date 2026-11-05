@@ -32,21 +32,37 @@ package com.percussion.util;
  * anything else.
  */
 public interface IPSLog4jMDCKeys {
+  /** Constant. */
   public static final String MDC_KEY_VERSION = "version";
+  /** Constant. */
   public static final String MDC_KEY_DATE = "date";
 
+  /** Constant. */
   public static final String MDC_KEY_PUB_PUBLISHER_ID = "publisherId";
+  /** Constant. */
   public static final String MDC_KEY_PUB_PUBLICATION_ID = "publicationId";
+  /** Constant. */
   public static final String MDC_KEY_PUB_SITE_ID = "siteId";
+  /** Constant. */
   public static final String MDC_KEY_PUB_EDITION_ID = "editionId";
+  /** Constant. */
   public static final String MDC_KEY_PUB_CLIST_ID = "clistId";
+  /** Constant. */
   public static final String MDC_KEY_PUB_CONTENT_TYPE_ID = "ctypeId";
+  /** Constant. */
   public static final String MDC_KEY_PUB_CONTENT_ID = "contentId";
+  /** Constant. */
   public static final String MDC_KEY_PUB_ACTION = "action";
+  /** Constant. */
   public static final String MDC_KEY_PUB_STATUS = "status";
+  /** Constant. */
   public static final String MDC_KEY_PUB_ITEMS_Inserted = "inserted";
+  /** Constant. */
   public static final String MDC_KEY_PUB_ITEMS_Updated = "updated";
+  /** Constant. */
   public static final String MDC_KEY_PUB_ITEMS_Skipped = "skipped";
+  /** Constant. */
   public static final String MDC_KEY_PUB_ITEMS_Failed = "failed";
+  /** Constant. */
   public static final String MDC_KEY_PUB_ITEMS_Unpublished = "unpublished";
 }

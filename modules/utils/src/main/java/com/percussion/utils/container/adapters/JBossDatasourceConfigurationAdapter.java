@@ -54,9 +54,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+/**
+ * JBoss datasource configuration adapter.
+ */
 public class JBossDatasourceConfigurationAdapter
     implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
 
+  /** Default constructor. */
+  public JBossDatasourceConfigurationAdapter() {}
+
+  /** Logger. */
   public static Logger log = LogManager.getLogger(JBossDatasourceConfigurationAdapter.class);
 
   private Path appServer = Paths.get("AppServer", "server", "rx");
@@ -179,7 +186,7 @@ public class JBossDatasourceConfigurationAdapter
    * @return The credentials, may be <code>null</code> if a match is not found.
    * @throws IOException If there are any errors reading from the file.
    * @throws SAXException If the document is malformed.
-   * @throws PSInvalidXmlException
+   * @throws PSInvalidXmlException if the XML is invalid.
    */
   public static PSSecureCredentials loadSecureCredentials(File loginCfgFile, String secDomain)
       throws IOException, SAXException, PSInvalidXmlException {
@@ -381,6 +388,12 @@ public class JBossDatasourceConfigurationAdapter
     }
   }
 
+  /**
+   * Get the datasource resolver.
+   *
+   * @param rxDir the rx directory, may not be <code>null</code>.
+   * @return the resolver, may be <code>null</code>.
+   */
   public PSDatasourceResolver getDataSourceResolver(Path rxDir) {
     File configFile = rxDir.resolve(springConfigFile).toFile();
 
@@ -399,6 +412,12 @@ public class JBossDatasourceConfigurationAdapter
     return dsResolver;
   }
 
+  /**
+   * Save the datasource resolver.
+   *
+   * @param rxDir the rx directory, may not be <code>null</code>.
+   * @param dsResolver the resolver, may not be <code>null</code>.
+   */
   public void saveDatasourceResolver(Path rxDir, IPSDatasourceResolver dsResolver) {
     File configFile = rxDir.resolve(springConfigFile).toFile();
 

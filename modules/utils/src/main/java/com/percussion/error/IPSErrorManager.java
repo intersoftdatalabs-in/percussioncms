@@ -21,6 +21,9 @@ import com.percussion.log.PSLogInformation;
 import java.net.URL;
 import java.util.Locale;
 
+/**
+ * Error manager interface.
+ */
 public interface IPSErrorManager {
   /**
    * Create a formatted message for messages taking only a single argument.
@@ -63,17 +66,59 @@ public interface IPSErrorManager {
    */
   String createMessage(int msgCode, Object[] arrayArgs, String language);
 
+  /**
+   * Get the error text for a code.
+   *
+   * @param code the error code.
+   * @param nullNotFound whether to return null if not found.
+   * @param loc the locale.
+   * @return the error text, may be <code>null</code>.
+   */
   String getErrorText(int code, boolean nullNotFound, Locale loc);
 
+  /**
+   * Get the error text for a code.
+   *
+   * @param code the error code.
+   * @param nullNotFound whether to return null if not found.
+   * @param loc the locale string.
+   * @return the error text, may be <code>null</code>.
+   */
   String getErrorText(int code, boolean nullNotFound, String loc);
 
+  /**
+   * Get the error URL.
+   *
+   * @param error the log information.
+   * @param loc the locale.
+   * @return the URL, may be <code>null</code>.
+   */
   URL getErrorURL(PSLogInformation error, Locale loc);
 
+  /**
+   * Initialize the manager.
+   */
   void init();
 
+  /**
+   * Close the manager.
+   */
   void close();
 
+  /**
+   * Get the error text for a code.
+   *
+   * @param code the error code.
+   * @return the error text, may be <code>null</code>.
+   */
   String getErrorText(int code);
 
+  /**
+   * Get the error text for a code.
+   *
+   * @param code the error code.
+   * @param nullNotFound whether to return null if not found.
+   * @return the error text, may be <code>null</code>.
+   */
   String getErrorText(int code, boolean nullNotFound);
 }

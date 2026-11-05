@@ -33,21 +33,45 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+/**
+ * Abstract connectors.
+ */
 public class PSAbstractConnectors implements IPSConnectorInfo<IPSConnector>, ContainerConfig {
 
+  /** Connectors. */
   private List<IPSConnector> connectors = new ArrayList<>();
+
+  /** Connector file context. */
   private Path connectorFileContext;
 
+  /** Default constructor. */
   public PSAbstractConnectors() {}
 
+  /**
+   * Constructor.
+   *
+   * @param connectorFileContet the context.
+   */
   public PSAbstractConnectors(Path connectorFileContet) {
     this.connectorFileContext = connectorFileContet;
   }
 
+  /**
+   * Convert to comma string.
+   *
+   * @param string the collection.
+   * @return the string.
+   */
   protected static String toCommaString(Collection<String> string) {
     return string.stream().collect(Collectors.joining(","));
   }
 
+  /**
+   * Save properties file.
+   *
+   * @param filePath the path.
+   * @param props the properties.
+   */
   protected static void savePropertiesFile(Path filePath, Map<String, String> props) {
     if (filePath != null) {
       Properties origProps = loadPropertiesFile(filePath);
@@ -68,6 +92,12 @@ public class PSAbstractConnectors implements IPSConnectorInfo<IPSConnector>, Con
     }
   }
 
+  /**
+   * Load properties file.
+   *
+   * @param filePath the path.
+   * @return the properties.
+   */
   protected static Properties loadPropertiesFile(Path filePath) {
     PSProperties props = new PSProperties();
     if (filePath != null) {
@@ -82,10 +112,22 @@ public class PSAbstractConnectors implements IPSConnectorInfo<IPSConnector>, Con
     return props;
   }
 
+  /**
+   * Save properties.
+   *
+   * @param properties the properties.
+   * @param propertyPath the path.
+   */
   protected void saveProperties(Map<String, String> properties, Path propertyPath) {
     savePropertiesFile(propertyPath, properties);
   }
 
+  /**
+   * Load properties.
+   *
+   * @param propertyPath the path.
+   * @return the properties.
+   */
   protected Map<String, String> loadProperties(Path propertyPath) {
     Map<String, String> properties = new HashMap<>();
     Properties prop = loadPropertiesFile(propertyPath);
@@ -112,17 +154,28 @@ public class PSAbstractConnectors implements IPSConnectorInfo<IPSConnector>, Con
     this.connectors = connectors;
   }
 
+  /**
+   * Get the HTTPS connector.
+   *
+   * @return the connector.
+   */
   public final Optional<IPSConnector> getHttpsConnector() {
     return this.connectors.stream().filter(IPSConnector::isHttps).findFirst();
   }
 
+  /**
+   * Get the HTTP connector.
+   *
+   * @return the connector.
+   */
   public final Optional<IPSConnector> getHttpConnector() {
     return this.connectors.stream().filter(IPSConnector::isHttp).findFirst();
   }
 
   /**
-   * Merge existing connectors into this list. Final so subclass constructors may call without
-   * {@code this-escape}.
+   * Merge connectors.
+   *
+   * @param existingConnectors the existing connectors.
    */
   protected final void mergeConnectors(List<IPSConnector> existingConnectors) {
     List<IPSConnector> newConnectors = new ArrayList<>();

@@ -29,10 +29,23 @@ public class DefaultConfigurationContextImpl
   private Path rootDir;
   private String encKey;
 
+  /**
+   * Create a context with the given root directory and encryption key.
+   *
+   * @param path the root directory, may not be <code>null</code>.
+   * @param key the encryption key, may be <code>null</code>.
+   */
   public DefaultConfigurationContextImpl(Path path, String key) {
     this(path, key, BaseContainerUtils::new);
   }
 
+  /**
+   * Create a context with the given root directory, encryption key and constructor.
+   *
+   * @param path the root directory, may not be <code>null</code>.
+   * @param key the encryption key, may be <code>null</code>.
+   * @param ctor the constructor supplier, may not be <code>null</code>.
+   */
   public DefaultConfigurationContextImpl(Path path, String key, Supplier<BaseContainerUtils> ctor) {
     super(ctor);
     this.rootDir = path;
@@ -44,10 +57,20 @@ public class DefaultConfigurationContextImpl
     return this;
   }
 
+  /**
+   * Get the root directory.
+   *
+   * @return the root directory, may be <code>null</code>.
+   */
   public Path getRootDir() {
     return rootDir;
   }
 
+  /**
+   * Get the encryption key.
+   *
+   * @return the encryption key, may be <code>null</code>.
+   */
   public String getEncKey() {
     return encKey;
   }

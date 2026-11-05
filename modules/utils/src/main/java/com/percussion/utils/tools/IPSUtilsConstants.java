@@ -33,6 +33,9 @@ public interface IPSUtilsConstants {
    */
   public static final String RX_JAVA_ENC = "UTF-8";
 
+  /** Server log name. */
   public static final String SERVER_LOG = "Server";
+
+  /** Unit test log name. */
   public static final String UNIT_TEST_LOG = "Unit Tests";
 }

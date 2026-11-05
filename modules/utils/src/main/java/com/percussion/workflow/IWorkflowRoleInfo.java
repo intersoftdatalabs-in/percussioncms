@@ -19,8 +19,12 @@ package com.percussion.workflow;
 
 import java.util.List;
 
+/**
+ * Workflow role info.
+ */
 public interface IWorkflowRoleInfo {
 
+  /** Constant for the private object name. */
   String WORKFLOW_ROLE_INFO_PRIVATE_OBJECT = "workflowroleinfoprivateobject";
 
   /**
@@ -30,7 +34,17 @@ public interface IWorkflowRoleInfo {
    */
   void setUserActingRoleNames(List<String> actorRoleNames);
 
+  /**
+   * Get the from-state adhoc users context.
+   *
+   * @return the context, may be <code>null</code>.
+   */
   IPSContentAdhocUsersContext getFromStateCauc();
 
+  /**
+   * Get the to-state adhoc users context.
+   *
+   * @return the context, may be <code>null</code>.
+   */
   IPSContentAdhocUsersContext getToStateCauc();
 }

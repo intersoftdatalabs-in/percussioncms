@@ -523,7 +523,7 @@ public class PSHttpConnection {
     return ms_baseUrl;
   }
 
-  /**
+  /*
    * Reset the cached info which may contain data used from previous applet session. This is called
    * during applet initialization (that is called from {@link PSContentExplorerApplet#init()}).
    *

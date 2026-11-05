@@ -19,7 +19,7 @@ package com.percussion.util;
 
 /** This interface defines a few methods to log the messages so that any plugin can use. */
 public interface IPSLogger {
-  /*
+  /**
    * Logs the message to whatever output the Logger object was initialized with
    * no matter whether the Logger is in debug mode or not. This method is
    * normally used to log a mandatory message.
@@ -31,7 +31,7 @@ public interface IPSLogger {
    */
   void logMessage(String msg);
 
-  /*
+  /**
    * Logs the message to whatever output the Logger object was initialized with
    * only if Logger is in debug mode. This method is normally used to log a
    * extra information for debug purpose.

@@ -102,7 +102,11 @@ public interface IPSContentAdhocUsersContext {
 
   /**
    * Convenience method that calls {@link #emptyAdhocUserEntries(Connection, boolean)
-   * emptyAdhocUserEntries(connection, true)}
+   * emptyAdhocUserEntries(connection, true)}.
+   *
+   * @param connection open backend database connection, may not be <CODE>null</CODE>
+   * @return number of entries deleted
+   * @throws SQLException if an SQL error occurs
    */
   int emptyAdhocUserEntries(Connection connection) throws SQLException;
 
@@ -133,7 +137,6 @@ public interface IPSContentAdhocUsersContext {
   /**
    * Checks whether there are any adhoc users in the contexts
    *
-   * @author Ram
    * @return <CODE>true</CODE> if the context has no adhoc users, else <CODE>false</CODE>
    */
   boolean isEmpty();

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-/** */
 package com.percussion.utils.container;
 
 import com.percussion.utils.container.config.ContainerConfig;

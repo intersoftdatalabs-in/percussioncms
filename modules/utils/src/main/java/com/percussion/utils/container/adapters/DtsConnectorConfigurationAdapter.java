@@ -26,6 +26,9 @@ import java.nio.file.Path;
 public class DtsConnectorConfigurationAdapter
     implements IPSConfigurationAdapter<DefaultConfigurationContextImpl> {
 
+  /** Default constructor. */
+  public DtsConnectorConfigurationAdapter() {}
+
   private static String PROD_PATH = "Deployment";
   private static String STAGING_PATH = "Staging/Deployment";
   private static String SERVER_XML = "Server/conf/server.xml";

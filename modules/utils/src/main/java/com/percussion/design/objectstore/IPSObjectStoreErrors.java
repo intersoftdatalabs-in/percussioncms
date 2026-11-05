@@ -1723,7 +1723,6 @@ public interface IPSObjectStoreErrors {
   /**
    * the PSDataSet contains an Xml field which is mapped into two different request links.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1763,7 +1762,6 @@ public interface IPSObjectStoreErrors {
   /**
    * NULL specified as a parameter value for database function call.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1788,7 +1786,6 @@ public interface IPSObjectStoreErrors {
   /**
    * Unsupported database function parameter type.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1801,7 +1798,6 @@ public interface IPSObjectStoreErrors {
   /**
    * Error while parsing database function body.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1890,7 +1886,6 @@ public interface IPSObjectStoreErrors {
   /**
    * the PSField / PSFieldSet name is not unique accross all item fields / field sets.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1902,7 +1897,6 @@ public interface IPSObjectStoreErrors {
   /**
    * unsupported field type.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1914,7 +1908,6 @@ public interface IPSObjectStoreErrors {
   /**
    * unsupported occurrence dimension
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1926,7 +1919,6 @@ public interface IPSObjectStoreErrors {
   /**
    * unsupported occurrence multi valued type
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1938,7 +1930,6 @@ public interface IPSObjectStoreErrors {
   /**
    * invalid content editor content type
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1950,7 +1941,6 @@ public interface IPSObjectStoreErrors {
   /**
    * invalid content editor workflow ID
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1962,7 +1952,6 @@ public interface IPSObjectStoreErrors {
   /**
    * content editor shared definition needs a collection of group fields with at least one entry.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1973,7 +1962,6 @@ public interface IPSObjectStoreErrors {
   /**
    * unsupported PSChoice type
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1985,7 +1973,6 @@ public interface IPSObjectStoreErrors {
   /**
    * unsupported sort order
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -1997,7 +1984,6 @@ public interface IPSObjectStoreErrors {
   /**
    * invalid global table ID
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2009,7 +1995,6 @@ public interface IPSObjectStoreErrors {
   /**
    * the local choices are <code>null</code> or empty.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2020,7 +2005,6 @@ public interface IPSObjectStoreErrors {
   /**
    * the lookup choices are <code>null</code>
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2031,7 +2015,6 @@ public interface IPSObjectStoreErrors {
   /**
    * an application flow must have at least one redirect
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2042,7 +2025,6 @@ public interface IPSObjectStoreErrors {
   /**
    * the command handler must have at least one stylesheet
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2053,7 +2035,6 @@ public interface IPSObjectStoreErrors {
   /**
    * a conditional exist must have a valid extension call set
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2064,7 +2045,6 @@ public interface IPSObjectStoreErrors {
   /**
    * a conditional request must have at least one valid rule
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2075,7 +2055,6 @@ public interface IPSObjectStoreErrors {
   /**
    * a conditional stylesheet must have at least one valid rule
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2086,7 +2065,6 @@ public interface IPSObjectStoreErrors {
   /**
    * a conatiner locator must have at least one valid table set.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2097,7 +2075,6 @@ public interface IPSObjectStoreErrors {
   /**
    * the command handler reference is invalid
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2108,7 +2085,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The redirector is invalid. Must at least conatain a default request.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2119,7 +2095,6 @@ public interface IPSObjectStoreErrors {
   /**
    * each command handler must have at least one redirect
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2130,7 +2105,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The URL request is invalid. Must have the parts or the UDF.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2141,7 +2115,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The content editor mapper must have a filed set and a UI definition.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2152,7 +2125,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The content editor pipe must have a locator and mapper.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2163,7 +2135,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The control reference name is required.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2174,7 +2145,6 @@ public interface IPSObjectStoreErrors {
   /**
    * unsupported PSDefaultSelected type
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2186,7 +2156,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The default selected is invalid (misses a required field)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2197,7 +2166,6 @@ public interface IPSObjectStoreErrors {
   /**
    * unsupported PSFieldSet type
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2209,7 +2177,6 @@ public interface IPSObjectStoreErrors {
   /**
    * unsupported PSFieldSet repeatability
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2221,7 +2188,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The field set is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2232,7 +2198,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The display mapper is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2243,7 +2208,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The display mapping is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2254,7 +2218,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The display text is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2265,7 +2228,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The entry is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2276,7 +2238,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The field is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2287,7 +2248,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The field translation is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2298,7 +2258,6 @@ public interface IPSObjectStoreErrors {
   /**
    * unsupported include when attribute
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2310,7 +2269,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The parameter is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2321,7 +2279,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The shared field group is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2332,7 +2289,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The stylesheet is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2343,7 +2299,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The table locator is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2354,7 +2309,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The table reference is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2365,7 +2319,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The table set is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2376,7 +2329,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The default UI is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2387,7 +2339,6 @@ public interface IPSObjectStoreErrors {
   /**
    * unsupported data hiding option
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2399,7 +2350,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The form action is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2410,7 +2360,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The action link is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2421,7 +2370,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The action link location is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2432,7 +2380,6 @@ public interface IPSObjectStoreErrors {
   /**
    * The custom action group is invalid (misses a required element)
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2443,7 +2390,6 @@ public interface IPSObjectStoreErrors {
   /**
    * System table in ContentEditorSystemDef not found.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2679,7 +2625,6 @@ public interface IPSObjectStoreErrors {
    * Shared field set is missing required child display mapping in shared definition or the mapping
    * is invalid.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2691,7 +2636,6 @@ public interface IPSObjectStoreErrors {
   /**
    * Shared group name and its fieldSet must have matching names.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2703,7 +2647,6 @@ public interface IPSObjectStoreErrors {
   /**
    * FieldSet name and DisplayMappers FieldSetRef must match.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -2715,7 +2658,6 @@ public interface IPSObjectStoreErrors {
   /**
    * Shared field set is missing required child display mapping in shared definition.
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>
@@ -3316,7 +3258,6 @@ public interface IPSObjectStoreErrors {
   /**
    * the lookup choices are <code>null</code>
    *
-   * <p>
    *
    * <TABLE BORDER="1"><CAPTION>Error Arguments</CAPTION>
    * <TR><TH>Arg</TH><TH>Description</TH></TR>

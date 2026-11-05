@@ -16,22 +16,21 @@
  */
 package com.percussion.util;
 
+/**
+ * Log sink interface.
+ */
 public interface IPSLogSink {
   /**
    * Logs the message.
    *
-   * @author chadloder
-   * @version 1.2 1999/08/20
-   * @param message
+   * @param message the message to log, may be <code>null</code>.
    */
   public void log(String message);
 
   /**
    * Logs the exception, including a stack trace.
    *
-   * @author chadloder
-   * @version 1.2 1999/08/20
-   * @param t
+   * @param t the throwable to log, may be <code>null</code>.
    */
   public void log(Throwable t);
 
@@ -39,10 +38,8 @@ public interface IPSLogSink {
    * Logs the exception, including a stack trace, and a message. If the message is null, it will not
    * be logged.
    *
-   * @author chadloder
-   * @version 1.2 1999/08/20
-   * @param message
-   * @param t
+   * @param message the message to log, may be <code>null</code>.
+   * @param t the throwable to log, may be <code>null</code>.
    */
   public void log(String message, Throwable t);
 }

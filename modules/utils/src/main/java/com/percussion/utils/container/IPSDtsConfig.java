@@ -17,12 +17,35 @@
 
 package com.percussion.utils.container;
 
+/**
+ * Configuration for the Delivery Tier Service (DTS).
+ */
 public interface IPSDtsConfig {
+  /**
+   * Whether local staging DTS is enabled.
+   *
+   * @return <code>true</code> if enabled, <code>false</code> otherwise.
+   */
   boolean isLocalStagingDTSEnabled();
 
+  /**
+   * Whether local DTS is enabled.
+   *
+   * @return <code>true</code> if enabled, <code>false</code> otherwise.
+   */
   boolean isLocalDTSEnabled();
 
+  /**
+   * Get the DTS connector info.
+   *
+   * @return the connector info, may be <code>null</code>.
+   */
   PSAbstractConnectors getDtsConnectorInfo();
 
+  /**
+   * Get the staging DTS connector info.
+   *
+   * @return the connector info, may be <code>null</code>.
+   */
   PSAbstractConnectors getStagingDtsConnectorInfo();
 }

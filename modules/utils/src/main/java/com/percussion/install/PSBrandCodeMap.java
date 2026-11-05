@@ -36,7 +36,7 @@ import org.xml.sax.SAXException;
 /** In memory representation of the component map xml file. */
 public class PSBrandCodeMap implements IPSBrandCodeMap {
 
-  /*************************************************************************
+  /* ************************************************************************
    * IPSBrandCodeMap functions
    *************************************************************************/
 
@@ -185,7 +185,7 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
     return m_currentVersionsList.getAttributeList(IPSBrandCodeMap.ATTR_RHYTHMYX_VERSION);
   }
 
-  /*************************************************************************
+  /* ************************************************************************
    * PSBrandCodeMap functions
    *************************************************************************/
 
@@ -370,7 +370,7 @@ public class PSBrandCodeMap implements IPSBrandCodeMap {
    */
   private static PSBrandCodeMap ms_instance = null;
 
-  /** The brand code map version to use, set in the <code>setBrandCodeMapVersion</code> method. */
+  /* The brand code map version to use, set in the <code>setBrandCodeMapVersion</code> method. */
   // private int m_brandCodeMapVersion = 0;
 
   /**

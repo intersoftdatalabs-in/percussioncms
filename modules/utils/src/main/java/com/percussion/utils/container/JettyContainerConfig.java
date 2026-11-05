@@ -19,15 +19,32 @@ package com.percussion.utils.container;
 
 import com.percussion.utils.container.config.ContainerConfig;
 
+/**
+ * Jetty container configuration.
+ */
 public class JettyContainerConfig implements ContainerConfig {
 
+  /** Default constructor. */
+  public JettyContainerConfig() {}
+
+  /**
+   * Get the name.
+   *
+   * @return the name, may be <code>null</code>.
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Set the name.
+   *
+   * @param name the name to set, may be <code>null</code>.
+   */
   public void setName(String name) {
     this.name = name;
   }
 
+  /** The name. */
   private String name;
 }

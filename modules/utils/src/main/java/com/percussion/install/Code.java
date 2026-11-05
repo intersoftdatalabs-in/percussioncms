@@ -560,11 +560,7 @@ public final class Code {
    * @param rxDirPath Rhythmyx root directory, may not be <code>null</code>, should be a valid
    *     Rhythmyx root directory
    * @throws IllegalArgumentException if directory is <code>null</code> or empty or this directory
-   *     does not exist and is not a valid Rhythmyx root directory. /** @throws CodeException if
-   *     branding fails
-   */
-  /**
-   * @param rxDirPath the root directory path
+   *     does not exist and is not a valid Rhythmyx root directory.
    * @throws CodeException if branding fails
    */
   public void brand(String rxDirPath) throws CodeException {

@@ -34,12 +34,16 @@ public interface IPSErrorCode {
   /**
    * Numeric code matching the historical {@code IPS*Errors} constant used for message lookup and
    * legacy dual-write registry resolution.
+   *
+   * @return the numeric code.
    */
   int numericCode();
 
   /**
    * When {@code true}, reporting this code should dual-write to the durable audit store. Default
    * {@code false} keeps operational / structural codes off the audit path.
+   *
+   * @return <code>true</code> if auditable, <code>false</code> otherwise.
    */
   default boolean isAuditable() {
     return false;

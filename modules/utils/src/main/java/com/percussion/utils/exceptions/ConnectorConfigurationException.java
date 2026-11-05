@@ -39,6 +39,9 @@ public class ConnectorConfigurationException extends Exception {
 
   /** Error codes for this exception. */
   public static class Errors {
+    /** Default constructor. */
+    public Errors() {}
+
     /** Error code for duplicate port. */
     public static int DUPLICATE_PORT = 1;
   }
@@ -253,7 +256,7 @@ public class ConnectorConfigurationException extends Exception {
    * Get the stack trace for the specified exception as a string.
    *
    * @param t The throwable (usually an exception), never <code>null</code>.
-   * @throws IllegalArgumentException ifamp; @return The stack trace as a string.
+   * @return The stack trace as a string.
    * @throws IllegalArgumentException if <code>t</code> is <code>null</code>.
    */
   public static String getStackTraceAsString(Throwable t) {

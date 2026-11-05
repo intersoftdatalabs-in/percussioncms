@@ -215,8 +215,8 @@ public class PSLogger implements IPSLogSink, IPSLogger {
   /** Made private to implement the singleton pattern. */
   private PSLogger() {}
 
-  /*****************************************************************/
-  /*************** LogSink Interface *******************************/
+  /* ****************************************************************/
+  /* *************** LogSink Interface *******************************/
   /**
    * Logs the message.
    *

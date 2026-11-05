@@ -39,7 +39,12 @@ import java.util.Base64;
  * @since 1.0
  */
 @Deprecated // Use java.util.Base64 instead
+/** Member. */
 public class PSBase64Encoder {
+
+  /** Default constructor. */
+  public PSBase64Encoder() {}
+
   /**
    * This allows the encoder to be run stand-alone. The sole argument should be the text to encode.
    *

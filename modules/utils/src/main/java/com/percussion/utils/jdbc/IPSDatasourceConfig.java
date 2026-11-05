@@ -48,5 +48,10 @@ public interface IPSDatasourceConfig extends IPSBeanConfig {
    */
   public String getDatabase();
 
+  /**
+   * Copy configuration from another datasource config.
+   *
+   * @param config the config to copy from, may not be <code>null</code>.
+   */
   public void copyFrom(IPSDatasourceConfig config);
 }

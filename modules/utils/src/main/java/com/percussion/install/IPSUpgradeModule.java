@@ -64,27 +64,34 @@ public interface IPSUpgradeModule {
   /** close method for closing open log files and or log streams. */
   void close();
 
-  /*
-   * Element names
-   */
+  /** Element name for module. */
   static final String ELEM_MODULE_NAME = "module";
+
+  /** Element name for transform files. */
   static final String ELEM_TRANSFORMFILES = "transformfiles";
+
+  /** Element name for plugins. */
   static final String ELEM_PLUGINS = "plugins";
+
+  /** Element name for class. */
   static final String ELEM_CLASS = "class";
+
+  /** Element name for data. */
   static final String ELEM_DATA = "data";
-  /*
-   * Attribute names
-   */
+
+  /** Attribute name. */
   static final String ATTR_NAME = "name";
+
+  /** Attribute name for log file. */
   static final String ATTR_LOGFILE = "logfile";
+
+  /** Attribute name for rx root. */
   static final String ATTR_RXROOT = "rxroot";
-  /*
-   * Constant string for upgrade directory.
-   */
+
+  /** Constant string for upgrade directory. */
   static final String UPGRADE_DIR = "upgrade";
-  /*
-   * Constant string for repository properties file name with full path.
-   */
+
+  /** Constant string for repository properties file name with full path. */
   public static final String REPOSITORY_PROPFILEPATH =
       "rxconfig" + File.separator + "Installer" + File.separator + "rxrepository.properties";
 }

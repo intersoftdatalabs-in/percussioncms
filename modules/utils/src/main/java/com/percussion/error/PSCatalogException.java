@@ -96,6 +96,12 @@ public class PSCatalogException extends PSException {
     super(code);
   }
 
+  /**
+   * Constructor.
+   *
+   * @param msgCode the message code.
+   * @param t the throwable.
+   */
   public PSCatalogException(int msgCode, Throwable t) {
     super(msgCode, t);
   }

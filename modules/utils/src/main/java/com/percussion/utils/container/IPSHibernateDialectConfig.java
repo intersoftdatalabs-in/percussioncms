@@ -19,6 +19,9 @@ package com.percussion.utils.container;
 
 import java.util.Map;
 
+/**
+ * Configuration for Hibernate dialects mapped to JDBC drivers.
+ */
 public interface IPSHibernateDialectConfig {
   /**
    * Get a copy of the internal dialect map. See {@link #setDialects(Map)}.

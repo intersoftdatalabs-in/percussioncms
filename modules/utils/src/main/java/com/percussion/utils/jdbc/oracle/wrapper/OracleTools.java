@@ -29,7 +29,13 @@ import oracle.jdbc.OraclePreparedStatement;
 import oracle.sql.ARRAY;
 import oracle.sql.ArrayDescriptor;
 
+/**
+ * Oracle tools.
+ */
 public class OracleTools {
+
+  /** Default constructor. */
+  public OracleTools() {}
   /**
    * Set the data for the specified collection for "oracle:thin" driver using the <code>
    * OraclePreparedStatement.setARRAY</code> method. This method throws <code>

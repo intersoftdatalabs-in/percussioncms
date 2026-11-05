@@ -39,7 +39,12 @@ import java.util.Base64;
  * @since 1.0
  */
 @Deprecated // user java.util.Base64
+/** Member. */
 public class PSBase64Decoder {
+
+  /** Default constructor. */
+  public PSBase64Decoder() {}
+
   /**
    * Decode the specified data.
    *

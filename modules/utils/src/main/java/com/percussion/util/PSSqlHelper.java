@@ -1092,17 +1092,13 @@ public class PSSqlHelper {
    * java.sql.Types.LONGVARBINARY</code> if <code>jdbcDataType</code> equals <code>
    * java.sql.Types.BLOB</code> and the driver is Microsoft SQL Server or JTDS jdbc driver
    *
-   * <p>
-   *
    * @param stmt the prepared statement whose parameter is to be set to SQL NULL, may not be <code>
    *     null</code>
    * @param index the index of the parameter in the prepared statement, the first parameter is 1,
    *     the second is 2 and so on.
    * @param jdbcDataType the SQL type code defined in <code>java.sql.Types</code>
-   *     <p>
    * @throws SQLException if a database access error occurs
    * @throws IllegalArgumentException if <code>stmt</code> is <code>null</code>
-   *     <p>
    * @see java.sql.PreparedStatement#setNull(int, int)
    */
   public static void setNullParameter(PreparedStatement stmt, int index, int jdbcDataType)
@@ -1342,6 +1338,7 @@ public class PSSqlHelper {
   /**
    * Determines if the supplied driver is for Oracle database.
    *
+   * @param driverName the database driver name, may be <code>null</code>.
    * @return <code>true</code> if the driver is for Oracle database; otherwise return <code>false
    *     </code>.
    */
@@ -1352,6 +1349,7 @@ public class PSSqlHelper {
   /**
    * Determines if the supplied driver is for MySql database.
    *
+   * @param driverName the database driver name, may be <code>null</code>.
    * @return <code>true</code> if the driver is for MySql database; otherwise return <code>false
    *     </code>.
    */
@@ -1365,15 +1363,29 @@ public class PSSqlHelper {
         || driverName.toUpperCase().contains("JTDS"));
   }
 
+  /**
+   * Determines if the supplied driver is for DB2 database.
+   *
+   * @param driverName the database driver name, may be <code>null</code>.
+   * @return <code>true</code> if the driver is for DB2 database, <code>false</code> otherwise.
+   */
   public static boolean isDB2(String driverName) {
     return (driverName.toUpperCase().contains("DB2"));
   }
 
+  /**
+   * Determines if the supplied driver is for Derby database.
+   *
+   * @param driverName the database driver name, may be <code>null</code>.
+   * @return <code>true</code> if the driver is for Derby database, <code>false</code> otherwise.
+   */
   public static boolean isDerby(String driverName) {
     return (driverName.toUpperCase().contains("DERBY"));
   }
 
   /**
+   * Determines if the supplied driver is for H2 database.
+   *
    * @param driverName JDBC driver name or URL fragment; may be {@code null}
    * @return {@code true} if the driver is H2 (GitHub #548 default embedded engine)
    */
@@ -1382,6 +1394,8 @@ public class PSSqlHelper {
   }
 
   /**
+   * Determines if the supplied driver is for PostgreSQL database.
+   *
    * @param driverName the database driver name, may be {@code null}
    * @return {@code true} if the driver is PostgreSQL (GitHub #1500 external backend)
    */
@@ -1396,6 +1410,10 @@ public class PSSqlHelper {
   /**
    * Product-managed embedded file-store backends (Derby legacy or H2 default). Used for LOB
    * materialization and similar cross-engine behavior (must not treat only Derby as special).
+   *
+   * @param driverName the database driver name, may be <code>null</code>.
+   * @return <code>true</code> if the driver is an embedded file store, <code>false</code>
+   *     otherwise.
    */
   public static boolean isEmbeddedFileStore(String driverName) {
     return isDerby(driverName) || isH2(driverName);
@@ -1437,6 +1455,7 @@ public class PSSqlHelper {
    * @return <code>true</code> if the index is a backing index and may be ignored in the table
    *     schema; otherwise <code>false</code>. Note the special case listed above for parameter
    *     <code>indexNameBuf</code> where its value may change if method returns false.
+   * @throws SQLException if a database access error occurs.
    */
   public static boolean handleBackingIndex(StringBuilder indexNameBuf, DatabaseMetaData md)
       throws SQLException {
@@ -1543,7 +1562,7 @@ public class PSSqlHelper {
    * @param conn a sql connection to the database, never <code>null</code>
    * @param connDetail the details for this connection, never <code>null</code>
    * @return <code>true</code> if the database supports unicode, <code>false</code> otherwise
-   * @throws SQLException
+   * @throws SQLException if a database access error occurs.
    */
   public static boolean supportsUnicode(Connection conn, PSConnectionDetail connDetail)
       throws SQLException {
@@ -1579,7 +1598,7 @@ public class PSSqlHelper {
    * @param column a column in the table to use for this test, never <code>null</code>, must exist
    *     in the table
    * @return <code>true</code> if the database supports unicode, <code>false</code> otherwise
-   * @throws SQLException
+   * @throws SQLException if a database access error occurs.
    */
   public static boolean supportsUnicode(Connection conn, String table, String column)
       throws SQLException {
@@ -1812,6 +1831,7 @@ public class PSSqlHelper {
    * <p>Table names are cached on first call, to refresh the cache pass true for the refresh
    * parameter.
    *
+   * @param conn the database connection, may not be <code>null</code>.
    * @param t A candidate table name.
    * @param refresh When true, the list of valid tables is refreshed from the database.
    * @return true if the table is valid and exists, false if not.
