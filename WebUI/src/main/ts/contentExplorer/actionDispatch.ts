@@ -2468,15 +2468,35 @@ export async function dispatchAction(
     if (!ok) {
       return { kind: "rest" };
     }
-    if (ctx.onStage) {
-      await ctx.onStage(item);
+    // HTTP 403/404/409 names the item so the operator knows which row
+    // failed; the list is not refreshed and the selection stays (#5631).
+    // Other failures keep the previous generic error path.
+    const stageLabel = (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
+    try {
+      if (ctx.onStage) {
+        await ctx.onStage(item);
+        return { kind: "rest", refresh: true };
+      }
+      const staged = await stageSelectedItem(item);
+      if (!staged) {
+        return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+      }
       return { kind: "rest", refresh: true };
+    } catch (err: unknown) {
+      if (
+        isApiError(err) &&
+        (err.status === 403 || err.status === 404 || err.status === 409)
+      ) {
+        return {
+          kind: "rest",
+          messageKey: EXPLORER_MSG.STAGE_FAILED,
+          messageText: message(EXPLORER_MSG.STAGE_FAILED)
+            .split("{detail}")
+            .join(`${stageLabel} (HTTP ${err.status})`),
+        };
+      }
+      throw err;
     }
-    const staged = await stageSelectedItem(item);
-    if (!staged) {
-      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-    }
-    return { kind: "rest", refresh: true };
   }
 
   if (isRemoveFromStagingActionName(name)) {
@@ -2493,15 +2513,35 @@ export async function dispatchAction(
     if (!ok) {
       return { kind: "rest" };
     }
-    if (ctx.onRemoveFromStaging) {
-      await ctx.onRemoveFromStaging(item);
+    // HTTP 403/404/409 names the item so the operator knows which row
+    // failed; the list is not refreshed and the selection stays (#5631).
+    // Other failures keep the previous generic error path.
+    const unstageLabel = (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
+    try {
+      if (ctx.onRemoveFromStaging) {
+        await ctx.onRemoveFromStaging(item);
+        return { kind: "rest", refresh: true };
+      }
+      const removed = await removeFromStagingSelectedItem(item);
+      if (!removed) {
+        return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+      }
       return { kind: "rest", refresh: true };
+    } catch (err: unknown) {
+      if (
+        isApiError(err) &&
+        (err.status === 403 || err.status === 404 || err.status === 409)
+      ) {
+        return {
+          kind: "rest",
+          messageKey: EXPLORER_MSG.UNSTAGE_FAILED,
+          messageText: message(EXPLORER_MSG.UNSTAGE_FAILED)
+            .split("{detail}")
+            .join(`${unstageLabel} (HTTP ${err.status})`),
+        };
+      }
+      throw err;
     }
-    const removed = await removeFromStagingSelectedItem(item);
-    if (!removed) {
-      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-    }
-    return { kind: "rest", refresh: true };
   }
 
   if (isScheduleActionName(name)) {

@@ -2087,6 +2087,69 @@ describe("actionDispatch", () => {
     ).rejects.toThrow("boom");
   });
 
+  it("Stage maps HTTP 403/404/409 to a named failure without refresh (#5631)", async () => {
+    for (const status of [403, 404, 409]) {
+      const onStage = vi.fn().mockRejectedValueOnce({ status, body: {} });
+      const result = await dispatchAction(action({ name: "Stage" }), {
+        item: item({ name: "Home" }),
+        onStage,
+        confirm: () => true,
+      });
+      expect(result.kind).toBe("rest");
+      expect(result.messageKey).toBe(EXPLORER_MSG.STAGE_FAILED);
+      expect(result.messageText).toContain("Home");
+      expect(result.messageText).toContain(`HTTP ${status}`);
+      expect(result.refresh).toBeUndefined();
+      expect(onStage).toHaveBeenCalled();
+    }
+  });
+
+  it("Stage rethrows non-HTTP failures (#5631)", async () => {
+    const onStage = vi.fn().mockRejectedValueOnce(new Error("boom"));
+    await expect(
+      dispatchAction(action({ name: "Stage" }), {
+        item: item(),
+        onStage,
+        confirm: () => true,
+      }),
+    ).rejects.toThrow("boom");
+  });
+
+  it("Remove from Staging maps HTTP 403/404/409 to a named failure without refresh (#5631)", async () => {
+    for (const status of [403, 404, 409]) {
+      const onRemoveFromStaging = vi
+        .fn()
+        .mockRejectedValueOnce({ status, body: {} });
+      const result = await dispatchAction(
+        action({ name: "Remove_From_Staging" }),
+        {
+          item: item({ name: "Home" }),
+          onRemoveFromStaging,
+          confirm: () => true,
+        },
+      );
+      expect(result.kind).toBe("rest");
+      expect(result.messageKey).toBe(EXPLORER_MSG.UNSTAGE_FAILED);
+      expect(result.messageText).toContain("Home");
+      expect(result.messageText).toContain(`HTTP ${status}`);
+      expect(result.refresh).toBeUndefined();
+      expect(onRemoveFromStaging).toHaveBeenCalled();
+    }
+  });
+
+  it("Remove from Staging rethrows non-HTTP failures (#5631)", async () => {
+    const onRemoveFromStaging = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("boom"));
+    await expect(
+      dispatchAction(action({ name: "Remove_From_Staging" }), {
+        item: item(),
+        onRemoveFromStaging,
+        confirm: () => true,
+      }),
+    ).rejects.toThrow("boom");
+  });
+
   it("Take Down on a Sites folder asks for a content item", async () => {
     const onTakedown = vi.fn();
     const result = await dispatchAction(action({ name: "Take_Down" }), {
