@@ -2423,15 +2423,35 @@ export async function dispatchAction(
     if (!ok) {
       return { kind: "rest" };
     }
-    if (ctx.onTakedown) {
-      await ctx.onTakedown(item);
+    // HTTP 403/404/409 names the item so the operator knows which row
+    // failed; the list is not refreshed and the selection stays (#5630).
+    // Other failures keep the previous generic error path.
+    const label = (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
+    try {
+      if (ctx.onTakedown) {
+        await ctx.onTakedown(item);
+        return { kind: "rest", refresh: true };
+      }
+      const takenDown = await takedownSelectedItem(item, linked);
+      if (!takenDown) {
+        return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+      }
       return { kind: "rest", refresh: true };
+    } catch (err: unknown) {
+      if (
+        isApiError(err) &&
+        (err.status === 403 || err.status === 404 || err.status === 409)
+      ) {
+        return {
+          kind: "rest",
+          messageKey: EXPLORER_MSG.TAKEDOWN_FAILED,
+          messageText: message(EXPLORER_MSG.TAKEDOWN_FAILED)
+            .split("{detail}")
+            .join(`${label} (HTTP ${err.status})`),
+        };
+      }
+      throw err;
     }
-    const takenDown = await takedownSelectedItem(item, linked);
-    if (!takenDown) {
-      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-    }
-    return { kind: "rest", refresh: true };
   }
 
   if (isStageActionName(name)) {

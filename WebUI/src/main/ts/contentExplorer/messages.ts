@@ -887,6 +887,8 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Not every selected item was taken down. {detail}",
   TAKEDOWN_NOTHING_ELIGIBLE:
     "perc.ui.explorer@Nothing in the selection can be taken down. Folders are not taken down.",
+  TAKEDOWN_FAILED:
+    "perc.ui.explorer@Take down failed: {detail}",
   CONFIRM_STAGE:
     "perc.ui.explorer@Stage this item to the staging server?",
   CONFIRM_STAGE_MULTI:
