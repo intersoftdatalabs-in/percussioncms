@@ -40,6 +40,8 @@ public final class DoctorApiService {
   private final DoctorInstallRootProvider installRootProvider;
 
   /**
+   * Constructs a new instance.
+   *
    * @param installRootProvider default install root when the request omits {@code installRoot}
    */
   public DoctorApiService(DoctorInstallRootProvider installRootProvider) {

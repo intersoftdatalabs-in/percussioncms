@@ -28,6 +28,8 @@ import java.nio.file.Path;
 public interface DoctorInstallRootProvider {
 
   /**
+   * Returns the value.
+   *
    * @return absolute install root path; never null
    * @throws IllegalStateException if the host cannot resolve an install root
    */

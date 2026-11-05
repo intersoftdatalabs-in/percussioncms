@@ -36,8 +36,24 @@ public class DoctorReportView {
     private String status;
     private String detail;
 
+    /**
+     * Performs the operation.
+     *
+     */
     public EntryView() {}
 
+    /**
+     * The value.
+     *
+     */
+    /**
+     * Constructs a new instance.
+     *
+     * @param path the value
+     * @param sizeBytes the value
+     * @param status the value
+     * @param detail the value
+     */
     public EntryView(String path, long sizeBytes, String status, String detail) {
       this.path = path;
       this.sizeBytes = sizeBytes;
@@ -45,34 +61,106 @@ public class DoctorReportView {
       this.detail = detail;
     }
 
+    /**
+     * The value.
+     *
+     */
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public String getPath() {
       return path;
     }
 
+    /**
+     * The value.
+     *
+     */
+    /**
+     * Sets the value.
+     *
+     * @param path the value
+     */
     public void setPath(String path) {
       this.path = path;
     }
 
+    /**
+     * The value.
+     *
+     */
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public long getSizeBytes() {
       return sizeBytes;
     }
 
+    /**
+     * The value.
+     *
+     */
+    /**
+     * Sets the value.
+     *
+     * @param sizeBytes the value
+     */
     public void setSizeBytes(long sizeBytes) {
       this.sizeBytes = sizeBytes;
     }
 
+    /**
+     * The value.
+     *
+     */
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public String getStatus() {
       return status;
     }
 
+    /**
+     * The value.
+     *
+     */
+    /**
+     * Sets the value.
+     *
+     * @param status the value
+     */
     public void setStatus(String status) {
       this.status = status;
     }
 
+    /**
+     * The value.
+     *
+     */
+    /**
+     * Returns the value.
+     *
+     * @return the result
+     */
     public String getDetail() {
       return detail;
     }
 
+    /**
+     * The value.
+     *
+     */
+    /**
+     * Sets the value.
+     *
+     * @param detail the value
+     */
     public void setDetail(String detail) {
       this.detail = detail;
     }
@@ -87,6 +175,10 @@ public class DoctorReportView {
   private long totalBytes;
   private List<EntryView> entries = new ArrayList<>();
 
+  /**
+   * Constructs a new instance.
+   *
+   */
   public DoctorReportView() {}
 
   /**
@@ -118,66 +210,146 @@ public class DoctorReportView {
     return view;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public String getCommand() {
     return command;
   }
 
+  /**
+   * Sets the value.
+   *
+   * @param command the value
+   */
   public void setCommand(String command) {
     this.command = command;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public String getInstallRoot() {
     return installRoot;
   }
 
+  /**
+   * Sets the value.
+   *
+   * @param installRoot the value
+   */
   public void setInstallRoot(String installRoot) {
     this.installRoot = installRoot;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public boolean isDryRun() {
     return dryRun;
   }
 
+  /**
+   * Sets the value.
+   *
+   * @param dryRun the value
+   */
   public void setDryRun(boolean dryRun) {
     this.dryRun = dryRun;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public int getCandidateCount() {
     return candidateCount;
   }
 
+  /**
+   * Sets the value.
+   *
+   * @param candidateCount the value
+   */
   public void setCandidateCount(int candidateCount) {
     this.candidateCount = candidateCount;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public int getDeletedCount() {
     return deletedCount;
   }
 
+  /**
+   * Sets the value.
+   *
+   * @param deletedCount the value
+   */
   public void setDeletedCount(int deletedCount) {
     this.deletedCount = deletedCount;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public int getFailedCount() {
     return failedCount;
   }
 
+  /**
+   * Sets the value.
+   *
+   * @param failedCount the value
+   */
   public void setFailedCount(int failedCount) {
     this.failedCount = failedCount;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public long getTotalBytes() {
     return totalBytes;
   }
 
+  /**
+   * Sets the value.
+   *
+   * @param totalBytes the value
+   */
   public void setTotalBytes(long totalBytes) {
     this.totalBytes = totalBytes;
   }
 
+  /**
+   * Returns the value.
+   *
+   * @return the result
+   */
   public List<EntryView> getEntries() {
     return entries == null ? Collections.emptyList() : entries;
   }
 
+  /**
+   * Sets the value.
+   *
+   * @param entries the value
+   */
   public void setEntries(List<EntryView> entries) {
     this.entries = entries;
   }

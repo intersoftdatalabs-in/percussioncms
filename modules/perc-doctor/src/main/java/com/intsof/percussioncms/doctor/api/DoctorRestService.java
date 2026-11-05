@@ -46,6 +46,10 @@ public class DoctorRestService {
   private final DoctorApiService apiService;
 
   /**
+   * Constructs a new instance.
+   *
+   * Constructs a new instance.
+   *
    * @param adminChecker host admin gate; never null
    * @param installRootProvider default install root when request omits it; never null
    */

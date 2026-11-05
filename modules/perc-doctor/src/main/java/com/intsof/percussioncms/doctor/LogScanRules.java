@@ -83,6 +83,10 @@ public final class LogScanRules {
   }
 
   /**
+   * Performs the operation.
+   *
+   * Performs the operation.
+   *
    * @param logText log content
    * @param alsoContextMarkers when true, also scan for Rhythmyx context markers
    * @return match description, or null when clean

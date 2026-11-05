@@ -19,9 +19,14 @@ package com.intsof.percussioncms.doctor.api;
 /** Thrown when the doctor HTTP API receives an unsupported command token. */
 public class DoctorUnknownCommandException extends Exception {
 
+  private static final long serialVersionUID = 1L;
+
+  /** The unsupported command token. */
   private final String command;
 
   /**
+   * Constructs a new instance.
+   *
    * @param command the unsupported command token
    */
   public DoctorUnknownCommandException(String command) {
@@ -29,7 +34,11 @@ public class DoctorUnknownCommandException extends Exception {
     this.command = command;
   }
 
-  /** @return the unsupported command token */
+  /**
+   * Returns the unsupported command token.
+   *
+   * @return the unsupported command token
+   */
   public String getCommand() {
     return command;
   }
