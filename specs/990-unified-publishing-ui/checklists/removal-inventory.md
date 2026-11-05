@@ -9,7 +9,7 @@
 | Parent RET-06                    | #1372 | Packaging: retire residual JSF publishing/pubruntime deep pages | Open        |
 | A — Inventory / consumer audit   | #1817 | Faces-config + grep audit + deletion checklists (this update)   | **Done**    |
 | B — Design deep-page delete      | #1819 | Delete exclusive `ui/publishing/**` deep JSPs (keep redirects)  | Blocked\*   |
-| C — Runtime deep-page delete     | #1818 | Delete exclusive `ui/pubruntime/**` deep JSPs (keep redirects)  | Blocked\*   |
+| C — Runtime deep-page delete     | #1818 | Delete exclusive `ui/pubruntime/**` deep JSPs (keep redirects)  | **Done**    |
 | D — Packaging / WAR verification | #1820 | Installer/WAR assertions + inventory freeze (prep)              | **Prep**†   |
 | UAT gate                         | #1371 | SC-001 / SC-003 / SC-008 sign-off before product deletes        | Open        |
 
@@ -89,7 +89,7 @@ Detailed audit notes (grep tables, historical faces dump pointers):
 |--------------------------------------------|-----------------------------------|-------------------|-------------------------------------------------|
 | `ui/pubruntime/index.jsp`                  | Redirect → modern Runtime section | Done              | 301 → `/cm/app/?view=publish&section=runtime`   |
 | `dce_header.jsp` Runtime link              | Points to modern Runtime          | Done              | No deep faces URL                               |
-| Remaining `ui/pubruntime/*.jsp` deep pages | **Keep packaged** until #1818     | Deferred (RET-06) | Product **nav** callers: **zero** (audit #1817) |
+| Remaining `ui/pubruntime/*.jsp` deep pages | **Deleted** (#1818) — `index.jsp` redirect retained | Done (RET-06) | Product **nav** callers: **zero** (audit #1817); consumers rewired #1842/#1844 |
 | `PSDemandPublishServlet` post-queue UI     | Rewired off `DemandPublish.jsp`   | Done (#1842)      | Redirect → modern shell status (see note below) |
 | `PSRunEdition` `$sys.editionLogUrl`        | Rewired off `JobPubLog.faces`     | Done (#1844)      | Modern shell logs deep link (see note below)    |
 
@@ -133,7 +133,7 @@ filter yet (only `section` / optional `siteId` / `serverId`). **JSP file delete
 still deferred** under #1818 / packaging follow-up — this rewire only removes the
 live server-side consumer so JobPubLog.jsp can be deleted safely later.
 
-**Sign-off**: Entry-path retirement Done; deep-page file deletion **explicitly deferred** to #1818 after UAT + non-nav rewires.  
+**Sign-off**: Runtime deep JSPs deleted in #1818 (RET-06 slice C); `index.jsp` redirect retained; non-nav consumers rewired (#1842, #1844).  
 **Tracking issue**: [#1372](https://github.com/intersoftdatalabs-in/percussioncms/issues/1372) · audit [#1817](https://github.com/intersoftdatalabs-in/percussioncms/issues/1817)
 
 ## Shared retained
