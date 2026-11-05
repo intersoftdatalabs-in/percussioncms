@@ -1,6 +1,9 @@
 #!/bin/bash
 # Install or uninstall Percussion Production DTS as a Linux service.
 # GH-962: prefer native systemd; keep init.d as fallback.
+# GH-1976 (slice 4): init.d deprecation is DEFERRED. Dual-ship is the permanent
+# policy until a signed-off live soak (GH-1989) + written ops decision. --initd and
+# SysV helper generation are retained.
 #
 # Usage:
 #   DTSProductionService.sh [ServiceName] install [--systemd|--initd]
@@ -313,6 +316,12 @@ if [ "$uninstall" != "true" ]; then
 		echo "  TimeoutStartSec=1800 — override: systemctl edit ${SERVICE_NAME}"
 		echo "********"
 	else
+		if [ "$FORCE_INITD" = "true" ] && is_systemd_available; then
+			echo "NOTE: --initd requested on a systemd-capable host. init.d remains fully"
+			echo "      supported (dual-ship policy); deprecation is deferred pending soak"
+			echo "      sign-off (GH-1989) and an operations decision (GH-962 / #1976)."
+			echo "      See README-systemd.md \"Deprecation status\"."
+		fi
 		echo "Using classic init.d registration"
 		enableSysV
 		echo "********"

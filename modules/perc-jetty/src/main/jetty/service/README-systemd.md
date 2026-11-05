@@ -27,6 +27,32 @@ long post-upgrade startups.
 **init.d is not removed** by this feature. Do not delete SysV scripts or the
 `--initd` path when operating dual-ship hosts.
 
+## Deprecation status (GH-962 slice 4 / #1976)
+
+**init.d is NOT deprecated or removed by this release.** Dual-ship (native systemd
+unit **plus** the classic init.d start helper and `--initd` fallback) remains the
+**permanent policy** until operations explicitly decides otherwise.
+
+- **Prerequisites for any deprecation** (not yet met): a signed-off live Linux
+  dual-ship soak (GH-1989) **and** a written operations decision recorded on
+  #962 or #1976 (keep dual forever vs. deprecation timeline vs. init.d-only
+  for non-systemd hosts).
+- **Escape hatch retained:** `--initd` continues to force classic SysV/init.d
+  registration and writes **no** native unit file. The init.d helper under
+  `/etc/init.d/<ServiceName>` is still installed on the systemd path as the
+  `ExecStart`/`ExecStop` target.
+- **No removal in this slice:** `install-jetty-service.sh --initd`, SysV boot
+  registration (`chkconfig`/`update-rc.d`), and `/etc/init.d` helper generation
+  are all retained. Forcing `--initd` on a systemd-capable host prints an
+  informational notice only; it does **not** fail or change behavior.
+- **Upgrade path:** existing `/etc/init.d/PercussionCMS` (and DTS) customers are
+  unaffected. To move a host to the native unit, uninstall then install again
+  (see **Migration from init.d-only installs** above); do not layer registrations.
+
+If operations later approves a deprecation timeline, it will be announced in this
+README and the product help site before any removal ships. Until then, treat
+dual-ship as permanent.
+
 ## Install flags
 
 |    Flag     |                                        Behavior                                         |
