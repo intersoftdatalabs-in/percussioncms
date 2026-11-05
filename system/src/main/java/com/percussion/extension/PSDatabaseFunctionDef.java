@@ -32,6 +32,7 @@ import org.w3c.dom.Node;
  * is uniquely identified by its name (case-insensitive), such as "SUBSTR", and the jdbc subprotocol
  * used by the driver (case-insensitive), such as "inetdae7".
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDatabaseFunctionDef implements Cloneable {
   /**
    * Constructs this object from its XML representation.

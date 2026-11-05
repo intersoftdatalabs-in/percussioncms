@@ -32,6 +32,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cache (usage=CacheConcurrencyStrategy.READ_WRITE, 
 region = "PSSiteImportSummary")
 @Table(name = "PSX_SITEIMPORTSUMMARY")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSiteImportSummary extends PSAbstractDataObject
 {
    @Id

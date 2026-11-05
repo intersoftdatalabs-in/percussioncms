@@ -46,6 +46,7 @@ import org.junit.jupiter.api.Test;
  * identity and keep version / object identity.
  */
 @Tag("UnitTest")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSAclPersistMergerTest {
 
   @Test

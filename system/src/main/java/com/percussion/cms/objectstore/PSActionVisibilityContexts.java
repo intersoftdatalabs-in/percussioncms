@@ -20,6 +20,7 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import java.util.Iterator;
 import org.w3c.dom.Element;
 
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSActionVisibilityContexts extends PSDbComponentCollection {
   /** The default constructor to create parameters with empty list. */
   public PSActionVisibilityContexts() {

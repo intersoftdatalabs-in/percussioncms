@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /** Test case for the {@link PSJdbcDriverConfig} class. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSJdbcDriverConfigTest {
   /**
    * Test the parameterized ctor

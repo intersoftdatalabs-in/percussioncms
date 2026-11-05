@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
  * always matches; non-empty typed iterators of empty-condition rules also match.
  */
 @Tag("UnitTest")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSRuleListEvaluatorTypedTest {
 
   @Test

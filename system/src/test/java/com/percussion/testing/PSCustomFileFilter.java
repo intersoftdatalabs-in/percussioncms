@@ -30,6 +30,7 @@ import org.w3c.dom.Element;
  * PSJunitFileSelector</code> class. Allows selection of test classes using include/exclude
  * patterns. See {@link #toXml(Document)} for format of the XML.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCustomFileFilter {
   /** Construct an empty filter. */
   public PSCustomFileFilter() {

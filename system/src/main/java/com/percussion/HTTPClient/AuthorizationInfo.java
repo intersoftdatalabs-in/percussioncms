@@ -65,6 +65,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since V0.1
  */
 @Deprecated
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class AuthorizationInfo implements Cloneable {
   // class fields
 
@@ -1036,8 +1037,9 @@ public class AuthorizationInfo implements Cloneable {
       ai.auth_params = Util.resizeArray(auth_params, auth_params.length);
       try {
         // ai.extra_info  = extra_info.clone();
-        ai.extra_info = extra_info.getClass().getMethod("clone", null).invoke(extra_info, null);
+        ai.extra_info = extra_info.getClass().getMethod("clone").invoke(extra_info);
       } catch (Throwable t) {
+        throw new InternalError(t);
       }
       ai.paths = new String[paths.length];
       System.arraycopy(paths, 0, ai.paths, 0, paths.length);

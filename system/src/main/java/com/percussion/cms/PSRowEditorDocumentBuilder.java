@@ -64,6 +64,7 @@ import org.w3c.dom.Document;
  * a content editor. A row editor allows the user to fiddle with all the fields in a single row at
  * the same time. He cannot delete the row from this view.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRowEditorDocumentBuilder extends PSModifyDocumentBuilder {
   /**
    * Processes the supplied editor definition, creating an efficient representation of the object

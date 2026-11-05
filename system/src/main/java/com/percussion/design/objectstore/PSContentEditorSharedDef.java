@@ -31,6 +31,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implements the PSXContentEditorSharedDef DTD defined in ContentEditorSharedDef.dtd. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSContentEditorSharedDef extends PSComponent implements IPSDocument {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

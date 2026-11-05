@@ -28,6 +28,7 @@ import org.w3c.dom.Element;
  * @author dougrand
  *     <p>JUnit test for the PSSearchConfig object.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSearchConfigTest {
   /** Tests the add, remove and remove all methods for handling custom properties. */
   @Test

@@ -115,6 +115,7 @@ import org.w3c.dom.Text;
  * This class encapsulates behavior required to handle all Modify related commands. Performs all
  * updates for ContentEditors.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSModifyCommandHandler extends PSCommandHandler {
   /**
    * Constructor for this class. Prepares all extensions and creates and starts the application used

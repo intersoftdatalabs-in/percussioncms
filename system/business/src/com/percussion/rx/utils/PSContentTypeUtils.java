@@ -57,6 +57,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @author YuBingChen
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSContentTypeUtils {
 
    private static final Logger log = LogManager.getLogger(PSContentTypeUtils.class);

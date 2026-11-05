@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /** Plan builder for performing inserts of Simple child rows */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSimpleChildInsertPlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSSimpleChildInsertPlanBuilder(

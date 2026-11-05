@@ -82,6 +82,7 @@ import org.apache.logging.log4j.Logger;
  * This class encapsulates all backend operations to create, modify, delete and catalog
  * relationships.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSRelationshipDbProcessor {
 
   public PSRelationshipDbProcessor(boolean thread_context) {

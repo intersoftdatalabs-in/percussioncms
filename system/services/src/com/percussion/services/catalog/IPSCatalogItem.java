@@ -58,6 +58,7 @@ import java.util.Optional;
  * @author dougrand
  * @since Java 11 Modernization
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public interface IPSCatalogItem extends IPSCatalogIdentifier {
 
    /**

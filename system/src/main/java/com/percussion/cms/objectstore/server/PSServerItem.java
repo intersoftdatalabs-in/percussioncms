@@ -86,6 +86,7 @@ import org.xml.sax.SAXException;
 
 /** A PSCoreItem that is Rhythmyx server aware. Meaning it can persist itself to the system. */
 @Transactional
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSServerItem extends PSCoreItem implements IPSPersister {
   @Override
   public boolean equals(Object obj) {

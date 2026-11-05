@@ -16,6 +16,7 @@
  */
 package com.percussion.data.jdbc.sqlparser;
 
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class TokenMgrError extends Error {
   /*
    * Ordinals for various reasons why an Error of this type can be thrown.

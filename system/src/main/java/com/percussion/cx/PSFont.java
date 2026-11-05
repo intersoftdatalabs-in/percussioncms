@@ -31,6 +31,7 @@ import org.w3c.dom.Text;
  * XML document from the Java Font object. The DTD used by this class is defined in the file
  * sys_Font.dtd.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFont implements IPSClientObjects {
   private static final Logger log = LogManager.getLogger(PSFont.class);
 

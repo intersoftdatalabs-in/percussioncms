@@ -42,6 +42,7 @@ import org.xml.sax.SAXException;
  * will point to the correct DTD and the file may be successfully dropped into the workbench to
  * create a Content Editor resource.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class ExtractAllEditorApplicationDefs {
 
   private static final Logger log = LogManager.getLogger(ExtractAllEditorApplicationDefs.class);

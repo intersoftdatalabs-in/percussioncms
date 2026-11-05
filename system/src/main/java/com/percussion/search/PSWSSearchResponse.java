@@ -35,6 +35,7 @@ import org.w3c.dom.Element;
  * such results; it only provides the functionality required to process search results for the
  * content explorer applet.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSWSSearchResponse {
   /**
    * Construct this object from its xml representation. If <code>curUser</code> is supplied, then

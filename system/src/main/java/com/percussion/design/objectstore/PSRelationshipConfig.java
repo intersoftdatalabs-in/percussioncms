@@ -44,6 +44,7 @@ import org.w3c.dom.Element;
  * This class represents objects conforming to the sys_RelationshipConfigLookup.dtd. The contents of
  * RelationshipConfig elements are expanded using the sys_RelationshipConfig.dtd.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRelationshipConfig extends PSComponent implements IPSCatalogSummary, IPSCloneTuner {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

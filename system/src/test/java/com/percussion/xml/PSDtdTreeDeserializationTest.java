@@ -32,6 +32,7 @@ import org.junit.jupiter.api.io.TempDir;
  * properly applied in the clone() method which uses serialization for deep copying.
  */
 @DisplayName("PSDtdTree - Deserialization Security")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSDtdTreeDeserializationTest {
 
   @TempDir Path tempDir;

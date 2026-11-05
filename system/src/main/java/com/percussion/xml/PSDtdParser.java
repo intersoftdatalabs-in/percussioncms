@@ -57,6 +57,7 @@ import org.xml.sax.SAXParseException;
  * This class is used for parsing DTD. It uses Xerces <code>XMLGrammarPreparser</code> class to do
  * the actual DTD parsing. For usage, see the <code>main</code> method of <code>PSDtd</code> class.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDtdParser extends XMLDTDLoader
     implements ErrorHandler, XMLErrorHandler, XMLDTDHandler {
 

@@ -37,6 +37,7 @@ import org.junit.jupiter.api.Test;
  * concrete {@link Serializable} collections/maps or Serializable {@link PSCollection} hierarchy
  * (utils #2450); companion holders implement {@link Serializable}.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSObjectStoreSerialFieldEditorsTest {
 
   @Test

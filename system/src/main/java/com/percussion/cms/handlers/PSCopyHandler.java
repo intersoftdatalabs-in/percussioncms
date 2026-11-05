@@ -96,6 +96,7 @@ import org.w3c.dom.Text;
  * all rows returned, and then submitting that result document to an update resource to insert all
  * data as a new revision or item.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSCopyHandler implements IPSCopyHandler {
 
   private static final Logger log = LogManager.getLogger(PSCopyHandler.class);

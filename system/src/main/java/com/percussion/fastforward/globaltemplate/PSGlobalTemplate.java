@@ -81,6 +81,7 @@ import org.xml.sax.SAXException;
  * <p>Please note that all parsing and saving of the input and output content uses the UTF-8
  * encoding}
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSGlobalTemplate extends PSLoggable {
   /**
    * Constructor. All the steps described in the class description are performed here.

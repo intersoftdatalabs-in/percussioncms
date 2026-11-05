@@ -36,6 +36,7 @@ import org.w3c.dom.Element;
  * An extension definition defines the name, initialization parameters, and resource locations for
  * an extension. The actual files (if any) which make up the extension are supplied elsewhere.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSExtensionDef implements IPSExtensionDef, Serializable, IPSCloneTuner {
   /** Compiler generated serial version ID used for serialization. */
   private static final long serialVersionUID = -4369644099981854127L;

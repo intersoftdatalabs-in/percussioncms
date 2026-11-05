@@ -33,6 +33,7 @@ import org.w3c.dom.Text;
  * descriptive elements of the associated element. That associated element may be a field, child,
  * child entry or a related item.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSItemFieldMeta extends PSItemComponent {
   /**
    * Creates a new object. Package protected constructor.

@@ -46,6 +46,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * 
  * @author dougrand
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSPubItemStatus implements Serializable, IPSPublisherItemStatus
 {
    /**

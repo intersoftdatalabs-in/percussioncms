@@ -55,6 +55,7 @@ import org.w3c.dom.Element;
  *
  * @author dougrand
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSUpgradePluginConvertCommunityVisibilityTest {
   /** This is the lower limit on the ids used. The same ids are used every time. */
   private static final int MIN_TEST_OID = 10000000;

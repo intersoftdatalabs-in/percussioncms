@@ -43,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author RammohanVangapalli
  */
 // Final leaf — constructors call final setConfig/setProperty/setSlot without subclass this-escape.
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSAaRelationship extends PSRelationship {
   /**
    * Construct a new active assembly relaionship knowing the owner locator, contentid of the

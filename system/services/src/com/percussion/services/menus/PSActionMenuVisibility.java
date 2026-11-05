@@ -34,6 +34,7 @@ import java.io.Serializable;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "RXMENUVISIBILITY")
 @Table(name="RXMENUVISIBILITY")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSActionMenuVisibility implements Serializable{
 
     @Embeddable

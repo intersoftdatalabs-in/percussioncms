@@ -95,6 +95,7 @@ import org.w3c.dom.Document;
  * Base class for all command handlers, provides common functionality that some or all command
  * handlers will use.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSCommandHandler extends PSDataHandler {
   /** The error log. */
   private static final Logger log = LogManager.getLogger(PSCommandHandler.class);

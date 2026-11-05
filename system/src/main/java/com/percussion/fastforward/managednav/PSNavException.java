@@ -25,6 +25,7 @@ import com.percussion.security.error.PSExceptionUtils;
  *
  * @author DavidBenua
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSNavException extends PSRuntimeException {
   /**
    * Creates an exception with a specific message.

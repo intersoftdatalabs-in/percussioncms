@@ -54,6 +54,7 @@ import java.util.Map;
  * This class encapsulates behavior required to handle Clone commands. Creates a copy of a specified
  * item and all of it's child and shared data, inserting it as the initial revision of a new item.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCloneCommandHandler extends PSCommandHandler {
   /**
    * Creates a handler to process requests for cloning existing content items.

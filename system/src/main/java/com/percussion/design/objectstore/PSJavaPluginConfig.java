@@ -32,6 +32,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /** Implementation of the interface <code>IPSJavaPluginConfig</code>. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSJavaPluginConfig implements IPSJavaPluginConfig {
   private static final Logger log = LogManager.getLogger(PSJavaPluginConfig.class);
 

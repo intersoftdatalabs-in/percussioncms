@@ -25,6 +25,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 /** Utility to perform operations on documents conforming with the sys_ContentEditor.dtd. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSContentEditorWalker {
   /**
    * Get the first 'Control' element for the provided name.

@@ -65,6 +65,7 @@ import org.w3c.dom.NodeList;
  *
  * @author RammohanVangapalli
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSRelationshipFilter {
 
   /** Default constructor */

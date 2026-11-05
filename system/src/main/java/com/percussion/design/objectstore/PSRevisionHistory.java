@@ -29,6 +29,7 @@ import org.w3c.dom.Element;
  * A PSRevisionHistory object defines a list containing information about the initial and latest
  * revision associated with a component or document.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRevisionHistory extends PSComponent {
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

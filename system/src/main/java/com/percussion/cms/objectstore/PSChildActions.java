@@ -21,6 +21,7 @@ import java.util.Iterator;
 import org.w3c.dom.Element;
 
 /** The class that is used to represent properties as defined by 'sys_Props.dtd'. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSChildActions extends PSDbComponentCollection {
   /** The default constructor to create a container for menu items. */
   public PSChildActions() {

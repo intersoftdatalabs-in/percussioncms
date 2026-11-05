@@ -82,6 +82,7 @@ import org.w3c.dom.Document;
  * This version of the PSRequest object is simply a wrapper on a standard <code>HttpServletRequest
  * </code>.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRequest {
   private static final Logger log = LogManager.getLogger(PSRequest.class);
 

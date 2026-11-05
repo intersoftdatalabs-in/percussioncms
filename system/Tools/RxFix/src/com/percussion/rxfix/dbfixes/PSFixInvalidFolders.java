@@ -51,6 +51,7 @@ import javax.naming.NamingException;
  * <p>There may be entries in {@code CONTENTSTATUSHISTORY} for these folders but this fix does
  * not clean that table.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFixInvalidFolders extends PSFixDBBase implements IPSFix
 {
    /**

@@ -30,6 +30,7 @@ import org.w3c.dom.Element;
  * versions. Each version has a number and an introduced date. Each feature must have at least one
  * version, the initial version of the feature.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSFeature {
   /** The name used to identify the full text search engine functionality added in Rx 5.5. */
   public static final String FEATURE_FTS = "FullTextSearch";

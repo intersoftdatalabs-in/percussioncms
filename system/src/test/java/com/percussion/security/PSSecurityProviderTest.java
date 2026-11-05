@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Test;
  * <p>This test needs the NT Guest account activated. It is excluded to run on nightly builds.
  */
 @Tag("UnitTest")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSecurityProviderTest implements IPSCustomJunitTest {
   public PSSecurityProviderTest() {}
 

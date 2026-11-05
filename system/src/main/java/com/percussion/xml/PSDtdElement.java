@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Logger;
  * The PSDtdElement class contains element declaration information references by Element nodes in
  * our internal DTD tree. This class contains attribute and content model information.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDtdElement implements Serializable {
   private static final Logger log = LogManager.getLogger(PSDtdElement.class);
 

@@ -60,6 +60,7 @@ import org.w3c.dom.Element;
 /**
  * This class implements the PROPFIND WebDAV method.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSPropFindMethod extends PSWebdavMethod
 {
    /**

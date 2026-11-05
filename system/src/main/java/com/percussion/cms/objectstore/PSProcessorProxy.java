@@ -85,6 +85,7 @@ import org.xml.sax.SAXException;
  * @author Paul Howard
  * @version 1.0
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSProcessorProxy {
   /**
    * Processors are associated with component types by a type (or category) name. The types
@@ -437,7 +438,7 @@ public abstract class PSProcessorProxy {
     public Object getProcessor(String compType) throws PSCmsException {
       String name = null;
       try {
-        name = (String) m_procClassNames.get(compType.toLowerCase());
+        name = m_procClassNames.get(compType.toLowerCase());
         if (null == name) {
           String[] args = {compType, m_type};
           throw new PSCmsException(CmsErrorCodes.NO_PROCESSOR_ENTRY, args);

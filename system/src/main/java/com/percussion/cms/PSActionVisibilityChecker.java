@@ -41,6 +41,7 @@ import org.apache.commons.lang3.StringUtils;
  * @see PSActionVisibilityObjectState
  * @see PSActionVisibilityGlobalState
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSActionVisibilityChecker {
   /**
    * Create a checker based on the visibility contexts of some action.

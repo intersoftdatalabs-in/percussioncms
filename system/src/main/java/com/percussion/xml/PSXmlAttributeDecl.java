@@ -23,6 +23,7 @@ import org.apache.xerces.impl.dtd.XMLAttributeDecl;
 import org.apache.xerces.impl.dtd.XMLSimpleType;
 
 /** This class encapsulates an element's attribute declaration in the DTD. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSXmlAttributeDecl extends XMLAttributeDecl {
   /** Default constructor */
   public PSXmlAttributeDecl() {

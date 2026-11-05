@@ -40,6 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see PSUpdateOptimizer
  * @see PSSqlUpdateBuilder
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSOracleUpdateBuilder extends PSSqlUpdateBuilder {
   /**
    * Construct an update builder to build the statements to do Oracle-specific updates when

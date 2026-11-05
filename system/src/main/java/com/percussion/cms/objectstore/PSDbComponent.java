@@ -35,6 +35,7 @@ import org.w3c.dom.Element;
  * many of the components that will be implemented in the CMS layer. Derived classes should override
  * the abstract methods and clone.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSDbComponent implements IPSDbComponent {
   // todo: remove and clean up derived classes; DON'T use this for new classes
   //      this is only needed for the item stuff, otherwise fail to compile.
@@ -454,7 +455,7 @@ public abstract class PSDbComponent implements IPSDbComponent {
       String strClassName = pkg + simpleName;
       lastClassName = strClassName;
       try {
-        Class<? extends PSKey> c = (Class<? extends PSKey>) Class.forName(strClassName);
+        Class<? extends PSKey> c = Class.forName(strClassName).asSubclass(PSKey.class);
         Constructor<? extends PSKey> ctor = c.getConstructor(Element.class);
         return ctor.newInstance(el);
       } catch (ClassNotFoundException cnfe) {

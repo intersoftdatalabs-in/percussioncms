@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
  */
 @Tag("UnitTest")
 @Disabled("Replaced by PSTableFactoryMigrationTransferTest — TableFactory export/import")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSEmbeddedRepositoryDataPumpTest {
 
   @Test

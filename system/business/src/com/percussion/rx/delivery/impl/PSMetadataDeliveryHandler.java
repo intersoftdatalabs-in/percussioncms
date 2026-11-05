@@ -71,6 +71,7 @@ import static org.apache.commons.lang3.Validate.notNull;
  *
  * @author AadmGent
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSMetadataDeliveryHandler extends PSBaseDeliveryHandler
 {
     private static final String PUBLISH_NON_PAGE_METADATA = "publishNonPageMetadata";

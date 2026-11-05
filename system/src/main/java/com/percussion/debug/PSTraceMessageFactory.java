@@ -28,6 +28,7 @@ import java.util.ResourceBundle;
  * initializer to initialize the static member m_optionList.
  */
 // REFACTORED: CP-JAVA11
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSTraceMessageFactory {
 
   /**

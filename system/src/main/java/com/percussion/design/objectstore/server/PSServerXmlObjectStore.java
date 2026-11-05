@@ -127,6 +127,7 @@ import org.xml.sax.SAXException;
  * where necessary. Only some functionality from the PSXmlObjectStoreHandler has been extracted and
  * moved to this class. In the future more may be moved here as required.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSServerXmlObjectStore extends PSObjectFactory {
   private static final String TOK_NOT_NULL_ERROR = "tok may not be null";
   private static final String LOCKID_NOT_NULL_ERROR = "lockId may not be null";

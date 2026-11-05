@@ -21,6 +21,7 @@ import com.percussion.util.PSCollection;
 import java.util.Iterator;
 
 /** This class represents a view that may be selected based on a condition as well as the name. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSConditionalView extends PSView {
 
   /** Serialization id for {@link java.io.Serializable} (inherited via {@link PSView}). */

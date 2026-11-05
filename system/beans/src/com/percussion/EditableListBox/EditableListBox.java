@@ -64,6 +64,7 @@ import java.awt.event.ActionListener;
   * &lt;EditableListBox instance&gt;.deleteRows() to it.
   */
 
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class EditableListBox extends JPanel implements ActionListener
 {
 

@@ -43,6 +43,7 @@ import org.w3c.dom.Element;
  * @see com.percussion.design.objectstore.PSRelativeSubject
  * @see PSCollectionComponent
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSRole extends PSDatabaseComponent implements Comparable, IPSCatalogSummary {
 
   private static final long serialVersionUID = 1L;

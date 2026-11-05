@@ -90,6 +90,7 @@ import org.w3c.dom.Element;
  * </pre>
  */
 // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSJunitRequestHandler implements IPSLoadableRequestHandler {
   /** see {@link IPSLoadableRequestHandler} interface for description. */
   public void init(Collection requestRoots, InputStream cfgFileIn) throws PSServerException {

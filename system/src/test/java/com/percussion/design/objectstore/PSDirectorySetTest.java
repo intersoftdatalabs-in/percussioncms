@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
  * Directory object store class testing, including constructors, <code>PSComponent</code>
  * functionality, accessors and XML functionality.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDirectorySetTest {
   /**
    * Constructor to call base class constructor.

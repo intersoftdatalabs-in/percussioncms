@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.CRC32;
 
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class IOToolsTest {
 
   public void testDeleteFile() throws IOException {

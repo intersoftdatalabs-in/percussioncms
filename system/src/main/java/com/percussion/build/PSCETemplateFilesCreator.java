@@ -34,6 +34,7 @@ import org.xml.sax.SAXException;
  * is meant to be used before manufacturing. It will go through all apps in the specified directory
  * and create the template xml files.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCETemplateFilesCreator {
 
   private static final Logger log = LogManager.getLogger(PSCETemplateFilesCreator.class);

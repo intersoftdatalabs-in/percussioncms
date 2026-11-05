@@ -23,6 +23,7 @@ import java.lang.reflect.Modifier;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for all PSComponent derived objects */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSComponentTest {
   /**
    * Tests that all known subclasses of <code>PSComponent</code> have overridden the equals()

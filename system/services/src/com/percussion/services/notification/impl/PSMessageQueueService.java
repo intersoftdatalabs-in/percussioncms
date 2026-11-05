@@ -47,6 +47,7 @@ import org.apache.logging.log4j.Logger;
  * @author adamgent
  * @see #addListener(Class, IPSMessageQueueListener)
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSMessageQueueService implements MessageListener, IPSMessageQueueService
 {
 

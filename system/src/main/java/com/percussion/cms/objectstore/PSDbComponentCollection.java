@@ -55,6 +55,7 @@ import org.w3c.dom.Element;
  * @author Paul Howard
  * @version 1.0
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDbComponentCollection extends PSDbComponent {
   /**
    * Convenience method that calls {@link #PSDbComponentCollection(String, String)

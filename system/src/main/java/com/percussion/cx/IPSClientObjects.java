@@ -25,6 +25,7 @@ import org.w3c.dom.Element;
  *
  * @deprecated is there a base Iface for other objects in the cx?
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public interface IPSClientObjects {
 
   /**

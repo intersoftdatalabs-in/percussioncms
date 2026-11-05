@@ -27,6 +27,7 @@ import java.util.Map;
  * This class is used to track relationships while copying a site or site subfolder. The collected
  * information will be used for post processes.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSRelationshipTracker {
   /**
    * Adds a source to target item mapping. This also looks up all relationships of related content

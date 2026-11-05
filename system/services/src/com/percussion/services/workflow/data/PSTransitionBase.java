@@ -32,6 +32,7 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
  * Base class for (non-persistent) transition types. Jackson design-XML property annotations shared
  * by {@link PSTransition} and {@link PSAgingTransition} (issue #1890 / epic #505).
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSTransitionBase implements IPSTransitionBase {
    /**
     * Compiler generated serial version ID used for serialization.

@@ -68,6 +68,7 @@ import org.w3c.dom.Element;
  * <p>See the derived classes' implementation of {@link #modifyLinks(PSAaFolderDependent)} for the
  * details of how the relationships are modified.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSCrossSiteFolderActionProcessor {
   protected PSCrossSiteFolderActionData data;
 

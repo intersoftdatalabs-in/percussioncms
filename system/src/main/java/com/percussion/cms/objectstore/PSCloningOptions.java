@@ -32,6 +32,7 @@ import org.w3c.dom.Element;
  * Object store implementation to the <code>PSXCloningOptions</code> object as defined in schema
  * sys_FolderParameters.xsd.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSCloningOptions extends PSComponent {
 
   /** Serialization id for {@link java.io.Serializable}. */

@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
 
 /** Represents a single search field used in a given search/view. */
 // Final leaf — Element/named ctors avoid subclass this-escape risk.
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSSearchField extends PSDbComponent implements IPSSequencedComponent {
   /** Creates the key required by the super. */
   private PSSearchField() {

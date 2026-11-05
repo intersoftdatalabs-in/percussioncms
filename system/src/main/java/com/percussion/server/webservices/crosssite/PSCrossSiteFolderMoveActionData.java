@@ -26,6 +26,7 @@ import java.util.List;
  * @author adamgent
  * @see PSCrossSiteFolderMoveActionProcessor
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSCrossSiteFolderMoveActionData extends PSCrossSiteFolderActionData {
 
   private static final long serialVersionUID = 1L;

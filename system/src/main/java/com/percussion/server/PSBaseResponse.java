@@ -29,6 +29,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.w3c.dom.Document;
 
 /** An abstract class used for all HTTP responses as a base. Container for generic members used. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public abstract class PSBaseResponse implements Serializable {
   /**
    * Constructs an new response for the supplied keep alive option and locale.

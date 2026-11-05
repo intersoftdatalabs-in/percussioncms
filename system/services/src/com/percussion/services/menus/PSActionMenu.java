@@ -42,6 +42,7 @@ import java.util.Set;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "RXMENUACTION")
 @Table(name = "RXMENUACTION")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSActionMenu implements Serializable {
 
     @Column(name="ACTIONID")

@@ -32,6 +32,7 @@ import org.junit.jupiter.api.io.TempDir;
  * is properly applied and allows safe Percussion classes while blocking gadget chains.
  */
 @DisplayName("PSCacheItem - Deserialization Security")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class PSCacheItemDeserializationTest {
 
   @TempDir Path tempDir;

@@ -34,6 +34,7 @@ import org.w3c.dom.Element;
  * Load and manage action information in the user session. Used by the filtering exit {@link
  * com.percussion.uicontext.PSFilterContextMenu}to obtain information about each action.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSManageActionInfo {
   /** The component processor proxy. Initialized on demand. */
   private PSComponentProcessorProxy m_componentProcessor = null;

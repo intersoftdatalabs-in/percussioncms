@@ -147,6 +147,7 @@ import org.apache.commons.lang3.StringUtils;
  * @version 1.0
  * @since 1.0
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSApplicationHandler implements IPSRootedHandler {
   /**
    * Creates an application handler for the specified application. The application handler creates

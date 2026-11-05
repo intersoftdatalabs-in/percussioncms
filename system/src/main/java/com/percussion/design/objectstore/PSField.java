@@ -46,6 +46,7 @@ import org.w3c.dom.Node;
  * field specifies something other than PSXBackEndColumn, this field cannot be updated, it's for
  * query only.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public final class PSField extends PSComponent {
   /** */
   private static final long serialVersionUID = -1837223721972561274L;

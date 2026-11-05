@@ -93,7 +93,7 @@ import static com.percussion.system.utils.IPSHtmlParameters.SYS_RELATIONSHIPID;
  * @author dougrand
  * 
  */
-@SuppressWarnings("unused") 
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSInlineLinkContentHandler
 {
    private static final String PERC_BROKENLINK = "perc-brokenlink";

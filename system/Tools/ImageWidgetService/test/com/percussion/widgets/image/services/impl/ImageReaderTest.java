@@ -46,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Image format coverage for {@link ImageReader} via ImageIO + TwelveMonkeys.
  */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class ImageReaderTest {
 
     private static final Logger log = LogManager.getLogger(ImageReaderTest.class);

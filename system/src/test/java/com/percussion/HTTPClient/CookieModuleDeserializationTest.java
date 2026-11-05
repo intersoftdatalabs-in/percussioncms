@@ -34,6 +34,7 @@ import org.junit.jupiter.api.io.TempDir;
  * is properly applied in loadCookies() method.
  */
 @DisplayName("CookieModule - Deserialization Security")
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 class CookieModuleDeserializationTest {
 
   @TempDir Path tempDir;

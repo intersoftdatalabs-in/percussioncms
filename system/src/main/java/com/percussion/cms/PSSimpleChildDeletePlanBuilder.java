@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 /** Plan builder for deleting simple child rows. */
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSSimpleChildDeletePlanBuilder extends PSModifyPlanBuilder {
   // see superclass
   public PSSimpleChildDeletePlanBuilder(

@@ -21,6 +21,7 @@ package com.percussion.xml;
  * element entries (other than the root element entry) have valid parents.
  * It walks the tree and tests all element entries for parents.
  ***************************************************************************/
+@SuppressWarnings({"rawtypes","unchecked","cast","deprecation","static","serial","dep-ann","empty","sunapi","fallthrough","this-escape","finally","try","varargs","overrides","divzero","path","processing","preview","removal","all"})
 public class PSDtdTreeParentTest implements PSDtdTreeVisitor {
   public PSDtdTreeParentTest(PSDtdTree tree) {
     tree.getRoot().acceptVisitor(this, null);
