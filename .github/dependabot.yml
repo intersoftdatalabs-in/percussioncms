@@ -35,6 +35,13 @@ updates:
       - dependency-name: "org.eclipse.rdf4j:*"
         update-types:
           - "version-update:semver-major"
+      # OpenJFX 22+ jars need a newer class-file major than the Java 21 build
+      # baseline can read (24.x is major 66, 26.x/27.x is major 68/69; see
+      # issue #5621 which reverted 27.0.1 → 21.0.7 LTS). Stay on 21.x until a
+      # dedicated JDK-baseline migration. Patch/minor within 21.x remain allowed.
+      - dependency-name: "org.openjfx:*"
+        update-types:
+          - "version-update:semver-major"
 
   # npm / frontend packages (lockfiles present). Dual WebUI roots stay in lockstep:
   # WebUI/package.json and WebUI/src/main/frontend (Maven frontend-maven-plugin).
