@@ -85,35 +85,7 @@ class PublishingDeepPagePackagingTest {
    * 2026-08-04). Update only when #1819 deletes exclusive deep pages (or intentional KEEP changes).
    */
   static final Set<String> FROZEN_DESIGN_JSPS =
-      Set.of(
-          "AddContextVariable.jsp",
-          "AssociateContentlist.jsp",
-          "ContentlistEditor.jsp",
-          "ContentlistView.jsp",
-          "ContextEditor.jsp",
-          "ContextList.jsp",
-          "DeliveryTypeEditor.jsp",
-          "DeliveryTypeList.jsp",
-          "EditionEditor.jsp",
-          "EditionList.jsp",
-          "error.jsp",
-          "index.jsp",
-          "ItemBrowser.jsp",
-          "LocationSchemeEditor.jsp",
-          "LocationSchemeLegacyEditor.jsp",
-          "LocationSchemeParamEditor.jsp",
-          "menu.jsp",
-          "NoSchemeParameterSelectionWarning.jsp",
-          "NoSelectionWarning.jsp",
-          "PubDesignAuthentication.jsp",
-          "publish.jsp",
-          "RemoveConfirmation.jsp",
-          "RemoveLocationScheme.jsp",
-          "SaveChildSchemeChangesWarning.jsp",
-          "SelectEditionFromOtherSite.jsp",
-          "SiteEditor.jsp",
-          "SiteList.jsp",
-          "SiteRootBrowser.jsp");
+      Set.of("index.jsp");
 
   /**
    * Frozen inventory of Runtime-tree JSPs still packaged on {@code main} (audit #1817 / inventory
@@ -204,9 +176,6 @@ class PublishingDeepPagePackagingTest {
    * (redirect stub, optional publish.jsp) remain.
    */
   @Test
-  @Disabled(
-      "Enable after #1819 Design deep-page delete lands; until then inventory freeze above is the"
-          + " live contract. Parent #1372 / UAT #1371 gate product deletes.")
   @DisplayName("AFTER #1819: exclusive Design deep pages absent; redirect stub remains")
   void afterDesignRetirementOnlyKeepFilesRemain() throws IOException {
     assertOnlyKeepFilesRemain(DESIGN_DIR, POST_RETIREMENT_DESIGN_KEEP, "ui/publishing");
