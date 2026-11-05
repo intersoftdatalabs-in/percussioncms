@@ -54,7 +54,11 @@ Exact wizard screens differ by platform, but the flow is consistent:
 ### Linux services (systemd and init.d)
 
 Linux packages still ship **both** a native systemd unit and the classic init.d helpers.
-Do not remove the init.d path until operations has signed off a live install on that host.
+init.d is **not** deprecated or removed in this release: dual-ship remains the permanent
+policy until operations records a written decision (see GH-962 / #1976). Do not remove the
+init.d path until that decision and a signed-off live install exist.
+The `--initd` flag remains a supported escape hatch on systemd hosts; forcing it prints an
+informational notice only and does not change behavior.
 
 | Role | Install script (under the install tree) | Default unit name |
 |------|-----------------------------------------|-------------------|

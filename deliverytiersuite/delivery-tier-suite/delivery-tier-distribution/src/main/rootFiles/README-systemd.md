@@ -32,6 +32,30 @@ SysV/init.d remains available as:
 `--initd` path when operating dual-ship hosts. Windows `.bat` installers are
 unchanged (Tomcat Windows service).
 
+## Deprecation status (GH-962 slice 4 / #1976)
+
+**init.d is NOT deprecated or removed by this release.** Dual-ship (native systemd
+unit **plus** the classic init.d start helper and `--initd` fallback) remains the
+**permanent policy** until operations explicitly decides otherwise.
+
+- **Prerequisites for any deprecation** (not yet met): a signed-off live Linux
+  dual-ship soak (GH-1989) **and** a written operations decision recorded on
+  #962 or #1976.
+- **Escape hatch retained:** `--initd` continues to force classic SysV/init.d
+  registration and writes **no** native unit file. The init.d helper under
+  `/etc/init.d/<ServiceName>` is still installed on the systemd path as the
+  `ExecStart`/`ExecStop` target.
+- **No removal in this slice:** `DTS*Service.sh --initd`, SysV boot
+  registration (`chkconfig`/`update-rc.d`), and `/etc/init.d` helper generation
+  are all retained. Forcing `--initd` on a systemd-capable host prints an
+  informational notice only; it does **not** fail or change behavior.
+- **Upgrade path:** existing `/etc/init.d/PercussionProductionDTS` (and Staging)
+  customers are unaffected.
+
+If operations later approves a deprecation timeline, it will be announced in this
+README and the product help site before any removal ships. Until then, treat
+dual-ship as permanent.
+
 ## Install flags
 
 |    Flag     |                                       Behavior                                       |
