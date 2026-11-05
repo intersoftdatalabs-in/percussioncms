@@ -190,7 +190,7 @@ Write `scratch/triage.json`:
 ### Contract with the `work` sub-agent
 
 - `slotted_for_work` is the ordered list of issue numbers the host will
-  hand to `work` (one `task` call per number).
+  hand to `work` (one `subagent` call per number).
 - `child_proposals` is an ordered list of 3-slice expansions the host
   forwards to `work` so it can `gh issue create` them when claiming
   the parent.

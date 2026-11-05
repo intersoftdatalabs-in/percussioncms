@@ -2,11 +2,14 @@
 """Launch the opencode night-issue-prs workflow.
 
 Resolves the dedicated worktree, sets the NIGHT_* env vars that the
-`.opencode/plugin/night.ts` plugin reads, and runs `opencode run` against
-the `night-worker` host agent. Mirrors `.grok/workflows/night-issue-prs.rhai`
-v2.2.0 — see `.grok/workflows/README.md` for the canonical phase list and
-hard gates. Decision-front script ranks the queue; empty leftover Erlang /
-cluster skips from 2.1.0; TypeSafe pre-screen remains (fail-open).
+`.opencode/plugins/night/index.ts` plugin reads, and runs `opencode run`
+against the `night-worker` host agent. Mirrors
+`.grok/workflows/night-issue-prs.rhai` v2.2.5 — see
+`.grok/workflows/README.md` for the canonical phase list and hard gates.
+Decision-front script ranks the queue; empty leftover Erlang / cluster skips
+from 2.1.0; TypeSafe pre-screen remains (fail-open). Work implementers run the
+Erlang skill CLI before opening a PR; host/peer phases still spawn the
+`erlang-review` subagent.
 
 ## Behavioral Notes
 
@@ -20,6 +23,13 @@ cluster skips from 2.1.0; TypeSafe pre-screen remains (fail-open).
   worktrees are reused; the script never wipes a dirty tree.
 - Scratch lives under the worktree's `scratch/` directory (path-portable via
   `pathlib.Path`); never writes to `%TEMP%` / `$TMPDIR`.
+- V2 `opencode run` has no `--command` flag. The launcher inlines the
+  `.opencode/commands/<name>.md` body, substitutes `$ARGUMENTS` with a JSON
+  payload, and passes the result as the message positional. The command name
+  stays configurable with `--command` so the template remains the single
+  source of truth.
+- Runs with `--standalone` so the private server inherits the NIGHT_* env
+  vars. A shared background service may have been started without them.
 - The `--dry-run` flag prints the resolved command without invoking `opencode`.
   Use it for cron wiring validation.
 
@@ -82,8 +92,14 @@ REPO_SLUG = "intersoft-workspace-percussioncms"
 COMPONENT = "night-issue-prs"
 DEFAULT_BASE_BRANCH = "main"
 AGENT_NAME = "night-worker"
+COMMAND_DIR = Path(".opencode") / "commands"
+ARGUMENTS_PLACEHOLDER = "$ARGUMENTS"
 
 LOGGER = logging.getLogger(__name__)
+
+
+class LauncherError(RuntimeError):
+    """Raised when the launcher cannot build a valid opencode invocation."""
 
 
 def default_worktree_path() -> Path:
@@ -193,32 +209,79 @@ def build_workflow_args(args: argparse.Namespace) -> str:
     return json.dumps(payload)
 
 
-def build_opencode_command(args: argparse.Namespace) -> list[str]:
+def strip_frontmatter(text: str) -> str:
+    """Return the Markdown body with a leading YAML frontmatter block removed.
+
+    Command templates carry `description:` / `agent:` frontmatter that is only
+    meaningful to opencode's command loader. The launcher inlines the body as a
+    plain message, so the block is dropped instead of being sent to the model.
+    Line endings are normalized to `\n` so the prompt is identical on every OS.
+    """
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return text
+    for index in range(1, len(lines)):
+        if lines[index].strip() == "---":
+            body = "\n".join(lines[index + 1 :]).strip("\n")
+            return f"{body}\n" if body else body
+    return text
+
+
+def command_template_path(command: str, repo_root: Path | None = None) -> Path:
+    root = repo_root or Path(__file__).resolve().parent.parent
+    return root / COMMAND_DIR / f"{command}.md"
+
+
+def load_command_template(command: str, repo_root: Path | None = None) -> str:
+    """Read the body of `.opencode/commands/<command>.md`.
+
+    V2 `opencode run` has no `--command` flag, so the launcher supplies the
+    command body inline. Fail loudly when the template is missing or has no
+    `$ARGUMENTS` placeholder — silently running a partially-substituted prompt
+    would let an unattended night run ignore `--max-issues` / `--base-branch`.
+    """
+    path = command_template_path(command, repo_root)
+    if not path.is_file():
+        raise LauncherError(f"command template not found: {path} (use --prompt to bypass the template)")
+    body = strip_frontmatter(path.read_text(encoding="utf-8"))
+    if ARGUMENTS_PLACEHOLDER not in body:
+        raise LauncherError(f"command template has no {ARGUMENTS_PLACEHOLDER} placeholder: {path}")
+    return body
+
+
+def build_workflow_prompt(args: argparse.Namespace, repo_root: Path | None = None) -> str:
+    """Inline the command template with `$ARGUMENTS` replaced by the JSON payload."""
+    template = load_command_template(args.command, repo_root)
+    return template.replace(ARGUMENTS_PLACEHOLDER, build_workflow_args(args))
+
+
+def build_opencode_command(args: argparse.Namespace, repo_root: Path | None = None) -> list[str]:
     """Build the `opencode run` command.
 
     Two modes:
 
-    1. **Default** — invoke the `night-issue-prs` command template.
-       `opencode run --command night-issue-prs --auto '<json-args>'`.
-       The command's `agent: night-worker` frontmatter drives agent
-       selection; the message fills `$ARGUMENTS` in the template body.
-    2. **Override** — if `--prompt` is set, bypass the command template
-       and send the prompt directly as the message positional. Specify
-       `--agent` explicitly because no command frontmatter is in play.
+    1. **Default** — inline the `night-issue-prs` command template and send the
+       rendered text as the message positional. V2 has no `--command` flag, so
+       the template's `agent: night-worker` frontmatter cannot select the agent;
+       pass `--agent` explicitly.
+    2. **Override** — if `--prompt` is set, bypass the command template and send
+       the prompt directly as the message positional.
 
-    `--prompt` is a top-level opencode option that the `run` subcommand
-    does not consume, so it is NOT used here even in override mode.
+    `--standalone` runs a private server so the `NIGHT_*` env vars exported by
+    `build_env` reach the plugin and the bash tool. A shared background service
+    may have been started without them.
+
+    `--prompt` is a top-level opencode option that the `run` subcommand does not
+    consume, so it is NOT used here.
     """
-    cmd = ["opencode", "run", "--auto"]
+    cmd = ["opencode", "--standalone", "run", "--auto", "--agent", AGENT_NAME]
     if args.model:
         cmd.extend(["--model", args.model])
 
     if args.prompt:
-        cmd.extend(["--agent", AGENT_NAME])
         cmd.append(args.prompt)
     else:
-        cmd.extend(["--command", args.command])
-        cmd.append(build_workflow_args(args))
+        cmd.append(build_workflow_prompt(args, repo_root))
     return cmd
 
 
@@ -258,7 +321,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--command",
         default="night-issue-prs",
-        help="OpenCode command template to invoke (default: night-issue-prs).",
+        help=(
+            "OpenCode command template to inline (default: night-issue-prs). "
+            "Reads .opencode/commands/<name>.md and substitutes $ARGUMENTS."
+        ),
     )
     parser.add_argument(
         "--prompt",
@@ -310,10 +376,21 @@ def main(argv: list[str] | None = None) -> int:
     LOGGER.info("repo_root=%s worktree=%s base_branch=%s report=%s", repo_root, worktree, base_branch, report)
 
     env = build_env(args, worktree, base_branch, report)
-    cmd = build_opencode_command(args)
+
+    try:
+        cmd = build_opencode_command(args, repo_root)
+    except LauncherError as exc:
+        LOGGER.error("%s", exc)
+        return 2
 
     if args.dry_run:
-        LOGGER.info("dry-run: would invoke %s", shlex.join(cmd))
+        # The final argv entry is the message (inlined template or --prompt text).
+        # Log its size instead of the whole body so dry-run output stays readable.
+        LOGGER.info(
+            "dry-run: would invoke %s <message: %d chars>",
+            shlex.join(cmd[:-1]),
+            len(cmd[-1]),
+        )
         LOGGER.info("dry-run: cwd=%s", worktree)
         LOGGER.info("dry-run: env NIGHT_WORKTREE_PATH=%s NIGHT_BASE_BRANCH=%s NIGHT_REPORT_PATH=%s", worktree, base_branch, report)
         if not worktree_exists(worktree):

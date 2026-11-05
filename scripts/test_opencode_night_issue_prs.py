@@ -130,19 +130,21 @@ def test_build_opencode_command_minimal():
     mod = _load_module()
     args = type("Args", (), {"model": "", "prompt": "", "command": "night-issue-prs", "max_issues": 3, "base_branch": "main", "max_prs": 6, "include_pr_followup": True})()
     cmd = mod.build_opencode_command(args)
-    assert cmd[:4] == ["opencode", "run", "--auto", "--command"]
-    assert cmd[4] == "night-issue-prs"
-    payload = json.loads(cmd[5])
-    assert payload["max_issues"] == 3
-    assert payload["base_branch"] == "main"
-    assert payload["max_prs"] == 6
-    assert payload["include_pr_followup"] is True
+    assert cmd[:6] == ["opencode", "--standalone", "run", "--auto", "--agent", "night-worker"]
+    assert "--command" not in cmd, "V2 opencode run has no --command flag; the template is inlined"
+    message = cmd[-1]
+    assert "$ARGUMENTS" not in message, "the launcher must substitute $ARGUMENTS before invoking opencode"
+    assert '"max_issues": 3' in message
+    assert '"base_branch": "main"' in message
+    assert '"max_prs": 6' in message
+    assert '"include_pr_followup": true' in message
 
 
 def test_build_opencode_command_with_model_and_prompt():
     mod = _load_module()
     args = type("Args", (), {"model": "anthropic/claude-sonnet-4-6", "prompt": "do the thing"})()
     cmd = mod.build_opencode_command(args)
+    assert "--standalone" in cmd
     assert "--model" in cmd and "anthropic/claude-sonnet-4-6" in cmd
     # Prompt is a positional argument on `opencode run`, NOT a `--prompt` flag.
     # `--prompt` is a top-level opencode option that `run` does not consume.
@@ -175,18 +177,94 @@ def test_build_opencode_command_model_only_skips_prompt_when_empty():
     cmd = mod.build_opencode_command(args)
     assert "--prompt" not in cmd
     assert "openai/gpt-5" in cmd
-    assert "--command" in cmd and "night-issue-prs" in cmd
+    assert "--command" not in cmd
+    assert cmd[-1].startswith("You are the **host**"), "template body should be the message positional"
+    assert '"include_pr_followup": false' in cmd[-1]
 
 
 def test_build_opencode_command_prompt_override_uses_agent():
-    """When --prompt is supplied, no --command; --agent is explicit since the
-    command's frontmatter is not in play."""
+    """When --prompt is supplied, --agent is explicit because the command's
+    frontmatter is not in play."""
     mod = _load_module()
     args = type("Args", (), {"model": "", "prompt": "custom"})()
     cmd = mod.build_opencode_command(args)
     assert "--command" not in cmd
     assert "--agent" in cmd and mod.AGENT_NAME in cmd
     assert cmd[-1] == "custom"
+
+
+def test_strip_frontmatter_removes_yaml_block():
+    mod = _load_module()
+    text = "---\ndescription: x\nagent: y\n---\n\nBody line\n"
+    assert mod.strip_frontmatter(text) == "Body line\n"
+
+
+def test_strip_frontmatter_is_noop_without_block():
+    mod = _load_module()
+    text = "Body only\n"
+    assert mod.strip_frontmatter(text) == text
+
+
+def test_strip_frontmatter_normalizes_crlf():
+    mod = _load_module()
+    text = "---\r\ndescription: x\r\n---\r\n\r\nBody line\r\n"
+    assert mod.strip_frontmatter(text) == "Body line\n"
+
+
+def test_load_command_template_strips_frontmatter(tmp_path):
+    mod = _load_module()
+    commands = tmp_path / ".opencode" / "commands"
+    commands.mkdir(parents=True)
+    (commands / "night-issue-prs.md").write_text(
+        "---\ndescription: test\nagent: night-worker\n---\n\nHost body with $ARGUMENTS.\n",
+        encoding="utf-8",
+    )
+    body = mod.load_command_template("night-issue-prs", tmp_path)
+    assert body == "Host body with $ARGUMENTS.\n"
+
+
+def test_load_command_template_missing_raises(tmp_path):
+    mod = _load_module()
+    with pytest.raises(mod.LauncherError, match="command template not found"):
+        mod.load_command_template("does-not-exist", tmp_path)
+
+
+def test_load_command_template_requires_arguments_placeholder(tmp_path):
+    mod = _load_module()
+    commands = tmp_path / ".opencode" / "commands"
+    commands.mkdir(parents=True)
+    (commands / "night-issue-prs.md").write_text("---\ndescription: x\n---\n\nNo placeholder.\n", encoding="utf-8")
+    with pytest.raises(mod.LauncherError, match=r"\$ARGUMENTS"):
+        mod.load_command_template("night-issue-prs", tmp_path)
+
+
+def payload_from_prompt(prompt: str) -> dict:
+    """Extract the JSON payload that `build_workflow_prompt` substituted."""
+    return json.loads(prompt[len("Args: "):].strip())
+
+
+def test_build_workflow_prompt_substitutes_json(tmp_path):
+    mod = _load_module()
+    commands = tmp_path / ".opencode" / "commands"
+    commands.mkdir(parents=True)
+    (commands / "night-issue-prs.md").write_text(
+        "---\ndescription: test\n---\n\nArgs: $ARGUMENTS\n", encoding="utf-8"
+    )
+    args = type("Args", (), {
+        "command": "night-issue-prs",
+        "max_issues": 2,
+        "base_branch": "main",
+        "max_prs": 1,
+        "include_pr_followup": False,
+    })()
+    prompt = mod.build_workflow_prompt(args, tmp_path)
+    assert prompt.startswith("Args: {")
+    assert payload_from_prompt(prompt) == {
+        "max_issues": 2,
+        "base_branch": "main",
+        "max_prs": 1,
+        "include_pr_followup": False,
+    }
 
 
 def test_build_workflow_args_serializes_to_json():
@@ -414,6 +492,50 @@ def test_dry_run_does_not_create_directories(tmp_path, monkeypatch):
     assert not absent_wt.exists()
     # scratch/ parent must NOT have been created either.
     assert not (absent_wt / "scratch").exists()
+
+
+def test_dry_run_inlines_command_template(tmp_path):
+    """End-to-end: --dry-run must read the real command template, inline it, and
+    never print the full body (only its size)."""
+    absent_wt = tmp_path / "dry-run-wt"
+    completed = subprocess.run(
+        [sys.executable, str(SCRIPT_PATH),
+         "--worktree", str(absent_wt),
+         "--dry-run",
+         "--log-level", "INFO"],
+        shell=False,
+        check=False,
+        timeout=15,
+        capture_output=True,
+        text=True,
+        cwd=str(tmp_path),
+        env={**os.environ, "NIGHT_BASE_BRANCH": "main"},
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert "--standalone" in completed.stderr
+    assert "--agent night-worker" in completed.stderr
+    assert "<message:" in completed.stderr, "dry-run should summarize the message, not print it"
+    assert "$ARGUMENTS" not in completed.stderr
+    assert not absent_wt.exists()
+
+
+def test_dry_run_missing_template_fails_cleanly(tmp_path):
+    completed = subprocess.run(
+        [sys.executable, str(SCRIPT_PATH),
+         "--worktree", str(tmp_path / "wt"),
+         "--dry-run",
+         "--command", "no-such-command",
+         "--log-level", "WARNING"],
+        shell=False,
+        check=False,
+        timeout=15,
+        capture_output=True,
+        text=True,
+        cwd=str(tmp_path),
+        env={**os.environ, "NIGHT_BASE_BRANCH": "main"},
+    )
+    assert completed.returncode == 2
+    assert "command template not found" in completed.stderr
 
 
 def test_script_help_works():

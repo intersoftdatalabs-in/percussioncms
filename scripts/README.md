@@ -50,13 +50,21 @@ elided CLI output, not Grok billed tokens.
 ### `opencode-night-issue-prs.py`
 
 Launcher for the opencode `night-issue-prs` overnight workflow (mirrors
-`.grok/workflows/night-issue-prs.rhai` v2.2.0 for opencode runners). Resolves
-the dedicated worktree, sets the `NIGHT_*` env vars that
-`.opencode/plugin/night.ts` reads, and invokes `opencode run --agent night-worker`.
+`.grok/workflows/night-issue-prs.rhai` **v2.2.5** for opencode runners). Resolves
+the dedicated worktree, sets the `NIGHT_*` env vars that the
+`.opencode/plugins/night/index.ts` V2 plugin reads, and invokes
+`opencode --standalone run --auto --agent night-worker`.
+
+V2 `opencode run` has **no `--command` flag**. The launcher reads
+`.opencode/commands/<name>.md`, strips the YAML frontmatter, substitutes
+`$ARGUMENTS` with the JSON payload, and sends the rendered body as the message
+positional. `--command` therefore selects the **template**, not a built-in CLI
+command. `--standalone` starts a private server so the exported `NIGHT_*` env
+vars actually reach the plugin and the bash tool.
 
 - **Purpose**: Unattended overnight issue burn-down + PR follow-up. Phase list,
-  skip matrix, and hard bans live in `.opencode/command/night-issue-prs.md`,
-  `.opencode/agent/night-worker.md`, and the canonical
+  skip matrix, and hard bans live in `.opencode/commands/night-issue-prs.md`,
+  `.opencode/agents/night-worker.md`, and the canonical
   `.grok/workflows/README.md`.
 - **Defaults**: `max_issues=3`, `base_branch=main`,
   `command=night-issue-prs`, `worktree=<home>/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs`,
@@ -75,6 +83,10 @@ the dedicated worktree, sets the `NIGHT_*` env vars that
   python3 scripts/opencode-night-issue-prs.py --prompt "echo hello"
   ```
 
+  `--dry-run` prints the resolved argv (with the message summarized by character
+  count) and validates that the command template exists and contains
+  `$ARGUMENTS`. It never creates the worktree or scratch dirs.
+
 - **Cron wiring**:
 
   ```cron
@@ -88,6 +100,14 @@ the dedicated worktree, sets the `NIGHT_*` env vars that
   schtasks /create /tn "percussioncms-night" /tr "cmd /c cd /d C:\path\to\percussioncms && python scripts\opencode-night-issue-prs.py --max-issues 3" /sc daily /st 01:00
   ```
 
+- **Plugin**: `.opencode/plugins/night/index.ts` (`Plugin.define`, V2) fills any
+  missing `NIGHT_*` defaults on `ctx.shell.hook("create.before")` and denies the
+  hard-banned shell patterns through `ctx.permission.hook("evaluate")` when a
+  night session is detected. Agent-level `permissions:` in
+  `.opencode/agents/night-worker.md` cover the rest. The plugin does not create
+  the worktree — the launcher owns that.
+- **Tests**: `python3 -m pytest scripts/test_opencode_night_issue_prs.py -v`
+  (no `opencode` binary or real worktree required).
 - **Prereqs**: Python 3.9+, `opencode` on `PATH`, repo-root access (the script
   derives `repo_root` from its own path), outbound network once per run for
   `git fetch origin <base_branch>`.

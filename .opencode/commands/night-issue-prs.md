@@ -1,11 +1,11 @@
 ---
-description: Launch the night-issue-prs unattended workflow (host = night-worker). Mirrors .grok/workflows/night-issue-prs.rhai v2.2.4 — decision-front; Erlang CLI 0.1.18 --git-base; full Pre-push local code review in PR body; skip empty specialists; TypeSafe pre-screen fail-open; Erlang MAY APPROVE+squash-merge.
+description: Launch the night-issue-prs unattended workflow (host = night-worker). Mirrors .grok/workflows/night-issue-prs.rhai v2.2.5 — decision-front; Erlang CLI 0.1.18 --git-base; Work implementers run the Erlang skill CLI before opening a PR; host/peer still spawn erlang-review; full Pre-push local code review in PR body; skip empty specialists; TypeSafe pre-screen fail-open; Erlang MAY APPROVE+squash-merge.
 agent: night-worker
 ---
 
 You are the **host** for the `night-issue-prs` workflow on Percussion CMS,
 launched via opencode. Your job is to dispatch phases, enforce hard gates, and
-spawn specialists via the `task` tool. You never edit production source
+spawn specialists via the `subagent` tool. You never edit production source
 yourself — Work is a sub-agent.
 
 ## Args
@@ -34,6 +34,7 @@ positional text). Parse them and pass to the workflow as described below.
 | `require_issue_safety_check` | bool | `true` | Hard-skip destructive-instruction issues |
 | `unassigned_only` | bool | `true` | Skip assigned issues |
 | `include_stale_in_progress_cleanup` | bool | `true` | Free abandoned In Progress claims |
+| `include_decision_front` | bool | `true` | Run `scripts/night-decision-front.py` before the Preflight/Reconcile/Triage walks; fall back to those agents when it fails or returns an incomplete signal set |
 | `stale_in_progress_hours` | int | `4` | Hours of inactivity before In Progress cleared |
 | `include_reconcile` | bool | `true` | Close 100%-implemented issues |
 | `max_reconcile_closes` | int | `20` | Max reconcile closes per run |
@@ -87,12 +88,22 @@ Create `scratch/` in the worktree if it does not exist (path-portable:
 
 ## Worktree setup (idempotent)
 
+`scripts/opencode-night-issue-prs.py` already created or hard-reset the worktree
+before this prompt ran and exported `NIGHT_WORKTREE_PATH`. Verify and switch:
+
 ```bash
-test -d "$NIGHT_WORKTREE_PATH" || {
-  git fetch origin "$NIGHT_BASE_BRANCH"
-  git branch -f night-issue-prs-main "origin/$NIGHT_BASE_BRANCH"
-  git worktree add "$NIGHT_WORKTREE_PATH" night-issue-prs-main
-}
+cd "$NIGHT_WORKTREE_PATH"
+git rev-parse --abbrev-ref HEAD   # expect night-issue-prs-main
+```
+
+If this prompt is run **without** the launcher (interactive / dev), create the
+worktree once. Never `git branch -f` a branch that a worktree already has
+checked out — use `worktree add -B`, which updates the branch and the worktree
+together:
+
+```bash
+git fetch origin "$NIGHT_BASE_BRANCH"
+git worktree add -B night-issue-prs-main "$NIGHT_WORKTREE_PATH" "origin/$NIGHT_BASE_BRANCH"
 cd "$NIGHT_WORKTREE_PATH"
 ```
 
@@ -101,27 +112,28 @@ rebased to `origin/<base_branch>` between runs.
 
 ## Phases (in order)
 
-Use `todowrite` to track them. Skip a phase when its **only-explicit** signal
-is absent (count `-1` is unknown, not zero).
+Track phases in the report's status table (V2 todos are off by default, so do
+not depend on a todo tool). Skip a phase when its **only-explicit** signal is
+absent (count `-1` is unknown, not zero).
 
 | # | Phase | Sub-agent | Skip signal |
 |---|-------|-----------|-------------|
 | 1 | Identity | (inline — read env) | stamp args already passed |
-| 2 | Stale In Progress cleanup | (inline) | `include_stale_in_progress_cleanup: false` |
-| 3 | Preflight (+ TypeSafe pre-screen) | `preflight` | never (returns skip matrix) |
-| 4 | Reconcile | `reconcile` | `include_reconcile: false` |
+| 2 | Decision front | run `scripts/night-decision-front.py` (thin) | `include_decision_front: false` |
+| 3 | Preflight (fallback) — stale In Progress cleanup + TypeSafe pre-screen | `preflight` | decision-front `signals_complete` |
+| 4 | Reconcile (fallback) | `reconcile` | decision-front filled the queue or `include_reconcile: false` |
 | 5 | PR follow-up PRE | `pr-follow-up` | no merge blockers from Preflight |
-| 6 | Triage | `triage` | never |
+| 6 | Triage | `triage` | decision-front filled `max_issues` |
 | 7 | Peer PR review | `peer-pr-review` (spawns `erlang-review`; merge if LGTM) | no other-model eligible PRs |
-| 8 | Erlang leftover | `erlang-review` then `erlang-fix` if BLOCK | `include_erlang_review: false` |
-| 9 | Work | `work` (×N; each spawns `erlang-review` before PR) | no implement / split rows |
+| 8 | Erlang leftover | `erlang-review` then `erlang-fix` if BLOCK | `include_erlang_review: false` or `owned_pr_count == 0` |
+| 9 | Work | `work` (×N; each runs Erlang skill CLI before PR) | no implement / split rows |
 | 10 | Erlang review | `erlang-review` then `erlang-fix` if BLOCK | no this-run PRs |
-| 10 | PR follow-up POST | `pr-follow-up` | no PRs opened + no PRE blockers |
-| 11 | PR cluster | `pr-cluster` | owned PRs < `cluster_min_prs` |
-| 12 | Security audit | `security-audit` | `open_alert_count == 0` |
-| 13 | Cycle verify | `cycle-verify` | no PR / cluster opened |
-| 14 | Human QA | `human-qa` | Q2 fails or `include_human_qa: false` |
-| 15 | Report | (inline) | never |
+| 11 | PR follow-up POST | `pr-follow-up` | no PRs opened + no PRE blockers |
+| 12 | PR cluster | `pr-cluster` | `cluster_recommended` false (known) |
+| 13 | Security audit | `security-audit` | `open_alert_count == 0` |
+| 14 | Cycle verify | `cycle-verify` | no PR / cluster opened |
+| 15 | Human QA | `human-qa` | Q2 fails or `include_human_qa: false` |
+| 16 | Report | (inline) | never |
 
 `skip` rows in the triage queue **do not** spawn a `work` sub-agent — record
 the disposition in the parent's `## Agent progress (night-issue-prs)` table
@@ -173,7 +185,7 @@ Create labels if missing (`gh label create`).
 - Approving your own review threads (always inline reply + `resolveReviewThread`).
 - Human QA assignment without an independent APPROVE.
 - Approving or merging your own-model-only Work PRs (same `model:*`, no other operator).
-- Performing Erlang in the Work or Peer agent's own voice (always spawn `erlang-review`).
+- Performing Erlang in the host or Peer agent's own voice (always spawn `erlang-review`). Work runs the Erlang CLI before opening a PR but must not self-APPROVE or self-merge.
 - Skipping other-model merge because GitHub login equals the PR author.
 
 ## Cross-platform
@@ -186,5 +198,5 @@ already does); in shell, prefer POSIX-portable patterns. Never hardcode `/` or
 ## On launch
 
 Read `AGENTS.md` and `.grok/workflows/README.md` now. Then proceed phase by
-phase, logging each transition in your `todowrite`. When you finish the Report phase,
-stop.
+phase, recording each transition in the report's phase status table. When you
+finish the Report phase, stop.

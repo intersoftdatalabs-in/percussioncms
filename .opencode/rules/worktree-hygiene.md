@@ -29,12 +29,15 @@ When your task used a **git worktree** under `.opencode/worktrees/`:
    - a worktree that still has an **open** PR (unless the human ordered cleanup)
    - the worktree you are currently running in (switch to main first)
 
-5. The opencode `night` plugin auto-creates the dedicated worktree at
+5. The `scripts/opencode-night-issue-prs.py` launcher owns the dedicated night
+   worktree at
    `<home>/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs`
-   (override via `NIGHT_WORKTREE_PATH` env var) and resets its sync branch
-   `night-issue-prs-main` to `origin/<base_branch>` between runs. Treat that
-   path the same as any other disposable worktree — clean it up when no PR is
-   open against it.
+   (override via `NIGHT_WORKTREE_PATH` env var or `--worktree`). On each run it
+   creates the path from `origin/<base_branch>` when missing and hard-resets the
+   sync branch `night-issue-prs-main` when present. The opencode `night` plugin
+   only fills `NIGHT_*` defaults and denies banned shell patterns — it does not
+   create worktrees. Treat that path the same as any other disposable worktree —
+   clean it up when no PR is open against it.
 
 ## Session start (related HARD GATE)
 
