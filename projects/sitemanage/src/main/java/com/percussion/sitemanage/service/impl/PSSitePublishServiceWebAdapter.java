@@ -502,7 +502,12 @@ public class PSSitePublishServiceWebAdapter {
       sitePublishService.clearQueuedIncrementalContent(siteName, serverName);
       return Response.noContent().build();
     } catch (PSIncrementalQueueStatusException e) {
-      return Response.status(e.status()).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return Response.status(e.status())
+          .entity(e.clientStatusText())
+          .type(MediaType.TEXT_PLAIN)
+          .build();
     } catch (IPSSitePublishService.PSSitePublishException e) {
       throw new WebApplicationException(e.getMessage());
     }
@@ -523,7 +528,12 @@ public class PSSitePublishServiceWebAdapter {
       sitePublishService.removeQueuedIncrementalContent(siteName, serverName, contentId);
       return Response.noContent().build();
     } catch (PSIncrementalQueueStatusException e) {
-      return Response.status(e.status()).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return Response.status(e.status())
+          .entity(e.clientStatusText())
+          .type(MediaType.TEXT_PLAIN)
+          .build();
     } catch (IPSSitePublishService.PSSitePublishException e) {
       throw new WebApplicationException(e.getMessage());
     }
@@ -545,7 +555,12 @@ public class PSSitePublishServiceWebAdapter {
       sitePublishService.approveQueuedIncrementalContent(siteName, serverName, contentId);
       return Response.noContent().build();
     } catch (PSIncrementalQueueStatusException e) {
-      return Response.status(e.status()).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return Response.status(e.status())
+          .entity(e.clientStatusText())
+          .type(MediaType.TEXT_PLAIN)
+          .build();
     } catch (IPSSitePublishService.PSSitePublishException e) {
       throw new WebApplicationException(e.getMessage());
     }
@@ -567,7 +582,12 @@ public class PSSitePublishServiceWebAdapter {
       sitePublishService.unapproveQueuedIncrementalContent(siteName, serverName, contentId);
       return Response.noContent().build();
     } catch (PSIncrementalQueueStatusException e) {
-      return Response.status(e.status()).entity(e.getMessage()).type(MediaType.TEXT_PLAIN).build();
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return Response.status(e.status())
+          .entity(e.clientStatusText())
+          .type(MediaType.TEXT_PLAIN)
+          .build();
     } catch (IPSSitePublishService.PSSitePublishException e) {
       throw new WebApplicationException(e.getMessage());
     }

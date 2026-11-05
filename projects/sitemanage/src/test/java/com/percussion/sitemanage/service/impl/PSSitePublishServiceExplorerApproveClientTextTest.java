@@ -94,4 +94,68 @@ class PSSitePublishServiceExplorerApproveClientTextTest {
     assertFalse(body.contains(SECRET));
     assertFalse(body.contains("jdbc"));
   }
+
+  @Test
+  void clearQueuedStatusBodyUsesFixedTextNotExceptionMessage() throws Exception {
+    IPSSitePublishService publishService = mock(IPSSitePublishService.class);
+    doThrow(new PSIncrementalQueueStatusException(403, SECRET))
+        .when(publishService)
+        .clearQueuedIncrementalContent("site1", "server1");
+    PSSitePublishServiceWebAdapter adapter = new PSSitePublishServiceWebAdapter(publishService);
+
+    Response response = adapter.clearQueuedIncrementalContent("site1", "server1");
+
+    assertEquals(403, response.getStatus());
+    String body = String.valueOf(response.getEntity());
+    assertEquals("Publish forbidden", body);
+    assertFalse(body.contains(SECRET));
+  }
+
+  @Test
+  void removeQueuedStatusBodyUsesFixedTextNotExceptionMessage() throws Exception {
+    IPSSitePublishService publishService = mock(IPSSitePublishService.class);
+    doThrow(new PSIncrementalQueueStatusException(404, SECRET))
+        .when(publishService)
+        .removeQueuedIncrementalContent("site1", "server1", "301");
+    PSSitePublishServiceWebAdapter adapter = new PSSitePublishServiceWebAdapter(publishService);
+
+    Response response = adapter.removeQueuedIncrementalContent("site1", "server1", "301");
+
+    assertEquals(404, response.getStatus());
+    String body = String.valueOf(response.getEntity());
+    assertEquals("Not found", body);
+    assertFalse(body.contains(SECRET));
+  }
+
+  @Test
+  void approveQueuedStatusBodyUsesFixedTextNotExceptionMessage() throws Exception {
+    IPSSitePublishService publishService = mock(IPSSitePublishService.class);
+    doThrow(new PSIncrementalQueueStatusException(400, SECRET))
+        .when(publishService)
+        .approveQueuedIncrementalContent("site1", "server1", "301");
+    PSSitePublishServiceWebAdapter adapter = new PSSitePublishServiceWebAdapter(publishService);
+
+    Response response = adapter.approveQueuedIncrementalContent("site1", "server1", "301");
+
+    assertEquals(400, response.getStatus());
+    String body = String.valueOf(response.getEntity());
+    assertEquals("Request could not be completed", body);
+    assertFalse(body.contains(SECRET));
+  }
+
+  @Test
+  void unapproveQueuedStatusBodyUsesFixedTextNotExceptionMessage() throws Exception {
+    IPSSitePublishService publishService = mock(IPSSitePublishService.class);
+    doThrow(new PSIncrementalQueueStatusException(409, SECRET))
+        .when(publishService)
+        .unapproveQueuedIncrementalContent("site1", "server1", "301");
+    PSSitePublishServiceWebAdapter adapter = new PSSitePublishServiceWebAdapter(publishService);
+
+    Response response = adapter.unapproveQueuedIncrementalContent("site1", "server1", "301");
+
+    assertEquals(409, response.getStatus());
+    String body = String.valueOf(response.getEntity());
+    assertEquals("Item could not be approved", body);
+    assertFalse(body.contains(SECRET));
+  }
 }
