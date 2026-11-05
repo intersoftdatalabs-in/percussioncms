@@ -8,7 +8,7 @@
 |----------------------------------|-------|-----------------------------------------------------------------|-------------|
 | Parent RET-06                    | #1372 | Packaging: retire residual JSF publishing/pubruntime deep pages | Open        |
 | A — Inventory / consumer audit   | #1817 | Faces-config + grep audit + deletion checklists (this update)   | **Done**    |
-| B — Design deep-page delete      | #1819 | Delete exclusive `ui/publishing/**` deep JSPs (keep redirects)  | Blocked\*   |
+| B — Design deep-page delete      | #1819 | Delete exclusive `ui/publishing/**` deep JSPs (keep redirects)  | **Done**    |
 | C — Runtime deep-page delete     | #1818 | Delete exclusive `ui/pubruntime/**` deep JSPs (keep redirects)  | **Done**    |
 | D — Packaging / WAR verification | #1820 | Installer/WAR assertions + inventory freeze (prep)              | **Prep**†   |
 | UAT gate                         | #1371 | SC-001 / SC-003 / SC-008 sign-off before product deletes        | Open        |
@@ -45,7 +45,7 @@ Detailed audit notes (grep tables, historical faces dump pointers):
 |--------------------------------------------|----------------------------------|-------------------|-------------------------------------------------|
 | `ui/publishing/index.jsp`                  | Redirect → modern Design section | Done              | 301 → `/cm/app/?view=publish&section=design`    |
 | `dce_header.jsp` Design link               | Points to modern Design          | Done              | No deep faces URL                               |
-| Remaining `ui/publishing/*.jsp` deep pages | **Keep packaged** until #1819    | Deferred (RET-06) | Product **nav** callers: **zero** (audit #1817) |
+| Remaining `ui/publishing/*.jsp` deep pages | **Deleted** (#1819) — `index.jsp` redirect retained | Done (RET-06) | Product **nav** callers: **zero** (audit #1817); publish.jsp consumer rewired #1843 |
 
 **Tracked files (2026-08-04)** — `WebUI/src/main/webapp/ui/publishing/` (28 JSPs):
 
@@ -80,7 +80,7 @@ Detailed audit notes (grep tables, historical faces dump pointers):
 | `SiteList.jsp`                          | yes                               | none               | —                                                      | Delete                                                           |
 | `SiteRootBrowser.jsp`                   | yes                               | none               | —                                                      | Delete                                                           |
 
-**Sign-off**: Entry-path retirement Done; deep-page file deletion **explicitly deferred** to #1819 after UAT + non-nav rewires.  
+**Sign-off**: Design deep JSPs deleted in #1819 (RET-06 slice B); `index.jsp` redirect retained; publish.jsp consumer rewired #1843.  
 **Tracking issue**: [#1372](https://github.com/intersoftdatalabs-in/percussioncms/issues/1372) · audit [#1817](https://github.com/intersoftdatalabs-in/percussioncms/issues/1817)
 
 ## Surface B — JSF Publishing Runtime
