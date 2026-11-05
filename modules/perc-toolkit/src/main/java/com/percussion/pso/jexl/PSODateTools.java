@@ -50,7 +50,7 @@ public class PSODateTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "format", description = "format string"),
         @IPSJexlParam(name = "date_value", description = "the date value")
       })
-  /**
+  /*
    * formatDate operation.
    *
    * @param format the format

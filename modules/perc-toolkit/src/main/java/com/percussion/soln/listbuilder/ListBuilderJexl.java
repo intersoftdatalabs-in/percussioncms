@@ -52,7 +52,7 @@ public class ListBuilderJexl implements IPSJexlExpression {
       description = "Creates a Query Builder from a Node",
       params = {@IPSJexlParam(name = "node", description = "$sys.assemblyItem")},
       returns = "List builder item")
-  /**
+  /*
    * Returns the list builder item.
    *
    * @param assemblyItem the assembly item
@@ -87,7 +87,7 @@ public class ListBuilderJexl implements IPSJexlExpression {
       description = "Creates a Query Builder from a List builder",
       params = {@IPSJexlParam(name = "lbn", description = "getListBuilderItem($sys.item)")},
       returns = "JCRQueryBuilder")
-  /**
+  /*
    * Returns the query builder.
    *
    * @param lbn the lbn
@@ -143,7 +143,7 @@ public class ListBuilderJexl implements IPSJexlExpression {
       description = "Creates slot parameters from a list builder",
       params = {@IPSJexlParam(name = "lbn", description = "getListBuilderItem($sys.item)")},
       returns = "Map of slot parameters")
-  /**
+  /*
    * Returns the slot parameters.
    *
    * @param lbn the lbn

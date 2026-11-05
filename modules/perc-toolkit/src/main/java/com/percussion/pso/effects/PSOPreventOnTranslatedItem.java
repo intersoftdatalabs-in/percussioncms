@@ -63,7 +63,7 @@ import org.apache.logging.log4j.Logger;
       PSEffectContext.PRE_CLONE,
       PSEffectContext.PRE_WORKFLOW
     })
-/**
+/*
  * PSOPreventOnTranslatedItem class.
  */
 public class PSOPreventOnTranslatedItem implements IPSEffect {

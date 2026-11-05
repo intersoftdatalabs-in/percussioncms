@@ -507,6 +507,7 @@ public class PSNavLandingPageGeneratorEffect extends PSNavAbstractEffect {
    * @param landingSlotName Name of the NavOn Landing Page slot
    * @throws PSNavException if an error occurs
    */
+  @SuppressWarnings("unchecked")
   private void createNavOnLandingPageRelationship(
       IPSRequestContext req, PSComponentSummary navon, PSLocator lp, String landingSlotName)
       throws PSNavException {

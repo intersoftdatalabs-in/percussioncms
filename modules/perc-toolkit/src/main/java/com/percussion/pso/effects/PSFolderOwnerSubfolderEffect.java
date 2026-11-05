@@ -45,7 +45,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 @PSHandlesEffectContext(required = {PSEffectContext.PRE_CONSTRUCTION, PSEffectContext.PRE_UPDATE})
 // REFACTORED: CP-JAVA11
-/**
+/*
  * PSFolderOwnerSubfolderEffect class.
  */
 public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect {

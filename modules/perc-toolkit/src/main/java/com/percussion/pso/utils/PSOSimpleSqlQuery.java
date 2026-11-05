@@ -65,7 +65,7 @@ public class PSOSimpleSqlQuery {
   /** Logger for this class */
   private static final Logger ms_log = LogManager.getLogger(PSOSimpleSqlQuery.class);
 
-  /** Database pool from Percussion CMS Server */
+  /* Database pool from Percussion CMS Server */
   // static PSDatabasePool ms_pool = PSDatabasePool.getDatabasePool();
 
   /** static methods only, never constructed. */

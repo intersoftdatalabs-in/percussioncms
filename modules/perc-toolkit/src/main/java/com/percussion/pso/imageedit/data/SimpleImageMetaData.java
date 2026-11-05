@@ -44,7 +44,7 @@ public class SimpleImageMetaData extends AbstractImageMetaData {
   @SuppressWarnings("this-escape")
   // Safe because setImageKey and setMetaData are final in practice (not overridden in this class)
   // and only set superclass fields, not accessing subclass state.
-  /**
+  /*
    * Creates a new SimpleImageMetaData.
    *
    * @param data the data

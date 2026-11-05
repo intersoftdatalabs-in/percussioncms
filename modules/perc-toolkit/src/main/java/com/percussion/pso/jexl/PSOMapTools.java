@@ -53,7 +53,7 @@ public class PSOMapTools extends PSJexlUtilBase {
             description = "the map to overlay on top of the previous argument")
       },
       returns = "an overlayed map")
-  /**
+  /*
    * overlay operation.
    *
    * @param defaultOptions the default options
@@ -119,7 +119,7 @@ public class PSOMapTools extends PSJexlUtilBase {
       description = "loads properties from a properties file.",
       params = {@IPSJexlParam(name = "file", description = "location of properties file.")},
       returns = "java.util.properties")
-  /**
+  /*
    * loadPropertiesFile operation.
    *
    * @param file the file
@@ -142,7 +142,7 @@ public class PSOMapTools extends PSJexlUtilBase {
         @IPSJexlParam(name = "values", description = "list of objects")
       },
       returns = "map")
-  /**
+  /*
    * create operation.
    *
    * @param keys the keys

@@ -166,6 +166,7 @@ public class PSOSlotRelations {
    * @param relations the relations.
    * @return the relationship list
    */
+  @SuppressWarnings("unchecked")
   private static PSAaRelationshipList toRelList(List<PSAaRelationship> relations) {
     PSAaRelationshipList relList = new PSAaRelationshipList();
     for (PSAaRelationship rel : relations) {

@@ -40,7 +40,7 @@ import java.util.List;
       "depRelationships",
       "errors"
     })
-/**
+/*
  * Item class.
  */
 public class Item {

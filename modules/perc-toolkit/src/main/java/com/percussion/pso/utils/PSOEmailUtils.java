@@ -73,7 +73,7 @@ public class PSOEmailUtils {
     return ret;
   }
 
-  /***
+  /*
    * Sends an email using the specified parameters and the SMTP configuration
    * defined in the system /Workflow/rxworkflow.properties file,(the default) or some oether properties file
    *

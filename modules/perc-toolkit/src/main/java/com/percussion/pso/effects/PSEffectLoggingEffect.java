@@ -43,7 +43,7 @@ import org.apache.logging.log4j.Logger;
 
 @PSHandlesEffectContext()
 // REFACTORED: CP-JAVA11
-/**
+/*
  * PSEffectLoggingEffect class.
  */
 public class PSEffectLoggingEffect implements IPSEffect {

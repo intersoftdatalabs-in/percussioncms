@@ -111,7 +111,7 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "get the folder path for this item",
       params = {@IPSJexlParam(name = "itemId", description = "the item GUID")})
-  /**
+  /*
    * Returns the parent folder paths.
    *
    * @param itemId the item id
@@ -156,7 +156,7 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
   @IPSJexlMethod(
       description = "get the folder path for this item",
       params = {@IPSJexlParam(name = "itemId", description = "the item GUID")})
-  /**
+  /*
    * Returns the parent folder path.
    *
    * @param itemId the item id
@@ -196,7 +196,7 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
       description = "get the folder path for this item",
       params = {@IPSJexlParam(name = "assemblyItem", description = "$sys.assemblyItem")},
       returns = "the path of the folder that contains this item")
-  /**
+  /*
    * Returns the parent folder path.
    *
    * @param assemblyItem the assembly item
@@ -270,7 +270,7 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression {
       description = "Gets the folder properties of a folder.",
       params = {@IPSJexlParam(name = "path", description = "folder path")},
       returns = "The folder properties (Map)")
-  /**
+  /*
    * Returns the folder properties.
    *
    * @param path the path

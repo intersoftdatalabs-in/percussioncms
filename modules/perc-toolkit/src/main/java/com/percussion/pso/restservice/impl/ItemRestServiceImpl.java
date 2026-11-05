@@ -190,6 +190,7 @@ import org.springframework.stereotype.Service;
 @Service(value = "restItemService")
 @Path("/Content/")
 @Produces("text/xml")
+@SuppressWarnings("unchecked")
 public class ItemRestServiceImpl implements IItemRestService {
 
   private static final int PAGE_SIZE = 1000;
@@ -2109,7 +2110,7 @@ public class ItemRestServiceImpl implements IItemRestService {
   @GET
   // On upgrade use @Path("/Sites/{search:.*}") remove limited
   // @Path(value="/Sites/{search}", limited=false)
-  /**
+  /*
    * Returns the items.
    *
    * @param path the path

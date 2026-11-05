@@ -71,7 +71,7 @@ public class PSOSlotContentsTest {
   @Mock PSAaRelationship rel3;
   @Mock PSAaRelationship rel4;
 
-  /**
+  /*
    * @param name
    */
 

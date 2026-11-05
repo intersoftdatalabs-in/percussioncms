@@ -127,7 +127,7 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "end", description = "the end index (exclusive)")
       },
       returns = "a subset of collection as a list")
-  /**
+  /*
    * sublist operation.
    *
    * @param c the c
@@ -250,7 +250,7 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
               + " the item.",
       params = {@IPSJexlParam(name = "value", description = "value ")},
       returns = "a list")
-  /**
+  /*
    * asList operation.
    *
    * @param single the single
@@ -289,7 +289,7 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "size", description = "size of the array to return")
       },
       returns = "T[]")
-  /**
+  /*
    * asList operation.
    *
    * @param value the value
@@ -321,7 +321,7 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
         @IPSJexlParam(name = "second", description = "second object")
       },
       returns = "a list")
-  /**
+  /*
    * asPair operation.
    *
    * @param first the first
@@ -378,7 +378,7 @@ public class PSOListTools extends PSJexlUtilBase implements IPSJexlExpression {
       params = {
         @IPSJexlParam(name = "list", description = "the list whose elements are to be reversed.")
       })
-  /**
+  /*
    * reverse operation.
    *
    * @param list the list
