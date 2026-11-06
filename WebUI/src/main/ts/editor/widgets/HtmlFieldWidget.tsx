@@ -19,6 +19,7 @@ import React, { useEffect, useRef } from "react";
 import { withCmsContextPrefix } from "../../assembly/assemblyHostUrl";
 import { message } from "../../i18n/message";
 import { EDITOR_MSG } from "../messages";
+import { TipTapFieldWidget, type HtmlEditorEngine } from "./TipTapFieldWidget";
 import styles from "../EditorHost.module.css";
 
 export const TINYMCE_SCRIPT_PATH =
@@ -43,6 +44,8 @@ declare global {
   }
 }
 
+export type { HtmlEditorEngine } from "./TipTapFieldWidget";
+
 export interface HtmlFieldWidgetProps {
   name: string;
   value: string;
@@ -50,6 +53,12 @@ export interface HtmlFieldWidgetProps {
   invalid?: boolean;
   onChange: (value: string) => void;
   loadScript?: (src: string) => Promise<void>;
+  /**
+   * Spike seam for #5622/#5650. {@code "tinymce"} (default) keeps the
+   * current script-loaded editor; {@code "tiptap"} renders the bundled
+   * TipTap hello-world instead. Removed when toolbar parity lands (#5651).
+   */
+  engine?: HtmlEditorEngine;
 }
 
 let tinymceLoad: Promise<void> | null = null;
@@ -88,7 +97,46 @@ export function HtmlFieldWidget({
   invalid = false,
   onChange,
   loadScript = defaultLoadTinyMceScript,
+  engine = "tinymce",
 }: HtmlFieldWidgetProps): React.ReactElement {
+  if (engine === "tiptap") {
+    return (
+      <TipTapFieldWidget
+        name={name}
+        value={value}
+        readOnly={readOnly}
+        invalid={invalid}
+        onChange={onChange}
+      />
+    );
+  }
+  return (
+    <TinyMceFieldWidget
+      name={name}
+      value={value}
+      readOnly={readOnly}
+      invalid={invalid}
+      onChange={onChange}
+      loadScript={loadScript}
+    />
+  );
+}
+
+function TinyMceFieldWidget({
+  name,
+  value,
+  readOnly,
+  invalid = false,
+  onChange,
+  loadScript,
+}: {
+  name: string;
+  value: string;
+  readOnly: boolean;
+  invalid?: boolean;
+  onChange: (value: string) => void;
+  loadScript: (src: string) => Promise<void>;
+}): React.ReactElement {
   const areaRef = useRef<HTMLTextAreaElement | null>(null);
   const editorRef = useRef<TinyMceEditor | null>(null);
   const onChangeRef = useRef(onChange);

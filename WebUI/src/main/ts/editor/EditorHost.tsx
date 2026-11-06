@@ -281,7 +281,7 @@ import { listLocales } from "../api/developer/localesApi";
 import type { LocaleSummary } from "../api/developer/types";
 import { CommunityFieldWidget } from "./widgets/CommunityFieldWidget";
 import { FileFieldWidget } from "./widgets/FileFieldWidget";
-import { HtmlFieldWidget } from "./widgets/HtmlFieldWidget";
+import { HtmlFieldWidget, type HtmlEditorEngine } from "./widgets/HtmlFieldWidget";
 import { ImageFieldWidget } from "./widgets/ImageFieldWidget";
 import {
   collectKeywordNulFieldErrors,
@@ -500,11 +500,13 @@ function EditorFieldControl({
   loadCommunities,
   loadBinaryMeta,
   downloadBinary,
+  htmlEngine,
 }: {
   row: EditorFieldRow;
   itemId: string;
   locked: boolean;
   invalid?: boolean;
+  htmlEngine: HtmlEditorEngine;
   onChange: (name: string, value: string) => void;
   onFile: (name: string, file: File | null) => void;
   onClear: (name: string, hadStored: boolean) => void;
@@ -528,6 +530,7 @@ function EditorFieldControl({
           value={row.value}
           readOnly={locked}
           invalid={invalid}
+          engine={htmlEngine}
           onChange={(value) => onChange(row.name, value)}
         />
         {showClear ? (
@@ -873,6 +876,13 @@ export function EditorHost({
   const linkbackWarning = (params.get("warningMessage") ?? "").trim();
   const readOnly = mode === "view";
   const promote = mode === "promote";
+  /**
+   * Spike seam for #5622/#5650: {@code ?engine=tiptap} renders the bundled
+   * TipTap hello-world for HTML fields instead of script-loaded TinyMCE.
+   * Defaults to TinyMCE; removed when toolbar parity lands (#5651).
+   */
+  const htmlEngine: HtmlEditorEngine =
+    params.get("engine") === "tiptap" ? "tiptap" : "tinymce";
 
   const [payload, setPayload] = useState<ItemEditorFields | null>(null);
   const [schema, setSchema] = useState<ContentTypeFieldSummary[]>([]);
@@ -5005,6 +5015,7 @@ export function EditorHost({
                       itemId={String(contentId)}
                       locked={readOnly || !canEdit || row.readOnly}
                       invalid={Boolean(fieldErrors[row.name])}
+                      htmlEngine={htmlEngine}
                       onChange={setField}
                       onFile={setFile}
                       onClear={markBinaryClear}

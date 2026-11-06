@@ -197,6 +197,54 @@
   font-size: 13px;
 }
 
+/* TipTap spike host (#5650): WYSIWYG surface, not the monospace source look. */
+.tiptapHost {
+  flex: 1;
+  min-width: 0;
+}
+
+.tiptapHost > div {
+  width: 100%;
+}
+
+.tiptap {
+  min-height: 12rem;
+}
+
+.tiptap p {
+  margin: 0 0 0.5em;
+}
+
+.tiptap ul,
+.tiptap ol {
+  padding-left: 1.5rem;
+  margin: 0 0 0.5em;
+}
+
+.tiptap blockquote {
+  border-left: 3px solid #cbd5e1;
+  margin: 0 0 0.5em;
+  padding-left: 0.75rem;
+}
+
+.tiptap pre {
+  background: #f1f5f9;
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  overflow-x: auto;
+}
+
+.tiptap table {
+  border-collapse: collapse;
+  margin: 0 0 0.5em;
+}
+
+.tiptap th,
+.tiptap td {
+  border: 1px solid #cbd5e1;
+  padding: 4px 8px;
+}
+
 .binary {
   display: flex;
   flex-wrap: wrap;
