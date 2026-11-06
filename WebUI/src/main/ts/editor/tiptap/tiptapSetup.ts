@@ -12,23 +12,22 @@
  */
 
 /**
- * Shared TipTap extension set for the #5622 toolbar-parity slice (#5651).
+ * Shared TipTap extension set for #5622 (spike #5650, parity #5651, Percussion
+ * plugins #5652).
  *
- * <p>MIT-licensed TipTap 3 / ProseMirror extensions only. This set exists to
- * back the React editor host toolbar at {@code rx_default_config.json}
- * parity (lists, link, code, tables, plus the underline/align/image output
- * the CMS already persists) and to keep parsing already-stored TinyMCE
- * 6.8.6 HTML without content drift (see {@code tiptapRoundTrip}). It is not
- * the Percussion plugin rewrite (slice #5652): no custom plugins live
- * here.</p>
+ * <p>MIT-licensed TipTap 3 / ProseMirror extensions only. This set backs the
+ * React editor host toolbar at {@code rx_default_config.json} parity (lists,
+ * link, code, tables, plus the underline/align/image output the CMS already
+ * persists), the Percussion plugin ports (CMS inline-link/image/template
+ * attributes, the global-variable marker, the blog more-link marker), and
+ * parsing already-stored TinyMCE 6.8.6 HTML without content drift (see
+ * {@code tiptapRoundTrip}).</p>
  *
  * <p>TipTap 3 ships named exports only (no default exports); the imports
  * below use the v3 form.</p>
  */
 
 import type { AnyExtension } from "@tiptap/core";
-import { Image } from "@tiptap/extension-image";
-import { Link } from "@tiptap/extension-link";
 import { Table } from "@tiptap/extension-table";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
@@ -36,6 +35,12 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { TextAlign } from "@tiptap/extension-text-align";
 import { Underline } from "@tiptap/extension-underline";
 import { StarterKit } from "@tiptap/starter-kit";
+import {
+  PercGlobalVariable,
+  PercImage,
+  PercLink,
+  PercMoreLink,
+} from "./tiptapPercussionNodes";
 
 /**
  * Build the toolbar-parity extension set.
@@ -44,8 +49,10 @@ import { StarterKit } from "@tiptap/starter-kit";
  * blockquote, code, hard breaks, rules, and history (undo/redo). The extra
  * marks/extensions cover the remaining TinyMCE toolbar/config output the
  * React host persists today: underline (current toolbar), links (current
- * toolbar/plugins), images, tables, and paragraph/heading alignment
- * ({@code rx_default_config.json} align buttons).</p>
+ * toolbar/plugins, plus CMS inline attributes), images (plus CMS inline
+ * attributes), tables, paragraph/heading alignment
+ * ({@code rx_default_config.json} align buttons), the global-variable marker,
+ * and the blog more-link marker (plugin ports, #5652).</p>
  *
  * @returns a fresh extension list per call (extensions hold config state).
  */
@@ -53,7 +60,7 @@ export function createTipTapEditorExtensions(): AnyExtension[] {
   return [
     StarterKit,
     Underline,
-    Link.configure({
+    PercLink.configure({
       openOnClick: false,
       autolink: true,
       // Null out the extension's default target/rel (options deep-merge, so
@@ -64,11 +71,16 @@ export function createTipTapEditorExtensions(): AnyExtension[] {
     }),
     // Inline images match TinyMCE's stored form (images inside paragraphs);
     // block images would otherwise split paragraphs on parse.
-    Image.configure({ inline: true }),
+    PercImage.configure({ inline: true }),
     Table.configure({ resizable: false }),
     TableRow,
     TableHeader,
     TableCell,
     TextAlign.configure({ types: ["heading", "paragraph"] }),
+    // Percussion plugin ports (#5652): marker nodes with no parity-slice
+    // equivalent. They serialize to the same stored markup the TinyMCE
+    // plugins persist.
+    PercGlobalVariable,
+    PercMoreLink,
   ];
 }

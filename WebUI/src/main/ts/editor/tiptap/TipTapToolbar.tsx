@@ -471,3 +471,11 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
     </div>
   );
 }
+
+/**
+ * Shared toolbar button for the Percussion plugin bar (#5652): the same
+ * mousedown selection guard, test-id shape, and screen-reader naming as the
+ * parity toolbar.
+ */
+export { ToolButton as TipTapToolButton };
+export type { ToolButtonProps as TipTapToolButtonProps };

@@ -12,16 +12,18 @@
  */
 
 /**
- * TipTap 3 / ProseMirror host for HTML fields (#5622 slices #5650/#5651).
+ * TipTap 3 / ProseMirror host for HTML fields (#5622 slices #5650/#5651, plugins #5652).
  *
- * <p>Toolbar-parity scope: a {@code rx_default_config.json} toolbar (lists,
+ * <p>Toolbar-parity scope: a {@code rx_default_config} toolbar (lists,
  * link, code, tables, plus undo/redo, inline styles, alignment) over the
  * shared extension set, reporting HTML strings through the same
  * {@code onChange} contract as the TinyMCE widget, so the existing
  * {@code PUT /services/itemmanagement/item/fields/{id}} persist path is
  * reused unchanged. Pasted Word/Office HTML is reduced to the
  * {@code paste_word_valid_elements} contract before parsing. The Percussion
- * plugin rewrite is slice #5652 — no custom plugins live here.</p>
+ * plugin ports ({@code TipTapPercussionBar}: inline link/image/template,
+ * insert HTML, global variables, more link, source view) serialize to the
+ * same stored markup the TinyMCE plugins persist.</p>
  *
  * <p>Implementation note: the editor is managed directly through
  * {@code @tiptap/core} ({@code Editor} lifecycle in an effect) rather than
@@ -36,8 +38,10 @@ import { Editor } from "@tiptap/core";
 import React, { useEffect, useRef, useState } from "react";
 import { message } from "../../i18n/message";
 import { EDITOR_MSG } from "../messages";
+import { preparePercussionHtml } from "../tiptap/tiptapPercussion";
 import { createTipTapEditorExtensions } from "../tiptap/tiptapSetup";
 import { sanitizeWordPastedHtml } from "../tiptap/tiptapWordPaste";
+import { TipTapPercussionBar } from "../tiptap/TipTapPercussionBar";
 import { TipTapToolbar } from "../tiptap/TipTapToolbar";
 import styles from "../EditorHost.module.css";
 
@@ -82,7 +86,9 @@ export function TipTapFieldWidget({
     const editor = new Editor({
       element: mount,
       extensions: createTipTapEditorExtensions(),
-      content: initialRef.current ?? "",
+      // Stored Percussion marker shorthands are prepared before parsing,
+      // mirroring the TinyMCE plugins' BeforeSetContent handlers.
+      content: preparePercussionHtml(initialRef.current ?? ""),
       editable: !readOnlyRef.current,
       onUpdate: ({ editor: updated }) => {
         onChangeRef.current(updated.getHTML());
@@ -132,6 +138,9 @@ export function TipTapFieldWidget({
       {!readOnly && toolbarEditor ? (
         <TipTapToolbar editor={toolbarEditor} name={name} />
       ) : null}
+      {!readOnly && toolbarEditor ? (
+        <TipTapPercussionBar editor={toolbarEditor} name={name} />
+      ) : null}
       <div ref={mountRef} />
     </div>
   );
@@ -154,8 +163,9 @@ function useSyncTipTapEditor(
 
   useEffect(() => {
     const editor = editorRef.current;
-    if (editor && editor.getHTML() !== value) {
-      editor.commands.setContent(value);
+    const prepared = preparePercussionHtml(value);
+    if (editor && editor.getHTML() !== prepared) {
+      editor.commands.setContent(prepared);
     }
   }, [editorRef, value]);
 

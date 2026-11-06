@@ -20,11 +20,12 @@
  * The round-trip test asserts parsing through the spike TipTap schema and
  * re-serializing yields the same normalized document: no content drift.</p>
  *
- * <p>Deliberately excluded (later slices, not the spike): styled
- * {@code <span>} runs and font colors (plugin rewrite, #5652), anchor-only
- * {@code <a name>} links (no href survives the Link mark), ordered-list
- * {@code start} offsets, and script/event markup (still rejected by
- * {@code htmlField.ts}, never normalized).</p>
+ * <p>Deliberately excluded: styled {@code <span>} runs and font colors
+ * (out of scope), anchor-only {@code <a name>} links (no href survives the
+ * Link mark), ordered-list {@code start} offsets, and script/event markup
+ * (still rejected by {@code htmlField.ts}, never normalized). Percussion
+ * plugin markers (inline slot attributes, the global-variable marker, the
+ * more-link marker) are covered since the plugin rewrite (#5652).</p>
  */
 
 export interface TinymceCorpusEntry {
@@ -135,5 +136,44 @@ export const TINYMCE_CORPUS: readonly TinymceCorpusEntry[] = [
       "<h1>News</h1><p>By <strong>Ed</strong> on <em>Monday</em>.</p>" +
       "<ul><li><a href=\"https://example.com/a\">Item one</a></li><li>Item two</li></ul>" +
       "<blockquote><p>Notable.</p></blockquote><p>End.</p>",
+  },
+  {
+    name: "inline link with CMS slot attributes",
+    tinymce:
+      '<p>See <a href="/Rhythmyx/Sites/Enterprise/about.html" title="About" rxinlineslot="103" ' +
+      'inlinetype="rxhyperlink" sys_dependentid="101" sys_dependentvariantid="201" ' +
+      'rxselectedtext="About us">About us</a> now.</p>',
+  },
+  {
+    name: "inline template with CMS slot attributes",
+    tinymce:
+      '<p>Promo: <a href="/Rhythmyx/Assets/img/banner.html" rxinlineslot="105" ' +
+      'inlinetype="rxvariant" sys_dependentid="102" sys_dependentvariantid="202" ' +
+      'rxselectedtext="Promo">Promo</a>.</p>',
+  },
+  {
+    name: "inline image with CMS slot attributes",
+    tinymce:
+      '<p><img src="/Rhythmyx/Assets/img/photo.jpg" alt="Team photo" title="Team" ' +
+      'width="320" height="200" rxinlineslot="104" inlinetype="rximage" ' +
+      'sys_dependentid="103" sys_dependentvariantid="203"></p>',
+  },
+  {
+    name: "global variable marker",
+    tinymce:
+      '<p>Welcome to <span class="perc-global-variable-marker" ' +
+      'title="company_name">Acme</span>!</p>',
+  },
+  {
+    name: "more link marker",
+    tinymce: "<p>Teaser</p><p><span class=\"perc-blog-more-link\"></span></p><p>Rest</p>",
+  },
+  {
+    name: "self-closed more link marker from disk",
+    tinymce: '<p>Teaser<span class="perc-blog-more-link"/></p><p>Rest</p>',
+  },
+  {
+    name: "self-closed more link marker with trailing text",
+    tinymce: '<p>Teaser<span class="perc-blog-more-link"/> continued</p>',
   },
 ];
