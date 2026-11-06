@@ -382,7 +382,10 @@ test.describe("React Content Editor TipTap editor", () => {
       await expect(linkText).toHaveValue("About");
       await page.locator('[data-testid="tiptap-perc-apply-text"]').click();
       const saved = await editable.innerHTML();
-      expect(saved).toContain('href="/Rhythmyx/Sites/a.html"');
+      // The live cell's OWASP CSRFGuard appends ?OWASP-CSRFTOKEN= to
+      // relative hrefs in the DOM, so match the path prefix, not the exact
+      // attribute (exact stored shape is locked by the Vitest suite).
+      expect(saved).toContain('href="/Rhythmyx/Sites/a.html');
       expect(saved).toContain('rxinlineslot="103"');
       expect(saved).toContain('inlinetype="rxhyperlink"');
 
