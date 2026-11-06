@@ -2782,6 +2782,76 @@ describe("actionDispatch", () => {
     expect(result.refresh).toBeUndefined();
   });
 
+  it("Schedule invalid range is refused before POST", async () => {
+    const onSchedule = vi.fn();
+    const fetchSpy = vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ ItemDates: { itemId: "42" } }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await dispatchAction(action({ name: "Schedule" }), {
+      item: item({ id: "42", name: "Home" }),
+      onSchedule,
+      pickScheduleDates: async () => ({
+        itemId: "42",
+        startDate: "09/19/2026 09:00 am",
+        endDate: "09/18/2026 09:00 am",
+        comments: "",
+      }),
+      confirm: () => true,
+    });
+    expect(onSchedule).not.toHaveBeenCalled();
+    // Only the getitemdates read; no setitemdates write.
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(result.messageKey).toBe(EXPLORER_MSG.SCHEDULE_DATE_RANGE);
+    expect(result.messageText).toMatch(/Removal must be after publish/);
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it.each([400, 403, 404, 409])(
+    "Schedule single-item HTTP %s names the item and leaves prior dates",
+    async (status) => {
+      const fetchSpy = vi.spyOn(global, "fetch").mockImplementation(
+        async (input: string | URL | Request) => {
+          const url = String(input);
+          if (url.includes("setitemdates")) {
+            return new Response("denied", {
+              status,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+          return new Response(
+            JSON.stringify({
+              ItemDates: {
+                itemId: "42",
+                startDate: "09/18/2026 09:00 am",
+                endDate: "",
+                comments: "",
+              },
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          );
+        },
+      );
+      const result = await dispatchAction(action({ name: "Schedule" }), {
+        item: item({ id: "42", name: "Home" }),
+        pickScheduleDates: async () => ({
+          itemId: "42",
+          startDate: "09/20/2026 09:00 am",
+          endDate: "",
+          comments: "",
+        }),
+        confirm: () => true,
+      });
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
+      expect(result.messageKey).toBe(EXPLORER_MSG.SCHEDULE_FAILED);
+      expect(result.messageText).toMatch(/Home \(HTTP/);
+      expect(result.messageText).toContain(`HTTP ${status}`);
+      expect(result.refresh).toBeUndefined();
+    },
+  );
+
   it("Schedule on a Sites folder asks for a content item", async () => {
     const onSchedule = vi.fn();
     const result = await dispatchAction(action({ name: "Schedule" }), {
