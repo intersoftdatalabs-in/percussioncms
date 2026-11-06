@@ -58,7 +58,7 @@ absent — a missing count is `-1` (unknown), not zero.
 |---|-------|-----------|-------------|
 | 1 | Identity | (inline — read env) | stamp args already passed; must populate `NIGHT_MODEL_ID` and `NIGHT_CODING_TOOL_VERSION` before any PR body or label is emitted |
 | 2 | Decision front | run `scripts/night-decision-front.py` (thin; fetch `scratch/alerts.json` first, pass `--alerts`; omit the flag on fetch failure → count `-1`, never fake `[]`) | `include_decision_front: false` |
-| 3 | Preflight (fallback) — stale In Progress cleanup + TypeSafe pre-screen | `preflight` | decision-front `signals_complete` |
+| 3 | Preflight (fallback) — stale In Progress cleanup + TypeSafe pre-screen | `preflight` | decision-front `signals_complete` (host still writes canonical `scratch/preflight.json` via `scripts/write-preflight.py`; see command file) |
 | 4 | Reconcile (fallback) | `reconcile` | decision-front filled the queue or `include_reconcile: false` |
 | 5 | PR follow-up PRE | `pr-follow-up` | no merge blockers |
 | 6 | Triage | `triage` | decision-front filled `max_issues` |

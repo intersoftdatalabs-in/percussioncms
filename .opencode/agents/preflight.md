@@ -302,7 +302,10 @@ Emit a `signals.json` companion that downstream phases consume:
   `scratch/preflight.json` to 0 bytes, blocking every downstream phase.
   Build JSON from files instead: `jq --slurpfile` / input redirection,
   or a short Python script that reads `scratch/issues-*.json` and writes
-  `scratch/preflight.json` directly.
+  `scratch/preflight.json` directly. The skipped-preflight path has a
+  canonical writer: `scripts/write-preflight.py` (see `scripts/README.md`
+  and the `night-issue-prs` command's "Preflight output contract" section)
+  — its `issues_compact` ARRAY shape is what `reconcile` consumes.
 - **Never** set `open_alert_count` to 0 when the CodeQL API returns an
   error. Omit the key entirely so the host treats it as unknown.
 - **Never** clear more than 40 stale In Progress labels per run.
