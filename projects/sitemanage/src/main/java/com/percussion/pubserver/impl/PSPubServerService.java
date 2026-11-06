@@ -437,6 +437,12 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSAmazonS3DeliveryRegionUpdate.isRegionOnly(pubServerInfo)) {
         return updateS3RegionOnly(siteId, serverId, pubServerInfo);
       }
+      // Password-only FTP PUT must not run the full property replace (that clears host, port,
+      // user, folder, driver, and name) and must not decode secrets that are not in the body.
+      // The single password value is base64-decoded inside updateFtpPasswordOnly (product norm).
+      if (PSFtpDeliveryPasswordUpdate.isPasswordOnly(pubServerInfo)) {
+        return updateFtpPasswordOnly(siteId, serverId, pubServerInfo);
+      }
       // Folder-only PUT must not run the full property replace. A blank folder
       // clears only the stored folder. Local and FTP share this body shape; the
       // stored driver selects Local vs FTP apply.
@@ -746,6 +752,33 @@ public class PSPubServerService implements IPSPubServerService {
     } else {
       PSFtpDeliveryUserUpdate.apply(server, pubServerInfo);
     }
+    pubServerDao.savePubServer(server);
+    return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Save only the FTP {@code password} property. Does not rename the server or replace the
+   * property set. Blank, overlong, the masked placeholder, and non-FTP drivers throw before
+   * {@code savePubServer}. The stored secret is never echoed: the response masks it as {@code
+   * passwordEntry} via {@code toPSPublishServerInfo}.
+   */
+  private PSPublishServerInfo updateFtpPasswordOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    convertPasswordFromBase64(pubServerInfo);
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    PSFtpDeliveryPasswordUpdate.apply(server, pubServerInfo);
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
