@@ -437,6 +437,12 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSAmazonS3DeliveryRegionUpdate.isRegionOnly(pubServerInfo)) {
         return updateS3RegionOnly(siteId, serverId, pubServerInfo);
       }
+      // S3 access-key-only PUT must not run the full property replace (that clears bucket,
+      // region, secret key, driver, and name). The single access key value is base64-decoded
+      // inside updateS3AccessKeyOnly (product norm) and stored encrypted with PSEncryptor.
+      if (PSAmazonS3DeliveryAccessKeyUpdate.isAccessKeyOnly(pubServerInfo)) {
+        return updateS3AccessKeyOnly(siteId, serverId, pubServerInfo);
+      }
       // Password-only FTP PUT must not run the full property replace (that clears host, port,
       // user, folder, driver, and name) and must not decode secrets that are not in the body.
       // The single password value is base64-decoded inside updateFtpPasswordOnly (product norm).
@@ -926,6 +932,45 @@ public class PSPubServerService implements IPSPubServerService {
           "The server you are trying to act on no longer exists in the system.");
     }
     PSAmazonS3DeliveryRegionUpdate.apply(server, pubServerInfo);
+    pubServerDao.savePubServer(server);
+    return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Save only the Amazon S3 {@code accesskey} property. Does not rename the server or replace the
+   * property set. Blank, overlong, and non-S3 drivers throw before {@code savePubServer}. Bucket,
+   * region, and secret key are not decoded from this body. The decoded key is stored encrypted
+   * with {@code PSEncryptor} (mirroring the full-edit path for {@code encryptableProperties});
+   * the stored secret key is never echoed.
+   */
+  private PSPublishServerInfo updateS3AccessKeyOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    convertAccessKeyFromBase64(pubServerInfo);
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    PSAmazonS3DeliveryAccessKeyUpdate.apply(server, pubServerInfo);
+    String accessKey =
+        server.getPropertyValue(IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY).orElse("");
+    try {
+      server.addProperty(
+          IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY,
+          PSEncryptor.encryptString(
+              PSServer.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR), accessKey));
+    } catch (Exception e) {
+      throw new PSPubServerServiceException(
+          "Error occurred while encrypting the server properties.", e);
+    }
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
@@ -2648,6 +2693,37 @@ public class PSPubServerService implements IPSPubServerService {
       }
 
       pubProperty.setValue(decodedPassword);
+      pubServerInfo.getProperties().add(pubProperty);
+    }
+  }
+
+  /**
+   * Converts the S3 access key property of the publishing server info from Base64 to a String.
+   * The access-key-only panel sends the key base64-encoded (product norm for secrets); older or
+   * non-conforming callers may send plain text, which is accepted defensively.
+   *
+   * @param pubServerInfo The publishing server info containing the access key property
+   */
+  private void convertAccessKeyFromBase64(PSPublishServerInfo pubServerInfo) {
+    String encodedAccessKey =
+        pubServerInfo.findProperty(IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY);
+    if (encodedAccessKey != null) {
+      PSPublishServerProperty pubProperty = new PSPublishServerProperty();
+      pubProperty.setKey(IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY);
+      pubProperty.setValue(encodedAccessKey);
+      pubServerInfo.getProperties().remove(pubProperty);
+
+      String decodedAccessKey = null;
+      try {
+        decodedAccessKey = new String(Base64.getDecoder().decode(encodedAccessKey));
+      } catch (Exception e) {
+        log.warn(
+            "Unable to decode S3 access key, proceeding as if it is clear text."
+                + "  Try editing the Publishing server to clear this Warning.");
+        decodedAccessKey = encodedAccessKey;
+      }
+
+      pubProperty.setValue(decodedAccessKey);
       pubServerInfo.getProperties().add(pubProperty);
     }
   }
