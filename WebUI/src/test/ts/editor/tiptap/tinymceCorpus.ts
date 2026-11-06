@@ -46,6 +46,7 @@ export const TINYMCE_CORPUS: readonly TinymceCorpusEntry[] = [
     name: "legacy tag aliases",
     tinymce: "<p><b>B</b> <i>I</i> <strike>S</strike></p>",
   },
+  { name: "nested inline aliases", tinymce: "<p><b>Bold <i>both</i></b></p>" },
   { name: "headings", tinymce: "<h1>Title</h1><h2>Section</h2><h3>Detail</h3>" },
   {
     name: "bullet and ordered lists",

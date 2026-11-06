@@ -109,13 +109,14 @@ function normalizeNode(parent: ParentNode): void {
     const el = child as HTMLElement;
     if (isHoistableWrapper(el)) {
       // Hoisted grandchildren still need normalization: rescan the parent.
-      // normalizeElement is idempotent, so rescanning is safe.
+      // Every helper below is idempotent, so rescanning is safe.
       hoistChildren(el);
       normalizeNode(parent);
       return;
     }
-    normalizeElement(el);
-    normalizeNode(el);
+    // normalizeElement may swap the node (alias mapping); recurse into the
+    // node actually in the tree so nested aliases are canonicalized too.
+    normalizeNode(normalizeElement(el));
   }
 }
 
@@ -143,66 +144,114 @@ function hoistChildren(el: HTMLElement): void {
   el.remove();
 }
 
-function normalizeElement(el: HTMLElement): void {
-  const alias = TAG_ALIASES[el.tagName.toLowerCase()];
-  if (alias !== undefined) {
-    const replacement = el.ownerDocument.createElement(alias);
-    for (const attr of Array.from(el.attributes)) {
-      replacement.setAttribute(attr.name, attr.value);
-    }
-    while (el.firstChild) {
-      replacement.appendChild(el.firstChild);
-    }
-    el.replaceWith(replacement);
-    el = replacement;
-  }
-  const tag = el.tagName.toLowerCase();
-  if (tag === "pre" && el.children.length === 1) {
-    const only = el.children[0];
-    if (only.tagName.toLowerCase() === "code") {
-      while (only.firstChild) {
-        el.appendChild(only.firstChild);
-      }
-      only.remove();
-    }
-  }
-  if ((tag === "li" || tag === "th" || tag === "td") && el.children.length === 1) {
-    const only = el.children[0];
-    if (
-      only.tagName.toLowerCase() === "p" &&
-      (only.textContent ?? "").trim().length > 0
-    ) {
-      while (only.firstChild) {
-        el.insertBefore(only.firstChild, only);
-      }
-      only.remove();
-    }
-  }
-  if (tag === "li" && el.children.length > 1) {
-    // StarterKit wraps leading item text in a paragraph before nested lists;
-    // TinyMCE keeps it bare. Unwrap the leading paragraph only.
-    const first = el.children[0];
-    if (first.tagName.toLowerCase() === "p") {
-      while (first.firstChild) {
-        el.insertBefore(first.firstChild, first);
-      }
-      first.remove();
-    }
-  }
-  if (tag === "colgroup") {
+/**
+ * Canonicalize one element (never its subtree) and return the node actually
+ * in the tree — alias mapping swaps the node, so callers must recurse into
+ * the return value, not the input.
+ */
+function normalizeElement(el: HTMLElement): HTMLElement {
+  const canonical = aliasElement(el);
+  unwrapPreCode(canonical);
+  unwrapItemParagraph(canonical);
+  unwrapLeadingItemParagraph(canonical);
+  if (canonical.tagName.toLowerCase() === "colgroup") {
     // TipTap column bookkeeping; widths are not stored content.
-    el.remove();
+    canonical.remove();
+    return canonical;
+  }
+  dropEmptyBreakParagraph(canonical);
+  sortAttributes(canonical);
+  return canonical;
+}
+
+/** Map TinyMCE tag aliases to the StarterKit form, swapping the node. */
+function aliasElement(el: HTMLElement): HTMLElement {
+  const alias = TAG_ALIASES[el.tagName.toLowerCase()];
+  if (alias === undefined) {
+    return el;
+  }
+  const replacement = el.ownerDocument.createElement(alias);
+  for (const attr of Array.from(el.attributes)) {
+    replacement.setAttribute(attr.name, attr.value);
+  }
+  while (el.firstChild) {
+    replacement.appendChild(el.firstChild);
+  }
+  el.replaceWith(replacement);
+  return replacement;
+}
+
+/** {@code <pre><code>…} → {@code <pre>…} (StarterKit always nests code). */
+function unwrapPreCode(el: HTMLElement): void {
+  if (el.tagName.toLowerCase() !== "pre" || el.children.length !== 1) {
     return;
   }
-  if (tag === "p" && el.children.length === 1) {
-    const only = el.children[0];
-    if (
-      only.tagName.toLowerCase() === "br" &&
-      (el.textContent ?? "").trim() === ""
-    ) {
-      only.remove();
-    }
+  const only = el.children[0];
+  if (only.tagName.toLowerCase() !== "code") {
+    return;
   }
+  while (only.firstChild) {
+    el.appendChild(only.firstChild);
+  }
+  only.remove();
+}
+
+/**
+ * Single-{@code <p>} item/cell bodies ({@code li}/{@code th}/{@code td}) hold
+ * no extra structure — StarterKit wraps them, TinyMCE keeps them bare.
+ */
+function unwrapItemParagraph(el: HTMLElement): void {
+  const tag = el.tagName.toLowerCase();
+  if ((tag !== "li" && tag !== "th" && tag !== "td") || el.children.length !== 1) {
+    return;
+  }
+  const only = el.children[0];
+  if (
+    only.tagName.toLowerCase() !== "p" ||
+    (only.textContent ?? "").trim().length === 0
+  ) {
+    return;
+  }
+  while (only.firstChild) {
+    el.insertBefore(only.firstChild, only);
+  }
+  only.remove();
+}
+
+/**
+ * StarterKit wraps leading item text in a paragraph before nested lists;
+ * TinyMCE keeps it bare. Unwrap the leading paragraph only.
+ */
+function unwrapLeadingItemParagraph(el: HTMLElement): void {
+  if (el.tagName.toLowerCase() !== "li" || el.children.length <= 1) {
+    return;
+  }
+  const first = el.children[0];
+  if (first.tagName.toLowerCase() !== "p") {
+    return;
+  }
+  while (first.firstChild) {
+    el.insertBefore(first.firstChild, first);
+  }
+  first.remove();
+}
+
+/** Paragraphs containing only a {@code <br>} are empty. */
+function dropEmptyBreakParagraph(el: HTMLElement): void {
+  if (el.tagName.toLowerCase() !== "p" || el.children.length !== 1) {
+    return;
+  }
+  const only = el.children[0];
+  if (
+    only.tagName.toLowerCase() === "br" &&
+    (el.textContent ?? "").trim() === ""
+  ) {
+    only.remove();
+  }
+}
+/** Drop bookkeeping attributes and sort the rest for stable comparison. */
+function sortAttributes(el: HTMLElement): void {
+  const tag = el.tagName.toLowerCase();
   const kept: Array<[string, string]> = [];
   for (const attr of Array.from(el.attributes)) {
     const name = attr.name.toLowerCase();
