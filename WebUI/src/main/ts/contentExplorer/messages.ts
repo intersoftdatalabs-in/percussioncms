@@ -925,6 +925,7 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@These dates apply to every selected page and asset. Folders are skipped.",
   SCHEDULE_PARTIAL:
     "perc.ui.explorer@Schedule was not saved for every selected item.",
+  SCHEDULE_FAILED: "perc.ui.explorer@Schedule failed: {detail}",
   PUBLISHING_HISTORY_TITLE: "perc.ui.explorer@Publishing History",
   SCHEDULE_TITLE: "perc.ui.explorer@Schedule",
   SCHEDULE_PUBLISH_DATE: "perc.ui.explorer@Publish date",

@@ -86,9 +86,11 @@ import {
   isClearScheduledDatesActionName,
   isScheduleActionName,
   publishableScheduleTargets,
+  scheduleFailureMessage,
   scheduleSelectedItems,
   skippedClearFolderNames,
   setItemScheduleDates,
+  validateScheduleDateRange,
   type ItemScheduleDates,
   type ScheduleBatchResult,
   type ScheduleItemFailure,
@@ -1537,11 +1539,12 @@ async function applyScheduleDates(
       await onSchedule(item, { ...dates, itemId: id });
       saved += 1;
     } catch (err: unknown) {
-      const text = err instanceof Error ? err.message.trim() : "";
+      const text = err instanceof Error && !isApiError(err) ? err.message.trim() : "";
       failures.push({
         id,
         name: (item.name ?? "").trim() || id,
-        message: text || "Schedule failed",
+        message: text || scheduleFailureMessage(err),
+        ...(isApiError(err) ? { status: err.status } : {}),
       });
     }
   }
@@ -2574,6 +2577,20 @@ export async function dispatchAction(
         return { kind: "rest" };
       }
     }
+    // Invalid range is refused before POST even when the picker hook hands
+    // back dates the dialog would have rejected (#5632). The list does not
+    // refresh, so prior dates stay intact.
+    const rangeKey = validateScheduleDateRange(
+      picked.startDate ?? "",
+      picked.endDate ?? "",
+    );
+    if (rangeKey) {
+      return {
+        kind: "rest",
+        messageKey: rangeKey,
+        messageText: message(rangeKey),
+      };
+    }
     const confirmKey =
       targets.length > 1
         ? EXPLORER_MSG.CONFIRM_SCHEDULE_MULTI
@@ -2585,6 +2602,23 @@ export async function dispatchAction(
     const batch = await applyScheduleDates(targets, picked, ctx.onSchedule);
     if (batch.saved === 0 && batch.failures.length === 0) {
       return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    // One row that saves nothing names the item so the operator knows which
+    // row failed (#5632). HTTP 400/403/404/409 carries the status; the list
+    // is not refreshed and the prior dates stay intact.
+    if (targets.length === 1 && batch.saved === 0 && batch.failures.length === 1) {
+      const only = batch.failures[0];
+      const detail =
+        only.status != null
+          ? `${only.name} (HTTP ${only.status})`
+          : `${only.name} (${only.message})`;
+      return {
+        kind: "rest",
+        messageKey: EXPLORER_MSG.SCHEDULE_FAILED,
+        messageText: message(EXPLORER_MSG.SCHEDULE_FAILED)
+          .split("{detail}")
+          .join(detail),
+      };
     }
     if (batch.failures.length > 0) {
       return {

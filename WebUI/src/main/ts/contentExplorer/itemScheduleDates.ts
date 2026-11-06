@@ -327,6 +327,8 @@ export interface ScheduleItemFailure {
   id: string;
   name: string;
   message: string;
+  /** HTTP status when the failure came from an {@link isApiError} throw. */
+  status?: number;
 }
 
 /** Outcome of one dialog applied to a selection. Skipped rows are not failures. */
@@ -359,7 +361,7 @@ export function publishableScheduleTargets(
   return out;
 }
 
-function failureMessage(err: unknown): string {
+export function scheduleFailureMessage(err: unknown): string {
   if (err instanceof Error && err.message.trim()) {
     return err.message.trim();
   }
@@ -484,7 +486,8 @@ export async function scheduleSelectedItems(
       failures.push({
         id,
         name: (item.name ?? "").trim() || id,
-        message: failureMessage(err),
+        message: scheduleFailureMessage(err),
+        ...(isApiError(err) ? { status: err.status } : {}),
       });
     }
   }
