@@ -120,7 +120,7 @@ absent (count `-1` is unknown, not zero).
 |---|-------|-----------|-------------|
 | 1 | Identity | (inline — read env) | stamp args already passed |
 | 2 | Decision front | run `scripts/night-decision-front.py` (thin; fetch `scratch/alerts.json` first, pass `--alerts`; omit the flag on fetch failure → count `-1`, never fake `[]`) | `include_decision_front: false` |
-| 3 | Preflight (fallback) — stale In Progress cleanup + TypeSafe pre-screen | `preflight` | decision-front `signals_complete` |
+| 3 | Preflight (fallback) — stale In Progress cleanup + TypeSafe pre-screen | `preflight` | decision-front `signals_complete` (still write `scratch/preflight.json` via `scripts/write-preflight.py` — see below) |
 | 4 | Reconcile (fallback) | `reconcile` | decision-front filled the queue or `include_reconcile: false` |
 | 5 | PR follow-up PRE | `pr-follow-up` | no merge blockers from Preflight |
 | 6 | Triage | `triage` | decision-front filled `max_issues` |
@@ -138,6 +138,28 @@ absent (count `-1` is unknown, not zero).
 `skip` rows in the triage queue **do not** spawn a `work` sub-agent — record
 the disposition in the parent's `## Agent progress (night-issue-prs)` table
 and move on.
+
+## Preflight output contract (skipped-preflight path)
+
+When decision-front reports `signals_complete` and the `preflight`
+sub-agent is skipped, the host must STILL write `scratch/preflight.json`
+— downstream `reconcile` reads it. Generate it deterministically from
+files (never hand-rolled `jq --arg` with inline issue bodies — that
+exceeds `ARG_MAX` and truncates the file to 0 bytes):
+
+```bash
+python3 scripts/write-preflight.py \
+  --inventory scratch/issues-raw.json \
+  --prescreen scratch/prescreen.json \
+  --decision-front scratch/decision-front.json \
+  --alerts scratch/alerts.json \
+  --allowed-authors "<extra logins>" \
+  --out scratch/preflight.json
+```
+
+The script emits the canonical Phase 2G shape (`issues_compact` as an
+ARRAY of flag objects). Omit `--alerts` when the fetch failed so
+`open_alert_count` stays unknown (`-1`) instead of fake-zero.
 
 ## TypeSafe pre-screen (part of Preflight, never a gate)
 

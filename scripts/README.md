@@ -553,6 +553,34 @@ fail-open hint layer.
   Cost inputs: `INPUT_PRICE_PER_MT = 0.042` ($/M input tokens; output is free).
 - **Tests**: `python3 -m pytest scripts/test_typesafe_prescreen.py -v`
 
+### `write-preflight.py`
+
+Builds a canonical `scratch/preflight.json` from files (no live `gh`) for
+the `night-issue-prs` skipped-preflight path (decision-front
+`signals_complete`). Replaces hand-rolled `jq --arg` writes that exceed
+`ARG_MAX` on large backlogs and truncate the file to 0 bytes.
+
+- **Usage**:
+
+  ```bash
+  python3 scripts/write-preflight.py \
+    --inventory scratch/issues-raw.json \
+    --prescreen scratch/prescreen.json \
+    --decision-front scratch/decision-front.json \
+    --alerts scratch/alerts.json \
+    --allowed-authors "login1,login2" \
+    --out scratch/preflight.json
+  ```
+
+  All inputs except `--inventory`/`--out` are optional (fail-open). A
+  missing alert feed omits `open_alert_count` (unknown, not zero).
+
+- **Output**: Phase 2G shape — `issues_compact` as an ARRAY of flag
+  objects (`NotSafe` / `Destructive` / `InProgress` / `Maintainer` /
+  `LargeI18n`), which `reconcile` consumes. `Destructive` is always false
+  offline (no bodies fetched); Triage must still apply its safety matrix.
+- **Tests**: `python3 -m pytest scripts/test_write_preflight.py -v`
+
 ### Other scripts in this directory
 
 Each entry below has been ported to cross-platform Python 3.9+ with pytest coverage under `scripts/test_<name>.py`.

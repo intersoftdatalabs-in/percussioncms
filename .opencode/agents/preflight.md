@@ -296,6 +296,16 @@ Emit a `signals.json` companion that downstream phases consume:
 
 ## Hard rules
 
+- **Never** pass the full issue inventory as an inline shell argument
+  (e.g. `jq --arg issues_compact "$(cat ...)"`). Large backlogs exceed
+  `ARG_MAX` (`/usr/bin/jq: Argument list too long`) and truncate
+  `scratch/preflight.json` to 0 bytes, blocking every downstream phase.
+  Build JSON from files instead: `jq --slurpfile` / input redirection,
+  or a short Python script that reads `scratch/issues-*.json` and writes
+  `scratch/preflight.json` directly. The skipped-preflight path has a
+  canonical writer: `scripts/write-preflight.py` (see `scripts/README.md`
+  and the `night-issue-prs` command's "Preflight output contract" section)
+  — its `issues_compact` ARRAY shape is what `reconcile` consumes.
 - **Never** set `open_alert_count` to 0 when the CodeQL API returns an
   error. Omit the key entirely so the host treats it as unknown.
 - **Never** clear more than 40 stale In Progress labels per run.
