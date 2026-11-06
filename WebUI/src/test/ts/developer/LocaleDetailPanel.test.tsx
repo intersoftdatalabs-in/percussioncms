@@ -21,6 +21,7 @@ import { LOC_FIRST_DAY_MSG } from "../../../main/ts/developer/localeFirstDayOfWe
 import { LOC_MEASURE_MSG } from "../../../main/ts/developer/localeMeasurementSystemMessages";
 import { LOC_DEFAULT_TZ_MSG } from "../../../main/ts/developer/localeDefaultTzMessages";
 import { LOC_NUMBERING_SYSTEM_MSG } from "../../../main/ts/developer/localeNumberingSystemMessages";
+import { LOC_CALENDAR_MSG } from "../../../main/ts/developer/localeCalendarMessages";
 import { LOC_GROUPING_MSG } from "../../../main/ts/developer/localeGroupingSepMessages";
 import { LOC_TIME_MSG } from "../../../main/ts/developer/localeTimePatternMessages";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
@@ -2922,6 +2923,163 @@ describe("LocaleDetailPanel", () => {
           .getAttribute("data-loc-numbering-system"),
       ).toBe("");
       fireEvent.click(screen.getByTestId("developer-loc-set-numbering-system-cancel"));
+    }
+  });
+
+  it("sets the calendar only after success and leaves language, label, description, status, and other format fields", async () => {
+    const detail = {
+      ...sampleDetail,
+      format: { ...sampleDetail.format, calendar: "gregory" },
+    };
+    getLocaleDetail.mockResolvedValue(detail);
+    updateLocale.mockResolvedValue({
+      ...detail,
+      format: { ...detail.format, calendar: "islamic" },
+    });
+    const onSaved = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={onSaved} />,
+    );
+    await waitFor(() => {
+      expect(
+        screen
+          .getByTestId("developer-loc-set-calendar-text")
+          .getAttribute("data-loc-calendar"),
+      ).toBe("gregory");
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-calendar-edit"));
+    fireEvent.click(screen.getByTestId("developer-loc-set-calendar-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-calendar-editor")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-calendar-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-calendar-input"), {
+      target: { value: "islamic" },
+    });
+    expect(
+      screen
+        .getByTestId("developer-loc-set-calendar-text")
+        .getAttribute("data-loc-calendar"),
+    ).toBe("gregory");
+    fireEvent.click(screen.getByTestId("developer-loc-set-calendar-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(
+      screen
+        .getByTestId("developer-loc-set-calendar-text")
+        .getAttribute("data-loc-calendar"),
+    ).toBe("gregory");
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-calendar-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-calendar-input"), {
+      target: { value: "islamic" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-calendar-save"));
+    await waitFor(() => {
+      expect(onSaved).toHaveBeenCalled();
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", {
+      format: { calendar: "islamic" },
+    });
+    const sent = updateLocale.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(sent).not.toHaveProperty("languageString");
+    expect(sent).not.toHaveProperty("label");
+    expect(sent).not.toHaveProperty("description");
+    expect(sent).not.toHaveProperty("status");
+    expect(sent).not.toHaveProperty("hasFormatProfile");
+    expect(
+      screen
+        .getByTestId("developer-loc-set-calendar-text")
+        .getAttribute("data-loc-calendar"),
+    ).toBe("islamic");
+    expect(screen.getByTestId("developer-loc-set-calendar-notice").textContent).toBe(
+      LOC_CALENDAR_MSG.SAVED,
+    );
+    expect((screen.getByTestId("developer-loc-language") as HTMLInputElement).value).toBe("en-us");
+    expect((screen.getByTestId("developer-loc-label") as HTMLInputElement).value).toBe("English");
+    expect((screen.getByTestId("developer-loc-description") as HTMLInputElement).value).toBe(
+      "US English",
+    );
+    expect((screen.getByTestId("developer-loc-status") as HTMLSelectElement).value).toBe("active");
+    expect((screen.getByTestId("developer-loc-fmt-date") as HTMLInputElement).value).toBe(
+      "MM/dd/yyyy",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-currency-code") as HTMLInputElement).value).toBe(
+      "USD",
+    );
+    expect((screen.getByTestId("developer-loc-fmt-first-day") as HTMLInputElement).value).toBe("1");
+    expect((screen.getByTestId("developer-loc-fmt-dir") as HTMLSelectElement).value).toBe("ltr");
+  });
+
+  it("clears a blank calendar, refuses an overlong one, and keeps the previous value on 400, 403, and 409", async () => {
+    const detail = {
+      ...sampleDetail,
+      format: { ...sampleDetail.format, calendar: "gregory" },
+    };
+    getLocaleDetail.mockResolvedValue(detail);
+    updateLocale.mockResolvedValue({
+      ...detail,
+      format: { ...detail.format, calendar: "" },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-calendar-edit")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("developer-loc-set-calendar-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-calendar-input"), {
+      target: { value: "z".repeat(33) },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-calendar-save"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-loc-set-calendar-error").textContent).toBe(
+      LOC_CALENDAR_MSG.INVALID,
+    );
+    expect(
+      screen
+        .getByTestId("developer-loc-set-calendar-text")
+        .getAttribute("data-loc-calendar"),
+    ).toBe("gregory");
+
+    fireEvent.change(screen.getByTestId("developer-loc-set-calendar-input"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-calendar-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-calendar-notice").textContent).toBe(
+        LOC_CALENDAR_MSG.CLEARED,
+      );
+    });
+    expect(updateLocale).toHaveBeenCalledWith("en-us", {
+      format: { calendar: "" },
+    });
+    expect(
+      screen
+        .getByTestId("developer-loc-set-calendar-text")
+        .getAttribute("data-loc-calendar"),
+    ).toBe("");
+
+    for (const status of [400, 403, 409]) {
+      updateLocale.mockRejectedValueOnce({
+        status,
+        statusText: "no",
+        body: { message: `forced ${status}` },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-calendar-edit"));
+      fireEvent.change(screen.getByTestId("developer-loc-set-calendar-input"), {
+        target: { value: "islamic" },
+      });
+      fireEvent.click(screen.getByTestId("developer-loc-set-calendar-save"));
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("developer-loc-set-calendar-error").textContent,
+        ).toContain(`forced ${status}`);
+      });
+      expect(
+        screen
+          .getByTestId("developer-loc-set-calendar-text")
+          .getAttribute("data-loc-calendar"),
+      ).toBe("");
+      fireEvent.click(screen.getByTestId("developer-loc-set-calendar-cancel"));
     }
   });
 });

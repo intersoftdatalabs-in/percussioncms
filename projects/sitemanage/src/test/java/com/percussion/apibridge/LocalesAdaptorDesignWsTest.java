@@ -1838,6 +1838,158 @@ class LocalesAdaptorDesignWsTest {
   }
 
   @Test
+  void updateLocale_calendarOnlyLeavesOtherFormatFields() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    loc.setDescription("US English");
+    loc.setStatus(PSLocale.STATUS_ACTIVE);
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setDatePattern("MM/dd/yyyy");
+    existing.setTextDir("ltr");
+    existing.setTimePattern("HH:mm:ss");
+    existing.setDateTimePattern("MM/dd/yyyy HH:mm:ss");
+    existing.setDecimalSep(".");
+    existing.setGroupingSep(",");
+    existing.setCurrencyCode("USD");
+    existing.setCurrencyPattern("¤#,##0.00");
+    existing.setFirstDayOfWeek(1);
+    existing.setMeasurementSystem("us");
+    existing.setDefaultTz("America/New_York");
+    existing.setNumberingSystem("latn");
+    existing.setCalendar("gregory");
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setCalendar("islamic");
+    body.setFormat(fmt);
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals("English", loc.getDisplayName());
+    assertEquals("US English", loc.getDescription());
+    assertEquals(PSLocale.STATUS_ACTIVE, loc.getStatus());
+    assertEquals(1, saved.size());
+    assertEquals("islamic", saved.get(0).getCalendar());
+    assertEquals("latn", saved.get(0).getNumberingSystem());
+    assertEquals("America/New_York", saved.get(0).getDefaultTz());
+    assertEquals(Integer.valueOf(1), saved.get(0).getFirstDayOfWeek());
+    assertEquals("us", saved.get(0).getMeasurementSystem());
+    assertEquals("ltr", saved.get(0).getTextDir());
+    assertEquals("MM/dd/yyyy", saved.get(0).getDatePattern());
+    assertEquals("HH:mm:ss", saved.get(0).getTimePattern());
+    assertEquals("MM/dd/yyyy HH:mm:ss", saved.get(0).getDateTimePattern());
+    assertEquals(".", saved.get(0).getDecimalSep());
+    assertEquals(",", saved.get(0).getGroupingSep());
+    assertEquals("USD", saved.get(0).getCurrencyCode());
+    assertEquals("¤#,##0.00", saved.get(0).getCurrencyPattern());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void updateLocale_blankCalendarClearsCalendarOnly() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guid = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    PSLocale loc = newLocale(9, "en-us", "English");
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+    when(designWs.loadLocales(eq(List.of(guid)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(loc));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setDatePattern("MM/dd/yyyy");
+    existing.setTimePattern("HH:mm:ss");
+    existing.setDateTimePattern("MM/dd/yyyy HH:mm:ss");
+    existing.setDecimalSep(".");
+    existing.setGroupingSep(",");
+    existing.setTextDir("ltr");
+    existing.setCurrencyCode("USD");
+    existing.setCurrencyPattern("¤#,##0.00");
+    existing.setFirstDayOfWeek(1);
+    existing.setMeasurementSystem("us");
+    existing.setDefaultTz("America/New_York");
+    existing.setNumberingSystem("latn");
+    existing.setCalendar("gregory");
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setCalendar("");
+    body.setFormat(fmt);
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals(1, saved.size());
+    assertNull(saved.get(0).getCalendar());
+    assertEquals("latn", saved.get(0).getNumberingSystem());
+    assertEquals("America/New_York", saved.get(0).getDefaultTz());
+    assertEquals(Integer.valueOf(1), saved.get(0).getFirstDayOfWeek());
+    assertEquals("us", saved.get(0).getMeasurementSystem());
+    assertEquals(".", saved.get(0).getDecimalSep());
+    assertEquals(",", saved.get(0).getGroupingSep());
+    assertEquals("USD", saved.get(0).getCurrencyCode());
+    assertEquals("¤#,##0.00", saved.get(0).getCurrencyPattern());
+    assertEquals("MM/dd/yyyy", saved.get(0).getDatePattern());
+    assertEquals("HH:mm:ss", saved.get(0).getTimePattern());
+    assertEquals("ltr", saved.get(0).getTextDir());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void isCalendarOnlyWrite_requiresPresentAndOmittedOtherFields() {
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary only = new LocaleFormatSummary();
+    only.setCalendar("gregory");
+    body.setFormat(only);
+    assertTrue(LocalesAdaptor.isCalendarOnlyWrite(body));
+
+    LocaleDetail blank = new LocaleDetail();
+    LocaleFormatSummary blankFmt = new LocaleFormatSummary();
+    blankFmt.setCalendar("");
+    blank.setFormat(blankFmt);
+    assertTrue(LocalesAdaptor.isCalendarOnlyWrite(blank));
+
+    LocaleDetail absent = new LocaleDetail();
+    absent.setFormat(new LocaleFormatSummary());
+    assertFalse(LocalesAdaptor.isCalendarOnlyWrite(absent));
+
+    LocaleDetail extra = new LocaleDetail();
+    LocaleFormatSummary both = new LocaleFormatSummary();
+    both.setCalendar("gregory");
+    both.setNumberingSystem("latn");
+    extra.setFormat(both);
+    assertFalse(LocalesAdaptor.isCalendarOnlyWrite(extra));
+
+    LocaleDetail withTz = new LocaleDetail();
+    LocaleFormatSummary withTzFmt = new LocaleFormatSummary();
+    withTzFmt.setCalendar("gregory");
+    withTzFmt.setDefaultTz("Europe/London");
+    withTz.setFormat(withTzFmt);
+    assertFalse(LocalesAdaptor.isCalendarOnlyWrite(withTz));
+
+    LocaleDetail withProfile = new LocaleDetail();
+    withProfile.setFormat(only);
+    withProfile.setHasFormatProfile(Boolean.TRUE);
+    assertFalse(LocalesAdaptor.isCalendarOnlyWrite(withProfile));
+  }
+
+  @Test
   void isFirstDayOfWeekOnlyWrite_requiresPresentAndOmittedOtherFields() {
     LocaleDetail omitted = new LocaleDetail();
     LocaleFormatSummary fmt = new LocaleFormatSummary();

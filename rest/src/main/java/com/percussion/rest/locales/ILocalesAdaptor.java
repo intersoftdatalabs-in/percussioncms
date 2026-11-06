@@ -62,6 +62,8 @@ public interface ILocalesAdaptor {
    * {@code defaultTz} clears that value. A value longer than 64 characters is not a write. A
    * numbering-system-only {@code format} updates {@code numberingSystem}; omitted format fields
    * stay. A blank {@code numberingSystem} clears that value. A value longer than 16 characters
+   * is not a write. A calendar-only {@code format} updates {@code calendar}; omitted format
+   * fields stay. A blank {@code calendar} clears that value. A value longer than 32 characters
    * is not a write.
    *
    * @return detail, or {@code null} when not found / unsafe key

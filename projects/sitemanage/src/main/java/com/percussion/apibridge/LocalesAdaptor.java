@@ -489,7 +489,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * {@code firstDayOfWeek} the same way. A measurement-system-only {@code format} updates
    * {@code measurementSystem} the same way. A default-timezone-only {@code format} updates
    * {@code defaultTz} the same way. A numbering-system-only {@code format} updates
-   * {@code numberingSystem} the same way.
+   * {@code numberingSystem} the same way. A calendar-only {@code format} updates
+   * {@code calendar} the same way.
    */
   void persistFormatIfRequested(String language, LocaleDetail body) {
     if (body == null || language == null) {
@@ -552,6 +553,10 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     if (isNumberingSystemOnlyWrite(body)) {
       persistNumberingSystemOnly(language, src);
+      return;
+    }
+    if (isCalendarOnlyWrite(body)) {
+      persistCalendarOnly(language, src);
       return;
     }
     PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
@@ -708,6 +713,22 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
     row.setNumberingSystem(next);
+    row.setLanguageString(language);
+    formatSaver.accept(row);
+  }
+
+  /**
+   * Persists only the calendar. A blank value clears the stored calendar; other format fields
+   * are not sent and therefore stay.
+   */
+  private void persistCalendarOnly(String language, LocaleFormatSummary src) {
+    Optional<PSLocaleFormat> existing = formatByLang.apply(language);
+    String next = src == null ? null : src.getCalendar();
+    if (existing.isEmpty() && StringUtils.isBlank(next)) {
+      return;
+    }
+    PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
+    row.setCalendar(next);
     row.setLanguageString(language);
     formatSaver.accept(row);
   }
@@ -1037,6 +1058,34 @@ public class LocalesAdaptor implements ILocalesAdaptor {
         && src.getMeasurementSystem() == null
         && src.getDefaultTz() == null
         && src.getCalendar() == null;
+  }
+
+  /**
+   * True when PUT {@code format} carries {@code calendar} (including blank to clear) and omits
+   * {@code hasFormatProfile} plus every other format field. Language on the format object is
+   * ignored. A value longer than {@link #validateMaxLen(String, String, int)} allows fails
+   * validation before persist.
+   */
+  static boolean isCalendarOnlyWrite(LocaleDetail body) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+      return false;
+    }
+    LocaleFormatSummary src = body.getFormat();
+    if (src.getCalendar() == null) {
+      return false;
+    }
+    return src.getTextDir() == null
+        && src.getDatePattern() == null
+        && src.getTimePattern() == null
+        && src.getDateTimePattern() == null
+        && src.getDecimalSep() == null
+        && src.getGroupingSep() == null
+        && src.getCurrencyCode() == null
+        && src.getCurrencyPattern() == null
+        && src.getFirstDayOfWeek() == null
+        && src.getMeasurementSystem() == null
+        && src.getDefaultTz() == null
+        && src.getNumberingSystem() == null;
   }
 
   static void validateFormatWrite(LocaleDetail body) {
