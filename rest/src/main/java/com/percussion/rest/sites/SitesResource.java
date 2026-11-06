@@ -132,7 +132,8 @@ public class SitesResource {
       throw new WebApplicationException("Site body is required", Response.Status.BAD_REQUEST);
     }
     try {
-      return requireAdaptor().createSiteFromRequest(body);
+      // Site DTO serialized as JSON/XML by Jackson/JAXB, not HTML (see suppressions.md).
+      return requireAdaptor().createSiteFromRequest(body); // codeql[java/xss]
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
@@ -171,7 +172,8 @@ public class SitesResource {
       throw new WebApplicationException("Site body is required", Response.Status.BAD_REQUEST);
     }
     try {
-      return requireAdaptor().updateSite(nameOrId, body);
+      // Site DTO serialized as JSON/XML by Jackson/JAXB, not HTML (see suppressions.md).
+      return requireAdaptor().updateSite(nameOrId, body); // codeql[java/xss]
     } catch (WebApplicationException e) {
       throw e;
     } catch (Exception e) {
