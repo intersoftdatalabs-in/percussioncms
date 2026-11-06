@@ -258,6 +258,11 @@ Record the verdict in the structured output (`close_verdict`: `fixes` /
 - **No bare-resolve** on review threads. Always inline mitigation +
   `resolveReviewThread`.
 - **One PR per parent per run.** If the parent already has an OPEN PR, absorb.
+- **File the claimed parent's slices first.** Before opening the PR,
+  file every `child_proposals` row for the parent (dedupe against open
+  issues via `Parent: #<P>` + keyword search; link instead of filing on a
+  match) and record the URLs in `residuals_filed`. A claimed parent with
+  unfiled proposals is an incomplete Work output.
 - **3-slice vertical.** Never layer-split (REST / SPA / Playwright into
   separate PRs).
 - **Run the Erlang skill CLI before opening the PR.** Never spawn a nested
