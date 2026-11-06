@@ -130,6 +130,12 @@ stacking.
   new instance"). Contended `.sh` runs exit 1 in milliseconds; contended
   `.cmd` runs exit 0 (skip treated as success so the Scheduler doesn't alert).
   Worktree untouched either way. Also guards timer-vs-manual overlap.
+  `LOCK_FILE` env overrides the lock path (used by tests).
+- **Model**: pinned via `MODEL` env (default
+  `opencode-go/muse-spark-1.3-contributor#medium`, the
+  `opencode run --model provider/model#variant` format) — the default model
+  slot is too slow for unattended cycles. An explicit `--model` CLI arg still
+  wins over the env value.
 - **Report rotation**: stamps `NIGHT_REPORT_PATH` per run
   (`<worktree>/scratch/night-report-<UTC>.md`) so consecutive cycles don't
   overwrite `scratch/night-report.md`.
