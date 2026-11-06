@@ -110,6 +110,12 @@ import {
 } from "./localeNumberingSystem";
 import { LOC_NUMBERING_SYSTEM_MSG } from "./localeNumberingSystemMessages";
 import {
+  localeCalendarWrite,
+  savedLocaleCalendar,
+  storedLocaleCalendar,
+} from "./localeCalendar";
+import { LOC_CALENDAR_MSG } from "./localeCalendarMessages";
+import {
   localeEnabledStatusWrite,
   savedLocaleEnabledStatus,
   storedLocaleEnabledStatus,
@@ -310,6 +316,12 @@ export function LocaleDetailPanel({
   const [numberingSystemError, setNumberingSystemError] = useState<string | null>(null);
   const [numberingSystemNotice, setNumberingSystemNotice] = useState<string | null>(null);
   const [numberingSystemBusy, setNumberingSystemBusy] = useState(false);
+  const [calendarShown, setCalendarShown] = useState("");
+  const [calendarDraft, setCalendarDraft] = useState("");
+  const [calendarEditing, setCalendarEditing] = useState(false);
+  const [calendarError, setCalendarError] = useState<string | null>(null);
+  const [calendarNotice, setCalendarNotice] = useState<string | null>(null);
+  const [calendarBusy, setCalendarBusy] = useState(false);
   const [statusShown, setStatusShown] = useState("active");
   const [statusDraft, setStatusDraft] = useState("active");
   const [statusEditing, setStatusEditing] = useState(false);
@@ -340,6 +352,7 @@ export function LocaleDetailPanel({
   const measurementInflight = useRef(false);
   const defaultTzInflight = useRef(false);
   const numberingSystemInflight = useRef(false);
+  const calendarInflight = useRef(false);
   const statusInflight = useRef(false);
 
   useEffect(() => {
@@ -428,6 +441,11 @@ export function LocaleDetailPanel({
         setNumberingSystemEditing(false);
         setNumberingSystemError(null);
         setNumberingSystemNotice(null);
+        setCalendarShown(storedLocaleCalendar(d.format?.calendar));
+        setCalendarDraft("");
+        setCalendarEditing(false);
+        setCalendarError(null);
+        setCalendarNotice(null);
         setStatus(d.status || "active");
         setStatusShown(storedLocaleEnabledStatus(d.status) || "active");
         setStatusDraft("active");
@@ -477,8 +495,10 @@ export function LocaleDetailPanel({
     !measurementEditing &&
     !defaultTzBusy &&
     !numberingSystemBusy &&
+    !calendarBusy &&
     !defaultTzEditing &&
     !numberingSystemEditing &&
+    !calendarEditing &&
     !statusBusy &&
     !statusEditing &&
     isLocaleWriteReady({ isNew, language, label });
@@ -605,6 +625,13 @@ export function LocaleDetailPanel({
     return LOC_NUMBERING_SYSTEM_MSG.ERROR;
   }
 
+  function calendarSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 400) return LOC_CALENDAR_MSG.INVALID;
+    if (isApiError(err) && err.status === 403) return LOC_CALENDAR_MSG.FORBIDDEN;
+    if (isApiError(err) && err.status === 409) return LOC_CALENDAR_MSG.CONFLICT;
+    return LOC_CALENDAR_MSG.ERROR;
+  }
+
   function enabledStatusSaveFallback(err: unknown): string {
     if (isApiError(err) && err.status === 400) return LOC_STATUS_MSG.INVALID;
     if (isApiError(err) && err.status === 403) return LOC_STATUS_MSG.FORBIDDEN;
@@ -629,6 +656,7 @@ export function LocaleDetailPanel({
       measurementBusy ||
       defaultTzBusy ||
       numberingSystemBusy ||
+      calendarBusy ||
       statusBusy ||
       labelInflight.current ||
       descriptionInflight.current ||
@@ -644,6 +672,7 @@ export function LocaleDetailPanel({
       measurementInflight.current ||
       defaultTzInflight.current ||
       numberingSystemInflight.current ||
+      calendarInflight.current ||
       statusInflight.current ||
       inflight.current
     );
@@ -667,6 +696,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -762,6 +792,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -799,6 +830,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -866,6 +898,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -903,6 +936,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -979,6 +1013,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1016,6 +1051,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1092,6 +1128,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1129,6 +1166,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1205,6 +1243,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1242,6 +1281,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1318,6 +1358,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1355,6 +1396,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1431,6 +1473,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1469,6 +1512,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1546,6 +1590,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1583,6 +1628,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1659,6 +1705,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1686,6 +1733,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -1700,6 +1748,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1883,6 +1932,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -1909,6 +1959,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -1923,6 +1974,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -2013,6 +2065,7 @@ export function LocaleDetailPanel({
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -2038,6 +2091,7 @@ export function LocaleDetailPanel({
       !measurementEditing ||
 defaultTzEditing ||
 numberingSystemEditing ||
+calendarEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -2132,6 +2186,7 @@ numberingSystemEditing ||
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -2156,6 +2211,7 @@ numberingSystemEditing ||
       !writeKey ||
       !defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -2251,6 +2307,7 @@ numberingSystemEditing ||
       measurementEditing ||
       defaultTzEditing ||
       numberingSystemEditing ||
+      calendarEditing ||
       statusEditing
     ) {
       return;
@@ -2274,6 +2331,7 @@ numberingSystemEditing ||
       !detail ||
       !writeKey ||
       !numberingSystemEditing ||
+      calendarEditing ||
       dedicatedWriteBlocked() ||
       labelEditing ||
       descriptionEditing ||
@@ -2349,6 +2407,129 @@ numberingSystemEditing ||
     } finally {
       numberingSystemInflight.current = false;
       setNumberingSystemBusy(false);
+      setBusy(false);
+    }
+  }
+
+  function startCalendarEdit(): void {
+    if (
+      isNew ||
+      !detail ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing ||
+      currencyPatternEditing ||
+      textDirEditing ||
+      firstDayEditing ||
+      measurementEditing ||
+      defaultTzEditing ||
+      numberingSystemEditing ||
+      calendarEditing ||
+      statusEditing
+    ) {
+      return;
+    }
+    setCalendarDraft(calendarShown);
+    setCalendarError(null);
+    setCalendarNotice(null);
+    setCalendarEditing(true);
+  }
+
+  function cancelCalendarEdit(): void {
+    if (calendarBusy || calendarInflight.current) return;
+    setCalendarEditing(false);
+    setCalendarDraft("");
+    setCalendarError(null);
+  }
+
+  async function handleCalendarSave(): Promise<void> {
+    if (
+      isNew ||
+      !detail ||
+      !writeKey ||
+      !calendarEditing ||
+      dedicatedWriteBlocked() ||
+      labelEditing ||
+      descriptionEditing ||
+      datePatternEditing ||
+      timePatternEditing ||
+      dateTimePatternEditing ||
+      decimalSepEditing ||
+      groupingSepEditing ||
+      currencyCodeEditing ||
+      currencyPatternEditing ||
+      textDirEditing ||
+      firstDayEditing ||
+      measurementEditing ||
+      defaultTzEditing ||
+      numberingSystemEditing ||
+      statusEditing
+    ) {
+      return;
+    }
+    const sent = localeCalendarWrite(detail, calendarDraft);
+    if (sent === "invalid") {
+      setCalendarError(LOC_CALENDAR_MSG.INVALID);
+      setCalendarNotice(null);
+      return;
+    }
+    if (sent === "unchanged") {
+      setCalendarEditing(false);
+      setCalendarDraft("");
+      setCalendarError(null);
+      return;
+    }
+    calendarInflight.current = true;
+    setCalendarBusy(true);
+    setBusy(true);
+    setCalendarError(null);
+    setCalendarNotice(null);
+    setError(null);
+    setNotice(null);
+    const previousShown = calendarShown;
+    try {
+      const saved = await updateLocale(writeKey, sent);
+      const accepted = savedLocaleCalendar(sent, detail, saved);
+      if (accepted == null) {
+        setCalendarShown(previousShown);
+        setFmt((prev) => ({ ...prev, calendar: previousShown }));
+        setCalendarError(LOC_CALENDAR_MSG.ERROR);
+        setCalendarNotice(null);
+        return;
+      }
+      const nextFormat: LocaleFormatSummary = {
+        ...(detail.format || {}),
+        calendar: accepted,
+      };
+      const nextDetail: LocaleDetail = {
+        ...detail,
+        hasFormatProfile: true,
+        format: nextFormat,
+      };
+      setDetail(nextDetail);
+      setCalendarShown(accepted);
+      setFmt((prev) => ({ ...prev, calendar: accepted }));
+      setStoreFormat(true);
+      setCalendarEditing(false);
+      setCalendarDraft("");
+      setCalendarNotice(
+        accepted ? LOC_CALENDAR_MSG.SAVED : LOC_CALENDAR_MSG.CLEARED,
+      );
+      onSaved?.(nextDetail);
+    } catch (err: unknown) {
+      setCalendarShown(previousShown);
+      setFmt((prev) => ({ ...prev, calendar: previousShown }));
+      setCalendarError(panelErrMsg(err, calendarSaveFallback(err)));
+      setCalendarNotice(null);
+    } finally {
+      calendarInflight.current = false;
+      setCalendarBusy(false);
       setBusy(false);
     }
   }
@@ -2445,6 +2626,11 @@ numberingSystemEditing ||
     setNumberingSystemEditing(false);
     setNumberingSystemError(null);
     setNumberingSystemNotice(null);
+    setCalendarShown(storedLocaleCalendar(saved.format?.calendar));
+    setCalendarDraft("");
+    setCalendarEditing(false);
+    setCalendarError(null);
+    setCalendarNotice(null);
     setStatus(saved.status || status);
     setStatusShown(storedLocaleEnabledStatus(saved.status) || status);
     setStatusDraft("active");
@@ -2703,6 +2889,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startLabelEdit}
@@ -2843,6 +3030,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startDescriptionEdit}
@@ -3386,6 +3574,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startDatePatternEdit}
@@ -3515,6 +3704,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startTimePatternEdit}
@@ -3646,6 +3836,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startDateTimePatternEdit}
@@ -3908,6 +4099,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startDecimalSepEdit}
@@ -4037,6 +4229,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startGroupingSepEdit}
@@ -4166,6 +4359,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startCurrencyCodeEdit}
@@ -4297,6 +4491,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startCurrencyPatternEdit}
@@ -4432,6 +4627,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startFirstDayEdit}
@@ -4564,6 +4760,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startMeasurementEdit}
@@ -4671,6 +4868,7 @@ numberingSystemEditing ||
                     busy ||
                     defaultTzBusy ||
                     numberingSystemBusy ||
+                    calendarBusy ||
                     measurementBusy ||
                     firstDayBusy ||
                     currencyPatternBusy ||
@@ -4698,6 +4896,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startDefaultTzEdit}
@@ -4811,6 +5010,7 @@ numberingSystemEditing ||
                   disabled={
                     busy ||
                     numberingSystemBusy ||
+                    calendarBusy ||
                     defaultTzBusy ||
                     measurementBusy ||
                     firstDayBusy ||
@@ -4839,6 +5039,7 @@ numberingSystemEditing ||
                     measurementEditing ||
                     defaultTzEditing ||
                     numberingSystemEditing ||
+                    calendarEditing ||
                     statusEditing
                   }
                   onClick={startNumberingSystemEdit}
@@ -4851,6 +5052,149 @@ numberingSystemEditing ||
                   }}
                 >
                   {LOC_NUMBERING_SYSTEM_MSG.ACTION}
+                </button>
+              )}
+            </section>
+          ) : null}
+
+          {!isNew && detail ? (
+            <section
+              data-testid="developer-loc-set-calendar"
+              aria-label={LOC_CALENDAR_MSG.ACTION}
+              style={{ marginBottom: "16px" }}
+            >
+              <h3 style={{ fontSize: "1rem", marginBottom: "8px" }}>
+                {LOC_CALENDAR_MSG.ACTION}
+              </h3>
+              <p style={{ color: catalogColors.muted, marginTop: 0, fontSize: "0.85rem" }}>
+                {LOC_CALENDAR_MSG.HINT}
+              </p>
+              <p
+                data-testid="developer-loc-set-calendar-text"
+                data-loc-calendar={calendarShown}
+                style={{ marginTop: 0, fontFamily: "monospace" }}
+              >
+                {calendarShown}
+              </p>
+              {calendarError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-loc-set-calendar-error"
+                  style={{ color: catalogColors.error, marginBottom: "8px" }}
+                >
+                  {calendarError}
+                </div>
+              ) : null}
+              {calendarNotice ? (
+                <div
+                  data-testid="developer-loc-set-calendar-notice"
+                  style={{ color: "#276749", marginBottom: "8px" }}
+                >
+                  {calendarNotice}
+                </div>
+              ) : null}
+              {calendarEditing ? (
+                <div data-testid="developer-loc-set-calendar-editor">
+                  <label htmlFor="loc-set-calendar-input">
+                    {LOC_CALENDAR_MSG.FIELD}
+                  </label>
+                  <input
+                    id="loc-set-calendar-input"
+                    data-testid="developer-loc-set-calendar-input"
+                    style={inputStyle}
+                    value={calendarDraft}
+                    disabled={calendarBusy}
+                    onChange={(e) => setCalendarDraft(e.target.value)}
+                  />
+                  <div
+                    style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}
+                  >
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-calendar-save"
+                      aria-label={LOC_CALENDAR_MSG.SAVE}
+                      disabled={calendarBusy}
+                      onClick={() => void handleCalendarSave()}
+                      style={{
+                        padding: "8px 16px",
+                        background: calendarBusy
+                          ? catalogColors.disabled
+                          : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: calendarBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_CALENDAR_MSG.SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-loc-set-calendar-cancel"
+                      disabled={calendarBusy}
+                      onClick={cancelCalendarEdit}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: calendarBusy ? "wait" : "pointer",
+                      }}
+                    >
+                      {LOC_CALENDAR_MSG.CANCEL}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="developer-loc-set-calendar-edit"
+                  aria-label={LOC_CALENDAR_MSG.ACTION}
+                  disabled={
+                    busy ||
+                    calendarBusy ||
+                    numberingSystemBusy ||
+                    defaultTzBusy ||
+                    measurementBusy ||
+                    firstDayBusy ||
+                    currencyPatternBusy ||
+                    currencyCodeBusy ||
+                    textDirBusy ||
+                    statusBusy ||
+                    groupingSepBusy ||
+                    decimalSepBusy ||
+                    dateTimePatternBusy ||
+                    datePatternBusy ||
+                    timePatternBusy ||
+                    labelBusy ||
+                    descriptionBusy ||
+                    labelEditing ||
+                    descriptionEditing ||
+                    datePatternEditing ||
+                    timePatternEditing ||
+                    dateTimePatternEditing ||
+                    decimalSepEditing ||
+                    groupingSepEditing ||
+                    currencyCodeEditing ||
+                    currencyPatternEditing ||
+                    textDirEditing ||
+                    firstDayEditing ||
+                    measurementEditing ||
+                    defaultTzEditing ||
+                    numberingSystemEditing ||
+                    calendarEditing ||
+                    statusEditing
+                  }
+                  onClick={startCalendarEdit}
+                  style={{
+                    padding: "4px 10px",
+                    background: "transparent",
+                    border: `1px solid ${catalogColors.softBorder}`,
+                    borderRadius: "4px",
+                    cursor: busy ? "wait" : "pointer",
+                  }}
+                >
+                  {LOC_CALENDAR_MSG.ACTION}
                 </button>
               )}
             </section>

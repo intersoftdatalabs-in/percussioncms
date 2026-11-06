@@ -136,6 +136,16 @@ numbering system clears the numbering system. A numbering system longer than
 16 characters does not write. **Cancel** does not write. HTTP 400, 403, and 409
 are not success and leave the previous numbering system.
 
+**Set locale calendar** on an existing locale saves the calendar
+only. The update sends `format.calendar` and does not send the
+language string, label, description, enabled status, date/time patterns,
+separators, currency fields, text direction, first day of week, measurement
+system, default timezone, or numbering system, so those stay. The language
+string is immutable. The new value shows only after that save succeeds. A
+blank calendar clears the calendar. A calendar longer than
+32 characters does not write. **Cancel** does not write. HTTP 400, 403, and 409
+are not success and leave the previous calendar.
+
 **Set locale enabled status** on an existing locale saves enabled status
 only (`active` or `inactive`). The update does not send the language string,
 label, description, or format profile, so those stay. The language string is
