@@ -14,7 +14,7 @@
 /**
  * Shared TipTap extension set for the #5622 spike-validation slice (#5650).
  *
- * <p>MIT-licensed TipTap 2 / ProseMirror extensions only. This set exists to
+ * <p>MIT-licensed TipTap 3 / ProseMirror extensions only. This set exists to
  * prove the Spike criterion: TipTap parses the HTML the CMS already persists
  * (TinyMCE 6.8.6 output) and re-serializes it without content drift. It is
  * not the parity toolbar (slice #5651) and not the Percussion plugin rewrite
@@ -22,15 +22,15 @@
  */
 
 import type { AnyExtension } from "@tiptap/core";
-import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
-import Table from "@tiptap/extension-table";
-import TableCell from "@tiptap/extension-table-cell";
-import TableHeader from "@tiptap/extension-table-header";
-import TableRow from "@tiptap/extension-table-row";
-import TextAlign from "@tiptap/extension-text-align";
-import Underline from "@tiptap/extension-underline";
-import StarterKit from "@tiptap/starter-kit";
+import { Image } from "@tiptap/extension-image";
+import { Link } from "@tiptap/extension-link";
+import { Table } from "@tiptap/extension-table";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TextAlign } from "@tiptap/extension-text-align";
+import { Underline } from "@tiptap/extension-underline";
+import { StarterKit } from "@tiptap/starter-kit";
 
 /**
  * Build the spike-validation extension set.

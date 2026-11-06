@@ -12,7 +12,7 @@
  */
 
 /**
- * TipTap 2 / ProseMirror spike host for HTML fields (#5622 slice #5650).
+ * TipTap 3 / ProseMirror spike host for HTML fields (#5622 slice #5650).
  *
  * <p>Hello-world scope only: a StarterKit editable region that reports HTML
  * strings through the same {@code onChange} contract as the TinyMCE widget,
