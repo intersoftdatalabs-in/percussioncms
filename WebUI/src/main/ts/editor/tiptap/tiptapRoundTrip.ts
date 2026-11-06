@@ -12,14 +12,17 @@
  */
 
 /**
- * HTML round-trip proof for the #5622 spike-validation slice (#5650).
+ * HTML round-trip proof for the #5622 spike-validation slice (#5650),
+ * kept green by the toolbar-parity slice (#5651).
  *
  * <p>TinyMCE 6.8.6 and TipTap/StarterKit serialize the same document to
  * slightly different HTML (tag aliases, legacy presentational attributes,
  * empty-paragraph forms). {@link #normalizeHtmlForRoundTrip} canonicalizes
  * those known-equivalent forms so the corpus test can assert
  * {@code normalize(roundTrip(tinymce)) === normalize(tinymce)}: no content
- * drift, only representation drift the spike report already accepted.</p>
+ * drift, only representation drift the spike report already accepted. The
+ * parity slice adds toolbar chrome and paste sanitation but no schema
+ * change, so the same corpus still proves zero drift.</p>
  *
  * <p>Out of scope (later slices): styled {@code <span>} runs, font colors,
  * anchor-only {@code <a name>} links, and script/event markup (still blocked
@@ -27,7 +30,7 @@
  */
 
 import { Editor } from "@tiptap/core";
-import { createSpikeEditorExtensions } from "./tiptapSetup";
+import { createTipTapEditorExtensions } from "./tiptapSetup";
 
 /** Tag aliases TinyMCE emits that StarterKit serializes under one name. */
 const TAG_ALIASES: Record<string, string> = {
@@ -49,7 +52,7 @@ const DROPPED_TABLE_ATTRS = new Set(["border", "cellpadding", "cellspacing"]);
  */
 export function roundTripHtmlFragment(html: string): string {
   const editor = new Editor({
-    extensions: createSpikeEditorExtensions(),
+    extensions: createTipTapEditorExtensions(),
     content: html ?? "",
   });
   try {

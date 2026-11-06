@@ -877,9 +877,10 @@ export function EditorHost({
   const readOnly = mode === "view";
   const promote = mode === "promote";
   /**
-   * Spike seam for #5622/#5650: {@code ?engine=tiptap} renders the bundled
-   * TipTap hello-world for HTML fields instead of script-loaded TinyMCE.
-   * Defaults to TinyMCE; removed when toolbar parity lands (#5651).
+   * Engine seam for #5622/#5650: {@code ?engine=tiptap} renders the bundled
+   * TipTap editor (parity toolbar since #5651) for HTML fields instead of
+   * script-loaded TinyMCE. Defaults to TinyMCE; the seam stays until a
+   * later cutover slice.
    */
   const htmlEngine: HtmlEditorEngine =
     params.get("engine") === "tiptap" ? "tiptap" : "tinymce";

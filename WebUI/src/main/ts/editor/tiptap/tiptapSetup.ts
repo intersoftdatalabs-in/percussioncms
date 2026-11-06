@@ -12,13 +12,18 @@
  */
 
 /**
- * Shared TipTap extension set for the #5622 spike-validation slice (#5650).
+ * Shared TipTap extension set for the #5622 toolbar-parity slice (#5651).
  *
  * <p>MIT-licensed TipTap 3 / ProseMirror extensions only. This set exists to
- * prove the Spike criterion: TipTap parses the HTML the CMS already persists
- * (TinyMCE 6.8.6 output) and re-serializes it without content drift. It is
- * not the parity toolbar (slice #5651) and not the Percussion plugin rewrite
- * (slice #5652): no toolbar chrome and no custom plugins live here.</p>
+ * back the React editor host toolbar at {@code rx_default_config.json}
+ * parity (lists, link, code, tables, plus the underline/align/image output
+ * the CMS already persists) and to keep parsing already-stored TinyMCE
+ * 6.8.6 HTML without content drift (see {@code tiptapRoundTrip}). It is not
+ * the Percussion plugin rewrite (slice #5652): no custom plugins live
+ * here.</p>
+ *
+ * <p>TipTap 3 ships named exports only (no default exports); the imports
+ * below use the v3 form.</p>
  */
 
 import type { AnyExtension } from "@tiptap/core";
@@ -33,18 +38,18 @@ import { Underline } from "@tiptap/extension-underline";
 import { StarterKit } from "@tiptap/starter-kit";
 
 /**
- * Build the spike-validation extension set.
+ * Build the toolbar-parity extension set.
  *
  * <p>StarterKit covers paragraphs, headings, bold/italic/strike, lists,
- * blockquote, code, hard breaks, and rules. The extra marks/extensions cover
- * the remaining TinyMCE toolbar/config output the React host persists today:
- * underline (current toolbar), links (current toolbar/plugins), images,
- * tables, and paragraph/heading alignment ({@code rx_default_config.json}
- * align buttons).</p>
+ * blockquote, code, hard breaks, rules, and history (undo/redo). The extra
+ * marks/extensions cover the remaining TinyMCE toolbar/config output the
+ * React host persists today: underline (current toolbar), links (current
+ * toolbar/plugins), images, tables, and paragraph/heading alignment
+ * ({@code rx_default_config.json} align buttons).</p>
  *
  * @returns a fresh extension list per call (extensions hold config state).
  */
-export function createSpikeEditorExtensions(): AnyExtension[] {
+export function createTipTapEditorExtensions(): AnyExtension[] {
   return [
     StarterKit,
     Underline,
@@ -52,7 +57,7 @@ export function createSpikeEditorExtensions(): AnyExtension[] {
       openOnClick: false,
       autolink: true,
       // Null out the extension's default target/rel (options deep-merge, so
-      // omitting them would keep _blank/noopener): the spike must not
+      // omitting them would keep _blank/noopener): the editor must not
       // silently mutate stored links on save. Explicit stored target/rel
       // still round-trips through the mark attributes.
       HTMLAttributes: { target: null, rel: null },
