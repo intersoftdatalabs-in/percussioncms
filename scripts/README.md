@@ -117,6 +117,41 @@ vars actually reach the plugin and the bash tool.
   cross-platform-Python conventions are followed voluntarily (no `shell=True`,
   no hardcoded separators, stdlib-only at runtime, scratch under `./tmp`-equivalent).
 
+### `night-timer-run.sh` / `night-timer-run.cmd`
+
+Timer entry point for the opencode `night-issue-prs` workflow: one bounded
+cycle per invocation (default `MAX_ISSUES=5`, overridable via env or
+`--max-issues`). Intended for a systemd timer (Linux) or Task Scheduler
+(Windows) firing every 2h — overlapping triggers exit immediately instead of
+stacking.
+
+- **Locking**: `flock -n` on `tmp/night-issue-prs.lock` (Linux/macOS);
+  `mkdir`-based lock dir on Windows (plus Task Scheduler's "Do not start a
+  new instance"). Contended `.sh` runs exit 1 in milliseconds; contended
+  `.cmd` runs exit 0 (skip treated as success so the Scheduler doesn't alert).
+  Worktree untouched either way. Also guards timer-vs-manual overlap.
+- **Report rotation**: stamps `NIGHT_REPORT_PATH` per run
+  (`<worktree>/scratch/night-report-<UTC>.md`) so consecutive cycles don't
+  overwrite `scratch/night-report.md`.
+- **Usage**:
+
+  ```bash
+  scripts/night-timer-run.sh                      # one cycle, max 5 issues
+  MAX_ISSUES=2 scripts/night-timer-run.sh         # smaller cycle
+  scripts/night-timer-run.sh --dry-run            # validate without invoking opencode
+  ```
+
+- **systemd (user)**: `~/.config/systemd/user/percussioncms-night.{service,timer}`,
+  `OnCalendar=*-*-* 00/2:00:00`, `Type=oneshot` (a tick firing while the
+  previous cycle is still active is skipped by systemd *and* by the lock),
+  `TimeoutStartSec=0` (cycles run 60–90+ min). Enable with
+  `systemctl --user enable --now percussioncms-night.timer`.
+- **Windows**: `scripts\night-timer-run.cmd` + Task Scheduler every 2h with
+  "Do not start a new instance".
+- **Prereqs**: same as `opencode-night-issue-prs.py` (`opencode` on `PATH`,
+  `gh` auth for `natechadwick-intsof`, network for `git fetch`). Run as your
+  user (user units), never root.
+
 ### `build-cms-docs.bat` / `build-cms-docs.sh`
 
 Build the **product documentation Virtual Site** (`product-docs/`) to static HTML using the
