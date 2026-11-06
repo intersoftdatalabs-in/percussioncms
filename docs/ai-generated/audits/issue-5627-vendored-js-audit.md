@@ -54,7 +54,15 @@ Follow-on: **#5660** (filed, linked from #5627).
 | `.../3x/libraries/bootstrap/js/bootstrap.min.js` + `bootstrap.bundle.min.js` + css | 4.6.2 | MIT | classic CM1 | `bootstrap` (SPA: ^5.3.8) |
 
 Risk: medium-high. Bootstrap 4 is end-of-life (no security fixes since Jan 2023).
-Effort: API migration (v4 → v5 has breaking changes). Follow-on: **#5661**.
+Effort: API migration (v4 → v5 has breaking changes). **Usage evidence (Nov
+2026, PR #5669 review): the vendored 4.6.2 copy is still live-loaded by the
+classic UI** — `cm/app/includes/common_js.jsp:4` (`bootstrap.bundle.js`,
+mirrored in `cm/pages/...`) and `cm/app/adminWorkflow.jsp:51,71`
+(`bootstrap.min.css`, `bootstrap.bundle.min.js`). The checked-in
+`cm/{app,}/assets/js/bootstrap5-compat.js` shim is loaded by **nothing**
+(zero JSP/JS references) and no Bootstrap 5 is present on classic pages (BS 5
+exists only as the SPA's npm dep). Removal now would break classic pages:
+migrate first, then delete. Follow-on: **#5661** (kept as migration).
 
 ## Cluster C — Tree widgets: FancyTree 2.38.3 + DynaTree 1.1.0 (EOL)
 
@@ -64,8 +72,21 @@ Effort: API migration (v4 → v5 has breaking changes). Follow-on: **#5661**.
 | `.../3x/jquery/plugins/jquery-dynatree/jquery.dynatree.js` | 1.1.0 (~2014, EOL predecessor of FancyTree) | MIT/GPL dual (MIT option OK) | legacy classic UI | n/a (dead upstream) |
 
 Risk: medium. DynaTree upstream is dead; FancyTree copy matches the npm version
-the SPA already uses. Effort: retire DynaTree in favor of FancyTree; npm-swap
-FancyTree. Follow-on: **#5662**.
+the SPA already uses. **Usage evidence (Nov 2026, PR #5669 review): the finder
+itself is migrated** — `cm/widgets/PercFinderTree.js` calls `.fancytree()`
+only, and there are **zero `.dynatree(` invocations in WebUI classic source**.
+But `jquery.dynatree.js` is still `<script>`-loaded by
+`cm/app/includes/finder_js.jsp:3` (mirrored in `cm/pages/...`, included by
+adminWorkflow/dashboard/editTemplate/users/webmgt JSPs) — dead-weight include.
+One stale caller remains outside WebUI source: the packaged widget artifact
+`perc.widget.categoryList/.../widgets/category/js/category.min.js` still calls
+`.dynatree(` even though its sibling source
+`perc-common-ui-bundle/.../views/PercCategoryListView.js` was already migrated
+to `.fancytree("destroy")` (stale "Dynatree" comments remain). **Disposition:
+flag the vendored DynaTree copy for removal**; the removal PR must also drop
+the `finder_js.jsp` include and rebuild/replace the packaged
+`category.min.js`. Effort: retire DynaTree in favor of FancyTree; npm-swap
+FancyTree. Follow-on: **#5662** (updated to removal-first).
 
 ## Cluster D — jQuery plugin cluster (classic UI)
 
@@ -101,10 +122,16 @@ Backgrid needs a replacement decision. Follow-on: **#5664**.
 | `.../3x/libraries/handlebars/handlebars-v4.7.8.js` | 4.7.8 | MIT | classic CM1 | `handlebars` |
 
 Risk: **high (security)**. Handlebars < 4.7.7 is affected by known template-escape
-CVEs (e.g. CVE-2021-20922 and related), fixed in ≥ 4.7.7. The 4.0.12 copy must go;
-consolidate on one npm-tracked ≥ 4.7.7. Effort: drop-in swap. Follow-on:
-**#5666** (highest classic-UI priority).
-**issue #F** (highest classic-UI priority).
+CVEs (e.g. CVE-2021-20922 and related), fixed in ≥ 4.7.7. **Usage evidence
+(Nov 2026, PR #5669 review): `handlebars-v4.0.12.js` (vulnerable) is
+live-loaded by `cm/app/includes/common_js.jsp:29`** (mirrored in `cm/pages/`,
+i.e. every classic page); sole classic-JS consumer is
+`cm/app/js/legacy/views/PercCommonMinuetView.js`
+(`Handlebars.compile` + 6 `registerHelper` calls). The
+`handlebars-v4.7.8.js` copy (229 KB vs 274 KB) has **zero references anywhere**
+— orphaned, flag for removal. Disposition: delete the orphaned 4.7.8 copy,
+upgrade the live 4.0.12 path to npm-tracked ≥ 4.7.7. Effort: drop-in swap.
+Follow-on: **#5666** (highest classic-UI priority).
 
 ## Cluster G — Moment 2.29.4 (upstream maintenance mode / EOL)
 
@@ -172,14 +199,57 @@ Effort: mostly drop-in or delete. Follow-on: **#5667**.
   `cm/controllers`, `cm/models` — first-party CM1 product code, not vendored
   third-party. Out of scope.
 
+## Usage evidence (Nov 2026 refresh — PR #5669 review threads)
+
+Per-component consumer mapping, verified by repo grep on `origin/main`
+(excluding `target/`, `node_modules`, `WebUI/war/**` mirrors). "Live" = a
+`<script>`/`<link>` include from a shipped JSP or a code reference from
+shipped first-party JS; "orphaned" = vendored file with zero such references.
+
+| Component (cluster) | Verdict | Evidence |
+|---------------------|---------|----------|
+| jQuery 3.6.0 / Migrate / UI (A) | live | `common_js.jsp` (app+pages) loads `jquery-3.6.0.js`, `jquery-ui.js`; `cm/api/index.html` loads `cm/api/lib/jquery-3.6.0.min.js` |
+| Bootstrap 4.6.2 (B) | live — migrate first, then delete | `common_js.jsp:4`, `adminWorkflow.jsp:51,71`; `bootstrap5-compat.js` shim loaded by nothing |
+| DynaTree 1.1.0 (C) | dead include — **flag for removal** | zero `.dynatree(` calls in WebUI source; still `<script>`-loaded by `finder_js.jsp:3` (app+pages); stale caller only in packaged `category.min.js` |
+| FancyTree 2.38.3 (C) | live | `PercFinderTree.js`, `PercCopySiteDialog.js`, `PercDataTree.js`, `PercSectionTreeDialog.js`, workflow/category views (`.fancytree(` calls) |
+| DataTables 1.12.1 (D) | live | `common_js.jsp` + `common_css.jsp` includes; `PercDataTable*` / `PercFinderListView` widgets |
+| jquery-form / validation / jeditable / layout / superfish / bbq / dropdown / multiselect (D) | live | all `<script>`-loaded by `common_js.jsp` (app+pages) |
+| ba-bbq / slideto / wiggle (D, `cm/api/lib`) | live (legacy API-doc page) | `cm/api/index.html` loads all three |
+| Backbone / Underscore / Backgrid `3x/libraries` copies (E) | no static refs — verify at runtime before removal | zero JSP/JS references outside `jslib/`+`vendor/`; note `cm/api/lib` carries *separate* `backbone-min.js`/`underscore-min.js` used by `cm/api/index.html` (see audit gap below) |
+| Handlebars 4.0.12 (F) | live + vulnerable | `common_js.jsp:29`; consumer `PercCommonMinuetView.js` |
+| Handlebars 4.7.8 (F) | orphaned — **flag for removal** | zero references anywhere |
+| Moment 2.29.4 (G) | used but not statically included — verify at runtime | `PercCommonMinuetView.js:301,311` calls `moment()`; **no** JSP includes `moment-with-locales.js` (runtime provider unresolved statically — do not delete blindly) |
+| p13n `lib-js` (H) | served static — verify at runtime | no JSP/Java references inside `p13n-ds`; consumed as published web resources by the DTS service |
+| RequireJS 2.3.6 (I) | orphaned — **flag for removal** | `init.js` loader config is empty; zero JSP/JS references webapp-wide |
+| modernizr-custom / mousetrap 1.6.2 (I) | orphaned — **flag for removal** | zero JSP references; `Mousetrap`/`Modernizr` globals unused in classic app JS |
+| popper.js (I) | redundant — **flag for removal** | also loaded by `common_js.jsp`, but Bootstrap 4 `bootstrap.bundle.js` already embeds Popper (281 mentions) and no classic JS uses the `Popper` global |
+| animate.css 3.7.1 (I) | not statically included — verify at runtime | no JSP loads it, yet `PercCommonMinuetView.js` `animateCss()` helper uses its class names (`fadeInUp`, …); check `@import` chain / runtime before removal |
+| FontAwesome 5.6.1/5.3.1 (I) | live | `all.css` linked from adminWorkflow/dashboard/editTemplate/importTemplate/pageNotFound/users/webmgt JSPs (app+pages) |
+| Owasp.CsrfGuard.js (I) | live | referenced by 60+ classic JSPs |
+| QUnit 2.6.2 (I) | test-only, live | used by `cm/testing/*.html` + `cm/pages/testing/*.html` in-browser test pages — keep vendored explicitly or move to npm devDep |
+| `perc-retiredjs/*` shims (I) | live | `json2.js` + others loaded by `common_js.jsp` |
+
+### Audit gap (not covered by #5660–#5668)
+
+`cm/api/lib/` (legacy Swagger API-doc page) carries vendored copies this audit
+did not inventory: `handlebars-1.0.0.js`, `backbone-min.js`,
+`underscore-min.js`, `highlight.7.3.pack.js`, `shred.bundle.js`, `swagger.js`,
+`swagger-oauth.js` — all loaded by `cm/api/index.html`. Tracked as residual
+**#5672** (filed alongside the PR amending this audit).
+
 ## Conclusion
 
 Nine coherent migration clusters (#5660–#5668, modulo numbering) cover every
-vendored third-party JS/TS asset found; two areas are record-only (#5622
+vendored third-party JS/TS asset found, plus the § "Audit gap" residual for
+the un-inventoried `cm/api/lib` swagger-era copies; two areas are record-only (#5622
 TinyMCE replacement, #5626 CodeMirror npm migration). Prioritize #5668
 (externally facing jQuery 1.3.2) and #5666 (Handlebars 4.0.12 CVEs) first,
 then the EOL upstreams (Bootstrap 4, DynaTree, Backgrid, Moment), then the
-drop-in npm swaps. All clusters are MIT/BSD/Apache-2.0/PD (MIT option on
+drop-in npm swaps. Flagged for outright removal (no live consumers — removal
+PRs still owe a runtime check): DynaTree copy + `finder_js.jsp` include,
+orphaned Handlebars 4.7.8, RequireJS, modernizr-custom, mousetrap, standalone
+popper.js. Not removable yet (still live-loaded): Bootstrap 4.6.2, Handlebars
+4.0.12, FontAwesome, CsrfGuard, QUnit (test-only), DataTables/plugin cluster. All clusters are MIT/BSD/Apache-2.0/PD (MIT option on
 duals) except FontAwesome Free (CC-BY-4.0 — legal confirmation in #5667).
 
 ## License compatibility notes (Apache-2.0 distribution)
