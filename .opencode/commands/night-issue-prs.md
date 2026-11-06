@@ -161,6 +161,39 @@ The script emits the canonical Phase 2G shape (`issues_compact` as an
 ARRAY of flag objects). Omit `--alerts` when the fetch failed so
 `open_alert_count` stays unknown (`-1`) instead of fake-zero.
 
+## Filing discovered residuals / follow-ups / slices (every run)
+
+Any residual, follow-up, or vertical slice the run discovers that has no
+open issue must be FILED as an issue before the Report phase closes —
+in a Work session when one claims the parent, otherwise by the host
+sweep below. Proposals that evaporate unwritten (e.g. triage
+`child_proposals` with an empty `slotted_for_work`) are a defect.
+
+Work duty (per claimed parent, before opening the PR):
+
+1. For each `child_proposals` row for the parent, dedupe first:
+   ```bash
+   gh issue list --repo <repo> --state open \
+     --search "Parent: #<parent> <slice keywords>" --json number,title
+   ```
+   An open match means link it (both ways) instead of filing.
+2. `gh issue create` each genuinely new slice (unassigned, parent `pN`
+   copied, `Parent: #<P>` in the body, operator + `model:*` labels).
+3. Record URLs in `scratch/work-<N>.json` (`residuals_filed`).
+
+Host sweep (Report phase, covers everything Work did not):
+
+1. Collect unfiled items: triage `child_proposals` with no URL, plus any
+   residual/follow-up noted in `work-*.json`, `reconcile.json`, or
+   `cycle-verify.json` that has no URL in `issues_filed`/`residuals_filed`.
+2. Dedupe each against open issues (same search as above, plus a title
+   search). Reuse-and-link on a match; never file a duplicate.
+3. File the rest (same labels/body convention as Work). Cap at **8 new
+   issues per run**; beyond that file the 8 most valuable and list the
+   deferred remainder in the report.
+4. Never file for items owned by an assignee, human-gated decisions, or
+   `disposition=skip` rows — those stay as report notes, not issues.
+
 ## TypeSafe pre-screen (part of Preflight, never a gate)
 
 1. `preflight` writes `scratch/issues-raw.json` (JSON array of kept issues:
