@@ -77,7 +77,12 @@ This gate is **stricter than Erlang**: even a clean code review does not authori
 
 Root `AGENTS.local.md` is **gitignored** and is **not** copied into agent git
 worktrees (`.kilo/worktrees/`, `.worktrees/`, `~/.grok/worktrees/`,
-`.opencode/worktrees/`, overnight workflow worktrees, etc.).
+`.opencode/worktrees/`, overnight workflow worktrees, etc.) — with one
+exception: the `night-issue-prs` launcher (`scripts/opencode-night-issue-prs.py`
+→ `propagate_agents_local`) copies it one way, primary → worktree, on every
+sync. That copy is a convenience, not the contract: the read-from-primary
+protocol below still applies everywhere (including when the copy is absent
+or stale).
 
 **At session start**, every agent (Kilo, Grok, others) **must**:
 

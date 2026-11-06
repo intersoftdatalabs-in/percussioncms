@@ -575,3 +575,55 @@ def test_no_worktree_create_fails_when_missing(tmp_path, monkeypatch):
     )
     assert completed.returncode == 2
     assert b"worktree missing" in completed.stderr.encode() or b"worktree missing" in completed.stdout.encode()
+
+
+def _seed_repo(tmp_path: Path, name: str = "seed") -> Path:
+    """Create a synthetic origin + clone pair; return the clone path."""
+    main = tmp_path / "main"
+    main.mkdir(exist_ok=True)
+    subprocess.run(["git", "init", "--bare", str(main / "origin.git")], check=True, shell=False, timeout=30)
+    seed = tmp_path / name
+    seed.mkdir(exist_ok=True)
+    subprocess.run(["git", "clone", str(main / "origin.git"), str(seed)], check=True, shell=False, timeout=30)
+    subprocess.run(["git", "-C", str(seed), "config", "user.email", "ci@example.com"], check=True, shell=False, timeout=10)
+    subprocess.run(["git", "-C", str(seed), "config", "user.name", "ci"], check=True, shell=False, timeout=10)
+    (seed / "README.md").write_text("hi")
+    subprocess.run(["git", "-C", str(seed), "add", "README.md"], check=True, shell=False, timeout=10)
+    subprocess.run(["git", "-C", str(seed), "commit", "-m", "init"], check=True, shell=False, timeout=10)
+    subprocess.run(["git", "-C", str(seed), "branch", "-M", "main"], check=True, shell=False, timeout=10)
+    subprocess.run(["git", "-C", str(seed), "push", "origin", "main"], check=True, shell=False, timeout=30)
+    return seed
+
+
+def test_ensure_worktree_propagates_agents_local_on_add(tmp_path):
+    """Fresh worktree add must copy root AGENTS.local.md (git skips it)."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    (seed / "AGENTS.local.md").write_text("# operator overrides\n")
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+    assert (wt / "AGENTS.local.md").read_text() == "# operator overrides\n"
+
+
+def test_ensure_worktree_refreshes_agents_local_on_reset(tmp_path):
+    """Existing worktrees get a fresh copy on every sync (stale overwritten)."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    (seed / "AGENTS.local.md").write_text("v1\n")
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+    assert (wt / "AGENTS.local.md").read_text() == "v1\n"
+    (seed / "AGENTS.local.md").write_text("v2\n")
+    (wt / "AGENTS.local.md").write_text("stale\n")
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+    assert (wt / "AGENTS.local.md").read_text() == "v2\n"
+
+
+def test_ensure_worktree_missing_agents_local_is_noop(tmp_path):
+    """No source file: no copy, no error, worktree still synced."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+    assert not (wt / "AGENTS.local.md").exists()
+    assert mod.worktree_exists(wt)
