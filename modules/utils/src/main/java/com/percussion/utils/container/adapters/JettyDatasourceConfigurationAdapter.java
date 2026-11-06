@@ -513,7 +513,96 @@ public class JettyDatasourceConfigurationAdapter
         idNameMap.get(ds.getName()).setId(maxId);
       }
     }
+    // Upgrades preserve jetty/base/etc/perc-ds.xml, so an 8.1.x Derby-era file can still
+    // carry the legacy mixed-content jdbcUrl shape. Normalize it while the doc is open.
+    if (normalizeLegacyJdbcUrlSets(doc)) {
+      updated = true;
+    }
     return updated;
+  }
+
+  /**
+   * Rewrites legacy mixed-content {@code <Set name="jdbcUrl">} elements into the whitespace-safe
+   * {@code PSStaticContainerUtils.buildConnectionUrl} {@code Call} form.
+   *
+   * <p>The pre-#548 template wrote the URL as literal text around property refs:
+   *
+   * <pre>{@code
+   * <Set name="jdbcUrl">jdbc:<Property name="perc.ds.1.driver.name"/>:<Property name="perc.ds.1.server"/></Set>
+   * }</pre>
+   *
+   * <p>Upgrades preserve {@code jetty/base/etc/perc-ds.xml}, and the file writer pretty-prints
+   * whitespace around those literals. Jetty 12 concatenates mixed-content text verbatim, so after
+   * a Derby to H2 migration the URL reaches the driver as {@code "jdbc:\n h2\n :\n file:..."},
+   * which the H2 driver rejects and the server fails to start (issue #5656). Rewriting to the
+   * {@code Call} form removes the whitespace-sensitive literals entirely; the existing {@code
+   * Property} elements (with their names and defaults) are preserved by moving them under the new
+   * {@code Arg} wrappers.
+   *
+   * <p>Package-private for unit tests.
+   *
+   * @param doc the datasource document, may not be {@code null}
+   * @return {@code true} when at least one {@code Set} was rewritten
+   */
+  static boolean normalizeLegacyJdbcUrlSets(Document doc) {
+    boolean rewritten = false;
+    NodeList sets = doc.getElementsByTagName("Set");
+    for (int i = 0; i < sets.getLength(); i++) {
+      Element set = (Element) sets.item(i);
+      if (!"jdbcUrl".equals(set.getAttribute("name"))) {
+        continue;
+      }
+      if (hasBuildConnectionUrlCall(set)) {
+        continue;
+      }
+      Element driverProp = findNestedProperty(set, ".driver.name");
+      Element serverProp = findNestedProperty(set, ".server");
+      if (driverProp == null || serverProp == null) {
+        ms_log.warn(
+            "Skipping jdbcUrl normalization: expected driver.name/server Property refs not found");
+        continue;
+      }
+      while (set.hasChildNodes()) {
+        set.removeChild(set.getFirstChild());
+      }
+      Element call = doc.createElement("Call");
+      call.setAttribute("class", "com.percussion.utils.container.PSStaticContainerUtils");
+      call.setAttribute("name", "buildConnectionUrl");
+      Element driverArg = doc.createElement("Arg");
+      driverArg.appendChild(driverProp);
+      Element serverArg = doc.createElement("Arg");
+      serverArg.appendChild(serverProp);
+      call.appendChild(driverArg);
+      call.appendChild(serverArg);
+      set.appendChild(call);
+      rewritten = true;
+      ms_log.debug("Rewrote legacy mixed-content jdbcUrl Set to buildConnectionUrl Call form");
+    }
+    return rewritten;
+  }
+
+  private static boolean hasBuildConnectionUrlCall(Element set) {
+    NodeList calls = set.getElementsByTagName("Call");
+    for (int i = 0; i < calls.getLength(); i++) {
+      Node call = calls.item(i);
+      Node name = call.getAttributes() != null ? call.getAttributes().getNamedItem("name") : null;
+      if (name != null && "buildConnectionUrl".equals(name.getNodeValue())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static Element findNestedProperty(Element parent, String nameSuffix) {
+    NodeList props = parent.getElementsByTagName("Property");
+    for (int i = 0; i < props.getLength(); i++) {
+      Element prop = (Element) props.item(i);
+      String name = prop.getAttribute("name");
+      if (name != null && name.endsWith(nameSuffix)) {
+        return prop;
+      }
+    }
+    return null;
   }
 
   private Document createNewDatasourceXml() throws IOException, SAXException {
