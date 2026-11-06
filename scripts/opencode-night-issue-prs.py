@@ -84,6 +84,7 @@ import json
 import logging
 import os
 import shlex
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -150,6 +151,10 @@ def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from
 
     The `--hard` reset discards uncommitted state from a crashed prior run.
 
+    After either path, root `AGENTS.local.md` (gitignored, so never carried
+    by git itself) is copied into the worktree one way; see
+    `propagate_agents_local`.
+
     Default sync ref is `origin/<base_branch>` (production-safe). Pass
     `sync_from_local=True` to sync to local `<base_branch>` instead — for
     dev testing without pushing commits first.
@@ -180,6 +185,7 @@ def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from
             check=True,
             timeout=60,
         )
+        propagate_agents_local(repo_root, worktree)
         return
 
     worktree.parent.mkdir(parents=True, exist_ok=True)
@@ -192,6 +198,28 @@ def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from
         check=True,
         timeout=300,
     )
+    propagate_agents_local(repo_root, worktree)
+
+
+def propagate_agents_local(repo_root: Path, worktree: Path) -> None:
+    """Copy root `AGENTS.local.md` into the worktree (one way, best effort).
+
+    `AGENTS.local.md` is gitignored, so `git worktree add` and
+    `git reset --hard` never carry it over — without this copy, agents
+    running in the worktree miss the personal/operator overrides. The copy
+    runs on every sync so edits in the primary checkout propagate; never
+    copy back (worktree edits must not clobber the primary file). Missing
+    source is a silent no-op.
+    """
+    source = Path(repo_root) / "AGENTS.local.md"
+    if not source.is_file():
+        return
+    try:
+        shutil.copy2(source, Path(worktree) / "AGENTS.local.md")
+    except OSError as exc:
+        LOGGER.warning("could not propagate AGENTS.local.md: %s", exc)
+    else:
+        LOGGER.info("propagated AGENTS.local.md to %s", worktree)
 
 
 def build_workflow_args(args: argparse.Namespace) -> str:

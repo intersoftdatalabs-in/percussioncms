@@ -69,6 +69,10 @@ vars actually reach the plugin and the bash tool.
 - **Defaults**: `max_issues=3`, `base_branch=main`,
   `command=night-issue-prs`, `worktree=<home>/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs`,
   `report=<worktree>/scratch/night-report.md`.
+- **Operator overrides**: root `AGENTS.local.md` is gitignored, so git never
+  carries it into the worktree — the launcher copies it one way
+  (primary → worktree) on every sync and refreshes it when the primary
+  copy changes. Never edited in, or copied back from, the worktree.
 - **Usage**:
 
   ```bash
