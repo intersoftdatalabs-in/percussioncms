@@ -18,7 +18,7 @@ import {
 } from "../../../../main/ts/editor/tiptap/tiptapRoundTrip";
 import { TINYMCE_CORPUS } from "./tinymceCorpus";
 
-describe("TipTap spike HTML round-trip (#5650)", () => {
+describe("TipTap HTML round-trip (#5650 corpus, #5651 parity schema)", () => {
   for (const entry of TINYMCE_CORPUS) {
     it(`preserves TinyMCE content: ${entry.name}`, () => {
       expect(normalizeHtmlForRoundTrip(roundTripHtmlFragment(entry.tinymce))).toBe(

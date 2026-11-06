@@ -12,29 +12,33 @@
  */
 
 /**
- * TipTap 3 / ProseMirror spike host for HTML fields (#5622 slice #5650).
+ * TipTap 3 / ProseMirror host for HTML fields (#5622 slices #5650/#5651).
  *
- * <p>Hello-world scope only: a StarterKit editable region that reports HTML
- * strings through the same {@code onChange} contract as the TinyMCE widget,
- * so the existing {@code PUT /services/itemmanagement/item/fields/{id}}
- * persist path is reused unchanged. Toolbar parity is slice #5651 and the
- * Percussion plugin rewrite is slice #5652 — this widget intentionally ships
- * no toolbar chrome.</p>
+ * <p>Toolbar-parity scope: a {@code rx_default_config.json} toolbar (lists,
+ * link, code, tables, plus undo/redo, inline styles, alignment) over the
+ * shared extension set, reporting HTML strings through the same
+ * {@code onChange} contract as the TinyMCE widget, so the existing
+ * {@code PUT /services/itemmanagement/item/fields/{id}} persist path is
+ * reused unchanged. Pasted Word/Office HTML is reduced to the
+ * {@code paste_word_valid_elements} contract before parsing. The Percussion
+ * plugin rewrite is slice #5652 — no custom plugins live here.</p>
  *
  * <p>Implementation note: the editor is managed directly through
  * {@code @tiptap/core} ({@code Editor} lifecycle in an effect) rather than
  * {@code @tiptap/react}. The repository Vitest harness resolves a second
  * React instance for the {@code @tiptap/react} hook chain, which breaks
  * {@code useEditor} under test while the production bundle (single React)
- * is unaffected. Driving {@code Editor} directly keeps the spike testable
- * in this harness; revisit when the parity slice lands.</p>
+ * is unaffected. Driving {@code Editor} directly keeps the parity slice
+ * testable in this harness; revisit when the plugin rewrite lands.</p>
  */
 
 import { Editor } from "@tiptap/core";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { message } from "../../i18n/message";
 import { EDITOR_MSG } from "../messages";
-import { createSpikeEditorExtensions } from "../tiptap/tiptapSetup";
+import { createTipTapEditorExtensions } from "../tiptap/tiptapSetup";
+import { sanitizeWordPastedHtml } from "../tiptap/tiptapWordPaste";
+import { TipTapToolbar } from "../tiptap/TipTapToolbar";
 import styles from "../EditorHost.module.css";
 
 /** Which rich-text engine backs an HTML field. TinyMCE stays the default. */
@@ -57,6 +61,10 @@ export function TipTapFieldWidget({
 }: TipTapFieldWidgetProps): React.ReactElement {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const editorRef = useRef<Editor | null>(null);
+  const [toolbarEditor, setToolbarEditor] = useState<Editor | null>(null);
+  // Toolbar active/disabled states read the editor on render; bump after
+  // every transaction so buttons track selection and history depth.
+  const [, setToolbarTick] = useState(0);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
   const initialRef = useRef<string | null>(null);
@@ -73,15 +81,18 @@ export function TipTapFieldWidget({
     }
     const editor = new Editor({
       element: mount,
-      extensions: createSpikeEditorExtensions(),
+      extensions: createTipTapEditorExtensions(),
       content: initialRef.current ?? "",
       editable: !readOnlyRef.current,
       onUpdate: ({ editor: updated }) => {
         onChangeRef.current(updated.getHTML());
       },
       editorProps: {
+        // Word/Office pastes reduce to the paste_word_valid_elements
+        // contract before parsing; ordinary HTML passes through unchanged.
+        transformPastedHTML: (html) => sanitizeWordPastedHtml(html),
         attributes: {
-          class: `${styles.textarea} ${styles.tiptap} tiptap-spike`,
+          class: `${styles.textarea} ${styles.tiptap} tiptap-editor`,
           "data-testid": `editor-field-${name}`,
           "data-editor-kind": "html",
           "data-editor-engine": "tiptap",
@@ -90,9 +101,16 @@ export function TipTapFieldWidget({
       },
     });
     editorRef.current = editor;
+    setToolbarEditor(editor);
+    const bumpToolbar = (): void => {
+      setToolbarTick((tick) => tick + 1);
+    };
+    editor.on("transaction", bumpToolbar);
     return () => {
+      editor.off("transaction", bumpToolbar);
       editor.destroy();
       editorRef.current = null;
+      setToolbarEditor(null);
     };
   }, [name]);
 
@@ -111,13 +129,16 @@ export function TipTapFieldWidget({
       // first, so forwarding focuses it harmlessly.
       onClick={(e) => e.preventDefault()}
     >
+      {!readOnly && toolbarEditor ? (
+        <TipTapToolbar editor={toolbarEditor} name={name} />
+      ) : null}
       <div ref={mountRef} />
     </div>
   );
 }
 
 /**
- * Mirror controlled props into a mounted spike editor. `setContent` stays
+ * Mirror controlled props into a mounted parity editor. `setContent` stays
  * silent (no onUpdate echo), so external saves never loop back through
  * {@code onChange}; the editable/aria flags track their props directly.
  */

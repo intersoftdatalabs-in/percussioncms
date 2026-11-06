@@ -54,9 +54,10 @@ export interface HtmlFieldWidgetProps {
   onChange: (value: string) => void;
   loadScript?: (src: string) => Promise<void>;
   /**
-   * Spike seam for #5622/#5650. {@code "tinymce"} (default) keeps the
+   * Engine seam for #5622/#5650. {@code "tinymce"} (default) keeps the
    * current script-loaded editor; {@code "tiptap"} renders the bundled
-   * TipTap hello-world instead. Removed when toolbar parity lands (#5651).
+   * TipTap editor with the parity toolbar (#5651). TinyMCE stays the
+   * default until a later cutover slice; the seam is not removed here.
    */
   engine?: HtmlEditorEngine;
 }
