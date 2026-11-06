@@ -31,6 +31,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
  * @author dougrand
  */
 public class PSValueConverter {
+  /** Creates a value converter. All methods are static. */
+  public PSValueConverter() {}
   static final FastDateFormat ms_sdf = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
 
   /**

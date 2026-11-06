@@ -52,11 +52,26 @@ public class PSHttpConnection {
 
   private static final Logger log = LogManager.getLogger(PSHttpConnection.class);
 
+  /**
+   * Creates a connection for the supplied codebase and session.
+   *
+   * @param rxCodeBase the codebase URL, never <code>null</code>
+   * @param psSessionId the PS session id, may be <code>null</code> or empty
+   */
   public PSHttpConnection(URL rxCodeBase, String psSessionId) {
     ms_baseUrl = rxCodeBase;
     ms_psSessionId = StringUtils.isBlank(psSessionId) ? null : psSessionId;
   }
 
+  /**
+   * Gets a JSON response from the supplied resource.
+   *
+   * @param resource the resource URL, never <code>null</code>
+   * @return the JSON response, never <code>null</code>
+   * @throws IOException on communication errors
+   * @throws PSException on server-side errors
+   * @throws JSONException if the response is not valid JSON
+   */
   public JSONObject getJSON(URL resource) throws IOException, PSException, JSONException {
     if (resource == null) throw new IllegalArgumentException("resource may not be null");
 
@@ -231,9 +246,13 @@ public class PSHttpConnection {
    * Just like {@link #postData(URL, Map)}, except it sends a <code>Document</code> and returns the
    * response in a document object. The connections that are opened by this method will be closed.
    *
+   * @param url the target URL, never <code>null</code>
    * @param doc The to be send document, may not be <code>null</code>.
    * @return the responsed document, never <code>null</code>. @SAXException if error occurs while
    *     converting the response to a document.
+   * @throws IOException on communication errors
+   * @throws PSException on server-side errors
+   * @throws SAXException if error occurs while converting the response to a document
    */
   public Document postData(URL url, Document doc) throws IOException, PSException, SAXException {
     if (url == null) throw new IllegalArgumentException("url may not be null");
@@ -519,6 +538,11 @@ public class PSHttpConnection {
     return ms_psSessionId;
   }
 
+  /**
+   * Returns the base URL of the applet session.
+   *
+   * @return the base URL, never <code>null</code>
+   */
   public URL getBaseUrl() {
     return ms_baseUrl;
   }
@@ -553,7 +577,7 @@ public class PSHttpConnection {
   /**
    * Set the boundary for posting data of type "multipart/form-data"
    *
-   * @param boundary
+   * @param boundary the boundary to use, or empty to use the default boundary
    */
   public void setBoundary(String boundary) {
     ms_boundary = StringUtils.isEmpty(boundary) ? DEFAULT_BOUNDARY : boundary;

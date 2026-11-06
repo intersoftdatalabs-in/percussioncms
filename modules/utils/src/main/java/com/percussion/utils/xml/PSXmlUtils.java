@@ -30,6 +30,8 @@ import org.xml.sax.SAXException;
 
 /** Utility class for DOM XML processing */
 public class PSXmlUtils {
+  /** Creates an XML utilities instance. All methods are static. */
+  public PSXmlUtils() {}
   /**
    * Get the element data
    *

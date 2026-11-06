@@ -83,6 +83,12 @@ public class PSException extends java.lang.Exception implements IPSException {
     super();
   }
 
+  /**
+   * Constructor that wraps a causal throwable, copying error state when the cause is a {@link
+   * PSException}.
+   *
+   * @param cause the causal throwable, may be <code>null</code>
+   */
   public PSException(Throwable cause) {
     super(cause);
     if (cause instanceof PSException) {
@@ -405,6 +411,12 @@ public class PSException extends java.lang.Exception implements IPSException {
     return getLocalizedMessage();
   }
 
+  /**
+   * Constructor that associates an error code with a causal throwable.
+   *
+   * @param code the error code
+   * @param t the causal throwable, may be <code>null</code>
+   */
   public PSException(int code, Throwable t) {
     super(t);
     this.m_code = code;

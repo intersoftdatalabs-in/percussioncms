@@ -25,6 +25,10 @@ public class PSInvalidXmlException extends PSBaseException {
   private static final long serialVersionUID = 1L;
 
   /**
+   * Pass-through constructor to super class.
+   *
+   * @param msgCode the error code to load
+   * @param singleArg the single argument to use as the sole argument in the error message
    * @see PSBaseException#PSBaseException(int, Object[])
    */
   public PSInvalidXmlException(int msgCode, Object singleArg) {
@@ -32,6 +36,10 @@ public class PSInvalidXmlException extends PSBaseException {
   }
 
   /**
+   * Pass-through constructor to super class.
+   *
+   * @param msgCode the error code to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
    * @see PSBaseException#PSBaseException(int, Object[])
    */
   public PSInvalidXmlException(int msgCode, Object[] arrayArgs) {
@@ -39,6 +47,9 @@ public class PSInvalidXmlException extends PSBaseException {
   }
 
   /**
+   * Pass-through constructor to super class.
+   *
+   * @param msgCode the error code to load
    * @see PSBaseException#PSBaseException(int)
    */
   public PSInvalidXmlException(int msgCode) {
@@ -46,6 +57,11 @@ public class PSInvalidXmlException extends PSBaseException {
   }
 
   /**
+   * Pass-through constructor to super class.
+   *
+   * @param msgCode the error code to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @param cause the causal exception, may be <code>null</code>
    * @see PSBaseException#PSBaseException(int, Throwable, Object[])
    */
   public PSInvalidXmlException(int msgCode, Object[] arrayArgs, Throwable cause) {

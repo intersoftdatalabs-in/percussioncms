@@ -30,6 +30,9 @@ import java.util.Map;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+/**
+ * Tomcat connector configuration for CM1.
+ */
 public class PSTomcatConnectors extends PSAbstractXmlConnectors {
 
   private static final Path SERVER = Paths.get("Server");
@@ -44,6 +47,12 @@ public class PSTomcatConnectors extends PSAbstractXmlConnectors {
 
   private Path dtsRoot;
 
+  /**
+   * Creates connectors for the supplied installation and DTS roots.
+   *
+   * @param rxDir the installation root directory, never <code>null</code>
+   * @param dtsRoot the DTS root directory, never <code>null</code>
+   */
   public PSTomcatConnectors(Path rxDir, Path dtsRoot) {
     super(rxDir.resolve(dtsRoot.resolve("Server")));
     // dtsRoot = rxDir.resolve(dtsRoot);
@@ -62,6 +71,11 @@ public class PSTomcatConnectors extends PSAbstractXmlConnectors {
     PSLogger.logInfo("Perc-Catalina properties file*********" + this.propertiesFile);
   }
 
+  /**
+   * Returns the operating system name.
+   *
+   * @return the OS name, never <code>null</code>
+   */
   public final String getOperatingSystem() {
     String os = System.getProperty("os.name");
     return os;

@@ -38,11 +38,17 @@ import org.apache.logging.log4j.Logger;
  */
 public final class PSSecurityUtility {
 
+  /** Requires HTTPS flag property. */
   public static final String REQUIRE_HTTPS = "requireHTTPS";
+  /** Default for the require-HTTPS flag. */
   public static final String REQUIRE_HTTPS_DEFAULT = "false";
+  /** Requires content security policy flag property. */
   public static final String REQUIRE_CONTENT_SECURITY_POLICY = "requireContentSecurityPolicy";
+  /** Default for the require-CSP flag. */
   public static final String REQUIRE_CONTENT_SECURITY_POLICY_DEFAULT = "false";
+  /** Content security policy property. */
   public static final String CONTENT_SECURITY_POLICY = "contentSecurityPolicy";
+  /** Default content security policy. */
   public static final String CONTENT_SECURITY_POLICY_DEFAULT =
       "default-src * data: https: *.percussion.com *.percussion.marketing *.percussion.services ;"
           + " img-src * 'self' data: https: 'unsafe-inline' 'unsafe-eval'; font-src *"
@@ -50,35 +56,63 @@ public final class PSSecurityUtility {
           + " *.siteimprove.net ; style-src * 'unsafe-inline' 'unsafe-eval'; frame-src * 'self'"
           + " data: https: http: *.percussion.com *.percussion.marketing *.percussion.services"
           + " 'unsafe-inline' 'unsafe-eval'; frame-ancestors * 'self' ;";
+  /** Requires X-Frame-Options flag property. */
   public static final String REQUIRE_XFRAME_OPTIONS = "requireXFrameOptions";
+  /** Default for the require-X-Frame-Options flag. */
   public static final String REQUIRE_XFRAME_OPTIONS_DEFAULT = "true";
+  /** X-Frame-Options property. */
   public static final String XFRAME_OPTIONS = "xFrameOptions";
+  /** Default X-Frame-Options value. */
   public static final String XFRAME_OPTIONS_DEFAULT = "SAMEORIGIN";
+  /** Requires XSS protection flag property. */
   public static final String REQUIRE_XSS_PROTECTION = "requireXXSSProtection";
+  /** Default for the require-XSS-protection flag. */
   public static final String REQUIRE_XSS_PROTECTION_DEFAULT = "true";
+  /** XSS protection property. */
   public static final String XSS_PROTECTION = "xXSSProtection";
+  /** Default XSS protection value. */
   public static final String XSS_PROTECTION_DEFAULT = "1; mode=block";
+  /** Requires X-Content-Type-Options flag property. */
   public static final String REQUIRE_XCONTENTTYPE_OPTIONS = "requireXContentTypeOptions";
+  /** Default for the require-X-Content-Type-Options flag. */
   public static final String REQUIRE_XCONTENTTYPE_OPTIONS_DEFAULT = "true";
+  /** X-Content-Type-Options property. */
   public static final String XCONTENTTYPE_OPTIONS = "xContentTypeOptions";
+  /** Default X-Content-Type-Options value. */
   public static final String XCONTENTTYPE_OPTIONS_DEFAULT = "nosniff";
+  /** Requires strict transport security flag property. */
   public static final String REQUIRE_STRICT_TRANSPORT_SECURITY = "requireStrictTransportSecurity";
+  /** Default for the require-HSTS flag. */
   public static final String REQUIRE_STRICT_TRANSPORT_SECURITY_DEFAULT = "false";
+  /** HSTS max-age property. */
   public static final String STRICT_TRANSPORT_SECURITY_MAXAGE = "stricttransportsecuritymaxage";
+  /** Default HSTS max-age. */
   public static final String STRICT_TRANSPORT_SECURITY_MAXAGE_DEFAULT = "300";
+  /** Requires cache control flag property. */
   public static final String REQUIRE_CACHE_CONTROL = "requireCacheControl";
+  /** Default for the require-cache-control flag. */
   public static final String REQUIRE_CACHE_CONTROL_DEFAULT = "true";
+  /** Cache control property. */
   public static final String CACHE_CONTROL = "cacheControl";
+  /** Default cache control value. */
   public static final String CACHE_CONTROL_DEFAULT =
       "no-cache='Set-Cookie, Set-Cookie2',must-revalidate";
 
+  /** X-Frame-Options header name. */
   public static final String HEADER_XFRAMEOPTIONS = "X-Frame-Options";
+  /** XSS protection header name. */
   public static final String HEADER_XSSPROTECTION = "X-XSS-Protection";
+  /** X-Content-Type-Options header name. */
   public static final String HEADER_XCONTENTTYPEOPTIONS = "X-Content-Type-Options";
+  /** Content-Security-Policy header name. */
   public static final String HEADER_CONTENTSECURITY_POLICY = "Content-Security-Policy";
+  /** Strict-Transport-Security header name. */
   public static final String HEADER_STRICTTRANSPORTSECURITY = "Strict-Transport-Security";
+  /** Max-age header name. */
   public static final String HEADER_MAXAGE = "max-age";
+  /** Cache-Control header name. */
   public static final String HEADER_CACHE_CONTROL = "Cache-Control";
+  /** Session cache control value. */
   public static final String CACHE_CONTROL_SESSION = "no-cache,must-revalidate";
 
   private Boolean isHTTPSRequired = null;
@@ -97,6 +131,7 @@ public final class PSSecurityUtility {
 
   private static final Logger log = LogManager.getLogger("Securityy");
 
+  /** Creates a security utility. */
   public PSSecurityUtility() {}
 
   /**
@@ -124,6 +159,11 @@ public final class PSSecurityUtility {
     return result;
   }
 
+  /**
+   * Returns whether cache control is required.
+   *
+   * @return <code>true</code> if required
+   */
   public boolean isCacheControlRequired() {
     if (cacheControlRequired != null) {
       return cacheControlRequired;
@@ -143,6 +183,11 @@ public final class PSSecurityUtility {
     return cacheControlRequired;
   }
 
+  /**
+   * Returns the cache control header value.
+   *
+   * @return the value, may be <code>null</code>
+   */
   public String getCacheControl() {
     if (cacheControl != null) {
       return cacheControl;
@@ -156,6 +201,11 @@ public final class PSSecurityUtility {
     return cacheControl;
   }
 
+  /**
+   * Returns whether a content security policy is required.
+   *
+   * @return <code>true</code> if required
+   */
   public boolean contentSecurityPolicyRequired() {
     if (isContentSecurityPolicyRequired != null) {
       return isContentSecurityPolicyRequired;
@@ -177,6 +227,11 @@ public final class PSSecurityUtility {
     return result;
   }
 
+  /**
+   * Returns the content security policy.
+   *
+   * @return the policy, may be <code>null</code>
+   */
   public String getContentSecurityPolicy() {
     if (contentSecurityPolicy != null) {
       return contentSecurityPolicy;
@@ -191,6 +246,11 @@ public final class PSSecurityUtility {
     return contentSecurityPolicy;
   }
 
+  /**
+   * Returns whether X-Frame-Options is required.
+   *
+   * @return <code>true</code> if required
+   */
   public boolean xFrameOptionsRequired() {
     if (isxFrameOptionsRequired != null) {
       return isxFrameOptionsRequired.booleanValue();
@@ -211,6 +271,11 @@ public final class PSSecurityUtility {
     return result;
   }
 
+  /**
+   * Returns the X-Frame-Options header value.
+   *
+   * @return the value, may be <code>null</code>
+   */
   public String getXFrameOptions() {
     if (xFrameOptions != null) {
       return xFrameOptions;
@@ -224,6 +289,11 @@ public final class PSSecurityUtility {
     return xFrameOptions;
   }
 
+  /**
+   * Returns whether XSS protection is required.
+   *
+   * @return <code>true</code> if required
+   */
   public boolean xXSSProtectionRequired() {
     if (isXXSSProtectionRequired != null) {
       return isXXSSProtectionRequired.booleanValue();
@@ -244,6 +314,11 @@ public final class PSSecurityUtility {
     return result;
   }
 
+  /**
+   * Returns the XSS protection header value.
+   *
+   * @return the value, may be <code>null</code>
+   */
   public String getXXSSProtection() {
     if (xXSSProtection != null) {
       return xXSSProtection;
@@ -257,6 +332,11 @@ public final class PSSecurityUtility {
     return xXSSProtection;
   }
 
+  /**
+   * Returns whether X-Content-Type-Options is required.
+   *
+   * @return <code>true</code> if required
+   */
   public boolean xContentTypeOptionsRequired() {
     if (isXContentTypeOptionsRequired != null) {
       return isXContentTypeOptionsRequired.booleanValue();
@@ -278,6 +358,11 @@ public final class PSSecurityUtility {
     return result;
   }
 
+  /**
+   * Returns the X-Content-Type-Options header value.
+   *
+   * @return the value, may be <code>null</code>
+   */
   public String getXContentTypeOptions() {
     if (xContentTypeOptions != null) {
       return xContentTypeOptions;
@@ -292,6 +377,11 @@ public final class PSSecurityUtility {
     return xContentTypeOptions;
   }
 
+  /**
+   * Returns whether strict transport security is required.
+   *
+   * @return <code>true</code> if required
+   */
   public boolean strictTransportSecurityRequired() {
     if (isStrictTransportSecurityRequired != null) {
       return isStrictTransportSecurityRequired.booleanValue();
@@ -313,6 +403,11 @@ public final class PSSecurityUtility {
     return result;
   }
 
+  /**
+   * Returns the HSTS max-age.
+   *
+   * @return the max-age in seconds
+   */
   public int getStrictTransportSecurityMaxAge() {
     if (strictTransportSecurityMaxAge != null) {
       return strictTransportSecurityMaxAge.intValue();
@@ -339,12 +434,19 @@ public final class PSSecurityUtility {
    * Will return an instance of secure random. Will attempt to return a StrongSecureRandom first but
    * will return a standard SecureRandom if Strong is unavailable. May return null if secure random
    * cannot be initialized.
+   *
+   * @return a secure random instance, may be <code>null</code>
    */
   public static SecureRandom getSecureRandom() {
     SecureRandom ret = new SecureRandom();
     return ret;
   }
 
+  /**
+   * Returns the server properties, loading them on first use.
+   *
+   * @return the server properties, never <code>null</code>
+   */
   private PSProperties getServerProperties() {
     File propFile = PSProperties.getConfig(ENTRY_NAME, PROPS_SERVER, getRxConfigDir(SERVER_DIR));
 
@@ -359,6 +461,13 @@ public final class PSSecurityUtility {
     return ms_serverProps;
   }
 
+  /**
+   * Returns the absolute path of a path relative to the installation root.
+   *
+   * @param path the relative path, never <code>null</code>
+   * @return the absolute path, never <code>null</code>
+   * @throws IllegalArgumentException if the resolved file does not exist
+   */
   public static String getRxConfigDir(String path) {
 
     File item = new File(PathUtils.getRxDir(null), path);
@@ -368,6 +477,7 @@ public final class PSSecurityUtility {
     return item.getAbsolutePath();
   }
 
+  /** Server properties file name. */
   public static final String PROPS_SERVER = "server.properties";
 
   /** Constant for the name of the entry that reperesents workflow's name/value pair. */

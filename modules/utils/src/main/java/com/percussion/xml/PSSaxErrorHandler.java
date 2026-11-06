@@ -45,26 +45,48 @@ public class PSSaxErrorHandler implements ErrorHandler {
 
   /**
    * Use this constructor when parser errors should be "printed", usually to a log or trace file.
+   *
+   * @param pw the writer receiving parser errors, may be <code>null</code>
    */
   public PSSaxErrorHandler(PrintWriter pw) {
     this();
     m_printWriter = pw;
   }
 
+  /**
+   * Sets whether fatal errors should be thrown.
+   *
+   * @param shouldThrow <code>true</code> to throw fatal errors
+   */
   public void throwOnFatalErrors(boolean shouldThrow) {
 
     m_throwFatalErrors = shouldThrow;
   }
 
+  /**
+   * Sets whether errors should be thrown.
+   *
+   * @param shouldThrow <code>true</code> to throw errors
+   */
   public void throwOnErrors(boolean shouldThrow) {
     m_throwErrors = shouldThrow;
   }
 
+  /**
+   * Sets whether warnings should be thrown.
+   *
+   * @param shouldThrow <code>true</code> to throw warnings
+   */
   public void throwOnWarnings(boolean shouldThrow) {
     m_throwWarnings = shouldThrow;
   }
 
-  // report an error
+  /**
+   * Reports an error.
+   *
+   * @param exception the parse exception, never <code>null</code>
+   * @throws SAXException if errors should be thrown
+   */
   public void error(SAXParseException exception) throws SAXException {
     if (m_printWriter != null) {
       m_printWriter.println("Parser Error: " + exception.toString());
@@ -75,7 +97,12 @@ public class PSSaxErrorHandler implements ErrorHandler {
     if (m_throwErrors) throw exception;
   }
 
-  // report a fatal error
+  /**
+   * Reports a fatal error.
+   *
+   * @param exception the parse exception, never <code>null</code>
+   * @throws SAXException if fatal errors should be thrown
+   */
   public void fatalError(SAXParseException exception) throws SAXException {
     if (m_printWriter != null) {
       m_printWriter.println("Parser Fatal Error: " + exception.toString());
@@ -86,7 +113,12 @@ public class PSSaxErrorHandler implements ErrorHandler {
     if (m_throwFatalErrors) throw exception;
   }
 
-  // report a warning
+  /**
+   * Reports a warning.
+   *
+   * @param exception the parse exception, never <code>null</code>
+   * @throws SAXException if warnings should be thrown
+   */
   public void warning(SAXParseException exception) throws SAXException {
     if (m_printWriter != null) {
       m_printWriter.println("Parser Warning: " + exception.toString());
@@ -97,22 +129,47 @@ public class PSSaxErrorHandler implements ErrorHandler {
     if (m_throwWarnings) throw exception;
   }
 
+  /**
+   * Returns the number of errors received.
+   *
+   * @return the error count
+   */
   public int numErrors() {
     return m_errors.size();
   }
 
+  /**
+   * Returns the number of fatal errors received.
+   *
+   * @return the fatal error count
+   */
   public int numFatalErrors() {
     return m_fatalErrors.size();
   }
 
+  /**
+   * Returns the number of warnings received.
+   *
+   * @return the warning count
+   */
   public int numWarnings() {
     return m_warnings.size();
   }
 
+  /**
+   * Returns an iterator over the errors received.
+   *
+   * @return the error iterator, never <code>null</code>
+   */
   public Iterator<SAXParseException> errors() {
     return m_errors.iterator();
   }
 
+  /**
+   * Returns an iterator over the fatal errors received.
+   *
+   * @return the fatal error iterator, never <code>null</code>
+   */
   public Iterator<SAXParseException> fatalErrors() {
     return m_fatalErrors.iterator();
   }
@@ -135,6 +192,11 @@ public class PSSaxErrorHandler implements ErrorHandler {
     return new ArrayList<SAXParseException>(m_errors);
   }
 
+  /**
+   * Returns an iterator over the warnings received.
+   *
+   * @return the warning iterator, never <code>null</code>
+   */
   public Iterator<SAXParseException> warnings() {
     return m_warnings.iterator();
   }

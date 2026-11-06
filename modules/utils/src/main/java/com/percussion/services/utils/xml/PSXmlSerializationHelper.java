@@ -65,6 +65,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author dougrand
  */
 public class PSXmlSerializationHelper {
+  /** Creates an XML serialization helper. All methods are static. */
+  public PSXmlSerializationHelper() {}
   /** Static for logging */
   private static final Logger log = LogManager.getLogger(PSXmlSerializationHelper.class);
 
@@ -216,8 +218,8 @@ public class PSXmlSerializationHelper {
    * @param xmlsource the xml source, never <code>null</code> or empty
    * @param object the object to read, never <code>null</code>
    * @return the object created from the given XML source, never <code>null</code>.
-   * @throws IOException
-   * @throws SAXException
+   * @throws IOException if the source cannot be read or parsed
+   * @throws SAXException if the source is not well-formed XML
    */
   public static Object readFromXML(String xmlsource, Object object)
       throws IOException, SAXException {
@@ -247,8 +249,8 @@ public class PSXmlSerializationHelper {
    * @param clazz the class to read, may be <code>null</code> (resolved from root element via type
    *     map when possible)
    * @return restored object, never {@code null} on success
-   * @throws IOException
-   * @throws SAXException
+   * @throws IOException if the source cannot be read or parsed
+   * @throws SAXException if the source is not well-formed XML
    */
   public static synchronized Object readFromXML(String xmlString, Class<?> clazz)
       throws IOException, SAXException {
@@ -393,8 +395,9 @@ public class PSXmlSerializationHelper {
    *
    * @param xmlString xml string, never <code>null</code> or empty
    * @return the read object, could be <code>null</code>
-   * @throws SAXException
-   * @throws IOException
+   * @throws SAXException if the string is not well-formed XML
+   * @throws IOException if the string cannot be read or parsed
+   * @throws ParserConfigurationException if the parser cannot be configured
    */
   public static Object readFromXML(String xmlString)
       throws IOException, SAXException, ParserConfigurationException {

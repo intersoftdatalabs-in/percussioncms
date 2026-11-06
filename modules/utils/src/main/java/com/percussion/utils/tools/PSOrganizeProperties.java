@@ -39,13 +39,17 @@ import org.apache.logging.log4j.Logger;
 /** Utility class used to organize a property file into ascending order */
 public class PSOrganizeProperties {
 
+  /** Creates an organize-properties helper. All methods are static. */
+  public PSOrganizeProperties() {}
+
   private static final Logger log = LogManager.getLogger(PSOrganizeProperties.class);
+  /** Header comment key used when organizing property files. */
   public static final String HEADER_COMMENTS = "HEADER_COMMENTS";
 
   /**
    * Performs the actual sort
    *
-   * @param file, cannot be <code>null</code>.
+   * @param file the properties file to sort, cannot be <code>null</code>.
    * @throws IOException upon any error
    */
   public static void execute(File file) throws IOException {
@@ -71,7 +75,7 @@ public class PSOrganizeProperties {
    * Load the specified properties file
    *
    * @param file cannot be <code>null</code>.
-   * @param comments_list
+   * @param comments_list the map receiving header comments, never <code>null</code>
    * @return the Properties, never <code>null</code>.
    * @throws IOException upon error
    */
@@ -260,15 +264,13 @@ public class PSOrganizeProperties {
   /**
    * The main method for this class.
    *
-   * <p>
-   *
    * <pre>
    * Arguments:
    * [0] = The file path of the properties file
    * </pre>
    *
-   * @param args
-   * @throws Exception
+   * @param args the command line arguments, the properties file path is expected at index 0
+   * @throws Exception upon any error
    */
   public static void main(String[] args) throws Exception {
     if (args.length > 0) {

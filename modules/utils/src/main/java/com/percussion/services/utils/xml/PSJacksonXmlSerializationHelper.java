@@ -140,6 +140,7 @@ public final class PSJacksonXmlSerializationHelper {
    * {@code clazz} is non-null (same rewrite as Betwixt path). Expands Betwixt {@code idref} graph
    * stubs via {@link PSBetwixtIdrefExpander} before bind (issue #1899).
    *
+   * @param <T> the type to deserialize into
    * @param xmlString never blank
    * @param clazz target type, never {@code null}
    * @return restored instance, never {@code null}

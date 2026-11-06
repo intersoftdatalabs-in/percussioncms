@@ -27,10 +27,13 @@ import java.util.Comparator;
  * I'm not kidding!). Experiment.
  */
 public class PSSortTool {
+  /** Creates a sort tool. All methods are static. */
+  public PSSortTool() {}
   /**
    * The implementation of this method was found to have problems; as a part of a bug fix
    * Rx-03-05-0642 replaced the whole body with one call: Collections.sort(list, comper).
    *
+   * @param <T> the element type
    * @param list to sort, never <code> null </code>.
    * @param comper comparator, never <code> null </code>.
    */
@@ -45,6 +48,10 @@ public class PSSortTool {
   /**
    * Iterative (non-recursive) QuickSort with median-of-three partitioning to avoid slow behavior on
    * mostly-sorted lists.
+   *
+   * @param <T> the element type
+   * @param list the array to sort, never <code>null</code>
+   * @param comper the comparator, never <code>null</code>
    */
   public static <T> void QuickSort(T[] list, Comparator<? super T> comper) {
     class StackItem {
@@ -193,6 +200,13 @@ public class PSSortTool {
     }
   }
 
+  /**
+   * MergeSort implementation.
+   *
+   * @param <T> the element type
+   * @param a the array to sort, never <code>null</code>
+   * @param c the comparator, never <code>null</code>
+   */
   public static <T> void MergeSort(T[] a, Comparator<? super T> c) {
     T[] aux = a.clone();
     mergeSort(aux, a, 0, a.length, c);

@@ -49,12 +49,16 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
   /** Member. */
   private Path connectorFileContext = Paths.get(".");
 
-  /** Member. */
+  /** {@inheritDoc} */
   public Map<String, String> getProperties() {
     return properties;
   }
 
-  /** Member. */
+  /**
+   * Sets the connector properties.
+   *
+   * @param properties the properties to set, never <code>null</code>
+   */
   public void setProperties(Map<String, String> properties) {
     this.properties = properties;
   }
@@ -84,12 +88,22 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
   /** Field. */
   protected String protocol = PROTOCOL_HTTP;
 
-  /** Member. */
+  /**
+   * Creates a connector bound to the given file context.
+   *
+   * @param connectorFileContext base directory for relative connector files, never <code>null
+   *     </code>
+   */
   public PSAbstractConnector(Path connectorFileContext) {
     this.connectorFileContext = connectorFileContext;
   }
 
-  /** Member. */
+  /**
+   * Resolves {@code ${name}} property references in the supplied value.
+   *
+   * @param value the raw value, may be <code>null</code>
+   * @return the value with known references resolved, never <code>null</code>
+   */
   public Optional<String> processPropertyReference(String value) {
 
     if (value == null) return Optional.empty();
@@ -115,133 +129,138 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
     return Optional.of(buffer.toString());
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public String getScheme() {
     return scheme;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public void setScheme(String scheme) {
     this.scheme = scheme;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public String getHostAddress() {
     return getHostAddress;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public void setHostAddress(String getHostAddress) {
     this.getHostAddress = getHostAddress;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public Path getKeystoreFile() {
     return keystoreFile;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public void setKeystoreFile(Path keystoreFile) {
     this.keystoreFile = keystoreFile;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public String getKeystorePass() {
     return keystorePass;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public void setKeystorePass(String keystorePass) {
     this.keystorePass = keystorePass;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public Path getTruststoreFile() {
     return truststoreFile;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public void setTruststoreFile(Path truststoreFile) {
     this.truststoreFile = truststoreFile;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public String getTruststorePass() {
     return truststorePass;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public void setTruststorePass(String truststorePass) {
     this.truststorePass = truststorePass;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public int getPort() {
     return port;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public void setPort(int port) {
     this.port = port;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public Set<String> getCiphers() {
     return ciphers;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public void setCiphers(Set<String> ciphers) {
     this.ciphers = ciphers;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public Set<String> getSslProtocols() {
     return sslProtocols;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public void setSslProtocols(Set<String> protocols) {
     this.sslProtocols = protocols;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public String getProtocol() {
     return protocol;
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public void setProtocol(String protocol) {
     this.protocol = protocol;
   }
 
-  /** Member. */
+  /**
+   * Joins the supplied strings with commas.
+   *
+   * @param string the strings to join, never <code>null</code>
+   * @return the comma-separated string, never <code>null</code>
+   */
   public String toCommaString(Collection<String> string) {
     return string.stream().collect(Collectors.joining(","));
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public void copyFrom(IPSConnector c) {
     Map<String, String> fromProperties = c.getProperties();
     this.getProperties().putAll(fromProperties);
@@ -289,17 +308,29 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
         + '}';
   }
 
-  /** Member. */
+  /**
+   * Returns the file context this connector resolves relative files against.
+   *
+   * @return the connector file context, never <code>null</code>
+   */
   public Path getConnectorFileContext() {
     return connectorFileContext;
   }
 
-  /** Field. */
+  /**
+   * Returns a function resolving a relative path against the connector file context.
+   *
+   * @return the resolving function, never <code>null</code>
+   */
   protected Function<String, Path> getAbsolutePath() {
     return p -> getConnectorFileContext().resolve(p).normalize().toAbsolutePath();
   }
 
-  /** Field. */
+  /**
+   * Returns a function relativizing a path against the connector file context.
+   *
+   * @return the relativizing function, never <code>null</code>
+   */
   protected Function<Path, String> getRelativePathString() {
     return p ->
         getConnectorFileContext()
@@ -327,7 +358,11 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
     /** Default constructor. */
     public Builder() {}
 
-  /** Member. */
+    /**
+     * Copy constructor.
+     *
+     * @param connectorBuilder the builder to copy, never <code>null</code>
+     */
     public Builder(Builder connectorBuilder) {
       this.connectorFileContext = connectorBuilder.connectorFileContext;
       this.source = connectorBuilder.source;
@@ -336,44 +371,78 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
       this.port = connectorBuilder.port;
     }
 
-  /** Member. */
+    /**
+     * Sets the connector file context.
+     *
+     * @param connectorFileContext base directory for relative connector files, never
+     *     <code>null</code>
+     * @return this builder, never <code>null</code>
+     */
     public Builder setConnectorFileContext(Path connectorFileContext) {
       this.connectorFileContext = connectorFileContext;
       return this;
     }
 
-  /** Member. */
+    /**
+     * Sets the connector definition source.
+     *
+     * @param source the source element, never <code>null</code>
+     * @return this builder, never <code>null</code>
+     */
     public Builder setSource(Element source) {
       this.source = source;
       return this;
     }
 
-  /** Member. */
+    /**
+     * Copies configuration from another connector.
+     *
+     * @param copyFrom the connector to copy from, never <code>null</code>
+     * @return this builder, never <code>null</code>
+     */
     public Builder setCopyFrom(IPSConnector copyFrom) {
       this.copyFrom = copyFrom;
 
       return copyFrom.getScheme().equals(SCHEME_HTTPS) ? setHttps() : this;
     }
 
-  /** Member. */
+    /**
+     * Sets the connector properties.
+     *
+     * @param props the properties to set, never <code>null</code>
+     * @return this builder, never <code>null</code>
+     */
     public Builder setProps(Map<String, String> props) {
       this.props = props;
       return this;
     }
 
-  /** Member. */
+    /**
+     * Sets the connector port.
+     *
+     * @param port the port to set
+     * @return this builder, never <code>null</code>
+     */
     public Builder setPort(int port) {
       this.port = port;
       return this;
     }
 
-  /** Member. */
+    /**
+     * Switches this builder to HTTPS.
+     *
+     * @return this builder, never <code>null</code>
+     */
     public HttpsBuilder setHttps() {
       scheme = SCHEME_HTTPS;
       return (this instanceof HttpsBuilder hb) ? hb : new HttpsBuilder(this);
     }
 
-  /** Member. */
+    /**
+     * Builds the connector from this builder's state.
+     *
+     * @return the built connector, never <code>null</code>
+     */
     public PSAbstractConnector build() {
 
       PSAbstractConnector connector = null;
@@ -409,12 +478,18 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
   /** Field. */
     protected String keystorePass;
 
-  /** Member. */
+    /**
+     * Creates an empty HTTPS builder.
+     */
     public HttpsBuilder() {
       super();
     }
 
-  /** Member. */
+    /**
+     * Copy constructor.
+     *
+     * @param connectorBuilder the builder to copy, never <code>null</code>
+     */
     public HttpsBuilder(Builder connectorBuilder) {
       super(connectorBuilder);
       // Direct field assign — avoid overridable setHttps() during construction (this-escape)
@@ -422,50 +497,84 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
       this.connectorFileContext = connectorBuilder.connectorFileContext;
     }
 
-  /** Member. */
+    /**
+     * Sets the keystore file.
+     *
+     * @param keystoreFile the keystore file to set, may be <code>null</code>
+     * @return this builder, never <code>null</code>
+     */
     public HttpsBuilder setKeystoreFile(Path keystoreFile) {
       this.keystoreFile = keystoreFile;
       return this;
     }
 
-  /** Member. */
+    /**
+     * Sets the keystore password.
+     *
+     * @param keystorePass the keystore password to set, may be <code>null</code>
+     * @return this builder, never <code>null</code>
+     */
     public HttpsBuilder setKeystorePass(String keystorePass) {
       this.keystorePass = keystorePass;
       return this;
     }
 
-  /** Member. */
+    /**
+     * Sets the truststore file.
+     *
+     * @param truststoreFile the truststore file to set, may be <code>null</code>
+     * @return this builder, never <code>null</code>
+     */
     public HttpsBuilder setTruststoreFile(Path truststoreFile) {
       this.truststoreFile = truststoreFile;
       return this;
     }
 
-  /** Member. */
+    /**
+     * Sets the truststore password.
+     *
+     * @param truststorePass the truststore password to set, may be <code>null</code>
+     * @return this builder, never <code>null</code>
+     */
     public HttpsBuilder setTruststorePass(String truststorePass) {
       this.truststorePass = truststorePass;
       return this;
     }
 
-  /** Member. */
+    /**
+     * Sets the cipher suites.
+     *
+     * @param ciphers the cipher suites to set, may be <code>null</code>
+     * @return this builder, never <code>null</code>
+     */
     public HttpsBuilder setCiphers(Set<String> ciphers) {
       this.ciphers = ciphers;
       return this;
     }
 
-  /** Member. */
+    /**
+     * Sets the SSL protocols.
+     *
+     * @param sslProtocols the SSL protocols to set, may be <code>null</code>
+     * @return this builder, never <code>null</code>
+     */
     public HttpsBuilder setSslProtocols(Set<String> sslProtocols) {
       this.sslProtocols = sslProtocols;
       return this;
     }
 
+    /** {@inheritDoc} */
     @Override
-  /** Member. */
     public HttpsBuilder setHttps() {
       this.scheme = PSAbstractConnector.SCHEME_HTTPS;
       return this;
     }
 
-  /** Member. */
+    /**
+     * Builds the connector from this builder's state.
+     *
+     * @return the built connector, never <code>null</code>
+     */
     public PSAbstractConnector build() {
 
       PSAbstractConnector connector = super.build();
@@ -482,7 +591,11 @@ public abstract class PSAbstractConnector implements IPSConnector, XMLEnabled {
     }
   }
 
-  /** Member. */
+  /**
+   * Creates a new connector builder.
+   *
+   * @return a new builder, never <code>null</code>
+   */
   public static PSAbstractConnector.Builder getBuilder() {
     return new PSAbstractConnector.Builder();
   }

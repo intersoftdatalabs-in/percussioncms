@@ -25,8 +25,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author JaySeletz
  */
 public class PSThreadUtils {
+  /** Creates a thread utilities instance. All methods are static. */
+  public PSThreadUtils() {}
+
+  /** Job-cancelled request info key. */
   public static final String JOB_CANCELLED = "JOB_CANCELLED";
 
+  /**
+   * Sets the interrupt flag for the current thread.
+   *
+   * @param bool the flag holder, never <code>null</code>
+   */
   public static void setInterrupt(AtomicBoolean bool) {
     PSRequestInfoBase.setRequestInfo(JOB_CANCELLED, bool);
   }

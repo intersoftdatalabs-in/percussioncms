@@ -45,6 +45,7 @@ public class PSSqlException extends java.sql.SQLException
    *
    * @param msgCode the error string to load
    * @param singleArg the argument to use as the sole argument in the error message
+   * @param sqlState the SQL state string
    */
   public PSSqlException(int msgCode, Object singleArg, String sqlState) {
     this(msgCode, new Object[] {singleArg}, sqlState);
@@ -56,6 +57,7 @@ public class PSSqlException extends java.sql.SQLException
    *
    * @param msgCode the error string to load
    * @param arrayArgs the array of arguments to use as the arguments in the error message
+   * @param sqlState the SQL state string
    */
   public PSSqlException(int msgCode, Object[] arrayArgs, String sqlState) {
     super("", sqlState, msgCode);
@@ -66,6 +68,7 @@ public class PSSqlException extends java.sql.SQLException
    * Construct an exception for messages taking no arguments.
    *
    * @param msgCode the error string to load
+   * @param sqlState the SQL state string
    */
   public PSSqlException(int msgCode, String sqlState) {
     this(msgCode, null, sqlState);
@@ -153,6 +156,8 @@ public class PSSqlException extends java.sql.SQLException
   /**
    * Typed error code when constructed via {@link #PSSqlException(IPSErrorCode, String)} (or
    * overloads); otherwise {@code null} for legacy int construction.
+   *
+   * @return the typed error code, or {@code null} when constructed with a legacy int code
    */
   public IPSErrorCode getTypedErrorCode() {
     return m_exception.getTypedErrorCode();
@@ -161,6 +166,8 @@ public class PSSqlException extends java.sql.SQLException
   /**
    * Whether dual-write should consider this exception auditable. Prefer the typed code when
    * present; legacy int construction returns {@code false}.
+   *
+   * @return {@code true} when a typed code is present and auditable, otherwise {@code false}
    */
   public boolean isAuditable() {
     return m_exception.isAuditable();
@@ -231,7 +238,6 @@ public class PSSqlException extends java.sql.SQLException
    * There is one SQL-92 class of error set in the SQL state (0A). ODBC also defines its own SQL
    * states which are IM001 and S1C00.
    *
-   * @author chadloder
    * @param e the SQL Exception to be tested, may not be <code>null</code>.
    * @param driverName the name of the driver of the connection on which the exception was thrown;
    *     must not be <code>null</code> or empty.
@@ -306,8 +312,6 @@ public class PSSqlException extends java.sql.SQLException
   /**
    * Returns true if the given exception, or any of its chained exceptions, is a connection error.
    *
-   * @author chadloder
-   * @version 1.5 1999/09/09
    * @param e the SQL Exception to be tested
    * @param driverName the name of the driver of the connection on which the exception was thrown;
    *     must not be <code>null</code> or empty.
@@ -375,6 +379,12 @@ public class PSSqlException extends java.sql.SQLException
     return false;
   }
 
+  /**
+   * Returns a string representation of the supplied SQL exception.
+   *
+   * @param e the SQL exception, may be <code>null</code>
+   * @return the string representation, never <code>null</code>
+   */
   public static String toString(SQLException e) {
     StringBuilder buf = new StringBuilder();
     if (null != e) {
@@ -433,5 +443,6 @@ public class PSSqlException extends java.sql.SQLException
     return code;
   }
 
+  /** The wrapped exception holding the error state. */
   protected PSException m_exception;
 }

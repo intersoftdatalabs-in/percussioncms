@@ -26,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
  * @author dougrand
  */
 public class PSFolderStringUtils {
+  /** Creates a folder string utilities instance. All methods are static. */
+  public PSFolderStringUtils() {}
   /**
    * Translates an input folder list that uses '%' to indicate a wildcard and ';' to separate paths
    * to an array of compiled regex {@link Pattern}s.

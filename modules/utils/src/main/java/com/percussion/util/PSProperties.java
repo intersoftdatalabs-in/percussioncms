@@ -300,7 +300,7 @@ public final class PSProperties extends java.util.Properties {
    *
    * @param out The OutputStream to write to.
    * @param header Ignored, here for compatability w/ Properties.
-   * @exception IOException
+   * @exception IOException if an I/O error occurs while writing
    */
   public void store(OutputStream out, String header) throws IOException {
     // The spec says that the file must be encoded using ISO-8859-1.

@@ -22,13 +22,32 @@ import java.util.Date;
 import java.util.TimeZone;
 import org.apache.commons.lang3.time.FastDateFormat;
 
+/**
+ * Formats and parses HTTP dates.
+ */
 public class PSDateFormatter {
 
+  /** Creates a date formatter. All methods are static. */
+  public PSDateFormatter() {}
+
+  /**
+   * Formats a date for use in HTTP headers.
+   *
+   * @param d the date to format, never <code>null</code>
+   * @return the formatted date string, never <code>null</code>
+   */
   public static String formatDateForHttp(Date d) {
     return FastDateFormat.getInstance("EEE, d MMM yyyy HH:mm:ss 'GMT'", TimeZone.getTimeZone("GMT"))
         .format(d);
   }
 
+  /**
+   * Parses an HTTP header date string.
+   *
+   * @param d the date string to parse, never <code>null</code>
+   * @return the parsed date, never <code>null</code>
+   * @throws ParseException if the string cannot be parsed
+   */
   public static Date parseDateFromHttp(String d) throws ParseException {
     return FastDateFormat.getInstance("EEE, d MMM yyyy HH:mm:ss 'GMT'", TimeZone.getTimeZone("GMT"))
         .parse(d);

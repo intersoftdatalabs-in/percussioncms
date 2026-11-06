@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * given class, then <CODE>null</CODE> will be returned.
  */
 public class PSMapClassToObject {
+  /** Creates an empty class-to-object map. */
   public PSMapClassToObject() {
     m_hash = new ConcurrentHashMap<>();
   }
@@ -33,6 +34,8 @@ public class PSMapClassToObject {
   /**
    * add all of the mappings from the given map to this map, replacing mappings from the given map
    * which exist in this map.
+   *
+   * @param map the map whose mappings are added, never <code>null</code>
    */
   public void addReplaceMappings(PSMapClassToObject map) {
     m_hash.putAll(map.m_hash);
@@ -41,6 +44,8 @@ public class PSMapClassToObject {
   /**
    * add all of the mappings from the given map to this map, but will not add mappings from the
    * given map if they already exist in this map.
+   *
+   * @param map the map whose mappings are added, never <code>null</code>
    */
   public void addNoReplaceMappings(PSMapClassToObject map) {
     java.util.Enumeration<Class<?>> keys = map.m_hash.keys();
@@ -54,6 +59,8 @@ public class PSMapClassToObject {
   /**
    * add the given mapping to this map, replacing any existing mapping
    *
+   * @param c the class to map, never <code>null</code>
+   * @param o the object to associate with the class
    * @return The object that was previously associated with this class, or <code>null</code> if no
    *     mapping existed for this class. The return value will still be <CODE>null</CODE> even if a
    *     superclass of the given class has a mapping.
@@ -64,7 +71,12 @@ public class PSMapClassToObject {
     return ret;
   }
 
-  /** add the given mapping to this map only if no mapping exists for this class */
+  /**
+   * add the given mapping to this map only if no mapping exists for this class
+   *
+   * @param c the class to map, never <code>null</code>
+   * @param o the object to associate with the class
+   */
   public void addNoReplaceMapping(Class<?> c, Object o) {
     if (!m_hash.contains(c)) m_hash.put(c, o);
   }
@@ -73,6 +85,9 @@ public class PSMapClassToObject {
    * gets the Object associated with this class. if no mapping exists for this class, will return
    * the mapping associated with the most immediate superclass. if no mapping exists for any
    * superclass (including Object) of this class, will return <CODE>null</CODE>
+   *
+   * @param c the class to look up, may be <code>null</code>
+   * @return the mapped object, or <CODE>null</CODE> if no mapping was found
    */
   public Object getMapping(Class<?> c) {
     if (c == null) return null;
@@ -89,10 +104,8 @@ public class PSMapClassToObject {
    * doSuper</CODE> is <CODE>true</CODE>, will return the mapping for the most immediate superclass
    * for which a mapping is defined. Returns <CODE>null</CODE> if no mapping was found.
    *
-   * @author chadloder
-   * @version 1.4 1999/02/05
-   * @param c
-   * @param doSuper
+   * @param c the class to look up, may be <code>null</code>
+   * @param doSuper if <code>true</code>, search superclasses when no direct mapping exists
    * @return Object
    */
   public Object getMapping(Class<?> c, boolean doSuper) {
@@ -105,10 +118,20 @@ public class PSMapClassToObject {
     return o;
   }
 
+  /**
+   * Returns an enumeration of the mapped classes.
+   *
+   * @return an enumeration of classes, never <code>null</code>
+   */
   public java.util.Enumeration<Class<?>> getClasses() {
     return m_hash.keys();
   }
 
+  /**
+   * Returns an enumeration of the mapped objects.
+   *
+   * @return an enumeration of objects, never <code>null</code>
+   */
   public java.util.Enumeration<Object> getMappedObjects() {
     return m_hash.elements();
   }

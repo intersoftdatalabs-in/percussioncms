@@ -30,6 +30,8 @@ import java.util.ResourceBundle;
  * @author yubingchen
  */
 public class PSPredefinedJexlVariableDefs {
+  /** Creates a predefined variable definitions helper. All methods are static. */
+  public PSPredefinedJexlVariableDefs() {}
   /**
    * Gets a list of predefined system variables definitions that can be used in a template as the
    * value of binding variables.

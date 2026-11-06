@@ -42,8 +42,14 @@ import org.w3c.dom.NodeList;
  * @author dougrand
  */
 public class PSXmlPIUtils {
+  /** Creates an XML PI utilities instance. All methods are static. */
+  public PSXmlPIUtils() {}
+
+  /** Processing instruction action. */
   public enum Action {
+    /** Quote action. */
     QUOTE,
+    /** PHP action. */
     PHP
   }
 

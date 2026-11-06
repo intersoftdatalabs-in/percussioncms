@@ -21,8 +21,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Map comparison utilities.
+ */
 public class PSMapUtils {
 
+  /** Creates a map utilities instance. All methods are static. */
+  public PSMapUtils() {}
+
+  /**
+   * Compares two maps with array values for equality.
+   *
+   * @param first the first map, never <code>null</code>
+   * @param second the second map, never <code>null</code>
+   * @return <code>true</code> if the maps are equal
+   */
   public static boolean areEqualWithArrayValue(
       Map<String, String[]> first, Map<String, String[]> second) {
     if (first.size() != second.size()) {
@@ -33,6 +46,13 @@ public class PSMapUtils {
         .allMatch(e -> Arrays.equals(e.getValue(), second.get(e.getKey())));
   }
 
+  /**
+   * Compares two maps with list values for equality.
+   *
+   * @param first the first map, never <code>null</code>
+   * @param second the second map, never <code>null</code>
+   * @return <code>true</code> if the maps are equal
+   */
   public static boolean areEqualWithArrayListValue(
       Map<String, List<?>> first, Map<String, List<?>> second) {
     if (first.size() != second.size()) {

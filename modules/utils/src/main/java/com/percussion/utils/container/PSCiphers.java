@@ -77,17 +77,29 @@ public class PSCiphers {
     intermediate_combined_ciphers.retainAll(system_ciphers);
   }
 
-  /** Member. */
+  /**
+   * Returns the system-supported cipher suites.
+   *
+   * @return the system cipher list, never <code>null</code>
+   */
   public static List<String> getSystemCiphers() {
     return system_ciphers;
   }
 
-  /** Member. */
+  /**
+   * Returns the modern cipher suites supported by both configuration and the system.
+   *
+   * @return the modern cipher list, never <code>null</code>
+   */
   public static List<String> getModernCiphers() {
     return modern_combined_ciphers;
   }
 
-  /** Member. */
+  /**
+   * Returns the intermediate cipher suites supported by both configuration and the system.
+   *
+   * @return the intermediate cipher list, never <code>null</code>
+   */
   public static List<String> getIntermediateCiphers() {
     return intermediate_combined_ciphers;
   }

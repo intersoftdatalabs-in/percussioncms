@@ -110,8 +110,9 @@ public class PSBrandCodeUtil {
    *     <code>null</code> or empty.
    * @throws IllegalArgumentException if filePath is <code>null</code> or empty, or if doc is <code>
    *     null</code>
-   * @throws IOException
-   * @throws ParserConfigurationException
+   * @throws IOException if the file cannot be created or written
+   * @throws ParserConfigurationException if the parser is not configured correctly in the xerces
+   *     jar file
    */
   public static void write(Document doc, String filePath)
       throws IOException, ParserConfigurationException {

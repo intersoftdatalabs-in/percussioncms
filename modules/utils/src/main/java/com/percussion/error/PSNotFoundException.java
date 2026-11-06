@@ -87,10 +87,21 @@ public class PSNotFoundException extends PSException {
     super(msgCode);
   }
 
+  /**
+   * Construct an exception for messages taking a single message string.
+   *
+   * @param msg the message string
+   */
   public PSNotFoundException(String msg) {
     super(msg);
   }
 
+  /**
+   * Construct an exception for messages taking a message string and a cause.
+   *
+   * @param msg the message string
+   * @param t the causal throwable, may be <code>null</code>
+   */
   public PSNotFoundException(String msg, Throwable t) {
     super(msg, t);
   }

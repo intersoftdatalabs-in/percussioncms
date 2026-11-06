@@ -22,6 +22,9 @@ import com.percussion.utils.container.config.ContainerConfig;
 import java.io.File;
 import java.nio.file.Path;
 
+/**
+ * Delivery Tier Service configuration resolved from the installation directory.
+ */
 public class PSDtsConfig implements IPSDtsConfig, ContainerConfig {
 
   boolean localStagingDTSEnabled = false;
@@ -34,6 +37,11 @@ public class PSDtsConfig implements IPSDtsConfig, ContainerConfig {
   private PSAbstractXmlConnectors dtsConnector;
   private PSAbstractXmlConnectors stagingDtsConnector;
 
+  /**
+   * Creates a DTS configuration for the supplied installation root.
+   *
+   * @param rxDir the installation root directory, never <code>null</code>
+   */
   public PSDtsConfig(Path rxDir) {
 
     this.rxDir = rxDir;
@@ -52,6 +60,11 @@ public class PSDtsConfig implements IPSDtsConfig, ContainerConfig {
     }
   }
 
+  /**
+   * Returns the installation root directory.
+   *
+   * @return the installation root, never <code>null</code>
+   */
   public Path getRxDir() {
     return rxDir;
   }
@@ -92,11 +105,17 @@ public class PSDtsConfig implements IPSDtsConfig, ContainerConfig {
         + '}';
   }
 
+  /**
+   * Loads connector state from the installation directory.
+   */
   public void load() {
     if (localDTSEnabled) dtsConnector.load();
     if (localStagingDTSEnabled) stagingDtsConnector.load();
   }
 
+  /**
+   * Saves connector state to the installation directory.
+   */
   public void save() {
     if (localDTSEnabled) dtsConnector.save();
     if (localStagingDTSEnabled) stagingDtsConnector.save();

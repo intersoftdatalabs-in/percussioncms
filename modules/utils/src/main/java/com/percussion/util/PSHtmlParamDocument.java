@@ -107,6 +107,7 @@ public final class PSHtmlParamDocument {
   /**
    * Converts itself to its XML representation based on the DTD given in the class description.
    *
+   * @param doc the document used to create the representation, never <code>null</code>
    * @return document element of the XML document representation of this object, never <code>null
    *     </code>.
    * @throws IllegalArgumentException if the input document is <code>null</code>.

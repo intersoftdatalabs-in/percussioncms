@@ -28,7 +28,7 @@ import org.apache.commons.codec.EncoderException;
  * @author dougrand
  */
 public class PSXmlDecoder implements Encoder {
-  /** */
+  /** Creates an XML decoder. */
   public PSXmlDecoder() {
     super();
   }

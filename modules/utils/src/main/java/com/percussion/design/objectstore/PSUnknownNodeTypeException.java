@@ -118,5 +118,6 @@ public class PSUnknownNodeTypeException extends PSException {
     return PSErrorManager.createMessage(m_code, m_args, locale);
   }
 
+  /** The wrapped exception, may be <code>null</code>. */
   private PSException m_exception = null;
 }

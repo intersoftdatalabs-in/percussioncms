@@ -36,18 +36,30 @@ import org.apache.commons.lang3.math.NumberUtils;
 /** Final so copy ctor may call {@code mergeConnectors} without {@code this-escape}. */
 public final class PSJettyConnectors extends PSAbstractConnectors {
 
+  /** Jetty keystore file property key. */
   public static final String KEYSTORE_FILE_ATTR = "jetty.sslContext.keyStorePath";
+  /** Jetty keystore password property key. */
   public static final String KEYSTORE_PASS_ATTR = "jetty.sslContext.keyStorePassword";
+  /** Jetty truststore file property key. */
   public static final String TRUSTSTORE_FILE_ATTR = "jetty.sslContext.trustStorePath";
+  /** Jetty truststore password property key. */
   public static final String TRUSTSTORE_PASS_ATTR = "jetty.sslContext.trustStorePassword";
+  /** Jetty key manager password property key. */
   public static final String KEYMANAGER_PASS_ATTR = "jetty.sslContext.keyManagerPassword";
 
+  /** Property listing ciphers to include. */
   public static final String INCLUDE_CIPHERS_PROP = "perc.ssl.includeCiphers";
+  /** Property listing SSL protocols. */
   public static final String PROTOCOLS_PROP = "perc.ssl.protocols";
+  /** Jetty HTTP port property key. */
   public static final String JETTY_HTTP_PORT_KEY = "jetty.http.port";
+  /** Jetty HTTPS port property key. */
   public static final String JETTY_HTTPS_PORT_KEY = "jetty.ssl.port";
+  /** Jetty HTTP host property key. */
   public static final String JETTY_HTTP_HOST = "jetty.http.host";
+  /** Jetty HTTPS host property key. */
   public static final String JETTY_HTTPS_HOST = "jetty.ssl.host";
+  /** Jetty shutdown port property key. */
   public static final String JETTY_SHUTDOWN_PORT = "-DSTOP.PORT";
 
   private final Path rxRootDir;
@@ -57,11 +69,22 @@ public final class PSJettyConnectors extends PSAbstractConnectors {
   private final Path jettyStartD = jettyBase.resolve("start.d");
   private final Path installationProperties = Paths.get("etc", "installation.properties");
 
+  /**
+   * Creates Jetty connectors for the supplied installation root.
+   *
+   * @param rxDir the installation root directory, never <code>null</code>
+   */
   public PSJettyConnectors(Path rxDir) {
     super(rxDir.resolve("jetty/base"));
     rxRootDir = rxDir;
   }
 
+  /**
+   * Creates Jetty connectors for the supplied installation root and connector data.
+   *
+   * @param rxDir the installation root directory, never <code>null</code>
+   * @param connectorInfo the connector data, never <code>null</code>
+   */
   public PSJettyConnectors(Path rxDir, PSAbstractConnectors connectorInfo) {
     this(rxDir);
     mergeConnectors(connectorInfo.getConnectors());
@@ -86,6 +109,9 @@ public final class PSJettyConnectors extends PSAbstractConnectors {
     return baseItem;
   }
 
+  /**
+   * Loads connector state from the Jetty configuration.
+   */
   public void load() {
     setConnectors(loadHttpConnectors());
   }
@@ -156,6 +182,9 @@ public final class PSJettyConnectors extends PSAbstractConnectors {
     return connectors;
   }
 
+  /**
+   * Saves connector state to the Jetty configuration.
+   */
   public void save() {
     List<IPSConnector> itemConnectorsSaved = this.getConnectors();
     load();

@@ -30,17 +30,18 @@ public class PSObjectSerializerException extends Exception {
   public PSObjectSerializerException() {}
 
   /**
-   * Delegates to base class version.
+   * Creates an exception with the supplied message.
    *
-   * @see java.lang.Exception#Exception(java.lang.String)
+   * @param msg the detail message, may be <code>null</code>
    */
   public PSObjectSerializerException(String msg) {
     super(msg);
   }
 
   /**
-   * Delegates to base class version.
+   * Creates an exception with the supplied cause.
    *
+   * @param nestedException the cause, may be <code>null</code>
    * @see Exception#Exception(java.lang.Throwable)
    */
   public PSObjectSerializerException(Throwable nestedException) {
@@ -48,8 +49,10 @@ public class PSObjectSerializerException extends Exception {
   }
 
   /**
-   * Delegates to base class version.
+   * Creates an exception with the supplied message and cause.
    *
+   * @param msg the detail message, may be <code>null</code>
+   * @param nestedException the cause, may be <code>null</code>
    * @see Exception#Exception(java.lang.String, java.lang.Throwable)
    */
   public PSObjectSerializerException(String msg, Throwable nestedException) {

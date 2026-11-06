@@ -56,6 +56,7 @@ public class RxFileManager {
           + File.separator
           + "tomcat6.exe";
 
+  /** DTS application check file name for Tomcat 7. */
   public static final String DTS_APP_CHECK_FILE7 =
       "Deployment"
           + File.separator
@@ -256,7 +257,11 @@ public class RxFileManager {
     m_strRootDir = "";
   }
 
-  /** Constructs an RxFileManager with a root directory defined */
+  /**
+   * Constructs an RxFileManager with a root directory defined.
+   *
+   * @param strRootDir the root directory, never <code>null</code>
+   */
   public RxFileManager(String strRootDir) {
     setRootDir(strRootDir);
   }
@@ -290,6 +295,7 @@ public class RxFileManager {
   /***
    * Returns the absolute path to the installation properties file.
    * @param os Specifies the OS that we are returning props for.
+   * @return the absolute path, never <code>null</code>
    */
   public static String getSystemInstallationPropertiesAbsolute(OSEnum os) {
     if (os == OSEnum.Windows)
@@ -367,21 +373,33 @@ public class RxFileManager {
     return (f1.exists() || f2.exists());
   }
 
-  /** Returns the location for installer configuration files. */
+  /**
+   * Returns the location for installer configuration files.
+   *
+   * @return the location, never <code>null</code>
+   */
   public String getInstallerConfigLocation() {
     String strRet = CONFIG_DIR + File.separator + INSTALLER_DIR;
     if (m_strRootDir.length() > 0) strRet = m_strRootDir + File.separator + strRet;
     return strRet;
   }
 
-  /** Returns the location for the server configuration files. */
+  /**
+   * Returns the location for the server configuration files.
+   *
+   * @return the location, never <code>null</code>
+   */
   public String getServerConfigLocation() {
     String strRet = CONFIG_DIR + File.separator + SERVER_DIR;
     if (m_strRootDir.length() > 0) strRet = m_strRootDir + File.separator + strRet;
     return strRet;
   }
 
-  /** Returns the location of the objectstore files. */
+  /**
+   * Returns the location of the objectstore files.
+   *
+   * @return the location, never <code>null</code>
+   */
   public String getObjectStoreLocation() {
     String strRet = OBJECTSTORE_DIR;
     if (m_strRootDir.length() > 0) strRet = m_strRootDir + File.separator + strRet;
@@ -390,24 +408,36 @@ public class RxFileManager {
 
   /**
    * Returns the repository property file name. No validation for the existence of the file is made.
+   *
+   * @return the file name, never <code>null</code>
    */
   public String getRepositoryFile() {
     return getInstallerConfigLocation() + File.separator + REPOSITORY_FILE;
   }
 
-  /** Returns the server property file name. No validation for the existence of the file is made. */
+  /**
+   * Returns the server property file name. No validation for the existence of the file is made.
+   *
+   * @return the file name, never <code>null</code>
+   */
   public String getServerPropertiesFile() {
     return getServerConfigLocation() + File.separator + SERVER_PROPERTIES_FILE;
   }
 
   /**
    * Returns the rxfts.properties file name. No validation for the existence of the file is made.
+   *
+   * @return the file name, never <code>null</code>
    */
   public String getFtsPropertiesFile() {
     return getInstallerConfigLocation() + File.separator + RXFTS_PROPERTIES_FILE;
   }
 
-  /** Returns the server config file name. */
+  /**
+   * Returns the server config file name.
+   *
+   * @return the file name, never <code>null</code>
+   */
   public String getServerConfigFile() {
     return getServerConfigLocation() + File.separator + SERVER_CONFIG_FILE_NAME;
   }
@@ -415,6 +445,8 @@ public class RxFileManager {
   /**
    * Returns the installation property file name. No validation of the existence of the file is
    * made.
+   *
+   * @return the file name, never <code>null</code>
    */
   public String getInstallationPropertyFile() {
     return getInstallerConfigLocation() + File.separator + INSTALLATION_PROPERTIES_FILE;
@@ -480,7 +512,11 @@ public class RxFileManager {
     return ms_programDir;
   }
 
-  /** Returns the default installation directory for Rhythmyx */
+  /**
+   * Returns the default installation directory for Rhythmyx.
+   *
+   * @return the directory, never <code>null</code>
+   */
   public static String getDefaultInstallationDirectory() {
     String strHomeDirName = getHomeDrive();
     if (strHomeDirName != null) {
@@ -490,7 +526,11 @@ public class RxFileManager {
     return (strHomeDirName);
   }
 
-  /** Returns the default installation directory for the CM1 SDK. */
+  /**
+   * Returns the default installation directory for the CM1 SDK.
+   *
+   * @return the directory, never <code>null</code>
+   */
   public static String getDefaultSDKInstallationDirectory() {
     String strHomeDirName = getHomeDrive();
     if (strHomeDirName != null) {
@@ -500,7 +540,11 @@ public class RxFileManager {
     return (strHomeDirName);
   }
 
-  /** Returns the home drive */
+  /**
+   * Returns the home drive.
+   *
+   * @return the home drive, never <code>null</code>
+   */
   public static String getHomeDrive() {
     File homeDir = new File(System.getProperty("user.home"));
     String strHomeDirName = homeDir.getAbsolutePath();
@@ -522,6 +566,7 @@ public class RxFileManager {
    * @param dts_file The DTS file
    * @param cm1_file The CM1 file
    * @param os The Operating System
+   * @return the properties, never <code>null</code>
    * @throws IOException if an error occurs
    */
   public static Properties getDTSSystemFileProperties(String dts_file, String cm1_file, OSEnum os)

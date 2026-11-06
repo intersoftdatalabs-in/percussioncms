@@ -113,9 +113,10 @@ public class PSFilteredFileList {
    */
   protected FilenameFilter m_FileNameFilter = null;
 
-  /*
-   * main method for test purpose
-   * @param args
+  /**
+   * Test main that lists files under a directory using the supplied filter.
+   *
+   * @param args command line arguments, ignored
    */
   public static void main(String[] args) {
     String LOCADEF_DIR = "e:/Rhythmyx";

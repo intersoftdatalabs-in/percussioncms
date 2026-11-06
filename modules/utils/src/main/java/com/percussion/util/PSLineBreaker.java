@@ -37,6 +37,9 @@ public class PSLineBreaker {
    *
    * @param newLine Added whereever a break is found and a line follows. If <code>null</code> or
    *     empty, "\r\n" is used.
+   * @param line the line to break. May not be <code>null</code>.
+   * @param maxLen the maximum line length
+   * @param threshold the threshold controlling break placement
    * @return The supplied string, with newlines added at appropriate break points. Never <code>null
    *     </code>.
    */
@@ -59,7 +62,14 @@ public class PSLineBreaker {
     return buf.toString();
   }
 
-  /** See {@link #PSLineBreaker(String,int,int,String) ctor} for details on params. */
+  /**
+   * Creates a line breaker. See {@link #PSLineBreaker(String,int,int,String) ctor} for details on
+   * params.
+   *
+   * @param line the line to break. May not be <code>null</code>.
+   * @param maxLen the maximum line length
+   * @param threshold the threshold controlling break placement
+   */
   public PSLineBreaker(String line, int maxLen, int threshold) {
     this(line, maxLen, threshold, null);
   }
@@ -226,6 +236,11 @@ public class PSLineBreaker {
    */
   private int m_length = 0;
 
+  /**
+   * Test main for this class.
+   *
+   * @param args command line arguments, ignored
+   */
   public static void main(String[] args) {
     // test this class
     String test0 = "The quick\n brown fox jumped over the lazy dog";

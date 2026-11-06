@@ -17,10 +17,14 @@
 
 package com.percussion.utils.thread;
 
+/**
+ * Exception thrown when a thread is interrupted.
+ */
 public class PSThreadInterruptedException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
+  /** Creates an exception with no message or cause. */
   public PSThreadInterruptedException() {
     super();
   }

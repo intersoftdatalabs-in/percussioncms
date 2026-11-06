@@ -22,31 +22,37 @@ package com.percussion.utils.exceptions;
  * @author dougrand
  */
 public class PSORMException extends Exception {
-  /** */
+  /** Serialization id. */
   private static final long serialVersionUID = 3256441387154159155L;
 
-  /** */
+  /** Creates an exception with no message or cause. */
   public PSORMException() {
     super();
   }
 
   /**
-   * @param message
+   * Creates an exception with the supplied message.
+   *
+   * @param message the detail message, may be <code>null</code>
    */
   public PSORMException(String message) {
     super(message);
   }
 
   /**
-   * @param message
-   * @param cause
+   * Creates an exception with the supplied message and cause.
+   *
+   * @param message the detail message, may be <code>null</code>
+   * @param cause the cause, may be <code>null</code>
    */
   public PSORMException(String message, Throwable cause) {
     super(message, cause);
   }
 
   /**
-   * @param cause
+   * Creates an exception with the supplied cause.
+   *
+   * @param cause the cause, may be <code>null</code>
    */
   public PSORMException(Throwable cause) {
     super(cause);

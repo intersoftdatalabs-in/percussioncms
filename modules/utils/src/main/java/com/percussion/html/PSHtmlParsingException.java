@@ -19,6 +19,9 @@ package com.percussion.html;
 
 import java.security.PrivilegedActionException;
 
+/**
+ * Exception thrown when HTML content cannot be parsed.
+ */
 public class PSHtmlParsingException extends Exception {
   private static final long serialVersionUID = 1L;
 

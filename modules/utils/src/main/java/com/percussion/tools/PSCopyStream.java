@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * Stream copy helper. All methods are static; this class cannot be instantiated.
+ */
 public class PSCopyStream {
 
   /** Constructor, make it private to make uninstantiable. */

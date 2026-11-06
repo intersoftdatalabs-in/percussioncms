@@ -23,7 +23,14 @@ import java.util.stream.Collectors;
   /** Member. */
 public class PSCollectors {
 
-  /** Member. */
+  /** Prevent instantiation, this class only provides static collectors. */
+  private PSCollectors() {}
+
+  /**
+   * Returns a collector joining character sequences with commas.
+   *
+   * @return a comma-joining collector, never <code>null</code>
+   */
   public static Collector<CharSequence, ?, String> commaSeparatedString() {
     return Collectors.joining(",");
   }

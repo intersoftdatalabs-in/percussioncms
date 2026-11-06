@@ -41,7 +41,7 @@ public class PSBooleanValue extends PSBaseValue<Boolean> {
   /**
    * Ctor
    *
-   * @param arg0
+   * @param arg0 the boolean value to wrap
    */
   public PSBooleanValue(boolean arg0) {
     m_value = arg0;

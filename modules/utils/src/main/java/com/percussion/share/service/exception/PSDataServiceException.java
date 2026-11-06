@@ -16,22 +16,42 @@
  */
 package com.percussion.share.service.exception;
 
+/**
+ * Exception thrown when a data service operation fails.
+ */
 public class PSDataServiceException extends Exception {
 
   private static final long serialVersionUID = 1L;
 
+  /** Creates an exception with no message or cause. */
   public PSDataServiceException() {
     super();
   }
 
+  /**
+   * Creates an exception with the supplied message.
+   *
+   * @param message the detail message, may be <code>null</code>
+   */
   public PSDataServiceException(String message) {
     super(message);
   }
 
+  /**
+   * Creates an exception with the supplied message and cause.
+   *
+   * @param message the detail message, may be <code>null</code>
+   * @param cause the cause, may be <code>null</code>
+   */
   public PSDataServiceException(String message, Throwable cause) {
     super(message, cause);
   }
 
+  /**
+   * Creates an exception with the supplied cause.
+   *
+   * @param cause the cause, may be <code>null</code>
+   */
   public PSDataServiceException(Throwable cause) {
     super(cause);
   }

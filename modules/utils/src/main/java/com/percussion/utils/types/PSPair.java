@@ -50,20 +50,26 @@ public class PSPair<A, B> {
   }
 
   /**
-   * @return Returns the first.
+   * Returns the first element.
+   *
+   * @return Returns the first element.
    */
   public A getFirst() {
     return m_first;
   }
 
   /**
-   * @return Returns the second.
+   * Returns the second element.
+   *
+   * @return Returns the second element.
    */
   public B getSecond() {
     return m_second;
   }
 
   /**
+   * Sets the first element.
+   *
    * @param first The first to set.
    */
   public void setFirst(A first) {
@@ -71,6 +77,8 @@ public class PSPair<A, B> {
   }
 
   /**
+   * Sets the second element.
+   *
    * @param second The second to set.
    */
   public void setSecond(B second) {

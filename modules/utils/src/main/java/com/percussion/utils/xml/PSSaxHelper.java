@@ -49,6 +49,9 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class PSSaxHelper {
 
+  /** Creates a SAX helper. All methods are static. */
+  public PSSaxHelper() {}
+
   /**
    * Parser factory used in the static helper methods here. Uses secure defaults with DTD allowed
    * for local catalog-backed legacy content; external entities remain hard-disabled by {@link
@@ -73,9 +76,9 @@ public class PSSaxHelper {
    *     XMLStreamWriter} as the first argument in the constructor, never <code>null</code>.
    * @param args further arguments for the constructor, may be <code>null</code>.
    * @return a string result, never <code>null</code>.
-   * @throws SAXException
-   * @throws IOException
-   * @throws XMLStreamException
+   * @throws SAXException on parse errors
+   * @throws IOException on I/O errors
+   * @throws XMLStreamException on XML stream errors
    */
   public static String parseWithXMLWriter(
       String source, Class<? extends DefaultHandler> handler, Object... args)

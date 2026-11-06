@@ -26,14 +26,30 @@ public class PSNotImplementedException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Creates an exception with the supplied message.
+   *
+   * @param message the detail message, may be <code>null</code>
+   */
   public PSNotImplementedException(String message) {
     super(message);
   }
 
+  /**
+   * Creates an exception with the supplied cause.
+   *
+   * @param cause the cause, may be <code>null</code>
+   */
   public PSNotImplementedException(Throwable cause) {
     super(cause);
   }
 
+  /**
+   * Creates an exception with the supplied message and cause.
+   *
+   * @param message the detail message, may be <code>null</code>
+   * @param cause the cause, may be <code>null</code>
+   */
   public PSNotImplementedException(String message, Throwable cause) {
     super(message, cause);
   }

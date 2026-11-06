@@ -79,6 +79,7 @@ public class PSPatternMatch {
    *
    * @param pattern the pattern used to determine if a string matches. It may not be <code>null
    *     </code> or empty.
+   * @param wildCard the wild-card string, may not be <code>null</code> or empty
    */
   public PSPatternMatch(String pattern, String wildCard) {
     if (StringUtils.isBlank(pattern))

@@ -23,12 +23,28 @@ import java.util.*;
  * object, Iterators over two objects, empty Iterators, and counted Iterators over a single object.
  */
 public abstract class PSIteratorUtils {
-  /** Returns an iterator over this object. */
+  /** Creates an iterator utilities instance. All methods are static. */
+  protected PSIteratorUtils() {}
+
+  /**
+   * Returns an iterator over this object.
+   *
+   * @param <T> the element type
+   * @param o the object to iterate over
+   * @return an iterator over the object, never <code>null</code>
+   */
   public static <T> Iterator<T> iterator(T o) {
     return iterator(o, 1);
   }
 
-  /** Returns an iterator over this object N times. */
+  /**
+   * Returns an iterator over this object N times.
+   *
+   * @param <T> the element type
+   * @param o the object to iterate over
+   * @param numIterations the number of iterations
+   * @return an iterator over the object, never <code>null</code>
+   */
   public static <T> Iterator<T> iterator(T o, int numIterations) {
     return new CountedIterator<>(o, numIterations);
   }
@@ -36,6 +52,8 @@ public abstract class PSIteratorUtils {
   /**
    * Returns an empty iterator.
    *
+   * @param <T> the element type
+   * @return an empty iterator, never <code>null</code>
    * @deprecated Use Collections.emptyIterator
    */
   @Deprecated
@@ -43,7 +61,13 @@ public abstract class PSIteratorUtils {
     return Collections.emptyIterator();
   }
 
-  /** Returns a double iterator over the two given objects. */
+  /**
+   * Returns a double iterator over the two given objects.
+   *
+   * @param a the first object
+   * @param b the second object
+   * @return a double iterator, never <code>null</code>
+   */
   public static Iterator<Object> iterator(Object a, Object b) {
     return new DoubleIterator(a, b);
   }
@@ -52,6 +76,7 @@ public abstract class PSIteratorUtils {
    * Returns a protected (non-destructive) version of the current iterator.
    *
    * @param i The iterator to wrap. May not be <code>null</code>.
+   * @return a protected iterator, never <code>null</code>
    * @throws IllegalArgumentException If it is <code>null</code>
    */
   public static Iterator<Object> protectedIterator(Iterator<?> i) {
@@ -60,11 +85,23 @@ public abstract class PSIteratorUtils {
     return new ProtectedIterator(i);
   }
 
-  /** Returns an iterator over the given array. */
+  /**
+   * Returns an iterator over the given array.
+   *
+   * @param array the array to iterate over, may be <code>null</code>
+   * @return an iterator over the array, never <code>null</code>
+   */
   public static Iterator<Object> iterator(Object[] array) {
     return new ArrayIterator(array);
   }
 
+  /**
+   * Returns an iterator joining two iterators.
+   *
+   * @param first the first iterator, may be <code>null</code>
+   * @param second the second iterator, may be <code>null</code>
+   * @return a joined iterator, never <code>null</code>
+   */
   public static Iterator<Object> joinedIterator(Iterator<?> first, Iterator<?> second) {
     return new JoinedIterator(first, second);
   }
@@ -72,6 +109,7 @@ public abstract class PSIteratorUtils {
   /**
    * Gets the list from an iterator.
    *
+   * @param <T> the element type
    * @param iter the iter, may not be <code>null</code>
    * @return the list, never <code>null</code>, may be empty if supplied <code>
    * iter</code> is empty.

@@ -30,11 +30,15 @@ import org.apache.commons.lang3.StringUtils;
  * @author erikserating
  */
 public class PSParseFragments {
+  /** Creates a parse-fragments helper. All methods are static. */
+  public PSParseFragments() {}
+
   /**
    * Parse the specified text. Assumed it is in the format of grouping each fragment between {@link
    * #START_DELIMITER} and {@link #END_DELIMITER}. Each {@link #START_DELIMITER} must has a name
    * which is a space separated from the {@link #START_DELIMITER}.
    *
+   * @param raw the text to parse, never <code>null</code>
    * @return the parsed result in a map, where the map key is the name of the fragment, the map
    *     value is the fragment content.
    */

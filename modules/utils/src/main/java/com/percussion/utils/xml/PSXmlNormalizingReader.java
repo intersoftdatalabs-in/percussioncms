@@ -27,11 +27,21 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 
+/**
+ * Reader that normalizes XML input.
+ */
 public class PSXmlNormalizingReader extends Reader {
 
   private final BufferedReader underlyingReader;
+  /** Read buffer size. */
   private static final int BUFFER_SIZE = 33554432;
 
+  /**
+   * Creates a normalizing reader for the supplied stream.
+   *
+   * @param is the stream to read, never <code>null</code>
+   * @throws UnsupportedEncodingException if UTF-8 is not supported
+   */
   public PSXmlNormalizingReader(final InputStream is) throws UnsupportedEncodingException {
     CharsetDecoder decoder = Charset.forName("UTF8").newDecoder();
     decoder.onMalformedInput(CodingErrorAction.IGNORE);

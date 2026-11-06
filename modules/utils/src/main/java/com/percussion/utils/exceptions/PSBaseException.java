@@ -186,6 +186,8 @@ public abstract class PSBaseException extends Exception {
   /**
    * Typed error code when constructed via {@link #PSBaseException(IPSErrorCode, Object...)} (or the
    * cause overload); otherwise {@code null} for legacy int construction.
+   *
+   * @return the typed error code, or {@code null} when constructed with a legacy int code
    */
   public IPSErrorCode getTypedErrorCode() {
     return m_typedErrorCode;
@@ -194,6 +196,8 @@ public abstract class PSBaseException extends Exception {
   /**
    * Whether dual-write should consider this exception auditable. Prefer the typed code when present;
    * legacy int construction returns {@code false}.
+   *
+   * @return {@code true} when a typed code is present and auditable, otherwise {@code false}
    */
   public boolean isAuditable() {
     return m_typedErrorCode != null && m_typedErrorCode.isAuditable();
@@ -219,6 +223,7 @@ public abstract class PSBaseException extends Exception {
    * Get the stack trace for the specified exception as a string.
    *
    * @param t The throwable (usually an exception), never <code>null</code>.
+   * @return the stack trace as a string, never <code>null</code>
    */
   public static String getStackTraceAsString(Throwable t) {
     if (t == null) throw new IllegalArgumentException("t may not be null");

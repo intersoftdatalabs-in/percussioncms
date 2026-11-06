@@ -23,8 +23,14 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
 
+/**
+ * Properties with sorted keys.
+ */
 public class SortedProperties extends Properties {
   private static final long serialVersionUID = 1L;
+
+  /** Creates sorted properties. */
+  public SortedProperties() {}
 
   public Enumeration<Object> keys() {
     Enumeration<Object> keysEnum = super.keys();

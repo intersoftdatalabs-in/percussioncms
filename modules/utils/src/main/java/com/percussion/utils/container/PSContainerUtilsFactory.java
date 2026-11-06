@@ -31,7 +31,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Factory for container configuration contexts. All factory methods are static; instances expose
+ * per-path save/load convenience operations.
+ */
 public class PSContainerUtilsFactory {
+
+  /** Creates a factory. All factory methods are static. */
+  public PSContainerUtilsFactory() {}
 
   private static final ConcurrentHashMap<String, DefaultConfigurationContextImpl> factoryInstances =
       new ConcurrentHashMap<>();
@@ -51,6 +58,12 @@ public class PSContainerUtilsFactory {
     // adapterList.add(new LoggingContainerConfigurationAdapter());
   }
 
+  /**
+   * Returns the configuration context for the supplied path, creating it on first use.
+   *
+   * @param path the container root path, never <code>null</code>
+   * @return the configuration context, never <code>null</code>
+   */
   public static DefaultConfigurationContextImpl getConfigurationContextInstance(Path path) {
     DefaultConfigurationContextImpl value =
         factoryInstances.computeIfAbsent(
@@ -59,30 +72,62 @@ public class PSContainerUtilsFactory {
     return value;
   }
 
+  /**
+   * Returns the configuration context for the default installation path.
+   *
+   * @return the configuration context, never <code>null</code>
+   */
   public static DefaultConfigurationContextImpl getConfigurationContextInstance() {
     return getConfigurationContextInstance(PathUtils.getRxDir().toPath());
   }
 
+  /**
+   * Returns the container configuration for the default installation path.
+   *
+   * @return the container configuration, never <code>null</code>
+   */
   public static BaseContainerUtils getInstance() {
     return getConfigurationContextInstance().getConfig();
   }
 
+  /**
+   * Returns the container configuration for the supplied root.
+   *
+   * @param root the container root path, never <code>null</code>
+   * @return the container configuration, never <code>null</code>
+   */
   public static BaseContainerUtils getInstance(Path root) {
     return getConfigurationContextInstance(root).getConfig();
   }
 
+  /**
+   * Saves the configuration context for the supplied path.
+   *
+   * @param path the container root path, never <code>null</code>
+   */
   public void save(Path path) {
     getConfigurationContextInstance(path).save();
   }
 
+  /**
+   * Loads the configuration context for the supplied path.
+   *
+   * @param path the container root path, never <code>null</code>
+   */
   public void load(Path path) {
     getConfigurationContextInstance(path).load();
   }
 
+  /**
+   * Saves the configuration context for the default installation path.
+   */
   public void save() {
     getConfigurationContextInstance().save();
   }
 
+  /**
+   * Loads the configuration context for the default installation path.
+   */
   public void load() {
     getConfigurationContextInstance().load();
   }
@@ -97,10 +142,20 @@ public class PSContainerUtilsFactory {
     return newContext;
   }
 
+  /**
+   * Returns the registered configuration adapters.
+   *
+   * @return the adapter list, never <code>null</code>
+   */
   public static List<IPSConfigurationAdapter<DefaultConfigurationContextImpl>> getAdapterList() {
     return adapterList;
   }
 
+  /**
+   * Replaces the registered configuration adapters.
+   *
+   * @param adapterList the adapters to register, never <code>null</code>
+   */
   public static void setAdapterList(
       List<IPSConfigurationAdapter<DefaultConfigurationContextImpl>> adapterList) {
     PSContainerUtilsFactory.adapterList.clear();

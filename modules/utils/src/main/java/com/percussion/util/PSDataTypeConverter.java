@@ -31,6 +31,8 @@ import org.apache.commons.lang3.time.FastDateFormat;
 
 /** This class provides utility methods for converting between different java datatypes. */
 public class PSDataTypeConverter {
+  /** Creates a datatype converter. All methods are static. */
+  public PSDataTypeConverter() {}
   /**
    * Converts the supplied String representation of binary data to a byte array.
    *
@@ -147,6 +149,8 @@ public class PSDataTypeConverter {
    *     org.apache.commons.lang3.time.FastDateFormat} class. If <code>null</code> or blank, <code>
    *     yyyy-MM-dd HH:mm:ss.SSS</code> is used if a non-zero time component is present, otherwise,
    *     <code>yyyy-MM-dd</code> is used.
+   * @param throwEx if <code>true</code>, throw a {@link ParseException} when the input date cannot
+   *     be parsed; otherwise return <code>null</code>
    * @return The input date formated as specified by the <code>outputFormat</code> specifier, or
    *     <code>null</code> if the input date cannot be parsed. If the default output format is used,
    *     it is guaranteed parseable by the {@link #parseStringToDate(String)} method.
@@ -194,6 +198,9 @@ public class PSDataTypeConverter {
   /**
    * Convenience version of {@link #parseStringToDate(String, StringBuilder)} that calls <code>
    * parseStringToDate(myText, null)</code> and returns the result.
+   *
+   * @param myText a given string to be parsed. May not be <code>null</code>.
+   * @return A date object, <code>null</code> if the String cannot be parsed.
    */
   public static Date parseStringToDate(String myText) {
     return parseStringToDate(myText, null);
@@ -202,6 +209,11 @@ public class PSDataTypeConverter {
   /**
    * Convenience version of {@link #parseStringToDate(String, StringBuilder, Locale)} that calls
    * <code>parseStringToDate(myText, patternUsed, null)</code> and returns the result.
+   *
+   * @param myText a given string to be parsed. May not be <code>null</code>.
+   * @param patternUsed If successfully parsed, the pattern used will be appended on the supplied
+   *     StringBuilder. May be <code>null</code> if the pattern need not be returned.
+   * @return A date object, <code>null</code> if the String cannot be parsed.
    */
   public static Date parseStringToDate(String myText, StringBuilder patternUsed) {
     return parseStringToDate(myText, patternUsed, null);

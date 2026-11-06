@@ -187,6 +187,11 @@ public class PSBaseHttpUtils {
    * means that special characters (such as = and ;) should be ignored between the quote delimiters.
    *
    * <p>The params will be stored in the map as LCASE(name) -> value.
+   *
+   * @param paramStr the raw HTTP params string to parse, never <code>null</code>
+   * @param params the map receiving the parsed LCASE(name) -&gt; value pairs, never <code>null
+   *     </code>
+   * @return the length of the parsed params string
    */
   protected static int parseHttpParamsString(String paramStr, Map<String, String> params) {
     final String str = paramStr.trim();
@@ -293,6 +298,9 @@ public class PSBaseHttpUtils {
   /**
    * Convenience method that calls {@link #parseQueryParamsString(String, boolean, boolean)
    * parseQueryParamString(query, false, true)}.
+   *
+   * @param query the query string to parse, may be <code>null</code> or empty
+   * @return the parsed name/value pairs, never <code>null</code>
    */
   public static Map<String, Object> parseQueryParamsString(String query) {
     return parseQueryParamsString(query, false, true);

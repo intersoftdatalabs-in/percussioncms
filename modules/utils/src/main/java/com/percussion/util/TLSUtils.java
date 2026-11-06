@@ -20,8 +20,17 @@ package com.percussion.util;
 import java.security.Provider;
 import java.security.Security;
 
+/**
+ * TLS utilities.
+ */
 public class TLSUtils {
 
+  /** Creates a TLS utilities instance. All methods are static. */
+  public TLSUtils() {}
+
+  /**
+   * Prints the enabled ciphers of all security providers to standard out.
+   */
   public static void getEnabledCiphers() {
     for (Provider provider : Security.getProviders()) {
       System.out.println(provider.getName());

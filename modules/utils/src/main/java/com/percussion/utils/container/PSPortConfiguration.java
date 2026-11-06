@@ -22,6 +22,8 @@ import java.util.List;
 
 /** Contains the configuration of a set of ports. */
 public class PSPortConfiguration {
+  /** Creates an empty port configuration. */
+  public PSPortConfiguration() {}
   /**
    * Add a port configuration.
    *

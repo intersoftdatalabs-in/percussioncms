@@ -28,12 +28,31 @@ import javax.jcr.RepositoryException;
  * @author dougrand
  */
 public class PSNodePrettyPrinter {
+  /** Indentation width. */
   private static final int INDENT = 2;
 
+  /** Creates a node pretty printer. All methods are static. */
+  public PSNodePrettyPrinter() {}
+
+  /**
+   * Pretty prints a JSR-170 node.
+   *
+   * @param n the node to print, never <code>null</code>
+   * @return the pretty printed node, never <code>null</code>
+   * @throws RepositoryException on repository errors
+   */
   public static String toString(Node n) throws RepositoryException {
     return toString(n, 0);
   }
 
+  /**
+   * Pretty prints a JSR-170 node with the supplied indentation.
+   *
+   * @param n the node to print, never <code>null</code>
+   * @param indentation the indentation level
+   * @return the pretty printed node, never <code>null</code>
+   * @throws RepositoryException on repository errors
+   */
   public static String toString(Node n, int indentation) throws RepositoryException {
     StringBuilder b = new StringBuilder();
     for (int i = 0; i < indentation; i++) {
@@ -57,6 +76,14 @@ public class PSNodePrettyPrinter {
     return b.toString();
   }
 
+  /**
+   * Pretty prints a JSR-170 property with the supplied indentation.
+   *
+   * @param p the property to print, never <code>null</code>
+   * @param indentation the indentation level
+   * @return the pretty printed property, never <code>null</code>
+   * @throws RepositoryException on repository errors
+   */
   public static String toString(Property p, int indentation) throws RepositoryException {
     StringBuilder b = new StringBuilder();
     for (int i = 0; i < indentation; i++) {

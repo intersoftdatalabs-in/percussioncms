@@ -33,13 +33,16 @@ import org.apache.commons.text.WordUtils;
  * @author dougrand
  */
 public class PSStringUtils {
+  /** Creates a string utilities instance. All methods are static. */
+  public PSStringUtils() {}
+
   private static final String ELIPSIS = ".../";
 
   /**
    * Get the character set or return utf-8. The charset is after the string "charset=" if it is
    * specified.
    *
-   * @param mimeType
+   * @param mimeType the mime type, never <code>null</code>
    * @return the charset for the mimetype
    */
   public static Charset getCharsetFromMimeType(String mimeType) {
@@ -561,15 +564,22 @@ public class PSStringUtils {
   }
 
   /**
-   * Converts a null Long object to 0
+   * Converts a null Long object to 0.
    *
    * @param arg 0 or the value
+   * @return 0 if the argument is <code>null</code>, otherwise the value
    */
   public static long NullToZero(Long arg) {
     if (null == arg) return 0;
     else return arg;
   }
 
+  /**
+   * Converts a null Integer object to 0.
+   *
+   * @param arg 0 or the value, may be <code>null</code>
+   * @return 0 if the argument is <code>null</code>, otherwise the value
+   */
   public static int NullToZero(Integer arg) {
     if (null == arg) return 0;
     else return arg;

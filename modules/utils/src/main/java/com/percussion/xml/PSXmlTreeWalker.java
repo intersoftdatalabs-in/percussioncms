@@ -594,6 +594,7 @@ public class PSXmlTreeWalker implements Serializable {
    * Write the tree associated with this walker to the specified stream.
    *
    * @param ps the print stream to write to
+   * @throws IOException on I/O errors
    */
   public void write(PrintStream ps) throws IOException {
     write(new PrintWriter(ps));
@@ -603,6 +604,7 @@ public class PSXmlTreeWalker implements Serializable {
    * Write the tree associated with this walker to the specified stream.
    *
    * @param out the output stream to write to
+   * @throws IOException on I/O errors
    */
   public void write(OutputStream out) throws IOException {
     write(new OutputStreamWriter(out, IPSUtilsConstants.RX_JAVA_ENC));
@@ -612,6 +614,7 @@ public class PSXmlTreeWalker implements Serializable {
    * Write the tree associated with this walker to the specified stream.
    *
    * @param out the output stream to write to
+   * @throws IOException on I/O errors
    */
   public void write(Writer out) throws IOException {
     write(out, true);
@@ -622,6 +625,7 @@ public class PSXmlTreeWalker implements Serializable {
    *
    * @param out the output stream to write to
    * @param indentFlag does this printwriter indent?
+   * @throws IOException on I/O errors
    */
   public void write(Writer out, boolean indentFlag) throws IOException {
     write(out, indentFlag, false, false);
@@ -630,6 +634,12 @@ public class PSXmlTreeWalker implements Serializable {
   /**
    * Write the tree associated with this walker, calls {@link #write(Writer, boolean, boolean,
    * boolean) write(out, indentFlag, omitXMLDeclaration, omitDocumentType, "UTF-8")}
+   *
+   * @param out the output stream to write to, never <code>null</code>
+   * @param indentFlag controls whether the output is indented
+   * @param omitXMLDeclaration <code>true</code> to omit the XML declaration
+   * @param omitDocumentType <code>true</code> to omit the DOCTYPE declaration
+   * @throws IOException on I/O errors
    */
   public void write(
       Writer out, boolean indentFlag, boolean omitXMLDeclaration, boolean omitDocumentType)
@@ -654,6 +664,7 @@ public class PSXmlTreeWalker implements Serializable {
    *     structure.
    * @param encoding The encoding to use for the output file, may be <code>null</code> or empty.
    *     Defaults to "UTF-8".
+   * @throws IOException on I/O errors
    */
   public void write(
       Writer out,
@@ -1037,6 +1048,7 @@ public class PSXmlTreeWalker implements Serializable {
    * </TABLE>
    *
    * @param input the string to convert.
+   * @param out the writer receiving the converted output, never <code>null</code>
    * @throws IOException if I/O error occurs.
    */
   public static void convertToXmlEntities(String input, Writer out) throws IOException {
@@ -1136,6 +1148,9 @@ public class PSXmlTreeWalker implements Serializable {
 
   /**
    * Just like {@link #convertToXmlEntities(String, Writer)}, except this suppress the IOException.
+   *
+   * @param input the string to convert, may be <code>null</code>
+   * @param out the writer receiving the converted output, never <code>null</code>
    */
   public static void convertToXmlEntities(String input, PrintWriter out) {
     Writer writer = (Writer) out;
@@ -1218,6 +1233,8 @@ public class PSXmlTreeWalker implements Serializable {
 
   /**
    * Main method - used for tesing. Usage is : -i (INPUT_XML_FILE_PATH) -o (OUTPUT_XML_FILE_PATH)
+   *
+   * @param argv the command line arguments
    */
   public static void main(String argv[]) {
     if (argv.length != 4) {

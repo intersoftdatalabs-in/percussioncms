@@ -22,6 +22,8 @@ package com.percussion.utils.types;
  * @author dougrand
  */
 public class PSConversions {
+  /** Creates a conversions helper. All methods are static. */
+  public PSConversions() {}
   /**
    * Convert a long value to a byte array. The first byte of the array is the high order byte of the
    * long.

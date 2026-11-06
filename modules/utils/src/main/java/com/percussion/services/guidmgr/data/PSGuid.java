@@ -119,6 +119,8 @@ public class PSGuid extends Number implements IPSGuid {
    *    [hostid-[typeid-]]uuid
    * </pre>
    *     .
+   * @param forceType if <code>true</code>, force the supplied type even when the representation
+   *     carries a different type
    */
   public PSGuid(PSTypeEnum type, String representation, boolean forceType) {
     assemble(representation, type, forceType);
@@ -183,6 +185,8 @@ public class PSGuid extends Number implements IPSGuid {
    * @param type the type of the guid to be constructed, never <code>null</code> and must match the
    *     type if the type is present in the value passed in.
    * @param value the guid value.
+   * @param forceType if <code>true</code>, force the supplied type when it differs from the type
+   *     in the value
    */
   public PSGuid(PSTypeEnum type, long value, boolean forceType) {
     if (type == null) throw new IllegalArgumentException(TYPE_NOT_NULL);
@@ -224,6 +228,8 @@ public class PSGuid extends Number implements IPSGuid {
    *     <code>null</code> or empty.
    * @param type the type of the GUID being created, may be <code>null</code>, in which case there
    *     must be three components.
+   * @param forceType if <code>true</code>, force the supplied type when the string carries a
+   *     different type
    */
   protected final void assemble(String guid, PSTypeEnum type, boolean forceType) {
     if (StringUtils.isBlank(guid))
@@ -489,6 +495,7 @@ public class PSGuid extends Number implements IPSGuid {
    *
    * @param type the type of the guid to be checked, never <code>null</code>
    * @param value the guid value.
+   * @return <code>true</code> if the value corresponds to the type or has no type bits
    */
   public static boolean isValid(PSTypeEnum type, long value) {
     if (type == null) throw new IllegalArgumentException(TYPE_NOT_NULL);
@@ -504,6 +511,7 @@ public class PSGuid extends Number implements IPSGuid {
    *
    * @param type the type of the guid to be checked, never <code>null</code>
    * @param value the guid value as a string
+   * @return <code>true</code> if the value corresponds to the type or has no type bits
    */
   public static boolean isValid(PSTypeEnum type, String value) {
     if (type == null) throw new IllegalArgumentException(TYPE_NOT_NULL);

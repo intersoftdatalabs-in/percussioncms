@@ -101,7 +101,12 @@ public final class PSJdbcConnectionDiagnostics {
     return sb.toString();
   }
 
-  /** True if the URL string (case-insensitive) contains {@code NON_KEYWORDS}. */
+  /**
+   * Returns whether the URL string (case-insensitive) contains {@code NON_KEYWORDS}.
+   *
+   * @param jdbcUrl the JDBC URL to check, may be <code>null</code>
+   * @return <code>true</code> if the URL contains {@code NON_KEYWORDS}
+   */
   public static boolean urlContainsNonKeywords(String jdbcUrl) {
     return jdbcUrl != null && jdbcUrl.toUpperCase(Locale.ROOT).contains("NON_KEYWORDS");
   }
@@ -110,6 +115,7 @@ public final class PSJdbcConnectionDiagnostics {
    * Probe whether H2 accepts an unquoted {@code VALUE} column name on this connection (the same
    * class of failure as package install / Hibernate {@code PSX_*_PARAM.VALUE} selects).
    *
+   * @param conn the connection to probe, may be <code>null</code>
    * @return {@code true} if the probe statement prepares/executes; {@code false} on syntax error or
    *     other SQLException
    */
@@ -140,6 +146,8 @@ public final class PSJdbcConnectionDiagnostics {
   /**
    * Read an H2 connection setting from {@code INFORMATION_SCHEMA.SETTINGS}.
    *
+   * @param conn the connection to query, may be <code>null</code>
+   * @param settingName the setting name, may be <code>null</code>
    * @return setting value, or {@code null} if not H2 / not found / error
    */
   public static String queryH2Setting(Connection conn, String settingName) {
@@ -163,6 +171,7 @@ public final class PSJdbcConnectionDiagnostics {
   /**
    * Best-effort read of HikariCP configured JDBC URL without a compile dependency on Hikari.
    *
+   * @param ds the datasource to inspect, may be <code>null</code>
    * @return configured URL, or {@code null} if not Hikari / unwrap failed
    */
   public static String tryReadHikariJdbcUrl(DataSource ds) {

@@ -44,14 +44,29 @@ public interface IPSRemoteRequester {
   public Document getDocument(String resource, Map<String, ?> params)
       throws IOException, SAXException;
 
-  /** Equivalent to calling {@link #getDocument(String, Map) getDocument}. */
+  /**
+   * Equivalent to calling {@link #getDocument(String, Map) getDocument}.
+   *
+   * @param resource Never <code>null</code> or empty. Must be a full path to the target resource
+   *     without the root path, e.g. app/res.xml.
+   * @param params A set of name/value pairs. Each key is a String, while each value is either a
+   *     String or a List of Strings.
+   * @return The document representing the returned data, or null if no data was returned.
+   * @throws IOException If any problems occur while communicating with the server.
+   * @throws SAXException If the returned data is not parsable as an xml document.
+   */
   public Document sendUpdate(String resource, Map<String, ?> params)
       throws IOException, SAXException;
 
   /**
    * Just like {@link #getDocument(String, Map) getDocument}, except it sends a document.
    *
+   * @param resource Never <code>null</code> or empty. Must be a full path to the target resource
+   *     without the root path, e.g. app/res.xml.
    * @param doc The to be send document, it may not be <code>null</code>.
+   * @return The document representing the returned data, or null if no data was returned.
+   * @throws IOException If any problems occur while communicating with the server.
+   * @throws SAXException If the returned data is not parsable as an xml document.
    */
   public Document sendUpdate(String resource, Document doc) throws IOException, SAXException;
 

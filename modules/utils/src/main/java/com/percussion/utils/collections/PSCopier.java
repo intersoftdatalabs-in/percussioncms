@@ -25,10 +25,15 @@ import java.util.Map;
  * @author dougrand
  */
 public class PSCopier {
+  /** Creates a copier. All methods are static. */
+  public PSCopier() {}
+
   /**
    * Deep copy the passed map. Most map elements will be copied by value but any map values will be
    * deep copied themselves.
    *
+   * @param <K> the key type
+   * @param <V> the value type
    * @param input the input map, never <code>null</code>
    * @return a deep copied map, never <code>null</code>
    */

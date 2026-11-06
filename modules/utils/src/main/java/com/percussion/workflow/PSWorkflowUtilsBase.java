@@ -35,7 +35,12 @@ import java.util.StringTokenizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Base workflow utilities.
+ */
 public class PSWorkflowUtilsBase {
+  /** Creates a workflow utilities base. All members are static. */
+  public PSWorkflowUtilsBase() {}
   /** Role delimiter (in role list) */
   public static final String ROLE_DELIMITER = ",";
 
@@ -75,25 +80,41 @@ public class PSWorkflowUtilsBase {
    */
   public static final int CREATE_NONE = 0;
 
+  /** Installer option table value. */
   public static final int CREATE_YES = 1;
+  /** Installer option table value. */
   public static final int CREATE_NO = 2;
+  /** Installer option table value. */
   public static final int CREATE_NOT = 3;
+  /** Installer option table value. */
   public static final int ALTER_NONE = 0;
+  /** Installer option table value. */
   public static final int ALTER_YES = 1;
+  /** Installer option table value. */
   public static final int ALTER_NO = 2;
+  /** Installer option table value. */
   public static final int ALTER_NOT = 3;
+  /** Installer option table value. */
   public static final int DELETE_NONE = 0;
+  /** Installer option table value. */
   public static final int DELETE_YES = 1;
+  /** Installer option table value. */
   public static final int DELETE_NO = 2;
+  /** Installer option table value. */
   public static final int DELETE_NOT = 3;
 
   /** Error Messages ref write option to Disk. */
   public static final int SUCCESS = 0;
 
+  /** Workflow constant {@code WRITE_ERRROR}. */
   public static final int WRITE_ERRROR = 1;
+  /** Workflow constant {@code SECURITY_FAILURE}. */
   public static final int SECURITY_FAILURE = 2;
+  /** Workflow constant {@code FILE_ALREADY_EXIST}. */
   public static final int FILE_ALREADY_EXIST = 3;
+  /** Workflow constant {@code FILE_NOT_FOUND}. */
   public static final int FILE_NOT_FOUND = 4;
+  /** Workflow constant {@code UNKNOWN_FAILURE}. */
   public static final int UNKNOWN_FAILURE = 5;
 
   /**
@@ -103,14 +124,22 @@ public class PSWorkflowUtilsBase {
    */
   public static final int CREATE_NEW_OVERWRITE = 0;
 
+  /** File write flag. */
   public static final int CREATE_NEW_OLD = 1;
+  /** File write flag. */
   public static final int APPEND_CREATE = 2;
+  /** File write flag. */
   public static final int APPEND = 3;
 
+  /** Table action flag. */
   public static final int TABLE_NO_ACTION = 0;
+  /** Table action flag. */
   public static final int TABLE_CREATE_YES = 1;
+  /** Table action flag. */
   public static final int TABLE_CREATE_NO = 2;
+  /** Table action flag. */
   public static final int TABLE_ALTER_YES = 4;
+  /** Table action flag. */
   public static final int TABLE_ALTER_NO = 5;
 
   /**
@@ -119,12 +148,15 @@ public class PSWorkflowUtilsBase {
    */
   public static String PS_OLD_DATA_FILENAME = new String("ps_org_tbl_data.xml");
 
+  /** Fallback filename for old table definition. */
   public static String PS_OLD_DTD_FILENAME = new String("ps_org_tbl_def.xml");
 
   /** error constants */
   public static final int ERROR_INVALID_NMBER_OF_PARAMETERS = 7006;
 
+  /** Invalid parameter type error code. */
   public static final int ERROR_INVALID_PARAMETER_TYPE = 7003;
+  /** Authorization failure error code. */
   public static final int ERROR_AUTHORIZATION_FAILURE = 1203;
 
   /** Instantiation of empty properties. File will be loaded later. */
@@ -140,10 +172,15 @@ public class PSWorkflowUtilsBase {
    */
   public static final int ASSIGNMENT_TYPE_NOT_IN_ADHOC_USERS_CONTEXT = -1;
 
+  /** Assignment type: not in workflow. */
   public static final int ASSIGNMENT_TYPE_NOT_IN_WORKFLOW = 0;
+  /** Assignment type: none. */
   public static final int ASSIGNMENT_TYPE_NONE = 1;
+  /** Assignment type: reader. */
   public static final int ASSIGNMENT_TYPE_READER = 2;
+  /** Assignment type: assignee. */
   public static final int ASSIGNMENT_TYPE_ASSIGNEE = 3;
+  /** Assignment type: administrator. */
   public static final int ASSIGNMENT_TYPE_ADMIN = 4;
 
   /**
@@ -158,7 +195,9 @@ public class PSWorkflowUtilsBase {
    */
   public static final int CHECKOUT_STATUS_NONE = 0;
 
+  /** Checkout status: checked out by current user. */
   public static final int CHECKOUT_STATUS_CURRENT_USER = 1;
+  /** Checkout status: checked out by someone else. */
   public static final int CHECKOUT_STATUS_OTHER = 2;
 
   /**
@@ -187,40 +226,65 @@ public class PSWorkflowUtilsBase {
   /** Ad-hoc options: 0 - No Ad-Hoc 1 - Ad-Hoc enabled 2 - Anonymous Ad-Hoc */
   public static final int ADHOC_DISABLED = 0;
 
+  /** Ad-hoc option: enabled. */
   public static final int ADHOC_ENABLED = 1;
+  /** Ad-hoc option: anonymous. */
   public static final int ADHOC_ANONYMOUS = 2;
 
+  /** New state id key. */
   public static final String SNEWSTATEIDKEY = "sNewStateIDKey";
 
+  /** Action trigger name key. */
   public static final String ACTION_TRIGGER_NAME = "ACTION_TRIGGER_NAME";
+  /** Default action trigger name. */
   public static final String DEFAULT_ACTION_TRIGGER_NAME = "WFAction";
 
+  /** Request name key. */
   public static final String REQUEST_NAME = "REQUEST_NAME";
+  /** Default request name. */
   public static final String DEFAULT_REQUEST_NAME = "request";
 
+  /** Action list element name key. */
   public static final String ACTION_LIST_ELEMENT_NAME = "ACTION_LIST_ELEMENT_NAME";
+  /** Default action list element name. */
   public static final String DEFAULT_ACTION_LIST_ELEMENT_NAME = "ActionList";
 
+  /** Action element name key. */
   public static final String ACTION_ELEMENT_NAME = "ACTION_ELEMENT_NAME";
+  /** Default action element name. */
   public static final String DEFAULT_ACTION_ELEMENT_NAME = "Action";
 
+  /** Content history request key. */
   public static final String CONTENT_HISTORY_REQUEST = "CONTENT_HISTORY_REQUEST";
+  /** History action element name. */
   public static final String HISTORY_ACTION_ELEMENT_NAME = "HistoryAction";
+  /** View action element name. */
   public static final String VIEW_ACTION_ELEMENT_NAME = "ViewAction";
+  /** Edit action element name. */
   public static final String EDIT_ACTION_ELEMENT_NAME = "EditAction";
+  /** Check-in/out action element name. */
   public static final String CHECKINOUT_ACTION_ELEMENT_NAME = "CheckInOutAction";
 
+  /** Check-in trigger name key. */
   public static final String TRIGGER_CHECK_IN = "TRIGGER_CHECK_IN";
+  /** Default check-in trigger name. */
   public static final String DEFAULT_TRIGGER_CHECK_IN = "CheckIn";
 
+  /** Check-out trigger name key. */
   public static final String TRIGGER_CHECK_OUT = "TRIGGER_CHECK_OUT";
+  /** Default check-out trigger name. */
   public static final String DEFAULT_TRIGGER_CHECK_OUT = "CheckOut";
 
+  /** Force check-in trigger name key. */
   public static final String TRIGGER_FORCE_CHECK_IN = "TRIGGER_FORCE_CHECK_IN";
+  /** Default force check-in trigger name. */
   public static final String DEFAULT_TRIGGER_FORCE_CHECK_IN = "forcecheckin";
 
+  /** Check-in/out ignore condition. */
   public static final String CHECKINOUT_CONDITION_IGNORE = "ignore";
+  /** Check-in/out checkin condition. */
   public static final String CHECKINOUT_CONDITION_CHECKIN = "checkin";
+  /** Check-in/out checkout condition. */
   public static final String CHECKINOUT_CONDITION_CHECKOUT = "checkout";
 
   private static volatile ResourceBundle m_ResourceBundle = null;
@@ -404,8 +468,8 @@ public class PSWorkflowUtilsBase {
    * the form: host1,host2,host3,host4,username.
    *
    * @deprecated This method was written for the IP Security Provider, which is no longer supported.
-   * @author Rammohan Vangapalli
-   * @version 1.0
+   * @param sUserName the user name, may be <code>null</code>
+   * @return the user name after the last comma, or the input unchanged
    * @since 2.0
    */
   @Deprecated
@@ -477,6 +541,8 @@ public class PSWorkflowUtilsBase {
   /**
    * All the error and other messages are stored in a resource file. This static method returns
    * (instantiates if required) the resource bundle.
+   *
+   * @return the resource bundle, never <code>null</code>
    */
   public static ResourceBundle getResourceBundle() {
     /*
@@ -929,6 +995,8 @@ public class PSWorkflowUtilsBase {
    *
    * @param inputList list of <CODE>Objects</CODE>
    * @param map map to be applied to objects
+   * @param <V> the value type
+   * @param <K> the key type
    * @return list resulting from application of the map to the list, discarding <CODE>null</CODE>s
    *     Return <CODE>null</CODE> if the original list was <CODE>null</CODE> or the map was <CODE>
    *     null</CODE> or empty.
@@ -1033,6 +1101,7 @@ public class PSWorkflowUtilsBase {
    * Trim a non-null string, and return <CODE>null</CODE> if the trimmed string is empty.
    *
    * @param obj string to be trimmed. May be <CODE>null</CODE>
+   * @param stringForNull the value to return for a <CODE>null</code> or empty input
    * @return <CODE>null</CODE> if the input string is <CODE>null</CODE>, or is empty after trimming.
    *     Otherwise, return the trimmed string.
    */
@@ -1043,6 +1112,10 @@ public class PSWorkflowUtilsBase {
   /**
    * Convenience method. Calls {@link #listToDelimitedString(List,String,String)
    * listToDelimitedString(list, delimeter, "")}
+   *
+   * @param list the list to delimit, never <code>null</code> or empty
+   * @param delimeter the delimiter, may be empty
+   * @return the delimited string, never <code>null</code>
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static String listToDelimitedString(List list, String delimeter) {
@@ -1055,6 +1128,8 @@ public class PSWorkflowUtilsBase {
    *
    * @param list the array list from which the string will be created
    * @param delimeter the delimeter used to separate the substrings can be empty ("").
+   * @param stringForNull the value to return for a <CODE>null</code> list element
+   * @return the delimited string, never <code>null</code>
    * @throws IllegalArgumentException if list is <CODE>null</CODE> or empty.
    */
   @SuppressWarnings({"rawtypes", "unchecked"})

@@ -36,10 +36,13 @@ import java.util.ResourceBundle;
  */
 public abstract class PSUtf8ResourceBundle {
 
+  /** Creates a UTF-8 resource bundle. */
+  public PSUtf8ResourceBundle() {}
+
   /**
    * Gets the unicode friendly resource bundle
    *
-   * @param baseName
+   * @param baseName the base bundle name, never <code>null</code>
    * @see ResourceBundle#getBundle(String)
    * @return Unicode friendly resource bundle
    */
@@ -47,6 +50,13 @@ public abstract class PSUtf8ResourceBundle {
     return createUtf8PropertyResourceBundle(ResourceBundle.getBundle(baseName));
   }
 
+  /**
+   * Gets the unicode friendly resource bundle for the supplied locale.
+   *
+   * @param baseName the base bundle name, never <code>null</code>
+   * @param loc the locale, never <code>null</code>
+   * @return Unicode friendly resource bundle
+   */
   public static final ResourceBundle getBundle(String baseName, Locale loc) {
     return createUtf8PropertyResourceBundle(ResourceBundle.getBundle(baseName, loc));
   }
