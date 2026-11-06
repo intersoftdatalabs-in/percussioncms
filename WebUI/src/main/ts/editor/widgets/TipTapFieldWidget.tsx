@@ -96,41 +96,7 @@ export function TipTapFieldWidget({
     };
   }, [name]);
 
-  useEffect(() => {
-    const editor = editorRef.current;
-    if (!editor) {
-      return;
-    }
-    editor.setEditable(!readOnly);
-    const dom = editor.view.dom;
-    if (readOnly) {
-      dom.setAttribute("readonly", "");
-    } else {
-      dom.removeAttribute("readonly");
-    }
-  }, [readOnly]);
-
-  useEffect(() => {
-    const editor = editorRef.current;
-    // setContent defaults to silent (no onUpdate echo) — external saves must
-    // not loop back through onChange.
-    if (editor && editor.getHTML() !== value) {
-      editor.commands.setContent(value);
-    }
-  }, [value]);
-
-  useEffect(() => {
-    const editor = editorRef.current;
-    if (!editor) {
-      return;
-    }
-    const dom = editor.view.dom;
-    if (invalid) {
-      dom.setAttribute("aria-invalid", "true");
-    } else {
-      dom.removeAttribute("aria-invalid");
-    }
-  }, [invalid]);
+  useSyncTipTapEditor(editorRef, { value, readOnly, invalid });
 
   return (
     <div
@@ -148,4 +114,44 @@ export function TipTapFieldWidget({
       <div ref={mountRef} />
     </div>
   );
+}
+
+/**
+ * Mirror controlled props into a mounted spike editor. `setContent` stays
+ * silent (no onUpdate echo), so external saves never loop back through
+ * {@code onChange}; the editable/aria flags track their props directly.
+ */
+function useSyncTipTapEditor(
+  editorRef: React.RefObject<Editor | null>,
+  state: { value: string; readOnly: boolean; invalid: boolean },
+): void {
+  const { value, readOnly, invalid } = state;
+
+  useEffect(() => {
+    editorRef.current?.setEditable(!readOnly);
+  }, [editorRef, readOnly]);
+
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (editor && editor.getHTML() !== value) {
+      editor.commands.setContent(value);
+    }
+  }, [editorRef, value]);
+
+  useEffect(() => {
+    const dom = editorRef.current?.view.dom;
+    if (!dom) {
+      return;
+    }
+    if (readOnly) {
+      dom.setAttribute("readonly", "");
+    } else {
+      dom.removeAttribute("readonly");
+    }
+    if (invalid) {
+      dom.setAttribute("aria-invalid", "true");
+    } else {
+      dom.removeAttribute("aria-invalid");
+    }
+  }, [editorRef, readOnly, invalid]);
 }

@@ -255,24 +255,7 @@ function sortAttributes(el: HTMLElement): void {
   const kept: Array<[string, string]> = [];
   for (const attr of Array.from(el.attributes)) {
     const name = attr.name.toLowerCase();
-    if (name.startsWith("data-mce-")) {
-      continue;
-    }
-    if (tag === "table" && DROPPED_TABLE_ATTRS.has(name)) {
-      continue;
-    }
-    if (
-      (tag === "table" || tag === "col") &&
-      name === "style"
-    ) {
-      // TipTap column-layout hints (min-width); stored tables carry none.
-      continue;
-    }
-    if (
-      (name === "colspan" || name === "rowspan") &&
-      attr.value.trim() === "1"
-    ) {
-      // TipTap always serializes default spans; TinyMCE omits them.
+    if (dropAttribute(tag, name, attr.value)) {
       continue;
     }
     kept.push([
@@ -287,6 +270,26 @@ function sortAttributes(el: HTMLElement): void {
   for (const [name, value] of kept) {
     el.setAttribute(name, value);
   }
+}
+
+/**
+ * Representation-only drops: TinyMCE bookkeeping, legacy presentational
+ * table attributes, TipTap column-layout hints, and default spans that
+ * TipTap always serializes but TinyMCE omits.
+ */
+function dropAttribute(tag: string, name: string, value: string): boolean {
+  if (name.startsWith("data-mce-")) {
+    return true;
+  }
+  if (tag === "table" && DROPPED_TABLE_ATTRS.has(name)) {
+    return true;
+  }
+  if ((tag === "table" || tag === "col") && name === "style") {
+    return true;
+  }
+  return (
+    (name === "colspan" || name === "rowspan") && value.trim() === "1"
+  );
 }
 
 function normalizeStyle(style: string): string {
