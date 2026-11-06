@@ -46,8 +46,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- Jakarta EE 11 / Tomcat 11 — align with parent jakarta.servlet.api.version (#667) -->
         <servlet.api.version>6.1.0</servlet.api.version>
-        <!-- Align with spring-security-ldap 7.1.x (declares spring-ldap-core 4.1.0) -->
-        <spring.ldap.version>4.1.0</spring.ldap.version>
+        <!-- Align with spring-security-ldap 7.1.2 (declares spring-ldap-core 4.1.2) -->
+        <spring.ldap.version>4.1.2</spring.ldap.version>
         <spring.security.version>7.1.2</spring.security.version>
         <sqlserver.version>13.6.0.jre11</sqlserver.version>
         <supercsv.version>2.4.0</supercsv.version>
