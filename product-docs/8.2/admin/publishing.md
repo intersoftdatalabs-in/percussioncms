@@ -486,6 +486,26 @@ folder** on a Local server does not change that server's folder. Use **Local fol
 same Sites workspace for a Local driver. Host-only save, port-only save, user-id-only save, and
 full server edit stay separate.
 
+### Set the FTP delivery-server password (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **FTP**. **Set password** edits only the server password. **Save password** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `password` property
+(base64-encoded in flight). Host, port, user id, and folder stay as they were.
+
+The stored password is never shown: the secret field always opens empty, the summary shows
+only **Stored password is never shown**, and server responses carry a masked placeholder that
+is never persisted as the secret.
+
+An empty password is refused on the form (**FTP password is required**) and is not written. A
+password longer than 255 characters is refused the same way. **Cancel** does not call the
+server and clears the typed secret. HTTP **400**, **403**, and **409** stay on the form and
+keep the previous password.
+
+**FTPS**, **SFTP**, Amazon S3, and a **Local** driver do not use this save. Choosing **Set
+password** on a non-FTP server does not change that server. Host-only save, port-only save,
+user-id-only save, folder-only save, and full server edit (**Edit Server**) stay separate.
+
 ### Set the local delivery-server folder (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
