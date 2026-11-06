@@ -164,6 +164,25 @@ describe("parseEntryQuery", () => {
     );
   });
 
+  it("carries the tiptap engine seam through the editor handoff (#5650)", () => {
+    const p = parseEntryQuery("?entry=editor&contentId=42&mode=edit&engine=tiptap");
+    expect(p.engine).toBe("tiptap");
+    expect(p.clientPath).toBe("/editor?contentId=42&mode=edit&engine=tiptap");
+    const c = parseClientPath("/editor", "?contentId=42&mode=edit&engine=tiptap");
+    expect(c.engine).toBe("tiptap");
+    expect(c.clientPath).toBe("/editor?contentId=42&mode=edit&engine=tiptap");
+  });
+
+  it("drops non-allowlisted engine values", () => {
+    expect(parseEntryQuery("?entry=editor&contentId=42&engine=prosemirror").engine).toBeUndefined();
+    expect(
+      parseEntryQuery("?entry=editor&contentId=42&engine=prosemirror").clientPath,
+    ).toBe("/editor?contentId=42");
+    expect(
+      parseEntryQuery("?entry=editor&contentId=42&engine=tinymce").engine,
+    ).toBeUndefined();
+  });
+
   it("maps assembly entry to chrome-less /assembly with ids", () => {
     const p = parseEntryQuery(
       "?entry=assembly&contentId=42&templateId=7",
