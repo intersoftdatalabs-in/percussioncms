@@ -30,6 +30,7 @@
  */
 
 import { Editor } from "@tiptap/core";
+import { preparePercussionHtml } from "./tiptapPercussion";
 import { createTipTapEditorExtensions } from "./tiptapSetup";
 
 /** Tag aliases TinyMCE emits that StarterKit serializes under one name. */
@@ -44,8 +45,12 @@ const TAG_ALIASES: Record<string, string> = {
 const DROPPED_TABLE_ATTRS = new Set(["border", "cellpadding", "cellspacing"]);
 
 /**
- * Parse an HTML fragment through the spike TipTap schema and re-serialize it,
+ * Parse an HTML fragment through the TipTap schema and re-serialize it,
  * exactly as the editor host does before {@code onChange} fires.
+ *
+ * <p>Stored Percussion marker shorthands are prepared first (see
+ * {@code preparePercussionHtml}), mirroring the widget: the editor never
+ * parses the raw self-closed disk form.</p>
  *
  * @param html a stored HTML field value (may be empty).
  * @returns the TipTap-serialized HTML for the same document.
@@ -53,7 +58,7 @@ const DROPPED_TABLE_ATTRS = new Set(["border", "cellpadding", "cellspacing"]);
 export function roundTripHtmlFragment(html: string): string {
   const editor = new Editor({
     extensions: createTipTapEditorExtensions(),
-    content: html ?? "",
+    content: preparePercussionHtml(html ?? ""),
   });
   try {
     return editor.getHTML();
@@ -157,6 +162,7 @@ function normalizeElement(el: HTMLElement): HTMLElement {
   unwrapPreCode(canonical);
   unwrapItemParagraph(canonical);
   unwrapLeadingItemParagraph(canonical);
+  unwrapMoreLinkContent(canonical);
   if (canonical.tagName.toLowerCase() === "colgroup") {
     // TipTap column bookkeeping; widths are not stored content.
     canonical.remove();
@@ -250,6 +256,30 @@ function dropEmptyBreakParagraph(el: HTMLElement): void {
     (el.textContent ?? "").trim() === ""
   ) {
     only.remove();
+  }
+}
+
+/**
+ * Stored more-link spans are self-closed on disk
+ * ({@code <span class="perc-blog-more-link"/>}), which HTML parsing reads as
+ * an open span: trailing siblings become its children. The widget prepares
+ * such spans before parsing (see {@code preparePercussionHtml}) and the
+ * marker node is contentless, so hoist any children after the span — the
+ * same content in both forms.
+ */
+function unwrapMoreLinkContent(el: HTMLElement): void {
+  if (
+    el.tagName.toLowerCase() !== "span" ||
+    !el.classList.contains("perc-blog-more-link")
+  ) {
+    return;
+  }
+  const parent = el.parentNode;
+  if (!parent) {
+    return;
+  }
+  while (el.firstChild) {
+    parent.insertBefore(el.firstChild, el.nextSibling);
   }
 }
 /** Drop bookkeeping attributes and sort the rest for stable comparison. */

@@ -354,6 +354,76 @@
   color: #b91c1c;
 }
 
+/* Percussion plugin markers (#5652) render as uneditable badges in the
+   editor. The classes are global CMS contracts (also emitted by the
+   TinyMCE plugins), so they are matched with :global under the hashed
+   editor scope. */
+.tiptap :global(.perc-global-variable-marker) {
+  display: inline-block;
+  padding: 0 6px;
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.6;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px dashed #93c5fd;
+  border-radius: 4px;
+}
+
+.tiptap :global(.perc-blog-more-link) {
+  display: inline-block;
+  padding: 0 8px;
+  margin: 0 2px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  border-radius: 4px;
+  user-select: none;
+}
+
+.tiptapPercDialog {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding-top: 4px;
+}
+
+.tiptapPercTextarea {
+  font: inherit;
+  font-size: 13px;
+  font-family: ui-monospace, monospace;
+  width: 100%;
+  min-height: 6rem;
+  padding: 4px 6px;
+  border: 1px solid #93c5fd;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.tiptapPercSelect {
+  font: inherit;
+  font-size: 13px;
+  max-width: 16rem;
+  padding: 3px 4px;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #93c5fd;
+  border-radius: 4px;
+}
+
+.tiptapPercCheck {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #334155;
+}
+
 .binary {
   display: flex;
   flex-wrap: wrap;

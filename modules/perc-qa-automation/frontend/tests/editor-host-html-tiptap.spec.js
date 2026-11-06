@@ -332,6 +332,91 @@ test.describe("React Content Editor TipTap editor", () => {
   );
 
   test(
+    "tiptap percussion plugins persist via PUT",
+    { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap"] },
+    async ({ page }) => {
+      const puts = [];
+      const pageErrors = watchErrors(page);
+      await stubEditorApis(page, {
+        onPut: (req) => puts.push(req),
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tiptap"));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      const editable = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
+      await expect(editable).toContainText("Hi");
+      const percBar = page.locator('[data-testid="editor-tiptap-perc-text"]');
+      await expect(percBar).toBeVisible();
+
+      // More link: one click inserts the stored marker span.
+      await page.locator('[data-testid="tiptap-perc-more-link-text"]').click();
+      await expect(editable.locator(".perc-blog-more-link").first()).toBeVisible();
+
+      // Insert HTML fragment dialog (rxinserthtml port).
+      await page.locator('[data-testid="tiptap-perc-insert-html-text"]').click();
+      const htmlInput = page.locator('[data-testid="tiptap-perc-html-text"]');
+      await htmlInput.fill("<p>Fragment <strong>bold</strong></p>");
+      await expect(htmlInput).toHaveValue("<p>Fragment <strong>bold</strong></p>");
+      await page.locator('[data-testid="tiptap-perc-apply-text"]').click();
+      await expect(editable).toContainText("Fragment");
+
+      // Global variable dialog (manual name; the QA host injects no CMS table).
+      await page.locator('[data-testid="tiptap-perc-global-variable-text"]').click();
+      const varInput = page.locator('[data-testid="tiptap-perc-variable-name-text"]');
+      await varInput.fill("company_name");
+      await expect(varInput).toHaveValue("company_name");
+      await page.locator('[data-testid="tiptap-perc-apply-text"]').click();
+      await expect(editable.locator(".perc-global-variable-marker").first()).toBeVisible();
+
+      // Inline link dialog (rxinline/percadvlink port): stored CMS attributes.
+      await page.locator('[data-testid="tiptap-perc-inline-link-text"]').click();
+      const linkUrl = page.locator('[data-testid="tiptap-perc-link-url-text"]');
+      await linkUrl.fill("/Rhythmyx/Sites/a.html");
+      await expect(linkUrl).toHaveValue("/Rhythmyx/Sites/a.html");
+      const linkText = page.locator('[data-testid="tiptap-perc-link-text-text"]');
+      await linkText.fill("About");
+      await expect(linkText).toHaveValue("About");
+      await page.locator('[data-testid="tiptap-perc-apply-text"]').click();
+      const saved = await editable.innerHTML();
+      expect(saved).toContain('href="/Rhythmyx/Sites/a.html"');
+      expect(saved).toContain('rxinlineslot="103"');
+      expect(saved).toContain('inlinetype="rxhyperlink"');
+
+      // Inline image dialog (rxinline/percadvimage port).
+      await page.locator('[data-testid="tiptap-perc-inline-image-text"]').click();
+      const imgSrc = page.locator('[data-testid="tiptap-perc-image-src-text"]');
+      await imgSrc.fill("/Rhythmyx/Assets/i.png");
+      await expect(imgSrc).toHaveValue("/Rhythmyx/Assets/i.png");
+      const imgAlt = page.locator('[data-testid="tiptap-perc-image-alt-text"]');
+      await imgAlt.fill("Pic");
+      await page.locator('[data-testid="tiptap-perc-apply-text"]').click();
+      const withImage = await editable.innerHTML();
+      expect(withImage).toContain('src="/Rhythmyx/Assets/i.png"');
+      expect(withImage).toContain('inlinetype="rximage"');
+
+      await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
+      await expect.poll(() => puts.length).toBeGreaterThan(0);
+      const putReq = puts.find((r) => isItemFieldsPutUrl(r.url()));
+      expect(putReq).toBeTruthy();
+      const body = JSON.parse(putReq.postData() || "{}");
+      const payload = body.ItemEditorFields || body;
+      const text = (payload.fields || []).find((f) => f.name === "text");
+      const persisted = (text && text.value) || "";
+      expect(persisted).toContain("perc-blog-more-link");
+      expect(persisted).toContain("Fragment");
+      expect(persisted).toContain("perc-global-variable-marker");
+      expect(persisted).toContain('title="company_name"');
+      expect(persisted).toContain('rxinlineslot="103"');
+      expect(persisted).toContain('inlinetype="rxhyperlink"');
+      expect(persisted).toContain('inlinetype="rximage"');
+      await expect(page.getByText(/^Saved$/)).toBeVisible();
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
     "tiptap paste from Word sanitizes to the paste contract",
     { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap"] },
     async ({ page }) => {
